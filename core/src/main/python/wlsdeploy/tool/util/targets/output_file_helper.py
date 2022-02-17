@@ -2,7 +2,7 @@
 Copyright (c) 2022 Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-Methods to update a resource file with information from the kubernetes section of the model.
+Methods to update an output file with information from the kubernetes section of the model.
 """
 from java.io import File
 
@@ -23,16 +23,16 @@ from wlsdeploy.util import dictionary_utils
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
 from wlsdeploy.yaml.yaml_translator import YamlToPython
 
-__class_name = 'resource_file_helper'
+__class_name = 'output_file_helper'
 __logger = PlatformLogger('wlsdeploy.tool.util')
 
 
-def update_from_model(output_dir, template_name, model):
+def update_from_model(output_dir, output_file_name, model):
     """
-    Update the template output with information from the kubernetes section of the model.
-    Template output is (currently) always Kubernetes resource files.
+    Update the output content with information from the kubernetes section of the model.
+    Output files are (currently) always Kubernetes resource files.
     :param output_dir: the directory of the output file to update
-    :param template_name: the name of the output file
+    :param output_file_name: the name of the output file
     :param model: the model to use for update
     """
     _method_name = 'update_from_model'
@@ -43,31 +43,31 @@ def update_from_model(output_dir, template_name, model):
         return
 
     # failures will be logged as severe, but not cause tool failure.
-    # this will allow the unaltered resource file to be examined for problems.
+    # this will allow the unaltered output file to be examined for problems.
 
-    resource_file = File(output_dir, template_name)
-    __logger.info('WLSDPLY-01675', resource_file, KUBERNETES, class_name=__class_name, method_name=_method_name)
+    output_file = File(output_dir, output_file_name)
+    __logger.info('WLSDPLY-01675', output_file, KUBERNETES, class_name=__class_name, method_name=_method_name)
 
     try:
-        reader = YamlToPython(resource_file.getPath(), True)
+        reader = YamlToPython(output_file.getPath(), True)
         documents = reader.parse_documents()
     except YamlException, ex:
-        __logger.severe('WLSDPLY-01673', resource_file, str(ex), error=ex, class_name=__class_name,
+        __logger.severe('WLSDPLY-01673', output_file, str(ex), error=ex, class_name=__class_name,
                         method_name=_method_name)
         return
 
-    _update_documents(documents, kubernetes_content, resource_file.getPath())
+    _update_documents(documents, kubernetes_content, output_file.getPath())
 
     try:
         writer = PythonToYaml(documents)
-        writer.write_to_yaml_file(resource_file.getPath())
+        writer.write_to_yaml_file(output_file.getPath())
     except YamlException, ex:
-        __logger.severe('WLSDPLY-01674', resource_file, str(ex), error=ex, class_name=__class_name,
+        __logger.severe('WLSDPLY-01674', output_file, str(ex), error=ex, class_name=__class_name,
                         method_name=_method_name)
     return
 
 
-def _update_documents(documents, kubernetes_content, resource_file_path):
+def _update_documents(documents, kubernetes_content, output_file_path):
     _method_name = '_update_documents'
     found = False
 
@@ -78,7 +78,7 @@ def _update_documents(documents, kubernetes_content, resource_file_path):
 
             # is this a standard WKO document?
             if kind == DEFAULT_KIND:
-                _update_dictionary(document, kubernetes_content, None, resource_file_path)
+                _update_dictionary(document, kubernetes_content, None, output_file_path)
                 found = True
 
             # is this a Verrazzano WebLogic workload document?
@@ -89,24 +89,24 @@ def _update_documents(documents, kubernetes_content, resource_file_path):
                 if component_kind == VERRAZZANO_WEBLOGIC_WORKLOAD:
                     component_spec = _get_or_create_dictionary(workload, SPEC)
                     component_template = _get_or_create_dictionary(component_spec, TEMPLATE)
-                    _update_dictionary(component_template, kubernetes_content, None, resource_file_path)
+                    _update_dictionary(component_template, kubernetes_content, None, output_file_path)
                     found = True
 
     if not found:
-        __logger.warning('WLSDPLY-01676', resource_file_path, class_name=__class_name, method_name=_method_name)
+        __logger.warning('WLSDPLY-01676', output_file_path, class_name=__class_name, method_name=_method_name)
 
 
-def _update_dictionary(output_dictionary, model_dictionary, schema_path, resource_file_path):
+def _update_dictionary(output_dictionary, model_dictionary, schema_path, output_file_path):
     """
     Update output_dictionary with attributes from model_dictionary.
     :param output_dictionary: the dictionary to be updated
     :param model_dictionary: the dictionary to update from (type previously validated)
     :param schema_path: used for wko_schema_helper lookups and logging
-    :param resource_file_path: used for logging
+    :param output_file_path: used for logging
     """
     _method_name = '_update_dictionary'
     if not isinstance(output_dictionary, dict):
-        __logger.warning('WLSDPLY-01677', schema_path, resource_file_path, class_name=__class_name,
+        __logger.warning('WLSDPLY-01677', schema_path, output_file_path, class_name=__class_name,
                          method_name=_method_name)
         return
 
@@ -115,30 +115,30 @@ def _update_dictionary(output_dictionary, model_dictionary, schema_path, resourc
             output_dictionary[key] = value
         elif isinstance(value, dict):
             next_schema_path = wko_schema_helper.append_path(schema_path, key)
-            _update_dictionary(output_dictionary[key], value, next_schema_path, resource_file_path)
+            _update_dictionary(output_dictionary[key], value, next_schema_path, output_file_path)
         elif isinstance(value, list):
             if not value:
                 # if the model has an empty list, override output value
                 output_dictionary[key] = value
             else:
                 next_schema_path = wko_schema_helper.append_path(schema_path, key)
-                _update_list(output_dictionary[key], value, next_schema_path, resource_file_path)
+                _update_list(output_dictionary[key], value, next_schema_path, output_file_path)
         else:
             output_dictionary[key] = value
     pass
 
 
-def _update_list(output_list, model_list, schema_path, resource_file_path):
+def _update_list(output_list, model_list, schema_path, output_file_path):
     """
     Update output_list from model_list, overriding or merging existing values
     :param output_list: the list to be updated
     :param model_list: the list to update from (type previously validated)
     :param schema_path: used for wko_schema_helper lookups and logging
-    :param resource_file_path: used for logging
+    :param output_file_path: used for logging
     """
     _method_name = '_update_list'
     if not isinstance(output_list, list):
-        __logger.warning('WLSDPLY-01678', schema_path, resource_file_path, class_name=__class_name,
+        __logger.warning('WLSDPLY-01678', schema_path, output_file_path, class_name=__class_name,
                          method_name=_method_name)
         return
 
@@ -146,7 +146,7 @@ def _update_list(output_list, model_list, schema_path, resource_file_path):
         if isinstance(item, dict):
             match = _find_object_match(item, output_list, schema_path)
             if match:
-                _update_dictionary(match, item, schema_path, resource_file_path)
+                _update_dictionary(match, item, schema_path, output_file_path)
             else:
                 output_list.append(item)
         elif item not in output_list:
@@ -159,15 +159,15 @@ def _find_object_match(item, match_list, schema_path):
     :param item: the item to be matched
     :param match_list: a list of items
     :param schema_path: used for wko_schema_helper key lookup
-    :return: a matching
+    :return: a matching dictionary object
     """
     key = wko_schema_helper.get_object_list_key(schema_path)
     item_key = item[key]
-
-    for match_item in match_list:
-        if isinstance(match_item, dict):
-            if item_key and item_key == match_item[key]:
-                return match_item
+    if item_key:
+        for match_item in match_list:
+            if isinstance(match_item, dict):
+                if item_key == match_item[key]:
+                    return match_item
     return None
 
 

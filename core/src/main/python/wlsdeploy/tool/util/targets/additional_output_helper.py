@@ -18,7 +18,7 @@ from wlsdeploy.aliases.model_constants import URL
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import k8s_helper
 from wlsdeploy.tool.util.targets import file_template_helper
-from wlsdeploy.tool.util.targets import resource_file_helper
+from wlsdeploy.tool.util.targets import output_file_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import target_configuration_helper
@@ -72,7 +72,7 @@ def create_additional_output(model, model_context, aliases, credential_injector,
     template_names = model_context.get_target_configuration().get_additional_output_types()
     for template_name in template_names:
         _create_file(template_name, template_hash, output_dir, exception_type)
-        resource_file_helper.update_from_model(output_dir, template_name, model)
+        output_file_helper.update_from_model(output_dir, template_name, model)
 
 
 def _create_file(template_name, template_hash, output_dir, exception_type):
