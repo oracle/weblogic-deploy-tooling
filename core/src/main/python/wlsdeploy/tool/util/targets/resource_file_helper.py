@@ -96,40 +96,79 @@ def _update_documents(documents, kubernetes_content, resource_file_path):
         __logger.warning('WLSDPLY-01676', resource_file_path, class_name=__class_name, method_name=_method_name)
 
 
-def _update_dictionary(output_dictionary, model_content, element_path, resource_file_path):
-    _method_name = '_update_list'
+def _update_dictionary(output_dictionary, model_dictionary, schema_path, resource_file_path):
+    """
+    Update output_dictionary with attributes from model_dictionary.
+    :param output_dictionary: the dictionary to be updated
+    :param model_dictionary: the dictionary to update from (type previously validated)
+    :param schema_path: used for wko_schema_helper lookups and logging
+    :param resource_file_path: used for logging
+    """
+    _method_name = '_update_dictionary'
     if not isinstance(output_dictionary, dict):
-        __logger.warning('WLSDPLY-01677', element_path, resource_file_path, class_name=__class_name,
+        __logger.warning('WLSDPLY-01677', schema_path, resource_file_path, class_name=__class_name,
                          method_name=_method_name)
         return
 
-    for key, value in model_content.items():
+    for key, value in model_dictionary.items():
         if key not in output_dictionary:
             output_dictionary[key] = value
         elif isinstance(value, dict):
-            element_path = wko_schema_helper.append_path(element_path, key)
-            _update_dictionary(output_dictionary[key], value, element_path, resource_file_path)
+            next_schema_path = wko_schema_helper.append_path(schema_path, key)
+            _update_dictionary(output_dictionary[key], value, next_schema_path, resource_file_path)
         elif isinstance(value, list):
             if not value:
                 # if the model has an empty list, override output value
                 output_dictionary[key] = value
             else:
-                element_path = wko_schema_helper.append_path(element_path, key)
-                _update_list(output_dictionary[key], value, element_path, resource_file_path)
+                next_schema_path = wko_schema_helper.append_path(schema_path, key)
+                _update_list(output_dictionary[key], value, next_schema_path, resource_file_path)
         else:
             output_dictionary[key] = value
     pass
 
 
-def _update_list(output_list, model_list, element_path, resource_file_path):
+def _update_list(output_list, model_list, schema_path, resource_file_path):
+    """
+    Update output_list from model_list, overriding or merging existing values
+    :param output_list: the list to be updated
+    :param model_list: the list to update from (type previously validated)
+    :param schema_path: used for wko_schema_helper lookups and logging
+    :param resource_file_path: used for logging
+    """
     _method_name = '_update_list'
     if not isinstance(output_list, list):
-        __logger.warning('WLSDPLY-01678', element_path, resource_file_path, class_name=__class_name,
+        __logger.warning('WLSDPLY-01678', schema_path, resource_file_path, class_name=__class_name,
                          method_name=_method_name)
         return
 
-    output_list.extend(model_list)
-    pass
+    for item in model_list:
+        if isinstance(item, dict):
+            match = _find_object_match(item, output_list, schema_path)
+            if match:
+                _update_dictionary(match, item, schema_path, resource_file_path)
+            else:
+                output_list.append(item)
+        elif item not in output_list:
+            output_list.append(item)
+
+
+def _find_object_match(item, match_list, schema_path):
+    """
+    Find an object in match_list that has a name matching the item.
+    :param item: the item to be matched
+    :param match_list: a list of items
+    :param schema_path: used for wko_schema_helper key lookup
+    :return: a matching
+    """
+    key = wko_schema_helper.get_object_list_key(schema_path)
+    item_key = item[key]
+
+    for match_item in match_list:
+        if isinstance(match_item, dict):
+            if item_key and item_key == match_item[key]:
+                return match_item
+    return None
 
 
 def _get_or_create_dictionary(dictionary, key):
