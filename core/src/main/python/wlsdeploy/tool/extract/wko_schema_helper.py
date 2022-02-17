@@ -35,7 +35,8 @@ UNSUPPORTED_FOLDERS = [
 # some object list members don't use 'name' as a key
 OBJECT_NAME_ATTRIBUTES = {
     'spec/adminServer/adminService/channels': 'channelName',
-    'spec/clusters': 'clusterName'
+    'spec/clusters': 'clusterName',
+    'spec/managedServers': 'serverName'
 }
 
 _logger = platform_logger.PlatformLogger('wlsdeploy.deploy')
