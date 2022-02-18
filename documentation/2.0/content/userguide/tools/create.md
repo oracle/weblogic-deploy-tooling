@@ -55,8 +55,8 @@ domainInfo:
     AdminPassword: welcome1
     ServerStartMode: dev
 topology:
-    Name: "my-domain"
-    AdminServerName: "admin-server"
+    Name: my-domain
+    AdminServerName: admin-server
     ProductionModeEnabled: false
 ```
 

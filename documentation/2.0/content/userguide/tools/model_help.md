@@ -52,16 +52,16 @@ You can use the information above to construct this model section:
 ```yaml
 resources:
     JDBCSystemResource:
-        CompatibilityName: 'myName'
-        DeploymentOrder: 5
-        Target: 'ms1,ms2'
-        'JDBC-1':
-            # JdbcSystemResource attributes and folders
-        SubDeployment:
-            deployment1:
-                # SubDeployment attributes and folders
-            deployment2:
-                # SubDeployment attributes and folders
+        JDBC-1:
+            # JDBCSystemResource attributes and folders
+            CompatibilityName: myName
+            DeploymentOrder: 5
+            Target: ms1,ms2
+            SubDeployment:
+                deployment1:
+                    # SubDeployment attributes and folders
+                deployment2:
+                    # SubDeployment attributes and folders
 ```
 If you are copying elements from the sample model to create a full domain model, you should exclude any attributes or sub-folders that you do not intend to declare or override.
 
@@ -120,7 +120,7 @@ resources:
                 JDBCDataSourceParams:
                 JDBCDriverParams:
                     Properties:
-                        'Properties-1'
+                        'Properties-1':
                 JDBCOracleParams:
                 JDBCXAParams:
             SubDeployment:
@@ -134,4 +134,4 @@ resources:
 | `-folders_only` | List only the folders for the specified model path. |    |
 | `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set. |    |
 | `-recursive` | List only the folders for the specified model path, and recursively include the folders below that path. |    |
-| `<model_path>` | The path to the model element to be examined. The format is [^<section^>:][/^<folder^>]... |    |
+| `<model_path>` | The path to the model element to be examined. The format is `[^<section^>:][/^<folder^>]...` |    |

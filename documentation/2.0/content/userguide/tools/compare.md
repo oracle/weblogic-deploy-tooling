@@ -18,57 +18,57 @@ For example, comparing the following models.
 
 ```yaml
 domainInfo:
-    AdminUserName: 'weblogic'
-    AdminPassword: 'welcome2'
+    AdminUserName: weblogic
+    AdminPassword: welcome2
     ServerStartMode: 'prod'
 topology:
     Name: domain1
-    AdminServerName: "admin-server"
+    AdminServerName: admin-server
     SecurityConfiguration:
-        NodeManagerUsername : 'weblogic'
-        NodeManagerPasswordEncrypted : 'welcome1'
+        NodeManagerUsername : weblogic
+        NodeManagerPasswordEncrypted : welcome1
     Cluster:
-        "cluster-1":
+        cluster-1:
             DynamicServers:
-                ServerTemplate:  "cluster-1-template"
-                ServerNamePrefix: "managed-server"
+                ServerTemplate:  cluster-1-template
+                ServerNamePrefix: managed-server
                 DynamicClusterSize: 5
                 MaxDynamicClusterSize: 5
                 CalculatedListenPorts: false
-        "cluster-2":
+        cluster-2:
             DynamicServers:
-                ServerTemplate:  "cluster-2-template"
-                ServerNamePrefix: "managed-server"
+                ServerTemplate:  cluster-2-template
+                ServerNamePrefix: managed-server
                 DynamicClusterSize: 2
                 MaxDynamicClusterSize: 3
                 CalculatedListenPorts: false
     Server:
-        "admin-server":
+        admin-server:
             ListenPort: 10011
     ServerTemplate:
-        "cluster-1-template":
-            Cluster: "cluster-1"
-            ListenPort : '5001'
+        cluster-1-template:
+            Cluster: cluster-1
+            ListenPort : 5001
             JTAMigratableTarget:
                     StrictOwnershipCheck: true
-                    Cluster: "cluster-1"
-        "cluster-2-template":
-            Cluster: "cluster-2"
-            ListenPort : '8001'
+                    Cluster: cluster-1
+        cluster-2-template:
+            Cluster: cluster-2
+            ListenPort : 8001
             ServerStart:
                     Arguments: ['-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=6006']
             JTAMigratableTarget:
                     StrictOwnershipCheck: true
-                    Cluster: "cluster-2"
+                    Cluster: cluster-2
 appDeployments:
      Application:
          myear:
              SourcePath: /home/johnny/dimtemp23/sample_app_stage/wlsdeploy/applications/sample_app.ear
-             Target: ['cluster-2','cluster-1']
+             Target: [cluster-2,cluster-1]
          yourear:
              SourcePath: /home/johnny/dimtemp23/sample_app_stage/wlsdeploy/applications/sample_app2.ear
              ModuleType: ear
-             Target: ['cluster-2','cluster-1']
+             Target: [cluster-2,cluster-1]
 resources:
     JMSServer:
         JMSServer1:
@@ -112,45 +112,45 @@ resources:
 
 ```yaml
 domainInfo:
-    AdminUserName: 'weblogic'
-    AdminPassword: 'welcome2'
-    ServerStartMode: 'prod'
+    AdminUserName: weblogic
+    AdminPassword: welcome2
+    ServerStartMode: prod
 topology:
     Name: domain1
-    AdminServerName: "admin-server"
+    AdminServerName: admin-server
     SecurityConfiguration:
-        NodeManagerUsername : 'weblogic'
-        NodeManagerPasswordEncrypted : 'welcome1'
+        NodeManagerUsername : weblogic
+        NodeManagerPasswordEncrypted : welcome1
     Cluster:
-        "cluster-1":
+        cluster-1:
             DynamicServers:
-                ServerTemplate:  "cluster-1-template"
-                ServerNamePrefix: "managed-server"
+                ServerTemplate:  cluster-1-template
+                ServerNamePrefix: managed-server
                 DynamicClusterSize: 5
                 MaxDynamicClusterSize: 5
                 CalculatedListenPorts: false
     Server:
-        "admin-server":
+        admin-server:
             ListenPort: 10011
     ServerTemplate:
-        "cluster-1-template":
-            Cluster: "cluster-1"
-            ListenPort : '5001'
+        cluster-1-template:
+            Cluster: cluster-1
+            ListenPort : 5001
             ServerStart:
                     Arguments: ['-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=6006']
             JTAMigratableTarget:
                     StrictOwnershipCheck: true
-                    Cluster: "cluster-1"
+                    Cluster: cluster-1
 appDeployments:
      Application:
          myear:
              SourcePath: /home/johnny/dimtemp23/sample_app_stage/wlsdeploy/applications/sample_app.ear
              ModuleType: ear
-             Target: ['cluster-1','cluster-2']
+             Target: [cluster-1,cluster-2]
          myear2:
              SourcePath: /home/johnny/dimtemp23/sample_app_stage/wlsdeploy/applications/sample_app2.ear
              ModuleType: ear
-             Target: ['cluster-1','cluster-2']
+             Target: [cluster-1,cluster-2]
 resources:
     WebAppContainer:
         WAPEnabled: '@@PROP:WAPENABLED@@'
@@ -216,11 +216,11 @@ To compare the two model files, run the tool as follows:
 
 The output of the tool will look something like this:
 
-```
+
 Comparing Models: new=/tmp/model2.yaml vs old=/tmp/model1.yaml
 
 Differences between new model and old model:
-
+```
 resources:
     JMSSystemResource:
         MyJmsModule:
@@ -234,36 +234,35 @@ appDeployments:
         yourear:
             SourcePath: /home/johnny/dimtemp23/sample_app_stage/wlsdeploy/applications/sample_app2.ear
             ModuleType: ear
-            Target: [ 'cluster-2', 'cluster-1' ]
+            Target: [ cluster-2, cluster-1 ]
         myear:
-            Target: [ 'cluster-2', 'cluster-1' ]
+            Target: [ cluster-2, cluster-1 ]
 topology:
     ServerTemplate:
-        'cluster-1-template':
+        cluster-1-template:
             '!ServerStart':
-        'cluster-2-template':
-            Cluster: 'cluster-2'
+        cluster-2-template:
+            Cluster: cluster-2
             ListenPort: 8001
             ServerStart:
                 Arguments: [ '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=6006' ]
             JTAMigratableTarget:
                 StrictOwnershipCheck: True
-                Cluster: 'cluster-2'
+                Cluster: cluster-2
     Cluster:
-        'cluster-2':
+        cluster-2:
             DynamicServers:
-                ServerTemplate: 'cluster-2-template'
-                ServerNamePrefix: 'managed-server'
+                ServerTemplate: cluster-2-template
+                ServerNamePrefix: managed-server
                 DynamicClusterSize: 2
                 MaxDynamicClusterSize: 3
                 CalculatedListenPorts: False
-
+```
 
 1. Model Path: resources-->JMSSystemResource-->MyJmsModule-->JmsResource-->UniformDistributedQueue-->MyUniformDistributedQueue-->ResetDeliveryCountOnForward does not exist in new model but exists in previous model
 
 2. Model Path: appDeployments-->Application-->myear-->ModuleType does not exist in new model but exists in previous model
 
-```
 
 Comparing the new and old models:
 

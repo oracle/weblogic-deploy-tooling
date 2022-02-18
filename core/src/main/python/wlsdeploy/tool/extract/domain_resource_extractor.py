@@ -50,11 +50,11 @@ DEFAULT_IMAGE = PASSWORD_TOKEN
 DEFAULT_IMAGE_PULL_SECRETS = PASSWORD_TOKEN
 DEFAULT_SOURCE_TYPE = 'Image'
 
-# deprecated - used for "named object list" format
-OBJECT_NAME_ATTRIBUTES = {
-    'spec/adminServer/adminService/channels': 'channelName',
-    'spec/clusters': 'clusterName'
-}
+# specific to Verrazzano
+COMPONENT = 'Component'
+TEMPLATE = 'template'
+VERRAZZANO_WEBLOGIC_WORKLOAD = 'VerrazzanoWebLogicWorkload'
+WORKLOAD = 'workload'
 
 _secret_pattern = re.compile("@@SECRET:([\\w.-]+):[\\w.-]+@@")
 
@@ -161,7 +161,7 @@ class DomainResourceExtractor:
                 self._process_object(object_map, item_info, next_target_dict, schema_path)
 
                 # see if the model name should become an attribute in the target dict
-                mapped_name = get_mapped_key(schema_path)
+                mapped_name = wko_schema_helper.get_object_list_key(schema_path)
                 properties = wko_schema_helper.get_properties(item_info)
                 if (mapped_name in properties.keys()) and (mapped_name not in next_target_dict.keys()):
                     _add_to_top(next_target_dict, mapped_name, name)
@@ -330,22 +330,6 @@ def _add_secrets(folder, secrets, domain_uid):
             for secret_name in matches:
                 if secret_name not in secrets:
                     secrets.append(secret_name)
-
-
-# deprecated
-def get_mapped_key(schema_path):
-    """
-    For the deprecated "named object list format", the name of each item in a
-    multiple folder sometimes corresponds to one of its attributes, usually "name".
-    If a different attribute name is used for the path, return that name.
-    If the default 'name' is returned, caller should verify that it is an available attribute.
-    :param schema_path: the slash-delimited path of the elements (no multi-element names)
-    :return: the attribute key to be used
-    """
-    mapped_key = dictionary_utils.get_element(OBJECT_NAME_ATTRIBUTES, schema_path)
-    if mapped_key is not None:
-        return mapped_key
-    return 'name'
 
 
 def _add_to_top(dictionary, key, item):

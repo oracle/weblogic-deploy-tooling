@@ -183,5 +183,136 @@ weight: 2
      }
  }
  ```
+ The `targeting` attribute is not valid for WebLogic Server versions 12.2.1 and later.
 
- The `targeting` attribute is not valid for WebLogic Server versions 12.2.1 and up.
+
+#### Using the typedef file to exclude template installed resources from the model and archive
+
+ The Discover Domain Tool attempts to provide a sparse model by employing strategies such as not including attributes that are default values. It is important to not install template resources through the model. First, the templates will install the same resources in the target domain. Second, if you install resources from a on-premises domain into a target domain that is a later WebLogic version, it could cause conflicts.
+ The `system-elements` section of the typedef file is used to assist the Discover Domain Tool. The `system-elements` section comprises a list that tells the tool what to exclude from the model and archive files.
+
+ The list contains an entry for the type of resource to exclude along with a name or a regexp and name.
+
+ The different types of resources are as follows:
+
+| Resource name |
+| --- |
+| `apps` |
+|`coherence-clusters` |
+| `datasources` |
+| `file-stores`|
+| `jms` |
+| `jms-servers` |
+| `shared-libraries` |
+| `startup-classes` |
+| `wldf` |
+
+The following example is the `system-elements` list in the `JRF.json` typedef file.
+
+```json
+   "system-elements": {
+        "apps": [
+            "^coherence-transaction-rar$",
+            "^DMS Application.*",
+            "^em$",
+            "^FMW Welcome Page Application.*",
+            "^opss-rest$",
+            "^state-management-provider-memory-rar.*",
+            "^wsil-wls.*",
+            "^wsm-pm$"
+        ],
+        "coherence-clusters": [
+            "^defaultCoherenceCluster$"
+        ],
+        "datasources": [
+            ".*LocalSvcTblDataSource$",
+            ".*mds-owsm$",
+            ".*opss-audit-DBDS$",
+            ".*opss-audit-viewDS$",
+            ".*opss-data-source$",
+            ".*opss-ds$",
+            ".*WLSSchemaDataSource$"
+        ],
+        "file-stores": [
+            "^JRFWSAsyncFileStore$",
+            "^mds-owsm$"
+        ],
+        "jms": [
+            "^JRFWSAsyncJmsModule$"
+        ],
+        "jms-servers": [
+            "^JRFWSAsyncJmsServer$"
+        ],
+        "shared-libraries": [
+            "^adf\\.oracle\\.businesseditor.*",
+            "^adf\\.oracle\\.domain.*",
+            "^adf\\.oracle\\.domain\\.webapp.*",
+            "^em_common.*",
+            "^em_core_ppc_pojo_jar$",
+            "^em_error.*",
+            "^em_sdkcore_ppc_public_pojo_jar$",
+            "^emagentsdk_jar.*",
+            "^emagentsdkimpl_jar.*",
+            "^emagentsdkimplpriv_jar.*",
+            "^emas$",
+            "^emcore$",
+            "^emcore_jar$",
+            "^emcoreclient_jar$",
+            "^emcorecommon_jar$",
+            "^emcoreconsole_jar$",
+            "^emcoreintsdk_jar.*",
+            "^emcorepbs_jar$",
+            "^emcoresdk_jar.*",
+            "^emcoresdkimpl_jar.*",
+            "^jsf.*",
+            "^jstl.*",
+            "^log4j_jar.*",
+            "^odl\\.clickhistory.*",
+            "^odl\\.clickhistory\\.webapp.*",
+            "^ohw-rcf.*",
+            "^ohw-uix.*",
+            "^oracle\\.adf\\.dconfigbeans.*",
+            "^oracle\\.adf\\.desktopintegration.*",
+            "^oracle\\.adf\\.desktopintegration\\.model.*",
+            "^oracle\\.adf\\.management.*",
+            "^oracle\\.bi\\.adf\\.model\\.slib.*",
+            "^oracle\\.bi\\.adf\\.view\\.slib.*",
+            "^oracle\\.bi\\.adf\\.webcenter\\.slib.*",
+            "^oracle\\.bi\\.composer.*",
+            "^oracle\\.bi\\.jbips.*",
+            "^oracle\\.dconfig-infra.*",
+            "^oracle\\.jrf\\.system\\.filter$",
+            "^oracle\\.jsp\\.next.*",
+            "^oracle\\.pwdgen.*",
+            "^oracle\\.sdp\\.client.*",
+            "^oracle\\.sdp\\.messaging.*",
+            "^oracle\\.webcenter\\.composer.*",
+            "^oracle\\.webcenter\\.skin.*",
+            "^oracle\\.wsm\\.console.*",
+            "^oracle\\.wsm\\.idmrest.*",
+            "^oracle\\.wsm\\.seedpolicies.*",
+            "^orai18n-adf.*",
+            "^owasp\\.esapi.*",
+            "^UIX.*"
+        ],
+        "shutdown-classes": [
+            "^DMSShutdown$",
+            "^JOC-Shutdown$"
+        ],
+        "startup-classes": [
+            "^JMX Framework Startup Class$",
+            "^JOC-Startup$",
+            "^JPS Startup Class$",
+            "^JPS Startup Post-Activation Class$",
+            "^WSM Startup Class$",
+            "^Web Services Startup Class$",
+            "^JRF Startup Class$",
+            "^ODL-Startup$",
+            "^DMS-Startup$",
+            "^AWT Application Context Startup Class$"
+        ],
+        "wldf": [
+            "^Module-FMWDFW$"
+        ]
+    }
+```

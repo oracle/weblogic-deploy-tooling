@@ -7,7 +7,7 @@ description: "Updates an existing domain and populates the domain with all the r
 ---
 
 
-The Update Domain Tool uses a model, the archive, and WLST to update the configuration of an existing WebLogic Server domain, and to deploy applications and resources into the domain in either WLST online or offline mode.  The update tool will add or re-configure elements from the `topology` section of the model, and deploy applications and resources from the `resources` and `appDeployments` sections, as described in the Deploy Applications Tool.
+The Update Domain Tool uses a model, the archive, and WLST to update the configuration of an existing WebLogic Server domain, and to deploy applications and resources into the domain in either WLST online or offline mode.  The Update Domain Tool will add or re-configure elements from the `topology` section of the model, and deploy applications and resources from the `resources` and `appDeployments` sections, as described in the Deploy Applications Tool.
 
 The Update Domain Tool will only add or update elements in the specified model. It will not attempt to remove any missing elements that were present in a previous model.
 
@@ -41,7 +41,7 @@ The Update Domain Tool supports the use of multiple models, as described in [Usi
 ### Parameter table for `updateDomain`
 | Parameter | Definition | Default |
 | ---- | ---- | ---- |
-| `-admin_pass_env` | An alternative to entering the admin password at a prompt. The value is a environment variable name that WDT will use to retrieve the password. |    |
+| `-admin_pass_env` | An alternative to entering the admin password at a prompt. The value is an environment variable name that WDT will use to retrieve the password. |    |
 | `-admin_pass_file` | An alternative to entering the admin password at a prompt. The value is a the name of a file that contains a password string that the tool will read to retrieve the password. |    |
 | `-admin_url` | The admin server URL for online update. |    |
 | `-admin_user` | The admin user name for online update. |    |
@@ -52,7 +52,7 @@ The Update Domain Tool supports the use of multiple models, as described in [Usi
 | `-domain_type` | The type of domain.  (for example, `WLS`, `JRF`) | `WLS` |
 | `-model_file` | The location of the model file. This can also be specified as a comma-separated list of model locations, where each successive model layers on top of the previous ones. |    |
 | `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set. |    |
-| `-passphrase_env` | An alternative to entering the encryption passphrase at a prompt. The value is a environment variable name that WDT will use to retrieve the passphrase. |    |
+| `-passphrase_env` | An alternative to entering the encryption passphrase at a prompt. The value is an environment variable name that WDT will use to retrieve the passphrase. |    |
 | `-passphrase_file` | An alternative to entering the encryption passphrase at a prompt. The value is a the name of a file with a string value which WDT will read to retrieve the passphrase. |    |
 | `-update_dir` | If present, write restart information to this directory as `restart.file`, or if `cancel_changes_if_restart_required` used, write non-dynamic changes information to `non_dynamic_changes` file. |    |
 | `-use_encryption` | One or more of the passwords in the model or variables file(s) are encrypted and must be decrypted. Java 8 or later required for this feature. |    |

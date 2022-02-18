@@ -13,7 +13,7 @@ first open an issue and link to that issue when you submit your pull request.
 If you have any questions about a possible submission, feel free to open an issue too.
 
 ### Contributing to the WebLogic Deploy repository
-Pull requests can be made under [The Oracle Contributor Agreement](https://www.oracle.com/technetwork/community/oca-486395.html) (OCA).
+Pull requests can be made under [The Oracle Contributor Agreement](https://oca.opensource.oracle.com/) (OCA).
 
 For pull requests to be accepted, the bottom of your commit message must have the following line using your name and e-mail address as it appears in the OCA Signatories list.
 

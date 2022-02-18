@@ -11,10 +11,10 @@ This WDT domain model sample has a typical configuration for a configured cluste
 ```yaml
 topology:
     Cluster:
-        'cluster-1':
+        cluster-1:
             ClientCertProxyEnabled: true
             AutoMigrationTableName: MIGRATION_1
-            DataSourceForAutomaticMigration: 'jdbc-1'
+            DataSourceForAutomaticMigration: jdbc-1
             ClusterMessagingMode: unicast
             FrontendHost: frontend.com
             FrontendHTTPPort: 9001
@@ -24,16 +24,16 @@ topology:
             WeblogicPluginEnabled: true
 
     Server:
-        'server-1':
-            Cluster: 'cluster-1'  # this server belongs to cluster-1
+        server-1:
+            Cluster: cluster-1  # this server belongs to cluster-1
             ListenAddress: 127.0.0.1
             ListenPort: 8001
-            Machine: 'machine-1'
+            Machine: machine-1
             Log:
                 DomainLogBroadcastSeverity: Error
                 FileCount: 7
                 FileMinSize: 5000
-                FileName: 'logs/AdminServer.log'
+                FileName: logs/AdminServer.log
                 LogFileSeverity: Info
                 MemoryBufferSeverity: Notice
                 NumberOfFilesLimited: true
@@ -43,8 +43,8 @@ topology:
                 Enabled: true
                 ListenPort: 8002
             ServerStart:
-                Arguments: '-Dosgi=true -Dtangosol.coherence.management=all'
-                ClassPath: '/foo/bar,wlsdeploy/classpathLibraries/mylib.jar'
+                Arguments: -Dosgi=true -Dtangosol.coherence.management=all
+                ClassPath: /foo/bar,wlsdeploy/classpathLibraries/mylib.jar
 ```
 There are additional sub-folders and attributes available for more configuration options. These can be determined using the [Model Help Tool]({{< relref "/userguide/tools/model_help.md" >}}). For example, this command will list the attributes and sub-folders for the `Server` folder:
 ```bash
