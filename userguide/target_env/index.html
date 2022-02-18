@@ -12,20 +12,20 @@
     <title>Target environments :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1644612532" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1644612532" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1644612532" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1644612532" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1644612532" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1644612532" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1644612532" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1644612532" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1644612532" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1644612532" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1645208595" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1645208595" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1645208595" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1645208595" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1645208595" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1645208595" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1645208595" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1645208595" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1645208595" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1645208595" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1644612532"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1645208595"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1644612532"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1644612532"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1645208595"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1645208595"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1644612532"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1645208595"></script>
 
     
   </div>
@@ -1257,7 +1257,7 @@
 </ul>
 <p>In addition, the <code>wko</code> target will replace credentials in the model with references to Kubernetes secrets, and produce a script to create those secrets. The <code>wko-dii</code> and <code>wko-pv</code> targets will replace credentials in the model with variable references.</p>
 <h4 id="the-verrazzano-targets">The Verrazzano targets</h4>
-<p>You can use these targets to customize the model and create a domain resource file for use with Verrazzano. There are three targets for specific <a href="https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/choosing-a-model/">domain home source types</a>:</p>
+<p>You can use these targets to customize the model and create a Kubernetes resource file for use with Verrazzano. There are three targets for specific <a href="https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/choosing-a-model/">domain home source types</a>:</p>
 <ul>
 <li><code>vz</code> for <a href="https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/model-in-image/">Model in Image</a> deployments</li>
 <li><code>vz-dii</code> for Domain in Image deployments</li>
@@ -1296,10 +1296,10 @@
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># Update &lt;user&gt; and &lt;password&gt; for weblogic-credentials</span>
 create_paired_k8s_secret weblogic-credentials &lt;user&gt; &lt;password&gt;
 </code></pre></div><p>The script should be updated with correct <code>&lt;user&gt;</code> and <code>&lt;password&gt;</code> values as required. It may be necessary to change the <code>NAMESPACE</code> and <code>DOMAIN_UID</code> variables at the top of the script if they are different in the target environment.</p>
-<p>The script performs a check to determine if any generated secret names are more than 63 characters in length, because that will prevent them from being mounted correctly in the Kubernetes environment. If any secret names exceed this limit, they will need to be shortened in this script, in the model files, and in the domain resource file. Each shortened name should be distinct from other secret names.</p>
+<p>The script performs a check to determine if any generated secret names are more than 63 characters in length, because that will prevent them from being mounted correctly in the Kubernetes environment. If any secret names exceed this limit, they will need to be shortened in this script, in the model files, and in the Kubernetes resource file. Each shortened name should be distinct from other secret names.</p>
 <h3 id="target-environment-configuration-files">Target environment configuration files</h3>
 <p>A target environment is configured in a JSON file at this location:</p>
-<pre><code>$WLSDEPLOY_HOME/lib/target/&lt;target-name&gt;/target.json
+<pre><code>$WLSDEPLOY_HOME/lib/targets/&lt;target-name&gt;/target.json
 </code></pre><p>The <code>&lt;target-name&gt;</code> value corresponds to the value of the <code>-target</code> argument on the tool&rsquo;s command line. The WLS installation includes pre-defined targets for these environments:</p>
 <ul>
 <li><a href="#the-weblogic-kubernetes-operator-targets">WebLogic Kubernetes Operator</a></li>
@@ -1322,6 +1322,7 @@ create_paired_k8s_secret weblogic-credentials &lt;user&gt; &lt;password&gt;
     &quot;credentials_output_method&quot; : &quot;script&quot;,
     &quot;exclude_domain_bin_contents&quot;: true,
     &quot;wls_credentials_name&quot; : &quot;__weblogic-credentials__&quot;,
+    &quot;use_persistent_volume&quot; : true,
     &quot;additional_secrets&quot;: &quot;runtime-encryption-secret&quot;,
     &quot;additional_output&quot; : &quot;vz-application.yaml&quot;
 }
@@ -1344,8 +1345,16 @@ create_paired_k8s_secret weblogic-credentials &lt;user&gt; &lt;password&gt;
 <p>This field specifies how the domain&rsquo;s <code>bin</code> directory contents should be handled.  If set to <code>true</code>, then discovery will skip over the domain&rsquo;s <code>bin</code> directory resulting in a model and archive file without any references to any scripts that might typically be collected (for example, <code>setUserOverrides.sh</code>).</p>
 <h4 id="wls_credentials_name"><code>wls_credentials_name</code></h4>
 <p>This field specifies a name for use with the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable to identify administration credential Secrets for the domain. This is useful when those Secrets are stored in a directory that does not follow the <code>&lt;directory&gt;/&lt;name&gt;/&lt;key&gt;</code> convention. For more information about using the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable, see <a href="/weblogic-deploy-tooling/concepts/model/#model-tokens">Model tokens</a>.</p>
+<h4 id="use_persistent_volume"><code>use_persistent_volume</code></h4>
+<p>This field specifies if the domain is to be created for the Domain in PV <a href="https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/choosing-a-model/">domain home source type</a>. If set to <code>true</code>, volume information will be added to the Kubernetes resource file that is generated.</p>
+<h4 id="additional_secrets"><code>additional_secrets</code></h4>
+<p>This field specifies a comma-separated list of secret types that are to be included in the Kubernetes resource file and the create secrets script. There is one secret type available:</p>
+<ul>
+<li><code>runtime-encryption-secret</code> - this will add a <code>runtimeEncryptionSecret</code> attribute to the Kubernetes resource file with the value <code>&lt;DOMAIN_UID&gt;-runtime-encryption-secret</code>, and that secret name will be added to the <a href="#the-create-secrets-script">create secrets script</a>.</li>
+</ul>
 <h4 id="additional_output"><code>additional_output</code></h4>
-<p>You can use this field to create additional output for use in the target environment. The value is a comma-separated list of template files in the <code>$WLSDEPLOY_HOME/lib/target/&lt;target-name&gt;</code> directory. These templates are populated with information derived from the model, and written to a file with the same name in the specified output directory.</p>
+<p>You can use this field to create additional output for use in the target environment. The value is a comma-separated list of template files in the <code>$WLSDEPLOY_HOME/lib/targets/templates</code> directory. These templates are populated with information derived from the model, and written to a file with the same name in the specified output directory.</p>
+<p><strong>Note: Prior to release 2.0.1, template files were stored in the <code>$WLSDEPLOY_HOME/lib/targets/&lt;target-name&gt;</code> directory.</strong></p>
 
 
 <footer class="footline">
@@ -2133,19 +2142,19 @@ create_paired_k8s_secret weblogic-credentials &lt;user&gt; &lt;password&gt;
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1644612532"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1644612532"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1644612532"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1644612532"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1644612532"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1644612532"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1645208595"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1645208595"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1645208595"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1645208595"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1645208595"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1645208595"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1644612532"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1644612532"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1644612532"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1645208595"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1645208595"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1645208595"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1644612532"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1645208595"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
