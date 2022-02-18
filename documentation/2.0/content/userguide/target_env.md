@@ -56,7 +56,7 @@ In addition, the `wko` target will replace credentials in the model with referen
 
 #### The Verrazzano targets
 
-You can use these targets to customize the model and create a domain resource file for use with Verrazzano. There are three targets for specific [domain home source types](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/choosing-a-model/):
+You can use these targets to customize the model and create a Kubernetes resource file for use with Verrazzano. There are three targets for specific [domain home source types](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/choosing-a-model/):
 
 - `vz` for [Model in Image](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/model-in-image/) deployments
 - `vz-dii` for Domain in Image deployments
@@ -111,13 +111,13 @@ create_paired_k8s_secret weblogic-credentials <user> <password>
 ```
 The script should be updated with correct `<user>` and `<password>` values as required. It may be necessary to change the `NAMESPACE` and `DOMAIN_UID` variables at the top of the script if they are different in the target environment.
 
-The script performs a check to determine if any generated secret names are more than 63 characters in length, because that will prevent them from being mounted correctly in the Kubernetes environment. If any secret names exceed this limit, they will need to be shortened in this script, in the model files, and in the domain resource file. Each shortened name should be distinct from other secret names.   
+The script performs a check to determine if any generated secret names are more than 63 characters in length, because that will prevent them from being mounted correctly in the Kubernetes environment. If any secret names exceed this limit, they will need to be shortened in this script, in the model files, and in the Kubernetes resource file. Each shortened name should be distinct from other secret names.   
 
 ### Target environment configuration files
 
 A target environment is configured in a JSON file at this location:
 ```
-$WLSDEPLOY_HOME/lib/target/<target-name>/target.json
+$WLSDEPLOY_HOME/lib/targets/<target-name>/target.json
 ```
 The `<target-name>` value corresponds to the value of the `-target` argument on the tool's command line. The WLS installation includes pre-defined targets for these environments:
  - [WebLogic Kubernetes Operator](#the-weblogic-kubernetes-operator-targets)
@@ -143,6 +143,7 @@ Here is an example of a target environment file:
     "credentials_output_method" : "script",
     "exclude_domain_bin_contents": true,
     "wls_credentials_name" : "__weblogic-credentials__",
+    "use_persistent_volume" : true,
     "additional_secrets": "runtime-encryption-secret",
     "additional_output" : "vz-application.yaml"
 }
@@ -179,6 +180,18 @@ This field specifies how the domain's `bin` directory contents should be handled
 
 This field specifies a name for use with the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable to identify administration credential Secrets for the domain. This is useful when those Secrets are stored in a directory that does not follow the `<directory>/<name>/<key>` convention. For more information about using the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable, see [Model tokens]({{< relref "/concepts/model#model-tokens" >}}).
 
+#### `use_persistent_volume`
+
+This field specifies if the domain is to be created for the Domain in PV [domain home source type](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/choosing-a-model/). If set to `true`, volume information will be added to the Kubernetes resource file that is generated.
+
+#### `additional_secrets`
+
+This field specifies a comma-separated list of secret types that are to be included in the Kubernetes resource file and the create secrets script. There is one secret type available:
+- `runtime-encryption-secret` - this will add a `runtimeEncryptionSecret` attribute to the Kubernetes resource file with the value `<DOMAIN_UID>-runtime-encryption-secret`, and that secret name will be added to the [create secrets script](#the-create-secrets-script).
+
 #### `additional_output`
 
-You can use this field to create additional output for use in the target environment. The value is a comma-separated list of template files in the `$WLSDEPLOY_HOME/lib/target/<target-name>` directory. These templates are populated with information derived from the model, and written to a file with the same name in the specified output directory.
+You can use this field to create additional output for use in the target environment. The value is a comma-separated list of template files in the `$WLSDEPLOY_HOME/lib/targets/templates` directory. These templates are populated with information derived from the model, and written to a file with the same name in the specified output directory.
+
+**Note: Prior to release 2.0.1, template files were stored in the `$WLSDEPLOY_HOME/lib/targets/<target-name>` directory.**
+
