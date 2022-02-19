@@ -11,6 +11,7 @@ weight: 2
 - [Specifying a target environment](#specifying-a-target-environment)
 - [Pre-configured target environments](#pre-configured-target-environments)
 - [Using secret credentials in the model](#using-secret-credentials-in-the-model)
+- [Merging content from the WDT model](#merging-content-from-the-wdt-model)
 - [Target configuration files](#target-environment-configuration-files)
 
 ### Overview
@@ -112,6 +113,22 @@ create_paired_k8s_secret weblogic-credentials <user> <password>
 The script should be updated with correct `<user>` and `<password>` values as required. It may be necessary to change the `NAMESPACE` and `DOMAIN_UID` variables at the top of the script if they are different in the target environment.
 
 The script performs a check to determine if any generated secret names are more than 63 characters in length, because that will prevent them from being mounted correctly in the Kubernetes environment. If any secret names exceed this limit, they will need to be shortened in this script, in the model files, and in the domain resource file. Each shortened name should be distinct from other secret names.   
+
+### Merging content from the WDT model
+
+When a Kubernetes resource file is created using a target environment, content from the `kubernetes` section of the WDT model will be merged into the resulting output, if that section is present. For example, if the `-target wko` option is used, you could define this section in the model:
+```yaml
+kubernetes:
+  spec:
+    domainHome: /etc/domainHome
+    image: my-image
+    clusters:
+    - clusterName: my-cluster
+      replicas: 4
+    - clusterName: other-cluster
+      replicas: 6
+```
+These fields would override the values in the output file, and the file would be rewritten with the revised values. List values in the model will be combined with existing values in the output file. For example, if `my-cluster` was in the original output file, the model content for `my-cluster` would be merged with it, overriding the `replicas` value. If `my-cluster` was not in the original output file, it would be added to the list of clusters.
 
 ### Target environment configuration files
 
