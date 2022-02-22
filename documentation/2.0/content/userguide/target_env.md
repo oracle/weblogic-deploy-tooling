@@ -116,7 +116,7 @@ The script performs a check to determine if any generated secret names are more 
 
 ### Merging content from the WDT model
 
-When a Kubernetes resource file is created using a target environment, content from the `kubernetes` section of the WDT model will be merged into the resulting output, if that section is present. For example, if the `-target wko` option is used, you could define this section in the model:
+When a Kubernetes resource file is created using a target environment, content from the `kubernetes` section of the WDT model will be merged into the resulting output, if that section is present. For example, if the `-target wko` option is used, you can define this section in the model:
 ```yaml
 kubernetes:
   spec:
@@ -128,7 +128,7 @@ kubernetes:
     - clusterName: other-cluster
       replicas: 6
 ```
-These fields would override the values in the output file, and the file would be rewritten with the revised values. List values in the model will be combined with existing values in the output file. For example, if `my-cluster` was in the original output file, the model content for `my-cluster` would be merged with it, overriding the `replicas` value. If `my-cluster` was not in the original output file, it would be added to the list of clusters.
+These fields will override the values in the output file, and the file would be rewritten with the revised values. List values in the model will be combined with existing values in the output file. For example, if `my-cluster` was in the original output file, the model content for `my-cluster` would be merged with it, overriding the `replicas` value. If `my-cluster` was not in the original output file, it would be added to the list of clusters.
 
 ### Target environment configuration files
 
