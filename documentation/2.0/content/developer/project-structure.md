@@ -5,14 +5,16 @@ draft: false
 weight: 1
 ---
 
-This project is structured using the Standard Directory Layout for Maven projects, with two child modules, `core` and `installer`. In addition, there is a `samples` directory with example configurations, and the `site` directory containing project documentation.
+This project is structured using the Standard Directory Layout for Maven projects, with two child modules, `core`, `alias-test`, `system-test`, and `installer`. In addition, there is a `documentation` directory containing project documentation.
 
-The `core` module contains the main source code for the project. This includes Jython modules and Java classes, as well as typedef files, alias definitions, and the message bundle. There are unit tests related to this module.
+The `core` module contains the main source code for the project. `core` includes Jython modules and Java classes, as well as typedef files, alias definitions, and the message bundle.
+
+The `system-test` and `alias-test` modules contain test suites for verifying pull requests and nightly regression testing.
 
 Alias definitions are discussed in more detail [here]({{< relref "/developer/alias-definitions.md" >}}).
 
-The `installer` module builds the final installer ZIP file. It includes the assembly definitions, start scripts for each tool for Linux and Windows platforms, and configurations for variable injection and logging.
+The `installer` module builds the final installer ZIP file. `installer` includes the assembly definitions, start scripts for each tool for Linux and Windows platforms, and configurations for variable injection and logging.
 
-A single installer ZIP file is built under the `WLSDEPLOY_HOME/installer/target` directory.
+Two installer files are built under the `WLSDEPLOY_HOME/installer/target` directory, one ZIP for all platforms, and one tar.gz for those that prefer tar.gz on Unix systems.
 
 There are detailed instructions for building the project [here]({{< relref "/developer/buildWDT.md" >}}).
