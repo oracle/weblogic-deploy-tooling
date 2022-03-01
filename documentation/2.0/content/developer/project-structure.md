@@ -15,6 +15,6 @@ Alias definitions are discussed in more detail [here]({{< relref "/developer/ali
 
 The `installer` module builds the final installer ZIP file. `installer` includes the assembly definitions, start scripts for each tool for Linux and Windows platforms, and configurations for variable injection and logging.
 
-Two installer files are built under the `WLSDEPLOY_HOME/installer/target` directory, one ZIP file for all platforms, and one tar.gz file for those that prefer the tar.gz format on UNIX systems.
+Two installer files are built under the `WLSDEPLOY_HOME/installer/target` directory, one ZIP file for all platforms, and one `tar.gz` file for those that prefer the `tar.gz` format on UNIX systems.
 
 There are detailed instructions for building the project [here]({{< relref "/developer/buildWDT.md" >}}).
