@@ -233,7 +233,11 @@ GOTO :EOF
         EXIT /B 98
       )
       SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
-      SET WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+      IF DEFINED WLST_EXT_CLASSPATH (
+        SET "WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar;%WLST_EXT_CLASSPATH%"
+      ) ELSE (
+        SET WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+      )
       GOTO found_wlst
     )
 
@@ -243,7 +247,11 @@ GOTO :EOF
     IF EXIST "%ORACLE_HOME%\oracle_common\common\bin\wlst.cmd" (
         SET WLST=%ORACLE_HOME%\oracle_common\common\bin\wlst.cmd
         SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
-        SET WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+        IF DEFINED WLST_EXT_CLASSPATH (
+          SET "WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar;%WLST_EXT_CLASSPATH%"
+        ) ELSE (
+          SET WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+        )
         GOTO found_wlst
     )
     IF EXIST "%ORACLE_HOME%\wlserver_10.3\common\bin\wlst.cmd" (
