@@ -12,20 +12,20 @@
     <title>Target environments :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1645208595" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1645208595" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1645208595" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1645208595" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1645208595" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1645208595" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1645208595" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1645208595" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1645208595" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1645208595" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1646161668" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1646161668" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1646161668" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1646161668" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1646161668" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1646161668" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1646161668" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1646161668" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1646161668" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1646161668" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1645208595"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1646161668"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1645208595"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1645208595"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1646161668"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1646161668"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1645208595"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1646161668"></script>
 
     
   </div>
@@ -1190,6 +1190,7 @@
         <li><a href="#specifying-a-target-environment">Specifying a target environment</a></li>
         <li><a href="#pre-configured-target-environments">Pre-configured target environments</a></li>
         <li><a href="#using-secret-credentials-in-the-model">Using secret credentials in the model</a></li>
+        <li><a href="#merging-content-from-the-wdt-model">Merging content from the WDT model</a></li>
         <li><a href="#target-environment-configuration-files">Target environment configuration files</a></li>
       </ul>
     </li>
@@ -1223,6 +1224,7 @@
 <li><a href="#specifying-a-target-environment">Specifying a target environment</a></li>
 <li><a href="#pre-configured-target-environments">Pre-configured target environments</a></li>
 <li><a href="#using-secret-credentials-in-the-model">Using secret credentials in the model</a></li>
+<li><a href="#merging-content-from-the-wdt-model">Merging content from the WDT model</a></li>
 <li><a href="#target-environment-configuration-files">Target configuration files</a></li>
 </ul>
 <h3 id="overview">Overview</h3>
@@ -1297,6 +1299,18 @@
 create_paired_k8s_secret weblogic-credentials &lt;user&gt; &lt;password&gt;
 </code></pre></div><p>The script should be updated with correct <code>&lt;user&gt;</code> and <code>&lt;password&gt;</code> values as required. It may be necessary to change the <code>NAMESPACE</code> and <code>DOMAIN_UID</code> variables at the top of the script if they are different in the target environment.</p>
 <p>The script performs a check to determine if any generated secret names are more than 63 characters in length, because that will prevent them from being mounted correctly in the Kubernetes environment. If any secret names exceed this limit, they will need to be shortened in this script, in the model files, and in the Kubernetes resource file. Each shortened name should be distinct from other secret names.</p>
+<h3 id="merging-content-from-the-wdt-model">Merging content from the WDT model</h3>
+<p>When a Kubernetes resource file is created using a target environment, content from the <code>kubernetes</code> section of the WDT model will be merged into the resulting output, if that section is present. For example, if the <code>-target wko</code> option is used, you can define this section in the model:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">kubernetes</span>:
+  <span style="color:#f92672">spec</span>:
+    <span style="color:#f92672">domainHome</span>: <span style="color:#ae81ff">/etc/domainHome</span>
+    <span style="color:#f92672">image</span>: <span style="color:#ae81ff">my-image</span>
+    <span style="color:#f92672">clusters</span>:
+    - <span style="color:#f92672">clusterName</span>: <span style="color:#ae81ff">my-cluster</span>
+      <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">4</span>
+    - <span style="color:#f92672">clusterName</span>: <span style="color:#ae81ff">other-cluster</span>
+      <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">6</span>
+</code></pre></div><p>These fields will override the values in the output file, and the file would be rewritten with the revised values. List values in the model will be combined with existing values in the output file. For example, if <code>my-cluster</code> was in the original output file, the model content for <code>my-cluster</code> would be merged with it, overriding the <code>replicas</code> value. If <code>my-cluster</code> was not in the original output file, it would be added to the list of clusters.</p>
 <h3 id="target-environment-configuration-files">Target environment configuration files</h3>
 <p>A target environment is configured in a JSON file at this location:</p>
 <pre><code>$WLSDEPLOY_HOME/lib/targets/&lt;target-name&gt;/target.json
@@ -2142,19 +2156,19 @@ create_paired_k8s_secret weblogic-credentials &lt;user&gt; &lt;password&gt;
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1645208595"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1645208595"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1645208595"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1645208595"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1645208595"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1645208595"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1646161668"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1646161668"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1646161668"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1646161668"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1646161668"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1646161668"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1645208595"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1645208595"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1645208595"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1646161668"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1646161668"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1646161668"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1645208595"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1646161668"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
