@@ -236,7 +236,7 @@ GOTO :EOF
       IF DEFINED WLST_EXT_CLASSPATH (
         SET "WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar;%WLST_EXT_CLASSPATH%"
       ) ELSE (
-        SET WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+        SET "WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar"
       )
       GOTO found_wlst
     )
@@ -250,7 +250,7 @@ GOTO :EOF
         IF DEFINED WLST_EXT_CLASSPATH (
           SET "WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar;%WLST_EXT_CLASSPATH%"
         ) ELSE (
-          SET WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+          SET "WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar"
         )
         GOTO found_wlst
     )
