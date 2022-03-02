@@ -2,7 +2,7 @@
 # *****************************************************************************
 # shared.sh
 #
-# Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+# Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -194,7 +194,11 @@ runWlst() {
             exit 98
         fi
         CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar"; export CLASSPATH
-        WLST_EXT_CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar"; export WLST_EXT_CLASSPATH
+        if [ ! -z "${WLST_EXT_CLASSPATH}" ]; then
+          WLST_EXT_CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar:${WLST_EXT_CLASSPATH}"; export WLST_EXT_CLASSPATH
+        else
+          WLST_EXT_CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar"; export WLST_EXT_CLASSPATH
+        fi
     else
         # if WLST_PATH_DIR was not set, find the WLST executable in one of the known ORACLE_HOME locations.
 
@@ -202,7 +206,12 @@ runWlst() {
         if [ -x "${ORACLE_HOME}/oracle_common/common/bin/wlst.sh" ]; then
             WLST="${ORACLE_HOME}/oracle_common/common/bin/wlst.sh"
             CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar"; export CLASSPATH
+          if [ ! -z "${WLST_EXT_CLASSPATH}" ]; then
+            WLST_EXT_CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar:${WLST_EXT_CLASSPATH}"
+            export WLST_EXT_CLASSPATH
+          else
             WLST_EXT_CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar"; export WLST_EXT_CLASSPATH
+          fi
         elif [ -x "${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh" ]; then
             WLST="${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh"
             CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar"; export CLASSPATH
