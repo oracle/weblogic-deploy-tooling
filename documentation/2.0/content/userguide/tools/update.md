@@ -30,6 +30,18 @@ When running the tool in WLST online mode, the update operation may require serv
 - `103` - The entire domain needs to be restarted.
 - `104` - The domain changes have been canceled because the changes in the model requires a domain restart and `-cancel_changes_if_restart_required` is specified.
 
+### Online update for shared libraries
+
+- When updating shared library online, it is recommended to deploy a new version of the library by updating the 
+  version(s) in the MANIFEST.MF file and update the deployment descriptor of any application that want to upgrade to 
+  use the new library version. This avoids the complicated issues like the following of in-place update of shared 
+  library.
+
+- In-place update of shared library online is not supported and will result in error, that is if you just 
+  update the library contents without updating the version(s) of the library in the MANIFEST.MF file.  You will get an error 
+  from WebLogic Server indicating the library is referenced by applications and cannot be undeployed. You must undeploy 
+  all applications referencing the shared library first before proceeding, this is the same behavior when using the WebLogic Server console. 
+
 ### Using an encrypted model
 
 If the model or variables file contains passwords encrypted with the WDT Encryption tool, decrypt the passwords during create with the `-use_encryption` flag on the command line to tell the Update Domain Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, `stdin`) to allow the tool to run without any user input. You can bypass the stdin prompt with two other options. Store the passphrase in an environment variable, and use the environment variable name with command-line option `-passphrase_env`. Another option is to create a file containing the passphrase value. Pass this filename with the command-line option `-passphrase_file`.

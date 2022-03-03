@@ -253,23 +253,22 @@ class ApplicationsDeployer(Deployer):
         deployed_app_list = []
         redeploy_app_list = []
 
-        #  This is too complicated to handle
+        #  For in-place update of shared libraries (i.e. impl/spec versions are not updated in the MANIFEST.MF for
+        #   update), trying to do so will result in error just like the console.
         #
-        # shared library updated, app referenced must be stopped, fully undeploy, deploy, and started
+        # we will not automatically detect the referencing app and try to figure out the dependency graph and orders
+        # for undeploying apps.
         #
         #   1.  It needs to be fully undeploy shared library referenced apps
         #   2.  But if the user only provides a sparse model for library update,  the sparse model will not have the
         #   original app and it will not be deployed again
         #   3.  There maybe transitive references by shared library and it will be difficult to handle processing order
-        #   4.  Console doesn't handle this, so we shouldn't be outsmart the console.
+        #    the full dependency graph
+        #   4.  Console will result in error and ask user to undeploy the app first, so we are not trying to add new
+        #   functionalities in wls.
         #
-        # for app in stop_app_list:
-        #     self.__stop_app(app)
-        #     redeploy_app_list.append(app)
-        #     # add the referenced app to the start list
-        #     deployed_app_list.append(app)
 
-        # app is updated, it must be stopped and undeployed first
+        # user provide new versioned app, it must be stopped and undeployed first
         for app in stop_and_undeploy_app_list:
             self.__stop_app(app)
             self.__undeploy_app(app)
@@ -538,7 +537,6 @@ class ApplicationsDeployer(Deployer):
                         lib_name = model_helper.get_delete_item_name(lib)
                         if lib_name in existing_libs:
                             model_libs.pop(lib)
-                            #_add_ref_apps_to_stoplist(stop_app_list, existing_lib_refs, lib_name)
                             update_library_list.append(lib_name)
                         else:
                             model_libs.pop(lib)
@@ -597,7 +595,6 @@ class ApplicationsDeployer(Deployer):
                         if lib_dict['SourcePath'] is None and existing_src_path is not None:
                             lib_dict['SourcePath'] = existing_src_path
 
-                        #_add_ref_apps_to_stoplist(stop_app_list, existing_lib_refs, versioned_name)
                         if versioned_name not in update_library_list:
                             update_library_list.append(versioned_name)
                     else:
