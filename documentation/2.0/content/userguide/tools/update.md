@@ -33,14 +33,18 @@ When running the tool in WLST online mode, the update operation may require serv
 ### Online update for shared libraries
 
 - When updating shared library online, it is recommended to deploy a new version of the library by updating the 
-  version(s) in the MANIFEST.MF file and update the deployment descriptor of any application that want to upgrade to 
-  use the new library version. This avoids the complicated issues like the following of in-place update of shared 
+  version(s) in the MANIFEST.MF file and update the deployment descriptor of any application that wants to upgrade to 
+  use the new library, this avoids complicated issues like in-place update of shared 
   library.
 
-- In-place update of shared library online is not supported and will result in error, that is if you just 
+- In-place update of shared library online is not supported - if you only 
   update the library contents without updating the version(s) of the library in the MANIFEST.MF file.  You will get an error 
   from WebLogic Server indicating the library is referenced by applications and cannot be undeployed. You must undeploy 
-  all applications referencing the shared library first before proceeding, this is the same behavior when using the WebLogic Server console. 
+  all applications referencing the shared library first before proceeding; this is the same behavior when using the 
+  WebLogic Server console. Also, a shared library can potentially be referenced by another 
+  shared library module which in turns used by other applications, currently there is no capability within 
+  WebLogic Server to handle automating undeploy and deploy application that uses shared library when the library is 
+  in-place updated.  
 
 ### Using an encrypted model
 
