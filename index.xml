@@ -64,8 +64,9 @@ Model filters are written in Jython, and must be compatible with the version use
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/project-structure/</guid>
-      <description>This project is structured using the Standard Directory Layout for Maven projects, with two child modules, core and installer. In addition, there is a samples directory with example configurations, and the site directory containing project documentation.
-The core module contains the main source code for the project. This includes Jython modules and Java classes, as well as typedef files, alias definitions, and the message bundle. There are unit tests related to this module.</description>
+      <description>This project is structured using the Standard Directory Layout for Maven projects, with two child modules, core, alias-test, system-test, and installer. In addition, there is a documentation directory containing project documentation.
+The core module contains the main source code for the project. core includes Jython modules and Java classes, as well as typedef files, alias definitions, and the message bundle.
+The system-test and alias-test modules contain test suites for verifying pull requests and nightly regression testing.</description>
     </item>
     
     <item>

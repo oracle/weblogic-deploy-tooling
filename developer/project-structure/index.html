@@ -12,20 +12,20 @@
     <title>Project structure :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1646161668" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1646161668" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1646161668" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1646161668" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1646161668" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1646161668" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1646161668" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1646161668" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1646161668" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1646161668" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1646430525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1646430525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1646430525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1646430525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1646430525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1646430525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1646430525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1646430525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1646430525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1646430525" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1646161668"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1646430525"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1646161668"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1646161668"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1646430525"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1646430525"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1646161668"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1646430525"></script>
 
     
   </div>
@@ -1204,11 +1204,12 @@
         
 
 
-<p>This project is structured using the Standard Directory Layout for Maven projects, with two child modules, <code>core</code> and <code>installer</code>. In addition, there is a <code>samples</code> directory with example configurations, and the <code>site</code> directory containing project documentation.</p>
-<p>The <code>core</code> module contains the main source code for the project. This includes Jython modules and Java classes, as well as typedef files, alias definitions, and the message bundle. There are unit tests related to this module.</p>
+<p>This project is structured using the Standard Directory Layout for Maven projects, with two child modules, <code>core</code>, <code>alias-test</code>, <code>system-test</code>, and <code>installer</code>. In addition, there is a <code>documentation</code> directory containing project documentation.</p>
+<p>The <code>core</code> module contains the main source code for the project. <code>core</code> includes Jython modules and Java classes, as well as typedef files, alias definitions, and the message bundle.</p>
+<p>The <code>system-test</code> and <code>alias-test</code> modules contain test suites for verifying pull requests and nightly regression testing.</p>
 <p>Alias definitions are discussed in more detail <a href="/weblogic-deploy-tooling/developer/alias-definitions/">here</a>.</p>
-<p>The <code>installer</code> module builds the final installer ZIP file. It includes the assembly definitions, start scripts for each tool for Linux and Windows platforms, and configurations for variable injection and logging.</p>
-<p>A single installer ZIP file is built under the <code>WLSDEPLOY_HOME/installer/target</code> directory.</p>
+<p>The <code>installer</code> module builds the final installer ZIP file. <code>installer</code> includes the assembly definitions, start scripts for each tool for Linux and Windows platforms, and configurations for variable injection and logging.</p>
+<p>Two installer files are built under the <code>WLSDEPLOY_HOME/installer/target</code> directory, one ZIP file for all platforms, and one <code>tar.gz</code> file for those that prefer the <code>tar.gz</code> format on UNIX systems.</p>
 <p>There are detailed instructions for building the project <a href="/weblogic-deploy-tooling/developer/buildwdt/">here</a>.</p>
 
 
@@ -1994,19 +1995,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1646161668"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1646161668"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1646161668"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1646161668"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1646161668"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1646161668"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1646430525"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1646430525"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1646430525"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1646430525"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1646430525"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1646430525"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1646161668"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1646161668"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1646161668"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1646430525"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1646430525"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1646430525"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1646161668"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1646430525"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
