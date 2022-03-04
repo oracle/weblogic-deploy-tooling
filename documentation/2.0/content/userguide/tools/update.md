@@ -43,8 +43,8 @@ When running the tool in WLST online mode, the update operation may require serv
   all applications referencing the shared library first before proceeding; this is the same behavior when using the 
   WebLogic Server console. Also, a shared library can potentially be referenced by another 
   shared library module which in turns used by other applications, currently there is no capability within 
-  WebLogic Server to handle automating undeploy and deploy application that uses shared library when the library is 
-  in-place updated.  
+  WebLogic Server to handle automating undeploy and deploy of an application that uses shared library when the library is 
+  updated in-place.  
 
 ### Using an encrypted model
 
