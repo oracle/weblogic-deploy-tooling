@@ -67,6 +67,7 @@ public class RCURunner {
     private String rcuPrefix;
     private List<String> rcuSchemas;
     private boolean ATP_DB = false;
+    private boolean SSL_DB = false;
     private String atpSSlArgs = null;
     private String atpAdminUser = null;
     private String rcuAdminUser = DB_USER;
@@ -170,6 +171,54 @@ public class RCURunner {
         runner.atpTemporaryTablespace = get(rcuProperties, "atp.temp.tablespace");
         return runner;
     }
+    /**
+     * Build an RCU runner for an ATP database.
+     *
+     * @param domainType the domain type
+     * @param oracleHome the ORACLE_HOME location
+     * @param javaHome   the JAVA_HOME location
+     * @param rcuSchemas the list of RCU schemas to create (this list should not include STB)
+     * @param rcuVariables a comma separated list of key=value variables
+     * @param rcuProperties dictionary of ATP specific arguments
+     * @throws CreateException if a parameter validation error occurs
+     */
+    public static RCURunner createSslRunner(String domainType, String oracleHome, String javaHome, String rcuDb,
+                                            String rcuPrefix, List<String> rcuSchemas, String rcuVariables,
+                                            PyDictionary rcuProperties) throws CreateException {
+
+        String tnsAdmin = get(rcuProperties, "oracle.net.tns_admin");
+
+        RCURunner runner = new RCURunner(domainType, oracleHome, javaHome, rcuDb, rcuPrefix, rcuSchemas, rcuVariables);
+        String trustStorePassword = get(rcuProperties, "javax.net.ssl.trustStorePassword");
+        String trustStore = get(rcuProperties, "javax.net.ssl.keyStore");
+        String trustStoreType = get(rcuProperties, "javax.net.ssl.keyStoreType");
+        String keyStorePassword = get(rcuProperties, "javax.net.ssl.keyStorePassword");
+        String keyStore = get(rcuProperties, "javax.net.ssl.keyStore");
+        String keyStoreType = get(rcuProperties, "javax.net.ssl.keyStoreType");
+
+        StringBuffer sslArgs = new StringBuffer();
+        sslArgs.append("oracle.net.tns_admin=");
+        sslArgs.append(tnsAdmin);
+
+        sslArgs.append(",javax.net.ssl.trustStore=");
+        sslArgs.append(tnsAdmin + "/" + trustStore);
+        sslArgs.append(",javax.net.ssl.trustStoreType=" + trustStoreType);
+        // If wallet type is SSO, no password present
+        if (trustStorePassword != null && trustStorePassword != "None") {
+            sslArgs.append(",javax.net.ssl.trustStorePassword="+ trustStorePassword);
+        }
+        sslArgs.append(",javax.net.ssl.keyStore=");
+        sslArgs.append(tnsAdmin + "/" + keyStore);
+        sslArgs.append(",javax.net.ssl.keyStoreType=" + keyStoreType);
+        if (keyStorePassword != null && keyStorePassword != "None") {
+            sslArgs.append(",javax.net.ssl.keyStorePassword="+ keyStorePassword);
+        }
+        sslArgs.append(",oracle.net.ssl_server_dn_match=false");
+
+        runner.SSL_DB = true;
+        runner.atpSSlArgs = sslArgs.toString();
+        return runner;
+    }
 
     public void setRCUAdminUser(String rcuDBUser) {
         rcuAdminUser = rcuDBUser;
@@ -247,7 +296,7 @@ public class RCURunner {
     ///////////////////////////////////////////////////////////////////////////
 
     private void addATPEnv(Map<String, String> env) {
-        if (ATP_DB) {
+        if (ATP_DB || SSL_DB) {
             env.put("RCU_SSL_MODE", "true");
             env.put("SKIP_CONNECTSTRING_VALIDATION", "true");
             env.put("RCU_SKIP_PRE_REQS", "ALL");
@@ -308,6 +357,14 @@ public class RCURunner {
             arguments.add("CN=ignored");
             arguments.add(SSLARGS);
             arguments.add(atpSSlArgs);
+        } else if (SSL_DB) {
+            arguments.add(USE_SSL_SWITCH);
+            arguments.add(SSLARGS);
+            arguments.add(atpSSlArgs);
+            arguments.add(DB_ROLE_SWITCH);
+            arguments.add(DB_ROLE);
+            arguments.add(DB_USER_SWITCH);
+            arguments.add(getRCUAdminUser());
         } else {
             arguments.add(DB_USER_SWITCH);
             arguments.add(getRCUAdminUser());
