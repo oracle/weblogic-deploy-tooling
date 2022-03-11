@@ -26,8 +26,43 @@ or by specifying the unzipped root directory of the ATP wallet zip file in `orac
 Using the Create Domain Tool with the `-run_rcu` flag will create the RCU schemas against the Oracle Autonomous Transaction Processing Cloud Database and configure the datasources in the JRF domain to use the database.  For example:
 
     weblogic-deploy/bin/createDomain.sh -oracle_home /u01/wls12213 -domain_type JRF -domain_home /u01/data/domains/demodomain -archive_file DemoDomain.zip -run_rcu
+For an SSL database, with an `SSO` wallet, use the following example:
+```yaml
+domainInfo:
+    RCUDbInfo:
+      useSSL : true
+      rcu_prefix : DEV
+      rcu_admin_password: <required with -run_rcu flag>
+      rcu_schema_password: <required with -run_rcu flag>
+      tns.alias: <alias of ssl db in the tnsnames.ora file>
+      javax.netssl.keyStore: <keystore cwallet.sso>
+      javax.netssl.keyStoreType: SSO
+      javax.netssl.trustStore: <truststore cwallet.sso>
+      javax.netssl.trustStoreType: SSO
+      oracle.net.tns_admin: <absolute path of the unzipped wallet root directory>
+      
+```
 
-For a non-ATP database, use the following example:
+For an SSL database, with an `PKCS12` wallet, use the following example:
+```yaml
+domainInfo:
+    RCUDbInfo:
+      useSSL : true
+      rcu_prefix : DEV
+      rcu_admin_password: <required with -run_rcu flag>
+      rcu_schema_password: <required with -run_rcu flag>
+      tns.alias: <alias of ssl db in the tnsnames.ora file>
+      javax.netssl.keyStore: <keystore ewallet.p12>
+      javax.netssl.keyStoreType: PKCS12
+      javax.netssl.keyStorePassword: <keystore password>
+      javax.netssl.trustStore: <truststore ewallet.p12>
+      javax.netssl.trustStoreType: PKCS12
+      javax.netssl.trustStorePassword: <password of the truststore>
+      oracle.net.tns_admin: <absolute path of the unzipped wallet root directory>
+
+
+```
+For a typical database, use the following example:
 
 ```yaml
 domainInfo:
