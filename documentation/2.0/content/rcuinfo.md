@@ -35,9 +35,9 @@ domainInfo:
       rcu_admin_password: <required with -run_rcu flag>
       rcu_schema_password: <required with -run_rcu flag>
       tns.alias: <alias of ssl db in the tnsnames.ora file>
-      javax.netssl.keyStore: <keystore cwallet.sso>
+      javax.netssl.keyStore: <keystore found in unzipped wallet, i.e. cwallet.sso>
       javax.netssl.keyStoreType: SSO
-      javax.netssl.trustStore: <truststore cwallet.sso>
+      javax.netssl.trustStore: <truststore found in unzipped wallet, i.e cwallet.sso>
       javax.netssl.trustStoreType: SSO
       oracle.net.tns_admin: <absolute path of the unzipped wallet root directory>
       
@@ -52,10 +52,10 @@ domainInfo:
       rcu_admin_password: <required with -run_rcu flag>
       rcu_schema_password: <required with -run_rcu flag>
       tns.alias: <alias of ssl db in the tnsnames.ora file>
-      javax.netssl.keyStore: <keystore ewallet.p12>
+      javax.netssl.keyStore: <keystore found in the unzipped wallet, i.e. ewallet.p12>
       javax.netssl.keyStoreType: PKCS12
       javax.netssl.keyStorePassword: <keystore password>
-      javax.netssl.trustStore: <truststore ewallet.p12>
+      javax.netssl.trustStore: <truststore found in the unzipped wallet, i.e ewallet.p12>
       javax.netssl.trustStoreType: PKCS12
       javax.netssl.trustStorePassword: <password of the truststore>
       oracle.net.tns_admin: <absolute path of the unzipped wallet root directory>
