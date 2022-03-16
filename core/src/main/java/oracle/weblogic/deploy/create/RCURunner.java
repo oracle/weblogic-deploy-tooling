@@ -172,14 +172,16 @@ public class RCURunner {
         return runner;
     }
     /**
-     * Build an RCU runner for an ATP database.
+     * Build an RCU runner for an SSL database.
      *
      * @param domainType the domain type
      * @param oracleHome the ORACLE_HOME location
      * @param javaHome   the JAVA_HOME location
+     * @param rcuDb The URL of the database
+     * @param rcuPrefix The prefix used for the tablespaces
      * @param rcuSchemas the list of RCU schemas to create (this list should not include STB)
      * @param rcuVariables a comma separated list of key=value variables
-     * @param rcuProperties dictionary of ATP specific arguments
+     * @param rcuProperties dictionary of SSL specific arguments
      * @throws CreateException if a parameter validation error occurs
      */
     public static RCURunner createSslRunner(String domainType, String oracleHome, String javaHome, String rcuDb,

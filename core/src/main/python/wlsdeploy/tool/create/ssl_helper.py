@@ -13,7 +13,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 
 _logger = PlatformLogger('wlsdeploy.create')
 
-def set_ssl_properties(xmlDoc, atp_creds_path, keystore_password, truststore_password):
+def set_ssl_properties(xmlDoc, atp_creds_path, truststore, truststore_type, keystore_password, truststore_password):
     '''
     Add SSL config properties to the specified XML document.
     :param xmlDoc:                  The XML document
@@ -26,8 +26,8 @@ def set_ssl_properties(xmlDoc, atp_creds_path, keystore_password, truststore_pas
 
     for prop in props:
         if prop.getAttribute('name') == 'props.db.1':
-            set_property(DOMTree, prop, 'javax.net.ssl.trustStoreType', 'PKCS12')
-            set_property(DOMTree, prop, 'javax.net.ssl.trustStore', atp_creds_path + '/truststore.jks')
+            set_property(DOMTree, prop, 'javax.net.ssl.trustStoreType', truststore_type)
+            set_property(DOMTree, prop, 'javax.net.ssl.trustStore', atp_creds_path + '/' + truststore)
             set_property(DOMTree, prop, 'oracle.net.tns_admin', atp_creds_path)
             set_property(DOMTree, prop, 'javax.net.ssl.trustStorePassword', truststore_password)
             # Persist the changes in the xml file
@@ -53,13 +53,14 @@ def set_property(DOMTree, prop, name, value):
 
 def fix_jps_config(rcu_db_info, model_context):
     tns_admin = rcu_db_info.get_atp_tns_admin()
-    keystore_password = rcu_db_info.get_keystore_password()
+    truststore = rcu_db_info.get_trustore()
+    truststore_type = rcu_db_info.get_truststore_type()
     truststore_password = rcu_db_info.get_truststore_password()
 
     jsp_config = model_context.get_domain_home() + '/config/fmwconfig/jps-config.xml'
     jsp_config_jse = model_context.get_domain_home() + '/config/fmwconfig/jps-config-jse.xml'
-    set_ssl_properties(jsp_config, tns_admin, keystore_password, truststore_password)
-    set_ssl_properties(jsp_config_jse, tns_admin, keystore_password, truststore_password)
+    set_ssl_properties(jsp_config, tns_admin, truststore, truststore_type, truststore_password)
+    set_ssl_properties(jsp_config_jse, tns_admin, truststore, truststore_type, truststore_password)
 
 
 def get_ssl_connect_string(tnsnames_ora_path, tns_sid_name):
@@ -92,20 +93,20 @@ def get_ssl_connect_string(tnsnames_ora_path, tns_sid_name):
             return connect_string, None
         else:
             ex = exception_helper.create_create_exception("WLSDPLY-12563", tns_sid_name)
-            _logger.throwing(ex, class_name='atp_helper', method_name='get_atp_connect_string')
+            _logger.throwing(ex, class_name='ssl_helper', method_name='get_ssl_connect_string')
             raise ex
     except IOError, ioe:
         ex = exception_helper.create_create_exception("WLSDPLY-12570", str(ioe))
-        _logger.throwing(ex, class_name='atp_helper', method_name='get_atp_connect_string')
+        _logger.throwing(ex, class_name='ssl_helper', method_name='get_ssl_connect_string')
         raise ex
     except Exception, ex:
         ex = exception_helper.create_create_exception("WLSDPLY-12570", str(ex))
-        _logger.throwing(ex, class_name='atp_helper', method_name='get_atp_connect_string')
+        _logger.throwing(ex, class_name='ssl_helper', method_name='get_ssl_connect_string')
         raise ex
 
 def cleanup_connect_string(connect_string):
     """
-    Formats connect string for ATP DB by removing unwanted whitespaces.
+    Formats connect string for SSL DB by removing unwanted whitespaces.
     :return:
     """
     connect_string = String(connect_string).replace(' ', '')
