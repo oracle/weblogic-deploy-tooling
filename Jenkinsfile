@@ -75,7 +75,20 @@ pipeline {
                 }
             }
         }
-       stage ('Alias Test') {
+        stage ('Analyze') {
+            when {
+                anyOf {
+                    changeRequest()
+                    branch "main"
+                }
+            }
+            steps {
+                withCredentials([string(credentialsId: 'ecnj_sonar_token', variable: 'SONAR_TOKEN')]) {
+                    sh '-B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=oracle_weblogic-deploy-tooling'
+                }
+            }
+        }
+        stage ('Alias Test') {
             // only run this stage when triggered by a cron timer and the commit does not have []skip-ci in the message
             // for example, only run integration tests during the timer triggered nightly build
             when {
@@ -129,6 +142,5 @@ pipeline {
                 '''
             }
         }
-
     }
 }
