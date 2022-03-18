@@ -83,7 +83,7 @@ pipeline {
             }
             steps {
                 withCredentials([string(credentialsId: 'ecnj_sonar_token', variable: 'SONAR_TOKEN')]) {
-                    sh 'mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=oracle_weblogic-deploy-tooling'
+                    sh 'mvn -B sonar:sonar -Dsonar.projectKey=oracle_weblogic-deploy-tooling -Dsonar.branch.name=${GIT_BRANCH}'
                 }
             }
         }
