@@ -13,12 +13,7 @@ pipeline {
                 jdk 'jdk8'
             }
             steps {
-                sh '''
-                    echo "PATH = ${PATH}"
-                    echo "JAVA_HOME = ${JAVA_HOME}"
-                    echo "M2_HOME = ${M2_HOME}"
-                    mvn --version
-                '''
+                sh 'env|sort'
             }
         }
         stage ('Build') {
@@ -82,9 +77,13 @@ pipeline {
                     branch "main"
                 }
             }
+            tools {
+                maven 'maven-3.6.0'
+                jdk 'jdk11'
+            }
             steps {
                 withCredentials([string(credentialsId: 'ecnj_sonar_token', variable: 'SONAR_TOKEN')]) {
-                    sh '-B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=oracle_weblogic-deploy-tooling'
+                    sh 'mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=oracle_weblogic-deploy-tooling'
                 }
             }
         }
