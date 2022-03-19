@@ -82,7 +82,7 @@ pipeline {
                 jdk 'jdk11'
             }
             steps {
-                withSonarQubeEnv('sonarqube-scanner', credentialsId: 'ecnj_sonar_token') {
+                withSonarQubeEnv('SonarCloud') {
                     sh 'mvn -B sonar:sonar -Dsonar.projectKey=oracle_weblogic-deploy-tooling'
                 }
             }
