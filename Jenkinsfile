@@ -82,8 +82,8 @@ pipeline {
                 jdk 'jdk11'
             }
             steps {
-                withCredentials([string(credentialsId: 'ecnj_sonar_token', variable: 'SONAR_TOKEN')]) {
-                    sh 'mvn -B sonar:sonar -Dsonar.projectKey=oracle_weblogic-deploy-tooling -Dsonar.branch.name=${GIT_BRANCH}'
+                withSonarQubeEnv(credentialsId: 'ecnj_sonar_token') {
+                    sh 'mvn -B sonar:sonar -Dsonar.projectKey=oracle_weblogic-deploy-tooling'
                 }
             }
         }
