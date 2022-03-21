@@ -50,7 +50,7 @@
             "folders": {},
             "attributes": {
               "EncryptValueRequired":                [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "EncryptValueRequired",               "wlst_path": "WP001", "default_value": null, "wlst_type": "boolean"          } ],
-              "EncryptedValueEncrypted":             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "EncryptedValueEncrypted",            "wlst_path": "WP001", "default_value": false, "wlst_type": "password",        "get_method": "GET"          } ],
+              "EncryptedValueEncrypted":             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "EncryptedValueEncrypted",            "wlst_path": "WP001", "default_value": null, "wlst_type": "password",        "get_method": "GET"          } ],
               "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ],
               "Value":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Value",                              "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ]
 
@@ -101,7 +101,7 @@
             "folders": {},
             "attributes": {
               "EncryptValueRequired":                [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "EncryptValueRequired",               "wlst_path": "WP001", "default_value": null,  "wlst_type": "boolean"           } ],
-              "EncryptedValueEncrypted":             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "EncryptedValueEncrypted",            "wlst_path": "WP001", "default_value": false, "wlst_type": "password",        "get_method": "GET"          } ],
+              "EncryptedValueEncrypted":             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "EncryptedValueEncrypted",            "wlst_path": "WP001", "default_value": null, "wlst_type": "password",        "get_method": "GET"          } ],
               "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "default_value": null,  "wlst_type": "string"            } ],
               "Value":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Value",                              "wlst_path": "WP001", "default_value": null,  "wlst_type": "string"            } ]
 
