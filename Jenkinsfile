@@ -37,7 +37,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'mvn -Dunit-test-wlst-dir=${WLST_DIR} test'
+                sh 'mvn -B -Dunit-test-wlst-dir=${WLST_DIR} test'
             }
             post {
                 always {
@@ -62,7 +62,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'mvn -DskipITs=false -Dmw_home=${ORACLE_HOME} -Ddb.use.container.network=true verify'
+                sh 'mvn -B -DskipITs=false -Dmw_home=${ORACLE_HOME} -Ddb.use.container.network=true verify'
             }
             post {
                 always {
