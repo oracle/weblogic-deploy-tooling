@@ -320,7 +320,7 @@ class DomainCreator(Creator):
             rcu_db = rcu_db_info.get_preferred_db()
             rcu_properties_map = self.model.get_model_domain_info()[RCU_DB_INFO]
             rcu_runner_map =dict(rcu_properties_map)
-            rcu_runner_map[ATP_ADMIN_USER] = rcu_db_info.get_ssl_tns_admin()
+            rcu_runner_map[SSL_ADMIN_USER] = rcu_db_info.get_ssl_tns_admin()
             runner = RCURunner.createSslRunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas,
                                                rcu_db_info.get_rcu_variables(), rcu_runner_map)
         else:
