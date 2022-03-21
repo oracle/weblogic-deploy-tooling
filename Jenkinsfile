@@ -83,7 +83,9 @@ pipeline {
             }
             steps {
                 withSonarQubeEnv('SonarCloud') {
-                    sh 'mvn -B sonar:sonar -Dsonar.projectKey=oracle_weblogic-deploy-tooling'
+                    withCredentials([string(credentialsId: 'encj_github_token', variable: 'GITHUB_TOKEN')]) {
+                        sh 'mvn -B sonar:sonar -Dsonar.projectKey=oracle_weblogic-deploy-tooling'
+                    }
                 }
             }
         }
