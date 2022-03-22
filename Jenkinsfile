@@ -147,9 +147,9 @@ pipeline {
 }
 
 void runSonarScanner() {
-    def changeUrl = env.CHANGE_URL.split("/")
+    def changeUrl = env.GIT_URL.split("/")
     def org = changeUrl[3]
-    def repo = changeUrl[4]
+    def repo = changeUrl[4].substring(0, changeUrl[4].length() - 4)
     if (changeRequest()) {
         sh "mvn -B sonar:sonar \
             -Dsonar.projectKey=${org}_${repo} \
