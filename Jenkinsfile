@@ -84,7 +84,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarCloud') {
                     withCredentials([string(credentialsId: 'encj_github_token', variable: 'GITHUB_TOKEN')]) {
-                        sh 'mvn -B sonar:sonar -Dsonar.projectKey=oracle_weblogic-deploy-tooling'
+                        runSonarScanner()
                     }
                 }
             }
@@ -143,5 +143,23 @@ pipeline {
                 '''
             }
         }
+    }
+}
+
+void runSonarScanner() {
+    if (changeRequest()) {
+        def changeUrl = env.CHANGE_URL.split("/")
+        def org = changeUrl[3]
+        def repo = changeUrl[4]
+        sh 'mvn -B sonar:sonar \
+            -Dsonar.projectKey=oracle_weblogic-deploy-tooling \
+            -Dsonar.pullrequest.provider=GitHub \
+            -Dsonar.pullrequest.github.repository=${org}/${repo} \
+            -Dsonar.pullrequest.key=${env.CHANGE_ID} \
+            -Dsonar.pullrequest.branch=${env.CHANGE_BRANCH}'
+    } else {
+       sh 'mvn -B sonar:sonar \
+           -Dsonar.projectKey=oracle_weblogic-deploy-tooling \
+           -Dsonar.pullrequest.branch=${env.CHANGE_BRANCH}'
     }
 }
