@@ -90,8 +90,7 @@ class ModelHelpPrinter(object):
             self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
-        # FIXME - change me back to finest
-        self._logger.info('match.group(1)={0}, match.group(2)={1}', str(match.group(1)), str(match.group(2)),
+        self._logger.finest('match.group(1)={0}, match.group(2)={1}', str(match.group(1)), str(match.group(2)),
                             class_name=_class_name, method_name=_method_name)
 
         section = match.group(1)
