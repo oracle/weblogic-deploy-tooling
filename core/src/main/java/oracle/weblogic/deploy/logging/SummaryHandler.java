@@ -216,10 +216,11 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
 
     private void summaryTail(Handler handler) {
         StringBuilder buffer = new StringBuilder();
-        java.util.Formatter fmt = new java.util.Formatter(buffer);
-        for (LevelHandler levelHandler : handlers) {
-            if (levelHandler.getTotalRecords() >= 0) {
-                fmt.format("    %1$s : %2$,5d", levelHandler.getLevel().getName(), levelHandler.getTotalRecords());
+        try (java.util.Formatter fmt = new java.util.Formatter(buffer)) {
+            for (LevelHandler levelHandler : handlers) {
+                if (levelHandler.getTotalRecords() >= 0) {
+                    fmt.format("    %1$s : %2$,5d", levelHandler.getLevel().getName(), levelHandler.getTotalRecords());
+                }
             }
         }
         handler.publish(getLogRecord("WLSDPLY-21002", buffer));

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import re
@@ -15,7 +15,7 @@ from wlsdeploy.tool.modelhelp.model_sample_printer import ModelSamplePrinter
 from wlsdeploy.util import model
 
 _class_name = "ModelHelpPrinter"
-MODEL_PATH_PATTERN = re.compile(r'^([a-zA-Z]+:?)?((/[a-zA-Z0-9]+)*)?$')
+MODEL_PATH_PATTERN = re.compile(r'(^[a-zA-Z]+:?)?(/[a-zA-Z0-9^/]+)?$')
 
 
 class ModelHelpPrinter(object):
