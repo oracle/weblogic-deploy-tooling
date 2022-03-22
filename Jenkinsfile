@@ -160,6 +160,6 @@ void runSonarScanner() {
     } else {
        sh 'mvn -B sonar:sonar \
            -Dsonar.projectKey=oracle_weblogic-deploy-tooling \
-           -Dsonar.pullrequest.branch=${env.CHANGE_BRANCH}'
+           -Dsonar.branch.name=${env.BRANCH_NAME}'
     }
 }
