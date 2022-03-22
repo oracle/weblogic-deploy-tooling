@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.aliases;
@@ -20,12 +20,12 @@ public final class VersionUtils {
     private static final String CLASS = VersionUtils.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.versions");
 
-    private static final String VERSION_REGEX_STRING = "[\\(\\[][ ]*([0-9]*([-.][0-9]+)*)[ ]*[\\)\\]]?";
+    private static final String VERSION_REGEX_STRING = "[(\\[][ ]*(\\d+([-.]\\d+){0,5})[ ]*[)\\]]?";
     private static final Pattern VERSION_REGEX = Pattern.compile(VERSION_REGEX_STRING);
     private static final int VERSION_GROUP = 1;
 
     private static final String VERSION_RANGE_REGEX_STRING =
-        "[\\(\\[][ ]*([0-9]*([-.][0-9]+)*)[ ]*,[ ]*([0-9]*([-.][0-9]+)*)[ ]*[\\)\\]]";
+        "[(\\[][ ]*(\\d*([-.]\\d+){0,5})[ ]*,[ ]*(\\d*([-.]\\d+){0,5})[ ]*[)\\]]";
     private static final Pattern VERSION_RANGE_REGEX = Pattern.compile(VERSION_RANGE_REGEX_STRING);
     private static final int RANGE_LOW_GROUP = 1;
     private static final int RANGE_HIGH_GROUP = 3;
