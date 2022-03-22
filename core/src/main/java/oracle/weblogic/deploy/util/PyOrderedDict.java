@@ -100,19 +100,16 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
 
         PyOrderedDict other = null;
         if (ob_other == null || ob_other.getType() != getType()) {
-            result = -2;
+            return -2;
         } else {
             other = (PyOrderedDict) ob_other;
             int an = this.linkedHashMap.size();
             int bn = other.linkedHashMap.size();
             if (an < bn) {
-                result = -1;
+                return -1;
             } else if (an > bn) {
-                result = 1;
+                return 1;
             }
-        }
-        if (result != 0) {
-            return result;
         }
 
         PyList akeys = keys();
