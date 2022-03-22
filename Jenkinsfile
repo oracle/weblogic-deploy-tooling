@@ -151,15 +151,16 @@ void runSonarScanner() {
         def changeUrl = env.CHANGE_URL.split("/")
         def org = changeUrl[3]
         def repo = changeUrl[4]
-        sh 'mvn -B sonar:sonar \
+        sh "mvn -B sonar:sonar \
             -Dsonar.projectKey=oracle_weblogic-deploy-tooling \
             -Dsonar.pullrequest.provider=GitHub \
             -Dsonar.pullrequest.github.repository=${org}/${repo} \
             -Dsonar.pullrequest.key=${env.CHANGE_ID} \
-            -Dsonar.pullrequest.branch=${env.CHANGE_BRANCH}'
+            -Dsonar.pullrequest.branch=${env.CHANGE_BRANCH} \
+            -Dsonar.pullrequest.base=${env.CHANGE_TARGET}"
     } else {
-       sh 'mvn -B sonar:sonar \
+       sh "mvn -B sonar:sonar \
            -Dsonar.projectKey=oracle_weblogic-deploy-tooling \
-           -Dsonar.branch.name=${env.BRANCH_NAME}'
+           -Dsonar.branch.name=${env.BRANCH_NAME}"
     }
 }
