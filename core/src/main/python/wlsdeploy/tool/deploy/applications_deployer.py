@@ -249,9 +249,7 @@ class ApplicationsDeployer(Deployer):
                                          stop_and_undeploy_app_list)
 
         # deployed_app_list is list of apps that has been deployed and started again
-        # redeploy_app_list is list of apps that needs to be redeployed
         deployed_app_list = []
-        redeploy_app_list = []
 
         #  For in-place update of shared libraries (i.e. impl/spec versions are not updated in the MANIFEST.MF for
         #   update), trying to do so will result in error just like the console.
