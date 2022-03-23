@@ -191,7 +191,7 @@ class CustomFolderHelper(object):
             elif value_type == 'PyArray' or value_type.startswith('[L') or value_type == 'array.array':
                 converted = create_array(value)
                 if converted is not None:
-                    converted_type = alias_constants.LIST
+                    converted_type = alias_constants.JARRAY
             elif value_type == 'list':
                 converted = create_array(value)
                 if converted is not None:
