@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates. 
 The Universal Permissive License (UPL), Version 1.0
 """
 
@@ -117,7 +117,7 @@ class CustomFolderHelper(object):
         add_value = None
         mbean_string = attribute_helper.mbean_string()
         if attribute_helper.is_read_only(attribute_name):
-            _logger.finer('WLDSPLY-06776', mbean_string, attribute_name,
+            _logger.finer('WLSDPLY-06776', mbean_string, attribute_name,
                           class_name=_class_name, method_name=_method_name)
         else:
             model_type, model_value = self.__convert_to_type(attribute_helper, attribute_name, wlst_value)
@@ -130,14 +130,16 @@ class CustomFolderHelper(object):
                               class_name=_class_name, method_name=_method_name)
                 default_value = self.__get_default_value(attribute_helper, attribute_name)
                 if not is_empty(model_value):
+                    if not is_empty(default_value):
+                        converted_type, default_value = self.convert(default_value, type(default_value))
                     if is_empty(default_value) or not self.is_default(model_value, model_type, default_value):
                         add_value = model_value
                 if add_value is not None and model_type == alias_constants.PASSWORD:
                     add_value = alias_constants.PASSWORD_TOKEN
 
-            else:
-                _logger.finer('WLSDPLY-06771', mbean_string, attribute_name, attribute_helper.get_type(attribute_name),
-                              class_name=_class_name, method_name=_method_name)
+#             else:
+#                 _logger.finer('WLSDPLY-06771', mbean_string, attribute_name, attribute_helper.get_type(attribute_name),
+#                               class_name=_class_name, method_name=_method_name)
 
         return add_value
 
@@ -149,6 +151,9 @@ class CustomFolderHelper(object):
         :return: converted data type and value
         """
         _method_name = 'convert_method'
+        if str(value_type).startswith('<type '):
+           # strip off type, introduced in 14.1.1
+           value_type = str(value_type)[7:-2]
         converted_type = None
         converted = None
         try:
@@ -183,10 +188,10 @@ class CustomFolderHelper(object):
                 converted_type = alias_constants.STRING
                 if value is not None:
                     converted = value.toString()
-            elif value_type == 'PyArray' or value_type.startswith('[L'):
+            elif value_type == 'PyArray' or value_type.startswith('[L') or value_type == 'array.array':
                 converted = create_array(value)
                 if converted is not None:
-                    converted_type = alias_constants.JARRAY
+                    converted_type = alias_constants.LIST
             elif value_type == 'list':
                 converted = create_array(value)
                 if converted is not None:
