@@ -893,14 +893,6 @@ class ApplicationsDeployer(Deployer):
                                               targets=targets)
         return
 
-    def __redeploy_app(self, application_name):
-        _method_name = '__redeploy_app'
-
-        self.logger.info('WLSDPLY-09315', application_name, class_name=self._class_name, method_name=_method_name)
-        self.wlst_helper.redeploy_application(application_name,
-                                              timeout=self.model_context.get_model_config().get_redeploy_timeout())
-        return
-
     def __deploy_model_libraries(self, model_libs, lib_location):
         if model_libs is not None and len(model_libs) > 0:
             uses_path_tokens_attribute_names = self.__get_uses_path_tokens_attribute_names(lib_location)
