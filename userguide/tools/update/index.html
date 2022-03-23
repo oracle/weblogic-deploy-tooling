@@ -12,20 +12,20 @@
     <title>Update Domain Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1647832920" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1647832920" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1647832920" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1647832920" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1647832920" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1647832920" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1647832920" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1647832920" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1647832920" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1647832920" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1648078339" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1648078339" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1648078339" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1648078339" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1648078339" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1648078339" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1648078339" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1648078339" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1648078339" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1648078339" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1647832920"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1648078339"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1647832920"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1647832920"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1648078339"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1648078339"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1647832920"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1648078339"></script>
 
     
   </div>
@@ -1191,6 +1191,7 @@
   <ul>
     <li>
       <ul>
+        <li><a href="#online-update-for-shared-libraries">Online update for shared libraries</a></li>
         <li><a href="#using-an-encrypted-model">Using an encrypted model</a></li>
         <li><a href="#using-multiple-models">Using multiple models</a></li>
         <li><a href="#parameter-table-for-updatedomain">Parameter table for <code>updateDomain</code></a></li>
@@ -1235,6 +1236,25 @@
 <ul>
 <li><code>103</code> - The entire domain needs to be restarted.</li>
 <li><code>104</code> - The domain changes have been canceled because the changes in the model requires a domain restart and <code>-cancel_changes_if_restart_required</code> is specified.</li>
+</ul>
+<h3 id="online-update-for-shared-libraries">Online update for shared libraries</h3>
+<ul>
+<li>
+<p>When updating shared library online, it is recommended to deploy a new version of the library by updating the
+version(s) in the MANIFEST.MF file and update the deployment descriptor of any application that wants to upgrade to
+use the new library, this avoids complicated issues like in-place update of shared
+library.</p>
+</li>
+<li>
+<p>In-place update of shared library online is not supported - if you only
+update the library contents without updating the version(s) of the library in the MANIFEST.MF file.  You will get an error
+from WebLogic Server indicating the library is referenced by applications and cannot be undeployed. You must undeploy
+all applications referencing the shared library first before proceeding; this is the same behavior when using the
+WebLogic Server console. Also, a shared library can potentially be referenced by another
+shared library module which in turns used by other applications, currently there is no capability within
+WebLogic Server to handle automating undeploy and deploy of an application that uses shared library when the library is
+updated in-place.</p>
+</li>
 </ul>
 <h3 id="using-an-encrypted-model">Using an encrypted model</h3>
 <p>If the model or variables file contains passwords encrypted with the WDT Encryption tool, decrypt the passwords during create with the <code>-use_encryption</code> flag on the command line to tell the Update Domain Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, <code>stdin</code>) to allow the tool to run without any user input. You can bypass the stdin prompt with two other options. Store the passphrase in an environment variable, and use the environment variable name with command-line option <code>-passphrase_env</code>. Another option is to create a file containing the passphrase value. Pass this filename with the command-line option <code>-passphrase_file</code>.</p>
@@ -2123,19 +2143,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1647832920"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1647832920"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1647832920"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1647832920"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1647832920"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1647832920"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1648078339"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1648078339"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1648078339"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1648078339"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1648078339"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1648078339"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1647832920"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1647832920"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1647832920"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1648078339"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1648078339"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1648078339"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1647832920"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1648078339"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
