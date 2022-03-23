@@ -150,7 +150,7 @@ void runSonarScanner() {
     def changeUrl = env.GIT_URL.split("/")
     def org = changeUrl[3]
     def repo = changeUrl[4].substring(0, changeUrl[4].length() - 4)
-    if (changeRequest()) {
+    if (env.CHANGE_ID != null) {
         sh "mvn -B sonar:sonar \
             -Dsonar.projectKey=${org}_${repo} \
             -Dsonar.pullrequest.provider=GitHub \
