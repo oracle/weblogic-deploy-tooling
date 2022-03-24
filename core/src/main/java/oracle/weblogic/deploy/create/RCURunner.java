@@ -202,6 +202,11 @@ public class RCURunner {
         String keyStorePassword = get(rcuProperties, "javax.net.ssl.keyStorePassword");
         String keyStore = get(rcuProperties, "javax.net.ssl.keyStore");
         String keyStoreType = get(rcuProperties, "javax.net.ssl.keyStoreType");
+        String match_type = get(rcuProperties, "oracle.net.ssl_server_dn_match");
+        if (match_type == null)  {
+            match_type = Boolean.FALSE.toString();
+        }
+
 
         StringBuffer sslArgs = new StringBuffer();
         sslArgs.append("oracle.net.tns_admin=");
@@ -220,7 +225,7 @@ public class RCURunner {
         if (keyStorePassword != null && keyStorePassword != "None") {
             sslArgs.append(",javax.net.ssl.keyStorePassword="+ keyStorePassword);
         }
-        sslArgs.append(",oracle.net.ssl_server_dn_match=false");
+        sslArgs.append(",oracle.net.ssl_server_dn_match="+ match_type);
 
         runner.sslDB = true;
         runner.atpSSlArgs = sslArgs.toString();
