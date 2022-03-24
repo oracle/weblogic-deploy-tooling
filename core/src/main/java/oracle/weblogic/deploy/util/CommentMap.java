@@ -16,7 +16,7 @@ import java.util.Map;
 public class CommentMap {
     public static final String BLANK_LINE_KEY = "__BLANK_LINE__";
 
-    private final Map<String, List<String>> commentMap = new HashMap<>();
+    private final Map<String, List<String>> internalCommentMap = new HashMap<>();
 
     public void addBlankLine(String key) {
         getOrCreateComments(key).add(BLANK_LINE_KEY);
@@ -27,15 +27,15 @@ public class CommentMap {
     }
 
     public List<String> getComments(String key) {
-        List<String> comments = commentMap.get(key);
+        List<String> comments = internalCommentMap.get(key);
         return (comments == null) ? Collections.<String>emptyList() : comments;
     }
 
     private List<String> getOrCreateComments(String key) {
-        List<String> comments = commentMap.get(key);
+        List<String> comments = internalCommentMap.get(key);
         if(comments == null) {
             comments = new ArrayList<>();
-            commentMap.put(key, comments);
+            internalCommentMap.put(key, comments);
         }
         return comments;
     }

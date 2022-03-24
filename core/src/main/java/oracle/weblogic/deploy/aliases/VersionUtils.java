@@ -85,11 +85,8 @@ public final class VersionUtils {
             int thisVersionNumber = parseVersionElement(thisVersionElements[idx], thisVersion);
             int otherVersionNumber = parseVersionElement(otherVersionElements[idx], otherVersion);
 
-            if (thisVersionNumber > otherVersionNumber) {
-                result = 1;
-                break;
-            } else if (thisVersionNumber < otherVersionNumber) {
-                result = -1;
+            result = Integer.compare(thisVersionNumber, otherVersionNumber);
+            if (result != 0) {
                 break;
             }
         }
@@ -123,9 +120,6 @@ public final class VersionUtils {
                 useCase += 2;
             }
             switch (useCase) {
-                case 0:
-                    break;
-
                 case 1:
                     result = -1;
                     break;
@@ -138,6 +132,9 @@ public final class VersionUtils {
                     String thisQualifier = thisVersion.substring(thisVersion.indexOf('-'));
                     String otherQualifier = otherVersion.substring(otherVersion.indexOf('-'));
                     result = thisQualifier.compareTo(otherQualifier);
+                    break;
+
+                default:
                     break;
             }
         }

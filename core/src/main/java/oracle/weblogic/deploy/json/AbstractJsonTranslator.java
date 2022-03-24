@@ -117,7 +117,7 @@ public abstract class AbstractJsonTranslator extends JSONBaseListener {
      */
     @Override
     public void enterJsonObject(JSONParser.JsonObjectContext ctx) {
-        String METHOD = "enterJsonObject";
+        final String METHOD = "enterJsonObject";
         if (currentPairName.isEmpty()) {
             // This should only happen for the outermost object that the file defines.
             //
@@ -134,7 +134,8 @@ public abstract class AbstractJsonTranslator extends JSONBaseListener {
         }
 
         String name = currentPairName.peek();
-        if (currentDict.peek().has_key(new PyString(name))) {
+        PyDictionary nextDict = currentDict.peek();
+        if (name != null && nextDict != null && nextDict.has_key(new PyString(name))) {
             String message = ExceptionHelper.getMessage("WLSDPLY-18028", name);
             ParseCancellationException ex =
                 new ParseCancellationException(message);

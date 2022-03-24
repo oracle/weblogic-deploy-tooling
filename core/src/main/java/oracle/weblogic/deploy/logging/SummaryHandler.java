@@ -31,6 +31,7 @@ import static oracle.weblogic.deploy.logging.WLSDeployLoggingConfig.WLSDEPLOY_SU
  */
 public class SummaryHandler extends WLSDeployLogEndHandler {
     private static final String CLASS = SummaryHandler.class.getName();
+    private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.exit");
 
     private static final String LEVEL_PROPERTY = ".level";
     private static final String TARGET_PROPERTY = ".target";
@@ -42,7 +43,6 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
     private WLSDeployContext context;
     private boolean suppressOutput = false;
 
-    private final PlatformLogger LOGGER;
     private final Handler outputTargetHandler;
     private final List<LevelHandler> handlers = new ArrayList<>();
     private boolean closed = false;
@@ -52,7 +52,6 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
      */
     public SummaryHandler() {
         super();
-        LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.exit");
         this.outputTargetHandler = getOutputTargetHandler();
 
         this.bufferSize = getMemoryBufferSize(CLASS + SIZE_PROPERTY);
@@ -264,10 +263,10 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
     }
 
     private class SummaryFormatter extends Formatter {
-        private final String MSG_FORMAT = "    %1$5d. %2$s: %3$s" + System.lineSeparator();
-        private final String INTERNAL = System.lineSeparator() + "%s" + System.lineSeparator() + System.lineSeparator();
+        private final String msgFormat = "    %1$5d. %2$s: %3$s" + System.lineSeparator();
+        private final String internal = System.lineSeparator() + "%s" + System.lineSeparator() + System.lineSeparator();
         private int sequence = 0;
-        private Level level;
+        private final Level level;
 
         public SummaryFormatter(Level level) {
             this.level = level;
@@ -283,14 +282,14 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
             String formatted = formatMessage(logRecord);
             if (msgId != null && !msgId.equals(formatted)) {
                 // this has a msg id. don't post any that don't have msg id.
-                message = String.format(MSG_FORMAT, ++sequence, msgId, formatted);
+                message = String.format(msgFormat, ++sequence, msgId, formatted);
             }
             return message;
         }
 
         @Override
         public String getHead(Handler handler) {
-            return String.format(INTERNAL, formatMessage(getLogRecord("WLSDPLY-21000", level.getLocalizedName())));
+            return String.format(internal, formatMessage(getLogRecord("WLSDPLY-21000", level.getLocalizedName())));
         }
     }
 
