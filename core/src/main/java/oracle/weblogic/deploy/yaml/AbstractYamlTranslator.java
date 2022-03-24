@@ -60,7 +60,6 @@ public abstract class AbstractYamlTranslator {
      * @throws YamlException if an error occurs while reading the input file
      */
     public PyDictionary parse() throws YamlException {
-        final String METHOD = "parse";
         PyDictionary result;
         PyList dictionaries = parseDocuments(false);
         if (dictionaries.isEmpty()) {

@@ -72,11 +72,7 @@ public final class FileUtils {
      */
     public static InputStream getFileAsStream(String fileName) throws IOException {
         File file = validateExistingFile(fileName);
-        InputStream inputStream = null;
-        if (file != null) {
-            inputStream = new FileInputStream(getCanonicalFile(file));
-        }
-        return inputStream;
+        return new FileInputStream(getCanonicalFile(file));
     }
 
     /**
@@ -576,7 +572,7 @@ public final class FileUtils {
      * @throws NoSuchAlgorithmException if an error occurs obtaining the hashing algorithm
      */
     public static String computeHash(byte[] bytes) throws NoSuchAlgorithmException {
-        MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-512");
         byte[] hash = messageDigest.digest(bytes);
         return DatatypeConverter.printBase64Binary(hash);
     }
@@ -622,20 +618,12 @@ public final class FileUtils {
     }
 
     public static File writeInputStreamToFile(InputStream input, String fileName) throws IOException {
-        FileOutputStream fos = null;
-        File file = null;
-
-        try {
-            File tmpdir = new File(System.getProperty("java.io.tmpdir"));
-            file = new File(tmpdir, fileName);
+        File tmpdir = new File(System.getProperty("java.io.tmpdir"));
+        File file = new File(tmpdir, fileName);
+        try (FileOutputStream fos = new FileOutputStream(file)) {
             byte[] byteArray = FileUtils.readInputStreamToByteArray(input);
-            fos = new FileOutputStream(file);
             fos.write(byteArray);
         }
-        finally {
-            if (fos != null) { fos.close(); }
-        }
-
         return file;
     }
 
@@ -644,9 +632,7 @@ public final class FileUtils {
         final String METHOD = "extractZipFileContent";
 
         try {
-
             if (zipEntry != null) {
-
                 File extractDir = new File(extractPath);
                 extractDir.mkdirs();
                 String walletZip = archiveFile.extractFile(zipEntry,
@@ -682,7 +668,6 @@ public final class FileUtils {
                     fos.close();
                     zis.closeEntry();
                     ze = zis.getNextEntry();
-
                 }
                 zis.closeEntry();
                 zis.close();
@@ -695,9 +680,7 @@ public final class FileUtils {
             IllegalArgumentException iae = new IllegalArgumentException(message);
             LOGGER.throwing(CLASS, METHOD, iae);
             throw iae;
-
         }
-
     }
 
     /**
@@ -707,7 +690,7 @@ public final class FileUtils {
      * @throws IllegalArgumentException if the file is not writable
      */
     public static PrintWriter getPrintWriter(String fileName)  {
-        String METHOD = "getPrintWriter";
+        final String METHOD = "getPrintWriter";
         validateWritableFile(fileName);
         try {
             return new PrintWriter(new File(fileName));

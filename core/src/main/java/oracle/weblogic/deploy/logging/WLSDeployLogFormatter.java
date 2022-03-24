@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  * The log formatting class.
  */
 public class WLSDeployLogFormatter extends Formatter {
-    private static final String CATALOG_KEY_PATTERN_STRING = "^[A-Z]{3,10}?-[0-9]{3,5}?$";
+    private static final String CATALOG_KEY_PATTERN_STRING = "^[A-Z]{3,10}?-[0-9]{3,5}$";
     private static final Pattern CATALOG_KEY_PATTERN = Pattern.compile(CATALOG_KEY_PATTERN_STRING);
 
     private static final String DATE_FORMAT_STRING = "####<{0,date} {0,time}>";

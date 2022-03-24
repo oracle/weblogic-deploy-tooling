@@ -11,7 +11,7 @@ import java.util.LinkedHashMap;
  * and has a mapping of element keys to a list of comments.
  */
 public class OrderedMap extends LinkedHashMap<String, Object> {
-    private CommentMap commentMap = new CommentMap();
+    private transient CommentMap commentMap = new CommentMap();
 
     public OrderedMap() {
         super();
@@ -23,5 +23,32 @@ public class OrderedMap extends LinkedHashMap<String, Object> {
 
     public void setCommentMap(CommentMap commentMap) {
         this.commentMap = commentMap;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object other) {
+        boolean result;
+        if (this == other) {
+            result = true;
+        } else if (other == null || this.getClass() != other.getClass()) {
+            result = false;
+        } else {
+            result = super.equals(other);
+            if (result) {
+                result = this.getCommentMap().equals(((OrderedMap) other).getCommentMap());
+            }
+        }
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return super.hashCode() >> 8 + commentMap.hashCode();
     }
 }
