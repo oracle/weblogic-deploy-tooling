@@ -1022,8 +1022,9 @@ class DomainCreator(Creator):
         _method_name = '__retrieve_ssl_rcudbinfo'
 
         tns_admin = rcu_db_info.get_ssl_tns_admin()
-
-        if tns_admin is None or not os.path.exists(tns_admin + os.sep + "tnsnames.ora"):
+        truststore = rcu_db_info.get_truststore()
+        if tns_admin is None or not os.path.exists(tns_admin + os.sep + "tnsnames.ora")
+             or not os.path.exists(tns_admin + os.sep + truststore):
             ex = exception_helper.create_create_exception('WLSDPLY-12562')
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
