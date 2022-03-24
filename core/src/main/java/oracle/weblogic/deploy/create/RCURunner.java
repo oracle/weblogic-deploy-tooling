@@ -69,7 +69,7 @@ public class RCURunner {
     private final String rcuVariables;
 
     private boolean atpDB = false;
-    private boolean sslDB = false
+    private boolean sslDB = false;
  
     private String atpSSlArgs = null;
     private String atpAdminUser = null;
@@ -303,7 +303,7 @@ public class RCURunner {
     ///////////////////////////////////////////////////////////////////////////
 
     private void addATPEnv(Map<String, String> env) {
-        if (atpDB) || sslDB) {
+        if (atpDB || sslDB) {
             env.put("RCU_SSL_MODE", "true");
             env.put("SKIP_CONNECTSTRING_VALIDATION", "true");
             env.put("RCU_SKIP_PRE_REQS", "ALL");
