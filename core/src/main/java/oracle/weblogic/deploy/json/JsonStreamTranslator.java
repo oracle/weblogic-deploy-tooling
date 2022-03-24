@@ -54,8 +54,6 @@ public class JsonStreamTranslator extends AbstractJsonTranslator {
      */
     @Override
     public PyDictionary parse() throws JsonException {
-        final String METHOD = "parse";
-
         PyDictionary result = null;
         if (jsonStream != null) {
             try {

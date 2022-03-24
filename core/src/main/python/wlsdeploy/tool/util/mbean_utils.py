@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import re
@@ -826,7 +826,7 @@ class MBeanInfoAttributes(MBeanAttributes):
         descriptor = self.__get_mbean_attribute(attribute_name)
         if descriptor is not None:
             setter = descriptor.getWriteMethod()
-            if setter is not None and str(setter.getReturnType()) == 'void':
+            if setter is not None and (str(setter.getReturnType()) == 'void' or str(setter.getReturnType()) == "<type \'void\'>"):
                 return setter.getName()
         return None
 

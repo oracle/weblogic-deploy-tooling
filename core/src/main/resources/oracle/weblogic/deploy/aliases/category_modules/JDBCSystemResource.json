@@ -93,7 +93,7 @@
                             "child_folders_type": "multiple",
                             "flattened_folder_data": {
                                 "wlst_type": "Properties",
-                                "name_value": "${NO_NAME_0:%DATASOURCE%}",
+                                "name_value": "${NO_NAME_0:%JDBCRESOURCE%}",
                                 "path_token": "PROPERTIES"
                             },
                             "folders": { },

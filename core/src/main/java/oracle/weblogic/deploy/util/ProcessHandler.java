@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
@@ -32,7 +32,7 @@ public class ProcessHandler {
     private static final int MILLIS_PER_SECOND = 1000;
     private static final Charset DEFAULT_CHARSET = Charset.defaultCharset();
 
-    private ProcessBuilder procBuilder;
+    private final ProcessBuilder procBuilder;
     private Process process;
     private File logFile;
     private boolean appendFlag = false;
@@ -264,6 +264,7 @@ public class ProcessHandler {
             }
         } catch (InterruptedException e) {
             LOGGER.fine("WLSDPLY-01206", e, this.toString(), e.getLocalizedMessage());
+            Thread.currentThread().interrupt();
         }
     }
 

@@ -8,7 +8,7 @@
 
     <groupId>com.oracle.weblogic.lifecycle</groupId>
     <artifactId>weblogic-deploy</artifactId>
-    <version>2.1.1-SNAPSHOT</version>
+    <version>2.1.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Oracle WebLogic Server Deploy Tooling</name>
@@ -47,10 +47,15 @@
         <antlr.version>4.9.3</antlr.version>
         <snakeyaml.version>1.29</snakeyaml.version>
 
+        <sonar.organization>oracle</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.sources>src/main</sonar.sources>
         <sonar.java.source>7</sonar.java.source>
+        <sonar.python.version>2</sonar.python.version>
         <sonar.exclusions>.flattened-pom.xml,target/**</sonar.exclusions>
-        <sonar.test.exclusions>src/test/**</sonar.test.exclusions>
+        <sonar.test.exclusions>core/src/test/**</sonar.test.exclusions>
+        <sonar.coverage.jacoco.xmlReportPaths>core/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+
         <unit-test-wlst-dir>${env.WLST_DIR}</unit-test-wlst-dir>
         <skipITs>true</skipITs>
         <alias-test-skipITs>true</alias-test-skipITs>
@@ -150,10 +155,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>3.0.0-M5</version>
-                    <configuration>
-                        <!-- Created by jacoco plugin (inherited configuration) -->
-                        <argLine>${surefireArgLine}</argLine>
-                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>io.rhpatrick.mojo</groupId>
@@ -181,25 +182,17 @@
                     <version>0.8.7</version>
                     <executions>
                         <execution>
-                            <id>pre-unit-test</id>
+                            <id>prepare-agent</id>
                             <goals>
                                 <goal>prepare-agent</goal>
                             </goals>
-                            <configuration>
-                                <destFile>${sonar.jacoco.reportPath}</destFile>
-                                <propertyName>surefireArgLine</propertyName>
-                            </configuration>
                         </execution>
                         <execution>
-                            <id>post-unit-test</id>
-                            <phase>site</phase>
+                            <id>report</id>
+                            <phase>post-integration-test</phase>
                             <goals>
                                 <goal>report</goal>
                             </goals>
-                            <configuration>
-                                <outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
-                                <dataFile>${sonar.jacoco.reportPath}</dataFile>
-                            </configuration>
                         </execution>
                     </executions>
                 </plugin>

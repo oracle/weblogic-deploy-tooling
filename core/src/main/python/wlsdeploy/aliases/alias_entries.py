@@ -1371,8 +1371,7 @@ class AliasEntries(object):
                     if key not in [ATTRIBUTES, FOLDERS]:
                         alias_dict[key] = value
                     else:
-                        _logger.fine('WLSDPLY-08136', path_name, value, class_name=_class_name,
-                                     method_name=_method_name)
+                        _logger.fine('WLSDPLY-08136', value, class_name=_class_name, method_name=_method_name)
 
     def __resolve_attribute_by_wlst_context(self, path_name, attr_name, attrs_dict):
         """
