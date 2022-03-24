@@ -238,6 +238,7 @@ def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
     _method_name = 'validate_rcu_args_and_model'
 
     has_atpdbinfo = 0
+    has_ssldbinfo = 0
     domain_info = model[model_constants.DOMAIN_INFO]
     if domain_info is not None:
         if model_constants.RCU_DB_INFO in domain_info:
