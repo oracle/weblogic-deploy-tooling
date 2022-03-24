@@ -65,6 +65,7 @@ from wlsdeploy.aliases.model_constants import SET_OPTION_APP_DIR
 from wlsdeploy.aliases.model_constants import SET_OPTION_DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import SET_OPTION_JAVA_HOME
 from wlsdeploy.aliases.model_constants import SET_OPTION_SERVER_START_MODE
+from wlsdeploy.aliases.model_constants import SSL_ADMIN_USER
 from wlsdeploy.aliases.model_constants import UNIX_MACHINE
 from wlsdeploy.aliases.model_constants import URL
 from wlsdeploy.aliases.model_constants import USER

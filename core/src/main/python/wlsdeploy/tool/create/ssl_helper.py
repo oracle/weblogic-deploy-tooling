@@ -13,7 +13,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 
 _logger = PlatformLogger('wlsdeploy.create')
 
-def set_ssl_properties(xmlDoc, atp_creds_path, truststore, truststore_type, keystore_password, truststore_password):
+def set_ssl_properties(xmlDoc, atp_creds_path, truststore, truststore_type, truststore_password):
     '''
     Add SSL config properties to the specified XML document.
     :param xmlDoc:                  The XML document
@@ -29,7 +29,8 @@ def set_ssl_properties(xmlDoc, atp_creds_path, truststore, truststore_type, keys
             set_property(DOMTree, prop, 'javax.net.ssl.trustStoreType', truststore_type)
             set_property(DOMTree, prop, 'javax.net.ssl.trustStore', atp_creds_path + '/' + truststore)
             set_property(DOMTree, prop, 'oracle.net.tns_admin', atp_creds_path)
-            set_property(DOMTree, prop, 'javax.net.ssl.trustStorePassword', truststore_password)
+            if truststore_password is not None:
+                set_property(DOMTree, prop, 'javax.net.ssl.trustStorePassword', truststore_password)
             # Persist the changes in the xml file
             file_handle = open(xmlDoc,"w")
             DOMTree.writexml(file_handle)
@@ -53,7 +54,7 @@ def set_property(DOMTree, prop, name, value):
 
 def fix_jps_config(rcu_db_info, model_context):
     tns_admin = rcu_db_info.get_atp_tns_admin()
-    truststore = rcu_db_info.get_trustore()
+    truststore = rcu_db_info.get_truststore()
     truststore_type = rcu_db_info.get_truststore_type()
     truststore_password = rcu_db_info.get_truststore_password()
 
