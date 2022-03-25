@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -60,7 +60,6 @@ class Deployer(object):
         if archive_file_name is not None:
             self.archive_helper = ArchiveHelper(archive_file_name, self.model_context.get_domain_home(), self.logger,
                                                 exception_helper.ExceptionType.DEPLOY)
-        return
 
     def _add_named_elements(self, type_name, model_nodes, location, delete_now=True):
         """
@@ -102,7 +101,6 @@ class Deployer(object):
 
             child_nodes = dictionary_utils.get_dictionary_element(model_nodes, name)
             self._set_attributes_and_add_subfolders(location, child_nodes)
-        return
 
     def _add_subfolders(self, model_nodes, location, excludes=None):
         """
@@ -124,7 +122,6 @@ class Deployer(object):
                         self._add_named_elements(subfolder, subfolder_nodes, location)
                     else:
                         self._add_model_elements(subfolder, subfolder_nodes, location)
-        return
 
     def _add_model_elements(self, type_name, model_nodes, location):
         """
@@ -150,7 +147,6 @@ class Deployer(object):
         deployer_utils.create_and_cd(location, existing_subfolder_names, self.aliases)
 
         self._set_attributes_and_add_subfolders(location, model_nodes)
-        return
 
     def _set_attributes_and_add_subfolders(self, location, model_nodes):
         """
@@ -162,7 +158,6 @@ class Deployer(object):
         """
         self.set_attributes(location, model_nodes)
         self._add_subfolders(model_nodes, location)
-        return
 
     def set_attributes(self, location, model_nodes, excludes=None):
         """
@@ -202,7 +197,6 @@ class Deployer(object):
                                                                       pwe.getLocalizedMessage(), error=pwe)
                         self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                         raise ex
-        return
 
     def _skip_setting_attribute(self, key, value, wlst_merge_value, restart_attribute_names):
         """
@@ -214,12 +208,10 @@ class Deployer(object):
         :param restart_attribute_names: a list of attribute names that require system restart
         :return: True if the attribute does not need to be set
         """
-        _method_name = '_skip_setting_attribute'
 
         # Needs implementation. Return true if model key in restart attribute_names,
         # and WLST helper determines that set is required,
         # based on model key, model value, and the WLST merge value
-
         return False
 
     def _get_existing_wlst_value(self, location, key, lsa_required_attribute_names):
@@ -439,7 +431,6 @@ class Deployer(object):
                 self.wlst_helper.cd(path)
                 self.set_attributes(new_location, apps_slim, excludes=deploy_info)
                 self._add_subfolders(apps_slim, location)
-
 
     def __process_directory_entry(self, path):
         """

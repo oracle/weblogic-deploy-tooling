@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the deployApps tool.
@@ -121,15 +121,12 @@ def __deploy_online(model, model_context, aliases):
 
     __logger.info("WLSDPLY-09005", admin_url, timeout, method_name=_method_name, class_name=_class_name)
 
-    try:
-        __wlst_helper.connect(admin_user, admin_pwd, admin_url, timeout)
-        deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions(model_context.is_discard_current_edit())
-        __wlst_helper.edit()
-        __wlst_helper.start_edit()
-        if model_context.is_discard_current_edit():
-            deployer_utils.discard_current_edit()
-    except BundleAwareException, ex:
-        raise ex
+    __wlst_helper.connect(admin_user, admin_pwd, admin_url, timeout)
+    deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions(model_context.is_discard_current_edit())
+    __wlst_helper.edit()
+    __wlst_helper.start_edit()
+    if model_context.is_discard_current_edit():
+        deployer_utils.discard_current_edit()
 
     __logger.info("WLSDPLY-09007", admin_url, method_name=_method_name, class_name=_class_name)
 
@@ -203,7 +200,6 @@ def __close_domain_on_error():
         # the original problem by throwing yet another exception...
         __logger.warning('WLSDPLY-09013', ex.getLocalizedMessage(), error=ex,
                          class_name=_class_name, method_name=_method_name)
-    return
 
 
 def main(args):
@@ -252,7 +248,6 @@ def main(args):
     cla_helper.clean_up_temp_files()
 
     tool_exit.end(model_context, exit_code)
-    return
 
 
 if __name__ == '__main__' or __name__ == 'main':

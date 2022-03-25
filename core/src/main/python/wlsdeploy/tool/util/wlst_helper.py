@@ -54,7 +54,6 @@ class WlstHelper(object):
         self.__logger.finest('WLSDPLY-00003', source_type, source_name, target_type, target_name,
                              class_name=self.__class_name, method_name=_method_name)
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def cd(self, path):
         """
@@ -137,8 +136,6 @@ class WlstHelper(object):
         :param masked: whether or not to mask the value in the logs, default value is False
         :raises: Exception for the specified tool type: if an error occurs
         """
-        _method_name = 'set_if_needed'
-
         if wlst_name is not None and wlst_value is not None:
             self.set(wlst_name, wlst_value, masked)
 
@@ -207,14 +204,13 @@ class WlstHelper(object):
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
         self.__logger.finest('WLSDPLY-00015', wlst_name, value, class_name=self.__class_name, method_name=_method_name)
-        return
 
     def _get_wlst_mode(self):
         """
         Get the text to describe the current WLST mode.
         :return: online, if connected, offline if not
         """
-        if self.__check_online_connection:
+        if self.__check_online_connection():
             result = 'online'
         else:
             result = 'offline'
@@ -340,7 +336,6 @@ class WlstHelper(object):
             raise pwe
         self.__logger.finest('WLSDPLY-00021', name, folder, class_name=self.__class_name, method_name=_method_name)
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def get_database_defaults(self):
         """
@@ -426,9 +421,8 @@ class WlstHelper(object):
         :param option_value: to configure the attribute
         :raises: Exception for the specified tool type: if an error occurs
         """
-        _method_name = 'set_option_if_needed'
-
-        self.set_option(option_name, option_value)
+        if option_name is not None and option_value is not None:
+            self.set_option(option_name, option_value)
 
     def set_option(self, option, value):
         """
@@ -1139,7 +1133,6 @@ class WlstHelper(object):
             raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00071', jrf_target, domain_home,
                                                     _format_exception(e), error=e)
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def get_config_manager(self):
         """
@@ -1346,7 +1339,6 @@ class WlstHelper(object):
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def domain_runtime(self):
         """
@@ -1364,7 +1356,6 @@ class WlstHelper(object):
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def custom(self):
         """
@@ -1382,7 +1373,6 @@ class WlstHelper(object):
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def get_mbi(self, path=None):
         """
@@ -1451,7 +1441,7 @@ class WlstHelper(object):
         _method_name = 'get_object_name_name'
         self.__logger.entering(object_name, class_name=self.__class_name, method_name=_method_name)
         name = object_name.getKeyProperty('Name')
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, resul=name)
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=name)
         return name
 
     def get_object_name_type(self, object_name):
@@ -1463,7 +1453,7 @@ class WlstHelper(object):
         _method_name = 'get_object_name_name'
         self.__logger.entering(object_name, class_name=self.__class_name, method_name=_method_name)
         name_type = object_name.getKeyProperty('Type')
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, resul=name)
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=name_type)
         return name_type
 
     def silence(self):

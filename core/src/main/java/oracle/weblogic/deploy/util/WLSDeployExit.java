@@ -29,7 +29,7 @@ public class WLSDeployExit {
      * @param errorCode for exit from the JVM
      */
     public static void exit(WLSDeployContext deployContext, int errorCode) {
-        String METHOD = "exit";
+        final String METHOD = "exit";
         LOGGER.entering(errorCode, CLASS, METHOD);
         logCleanup(deployContext);
         LOGGER.exiting(CLASS, METHOD);
@@ -39,11 +39,11 @@ public class WLSDeployExit {
     /**
      * Exit the JVM with the provided exit code.
      *
-     * @param error_code for exit from the JVM
+     * @param errorCode for exit from the JVM
      */
-    public static void exit(int error_code) {
+    public static void exit(int errorCode) {
         // might want to validate the exit code first
-        System.exit(error_code);
+        System.exit(errorCode);
     }
 
     private static void logCleanup(WLSDeployContext context) {

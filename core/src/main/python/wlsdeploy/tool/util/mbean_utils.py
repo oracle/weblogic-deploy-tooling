@@ -177,17 +177,15 @@ class MBeanUtils(object):
         _method_name = '__get_lsa_attributes'
         attributes = None
         attribute_path = self.__aliases.get_wlst_attributes_path(location)
-        if lsa_map is None:
-            if location is not None:
-                if attribute_path is not None:
-                    try:
-                        return_map = self.__wlst_helper.lsa(attribute_path)
-                        if return_map is not None:
-                            attributes = return_map.keys()
-                        else:
-                            attributes = list()
-                    except BundleAwareException:
-                        pass
+        if lsa_map is None and location is not None and attribute_path is not None:
+            try:
+                return_map = self.__wlst_helper.lsa(attribute_path)
+                if return_map is not None:
+                    attributes = return_map.keys()
+                else:
+                    attributes = list()
+            except BundleAwareException:
+                pass
         if attributes is None:
             ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-01771', attribute_path)
             _logger.throwing(ex, class_name=self.__class__.__name__, method_name=_method_name)
@@ -216,6 +214,8 @@ class OnlineMBeanHelper(MBeanHelper):
     """
     Assist the MBeanHelper providing mbean attribute information using a specific technique for online.
     """
+
+    __class_name = 'OnlineMBeanHelper'
 
     def __init__(self, model_context, exception_type):
         """

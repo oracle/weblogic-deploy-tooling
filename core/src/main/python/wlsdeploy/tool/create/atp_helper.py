@@ -12,47 +12,47 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 
 _logger = PlatformLogger('wlsdeploy.create')
 
-def set_ssl_properties(xmlDoc, atp_creds_path, keystore_password, truststore_password):
+def set_ssl_properties(xml_doc, atp_creds_path, keystore_password, truststore_password):
     '''
     Add SSL config properties to the specified XML document.
-    :param xmlDoc:                  The XML document
+    :param xml_doc:                 The XML document
     :param db_keystore_password:    The DB keystore/truststore password (assumed to be same)
     :return: void
     '''
-    DOMTree = parse(xmlDoc)
-    collection = DOMTree.documentElement
+    dom_tree = parse(xml_doc)
+    collection = dom_tree.documentElement
     props = collection.getElementsByTagName("propertySet")
 
     for prop in props:
         if prop.getAttribute('name') == 'props.db.1':
-            set_property(DOMTree, prop, 'javax.net.ssl.trustStoreType', 'JKS')
-            set_property(DOMTree, prop, 'javax.net.ssl.trustStore', atp_creds_path + '/truststore.jks')
-            set_property(DOMTree, prop, 'oracle.net.tns_admin', atp_creds_path)
-            set_property(DOMTree, prop, 'javax.net.ssl.keyStoreType', 'JKS')
-            set_property(DOMTree, prop, 'javax.net.ssl.keyStore', atp_creds_path + '/keystore.jks')
-            set_property(DOMTree, prop, 'javax.net.ssl.keyStorePassword', keystore_password)
-            set_property(DOMTree, prop, 'javax.net.ssl.trustStorePassword', truststore_password)
-            set_property(DOMTree, prop, 'oracle.net.ssl_server_dn_match', 'true')
-            set_property(DOMTree, prop, 'oracle.net.ssl_version', '1.2')
+            set_property(dom_tree, prop, 'javax.net.ssl.trustStoreType', 'JKS')
+            set_property(dom_tree, prop, 'javax.net.ssl.trustStore', atp_creds_path + '/truststore.jks')
+            set_property(dom_tree, prop, 'oracle.net.tns_admin', atp_creds_path)
+            set_property(dom_tree, prop, 'javax.net.ssl.keyStoreType', 'JKS')
+            set_property(dom_tree, prop, 'javax.net.ssl.keyStore', atp_creds_path + '/keystore.jks')
+            set_property(dom_tree, prop, 'javax.net.ssl.keyStorePassword', keystore_password)
+            set_property(dom_tree, prop, 'javax.net.ssl.trustStorePassword', truststore_password)
+            set_property(dom_tree, prop, 'oracle.net.ssl_server_dn_match', 'true')
+            set_property(dom_tree, prop, 'oracle.net.ssl_version', '1.2')
             # Persist the changes in the xml file
-            file_handle = open(xmlDoc,"w")
-            DOMTree.writexml(file_handle)
+            file_handle = open(xml_doc, "w")
+            dom_tree.writexml(file_handle)
             file_handle.close()
 
-def set_property(DOMTree, prop, name, value):
+def set_property(dom_tree, prop, name, value):
     '''
     Sets the property child element under prop parent node.
-    :param DOMTree: The DOM document handle
+    :param dom_tree: The DOM document handle
     :param prop:    The propertySet parent handle
     :param name:    The property name
     :param value:   The property value
     :return: void
     '''
-    property = DOMTree.createElement('property')
-    property.setAttribute("name", name)
-    property.setAttribute("value", value)
-    prop.appendChild(property)
-    newline = DOMTree.createTextNode('\n')
+    property_element = dom_tree.createElement('property')
+    property_element.setAttribute("name", name)
+    property_element.setAttribute("value", value)
+    prop.appendChild(property_element)
+    newline = dom_tree.createTextNode('\n')
     prop.appendChild(newline)
 
 def fix_jps_config(rcu_db_info, model_context):
@@ -80,8 +80,8 @@ def get_atp_connect_string(tnsnames_ora_path, tns_sid_name):
         match = re.search(pattern, text)
         if match:
             connect_string = match.group(1)
-            tnsConnectString = connect_string.replace('\r','').replace('\n','')
-            connect_string = cleanup_connect_string(tnsConnectString)
+            tns_connect_string = connect_string.replace('\r','').replace('\n','')
+            connect_string = cleanup_connect_string(tns_connect_string)
             return connect_string, None
         else:
             ex = exception_helper.create_create_exception("WLSDPLY-12563", tns_sid_name)

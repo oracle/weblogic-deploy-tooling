@@ -39,7 +39,6 @@ class JsonToPython(object):
                 exception_helper.create_json_exception('WLSDPLY-18014', file_name, iae.getLocalizedMessage(), error=iae)
             self._logger.throwing(class_name=self._class_name, method_name=_method_name, error=json_ex)
             raise json_ex
-        return
 
     def parse(self):
         """
@@ -77,7 +76,6 @@ class JsonStreamToPython(object):
                 exception_helper.create_json_exception('WLSDPLY-18014', file_name, iae.getLocalizedMessage(), error=iae)
             self._logger.throwing(class_name=self._class_name, method_name=_method_name, error=json_ex)
             raise json_ex
-        return
 
     def parse(self):
         """
@@ -105,7 +103,6 @@ class PythonToJson(object):
         # Fix error handling for None
         self._dictionary = dictionary
         self._logger = PlatformLogger('wlsdeploy.json')
-        return
 
     def write_to_json_file(self, file_name):
         """
@@ -155,7 +152,6 @@ class PythonToJson(object):
         :param writer: where to write the dictionary into json syntax
         :param indent: current string indentation of the json syntax. If not provided, indent is an empty string
         """
-        _method_name = '_write_dictionary_to_json_file'
         _start_dict = '{'
         _end_dict = '}'
 
@@ -179,8 +175,6 @@ class PythonToJson(object):
                 writer.write(_format_json_value(value))
         writer.println()
         writer.write(end_indent + _end_dict)
-
-        return
 
     def _write_list_to_json_file(self, alist, writer, indent=''):
         """
@@ -221,7 +215,6 @@ class PythonToJson(object):
             except JIOException, ioe:
                 self._logger.fine('WLSDPLY-18016', ioe, ioe.getLocalizedMessage(),
                                   class_name=self._class_name, method_name=_method_name)
-        return
 
 
 def _format_json_value(value):

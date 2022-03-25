@@ -69,7 +69,6 @@ class DomainResourceExtractor:
         self._model = model
         self._model_context = model_context
         self._logger = logger
-        return
 
     def extract(self):
         _method_name = 'extract'
@@ -92,7 +91,6 @@ class DomainResourceExtractor:
         # write the resource file structure to the output file
         writer = PythonToFile(resource_dict)
         writer.write_to_file(resource_file)
-        return
 
     def _create_domain_resource_dictionary(self):
         """
@@ -285,8 +283,6 @@ class DomainResourceExtractor:
 
         if secrets_list:
             configuration_section[SECRETS] = secrets_list
-
-        return
 
 
 def _get_target_value(model_value, type_name):

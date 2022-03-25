@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.exception;
@@ -38,7 +38,7 @@ public abstract class BundleAwareException extends Exception {
     /**
      * Constructs a default exception.
      */
-    public BundleAwareException() {
+    protected BundleAwareException() {
         super();
     }
 
@@ -47,7 +47,7 @@ public abstract class BundleAwareException extends Exception {
      *
      * @param messageID the message to use
      */
-    public BundleAwareException(String messageID) {
+    protected BundleAwareException(String messageID) {
         super();
         this.messageID = messageID;
     }
@@ -58,7 +58,7 @@ public abstract class BundleAwareException extends Exception {
      * @param messageID the message to use
      * @param params the arguments to use to fill in the placeholders in the message
      */
-    public BundleAwareException(String messageID, Object... params) {
+    protected BundleAwareException(String messageID, Object... params) {
         super();
         this.messageID = messageID;
         this.params = params;
@@ -70,7 +70,7 @@ public abstract class BundleAwareException extends Exception {
      * @param messageID the message to use
      * @param cause the nested exception
      */
-    public BundleAwareException(String messageID, Throwable cause) {
+    protected BundleAwareException(String messageID, Throwable cause) {
         super(cause);
         if (messageID != null) {
             this.messageID = messageID;
@@ -86,7 +86,7 @@ public abstract class BundleAwareException extends Exception {
      * @param cause the nested exception
      * @param params the arguments to use to fill in the placeholders in the message
      */
-    public BundleAwareException(String messageID, Throwable cause, Object... params) {
+    protected BundleAwareException(String messageID, Throwable cause, Object... params) {
         super(cause);
         if (messageID != null) {
             this.messageID = messageID;
@@ -103,7 +103,7 @@ public abstract class BundleAwareException extends Exception {
      *
      * @param cause the nested exception
      */
-    public BundleAwareException(Throwable cause) {
+    protected BundleAwareException(Throwable cause) {
         super(cause);
         if (cause != null) {
             copyFromCause(cause);

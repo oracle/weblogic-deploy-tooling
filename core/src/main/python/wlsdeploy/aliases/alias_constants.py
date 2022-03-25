@@ -151,7 +151,6 @@ def __build_security_provider_data_structures(name_map, base_path):
         SECURITY_PROVIDER_NAME_MAP[key] = value
         mbean_name = value + 'MBean'
         SECURITY_PROVIDER_MBEAN_NAME_MAP[mbean_name] = key
-    return
 
 
 ADJUDICATION_PROVIDER_NAME_MAP = {

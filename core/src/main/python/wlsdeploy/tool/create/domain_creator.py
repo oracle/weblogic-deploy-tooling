@@ -146,7 +146,6 @@ class DomainCreator(Creator):
 
         self.__default_domain_name = None
         self.__default_admin_server_name = None
-        self.__default_security_realm_name = None
 
         archive_file_name = self.model_context.get_archive_file_name()
         if archive_file_name is not None:
@@ -161,12 +160,6 @@ class DomainCreator(Creator):
 
         self.wlsroles_helper = WLSRoles(self._domain_info, self._domain_home, self.wls_helper,
                                         ExceptionType.CREATE, self.logger)
-
-        #
-        # This list gets modified as the domain is being created so do use this list for anything else...
-        #
-        self.__topology_folder_list = self.aliases.get_model_topology_top_level_folder_names()
-        return
 
     def create(self):
         """
@@ -186,7 +179,6 @@ class DomainCreator(Creator):
         self.__create_credential_mappings()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     # Override
     def _create_named_mbeans(self, type_name, model_nodes, base_location, log_created=False, delete_now=True):
@@ -237,8 +229,8 @@ class DomainCreator(Creator):
         if path is not None:
             resolved_path = self.model_context.replace_token_string(path)
             if self.archive_helper is not None and self.archive_helper.contains_file(resolved_path):
-                dir = File(self._domain_home)
-                if (not dir.isDirectory()) and (not dir.mkdirs()):
+                directory = File(self._domain_home)
+                if (not directory.isDirectory()) and (not directory.mkdirs()):
                     ex = exception_helper.create_create_exception('WLSDPLY-12259', self._domain_home, xml_type, path)
                     self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                     raise ex
@@ -329,7 +321,6 @@ class DomainCreator(Creator):
 
         runner.runRcu(rcu_sys_pass, rcu_schema_pass)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __fail_mt_1221_domain_creation(self):
         """
@@ -1275,7 +1266,6 @@ class DomainCreator(Creator):
                              class_name=self.__class_name, method_name=_method_name)
         else:
             self._admin_server_name = self.__default_admin_server_name
-        return
 
     def __set_domain_attributes(self):
         """
@@ -1294,7 +1284,6 @@ class DomainCreator(Creator):
         attribute_path = self.aliases.get_wlst_attributes_path(location)
         self.wlst_helper.cd(attribute_path)
         self._set_attributes(location, attrib_dict)
-        return
 
     def _configure_security_configuration(self):
         """
@@ -1310,7 +1299,6 @@ class DomainCreator(Creator):
         security_config_location = LocationContext().add_name_token(domain_name_token, self._domain_name)
         self.security_provider_creator.create_security_configuration(security_config_location)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __create_boot_dot_properties(self):
         _method_name = '__create_boot_dot_properties'
@@ -1325,8 +1313,8 @@ class DomainCreator(Creator):
             if string_utils.to_boolean(self._topology[PRODUCTION_MODE_ENABLED]):
                 return
 
-        systemIni = SerializedSystemIni.getEncryptionService(self._domain_home)
-        encryptionService = ClearOrEncryptedService(systemIni)
+        system_ini = SerializedSystemIni.getEncryptionService(self._domain_home)
+        encryption_service = ClearOrEncryptedService(system_ini)
         admin_password = self._domain_info[ADMIN_PASSWORD]
         admin_username = self.wls_helper.get_default_admin_username()
         if ADMIN_USERNAME in self._domain_info:
@@ -1341,8 +1329,8 @@ class DomainCreator(Creator):
 
         admin_username = self.aliases.decrypt_password(admin_username)
         admin_password = self.aliases.decrypt_password(admin_password)
-        encrypted_username = encryptionService.encrypt(admin_username)
-        encrypted_password = encryptionService.encrypt(admin_password)
+        encrypted_username = encryption_service.encrypt(admin_username)
+        encrypted_password = encryption_service.encrypt(admin_password)
         for server in servers:
             if model_helper.is_delete_name(server):
                 continue
@@ -1357,7 +1345,6 @@ class DomainCreator(Creator):
             properties.store(ostream, None)
             ostream.close()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __create_credential_mappings(self):
         """
@@ -1389,4 +1376,3 @@ class DomainCreator(Creator):
                 self.wlst_helper.set_shared_secret_store_with_password(opss_wallet, opss_secret_password)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return

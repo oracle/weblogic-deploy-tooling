@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -28,7 +28,6 @@ class WebLogicRolesHelper(object):
         self._b64encoder = BASE64Encoder()
         self._escaper = ResourcePolicyIdUtil.getEscaper()
         self._converter = EntitlementConverter(None)
-        return
 
     def update_xacml_role_mapper(self, role_expressions_map):
         _method_name = 'update_xacml_role_mapper'
@@ -36,7 +35,6 @@ class WebLogicRolesHelper(object):
         role_entries_map = self._create_xacml_role_mapper_entries(role_expressions_map)
         self._update_xacml_role_mapper_ldift(role_entries_map)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def _create_xacml_role_mapper_entries(self, role_expressions_map):
         _method_name = '_create_xacml_role_mapper_entries'
@@ -146,7 +144,6 @@ class WebLogicRolesHelper(object):
             raise ex
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __read_xacml_role_entry(self, start_line, ldift_file):
         count = 1

@@ -59,7 +59,6 @@ class ModelComparer(object):
         :param attributes_location: the attribute location for the specified folders
         :return: a dictionary of differences between these folders
         """
-        _method_name = '_compare_folders'
 
         # determine if the specified location has named folders, such as topology/Server
         has_named_folders = False
@@ -162,7 +161,6 @@ class ModelComparer(object):
             # if found, add the entire folder contents.
             else:
                 change_folder[name] = current_folder[name]
-                pass
 
         # check for deleted names.
         # if name is not in the current folder, add its delete name.
@@ -420,8 +418,6 @@ class ModelComparer(object):
         :param change_folder: the folder with the changed attributes and sub-folders
         :param location: the location for the specified folders
         """
-        _method_name = '_finalize_folder'
-
         folder_path = []
         if location is not None:
             folder_path = location.get_model_folders()

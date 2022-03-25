@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -46,7 +46,6 @@ class JVMArguments(object):
         self.__client_server_args = list()
         self.__unsorted_args = list()
         self.__parse_args()
-        return
 
     def get_arguments_string(self):
         """
@@ -72,7 +71,6 @@ class JVMArguments(object):
         self.__add_xx_args(other_jvm_args_obj.get_xx_args_dict())
         self.__add_system_property_args(other_jvm_args_obj.get_sys_props_dict())
         self.__add_unsorted_args(other_jvm_args_obj.get_unsorted_args_list())
-        return
 
     ###########################################################################
     #          Private methods that are not part of the public API            #
@@ -200,7 +198,6 @@ class JVMArguments(object):
         :param other_cs_list: the specified list
         """
         self.__client_server_args.extend(other_cs_list)
-        return
 
     def __add_x_args(self, other_x_args_dict):
         """
@@ -210,7 +207,6 @@ class JVMArguments(object):
         self.__merge_x_size_args(other_x_args_dict)
         self.__merge_x_value_args(other_x_args_dict)
         self.__merge_x_other_args(other_x_args_dict)
-        return
 
     def __add_xx_args(self, other_xx_args_dict):
         """
@@ -220,7 +216,6 @@ class JVMArguments(object):
         """
         self.__merge_xx_switch_args(other_xx_args_dict)
         self.__merge_xx_value_args(other_xx_args_dict)
-        return
 
     def __add_system_property_args(self, other_sys_props_dict):
         """
@@ -230,7 +225,6 @@ class JVMArguments(object):
         """
         for key, value in other_sys_props_dict.iteritems():
             self.__sys_props[key] = value
-        return
 
     def __add_unsorted_args(self, other_unsorted_args_list):
         """
@@ -244,7 +238,6 @@ class JVMArguments(object):
                 self.__unsorted_args = list(my_unsorted_set.union(other_unsorted_set))
             else:
                 self.__unsorted_args = list(other_unsorted_args_list)
-        return
 
     def __parse_args(self):
         """
@@ -276,7 +269,6 @@ class JVMArguments(object):
                 else:
                     self._logger.finer('WLSDPLY-08300', argument, class_name=self._class_name, method_name=_method_name)
                     self.__unsorted_args.append(argument)
-        return
 
     def __process_x_size_arg(self, argument):
         """
@@ -293,7 +285,6 @@ class JVMArguments(object):
         self._logger.finer('WLSDPLY-08301', argument, xarg, xvalue,
                            class_name=self._class_name, method_name=_method_name)
         self.__x_args['size'][xarg] = xvalue
-        return
 
     def __process_x_value_arg(self, argument):
         """
@@ -311,7 +302,6 @@ class JVMArguments(object):
         self._logger.finer('WLSDPLY-08302', argument, xarg, xvalue,
                            class_name=self._class_name, method_name=_method_name)
         self.__x_args['value'][xarg] = xvalue
-        return
 
     def __process_x_other_arg(self, argument):
         """
@@ -332,7 +322,6 @@ class JVMArguments(object):
         self._logger.finer('WLSDPLY-08303', argument, xarg, xvalue,
                            class_name=self._class_name, method_name=_method_name)
         self.__x_args['other'][xarg] = xvalue
-        return
 
     def __process_xx_switch_arg(self, argument):
         """
@@ -355,7 +344,6 @@ class JVMArguments(object):
         self._logger.finer('WLSDPLY-08304', argument, xarg, on_or_off_text,
                            class_name=self._class_name, method_name=_method_name)
         self.__xx_args['switch'][xarg] = on_or_off
-        return
 
     def __process_xx_value_arg(self, argument):
         """
@@ -373,7 +361,6 @@ class JVMArguments(object):
         self._logger.finer('WLSDPLY-08305', argument, xarg, xvalue,
                            class_name=self._class_name, method_name=_method_name)
         self.__xx_args['value'][xarg] = xvalue
-        return
 
     def __process_sys_prop_arg(self, argument):
         """
@@ -392,7 +379,6 @@ class JVMArguments(object):
         self._logger.finer('WLSDPLY-08306', argument, prop_name, prop_value,
                            class_name=self._class_name, method_name=_method_name)
         self.__sys_props[prop_name] = prop_value
-        return
 
     def __get_x_size_args(self, incremental_result):
         """
@@ -509,7 +495,6 @@ class JVMArguments(object):
                     my_size_args[key] = value
             else:
                 self.__x_args['size'] = copy.deepcopy(other_size_args)
-        return
 
     def __merge_x_value_args(self, other_x_args):
         """
@@ -524,7 +509,6 @@ class JVMArguments(object):
                     my_value_args[key] = value
             else:
                 self.__x_args['value'] = copy.deepcopy(other_value_args)
-        return
 
     def __merge_x_other_args(self, other_x_args):
         """
@@ -539,7 +523,6 @@ class JVMArguments(object):
                     my_other_args[key] = value
             else:
                 self.__x_args['other'] = copy.deepcopy(other_other_args)
-        return
 
     def __merge_xx_switch_args(self, other_xx_args):
         """
@@ -554,7 +537,6 @@ class JVMArguments(object):
                     my_switch_args[key] = value
             else:
                 self.__xx_args['switch'] = copy.deepcopy(other_switch_args)
-        return
 
     def __merge_xx_value_args(self, other_xx_args):
         """
@@ -569,7 +551,6 @@ class JVMArguments(object):
                     my_value_args[key] = value
             else:
                 self.__xx_args['value'] = copy.deepcopy(other_value_args)
-        return
 
     def __get_size_as_number(self, size_arg, size_string):
         """

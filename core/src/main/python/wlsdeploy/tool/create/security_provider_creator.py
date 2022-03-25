@@ -55,8 +55,6 @@ class SecurityProviderCreator(Creator):
         self._domain_typedef = self.model_context.get_domain_typedef()
         self._wls_helper = WebLogicHelper(self.logger)
 
-        return
-
     def create_security_configuration(self, location):
         """
         Create the /SecurityConfiguration folder objects, if any.
@@ -86,7 +84,6 @@ class SecurityProviderCreator(Creator):
             self._create_mbean(SECURITY_CONFIGURATION, security_configuration_nodes, location, log_created=True)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     # Override
     def _create_named_subtype_mbeans(self, type_name, model_nodes, base_location, log_created=False):
@@ -187,7 +184,6 @@ class SecurityProviderCreator(Creator):
             self._create_subfolders(prov_location, child_nodes)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     # Override
     def _process_child_nodes(self, location, model_nodes):
@@ -268,7 +264,6 @@ class SecurityProviderCreator(Creator):
                     raise ex
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def _check_provider_type(self, type_name, model_nodes):
         """

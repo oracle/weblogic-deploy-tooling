@@ -46,7 +46,6 @@ class YamlToPython(object):
                 exception_helper.create_yaml_exception('WLSDPLY-18008', file_name, iae.getLocalizedMessage(), error=iae)
             self._logger.throwing(class_name=self._class_name, method_name=_method_name, error=yaml_ex)
             raise yaml_ex
-        return
 
     def parse(self):
         """
@@ -100,7 +99,6 @@ class YamlStreamToPython(object):
                 exception_helper.create_yaml_exception('WLSDPLY-18008', file_name, iae.getLocalizedMessage(), error=iae)
             self._logger.throwing(class_name=self._class_name, method_name=_method_name, error=yaml_ex)
             raise yaml_ex
-        return
 
     def parse(self):
         """
@@ -209,7 +207,6 @@ class PythonToYaml(object):
         # Fix error handling for None
         self._collection = collection
         self._logger = PlatformLogger('wlsdeploy.yaml')
-        return
 
     def write_to_yaml_file(self, file_name):
         """
@@ -269,7 +266,6 @@ class PythonToYaml(object):
             yaml_stream_translator.dumpDocuments(java_object)
         else:
             yaml_stream_translator.dump(java_object)
-        return
 
     def _close_writer(self, writer):
         """
@@ -279,4 +275,3 @@ class PythonToYaml(object):
 
         if writer is not None:
             writer.close()
-        return

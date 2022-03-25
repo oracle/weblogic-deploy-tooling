@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import java.lang.Object as JObject
@@ -26,7 +26,6 @@ class PlatformLogger(object):
             self.logger = JLogger.getLogger(logger_name, resource_bundle_name)
         else:
             self.logger = JLogger.getLogger(logger_name)
-        return
 
     def get_name(self):
         """
@@ -48,7 +47,6 @@ class PlatformLogger(object):
         :param new_level: the new logging level
         """
         self.logger.setLevel(new_level)
-        return
 
     def is_config_enabled(self):
         """
@@ -119,7 +117,6 @@ class PlatformLogger(object):
         error = kwargs.pop('error', None)
         record = self._get_log_record(JLevel.CONFIG, clazz, method, message, error, *args)
         self.logger.log(record)
-        return
 
     def log(self, level, message, *args, **kwargs):
         """
@@ -134,7 +131,6 @@ class PlatformLogger(object):
         error = kwargs.pop('error', None)
         record = self._get_log_record(level, clazz, method, message, error, *args)
         self.logger.log(record)
-        return
 
     def entering(self, *args, **kwargs):
         """
@@ -145,7 +141,6 @@ class PlatformLogger(object):
         method = kwargs.pop('method_name', None)
         clazz = kwargs.pop('class_name', None)
         self.logger.entering(clazz, method, args)
-        return
 
     def exiting(self, class_name, method_name, result=None):
         """
@@ -158,7 +153,6 @@ class PlatformLogger(object):
             self.logger.exiting(class_name, method_name, result)
         else:
             self.logger.exiting(class_name, method_name)
-        return
 
     def fine(self, message, *args, **kwargs):
         """
@@ -172,7 +166,6 @@ class PlatformLogger(object):
         error = kwargs.pop('error', None)
         record = self._get_log_record(JLevel.FINE, clazz, method, message, error, *args)
         self.logger.log(record)
-        return
 
     def finer(self, message, *args, **kwargs):
         """
@@ -186,7 +179,6 @@ class PlatformLogger(object):
         error = kwargs.pop('error', None)
         record = self._get_log_record(JLevel.FINER, clazz, method, message, error, *args)
         self.logger.log(record)
-        return
 
     def finest(self, message, *args, **kwargs):
         """
@@ -200,7 +192,6 @@ class PlatformLogger(object):
         error = kwargs.pop('error', None)
         record = self._get_log_record(JLevel.FINEST, clazz, method, message, error, *args)
         self.logger.log(record)
-        return
 
     def info(self, message, *args, **kwargs):
         """
@@ -214,7 +205,6 @@ class PlatformLogger(object):
         error = kwargs.pop('error', None)
         record = self._get_log_record(JLevel.INFO, clazz, method, message, error, *args)
         self.logger.log(record)
-        return
 
     def warning(self, message, *args, **kwargs):
         """
@@ -228,7 +218,6 @@ class PlatformLogger(object):
         error = kwargs.pop('error', None)
         record = self._get_log_record(JLevel.WARNING, clazz, method, message, error, *args)
         self.logger.log(record)
-        return
 
     def severe(self, message, *args, **kwargs):
         """
@@ -242,7 +231,6 @@ class PlatformLogger(object):
         error = kwargs.pop('error', None)
         record = self._get_log_record(JLevel.SEVERE, clazz, method, message, error, *args)
         self.logger.log(record)
-        return
 
     def throwing(self, error, method_name=None, class_name=None):
         """
@@ -255,7 +243,6 @@ class PlatformLogger(object):
             self.logger.throwing(class_name, method_name, error)
         else:
             self.logger.throwing(error)
-        return
 
     def _get_log_record(self, level, clazz, method, message, error, *args):
         record = JLogRecord(level, message)
@@ -297,4 +284,3 @@ def _get_args_as_java_array(*args):
             else:
                 result.add(str(arg))
     return result.toArray()
-
