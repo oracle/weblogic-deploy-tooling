@@ -216,13 +216,13 @@ public class RCURunner {
         sslArgs.append(tnsAdmin + "/" + trustStore);
         sslArgs.append(",javax.net.ssl.trustStoreType=" + trustStoreType);
         // If wallet type is SSO, no password present
-        if (trustStorePassword != null && trustStorePassword != "None") {
+        if (trustStorePassword != null && !trustStorePassword.equals("None")) {
             sslArgs.append(",javax.net.ssl.trustStorePassword="+ trustStorePassword);
         }
         sslArgs.append(",javax.net.ssl.keyStore=");
         sslArgs.append(tnsAdmin + "/" + keyStore);
         sslArgs.append(",javax.net.ssl.keyStoreType=" + keyStoreType);
-        if (keyStorePassword != null && keyStorePassword != "None") {
+        if (keyStorePassword != null && !keyStorePassword.equals("None")) {
             sslArgs.append(",javax.net.ssl.keyStorePassword="+ keyStorePassword);
         }
         sslArgs.append(",oracle.net.ssl_server_dn_match="+ match_type);
