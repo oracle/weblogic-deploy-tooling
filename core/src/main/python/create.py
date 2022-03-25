@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The main module for the WLSDeploy tool to create empty domains.
@@ -125,13 +125,12 @@ def __process_java_home_arg(optional_arg_map):
         try:
             java_home = FileUtils.validateExistingDirectory(java_home_name)
         except IllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-12400', _program_name, java_home_name,
+            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                       'WLSDPLY-12400', _program_name, java_home_name,
                                                        iae.getLocalizedMessage(), error=iae)
-            ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
         optional_arg_map[CommandLineArgUtil.JAVA_HOME_SWITCH] = java_home.getAbsolutePath()
-    return
 
 
 def __process_domain_location_args(optional_arg_map):
@@ -147,13 +146,12 @@ def __process_domain_location_args(optional_arg_map):
     has_parent = CommandLineArgUtil.DOMAIN_PARENT_SWITCH in optional_arg_map
 
     if (has_home and has_parent) or (not has_home and not has_parent):
-        ex = exception_helper.create_cla_exception('WLSDPLY-20025', _program_name,
+        ex = exception_helper.create_cla_exception(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE,
+                                                   'WLSDPLY-20025', _program_name,
                                                    CommandLineArgUtil.DOMAIN_PARENT_SWITCH,
                                                    CommandLineArgUtil.DOMAIN_HOME_SWITCH)
-        ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
-    return
 
 
 def __process_rcu_args(optional_arg_map, domain_type, domain_typedef):
@@ -182,9 +180,9 @@ def __process_rcu_args(optional_arg_map, domain_type, domain_typedef):
                     try:
                         password = getcreds.getpass('WLSDPLY-12403')
                     except IOException, ioe:
-                        ex = exception_helper.create_cla_exception('WLSDPLY-12404', ioe.getLocalizedMessage(),
+                        ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                                   'WLSDPLY-12404', ioe.getLocalizedMessage(),
                                                                    error=ioe)
-                        ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
                         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                         raise ex
                     optional_arg_map[CommandLineArgUtil.RCU_SYS_PASS_SWITCH] = String(password)
@@ -192,23 +190,21 @@ def __process_rcu_args(optional_arg_map, domain_type, domain_typedef):
                     try:
                         password = getcreds.getpass('WLSDPLY-12405')
                     except IOException, ioe:
-                        ex = exception_helper.create_cla_exception('WLSDPLY-12406', ioe.getLocalizedMessage(),
+                        ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                                   'WLSDPLY-12406', ioe.getLocalizedMessage(),
                                                                    error=ioe)
-                        ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
                         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                         raise ex
                     optional_arg_map[CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH] = String(password)
             else:
-                ex = exception_helper.create_cla_exception('WLSDPLY-12407', _program_name,
+                ex = exception_helper.create_cla_exception(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE,
+                                                           'WLSDPLY-12407', _program_name,
                                                            CommandLineArgUtil.RCU_DB_SWITCH,
                                                            CommandLineArgUtil.RCU_PREFIX_SWITCH)
-                ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
 
         # Delay the checking later for rcu related parameters
-
-    return
 
 
 def __process_opss_args(optional_arg_map):
@@ -224,13 +220,11 @@ def __process_opss_args(optional_arg_map):
         try:
             passphrase = getcreds.getpass('WLSDPLY-20027')
         except IOException, ioe:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20028', ioe.getLocalizedMessage(),
-                                                       error=ioe)
-            ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
+            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                       'WLSDPLY-20028', ioe.getLocalizedMessage(), error=ioe)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
         optional_arg_map[CommandLineArgUtil.OPSS_WALLET_PASSPHRASE] = String(passphrase)
-    return
 
 
 def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
@@ -372,7 +366,6 @@ def main(args):
     cla_helper.clean_up_temp_files()
 
     tool_exit.end(model_context, exit_code)
-    return
 
 
 if __name__ == '__main__' or __name__ == 'main':

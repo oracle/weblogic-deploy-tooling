@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import java.util.logging.Level as Level
@@ -38,4 +38,3 @@ class ValidatorLogger(PlatformLogger):
             level = Level.FINE
         record = self._get_log_record(level, clazz, method, message, error, *args)
         self.logger.log(record)
-        return

@@ -97,7 +97,6 @@ class Validator(object):
         self._archive_file_name = None
         self._archive_entries = None
         self._model_file_name = self._model_context.get_model_file()
-        return
 
     def validate_in_standalone_mode(self, model_dict, variable_map, archive_file_name=None):
         """
@@ -259,7 +258,6 @@ class Validator(object):
         k8s_validator.validate_model(model_dict)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
-        return
 
     def load_variables(self, variables_file_name):
         """
@@ -307,7 +305,6 @@ class Validator(object):
             self._archive_file_name = archive_file_name
             self._archive_helper = ArchiveHelper(self._archive_file_name, domain_name,
                                                  self._logger, ExceptionType.VALIDATE)
-        return
 
     def __validate_root_level(self, model_dict, valid_root_level_keys):
         _method_name = '__validate_root_level'
@@ -749,10 +746,6 @@ class Validator(object):
         _method_name = '__validate_variable_substitution'
 
         self._logger.entering(tokenized_value, model_folder_path, class_name=_class_name, method_name=_method_name)
-
-        # FIXME(mwooten) - What happens in tool mode when the variable_file_name passed is None but
-        # model_context.get_variable_file() returns the variable file passed on the command-line?  I
-        # don't think we should be executing this code if the variable_file_name passed was None.
         untokenized_value = tokenized_value
 
         if not isinstance(untokenized_value, dict):
@@ -765,9 +758,6 @@ class Validator(object):
                 if property_value is not None:
                     untokenized_value = untokenized_value.replace(token, property_value)
                 else:
-                    # FIXME(mwooten) - the cla_utils should be fixing all windows paths to use forward slashes already
-                    # assuming that the value is not None
-
                     logger_method = self._logger.warning
                     if self._validate_configuration.allow_unresolved_variable_tokens():
                         logger_method = _info_logger.info
@@ -866,8 +856,6 @@ class Validator(object):
 
         elif field_key == WLS_ROLES:
             self.__validate_wlsroles_section(field_value)
-
-        return
 
     def __validate_server_group_targeting_limits(self, attribute_key, attribute_value, model_folder_path):
         """

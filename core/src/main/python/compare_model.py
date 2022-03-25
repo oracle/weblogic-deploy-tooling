@@ -71,8 +71,6 @@ def __process_args(args):
     :param args: the command-line arguments list
     :raises CLAException: if an error occurs while validating and processing the command-line arguments
     """
-    _method_name = '__process_args'
-
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     argument_map = cla_util.process_args(args, trailing_arg_count=2)
 
@@ -176,19 +174,19 @@ class ModelFileDiffer:
         comparer = ModelComparer(current_dict, past_dict, aliases, self.compare_msgs)
         change_model = comparer.compare_models()
 
-        print BLANK_LINE
-        print format_message('WLSDPLY-05706', self.current_dict_file, self.past_dict_file)
-        print BLANK_LINE
+        print(BLANK_LINE)
+        print(format_message('WLSDPLY-05706', self.current_dict_file, self.past_dict_file))
+        print(BLANK_LINE)
         if len(change_model.keys()) == 0:
-            print format_message('WLSDPLY-05710')
-            print BLANK_LINE
+            print(format_message('WLSDPLY-05710'))
+            print(BLANK_LINE)
             return 0
 
         if self.output_dir:
             file_name = None
             try:
-                print format_message('WLSDPLY-05711', self.output_dir)
-                print BLANK_LINE
+                print(format_message('WLSDPLY-05711', self.output_dir))
+                print(BLANK_LINE)
 
                 # write the change model as a JSON file
                 file_name = self.output_dir + '/diffed_model.json'
@@ -206,8 +204,8 @@ class ModelFileDiffer:
                 return 2
         else:
             # write the change model to standard output in YAML format
-            print format_message('WLSDPLY-05707')
-            print BLANK_LINE
+            print(format_message('WLSDPLY-05707'))
+            print(BLANK_LINE)
             pty = PythonToYaml(change_model)
             pty.write_to_stream(System.out)
 
@@ -228,7 +226,7 @@ def debug(format_string, *arguments):
     :param arguments: arguments for the formatted string
     """
     if os.environ.has_key('DEBUG_COMPARE_MODEL_TOOL'):
-        print format_string % (arguments)
+        print(format_string % arguments)
     else:
         _logger.finest(format_string, arguments)
 
@@ -304,15 +302,15 @@ def main():
                                    error=ioe, class_name=_class_name, method_name=_method_name)
         else:
             if len(obj.get_compare_msgs()) > 0:
-                print BLANK_LINE
-                print BLANK_LINE
+                print(BLANK_LINE)
+                print(BLANK_LINE)
                 index = 1
                 for line in obj.get_compare_msgs():
                     msg_key = line[0]
                     msg_value = line[1]
-                    print "%s. %s" % (index, format_message(msg_key,msg_value.replace(PATH_TOKEN, "-->")))
+                    print("%s. %s" % (index, format_message(msg_key,msg_value.replace(PATH_TOKEN, "-->"))))
                     index = index + 1
-                    print BLANK_LINE
+                    print(BLANK_LINE)
 
         System.exit(0)
 
@@ -333,9 +331,9 @@ def main():
         System.exit(2)
     except:
         exc_type, exc_obj, exc_tb = sys.exc_info()
-        eeString = traceback.format_exception(exc_type, exc_obj, exc_tb)
+        ee_string = traceback.format_exception(exc_type, exc_obj, exc_tb)
         cla_helper.clean_up_temp_files()
-        _logger.severe('WLSDPLY-05704', eeString)
+        _logger.severe('WLSDPLY-05704', ee_string)
         System.exit(2)
 
 

@@ -147,7 +147,6 @@ class AttributeSetter(object):
         self.__wlst_mode = wlst_mode
         self.__aliases = aliases
         self.__wlst_helper = WlstHelper(exception_type)
-        return
 
     #
     # public set_ methods for special attribute types, signature (self, location, key, value, wlst_value, ...)
@@ -163,7 +162,6 @@ class AttributeSetter(object):
         :raises BundleAwareException of the specified type: if target is not found
         """
         self.set_target_mbeans(location, key, value, wlst_value, include_jms=True)
-        return
 
     def set_target_mbeans(self, location, key, value, wlst_value, include_jms=False):
         """
@@ -187,7 +185,6 @@ class AttributeSetter(object):
             else:
                 targets_value = MODEL_LIST_DELIMITER.join(items)
                 self.set_attribute(location, key, targets_value, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_jms_error_destination_mbean(self, location, key, value, wlst_value):
         """
@@ -200,7 +197,6 @@ class AttributeSetter(object):
         """
         mbean = self.__find_jms_destination_mbean(location, value)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_jms_bridge_destination_mbean(self, location, key, value, wlst_value):
         """
@@ -213,7 +209,6 @@ class AttributeSetter(object):
         """
         mbean = self.__find_in_resource_group_or_domain(location, JMS_BRIDGE_DESTINATION, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_persistent_store_mbean(self, location, key, value, wlst_value):
         """
@@ -226,7 +221,6 @@ class AttributeSetter(object):
         """
         mbean = self.__find_persistent_store(location, value)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_data_source_mbean(self, location, key, value, wlst_value):
         """
@@ -239,13 +233,12 @@ class AttributeSetter(object):
         """
         if not value:
             mbean = self.__wlst_helper.get_mbean(None)
-            wlst_attr = wlst_param = self.__aliases.get_wlst_attribute_name(location, key)
+            wlst_attr = self.__aliases.get_wlst_attribute_name(location, key)
             method = getattr(mbean, 'set' + wlst_attr)
             method(None)
         else:
             mbean = self.__find_in_resource_group_or_domain(location, JDBC_SYSTEM_RESOURCE, value, required=True)
             self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_saf_remote_context_mbean(self, location, key, value, wlst_value):
         """
@@ -259,7 +252,6 @@ class AttributeSetter(object):
         resource_location = self.__get_parent_location(location, JMS_RESOURCE)
         mbean = self.__find_in_location(resource_location, SAF_REMOTE_CONTEXT, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_saf_error_destination_mbean(self, location, key, value, wlst_value):
         """
@@ -272,7 +264,6 @@ class AttributeSetter(object):
         """
         mbean = self.__find_saf_destination_mbean(location, value)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_saf_error_handling_mbean(self, location, key, value, wlst_value):
         """
@@ -286,7 +277,6 @@ class AttributeSetter(object):
         resource_location = self.__get_parent_location(location, JMS_RESOURCE)
         mbean = self.__find_in_location(resource_location, SAF_ERROR_HANDLING, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_self_tuning_mbean(self, location, key, value, wlst_value):
         """
@@ -300,7 +290,6 @@ class AttributeSetter(object):
         tuning_location = self.__get_parent_location(location, SELF_TUNING)
         mbean = self.__find_in_location(tuning_location, key, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_server_mbeans(self, location, key, value, wlst_value):
         """
@@ -313,7 +302,6 @@ class AttributeSetter(object):
         """
         mbeans = self.__build_server_mbean_list(value, wlst_value, location, key)
         self.set_attribute(location, key, mbeans, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_server_mbean(self, location, key, value, wlst_value):
         """
@@ -326,7 +314,6 @@ class AttributeSetter(object):
         """
         mbean = self.__find_in_location(LocationContext(), SERVER, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_server_template_mbean(self, location, key, value, wlst_value):
         """
@@ -339,7 +326,6 @@ class AttributeSetter(object):
         """
         mbean = self.__find_in_location(LocationContext(), SERVER_TEMPLATE, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_cluster_mbean(self, location, key, value, wlst_value):
         """
@@ -352,7 +338,6 @@ class AttributeSetter(object):
         """
         mbean = self.__find_in_location(LocationContext(), CLUSTER, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_server_cluster_mbean(self, location, key, value, wlst_value):
         """
@@ -367,7 +352,6 @@ class AttributeSetter(object):
         entity_type, entity_name = self.__aliases.get_model_type_and_name(location)
 
         self.__wlst_helper.assign(entity_type, entity_name, key, value)
-        return
 
     def set_coherence_cluster_mbean(self, location, key, value, wlst_value):
         """
@@ -380,7 +364,6 @@ class AttributeSetter(object):
         """
         mbean = self.__find_in_location(LocationContext(), COHERENCE_CLUSTER_SYSTEM_RESOURCE, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_machine_mbean(self, location, key, value, wlst_value):
         """
@@ -393,7 +376,6 @@ class AttributeSetter(object):
         """
         mbean = self.__find_in_location(LocationContext(), MACHINE, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_jms_template_mbean(self, location, key, value, wlst_value):
         """
@@ -407,7 +389,6 @@ class AttributeSetter(object):
         resource_location = self.__get_parent_location(location, JMS_RESOURCE)
         mbean = self.__find_in_location(resource_location, TEMPLATE, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_wldf_action_mbeans(self, location, key, value, wlst_value):
         """
@@ -433,7 +414,6 @@ class AttributeSetter(object):
                 location_mbean.addNotification(action_mbean)
         else:
             self.set_attribute(location, key, action_mbeans, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_log_filter_mbean(self, location, key, value, wlst_value):
         """
@@ -446,7 +426,6 @@ class AttributeSetter(object):
         """
         mbean = self.__find_in_location(LocationContext(), LOG_FILTER, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_jms_server_mbean(self, location, key, value, wlst_value):
         """
@@ -459,7 +438,6 @@ class AttributeSetter(object):
         """
         mbean = self.__find_in_location(LocationContext(), JMS_SERVER, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_jms_quota_mbean(self, location, key, value, wlst_value):
         """
@@ -473,7 +451,6 @@ class AttributeSetter(object):
         resource_location = self.__get_parent_location(location, JMS_RESOURCE)
         mbean = self.__find_in_location(resource_location, QUOTA, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_reliable_delivery_policy_mbean(self, location, key, value, wlst_value):
         """
@@ -486,7 +463,6 @@ class AttributeSetter(object):
         """
         mbean = self.__find_in_location(LocationContext(), WS_RELIABLE_DELIVERY_POLICY, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_xml_entity_cache_mbean(self, location, key, value, wlst_value):
         """
@@ -499,7 +475,6 @@ class AttributeSetter(object):
         """
         mbean = self.__find_in_location(LocationContext(), XML_ENTITY_CACHE, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_xml_registry_mbean(self, location, key, value, wlst_value):
         """
@@ -512,7 +487,6 @@ class AttributeSetter(object):
         """
         mbean = self.__find_in_location(LocationContext(), XML_REGISTRY, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_mt_target_mbeans(self, location, key, value, wlst_value):
         """
@@ -525,7 +499,6 @@ class AttributeSetter(object):
         """
         targets_value = self.__build_virtual_target_mbean_list(value, wlst_value, location, key)
         self.set_attribute(location, key, targets_value, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_security_realm_mbean(self, location, key, value, wlst_value):
         """
@@ -539,7 +512,6 @@ class AttributeSetter(object):
         security_location = self.__get_domain_location(location).append_location(SECURITY_CONFIGURATION)
         mbean = self.__find_in_location(security_location, REALM, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_certificate_registry_mbean(self, location, key, value, wlst_value):
         """
@@ -553,7 +525,6 @@ class AttributeSetter(object):
         realm_location = self.__get_parent_location(location, REALM)
         mbean = self.__find_in_location(realm_location, CERT_PATH_PROVIDER, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_resource_group_template_mbean(self, location, key, value, wlst_value):
         """
@@ -567,7 +538,6 @@ class AttributeSetter(object):
         domain_location = self.__get_domain_location(location)
         mbean = self.__find_in_location(domain_location, RESOURCE_GROUP_TEMPLATE, value, required=True)
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_partition_work_manager_mbean(self, location, key, value, wlst_value):
         """
@@ -592,7 +562,6 @@ class AttributeSetter(object):
             raise ex
 
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_resource_manager_mbean(self, location, key, value, wlst_value):
         """
@@ -617,7 +586,6 @@ class AttributeSetter(object):
             raise ex
 
         self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_jvm_args(self, location, key, value, wlst_value):
         """
@@ -640,7 +608,6 @@ class AttributeSetter(object):
             result = merged_args.get_arguments_string()
 
         self.set_attribute(location, key, result, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_boolean(self, location, key, value, wlst_value):
         """
@@ -656,7 +623,6 @@ class AttributeSetter(object):
         result = alias_utils.convert_to_type(BOOLEAN, value)
         result = result == 'true'
         self.set_attribute(location, key, result, wlst_merge_value=wlst_value, use_raw_value=True)
-        return
 
     def set_with_ssl_enabled(self, location, key, value, wlst_value):
         """
@@ -674,7 +640,6 @@ class AttributeSetter(object):
         self.set_attribute(location, ENABLED, True)
         self.set_attribute(location, key, value, wlst_merge_value=wlst_value)
         self.set_attribute(location, ENABLED, was_enabled)
-        return
 
     #
     # public set_attribute convenience methods
@@ -716,7 +681,6 @@ class AttributeSetter(object):
                                     location.get_folder_path(), class_name=self._class_name, method_name=_method_name)
 
             self.__wlst_helper.set(wlst_param, wlst_value)
-        return
 
     def set_attribute_with_cmo(self, location, key, value, wlst_value=None, masked=False):
         _method_name = 'set_attribute_with_cmo'
@@ -735,7 +699,6 @@ class AttributeSetter(object):
             attrib_path = self.__aliases.get_wlst_attributes_path(location)
             self.__wlst_helper.cd(attrib_path)
             self.__wlst_helper.set_with_cmo(wlst_attr_name, wlst_attr_value, masked=masked)
-        return
 
     #
     # internal lookup methods

@@ -39,9 +39,7 @@ class ModelKubernetesPrinter(object):
         :param section_name: the name of the model section
         :param control_option: A command-line switch that controls what is output to STDOUT
         """
-        _method_name = '_print_model_section_sample'
-
-        print
+        print()
         path = section_name + ":"
         _print_indent(path, 0)
 
@@ -77,7 +75,8 @@ class ModelKubernetesPrinter(object):
 
             valid_subfolder_keys = _get_folder_names(properties)
             if token not in valid_subfolder_keys:
-                ex = exception_helper.create_cla_exception("WLSDPLY-10111", model_path, token,
+                ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                           "WLSDPLY-10111", model_path, token,
                                                            ', '.join(valid_subfolder_keys))
                 self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
@@ -109,8 +108,6 @@ class ModelKubernetesPrinter(object):
         :param path: indicates path to request for child folder help
         :param in_object_array: if True, a hyphen is printed before the first attribute
         """
-        _method_name = '_print_subfolders_sample'
-
         folder_info = _get_properties(schema_folder)
         folder_map = dict()
         object_array_keys = []
@@ -159,8 +156,6 @@ class ModelKubernetesPrinter(object):
         :param in_object_array: if True, a hyphen is printed before the first attribute
         :return: value of in_object_array, or False if an attribute was printed with a hyphen
         """
-        _method_name = '_print_attributes_sample'
-
         attribute_map = dict()
         properties = _get_properties(schema_folder)
 
@@ -242,4 +237,4 @@ def _print_indent(msg, level=1, first_in_list_object=False):
     if first_in_list_object:
         result = result[:-2] + "- "
 
-    print '%s%s' % (result, msg)
+    print('%s%s' % (result, msg))

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -23,13 +23,12 @@ class LocationContext(object):
         else:
             self._model_folders = another_location.get_model_folders()
             self._name_tokens = another_location.get_name_tokens()
-        return
 
     def append_location(self, *args, **kwargs):
         """
         Push (or append) a location to the existing location context
-        :param *args:
-        :param **kwargs:
+        :param args: arguments
+        :param kwargs: named arguments
         :return: self, for method chaining
         """
         if len(args) != 0:

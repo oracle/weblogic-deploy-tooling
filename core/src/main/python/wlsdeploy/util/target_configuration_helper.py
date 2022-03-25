@@ -1,4 +1,4 @@
-# Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+# Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 # Shared methods for using target environments (-target abc).
@@ -86,7 +86,8 @@ def process_target_arguments(argument_map):
         # if -target is specified -output_dir is required
         output_dir = dictionary_utils.get_element(argument_map, CommandLineArgUtil.OUTPUT_DIR_SWITCH)
         if (output_dir is None) or (not os.path.isdir(output_dir)):
-            ex = exception_helper.create_cla_exception('WLSDPLY-01642', CommandLineArgUtil.OUTPUT_DIR_SWITCH,
+            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                       'WLSDPLY-01642', CommandLineArgUtil.OUTPUT_DIR_SWITCH,
                                                        CommandLineArgUtil.TARGET_SWITCH, target_name)
             __logger.throwing(ex, class_name=__class_name, method_name=_method_name)
             raise ex
@@ -279,8 +280,6 @@ def create_additional_output(model, model_context, aliases, credential_injector,
     :param credential_injector: used to identify secrets
     :param exception_type: type of exception to throw
     """
-    _method_name = 'create_additional_output'
-
     additional_output_helper.create_additional_output(model, model_context, aliases, credential_injector,
                                                       exception_type)
 

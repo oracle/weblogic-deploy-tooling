@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.io import File
@@ -44,7 +44,6 @@ class WLSRoles(object):
                self._wls_roles_map = domain_info[WLS_ROLES]
                self._domain_security_folder = File(domain_home, 'security').getPath()
                self._weblogic_roles_helper = WebLogicRolesHelper(logger, exception_type, self._domain_security_folder)
-        return
 
     def process_roles(self):
         """
@@ -63,7 +62,6 @@ class WLSRoles(object):
                     self.logger.info('WLSDPLY-12500', role_expressions.keys(), class_name=self.__class_name, method_name=_method_name)
                     self._update_xacml_role_mapper(role_expressions)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def validate_roles(self):
         """
@@ -99,7 +97,6 @@ class WLSRoles(object):
             result[role] = expression
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return result
 
     def _update_xacml_role_mapper(self, role_expression_map):
         """
@@ -109,7 +106,6 @@ class WLSRoles(object):
         self.logger.entering(role_expression_map, class_name=self.__class_name, method_name=_method_name)
         self._weblogic_roles_helper.update_xacml_role_mapper(role_expression_map)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def _get_role_expression(self, role_name, roles_map):
         """
@@ -175,7 +171,6 @@ class WLSRoles(object):
                                         method_name=_method_name)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
 
 def validator(roles_map, logger):

@@ -13,6 +13,7 @@ from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
 from wlsdeploy.tool.modelhelp.model_kubernetes_printer import ModelKubernetesPrinter
 from wlsdeploy.tool.modelhelp.model_sample_printer import ModelSamplePrinter
 from wlsdeploy.util import model
+from wlsdeploy.util.cla_utils import CommandLineArgUtil
 
 _class_name = "ModelHelpPrinter"
 MODEL_PATH_PATTERN = re.compile(r'(^[a-zA-Z]+:?)?(/[a-zA-Z0-9^/]+)?$')
@@ -54,15 +55,15 @@ class ModelHelpPrinter(object):
         model_path = '%s:/%s' % (model_path_tokens[0], folder_path)
 
         # print format information
-        print
+        print()
         if control_option == ControlOptions.RECURSIVE:
-            print _format_message('WLSDPLY-10102', model_path)
+            print(_format_message('WLSDPLY-10102', model_path))
         elif control_option == ControlOptions.FOLDERS_ONLY:
-            print _format_message('WLSDPLY-10103', model_path)
+            print(_format_message('WLSDPLY-10103', model_path))
         elif control_option == ControlOptions.ATTRIBUTES_ONLY:
-            print _format_message('WLSDPLY-10104', model_path)
+            print( _format_message('WLSDPLY-10104', model_path))
         else:
-            print _format_message('WLSDPLY-10105', model_path)
+            print(_format_message('WLSDPLY-10105', model_path))
 
         if model_path_tokens[0] == KUBERNETES:
             sample_printer = ModelKubernetesPrinter()
@@ -86,7 +87,8 @@ class ModelHelpPrinter(object):
 
         match = MODEL_PATH_PATTERN.match(model_path)
         if match is None:
-            ex = exception_helper.create_cla_exception('WLSDPLY-10108', model_path)
+            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                       'WLSDPLY-10108', model_path)
             self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
@@ -115,7 +117,8 @@ class ModelHelpPrinter(object):
         all_section_keys.extend(top_level_keys)
 
         if section not in all_section_keys:
-            ex = exception_helper.create_cla_exception('WLSDPLY-10109', section, str(', '.join(top_level_keys)))
+            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                       'WLSDPLY-10109', section, str(', '.join(top_level_keys)))
             self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
@@ -138,7 +141,7 @@ class ModelHelpPrinter(object):
             if top_folder in folder_keys:
                 return section
 
-        ex = exception_helper.create_cla_exception('WLSDPLY-10101', top_folder)
+        ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE, 'WLSDPLY-10101', top_folder)
         self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
 

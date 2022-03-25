@@ -1,5 +1,5 @@
 """
-Copyright (c) 2018, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2018, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the injectVariables tool.
@@ -94,7 +94,6 @@ def __close_archive(model_context):
     if archive_file:
         archive_file.close()
     __logger.exiting(class_name=_class_name, method_name=_method_name)
-    return
 
 
 def __persist_model(model, model_context):
@@ -140,7 +139,6 @@ def __persist_model(model, model_context):
             raise ex
 
     __logger.exiting(class_name=_class_name, method_name=_method_name)
-    return
 
 
 def __log_and_exit(exit_code, class_name, _method_name):

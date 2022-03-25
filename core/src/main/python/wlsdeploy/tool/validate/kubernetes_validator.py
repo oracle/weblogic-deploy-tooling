@@ -19,7 +19,6 @@ class KubernetesValidator(object):
 
     def __init__(self, model_context):
         self._model_context = model_context
-        return
 
     def validate_model(self, model_dict):
         """
@@ -27,8 +26,6 @@ class KubernetesValidator(object):
         :param model_dict: A Python dictionary of the model to be validated
         :raises ValidationException: if problems occur during validation
         """
-        _method_name = 'validate_model'
-
         kubernetes_section = dictionary_utils.get_dictionary_element(model_dict, KUBERNETES)
         if not kubernetes_section:
             return

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2021, Oracle and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import sys
@@ -339,9 +339,10 @@ def create_translate_exception(key, *args, **kwargs):
     return ex
 
 
-def create_cla_exception(key, *args, **kwargs):
+def create_cla_exception(exit_code, key, *args, **kwargs):
     """
     Create a Java CLAException from a message id, list of message parameters and Throwable error.
+    :param exit_code: exit code to return from the tool
     :param key: key to the message in resource bundle or the message itself
     :param args: list of parameters for the parameters or empty if none needed for the message
     :param kwargs: contains Throwable or instance if present
@@ -350,13 +351,13 @@ def create_cla_exception(key, *args, **kwargs):
     arg_list, error = _return_exception_params(*args, **kwargs)
     if error is not None:
         if len(arg_list) > 0:
-            ex = JCLAException(key, error, arg_list)
+            ex = JCLAException(exit_code, key, error, arg_list)
         else:
-            ex = JCLAException(key, error)
+            ex = JCLAException(exit_code, key, error)
     elif len(arg_list) > 0:
-        ex = JCLAException(key, arg_list)
+        ex = JCLAException(exit_code, key, arg_list)
     else:
-        ex = JCLAException(key)
+        ex = JCLAException(exit_code, key)
     return ex
 
 

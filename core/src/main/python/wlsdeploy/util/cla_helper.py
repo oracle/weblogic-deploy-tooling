@@ -59,9 +59,9 @@ def validate_optional_archive(program_name, optional_arg_map):
             try:
                 FileUtils.validateExistingFile(archive_file)
             except IllegalArgumentException, iae:
-                ex = exception_helper.create_cla_exception('WLSDPLY-20014', program_name, archive_file_name,
+                ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                           'WLSDPLY-20014', program_name, archive_file_name,
                                                            iae.getLocalizedMessage(), error=iae)
-                ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
 
@@ -89,9 +89,9 @@ def validate_model_present(program_name, optional_arg_map):
             try:
                 FileUtils.validateExistingFile(model_file)
             except IllegalArgumentException, iae:
-                ex = exception_helper.create_cla_exception('WLSDPLY-20006', program_name, model_file,
+                ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                           'WLSDPLY-20006', program_name, model_file,
                                                            iae.getLocalizedMessage(), error=iae)
-                ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
 
@@ -104,20 +104,18 @@ def validate_model_present(program_name, optional_arg_map):
             model_file_name = FileUtils.fixupFileSeparatorsForJython(tmp_model_file.getAbsolutePath())
             optional_arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = model_file_name
         else:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20026', program_name, archive_file,
+            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                       'WLSDPLY-20026', program_name, archive_file,
                                                        CommandLineArgUtil.MODEL_FILE_SWITCH)
-            ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
-
     else:
-        ex = exception_helper.create_cla_exception('WLSDPLY-20015', program_name,
+        ex = exception_helper.create_cla_exception(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE,
+                                                   'WLSDPLY-20015', program_name,
                                                    CommandLineArgUtil.MODEL_FILE_SWITCH,
                                                    CommandLineArgUtil.ARCHIVE_FILE_SWITCH)
-        ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
-    return
 
 
 def validate_variable_file_exists(program_name, argument_map):
@@ -137,14 +135,13 @@ def validate_variable_file_exists(program_name, argument_map):
                 variable_file = FileUtils.validateExistingFile(file)
                 result_files.append(variable_file.getAbsolutePath())
             except IllegalArgumentException, iae:
-                ex = exception_helper.create_cla_exception('WLSDPLY-20031', program_name, file,
+                ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                           'WLSDPLY-20031', program_name, file,
                                                            iae.getLocalizedMessage(), error=iae)
-                ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
                 __logger.throwing(ex, class_name=_class_name, method_name=method_name)
                 raise ex
 
         argument_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = ",".join(result_files)
-    return
 
 
 def process_encryption_args(optional_arg_map):
@@ -161,8 +158,8 @@ def process_encryption_args(optional_arg_map):
         try:
             passphrase = getcreds.getpass('WLSDPLY-20002')
         except IOException, ioe:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20003', ioe.getLocalizedMessage(), error=ioe)
-            ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
+            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                       'WLSDPLY-20003', ioe.getLocalizedMessage(), error=ioe)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
         optional_arg_map[CommandLineArgUtil.PASSPHRASE_SWITCH] = String(passphrase)
@@ -267,8 +264,8 @@ def process_online_args(optional_arg_map):
             try:
                 username = getcreds.getuser('WLSDPLY-09001')
             except IOException, ioe:
-                ex = exception_helper.create_cla_exception('WLSDPLY-09002', ioe.getLocalizedMessage(), error=ioe)
-                ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
+                ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                           'WLSDPLY-09002', ioe.getLocalizedMessage(), error=ioe)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
             optional_arg_map[CommandLineArgUtil.ADMIN_USER_SWITCH] = username
@@ -277,8 +274,8 @@ def process_online_args(optional_arg_map):
             try:
                 password = getcreds.getpass('WLSDPLY-09003')
             except IOException, ioe:
-                ex = exception_helper.create_cla_exception('WLSDPLY-09004', ioe.getLocalizedMessage(), error=ioe)
-                ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
+                ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                           'WLSDPLY-09004', ioe.getLocalizedMessage(), error=ioe)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
             optional_arg_map[CommandLineArgUtil.ADMIN_PASS_SWITCH] = String(password)

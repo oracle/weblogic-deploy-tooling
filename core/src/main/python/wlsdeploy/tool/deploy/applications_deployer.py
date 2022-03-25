@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -64,7 +64,6 @@ class ApplicationsDeployer(Deployer):
         else:
             deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions(self.model_context.is_discard_current_edit())
             self.__online_deploy_apps_and_libs(self._base_location)
-        return
 
     def __add_shared_libraries(self):
         """
@@ -133,7 +132,6 @@ class ApplicationsDeployer(Deployer):
             self.set_attributes(shared_library_location, shared_library)
             shared_library_location.remove_name_token(shared_library_token)
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
-        return
 
     def __add_applications(self):
         """
@@ -197,7 +195,6 @@ class ApplicationsDeployer(Deployer):
             self._set_attributes_and_add_subfolders(application_location, application)
             application_location.remove_name_token(application_token)
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
-        return
 
     def __online_deploy_apps_and_libs(self, base_location):
         """
@@ -280,7 +277,6 @@ class ApplicationsDeployer(Deployer):
 
         self.__start_all_apps(deployed_app_list, base_location)
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
-        return
 
     ###########################################################################
     #                      Private utility methods                            #
@@ -518,8 +514,6 @@ class ApplicationsDeployer(Deployer):
         :param stop_app_list: a list to update with dependent apps to be stopped and undeployed
         :param update_library_list: a list to update with libraries to be stopped before deploying
         """
-        _method_name = '__build_library_deploy_strategy'
-
         if model_libs is not None:
             existing_libs = existing_lib_refs.keys()
             uses_path_tokens_model_attribute_names = self.__get_uses_path_tokens_attribute_names(location)
@@ -609,7 +603,6 @@ class ApplicationsDeployer(Deployer):
                             # For update case, the sparse model may be just changing targets, therefore without sourcepath
                             if lib_dict['SourcePath'] is None and existing_src_path is not None:
                                 lib_dict['SourcePath'] = existing_src_path
-        return
 
 
     def __build_app_deploy_strategy(self, location, model_apps, existing_app_refs, stop_and_undeploy_app_list):
@@ -708,7 +701,6 @@ class ApplicationsDeployer(Deployer):
                         # updated app
                         if versioned_name not in stop_and_undeploy_app_list:
                             stop_and_undeploy_app_list.append(versioned_name)
-        return
 
     def __remove_delete_targets(self, model_dict, existing_ref):
         """
@@ -716,8 +708,6 @@ class ApplicationsDeployer(Deployer):
         :param model_dict: the model dictionary for the app or library, may be modified
         :param existing_ref: the existing dictionary for the app or library, may be modified
         """
-        _method_name = '__remove_delete_targets'
-
         model_targets = dictionary_utils.get_element(model_dict, TARGET)
         model_targets = alias_utils.create_list(model_targets, 'WLSDPLY-08000')
 
@@ -737,9 +727,13 @@ class ApplicationsDeployer(Deployer):
 
     def __verify_delete_versioned_app(self, app, existing_apps, type='app'):
         """
-        Verify that the specified app or library is in the existing list.
+        Verify that the specified app or library is in the existing list.  Since this app/library
+        has been sepcified in the model as one to be deleted, this method will only consider
+        it a match if the names match exactly.  That is, if the model specifies !myapp, this method
+        will try to find myapp in the list of existing apps, skipping over version-qualified names
+        like myapp#1.0 or myapp#1.0@1.1.3.
         :param app: the app or library name to be checked, with '!' still prepended
-        :param existing_apps: the list of existing apps
+        :param existing_apps: the list of existing apps from WLST
         :param type: the type for logging, 'app' for app, library otherwise
         :return: True if the item is in the list, False otherwise
         """
@@ -756,8 +750,8 @@ class ApplicationsDeployer(Deployer):
         app_name = model_helper.get_delete_item_name(app)
         if not app_name in existing_apps:
             found_app = False
-            tokens = re.split(r'[\#*\@*]', app_name)
-            re_expr = tokens[0] + '[\#*\@*]'
+            tokens = re.split(r'[#@]', app_name)
+            re_expr = '^' + tokens[0] + '[#@]*'
             r = re.compile(re_expr)
             matched_list = filter(r.match, existing_apps)
             if len(matched_list) > 0:
@@ -835,19 +829,16 @@ class ApplicationsDeployer(Deployer):
             adjusted_set = model_targets_set.difference(existing_lib_targets_set)
             adjusted_targets = ','.join(adjusted_set)
             model_libs[lib][TARGET] = adjusted_targets
-        return
 
     def __remove_app_from_deployment(self, model_dict, app_name):
         self.logger.info('WLSDPLY-09337', app_name,
                          class_name=self._class_name, method_name='remove_app_from_deployment')
         model_dict.pop(app_name)
-        return
 
     def __remove_lib_from_deployment(self, model_dict, lib_name):
         _method_name = '__remove_lib_from_deployment'
         self.logger.info('WLSDPLY-09311', lib_name, class_name=self._class_name, method_name=_method_name)
         model_dict.pop(lib_name)
-        return
 
     def __stop_app(self, application_name, partition_name=None):
         _method_name = '__stop_app'
@@ -862,7 +853,6 @@ class ApplicationsDeployer(Deployer):
             ex = exception_helper.create_deploy_exception('WLSDPLY-09327', application_name, progress.getMessage())
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
-        return
 
     def __start_app(self, application_name, partition_name=None):
         _method_name = '__start_app'
@@ -870,7 +860,6 @@ class ApplicationsDeployer(Deployer):
         self.logger.info('WLSDPLY-09313', application_name, class_name=self._class_name, method_name=_method_name)
         self.wlst_helper.start_application(application_name, partition=partition_name,
                                            timeout=self.model_context.get_model_config().get_start_app_timeout())
-        return
 
     def __undeploy_app(self, application_name, library_module='false', partition_name=None,
                        resource_group_template=None, targets=None):
@@ -891,7 +880,6 @@ class ApplicationsDeployer(Deployer):
                                               resourceGroupTemplate=resource_group_template,
                                               timeout=self.model_context.get_model_config().get_undeploy_timeout(),
                                               targets=targets)
-        return
 
     def __deploy_model_libraries(self, model_libs, lib_location):
         if model_libs is not None and len(model_libs) > 0:
@@ -920,7 +908,6 @@ class ApplicationsDeployer(Deployer):
                                              partition=partition_name, resource_group=resource_group_name,
                                              resource_group_template=resource_group_template_name, options=options)
                     location.remove_name_token(token_name)
-        return
 
     def __deploy_model_applications(self, model_apps, app_location, deployed_applist):
         if model_apps is not None:
@@ -955,7 +942,6 @@ class ApplicationsDeployer(Deployer):
                                                             options=options)
                     location.remove_name_token(token_name)
                     deployed_applist.append(new_app_name)
-        return
 
     def __get_mt_names_from_location(self, app_location):
         dummy_location = LocationContext()
@@ -1056,11 +1042,6 @@ class ApplicationsDeployer(Deployer):
         self.wlst_helper.deploy_application(application_name, *args, **kwargs)
         return application_name
 
-    def __extract_file_from_archive(self, path):
-        if path is not None and deployer_utils.is_path_into_archive(path):
-            self.archive_helper.extract_file(path)
-        return
-
     def __extract_source_path_from_archive(self, source_path, model_type, model_name):
         """
         Extract contents from the archive set for the specified source path.
@@ -1083,8 +1064,6 @@ class ApplicationsDeployer(Deployer):
             ex = exception_helper.create_deploy_exception('WLSDPLY-09330', model_type, model_name, source_path)
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
-
-        return
 
     def __get_deployment_ordering(self, apps):
         _method_name = '__get_deployment_ordering'
@@ -1115,8 +1094,7 @@ class ApplicationsDeployer(Deployer):
             ordered_list.extend(this_list)
 
         result_deploy_order = []
-        if ordered_list is not None:
-            result_deploy_order.extend(ordered_list)
+        result_deploy_order.extend(ordered_list)
         if name_sorted_keys is not None:
             result_deploy_order.extend(name_sorted_keys)
 
@@ -1144,7 +1122,6 @@ class ApplicationsDeployer(Deployer):
         start_order = self.__get_deployment_ordering(temp_app_dict)
         for app in start_order:
             self.__start_app(app)
-        return
 
 
 def _get_deploy_options(model_apps, app_name, library_module):
@@ -1208,7 +1185,6 @@ def _add_ref_apps_to_stoplist(stop_and_undeploy_applist, lib_refs, lib_name):
         for app in apps:
             if app not in stop_and_undeploy_applist:
                 stop_and_undeploy_applist.append(app)
-    return
 
 def _update_ref_dictionary(ref_dictionary, lib_name, absolute_sourcepath, lib_hash, configured_targets,
                            absolute_plan_path=None, plan_hash=None, app_name=None, deploy_order=None):
@@ -1240,4 +1216,3 @@ def _update_ref_dictionary(ref_dictionary, lib_name, absolute_sourcepath, lib_ha
         if referencing_app.has_key(app_name) is False:
             referencing_app[app_name] = OrderedDict()
         referencing_app[app_name][DEPLOYMENT_ORDER] = deploy_order
-    return

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -184,7 +184,6 @@ def check_flattened_folder(location, aliases):
 
         path_token = flattened_folder_info.get_path_token()
         location.add_name_token(path_token, mbean_name)
-    return
 
 
 def get_jdbc_driver_params_location(ds_name, aliases):
@@ -284,9 +283,10 @@ def delete_named_element(location, delete_name, existing_names, aliases):
         existing_names.remove(name)
 
 
-def ensure_no_uncommitted_changes_or_edit_sessions(ignoreEditSessionCheck=False):
+def ensure_no_uncommitted_changes_or_edit_sessions(ignore_edit_session_check=False):
     """
     Ensure that the domain does not contain any uncommitted changes and there is no existing edit session.
+    :param ignore_edit_session_check: whether to ignore edit session state checks
     :raises: DeployException: if there are any uncommitted changes, existing edit sessions, or a WLST error occurs
     """
     _method_name = 'ensure_no_uncommitted_changes_or_edit_sessions'
@@ -303,12 +303,12 @@ def ensure_no_uncommitted_changes_or_edit_sessions(ignoreEditSessionCheck=False)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
-        if unactivated_changes and not ignoreEditSessionCheck:
+        if unactivated_changes and not ignore_edit_session_check:
             ex = exception_helper.create_deploy_exception('WLSDPLY-09103')
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
-        if current_editor is not None and not ignoreEditSessionCheck:
+        if current_editor is not None and not ignore_edit_session_check:
             ex = exception_helper.create_deploy_exception('WLSDPLY-09104', str(current_editor))
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
@@ -317,7 +317,7 @@ def ensure_no_uncommitted_changes_or_edit_sessions(ignoreEditSessionCheck=False)
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
     _logger.exiting(class_name=_class_name, method_name=_method_name)
-    return
+
 
 def discard_current_edit():
     """
@@ -340,7 +340,6 @@ def discard_current_edit():
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
     _logger.exiting(class_name=_class_name, method_name=_method_name)
-    return
 
 
 def extract_from_uri(model_context, path_value):
@@ -424,9 +423,7 @@ def get_library_name_components(name, wlst_mode=WlstModes.OFFLINE):
             ex = exception_helper.create_deploy_exception('WLSDPLY-09106', name, len(ver_items) - 1)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
-    elif len(items) == 1:
-        pass
-    else:
+    elif len(items) != 1:
         ex = exception_helper.create_deploy_exception('WLSDPLY-09107', name, len(items) - 1)
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
@@ -575,7 +572,6 @@ def online_check_save_activate(model_context):
     :return: the exit code for the tool
     :raises BundleAwareException: if an error occurs during the process
     """
-    _method_name = 'online_check_save_activate'
     exit_code = 0
 
     try:
@@ -622,7 +618,6 @@ def release_edit_session_and_disconnect():
         # the original problem by throwing yet another exception...
         _logger.warning('WLSDPLY-09012', ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
-    return
 
 
 def check_if_dynamic_cluster(server_name, cluster_name, aliases):

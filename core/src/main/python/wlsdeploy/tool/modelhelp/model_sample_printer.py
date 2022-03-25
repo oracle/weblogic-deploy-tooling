@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.aliases.location_context import LocationContext
@@ -8,6 +8,7 @@ from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.tool.modelhelp import model_help_utils
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.util.cla_utils import CommandLineArgUtil
 
 _class_name = "ModelSamplePrinter"
 
@@ -47,10 +48,8 @@ class ModelSamplePrinter(object):
         Prints a model sample with all the the valid section names.
         The -recursive flag is disregarded for this case.
         """
-        _method_name = '_print_model_top_level_sample'
-
         for section in KNOWN_TOPLEVEL_MODEL_SECTIONS:
-            print
+            print()
             _print_indent(section + ":", 0)
             _print_indent("# see " + section + ":", 1)
 
@@ -61,9 +60,7 @@ class ModelSamplePrinter(object):
         :param valid_section_folder_keys: list of the valid top folders in the specified section
         :param control_option: A command-line switch that controls what is output to STDOUT
         """
-        _method_name = '_print_model_section_sample'
-
-        print
+        print()
         _print_indent(section_name + ":", 0)
 
         if model_help_utils.show_attributes(control_option):
@@ -88,7 +85,8 @@ class ModelSamplePrinter(object):
         section_name = model_path_tokens[0]
         top_folder = model_path_tokens[1]
         if top_folder not in valid_section_folder_keys:
-            ex = exception_helper.create_cla_exception('WLSDPLY-10110', section_name + ':', top_folder,
+            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                       'WLSDPLY-10110', section_name + ':', top_folder,
                                                        ', '.join(valid_section_folder_keys))
             self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
@@ -105,7 +103,8 @@ class ModelSamplePrinter(object):
             if indent > 0:
                 code, message = self._aliases.is_valid_model_folder_name(model_location, token)
                 if code != ValidationCodes.VALID:
-                    ex = exception_helper.create_cla_exception("WLSDPLY-05027", message)
+                    ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                               "WLSDPLY-05027", message)
                     self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                     raise ex
                 model_location.append_location(token)
@@ -132,8 +131,6 @@ class ModelSamplePrinter(object):
         if model_help_utils.show_folders(control_option):
             self._print_subfolders_sample(model_location, control_option, indent)
 
-        return
-
     def _print_subfolders_sample(self, model_location, control_option, indent_level):
         """
         Prints a model sample section for the folders in a model location.
@@ -142,8 +139,6 @@ class ModelSamplePrinter(object):
         :param control_option: a command-line switch that controls what is output to STDOUT
         :param indent_level: the level to indent by, before printing output
         """
-        _method_name = '_print_subfolders_sample'
-
         valid_subfolder_keys = self._aliases.get_model_subfolder_names(model_location)
 
         valid_subfolder_keys.sort()
@@ -157,8 +152,6 @@ class ModelSamplePrinter(object):
         :param control_option: a command-line switch that controls what is output to STDOUT
         :param indent_level: the level to indent by, before printing output
         """
-        _method_name = '_print_subfolder_keys_sample'
-
         artificial_index = 0
         parent_location = LocationContext(model_location)
 
@@ -206,8 +199,6 @@ class ModelSamplePrinter(object):
         :param model_location: An object containing data about the model location being worked on
         :param indent_level: The level to indent by, before printing output
         """
-        _method_name = '_print_attributes_sample'
-
         attr_infos = self._aliases.get_model_attribute_names_and_types(model_location)
 
         if attr_infos:
@@ -262,4 +253,4 @@ def _print_indent(msg, level=1):
     while i < level:
         result += '    '
         i += 1
-    print '%s%s' % (result, msg)
+    print('%s%s' % (result, msg))

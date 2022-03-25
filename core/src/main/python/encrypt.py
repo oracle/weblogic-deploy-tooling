@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The main module for the WLSDeploy tool to encrypt passwords.
@@ -94,12 +94,11 @@ def __validate_mode_args(optional_arg_map):
 
     if CommandLineArgUtil.MODEL_FILE_SWITCH not in optional_arg_map \
             and CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH not in optional_arg_map:
-        ex = exception_helper.create_cla_exception('WLSDPLY-04202', _program_name, CommandLineArgUtil.MODEL_FILE_SWITCH,
+        ex = exception_helper.create_cla_exception(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE,
+                                                   'WLSDPLY-04202', _program_name, CommandLineArgUtil.MODEL_FILE_SWITCH,
                                                    CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH)
-        ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
-    return
 
 
 def __process_passphrase_arg(optional_arg_map):
@@ -127,12 +126,9 @@ def __process_passphrase_arg(optional_arg_map):
             else:
                 # if it is script mode do not prompt again
                 if System.console() is None:
-                    ex = exception_helper.create_cla_exception('WLSDPLY-04213')
-                    ex.setExitCode(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+                    ex = exception_helper.create_cla_exception(CommandLineArgUtil.PROG_ERROR_EXIT_CODE, 'WLSDPLY-04213')
                     __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                     raise ex
-
-    return
 
 
 def __encrypt_model_and_variables(model_context):

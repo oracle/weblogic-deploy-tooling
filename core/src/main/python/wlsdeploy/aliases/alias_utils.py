@@ -226,7 +226,6 @@ def update_version_range_dict(version_range_dict, mode, version_range):
         _update_version_range_dict_mode(version_range_dict, 'offline', version_range)
     elif mode == 'online':
         _update_version_range_dict_mode(version_range_dict, 'online', version_range)
-    return
 
 
 def parse_curly_braces(value):
@@ -261,9 +260,8 @@ def get_missing_name_tokens(wlst_path):
     if '%' in wlst_path:
         p = re.compile("%[A-Z_]*%")
         tokens = p.findall(wlst_path)
-        if tokens is not None:
-            for token in tokens:
-                missing_name_tokens[token[1:-1]] = True
+        for token in tokens:
+            missing_name_tokens[token[1:-1]] = True
     return missing_name_tokens.keys()
 
 
@@ -644,8 +642,6 @@ def convert_to_model_type(data_type, value, delimiter=None):
     :param delimiter: the delimiter for parsing the WLST representation of the data value (optional)
     :return: converted value
     """
-
-    _method_name = 'convert_to_model_type'
     new_value = None
     if value is not None and data_type == 'password':
         # The password is an array of bytes coming back from the WLST get() method and only
@@ -910,7 +906,6 @@ def _update_version_range_dict_mode(version_range_dict, wlst_mode, version_range
         version_range_dict[wlst_mode] = new_value
     else:
         version_range_dict[wlst_mode] = version_range
-    return
 
 
 def _merge_version_ranges(current_range, range_to_add):
