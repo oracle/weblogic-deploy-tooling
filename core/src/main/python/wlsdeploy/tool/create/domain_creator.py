@@ -81,7 +81,6 @@ from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.create import atp_helper
 from wlsdeploy.tool.create import ssl_helper
 from wlsdeploy.tool.create import rcudbinfo_helper
-from wlsdeploy.tool.create import rcudbinfo_helper
 from wlsdeploy.tool.create.creator import Creator
 from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
 from wlsdeploy.tool.create.wlsroles_helper import WLSRoles
@@ -964,7 +963,7 @@ class DomainCreator(Creator):
 
         root_location.remove_name_token(property_name)
 
-    def __retrieve_atp_rcudbinfo(self, rcu_db_info, checkAdminPwd=False):
+    def __retrieve_atp_rcudbinfo(self, rcu_db_info, check_admin_pwd=False):
         """
         Check and return atp connection info and make sure atp rcudb info is complete
         :raises: CreateException: if an error occurs
@@ -1004,7 +1003,7 @@ class DomainCreator(Creator):
                                                           "'javax.net.ssl.trustStorePassword']")
             raise ex
 
-        if checkAdminPwd:
+        if check_admin_pwd:
             admin_pwd = rcu_db_info.get_admin_password()
             if admin_pwd is None:
                 ex = exception_helper.create_create_exception('WLSDPLY-12413','rcu_admin_password',
@@ -1014,7 +1013,7 @@ class DomainCreator(Creator):
 
         return tns_admin, rcu_database, keystore_pwd, truststore_pwd
 
-    def __retrieve_ssl_rcudbinfo(self, rcu_db_info, checkAdminPwd=False):
+    def __retrieve_ssl_rcudbinfo(self, rcu_db_info, check_admin_pwd=False):
         """
         Check and return ssl connection info and make sure ssl rcudb info is complete
         :raises: CreateException: if an error occurs
@@ -1042,7 +1041,7 @@ class DomainCreator(Creator):
         truststore_type = rcu_db_info.get_truststore_type()
         truststore_pwd = rcu_db_info.get_truststore_password()
 
-        if checkAdminPwd:
+        if check_admin_pwd:
             admin_pwd = rcu_db_info.get_admin_password()
             if admin_pwd is None:
                 ex = exception_helper.create_create_exception('WLSDPLY-12413','rcu_admin_password',

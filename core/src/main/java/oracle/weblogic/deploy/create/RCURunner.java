@@ -167,7 +167,7 @@ public class RCURunner {
         sslArgs.append(",javax.net.ssl.keyStorePassword=");
         sslArgs.append(keyStorePassword);
         sslArgs.append(",oracle.jdbc.fanEnabled=false");
-        sslArgs.append(",oracle.net.ssl_server_dn_match=true");
+        sslArgs.append(",oracle.net.ssl_server_dn_match=false");
 
         runner.atpDB = true;
         runner.atpSSlArgs = sslArgs.toString();
