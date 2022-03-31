@@ -115,7 +115,7 @@ class CredentialInjector(VariableInjector):
         elif folder_path.endswith(MAIL_SESSION) and (attribute == PROPERTIES):
             # users and passwords are property assignments
             value = model_dict[attribute]
-            is_string = isinstance(value, str)
+            is_string = isinstance(value, basestring)
 
             # for discover, value is a string at this point
             split_value = ';'
