@@ -344,7 +344,7 @@ class Creator(object):
 
         # model value should be a list, comma-delimited string, or string
         model_paths = model_value
-        if isinstance(model_value, str):
+        if isinstance(model_value, basestring):
             model_paths = model_value.split(',')
 
         for model_path in model_paths:
