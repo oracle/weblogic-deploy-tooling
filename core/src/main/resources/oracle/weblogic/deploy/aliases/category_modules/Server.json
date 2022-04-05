@@ -58,7 +58,7 @@
                 "EncryptedValueEncrypted": [ {"version": "[12.2.1,12.2.1.3)", "wlst_mode": "both", "wlst_name": "EncryptedValueEncrypted", "wlst_path": "WP001", "default_value": null,     "wlst_type": "password", "get_method" : "GET" } ,
                                              {"version": "[12.2.1.3,)",       "wlst_mode": "both", "wlst_name": "EncryptedValueEncrypted", "wlst_path": "WP001", "default_value": null,     "wlst_type": "password", "get_method" : "GET", "access": "RO" } ],
                 "Notes":                   [ {"version": "[12.2.1,)",         "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"  } ],
-                "Value":                   [ {"version": "[12.2.1,)",         "wlst_mode": "both", "wlst_name": "Value",                   "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"  } ]
+                "Value":                   [ {"version": "[12.2.1,)",         "wlst_mode": "both", "wlst_name": "Value",            /       "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"  } ]
 
             },
             "wlst_type" : "ConfigurationPropert${y:ies}",

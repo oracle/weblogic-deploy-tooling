@@ -579,7 +579,7 @@ class DomainCreator(Creator):
         self.logger.info('WLSDPLY-12206', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.read_domain(domain_home)
-
+        self.__create_machines_clusters_and_servers(delete_now=False)
         self.__create_security_folder()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
@@ -635,13 +635,13 @@ class DomainCreator(Creator):
         # this second pass will re-establish any attributes that were changed by templates,
         # and process deletes and re-adds of named elements in the model order.
         self.__create_machines_clusters_and_servers()
-        topology_folder_list.remove(MACHINE)
-        topology_folder_list.remove(UNIX_MACHINE)
-        topology_folder_list.remove(CLUSTER)
-        if SERVER_TEMPLATE in topology_folder_list:
-            topology_folder_list.remove(SERVER_TEMPLATE)
-        topology_folder_list.remove(SERVER)
-        topology_folder_list.remove(MIGRATABLE_TARGET)
+        # topology_folder_list.remove(MACHINE)
+        # topology_folder_list.remove(UNIX_MACHINE)
+        # topology_folder_list.remove(CLUSTER)
+        # if SERVER_TEMPLATE in topology_folder_list:
+        #     topology_folder_list.remove(SERVER_TEMPLATE)
+        # topology_folder_list.remove(SERVER)
+        # topology_folder_list.remove(MIGRATABLE_TARGET)
         #
         self.__create_other_domain_artifacts(location, topology_folder_list)
 
