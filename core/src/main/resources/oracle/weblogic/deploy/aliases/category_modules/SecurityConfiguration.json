@@ -585,8 +585,8 @@
                                 "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         },
-                        "OracleIdentityCloudIntegrator": {
-                            "wlst_type": "${OracleIdentityCloudIntegrator:weblogic.security.providers.authentication.OracleIdentityCloudIntegrator}",
+                        "weblogic.security.providers.authentication.OracleIdentityCloudIntegrator": {
+                            "wlst_type": "weblogic.security.providers.authentication.OracleIdentityCloudIntegrator",
                             "child_folders_type": "none",
                             "version": "[12.2.1.3,)",
                             "folders": {},
