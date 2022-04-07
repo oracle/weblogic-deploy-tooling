@@ -470,6 +470,7 @@ class DomainCreator(Creator):
         jdbc_names = self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
         self.__create_mbeans_used_by_topology_mbeans(topology_folder_list)
         self.__create_machines_clusters_and_servers(delete_now=False)
+        self.__configure_fmw_infra_database()
 
         if self.wls_helper.is_set_server_groups_supported():
             # 12c versions set server groups directly
