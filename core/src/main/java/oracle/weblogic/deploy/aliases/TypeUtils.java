@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
+ * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.aliases;
@@ -291,7 +291,7 @@ public final class TypeUtils {
         return result;
     }
 
-    private static List convertToList(Object value, String strValue, String delimiter) throws AliasException {
+    private static List<?> convertToList(Object value, String strValue, String delimiter) throws AliasException {
         List<?> result = null;
         if (value instanceof List) {
             result = (List<?>) value;
@@ -372,7 +372,7 @@ public final class TypeUtils {
         return dictionary.__len__() == 0 ? null : dictionary;
     }
 
-    private static Map convertToMap(Object value, String strValue, String delimiter) throws AliasException {
+    private static Map<?,?> convertToMap(Object value, String strValue, String delimiter) throws AliasException {
         Map<?,?> result;
         if (Map.class.isAssignableFrom(value.getClass())) {
             result = (Map<?,?>)value;

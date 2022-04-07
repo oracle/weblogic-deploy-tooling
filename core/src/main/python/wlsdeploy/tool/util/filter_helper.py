@@ -96,10 +96,10 @@ def _apply_filter(model, the_filter, model_context, filter_file_location):
     """
     _method_name = '_apply_filter'
 
-    id = dictionary_utils.get_element(the_filter, 'id')
-    if id is not None:
-        __logger.info('WLSDPLY-20034', id, class_name=__class_name, method_name=_method_name)
-        return _apply_id_filter(model, id, model_context)
+    filter_id = dictionary_utils.get_element(the_filter, 'id')
+    if filter_id is not None:
+        __logger.info('WLSDPLY-20034', filter_id, class_name=__class_name, method_name=_method_name)
+        return _apply_id_filter(model, filter_id, model_context)
 
     path = dictionary_utils.get_element(the_filter, 'path')
     if path is not None:

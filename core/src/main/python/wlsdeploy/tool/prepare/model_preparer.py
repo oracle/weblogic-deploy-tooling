@@ -56,8 +56,6 @@ class ModelPreparer:
         """
         Tokenize credential attributes in a model section.
         """
-        _method_name = '__walk_model_section'
-
         if model_section_key not in model_dict.keys():
             return
 
@@ -92,10 +90,8 @@ class ModelPreparer:
         """
         Tokenize credential attributes in a model folder.
         """
-        _method_name = '__walk_model_folder'
-
-        if self._aliases.supports_multiple_mbean_instances(validation_location):
-
+        if self._aliases.supports_multiple_mbean_instances(validation_location) or \
+                self._aliases.requires_artificial_type_subfolder_handling(validation_location):
             for name in model_node:
                 expanded_name = name
 
@@ -109,23 +105,6 @@ class ModelPreparer:
                 value_dict = model_node[name]
 
                 self.__walk_model_node(value_dict, new_location)
-
-        elif self._aliases.requires_artificial_type_subfolder_handling(validation_location):
-
-            for name in model_node:
-                expanded_name = name
-
-                new_location = LocationContext(validation_location)
-
-                name_token = self._aliases.get_name_token(new_location)
-
-                if name_token is not None:
-                    new_location.add_name_token(name_token, expanded_name)
-
-                value_dict = model_node[name]
-
-                self.__walk_model_node(value_dict, new_location)
-
         else:
             name_token = self._aliases.get_name_token(validation_location)
 
@@ -143,8 +122,6 @@ class ModelPreparer:
         """
         Tokenize credential attributes in a model node.
         """
-        _method_name = '__walk_model_node'
-
         valid_folder_keys = self._aliases.get_model_subfolder_names(validation_location)
         valid_attr_infos = self._aliases.get_model_attribute_names_and_types(validation_location)
 
@@ -171,8 +148,6 @@ class ModelPreparer:
         """
         Tokenize credential attributes in a dictionary.
         """
-        _method_name = '__walk_attributes'
-
         for attribute_name, attribute_value in attributes_dict.iteritems():
             if attribute_name in valid_attr_infos:
                 self.__walk_attribute(attributes_dict, attribute_name, validation_location)
@@ -289,8 +264,6 @@ class ModelPreparer:
         """
         Remove any content necessary from the archive file.
         """
-        _method_name = '_clean_archive_files'
-
         archive_file_name = self.model_context.get_archive_file_name()
         if archive_file_name is None:
             return

@@ -205,14 +205,13 @@ class AliasEntries(object):
         else:
             self._wls_version = wls_version
 
-        return
-
     def get_dictionary_for_location(self, location, resolve=True):
         """
         Get the alias dictionary for the specified location with all the context applied to the data.  Note
         that any paths in subfolders are not resolved by this method.
         :param location: the location context that identifies the folder in question and the name
                          tokens to use to convert the WLST paths to concrete values
+        :param resolve: whether to resolve path tokens
         :return: the alias dictionary for the specified location, or None if the dictionary is not relevant
                  to the current WLS version
         :raises AliasException: if an error occurs while loading or processing the aliases for the specified location
@@ -1119,11 +1118,10 @@ class AliasEntries(object):
         # If the base_path is not empty, got fix up the wlst_paths for this dictionary and then
         # recursively call the method on each folder until all non-contained paths are updated.
         #
-        if len(base_path) > 0:
-            if WLST_PATHS in raw_model_dict:
-                raw_folders_wlst_paths = raw_model_dict[WLST_PATHS]
-                for key, value in raw_folders_wlst_paths.iteritems():
-                    raw_model_dict[WLST_PATHS][key] = base_path + value
+        if len(base_path) > 0 and WLST_PATHS in raw_model_dict:
+            raw_folders_wlst_paths = raw_model_dict[WLST_PATHS]
+            for key, value in raw_folders_wlst_paths.iteritems():
+                raw_model_dict[WLST_PATHS][key] = base_path + value
 
         for folder in raw_model_dict_folders:
             raw_folder_dict = raw_model_dict_folders[folder]
@@ -1152,7 +1150,6 @@ class AliasEntries(object):
             del raw_model_dict[CONTAINS]
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
-        return
 
     def __apply_wlst_context_changes(self, path_name, alias_dict, parent_dict):
         """

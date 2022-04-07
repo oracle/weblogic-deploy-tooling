@@ -97,14 +97,14 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
      * {@inheritDoc}
      */
     @Override
-    public int __cmp__(PyObject ob_other) {
+    public int __cmp__(PyObject obOther) {
         int result = 0;
 
         PyOrderedDict other = null;
-        if (ob_other == null || ob_other.getType() != getType()) {
+        if (obOther == null || obOther.getType() != getType()) {
             return -2;
         } else {
-            other = (PyOrderedDict) ob_other;
+            other = (PyOrderedDict) obOther;
             int an = this.linkedHashMap.size();
             int bn = other.linkedHashMap.size();
             if (an < bn) {
@@ -212,13 +212,13 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
      * {@inheritDoc}
      */
     @Override
-    public PyObject __eq__(PyObject ob_other) {
-        if (ob_other.getType() != getType()) {
+    public PyObject __eq__(PyObject obOther) {
+        if (obOther.getType() != getType()) {
             return null;
         }
 
         PyObject result = Py.One;
-        PyOrderedDict other = (PyOrderedDict)ob_other;
+        PyOrderedDict other = (PyOrderedDict)obOther;
         int an = this.linkedHashMap.size();
         int bn = other.linkedHashMap.size();
         if (an != bn) {
@@ -321,10 +321,10 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
      * {@inheritDoc}
      */
     @Override
-    public PyObject get(PyObject key, PyObject default_object) {
+    public PyObject get(PyObject key, PyObject defaultObject) {
         // Cannot use getOrDefault() as this is a Java 8 method and
         // the project is attempting to be compatible with Java 7...
-        PyObject result = default_object;
+        PyObject result = defaultObject;
         if (linkedHashMap.containsKey(key)) {
             result = linkedHashMap.get(key);
         }

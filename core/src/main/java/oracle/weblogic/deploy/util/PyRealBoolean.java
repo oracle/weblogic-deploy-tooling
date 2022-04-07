@@ -32,14 +32,14 @@ public class PyRealBoolean extends PyObject {
 
     @Override
     // for Python equality checks like abc == xyz
-    public PyObject __eq__(PyObject ob_other) {
-        return equals(ob_other) ? Py.One : Py.Zero;
+    public PyObject __eq__(PyObject obOther) {
+        return equals(obOther) ? Py.One : Py.Zero;
     }
 
     @Override
     // for Python inequality checks like abc != xyz
-    public PyObject __ne__(PyObject ob_other) {
-        return equals(ob_other) ? Py.Zero : Py.One;
+    public PyObject __ne__(PyObject obOther) {
+        return equals(obOther) ? Py.Zero : Py.One;
     }
 
     @Override

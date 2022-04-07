@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2018, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
@@ -9,7 +9,7 @@ package oracle.weblogic.deploy.util;
  */
 public class WLSDeployContext {
 
-    public static enum WLSTMode {
+    public enum WLSTMode {
 
         OFFLINE("offline"), ONLINE("online");
 

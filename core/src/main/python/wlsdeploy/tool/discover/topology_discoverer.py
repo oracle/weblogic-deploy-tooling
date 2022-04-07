@@ -232,7 +232,6 @@ class TopologyDiscoverer(Discoverer):
         _logger.entering(class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
         model_top_folder_name = model_constants.UNIX_MACHINE
-        unix_location = LocationContext(self._base_location)
         location = LocationContext(self._base_location)
         location.append_location(model_top_folder_name)
         machines = self._find_names_in_folder(location)

@@ -31,11 +31,11 @@ import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
  */
 public class XPathUtil {
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.util");
-    String  oracle_home;
-    String patches_home;
-    public XPathUtil(String oracle_home){
-        this.oracle_home = oracle_home;
-        patches_home = Paths.get(oracle_home, "inventory", "patches").toString();
+    String oracleHome;
+    String patchesHome;
+    public XPathUtil(String oracleHome){
+        this.oracleHome = oracleHome;
+        patchesHome = Paths.get(oracleHome, "inventory", "patches").toString();
     }
 
     public XPathUtil() {
@@ -57,13 +57,13 @@ public class XPathUtil {
      */
     public String getPSU() {
         // find the names in the directory first
-        if (!(new File(patches_home)).exists()) {
-            LOGGER.info("No patches home at {0}", patches_home);
+        if (!(new File(patchesHome)).exists()) {
+            LOGGER.info("No patches home at {0}", patchesHome);
             return null;
         }
-        List<String> patch_files = findPatchFiles();
+        List<String> patchFiles = findPatchFiles();
         List<String> list = new ArrayList<>();
-        for (String patch_file : patch_files){
+        for (String patch_file : patchFiles){
             Document doc = readXmlFile(patch_file);
             String descrip = description(doc, "//@description");
             LOGGER.fine("Description {0}", descrip);
@@ -92,15 +92,15 @@ public class XPathUtil {
      * @return list of patch file names.
      */
     public List<String> findPatchFiles() {
-        List<String> patch_files = new ArrayList<String>();
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(new File(patches_home).toPath())){
+        List<String> patchFiles = new ArrayList<>();
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(new File(patchesHome).toPath())){
             for (Path path : stream) {
-                patch_files.add(path.toString());
+                patchFiles.add(path.toString());
             }
         } catch (IOException ieo) {
-            LOGGER.info("Unable to locate the patch files at {0}", patches_home);
+            LOGGER.info("Unable to locate the patch files at {0}", patchesHome);
         }
-        return patch_files;
+        return patchFiles;
     }
 
     /**

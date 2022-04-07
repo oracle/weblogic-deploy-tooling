@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.io import File
@@ -63,7 +63,6 @@ class LibraryHelper(object):
                     self._copy_domain_library(domain_lib)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def extract_classpath_libraries(self):
         """
@@ -84,7 +83,6 @@ class LibraryHelper(object):
                 self.logger.info('WLSDPLY-12218', self.model_context.get_archive_file_name(),
                                  class_name=self.__class_name, method_name=_method_name)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def extract_custom_files(self):
         """
@@ -105,7 +103,6 @@ class LibraryHelper(object):
                 self.logger.info('WLSDPLY-12567', self.model_context.get_archive_file_name(),
                                  class_name=self.__class_name, method_name=_method_name)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def install_domain_scripts(self):
         """
@@ -136,7 +133,6 @@ class LibraryHelper(object):
                     self._copy_domain_bin(domain_script)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def _copy_domain_library(self, domain_lib):
         """

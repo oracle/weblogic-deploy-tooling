@@ -99,7 +99,6 @@ def write_variables(program_name, variable_map, file_path, append=False):
             pw.close()
         raise ex
     _logger.exiting(class_name=_class_name, method_name=_method_name)
-    return
 
 
 def write_sorted_variables(program_name, variable_map, file_path, append=False):
@@ -122,7 +121,6 @@ def write_sorted_variables(program_name, variable_map, file_path, append=False):
 
     write_variables(program_name, sorted_map, file_path, append)
     _logger.exiting(class_name=_class_name, method_name=_method_name)
-    return
 
 
 def get_default_variable_file_name(model_context):
@@ -379,7 +377,6 @@ def _resolve_secret_token(name, key, model_context):
     :param model_context: used to determine the validation method (strict, lax, etc.)
     :return: the secret value, or None if it is not found
     """
-    method_name = '_resolve_secret_token'
     global _secret_token_map
 
     if _secret_token_map is None:
@@ -409,15 +406,15 @@ def _init_secret_token_map(model_context):
 
     locations = os.environ.get(str(_secret_dirs_variable), None)
     if locations is not None:
-        for dir in locations.split(","):
-            if not os.path.isdir(dir):
+        for secret_dir in locations.split(","):
+            if not os.path.isdir(secret_dir):
                 # log at WARN or INFO, but no exception is thrown
-                log_method('WLSDPLY-01738', _secret_dirs_variable, dir, class_name=_class_name,
+                log_method('WLSDPLY-01738', _secret_dirs_variable, secret_dir, class_name=_class_name,
                            method_name=method_name)
                 continue
 
-            for subdir_name in os.listdir(dir):
-                subdir_path = os.path.join(dir, subdir_name)
+            for subdir_name in os.listdir(secret_dir):
+                subdir_path = os.path.join(secret_dir, subdir_name)
                 if os.path.isdir(subdir_path):
                     _add_file_secrets_to_map(subdir_path, subdir_name, model_context)
 
@@ -434,14 +431,14 @@ def _init_secret_token_map(model_context):
                            method_name=method_name)
                 continue
 
-            dir = result[1]
-            if not os.path.isdir(dir):
-                log_method('WLSDPLY-01738', _secret_dir_pairs_variable, dir, class_name=_class_name,
+            secret_dir = result[1]
+            if not os.path.isdir(secret_dir):
+                log_method('WLSDPLY-01738', _secret_dir_pairs_variable, secret_dir, class_name=_class_name,
                            method_name=method_name)
                 continue
 
             name = result[0]
-            _add_file_secrets_to_map(dir, name, model_context)
+            _add_file_secrets_to_map(secret_dir, name, model_context)
 
 
 def _clear_secret_token_map():
@@ -510,8 +507,6 @@ def substitute_key(text, variables):
     :param variables: the variable map
     :return: the substituted text value
     """
-    method_name = "substitute_key"
-
     if variables is not None:
         matches = _property_pattern.findall(text)
         for token, key in matches:

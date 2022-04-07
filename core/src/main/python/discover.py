@@ -113,11 +113,11 @@ def __process_model_archive_args(argument_map):
     _method_name = '__process_model_archive_args'
     if CommandLineArgUtil.ARCHIVE_FILE_SWITCH not in argument_map:
         if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH not in argument_map:
-            ex = exception_helper.create_cla_exception('WLSDPLY-06028')
+            ex = exception_helper.create_cla_exception(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE, 'WLSDPLY-06028')
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
         if CommandLineArgUtil.MODEL_FILE_SWITCH not in argument_map:
-            ex = exception_helper.create_cla_exception('WLSDPLY-06029')
+            ex = exception_helper.create_cla_exception(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE, 'WLSDPLY-06029')
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
@@ -136,18 +136,19 @@ def __process_archive_filename_arg(argument_map):
         archive_file_name = argument_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
         archive_dir_name = path_utils.get_parent_directory(archive_file_name)
         if os.path.exists(archive_dir_name) is False:
-            ex = exception_helper.create_cla_exception('WLSDPLY-06026', archive_file_name)
+            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                       'WLSDPLY-06026', archive_file_name)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
         try:
             archive_file = WLSDeployArchive(archive_file_name)
         except (IllegalArgumentException, IllegalStateException), ie:
-            ex = exception_helper.create_cla_exception('WLSDPLY-06013', _program_name, archive_file_name,
+            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                       'WLSDPLY-06013', _program_name, archive_file_name,
                                                        ie.getLocalizedMessage(), error=ie)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
     argument_map[CommandLineArgUtil.ARCHIVE_FILE] = archive_file
-    return
 
 
 def __process_variable_filename_arg(optional_arg_map):
@@ -164,12 +165,13 @@ def __process_variable_filename_arg(optional_arg_map):
         try:
             FileUtils.validateWritableFile(variable_injector_file_name)
         except IllegalArgumentException, ie:
-            ex = exception_helper.create_cla_exception('WLSDPLY-06021', optional_arg_map[
-                CommandLineArgUtil.VARIABLE_FILE_SWITCH], variable_injector_file_name,
+            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                       'WLSDPLY-06021',
+                                                       optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH],
+                                                       variable_injector_file_name,
                                                        ie.getLocalizedMessage(), error=ie)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
-    return
 
 
 def __process_java_home(optional_arg_map):
@@ -254,7 +256,6 @@ def __discover_multi_tenant(model, model_context, base_location, aliases, inject
     """
     MultiTenantDiscoverer(model, model_context, base_location,
                           wlst_mode=__wlst_mode, aliases=aliases, credential_injector=injector).discover()
-    return
 
 
 def __connect_to_domain(model_context, helper):
@@ -288,7 +289,6 @@ def __connect_to_domain(model_context, helper):
             raise ex
 
     __logger.exiting(class_name=_class_name, method_name=_method_name)
-    return
 
 
 def __clear_archive_file(model_context):
@@ -314,8 +314,6 @@ def __clear_archive_file(model_context):
         __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
         raise de
 
-    return
-
 
 def __close_archive(model_context):
     """
@@ -328,7 +326,6 @@ def __close_archive(model_context):
     archive_file = model_context.get_archive_file()
     archive_file.close()
     __logger.exiting(class_name=_class_name, method_name=_method_name)
-    return
 
 
 def __disconnect_domain(helper):
@@ -358,7 +355,6 @@ def __disconnect_domain(helper):
             raise ex
 
     __logger.exiting(class_name=_class_name, method_name=_method_name)
-    return
 
 
 def __persist_model(model, model_context):
@@ -413,7 +409,6 @@ def __persist_model(model, model_context):
             raise ex
 
     __logger.exiting(class_name=_class_name, method_name=_method_name)
-    return
 
 
 def __check_and_customize_model(model, model_context, aliases, credential_injector):

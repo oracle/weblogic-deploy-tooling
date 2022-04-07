@@ -56,17 +56,17 @@ class DomainTypedef(object):
             json_parser = JsonToPython(self._domain_typedef_filename)
             self._domain_typedefs_dict = json_parser.parse()
         except IllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception('WLSDPLY-12300', self._program_name, self._domain_type,
+            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                       'WLSDPLY-12300', self._program_name, self._domain_type,
                                                        self._domain_typedef_filename, iae.getLocalizedMessage(),
                                                        error=iae)
-            ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         except JsonException, je:
-            ex = exception_helper.create_cla_exception('WLSDPLY-12301', self._program_name, self._domain_type,
+            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                       'WLSDPLY-12301', self._program_name, self._domain_type,
                                                        self._domain_typedef_filename, je.getLocalizedMessage(),
                                                        error=je)
-            ex.setExitCode(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE)
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
@@ -84,8 +84,6 @@ class DomainTypedef(object):
 
         self._topology_profile = self._resolve_topology_profile()
 
-        return
-
     def set_model_context(self, model_context):
         """
         Set the model context object.
@@ -95,7 +93,6 @@ class DomainTypedef(object):
         if self._model_context is None:
             self._model_context = model_context
             self.__resolve_paths()
-        return
 
     def get_domain_type(self):
         """
@@ -379,7 +376,6 @@ class DomainTypedef(object):
                 self._domain_typedef['rcuSchemas'] = []
 
             self._paths_resolved = True
-        return
 
     def __get_version_typedef(self):
         """
@@ -472,14 +468,16 @@ class DomainTypedef(object):
 
         # there are no valid targeting types for version 12c and up
         if self.wls_helper.is_set_server_groups_supported():
-            ex = exception_helper.create_cla_exception('WLSDPLY-12311', targeting_text, self._domain_typedef_filename,
+            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                       'WLSDPLY-12311', targeting_text, self._domain_typedef_filename,
                                                        self.wls_helper.get_weblogic_version())
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
         # if specified, targeting must be one of the known types
         if targeting_text not in TargetingType:
-            ex = exception_helper.create_cla_exception('WLSDPLY-12312', targeting_text, self._domain_typedef_filename)
+            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                       'WLSDPLY-12312', targeting_text, self._domain_typedef_filename)
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
@@ -500,14 +498,16 @@ class DomainTypedef(object):
 
         # there are no valid topology profiles for versions 12.1.x and below
         if not self.wls_helper.is_topology_profile_supported():
-            ex = exception_helper.create_cla_exception('WLSDPLY-12314', topology_profile, self._domain_typedef_filename,
+            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                       'WLSDPLY-12314', topology_profile, self._domain_typedef_filename,
                                                        self.wls_helper.get_weblogic_version())
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
         # if specified, toppology profile must be one of the known types
         if topology_profile not in TopologyProfile:
-            ex = exception_helper.create_cla_exception('WLSDPLY-12315', topology_profile, self._domain_typedef_filename)
+            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                       'WLSDPLY-12315', topology_profile, self._domain_typedef_filename)
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 

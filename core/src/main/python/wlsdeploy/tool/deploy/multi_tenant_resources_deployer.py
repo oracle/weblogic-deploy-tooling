@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import wlsdeploy.util.dictionary_utils as dictionary_utils
@@ -41,7 +41,6 @@ class MultiTenantResourcesDeployer(Deployer):
         self._add_resource_groups(self._resources, location)
         self._add_partition_work_managers(self._resources, location)
         self._add_partitions(location)
-        return
 
     # Override
     def _add_subfolders(self, model_nodes, location, excludes=None):
@@ -59,7 +58,6 @@ class MultiTenantResourcesDeployer(Deployer):
             return
 
         Deployer._add_subfolders(self, model_nodes, location, excludes=excludes)
-        return
 
     # Override
     def _set_attributes_and_add_subfolders(self, location, model_nodes):
@@ -78,22 +76,18 @@ class MultiTenantResourcesDeployer(Deployer):
             return
 
         Deployer._set_attributes_and_add_subfolders(self, location, model_nodes)
-        return
 
     def _add_partitions(self, location):
         partitions = dictionary_utils.get_dictionary_element(self._resources, PARTITION)
         self._add_named_elements(PARTITION, partitions, location)
-        return
 
     def _add_resource_groups(self, parent_dict, location):
         groups = dictionary_utils.get_dictionary_element(parent_dict, RESOURCE_GROUP)
         self._add_named_elements(RESOURCE_GROUP, groups, location)
-        return
 
     def _add_resource_group_templates(self, location):
         templates = dictionary_utils.get_dictionary_element(self._resources, RESOURCE_GROUP_TEMPLATE)
         self._add_named_elements(RESOURCE_GROUP_TEMPLATE, templates, location)
-        return
 
     def _add_resource_group_resources(self, parent_dict, location):
         """
@@ -128,12 +122,10 @@ class MultiTenantResourcesDeployer(Deployer):
         applications_deployer = \
             ApplicationsDeployer(self.model, self.model_context, self.aliases, self.wlst_mode, location)
         applications_deployer.deploy()
-        return
 
     def _add_partition_work_managers(self, parent_dict, location):
         managers = dictionary_utils.get_dictionary_element(parent_dict, PARTITION_WORK_MANAGER)
         self._add_named_elements(PARTITION_WORK_MANAGER, managers, location)
-        return
 
     def _add_resource_management(self, location):
         managements = dictionary_utils.get_dictionary_element(self._resources, RESOURCE_MANAGEMENT)
@@ -142,4 +134,3 @@ class MultiTenantResourcesDeployer(Deployer):
             token = self.aliases.get_name_token(m_location)
             location.add_name_token(token, self.model_context.get_domain_name())
             self._add_model_elements(RESOURCE_MANAGEMENT, managements, location)
-        return

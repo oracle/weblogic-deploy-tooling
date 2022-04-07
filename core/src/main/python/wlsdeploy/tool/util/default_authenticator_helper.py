@@ -175,18 +175,18 @@ class DefaultAuthenticatorHelper(object):
         return hash_entry
 
     def _encode_password(self, user, password):
-        pwdPattern = '[\\!a-zA-Z]{1,}'
-        matches = Pattern.matches(pwdPattern, password)
+        pwd_pattern = '[\\!a-zA-Z]{1,}'
+        matches = Pattern.matches(pwd_pattern, password)
         if len(password) < 8 or matches:
             self._logger.warning('WLSDPLY-01902', user)
             return None
         try:
-            encryptedPass = PasswordEncryptor.doSSHA256(password)
-            encryptedPass = "{ssha256}" + encryptedPass
+            encrypted_pass = PasswordEncryptor.doSSHA256(password)
+            encrypted_pass = "{ssha256}" + encrypted_pass
         except Exception, e:
             self._logger.warning('WLSDPLY-01901', user, e)
             return None
-        return encryptedPass
+        return encrypted_pass
 
     def _get_required_attribute(self, dictionary, name, mapping_type, mapping_name):
         """

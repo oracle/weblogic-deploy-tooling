@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -44,6 +44,4 @@ def get_delete_name(name):
     :param name: the name be adjusted
     :return: the delete name for the name
     """
-    _method_name = 'get_delete_name'
-
     return "!" + name

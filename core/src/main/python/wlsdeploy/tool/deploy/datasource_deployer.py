@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.aliases.location_context import LocationContext
@@ -27,7 +27,6 @@ class DatasourceDeployer(Deployer):
         """
         data_sources = dictionary_utils.get_dictionary_element(parent_dict, JDBC_SYSTEM_RESOURCE)
         self._add_named_elements(JDBC_SYSTEM_RESOURCE, data_sources, location)
-        return
 
     # Override
     def set_attributes(self, location, model_nodes, excludes=None):
@@ -50,4 +49,3 @@ class DatasourceDeployer(Deployer):
             # continue
 
         Deployer.set_attributes(self, location, model_nodes, excludes)
-        return

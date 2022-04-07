@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -43,7 +43,6 @@ class Creator(object):
         # the knowledge required to compute the domain name.
         self.archive_helper = None
         self.files_to_extract_from_archive = list()
-        return
 
     def _create_named_mbeans(self, type_name, model_nodes, base_location, log_created=False, delete_now=True):
         """
@@ -102,7 +101,6 @@ class Creator(object):
             self._process_child_nodes(location, child_nodes)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def _create_mbean(self, type_name, model_nodes, base_location, log_created=False):
         """
@@ -164,21 +162,20 @@ class Creator(object):
 
         self._process_child_nodes(location, model_nodes)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def _create_named_subtype_mbeans(self, type_name, model_nodes, base_location, log_created=False):
         """
         Create the specified type of MBeans that support multiple instances, and require an artificial subtype
         layer after each name.
-        There is no default behavior for this method. Sub-classes (currently only SecurityProviderCreator) will
-        implement specialized behavior.
         :param type_name: the model folder type
         :param model_nodes: the model dictionary of the specified model folder type
         :param base_location: the base location object to use to create the MBeans
         :param log_created: whether or not to log created at INFO level, by default it is logged at the FINE level
         :raises: CreateException: if an error occurs
         """
-        return
+        # There is no default behavior for this method. Subclasses (currently only SecurityProviderCreator)
+        # will implement specialized behavior.
+        pass
 
     def _create_subfolders(self, location, model_nodes):
         """
@@ -218,7 +215,6 @@ class Creator(object):
                     self._create_mbean(key, subfolder_nodes, location)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def _process_child_nodes(self, location, model_nodes):
         """
@@ -266,7 +262,6 @@ class Creator(object):
                     self.logger.finest('WLSDPLY-12113', key, pwd, model_folder_path,
                                        class_name=self.__class_name, method_name=_method_name)
                     self._set_attribute(location, key, value, uses_path_tokens_attribute_names)
-        return
 
     def _set_mbean_attribute(self, location, model_key, model_value, set_method_map):
         """
@@ -300,7 +295,6 @@ class Creator(object):
                                                           self.aliases.get_model_folder_path(location))
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
-        return
 
     def _set_attribute(self, location, model_name, model_value, uses_path_tokens_names, masked=False):
         """
@@ -336,7 +330,6 @@ class Creator(object):
             self.logger.finest('WLSDPLY-12115', wlst_name, logged_value,
                                class_name=self.__class_name, method_name=_method_name)
             self.wlst_helper.set(wlst_name, wlst_value, masked=masked)
-        return
 
     def _extract_archive_files(self, location, model_name, model_value):
         """
@@ -351,7 +344,7 @@ class Creator(object):
 
         # model value should be a list, comma-delimited string, or string
         model_paths = model_value
-        if isinstance(model_value, str):
+        if isinstance(model_value, basestring):
             model_paths = model_value.split(',')
 
         for model_path in model_paths:
@@ -420,7 +413,6 @@ class Creator(object):
 
             path_token = flattened_folder_info.get_path_token()
             location.add_name_token(path_token, mbean_name)
-        return
 
     def _get_existing_folders(self, wlst_path):
         """
