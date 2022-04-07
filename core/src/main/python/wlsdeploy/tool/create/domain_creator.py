@@ -644,7 +644,7 @@ class DomainCreator(Creator):
 
         # the second pass will re-establish any attributes that were changed by templates,
         # and process deletes and re-adds of named elements in the model order.
-        # the thid pass will re-establish any attributes that were changed by templates, but will
+        # the third pass will re-establish any attributes that were changed by templates, but will
         # not perform any deletes. re-adds will occur if for some reason they had an add with a delete
         # after, but this is not a scenario we are considering
         self.__create_machines_clusters_and_servers(delete_now=delete)
