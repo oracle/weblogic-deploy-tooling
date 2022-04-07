@@ -488,7 +488,10 @@ class DomainCreator(Creator):
         # targets may have been inadvertently assigned when clusters were added
         self.topology_helper.clear_jdbc_placeholder_targeting(jdbc_names)
 
-        self.__apply_base_domain_config(topology_folder_list)
+        # This is a second pass. We will not do a third pass after extend templates
+        # as it would require a updatedomain and reopen. If reported, revisit this
+        # known issue
+        self.__apply_base_domain_config(topology_folder_list, delete=True)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -570,7 +573,7 @@ class DomainCreator(Creator):
         # targets may have been inadvertently assigned when clusters were added
         self.topology_helper.clear_jdbc_placeholder_targeting(jdbc_names)
 
-        self.__apply_base_domain_config(topology_folder_list)
+        self.__apply_base_domain_config(topology_folder_list, delete=True)
 
         self.logger.info('WLSDPLY-12205', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
@@ -579,7 +582,11 @@ class DomainCreator(Creator):
         self.logger.info('WLSDPLY-12206', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.read_domain(domain_home)
-
+        # Third pass will perform No deletes, set the attributes again.This will address the
+        # problem where a template's final.py overwrites attributes during the
+        # write domain. This will allow the model value to take precedence over the final.py
+        if len(extension_templates) > 0:
+            self.__apply_base_domain_config(topology_folder_list, delete=False)
         self.__create_security_folder()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
@@ -612,10 +619,12 @@ class DomainCreator(Creator):
         self.wlst_helper.close_domain()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-    def __apply_base_domain_config(self, topology_folder_list):
+    def __apply_base_domain_config(self, topology_folder_list, delete=True):
         """
         Apply the base domain configuration from the model topology section.
+        This will be done in pass two and three of dealing with topology objects
         :param topology_folder_list: the model topology folder list to process
+        :param delete: If the pass will do deletes
         :raises: CreateException: if an error occurs
         """
         _method_name = '__apply_base_domain_config'
@@ -623,27 +632,31 @@ class DomainCreator(Creator):
         self.logger.entering(topology_folder_list, class_name=self.__class_name, method_name=_method_name)
         self.logger.fine('WLSDPLY-12219', class_name=self.__class_name, method_name=_method_name)
 
+        topology_local_list = list(topology_folder_list)
         location = LocationContext()
         domain_name_token = self.aliases.get_name_token(location)
         location.add_name_token(domain_name_token, self._domain_name)
 
-        topology_folder_list.remove(SECURITY_CONFIGURATION)
+        topology_local_list.remove(SECURITY_CONFIGURATION)
 
         self.__create_reliable_delivery_policy(location)
-        topology_folder_list.remove(WS_RELIABLE_DELIVERY_POLICY)
+        topology_local_list.remove(WS_RELIABLE_DELIVERY_POLICY)
 
-        # this second pass will re-establish any attributes that were changed by templates,
+        # the second pass will re-establish any attributes that were changed by templates,
         # and process deletes and re-adds of named elements in the model order.
-        self.__create_machines_clusters_and_servers()
-        topology_folder_list.remove(MACHINE)
-        topology_folder_list.remove(UNIX_MACHINE)
-        topology_folder_list.remove(CLUSTER)
-        if SERVER_TEMPLATE in topology_folder_list:
-            topology_folder_list.remove(SERVER_TEMPLATE)
-        topology_folder_list.remove(SERVER)
-        topology_folder_list.remove(MIGRATABLE_TARGET)
-        #
-        self.__create_other_domain_artifacts(location, topology_folder_list)
+        # the third pass will re-establish any attributes that were changed by templates, but will
+        # not perform any deletes. re-adds will occur if for some reason they had an add with a delete
+        # after, but this is not a scenario we are considering
+        self.__create_machines_clusters_and_servers(delete_now=delete)
+        topology_local_list.remove(MACHINE)
+        topology_local_list.remove(UNIX_MACHINE)
+        topology_local_list.remove(CLUSTER)
+        if SERVER_TEMPLATE in topology_local_list:
+            topology_local_list.remove(SERVER_TEMPLATE)
+        topology_local_list.remove(SERVER)
+        topology_local_list.remove(MIGRATABLE_TARGET)
+
+        self.__create_other_domain_artifacts(location, topology_local_list)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
