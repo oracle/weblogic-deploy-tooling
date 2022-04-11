@@ -1089,7 +1089,6 @@ class DomainCreator(Creator):
                 tns_admin, rcu_database, keystore_pwd, truststore_pwd = self.__retrieve_atp_rcudbinfo(rcu_db_info)
             else:
                 tns_admin, rcu_database, truststore_pwd, truststore_type, truststore = self.__retrieve_ssl_rcudbinfo(rcu_db_info)
-                fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
             # Need to set for the connection property for each datasource
 
             fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)

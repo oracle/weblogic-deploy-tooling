@@ -202,13 +202,13 @@ public class RCURunner {
         String keyStorePassword = get(rcuProperties, "javax.net.ssl.keyStorePassword");
         String keyStore = get(rcuProperties, "javax.net.ssl.keyStore");
         String keyStoreType = get(rcuProperties, "javax.net.ssl.keyStoreType");
-        String match_type = get(rcuProperties, "oracle.net.ssl_server_dn_match");
-        if (match_type == null || match_type.equals("None"))  {
-            match_type = Boolean.FALSE.toString();
+        String matchType = get(rcuProperties, "oracle.net.ssl_server_dn_match");
+        if (matchType == null || matchType.equals("None"))  {
+            matchType = Boolean.FALSE.toString();
         }
 
 
-        StringBuffer sslArgs = new StringBuffer();
+        StringBuilder sslArgs = new StringBuilder();
         sslArgs.append("oracle.net.tns_admin=");
         sslArgs.append(tnsAdmin);
 
