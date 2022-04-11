@@ -203,7 +203,7 @@ public class RCURunner {
         String keyStore = get(rcuProperties, "javax.net.ssl.keyStore");
         String keyStoreType = get(rcuProperties, "javax.net.ssl.keyStoreType");
         String match_type = get(rcuProperties, "oracle.net.ssl_server_dn_match");
-        if (match_type == null)  {
+        if (match_type == null || match_type.equals("None"))  {
             match_type = Boolean.FALSE.toString();
         }
 
