@@ -225,7 +225,7 @@ public class RCURunner {
         if (keyStorePassword != null && !keyStorePassword.equals("None")) {
             sslArgs.append(",javax.net.ssl.keyStorePassword="+ keyStorePassword);
         }
-        sslArgs.append(",oracle.net.ssl_server_dn_match="+ match_type);
+        sslArgs.append(",oracle.net.ssl_server_dn_match="+ matchType);
 
         runner.sslDB = true;
         runner.atpSSlArgs = sslArgs.toString();
