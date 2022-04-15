@@ -12,20 +12,20 @@
     <title> :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1648078339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1648078339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1648078339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1648078339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1648078339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1648078339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1648078339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1648078339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1648078339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1648078339" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1649987649" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1649987649" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1649987649" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1649987649" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1649987649" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1649987649" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1649987649" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1649987649" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1649987649" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1649987649" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1648078339"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1649987649"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1648078339"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1648078339"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1649987649"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1649987649"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1648078339"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1649987649"></script>
 
     
   </div>
@@ -1230,30 +1230,32 @@
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
     <span style="color:#f92672">RCUDbInfo</span>:
       <span style="color:#f92672">useSSL </span>: <span style="color:#66d9ef">true</span>
+      <span style="color:#f92672">rcu_db_conn_string</span>: <span style="color:#ae81ff">&lt;reuired URL string for use with -run_rcu&gt;</span>
       <span style="color:#f92672">rcu_prefix </span>: <span style="color:#ae81ff">DEV</span>
       <span style="color:#f92672">rcu_admin_password</span>: <span style="color:#ae81ff">&lt;required with -run_rcu flag&gt;</span>
       <span style="color:#f92672">rcu_schema_password</span>: <span style="color:#ae81ff">&lt;required with -run_rcu flag&gt;</span>
       <span style="color:#f92672">tns.alias</span>: <span style="color:#ae81ff">&lt;alias of ssl db in the tnsnames.ora file&gt;</span>
-      <span style="color:#f92672">javax.netssl.keyStore</span>: <span style="color:#ae81ff">&lt;keystore found in unzipped wallet, i.e. cwallet.sso&gt;</span>
-      <span style="color:#f92672">javax.netssl.keyStoreType</span>: <span style="color:#ae81ff">SSO</span>
-      <span style="color:#f92672">javax.netssl.trustStore</span>: <span style="color:#ae81ff">&lt;truststore found in unzipped wallet, i.e cwallet.sso&gt;</span>
-      <span style="color:#f92672">javax.netssl.trustStoreType</span>: <span style="color:#ae81ff">SSO</span>
+      <span style="color:#f92672">javax.net.ssl.keyStore</span>: <span style="color:#ae81ff">&lt;keystore found in unzipped wallet, i.e. cwallet.sso&gt;</span>
+      <span style="color:#f92672">javax.net.ssl.keyStoreType</span>: <span style="color:#ae81ff">SSO</span>
+      <span style="color:#f92672">javax.net,ssl.trustStore</span>: <span style="color:#ae81ff">&lt;truststore found in unzipped wallet, i.e cwallet.sso&gt;</span>
+      <span style="color:#f92672">javax.net.ssl.trustStoreType</span>: <span style="color:#ae81ff">SSO</span>
       <span style="color:#f92672">oracle.net.tns_admin</span>: <span style="color:#ae81ff">&lt;absolute path of the unzipped wallet root directory&gt;</span>
       
 </code></pre></div><p>For an SSL database, with an <code>PKCS12</code> wallet, use the following example:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
     <span style="color:#f92672">RCUDbInfo</span>:
       <span style="color:#f92672">useSSL </span>: <span style="color:#66d9ef">true</span>
+      <span style="color:#f92672">rcu_db_conn_string</span>: <span style="color:#ae81ff">&lt;reuired URL string for use with -run_rcu&gt;</span>
       <span style="color:#f92672">rcu_prefix </span>: <span style="color:#ae81ff">DEV</span>
       <span style="color:#f92672">rcu_admin_password</span>: <span style="color:#ae81ff">&lt;required with -run_rcu flag&gt;</span>
       <span style="color:#f92672">rcu_schema_password</span>: <span style="color:#ae81ff">&lt;required with -run_rcu flag&gt;</span>
       <span style="color:#f92672">tns.alias</span>: <span style="color:#ae81ff">&lt;alias of ssl db in the tnsnames.ora file&gt;</span>
-      <span style="color:#f92672">javax.netssl.keyStore</span>: <span style="color:#ae81ff">&lt;keystore found in the unzipped wallet, i.e. ewallet.p12&gt;</span>
-      <span style="color:#f92672">javax.netssl.keyStoreType</span>: <span style="color:#ae81ff">PKCS12</span>
-      <span style="color:#f92672">javax.netssl.keyStorePassword</span>: <span style="color:#ae81ff">&lt;keystore password&gt;</span>
-      <span style="color:#f92672">javax.netssl.trustStore</span>: <span style="color:#ae81ff">&lt;truststore found in the unzipped wallet, i.e ewallet.p12&gt;</span>
-      <span style="color:#f92672">javax.netssl.trustStoreType</span>: <span style="color:#ae81ff">PKCS12</span>
-      <span style="color:#f92672">javax.netssl.trustStorePassword</span>: <span style="color:#ae81ff">&lt;password of the truststore&gt;</span>
+      <span style="color:#f92672">javax.net.ssl.keyStore</span>: <span style="color:#ae81ff">&lt;keystore found in the unzipped wallet, i.e. ewallet.p12&gt;</span>
+      <span style="color:#f92672">javax.net.ssl.keyStoreType</span>: <span style="color:#ae81ff">PKCS12</span>
+      <span style="color:#f92672">javax.net.ssl.keyStorePassword</span>: <span style="color:#ae81ff">&lt;keystore password&gt;</span>
+      <span style="color:#f92672">javax.net.ssl.trustStore</span>: <span style="color:#ae81ff">&lt;truststore found in the unzipped wallet, i.e ewallet.p12&gt;</span>
+      <span style="color:#f92672">javax.net.ssl.trustStoreType</span>: <span style="color:#ae81ff">PKCS12</span>
+      <span style="color:#f92672">javax.net.ssl.trustStorePassword</span>: <span style="color:#ae81ff">&lt;password of the truststore&gt;</span>
       <span style="color:#f92672">oracle.net.tns_admin</span>: <span style="color:#ae81ff">&lt;absolute path of the unzipped wallet root directory&gt;</span>
 
 
@@ -2057,19 +2059,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1648078339"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1648078339"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1648078339"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1648078339"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1648078339"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1648078339"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1649987649"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1649987649"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1649987649"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1649987649"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1649987649"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1649987649"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1648078339"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1648078339"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1648078339"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1649987649"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1649987649"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1649987649"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1648078339"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1649987649"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
