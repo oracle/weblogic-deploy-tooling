@@ -31,14 +31,15 @@ For an SSL database, with an `SSO` wallet, use the following example:
 domainInfo:
     RCUDbInfo:
       useSSL : true
+      rcu_db_conn_string: <reuired URL string for use with -run_rcu>
       rcu_prefix : DEV
       rcu_admin_password: <required with -run_rcu flag>
       rcu_schema_password: <required with -run_rcu flag>
       tns.alias: <alias of ssl db in the tnsnames.ora file>
-      javax.netssl.keyStore: <keystore found in unzipped wallet, i.e. cwallet.sso>
-      javax.netssl.keyStoreType: SSO
-      javax.netssl.trustStore: <truststore found in unzipped wallet, i.e cwallet.sso>
-      javax.netssl.trustStoreType: SSO
+      javax.net.ssl.keyStore: <keystore found in unzipped wallet, i.e. cwallet.sso>
+      javax.net.ssl.keyStoreType: SSO
+      javax.net,ssl.trustStore: <truststore found in unzipped wallet, i.e cwallet.sso>
+      javax.net.ssl.trustStoreType: SSO
       oracle.net.tns_admin: <absolute path of the unzipped wallet root directory>
       
 ```
@@ -48,16 +49,17 @@ For an SSL database, with an `PKCS12` wallet, use the following example:
 domainInfo:
     RCUDbInfo:
       useSSL : true
+      rcu_db_conn_string: <reuired URL string for use with -run_rcu>
       rcu_prefix : DEV
       rcu_admin_password: <required with -run_rcu flag>
       rcu_schema_password: <required with -run_rcu flag>
       tns.alias: <alias of ssl db in the tnsnames.ora file>
-      javax.netssl.keyStore: <keystore found in the unzipped wallet, i.e. ewallet.p12>
-      javax.netssl.keyStoreType: PKCS12
-      javax.netssl.keyStorePassword: <keystore password>
-      javax.netssl.trustStore: <truststore found in the unzipped wallet, i.e ewallet.p12>
-      javax.netssl.trustStoreType: PKCS12
-      javax.netssl.trustStorePassword: <password of the truststore>
+      javax.net.ssl.keyStore: <keystore found in the unzipped wallet, i.e. ewallet.p12>
+      javax.net.ssl.keyStoreType: PKCS12
+      javax.net.ssl.keyStorePassword: <keystore password>
+      javax.net.ssl.trustStore: <truststore found in the unzipped wallet, i.e ewallet.p12>
+      javax.net.ssl.trustStoreType: PKCS12
+      javax.net.ssl.trustStorePassword: <password of the truststore>
       oracle.net.tns_admin: <absolute path of the unzipped wallet root directory>
 
 

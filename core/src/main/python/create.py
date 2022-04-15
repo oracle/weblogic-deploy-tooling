@@ -43,6 +43,7 @@ from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.cla_utils import TOOL_TYPE_CREATE
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.tool.create import atp_helper
+from wlsdeploy.tool.create import ssl_helper
 
 wlst_helper.wlst_functions = globals()
 
@@ -231,6 +232,7 @@ def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
     _method_name = 'validate_rcu_args_and_model'
 
     has_atpdbinfo = 0
+    has_ssldbinfo = 0
     domain_info = model[model_constants.DOMAIN_INFO]
     if domain_info is not None:
         if model_constants.RCU_DB_INFO in domain_info:
@@ -238,6 +240,7 @@ def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
             has_tns_admin = rcu_db_info.has_tns_admin()
             has_regular_db = rcu_db_info.is_regular_db()
             has_atpdbinfo = rcu_db_info.has_atpdbinfo()
+            has_ssldbinfo = rcu_db_info.has_ssldbinfo()
 
             if archive_helper and not has_regular_db:
                 System.setProperty('oracle.jdbc.fanEnabled', 'false')
@@ -264,7 +267,7 @@ def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
                     cla_helper.clean_up_temp_files()
                     tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
-    return has_atpdbinfo
+    return has_atpdbinfo, has_ssldbinfo
 
 
 def _get_domain_path(model_context, model):
@@ -324,7 +327,7 @@ def main(args):
             domain_path = _get_domain_path(model_context, model_dictionary)
             archive_helper = ArchiveHelper(archive_file_name, domain_path, __logger, ExceptionType.CREATE)
 
-        has_atp = validate_rcu_args_and_model(model_context, model_dictionary, archive_helper, aliases)
+        has_atp, has_ssl = validate_rcu_args_and_model(model_context, model_dictionary, archive_helper, aliases)
 
         # check if there is an atpwallet and extract in the domain dir
         # it is to support non JRF domain but user wants to use ATP database
@@ -338,7 +341,10 @@ def main(args):
             rcu_properties_map = model_dictionary[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO]
             rcu_db_info = RcuDbInfo(model_context, aliases, rcu_properties_map)
             atp_helper.fix_jps_config(rcu_db_info, model_context)
-
+        elif has_ssl:
+            rcu_properties_map = model_dictionary[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO]
+            rcu_db_info = RcuDbInfo(model_context, aliases, rcu_properties_map)
+            ssl_helper.fix_jps_config(rcu_db_info, model_context)
     except WLSDeployArchiveIOException, ex:
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
