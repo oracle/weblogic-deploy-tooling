@@ -88,6 +88,7 @@ class CommandLineArgUtil(object):
     ATTRIBUTES_ONLY_SWITCH     = '-attributes_only'
     FOLDERS_ONLY_SWITCH        = '-folders_only'
     RECURSIVE_SWITCH           = '-recursive'
+    INTERACTIVE_MODE_SWITCH    = '-it'
     UPDATE_RCU_SCHEMA_PASS_SWITCH = '-updateRCUSchemaPassword'
     VALIDATION_METHOD          = '-method'
     # overrides for the variable injector
@@ -106,6 +107,7 @@ class CommandLineArgUtil(object):
         ATTRIBUTES_ONLY_SWITCH,
         ENCRYPT_MANUAL_SWITCH,
         FOLDERS_ONLY_SWITCH,
+        INTERACTIVE_MODE_SWITCH,
         SKIP_ARCHIVE_FILE_SWITCH,
         RECURSIVE_SWITCH,
         CANCEL_CHANGES_IF_RESTART_REQ_SWITCH,

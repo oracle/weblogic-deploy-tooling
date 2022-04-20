@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020,2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.aliases.location_context import LocationContext
@@ -9,8 +9,11 @@ from wlsdeploy.tool.modelhelp import model_help_utils
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
 from wlsdeploy.exception import exception_helper
 
+from oracle.weblogic.deploy.util import WLSBeanHelp as WLSBeanHelp
+
 _class_name = "ModelSamplePrinter"
 
+# TBD should ./weblogic-deploy/bin/modelHelp.sh domainInfo:/AdminPassword SEVERE as "no folder"? Does this and similar have obvious bean behind it for getting help?
 
 class ModelSamplePrinter(object):
     """
@@ -99,15 +102,24 @@ class ModelSamplePrinter(object):
 
         indent = 0
         model_location = LocationContext()
+        tokens_left = len(model_path_tokens)
+        last_token = None
         for token in model_path_tokens:
+            tokens_left = tokens_left - 1
             last_location = LocationContext(model_location)
 
             if indent > 0:
                 code, message = self._aliases.is_valid_model_folder_name(model_location, token)
                 if code != ValidationCodes.VALID:
-                    ex = exception_helper.create_cla_exception("WLSDPLY-05027", message)
-                    self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                    raise ex
+                    # TBD do we care about "show_attributes" at this point?
+                    if (tokens_left == 0
+                        and model_help_utils.show_attributes(control_option)
+                        and self._print_attribute(model_location, indent, last_token, token)):
+                        return
+                    else:
+                        ex = exception_helper.create_cla_exception("WLSDPLY-05027", message)
+                        self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                        raise ex
                 model_location.append_location(token)
 
             if self._aliases.is_artificial_type_folder(model_location):
@@ -123,6 +135,8 @@ class ModelSamplePrinter(object):
                 _print_indent(name + ":", indent)
                 indent += 1
 
+            last_token = token
+
         # list the attributes and folders, as specified
 
         if model_help_utils.show_attributes(control_option):
@@ -131,6 +145,13 @@ class ModelSamplePrinter(object):
 
         if model_help_utils.show_folders(control_option):
             self._print_subfolders_sample(model_location, control_option, indent)
+
+        # TBD do we need a show help control option? (for recursive mode?)
+        # TBD use canonicalized bean name from aliases instead of token name
+        help = WLSBeanHelp.get(token, False, 60)
+        if help:
+            _print_indent('', 0)
+            _print_indent(help, 0)
 
         return
 
@@ -210,21 +231,66 @@ class ModelSamplePrinter(object):
 
         attr_infos = self._aliases.get_model_attribute_names_and_types(model_location)
 
+        # TBD name_token = self._aliases.get_name_token(model_location)
+        #     sample name_token JMSServer 
+        #     wlst_mbean = self._aliases.get_wlst_mbean_name(model_location)
+        model_key, model_name = self._aliases.get_model_type_and_name(model_location)
+        if not model_key:
+          model_name = "Unknown"
+        if not model_name:
+          model_name = "Unknown"
+
         if attr_infos:
             attr_list = attr_infos.keys()
             attr_list.sort()
 
-            maxlen = 0
+            maxlen_attr = 0
+            maxlen_type = 0
             for name in attr_list:
-                if len(name) > maxlen:
-                    maxlen = len(name)
+                if len(name) > maxlen_attr:
+                    maxlen_attr = len(name)
+                if len(attr_infos[name]) > maxlen_type:
+                    maxlen_type = len(attr_infos[name])
 
-            format_string = '%-' + str(maxlen + 1) + 's # %s'
+            format_string = '%-' + str(maxlen_attr + 1) + 's # %-' + str(maxlen_type + 1) + 's %s'
             for attr_name in attr_list:
-                line = format_string % (attr_name + ":", attr_infos[attr_name])
+                # TBD the 'short attribute help' is limited to 100 chars - is this too much? Make this configurable?
+                # TBD use canonicalized bean name from aliases instead of model_key
+                help = WLSBeanHelp.get(model_key, attr_name, True, 100)
+                line = format_string % (attr_name + ":", attr_infos[attr_name], help)
                 _print_indent(line, indent_level)
         else:
             _print_indent("# no attributes", indent_level)
+
+    def _print_attribute(self, model_location, indent_level, last_token, token):
+        """
+        Checks if the token is an attribute of model_location, and if so prints it
+        :param model_location: An object containing data about the model location being worked on
+        :param indent_level: The level to indent by, before printing output
+        :param token: The token to print
+        :return: True if the token was an attribute
+        """
+        _method_name = '_print_attribute'
+
+        attr_infos = self._aliases.get_model_attribute_names_and_types(model_location)
+
+        if attr_infos:
+          if token in attr_infos:
+            line = '%s # %s' % (token + ":", attr_infos[token])
+            _print_indent(line, indent_level)
+            # TBD margin of 60 about right? Make this configurable?
+            # TBD use canonicalized bean name from aliases instead of last_token
+            prop_desc = WLSBeanHelp.get(last_token, token, False, 60)
+            if prop_desc:
+              print
+              print prop_desc
+              print
+            else:
+              # TBD print "No help found?"
+              _print_indent("(TBD No help found.)", indent_level)
+            return True
+
+        return False
 
     def _has_multiple_folders(self, location):
         """
