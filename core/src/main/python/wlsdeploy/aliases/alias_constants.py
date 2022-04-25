@@ -21,6 +21,7 @@ GET_METHOD = 'get_method'
 MERGE = 'merge'
 MODEL_NAME = 'model_name'
 NAME_VALUE = 'name_value'
+ONLINE_BEAN = 'online_bean'
 PASSWORD_TOKEN = "--FIX ME--"
 PATH_TOKEN = 'path_token'
 PREFERRED_MODEL_TYPE = 'preferred_model_type'

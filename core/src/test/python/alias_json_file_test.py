@@ -37,6 +37,7 @@ from wlsdeploy.aliases.alias_constants import LSA
 from wlsdeploy.aliases.alias_constants import MERGE
 from wlsdeploy.aliases.alias_constants import NAME_VALUE
 from wlsdeploy.aliases.alias_constants import NONE
+from wlsdeploy.aliases.alias_constants import ONLINE_BEAN
 from wlsdeploy.aliases.alias_constants import PREFERRED_MODEL_TYPE
 from wlsdeploy.aliases.alias_constants import RESTART_REQUIRED
 from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
@@ -87,6 +88,7 @@ class ListTestCase(unittest.TestCase):
         FLATTENED_FOLDER_DATA,
         FOLDER_ORDER,
         FOLDER_PARAMS,
+        ONLINE_BEAN,
         SHORT_NAME,
         VERSION,
         WLST_CREATE_PATH,
@@ -345,6 +347,12 @@ class ListTestCase(unittest.TestCase):
         result = []
         if type(attribute_value) is not str:
             result.append(self._get_invalid_string_type_message(folder_name, SHORT_NAME, attribute_value))
+        return result
+
+    def _verify_folder_online_bean_attribute_value(self, folder_name, attribute_value):
+        result = []
+        if type(attribute_value) is not str:
+            result.append(self._get_invalid_string_type_message(folder_name, ONLINE_BEAN, attribute_value))
         return result
 
     def _verify_folder_folder_order_attribute_value(self, folder_name, attribute_value):

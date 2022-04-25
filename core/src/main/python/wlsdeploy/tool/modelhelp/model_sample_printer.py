@@ -147,11 +147,14 @@ class ModelSamplePrinter(object):
             self._print_subfolders_sample(model_location, control_option, indent)
 
         # TBD do we need a show help control option? (for recursive mode?)
-        # TBD use canonicalized bean name from aliases instead of token name
+        # TBD use canonicalized "online_bean" bean name from aliases instead of token name
         help = WLSBeanHelp.get(token, False, 60)
         if help:
             _print_indent('', 0)
             _print_indent(help, 0)
+
+        # TBD online_bean = self._aliases.get_online_bean_name(model_location)
+        # TBD _print_indent("DEBUG online_bean = '" + online_bean + "'", 0);
 
         return
 
@@ -252,12 +255,17 @@ class ModelSamplePrinter(object):
                 if len(attr_infos[name]) > maxlen_type:
                     maxlen_type = len(attr_infos[name])
 
-            format_string = '%-' + str(maxlen_attr + 1) + 's # %-' + str(maxlen_type + 1) + 's %s'
+            format_string = '%-' + str(maxlen_attr + 1) + 's # %-' + str(maxlen_type + 1) + 's'
             for attr_name in attr_list:
                 # TBD the 'short attribute help' is limited to 100 chars - is this too much? Make this configurable?
                 # TBD use canonicalized bean name from aliases instead of model_key
-                help = WLSBeanHelp.get(model_key, attr_name, True, 100)
-                line = format_string % (attr_name + ":", attr_infos[attr_name], help)
+                att_default = self._aliases.get_model_attribute_default_value(model_location, attr_name)
+                if not att_default:
+                    att_default = ''
+                else:
+                    att_default = ' (default=' + str(att_default) + ')'
+                help = WLSBeanHelp.get(model_key, attr_name, True, 100, att_default)
+                line = format_string % (attr_name + ":", attr_infos[attr_name]) + ' ' + help + att_default
                 _print_indent(line, indent_level)
         else:
             _print_indent("# no attributes", indent_level)
@@ -278,9 +286,15 @@ class ModelSamplePrinter(object):
           if token in attr_infos:
             line = '%s # %s' % (token + ":", attr_infos[token])
             _print_indent(line, indent_level)
-            # TBD margin of 60 about right? Make this configurable?
             # TBD use canonicalized bean name from aliases instead of last_token
-            prop_desc = WLSBeanHelp.get(last_token, token, False, 60)
+
+            # TBD default comes back blank for legal values (BlociingSendPolicy is ${__NULL__:FIFO})  - or FileMinSize (which varies based on version)
+            att_default = self._aliases.get_model_attribute_default_value(model_location, token)
+            if att_default:
+                att_default = str(att_default)
+
+            prop_desc = WLSBeanHelp.get(last_token, token, False, 60, att_default)
+
             if prop_desc:
               print
               print prop_desc

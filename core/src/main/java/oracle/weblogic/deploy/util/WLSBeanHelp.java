@@ -23,7 +23,8 @@ import java.util.HashMap;
  * Helper for getting attribute descriptions from a WL mbean.
  *
  * Includes an undocumented main intended for ad-hoc testing:
- * java -cp "$CLASSPATH:." WLSBeanHelp -bean weblogic.j2ee.descriptor.wl.UniformDistributedTopicBean -prop ForwardingPolicy -margin 100000
+ * java -cp "$CLASSPATH:." WLSBeanHelp -bean weblogic.j2ee.descriptor.wl.UniformDistributedTopicBean -prop ForwardingPolicy -margin 60
+ * java -cp "$CLASSPATH:." WLSBeanHelp -bean weblogic.j2ee.descriptor.wl.UniformDistributedTopicBean -margin 60
  */
 
 public class WLSBeanHelp {
@@ -31,8 +32,8 @@ public class WLSBeanHelp {
   private static final String EOL = System.getProperty("line.separator");
 
   public static void main(String [] argv) {
-    String beanName = "weblogic.j2ee.descriptor.wl.UniformDistributedTopicBean";
-    String propName = "ForwardingPolicy";
+    String beanName = "BeanNotSpecified";
+    String propName = null;
     int margin = MARGIN_DEFAULT;
     for (int i = 0; i < argv.length; i++) {
       String arg = argv[i];
@@ -58,12 +59,22 @@ public class WLSBeanHelp {
 
     if (getBeanInfo(beanName) == null) {
       println("Error: Bean '" + beanName + "' not found.");
-      System.exit(1);
     }
 
-    if (!printAttributeHelp(beanName, propName, margin)) {
-      println("Error: Prop '" + propName + "' not found in bean '" + beanName + "'.");
-      System.exit(1);
+    if (propName == null) {
+      println("*** Abbreviated bean help for bean '" + beanName + "':");
+      println(get(beanName, null, true, margin, null));
+      println("*** Full bean help for bean '" + beanName + "':");
+      println(get(beanName, null, false, margin, null));
+      println("***");
+    } else {
+      println("*** Abbreviated property help for property '" + beanName + "/" + propName + "':");
+      println(get(beanName, propName, true, margin, null));
+      println("*** Full property help for property '" + beanName + "/" + propName + "':");
+      println(get(beanName, propName, false, margin, null));
+      println("*** Raw property help for property '" + beanName + "/" + propName + "':");
+      printAttributeHelp(beanName, propName, margin);
+      println("***");
     }
   }
 
@@ -72,7 +83,7 @@ public class WLSBeanHelp {
     boolean abbreviate,
     int width
   ) {
-    return get(beanName, null, abbreviate, width);
+    return get(beanName, null, abbreviate, width, null);
   }
 
   // gets description of given bean or property
@@ -84,11 +95,13 @@ public class WLSBeanHelp {
   //     (whichever comes first), and appends "..." if truncated
   //   - in !abbreviate mode, yields full help, with newlines, 
   //     and margin set to "width"
+  //   - if propDefault not null, add it to the list of reported props...
   public static String get(
     String beanName,
     String propName,
     boolean abbreviate,
-    int width
+    int width,
+    String propDefault
   ) {
     String ds;
 
@@ -105,49 +118,13 @@ public class WLSBeanHelp {
 
     String limits = "";
     if (propName != null) {
-      limits = getPropertyLimits(beanName, propName);
+      limits = getPropertyLimits(beanName, propName, propDefault);
       if (limits.length() > 0) limits += EOL;
     }
 
 // System.out.println("DEBUG " + EOL + limits + EOL + "---" + EOL + ds + EOL + "---" +EOL);
     return limits + new DescriptionPretty(ds, width).toString();
   }
-
-/*
-  // - returns "" if not found
-  // - appends "..." if truncated less than length due to "len" or finding a "."
-  public static String getPropertyDescriptionAbbrev(
-    String beanName,
-    String propName,
-    int len
-  ) {
-    String ds = getPropertyDescriptionRaw(beanName, propName);
-    if (ds.length() == 0) return " - TBD no help found for " + beanName + "/" + propName;
-    // Use 1000000 to imply no margin
-    return " - " + new DescriptionPretty(ds, 1000000).abbrevString(len);
-  }
-
-  // returns "" if not found or empty
-  // TBD, which properties to include other than "description"?
-  public static String getPropertyDescriptionFull(
-    String beanName,
-    String propName
-  ) {
-    String ds = getPropertyDescriptionRaw(beanName, propName);
-    if (ds.length() == 0) return "";
-    String limits = getPropertyLimits(beanName, propName);
-    if (limits.length() > 0) limits += EOL;
-    return limits + new DescriptionPretty(ds, MARGIN_DEFAULT).toString(); // TBD margin default 60
-  }
-
-  // returns "" if not found
-  private static String getPropertyDescriptionRaw(
-    String beanName,
-    String propName
-  ) {
-    return getFeatureDescription(getPropertyDescriptor(beanName, propName));
-  }
-*/
 
   private static String getFeatureDescription(
     FeatureDescriptor fd
@@ -158,15 +135,22 @@ public class WLSBeanHelp {
     return d.toString();
   }
 
-  // gets pretty printed legal values, min, or max
+  // gets pretty printed default, legal values, min, or max
   // returns "" if not applicable
   private static String getPropertyLimits(
     String beanName,
-    String propName
+    String propName,
+    String propDefault
   ) {
     String ret = "";
+    if (propDefault != null) {
+      // we report the passed in default from the alias DB instead of using the 
+      // default obtained from the mbean
+      ret += "Default=" + propDefault + EOL;
+    }
+
     PropertyDescriptor pd = getPropertyDescriptor(beanName, propName);
-    if (pd == null) return "";
+    if (pd == null) return ret;
 
     Object lval = pd.getValue("legalValues");
     if (lval != null) {
@@ -226,11 +210,11 @@ public class WLSBeanHelp {
         }
       }
 
-      throw new RuntimeException("Error: Prop '" + propName + "' not found in bean '" + beanName + "'.");
+      println("Error: Prop '" + propName + "' not found in bean '" + beanName + "'.");
     } catch (Throwable th) {
       println("Error: " + th.getMessage());
-      return false;
     }
+    return false;
   }
 
   static void print(String s) {
@@ -286,6 +270,11 @@ public class WLSBeanHelp {
     private static final String ITS = "<i>"; 
     private static final String ITE = "</i>"; 
     private static final String QUO = "&quot;";
+    private static final String LT_ = "&lt;";
+    private static final String GT_ = "&gt;";
+    private static final String AMP = "&amp;";
+    private static final String AT_ = "&#35;";
+    private static final String BCK = "&#92;";
 
     private int col;
     private int indent;
@@ -331,8 +320,13 @@ public class WLSBeanHelp {
         else if (s.startsWith(ITS, i)) { i += ITS.length()-1; out("*"); }
         else if (s.startsWith(ITE, i)) { i += ITE.length()-1; out("*"); }
 
-        // quote
+        // quote, <, >, &, @, \
         else if (s.startsWith(QUO, i)) { i += QUO.length()-1; out("'"); }
+        else if (s.startsWith(LT_, i)) { i += LT_.length()-1; out("<"); }
+        else if (s.startsWith(GT_, i)) { i += GT_.length()-1; out(">"); }
+        else if (s.startsWith(AMP, i)) { i += AMP.length()-1; out("&"); }
+        else if (s.startsWith(AT_, i)) { i += AT_.length()-1; out("@"); }
+        else if (s.startsWith(BCK, i)) { i += BCK.length()-1; out("\\"); }
  
         // skip new-lines TBD may not be appropriate in a code block
         else if (s.charAt(i) != ' ' && Character.isWhitespace(s.charAt(i))) { i++; }
@@ -425,13 +419,13 @@ public class WLSBeanHelp {
     return ret;
   }
 
-  private static BeanInfo getBeanInfo(String shortName) {
+  private static BeanInfo getBeanInfo(String name) {
     BeanInfo bi = null;
-    bi = getBeanInfoInner(shortName);
+    bi = getBeanInfoInner(name);
     if (bi != null) return bi;
-    bi = getBeanInfoInner("weblogic.management.configuration." + shortName + "MBean");
-    if (bi != null) return bi;
-    return getBeanInfoInner("weblogic.j2ee.descriptor.wl." + shortName + "Bean");
+    bi = getBeanInfoInner("weblogic.management.configuration." + name + "MBean");  // TBD retire once json alias DB populated?
+    if (bi != null) return bi; 
+    return getBeanInfoInner("weblogic.j2ee.descriptor.wl." + name + "Bean"); // TBD retire once json alias DB populated?
   }
 
   private static BeanInfo getBeanInfoInner(String beanName)
