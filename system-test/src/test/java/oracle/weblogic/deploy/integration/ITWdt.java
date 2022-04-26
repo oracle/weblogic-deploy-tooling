@@ -745,7 +745,7 @@ public class ITWdt extends BaseTest {
                 + " -oracle_home " + mwhome_12213
                 + " -model_file " + getSampleModelFile("1");
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-            verifyErrorMsg(result, ", but no variables file was specified");
+            verifyErrorMsg(result, ", but no properties file was specified");
         }
     }
 
