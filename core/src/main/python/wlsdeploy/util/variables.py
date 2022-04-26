@@ -260,8 +260,11 @@ def _substitute(text, variables, model_context, error_info, attribute_name=None)
             # log, or throw an exception if key is not found.
             if key not in variables:
                 allow_unresolved = validation_config.allow_unresolved_variable_tokens()
-                if len(variables) > 0:
+                if model_context.get_variable_file() is not None:
                     _report_token_issue('WLSDPLY-01732', method_name, allow_unresolved, key)
+                else:
+                    _report_token_issue('WLSDPLY-01734', method_name, allow_unresolved, key)
+
                 _increment_error_count(error_info, allow_unresolved)
                 problem_found = True
                 continue
