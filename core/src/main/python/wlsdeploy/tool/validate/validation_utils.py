@@ -129,7 +129,7 @@ def is_compatible_data_type(expected_data_type, actual_data_type):
     :return:
     """
     retval = False
-    if expected_data_type == 'string':
+    if expected_data_type in ['string', 'unicode']:
         retval = (actual_data_type in [_type_str, _type_int, _type_long, _type_float,
                                        _type_unicode, _type_bool, _type_py_real_boolean,
                                        _type_orcl_py_real_boolean])
