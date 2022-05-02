@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -260,7 +260,11 @@ def _substitute(text, variables, model_context, error_info, attribute_name=None)
             # log, or throw an exception if key is not found.
             if key not in variables:
                 allow_unresolved = validation_config.allow_unresolved_variable_tokens()
-                _report_token_issue('WLSDPLY-01732', method_name, allow_unresolved, key)
+                if model_context.get_variable_file() is not None:
+                    _report_token_issue('WLSDPLY-01732', method_name, allow_unresolved, key)
+                else:
+                    _report_token_issue('WLSDPLY-01734', method_name, allow_unresolved, key)
+
                 _increment_error_count(error_info, allow_unresolved)
                 problem_found = True
                 continue
