@@ -26,7 +26,7 @@
             ],
             "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ ],
-            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "STB" ]
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "WLS" ]
         },
         "JRF_12CR2": {
             "baseTemplate": "Basic WebLogic Server Domain",
@@ -38,7 +38,7 @@
             ],
             "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ ],
-            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "STB" ]
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "WLS" ]
         },
         "JRF_12CR2_LAST": {
             "baseTemplate": "Basic WebLogic Server Domain",
@@ -50,7 +50,7 @@
             ],
             "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ ],
-            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "STB" ]
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "WLS" ]
         }
     },
     "system-elements": {
