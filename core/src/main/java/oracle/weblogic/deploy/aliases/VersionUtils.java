@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.aliases;
@@ -20,12 +20,12 @@ public final class VersionUtils {
     private static final String CLASS = VersionUtils.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.versions");
 
-    private static final String VERSION_REGEX_STRING = "[\\(\\[][ ]*([0-9]*([-.][0-9]+)*)[ ]*[\\)\\]]?";
+    private static final String VERSION_REGEX_STRING = "[(\\[][ ]*(\\d+([-.]\\d+){0,5})[ ]*[)\\]]?";
     private static final Pattern VERSION_REGEX = Pattern.compile(VERSION_REGEX_STRING);
     private static final int VERSION_GROUP = 1;
 
     private static final String VERSION_RANGE_REGEX_STRING =
-        "[\\(\\[][ ]*([0-9]*([-.][0-9]+)*)[ ]*,[ ]*([0-9]*([-.][0-9]+)*)[ ]*[\\)\\]]";
+        "[(\\[][ ]*(\\d*([-.]\\d+){0,5})[ ]*,[ ]*(\\d*([-.]\\d+){0,5})[ ]*[)\\]]";
     private static final Pattern VERSION_RANGE_REGEX = Pattern.compile(VERSION_RANGE_REGEX_STRING);
     private static final int RANGE_LOW_GROUP = 1;
     private static final int RANGE_HIGH_GROUP = 3;
@@ -85,11 +85,8 @@ public final class VersionUtils {
             int thisVersionNumber = parseVersionElement(thisVersionElements[idx], thisVersion);
             int otherVersionNumber = parseVersionElement(otherVersionElements[idx], otherVersion);
 
-            if (thisVersionNumber > otherVersionNumber) {
-                result = 1;
-                break;
-            } else if (thisVersionNumber < otherVersionNumber) {
-                result = -1;
+            result = Integer.compare(thisVersionNumber, otherVersionNumber);
+            if (result != 0) {
                 break;
             }
         }
@@ -123,9 +120,6 @@ public final class VersionUtils {
                 useCase += 2;
             }
             switch (useCase) {
-                case 0:
-                    break;
-
                 case 1:
                     result = -1;
                     break;
@@ -138,6 +132,9 @@ public final class VersionUtils {
                     String thisQualifier = thisVersion.substring(thisVersion.indexOf('-'));
                     String otherQualifier = otherVersion.substring(otherVersion.indexOf('-'));
                     result = thisQualifier.compareTo(otherQualifier);
+                    break;
+
+                default:
                     break;
             }
         }

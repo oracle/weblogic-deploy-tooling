@@ -98,7 +98,6 @@ def get_pathname_from_path(file_path):
     :param file_path: file path
     :return: path without file name or None if a file name is not present or the file or file path does not exist
     """
-    file_name = None
     if not JStringUtils.isEmpty(file_path) and (os.path.exists(file_path) is False or os.path.isfile(file_path)):
         file_path, _ = os.path.split(file_path)
     return file_path

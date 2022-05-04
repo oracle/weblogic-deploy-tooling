@@ -130,10 +130,10 @@ For the MBean jar, WebLogic allows you to define an alternate directory other th
 
  ```yaml
          CredentialMapper:
-             'Sample CredentialMapper':
-                 'examples.security.providers.SampleCredentialMapper':
-                     UserNameMapperClassName: 'examples.security.providers.CredentialMapperProviderImpl'
-                     CredentialMappingDeploymentEnabled: true:
+             Sample CredentialMapper:
+                 examples.security.providers.SampleCredentialMapper:
+                     UserNameMapperClassName: examples.security.providers.CredentialMapperProviderImpl
+                     CredentialMappingDeploymentEnabled: true
  ```
 
  #### Known limitations

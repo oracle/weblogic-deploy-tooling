@@ -6,10 +6,12 @@ package oracle.weblogic.deploy.util;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,6 +38,8 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.util");
 
     private final LinkedHashMap<PyObject, PyObject> linkedHashMap;
+
+    private final transient CommentMap commentMap = new CommentMap();
 
     /**
      * The no-args constructor.
@@ -93,24 +97,21 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
      * {@inheritDoc}
      */
     @Override
-    public int __cmp__(PyObject ob_other) {
+    public int __cmp__(PyObject obOther) {
         int result = 0;
 
         PyOrderedDict other = null;
-        if (ob_other == null || ob_other.getType() != getType()) {
-            result = -2;
+        if (obOther == null || obOther.getType() != getType()) {
+            return -2;
         } else {
-            other = (PyOrderedDict) ob_other;
+            other = (PyOrderedDict) obOther;
             int an = this.linkedHashMap.size();
             int bn = other.linkedHashMap.size();
             if (an < bn) {
-                result = -1;
+                return -1;
             } else if (an > bn) {
-                result = 1;
+                return 1;
             }
-        }
-        if (result != 0) {
-            return result;
         }
 
         PyList akeys = keys();
@@ -211,13 +212,13 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
      * {@inheritDoc}
      */
     @Override
-    public PyObject __eq__(PyObject ob_other) {
-        if (ob_other.getType() != getType()) {
+    public PyObject __eq__(PyObject obOther) {
+        if (obOther.getType() != getType()) {
             return null;
         }
 
         PyObject result = Py.One;
-        PyOrderedDict other = (PyOrderedDict)ob_other;
+        PyOrderedDict other = (PyOrderedDict)obOther;
         int an = this.linkedHashMap.size();
         int bn = other.linkedHashMap.size();
         if (an != bn) {
@@ -229,13 +230,14 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
                 PyObject bvalue = other.__finditem__(akey);
                 if (bvalue == null) {
                     result = Py.Zero;
-                    break;
                 } else {
                     PyObject avalue = __finditem__(akey);
                     if (!avalue._eq(bvalue).__nonzero__()) {
                         result = Py.Zero;
-                        break;
                     }
+                }
+                if (result == Py.Zero) {
+                    break;
                 }
             }
         }
@@ -319,10 +321,10 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
      * {@inheritDoc}
      */
     @Override
-    public PyObject get(PyObject key, PyObject default_object) {
+    public PyObject get(PyObject key, PyObject defaultObject) {
         // Cannot use getOrDefault() as this is a Java 8 method and
         // the project is attempting to be compatible with Java 7...
-        PyObject result = default_object;
+        PyObject result = defaultObject;
         if (linkedHashMap.containsKey(key)) {
             result = linkedHashMap.get(key);
         }
@@ -343,7 +345,7 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
     @Override
     public PyList items() {
         Set<Map.Entry<PyObject, PyObject>> entries = this.linkedHashMap.entrySet();
-        java.util.Vector<PyObject> l = new java.util.Vector<>(entries.size());
+        List<PyObject> l = new ArrayList<>(entries.size());
         for (Map.Entry<PyObject, PyObject> entry: entries) {
             l.add(new PyTuple(new PyObject[] { entry.getKey(), entry.getValue() }));
         }
@@ -388,7 +390,7 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
     @Override
     public PyList keys() {
         Set<PyObject> keys = this.linkedHashMap.keySet();
-        java.util.Vector<PyObject> v = new java.util.Vector<>(keys.size());
+        List<PyObject> v = new ArrayList<>(keys.size());
         v.addAll(keys);
         return new PyList(v.toArray(new PyObject[0]));
     }
@@ -472,9 +474,46 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
      */
     public PyList getValues() {
         Collection<PyObject> values = this.linkedHashMap.values();
-        java.util.Vector<PyObject> v = new java.util.Vector<>(values.size());
+        List<PyObject> v = new ArrayList<>(values.size());
         v.addAll(values);
         return new PyList(v.toArray(new PyObject[0]));
+    }
+
+    public CommentMap getCommentMap() {
+        return commentMap;
+    }
+
+    public void addComment(String key, String comment) {
+        commentMap.addComment(key, comment);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object other) {
+        boolean result;
+        if (this == other) {
+            result = true;
+        } else if (other == null || this.getClass() != other.getClass()) {
+            result = false;
+        } else {
+            result = super.equals(other);
+            if (result) {
+                PyOrderedDict otherDict = (PyOrderedDict) other;
+                result = this.linkedHashMap.equals(otherDict.linkedHashMap) &&
+                    this.commentMap.equals(otherDict.commentMap);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return super.hashCode() >> 8 + this.linkedHashMap.hashCode() >> 4 + this.commentMap.hashCode();
     }
 
     // private methods
@@ -588,10 +627,10 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
         private static final int VALUES = 1;
         private static final int ITEMS = 2;
 
-        private PyObject orderedDict;
-        private Set<PyObject> dictKeys;
-        private int type;
-        private transient Iterator iter;
+        private final PyObject orderedDict;
+        private final Set<PyObject> dictKeys;
+        private final int type;
+        private transient Iterator<PyObject> iter;
 
         private PyOrderedDictIter(PyObject orderedDict, Set<PyObject> dictKeys, int type) {
             this.orderedDict = orderedDict;
@@ -623,7 +662,7 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
         public PyObject next() {
             PyObject result = null;
             if (hasNext()) {
-                PyObject key = (PyObject) this.iter.next();
+                PyObject key = this.iter.next();
                 switch (type) {
                     case VALUES:
                         result = orderedDict.__finditem__(key);
@@ -653,6 +692,33 @@ public final class PyOrderedDict extends PyDictionary implements Iterable<PyObje
         @Override
         public void remove() {
             throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            boolean result;
+            if (this == other) {
+                result = true;
+            } else if (other == null || this.getClass() != other.getClass()) {
+                result = false;
+            } else {
+                result = super.equals(other);
+                if (result) {
+                    PyOrderedDictIter otherIter = (PyOrderedDictIter) other;
+                    result = this.orderedDict.equals(otherIter.orderedDict) &&
+                        this.dictKeys.equals(otherIter.dictKeys) &&
+                        this.type == otherIter.type &&
+                        this.iter.equals(otherIter.iter);
+                }
+            }
+            return result;
+        }
+
+        @Override
+        public int hashCode() {
+            return super.hashCode() >> 16 + this.orderedDict.hashCode() >> 12 +
+                this.dictKeys.hashCode() >> 8 + this.iter.hashCode() >> 4 +
+                Integer.valueOf(this.type).hashCode();
         }
     }
 }

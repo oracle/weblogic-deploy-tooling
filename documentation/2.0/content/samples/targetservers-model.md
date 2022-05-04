@@ -43,7 +43,7 @@ domainInfo:
     ServerStartMode: prod
     ServerGroupTargetingLimits:
         'WSMPM-MAN-SVR': soa_cluster
-        'SOA-MGD-SVRS': 'soa_server1,soa_server2'
+        'SOA-MGD-SVRS': soa_server1,soa_server2
         'OSB-MGD-SVRS-COMBINED': [ osb_server1, osb_server2 ]
 
 topology:
@@ -130,5 +130,5 @@ domainInfo:
     AdminPassword: welcome1
     ServerStartMode: prod
     DynamicClusterServerGroupTargetingLimits:
-        'SOA-DYN-CLUSTER': 'soa_dynamic_cluster'
+        SOA-DYN-CLUSTER: soa_dynamic_cluster
 ```

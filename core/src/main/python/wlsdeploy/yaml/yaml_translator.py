@@ -14,12 +14,14 @@ import java.lang.Integer as JInteger
 import java.lang.Long as JLong
 import java.lang.String as JString
 import java.util.ArrayList as JArrayList
-import java.util.LinkedHashMap as JLinkedHashMap
+from java.io import OutputStreamWriter
 
 import oracle.weblogic.deploy.util.FileUtils as JFileUtils
 import oracle.weblogic.deploy.yaml.YamlStreamTranslator as JYamlStreamTranslator
 import oracle.weblogic.deploy.yaml.YamlTranslator as JYamlTranslator
+from oracle.weblogic.deploy.util import OrderedMap
 from oracle.weblogic.deploy.util import PyRealBoolean
+from oracle.weblogic.deploy.util import PyOrderedDict
 
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -44,7 +46,6 @@ class YamlToPython(object):
                 exception_helper.create_yaml_exception('WLSDPLY-18008', file_name, iae.getLocalizedMessage(), error=iae)
             self._logger.throwing(class_name=self._class_name, method_name=_method_name, error=yaml_ex)
             raise yaml_ex
-        return
 
     def parse(self):
         """
@@ -57,6 +58,22 @@ class YamlToPython(object):
         self._logger.entering(class_name=self._class_name, method_name=_method_name)
         # throws YamlException with details, nothing we can really add here...
         result_dict = self._translator.parse()
+
+        # don't log the model on exit, it may contain passwords
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name)
+        return result_dict
+
+    def parse_documents(self):
+        """
+        Parse the Yaml content from the file and convert it to a list of Python dictionaries.
+        :return: a list of documents as Python dictionaries
+        :raises: YamlException: if an error occurs while parsing the Yaml or converting it to the list
+        """
+        _method_name = 'parse_documents'
+
+        self._logger.entering(class_name=self._class_name, method_name=_method_name)
+        # throws YamlException with details, nothing we can really add here...
+        result_dict = self._translator.parseDocuments(True)
 
         # don't log the model on exit, it may contain passwords
         self._logger.exiting(class_name=self._class_name, method_name=_method_name)
@@ -82,7 +99,6 @@ class YamlStreamToPython(object):
                 exception_helper.create_yaml_exception('WLSDPLY-18008', file_name, iae.getLocalizedMessage(), error=iae)
             self._logger.throwing(class_name=self._class_name, method_name=_method_name, error=yaml_ex)
             raise yaml_ex
-        return
 
     def parse(self):
         """
@@ -101,28 +117,34 @@ class YamlStreamToPython(object):
 
 class PythonToJava(object):
     """
-    A class that converts a Python dictionary and its contents to the Java types expected by snakeyaml.
+    A class that converts a Python dictionary or document list and its contents
+    to the Java types expected by snakeyaml.
     """
     _class_name = 'PythonToJava'
 
-    def __init__(self, dictionary):
-        self._dictionary = dictionary
+    def __init__(self, collection):
+        self._collection = collection
         self._logger = PlatformLogger('wlsdeploy.yaml')
 
     def convert_to_java(self):
         _method_name = 'convert_to_java'
 
-        if self._dictionary is None:
+        if self._collection is None:
             return None
-        if isinstance(self._dictionary, dict):
-            return self.convert_dict_to_java_map(self._dictionary)
+        if isinstance(self._collection, dict):
+            return self.convert_dict_to_java_map(self._collection)
+        if isinstance(self._collection, list):
+            return self.convert_list_to_java_list(self._collection)
         else:
             yaml_ex = exception_helper.create_yaml_exception('WLSDPLY-18200')
             self._logger.throwing(class_name=self._class_name, method_name=_method_name, error=yaml_ex)
             raise yaml_ex
 
     def convert_dict_to_java_map(self, dictionary):
-        result = JLinkedHashMap()
+        result = OrderedMap()
+        if isinstance(dictionary, PyOrderedDict):
+            result.setCommentMap(dictionary.getCommentMap())
+
         for key, value in dictionary.iteritems():
             java_key = JString(key)
             if isinstance(value, dict):
@@ -177,15 +199,14 @@ class PythonToJava(object):
 
 class PythonToYaml(object):
     """
-    A class that converts a Python dictionary into Yaml and writes the output to a file.
+    A class that converts a Python dictionary or document list into Yaml and writes the output to a file.
     """
     _class_name = 'PythonToYaml'
 
-    def __init__(self, dictionary):
+    def __init__(self, collection):
         # Fix error handling for None
-        self._dictionary = dictionary
+        self._collection = collection
         self._logger = PlatformLogger('wlsdeploy.yaml')
-        return
 
     def write_to_yaml_file(self, file_name):
         """
@@ -208,7 +229,7 @@ class PythonToYaml(object):
         writer = None
         try:
             writer = JFileWriter(yaml_file)
-            self._write_dictionary_to_yaml_file(self._dictionary, writer, file_name)
+            self._write_collection_to_yaml_file(self._collection, writer, file_name)
         except JFileNotFoundException, fnfe:
             yaml_ex = exception_helper.create_yaml_exception('WLSDPLY-18010', file_name,
                                                              fnfe.getLocalizedMessage(), error=fnfe)
@@ -224,21 +245,27 @@ class PythonToYaml(object):
 
         self._logger.exiting(class_name=self._class_name, method_name=_method_name)
 
-    def _write_dictionary_to_yaml_file(self, dictionary, writer, file_name='<None>'):
+    def write_to_stream(self, output_stream):
+        self._write_collection_to_yaml_file(self._collection, OutputStreamWriter(output_stream))
+
+    def _write_collection_to_yaml_file(self, collection, writer, file_name='<None>'):
         """
-        Do the actual heavy lifting of converting a dictionary and writing it to the file.
-        :param dictionary: the Python dictionary to convert
+        Do the actual heavy lifting of converting a dictionary or document list and writing it to the file.
+        :param collection: the Python dictionary or document list to convert
         :param writer: the java.io.Writer for the output file
         :param file_name: the file_name for the output file
         :raises: YamlException: if an error occurs while writing the output
         """
-        if dictionary is None:
+        if collection is None:
             return
 
-        java_object = PythonToJava(dictionary).convert_to_java()
+        java_object = PythonToJava(collection).convert_to_java()
         yaml_stream_translator = JYamlStreamTranslator(file_name, writer)
-        yaml_stream_translator.dump(java_object)
-        return
+
+        if isinstance(collection, list):
+            yaml_stream_translator.dumpDocuments(java_object)
+        else:
+            yaml_stream_translator.dump(java_object)
 
     def _close_writer(self, writer):
         """
@@ -248,4 +275,3 @@ class PythonToYaml(object):
 
         if writer is not None:
             writer.close()
-        return

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -12,6 +12,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.create.creator import Creator
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
 class SecurityProviderCreator(Creator):
@@ -52,8 +53,7 @@ class SecurityProviderCreator(Creator):
 
         self._topology = self.model.get_model_topology()
         self._domain_typedef = self.model_context.get_domain_typedef()
-
-        return
+        self._wls_helper = WebLogicHelper(self.logger)
 
     def create_security_configuration(self, location):
         """
@@ -84,7 +84,6 @@ class SecurityProviderCreator(Creator):
             self._create_mbean(SECURITY_CONFIGURATION, security_configuration_nodes, location, log_created=True)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     # Override
     def _create_named_subtype_mbeans(self, type_name, model_nodes, base_location, log_created=False):
@@ -185,7 +184,6 @@ class SecurityProviderCreator(Creator):
             self._create_subfolders(prov_location, child_nodes)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     # Override
     def _process_child_nodes(self, location, model_nodes):
@@ -266,7 +264,6 @@ class SecurityProviderCreator(Creator):
                     raise ex
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def _check_provider_type(self, type_name, model_nodes):
         """
@@ -276,6 +273,12 @@ class SecurityProviderCreator(Creator):
         :return: True if the provider type should be updated, False if it should be skipped
         """
         _method_name = '_check_provider_type'
+        # there are problems re-configuring adjudicators, don't update them
+        if type_name == self.__adjudicator_type and not self.is_adjudicator_changeable():
+            if not self._is_default_adjudicator_configuration(model_nodes):
+                self.logger.warning('WLSDPLY-12137', class_name=self.__class_name, method_name=_method_name)
+
+            return False
 
         return True
 
@@ -313,3 +316,6 @@ class SecurityProviderCreator(Creator):
             return False
 
         return True
+
+    def is_adjudicator_changeable(self):
+        return self._wls_helper.is_weblogic_version_or_above('12.2.1.4')

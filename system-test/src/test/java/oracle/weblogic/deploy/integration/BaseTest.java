@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import oracle.weblogic.deploy.integration.annotations.TestingLogger;
 import oracle.weblogic.deploy.integration.utils.CommandResult;
@@ -44,7 +45,21 @@ public class BaseTest {
     protected static String domainParentDir = "";
     protected static final String ORACLE_DB_IMG = "phx.ocir.io/weblogick8s/database/enterprise";
     protected static final String ORACLE_DB_IMG_TAG = "12.2.0.1-slim";
-    private static final String DB_CONTAINER_NAME = "InfraDB";
+    private static final String DB_CONTAINER_NAME = generateDatabaseContainerName();
+
+    private static String generateDatabaseContainerName() {
+        String branchName = System.getenv("BRANCH_NAME");
+
+        if (branchName == null || branchName.isEmpty()) {
+            // This should only occur for non-Jenkins runs (developer laptop builds)
+            branchName = "LOCAL";
+        } else {
+            // characters not allowed in container names are replaced with an underscore
+            branchName = branchName.replaceAll("[^a-zA-Z0-9_.-]", "_");
+        }
+        int randomNum = new Random().nextInt(1000);
+        return String.format("WDT-IT-%s-%s", branchName, randomNum);
+    }
 
     protected static void initialize() {
 

@@ -65,9 +65,11 @@ from wlsdeploy.aliases.model_constants import SET_OPTION_APP_DIR
 from wlsdeploy.aliases.model_constants import SET_OPTION_DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import SET_OPTION_JAVA_HOME
 from wlsdeploy.aliases.model_constants import SET_OPTION_SERVER_START_MODE
+from wlsdeploy.aliases.model_constants import SSL_ADMIN_USER
 from wlsdeploy.aliases.model_constants import UNIX_MACHINE
 from wlsdeploy.aliases.model_constants import URL
 from wlsdeploy.aliases.model_constants import USER
+from wlsdeploy.aliases.model_constants import USE_SAMPLE_DATABASE
 from wlsdeploy.aliases.model_constants import VIRTUAL_TARGET
 from wlsdeploy.aliases.model_constants import WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
 from wlsdeploy.aliases.model_constants import WS_RELIABLE_DELIVERY_POLICY
@@ -77,6 +79,7 @@ from wlsdeploy.aliases.model_constants import XML_REGISTRY
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.create import atp_helper
+from wlsdeploy.tool.create import ssl_helper
 from wlsdeploy.tool.create import rcudbinfo_helper
 from wlsdeploy.tool.create.creator import Creator
 from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
@@ -145,7 +148,6 @@ class DomainCreator(Creator):
 
         self.__default_domain_name = None
         self.__default_admin_server_name = None
-        self.__default_security_realm_name = None
 
         archive_file_name = self.model_context.get_archive_file_name()
         if archive_file_name is not None:
@@ -160,12 +162,6 @@ class DomainCreator(Creator):
 
         self.wlsroles_helper = WLSRoles(self._domain_info, self._domain_home, self.wls_helper,
                                         ExceptionType.CREATE, self.logger)
-
-        #
-        # This list gets modified as the domain is being created so do use this list for anything else...
-        #
-        self.__topology_folder_list = self.aliases.get_model_topology_top_level_folder_names()
-        return
 
     def create(self):
         """
@@ -185,7 +181,6 @@ class DomainCreator(Creator):
         self.__create_credential_mappings()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     # Override
     def _create_named_mbeans(self, type_name, model_nodes, base_location, log_created=False, delete_now=True):
@@ -236,8 +231,8 @@ class DomainCreator(Creator):
         if path is not None:
             resolved_path = self.model_context.replace_token_string(path)
             if self.archive_helper is not None and self.archive_helper.contains_file(resolved_path):
-                dir = File(self._domain_home)
-                if (not dir.isDirectory()) and (not dir.mkdirs()):
+                directory = File(self._domain_home)
+                if (not directory.isDirectory()) and (not directory.mkdirs()):
                     ex = exception_helper.create_create_exception('WLSDPLY-12259', self._domain_home, xml_type, path)
                     self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                     raise ex
@@ -313,6 +308,13 @@ class DomainCreator(Creator):
             runner = RCURunner.createAtpRunner(domain_type, oracle_home, java_home, rcu_prefix, rcu_schemas,
                                                rcu_db_info.get_rcu_variables(), rcu_runner_map)
 
+        elif rcu_db_info.is_use_ssl():
+            rcu_db = rcu_db_info.get_preferred_db()
+            rcu_properties_map = self.model.get_model_domain_info()[RCU_DB_INFO]
+            rcu_runner_map =dict(rcu_properties_map)
+            rcu_runner_map[SSL_ADMIN_USER] = rcu_db_info.get_ssl_tns_admin()
+            runner = RCURunner.createSslRunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas,
+                                               rcu_db_info.get_rcu_variables(), rcu_runner_map)
         else:
             # Non-ATP database, use DB config from the command line or RCUDbInfo in the model.
             rcu_db = rcu_db_info.get_preferred_db()
@@ -328,7 +330,6 @@ class DomainCreator(Creator):
 
         runner.runRcu(rcu_sys_pass, rcu_schema_pass)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __fail_mt_1221_domain_creation(self):
         """
@@ -496,7 +497,10 @@ class DomainCreator(Creator):
         # targets may have been inadvertently assigned when clusters were added
         self.topology_helper.clear_jdbc_placeholder_targeting(jdbc_names)
 
-        self.__apply_base_domain_config(topology_folder_list)
+        # This is a second pass. We will not do a third pass after extend templates
+        # as it would require a updatedomain and reopen. If reported, revisit this
+        # known issue
+        self.__apply_base_domain_config(topology_folder_list, delete=True)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -578,7 +582,7 @@ class DomainCreator(Creator):
         # targets may have been inadvertently assigned when clusters were added
         self.topology_helper.clear_jdbc_placeholder_targeting(jdbc_names)
 
-        self.__apply_base_domain_config(topology_folder_list)
+        self.__apply_base_domain_config(topology_folder_list, delete=True)
 
         self.logger.info('WLSDPLY-12205', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
@@ -587,7 +591,11 @@ class DomainCreator(Creator):
         self.logger.info('WLSDPLY-12206', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
         self.wlst_helper.read_domain(domain_home)
-
+        # Third pass will perform No deletes, set the attributes again.This will address the
+        # problem where a template's final.py overwrites attributes during the
+        # write domain. This will allow the model value to take precedence over the final.py
+        if len(extension_templates) > 0:
+            self.__apply_base_domain_config(topology_folder_list, delete=False)
         self.__create_security_folder()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
@@ -620,10 +628,12 @@ class DomainCreator(Creator):
         self.wlst_helper.close_domain()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-    def __apply_base_domain_config(self, topology_folder_list):
+    def __apply_base_domain_config(self, topology_folder_list, delete=True):
         """
         Apply the base domain configuration from the model topology section.
+        This will be done in pass two and three of dealing with topology objects
         :param topology_folder_list: the model topology folder list to process
+        :param delete: If the pass will do deletes
         :raises: CreateException: if an error occurs
         """
         _method_name = '__apply_base_domain_config'
@@ -631,27 +641,31 @@ class DomainCreator(Creator):
         self.logger.entering(topology_folder_list, class_name=self.__class_name, method_name=_method_name)
         self.logger.fine('WLSDPLY-12219', class_name=self.__class_name, method_name=_method_name)
 
+        topology_local_list = list(topology_folder_list)
         location = LocationContext()
         domain_name_token = self.aliases.get_name_token(location)
         location.add_name_token(domain_name_token, self._domain_name)
 
-        topology_folder_list.remove(SECURITY_CONFIGURATION)
+        topology_local_list.remove(SECURITY_CONFIGURATION)
 
         self.__create_reliable_delivery_policy(location)
-        topology_folder_list.remove(WS_RELIABLE_DELIVERY_POLICY)
+        topology_local_list.remove(WS_RELIABLE_DELIVERY_POLICY)
 
-        # this second pass will re-establish any attributes that were changed by templates,
+        # the second pass will re-establish any attributes that were changed by templates,
         # and process deletes and re-adds of named elements in the model order.
-        self.__create_machines_clusters_and_servers()
-        topology_folder_list.remove(MACHINE)
-        topology_folder_list.remove(UNIX_MACHINE)
-        topology_folder_list.remove(CLUSTER)
-        if SERVER_TEMPLATE in topology_folder_list:
-            topology_folder_list.remove(SERVER_TEMPLATE)
-        topology_folder_list.remove(SERVER)
-        topology_folder_list.remove(MIGRATABLE_TARGET)
-        #
-        self.__create_other_domain_artifacts(location, topology_folder_list)
+        # the third pass will re-establish any attributes that were changed by templates, but will
+        # not perform any deletes. re-adds will occur if for some reason they had an add with a delete
+        # after, but this is not a scenario we are considering
+        self.__create_machines_clusters_and_servers(delete_now=delete)
+        topology_local_list.remove(MACHINE)
+        topology_local_list.remove(UNIX_MACHINE)
+        topology_local_list.remove(CLUSTER)
+        if SERVER_TEMPLATE in topology_local_list:
+            topology_local_list.remove(SERVER_TEMPLATE)
+        topology_local_list.remove(SERVER)
+        topology_local_list.remove(MIGRATABLE_TARGET)
+
+        self.__create_other_domain_artifacts(location, topology_local_list)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
@@ -672,6 +686,12 @@ class DomainCreator(Creator):
         if SERVER_START_MODE in self._domain_info:
             server_start_mode = self._domain_info[SERVER_START_MODE]
             self.wlst_helper.set_option_if_needed(SET_OPTION_SERVER_START_MODE, server_start_mode)
+
+        if USE_SAMPLE_DATABASE in self._domain_info:
+            use_sample_db = self._domain_info[USE_SAMPLE_DATABASE]
+            if not isinstance(use_sample_db, basestring):
+                use_sample_db = str(use_sample_db)
+            self.wlst_helper.set_option_if_needed(USE_SAMPLE_DATABASE, use_sample_db)
 
         self.__set_domain_name()
         self.__set_admin_password()
@@ -947,7 +967,7 @@ class DomainCreator(Creator):
 
         root_location.remove_name_token(property_name)
 
-    def __retrieve_atp_rcudbinfo(self, rcu_db_info, checkAdminPwd=False):
+    def __retrieve_atp_rcudbinfo(self, rcu_db_info, check_admin_pwd=False):
         """
         Check and return atp connection info and make sure atp rcudb info is complete
         :raises: CreateException: if an error occurs
@@ -987,7 +1007,7 @@ class DomainCreator(Creator):
                                                           "'javax.net.ssl.trustStorePassword']")
             raise ex
 
-        if checkAdminPwd:
+        if check_admin_pwd:
             admin_pwd = rcu_db_info.get_admin_password()
             if admin_pwd is None:
                 ex = exception_helper.create_create_exception('WLSDPLY-12413','rcu_admin_password',
@@ -997,6 +1017,44 @@ class DomainCreator(Creator):
 
         return tns_admin, rcu_database, keystore_pwd, truststore_pwd
 
+    def __retrieve_ssl_rcudbinfo(self, rcu_db_info, check_admin_pwd=False):
+        """
+        Check and return ssl connection info and make sure ssl rcudb info is complete
+        :raises: CreateException: if an error occurs
+        """
+        _method_name = '__retrieve_ssl_rcudbinfo'
+
+        tns_admin = rcu_db_info.get_ssl_tns_admin()
+        truststore = rcu_db_info.get_truststore()
+        if tns_admin is None or not os.path.exists(tns_admin + os.sep + "tnsnames.ora") \
+         or not os.path.exists(tns_admin + os.sep + truststore):
+            ex = exception_helper.create_create_exception('WLSDPLY-12562')
+            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        if rcu_db_info.get_ssl_entry() is None:
+            ex = exception_helper.create_create_exception('WLSDPLY-12413','tns.alias',
+                                                          "['tns.alias','javax.net.ssl.keyStorePassword',"
+                                                          "'javax.net.ssl.trustStorePassword']")
+            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        rcu_database, error = ssl_helper.get_ssl_connect_string(tns_admin + os.sep + 'tnsnames.ora',
+                                                         rcu_db_info.get_ssl_entry())
+        truststore = rcu_db_info.get_truststore()
+        truststore_type = rcu_db_info.get_truststore_type()
+        truststore_pwd = rcu_db_info.get_truststore_password()
+
+        if check_admin_pwd:
+            admin_pwd = rcu_db_info.get_admin_password()
+            if admin_pwd is None:
+                ex = exception_helper.create_create_exception('WLSDPLY-12413','rcu_admin_password',
+                                                              "['rcu_prefix','rcu_schema_password',"
+                                                              "'rcu_admin_password']")
+                raise ex
+
+        return tns_admin, rcu_database, truststore_pwd, truststore_type, truststore
+
     def __configure_fmw_infra_database(self):
         """
         Configure the FMW Infrastructure DataSources.
@@ -1005,8 +1063,8 @@ class DomainCreator(Creator):
         _method_name = '__configure_fmw_infra_database'
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
 
-        # only continue with RCU configuration for a JRF domain.
-        if not self._domain_typedef.is_jrf_domain_type():
+        # only continue with RCU configuration for domain type that requires RCU.
+        if not self._domain_typedef.required_rcu():
             self.logger.finer('WLSDPLY-12249', class_name=self.__class_name, method_name=_method_name)
             return
 
@@ -1031,14 +1089,19 @@ class DomainCreator(Creator):
         # load atp connection properties from properties file
         # HANDLE ATP case
 
-        if rcu_db_info.has_atpdbinfo():
-            has_atp = 1
+        if rcu_db_info.has_atpdbinfo() or rcu_db_info.is_use_ssl():
+            has_atp = rcu_db_info.has_atpdbinfo()
             # parse the tnsnames.ora file and retrieve the connection string
             # tns_admin is the wallet path either the path to $DOMAIN_HOME/atpwallet or
             # specified in RCUDbinfo.oracle.net.tns_admin
 
-            tns_admin, rcu_database, keystore_pwd, truststore_pwd = self.__retrieve_atp_rcudbinfo(rcu_db_info)
-
+            keystore_pwd = None
+            truststore_type = None
+            truststore = None
+            if has_atp:
+                tns_admin, rcu_database, keystore_pwd, truststore_pwd = self.__retrieve_atp_rcudbinfo(rcu_db_info)
+            else:
+                tns_admin, rcu_database, truststore_pwd, truststore_type, truststore = self.__retrieve_ssl_rcudbinfo(rcu_db_info)
             # Need to set for the connection property for each datasource
 
             fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
@@ -1083,23 +1146,30 @@ class DomainCreator(Creator):
 
                 location.remove_name_token(DRIVER_PARAMS_USER_PROPERTY)
 
-                self.__set_atp_connection_property(location, DRIVER_PARAMS_kEYSTORE_PROPERTY, tns_admin + os.sep
-                                                   + 'keystore.jks')
-                self.__set_atp_connection_property(location, DRIVER_PARAMS_KEYSTORETYPE_PROPERTY,
-                                                   'JKS')
-                self.__set_atp_connection_property(location, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_pwd)
-                self.__set_atp_connection_property(location, DRIVER_PARAMS_TRUSTSTORE_PROPERTY, tns_admin + os.sep
-                                                   + 'truststore.jks')
-                self.__set_atp_connection_property(location, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY,
-                                                   'JKS')
-                self.__set_atp_connection_property(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd)
+                if has_atp:
+                    self.__set_atp_connection_property(location, DRIVER_PARAMS_kEYSTORE_PROPERTY, tns_admin + os.sep
+                                                       + 'keystore.jks')
+                    self.__set_atp_connection_property(location, DRIVER_PARAMS_KEYSTORETYPE_PROPERTY,
+                                                       'JKS')
+                    self.__set_atp_connection_property(location, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_pwd)
+                    self.__set_atp_connection_property(location, DRIVER_PARAMS_TRUSTSTORE_PROPERTY, tns_admin + os.sep
+                                                       + 'truststore.jks')
+                    self.__set_atp_connection_property(location, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY,
+                                                       'JKS')
+                    self.__set_atp_connection_property(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd)
 
-                self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_SSL_VERSION, '1.2')
-                self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY, 'true')
-                self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_TNS_ADMIN, tns_admin)
-                self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_FAN_ENABLED, 'false')
-
-        if not has_atp:
+                    self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_SSL_VERSION, '1.2')
+                    self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY, 'true')
+                    self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_TNS_ADMIN, tns_admin)
+                    self.__set_atp_connection_property(location, DRIVER_PARAMS_NET_FAN_ENABLED, 'false')
+                else:
+                    self.__set_atp_connection_property(location, DRIVER_PARAMS_TRUSTSTORE_PROPERTY, tns_admin + os.sep
+                                                       + truststore)
+                    self.__set_atp_connection_property(location, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY,
+                                                         truststore_type)
+                    if truststore_pwd is not None and truststore_pwd != 'None':
+                        self.__set_atp_connection_property(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd)
+        else:
             rcu_database = rcu_db_info.get_preferred_db()
             if rcu_database is None:
                 ex = exception_helper.create_create_exception('WLSDPLY-12564')
@@ -1268,7 +1338,6 @@ class DomainCreator(Creator):
                              class_name=self.__class_name, method_name=_method_name)
         else:
             self._admin_server_name = self.__default_admin_server_name
-        return
 
     def __set_domain_attributes(self):
         """
@@ -1287,7 +1356,6 @@ class DomainCreator(Creator):
         attribute_path = self.aliases.get_wlst_attributes_path(location)
         self.wlst_helper.cd(attribute_path)
         self._set_attributes(location, attrib_dict)
-        return
 
     def _configure_security_configuration(self):
         """
@@ -1303,7 +1371,6 @@ class DomainCreator(Creator):
         security_config_location = LocationContext().add_name_token(domain_name_token, self._domain_name)
         self.security_provider_creator.create_security_configuration(security_config_location)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __create_boot_dot_properties(self):
         _method_name = '__create_boot_dot_properties'
@@ -1318,8 +1385,8 @@ class DomainCreator(Creator):
             if string_utils.to_boolean(self._topology[PRODUCTION_MODE_ENABLED]):
                 return
 
-        systemIni = SerializedSystemIni.getEncryptionService(self._domain_home)
-        encryptionService = ClearOrEncryptedService(systemIni)
+        system_ini = SerializedSystemIni.getEncryptionService(self._domain_home)
+        encryption_service = ClearOrEncryptedService(system_ini)
         admin_password = self._domain_info[ADMIN_PASSWORD]
         admin_username = self.wls_helper.get_default_admin_username()
         if ADMIN_USERNAME in self._domain_info:
@@ -1334,8 +1401,8 @@ class DomainCreator(Creator):
 
         admin_username = self.aliases.decrypt_password(admin_username)
         admin_password = self.aliases.decrypt_password(admin_password)
-        encrypted_username = encryptionService.encrypt(admin_username)
-        encrypted_password = encryptionService.encrypt(admin_password)
+        encrypted_username = encryption_service.encrypt(admin_username)
+        encrypted_password = encryption_service.encrypt(admin_password)
         for server in servers:
             if model_helper.is_delete_name(server):
                 continue
@@ -1350,7 +1417,6 @@ class DomainCreator(Creator):
             properties.store(ostream, None)
             ostream.close()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __create_credential_mappings(self):
         """
@@ -1382,4 +1448,3 @@ class DomainCreator(Creator):
                 self.wlst_helper.set_shared_secret_store_with_password(opss_wallet, opss_secret_password)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return

@@ -13,9 +13,14 @@ from wlsdeploy.aliases.model_constants import CALCULATED_LISTEN_PORTS
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import DEFAULT_AUTHENTICATOR
 from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
+from wlsdeploy.aliases.model_constants import MACHINE
+from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import REALM
+from wlsdeploy.aliases.model_constants import RESOURCES
+from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
 from wlsdeploy.aliases.model_constants import TOPOLOGY
+from wlsdeploy.aliases.model_constants import VIRTUAL_TARGET
 from wlsdeploy.tool.util.filters import wko_filter
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
@@ -66,6 +71,18 @@ class WkoFilterTestCase(BaseTestCase):
         model_context = ModelContext(self._program_name, {})
         wko_filter.filter_model(model, model_context)
         self._restore_logs()
+
+        # Machine and virtual target elements should be removed from the model
+
+        topology = self._traverse(model, TOPOLOGY)
+        self._no_dictionary_key(topology, MACHINE)
+        self._no_dictionary_key(topology, VIRTUAL_TARGET)
+
+        # Partition and resource elements should be removed from the model
+
+        resources = self._traverse(model, RESOURCES)
+        self._no_dictionary_key(resources, PARTITION)
+        self._no_dictionary_key(resources, RESOURCE_GROUP)
 
         # Dynamic clusters should have "CalculatedListenPorts" set to false
 

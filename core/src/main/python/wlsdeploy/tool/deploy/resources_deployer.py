@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import wlsdeploy.util.dictionary_utils as dictionary_utils
@@ -89,7 +89,6 @@ class ResourcesDeployer(Deployer):
         common_deployer.add_singleton_service(self._resources, location)
         common_deployer.add_system_components(self._resources, location)
         common_deployer.add_ohs_components(self._resources, location)
-        return
 
     def _add_startup_classes(self, location):
         """
@@ -98,7 +97,6 @@ class ResourcesDeployer(Deployer):
         """
         startup_nodes = dictionary_utils.get_dictionary_element(self._resources, STARTUP_CLASS)
         self._add_named_elements(STARTUP_CLASS, startup_nodes, location)
-        return
 
     def _add_shutdown_classes(self, location):
         """
@@ -107,4 +105,3 @@ class ResourcesDeployer(Deployer):
         """
         shutdown_nodes = dictionary_utils.get_dictionary_element(self._resources, SHUTDOWN_CLASS)
         self._add_named_elements(SHUTDOWN_CLASS, shutdown_nodes, location)
-        return

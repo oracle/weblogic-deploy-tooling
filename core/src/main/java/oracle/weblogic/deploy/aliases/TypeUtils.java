@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.
+ * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.aliases;
 
 import java.io.File;
 import java.lang.reflect.Array;
-import java.lang.NumberFormatException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -274,7 +273,7 @@ public final class TypeUtils {
         if (Object[].class.isAssignableFrom(value.getClass())) {
             result = Object[].class.cast(value);
         } else if (value instanceof List) {
-            List list = (List) value;
+            List<?> list = (List<?>) value;
             if (!list.isEmpty()) {
                 //thanks to Java Generics type erasure in List, need to get element type from list element
                 Class<?> elementClass = list.get(0).getClass();
@@ -292,10 +291,10 @@ public final class TypeUtils {
         return result;
     }
 
-    private static List convertToList(Object value, String strValue, String delimiter) throws AliasException {
-        List result = null;
+    private static List<?> convertToList(Object value, String strValue, String delimiter) throws AliasException {
+        List<?> result = null;
         if (value instanceof List) {
-            result = (List) value;
+            result = (List<?>) value;
         } else if (value instanceof Object[]) {
             Object[] array = (Object[]) value;
             if (array.length > 0) {
@@ -359,7 +358,7 @@ public final class TypeUtils {
         final String METHOD = "convertToDictionary";
 
         PyDictionary dictionary;
-        if (value instanceof PyOrderedDict || value instanceof PyDictionary) {
+        if (value instanceof PyDictionary) {
             dictionary = (PyDictionary)value;
         } else if (value instanceof Properties) {
             dictionary = convertPropertiesToDictionary((Properties)value, useOrderedDict);
@@ -373,10 +372,10 @@ public final class TypeUtils {
         return dictionary.__len__() == 0 ? null : dictionary;
     }
 
-    private static Map convertToMap(Object value, String strValue, String delimiter) throws AliasException {
-        Map result;
+    private static Map<?,?> convertToMap(Object value, String strValue, String delimiter) throws AliasException {
+        Map<?,?> result;
         if (Map.class.isAssignableFrom(value.getClass())) {
-            result = Map.class.cast(value);
+            result = (Map<?,?>)value;
         } else {
             result = convertStringToMap(strValue, delimiter);
         }

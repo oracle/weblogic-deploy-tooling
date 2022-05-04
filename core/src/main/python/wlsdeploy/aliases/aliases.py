@@ -78,7 +78,6 @@ class Aliases(object):
             self._wls_version = wls_version
 
         self._alias_entries = AliasEntries(wlst_mode, self._wls_version)
-        return
 
     ###########################################################################
     #              Model folder navigation-related methods                    #
@@ -1010,9 +1009,8 @@ class Aliases(object):
                     default_value = alias_utils.convert_to_type(model_type, default_value,
                                                                 delimiter=MODEL_LIST_DELIMITER)
 
-                if attribute_info[WLST_TYPE] == STRING:
-                    if default_value:
-                        default_value = alias_utils.replace_tokens_in_path(location, default_value)
+                if attribute_info[WLST_TYPE] == STRING and default_value:
+                    default_value = alias_utils.replace_tokens_in_path(location, default_value)
 
                 if model_type == 'password':
                     if string_utils.is_empty(wlst_attribute_value) or converted_value == default_value:

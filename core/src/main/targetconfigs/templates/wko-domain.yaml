@@ -1,4 +1,4 @@
-# Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+# Copyright (c) 2022, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 apiVersion: "weblogic.oracle/v8"
@@ -10,14 +10,14 @@ metadata:
     weblogic.domainUID: {{{domainUid}}}
 spec:
   # The WebLogic Domain Home
-  domainHome: {{{domainHome}}}
+  domainHome: '{{{domainHome}}}'
 
   # The domain home source type
   # Set to PersistentVolume for domain-in-pv, Image for domain-in-image, or FromModel for model-in-image
-  domainHomeSourceType: {{{domainHomeSourceType}}}
+  domainHomeSourceType: '{{{domainHomeSourceType}}}'
 
   # The WebLogic Server Docker image that the Operator uses to start the domain
-  image: {{{imageName}}}
+  image: '{{{imageName}}}'
 
   # Identify which Secret contains the credentials for pulling an image
   imagePullSecrets:
@@ -34,8 +34,19 @@ spec:
       value: "-Dweblogic.StdoutDebugEnabled=false"
     - name: USER_MEM_ARGS
       value: "-Djava.security.egd=file:/dev/./urandom -Xms64m -Xmx256m "
+{{#usePersistentVolume}}
 
+    # volume information for persistent volume
+    volumes:
+      - name: weblogic-domain-storage-volume
+        persistentVolumeClaim:
+          claimName: '--FIX ME--'
+    volumeMounts:
+      - mountPath: /shared
+        name: weblogic-domain-storage-volume
+{{/usePersistentVolume}}
 {{#hasClusters}}
+
   # clusters is used to configure the desired behavior for starting member servers of a cluster.
   # If you use this entry, then the rules will be applied to ALL servers that are members of the named clusters.
   clusters:
@@ -70,11 +81,13 @@ spec:
       domainType: {{{domainType}}}
 
       # WebLogic Image Tool provides modelHome
-      modelHome: {{{modelHome}}}
+      modelHome: '{{{modelHome}}}'
+{{#runtimeEncryptionSecret}}
 
       # encryption for the WDT model and the SystemSerializedIni.data file.
       # used only for model-in-image deployment, can be removed for other types.
       runtimeEncryptionSecret: {{{runtimeEncryptionSecret}}}
+{{/runtimeEncryptionSecret}}
 {{#hasAdditionalSecrets}}
 
     # Secrets that are referenced by model yaml macros

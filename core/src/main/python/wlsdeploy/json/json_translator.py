@@ -20,8 +20,6 @@ import oracle.weblogic.deploy.json.JsonTranslator as JJsonTranslator
 from wlsdeploy.logging.platform_logger import PlatformLogger
 import wlsdeploy.exception.exception_helper as exception_helper
 
-# Unlike with yaml files, JSON files do not allow comments. remove from file
-COMMENT_MATCH = '# - '
 
 class JsonToPython(object):
     """
@@ -41,7 +39,6 @@ class JsonToPython(object):
                 exception_helper.create_json_exception('WLSDPLY-18014', file_name, iae.getLocalizedMessage(), error=iae)
             self._logger.throwing(class_name=self._class_name, method_name=_method_name, error=json_ex)
             raise json_ex
-        return
 
     def parse(self):
         """
@@ -79,7 +76,6 @@ class JsonStreamToPython(object):
                 exception_helper.create_json_exception('WLSDPLY-18014', file_name, iae.getLocalizedMessage(), error=iae)
             self._logger.throwing(class_name=self._class_name, method_name=_method_name, error=json_ex)
             raise json_ex
-        return
 
     def parse(self):
         """
@@ -107,7 +103,6 @@ class PythonToJson(object):
         # Fix error handling for None
         self._dictionary = dictionary
         self._logger = PlatformLogger('wlsdeploy.json')
-        return
 
     def write_to_json_file(self, file_name):
         """
@@ -157,7 +152,6 @@ class PythonToJson(object):
         :param writer: where to write the dictionary into json syntax
         :param indent: current string indentation of the json syntax. If not provided, indent is an empty string
         """
-        _method_name = '_write_dictionary_to_json_file'
         _start_dict = '{'
         _end_dict = '}'
 
@@ -170,22 +164,17 @@ class PythonToJson(object):
 
         indent += self._indent_unit
         for key, value in dictionary.iteritems():
-            if isinstance(key, basestring) and key.startswith(COMMENT_MATCH):
-                self._logger.finer('WLSDPLY-01714', key, class_name=self._class_name, method_name=_method_name)
+            writer.println(end_line)
+            end_line = ','
+            writer.write(indent + '"' + _escape_text(key) + '" : ')
+            if isinstance(value, dict):
+                self._write_dictionary_to_json_file(value, writer, indent)
+            elif isinstance(value, list):
+                self._write_list_to_json_file(value, writer, indent)
             else:
-                writer.println(end_line)
-                end_line = ','
-                writer.write(indent + '"' + _escape_text(key) + '" : ')
-                if isinstance(value, dict):
-                    self._write_dictionary_to_json_file(value, writer, indent)
-                elif isinstance(value, list):
-                    self._write_list_to_json_file(value, writer, indent)
-                else:
-                    writer.write(_format_json_value(value))
+                writer.write(_format_json_value(value))
         writer.println()
         writer.write(end_indent + _end_dict)
-
-        return
 
     def _write_list_to_json_file(self, alist, writer, indent=''):
         """
@@ -226,7 +215,6 @@ class PythonToJson(object):
             except JIOException, ioe:
                 self._logger.fine('WLSDPLY-18016', ioe, ioe.getLocalizedMessage(),
                                   class_name=self._class_name, method_name=_method_name)
-        return
 
 
 def _format_json_value(value):

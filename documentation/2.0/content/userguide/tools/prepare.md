@@ -38,3 +38,12 @@ You can then customize the `wko_variable.properties` and `create_k8s_secrets.sh`
 
 
 For more information about additional target environments and options, see [Target environments]({{< relref "/userguide/target_env.md" >}}).
+
+### Parameter table for `prepareModel`
+| Parameter | Definition | Default |
+| ---- | ---- | ---- |
+| `-model_file` | (Required). Location of the model file. This can also be specified as a comma-separated list of models, where each successive model layers on top of the previous ones. |    |
+| `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set. |    |
+| `-output_dir` | (Required) Location where to write the output files. |    |
+| `-target` | (Required) Name of the target configuration such as `wko`, `vz`, `k8s`. |    |
+| `-variable_file` | The location of the property file containing the values for variables used in the model. This can also be specified as a comma-separated list of property files, where each successive set of properties layers on top of the previous ones. |    |

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.aliases import alias_utils
@@ -10,7 +10,9 @@ from wlsdeploy.aliases.model_constants import ATP_TNS_ENTRY
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTOREPWD_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
 from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_COMP_INFO
 from wlsdeploy.aliases.model_constants import RCU_DB_CONN
@@ -20,7 +22,10 @@ from wlsdeploy.aliases.model_constants import RCU_PREFIX
 from wlsdeploy.aliases.model_constants import RCU_SCHEMA_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_STG_INFO
 from wlsdeploy.aliases.model_constants import RCU_VARIABLES
+from wlsdeploy.aliases.model_constants import SSL_ADMIN_USER
+from wlsdeploy.aliases.model_constants import SSL_TNS_ENTRY
 from wlsdeploy.aliases.model_constants import USE_ATP
+from wlsdeploy.aliases.model_constants import USE_SSL
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.model_context import ModelContext
 
@@ -40,8 +45,14 @@ class RcuDbInfo(object):
     def get_atp_tns_admin(self):
         return dictionary_utils.get_element(self.rcu_properties_map, DRIVER_PARAMS_NET_TNS_ADMIN)
 
+    def get_ssl_tns_admin(self):
+        return dictionary_utils.get_element(self.rcu_properties_map, DRIVER_PARAMS_NET_TNS_ADMIN)
+
     def get_atp_entry(self):
         return dictionary_utils.get_element(self.rcu_properties_map, ATP_TNS_ENTRY)
+
+    def get_ssl_entry(self):
+        return dictionary_utils.get_element(self.rcu_properties_map, SSL_TNS_ENTRY)
 
     def get_rcu_prefix(self):
         return dictionary_utils.get_element(self.rcu_properties_map, RCU_PREFIX)
@@ -53,6 +64,12 @@ class RcuDbInfo(object):
     def get_keystore_password(self):
         password = dictionary_utils.get_element(self.rcu_properties_map, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY)
         return self.aliases.decrypt_password(password)
+
+    def get_truststore(self):
+        return dictionary_utils.get_element(self.rcu_properties_map, DRIVER_PARAMS_TRUSTSTORE_PROPERTY)
+
+    def get_truststore_type(self):
+        return dictionary_utils.get_element(self.rcu_properties_map, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY)
 
     def get_truststore_password(self):
         password = dictionary_utils.get_element(self.rcu_properties_map, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY)
@@ -80,6 +97,12 @@ class RcuDbInfo(object):
     def get_atp_admin_user(self):
         if ATP_ADMIN_USER in self.rcu_properties_map:
             return self.rcu_properties_map[ATP_ADMIN_USER]
+        else:
+            return 'admin'
+
+    def get_ssl_admin_user(self):
+        if SSL_ADMIN_USER in self.rcu_properties_map:
+            return self.rcu_properties_map[SSL_ADMIN_USER]
         else:
             return 'admin'
 
@@ -113,6 +136,9 @@ class RcuDbInfo(object):
     def has_atpdbinfo(self):
         return self.is_use_atp()
 
+    def has_ssldbinfo(self):
+        return self.is_use_ssl()
+
     def is_regular_db(self):
         is_regular = 0
         if not self.is_use_atp():
@@ -134,6 +160,17 @@ class RcuDbInfo(object):
             return value == 'true'
         return False
 
+    def is_use_ssl(self):
+        """
+        Determine if the RCU DB info uses SSL.user
+        :return: True if the model value is present and set to true
+        """
+        if USE_SSL in self.rcu_properties_map:
+            model_value = self.rcu_properties_map[USE_SSL]
+            value = alias_utils.convert_to_type('boolean', model_value)
+            return value == 'true'
+        return False
+        
     def get_preferred_db(self):
         """
         Return the regular db connect string from command line or model.

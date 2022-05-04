@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020,2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the modelHelp tool.
@@ -63,8 +63,8 @@ def __process_args(args):
         if key in argument_map:
             if found:
                 types_text = ', '.join(__output_types)
-                ex = exception_helper.create_cla_exception('WLSDPLY-10100', types_text)
-                ex.setExitCode(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE)
+                ex = exception_helper.create_cla_exception(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE,
+                                                           'WLSDPLY-10100', types_text)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
             found = True

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 This module serves as a wrapper for the model dictionary.
@@ -45,7 +45,6 @@ class Model(object):
 
             if KUBERNETES in model_dictionary:
                 self._kubernetes = model_dictionary[KUBERNETES]
-        return
 
     def get_model_resources(self):
         """
@@ -116,7 +115,6 @@ class Model(object):
                          method_name=method_name, class_name=class_name)
         self._logger.log(level, '"appDeployments": {0}', pprint.pformat(self._deployments),
                          method_name=method_name, class_name=class_name)
-        return
 
 
 def get_model_resources_key():

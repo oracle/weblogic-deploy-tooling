@@ -1,0 +1,28 @@
+# Copyright (c) 2022, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+kubernetes:
+    spec:
+        # override this
+        domainHome: modelHome
+
+        clusters:
+            # should merge cluster1 and add cluster3, based on key "clusterName"
+            - clusterName: cluster1
+              replicas: 999
+            - clusterName: cluster3
+              replicas: 3
+
+        configuration:
+            # should add only secret-three, since secret-one is already included
+            secrets:
+                - secret-one
+                - secret-three
+
+        serverPod:
+            env:
+                # should merge JAVA_OPTIONS and add FROM_MODEL, based on default key "name"
+                - name: JAVA_OPTIONS
+                  value: '-DfromModel'
+                - name: FROM_MODEL
+                  value: '-DfromModel'

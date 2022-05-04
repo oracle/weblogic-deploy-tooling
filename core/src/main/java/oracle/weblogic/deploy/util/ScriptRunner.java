@@ -79,9 +79,9 @@ public class ScriptRunner {
         processHandler.setBufferStdout();
 
         for (Map.Entry<String, String> envEntry : env.entrySet()) {
-            String var = envEntry.getKey();
+            String key = envEntry.getKey();
             String val = envEntry.getValue();
-            processHandler.setEnvironmentVariable(var, val);
+            processHandler.setEnvironmentVariable(key, val);
         }
 
         processHandler.registerWaitHandler(new ProcessHandler.WaitHandler() {

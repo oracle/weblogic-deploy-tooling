@@ -10,8 +10,20 @@ from oracle.weblogic.deploy.exception import ExceptionHelper
 divider_string = '-----------------------------------------------'
 
 _class_name = "validation_utils"
-_path_token_pattern = re.compile('@@[\w._]+@@')
+_path_token_pattern = re.compile('@@[\w.]+@@')
 
+_type_str = "<type 'str'>"
+_type_int = "<type 'int'>"
+_type_long = "<type 'long'>"
+_type_float = "<type 'float'>"
+_type_unicode = "<type 'unicode'>"
+_type_bool = "<type 'bool'>"
+_type_py_real_boolean = "<type 'PyRealBoolean'>"
+_type_orcl_py_real_boolean = "<type 'oracle.weblogic.deploy.util.PyRealBoolean'>"
+_type_list = "<type 'list'>"
+_type_dict = "<type 'dict'>"
+_type_py_ordered_dict = "<type 'PyOrderedDict'>"
+_type_orcl_py_ordered_dict = "<type 'oracle.weblogic.deploy.util.PyOrderedDict'>"
 
 def extract_path_tokens(tokenized_value):
     """
@@ -28,7 +40,7 @@ def extract_path_tokens(tokenized_value):
     elif not isinstance(tokenized_value, basestring):
         path_value = str(tokenized_value)
     tokens = re.findall(path_pattern, path_value)
-    if tokens is None:
+    if len(tokens) == 0:
         # tokenized_value didn't contain any variable expressions, so
         # return an empty list
         return []
@@ -59,14 +71,14 @@ def get_python_data_type(value):
     """
     data_types_map = {
         types.StringType: 'string',
-        "<type 'unicode'>": 'unicode',
+        _type_unicode: 'unicode',
         types.IntType: 'integer',
         types.LongType: 'long',
         types.FloatType: 'float',
         types.DictionaryType: 'properties',
-        "<type 'PyOrderedDict'>": 'properties',
-        "<type 'PyRealBoolean'>": 'boolean',
-        "<type 'oracle.weblogic.deploy.util.PyRealBoolean'>": 'boolean',
+        _type_py_ordered_dict: 'properties',
+        _type_py_real_boolean: 'boolean',
+        _type_orcl_py_real_boolean: 'boolean',
         types.TupleType: 'list',
         types.ListType: 'list'
     }
@@ -117,28 +129,26 @@ def is_compatible_data_type(expected_data_type, actual_data_type):
     :return:
     """
     retval = False
-    if expected_data_type == 'string':
-        retval = (actual_data_type in ["<type 'str'>", "<type 'int'>", "<type 'long'>", "<type 'float'>",
-                                       "<type 'unicode'>", "<type 'bool'>", "<type 'PyRealBoolean'>",
-                                       "<type 'oracle.weblogic.deploy.util.PyRealBoolean'>"])
+    if expected_data_type in ['string', 'unicode']:
+        retval = (actual_data_type in [_type_str, _type_int, _type_long, _type_float,
+                                       _type_unicode, _type_bool, _type_py_real_boolean,
+                                       _type_orcl_py_real_boolean])
     elif expected_data_type == 'integer':
-        retval = (actual_data_type in ["<type 'int'>", "<type 'long'>", "<type 'str'>", "<type 'unicode'>"])
+        retval = (actual_data_type in [_type_int, _type_long, _type_str, _type_unicode])
     elif expected_data_type == 'long':
-        retval = (actual_data_type in ["<type 'int'>", "<type 'long'>", "<type 'str'>", "<type 'unicode'>"])
+        retval = (actual_data_type in [_type_int, _type_long, _type_str, _type_unicode])
     elif expected_data_type in ['boolean', 'java.lang.Boolean']:
-        retval = (actual_data_type in ["<type 'int'>", "<type 'str'>", "<type 'long'>", "<type 'unicode'>",
-                                       "<type 'bool'>", "<type 'PyRealBoolean'>",
-                                       "<type 'oracle.weblogic.deploy.util.PyRealBoolean'>"])
+        retval = (actual_data_type in [_type_int, _type_str, _type_long, _type_unicode, _type_bool,
+                                       _type_py_real_boolean, _type_orcl_py_real_boolean])
     elif expected_data_type in ['float', 'double']:
-        retval = (actual_data_type in ["<type 'float'>", "<type 'str'>", "<type 'unicode'>"])
+        retval = (actual_data_type in [_type_float, _type_str, _type_unicode])
     elif expected_data_type == 'properties' or expected_data_type == 'dict':
-        retval = (actual_data_type in ["<type 'PyOrderedDict'>", "<type 'oracle.weblogic.deploy.util.PyOrderedDict'>",
-                                       "<type 'dict'>", "<type 'str'>"])
+        retval = (actual_data_type in [_type_py_ordered_dict, _type_orcl_py_ordered_dict, _type_dict, _type_str])
     elif 'list' in expected_data_type:
-        retval = (actual_data_type in ["<type 'list'>", "<type 'str'>", "<type 'unicode'>"])
+        retval = (actual_data_type in [_type_list, _type_str, _type_unicode])
     elif expected_data_type in ['password', 'credential', 'jarray']:
-        retval = (actual_data_type in ["<type 'str'>", "<type 'unicode'>"])
+        retval = (actual_data_type in [_type_str, _type_unicode])
     elif 'delimited_' in expected_data_type:
-        retval = (actual_data_type in ["<type 'str'>", "<type 'list'>", "<type 'unicode'>"])
+        retval = (actual_data_type in [_type_str, _type_list, _type_unicode])
 
     return retval

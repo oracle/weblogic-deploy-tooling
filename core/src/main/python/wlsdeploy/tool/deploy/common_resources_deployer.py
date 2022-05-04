@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -62,7 +62,6 @@ class CommonResourcesDeployer(Deployer):
             return
 
         Deployer._add_subfolders(self, model_nodes, location, excludes=excludes)
-        return
 
     def add_file_stores(self, parent_dict, location):
         """
@@ -72,7 +71,6 @@ class CommonResourcesDeployer(Deployer):
         """
         file_stores = dictionary_utils.get_dictionary_element(parent_dict, FILE_STORE)
         self._add_named_elements(FILE_STORE, file_stores, location)
-        return
 
     def add_foreign_jndi_providers(self, parent_dict, location):
         """
@@ -82,7 +80,6 @@ class CommonResourcesDeployer(Deployer):
         """
         providers = dictionary_utils.get_dictionary_element(parent_dict, FOREIGN_JNDI_PROVIDER)
         self._add_named_elements(FOREIGN_JNDI_PROVIDER, providers, location)
-        return
 
     def add_jdbc_stores(self, parent_dict, location):
         """
@@ -92,7 +89,6 @@ class CommonResourcesDeployer(Deployer):
         """
         jdbc_stores = dictionary_utils.get_dictionary_element(parent_dict, JDBC_STORE)
         self._add_named_elements(JDBC_STORE, jdbc_stores, location)
-        return
 
     def add_jms_bridge_destinations(self, parent_dict, location):
         """
@@ -102,7 +98,6 @@ class CommonResourcesDeployer(Deployer):
         """
         destinations = dictionary_utils.get_dictionary_element(parent_dict, JMS_BRIDGE_DESTINATION)
         self._add_named_elements(JMS_BRIDGE_DESTINATION, destinations, location)
-        return
 
     def add_jms_bridges(self, parent_dict, location):
         """
@@ -112,7 +107,6 @@ class CommonResourcesDeployer(Deployer):
         """
         bridges = dictionary_utils.get_dictionary_element(parent_dict, MESSAGING_BRIDGE)
         self._add_named_elements(MESSAGING_BRIDGE, bridges, location)
-        return
 
     def add_jms_servers(self, parent_dict, location):
         """
@@ -122,7 +116,6 @@ class CommonResourcesDeployer(Deployer):
         """
         servers = dictionary_utils.get_dictionary_element(parent_dict, JMS_SERVER)
         self._add_named_elements(JMS_SERVER, servers, location)
-        return
 
     def add_jolt_connection_pools(self, parent_dict, location):
         """
@@ -132,7 +125,6 @@ class CommonResourcesDeployer(Deployer):
         """
         servers = dictionary_utils.get_dictionary_element(parent_dict, JOLT_CONNECTION_POOL)
         self._add_named_elements(JOLT_CONNECTION_POOL, servers, location)
-        return
 
     def add_mail_sessions(self, parent_dict, location):
         """
@@ -142,7 +134,6 @@ class CommonResourcesDeployer(Deployer):
         """
         sessions = dictionary_utils.get_dictionary_element(parent_dict, MAIL_SESSION)
         self._add_named_elements(MAIL_SESSION, sessions, location)
-        return
 
     def add_path_services(self, parent_dict, location):
         """
@@ -152,7 +143,6 @@ class CommonResourcesDeployer(Deployer):
         """
         services = dictionary_utils.get_dictionary_element(parent_dict, PATH_SERVICE)
         self._add_named_elements(PATH_SERVICE, services, location)
-        return
 
     def add_saf_agents(self, parent_dict, location):
         """
@@ -162,7 +152,6 @@ class CommonResourcesDeployer(Deployer):
         """
         saf_agents = dictionary_utils.get_dictionary_element(parent_dict, SAF_AGENT)
         self._add_named_elements(SAF_AGENT, saf_agents, location)
-        return
 
     def add_self_tuning(self, parent_dict, location):
         """
@@ -173,7 +162,6 @@ class CommonResourcesDeployer(Deployer):
         self_tuning = dictionary_utils.get_dictionary_element(parent_dict, SELF_TUNING)
         if len(self_tuning) != 0:
             self._add_model_elements(SELF_TUNING, self_tuning, location)
-        return
 
     def add_coherence_clusters(self, parent_dict, location):
         """
@@ -199,8 +187,6 @@ class CommonResourcesDeployer(Deployer):
                     if self.archive_helper.contains_file(file_path):
                         self.archive_helper.extract_file(file_path)
 
-        return
-
     def add_wtc_servers(self, parent_dict, location):
         """
         Deploy the WTC server elements in the dictionary at the specified location.
@@ -218,8 +204,6 @@ class CommonResourcesDeployer(Deployer):
         """
         singleton_services = dictionary_utils.get_dictionary_element(parent_dict, SINGLETON_SERVICE)
         self._add_named_elements(SINGLETON_SERVICE, singleton_services, location)
-
-        return
 
     def add_system_components(self, parent_dict, location):
         """

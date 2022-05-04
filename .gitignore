@@ -27,4 +27,4 @@ release.properties
 **/*$py.class
 **/*.pyc
 **/.DS_Store
-system-test/domains
+**/.hugo_build.lock

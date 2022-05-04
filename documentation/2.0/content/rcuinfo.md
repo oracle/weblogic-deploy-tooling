@@ -26,8 +26,45 @@ or by specifying the unzipped root directory of the ATP wallet zip file in `orac
 Using the Create Domain Tool with the `-run_rcu` flag will create the RCU schemas against the Oracle Autonomous Transaction Processing Cloud Database and configure the datasources in the JRF domain to use the database.  For example:
 
     weblogic-deploy/bin/createDomain.sh -oracle_home /u01/wls12213 -domain_type JRF -domain_home /u01/data/domains/demodomain -archive_file DemoDomain.zip -run_rcu
+For an SSL database, with an `SSO` wallet, use the following example:
+```yaml
+domainInfo:
+    RCUDbInfo:
+      useSSL : true
+      rcu_db_conn_string: <reuired URL string for use with -run_rcu>
+      rcu_prefix : DEV
+      rcu_admin_password: <required with -run_rcu flag>
+      rcu_schema_password: <required with -run_rcu flag>
+      tns.alias: <alias of ssl db in the tnsnames.ora file>
+      javax.net.ssl.keyStore: <keystore found in unzipped wallet, i.e. cwallet.sso>
+      javax.net.ssl.keyStoreType: SSO
+      javax.net,ssl.trustStore: <truststore found in unzipped wallet, i.e cwallet.sso>
+      javax.net.ssl.trustStoreType: SSO
+      oracle.net.tns_admin: <absolute path of the unzipped wallet root directory>
+      
+```
 
-For a non-ATP database, use the following example:
+For an SSL database, with an `PKCS12` wallet, use the following example:
+```yaml
+domainInfo:
+    RCUDbInfo:
+      useSSL : true
+      rcu_db_conn_string: <reuired URL string for use with -run_rcu>
+      rcu_prefix : DEV
+      rcu_admin_password: <required with -run_rcu flag>
+      rcu_schema_password: <required with -run_rcu flag>
+      tns.alias: <alias of ssl db in the tnsnames.ora file>
+      javax.net.ssl.keyStore: <keystore found in the unzipped wallet, i.e. ewallet.p12>
+      javax.net.ssl.keyStoreType: PKCS12
+      javax.net.ssl.keyStorePassword: <keystore password>
+      javax.net.ssl.trustStore: <truststore found in the unzipped wallet, i.e ewallet.p12>
+      javax.net.ssl.trustStoreType: PKCS12
+      javax.net.ssl.trustStorePassword: <password of the truststore>
+      oracle.net.tns_admin: <absolute path of the unzipped wallet root directory>
+
+
+```
+For a typical database, use the following example:
 
 ```yaml
 domainInfo:
@@ -39,27 +76,27 @@ domainInfo:
         rcu_schema_password : <rcu schema password, will be prompted if not specified>
         rcu_admin_password : <database admin password is required only when you specify -run_rcu flag, will be prompted
          if not specified>
-        rcu_db_conn_string : 'dbhost:1521/pdborcl'
+        rcu_db_conn_string : dbhost:1521/pdborcl
 ```        
 RCU `-variables` option of the repository creation utility can now be included in the `RCUDbInfo` section with the key `rcu_variables`:
 
 ```yaml
 domainInfo:
     RCUDbInfo:
-        rcu_variables : 'xxxx'
+        rcu_variables : xxxx
 ```    
 
 **Note: Prior to release 0.23, the `useATP` flag only accepts values of 0, 1, 'true' or 'false'.**
 
 When creating a domain using WDT and the -run_rcu option, you can specify your extended XML files in the RCUDbInfo section.
 
-This correlates to the `createRepository` and `dropRepository` command line arguments `RCU -compInfoXMLLocation <file path> -storageXMLLocation <file path>`
+This correlates to the `createRepository` and `dropRepository` command-line arguments `RCU -compInfoXMLLocation <file path> -storageXMLLocation <file path>`
 
 Include your XML files in your archive file using location `wlsdeploy/rcu/config`. Then include this relative location in the RCUDbInfo section of the model.
 
 ```yaml
 domainInfo:
     RCUDbInfo:
-        compInfoXMLLocation: 'wlsdeploy/rcu/config/MyComponentInfo.xml'
-        storageXMLLocation: 'wlsdeploy/rcu/config/MyStorage.xml'
+        compInfoXMLLocation: wlsdeploy/rcu/config/MyComponentInfo.xml
+        storageXMLLocation: wlsdeploy/rcu/config/MyStorage.xml
 ```

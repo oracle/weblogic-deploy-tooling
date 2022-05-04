@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import imp
@@ -18,9 +18,16 @@ __logger = PlatformLogger('wlsdeploy.tool.util')
 TARGET_CONFIG_TOKEN = '@@TARGET_CONFIG_DIR@@'
 
 __id_filter_map = {
+    # groups that execute multiple filters
     'k8s_filter': wko_filter.filter_model,
-    'vz_filter': wko_filter.filter_model,
-    'wko_filter': wko_filter.filter_model
+    'vz_filter': wko_filter.filter_model_for_vz,
+    'wko_filter': wko_filter.filter_model_for_wko,
+
+    # individual filters for custom target environments
+    'online_attributes_filter': wko_filter.filter_online_attributes,
+    'resources_filter': wko_filter.filter_resources,
+    'topology_filter': wko_filter.filter_topology,
+    'server_ports_filter': wko_filter.check_clustered_server_ports
 }
 
 
@@ -89,10 +96,10 @@ def _apply_filter(model, the_filter, model_context, filter_file_location):
     """
     _method_name = '_apply_filter'
 
-    id = dictionary_utils.get_element(the_filter, 'id')
-    if id is not None:
-        __logger.info('WLSDPLY-20034', id, class_name=__class_name, method_name=_method_name)
-        return _apply_id_filter(model, id, model_context)
+    filter_id = dictionary_utils.get_element(the_filter, 'id')
+    if filter_id is not None:
+        __logger.info('WLSDPLY-20034', filter_id, class_name=__class_name, method_name=_method_name)
+        return _apply_id_filter(model, filter_id, model_context)
 
     path = dictionary_utils.get_element(the_filter, 'path')
     if path is not None:

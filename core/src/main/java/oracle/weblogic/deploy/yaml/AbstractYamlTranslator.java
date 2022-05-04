@@ -39,63 +39,92 @@ public abstract class AbstractYamlTranslator {
 
     protected abstract PlatformLogger getLogger();
     protected abstract String getClassName();
-    public abstract PyDictionary parse() throws YamlException;
+
+    // override to return a list of documents as Python dictionaries from the YAML
+    public abstract PyList parseDocuments(boolean allowMultiple) throws YamlException;
+
+    // override to write a list of documents as Python dictionaries to the YAML
+    public abstract void dumpDocuments(List<?> documents) throws YamlException;
 
     protected AbstractYamlTranslator(String fileName, boolean useOrderedDict) {
         this.fileName = fileName;
         this.useOrderedDict = useOrderedDict;
     }
 
-    @SuppressWarnings("WeakerAccess")
-    protected PyDictionary parseInternal(InputStream inputStream) throws YamlException {
-        final String METHOD = "parseInternal";
-
-        PyDictionary result = null;
-        if (inputStream != null) {
-            Yaml parser = new Yaml(this.getDefaultLoaderOptions());
-
-            PyDictionary firstDoc = null;
-            int docCount = 0;
-            try {
-                Iterable<Object> docsIterable = parser.loadAll(inputStream);
-
-                Object docToConvert = null;
-                for (Object document : docsIterable) {
-                    docCount++;
-                    if (docCount == 1) {
-                        docToConvert = document;
-                    }
-                }
-                if (docCount == 1) {
-                    firstDoc = convertJavaDataStructureToPython(docToConvert);
-                } else if (docCount == 0) {
-                    firstDoc = getNewDictionary();
-                }
-            } catch (Exception ex) {
-                YamlException pex = new YamlException("WLSDPLY-18100", ex, this.fileName, ex.getLocalizedMessage());
-                getLogger().throwing(getClassName(), METHOD, pex);
-                throw pex;
-            }
-            if (docCount > 1) {
-                YamlException pex = new YamlException("WLSDPLY-18101", this.fileName, docCount);
-                getLogger().throwing(getClassName(), METHOD, pex);
-                throw pex;
-            }
-            result = firstDoc;
+    /**
+     * This method triggers parsing of the file and conversion into a Python dictionary.
+     * If the YAML is empty, a single empty dictionary is returned.
+     * If the YAML contains multiple documents, a YamlException is thrown
+     *
+     * @return the python dictionary corresponding to the YAML input file
+     * @throws YamlException if an error occurs while reading the input file
+     */
+    public PyDictionary parse() throws YamlException {
+        PyDictionary result;
+        PyList dictionaries = parseDocuments(false);
+        if (dictionaries.isEmpty()) {
+            result = getNewDictionary();
+        } else {
+            result = (PyDictionary) dictionaries.get(0);
         }
         return result;
     }
 
     @SuppressWarnings("WeakerAccess")
-    protected void dumpInternal(Map<String, Object> data, Writer outputWriter) throws YamlException {
+    protected PyList parseInternal(InputStream inputStream, boolean allowMultiple) throws YamlException {
+        final String METHOD = "parseInternal";
+
+        // there are problems using PyList.add(),
+        // so build a java.util.List and construct PyList(javaList).
+        List<PyObject> result = new ArrayList<>();
+        if (inputStream != null) {
+            Yaml parser = new Yaml(this.getDefaultLoaderOptions());
+
+            try {
+                Iterable<Object> docsIterable = parser.loadAll(inputStream);
+                List<Object> documents = new ArrayList<>();
+                for (Object document : docsIterable) {
+                    documents.add(document);
+                }
+
+                // don't continue with conversion if multiple documents check fails
+                if(!allowMultiple && documents.size() > 1) {
+                    YamlException pex = new YamlException("WLSDPLY-18101", this.fileName, documents.size());
+                    getLogger().throwing(getClassName(), METHOD, pex);
+                    throw pex;
+                }
+
+                for (Object document : documents) {
+                    result.add(convertJavaDataStructureToPython(document));
+                }
+            } catch (YamlException yex) {
+                throw yex;
+            } catch (Exception ex) {
+                YamlException pex = new YamlException("WLSDPLY-18100", ex, this.fileName, ex.getLocalizedMessage());
+                getLogger().throwing(getClassName(), METHOD, pex);
+                throw pex;
+            }
+        }
+        return new PyList(result.toArray(new PyObject[0]));
+    }
+
+    public void dump(Map<String, Object> data) throws YamlException {
+        List<Map<String, Object>> list = new ArrayList<>();
+        list.add(data);
+        dumpDocuments(list);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    protected void dumpInternal(List<?> data, Writer outputWriter) throws YamlException {
         final String METHOD = "dumpInternal";
 
         if (outputWriter != null) {
             DumperOptions dumperOptions = getDefaultDumperOptions();
-            Yaml yaml = new Yaml(dumperOptions);
+            YamlRepresenter representer = new YamlRepresenter();
+            Yaml yaml = new Yaml(representer, dumperOptions);
 
             try {
-                yaml.dump(replaceNoneInMap(data), outputWriter);
+                yaml.dumpAll(data.iterator(), outputWriter);
             } catch (Exception ex) {
                 YamlException pex = new YamlException("WLSDPLY-18107", ex, this.fileName, ex.getLocalizedMessage());
                 getLogger().throwing(getClassName(), METHOD, pex);

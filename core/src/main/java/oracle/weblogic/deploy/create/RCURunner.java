@@ -61,18 +61,21 @@ public class RCURunner {
 
     private static final Pattern SCHEMA_DOES_NOT_EXIST_PATTERN = Pattern.compile("(ORA-01918|RCU-6013|ORA-12899)");
 
-    private File oracleHome;
-    private File javaHome;
-    private String rcuDb;
-    private String rcuPrefix;
-    private List<String> rcuSchemas;
-    private boolean ATP_DB = false;
+    private final File oracleHome;
+    private final File javaHome;
+    private final String rcuDb;
+    private final String rcuPrefix;
+    private final List<String> rcuSchemas;
+    private final String rcuVariables;
+
+    private boolean atpDB = false;
+    private boolean sslDB = false;
+ 
     private String atpSSlArgs = null;
     private String atpAdminUser = null;
     private String rcuAdminUser = DB_USER;
     private String atpDefaultTablespace = null;
     private String atpTemporaryTablespace = null;
-    private String rcuVariables;
     private String componentInfoLocation = null;
     private String storageLocation = null;
 
@@ -89,6 +92,7 @@ public class RCURunner {
      * @param rcuVariables a comma separated list of key=value variables
      * @throws CreateException if a parameter validation error occurs
      */
+    @SuppressWarnings("unused")
     private RCURunner(String domainType, String oracleHome, String javaHome, String rcuDb, String rcuPrefix,
         List<String> rcuSchemas, String rcuVariables) throws CreateException {
 
@@ -146,28 +150,85 @@ public class RCURunner {
         String keyStorePassword = get(rcuProperties, "javax.net.ssl.keyStorePassword");
         String trustStorePassword = get(rcuProperties, "javax.net.ssl.trustStorePassword");
 
-        StringBuffer sslArgs = new StringBuffer();
+        StringBuilder sslArgs = new StringBuilder();
         sslArgs.append("oracle.net.tns_admin=");
         sslArgs.append(tnsAdmin);
         sslArgs.append(",oracle.net.ssl_version=1.2");
         sslArgs.append(",javax.net.ssl.trustStore=");
-        sslArgs.append(tnsAdmin + "/truststore.jks");
+        sslArgs.append(tnsAdmin);
+        sslArgs.append("/truststore.jks");
         sslArgs.append(",javax.net.ssl.trustStoreType=JKS");
         sslArgs.append(",javax.net.ssl.trustStorePassword=");
         sslArgs.append(trustStorePassword);
         sslArgs.append(",javax.net.ssl.keyStore=");
-        sslArgs.append(tnsAdmin + "/keystore.jks");
+        sslArgs.append(tnsAdmin);
+        sslArgs.append("/keystore.jks");
         sslArgs.append(",javax.net.ssl.keyStoreType=JKS");
         sslArgs.append(",javax.net.ssl.keyStorePassword=");
         sslArgs.append(keyStorePassword);
         sslArgs.append(",oracle.jdbc.fanEnabled=false");
-        sslArgs.append(",oracle.net.ssl_server_dn_match=true");
+        sslArgs.append(",oracle.net.ssl_server_dn_match=false");
 
-        runner.ATP_DB = true;
+        runner.atpDB = true;
         runner.atpSSlArgs = sslArgs.toString();
         runner.atpAdminUser = get(rcuProperties, "atp.admin.user");
         runner.atpDefaultTablespace = get(rcuProperties, "atp.default.tablespace");
         runner.atpTemporaryTablespace = get(rcuProperties, "atp.temp.tablespace");
+        return runner;
+    }
+    /**
+     * Build an RCU runner for an SSL database.
+     *
+     * @param domainType the domain type
+     * @param oracleHome the ORACLE_HOME location
+     * @param javaHome   the JAVA_HOME location
+     * @param rcuDb The URL of the database
+     * @param rcuPrefix The prefix used for the tablespaces
+     * @param rcuSchemas the list of RCU schemas to create (this list should not include STB)
+     * @param rcuVariables a comma separated list of key=value variables
+     * @param rcuProperties dictionary of SSL specific arguments
+     * @throws CreateException if a parameter validation error occurs
+     */
+    public static RCURunner createSslRunner(String domainType, String oracleHome, String javaHome, String rcuDb,
+                                            String rcuPrefix, List<String> rcuSchemas, String rcuVariables,
+                                            PyDictionary rcuProperties) throws CreateException {
+
+        String tnsAdmin = get(rcuProperties, "oracle.net.tns_admin");
+
+        RCURunner runner = new RCURunner(domainType, oracleHome, javaHome, rcuDb, rcuPrefix, rcuSchemas, rcuVariables);
+        String trustStorePassword = get(rcuProperties, "javax.net.ssl.trustStorePassword");
+        String trustStore = get(rcuProperties, "javax.net.ssl.keyStore");
+        String trustStoreType = get(rcuProperties, "javax.net.ssl.keyStoreType");
+        String keyStorePassword = get(rcuProperties, "javax.net.ssl.keyStorePassword");
+        String keyStore = get(rcuProperties, "javax.net.ssl.keyStore");
+        String keyStoreType = get(rcuProperties, "javax.net.ssl.keyStoreType");
+        String matchType = get(rcuProperties, "oracle.net.ssl_server_dn_match");
+        if (matchType == null || matchType.equals("None"))  {
+            matchType = Boolean.FALSE.toString();
+        }
+
+
+        StringBuilder sslArgs = new StringBuilder();
+        sslArgs.append("oracle.net.tns_admin=");
+        sslArgs.append(tnsAdmin);
+
+        sslArgs.append(",javax.net.ssl.trustStore=");
+        sslArgs.append(tnsAdmin + "/" + trustStore);
+        sslArgs.append(",javax.net.ssl.trustStoreType=" + trustStoreType);
+        // If wallet type is SSO, no password present
+        if (trustStorePassword != null && !trustStorePassword.equals("None")) {
+            sslArgs.append(",javax.net.ssl.trustStorePassword="+ trustStorePassword);
+        }
+        sslArgs.append(",javax.net.ssl.keyStore=");
+        sslArgs.append(tnsAdmin + "/" + keyStore);
+        sslArgs.append(",javax.net.ssl.keyStoreType=" + keyStoreType);
+        if (keyStorePassword != null && !keyStorePassword.equals("None")) {
+            sslArgs.append(",javax.net.ssl.keyStorePassword="+ keyStorePassword);
+        }
+        sslArgs.append(",oracle.net.ssl_server_dn_match="+ matchType);
+
+        runner.sslDB = true;
+        runner.atpSSlArgs = sslArgs.toString();
         return runner;
     }
 
@@ -227,7 +288,7 @@ public class RCURunner {
         runner = new ScriptRunner(createEnv, RCU_CREATE_LOG_BASENAME);
         try {
             exitCode = runner.executeScript(rcuScript, scriptStdinLines, scriptArgs);
-            if (ATP_DB && exitCode != 0 && isSchemaNotExistError(runner)) {
+            if (atpDB && exitCode != 0 && isSchemaNotExistError(runner)) {
                 exitCode = 0;
             }
         } catch (ScriptRunnerException sre) {
@@ -247,7 +308,7 @@ public class RCURunner {
     ///////////////////////////////////////////////////////////////////////////
 
     private void addATPEnv(Map<String, String> env) {
-        if (ATP_DB) {
+        if (atpDB || sslDB) {
             env.put("RCU_SSL_MODE", "true");
             env.put("SKIP_CONNECTSTRING_VALIDATION", "true");
             env.put("RCU_SKIP_PRE_REQS", "ALL");
@@ -299,7 +360,7 @@ public class RCURunner {
         arguments.add(DB_CONNECT_SWITCH);
         arguments.add(rcuDb);
 
-        if (ATP_DB) {
+        if (atpDB) {
             arguments.add(DB_USER_SWITCH);
             arguments.add(this.atpAdminUser);
             arguments.add(USE_SSL_SWITCH);
@@ -308,6 +369,14 @@ public class RCURunner {
             arguments.add("CN=ignored");
             arguments.add(SSLARGS);
             arguments.add(atpSSlArgs);
+        } else if (sslDB) {
+            arguments.add(USE_SSL_SWITCH);
+            arguments.add(SSLARGS);
+            arguments.add(atpSSlArgs);
+            arguments.add(DB_ROLE_SWITCH);
+            arguments.add(DB_ROLE);
+            arguments.add(DB_USER_SWITCH);
+            arguments.add(getRCUAdminUser());
         } else {
             arguments.add(DB_USER_SWITCH);
             arguments.add(getRCUAdminUser());
@@ -321,7 +390,7 @@ public class RCURunner {
         for (String rcuSchema : rcuSchemas) {
             arguments.add(COMPONENT_SWITCH);
             arguments.add(rcuSchema);
-            if (ATP_DB && isCreate) {
+            if (atpDB && isCreate) {
                 arguments.add(TABLESPACE_SWITCH);
                 arguments.add(this.atpDefaultTablespace);
                 arguments.add(TEMPTABLESPACE_SWITCH);
@@ -348,6 +417,7 @@ public class RCURunner {
         return getRcuStdinLines(RcuOpType.CREATE, rcuSysPass, rcuSchemaPass);
     }
 
+    @SuppressWarnings("unused")
     private List<String> getRcuStdinLines(RcuOpType rcuOpType, String rcuSysPass, String rcuSchemaPass) {
         List<String> stdinLines = new ArrayList<>(2);
         stdinLines.add(rcuSysPass);

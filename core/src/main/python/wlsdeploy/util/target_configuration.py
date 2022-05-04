@@ -18,6 +18,9 @@ WLS_CREDENTIALS_NAME = "wls_credentials_name"
 # Determines whether the domainBin contents should be excluded
 EXCLUDE_DOMAIN_BIN_CONTENTS = "exclude_domain_bin_contents"
 
+# Determines whether a persistent volume is used
+USE_PERSISTENT_VOLUME = "use_persistent_volume"
+
 # put secret tokens in the model, and build a script to create the secrets.
 SECRETS_METHOD = 'secrets'
 
@@ -146,6 +149,16 @@ class TargetConfiguration(object):
         :return: True if the domain bin contents should be excluded, False otherwise
         """
         result = dictionary_utils.get_element(self.config_dictionary, EXCLUDE_DOMAIN_BIN_CONTENTS)
+        if result is None:
+            result = False
+        return result
+
+    def use_persistent_volume(self):
+        """
+        Determine if this configuration uses a persistent volume for the domain home.
+        :return: True if persistent volume is used, False otherwise
+        """
+        result = dictionary_utils.get_element(self.config_dictionary, USE_PERSISTENT_VOLUME)
         if result is None:
             result = False
         return result

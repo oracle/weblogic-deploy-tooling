@@ -14,7 +14,6 @@ from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.aliases.model_constants import LIBRARY
-from wlsdeploy.json.json_translator import COMMENT_MATCH
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model_helper
@@ -60,7 +59,6 @@ class ModelComparer(object):
         :param attributes_location: the attribute location for the specified folders
         :return: a dictionary of differences between these folders
         """
-        _method_name = '_compare_folders'
 
         # determine if the specified location has named folders, such as topology/Server
         has_named_folders = False
@@ -129,8 +127,9 @@ class ModelComparer(object):
             self._messages.add(('WLSDPLY-05716', location.get_folder_path()))
             comment = "Replace entire Security Provider section "
             new_folder = PyOrderedDict()
-            _add_comment(comment, new_folder)
             new_folder.update(current_folder)
+            if new_folder:
+                new_folder.addComment(new_folder.keys()[0], comment)
             return new_folder
         return PyOrderedDict()
 
@@ -162,7 +161,6 @@ class ModelComparer(object):
             # if found, add the entire folder contents.
             else:
                 change_folder[name] = current_folder[name]
-                pass
 
         # check for deleted names.
         # if name is not in the current folder, add its delete name.
@@ -359,7 +357,7 @@ class ModelComparer(object):
                 current_text = ','.join(current_list)
                 previous_text = ','.join(previous_list)
                 comment = key + ": '" + previous_text + "' -> '" + current_text + "'"
-                _add_comment(comment, change_folder)
+                change_folder.addComment(key, comment)
                 change_folder[key] = ','.join(change_list)
 
             elif attribute_type == PROPERTIES:
@@ -368,7 +366,7 @@ class ModelComparer(object):
             else:
                 if not isinstance(past_value, dict):
                     comment = key + ": '" + str(past_value) + "'"
-                    _add_comment(comment, change_folder)
+                    change_folder.addComment(key, comment)
                 change_folder[key] = current_value
 
     def _compare_properties(self, current_value, past_value, key, change_folder):
@@ -387,7 +385,7 @@ class ModelComparer(object):
                 past_property_value = past_value[property_key]
                 if past_property_value != current_property_value:
                     comment = property_key + ": '" + str(past_property_value) + "'"
-                    _add_comment(comment, property_dict)
+                    property_dict.addComment(property_key, comment)
                     property_dict[property_key] = current_property_value
             else:
                 property_dict[property_key] = current_property_value
@@ -420,8 +418,6 @@ class ModelComparer(object):
         :param change_folder: the folder with the changed attributes and sub-folders
         :param location: the location for the specified folders
         """
-        _method_name = '_finalize_folder'
-
         folder_path = []
         if location is not None:
             folder_path = location.get_model_folders()
@@ -436,14 +432,3 @@ class ModelComparer(object):
                         key_value = dictionary_utils.get_element(past_folder, key)
                         if key_value is not None:
                             change_folder[key] = key_value
-
-def _add_comment(comment, dictionary):
-    """
-    Add a comment to the specified dictionary
-    :param comment: the comment text
-    :param dictionary: the dictionary to be appended
-    """
-    # make comment key unique, key will not appear in output
-    # comment_key = COMMENT_MATCH + comment
-    # dictionary[comment_key] = comment
-    pass

@@ -113,7 +113,7 @@ class CustomFolderHelper(object):
             # encrypt the value with domain encryption.
 
             requires_encrypted = property_descriptor.getValue('encrypted')
-            if requires_encrypted and not self.is_encrypted(model_value) and isinstance(model_value, str):
+            if requires_encrypted and not self.is_encrypted(model_value) and isinstance(model_value, basestring):
                 model_value = self.weblogic_helper.encrypt(model_value, self.model_context.get_domain_home())
 
             property_type = parameter_types[0]

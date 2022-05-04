@@ -8,19 +8,20 @@ import copy
 import sys
 from java.util.logging import Level
 
+from oracle.weblogic.deploy.logging import WLSDeployLogEndHandler
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.validate import ValidateException
 
-from oracle.weblogic.deploy.logging import SummaryHandler
-
 # Jython tools don't require sys.path modification
 
 # imports from local packages start here
+from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.util import model_context_helper
@@ -108,7 +109,9 @@ def __perform_model_file_validation(model_file_name, model_context):
                       class_name=_class_name, method_name=_method_name)
 
     try:
-        model_validator = Validator(model_context, logger=__logger)
+        wlst_mode = model_context.get_target_wlst_mode()
+        aliases = Aliases(model_context=model_context, wlst_mode=wlst_mode, exception_type=ExceptionType.VALIDATE)
+        model_validator = Validator(model_context, aliases=aliases, logger=__logger)
         variable_map = model_validator.load_variables(model_context.get_variable_file())
         model_dictionary = cla_helper.merge_model_files(model_file_name, variable_map)
 
@@ -172,7 +175,7 @@ def main(args):
         if model_file_name is not None:
             __perform_model_file_validation(model_file_name, model_context)
 
-            summary_handler = SummaryHandler.findInstance()
+            summary_handler = WLSDeployLogEndHandler.getSummaryHandler()
             if summary_handler is not None:
                 summary_level = summary_handler.getMaximumMessageLevel()
                 if summary_level == Level.SEVERE:

@@ -585,8 +585,8 @@
                                 "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         },
-                        "OracleIdentityCloudIntegrator": {
-                            "wlst_type": "${OracleIdentityCloudIntegrator:weblogic.security.providers.authentication.OracleIdentityCloudIntegrator}",
+                        "weblogic.security.providers.authentication.OracleIdentityCloudIntegrator": {
+                            "wlst_type": "weblogic.security.providers.authentication.OracleIdentityCloudIntegrator",
                             "child_folders_type": "none",
                             "version": "[12.2.1.3,)",
                             "folders": {},
@@ -1345,7 +1345,7 @@
                 "EnableWebLogicPrincipalValidatorCache":    [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "EnableWebLogicPrincipalValidatorCache",    "wlst_path": "WP001", "default_value": "true",                      "wlst_type": "boolean" } ],
                 "FullyDelegateAuthorization":               [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "FullyDelegateAuthorization",               "wlst_path": "WP001", "default_value": "false",                     "wlst_type": "boolean" } ],
                 "IdentityAssertionHeaderNamePrecedence":    [ {"version": "[12.2.1.3,)", "wlst_mode": "both", "wlst_name": "IdentityAssertionHeaderNamePrecedence",    "wlst_path": "WP001", "default_value": null,                        "wlst_type": "${list:jarray}", "wlst_read_type": "delimited_string[semicolon]", "preferred_model_type": "list", "get_method": "LSA"  } ],
-                "KeyStoreTypes":                            [ {"version": "[10,)",       "wlst_mode": "online","wlst_name": "KeyStoreTypes",                           "wlst_path": "WP001", "default_value": null,                        "wlst_type": "jarray", "get_method": "GET", "access": "RO" } ],
+                "KeyStoreTypes":                            [ {"version": "[10,12.2.1)", "wlst_mode": "online","wlst_name": "KeyStoreTypes",                           "wlst_path": "WP001", "default_value": null,                        "wlst_type": "jarray", "get_method": "GET", "access": "RO" } ],
                 "ManagementIdentityDomain":                 [ {"version": "[12.2.1.2,)", "wlst_mode": "both", "wlst_name": "ManagementIdentityDomain",                 "wlst_path": "WP001", "default_value": null,                        "wlst_type": "string"  } ],
                 "MaxWebLogicPrincipalsInCache":             [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "MaxWebLogicPrincipalsInCache",             "wlst_path": "WP001", "default_value": "${0:500}",                  "wlst_type": "integer" } ],
                 "PasswordValidatorTypes":                   [ {"version": "[10,)",       "wlst_mode": "online","wlst_name": "PasswordValidatorTypes",                  "wlst_path": "WP001", "default_value": null,                        "wlst_type": "jarray", "get_method": "GET", "access": "RO" } ],
@@ -1423,7 +1423,7 @@
                                                    {"version": "[14.1.1,)",   "wlst_mode": "both", "wlst_name": "RemoteAnonymous${Rmiiiop:RMIIIOP}Enabled", "wlst_path": "WP001", "default_value": "true",  "wlst_type": "boolean"         } ],
         "RemoteAnonymousRmit3Enabled":           [ {"version": "[12.2.1.3.210630,12.2.1.4)",   "wlst_mode": "online", "wlst_name": "RemoteAnonymous${Rmit3:RMIT3}Enabled",  "wlst_path": "WP001", "default_value": "true",     "wlst_type": "boolean"         } ,
                                                    {"version": "[12.2.1.4.210629,14.1.1)",   "wlst_mode": "online", "wlst_name": "RemoteAnonymous${Rmit3:RMIT3}Enabled",  "wlst_path": "WP001", "default_value": "true",     "wlst_type": "boolean"         } ,
-                                                   {"version": "[14.1.1)",    "wlst_mode": "both", "wlst_name": "RemoteAnonymous${Rmit3:RMIT3}Enabled",  "wlst_path": "WP001", "default_value": "true",     "wlst_type": "boolean"         } ],
+                                                   {"version": "[14.1.1,)",    "wlst_mode": "both", "wlst_name": "RemoteAnonymous${Rmit3:RMIT3}Enabled",  "wlst_path": "WP001", "default_value": "true",     "wlst_type": "boolean"         } ],
         "UseKSSForDemo":                         [ {"version": "[12.1.2,)",   "wlst_mode": "both", "wlst_name": "UseKSSForDemo",                         "wlst_path": "WP001", "default_value": "false",    "wlst_type": "boolean",        "restart_required": "true" } ],
         "WebAppFilesCaseInsensitive":            [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "WebAppFilesCaseInsensitive",            "wlst_path": "WP001", "default_value": "${__NULL__:false}", "wlst_type": "string",    "restart_required": "true" } ]
     },

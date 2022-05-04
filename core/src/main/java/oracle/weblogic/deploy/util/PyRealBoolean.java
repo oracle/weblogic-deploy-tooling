@@ -25,20 +25,21 @@ public class PyRealBoolean extends PyObject {
     }
 
     // support Python copy.deepcopy()
+    @SuppressWarnings("unused")
     public PyRealBoolean __deepcopy__(PyObject memo) {
         return new PyRealBoolean(isTrue);
     }
 
     @Override
     // for Python equality checks like abc == xyz
-    public PyObject __eq__(PyObject ob_other) {
-        return equals(ob_other) ? Py.One : Py.Zero;
+    public PyObject __eq__(PyObject obOther) {
+        return equals(obOther) ? Py.One : Py.Zero;
     }
 
     @Override
     // for Python inequality checks like abc != xyz
-    public PyObject __ne__(PyObject ob_other) {
-        return equals(ob_other) ? Py.Zero : Py.One;
+    public PyObject __ne__(PyObject obOther) {
+        return equals(obOther) ? Py.Zero : Py.One;
     }
 
     @Override
@@ -55,10 +56,12 @@ public class PyRealBoolean extends PyObject {
 
     @Override
     public boolean equals(Object other) {
-        if(other instanceof PyRealBoolean) {
-            return isTrue == ((PyRealBoolean) other).isTrue;
-        }
-        return false;
+        return other instanceof PyRealBoolean && isTrue == ((PyRealBoolean) other).isTrue;
+    }
+
+    @Override
+    public int hashCode() {
+        return isTrue ? 1233 : 1239;
     }
 
     @Override

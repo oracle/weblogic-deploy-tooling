@@ -32,7 +32,8 @@ To create more complex domains, it may be necessary to create a custom domain ty
 
 ### Using an encrypted model
 
-If the model or variables file contains passwords encrypted with the WDT Encryption tool, decrypt the passwords during create with the `-use_encryption` flag on the command line to tell the Create Domain Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, `stdin`) to allow the tool to run without any user input. You can bypass the stdin prompt with two other options. You can bypass the stdin prompt with two other options: store the passphrase in an environment variable, and use the environment variable name with the command-line option -passphrase_env or create a file with the single value of the passphrase. Provide the name of the file with the command-line option -passphrase_file. The passphrase will be read by the tool from the file. 
+If the model or variables file contains passwords encrypted with the WDT Encryption tool, decrypt the passwords during create with the `-use_encryption` flag on the command line to tell the Create Domain Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, `stdin`) to allow the tool to run without any user input. You can bypass the stdin prompt with two other options. You can bypass the stdin prompt with two other options: store the passphrase in an environment variable, and use the environment variable name with the command-line
+option `-passphrase_env` or create a file with the single value of the passphrase. Provide the name of the file with the command-line option `-passphrase_file`. The passphrase will be read by the tool from the file.
 
 ### Using multiple models
 
@@ -54,7 +55,28 @@ domainInfo:
     AdminPassword: welcome1
     ServerStartMode: dev
 topology:
-    Name: "my-domain"
-    AdminServerName: "admin-server"
+    Name: my-domain
+    AdminServerName: admin-server
     ProductionModeEnabled: false
 ```
+
+### Parameter table for `createDomain`
+| Parameter | Definition | Default |
+| --- | --- | --- |
+| `-archive_file` | The path to the archive file to use.  If the `-model_file` argument is not specified, the model file in this archive will be used.  This can also be specified as a comma-separated list of archive files.  The overlapping contents in each archive take precedence over previous archives in the list. |    |
+| `-domain_home` | Required if `-domain_parent` is not used. The full directory and name where the domain should be created.
+| `-domain_parent` | Required if `-domain_home` is not used. The parent directory where the domain should be created. The name is the domain name in the model. |    |
+| `-domain_type` | The type of domain (for example, `WLS`, `JRF`). | `WLS` |
+| `-java_home` | The Java home to use for the new domain. If not specified, it defaults to the value of the `JAVA_HOME` environment variable. |    |
+| `-model_file` | The location of the model file.  This can also be specified as a comma-separated list of model locations, where each successive model layers on top of the previous ones. |    |
+| `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set.|    |
+| `-opss_wallet_passphrase_env` | An alternative to entering the OPSS wallet passphrase at a prompt. The value is an environment variable name that WDT will use to retrieve the passphrase. |    |
+| `-opss_wallet_passphrase_file` | An alternative to entering the OPSS wallet passphrase at a prompt. The value is the name of a file with a string value which WDT will read to retrieve the passphrase.
+| `-passphrase_env` | An alternative to entering the encryption passphrase at a prompt. The value is an environment variable name that WDT will use to retrieve the passphrase. |    |
+| `-passphrase_file` | An alternative to entering the encryption passphrase at a prompt. The value is the name of a file with a string value which WDT will read to retrieve the passphrase. |    |
+| `-rcu_database` | The RCU database connect string.  |    |
+| `-rcu_prefix` | The RCU prefix to use. |    |
+| `-rcu_db_user` | The RCU `dbUser` to use. | `sys` |
+| `-run_rcu` | Run RCU to create the database schemas specified by the domain type using the specified RCU prefix. Running RCU will drop any existing schemas with the same RCU prefix if they exist prior to trying to create them. |    |
+| `-use_encryption` | One or more of the passwords in the model or variables file(s) are encrypted and must be decrypted. Java 8 or later required for this feature. |    |
+| `-variable_file` | The location of the property file containing the values for variables used in the model. This can also be specified as a comma-separated list of property files, where each successive set of properties layers on top of the previous ones. |    |

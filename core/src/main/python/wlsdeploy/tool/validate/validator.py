@@ -7,7 +7,7 @@ import copy
 
 from java.util.logging import Level
 
-from oracle.weblogic.deploy.logging import SummaryHandler
+from oracle.weblogic.deploy.logging import WLSDeployLogEndHandler
 from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import VariableException
 
@@ -97,7 +97,6 @@ class Validator(object):
         self._archive_file_name = None
         self._archive_entries = None
         self._model_file_name = self._model_context.get_model_file()
-        return
 
     def validate_in_standalone_mode(self, model_dict, variable_map, archive_file_name=None):
         """
@@ -131,13 +130,16 @@ class Validator(object):
         self.__validate_model_file(cloned_model_dict, variable_map, archive_file_name)
 
         status = Validator.ValidationStatus.VALID
-        summary_handler = SummaryHandler.findInstance()
+        summary_handler = WLSDeployLogEndHandler.getSummaryHandler()
         if summary_handler is not None:
             summary_level = summary_handler.getMaximumMessageLevel()
             if summary_level == Level.SEVERE:
                 status = Validator.ValidationStatus.INVALID
             elif summary_level == Level.WARNING:
                 status = Validator.ValidationStatus.WARNINGS_INVALID
+        else:
+            # TODO - Should really report/throw an error here if the summary logger was not found!
+            pass
 
         if status == Validator.ValidationStatus.VALID or status == Validator.ValidationStatus.INFOS_VALID \
                 or status == Validator.ValidationStatus.WARNINGS_INVALID:
@@ -181,13 +183,16 @@ class Validator(object):
 
         status = Validator.ValidationStatus.VALID
 
-        summary_handler = SummaryHandler.findInstance()
+        summary_handler = WLSDeployLogEndHandler.getSummaryHandler()
         if summary_handler is not None:
             summary_level = summary_handler.getMaximumMessageLevel()
             if summary_level == Level.SEVERE:
                 status = Validator.ValidationStatus.INVALID
             elif summary_level == Level.WARNING:
                 status = Validator.ValidationStatus.WARNINGS_INVALID
+        else:
+            # TODO - Should really report/throw an error here if the summary logger was not found!
+            pass
 
         if status == Validator.ValidationStatus.VALID or status == Validator.ValidationStatus.INFOS_VALID \
                 or status == Validator.ValidationStatus.WARNINGS_INVALID:
@@ -253,7 +258,6 @@ class Validator(object):
         k8s_validator.validate_model(model_dict)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
-        return
 
     def load_variables(self, variables_file_name):
         """
@@ -301,7 +305,6 @@ class Validator(object):
             self._archive_file_name = archive_file_name
             self._archive_helper = ArchiveHelper(self._archive_file_name, domain_name,
                                                  self._logger, ExceptionType.VALIDATE)
-        return
 
     def __validate_root_level(self, model_dict, valid_root_level_keys):
         _method_name = '__validate_root_level'
@@ -743,10 +746,6 @@ class Validator(object):
         _method_name = '__validate_variable_substitution'
 
         self._logger.entering(tokenized_value, model_folder_path, class_name=_class_name, method_name=_method_name)
-
-        # FIXME(mwooten) - What happens in tool mode when the variable_file_name passed is None but
-        # model_context.get_variable_file() returns the variable file passed on the command-line?  I
-        # don't think we should be executing this code if the variable_file_name passed was None.
         untokenized_value = tokenized_value
 
         if not isinstance(untokenized_value, dict):
@@ -759,20 +758,11 @@ class Validator(object):
                 if property_value is not None:
                     untokenized_value = untokenized_value.replace(token, property_value)
                 else:
-                    # FIXME(mwooten) - the cla_utils should be fixing all windows paths to use forward slashes already
-                    # assuming that the value is not None
-
                     logger_method = self._logger.warning
                     if self._validate_configuration.allow_unresolved_variable_tokens():
                         logger_method = _info_logger.info
 
                     variables_file_name = self._model_context.get_variable_file()
-                    if variables_file_name is None:
-                        logger_method('WLSDPLY-05021', model_folder_path, property_name,
-                                      class_name=_class_name, method_name=_method_name)
-                    else:
-                        logger_method('WLSDPLY-05022', model_folder_path, property_name, variables_file_name,
-                                      class_name=_class_name, method_name=_method_name)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name, result=untokenized_value)
         return untokenized_value
@@ -860,8 +850,6 @@ class Validator(object):
 
         elif field_key == WLS_ROLES:
             self.__validate_wlsroles_section(field_value)
-
-        return
 
     def __validate_server_group_targeting_limits(self, attribute_key, attribute_value, model_folder_path):
         """

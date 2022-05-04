@@ -16,7 +16,7 @@ This sample shows the WDT model for configuring WebLogic Tuxedo Connector (WTC) 
        Target: admin
        # Exported EJB services to be consumed by Tuxedo services.
        WTCExport:
-         'WTCExportedService-1':
+         WTCExportedService-1:
            # The remote name of this service.
            ResourceName: QaWls2Conv2
            # The name used to identify an exported service
@@ -24,19 +24,19 @@ This sample shows the WDT model for configuring WebLogic Tuxedo Connector (WTC) 
            EJBName: tuxedo.services.QaTux2wlsConvHome
            # The name of the local access point that exports this service.
            LocalAccessPoint: LocalAccessPoint2
-         'WTCExportedService-2':
+         WTCExportedService-2:
            ResourceName: QaWls1Conv2
            RemoteName: QaWls1Conv2
            EJBName: tuxedo.services.QaTux2wlsConvHome
            LocalAccessPoint: LocalAccessPoint
-         'WTCExportedService-3':
+         WTCExportedService-3:
            ResourceName: QaWlsConvSvc
            RemoteName: QaWlsConvSvc
            EJBName: tuxedo.services.QaTux2wlsConvHome
            LocalAccessPoint: LocalAccessPoint
        # Imported Tuxedo services to be consumed by WLS services.
        WTCImport:
-         'WTCImportedService-1':
+         WTCImportedService-1:
            # The name used to identify this imported service.
            ResourceName: CONVSVC
            # The remote name of this service.
@@ -45,12 +45,12 @@ This sample shows the WDT model for configuring WebLogic Tuxedo Connector (WTC) 
            RemoteAccessPointList: RemoteAccessPoint
            # The name of the local access point that offers this service. Matches the Tuxedo domain
            LocalAccessPoint: LocalAccessPoint
-         'WTCImportedService-2':
+         WTCImportedService-2:
            ResourceName: QaTux1Conv2
            RemoteName: QaTux1Conv2
            RemoteAccessPointList: RemoteAccessPoint
            LocalAccessPoint: LocalAccessPoint
-         'WTCImportedService-3':
+         WTCImportedService-3:
            ResourceName: QaTux1Conv3
            RemoteName: QaTux1Conv3
            RemoteAccessPointList: RemoteAccessPoint
@@ -59,13 +59,13 @@ This sample shows the WDT model for configuring WebLogic Tuxedo Connector (WTC) 
        WTCLocalTuxDom:
          LocalAccessPoint:
            # The local listen address on the WLS side
-           NWAddr: '//access-host:2510'
+           NWAddr: //access-host:2510
            # A logical and unique name to identify this local Tuxedo access point
            AccessPoint: LocalAccessPoint
            # The connection principal name used to identify this local Tuxedo access point when attempting to establish a session connection with remote Tuxedo access points.
            AccessPointId: mydomain1
          LocalAccessPoint2:
-           NWAddr: '//access-host:2520'
+           NWAddr: //access-host:2520
            AccessPoint: LocalAccessPoint2
            AccessPointId: mydomain2
        # Remote access points so that WLS can act as a client to Tuxedo services
@@ -74,7 +74,7 @@ This sample shows the WDT model for configuring WebLogic Tuxedo Connector (WTC) 
            # The local domain name from which this remote Tuxedo domain is reached.
            LocalAccessPoint: LocalAccessPoint
            # The remote listen address of the Tuxedo domain gateway.
-           NWAddr: '//access-host:2500'
+           NWAddr: //access-host:2500
            # A logical and unique name used to identify this Tuxedo remote access point
            AccessPoint: RemoteAccessPoint
            # The connection principal name used to identify this remote domain access point when attempting to establish a session connection to local Tuxedo access points
@@ -82,7 +82,7 @@ This sample shows the WDT model for configuring WebLogic Tuxedo Connector (WTC) 
           AccessPointId: domain1
          RemoteAccessPoint2:
            LocalAccessPoint: LocalAccessPoint2
-           NWAddr: '//access-host:2500'
+           NWAddr: //access-host:2500
            AccessPoint: RemoteAccessPoint2
            AccessPointId: domain1
 

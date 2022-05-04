@@ -620,10 +620,10 @@ public class WLSDeployArchive {
         List<String> result = getZipFile().listZipEntries(ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
         result.remove(ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
         LOGGER.exiting(CLASS, METHOD, result);
-        if (result.size() > 0) {
-            return result.get(0);
-        } else {
+        if (result.isEmpty()) {
             return null;
+        } else {
+            return result.get(0);
         }
     }
 
@@ -640,10 +640,10 @@ public class WLSDeployArchive {
         List<String> result = getZipFile().listZipEntries(ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
         result.remove(ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
         LOGGER.exiting(CLASS, METHOD, result);
-        if (result.size() > 0) {
-            return result.get(0);
-        } else {
+        if (result.isEmpty()) {
             return null;
+        } else {
+            return result.get(0);
         }
     }
 

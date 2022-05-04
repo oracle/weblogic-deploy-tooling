@@ -54,8 +54,6 @@ class ArchiveHelper(object):
                 self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
 
-        return
-
     def contains_model(self):
         """
         Determine if an archive file contain a model file.  Search in reverse order
@@ -99,7 +97,8 @@ class ArchiveHelper(object):
                     break
 
         except (IllegalArgumentException, IllegalStateException, WLSDeployArchiveIOException), archex:
-            ex = exception_helper.create_cla_exception('WLSDPLY-20010', program_name, self.__archive_files_text,
+            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                       'WLSDPLY-20010', program_name, self.__archive_files_text,
                                                        archex.getLocalizedMessage(), error=archex)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
@@ -280,7 +279,6 @@ class ArchiveHelper(object):
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def extract_classpath_libraries(self):
         """
@@ -360,7 +358,6 @@ class ArchiveHelper(object):
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def remove_domain_scripts(self):
         """

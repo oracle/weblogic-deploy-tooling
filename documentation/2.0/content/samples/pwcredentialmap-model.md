@@ -34,7 +34,7 @@ domainInfo:
                RemotePort: 7030
                Path: /app/sell
                Method: GET
-               User: 'user1,user2'
+               User: user1,user2
                RemoteUser: remoteUser2
                RemotePassword: '@@PROP:remote2.pwd@@'
 ```
