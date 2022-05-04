@@ -12,6 +12,7 @@ from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 # Jython tools don't require sys.path modification
 
 from wlsdeploy.aliases.aliases import Aliases
+from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.modelhelp.model_help_printer import ModelHelpPrinter
@@ -139,8 +140,8 @@ def print_help(model_path, model_context):
           print ''
           print '  ls                      - list contents of current location'
           print '  top, cd, cd /, cd top   - go to "top"'
-          print '  cd x[/][...]            - relative change (go to child location x...)'
-          print '  cd section[:/][...]     - absolute change (go to exact section and location)'
+          print '  cd x[/[...]]            - relative change (go to child location x...)'
+          print '  cd section[:/[...]]     - absolute change (go to exact section and location)'
           print '  cd ..                   - go up'
           print '  history                 - history of visited locations'
           print '  exit                    - exit'
@@ -148,6 +149,10 @@ def print_help(model_path, model_context):
           print 'Sections:'
           print ''
           print ' ' + str(', '.join(top_level_keys))
+          print ''
+          print 'Example:'
+          print ''
+          print '  cd resources:/JMSServer/StoreMessageCompressionEnabled'
           print ''
           continue
         elif input == 'history':
