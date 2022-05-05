@@ -63,7 +63,7 @@ domainInfo:
       oracle.net.tns_admin: <absolute path of the unzipped wallet root directory>
 
 ```
-When using PKCS12 wallet, you must include the Oracle PKI provider to access your wallet. Add the Oracle PKI provider to your Java `java.security` file. For more information about adding the Oracle PKI provider to the Java `java.security` file, see Section 2.2.4 "How can Oracle wallets be used in Java" [SSL with Oracle JDBC](https://www.oracle.com/technetwork/topics/wp-oracle-jdbc-thin-ssl-130128.pdf).
+When using PKCS12 wallet, you must include the Oracle PKI provider to access your wallet. Add the Oracle PKI provider to your Java `java.security` file. For more information about adding the Oracle PKI provider to the Java `java.security` file, see Section 2.2.4 "How can Oracle wallets be used in Java" in [SSL with Oracle JDBC](https://www.oracle.com/technetwork/topics/wp-oracle-jdbc-thin-ssl-130128.pdf).
 
 For a typical database, use the following example:
 
