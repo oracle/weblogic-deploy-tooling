@@ -9,13 +9,12 @@ When accessing a database using a wallet, you need to obtain the wallet from you
 `tns alias` - the network service name. This can be found in the `tnsnames.ora` file inside the database wallet.  The alias is on the left side of the equal sign.
 
 ```text
-
 xxxx = (DESCRIPTION ...)
 yyyy = (DESCRIPTION ...)
 ...
 ```
 
-`keystore and truststore password` - the password used to generate the wallet
+`keystore and truststore password` - password used to generate the wallet
 `keystore and truststore type` - SSO or PKCS12
 `keystore and truststore file` - cwallet.sso (if store type is SSO), ewallet.p12 (if store type is PKCS12)
 
@@ -34,8 +33,8 @@ domainInfo:
         rcu_schema_password : <RCU schema password>
         atp.admin.user : admin
         tns.alias : <tns alias name. e.g. dbname_tp>
-        javax.net.ssl.keyStorePassword : <atp wallet password when generated the wallet from Oracle Cloud Console>
-        javax.net.ssl.trustStorePassword : <atp wallet password when generated the wallet from Oracle Cloud Console>
+        javax.net.ssl.keyStorePassword : <atp wallet password when generating the wallet from Oracle Cloud Console>
+        javax.net.ssl.trustStorePassword : <atp wallet password when generating the wallet from Oracle Cloud Console>
         oracle.net.tns_admin: <optional: absolute path of the unzipped wallet root directory (outside of the archive), if the wallet.zip is not included in the archive>
 ```
 The database wallet can be included in the archive file under `atpwallet` zipentry structure
