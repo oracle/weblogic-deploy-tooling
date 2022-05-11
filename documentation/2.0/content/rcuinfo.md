@@ -2,27 +2,27 @@
 
 During creating or updating a domain, there is new section `RCUDbInfo` in the model, under the `domainInfo` section, for specifying RCU database connection information without using the command-line arguments `-rcu_db` and `-rcu_prefix`. Use this to support a database where the connection string is more complex and requires extra options.
 
-### Accessing database using a wallet
+### Access a database using a wallet
 
 When accessing a database using a wallet, you need to obtain the wallet from your DBA and information about the database:
 
-`tns alias` - the network service name. This can be found in the `tnsnames.ora` file inside the database wallet.  The alias is on the left side of the equal sign.
+- `tns alias` - The network service name. You can find this in the `tnsnames.ora` file inside the database wallet.  The alias is on the left side of the equals sign.
 
-```text
-xxxx = (DESCRIPTION ...)
-yyyy = (DESCRIPTION ...)
-...
-```
+   ```text
+   xxxx = (DESCRIPTION ...)
+   yyyy = (DESCRIPTION ...)
+   ...
+   ```
 
-`keystore and truststore password` - password used to generate the wallet
-`keystore and truststore type` - SSO or PKCS12
-`keystore and truststore file` - cwallet.sso (if store type is SSO), ewallet.p12 (if store type is PKCS12)
+- `keystore and truststore password` - Password used to generate the wallet.
+- `keystore and truststore type` - SSO or PKCS12.
+- `keystore and truststore file` - `cwallet.sso` (if store type is SSO), `ewallet.p12` (if store type is PKCS12).
 
 Depending on the type of database and the choice of method for authentication, you can provide the necessary information with `RCUDbInfo` in the model.
 
 #### ATP database
 
-For example, in order to use the Oracle Autonomous Transaction Processing Cloud Database for the JRF domain, specify the following information in the model:
+For example, to use the Oracle Autonomous Transaction Processing Cloud Database for a JRF domain, specify the following information in the model:
 
 ```yaml
 domainInfo:
@@ -41,9 +41,9 @@ The database wallet can be included in the archive file under `atpwallet` zipent
 
 `atpwallet/Walletxyz.zip`
 
-or by specifying the unzipped root directory of the ATP wallet zip file in `oracle.net.tns_admin`.
+Or, by specifying the unzipped root directory of the ATP wallet ZIP file in `oracle.net.tns_admin`.
 
-**Note: Prior to release 0.23, the `useATP` flag only accepts values of 0, 1, 'true' or 'false'.**
+**Note: Prior to release 0.23, the `useATP` flag only accepts values of `0`, `1`, `true`, or `false`.**
 
 #### SSL database using SSO for authentication
 
@@ -62,11 +62,11 @@ domainInfo:
       javax.net,ssl.trustStore: <truststore found in unzipped wallet, i.e cwallet.sso>
       javax.net.ssl.trustStoreType: SSO
       oracle.net.tns_admin: <absolute path of the unzipped wallet root directory>
-      
+
 ```
 #### SSL database using PKCS12 for authentication
 
-For an SSL database, with an `PKCS12` wallet, use the following example:
+For an SSL database, with a `PKCS12` wallet, use the following example:
 ```yaml
 domainInfo:
     RCUDbInfo:
@@ -85,9 +85,9 @@ domainInfo:
       oracle.net.tns_admin: <absolute path of the unzipped wallet root directory>
 
 ```
-When using PKCS12 wallet, you must include the Oracle PKI provider to access your wallet. Add the Oracle PKI provider to your Java `java.security` file. For more information about adding the Oracle PKI provider to the Java `java.security` file, see Section 2.2.4 "How can Oracle wallets be used in Java" in [SSL with Oracle JDBC](https://www.oracle.com/technetwork/topics/wp-oracle-jdbc-thin-ssl-130128.pdf).
+When using a PKCS12 wallet, you must include the Oracle PKI provider to access your wallet. Add the Oracle PKI provider to your Java `java.security` file. For more information, see Section 2.2.4 "How can Oracle wallets be used in Java" in [SSL with Oracle JDBC Thin Driver](https://www.oracle.com/technetwork/topics/wp-oracle-jdbc-thin-ssl-130128.pdf).
 
-### Accessing database (non wallet based access)
+### Access a database without using a wallet (non wallet-based access)
 
 For a typical database, use the following example:
 
@@ -116,11 +116,11 @@ domainInfo:
 
 ### Specify extended XML files for RCU
 
-When creating a domain using WDT and the -run_rcu option, you can specify your extended XML files in the RCUDbInfo section.
+When creating a domain using WDT and the `-run_rcu` option, you can specify your extended XML files in the `RCUDbInfo` section.
 
-This correlates to the `createRepository` and `dropRepository` command-line arguments `RCU -compInfoXMLLocation <file path> -storageXMLLocation <file path>`
+This correlates to the `createRepository` and `dropRepository` command-line arguments `RCU -compInfoXMLLocation <file path> -storageXMLLocation <file path>`.
 
-Include your XML files in your archive file using location `wlsdeploy/rcu/config`. Then include this relative location in the RCUDbInfo section of the model.
+Include your XML files in your archive file using the location `wlsdeploy/rcu/config`. Then include this relative location in the `RCUDbInfo` section of the model.
 
 ```yaml
 domainInfo:
