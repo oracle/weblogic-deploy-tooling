@@ -2,11 +2,11 @@
 
 During creating or updating a domain, there is new section `RCUDbInfo` in the model, under the `domainInfo` section, for specifying RCU database connection information without using the command-line arguments `-rcu_db` and `-rcu_prefix`. Use this to support a database where the connection string is more complex and requires extra options.
 
-### Accessing database (wallet based access)
+### Accessing database using a wallet
 
 When accessing a database using a wallet, you need to obtain the wallet from your DBA and information about the database:
 
-`tns alias` can be found in the `tnsnames.ora` file inside the database wallet.  The alias is on the left side of the equal sign.
+`tns alias` - the network service name. This can be found in the `tnsnames.ora` file inside the database wallet.  The alias is on the left side of the equal sign.
 
 ```text
 
@@ -21,7 +21,7 @@ yyyy = (DESCRIPTION ...)
 
 Depending on the type of database and the choice of method for authentication, you can provide the necessary information with `RCUDbInfo` in the model.
 
-#### Accessing ATP database
+#### ATP database
 
 For example, in order to use the Oracle Autonomous Transaction Processing Cloud Database for the JRF domain, specify the following information in the model:
 
@@ -46,7 +46,7 @@ or by specifying the unzipped root directory of the ATP wallet zip file in `orac
 
 **Note: Prior to release 0.23, the `useATP` flag only accepts values of 0, 1, 'true' or 'false'.**
 
-#### Accessing database with wallet using SSO
+#### SSL database using SSO for authentication
 
 For an SSL database, with an `SSO` wallet, use the following example:
 ```yaml
@@ -65,7 +65,7 @@ domainInfo:
       oracle.net.tns_admin: <absolute path of the unzipped wallet root directory>
       
 ```
-#### Accessing database with wallet using PKCS12
+#### SSL database using PKCS12 for authentication
 
 For an SSL database, with an `PKCS12` wallet, use the following example:
 ```yaml
