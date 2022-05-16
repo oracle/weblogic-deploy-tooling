@@ -15,6 +15,7 @@ from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.discover import DiscoverException
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import FileUtils
+from oracle.weblogic.deploy.util import PyOrderedDict
 from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import WLSDeployArchive
@@ -30,6 +31,7 @@ from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.json.json_translator import PythonToJson
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.deployments_discoverer import DeploymentsDiscoverer
@@ -45,10 +47,12 @@ from wlsdeploy.tool.util import wlst_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
+from wlsdeploy.util import cla_utils
 from wlsdeploy.util import model_translator
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.cla_utils import TOOL_TYPE_DISCOVER
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.util import target_configuration_helper
@@ -80,7 +84,8 @@ __optional_arguments = [
     CommandLineArgUtil.ADMIN_PASS_ENV_SWITCH,
     CommandLineArgUtil.TARGET_MODE_SWITCH,
     CommandLineArgUtil.OUTPUT_DIR_SWITCH,
-    CommandLineArgUtil.TARGET_SWITCH
+    CommandLineArgUtil.TARGET_SWITCH,
+    CommandLineArgUtil.REMOTE_SWITCH
 ]
 
 
@@ -93,7 +98,7 @@ def __process_args(args):
     global __wlst_mode
 
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
-    argument_map = cla_util.process_args(args)
+    argument_map = cla_util.process_args(args, TOOL_TYPE_DISCOVER)
 
     __wlst_mode = cla_helper.process_online_args(argument_map)
     target_configuration_helper.process_target_arguments(argument_map)
@@ -101,6 +106,7 @@ def __process_args(args):
     __process_archive_filename_arg(argument_map)
     __process_variable_filename_arg(argument_map)
     __process_java_home(argument_map)
+    __process_domain_home(argument_map, __wlst_mode)
 
     return model_context_helper.create_context(_program_name, argument_map)
 
@@ -112,7 +118,8 @@ def __process_model_archive_args(argument_map):
     """
     _method_name = '__process_model_archive_args'
     if CommandLineArgUtil.ARCHIVE_FILE_SWITCH not in argument_map:
-        if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH not in argument_map:
+        if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH not in argument_map and \
+            CommandLineArgUtil.REMOTE_SWITCH not in argument_map:
             ex = exception_helper.create_cla_exception(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE, 'WLSDPLY-06028')
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
@@ -130,8 +137,8 @@ def __process_archive_filename_arg(argument_map):
     """
     _method_name = '__process_archive_filename_arg'
 
-    if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH in argument_map:
-        archive_file = WLSDeployArchive.noArchiveFile()
+    if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH in argument_map or CommandLineArgUtil.REMOTE_SWITCH in argument_map:
+        archive_file = WLSDeployArchive.noArchiveFile(CommandLineArgUtil.REMOTE_SWITCH in argument_map)
     else:
         archive_file_name = argument_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
         archive_dir_name = path_utils.get_parent_directory(archive_file_name)
@@ -149,6 +156,7 @@ def __process_archive_filename_arg(argument_map):
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
     argument_map[CommandLineArgUtil.ARCHIVE_FILE] = archive_file
+
 
 
 def __process_variable_filename_arg(optional_arg_map):
@@ -191,6 +199,19 @@ def __process_java_home(optional_arg_map):
                       class_name=_class_name, method_name=_method_name)
 
 
+def __process_domain_home(arg_map, wlst_mode):
+    domain_home = None
+    if CommandLineArgUtil.DOMAIN_HOME_SWITCH not in arg_map:
+        return
+    domain_home = arg_map[CommandLineArgUtil.DOMAIN_HOME_SWITCH]
+    skip_archive = False
+    if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH in arg_map or CommandLineArgUtil.REMOTE_SWITCH in arg_map:
+        skip_archive = True
+    if wlst_mode == WlstModes.OFFLINE or not skip_archive:
+        full_path = cla_utils.validate_domain_home_arg(domain_home)
+        arg_map[CommandLineArgUtil.DOMAIN_HOME_SWITCH] = full_path
+
+
 def __discover(model_context, aliases, credential_injector, helper):
     """
     Populate the model from the domain.
@@ -224,8 +245,17 @@ def __discover(model_context, aliases, credential_injector, helper):
                                                         ae.getLocalizedMessage(), error=ae)
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
-
     __disconnect_domain(helper)
+
+    if model_context.is_remote():
+        print 'Discovered Remote Domain - showing files to collect for archive'
+        print ''
+        remote_map = WLSDeployArchive.getRemoteList()
+        for key in remote_map:
+            other_map = remote_map[key]
+            type = other_map[WLSDeployArchive.REMOTE_TYPE]
+            wls_archive = other_map[WLSDeployArchive.REMOTE_ARCHIVE_DIR]
+            print key, ' ', type, ' ', wls_archive
     return model
 
 

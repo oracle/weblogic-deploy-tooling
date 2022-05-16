@@ -99,6 +99,7 @@ class ModelContext(object):
         self._rcu_db_user = self.DB_USER_DEFAULT
         self._discard_current_edit = False
         self._model_config = None
+        self._remote = False
 
         self._trailing_args = []
 
@@ -168,6 +169,9 @@ class ModelContext(object):
         if CommandLineArgUtil.VARIABLE_FILE_SWITCH in arg_map:
             self._variable_file_name = arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH]
 
+        if CommandLineArgUtil.REMOTE_SWITCH in arg_map:
+            self._remote = arg_map[CommandLineArgUtil.REMOTE_SWITCH]
+            
         if CommandLineArgUtil.RUN_RCU_SWITCH in arg_map:
             self._run_rcu = arg_map[CommandLineArgUtil.RUN_RCU_SWITCH]
 
@@ -283,6 +287,8 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.FOLDERS_ONLY_SWITCH] = self._folders_only
         if self._recursive is not None:
             arg_map[CommandLineArgUtil.RECURSIVE_SWITCH] = self._recursive
+        if self._remote is not None:
+            arg_map[CommandLineArgUtil.REMOTE_SWITCH] = self._remote
         if self._variable_file_name is not None:
             arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = self._variable_file_name
         if self._run_rcu is not None:
@@ -741,6 +747,13 @@ class ModelContext(object):
         :return: True if the tool is in offline mode
         """
         return self._wlst_mode == WlstModes.OFFLINE
+
+    def is_remote(self):
+        """
+        Determine if the tool has the remote switch to true
+        :return: True if -remote was set
+        """
+        return self._remote
 
     def replace_tokens_in_path(self, attribute_name, resource_dict):
         """
