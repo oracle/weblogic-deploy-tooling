@@ -518,12 +518,6 @@ class CommandLineArgUtil(object):
 
     def is_skip_archive_key(self, key):
         return self.SKIP_ARCHIVE_FILE_SWITCH == key
-    #
-    # The domain home arg used by discover and deploy must be a valid domain home.
-    #
-
-
-        return dh.getAbsolutePath()
 
     #
     # The domain home arg used by create must be the child of a valid, writable directory.
