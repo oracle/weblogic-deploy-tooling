@@ -763,12 +763,6 @@ class Validator(object):
                         logger_method = _info_logger.info
 
                     variables_file_name = self._model_context.get_variable_file()
-                    if variables_file_name is None:
-                        logger_method('WLSDPLY-05021', model_folder_path, property_name,
-                                      class_name=_class_name, method_name=_method_name)
-                    else:
-                        logger_method('WLSDPLY-05022', model_folder_path, property_name, variables_file_name,
-                                      class_name=_class_name, method_name=_method_name)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name, result=untokenized_value)
         return untokenized_value
