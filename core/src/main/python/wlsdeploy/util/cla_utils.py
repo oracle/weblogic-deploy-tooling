@@ -100,7 +100,7 @@ class CommandLineArgUtil(object):
     # extractDomainResource output file
     DOMAIN_RESOURCE_FILE_SWITCH   = '-domain_resource_file'
     OUTPUT_DIR_SWITCH = "-output_dir"
-
+    WAIT_FOR_EDIT_LOCK_SWITCH = "-wait_for_edit_lock"
     TARGET_SWITCH = '-target'
 
 
@@ -116,7 +116,8 @@ class CommandLineArgUtil(object):
         UPDATE_RCU_SCHEMA_PASS_SWITCH,
         DISCARD_CURRENT_EDIT_SWITCH,
         USE_ENCRYPTION_SWITCH,
-        REMOTE_SWITCH
+        REMOTE_SWITCH,
+        WAIT_FOR_EDIT_LOCK_SWITCH
     ]
 
     # a slot to stash the parsed domain typedef dictionary
