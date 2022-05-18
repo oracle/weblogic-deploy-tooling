@@ -112,6 +112,14 @@ public class WLSDeployArchiveTest {
     }
 
     @Test
+    void testAddApplicationRemote() throws Exception {
+        WLSDeployArchive archive = WLSDeployArchive.noArchiveFile(Boolean.TRUE);
+        String appName = archive.addApplication(APP_DIR_TO_ADD);
+        assertEquals(APP_DIR_ENTRY_NAME, appName);
+        archive.close();
+    }
+    
+    @Test
     void testIsAFile() throws Exception {
         WLSDeployArchive archive = new WLSDeployArchive(APPS_ARCHIVE_FILE_NAME);
         archive.addApplication(APP1_TO_ADD);
