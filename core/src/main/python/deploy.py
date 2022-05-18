@@ -118,13 +118,19 @@ def __deploy_online(model, model_context, aliases):
     admin_user = model_context.get_admin_user()
     admin_pwd = model_context.get_admin_password()
     timeout = model_context.get_model_config().get_connect_timeout()
+    skip_edit_session_check = model_context.is_discard_current_edit() or model_context.is_wait_for_edit_lock()
+    edit_lock_acquire_timeout = model_context.get_model_config.get_wlst_edit_lock_acquire_timeout()
+    edit_lock_release_timeout = model_context.get_model_config.get_wlst_edit_lock_release_timeout()
+    edit_lock_exclusive = model_context.get_model_config().get_wlst_edit_lock_exclusive()
 
     __logger.info("WLSDPLY-09005", admin_url, timeout, method_name=_method_name, class_name=_class_name)
 
     __wlst_helper.connect(admin_user, admin_pwd, admin_url, timeout)
-    deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions(model_context.is_discard_current_edit())
+    deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions(skip_edit_session_check)
     __wlst_helper.edit()
-    __wlst_helper.start_edit()
+    __logger.fine("WLSDPLY-09019", edit_lock_acquire_timeout, edit_lock_release_timeout, edit_lock_exclusive)
+    __wlst_helper.start_edit(acquire_timeout=edit_lock_acquire_timeout, release_timeout=edit_lock_release_timeout,
+                             exclusive=edit_lock_exclusive)
     if model_context.is_discard_current_edit():
         deployer_utils.discard_current_edit()
 
