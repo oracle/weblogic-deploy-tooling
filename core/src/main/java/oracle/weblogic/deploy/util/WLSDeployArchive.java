@@ -599,28 +599,30 @@ public class WLSDeployArchive {
      * method assumes that the new one also needs to be added so it changes the name to prevent conflicts by adding
      * a numeric value onto the file's basename (e.g., myapp(1).ear, myapp(2).ear).
      *
-     * @param appPath - File representing the actual path of the archive or directory in the file system
+     * @param appPath - file name representing the actual path of the archive or directory in the local or remote
+     *                file system
      * @return the relative path where the application will be unpacked by the unpackApplications() method
      * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
      * @throws IllegalArgumentException    if the file or directory passed in does not exist
      */
-    public String addApplication(File appPath) throws WLSDeployArchiveIOException {
+    public String addApplication(String appPath) throws WLSDeployArchiveIOException {
         final String METHOD = "addApplication";
 
         LOGGER.entering(CLASS, METHOD, appPath);
-        String newName = appPath.getPath();
-        String localName = newName;
+
+        File filePath = new File(appPath);
+        String newName = appPath;
         if (isRemote) {
-            newName = addItemToZip(ARCHIVE_APPS_TARGET_DIR, appPath);
+            newName = addItemToZip(ARCHIVE_APPS_TARGET_DIR, filePath);
             Map<String, String> remoteMap = new HashMap<>();
             remoteMap.put(REMOTE_TYPE, ArchiveEntryType.APPLICATIONS.name());
             remoteMap.put(REMOTE_ARCHIVE_DIR, newName);
-            remoteList.put(localName, remoteMap);
+            remoteList.put(appPath, remoteMap);
         }
         else if (hasArchive) {
-            validateExistingFile(appPath, "appPath", getArchiveFileName(), METHOD, true);
+            validateExistingFile(filePath, "appPath", getArchiveFileName(), METHOD, true);
 
-            newName = addItemToZip(ARCHIVE_APPS_TARGET_DIR, appPath);
+            newName = addItemToZip(ARCHIVE_APPS_TARGET_DIR, filePath);
         }
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
@@ -712,26 +714,27 @@ public class WLSDeployArchive {
      * assumes that the new one also needs to be added so it changes the name to prevent conflicts by adding a
      * numeric value onto the file's basename (e.g., myapp(1).ear, myapp(2).ear).
      *
-     * @param shlibPath - File representing the actual path of the archive or directory in the file system
+     * @param shlibPath - File name representing the actual path of the archive or directory in the local or remote
+     *                  file system
      * @return the relative path where the shared library will be unpacked by the unpackSharedLibraries() method
      * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
      * @throws IllegalArgumentException    if the file or directory passed in does not exist
      */
-    public String addSharedLibrary(File shlibPath) throws WLSDeployArchiveIOException {
+    public String addSharedLibrary(String shlibPath) throws WLSDeployArchiveIOException {
         final String METHOD = "addSharedLibrary";
-        String newName = shlibPath.getAbsolutePath();
-        String localName = newName;
+        File filePath = new File(shlibPath);
+        String newName = shlibPath;
         LOGGER.entering(CLASS, METHOD, shlibPath);
         if (isRemote) {
-            newName = addItemToZip(ARCHIVE_SHLIBS_TARGET_DIR, shlibPath);
+            newName = addItemToZip(ARCHIVE_SHLIBS_TARGET_DIR, filePath);
             Map<String, String> remoteMap = new HashMap<>();
             remoteMap.put(REMOTE_TYPE, ArchiveEntryType.SHARED_LIBRARIES.name());
             remoteMap.put(REMOTE_ARCHIVE_DIR, newName);
-            remoteList.put(localName, remoteMap);
+            remoteList.put(shlibPath, remoteMap);
         } else if (hasArchive) {
-            validateExistingFile(shlibPath, "shlibPath", getArchiveFileName(), METHOD, true);
+            validateExistingFile(filePath, "shlibPath", getArchiveFileName(), METHOD, true);
 
-            newName = addItemToZip(ARCHIVE_SHLIBS_TARGET_DIR, shlibPath);
+            newName = addItemToZip(ARCHIVE_SHLIBS_TARGET_DIR, filePath);
         }
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
@@ -783,28 +786,29 @@ public class WLSDeployArchive {
      * assumes that the new one also needs to be added so it changes the name to prevent conflicts by adding a
      * numeric value onto the file's basename (e.g., mylib(1).jar, mylib(2).jar).
      *
-     * @param domainLibPath - File representing the actual path of the archive or directory in the file system
+     * @param domainLibPath - File name representing the actual path of the archive or directory in the local or remote
+     *                      file system
      * @return the relative path where the library will be unpacked by the unpackApplications() method
      * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
      * @throws IllegalArgumentException    if the file or directory passed in does not exist
      */
-    public String addDomainLibLibrary(File domainLibPath) throws WLSDeployArchiveIOException {
+    public String addDomainLibLibrary(String domainLibPath) throws WLSDeployArchiveIOException {
         final String METHOD = "addDomainLibLibrary";
 
         LOGGER.entering(CLASS, METHOD, domainLibPath);
-        String newName = domainLibPath.getPath();
-        String localName = newName;
+        File filePath = new File(domainLibPath);
+        String newName = domainLibPath;
         if (isRemote) {
-            newName = addItemToZip(ARCHIVE_DOMLIB_TARGET_DIR, domainLibPath);
+            newName = addItemToZip(ARCHIVE_DOMLIB_TARGET_DIR, filePath);
             Map<String, String> remoteMap = new HashMap<>();
             remoteMap.put(REMOTE_TYPE, ArchiveEntryType.DOMAIN_LIB.name());
             remoteMap.put(REMOTE_ARCHIVE_DIR, newName);
-            remoteList.put(localName, remoteMap);
+            remoteList.put(domainLibPath, remoteMap);
         }
         else if (hasArchive) {
-            validateExistingFile(domainLibPath, "domainLibPath", getArchiveFileName(), METHOD);
+            validateExistingFile(filePath, "domainLibPath", getArchiveFileName(), METHOD);
 
-            newName = addItemToZip(ARCHIVE_DOMLIB_TARGET_DIR, domainLibPath);
+            newName = addItemToZip(ARCHIVE_DOMLIB_TARGET_DIR, filePath);
         }
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
@@ -851,28 +855,29 @@ public class WLSDeployArchive {
      * assumes that the new one also needs to be added so it changes the name to prevent conflicts by adding a
      * numeric value onto the file's basename (e.g., myscript(1).cmd, myscript(2).cmd).
      *
-     * @param domainBinPath - File representing the actual path of the script file in the file system
+     * @param domainBinPath - File name representing the actual path of the script file in the local or remote
+     *                      file system
      * @return the relative path where the script is stored within the archive
      * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
      * @throws IllegalArgumentException    if the file or directory passed in does not exist
      */
-    public String addDomainBinScript(File domainBinPath) throws WLSDeployArchiveIOException {
+    public String addDomainBinScript(String domainBinPath) throws WLSDeployArchiveIOException {
         final String METHOD = "addDomainBinScript";
 
         LOGGER.entering(CLASS, METHOD, domainBinPath);
-        String newName = domainBinPath.getPath();
-        String localName = newName;
+        File filePath = new File(domainBinPath);
+        String newName = domainBinPath;
         if (isRemote) {
-            newName = addItemToZip(ARCHIVE_DOM_BIN_TARGET_DIR, domainBinPath);
+            newName = addItemToZip(ARCHIVE_DOM_BIN_TARGET_DIR, filePath);
             Map<String, String> remoteMap = new HashMap<>();
             remoteMap.put(REMOTE_TYPE, ArchiveEntryType.DOMAIN_BIN.name());
             remoteMap.put(REMOTE_ARCHIVE_DIR, newName);
-            remoteList.put(localName, remoteMap);
+            remoteList.put(domainBinPath, remoteMap);
         }
         else if (hasArchive) {
-            validateExistingFile(domainBinPath, "domainBinPath", getArchiveFileName(), METHOD);
+            validateExistingFile(filePath, "domainBinPath", getArchiveFileName(), METHOD);
 
-            newName = addItemToZip(ARCHIVE_DOM_BIN_TARGET_DIR, domainBinPath);
+            newName = addItemToZip(ARCHIVE_DOM_BIN_TARGET_DIR, filePath);
         }
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
@@ -927,28 +932,29 @@ public class WLSDeployArchive {
      * method assumes that the new one also needs to be added so it changes the name to prevent conflicts by adding
      * a numeric value onto the file's basename (e.g., mylib(1).jar, mylib(2).jar).
      *
-     * @param libPath - File representing the actual path of the archive or directory in the file system
+     * @param libPath - File name representing the actual path of the archive or directory in the local or remote
+     *                file system
      * @return the relative path where the library will be unpacked by the unpackApplications() method
      * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
      * @throws IllegalArgumentException    if the file or directory passed in does not exist
      */
-    public String addClasspathLibrary(File libPath) throws WLSDeployArchiveIOException {
+    public String addClasspathLibrary(String libPath) throws WLSDeployArchiveIOException {
         final String METHOD = "addClasspathLibrary";
 
         LOGGER.entering(CLASS, METHOD, libPath);
-        String newName = libPath.getPath();
-        String localName = newName;
+        File filePath = new File(libPath);
+        String newName = libPath;
         if (isRemote) {
-            newName = addItemToZip(ARCHIVE_CPLIB_TARGET_DIR, libPath);
+            newName = addItemToZip(ARCHIVE_CPLIB_TARGET_DIR, filePath);
             Map<String, String> remoteMap = new HashMap<>();
             remoteMap.put(REMOTE_TYPE, ArchiveEntryType.CLASSPATH_LIB.name());
             remoteMap.put(REMOTE_ARCHIVE_DIR, newName);
-            remoteList.put(localName, remoteMap);
+            remoteList.put(libPath, remoteMap);
         }
         else if (hasArchive) {
-            validateExistingFile(libPath, "libPath", getArchiveFileName(), METHOD, true);
+            validateExistingFile(filePath, "libPath", getArchiveFileName(), METHOD, true);
 
-            newName = addItemToZip(ARCHIVE_CPLIB_TARGET_DIR, libPath);
+            newName = addItemToZip(ARCHIVE_CPLIB_TARGET_DIR, filePath);
         }
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
@@ -1025,30 +1031,30 @@ public class WLSDeployArchive {
     /**
      * Adds an application's deployment plan file to the archive.
      *
-     * @param planFile      the deployment plan file
+     * @param planFile      the deployment plan file name
      * @param preferredName the preferred name of the file to add
      * @return the actual name of the file in the archive
      * @throws WLSDeployArchiveIOException if an error occurs adding the file
      * @throws IllegalArgumentException    if the file does not exist or the preferredName was empty or null
      */
-    public String addApplicationDeploymentPlan(File planFile, String preferredName) throws WLSDeployArchiveIOException {
+    public String addApplicationDeploymentPlan(String planFile, String preferredName) throws WLSDeployArchiveIOException {
         final String METHOD = "addApplicationDeploymentPlan";
 
         LOGGER.entering(CLASS, METHOD, planFile, preferredName);
-        String newName = planFile.getPath();
-        String localName = newName;
+        File filePath = new File(planFile);
+        String newName = planFile;
         if (isRemote) {
-            newName = addItemToZip(ARCHIVE_APPS_TARGET_DIR, planFile, preferredName);
+            newName = addItemToZip(ARCHIVE_APPS_TARGET_DIR, filePath, preferredName);
             Map<String, String> remoteMap = new HashMap<>();
             remoteMap.put(REMOTE_TYPE, ArchiveEntryType.APPLICATION_PLAN.name());
             remoteMap.put(REMOTE_ARCHIVE_DIR, newName);
-            remoteList.put(localName, remoteMap);
+            remoteList.put(planFile, remoteMap);
         }
         else if (hasArchive) {
-            validateExistingFile(planFile, "planFile", getArchiveFileName(), METHOD);
+            validateExistingFile(filePath, "planFile", getArchiveFileName(), METHOD);
             validateNonEmptyString(preferredName, "preferredName", METHOD);
 
-            newName = addItemToZip(ARCHIVE_APPS_TARGET_DIR, planFile, preferredName);
+            newName = addItemToZip(ARCHIVE_APPS_TARGET_DIR, filePath, preferredName);
         }
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
@@ -1057,31 +1063,31 @@ public class WLSDeployArchive {
     /**
      * Adds a shared library's deployment plan file to the archive.
      *
-     * @param planFile      the deployment plan file
+     * @param planFile      the deployment plan file name
      * @param preferredName the preferred name of the file to add
      * @return the actual name of the file in the archive
      * @throws WLSDeployArchiveIOException if an error occurs adding the file
      * @throws IllegalArgumentException    if the file does not exist or the preferredName was empty or null
      */
-    public String addSharedLibraryDeploymentPlan(File planFile, String preferredName)
+    public String addSharedLibraryDeploymentPlan(String planFile, String preferredName)
         throws WLSDeployArchiveIOException {
         final String METHOD = "addSharedLibraryDeploymentPlan";
 
         LOGGER.entering(CLASS, METHOD, planFile, preferredName);
-        String newName = planFile.getPath();
-        String localName = newName;
+        File filePath = new File(planFile);
+        String newName = planFile;
         if (isRemote) {
-            newName = addItemToZip(ARCHIVE_SHLIBS_TARGET_DIR, planFile, preferredName);
+            newName = addItemToZip(ARCHIVE_SHLIBS_TARGET_DIR, filePath, preferredName);
             Map<String, String> remoteMap = new HashMap<>();
             remoteMap.put(REMOTE_TYPE, ArchiveEntryType.SHLIB_PLAN.name());
             remoteMap.put(REMOTE_ARCHIVE_DIR, newName);
-            remoteList.put(localName, remoteMap);
+            remoteList.put(planFile, remoteMap);
         }
         else if (hasArchive) {
-            validateExistingFile(planFile, "planFile", getArchiveFileName(), METHOD);
+            validateExistingFile(filePath, "planFile", getArchiveFileName(), METHOD);
             validateNonEmptyString(preferredName, "preferredName", METHOD);
 
-            newName = addItemToZip(ARCHIVE_SHLIBS_TARGET_DIR, planFile, preferredName);
+            newName = addItemToZip(ARCHIVE_SHLIBS_TARGET_DIR, filePath, preferredName);
         }
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
@@ -1095,22 +1101,22 @@ public class WLSDeployArchive {
      * @throws WLSDeployArchiveIOException if an error occurs adding the file
      * @throws IllegalArgumentException    if the file does not exist
      */
-    public String addScript(File scriptFile) throws WLSDeployArchiveIOException {
+    public String addScript(String scriptFile) throws WLSDeployArchiveIOException {
         final String METHOD = "addScript";
 
         LOGGER.entering(CLASS, METHOD, scriptFile);
-        String newName = scriptFile.getPath();
-        String localName = newName;
+        File filePath = new File(scriptFile);
+        String newName = scriptFile;
         if (isRemote) {
-            newName = addItemToZip(ARCHIVE_SCRIPTS_DIR, scriptFile);
+            newName = addItemToZip(ARCHIVE_SCRIPTS_DIR, filePath);
             Map<String, String> remoteMap = new HashMap<>();
             remoteMap.put(REMOTE_TYPE, ArchiveEntryType.SCRIPTS.name());
             remoteMap.put(REMOTE_ARCHIVE_DIR, newName);
-            remoteList.put(localName, remoteMap);
+            remoteList.put(scriptFile, remoteMap);
         }
         else if (hasArchive) {
-            validateExistingFile(scriptFile, "scriptFile", getArchiveFileName(), METHOD);
-            newName = addItemToZip(ARCHIVE_SCRIPTS_DIR, scriptFile);
+            validateExistingFile(filePath, "scriptFile", getArchiveFileName(), METHOD);
+            newName = addItemToZip(ARCHIVE_SCRIPTS_DIR, filePath);
         }
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
@@ -1125,23 +1131,23 @@ public class WLSDeployArchive {
      * @throws WLSDeployArchiveIOException if an error occurs while archiving the file
      * @throws IllegalArgumentException    if the file does not exist or the clusterName is empty or null
      */
-    public String addServerKeyStoreFile(String serverName, File keystoreFile) throws WLSDeployArchiveIOException {
+    public String addServerKeyStoreFile(String serverName, String keystoreFile) throws WLSDeployArchiveIOException {
         final String METHOD = "addServerKeyStoreFile";
 
         LOGGER.entering(CLASS, METHOD, serverName, keystoreFile);
-        String newName = keystoreFile.getPath();
-        String localName = newName;
+        File filePath = new File(keystoreFile);
+        String newName = keystoreFile;
         if (isRemote) {
-            newName = addItemToZip(ARCHIVE_SERVER_TARGET_DIR + ZIP_SEP + serverName, keystoreFile);
+            newName = addItemToZip(ARCHIVE_SERVER_TARGET_DIR + ZIP_SEP + serverName, filePath);
             Map<String, String> remoteMap = new HashMap<>();
             remoteMap.put(REMOTE_TYPE, ArchiveEntryType.SERVER_KEYSTORE.name());
             remoteMap.put(REMOTE_ARCHIVE_DIR, newName);
-            remoteList.put(localName, remoteMap);
+            remoteList.put(keystoreFile, remoteMap);
         }
         else if (hasArchive) {
             validateNonEmptyString(serverName, "serverName", METHOD);
-            validateExistingFile(keystoreFile, "keyStoreFile", getArchiveFileName(), METHOD);
-            newName = addItemToZip(ARCHIVE_SERVER_TARGET_DIR + ZIP_SEP + serverName, keystoreFile);
+            validateExistingFile(filePath, "keyStoreFile", getArchiveFileName(), METHOD);
+            newName = addItemToZip(ARCHIVE_SERVER_TARGET_DIR + ZIP_SEP + serverName, filePath);
         }
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
@@ -1155,21 +1161,21 @@ public class WLSDeployArchive {
      * @throws WLSDeployArchiveIOException if an error occurs while archiving the file
      * @throws IllegalArgumentException    if the file does not exist or the clusterName is empty or null
      */
-    public String addMimeMappingFile(File mimeMappingFile) throws WLSDeployArchiveIOException {
+    public String addMimeMappingFile(String mimeMappingFile) throws WLSDeployArchiveIOException {
         final String METHOD = "addMimeMappingFile";
 
         LOGGER.entering(CLASS, METHOD, mimeMappingFile);
-        String newName = mimeMappingFile.getPath();
-        String localName = newName;
+        File filePath = new File(mimeMappingFile);
+        String newName = mimeMappingFile;
         if (isRemote) {
-            newName = addItemToZip(ARCHIVE_CONFIG_TARGET_DIR + ZIP_SEP, mimeMappingFile);
+            newName = addItemToZip(ARCHIVE_CONFIG_TARGET_DIR + ZIP_SEP, filePath);
             Map<String, String> remoteMap = new HashMap<>();
             remoteMap.put(REMOTE_TYPE, ArchiveEntryType.MIME_MAPPING.name());
             remoteMap.put(REMOTE_ARCHIVE_DIR, newName);
-            remoteList.put(localName, remoteMap);
+            remoteList.put(mimeMappingFile, remoteMap);
         } else if (hasArchive) {
-            validateExistingFile(mimeMappingFile, "mimeMappingFile", getArchiveFileName(), METHOD);
-            newName = addItemToZip(ARCHIVE_CONFIG_TARGET_DIR + ZIP_SEP, mimeMappingFile);
+            validateExistingFile(filePath, "mimeMappingFile", getArchiveFileName(), METHOD);
+            newName = addItemToZip(ARCHIVE_CONFIG_TARGET_DIR + ZIP_SEP, filePath);
         }
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
@@ -1183,22 +1189,22 @@ public class WLSDeployArchive {
      * @throws WLSDeployArchiveIOException if an error occurs while archiving the file
      * @throws IllegalArgumentException    if the file does not exist or the clusterName is empty or null
      */
-    public String addCoherenceConfigFile(String clusterName, File configFile) throws WLSDeployArchiveIOException {
+    public String addCoherenceConfigFile(String clusterName, String configFile) throws WLSDeployArchiveIOException {
         final String METHOD = "addCoherenceConfigFile";
 
         LOGGER.entering(CLASS, METHOD, clusterName, configFile);
-        String newName = configFile.getPath();
-        String localName = newName;
+        File filePath = new File(configFile);
+        String newName = configFile;
         if (isRemote) {
-            newName = addItemToZip(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName, configFile);
+            newName = addItemToZip(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName, filePath);
             Map<String, String> remoteMap = new HashMap<>();
             remoteMap.put(REMOTE_TYPE, ArchiveEntryType.COHERENCE_CONFIG.name());
             remoteMap.put(REMOTE_ARCHIVE_DIR, newName);
-            remoteList.put(localName, remoteMap);
+            remoteList.put(configFile, remoteMap);
         } else if (hasArchive) {
             validateNonEmptyString(clusterName, "clusterName", METHOD);
-            validateExistingFile(configFile, "configFile", getArchiveFileName(), METHOD);
-            newName = addItemToZip(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName, configFile);
+            validateExistingFile(filePath, "configFile", getArchiveFileName(), METHOD);
+            newName = addItemToZip(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName, filePath);
         }
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
@@ -1213,22 +1219,22 @@ public class WLSDeployArchive {
      * @throws WLSDeployArchiveIOException if an error occurs while archiving the file
      * @throws IllegalArgumentException    if the file does not exist or the foreignServer is empty or null
      */
-    public String addForeignServerFile(String foreignServer, File configFile) throws WLSDeployArchiveIOException {
+    public String addForeignServerFile(String foreignServer, String configFile) throws WLSDeployArchiveIOException {
         final String METHOD = "addForeignServerFile";
 
         LOGGER.entering(CLASS, METHOD, foreignServer, configFile);
-        String newName = configFile.getPath();
-        String localName = newName;
+        File filePath = new File(configFile);
+        String newName = configFile;
         if (isRemote) {
-            newName = addItemToZip(ARCHIVE_JMS_FOREIGN_SERVER_DIR + ZIP_SEP + foreignServer, configFile);
+            newName = addItemToZip(ARCHIVE_JMS_FOREIGN_SERVER_DIR + ZIP_SEP + foreignServer, filePath);
             Map<String, String> remoteMap = new HashMap<>();
             remoteMap.put(REMOTE_TYPE, ArchiveEntryType.JMS_FOREIGN_SERVER.name());
             remoteMap.put(REMOTE_ARCHIVE_DIR, newName);
-            remoteList.put(localName, remoteMap);
+            remoteList.put(configFile, remoteMap);
         } else if (hasArchive) {
             validateNonEmptyString(foreignServer, "foreignServerName", METHOD);
-            validateExistingFile(configFile, "configFile", getArchiveFileName(), METHOD, true);
-            newName = addItemToZip(ARCHIVE_JMS_FOREIGN_SERVER_DIR + ZIP_SEP + foreignServer, configFile);
+            validateExistingFile(filePath, "configFile", getArchiveFileName(), METHOD, true);
+            newName = addItemToZip(ARCHIVE_JMS_FOREIGN_SERVER_DIR + ZIP_SEP + foreignServer, filePath);
         }
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
@@ -1281,14 +1287,13 @@ public class WLSDeployArchive {
         final String METHOD = "addCoherencePersistenceDirectory";
         LOGGER.entering(CLASS, METHOD, clusterName, directoryType);
         String newName = directoryType;
-        String localName = newName;
         if (isRemote) {
             newName = addEmptyDirectoryToZip(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName,
                     directoryType);
             Map<String, String> remoteMap = new HashMap<>();
             remoteMap.put(REMOTE_TYPE, ArchiveEntryType.COHERENCE_PERSISTENCE_DIR.name());
             remoteMap.put(REMOTE_ARCHIVE_DIR, newName);
-            remoteList.put(localName, remoteMap);
+            remoteList.put(directoryType, remoteMap);
         } else if (hasArchive) {
             validateNonEmptyString(clusterName, "clusterName", METHOD);
             validateNonEmptyString(directoryType, "fileStoreName", METHOD);
@@ -1333,21 +1338,21 @@ public class WLSDeployArchive {
      * @throws WLSDeployArchiveIOException if an error occurs while archiving the file
      * @throws IllegalArgumentException    if the file does not exist
      */
-    public String addNodeManagerKeyStoreFile(File keystoreFile) throws WLSDeployArchiveIOException {
+    public String addNodeManagerKeyStoreFile(String keystoreFile) throws WLSDeployArchiveIOException {
         final String METHOD = "addNodeManagerKeyStoreFile";
 
         LOGGER.entering(CLASS, METHOD, keystoreFile);
-        String newName = keystoreFile.getPath();
-        String localName = newName;
+        File filePath = new File(keystoreFile);
+        String newName = keystoreFile;
         if (isRemote) {
-            newName = addItemToZip(ARCHIVE_NODE_MANAGER_TARGET_DIR, keystoreFile);
+            newName = addItemToZip(ARCHIVE_NODE_MANAGER_TARGET_DIR, filePath);
             Map<String, String> remoteMap = new HashMap<>();
             remoteMap.put(REMOTE_TYPE, ArchiveEntryType.NODE_MANAGER_KEY_STORE.name());
             remoteMap.put(REMOTE_ARCHIVE_DIR, newName);
-            remoteList.put(localName, remoteMap);
+            remoteList.put(keystoreFile, remoteMap);
         } else if (hasArchive) {
-            validateExistingFile(keystoreFile, "keyStoreFile", getArchiveFileName(), METHOD);
-            newName = addItemToZip(ARCHIVE_NODE_MANAGER_TARGET_DIR, keystoreFile);
+            validateExistingFile(filePath, "keyStoreFile", getArchiveFileName(), METHOD);
+            newName = addItemToZip(ARCHIVE_NODE_MANAGER_TARGET_DIR, filePath);
         }
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;

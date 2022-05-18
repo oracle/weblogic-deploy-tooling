@@ -687,10 +687,12 @@ class TopologyDiscoverer(Discoverer):
             _logger.finer('WLSDPLY-06619', classpath_name, server_name, class_name=_class_name,
                           method_name=_method_name)
             archive_file = self._model_context.get_archive_file()
-            file_name_path = self._convert_path(classpath_name)
+            file_name_path = classpath_name
+            if not self._model_context.is_remote():
+                file_name_path = self._convert_path(classpath_name)
             new_source_name = None
             try:
-                new_source_name = archive_file.addClasspathLibrary(File(file_name_path))
+                new_source_name = archive_file.addClasspathLibrary(file_name_path)
             except IllegalArgumentException, iae:
                 _logger.warning('WLSDPLY-06620', server_name, file_name_path, iae.getLocalizedMessage(),
                                 class_name=_class_name, method_name=_method_name)
@@ -724,7 +726,9 @@ class TopologyDiscoverer(Discoverer):
             else:
                 server_name = self._get_server_name_from_location(location)
                 archive_file = self._model_context.get_archive_file()
-                file_path = self._convert_path(model_value)
+                file_path = model_value
+                if not self._model_context.is_remote():
+                    file_path = self._convert_path(model_value)
                 if server_name:
                     new_name = self._add_server_keystore_file_to_archive(server_name, archive_file, file_path)
                 else:
@@ -747,7 +751,7 @@ class TopologyDiscoverer(Discoverer):
         new_name = None
 
         try:
-            new_name = archive_file.addServerKeyStoreFile(server_name, File(file_path))
+            new_name = archive_file.addServerKeyStoreFile(server_name, file_path)
         except IllegalArgumentException, iae:
             _logger.warning('WLSDPLY-06624', server_name, file_path, iae.getLocalizedMessage(),
                             class_name=_class_name, method_name=_method_name)
@@ -771,7 +775,7 @@ class TopologyDiscoverer(Discoverer):
         new_name = None
 
         try:
-            new_name = archive_file.addNodeManagerKeyStoreFile(File(file_path))
+            new_name = archive_file.addNodeManagerKeyStoreFile(file_path)
         except IllegalArgumentException, iae:
             _logger.warning('WLSDPLY-06637', file_path, iae.getLocalizedMessage(), class_name=_class_name,
                             method_name=_method_name)

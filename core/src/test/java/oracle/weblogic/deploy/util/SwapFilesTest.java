@@ -54,7 +54,7 @@ public class SwapFilesTest {
 
         archive.removeAllBinaries();
         File sourceApp = new File(SOURCE_APP_FILE);
-        archive.addApplication(sourceApp);
+        archive.addApplication(SOURCE_APP_FILE);
         archive.extractFileFromZip(TARGET_APP_ARCHIVE_LOCATION, unitTestDir);
         File targetApp = new File(TARGET_APP_FILE);
 
@@ -87,7 +87,7 @@ public class SwapFilesTest {
 
         archive.removeAllBinaries();
         File sourceApp = new File(SOURCE_APP_FILE);
-        archive.addApplication(sourceApp);
+        archive.addApplication(SOURCE_APP_FILE);
         archive.extractFileFromZip(TARGET_APP_ARCHIVE_LOCATION, unitTestDir);
         File targetApp = new File(TARGET_APP_FILE);
 

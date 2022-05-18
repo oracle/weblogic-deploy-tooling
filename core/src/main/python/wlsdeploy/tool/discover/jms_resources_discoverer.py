@@ -403,10 +403,11 @@ class JmsResourcesDiscoverer(Discoverer):
             success, _, file_name = self._get_from_url('Foreign Server ' + server_name + ' Connection URL', model_value)
             archive_file = self._model_context.get_archive_file()
             if success and file_name is not None:
-                file_name = self._convert_path(file_name)
+                if not self._model_context.is_remote():
+                    file_name = self._convert_path(file_name)
                 _logger.finer('WLSDPLY-06495', server_name, file_name, class_name=_class_name, method_name=_method_name)
                 try:
-                    new_name = archive_file.addForeignServerFile(server_name, File(file_name))
+                    new_name = archive_file.addForeignServerFile(server_name, file_name)
                     new_name = FILE_URI + self._model_context.tokenize_path(self._convert_path(new_name))
                     _logger.info('WLSDPLY-06492', server_name, file_name, new_name, class_name=_class_name,
                                  method_name=_method_name)

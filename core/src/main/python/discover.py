@@ -15,7 +15,6 @@ from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.discover import DiscoverException
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import FileUtils
-from oracle.weblogic.deploy.util import PyOrderedDict
 from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import WLSDeployArchive
@@ -31,7 +30,6 @@ from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
-from wlsdeploy.json.json_translator import PythonToJson
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.deployments_discoverer import DeploymentsDiscoverer
@@ -248,14 +246,20 @@ def __discover(model_context, aliases, credential_injector, helper):
     __disconnect_domain(helper)
 
     if model_context.is_remote():
-        print 'Discovered Remote Domain - showing files to collect for archive'
         print ''
         remote_map = WLSDeployArchive.getRemoteList()
+        if len(remote_map) == 0:
+            message = exception_helper.get_message('WLSDPLY-06030')
+        else:
+            message = exception_helper.get_message('WLSDPLY-06031')
+        print message
+        print ''
         for key in remote_map:
             other_map = remote_map[key]
             type = other_map[WLSDeployArchive.REMOTE_TYPE]
             wls_archive = other_map[WLSDeployArchive.REMOTE_ARCHIVE_DIR]
-            print key, ' ', type, ' ', wls_archive
+            print key, ' ', wls_archive
+            print ''
     return model
 
 
@@ -503,6 +507,26 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
     return model
 
 
+def __remote_report(model_context):
+    if not model_context.is_remote():
+        return
+    print ''
+    remote_map = WLSDeployArchive.getRemoteList()
+    if len(remote_map) == 0:
+        message = exception_helper.get_message('WLSDPLY-06030')
+    else:
+        message = exception_helper.get_message('WLSDPLY-06031')
+    print message
+    print ''
+    for key in remote_map:
+        other_map = remote_map[key]
+        type = other_map[WLSDeployArchive.REMOTE_TYPE]
+        wls_archive = other_map[WLSDeployArchive.REMOTE_ARCHIVE_DIR]
+        print key, ' ', wls_archive
+    print ''
+    return
+
+
 def __log_and_exit(model_context, exit_code, class_name, method_name):
     """
     Helper method to log the exiting message and call sys.exit()
@@ -568,6 +592,7 @@ def main(args):
 
         model = __check_and_customize_model(model, model_context, aliases, credential_injector)
 
+        __remote_report(model_context)
     except DiscoverException, ex:
         __logger.severe('WLSDPLY-06011', _program_name, model_context.get_domain_name(),
                         model_context.get_domain_home(), ex.getLocalizedMessage(),

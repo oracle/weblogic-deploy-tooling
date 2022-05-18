@@ -98,7 +98,9 @@ class DeploymentsDiscoverer(Discoverer):
         if model_constants.SOURCE_PATH in library_dict:
             file_name = library_dict[model_constants.SOURCE_PATH]
             if file_name:
-                file_name_path = self._convert_path(file_name)
+                file_name_path = file_name
+                if self._model_context.is_remote():
+                    file_name_path = self._convert_path(file_name)
                 if self._is_oracle_home_file(file_name_path):
                     _logger.info('WLSDPLY-06383', library_name, class_name=_class_name, method_name=_method_name)
                 else:
@@ -106,7 +108,7 @@ class DeploymentsDiscoverer(Discoverer):
                                  method_name=_method_name)
                     new_source_name = None
                     try:
-                        new_source_name = archive_file.addSharedLibrary(File(file_name_path))
+                        new_source_name = archive_file.addSharedLibrary(file_name_path)
                     except IllegalArgumentException, iae:
                         if model_constants.TARGET in library_dict:
                             target = library_dict[model_constants.TARGET]
@@ -146,7 +148,8 @@ class DeploymentsDiscoverer(Discoverer):
             library_source_name = library_dict[model_constants.SOURCE_PATH]
             plan_path = library_dict[model_constants.PLAN_PATH]
             if plan_path:
-                plan_path = self._convert_path(plan_path)
+                if not self._model_context.is_remote():
+                    plan_path = self._convert_path(plan_path)
                 new_plan_name = None
                 _logger.info('WLSDPLY-06389', library_name, plan_path, class_name=_class_name, method_name=_method_name)
                 plan_dir = None
@@ -155,7 +158,7 @@ class DeploymentsDiscoverer(Discoverer):
                     del library_dict[model_constants.PLAN_DIR]
                 plan_file_name = self._resolve_deployment_plan_path(plan_dir, plan_path)
                 try:
-                    new_plan_name = archive_file.addApplicationDeploymentPlan(File(plan_file_name),
+                    new_plan_name = archive_file.addApplicationDeploymentPlan(plan_file_name,
                                                                               _generate_new_plan_name(
                                                                                   library_source_name,
                                                                                   plan_file_name))
@@ -224,7 +227,9 @@ class DeploymentsDiscoverer(Discoverer):
         if model_constants.SOURCE_PATH in application_dict:
             file_name = application_dict[model_constants.SOURCE_PATH]
             if file_name:
-                file_name_path = self._convert_path(file_name)
+                file_name_path = file_name
+                if not self._model_context.is_remote():
+                    file_name_path = self._convert_path(file_name)
                 if self._is_oracle_home_file(file_name_path):
                     _logger.info('WLSDPLY-06393', application_name, class_name=_class_name, method_name=_method_name)
                 else:
@@ -232,7 +237,7 @@ class DeploymentsDiscoverer(Discoverer):
                                  method_name=_method_name)
                     new_source_name = None
                     try:
-                        new_source_name = archive_file.addApplication(File(file_name_path))
+                        new_source_name = archive_file.addApplication(file_name_path)
                     except IllegalArgumentException, iae:
                         if model_constants.TARGET in application_dict:
                             target = application_dict[model_constants.TARGET]
@@ -272,7 +277,8 @@ class DeploymentsDiscoverer(Discoverer):
             app_source_name = application_dict[model_constants.SOURCE_PATH]
             plan_path = application_dict[model_constants.PLAN_PATH]
             if plan_path:
-                plan_path = self._convert_path(plan_path)
+                if not self._model_context.is_remote():
+                    plan_path = self._convert_path(plan_path)
                 _logger.info('WLSDPLY-06402', application_name, plan_path, class_name=_class_name,
                              method_name=_method_name)
                 plan_dir = None
@@ -282,7 +288,7 @@ class DeploymentsDiscoverer(Discoverer):
                 plan_file_name = self._resolve_deployment_plan_path(plan_dir, plan_path)
                 new_plan_name = None
                 try:
-                    new_plan_name = archive_file.addApplicationDeploymentPlan(File(plan_file_name),
+                    new_plan_name = archive_file.addApplicationDeploymentPlan(plan_file_name,
                                                                               _generate_new_plan_name(
                                                                                   app_source_name,
                                                                                   plan_file_name))

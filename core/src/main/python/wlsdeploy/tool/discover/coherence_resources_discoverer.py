@@ -163,23 +163,17 @@ class CoherenceResourcesDiscoverer(Discoverer):
         new_name = model_value
         if model_value is not None:
             archive_file = self._model_context.get_archive_file()
-            file_name_path = self._convert_path(model_value)
-            config_file = None
+            file_name_path = model_value
+            if not self._model_context.is_remote():
+                file_name_path = self._convert_path(model_value)
+
             try:
-                config_file = FileUtils.getCanonicalFile(File(file_name_path))
-            except (IOException, SecurityException), se:
-                _logger.warning('WLSDPLY-06314', cluster_name, file_name_path, se.getLocalizedMessage(),
+                new_name = archive_file.addCoherenceConfigFile(cluster_name, new_name)
+                _logger.finer('WLSDPLY-06315', file_name_path, class_name=_class_name, method_name=_method_name)
+            except (IllegalArgumentException, WLSDeployArchiveIOException), wioe:
+                _logger.warning('WLSDPLY-06316', cluster_name, file_name_path, wioe.getLocalizedMessage(),
                                 class_name=_class_name, method_name=_method_name)
                 new_name = None
-
-            if file is not None:
-                try:
-                    new_name = archive_file.addCoherenceConfigFile(cluster_name, config_file)
-                    _logger.finer('WLSDPLY-06315', file_name_path, class_name=_class_name, method_name=_method_name)
-                except (IllegalArgumentException, WLSDeployArchiveIOException), wioe:
-                    _logger.warning('WLSDPLY-06316', cluster_name, file_name_path, wioe.getLocalizedMessage(),
-                                    class_name=_class_name, method_name=_method_name)
-                    new_name = None
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
         return new_name
@@ -214,9 +208,10 @@ class CoherenceResourcesDiscoverer(Discoverer):
                                         class_name=_class_name, method_name=_method_name)
                         new_name = None
                 elif file_name is not None:
-                    file_name = self._convert_path(file_name)
+                    if not self._model_context.is_remote():
+                        file_name = self._convert_path(file_name)
                     try:
-                        new_name = archive_file.addCoherenceConfigFile(cluster_name, File(file_name))
+                        new_name = archive_file.addCoherenceConfigFile(cluster_name, file_name)
                         _logger.info('WLSDPLY-06319', cluster_name, file_name, new_name, class_name=_class_name,
                                      method_name=_method_name)
                     except (IllegalArgumentException, WLSDeployArchiveIOException), wioe:
