@@ -4,6 +4,8 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 Methods for creating Kubernetes resource configuration files for Verrazzano.
 """
+import os.path
+
 from java.io import File
 
 from wlsdeploy.aliases.location_context import LocationContext
@@ -70,9 +72,40 @@ def create_additional_output(model, model_context, aliases, credential_injector,
     # all current output types use this hash, and process a set of template files
     template_hash = _build_template_hash(model, model_context, aliases, credential_injector)
     template_names = model_context.get_target_configuration().get_additional_output_types()
-    for template_name in template_names:
+    for index, template_name in enumerate(template_names):
+        # special processing for deprecated -domain_resource_file argument
+        # used only by extractDomainResource
+        if _create_named_file(index, template_name, template_hash, model, model_context, exception_type):
+            continue
+
         _create_file(template_name, template_hash, output_dir, exception_type)
         output_file_helper.update_from_model(output_dir, template_name, model)
+
+
+# *** DELETE METHOD WHEN deprecated -domain_resource_file IS REMOVED ***
+def _create_named_file(index, template_name, template_hash, model, model_context, exception_type):
+    """
+    Special processing for deprecated -domain_resource_file argument used by extractDomainResource.
+    Use the directory of -domain_resource_file for all templates,
+    and the name of -domain_resource_file for the first (usually only) template.
+    """
+    _method_name = '_create_named_file'
+
+    resource_file = model_context.get_domain_resource_file()
+    if resource_file:
+        template_subdir = "targets/templates/" + template_name
+        template_path = path_utils.find_config_path(template_subdir)
+
+        output_dir, output_name = os.path.split(resource_file)
+        if index > 0:
+            output_name = template_name
+
+        output_file = File(os.path.join(output_dir, output_name))
+        __logger.info('WLSDPLY-01662', output_file, class_name=__class_name, method_name=_method_name)
+        file_template_helper.create_file_from_file(template_path, template_hash, output_file, exception_type)
+        output_file_helper.update_from_model(output_dir, output_name, model)
+        return True
+    return False
 
 
 def _create_file(template_name, template_hash, output_dir, exception_type):
