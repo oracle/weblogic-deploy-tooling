@@ -12,13 +12,6 @@ from oracle.weblogic.deploy.util import PyOrderedDict
 from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.extract import wko_schema_helper
-from wlsdeploy.tool.extract.domain_resource_extractor import COMPONENT
-from wlsdeploy.tool.extract.domain_resource_extractor import DEFAULT_KIND
-from wlsdeploy.tool.extract.domain_resource_extractor import KIND
-from wlsdeploy.tool.extract.domain_resource_extractor import SPEC
-from wlsdeploy.tool.extract.domain_resource_extractor import TEMPLATE
-from wlsdeploy.tool.extract.domain_resource_extractor import VERRAZZANO_WEBLOGIC_WORKLOAD
-from wlsdeploy.tool.extract.domain_resource_extractor import WORKLOAD
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
 from wlsdeploy.yaml.yaml_translator import YamlToPython
@@ -26,6 +19,16 @@ from wlsdeploy.yaml.yaml_translator import YamlToPython
 __class_name = 'output_file_helper'
 __logger = PlatformLogger('wlsdeploy.tool.util')
 
+KIND = 'kind'
+SPEC = 'spec'
+
+WKO_DOMAIN_KIND = 'Domain'
+
+# specific to Verrazzano
+COMPONENT = 'Component'
+TEMPLATE = 'template'
+VERRAZZANO_WEBLOGIC_WORKLOAD = 'VerrazzanoWebLogicWorkload'
+WORKLOAD = 'workload'
 
 def update_from_model(output_dir, output_file_name, model):
     """
@@ -77,7 +80,7 @@ def _update_documents(documents, kubernetes_content, output_file_path):
             kind = dictionary_utils.get_element(document, KIND)
 
             # is this a standard WKO document?
-            if kind == DEFAULT_KIND:
+            if kind == WKO_DOMAIN_KIND:
                 _update_dictionary(document, kubernetes_content, None, output_file_path)
                 found = True
 
