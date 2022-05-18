@@ -34,13 +34,13 @@ __wls_helper = WebLogicHelper(__logger)
 __wlst_mode = WlstModes.OFFLINE
 
 __required_arguments = [
-    CommandLineArgUtil.ORACLE_HOME_SWITCH,
-    CommandLineArgUtil.DOMAIN_HOME_SWITCH
+    CommandLineArgUtil.ORACLE_HOME_SWITCH
 ]
 
 __optional_arguments = [
     # Used by shell script to locate WLST
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
+    CommandLineArgUtil.DOMAIN_HOME_SWITCH,
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
     CommandLineArgUtil.MODEL_FILE_SWITCH,
     CommandLineArgUtil.TARGET_SWITCH,

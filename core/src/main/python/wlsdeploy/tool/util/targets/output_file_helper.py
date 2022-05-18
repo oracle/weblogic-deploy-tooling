@@ -23,12 +23,14 @@ KIND = 'kind'
 SPEC = 'spec'
 
 WKO_DOMAIN_KIND = 'Domain'
+DOMAIN_HOME = 'domainHome'
 
 # specific to Verrazzano
-COMPONENT = 'Component'
+COMPONENT_KIND = 'Component'
 TEMPLATE = 'template'
-VERRAZZANO_WEBLOGIC_WORKLOAD = 'VerrazzanoWebLogicWorkload'
+VERRAZZANO_WEBLOGIC_WORKLOAD_KIND = 'VerrazzanoWebLogicWorkload'
 WORKLOAD = 'workload'
+
 
 def update_from_model(output_dir, output_file_name, model):
     """
@@ -85,11 +87,11 @@ def _update_documents(documents, kubernetes_content, output_file_path):
                 found = True
 
             # is this a Verrazzano WebLogic workload document?
-            elif kind == COMPONENT:
+            elif kind == COMPONENT_KIND:
                 spec = dictionary_utils.get_dictionary_element(document, SPEC)
                 workload = dictionary_utils.get_dictionary_element(spec, WORKLOAD)
                 component_kind = dictionary_utils.get_element(workload, KIND)
-                if component_kind == VERRAZZANO_WEBLOGIC_WORKLOAD:
+                if component_kind == VERRAZZANO_WEBLOGIC_WORKLOAD_KIND:
                     component_spec = _get_or_create_dictionary(workload, SPEC)
                     component_template = _get_or_create_dictionary(component_spec, TEMPLATE)
                     _update_dictionary(component_template, kubernetes_content, None, output_file_path)

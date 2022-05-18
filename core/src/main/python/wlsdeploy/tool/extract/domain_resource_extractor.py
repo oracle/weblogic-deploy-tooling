@@ -4,8 +4,12 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 import re
 
+from oracle.weblogic.deploy.util import PyOrderedDict
+
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.util.credential_injector import CredentialInjector
+from wlsdeploy.tool.util.targets.output_file_helper import DOMAIN_HOME
+from wlsdeploy.tool.util.targets.output_file_helper import SPEC
 from wlsdeploy.util import target_configuration_helper
 
 _secret_pattern = re.compile("^@@SECRET:(.*)@@$")
@@ -31,6 +35,13 @@ class DomainResourceExtractor:
         credential_injector = CredentialInjector(DomainResourceExtractor, model_dict, self._model_context)
         _add_secrets(model_dict, credential_injector)
 
+        # if -domain_home was specified on the command line, it should override any value in the model
+        domain_home_override = self._model_context.get_domain_home()
+        if domain_home_override:
+            kubernetes_dict = self._model.get_model_kubernetes()
+            spec_dict = get_or_create_dictionary(kubernetes_dict, SPEC)
+            spec_dict[DOMAIN_HOME] = domain_home_override
+
         # create the output files with information from the model
         target_configuration_helper.create_additional_output(self._model, self._model_context, self._aliases,
                                                              credential_injector, ExceptionType.DEPLOY)
@@ -54,3 +65,9 @@ def _add_secrets(folder, credential_injector):
                 secret_name = secret_name.replace('@@ENV:DOMAIN_UID@@-', '')
                 if secret_name not in credential_injector.get_variable_cache():
                     credential_injector.add_to_cache(token_name=secret_name, token_value='')
+
+
+def get_or_create_dictionary(dictionary, key):
+    if key not in dictionary:
+        dictionary[key] = PyOrderedDict()
+    return dictionary[key]
