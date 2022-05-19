@@ -395,7 +395,7 @@ The Model Help Tool is new in WebLogic Deploy Tooling 1.8. The -model_sample arg
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/rcuinfo/</guid>
       <description>Specifying RCU connection information in the model During creating or updating a domain, there is new section RCUDbInfo in the model, under the domainInfo section, for specifying RCU database connection information without using the command-line arguments -rcu_db and -rcu_prefix. Use this to support a database where the connection string is more complex and requires extra options.
-For example, in order to use the Oracle Autonomous Transaction Processing Cloud Database for the JRF domain, specify the following information in the model:</description>
+Access a database using a wallet When accessing a database using a wallet, you need to obtain the wallet from your DBA and information about the database:</description>
     </item>
     
   </channel>
