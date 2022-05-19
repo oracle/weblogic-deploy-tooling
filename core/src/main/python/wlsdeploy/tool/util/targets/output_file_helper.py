@@ -122,6 +122,12 @@ def _update_dictionary(output_dictionary, model_dictionary, schema_folder, schem
                          method_name=_method_name)
         return
 
+    # no type checking for elements of simple (single type) map
+    if wko_schema_helper.is_simple_map(schema_folder):
+        for key, value in model_dictionary.items():
+            output_dictionary[key] = value
+        return
+
     properties = wko_schema_helper.get_properties(schema_folder)
 
     for key, value in model_dictionary.items():
@@ -143,7 +149,6 @@ def _update_dictionary(output_dictionary, model_dictionary, schema_folder, schem
                 _update_list(output_dictionary[key], value, property_folder, next_schema_path, output_file_path)
         else:
             output_dictionary[key] = value
-    pass
 
 
 def _update_list(output_list, model_list, schema_folder, schema_path, output_file_path):
