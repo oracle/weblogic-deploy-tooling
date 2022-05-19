@@ -2,7 +2,27 @@
 
 During creating or updating a domain, there is new section `RCUDbInfo` in the model, under the `domainInfo` section, for specifying RCU database connection information without using the command-line arguments `-rcu_db` and `-rcu_prefix`. Use this to support a database where the connection string is more complex and requires extra options.
 
-For example, in order to use the Oracle Autonomous Transaction Processing Cloud Database for the JRF domain, specify the following information in the model:
+### Access a database using a wallet
+
+When accessing a database using a wallet, you need to obtain the wallet from your DBA and information about the database:
+
+- `tns alias` - The network service name. You can find this in the `tnsnames.ora` file inside the database wallet.  The alias is on the left side of the equals sign.
+
+   ```text
+   xxxx = (DESCRIPTION ...)
+   yyyy = (DESCRIPTION ...)
+   ...
+   ```
+
+- `keystore and truststore password` - Password used to generate the wallet.
+- `keystore and truststore type` - SSO or PKCS12.
+- `keystore and truststore file` - `cwallet.sso` (if store type is SSO), `ewallet.p12` (if store type is PKCS12).
+
+Depending on the type of database and the choice of method for authentication, you can provide the necessary information with `RCUDbInfo` in the model.
+
+#### ATP database
+
+For example, to use the Oracle Autonomous Transaction Processing Cloud Database for a JRF domain, specify the following information in the model:
 
 ```yaml
 domainInfo:
@@ -12,20 +32,21 @@ domainInfo:
         rcu_admin_password: <database admin password is required only when you specify -run_rcu flag>
         rcu_schema_password : <RCU schema password>
         atp.admin.user : admin
-        tns.alias : dbatp_tp
-        javax.net.ssl.keyStorePassword : <atp wallet password>
-        javax.net.ssl.trustStorePassword : <atp wallet password>
+        tns.alias : <tns alias name. e.g. dbname_tp>
+        javax.net.ssl.keyStorePassword : <atp wallet password when generating the wallet from Oracle Cloud Console>
+        javax.net.ssl.trustStorePassword : <atp wallet password when generating the wallet from Oracle Cloud Console>
         oracle.net.tns_admin: <optional: absolute path of the unzipped wallet root directory (outside of the archive), if the wallet.zip is not included in the archive>
-```           
+```
 The database wallet can be included in the archive file under `atpwallet` zipentry structure
 
 `atpwallet/Walletxyz.zip`
 
-or by specifying the unzipped root directory of the ATP wallet zip file in `oracle.net.tns_admin`.
+Or, by specifying the unzipped root directory of the ATP wallet ZIP file in `oracle.net.tns_admin`.
 
-Using the Create Domain Tool with the `-run_rcu` flag will create the RCU schemas against the Oracle Autonomous Transaction Processing Cloud Database and configure the datasources in the JRF domain to use the database.  For example:
+**Note: Prior to release 0.23, the `useATP` flag only accepts values of `0`, `1`, `true`, or `false`.**
 
-    weblogic-deploy/bin/createDomain.sh -oracle_home /u01/wls12213 -domain_type JRF -domain_home /u01/data/domains/demodomain -archive_file DemoDomain.zip -run_rcu
+#### SSL database using SSO for authentication
+
 For an SSL database, with an `SSO` wallet, use the following example:
 ```yaml
 domainInfo:
@@ -41,10 +62,11 @@ domainInfo:
       javax.net,ssl.trustStore: <truststore found in unzipped wallet, i.e cwallet.sso>
       javax.net.ssl.trustStoreType: SSO
       oracle.net.tns_admin: <absolute path of the unzipped wallet root directory>
-      
-```
 
-For an SSL database, with an `PKCS12` wallet, use the following example:
+```
+#### SSL database using PKCS12 for authentication
+
+For an SSL database, with a `PKCS12` wallet, use the following example:
 ```yaml
 domainInfo:
     RCUDbInfo:
@@ -63,7 +85,9 @@ domainInfo:
       oracle.net.tns_admin: <absolute path of the unzipped wallet root directory>
 
 ```
-When using PKCS12 wallet, you must include the Oracle PKI provider to access your wallet. Add the Oracle PKI provider to your Java `java.security` file. For more information about adding the Oracle PKI provider to the Java `java.security` file, see Section 2.2.4 "How can Oracle wallets be used in Java" in [SSL with Oracle JDBC](https://www.oracle.com/technetwork/topics/wp-oracle-jdbc-thin-ssl-130128.pdf).
+When using a PKCS12 wallet, you must include the Oracle PKI provider to access your wallet. Add the Oracle PKI provider to your Java `java.security` file. For more information, see Section 2.2.4 "How can Oracle wallets be used in Java" in [SSL with Oracle JDBC Thin Driver](https://www.oracle.com/technetwork/topics/wp-oracle-jdbc-thin-ssl-130128.pdf).
+
+### Access a database without using a wallet (non wallet-based access)
 
 For a typical database, use the following example:
 
@@ -79,6 +103,9 @@ domainInfo:
          if not specified>
         rcu_db_conn_string : dbhost:1521/pdborcl
 ```        
+
+### Specify variables for RCU
+
 RCU `-variables` option of the repository creation utility can now be included in the `RCUDbInfo` section with the key `rcu_variables`:
 
 ```yaml
@@ -87,13 +114,13 @@ domainInfo:
         rcu_variables : xxxx
 ```    
 
-**Note: Prior to release 0.23, the `useATP` flag only accepts values of 0, 1, 'true' or 'false'.**
+### Specify extended XML files for RCU
 
-When creating a domain using WDT and the -run_rcu option, you can specify your extended XML files in the RCUDbInfo section.
+When creating a domain using WDT and the `-run_rcu` option, you can specify your extended XML files in the `RCUDbInfo` section.
 
-This correlates to the `createRepository` and `dropRepository` command-line arguments `RCU -compInfoXMLLocation <file path> -storageXMLLocation <file path>`
+This correlates to the `createRepository` and `dropRepository` command-line arguments `RCU -compInfoXMLLocation <file path> -storageXMLLocation <file path>`.
 
-Include your XML files in your archive file using location `wlsdeploy/rcu/config`. Then include this relative location in the RCUDbInfo section of the model.
+Include your XML files in your archive file using the location `wlsdeploy/rcu/config`. Then include this relative location in the `RCUDbInfo` section of the model.
 
 ```yaml
 domainInfo:
