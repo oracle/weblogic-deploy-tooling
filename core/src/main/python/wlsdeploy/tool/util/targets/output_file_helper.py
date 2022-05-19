@@ -6,10 +6,14 @@ Methods to update an output file with information from the kubernetes section of
 """
 from java.io import File
 
+from oracle.weblogic.deploy.util import PyOrderedDict
+from oracle.weblogic.deploy.util import PyRealBoolean
 from oracle.weblogic.deploy.yaml import YamlException
 
-from oracle.weblogic.deploy.util import PyOrderedDict
+from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.model_constants import KUBERNETES
+from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
+from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.extract import wko_schema_helper
 from wlsdeploy.util import dictionary_utils
@@ -76,6 +80,8 @@ def _update_documents(documents, kubernetes_content, output_file_path):
     _method_name = '_update_documents'
     found = False
 
+    schema = wko_schema_helper.get_domain_resource_schema(ExceptionType.DEPLOY)
+
     # update section(s) based on their kind, etc.
     for document in documents:
         if isinstance(document, dict):
@@ -83,7 +89,7 @@ def _update_documents(documents, kubernetes_content, output_file_path):
 
             # is this a standard WKO document?
             if kind == WKO_DOMAIN_KIND:
-                _update_dictionary(document, kubernetes_content, None, output_file_path)
+                _update_dictionary(document, kubernetes_content, schema, None, output_file_path)
                 found = True
 
             # is this a Verrazzano WebLogic workload document?
@@ -94,18 +100,19 @@ def _update_documents(documents, kubernetes_content, output_file_path):
                 if component_kind == VERRAZZANO_WEBLOGIC_WORKLOAD_KIND:
                     component_spec = _get_or_create_dictionary(workload, SPEC)
                     component_template = _get_or_create_dictionary(component_spec, TEMPLATE)
-                    _update_dictionary(component_template, kubernetes_content, None, output_file_path)
+                    _update_dictionary(component_template, kubernetes_content, schema, None, output_file_path)
                     found = True
 
     if not found:
         __logger.warning('WLSDPLY-01676', output_file_path, class_name=__class_name, method_name=_method_name)
 
 
-def _update_dictionary(output_dictionary, model_dictionary, schema_path, output_file_path):
+def _update_dictionary(output_dictionary, model_dictionary, schema_folder, schema_path, output_file_path):
     """
     Update output_dictionary with attributes from model_dictionary.
     :param output_dictionary: the dictionary to be updated
     :param model_dictionary: the dictionary to update from (type previously validated)
+    :param schema_folder: the schema for this folder
     :param schema_path: used for wko_schema_helper lookups and logging
     :param output_file_path: used for logging
     """
@@ -115,29 +122,36 @@ def _update_dictionary(output_dictionary, model_dictionary, schema_path, output_
                          method_name=_method_name)
         return
 
+    properties = wko_schema_helper.get_properties(schema_folder)
+
     for key, value in model_dictionary.items():
+        property_folder = properties[key]
+        element_type = wko_schema_helper.get_type(property_folder)
+        value = _convert_value(value, element_type)
+
         if key not in output_dictionary:
             output_dictionary[key] = value
         elif isinstance(value, dict):
             next_schema_path = wko_schema_helper.append_path(schema_path, key)
-            _update_dictionary(output_dictionary[key], value, next_schema_path, output_file_path)
+            _update_dictionary(output_dictionary[key], value, property_folder, next_schema_path, output_file_path)
         elif isinstance(value, list):
             if not value:
                 # if the model has an empty list, override output value
                 output_dictionary[key] = value
             else:
                 next_schema_path = wko_schema_helper.append_path(schema_path, key)
-                _update_list(output_dictionary[key], value, next_schema_path, output_file_path)
+                _update_list(output_dictionary[key], value, property_folder, next_schema_path, output_file_path)
         else:
             output_dictionary[key] = value
     pass
 
 
-def _update_list(output_list, model_list, schema_path, output_file_path):
+def _update_list(output_list, model_list, schema_folder, schema_path, output_file_path):
     """
     Update output_list from model_list, overriding or merging existing values
     :param output_list: the list to be updated
     :param model_list: the list to update from (type previously validated)
+    :param schema_folder: the schema for members of this list
     :param schema_path: used for wko_schema_helper lookups and logging
     :param output_file_path: used for logging
     """
@@ -151,10 +165,13 @@ def _update_list(output_list, model_list, schema_path, output_file_path):
         if isinstance(item, dict):
             match = _find_object_match(item, output_list, schema_path)
             if match:
-                _update_dictionary(match, item, schema_path, output_file_path)
+                next_schema_folder = wko_schema_helper.get_array_item_info(schema_folder)
+                _update_dictionary(match, item, next_schema_folder, schema_path, output_file_path)
             else:
                 output_list.append(item)
         elif item not in output_list:
+            element_type = wko_schema_helper.get_array_element_type(schema_folder)
+            item = _convert_value(item, element_type)
             output_list.append(item)
 
 
@@ -174,6 +191,27 @@ def _find_object_match(item, match_list, schema_path):
                 if item_key == match_item[key]:
                     return match_item
     return None
+
+
+def _convert_value(model_value, type_name):
+    """
+    Convert the specified model value to match the schema type for the domain resource file.
+    WDT allows some model conventions that are not allowed in the domain resource file.
+    :param model_value: the value to be checked
+    :param type_name: the schema type name of the value
+    :return: the converted value
+    """
+    if type_name == 'boolean':
+        # the model values can be true, false, 1, 0, etc.
+        # target boolean values must be 'true' or 'false'
+        return PyRealBoolean(alias_utils.convert_boolean(model_value))
+
+    if type_name == 'array':
+        # the model values can be 'abc,123'.
+        # target values must be a list object.
+        return alias_utils.convert_to_type('list', model_value, delimiter=MODEL_LIST_DELIMITER)
+
+    return model_value
 
 
 def _get_or_create_dictionary(dictionary, key):
