@@ -15,6 +15,7 @@ from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 # imports from local packages start here
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.extract.domain_resource_extractor import DomainResourceExtractor
 from wlsdeploy.tool.util import model_context_helper
@@ -33,21 +34,23 @@ __wls_helper = WebLogicHelper(__logger)
 __wlst_mode = WlstModes.OFFLINE
 
 __required_arguments = [
-    CommandLineArgUtil.ORACLE_HOME_SWITCH,
-    CommandLineArgUtil.DOMAIN_HOME_SWITCH,
-    CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH
+    CommandLineArgUtil.ORACLE_HOME_SWITCH
 ]
 
 __optional_arguments = [
     # Used by shell script to locate WLST
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
+    CommandLineArgUtil.DOMAIN_HOME_SWITCH,
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
     CommandLineArgUtil.MODEL_FILE_SWITCH,
+    CommandLineArgUtil.TARGET_SWITCH,
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,
     CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
     CommandLineArgUtil.PASSPHRASE_SWITCH,
     CommandLineArgUtil.PASSPHRASE_FILE_SWITCH,
     CommandLineArgUtil.PASSPHRASE_ENV_SWITCH,
+    CommandLineArgUtil.OUTPUT_DIR_SWITCH,  # move to __required_arguments once DOMAIN_RESOURCE_FILE_SWITCH is removed
+    CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH  # deprecated, only this program uses it
 ]
 
 
@@ -57,6 +60,8 @@ def __process_args(args):
     :param args: the command-line arguments list
     :raises CLAException: if an error occurs while validating and processing the command-line arguments
     """
+    _method_name = '__process_args'
+
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     cla_util.set_allow_multiple_models(True)
     argument_map = cla_util.process_args(args, TOOL_TYPE_EXTRACT)
@@ -70,19 +75,37 @@ def __process_args(args):
 
     # allow unresolved tokens and archive entries
     argument_map[CommandLineArgUtil.VALIDATION_METHOD] = validate_configuration.LAX_METHOD
+
+    # if no target type was specified, use wko
+    if CommandLineArgUtil.TARGET_SWITCH not in argument_map:
+        argument_map[CommandLineArgUtil.TARGET_SWITCH] = 'wko'
+
+    # warn about deprecated -domain_resource_file argument.
+    # not needed once -domain_resource_file is removed and -output_dir moves to __required_arguments.
+    if CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH in argument_map:
+        __logger.warning('WLSDPLY-10040', CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH,
+                         CommandLineArgUtil.OUTPUT_DIR_SWITCH, class_name=_class_name, method_name=_method_name)
+    elif CommandLineArgUtil.OUTPUT_DIR_SWITCH not in argument_map:
+        ex = exception_helper.create_cla_exception(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE, 'WLSDPLY-20005',
+                                                   _program_name, CommandLineArgUtil.OUTPUT_DIR_SWITCH,
+                                                   class_name=_class_name, method_name=_method_name)
+        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
+
     return model_context_helper.create_context(_program_name, argument_map)
 
 
-def __extract_resource(model, model_context):
+def __extract_resource(model, model_context, aliases):
     """
     Offline deployment orchestration
     :param model: the model
     :param model_context: the model context
+    :param aliases: the aliases object
     :raises: DeployException: if an error occurs
     """
     _method_name = '__extract_resource'
 
-    resource_extractor = DomainResourceExtractor(model, model_context, __logger)
+    resource_extractor = DomainResourceExtractor(model, model_context, aliases, __logger)
     resource_extractor.extract()
     return 0
 
@@ -119,7 +142,7 @@ def main(args):
 
     try:
         model = Model(model_dictionary)
-        exit_code = __extract_resource(model, model_context)
+        exit_code = __extract_resource(model, model_context, aliases)
     except DeployException, ex:
         __logger.severe('WLSDPLY-09015', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
