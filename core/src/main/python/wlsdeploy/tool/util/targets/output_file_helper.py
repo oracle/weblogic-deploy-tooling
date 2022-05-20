@@ -133,6 +133,11 @@ def _update_dictionary(output_dictionary, model_dictionary, schema_folder, schem
     for key, value in model_dictionary.items():
         property_folder = properties[key]
         element_type = wko_schema_helper.get_type(property_folder)
+
+        # deprecated "named object list" format
+        value = _check_named_object_list(value, element_type, property_folder, schema_path, key)
+        # end deprecated
+
         value = _convert_value(value, element_type)
 
         if key not in output_dictionary:
@@ -215,6 +220,37 @@ def _convert_value(model_value, type_name):
         # the model values can be 'abc,123'.
         # target values must be a list object.
         return alias_utils.convert_to_type('list', model_value, delimiter=MODEL_LIST_DELIMITER)
+
+    return model_value
+
+
+# *** DELETE METHOD WHEN deprecated "named object list" IS REMOVED ***
+def _check_named_object_list(model_value, type_name, schema_folder, schema_path, key):
+    """
+    Convert specified model value to an object list if it uses deprecated "named object list" format.
+    :param model_value: the value to be checked
+    :param type_name: the schema type name of the value
+    :param schema_folder: the schema for the value being checked
+    :param schema_path: used for wko_schema_helper key lookup
+    :param key: used for wko_schema_helper key lookup
+    :return: the converted value
+    """
+    if type_name == 'array' and isinstance(model_value, dict):
+        object_list = list()
+        next_schema_path = wko_schema_helper.append_path(schema_path, key)
+        list_key = wko_schema_helper.get_object_list_key(next_schema_path)
+        item_info = wko_schema_helper.get_array_item_info(schema_folder)
+        properties = wko_schema_helper.get_properties(item_info)
+
+        for model_key, model_object in model_value.items():
+            new_object = model_object.copy()
+
+            # see if the model name should become an attribute in the new object
+            if (list_key in properties.keys()) and (list_key not in new_object.keys()):
+                new_object[list_key] = model_key
+
+            object_list.append(new_object)
+        return object_list
 
     return model_value
 
