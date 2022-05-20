@@ -28,8 +28,6 @@ class DomainResourceExtractor:
         self._logger = logger
 
     def extract(self):
-        _method_name = 'extract'
-
         # create a credential injector containing secrets from the model
         model_dict = self._model.get_model()
         credential_injector = CredentialInjector(DomainResourceExtractor, model_dict, self._model_context)
