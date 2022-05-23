@@ -58,6 +58,7 @@ from wlsdeploy.aliases.alias_constants import WLST_TYPE
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.util.attribute_setter import AttributeSetter
 from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util.model_context import ModelContext
 
 
 class ListTestCase(unittest.TestCase):
@@ -574,7 +575,8 @@ class ListTestCase(unittest.TestCase):
                 if len(set_method_value_components) == 2:
                     invoker = set_method_value_components[1]
 
-                    instance = AttributeSetter(aliases, None, ExceptionType.ALIAS, wlst_mode)
+                    model_context = ModelContext("test", {})
+                    instance = AttributeSetter(model_context, aliases, ExceptionType.ALIAS, wlst_mode)
                     try:
                         getattr(instance, invoker)
                     except AttributeError:
