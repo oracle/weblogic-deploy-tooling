@@ -9,7 +9,7 @@ description: "Generates YAML resource files for use with the WebLogic Kubernetes
 
 #### Using WDT with WebLogic Kubernetes Operator
 
-The Extract Domain Resource Tool can be used to create resource files for use with the WebLogic Kubernetes Operator or Verrazzano. This allows the domain configuration and the Kubernetes container configuration to be specified in a single model file.
+You can use the Extract Domain Resource Tool to create resource files for use with the WebLogic Kubernetes Operator or Verrazzano. This allows the domain configuration and the Kubernetes container configuration to be specified in a single model file.
 
 This is especially useful when making configuration changes to the domain that also need to be reflected in the resource file. For example, adding a cluster to the domain only requires that it be added to the `topology` section of the WDT model, then a new resource file can be generated to apply to Kubernetes.
 
@@ -24,7 +24,7 @@ $ <wls-deploy-home>/bin/extractDomainResource.sh -oracle_home /tmp/oracle -domai
 
 For the simplest case, the Extract Domain Resource Tool will create resource files based on the templates corresponding to the `target` argument, using information from the command line and the domain sections of the model. Information about target types and templates can be found [here]({{< relref "/userguide/target_env.md" >}}).
 
-The value of the optional `-domain_home` argument will be applied in the template output. Domain name and UID fields in the template will use the domain name in the topology section of the model, or the default `base_domain`. The cluster entries will be pulled from the topology section of the model, and their replica counts were derived from the number of servers for each cluster.
+The value of the optional `-domain_home` argument will be applied in the template output. Domain name and UID fields in the template will use the domain name in the topology section of the model, or the default `base_domain`. The cluster entries will be pulled from the topology section of the model; their replica counts will have been derived from the number of servers for each cluster.
 
 The user is expected to fill in the image and secrets information identified by `--FIX ME--` in the resource output.
 
@@ -105,10 +105,10 @@ The content in the `kubernetes` section is not generated when a model is discove
 | Parameter | Definition | Default |
 | ---- | ---- | ---- |
 | `-archive_file` | The path to the archive file.  If the `-model_file` argument is not specified, the model file in this archive will be used.  This can also be specified as a comma-separated list of archive files.  The overlapping contents in each archive take precedence over previous archives in the list. |    |
-| `-domain_home` | the domain home directory to be used in output files. This will override any value in the model. |    |
-| `-domain_resource_file` | the location of the extracted domain resource file. This is deprecated, use -output_dir to specify output location. |    |
+| `-domain_home` | The domain home directory to be used in output files. This will override any value in the model. |    |
+| `-domain_resource_file` | the location of the extracted domain resource file. This is deprecated, use `-output_dir` to specify output location. |    |
 | `-model_file` | The location of the model file.  This can also be specified as a comma-separated list of model locations, where each successive model layers on top of the previous ones. |    |
 | `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set. |    |
-| `-output_dir` | the location for the target output files. |    |
-| `-target` | the target output type. The default is wko. |    |
+| `-output_dir` | The location for the target output files. |    |
+| `-target` | The target output type. The default is `wko`. |    |
 | `-variable_file` | The location of the property file containing the values for variables used in the model. This can also be specified as a comma-separated list of property files, where each successive set of properties layers on top of the previous ones. |    |
