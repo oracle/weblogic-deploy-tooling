@@ -10,6 +10,7 @@ from java.lang import SecurityException
 
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
+from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 
 from wlsdeploy.aliases import model_constants
@@ -166,14 +167,19 @@ class CoherenceResourcesDiscoverer(Discoverer):
             file_name_path = model_value
             if not self._model_context.is_remote():
                 file_name_path = self._convert_path(model_value)
+                if not self._model_context.skip_archive():
+                    try:
+                        new_name = archive_file.addCoherenceConfigFile(cluster_name, new_name)
+                        _logger.finer('WLSDPLY-06315', file_name_path, class_name=_class_name, method_name=_method_name)
+                    except (IllegalArgumentException, WLSDeployArchiveIOException), wioe:
+                        _logger.warning('WLSDPLY-06316', cluster_name, file_name_path, wioe.getLocalizedMessage(),
+                                        class_name=_class_name, method_name=_method_name)
+                        new_name = None
+            else:
+                new_name = archive_file.getCoherenceConfigArchivePath(cluster_name, new_name)
+                self.add_to_remote_map(file_name_path, new_name,
+                                   WLSDeployArchive.ArchiveEntryType.COHERENCE_CONFIG.name())
 
-            try:
-                new_name = archive_file.addCoherenceConfigFile(cluster_name, new_name)
-                _logger.finer('WLSDPLY-06315', file_name_path, class_name=_class_name, method_name=_method_name)
-            except (IllegalArgumentException, WLSDeployArchiveIOException), wioe:
-                _logger.warning('WLSDPLY-06316', cluster_name, file_name_path, wioe.getLocalizedMessage(),
-                                class_name=_class_name, method_name=_method_name)
-                new_name = None
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
         return new_name
@@ -195,28 +201,39 @@ class CoherenceResourcesDiscoverer(Discoverer):
         _logger.entering(cluster_name, model_name, model_value, class_name=_class_name, method_name=_method_name)
         new_name = model_value
         if model_value is not None:
-            success, url, file_name = self._get_from_url('Coherence Cluster ' + cluster_name + ' Cache Configuration', model_value)
+            success, url, file_name = self._get_from_url('Coherence Cluster ' + cluster_name + ' Cache Configuration',
+                                                         model_value)
             archive_file = self._model_context.get_archive_file()
             if success:
                 if url is not None:
-                    try:
-                        new_name = archive_file.addCoherenceConfigFileFromUrl(cluster_name, url)
-                        _logger.info('WLSDPLY-06317', cluster_name, url, new_name, class_name=_class_name,
-                                     method_name=_method_name)
-                    except (IllegalArgumentException, WLSDeployArchiveIOException), wioe:
-                        _logger.warning('WLSDPLY-06318', cluster_name, model_value, 'url', wioe.getLocalizedMessage(),
-                                        class_name=_class_name, method_name=_method_name)
-                        new_name = None
+                    if self._model_context.is_remote():
+                        new_name = archive_file.getCoherenceURLArchivePath(cluster_name, url)
+                        self.add_to_remote_map(file_name, new_name,
+                                               WLSDeployArchive.ArchiveEntryType.COHERENCE_CONFIG.name())
+                    elif not self._model_context.skip_archive():
+                        try:
+                            new_name = archive_file.addCoherenceConfigFileFromUrl(cluster_name, url)
+                            _logger.info('WLSDPLY-06317', cluster_name, url, new_name, class_name=_class_name,
+                                         method_name=_method_name)
+                        except (IllegalArgumentException, WLSDeployArchiveIOException), wioe:
+                            _logger.warning('WLSDPLY-06318', cluster_name, model_value, 'url', wioe.getLocalizedMessage(),
+                                            class_name=_class_name, method_name=_method_name)
+                            new_name = None
                 elif file_name is not None:
                     if not self._model_context.is_remote():
                         file_name = self._convert_path(file_name)
-                    try:
-                        new_name = archive_file.addCoherenceConfigFile(cluster_name, file_name)
-                        _logger.info('WLSDPLY-06319', cluster_name, file_name, new_name, class_name=_class_name,
-                                     method_name=_method_name)
-                    except (IllegalArgumentException, WLSDeployArchiveIOException), wioe:
-                        _logger.warning('WLSDPLY-06318', cluster_name, file_name, 'file', wioe.getLocalizedMessage())
-                        new_name = None
+                    if self._model_context.is_remote():
+                        new_name = archive_file.getCoherenceConfigArchivePath(file_name)
+                        self.add_to_remote_map(file_name, new_name,
+                                               WLSDeployArchive.ArchiveEntryType.COHERENCE_CONFIG.name())
+                    elif not self._model_context.skip_archive():
+                        try:
+                            new_name = archive_file.addCoherenceConfigFile(cluster_name, file_name)
+                            _logger.info('WLSDPLY-06319', cluster_name, file_name, new_name, class_name=_class_name,
+                                         method_name=_method_name)
+                        except (IllegalArgumentException, WLSDeployArchiveIOException), wioe:
+                            _logger.warning('WLSDPLY-06318', cluster_name, file_name, 'file', wioe.getLocalizedMessage())
+                            new_name = None
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
         return new_name
@@ -248,14 +265,19 @@ class CoherenceResourcesDiscoverer(Discoverer):
         new_name = model_value
         if model_value is not None:
             archive_file = self._model_context.get_archive_file()
-            try:
-                new_name = archive_file.addCoherencePersistenceDirectory(cluster_name, dir_type)
-                _logger.info('WLSDPLY-06320', cluster_name, model_value, dir_type, class_name=_class_name,
-                             method_name=_method_name)
-            except WLSDeployArchiveIOException, wioe:
-                _logger.warning('WLSDPLY-06318', cluster_name, model_value, dir_type, wioe.getLocalizedMessage(),
-                                class_name=_class_name, method_name=_method_name)
-                new_name = None
+            if self._model_context.is_remote():
+                new_name = archive_file.getCoherencePersistArchivePath(cluster_name, dir_type)
+                self.add_to_remote_map(model_value, new_name,
+                                      WLSDeployArchive.ArchiveEntryType.COHERENCE_PERSISTENCE_DIR.name())
+            elif not self._model_context.skip_archive():
+                try:
+                    new_name = archive_file.addCoherencePersistenceDirectory(cluster_name, dir_type)
+                    _logger.info('WLSDPLY-06320', cluster_name, model_value, dir_type, class_name=_class_name,
+                                 method_name=_method_name)
+                except WLSDeployArchiveIOException, wioe:
+                    _logger.warning('WLSDPLY-06318', cluster_name, model_value, dir_type, wioe.getLocalizedMessage(),
+                                    class_name=_class_name, method_name=_method_name)
+                    new_name = None
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
         return new_name

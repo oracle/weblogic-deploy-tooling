@@ -136,7 +136,7 @@ def __process_archive_filename_arg(argument_map):
     _method_name = '__process_archive_filename_arg'
 
     if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH in argument_map or CommandLineArgUtil.REMOTE_SWITCH in argument_map:
-        archive_file = WLSDeployArchive.noArchiveFile(CommandLineArgUtil.REMOTE_SWITCH in argument_map)
+        archive_file = WLSDeployArchive.noArchiveFile()
     else:
         archive_file_name = argument_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
         archive_dir_name = path_utils.get_parent_directory(archive_file_name)
@@ -341,12 +341,13 @@ def __clear_archive_file(model_context):
         __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
         raise de
 
-    try:
-        archive_file.removeAllBinaries()
-    except WLSDeployArchiveIOException, wioe:
-        de = exception_helper.create_discover_exception('WLSDPLY-06005', wioe.getLocalizedMessage())
-        __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
-        raise de
+    if not model_context.skip_archive() and not model_context.is_remote():
+        try:
+            archive_file.removeAllBinaries()
+        except WLSDeployArchiveIOException, wioe:
+            de = exception_helper.create_discover_exception('WLSDPLY-06005', wioe.getLocalizedMessage())
+            __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+            raise de
 
 
 def __close_archive(model_context):
@@ -407,6 +408,10 @@ def __persist_model(model, model_context):
     add_to_archive = False
     model_file_name = model_context.get_model_file()
     if model_file_name is None:
+        if model_context.skipArchive() or model_context.is_remote():
+            ex = exception_helper.create_discover_exception('WLSDPLY-06032')
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
         add_to_archive = True
         try:
             domain_name = model_context.get_domain_name()
@@ -427,7 +432,7 @@ def __persist_model(model, model_context):
             model_file.deleteOnExit()
         raise ex
 
-    if add_to_archive:
+    if add_to_archive and not model_context.skipArchive() and not model_context.skipArchive():
         try:
             archive_file = model_context.get_archive_file()
             archive_file.addModel(model_file, model_file_name)
@@ -511,7 +516,7 @@ def __remote_report(model_context):
     if not model_context.is_remote():
         return
     print ''
-    remote_map = WLSDeployArchive.getRemoteList()
+    remote_map = discoverer.remote_dict
     if len(remote_map) == 0:
         message = exception_helper.get_message('WLSDPLY-06030')
     else:
@@ -520,8 +525,8 @@ def __remote_report(model_context):
     print ''
     for key in remote_map:
         other_map = remote_map[key]
-        type = other_map[WLSDeployArchive.REMOTE_TYPE]
-        wls_archive = other_map[WLSDeployArchive.REMOTE_ARCHIVE_DIR]
+        type = other_map[discoverer.REMOTE_TYPE]
+        wls_archive = other_map[discoverer.REMOTE_ARCHIVE_PATH]
         print key, ' ', wls_archive
     print ''
     return

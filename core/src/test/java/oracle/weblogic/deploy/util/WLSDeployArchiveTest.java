@@ -104,22 +104,6 @@ public class WLSDeployArchiveTest {
     }
 
     @Test
-    void testAddDirectoryNoArchive() throws Exception {
-        WLSDeployArchive archive = WLSDeployArchive.noArchiveFile();
-        String appName = archive.addApplication(APP_DIR_TO_ADD);
-        assertEquals(APP_DIR_TO_ADD, appName, "unexpected app name: " + appName);
-        archive.close();
-    }
-
-    @Test
-    void testAddApplicationRemote() throws Exception {
-        WLSDeployArchive archive = WLSDeployArchive.noArchiveFile(Boolean.TRUE);
-        String appName = archive.addApplication(APP_DIR_TO_ADD);
-        assertEquals(APP_DIR_ENTRY_NAME, appName);
-        archive.close();
-    }
-    
-    @Test
     void testIsAFile() throws Exception {
         WLSDeployArchive archive = new WLSDeployArchive(APPS_ARCHIVE_FILE_NAME);
         archive.addApplication(APP1_TO_ADD);
@@ -152,11 +136,5 @@ public class WLSDeployArchiveTest {
         String appName = archive.addApplication(APP1_TO_ADD);
         assertFalse(StringUtils.isEmpty(appName), "expected appName to be not empty");
         archive.close();
-    }
-
-    @Test
-    void testClearAllBinariesNoArchive() throws Exception {
-        WLSDeployArchive archive = WLSDeployArchive.noArchiveFile();
-        archive.removeAllBinaries();
     }
 }
