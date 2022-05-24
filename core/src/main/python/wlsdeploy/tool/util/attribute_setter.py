@@ -73,8 +73,10 @@ from wlsdeploy.aliases.model_constants import XML_ENTITY_CACHE
 from wlsdeploy.aliases.model_constants import XML_REGISTRY
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import model_helper
+from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
 class AttributeSetter(object):
@@ -140,13 +142,15 @@ class AttributeSetter(object):
     ]
 
     _class_name = "AttributeSetter"
+    __logger = PlatformLogger('wlsdeploy.tool.util')
 
-    def __init__(self, aliases, logger, exception_type, wlst_mode=WlstModes.OFFLINE):
-        self.__logger = logger
+    def __init__(self, model_context, aliases, exception_type, wlst_mode=WlstModes.OFFLINE):
+        self.__model_context = model_context
         self.__exception_type = exception_type
         self.__wlst_mode = wlst_mode
         self.__aliases = aliases
         self.__wlst_helper = WlstHelper(exception_type)
+        self.__weblogic_helper = WebLogicHelper(self.__logger)
 
     #
     # public set_ methods for special attribute types, signature (self, location, key, value, wlst_value, ...)
@@ -594,7 +598,7 @@ class AttributeSetter(object):
         :param key: the attribute name
         :param value: the string value
         :param wlst_value: the existing value of the attribute from WLST
-        :raises BundleAwareException of the specified type: if target is not found
+        :raises BundleAwareException of the specified type: if an error occurs
         """
         if value is None or len(value) == 0:
             result = value
@@ -618,7 +622,7 @@ class AttributeSetter(object):
         :param key: the attribute name
         :param value: the string value
         :param wlst_value: the existing value of the attribute from WLST
-        :raises BundleAwareException of the specified type: if target is not found
+        :raises BundleAwareException of the specified type: if an error occurs
         """
         result = alias_utils.convert_to_type(BOOLEAN, value)
         result = result == 'true'
@@ -633,13 +637,28 @@ class AttributeSetter(object):
         :param key: the attribute name
         :param value: the new attribute value
         :param wlst_value: the existing value of the attribute from WLST
-        :raises BundleAwareException of the specified type: if target is not found
+        :raises BundleAwareException of the specified type: if an error occurs
         """
         wlst_enabled_attribute = self.__aliases.get_wlst_attribute_name(location, ENABLED)
         was_enabled = self.__wlst_helper.get(wlst_enabled_attribute)
         self.set_attribute(location, ENABLED, True)
         self.set_attribute(location, key, value, wlst_merge_value=wlst_value)
         self.set_attribute(location, ENABLED, was_enabled)
+
+    def set_encrypted(self, location, key, value, wlst_value):
+        """
+        Set the specified attribute with a pre-encrypted value in the current location.
+        This is required when WLST does not encrypt a plain-text value during set() as it normally does.
+        This can happen when offline WLST does not include an attribute in a hard-coded list of encrypted values.
+        Currently, only OracleIdentityCloudIntegrator/ClientSecretEncrypted offline has this issue.
+        :param location: the location
+        :param key: the attribute name
+        :param value: the new attribute value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if an error occurs
+        """
+        encrypted_value = self.__weblogic_helper.encrypt(str(value), self.__model_context.get_domain_home())
+        self.set_attribute(location, key, encrypted_value, wlst_merge_value=wlst_value)
 
     #
     # public set_attribute convenience methods
