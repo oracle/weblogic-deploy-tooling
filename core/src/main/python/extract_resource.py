@@ -62,6 +62,11 @@ def __process_args(args):
     """
     _method_name = '__process_args'
 
+    # if no target type was specified, use wko
+    if CommandLineArgUtil.TARGET_SWITCH not in args:
+        args.append(CommandLineArgUtil.TARGET_SWITCH)
+        args.append('wko')
+
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     cla_util.set_allow_multiple_models(True)
     argument_map = cla_util.process_args(args, TOOL_TYPE_EXTRACT)
@@ -75,10 +80,6 @@ def __process_args(args):
 
     # allow unresolved tokens and archive entries
     argument_map[CommandLineArgUtil.VALIDATION_METHOD] = validate_configuration.LAX_METHOD
-
-    # if no target type was specified, use wko
-    if CommandLineArgUtil.TARGET_SWITCH not in argument_map:
-        argument_map[CommandLineArgUtil.TARGET_SWITCH] = 'wko'
 
     # warn about deprecated -domain_resource_file argument.
     # not needed once -domain_resource_file is removed and -output_dir moves to __required_arguments.
