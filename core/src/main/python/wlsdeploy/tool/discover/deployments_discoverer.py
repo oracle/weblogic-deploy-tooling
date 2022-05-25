@@ -154,42 +154,46 @@ class DeploymentsDiscoverer(Discoverer):
             library_source_name = library_dict[model_constants.SOURCE_PATH]
             plan_path = library_dict[model_constants.PLAN_PATH]
             if plan_path:
-                new_plan_name = None
                 _logger.info('WLSDPLY-06389', library_name, plan_path, class_name=_class_name, method_name=_method_name)
-                plan_file_name = plan_path
-                if not self._model_context.is_remote():
-                    plan_path = self._convert_path(plan_path)
-                    plan_dir = None
-                    if model_constants.PLAN_DIR in library_dict:
-                        plan_dir = library_dict[model_constants.PLAN_DIR]
-                        del library_dict[model_constants.PLAN_DIR]
-                    plan_file_name = self._resolve_deployment_plan_path(plan_dir, plan_path)
-                if self._model_context.is_remote():
-                    new_plan_name = archive_file.getShLibArchivePath(plan_path)
-                    self.add_to_remote_map(plan_path, new_source_name,
-                                       WLSDeployArchive.ArchiveEntryType.SHLIB_PLAN.name())
-                elif not self._model_context.skip_archive():
-                    try:
-                        new_plan_name = archive_file.addApplicationDeploymentPlan(plan_file_name,
-                                                                                  _generate_new_plan_name(
-                                                                                      library_source_name,
-                                                                                      plan_file_name))
-                    except IllegalArgumentException, iae:
-                        _logger.warning('WLSDPLY-06385', library_name, plan_file_name,
-                                        iae.getLocalizedMessage(), class_name=_class_name,
-                                        method_name=_method_name)
-                    except WLSDeployArchiveIOException, wioe:
-                        de = exception_helper.create_discover_exception('WLSDPLY-06387', library_name,
-                                                                        plan_file_name,
-                                                                        wioe.getLocalizedMessage())
-                        _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
-                        raise de
+                new_plan_name = self.get_shlib_plan(plan_path, library_dict, library_source_name, archive_file)
                 if new_plan_name is not None:
                     _logger.finer('WLSDPLY-06390', library_name, new_plan_name,
                                   class_name=_class_name, method_name=_method_name)
                     library_dict[model_constants.PLAN_PATH] = new_plan_name
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return
+
+    def get_shlib_plan(self, plan_path, library_dict, library_source_name, archive_file):
+        plan_file_name = plan_path
+        if not self._model_context.is_remote():
+            plan_path = self._convert_path(plan_path)
+            plan_dir = None
+            if model_constants.PLAN_DIR in library_dict:
+                plan_dir = library_dict[model_constants.PLAN_DIR]
+                del library_dict[model_constants.PLAN_DIR]
+            plan_file_name = self._resolve_deployment_plan_path(plan_dir, plan_path)
+        new_plan_name = None
+        if self._model_context.is_remote():
+            new_plan_name = archive_file.getShLibArchivePath(plan_path)
+            self.add_to_remote_map(plan_path, new_plan_name,
+                                   WLSDeployArchive.ArchiveEntryType.SHLIB_PLAN.name())
+        elif not self._model_context.skip_archive():
+            try:
+                new_plan_name = archive_file.addApplicationDeploymentPlan(plan_file_name,
+                                                                          _generate_new_plan_name(
+                                                                              library_source_name,
+                                                                              plan_file_name))
+            except IllegalArgumentException, iae:
+                _logger.warning('WLSDPLY-06385', library_name, plan_file_name,
+                                iae.getLocalizedMessage(), class_name=_class_name,
+                                method_name=_method_name)
+            except WLSDeployArchiveIOException, wioe:
+                de = exception_helper.create_discover_exception('WLSDPLY-06387', library_name,
+                                                                plan_file_name,
+                                                                wioe.getLocalizedMessage())
+                _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+                raise de
+        return new_plan_name
 
     def get_applications(self):
         """
@@ -326,7 +330,7 @@ class DeploymentsDiscoverer(Discoverer):
                 _logger.warning('WLSDPLY-06395', application_name, plan_file_name,
                                 iae.getLocalizedMessage(), class_name=_class_name,
                                 method_name=_method_name)
-                new_plan_name = None
+                 new_plan_name = None
             except WLSDeployArchiveIOException, wioe:
                 de = exception_helper.create_discover_exception('WLSDPLY-06397', application_dict, plan_file_name,
                                                                 wioe.getLocalizedMessage())
