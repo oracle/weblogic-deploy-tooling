@@ -182,8 +182,9 @@ class TargetConfiguration(object):
 
     def uses_wdt_model(self):
         """
-        Determine if this configuration uses a WDT model to build the domain.
-        :return: True if a model is used, False otherwise
+        Determine if this configuration will include WDT model content in the output file.
+        WKO builds the domain using this model content for the model-in-image source type.
+        :return: True if a model is included, False otherwise
         """
         source_type = self._get_domain_home_source_type()
         return source_type == MODEL_IN_IMAGE_SOURCE_TYPE
