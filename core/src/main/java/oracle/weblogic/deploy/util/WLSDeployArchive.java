@@ -1450,6 +1450,7 @@ public class WLSDeployArchive {
             }
             newName += new File(itemToAdd).getName();
         }
+        System.out.println("****** after get archive name " + newName);
         return newName;
     }
     protected String addItemToZip(String zipPathPrefix, File itemToAdd) throws WLSDeployArchiveIOException {
@@ -1482,9 +1483,10 @@ public class WLSDeployArchive {
         final String METHOD = "addItemToZip";
 
         LOGGER.entering(CLASS, METHOD, zipPathPrefix, itemToAdd.getAbsolutePath(), preferredFileName);
+        System.out.println("****** item to add " + itemToAdd.getName());
+        System.out.println("******** referred file name " + preferredFileName);
         String newName = getArchiveName(zipPathPrefix, itemToAdd.getName());
-
-        newName += preferredFileName;
+        System.out.println("******* new Name " + newName);
         newName = addSingleFileToZip(itemToAdd, newName, METHOD);
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
