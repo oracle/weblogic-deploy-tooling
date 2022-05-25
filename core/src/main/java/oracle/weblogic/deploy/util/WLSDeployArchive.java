@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
@@ -1148,10 +1147,9 @@ public class WLSDeployArchive {
 
         LOGGER.entering(CLASS, METHOD, mimeMappingFile);
         File filePath = new File(mimeMappingFile);
-        String newName = mimeMappingFile;
 
         validateExistingFile(filePath, "mimeMappingFile", getArchiveFileName(), METHOD);
-        newName = addItemToZip(ARCHIVE_CONFIG_TARGET_DIR + ZIP_SEP, filePath);
+        String newName = addItemToZip(ARCHIVE_CONFIG_TARGET_DIR + ZIP_SEP, filePath);
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
     }
@@ -1181,11 +1179,10 @@ public class WLSDeployArchive {
 
         LOGGER.entering(CLASS, METHOD, clusterName, configFile);
         File filePath = new File(configFile);
-        String newName = configFile;
 
         validateNonEmptyString(clusterName, "clusterName", METHOD);
         validateExistingFile(filePath, "configFile", getArchiveFileName(), METHOD);
-        newName = addItemToZip(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName, filePath);
+        String newName = addItemToZip(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName, filePath);
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
     }
@@ -1221,8 +1218,7 @@ public class WLSDeployArchive {
         return newName;
     }
 
-    public String getCoherenceURLArchivePath(String clusterName, URL urlForConfigFile)
-            throws WLSDeployArchiveIOException {
+    public String getCoherenceURLArchivePath(String clusterName, URL urlForConfigFile) {
         return getURLArchiveName(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName, urlForConfigFile,
                  true);
     }

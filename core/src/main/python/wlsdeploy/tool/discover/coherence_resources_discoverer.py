@@ -206,23 +206,27 @@ class CoherenceResourcesDiscoverer(Discoverer):
             archive_file = self._model_context.get_archive_file()
             if success:
                 if url is not None:
-                    if self._model_context.is_remote():
-                        new_name = archive_file.getCoherenceURLArchivePath(cluster_name, url)
-                        self.add_to_remote_map(file_name, new_name,
-                                               WLSDeployArchive.ArchiveEntryType.COHERENCE_CONFIG.name())
-                    elif not self._model_context.skip_archive():
-                        try:
-                            new_name = archive_file.addCoherenceConfigFileFromUrl(cluster_name, url)
-                            _logger.info('WLSDPLY-06317', cluster_name, url, new_name, class_name=_class_name,
-                                         method_name=_method_name)
-                        except (IllegalArgumentException, WLSDeployArchiveIOException), wioe:
-                            _logger.warning('WLSDPLY-06318', cluster_name, model_value, 'url', wioe.getLocalizedMessage(),
-                                            class_name=_class_name, method_name=_method_name)
-                            new_name = None
+                    new_name = self.get_coherence_url(cluster_name, url, file_name, archive_file)
                 elif file_name is not None:
-                    new_name = self.get_coherence_config_file(cluster_name, file_name)
+                    new_name = self.get_coherence_config_file(cluster_name, file_name, archive_file)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
+        return new_name
+
+    def get_coherence_url(self, cluster_name, url, file_name, archive_file):
+        if self._model_context.is_remote():
+            new_name = archive_file.getCoherenceURLArchivePath(cluster_name, url)
+            self.add_to_remote_map(file_name, new_name,
+                           WLSDeployArchive.ArchiveEntryType.COHERENCE_CONFIG.name())
+        elif not self._model_context.skip_archive():
+            try:
+                new_name = archive_file.addCoherenceConfigFileFromUrl(cluster_name, url)
+                _logger.info('WLSDPLY-06317', cluster_name, url, new_name, class_name=_class_name,
+                             method_name=_method_name)
+            except (IllegalArgumentException, WLSDeployArchiveIOException), wioe:
+                _logger.warning('WLSDPLY-06318', cluster_name, model_value, 'url', wioe.getLocalizedMessage(),
+                                class_name=_class_name, method_name=_method_name)
+                new_name = None
         return new_name
 
     def get_coherence_config_file(self, cluster_name, file_name, archive_file):

@@ -298,32 +298,7 @@ class DeploymentsDiscoverer(Discoverer):
                     plan_path = self._convert_path(plan_path)
                 _logger.info('WLSDPLY-06402', application_name, plan_path, class_name=_class_name,
                              method_name=_method_name)
-                plan_dir = None
-                if model_constants.PLAN_DIR in application_dict:
-                    plan_dir = application_dict[model_constants.PLAN_DIR]
-                    del application_dict[model_constants.PLAN_DIR]
-                plan_file_name = self._resolve_deployment_plan_path(plan_dir, plan_path)
-                new_plan_name = None
-                if self._model_context.is_remote():
-                    new_plan_name = archive_file.getApplicationPlanArchivePath(plan_file_name)
-                    self.add_to_remote_map(plan_path, new_plan_name,
-                                           WLSDeployArchive.ArchiveEntryType.APPLICATION_PLAN.name())
-                elif not self._model_context.skip_archive():
-                    try:
-                        new_plan_name = archive_file.addApplicationDeploymentPlan(plan_file_name,
-                                                                                  _generate_new_plan_name(
-                                                                                      app_source_name,
-                                                                                      plan_file_name))
-                    except IllegalArgumentException, iae:
-                        _logger.warning('WLSDPLY-06395', application_name, plan_file_name,
-                                        iae.getLocalizedMessage(), class_name=_class_name,
-                                        method_name=_method_name)
-
-                    except WLSDeployArchiveIOException, wioe:
-                        de = exception_helper.create_discover_exception('WLSDPLY-06397', application_dict, plan_file_name,
-                                                                        wioe.getLocalizedMessage())
-                        _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
-                        raise de
+                new_plan_name = self._get_plan_path(plan_path, archive_file, app_source_name, application_name, application_dict)
                 if new_plan_name is not None:
                     _logger.finer('WLSDPLY-06399', application_name, new_plan_name,
                                   class_name=_class_name, method_name=_method_name)
@@ -331,6 +306,34 @@ class DeploymentsDiscoverer(Discoverer):
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return
 
+    def _get_plan_path(self, plan_path, archive_file, app_source_name, application_name, application_dict):
+        plan_dir = None
+        if model_constants.PLAN_DIR in application_dict:
+            plan_dir = application_dict[model_constants.PLAN_DIR]
+            del application_dict[model_constants.PLAN_DIR]
+        plan_file_name = self._resolve_deployment_plan_path(plan_dir, plan_path)
+        if self._model_context.is_remote():
+            new_plan_name = archive_file.getApplicationPlanArchivePath(plan_file_name)
+            self.add_to_remote_map(plan_path, new_plan_name,
+                                   WLSDeployArchive.ArchiveEntryType.APPLICATION_PLAN.name())
+        elif not self._model_context.skip_archive():
+            try:
+                new_plan_name = archive_file.addApplicationDeploymentPlan(plan_file_name,
+                                                                          _generate_new_plan_name(
+                                                                              app_source_name,
+                                                                              plan_file_name))
+            except IllegalArgumentException, iae:
+                _logger.warning('WLSDPLY-06395', application_name, plan_file_name,
+                                iae.getLocalizedMessage(), class_name=_class_name,
+                                method_name=_method_name)
+                new_plan_name = None
+            except WLSDeployArchiveIOException, wioe:
+                de = exception_helper.create_discover_exception('WLSDPLY-06397', application_dict, plan_file_name,
+                                                                wioe.getLocalizedMessage())
+                _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+                raise de
+
+            return new_plan_name
     def _resolve_deployment_plan_path(self, plan_dir, plan_path):
         """
         Find the deployment plan absolute file path.
