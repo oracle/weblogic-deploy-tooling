@@ -21,11 +21,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import path_utils
-from wlsdeploy.util import validate_configuration
-from wlsdeploy.util.target_configuration import CREDENTIALS_METHOD
-from wlsdeploy.util.target_configuration import CREDENTIALS_METHODS
 from wlsdeploy.util.target_configuration import TargetConfiguration
-from wlsdeploy.util.target_configuration import VALIDATION_METHOD
 from wlsdeploy.util.validate_configuration import VALIDATION_METHODS
 
 # tool type may indicate variations in argument processing
@@ -1096,28 +1092,10 @@ class CommandLineArgUtil(object):
         else:
             try:
                 # verify the file is in proper format
-                # file_handle = open(target_configuration_file)
-                # config_dictionary = eval(file_handle.read())
                 config_dictionary = JsonToPython(target_configuration_file).parse()
                 target_configuration = TargetConfiguration(config_dictionary)
-                validation_method = target_configuration.get_validation_method()
-                if (validation_method is not None) and \
-                        (validation_method not in validate_configuration.VALIDATION_METHODS):
-                    ex = exception_helper.create_cla_exception(self.ARG_VALIDATION_ERROR_EXIT_CODE,
-                                                               'WLSDPLY-01648', target_configuration_file,
-                                                               validation_method, VALIDATION_METHOD,
-                                                               ', '.join(validate_configuration.VALIDATION_METHODS))
-                    _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
 
-                credentials_method = target_configuration.get_credentials_method()
-                if (credentials_method is not None) and (credentials_method not in CREDENTIALS_METHODS):
-                    ex = exception_helper.create_cla_exception(self.ARG_VALIDATION_ERROR_EXIT_CODE,
-                                                               'WLSDPLY-01648', target_configuration_file,
-                                                               credentials_method, CREDENTIALS_METHOD,
-                                                               ', '.join(CREDENTIALS_METHODS))
-                    _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-                    raise ex
+                target_configuration.validate_configuration(self.ARG_VALIDATION_ERROR_EXIT_CODE, target_configuration_file)
 
             except SyntaxError, se:
                 ex = exception_helper.create_cla_exception(self.ARG_VALIDATION_ERROR_EXIT_CODE,

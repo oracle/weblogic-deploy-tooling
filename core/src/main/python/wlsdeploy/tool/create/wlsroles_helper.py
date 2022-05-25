@@ -97,6 +97,7 @@ class WLSRoles(object):
             result[role] = expression
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return result
 
     def _update_xacml_role_mapper(self, role_expression_map):
         """
