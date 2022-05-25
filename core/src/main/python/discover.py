@@ -256,7 +256,6 @@ def __discover(model_context, aliases, credential_injector, helper):
         print ''
         for key in remote_map:
             other_map = remote_map[key]
-            type = other_map[WLSDeployArchive.REMOTE_TYPE]
             wls_archive = other_map[WLSDeployArchive.REMOTE_ARCHIVE_DIR]
             print key, ' ', wls_archive
             print ''
@@ -525,11 +524,9 @@ def __remote_report(model_context):
     print ''
     for key in remote_map:
         other_map = remote_map[key]
-        type = other_map[discoverer.REMOTE_TYPE]
         wls_archive = other_map[discoverer.REMOTE_ARCHIVE_PATH]
         print key, ' ', wls_archive
     print ''
-    return
 
 
 def __log_and_exit(model_context, exit_code, class_name, method_name):
