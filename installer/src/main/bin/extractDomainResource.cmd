@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem extractDomainResource.cmd
 @rem
-@rem Copyright (c) 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -70,8 +70,10 @@ if "%SHOW_USAGE%" == "false" (
 ECHO.
 ECHO Usage: %SCRIPT_NAME% [-help] [-use_encryption]
 ECHO              [-oracle_home ^<oracle_home^>]
-ECHO              -domain_home ^<domain_home^>
-ECHO              -domain_resource_file ^<domain_resource_file^>
+ECHO              [-domain_home ^<domain_home^>]
+ECHO              [-output_dir ^<output_dir^>]
+ECHO              [-target ^<target^>]
+ECHO              [-domain_resource_file ^<domain_resource_file^>]
 ECHO              [-archive_file ^<archive_file^>]
 ECHO              [-model_file ^<model_file^>]
 ECHO              [-variable_file ^<variable_file^>]
@@ -81,9 +83,15 @@ ECHO         oracle_home     - the existing Oracle Home directory for the domain
 ECHO                           This is required unless the ORACLE_HOME environment
 ECHO                           variable is set.
 ECHO.
-ECHO         domain_home     - the domain home directory
+ECHO         domain_home     - the domain home directory to be used in output files.
+ECHO                           This will override any value in the model.
 ECHO.
-ECHO         domain_resource_file - the location of the extracted domain resource file
+ECHO         output_dir      - the location for the target output files.
+ECHO.
+ECHO         target          - the target output type. The default is wko.
+ECHO.
+ECHO         domain_resource_file - the location of the extracted domain resource file.
+ECHO                                This is deprecated, use -output_dir to specify output location
 ECHO.
 ECHO         archive_file    - the path to the archive file to use.  If the -model_file
 ECHO                           argument is not specified, the model file in this archive
