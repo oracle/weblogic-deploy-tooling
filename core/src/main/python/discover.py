@@ -435,7 +435,6 @@ def __persist_model(model, model_context):
     if add_to_archive:
         try:
             archive_file = model_context.get_archive_file()
-            print '********** model_file_name ', model_file_name
             archive_file.addModel(model_file, model_file_name)
             if not model_file.delete():
                 model_file.deleteOnExit()
