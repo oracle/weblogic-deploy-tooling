@@ -432,7 +432,7 @@ def __persist_model(model, model_context):
             model_file.deleteOnExit()
         raise ex
 
-    if add_to_archive and not model_context.skip_archive() and not model_context.is_remote():
+    if add_to_archive:
         try:
             archive_file = model_context.get_archive_file()
             archive_file.addModel(model_file, model_file_name)
