@@ -52,7 +52,7 @@ spec:
 
           # WebLogic Image Tool provides domainHome, domainHomeSourceType, and imageName
           domainHome: '{{{domainHome}}}'
-          domainHomeSourceType: '{{{domainHomeSourceType}}}'
+          domainHomeSourceType: {{{domainHomeSourceType}}}
           image: '{{{imageName}}}'
 
           imagePullSecrets:
@@ -62,6 +62,7 @@ spec:
             name: {{{webLogicCredentialsSecret}}}
           configuration:
             introspectorJobActiveDeadlineSeconds: 900
+{{#hasModel}}
             model:
               configMap: {{{domainPrefix}}}-configmap
               domainType: {{{domainType}}}
@@ -74,6 +75,7 @@ spec:
               # used only for model-in-image deployment, can be removed for other types.
               runtimeEncryptionSecret: {{{runtimeEncryptionSecret}}}
 {{/runtimeEncryptionSecret}}
+{{/hasModel}}
 {{#hasAdditionalSecrets}}
 
             secrets:

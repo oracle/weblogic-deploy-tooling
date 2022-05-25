@@ -41,6 +41,7 @@ DATASOURCE_PREFIX = 'datasourcePrefix'
 DATASOURCES = 'datasources'
 DATASOURCE_NAME = 'datasourceName'
 DATASOURCE_URL = 'url'
+DOMAIN_HOME_SOURCE_TYPE = 'domainHomeSourceType'
 DOMAIN_NAME = 'domainName'
 DOMAIN_PREFIX = 'domainPrefix'
 DOMAIN_TYPE = 'domainType'
@@ -49,6 +50,7 @@ HAS_ADDITIONAL_SECRETS = 'hasAdditionalSecrets'
 HAS_APPLICATIONS = 'hasApplications'
 HAS_CLUSTERS = 'hasClusters'
 HAS_DATASOURCES = 'hasDatasources'
+HAS_MODEL = 'hasModel'
 NAMESPACE = 'namespace'
 REPLICAS = 'replicas'
 RUNTIME_ENCRYPTION_SECRET = "runtimeEncryptionSecret"
@@ -153,6 +155,10 @@ def _build_template_hash(model, model_context, aliases, credential_injector):
     template_hash[DOMAIN_UID] = domain_uid
     template_hash[DOMAIN_PREFIX] = domain_uid
     template_hash[NAMESPACE] = domain_uid
+
+    # domain home source type
+    template_hash[DOMAIN_HOME_SOURCE_TYPE] = target_configuration.get_domain_home_source_name()
+    template_hash[HAS_MODEL] = target_configuration.uses_wdt_model()
 
     # secrets that should not be included in secrets section
     declared_secrets = []

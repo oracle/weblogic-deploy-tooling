@@ -2,8 +2,10 @@
 Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-
+from wlsdeploy.exception import exception_helper
+from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util.validate_configuration import VALIDATION_METHODS
 
 # types for credential method
 CREDENTIALS_METHOD = "credentials_method"
@@ -21,6 +23,9 @@ EXCLUDE_DOMAIN_BIN_CONTENTS = "exclude_domain_bin_contents"
 # Determines whether a persistent volume is used
 USE_PERSISTENT_VOLUME = "use_persistent_volume"
 
+# Determines the type of domain used
+DOMAIN_HOME_SOURCE_TYPE = "domain_home_source_type"
+
 # put secret tokens in the model, and build a script to create the secrets.
 SECRETS_METHOD = 'secrets'
 
@@ -32,12 +37,24 @@ CREDENTIALS_METHODS = [
     CONFIG_OVERRIDES_SECRETS_METHOD
 ]
 
+# domain home source types and names
+DOMAIN_IN_IMAGE_SOURCE_TYPE = 'dii'
+MODEL_IN_IMAGE_SOURCE_TYPE = 'mii'
+PERSISTENT_VOLUME_SOURCE_TYPE = 'pv'
+
+SOURCE_TYPE_NAMES = {
+    DOMAIN_IN_IMAGE_SOURCE_TYPE: 'Image',
+    MODEL_IN_IMAGE_SOURCE_TYPE: 'FromModel',
+    PERSISTENT_VOLUME_SOURCE_TYPE: 'PersistentVolume'
+}
+
 
 class TargetConfiguration(object):
     """
     Provide access to fields in the target.json JSON file of a target environment.
     """
-    _class_name = 'TargetEnvironment'
+    _class_name = 'TargetConfiguration'
+    _logger = PlatformLogger('wlsdeploy.util')
 
     def __init__(self, config_dictionary):
         """
@@ -162,3 +179,52 @@ class TargetConfiguration(object):
         if result is None:
             result = False
         return result
+
+    def uses_wdt_model(self):
+        """
+        Determine if this configuration uses a WDT model to build the domain.
+        :return: True if a model is used, False otherwise
+        """
+        source_type = self._get_domain_home_source_type()
+        return source_type == MODEL_IN_IMAGE_SOURCE_TYPE
+
+    def get_domain_home_source_name(self):
+        """
+        Return the name associated with the domain home source type key.
+        :return: the domain home source name
+        """
+        source_type = self._get_domain_home_source_type()
+        return SOURCE_TYPE_NAMES[source_type]
+
+    def validate_configuration(self, exit_code, target_configuration_file):
+        validation_method = self.get_validation_method()
+        self._validate_enumerated_field(VALIDATION_METHOD, validation_method, VALIDATION_METHODS, exit_code,
+                                        target_configuration_file)
+
+        credentials_method = self.get_credentials_method()
+        self._validate_enumerated_field(CREDENTIALS_METHOD, credentials_method, CREDENTIALS_METHODS, exit_code,
+                                        target_configuration_file)
+
+        source_type = self._get_domain_home_source_type()
+        self._validate_enumerated_field(DOMAIN_HOME_SOURCE_TYPE, source_type, SOURCE_TYPE_NAMES.keys(), exit_code,
+                                        target_configuration_file)
+
+    ###################
+    # Private methods #
+    ###################
+
+    def _get_domain_home_source_type(self):
+        """
+        Get the domain home source type (private method).
+        :return: the domain home source type key, or the default MODEL_IN_IMAGE_SOURCE_TYPE
+        """
+        source_type = dictionary_utils.get_element(self.config_dictionary, DOMAIN_HOME_SOURCE_TYPE)
+        return source_type or MODEL_IN_IMAGE_SOURCE_TYPE
+
+    def _validate_enumerated_field(self, key, value, valid_values, exit_code, target_configuration_file):
+        method_name = '_validate_enumerated_field'
+        if (value is not None) and (value not in valid_values):
+            ex = exception_helper.create_cla_exception(exit_code, 'WLSDPLY-01648', target_configuration_file,
+                                                       value, key, ', '.join(valid_values))
+            self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
