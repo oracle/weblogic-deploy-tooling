@@ -408,7 +408,7 @@ def __persist_model(model, model_context):
     add_to_archive = False
     model_file_name = model_context.get_model_file()
     if model_file_name is None:
-        if model_context.skipArchive() or model_context.is_remote():
+        if model_context.skip_archive() or model_context.is_remote():
             ex = exception_helper.create_discover_exception('WLSDPLY-06032')
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
