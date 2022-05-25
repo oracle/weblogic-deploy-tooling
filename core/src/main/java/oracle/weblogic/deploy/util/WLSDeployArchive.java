@@ -1483,10 +1483,11 @@ public class WLSDeployArchive {
         final String METHOD = "addItemToZip";
 
         LOGGER.entering(CLASS, METHOD, zipPathPrefix, itemToAdd.getAbsolutePath(), preferredFileName);
-        System.out.println("****** item to add " + itemToAdd.getName());
-        System.out.println("******** referred file name " + preferredFileName);
-        String newName = getArchiveName(zipPathPrefix, itemToAdd.getName());
-        System.out.println("******* new Name " + newName);
+        String newName = zipPathPrefix;
+        if (!newName.endsWith(ZIP_SEP)) {
+            newName += ZIP_SEP;
+        }
+        newName += preferredFileName;
         newName = addSingleFileToZip(itemToAdd, newName, METHOD);
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
