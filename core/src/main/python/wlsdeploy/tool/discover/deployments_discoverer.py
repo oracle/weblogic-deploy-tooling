@@ -330,7 +330,7 @@ class DeploymentsDiscoverer(Discoverer):
                 _logger.warning('WLSDPLY-06395', application_name, plan_file_name,
                                 iae.getLocalizedMessage(), class_name=_class_name,
                                 method_name=_method_name)
-                 new_plan_name = None
+                new_plan_name = None
             except WLSDeployArchiveIOException, wioe:
                 de = exception_helper.create_discover_exception('WLSDPLY-06397', application_dict, plan_file_name,
                                                                 wioe.getLocalizedMessage())
