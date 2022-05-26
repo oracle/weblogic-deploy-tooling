@@ -100,6 +100,8 @@ class ModelContext(object):
         self._discard_current_edit = False
         self._wait_for_edit_lock = False
         self._model_config = None
+        self._remote = False
+        self._skip_archive = False
 
         self._trailing_args = []
 
@@ -171,6 +173,12 @@ class ModelContext(object):
 
         if CommandLineArgUtil.VARIABLE_FILE_SWITCH in arg_map:
             self._variable_file_name = arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH]
+
+        if CommandLineArgUtil.REMOTE_SWITCH in arg_map:
+            self._remote = arg_map[CommandLineArgUtil.REMOTE_SWITCH]
+
+        if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH in arg_map:
+            self._skip_archive = arg_map[CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH]
 
         if CommandLineArgUtil.RUN_RCU_SWITCH in arg_map:
             self._run_rcu = arg_map[CommandLineArgUtil.RUN_RCU_SWITCH]
@@ -287,6 +295,10 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.FOLDERS_ONLY_SWITCH] = self._folders_only
         if self._recursive is not None:
             arg_map[CommandLineArgUtil.RECURSIVE_SWITCH] = self._recursive
+        if self._remote is not None:
+            arg_map[CommandLineArgUtil.REMOTE_SWITCH] = self._remote
+        if self._skip_archive is not None:
+            arg_map[CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH] = self._skip_archive
         if self._variable_file_name is not None:
             arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = self._variable_file_name
         if self._run_rcu is not None:
@@ -754,6 +766,20 @@ class ModelContext(object):
         :return: True if the tool is in offline mode
         """
         return self._wlst_mode == WlstModes.OFFLINE
+
+    def is_remote(self):
+        """
+        Determine if the tool has the remote switch to true
+        :return: True if -remote was set
+        """
+        return self._remote
+
+    def skip_archive(self):
+        """
+        Determine if the tool has the -skip_archive switch
+        :return: True if the skip archive switch is set
+        """
+        return self._skip_archive
 
     def replace_tokens_in_path(self, attribute_name, resource_dict):
         """

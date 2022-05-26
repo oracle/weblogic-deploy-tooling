@@ -97,7 +97,12 @@ ECHO         domain_home    - the domain home directory
 ECHO.
 ECHO         archive_file   - the path to the archive file
 ECHO.
-ECHO         skip_archive   - do not generate an archive file. The archive_file option will be ignored.
+ECHO         skip_archive   - do not generate an archive file. The archive_file option will be ignored. The file
+ECHO                          references in the model are the local file names.
+ECHO.
+ECHO         remote         - Online only. Discover the remote domain. Do not generate an archive file. However, The file
+ECHO                          references in the model are structured as if they are in an archive. A list of these files
+ECHO                          will be generated.
 ECHO.
 ECHO         model_file     - the location to write the model file,
 ECHO                          the default is to write it inside the archive

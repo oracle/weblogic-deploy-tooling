@@ -58,19 +58,19 @@ public class WLSDeployArchiveTest {
         assertTrue(modelFile.exists(), "expected model file to exist");
         assertFalse(modelFile.isDirectory(), "expected model not to be a directory");
         archive.addModel(modelFile);
-        String appName = archive.addApplication(new File(APP1_TO_ADD));
+        String appName = archive.addApplication(APP1_TO_ADD);
         assertEquals(APP1_ENTRY_NAME1, appName, "unexpected app name: " + appName);
-        appName = archive.addApplication(new File(APP1_TO_ADD));
+        appName = archive.addApplication(APP1_TO_ADD);
         assertEquals(APP1_ENTRY_NAME2, appName, "unexpected app name: " + appName);
-        appName = archive.addApplication(new File(APP1_TO_ADD));
+        appName = archive.addApplication(APP1_TO_ADD);
         assertEquals(APP1_ENTRY_NAME3, appName, "unexpected app name: " + appName);
-        appName = archive.addApplication(new File(APP1_TO_ADD));
+        appName = archive.addApplication(APP1_TO_ADD);
         assertEquals(APP1_ENTRY_NAME4, appName, "unexpected app name: " + appName);
-        appName = archive.addApplication(new File(APP2_TO_ADD));
+        appName = archive.addApplication(APP2_TO_ADD);
         assertEquals(APP2_ENTRY_NAME1, appName, "unexpected app name: " + appName);
-        appName = archive.addApplication(new File(APP2_TO_ADD));
+        appName = archive.addApplication(APP2_TO_ADD);
         assertEquals(APP2_ENTRY_NAME2, appName, "unexpected app name: " + appName);
-        appName = archive.addApplication(new File(APP2_TO_ADD));
+        appName = archive.addApplication(APP2_TO_ADD);
         assertEquals(APP2_ENTRY_NAME3, appName, "unexpected app name: " + appName);
         archive.close();
     }
@@ -98,24 +98,15 @@ public class WLSDeployArchiveTest {
     @Test
     void testAddDirectory() throws Exception {
         WLSDeployArchive archive = new WLSDeployArchive(APPS_ARCHIVE_FILE_NAME);
-        String appName = archive.addApplication(new File(APP_DIR_TO_ADD));
+        String appName = archive.addApplication(APP_DIR_TO_ADD);
         assertEquals(APP_DIR_ENTRY_NAME, appName, "unexpected app name: " + appName);
-        archive.close();
-    }
-
-    @Test
-    void testAddDirectoryNoArchive() throws Exception {
-        WLSDeployArchive archive = WLSDeployArchive.noArchiveFile();
-        File file = new File(APP_DIR_TO_ADD);
-        String appName = archive.addApplication(file);
-        assertEquals(file.getPath(), appName, "unexpected app name: " + appName);
         archive.close();
     }
 
     @Test
     void testIsAFile() throws Exception {
         WLSDeployArchive archive = new WLSDeployArchive(APPS_ARCHIVE_FILE_NAME);
-        archive.addApplication(new File(APP1_TO_ADD));
+        archive.addApplication(APP1_TO_ADD);
         assertTrue(archive.containsFile(APP1_ENTRY_NAME1), "File not found in archive: " + APP1_ENTRY_NAME1);
         assertTrue(archive.containsFileOrPath(APP1_ENTRY_NAME1), "File not found in archive: " + APP1_ENTRY_NAME1);
         assertFalse(archive.containsFile(APP_DIR_ENTRY_NAME), "Is not a File");
@@ -126,7 +117,7 @@ public class WLSDeployArchiveTest {
     @Test
     void testIsAPath() throws Exception {
         WLSDeployArchive archive = new WLSDeployArchive(APPS_ARCHIVE_FILE_NAME);
-        archive.addApplication(new File(APP_DIR_TO_ADD));
+        archive.addApplication(APP_DIR_TO_ADD);
         assertTrue(archive.containsPath(APP_DIR_ENTRY_NAME), "Path not found in archive: " + APP_DIR_ENTRY_NAME);
         assertTrue(                archive.containsFileOrPath(APP_DIR_ENTRY_NAME), "Path not found in archive: " + APP_DIR_ENTRY_NAME);
         assertFalse(archive.containsPath(APP1_ENTRY_NAME1), "Is not a Path");
@@ -142,14 +133,8 @@ public class WLSDeployArchiveTest {
         assertTrue(archiveFile.exists(), "expected archive file to exist");
         assertFalse(archiveFile.isDirectory(), "expected archive file not to be a directory");
         assertNotNull(archive, "expected archive object to not be null");
-        String appName = archive.addApplication(new File(APP1_TO_ADD));
+        String appName = archive.addApplication(APP1_TO_ADD);
         assertFalse(StringUtils.isEmpty(appName), "expected appName to be not empty");
         archive.close();
-    }
-
-    @Test
-    void testClearAllBinariesNoArchive() throws Exception {
-        WLSDeployArchive archive = WLSDeployArchive.noArchiveFile();
-        archive.removeAllBinaries();
     }
 }

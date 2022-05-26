@@ -92,7 +92,7 @@ class DomainInfoDiscoverer(Discoverer):
                 entry_path = os.path.join(domain_lib, entry)
                 if path_utils.is_jar_file(entry_path):
                     try:
-                        updated_name = archive_file.addDomainLibLibrary(File(entry_path))
+                        updated_name = archive_file.addDomainLibLibrary(entry_path)
                     except WLSDeployArchiveIOException, wioe:
                         de = exception_helper.create_discover_exception('WLSDPLY-06421', entry,
                                                                         wioe.getLocalizedMessage())
@@ -128,7 +128,7 @@ class DomainInfoDiscoverer(Discoverer):
                     _logger.finer('WLSDPLY-06423', domain_bin, class_name=_class_name, method_name=_method_name)
                     for entry in file_list:
                         try:
-                            updated_name = archive_file.addDomainBinScript(File(entry))
+                            updated_name = archive_file.addDomainBinScript(entry)
                         except WLSDeployArchiveIOException, wioe:
                             de = exception_helper.create_discover_exception('WLSDPLY-06426', entry,
                                                                             wioe.getLocalizedMessage())

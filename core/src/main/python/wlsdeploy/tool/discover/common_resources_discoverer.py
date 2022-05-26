@@ -258,7 +258,7 @@ class CommonResourcesDiscoverer(Discoverer):
             file_name = self._convert_path(jdbc_store_dictionary[model_constants.CREATE_TABLE_DDL_FILE])
             _logger.info('WLSDPLY-06352', jdbc_store_name, file_name, class_name=_class_name, method_name=_method_name)
             try:
-                new_source_name = archive_file.addScript(File(file_name))
+                new_source_name = archive_file.addScript(file_name)
             except IllegalArgumentException, iae:
                 _logger.warning('WLSDPLY-06353', jdbc_store_name, file_name,
                                 iae.getLocalizedMessage(), class_name=_class_name,
@@ -376,14 +376,16 @@ class CommonResourcesDiscoverer(Discoverer):
         _logger.entering(model_name, class_name=_class_name, method_name=_method_name)
         new_script_name = model_value
         if model_value is not None:
-            file_name = self._convert_path(model_value)
+            file_name = model_value
+            if not self._model_context.is_remote():
+                file_name = self._convert_path(model_value)
             _logger.info('WLSDPLY-06359', file_name, self._aliases.get_model_folder_path(location),
                          class_name=_class_name, method_name=_method_name)
             archive_file = self._model_context.get_archive_file()
             # Set model_value to None if unable to add it to archive file
             modified_name = None
             try:
-                modified_name = archive_file.addScript(File(file_name))
+                modified_name = archive_file.addScript(file_name)
             except IllegalArgumentException, iae:
                 _logger.warning('WLSDPLY-06360', self._aliases.get_model_folder_path(location), file_name,
                                 iae.getLocalizedMessage(), class_name=_class_name,

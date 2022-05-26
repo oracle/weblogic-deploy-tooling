@@ -170,7 +170,9 @@ class GlobalResourcesDiscoverer(Discoverer):
         if web_app_container:
             if model_constants.MIME_MAPPING_FILE in web_app_container:
                 model_value = web_app_container[model_constants.MIME_MAPPING_FILE]
-                file_path = self._convert_path(model_value)
+                file_path = model_value
+                if not self._model_context.is_remote():
+                    file_path = self._convert_path(model_value)
                 if os.path.exists(file_path):
                     # There is indeed a mime properties file
                     # we need to change the different path in the model
@@ -178,7 +180,7 @@ class GlobalResourcesDiscoverer(Discoverer):
                     archive_file = self._model_context.get_archive_file()
                     base_name = os.path.basename(file_path)
                     new_name = archive_file.ARCHIVE_CONFIG_TARGET_DIR + '/' + base_name
-                    archive_file.addMimeMappingFile(File(file_path))
+                    archive_file.addMimeMappingFile(file_path)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
         return new_name
