@@ -1,12 +1,11 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
 import copy
 
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
-from oracle.weblogic.deploy.exception import BundleAwareException
 
 import wlsdeploy.util.dictionary_utils as dictionary_utils
 
@@ -251,11 +250,11 @@ class TargetHelper(object):
 
         if len(dynamic_cluster_assigns) > 0:
             # assign server group resources to cluster based on the version of WebLogic server version.
-            if self.wls_helper.is_dynamic_cluster_server_groups_supported():
+            if self.wls_helper.is_dynamic_cluster_multiple_server_groups_supported():
                 bug_map = self.save_dyn_size(dynamic_cluster_assigns)
                 self.target_server_groups(dynamic_cluster_assigns)
                 self.restore_dyn_size(bug_map)
-            elif self.wls_helper.is_dynamic_cluster_server_group_supported():
+            elif self.wls_helper.is_dynamic_cluster_one_server_group_supported():
                 bug_map = self.save_dyn_size(dynamic_cluster_assigns)
                 self.target_dynamic_clusters(dynamic_cluster_assigns)
                 self.restore_dyn_size(bug_map)
@@ -624,11 +623,7 @@ class TargetHelper(object):
         setServerGroups throws you out of edit. Put it back in.
         """
         if self.model_context.is_wlst_online():
-            try:
-                self.wlst_helper.edit()
-                self.wlst_helper.start_edit()
-            except BundleAwareException, ex:
-                raise ex
+            self.wlst_helper.edit()
 
     def __locate_dynamic_attribute(self, cluster):
 

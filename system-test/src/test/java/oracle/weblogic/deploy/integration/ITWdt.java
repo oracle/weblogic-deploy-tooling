@@ -400,6 +400,7 @@ public class ITWdt extends BaseTest {
                     + " -oracle_home " + mwhome_12213
                     + " -domain_home " + domainParentDir + FS + "jrfDomain1"
                     + " -model_file " + model
+                    + " -domain_type JRF"
                     + " -admin_url t3://localhost:7001 -admin_user weblogic";
                 CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
@@ -441,6 +442,7 @@ public class ITWdt extends BaseTest {
                     + " -oracle_home " + mwhome_12213
                     + " -domain_home " + domainParentDir + FS + "jrfDomain1"
                     + " -model_file " + model
+                    + " -domain_type JRF"
                     + " -admin_url t3://localhost:7001 -admin_user weblogic"
                     + " -cancel_changes_if_restart_required";
                 CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
