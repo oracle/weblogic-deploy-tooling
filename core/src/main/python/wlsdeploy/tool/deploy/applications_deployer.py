@@ -62,7 +62,6 @@ class ApplicationsDeployer(Deployer):
             self.__add_shared_libraries()
             self.__add_applications()
         else:
-            deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions(self.model_context.is_discard_current_edit())
             self.__online_deploy_apps_and_libs(self._base_location)
 
     def __add_shared_libraries(self):
