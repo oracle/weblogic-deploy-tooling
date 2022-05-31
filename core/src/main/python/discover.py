@@ -137,6 +137,11 @@ def __process_archive_filename_arg(argument_map):
 
     if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH in argument_map or CommandLineArgUtil.REMOTE_SWITCH in argument_map:
         archive_file = WLSDeployArchive.noArchiveFile()
+        if CommandLineArgUtil.ARCHIVE_FILE_SWITCH in argument_map:
+            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                       'WLSDPLY-06033')
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
     else:
         archive_file_name = argument_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
         archive_dir_name = path_utils.get_parent_directory(archive_file_name)
@@ -245,20 +250,6 @@ def __discover(model_context, aliases, credential_injector, helper):
         raise ex
     __disconnect_domain(helper)
 
-    if model_context.is_remote():
-        print ''
-        remote_map = WLSDeployArchive.getRemoteList()
-        if len(remote_map) == 0:
-            message = exception_helper.get_message('WLSDPLY-06030')
-        else:
-            message = exception_helper.get_message('WLSDPLY-06031')
-        print message
-        print ''
-        for key in remote_map:
-            other_map = remote_map[key]
-            wls_archive = other_map[WLSDeployArchive.REMOTE_ARCHIVE_DIR]
-            print key, ' ', wls_archive
-            print ''
     return model
 
 
