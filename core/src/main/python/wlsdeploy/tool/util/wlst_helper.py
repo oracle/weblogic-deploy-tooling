@@ -7,6 +7,7 @@ import types
 
 from java.io import PrintStream
 from java.lang import System
+from java.lang import Throwable
 
 import com.oracle.cie.domain.script.jython.WLSTException as offlineWLSTException
 import oracle.weblogic.deploy.util.StringUtils as StringUtils
@@ -112,8 +113,9 @@ class WlstHelper(object):
         if not self.__check_online_connection():
             return True
 
+        mbean_path = self.get_pwd()
+
         try:
-            mbean_path = self.get_pwd()
             mbean = self.get_mbean_for_wlst_path(mbean_path)
             if 'isSet' not in dir(mbean):
                 return True
@@ -124,6 +126,11 @@ class WlstHelper(object):
                                                     self.__get_exception_mode(e), _format_exception(e), error=e)
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
+        except Throwable, e:
+            # isSet() throws a Java error for /ResourceManagement attribute in 14.1.1, return False to halt discovery
+            self.__logger.info('WLSDPLY-00129', attribute, mbean_path, e, class_name=self.__class_name,
+                               method_name=_method_name)
+            return False
 
         self.__logger.finest('WLSDPLY-00126', attribute, class_name=self.__class_name, method_name=_method_name)
         return result
