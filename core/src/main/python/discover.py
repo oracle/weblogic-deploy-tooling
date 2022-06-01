@@ -45,10 +45,12 @@ from wlsdeploy.tool.util import wlst_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
+from wlsdeploy.util import cla_utils
 from wlsdeploy.util import model_translator
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.cla_utils import TOOL_TYPE_DISCOVER
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.util import target_configuration_helper
@@ -80,7 +82,8 @@ __optional_arguments = [
     CommandLineArgUtil.ADMIN_PASS_ENV_SWITCH,
     CommandLineArgUtil.TARGET_MODE_SWITCH,
     CommandLineArgUtil.OUTPUT_DIR_SWITCH,
-    CommandLineArgUtil.TARGET_SWITCH
+    CommandLineArgUtil.TARGET_SWITCH,
+    CommandLineArgUtil.REMOTE_SWITCH
 ]
 
 
@@ -93,7 +96,7 @@ def __process_args(args):
     global __wlst_mode
 
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
-    argument_map = cla_util.process_args(args)
+    argument_map = cla_util.process_args(args, TOOL_TYPE_DISCOVER)
 
     __wlst_mode = cla_helper.process_online_args(argument_map)
     target_configuration_helper.process_target_arguments(argument_map)
@@ -101,6 +104,7 @@ def __process_args(args):
     __process_archive_filename_arg(argument_map)
     __process_variable_filename_arg(argument_map)
     __process_java_home(argument_map)
+    __process_domain_home(argument_map, __wlst_mode)
 
     return model_context_helper.create_context(_program_name, argument_map)
 
@@ -112,7 +116,8 @@ def __process_model_archive_args(argument_map):
     """
     _method_name = '__process_model_archive_args'
     if CommandLineArgUtil.ARCHIVE_FILE_SWITCH not in argument_map:
-        if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH not in argument_map:
+        if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH not in argument_map and \
+            CommandLineArgUtil.REMOTE_SWITCH not in argument_map:
             ex = exception_helper.create_cla_exception(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE, 'WLSDPLY-06028')
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
@@ -130,7 +135,7 @@ def __process_archive_filename_arg(argument_map):
     """
     _method_name = '__process_archive_filename_arg'
 
-    if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH in argument_map:
+    if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH in argument_map or CommandLineArgUtil.REMOTE_SWITCH in argument_map:
         archive_file = WLSDeployArchive.noArchiveFile()
     else:
         archive_file_name = argument_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
@@ -149,6 +154,7 @@ def __process_archive_filename_arg(argument_map):
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
     argument_map[CommandLineArgUtil.ARCHIVE_FILE] = archive_file
+
 
 
 def __process_variable_filename_arg(optional_arg_map):
@@ -191,6 +197,19 @@ def __process_java_home(optional_arg_map):
                       class_name=_class_name, method_name=_method_name)
 
 
+def __process_domain_home(arg_map, wlst_mode):
+    domain_home = None
+    if CommandLineArgUtil.DOMAIN_HOME_SWITCH not in arg_map:
+        return
+    domain_home = arg_map[CommandLineArgUtil.DOMAIN_HOME_SWITCH]
+    skip_archive = False
+    if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH in arg_map or CommandLineArgUtil.REMOTE_SWITCH in arg_map:
+        skip_archive = True
+    if wlst_mode == WlstModes.OFFLINE or not skip_archive:
+        full_path = cla_utils.validate_domain_home_arg(domain_home)
+        arg_map[CommandLineArgUtil.DOMAIN_HOME_SWITCH] = full_path
+
+
 def __discover(model_context, aliases, credential_injector, helper):
     """
     Populate the model from the domain.
@@ -224,8 +243,22 @@ def __discover(model_context, aliases, credential_injector, helper):
                                                         ae.getLocalizedMessage(), error=ae)
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
-
     __disconnect_domain(helper)
+
+    if model_context.is_remote():
+        print ''
+        remote_map = WLSDeployArchive.getRemoteList()
+        if len(remote_map) == 0:
+            message = exception_helper.get_message('WLSDPLY-06030')
+        else:
+            message = exception_helper.get_message('WLSDPLY-06031')
+        print message
+        print ''
+        for key in remote_map:
+            other_map = remote_map[key]
+            wls_archive = other_map[WLSDeployArchive.REMOTE_ARCHIVE_DIR]
+            print key, ' ', wls_archive
+            print ''
     return model
 
 
@@ -307,12 +340,13 @@ def __clear_archive_file(model_context):
         __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
         raise de
 
-    try:
-        archive_file.removeAllBinaries()
-    except WLSDeployArchiveIOException, wioe:
-        de = exception_helper.create_discover_exception('WLSDPLY-06005', wioe.getLocalizedMessage())
-        __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
-        raise de
+    if not model_context.skip_archive() and not model_context.is_remote():
+        try:
+            archive_file.removeAllBinaries()
+        except WLSDeployArchiveIOException, wioe:
+            de = exception_helper.create_discover_exception('WLSDPLY-06005', wioe.getLocalizedMessage())
+            __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+            raise de
 
 
 def __close_archive(model_context):
@@ -373,6 +407,10 @@ def __persist_model(model, model_context):
     add_to_archive = False
     model_file_name = model_context.get_model_file()
     if model_file_name is None:
+        if model_context.skip_archive() or model_context.is_remote():
+            ex = exception_helper.create_discover_exception('WLSDPLY-06032')
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
         add_to_archive = True
         try:
             domain_name = model_context.get_domain_name()
@@ -473,6 +511,24 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
     return model
 
 
+def __remote_report(model_context):
+    if not model_context.is_remote():
+        return
+    print ''
+    remote_map = discoverer.remote_dict
+    if len(remote_map) == 0:
+        message = exception_helper.get_message('WLSDPLY-06030')
+    else:
+        message = exception_helper.get_message('WLSDPLY-06031')
+    print message
+    print ''
+    for key in remote_map:
+        other_map = remote_map[key]
+        wls_archive = other_map[discoverer.REMOTE_ARCHIVE_PATH]
+        print key, ' ', wls_archive
+    print ''
+
+
 def __log_and_exit(model_context, exit_code, class_name, method_name):
     """
     Helper method to log the exiting message and call sys.exit()
@@ -538,6 +594,7 @@ def main(args):
 
         model = __check_and_customize_model(model, model_context, aliases, credential_injector)
 
+        __remote_report(model_context)
     except DiscoverException, ex:
         __logger.severe('WLSDPLY-06011', _program_name, model_context.get_domain_name(),
                         model_context.get_domain_home(), ex.getLocalizedMessage(),

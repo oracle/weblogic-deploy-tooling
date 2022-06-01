@@ -1,13 +1,13 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
 from java.io import IOException
 from java.lang import Long
 from java.lang import NumberFormatException
+from java.lang import System
 
-from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import string_utils
@@ -36,6 +36,15 @@ STOP_APP_TIMEOUT_PROP = 'stop.application.timeout'
 STOP_APP_TIMEOUT_DEFAULT = '180000'
 SET_SERVER_GRPS_TIMEOUT_PROP = 'set.server.groups.timeout'
 SET_SERVER_GRPS_TIMEOUT_DEFAULT = '30000'
+WLST_EDIT_LOCK_ACQUIRE_TIMEOUT_PROP = 'wlst.edit.lock.acquire.timeout'
+WLST_EDIT_LOCK_ACQUIRE_TIMEOUT_DEFAULT = '0'
+WLST_EDIT_LOCK_RELEASE_TIMEOUT_PROP = 'wlst.edit.lock.release.timeout'
+WLST_EDIT_LOCK_RELEASE_TIMEOUT_DEFAULT = '-1'
+WLST_EDIT_LOCK_EXCLUSIVE_PROP = 'wlst.edit.lock.exclusive'
+WLST_EDIT_LOCK_EXCLUSIVE_DEFAULT = 'false'
+
+# System Property overrides for WLST timeout properties
+SYS_PROP_PREFIX = 'wdt.config.'
 
 
 class ModelConfiguration(object):
@@ -107,12 +116,34 @@ class ModelConfiguration(object):
         """
         return self._get_from_dict_as_long(SET_SERVER_GRPS_TIMEOUT_PROP, SET_SERVER_GRPS_TIMEOUT_DEFAULT)
 
+    def get_wlst_edit_lock_acquire_timeout(self):
+        """
+        Return the waitTimeInMillis for startEdit from tool properties
+        :return: wlst edit lock acquire timeout
+        """
+        return self._get_from_dict_as_long(WLST_EDIT_LOCK_ACQUIRE_TIMEOUT_PROP, WLST_EDIT_LOCK_ACQUIRE_TIMEOUT_DEFAULT)
+
+    def get_wlst_edit_lock_release_timeout(self):
+        """
+        Return the timeOutInMillis for startEdit from tool properties
+        :return: wlst edit lock release timeout
+        """
+        return self._get_from_dict_as_long(WLST_EDIT_LOCK_RELEASE_TIMEOUT_PROP, WLST_EDIT_LOCK_RELEASE_TIMEOUT_DEFAULT)
+
+    def get_wlst_edit_lock_exclusive(self):
+        """
+        Returns the exclusive value for startEdit from tool properties
+        :return: the string 'true' or 'false' (default)
+        """
+        return self._get_from_dict(WLST_EDIT_LOCK_EXCLUSIVE_PROP, WLST_EDIT_LOCK_EXCLUSIVE_DEFAULT)
+
     def _get_from_dict(self, name, default_value=None):
         _method_name = '_get_from_dict'
         _logger.entering(name, default_value, class_name=_class_name, method_name=_method_name)
         result = default_value
         if name in self.__config_dict:
             result = self.__config_dict[name]
+        result = System.getProperty(SYS_PROP_PREFIX + name, result)
         _logger.exiting(result=result, class_name=_class_name, method_name=_method_name)
         return result
 

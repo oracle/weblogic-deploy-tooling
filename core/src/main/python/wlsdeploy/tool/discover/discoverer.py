@@ -30,6 +30,9 @@ _DISCOVER_LOGGER_NAME = 'wlsdeploy.discover'
 _class_name = 'Discoverer'
 _logger = PlatformLogger(_DISCOVER_LOGGER_NAME)
 
+remote_dict = OrderedDict()
+REMOTE_TYPE = 'Type'
+REMOTE_ARCHIVE_PATH = 'ArchivePath'
 
 class Discoverer(object):
     """
@@ -60,6 +63,11 @@ class Discoverer(object):
         self._wlst_helper = WlstHelper(ExceptionType.DISCOVER)
         self._mbean_utils = MBeanUtils(self._model_context, self._aliases, ExceptionType.DISCOVER)
         self._wls_version = self._weblogic_helper.get_actual_weblogic_version()
+
+    def add_to_remote_map(self, local_name, archive_name, file_type):
+        remote_dict[local_name] = OrderedDict()
+        remote_dict[local_name][REMOTE_TYPE] = file_type
+        remote_dict[local_name][REMOTE_ARCHIVE_PATH] = archive_name
 
     def discover_domain_mbean(self, model_top_folder_name):
         """

@@ -19,6 +19,8 @@ from wlsdeploy.aliases.model_constants import REALM
 from wlsdeploy.aliases.model_constants import RESOURCES
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
+from wlsdeploy.aliases.model_constants import SERVER
+from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.model_constants import VIRTUAL_TARGET
 from wlsdeploy.tool.util.filters import wko_filter
@@ -77,6 +79,12 @@ class WkoFilterTestCase(BaseTestCase):
         topology = self._traverse(model, TOPOLOGY)
         self._no_dictionary_key(topology, MACHINE)
         self._no_dictionary_key(topology, VIRTUAL_TARGET)
+
+        server_1 = self._traverse(model, TOPOLOGY, SERVER, 'm1')
+        self._no_dictionary_key(server_1, MACHINE)
+
+        template_1 = self._traverse(model, TOPOLOGY, SERVER_TEMPLATE, 'template-1')
+        self._no_dictionary_key(template_1, MACHINE)
 
         # Partition and resource elements should be removed from the model
 

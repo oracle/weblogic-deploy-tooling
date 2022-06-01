@@ -259,7 +259,7 @@ class WlstHelper(object):
 
     def cancel_edit(self):
         """
-        Cancel current edit session
+        Cancel current edit session and discard all unsaved changes
         """
         self.__load_global('cancelEdit')('y')
 
@@ -375,6 +375,10 @@ class WlstHelper(object):
         """
         Targets the list of server groups to the managed server.
 
+        WARNING: The online version of setServerGroups() does change out of the edit MBean
+        tree when complete.  However, since we don't know the mode at this level, leave
+        it up to the caller to determine if moving back to the edit() tree is needed.
+
         :param server: the name of the managed server
         :param server_groups: the list of template-defined server groups to target to the server
         :param timeout: the timeout for the setServerGroups command
@@ -384,7 +388,10 @@ class WlstHelper(object):
         self.__logger.entering(server_groups, server, timeout, class_name=self.__class_name, method_name=_method_name)
 
         try:
-            self.__load_global('setServerGroups')(server, server_groups, timeout)
+            # In the WDT context, we never need online setServerGroups to acquire its own edit lock.
+            # As such, always pass true for skipEdit.
+            #
+            self.__load_global('setServerGroups')(serverName=server, serverGroups=server_groups, timeout=timeout, skipEdit=True)
         except (self.__load_global('WLSTException'), offlineWLSTException), e:
             pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00023', server_groups, server,
                                                     _format_exception(e), error=e)
@@ -839,16 +846,21 @@ class WlstHelper(object):
             raise pwe
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-    def start_edit(self):
+    def start_edit(self, acquire_timeout=0, release_timeout=-1, exclusive='false'):
         """
         Start an edit session with the WebLogic Server for the currently connected user.
+        :param acquire_timeout: Time (in milliseconds) that WLST waits until it gets a lock, in the event that another user has a lock.
+        :param release_timeout: Timeout (in milliseconds) that WLST waits to release the edit lock (-1 means edit session never expires).
+        :param exclusive: Whether to request an exclusive lock or not
         :raises: Exception for the specified tool type: if a WLST error occurs
         """
+        """
+        """
         _method_name = 'start_edit'
-        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        self.__logger.entering(acquire_timeout, release_timeout, exclusive, class_name=self.__class_name, method_name=_method_name)
 
         try:
-            self.__load_global('startEdit')()
+            self.__load_global('startEdit')(waitTimeInMillis=acquire_timeout, timeOutInMillis=release_timeout, exclusive=exclusive)
         except self.__load_global('WLSTException'), e:
             pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00050',
                                                     _format_exception(e), error=e)

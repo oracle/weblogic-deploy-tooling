@@ -31,15 +31,22 @@ topology:
         m1:
             Cluster: staticCluster
             ListenPort: 5001
+            Machine: "machine-1"
         m2:
             Cluster: staticCluster
             # string value should match numeric value
             ListenPort: "5001"
+            Machine: "machine-1"
         m3:
             Cluster: staticCluster
             # this should cause a warning message
             ListenPort: 5002
+            Machine: "machine-1"
+    ServerTemplate:
+        'template-1':
+            Machine: "machine-1"
     Machine:
+        # this machine and any references to it should be removed
         machine-1:
     VirtualTarget:
         target-2:

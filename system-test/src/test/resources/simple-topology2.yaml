@@ -9,7 +9,7 @@ domainInfo:
         rcu_db_conn_string: '%DB_HOST%:1521/InfraPDB1.us.oracle.com'
 topology:
     Name: domain1
-    AdminServerName: 'admin-server'
+    AdminServerName: admin-server
     ProductionModeEnabled: true
     Cluster:
         cluster1:
@@ -18,20 +18,19 @@ topology:
             DynamicServers:
                 ServerTemplate: template1
                 CalculatedListenPorts: true
-                ServerNamePrefix: 'ms-'
+                ServerNamePrefix: ms-
                 DynamicClusterSize: 2
                 MaxDynamicClusterSize: 2
     Server:
-        'admin-server':
+        admin-server:
             ListenPort: 7001
     ServerTemplate:
         template1:
             ListenPort: 8001
 appDeployments:
     Application:
-        # Quote needed because of hyphen in string
-        'simple-app':
-            SourcePath: 'wlsdeploy/applications/simple-app.war'
+        simple-app:
+            SourcePath: wlsdeploy/applications/simple-app.war
             Target: cluster1
             ModuleType: war
             StagingMode: nostage

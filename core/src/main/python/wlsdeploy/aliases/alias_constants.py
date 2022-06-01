@@ -180,7 +180,8 @@ AUTHENTICATION_PROVIDER_NAME_MAP = {
         'weblogic.security.providers.authentication.OracleUnifiedDirectoryAuthenticator',
     'OracleVirtualDirectoryAuthenticator':
         'weblogic.security.providers.authentication.OracleVirtualDirectoryAuthenticator',
-    'OracleIdentityCloudIntegrator': 'weblogic.security.providers.authentication.OracleIdentityCloudIntegrator',
+    'weblogic.security.providers.authentication.OracleIdentityCloudIntegrator':
+        'weblogic.security.providers.authentication.OracleIdentityCloudIntegrator',
     'ReadOnlySQLAuthenticator': 'weblogic.security.providers.authentication.ReadOnlySQLAuthenticator',
     'SQLAuthenticator': 'weblogic.security.providers.authentication.SQLAuthenticator',
     'VirtualUserAuthenticator': 'weblogic.security.providers.authentication.VirtualUserAuthenticator',

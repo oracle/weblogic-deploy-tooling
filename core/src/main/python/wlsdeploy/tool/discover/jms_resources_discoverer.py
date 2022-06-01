@@ -6,6 +6,7 @@ from java.io import File
 from java.lang import IllegalArgumentException
 
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
+from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 
 from wlsdeploy.aliases import model_constants
@@ -403,17 +404,23 @@ class JmsResourcesDiscoverer(Discoverer):
             success, _, file_name = self._get_from_url('Foreign Server ' + server_name + ' Connection URL', model_value)
             archive_file = self._model_context.get_archive_file()
             if success and file_name is not None:
-                file_name = self._convert_path(file_name)
-                _logger.finer('WLSDPLY-06495', server_name, file_name, class_name=_class_name, method_name=_method_name)
-                try:
-                    new_name = archive_file.addForeignServerFile(server_name, File(file_name))
-                    new_name = FILE_URI + self._model_context.tokenize_path(self._convert_path(new_name))
-                    _logger.info('WLSDPLY-06492', server_name, file_name, new_name, class_name=_class_name,
-                                 method_name=_method_name)
-                except (IllegalArgumentException, WLSDeployArchiveIOException), wioe:
-                    _logger.warning('WLSDPLY-06493', server_name, file_name, wioe.getLocalizedMessage(),
-                                    class_name=_class_name, method_name=_method_name)
-                    new_name = None
+                if not self._model_context.is_remote():
+                    file_name = self._convert_path(file_name)
+                    _logger.finer('WLSDPLY-06495', server_name, file_name, class_name=_class_name, method_name=_method_name)
+                if self._model_context.is_remote():
+                    new_name = archive_file.getForeignServerArchivePath(server_name, file_name)
+                    self.add_to_remote_map(file_name, new_name,
+                                           WLSDeployArchive.ArchiveEntryType.JMS_FOREIGN_SERVER.name())
+                elif not self._model_context.skip_archive():
+                    try:
+                        new_name = archive_file.addForeignServerFile(server_name, file_name)
+                        new_name = FILE_URI + self._model_context.tokenize_path(self._convert_path(new_name))
+                        _logger.info('WLSDPLY-06492', server_name, file_name, new_name, class_name=_class_name,
+                                     method_name=_method_name)
+                    except (IllegalArgumentException, WLSDeployArchiveIOException), wioe:
+                        _logger.warning('WLSDPLY-06493', server_name, file_name, wioe.getLocalizedMessage(),
+                                        class_name=_class_name, method_name=_method_name)
+                        new_name = None
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
         return new_name

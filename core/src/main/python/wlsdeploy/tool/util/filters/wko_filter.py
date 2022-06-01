@@ -181,7 +181,7 @@ def filter_topology(model, _model_context):
         auto_migration_enabled = server_template[AUTO_MIGRATION_ENABLED]
         if auto_migration_enabled is None or alias_utils.convert_boolean(auto_migration_enabled):
             server_template[AUTO_MIGRATION_ENABLED] = PyRealBoolean(False)
-        for delete_key in [SERVER_START]:
+        for delete_key in [MACHINE, SERVER_START]:
             if delete_key in server_template:
                 del server_template[delete_key]
 

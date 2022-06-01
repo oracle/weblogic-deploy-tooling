@@ -14,7 +14,7 @@ spec:
 
   # The domain home source type
   # Set to PersistentVolume for domain-in-pv, Image for domain-in-image, or FromModel for model-in-image
-  domainHomeSourceType: '{{{domainHomeSourceType}}}'
+  domainHomeSourceType: {{{domainHomeSourceType}}}
 
   # The WebLogic Server Docker image that the Operator uses to start the domain
   image: '{{{imageName}}}'
@@ -77,6 +77,7 @@ spec:
     istio:
       enabled: false
     introspectorJobActiveDeadlineSeconds: 900
+{{#hasModel}}
     model:
       domainType: {{{domainType}}}
 
@@ -88,6 +89,7 @@ spec:
       # used only for model-in-image deployment, can be removed for other types.
       runtimeEncryptionSecret: {{{runtimeEncryptionSecret}}}
 {{/runtimeEncryptionSecret}}
+{{/hasModel}}
 {{#hasAdditionalSecrets}}
 
     # Secrets that are referenced by model yaml macros

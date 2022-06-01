@@ -103,14 +103,14 @@ class WebLogicHelper(object):
         """
         return self.is_weblogic_version_or_above('12.1.2')
 
-    def is_dynamic_cluster_server_group_supported(self):
+    def is_dynamic_cluster_one_server_group_supported(self):
         """
         Is the version of WLST one that supports targeting one server group to dynamic cluster?
         :return: true if within the versions supporting the above
         """
         return self.is_weblogic_version_or_above('12.2.1.1') and not self.is_weblogic_version_or_above('12.2.1.4')
 
-    def is_dynamic_cluster_server_groups_supported(self):
+    def is_dynamic_cluster_multiple_server_groups_supported(self):
         """
         Is the version of WLST one that supports targeting one server group to dynamic cluster?
         :return: true if within the versions supporting the above

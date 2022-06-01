@@ -2,7 +2,7 @@
 # *****************************************************************************
 # extractDomainResource.sh
 #
-# Copyright (c) 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+# Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -31,8 +31,10 @@ usage() {
   echo ""
   echo "Usage: $1 [-help] [-use_encryption]"
   echo "          [-oracle_home <oracle_home>]"
-  echo "          -domain_home <domain_home>"
-  echo "          -domain_resource_file <domain_resource_file>"
+  echo "          [-domain_home <domain_home>]"
+  echo "          [-output_dir <output_dir>]"
+  echo "          [-target <target>]"
+  echo "          [-domain_resource_file <domain_resource_file>]"
   echo "          [-archive_file <archive_file>]"
   echo "          [-model_file <model_file>]"
   echo "          [-variable_file <variable_file>]"
@@ -42,9 +44,15 @@ usage() {
   echo "                          This is required unless the ORACLE_HOME environment"
   echo "                          variable is set."
   echo ""
-  echo "        domain_home     - the domain home directory"
+  echo "        domain_home     - the domain home directory to be used in output files."
+  echo "                          This will override any value in the model."
   echo ""
-  echo "        domain_resource_file - the location of the extracted domain resource file"
+  echo "        output_dir      - the location for the target output files."
+  echo ""
+  echo "        target          - the target output type. The default is wko."
+  echo ""
+  echo "        domain_resource_file - the location of the extracted domain resource file."
+  echo "                               This is deprecated, use -output_dir to specify output location"
   echo ""
   echo "        archive_file    - the path to the archive file to use  If the -model_file"
   echo "                          argument is not specified, the model file in this archive"
