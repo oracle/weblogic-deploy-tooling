@@ -127,7 +127,8 @@ class WlstHelper(object):
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
         except Throwable, e:
-            # isSet() throws a Java error for /ResourceManagement attribute in 14.1.1, return False to halt discovery
+            # isSet() throws a Java error for /ResourceManagement attribute in 14.1.1.
+            # in this case, return False to prevent further processing of this attribute.
             self.__logger.info('WLSDPLY-00129', attribute, mbean_path, e, class_name=self.__class_name,
                                method_name=_method_name)
             return False
