@@ -13,8 +13,10 @@ from java.lang import IllegalArgumentException
 from java.lang import IllegalStateException
 from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.discover import DiscoverException
+from oracle.weblogic.deploy.json import JsonException
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import FileUtils
+from oracle.weblogic.deploy.util import PyOrderedDict
 from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import WLSDeployArchive
@@ -30,6 +32,7 @@ from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.json import json_translator
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.deployments_discoverer import DeploymentsDiscoverer
@@ -61,6 +64,8 @@ _program_name = 'discoverDomain'
 _class_name = 'discover'
 __logger = PlatformLogger(discoverer.get_discover_logger_name())
 __wlst_mode = WlstModes.OFFLINE
+
+_store_result_environment_variable = '__WLSDEPLOY_STORE_RESULT__'
 
 __required_arguments = [
     CommandLineArgUtil.ORACLE_HOME_SWITCH,
@@ -137,6 +142,11 @@ def __process_archive_filename_arg(argument_map):
 
     if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH in argument_map or CommandLineArgUtil.REMOTE_SWITCH in argument_map:
         archive_file = WLSDeployArchive.noArchiveFile()
+        if CommandLineArgUtil.ARCHIVE_FILE_SWITCH in argument_map:
+            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                       'WLSDPLY-06033')
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
     else:
         archive_file_name = argument_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
         archive_dir_name = path_utils.get_parent_directory(archive_file_name)
@@ -245,20 +255,6 @@ def __discover(model_context, aliases, credential_injector, helper):
         raise ex
     __disconnect_domain(helper)
 
-    if model_context.is_remote():
-        print ''
-        remote_map = WLSDeployArchive.getRemoteList()
-        if len(remote_map) == 0:
-            message = exception_helper.get_message('WLSDPLY-06030')
-        else:
-            message = exception_helper.get_message('WLSDPLY-06031')
-        print message
-        print ''
-        for key in remote_map:
-            other_map = remote_map[key]
-            wls_archive = other_map[WLSDeployArchive.REMOTE_ARCHIVE_DIR]
-            print key, ' ', wls_archive
-            print ''
     return model
 
 
@@ -512,10 +508,36 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
 
 
 def __remote_report(model_context):
+    _method_name = '__remote_report'
+
     if not model_context.is_remote():
         return
-    print ''
+
     remote_map = discoverer.remote_dict
+
+    # write JSON output if the __WLSDEPLOY_STORE_RESULT__ environment variable is set.
+    # write to the file before the stdout so any logging messages come first.
+    if os.environ.has_key(_store_result_environment_variable):
+        store_path = os.environ.get(_store_result_environment_variable)
+        __logger.info('WLSDPLY-06034', store_path, class_name=_class_name, method_name=_method_name)
+        missing_archive_entries = []
+        for key in remote_map:
+            archive_map = remote_map[key]
+            missing_archive_entries.append({
+                'path': key,
+                'sourceFile': archive_map[discoverer.REMOTE_ARCHIVE_PATH],
+                'type': archive_map[discoverer.REMOTE_TYPE]
+            })
+        result_root = PyOrderedDict()
+        result_root['missingArchiveEntries'] = missing_archive_entries
+        try:
+            json_translator.PythonToJson(result_root).write_to_json_file(store_path)
+        except JsonException, ex:
+            __logger.warning('WLSDPLY-06035', _store_result_environment_variable, ex.getLocalizedMessage(),
+                             class_name=_class_name, method_name=_method_name)
+
+    # write to stdout
+    print ''
     if len(remote_map) == 0:
         message = exception_helper.get_message('WLSDPLY-06030')
     else:
