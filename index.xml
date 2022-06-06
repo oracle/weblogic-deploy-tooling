@@ -344,8 +344,8 @@ The OHS template must be present in the WDT domain type definition file used to 
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/kubernetes/</guid>
-      <description>Using WDT with WebLogic Kubernetes Operator The Extract Domain Resource Tool can be used to create a domain resource file for use with the WebLogic Kubernetes Operator. This allows the domain configuration and the Kubernetes container configuration to be specified in a single model file.
-This is especially useful when making configuration changes to the domain that also need to be reflected in the domain resource file. For example, adding a cluster to the domain only requires that it be added to the topology section of the WDT model, then a new domain resource file can be generated to apply to Kubernetes.</description>
+      <description>Using WDT with WebLogic Kubernetes Operator You can use the Extract Domain Resource Tool to create resource files for use with the WebLogic Kubernetes Operator or Verrazzano. This allows the domain configuration and the Kubernetes container configuration to be specified in a single model file.
+This is especially useful when making configuration changes to the domain that also need to be reflected in the resource file. For example, adding a cluster to the domain only requires that it be added to the topology section of the WDT model, then a new resource file can be generated to apply to Kubernetes.</description>
     </item>
     
     <item>

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Hugo 0.82.0" />
-    <meta name="description" content="Generates a domain resource YAML file for use with the WebLogic Kubernetes Operator.">
+    <meta name="description" content="Generates YAML resource files for use with the WebLogic Kubernetes Operator or Verrazzano.">
 
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
@@ -12,20 +12,20 @@
     <title>Extract Domain Resource Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1652933042" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1652933042" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1652933042" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1652933042" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1652933042" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1652933042" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1652933042" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1652933042" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1652933042" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1652933042" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1654530518" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1654530518" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1654530518" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1654530518" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1654530518" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1654530518" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1654530518" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1654530518" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1654530518" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1654530518" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1652933042"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1654530518"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1652933042"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1652933042"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1654530518"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1654530518"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1652933042"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1654530518"></script>
 
     
   </div>
@@ -1220,37 +1220,16 @@
 
 
 <h4 id="using-wdt-with-weblogic-kubernetes-operator">Using WDT with WebLogic Kubernetes Operator</h4>
-<p>The Extract Domain Resource Tool can be used to create a domain resource file for use with the WebLogic Kubernetes Operator. This allows the domain configuration and the Kubernetes container configuration to be specified in a single model file.</p>
-<p>This is especially useful when making configuration changes to the domain that also need to be reflected in the domain resource file. For example, adding a cluster to the domain only requires that it be added to the <code>topology</code> section of the WDT model, then a new domain resource file can be generated to apply to Kubernetes.</p>
+<p>You can use the Extract Domain Resource Tool to create resource files for use with the WebLogic Kubernetes Operator or Verrazzano. This allows the domain configuration and the Kubernetes container configuration to be specified in a single model file.</p>
+<p>This is especially useful when making configuration changes to the domain that also need to be reflected in the resource file. For example, adding a cluster to the domain only requires that it be added to the <code>topology</code> section of the WDT model, then a new resource file can be generated to apply to Kubernetes.</p>
 <p>More information about the WebLogic Kubernetes Operator can be found <a href="https://oracle.github.io/weblogic-kubernetes-operator">here</a>.</p>
-
-<div class="notices note" ><p>The Extract Domain Resource Tool is available with WDT releases 1.7.0 and later.</p>
-</div>
-
+<p>More information about Verrazzano can be found <a href="https://verrazzano.io/latest/docs/">here</a>.</p>
 <p>Here is an example command line for the Extract Domain Resource Tool:</p>
-<pre><code>$ &lt;wls-deploy-home&gt;/bin/extractDomainResource.sh -oracle_home /tmp/oracle -domain_home /u01/mydomain -model_file /tmp/mymodel.yaml -variable_file /tmp/my.properties -domain_resource_file /tmp/operator/domain-resource.yaml
-</code></pre><p>For the simplest case, the Extract Domain Resource Tool will create a sparse domain file. This is what is generated when there is not a <code>kubernetes</code> section in the model, or that section is empty.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">weblogic.oracle/v8</span>
-<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Domain</span>
-<span style="color:#f92672">metadata</span>:
-    <span style="color:#f92672">name</span>: <span style="color:#ae81ff">DemoDomain</span>
-<span style="color:#f92672">spec</span>:
-    <span style="color:#f92672">domainHome</span>: <span style="color:#ae81ff">/u01/mydomain</span>
-    <span style="color:#f92672">image</span>: <span style="color:#e6db74">&#39;--FIX ME--&#39;</span>
-    <span style="color:#f92672">imagePullSecrets</span>:
-    -   <span style="color:#f92672">name</span>: <span style="color:#e6db74">&#39;--FIX ME--&#39;</span>
-    <span style="color:#f92672">webLogicCredentialsSecret</span>: <span style="color:#e6db74">&#39;--FIX ME--&#39;</span>
-    <span style="color:#f92672">configuration</span>:
-        <span style="color:#f92672">model</span>:
-            <span style="color:#f92672">domainType</span>: <span style="color:#ae81ff">WLS</span>
-    <span style="color:#f92672">clusters</span>:
-    -   <span style="color:#f92672">clusterName</span>: <span style="color:#ae81ff">mycluster</span>
-        <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">2</span>
-    -   <span style="color:#f92672">clusterName</span>: <span style="color:#ae81ff">mycluster3</span>
-        <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">4</span>
-</code></pre></div><p>In this example, the value for <code>domainHome</code> was set as an input parameter to the <code>extractDomainResource</code> script from the command line. The <code>kind</code> and <code>name</code> were set to the domain name derived from the topology section of the model, or the default <code>base_domain</code>. The cluster entries are pulled from the topology section of the model, and their replica counts were derived from the number of servers for each cluster.</p>
-<p>The user is expected to fill in the image and secrets information identified by <code>--FIX ME--</code> in the domain resource output.</p>
-<p>For more advanced configurations, including pre-populating the <code>--FIX ME--</code> values, the user can populate the <code>kubernetes</code> section of the WDT model, and those values will appear in the resulting domain resources file. This model section overrides and adds some values to the result.</p>
+<pre><code>$ &lt;wls-deploy-home&gt;/bin/extractDomainResource.sh -oracle_home /tmp/oracle -domain_home /u01/mydomain -model_file /tmp/mymodel.yaml -variable_file /tmp/my.properties -output_dir /tmp/resource -target wko
+</code></pre><p>For the simplest case, the Extract Domain Resource Tool will create resource files based on the templates corresponding to the <code>target</code> argument, using information from the command line and the domain sections of the model. Information about target types and templates can be found <a href="/weblogic-deploy-tooling/userguide/target_env/">here</a>.</p>
+<p>The value of the optional <code>-domain_home</code> argument will be applied in the template output. Domain name and UID fields in the template will use the domain name in the topology section of the model, or the default <code>base_domain</code>. The cluster entries will be pulled from the topology section of the model; their replica counts will have been derived from the number of servers for each cluster.</p>
+<p>The user is expected to fill in the image and secrets information identified by <code>--FIX ME--</code> in the resource output.</p>
+<p>For more advanced configurations, including pre-populating the <code>--FIX ME--</code> values, the user can populate the <code>kubernetes</code> section of the WDT model, and those values will appear in the resulting resource files. This model section overrides and adds some values to the result.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">kubernetes</span>:
     <span style="color:#f92672">metadata</span>:
         <span style="color:#f92672">name</span>: <span style="color:#ae81ff">myName</span>
@@ -1274,7 +1253,7 @@
                 -   <span style="color:#f92672">name</span>: <span style="color:#ae81ff">JAVA_OPTIONS</span>
                     <span style="color:#f92672">value</span>: <span style="color:#e6db74">&#39;-Dmydir=/home/me&#39;</span>
 </code></pre></div><p>This example uses <code>@@PROP:mySecret@@</code> to pull the value for <code>webLogicCredentialsSecret</code> from the variables file specified on the command line. This can be done with any of the values in the <code>kubernetes</code> section of the model. More details about using model variables can be found <a href="/weblogic-deploy-tooling/concepts/model/#simple-example">here</a>.</p>
-<p>For this example, the resulting domain resource file would contain:</p>
+<p>Using the <code>wko</code> target with this example, the resulting domain resource file would contain:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">weblogic.oracle/v8</span>
 <span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Domain</span>
 <span style="color:#f92672">metadata</span>:
@@ -1304,10 +1283,9 @@
         <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">2</span>
     -   <span style="color:#f92672">clusterName</span>: <span style="color:#ae81ff">mycluster3</span>
         <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">4</span>
-</code></pre></div><p>If clusters are specified in the <code>kubernetes/spec</code> section of the model, those clusters will be configured in the domain resource file, and clusters from the <code>topology</code> section will be disregarded.</p>
+</code></pre></div><p>If clusters are specified in the <code>kubernetes/spec</code> section of the model, those clusters will be combined with any clusters from the <code>topology</code> section of the model.</p>
 <p>If the WDT model has a value of <code>Never</code> for <code>spec/imagePullPolicy</code>, the <code>imagePullSecrets</code> default value will not be added.</p>
-<p>A full list of sections and variables supported by the WebLogic Kubernetes Operator is available <a href="https://github.com/oracle/weblogic-kubernetes-operator/blob/main/documentation/domains/Domain.md">here</a>.</p>
-<p>The Extract Domain Resource Tool supports a subset of these sections, including <code>metadata</code>, <code>serverPod</code>, and <code>spec</code>.</p>
+<p>A full list of sections and variables supported by the WebLogic Kubernetes Operator is available <a href="https://github.com/oracle/weblogic-kubernetes-operator/blob/main/documentation/domains/Domain.md">here</a>. The Extract Domain Resource Tool supports a subset of these sections, including <code>metadata</code>, <code>serverPod</code>, and <code>spec</code>.</p>
 <p>The <a href="/weblogic-deploy-tooling/userguide/tools/model_help/">Model Help Tool</a> can be used to determine the folders and attributes that can be used in the <code>kubernetes</code> section of the model. For example, this command will list the folders and attributes in the <code>spec</code> folder:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ae81ff">&lt;wls-deploy-home&gt;/bin/modelHelp.sh -oracle_home /tmp/oracle kubernetes:/spec</span>
 </code></pre></div><p>The content in the <code>kubernetes</code> section is not generated when a model is discovered by the Discover Domain Tool.</p>
@@ -1328,12 +1306,12 @@
 </tr>
 <tr>
 <td><code>-domain_home</code></td>
-<td>(Required) The domain home directory.</td>
+<td>The domain home directory to be used in output files. This will override any value in the model.</td>
 <td></td>
 </tr>
 <tr>
 <td><code>-domain_resource_file</code></td>
-<td>(Required) The location of the extracted domain resource file.</td>
+<td>The location of the extracted domain resource file. This is deprecated, use <code>-output_dir</code> to specify output location.</td>
 <td></td>
 </tr>
 <tr>
@@ -1344,6 +1322,16 @@
 <tr>
 <td><code>-oracle_home</code></td>
 <td>Home directory of the Oracle WebLogic installation. Required if the <code>ORACLE_HOME</code> environment variable is not set.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-output_dir</code></td>
+<td>The location for the target output files.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-target</code></td>
+<td>The target output type. The default is <code>wko</code>.</td>
 <td></td>
 </tr>
 <tr>
@@ -2144,19 +2132,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1652933042"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1652933042"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1652933042"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1652933042"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1652933042"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1652933042"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1654530518"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1654530518"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1654530518"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1654530518"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1654530518"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1654530518"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1652933042"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1652933042"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1652933042"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1654530518"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1654530518"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1654530518"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1652933042"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1654530518"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
