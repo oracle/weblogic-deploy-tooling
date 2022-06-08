@@ -7,6 +7,7 @@ from java.lang import IllegalArgumentException
 
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 from oracle.weblogic.deploy.util import StringUtils
+from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 
 from wlsdeploy.aliases import model_constants
@@ -205,17 +206,22 @@ class CommonResourcesDiscoverer(Discoverer):
             directory = file_store_dictionary[model_constants.DIRECTORY]
             if not StringUtils.isEmpty(directory):
                 archive_file = self._model_context.get_archive_file()
-                try:
-                    new_source_name = archive_file.addFileStoreDirectory(file_store_name)
-                except WLSDeployArchiveIOException, wioe:
-                    de = exception_helper.create_discover_exception('WLSDPLY-06348', file_store_name, directory,
-                                                                    wioe.getLocalizedMessage())
-                    _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
-                    raise de
-                if new_source_name is not None:
-                    _logger.info('WLSDPLY-06349', file_store_name, new_source_name, class_name=_class_name,
-                                 method_name=_method_name)
-                    file_store_dictionary[model_constants.DIRECTORY] = new_source_name
+                if self._model_context.is_remote():
+                    new_name = archive_file.getFileStoreArchivePath(file_store_name)
+                    self.add_to_remote_map(file_store_name, new_name,
+                                           WLSDeployArchive.ArchiveEntryType.FILE_STORE.name())
+                elif not self._model_context.skip_archive():
+                    try:
+                        new_source_name = archive_file.addFileStoreDirectory(file_store_name)
+                    except WLSDeployArchiveIOException, wioe:
+                        de = exception_helper.create_discover_exception('WLSDPLY-06348', file_store_name, directory,
+                                                                        wioe.getLocalizedMessage())
+                        _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+                        raise de
+                    if new_source_name is not None:
+                        _logger.info('WLSDPLY-06349', file_store_name, new_source_name, class_name=_class_name,
+                                     method_name=_method_name)
+                        file_store_dictionary[model_constants.DIRECTORY] = new_source_name
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return
