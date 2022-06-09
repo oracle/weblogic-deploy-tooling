@@ -82,6 +82,7 @@ pipeline {
                 jdk 'jdk11'
             }
             steps {
+                sh 'env|sort'
                 withSonarQubeEnv('SonarCloud') {
                     withCredentials([string(credentialsId: 'encj_github_token', variable: 'GITHUB_TOKEN')]) {
                         runSonarScanner()
