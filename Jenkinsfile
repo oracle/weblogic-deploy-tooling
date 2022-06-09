@@ -1,5 +1,5 @@
 pipeline {
-    agent { label "small" }
+    agent any
 
     triggers {
         // timer trigger for "nightly build" on main branch
