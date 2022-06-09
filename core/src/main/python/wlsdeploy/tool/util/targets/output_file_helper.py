@@ -141,8 +141,7 @@ def _update_dictionary(output_dictionary, model_dictionary, schema_folder, schem
         value = _convert_value(value, element_type)
 
         if isinstance(value, dict):
-            if key not in output_dictionary:
-                output_dictionary[key] = {}
+            output_dictionary[key] = dictionary_utils.get_element(output_dictionary, key, PyOrderedDict())
             next_schema_path = wko_schema_helper.append_path(schema_path, key)
             _update_dictionary(output_dictionary[key], value, property_folder, next_schema_path, output_file_path)
         elif isinstance(value, list):
@@ -150,8 +149,7 @@ def _update_dictionary(output_dictionary, model_dictionary, schema_folder, schem
                 # if the model has an empty list, override output value
                 output_dictionary[key] = value
             else:
-                if key not in output_dictionary:
-                    output_dictionary[key] = []
+                output_dictionary[key] = dictionary_utils.get_element(output_dictionary, key, [])
                 next_schema_path = wko_schema_helper.append_path(schema_path, key)
                 _update_list(output_dictionary[key], value, property_folder, next_schema_path, output_file_path)
         else:
