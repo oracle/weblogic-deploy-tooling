@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent { label "small" }
 
     triggers {
         // timer trigger for "nightly build" on main branch
@@ -82,7 +82,6 @@ pipeline {
                 jdk 'jdk11'
             }
             steps {
-                sh 'env|sort'
                 withSonarQubeEnv('SonarCloud') {
                     withCredentials([string(credentialsId: 'encj_github_token', variable: 'GITHUB_TOKEN')]) {
                         runSonarScanner()
