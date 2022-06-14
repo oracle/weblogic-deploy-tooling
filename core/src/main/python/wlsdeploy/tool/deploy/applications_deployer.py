@@ -405,6 +405,10 @@ class ApplicationsDeployer(Deployer):
                 absolute_planpath = attributes_map['AbsolutePlanPath']
                 config_targets = self.__get_config_targets()
 
+                # AppRuntimeStateRuntime/AppRuntimeStateRuntime always return the app even if not targeted
+                # skip as if it is not there
+                if len(config_targets) == 0:
+                    continue
                 # There are case in application where absolute source path is not set but sourepath is
                 # if source path is not absolute then we need to add the domain path
 
