@@ -1,5 +1,5 @@
 """
-Copyright (c) 2022 Oracle Corporation and/or its affiliates.
+Copyright (c) 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Methods to update an output file with information from the kubernetes section of the model.
@@ -13,6 +13,7 @@ from oracle.weblogic.deploy.yaml import YamlException
 from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.extract import wko_schema_helper
@@ -28,6 +29,7 @@ SPEC = 'spec'
 
 WKO_DOMAIN_KIND = 'Domain'
 DOMAIN_HOME = 'domainHome'
+IMAGE_PULL_SECRETS = 'imagePullSecrets'
 
 # specific to Verrazzano
 COMPONENT_KIND = 'Component'
@@ -90,6 +92,7 @@ def _update_documents(documents, kubernetes_content, output_file_path):
             # is this a standard WKO document?
             if kind == WKO_DOMAIN_KIND:
                 _update_dictionary(document, kubernetes_content, schema, None, output_file_path)
+                _add_comments(document)
                 found = True
 
             # is this a Verrazzano WebLogic workload document?
@@ -101,6 +104,7 @@ def _update_documents(documents, kubernetes_content, output_file_path):
                     component_spec = _get_or_create_dictionary(workload, SPEC)
                     component_template = _get_or_create_dictionary(component_spec, TEMPLATE)
                     _update_dictionary(component_template, kubernetes_content, schema, None, output_file_path)
+                    _add_comments(component_template)
                     found = True
 
     if not found:
@@ -253,6 +257,21 @@ def _check_named_object_list(model_value, type_name, schema_folder, schema_path,
         return object_list
 
     return model_value
+
+
+def _add_comments(wko_dictionary):
+    """
+    Add relevant comments to the output dictionary to provide additional information.
+    :param wko_dictionary: the top-level WKO dictionary containing metadata, spec, etc.
+    """
+    _method_name = '_add_comments'
+
+    spec = dictionary_utils.get_element(wko_dictionary, SPEC)
+    if spec:
+        image_pull_secrets = dictionary_utils.get_element(spec, IMAGE_PULL_SECRETS)
+        if image_pull_secrets is not None and not len(image_pull_secrets):
+            message = exception_helper.get_message('WLSDPLY-01679')
+            spec.addComment(IMAGE_PULL_SECRETS, message)
 
 
 def _get_or_create_dictionary(dictionary, key):
