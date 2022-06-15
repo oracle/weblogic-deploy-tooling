@@ -264,8 +264,6 @@ def _add_comments(wko_dictionary):
     Add relevant comments to the output dictionary to provide additional information.
     :param wko_dictionary: the top-level WKO dictionary containing metadata, spec, etc.
     """
-    _method_name = '_add_comments'
-
     spec = dictionary_utils.get_element(wko_dictionary, SPEC)
     if spec:
         image_pull_secrets = dictionary_utils.get_element(spec, IMAGE_PULL_SECRETS)
