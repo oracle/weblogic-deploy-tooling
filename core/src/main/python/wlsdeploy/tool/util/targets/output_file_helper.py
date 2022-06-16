@@ -28,8 +28,10 @@ KIND = 'kind'
 SPEC = 'spec'
 
 WKO_DOMAIN_KIND = 'Domain'
+CLUSTERS = 'clusters'
 DOMAIN_HOME = 'domainHome'
 IMAGE_PULL_SECRETS = 'imagePullSecrets'
+REPLICAS = 'replicas'
 
 # specific to Verrazzano
 COMPONENT_KIND = 'Component'
@@ -264,12 +266,19 @@ def _add_comments(wko_dictionary):
     Add relevant comments to the output dictionary to provide additional information.
     :param wko_dictionary: the top-level WKO dictionary containing metadata, spec, etc.
     """
-    spec = dictionary_utils.get_element(wko_dictionary, SPEC)
-    if spec:
-        image_pull_secrets = dictionary_utils.get_element(spec, IMAGE_PULL_SECRETS)
-        if image_pull_secrets is not None and not len(image_pull_secrets):
-            message = exception_helper.get_message('WLSDPLY-01679')
-            spec.addComment(IMAGE_PULL_SECRETS, message)
+    spec = dictionary_utils.get_dictionary_element(wko_dictionary, SPEC)
+    image_pull_secrets = dictionary_utils.get_element(spec, IMAGE_PULL_SECRETS)
+    if image_pull_secrets is not None and not len(image_pull_secrets):
+        message = exception_helper.get_message('WLSDPLY-01679')
+        spec.addComment(IMAGE_PULL_SECRETS, message)
+
+    clusters = dictionary_utils.get_dictionary_element(spec, CLUSTERS)
+    for cluster in clusters:
+        cluster_replicas = dictionary_utils.get_element(cluster, REPLICAS)
+        if cluster_replicas is None and len(cluster):
+            last_key = cluster.keys()[-1]
+            message = exception_helper.get_message('WLSDPLY-01680')
+            cluster.addComment(last_key, REPLICAS + ': 99  # ' + message)
 
 
 def _get_or_create_dictionary(dictionary, key):
