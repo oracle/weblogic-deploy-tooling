@@ -8,6 +8,8 @@ import shutil
 from base_test import BaseTestCase
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.json.json_translator import JsonToPython
+from wlsdeploy.json.json_translator import PythonToJson
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.extract.domain_resource_extractor import DomainResourceExtractor
 from wlsdeploy.util.model import Model
@@ -61,6 +63,12 @@ class ExtractTest(BaseTestCase):
         Test that default values and information from the model
         are incorporated into the resulting domain resource file.
         """
+        # Configure the target to set cluster replicas
+        target_path = os.path.join(self.TEST_OUTPUT_DIR, 'config', 'targets', 'wko', 'target.json')
+        config = JsonToPython(target_path).parse()
+        config['set_cluster_replicas'] = True
+        PythonToJson(config).write_to_json_file(target_path)
+
         resource = self._extract_domain_resource('1')
 
         # clusters from topology should be in the domain resource file
