@@ -2,9 +2,15 @@
 Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+import os
+
 from java.io import File
 from java.lang import IllegalArgumentException
+from javax.xml.parsers import DocumentBuilderFactory
 
+from xml.dom.minidom import parse
+
+from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 from oracle.weblogic.deploy.util import StringUtils
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
@@ -241,6 +247,10 @@ class DeploymentsDiscoverer(Discoverer):
         _logger.entering(application_name, class_name=_class_name, method_name=_method_name)
         archive_file = self._model_context.get_archive_file()
         if model_constants.SOURCE_PATH in application_dict:
+            if model_constants.PLAN_DIR in application_dict and \
+                self._test_app_folder(application_dict[model_constants.SOURCE_PATH],
+                                      application_dict[model_constants.PLAN_DIR]):
+                return self._create_app_folder(application_name, application_dict)
             file_name = application_dict[model_constants.SOURCE_PATH]
             if file_name:
                 file_name_path = file_name
@@ -310,6 +320,59 @@ class DeploymentsDiscoverer(Discoverer):
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return
 
+    def _create_app_folder(self, application_name, application_dict):
+        _method_name = '_create_app_folder'
+
+        app_dir = application_dict[model_constants.SOURCE_PATH]
+        plan_dir = application_dict[model_constants.PLAN_DIR]
+        archive_file = self._model_context.get_archive_file()
+        new_source_name = None
+        if not self._model_context.skip_archive():
+            try:
+                new_source_name = archive_file.addApplicationFolder(application_name, app_dir)
+            except IllegalArgumentException, iae:
+                if model_constants.TARGET in application_dict:
+                    target = application_dict[model_constants.TARGET]
+                    del application_dict[model_constants.TARGET]
+                    _logger.warning('WLSDPLY-06395', application_name, target, iae.getLocalizedMessage(),
+                                    class_name=_class_name, method_name=_method_name)
+                else:
+                    _logger.warning('WLSDPLY-06396', application_name, iae.getLocalizedMessage(),
+                                    class_name=_class_name, method_name=_method_name)
+            except WLSDeployArchiveIOException, wioe:
+                de = exception_helper.create_discover_exception('WLSDPLY-06397', application_name,
+                                                                file_name_path, wioe.getLocalizedMessage())
+                _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+                raise de
+            if new_source_name is not None:
+                _logger.finer('WLSDPLY-06398', application_name, new_source_name, class_name=_class_name,
+                              method_name=_method_name)
+                application_dict[model_constants.SOURCE_PATH] = new_source_name
+            try:
+                new_source_name = archive_file.addApplicationPlanFolder(application_name, plan_dir)
+            except IllegalArgumentException, iae:
+                _logger.warning('WLSDPLY-06395', application_name, plan_dir,
+                                iae.getLocalizedMessage(), class_name=_class_name,
+                                method_name=_method_name)
+                new_source_name = None
+            except WLSDeployArchiveIOException, wioe:
+                de = exception_helper.create_discover_exception('WLSDPLY-06397', application_dict, plan_dir,
+                                                                wioe.getLocalizedMessage())
+                _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+                raise de
+            if new_source_name is not None:
+                _logger.finer('WLSDPLY-06398', application_name, new_source_name, class_name=_class_name,
+                              method_name=_method_name)
+                application_dict[model_constants.PLAN_DIR] = new_source_name
+        return
+
+    def _test_app_folder(self, source_path, plan_dir):
+        app_folder = False
+        app_dir = File(source_path).getParent()
+        if app_dir.endswith('app') and plan_dir.endswith('plan'):
+            app_folder = True
+        return app_folder
+
     def _get_plan_path(self, plan_path, archive_file, app_source_name, application_name, application_dict):
         plan_dir = None
         if model_constants.PLAN_DIR in application_dict:
@@ -338,6 +401,7 @@ class DeploymentsDiscoverer(Discoverer):
                 raise de
 
             return new_plan_name
+
     def _resolve_deployment_plan_path(self, plan_dir, plan_path):
         """
         Find the deployment plan absolute file path.

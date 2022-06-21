@@ -9,10 +9,25 @@ from sets import Set
 import os
 from java.io import File
 from java.io import IOException
+from java.io import FileOutputStream
+from java.lang import StringBuilder
+from java.io import BufferedReader
+from java.io import BufferedWriter
+from java.io import FileInputStream
+from java.io import FileOutputStream
+from java.io import InputStreamReader
+from java.io import OutputStreamWriter
 from java.security import NoSuchAlgorithmException
+from javax.xml.parsers import DocumentBuilderFactory
+from javax.xml.transform import OutputKeys
+from javax.xml.transform import TransformerFactory
+from javax.xml.transform.dom import DOMSource
+from javax.xml.transform.stream import StreamResult
 
 import oracle.weblogic.deploy.util.FileUtils as FileUtils
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
+from oracle.weblogic.deploy.util import WLSDeployArchive
+
 from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
@@ -21,6 +36,7 @@ from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import DEPLOYMENT_ORDER
 from wlsdeploy.aliases.model_constants import LIBRARY
 from wlsdeploy.aliases.model_constants import PARTITION
+from wlsdeploy.aliases.model_constants import PLAN_DIR
 from wlsdeploy.aliases.model_constants import PLAN_PATH
 from wlsdeploy.aliases.model_constants import PLAN_STAGING_MODE
 from wlsdeploy.aliases.model_constants import RESOURCES
@@ -183,6 +199,7 @@ class ApplicationsDeployer(Deployer):
                     self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                     raise ex
 
+
             application_name = \
                 self.version_helper.get_application_versioned_name(app_source_path, application_name)
 
@@ -193,6 +210,11 @@ class ApplicationsDeployer(Deployer):
             deployer_utils.create_and_cd(application_location, existing_applications, self.aliases)
             self._set_attributes_and_add_subfolders(application_location, application)
             application_location.remove_name_token(application_token)
+
+            if app_source_path.startswith(WLSDeployArchive.ARCHIVE_APPS_FOLD_TARGET_DIR):
+                plan_dir = dictionary_utils.get_element(application, PLAN_DIR)
+                self._fix_plan_file(plan_dir)
+
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 
     def __online_deploy_apps_and_libs(self, base_location):
@@ -624,6 +646,10 @@ class ApplicationsDeployer(Deployer):
                     if param in app_dict:
                         self.model_context.replace_tokens(APPLICATION, app, param, app_dict)
 
+                    if param == SOURCE_PATH and param.startswith(WLSDeployArchive.ARCHIVE_APPS_FOLD_TARGET_DIR):
+                        plan_dir = dictionary_utils.get_element(app, PLAN_DIR)
+                        self._fix_plan_file(plan_dir)
+
                 if model_helper.is_delete_name(app):
                     if self.__verify_delete_versioned_app(app, existing_apps, 'app'):
                         # remove the !app from the model
@@ -929,7 +955,6 @@ class ApplicationsDeployer(Deployer):
                             path = app_dict[uses_path_tokens_attribute_name]
                             if deployer_utils.is_path_into_archive(path):
                                 self.__extract_source_path_from_archive(path, APPLICATION, app_name)
-
                     location.add_name_token(token_name, app_name)
                     resource_group_template_name, resource_group_name, partition_name = \
                         self.__get_mt_names_from_location(location)
@@ -1100,6 +1125,33 @@ class ApplicationsDeployer(Deployer):
         self.logger.fine('WLSDPLY-09326', str(result_deploy_order),
                          class_name=self._class_name, method_name=_method_name)
         return result_deploy_order
+
+    def _fix_plan_file(self, plan_dir):
+        #self.archive_helper.extract_directory(plan_dir)
+        plan_file = os.path.join(self.model_context.get_domain_home(), plan_dir, "plan.xml")
+        dbf = DocumentBuilderFactory.newInstance()
+        db = dbf.newDocumentBuilder()
+        document = db.parse(File(plan_file))
+        document.normalizeDocument()
+        elements = document.getElementsByTagName("config-root")
+
+        if elements is not None and elements.getLength() > 0:
+            element = elements.item(0)
+            nodeList = element.getChildNodes()
+            element.setNodeValue(plan_dir)
+            element.setTextContent(plan_dir)
+            # document.appendChild(element)
+
+            #new_element.setAttribute("config-root")
+            ostream = FileOutputStream(plan_file)
+            transformerFactory = TransformerFactory.newInstance()
+            transformer = transformerFactory.newTransformer()
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes")
+            transformer.setOutputProperty(OutputKeys.STANDALONE, "no")
+            source = DOMSource(document)
+            result = StreamResult(ostream)
+
+            transformer.transform(source, result)
 
     def __start_all_apps(self, deployed_app_list, base_location):
 
