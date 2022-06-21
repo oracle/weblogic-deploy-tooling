@@ -20,8 +20,7 @@ spec:
   image: '{{{imageName}}}'
 
   # Identify which Secret contains the credentials for pulling an image
-  imagePullSecrets:
-    - name: ocir
+  imagePullSecrets: []
 
   # Identify which Secret contains the WebLogic Admin credentials
   webLogicCredentialsSecret:
@@ -68,9 +67,11 @@ spec:
                       values:
                         - $(CLUSTER_NAME)
                 topologyKey: "kubernetes.io/hostname"
+{{#setClusterReplicas}}
 
     # The number of cluster member Managed Server instances to start for this WebLogic cluster
     replicas: {{{replicas}}}
+{{/setClusterReplicas}}
 {{/clusters}}
 
   configuration:

@@ -26,6 +26,9 @@ USE_PERSISTENT_VOLUME = "use_persistent_volume"
 # Determines the type of domain used
 DOMAIN_HOME_SOURCE_TYPE = "domain_home_source_type"
 
+# Determines if replica count is applied at the cluster level
+SET_CLUSTER_REPLICAS = "set_cluster_replicas"
+
 # put secret tokens in the model, and build a script to create the secrets.
 SECRETS_METHOD = 'secrets'
 
@@ -196,6 +199,14 @@ class TargetConfiguration(object):
         """
         source_type = self._get_domain_home_source_type()
         return SOURCE_TYPE_NAMES[source_type]
+
+    def sets_cluster_replicas(self):
+        """
+        Return True if this configuration will calculate and apply replica counts at the cluster level.
+        :return: True if a replica counts are applied, False otherwise
+        """
+        result = dictionary_utils.get_element(self.config_dictionary, SET_CLUSTER_REPLICAS)
+        return result or False
 
     def validate_configuration(self, exit_code, target_configuration_file):
         validation_method = self.get_validation_method()

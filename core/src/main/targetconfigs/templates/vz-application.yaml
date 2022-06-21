@@ -102,7 +102,9 @@ spec:
                                 values:
                                   - $(CLUSTER_NAME)
                           topologyKey: "kubernetes.io/hostname"
+{{#setClusterReplicas}}
               replicas: {{{replicas}}}
+{{/setClusterReplicas}}
 {{/clusters}}
 
           serverPod:
