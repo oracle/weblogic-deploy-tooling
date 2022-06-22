@@ -11,9 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
@@ -582,6 +580,20 @@ public class WLSDeployArchive {
     }
 
     /**
+     * Get the archive path for the application in a well-formed application directory
+     * @param appPath name of the application path
+     * @return archive path for use in the model
+     */
+    public String getApplicationDirectoryArchivePath(String appName, String appPath) throws WLSDeployArchiveIOException {
+        File zip_path = new File(appPath);
+        if (zip_path.getParentFile() != null)
+        {
+            zip_path = zip_path.getParentFile();
+        }
+        return ARCHIVE_APPS_FOLD_TARGET_DIR + "/" + appName + "/" + zip_path.getName();
+    }
+
+    /**
      * This method adds an application to the archive.  If an application with the same name already exists, this
      * method assumes that the new one also needs to be added so it changes the name to prevent conflicts by adding
      * a numeric value onto the file's basename (e.g., myapp(1).ear, myapp(2).ear).
@@ -610,7 +622,11 @@ public class WLSDeployArchive {
             throws WLSDeployArchiveIOException {
         final String METHOD = "addApplicationFolder";
         LOGGER.entering(CLASS, METHOD, appName, appPath);
-        File zip_path = new File(appPath).getParentFile();
+        File zip_path = new File(appPath);
+        if (zip_path.getParentFile() != null)
+        {
+            zip_path = zip_path.getParentFile();
+        }
         String firstprefix = ARCHIVE_APPS_FOLD_TARGET_DIR + "/" + appName + "/" + zip_path.getName();
         String newName = walkDownFolders(firstprefix, zip_path);
         LOGGER.exiting(CLASS, METHOD, newName);
@@ -1040,6 +1056,18 @@ public class WLSDeployArchive {
      */
     public String getApplicationPlanArchivePath(String planFile) {
         return getArchiveName(ARCHIVE_APPS_TARGET_DIR, planFile);
+    }
+
+    /**
+     * Get the archive path of a well formed plan directory in app directory,
+     *
+     * @param appName The application name of the app directory
+     * @param planDir The deployment plan file directory
+     * @return Archive path for use in the model
+     */
+    public String getApplicationPlanDirArchivePath(String appName, String planDir) {
+        File zip_path = new File(planDir);
+        return ARCHIVE_APPS_FOLD_TARGET_DIR + "/" + appName + "/" + zip_path.getName();
     }
 
     /**

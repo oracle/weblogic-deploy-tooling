@@ -8,9 +8,6 @@ from java.io import File
 from java.lang import IllegalArgumentException
 from javax.xml.parsers import DocumentBuilderFactory
 
-from xml.dom.minidom import parse
-
-from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 from oracle.weblogic.deploy.util import StringUtils
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
@@ -247,9 +244,7 @@ class DeploymentsDiscoverer(Discoverer):
         _logger.entering(application_name, class_name=_class_name, method_name=_method_name)
         archive_file = self._model_context.get_archive_file()
         if model_constants.SOURCE_PATH in application_dict:
-            if model_constants.PLAN_DIR in application_dict and \
-                self._test_app_folder(application_dict[model_constants.SOURCE_PATH],
-                                      application_dict[model_constants.PLAN_DIR]):
+            if self._test_app_folder(application_dict[model_constants.SOURCE_PATH]):
                 return self._create_app_folder(application_name, application_dict)
             file_name = application_dict[model_constants.SOURCE_PATH]
             if file_name:
@@ -321,13 +316,27 @@ class DeploymentsDiscoverer(Discoverer):
         return
 
     def _create_app_folder(self, application_name, application_dict):
+        """
+        Create a well-formed application and plan directory
+        :param application_name: name of application
+        :param application_dict: model dictionary with application parameters
+        :return: newly constructed source name
+        """
         _method_name = '_create_app_folder'
 
+        _logger.entering(application_name, class_name=_class_name, method_name=_method_name)
         app_dir = application_dict[model_constants.SOURCE_PATH]
         plan_dir = application_dict[model_constants.PLAN_DIR]
         archive_file = self._model_context.get_archive_file()
         new_source_name = None
-        if not self._model_context.skip_archive():
+        if self._model_context.is_remote():
+            new_source_name = archive_file.getApplicationDirectoryArchivePath(application_name, app_dir)
+
+            self.add_to_remote_map(app_dir, new_source_name,
+                                   WLSDeployArchive.ArchiveEntryType.APPLICATIONS.name())
+        elif not self._model_context.skip_archive():
+            if not os.path.abspath(app_dir):
+                app_dir = os.path.join(self._model_context.get_domain_home(), app_dir)
             try:
                 new_source_name = archive_file.addApplicationFolder(application_name, app_dir)
             except IllegalArgumentException, iae:
@@ -344,10 +353,17 @@ class DeploymentsDiscoverer(Discoverer):
                                                                 file_name_path, wioe.getLocalizedMessage())
                 _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
                 raise de
-            if new_source_name is not None:
-                _logger.finer('WLSDPLY-06398', application_name, new_source_name, class_name=_class_name,
-                              method_name=_method_name)
-                application_dict[model_constants.SOURCE_PATH] = new_source_name
+        if new_source_name is not None:
+            _logger.finer('WLSDPLY-06398', application_name, new_source_name, class_name=_class_name,
+                          method_name=_method_name)
+            application_dict[model_constants.SOURCE_PATH] = new_source_name
+        if not os.path.abspath(plan_dir):
+            plan_dir = os.path.join(self._model_context.get_domain_home(), plan_dir)
+        if self._model_context.is_remote():
+            new_source_name = archive_file.getApplicationPlanDirArchivePath(application_name, plan_dir)
+            self.add_to_remote_map(plan_dir, new_source_name,
+                                   WLSDeployArchive.ArchiveEntryType.APPLICATION_PLAN.name())
+        elif not self._model_context.skip_archive:
             try:
                 new_source_name = archive_file.addApplicationPlanFolder(application_name, plan_dir)
             except IllegalArgumentException, iae:
@@ -360,27 +376,32 @@ class DeploymentsDiscoverer(Discoverer):
                                                                 wioe.getLocalizedMessage())
                 _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
                 raise de
-            if new_source_name is not None:
-                _logger.finer('WLSDPLY-06398', application_name, new_source_name, class_name=_class_name,
-                              method_name=_method_name)
-                application_dict[model_constants.PLAN_DIR] = new_source_name
+        if new_source_name is not None:
+            _logger.finer('WLSDPLY-06398', application_name, new_source_name, class_name=_class_name,
+                          method_name=_method_name)
+            application_dict[model_constants.PLAN_DIR] = new_source_name
+        _logger.exiting(class_name=_class_name, method_name=_method_name)
         return
 
-    def _test_app_folder(self, source_path, plan_dir):
+    def _test_app_folder(self, source_path):
         app_folder = False
         app_dir = File(source_path).getParent()
-        if app_dir.endswith('app') and plan_dir.endswith('plan'):
+        if app_dir.endswith('app'):
             app_folder = True
         return app_folder
 
     def _get_plan_path(self, plan_path, archive_file, app_source_name, application_name, application_dict):
+        _method_name = '_get_plan_path'
         plan_dir = None
         if model_constants.PLAN_DIR in application_dict:
             plan_dir = application_dict[model_constants.PLAN_DIR]
             del application_dict[model_constants.PLAN_DIR]
         plan_file_name = self._resolve_deployment_plan_path(plan_dir, plan_path)
         if self._model_context.is_remote():
-            new_plan_name = archive_file.getApplicationPlanArchivePath(plan_file_name)
+            if plan_file_name.endswith('plan'):
+                new_plan_name = archive_file.getApplicationPlanDirArchivePath(plan_file_name)
+            else:
+                new_plan_name = archive_file.getApplicationPlanArchivePath(plan_file_name)
             self.add_to_remote_map(plan_path, new_plan_name,
                                    WLSDeployArchive.ArchiveEntryType.APPLICATION_PLAN.name())
         elif not self._model_context.skip_archive():
