@@ -7,7 +7,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.extract import wko_schema_helper
 from wlsdeploy.tool.modelhelp import model_help_utils
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
-
+from wlsdeploy.util.cla_utils import CommandLineArgUtil
 
 class ModelKubernetesPrinter(object):
     """

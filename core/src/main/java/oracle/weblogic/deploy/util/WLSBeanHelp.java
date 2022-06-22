@@ -3,7 +3,6 @@
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 
-
 package oracle.weblogic.deploy.util;
 
 import java.beans.BeanDescriptor;
@@ -22,71 +21,13 @@ import java.util.HashMap;
 /**
  * Helper for getting attribute descriptions from a WL mbean.
  *
- * Includes an undocumented main intended for ad-hoc testing:
- * java -cp "$CLASSPATH:." WLSBeanHelp -bean weblogic.j2ee.descriptor.wl.UniformDistributedTopicBean -prop ForwardingPolicy -margin 60
- * java -cp "$CLASSPATH:." WLSBeanHelp -bean weblogic.j2ee.descriptor.wl.UniformDistributedTopicBean -margin 60
+ * Includes an undocumented main intended for ad-hoc printing of a particular bean or bean property help.
  */
 
 public class WLSBeanHelp {
-  private static final int MARGIN_DEFAULT = 60;
   private static final String EOL = System.getProperty("line.separator");
 
-  public static void main(String [] argv) {
-    String beanName = "BeanNotSpecified";
-    String propName = null;
-    int margin = MARGIN_DEFAULT;
-    for (int i = 0; i < argv.length; i++) {
-      String arg = argv[i];
-      try {
-        if (arg.equals("-bean")) { 
-          beanName = argv[i+1]; i++; 
-        }
-        else if (arg.equals("-prop")) {
-          propName = argv[i+1]; i++;
-        }
-        else if (arg.equals("-margin")) {
-          margin = Integer.parseInt(argv[i+1]); i++;
-        }
-        else {
-          println("Error: Unrecognized parameter '" + arg +"'.");
-          System.exit(1);
-        }
-      } catch (ArrayIndexOutOfBoundsException a) {
-        println("Error: Expected argument after parameter: " + arg);
-        System.exit(1);
-      }
-    }
-
-    if (getBeanInfo(beanName) == null) {
-      println("Error: Bean '" + beanName + "' not found.");
-    }
-
-    if (propName == null) {
-      println("*** Abbreviated bean help for bean '" + beanName + "':");
-      println(get(beanName, null, true, margin, null));
-      println("*** Full bean help for bean '" + beanName + "':");
-      println(get(beanName, null, false, margin, null));
-      println("***");
-    } else {
-      println("*** Abbreviated property help for property '" + beanName + "/" + propName + "':");
-      println(get(beanName, propName, true, margin, null));
-      println("*** Full property help for property '" + beanName + "/" + propName + "':");
-      println(get(beanName, propName, false, margin, null));
-      println("*** Raw property help for property '" + beanName + "/" + propName + "':");
-      printAttributeHelp(beanName, propName, margin);
-      println("***");
-    }
-  }
-
-  public static String get(
-    String beanName,
-    boolean abbreviate,
-    int width
-  ) {
-    return get(beanName, null, abbreviate, width, null);
-  }
-
-  // gets description of given bean or property
+  // gets description of given bean or property in "plain text HTML"
   //   - returns "" if not found
   //   - if propName is null, gets description of bean,
   //     else gets description of prop
@@ -95,7 +36,8 @@ public class WLSBeanHelp {
   //     (whichever comes first), and appends "..." if truncated
   //   - in !abbreviate mode, yields full help, with newlines, 
   //     and margin set to "width"
-  //   - if propDefault not null, add it to the list of reported props...
+  //   - if propDefault not null, inline it as "default=" along with
+  //     any of the discovered prop limits...
   public static String get(
     String beanName,
     String propName,
@@ -111,10 +53,10 @@ public class WLSBeanHelp {
       ds = getFeatureDescription(getPropertyDescriptor(beanName, propName));
 
     if (ds.length() == 0)
-      ds = "TBD no help found for " + beanName + (propName == null ? "" : ("/" + propName));
+      return "";
 
     if (abbreviate)
-      return " - " + new DescriptionPretty(ds, 1000000).abbrevString(width);
+      return " - " + prettyHTMLAbbrev(ds, width); 
 
     String limits = "";
     if (propName != null) {
@@ -122,8 +64,15 @@ public class WLSBeanHelp {
       if (limits.length() > 0) limits += EOL;
     }
 
-// System.out.println("DEBUG " + EOL + limits + EOL + "---" + EOL + ds + EOL + "---" +EOL);
-    return limits + new DescriptionPretty(ds, width).toString();
+    return limits + prettyHTML(ds, width);
+  }
+
+  public static String get(
+    String beanName,
+    boolean abbreviate,
+    int width
+  ) {
+    return get(beanName, null, abbreviate, width, null);
   }
 
   private static String getFeatureDescription(
@@ -135,8 +84,9 @@ public class WLSBeanHelp {
     return d.toString();
   }
 
-  // gets pretty printed default, legal values, min, or max
-  // returns "" if not applicable
+  // gets pretty printed default for a given bean prop, legal values, min, or max
+  // default is passed in from outside
+  // returns "" if not applicable or not found
   private static String getPropertyLimits(
     String beanName,
     String propName,
@@ -175,8 +125,14 @@ public class WLSBeanHelp {
     try {
       BeanInfo info = getBeanInfo(beanName);
       if (info == null) return null;
-      for (PropertyDescriptor pd:info.getPropertyDescriptors()) {
-        if (propName.equals(pd.getName())) return pd;
+      for (String pluralize : new String [] { "", "s"}) {
+        String pName = propName + pluralize;
+        for (PropertyDescriptor pd:info.getPropertyDescriptors()) {
+          if (pName.equals(pd.getName())) return pd;
+        }
+        for (PropertyDescriptor pd:info.getPropertyDescriptors()) {
+          if (pName.equalsIgnoreCase(pd.getName())) return pd;
+        }
       }
     } catch (Throwable ignore) {}
     return null;
@@ -205,7 +161,7 @@ public class WLSBeanHelp {
         if (propName.equals(pd.getName())) {
           println("Bean = " + beanName);
           println("");
-          printPropertyDescriptor(pd, margin);  // TBD can we get the bean name from the pd?
+          printPropertyDescriptor(pd, margin);
           return true;
         }
       }
@@ -249,12 +205,88 @@ public class WLSBeanHelp {
     }
 
     println("  " + "description" + "=");
-    println(new DescriptionPretty(o.getValue("description").toString(), margin).toString());
+    println(prettyHTML(o.getValue("description").toString(), margin));
     println("");
   }
 
+  public static String prettyHTML(String html, int margin) {
+    return new PrettyHTML(html, margin).toString();
+  }
 
-  private static class DescriptionPretty {
+  public static String prettyHTMLAbbrev(String html, int width) {
+    return new PrettyHTML(html, 1000000).abbrevString(width);
+  }
+
+  public static void prettyHTMLTest() {
+    String input = ""
+      + "<p>Paragraph</p>"
+      + "<p>This paragraph is expected to wrap because it is long.</p>"
+      + "<p>text highlighting bullets:</p>"
+      + "<ol>"
+      + "<li><b>bold</b></li>"
+      + "<li><i>italic</i></li>"
+      + "<li><code>code</code></li>"
+      + "</ol>"
+      + "<p>symbol bullets:<p>"
+      + "<ul>"
+      + "<li>&lt;angle brackets&gt;</li>"
+      + "<li>ampersand=&amp;</li>"
+      + "<li>quote=&quot;</li>"
+      + "<li>at_symbol=&#35;</li>"
+      + "<li>backslash=&#92;</li>"
+      + "<li>This line is expected to wrap because it is long.</li>"
+      + "</ul>";
+    
+    String expect = ""
+      + "" + EOL
+      + "Paragraph" + EOL
+      + "" + EOL
+      + "This paragraph is expected " + EOL
+      + "to wrap because it is " + EOL
+      + "long." + EOL
+      + "" + EOL
+      + "text highlighting bullets:" + EOL
+      + "" + EOL
+      + "" + EOL
+      + "  * *bold*" + EOL
+      + "    " + EOL
+      + "  * *italic*" + EOL
+      + "    " + EOL
+      + "  * 'code'" + EOL
+      + "    " + EOL
+      + "    " + EOL
+      + "symbol bullets:" + EOL
+      + "" + EOL
+      + "" + EOL
+      + "  * <angle brackets>" + EOL
+      + "    " + EOL
+      + "  * ampersand=&" + EOL
+      + "    " + EOL
+      + "  * quote='" + EOL
+      + "    " + EOL
+      + "  * at_symbol=@" + EOL
+      + "    " + EOL
+      + "  * backslash=\\" + EOL
+      + "    " + EOL
+      + "  * This line is expected " + EOL
+      + "    to wrap because it " + EOL
+      + "    is long." + EOL
+      + "    " + EOL
+      + "    " + EOL;
+
+    String output = prettyHTML(input, 20);
+    String message = ""
+      + "--- error in bean help HTML pretty print test..." + EOL
+      + "--- input:" + EOL + input + EOL
+      + "--- expected output:" + EOL + expect
+      + "--- actual output:" + EOL + output
+      + "---" + EOL;
+
+    if (!output.equals(expect)) throw new RuntimeException(message);
+  }
+
+  // helper class for converting mbean javadoc HTML to plain text
+  private static class PrettyHTML {
     private static final String PGS = "<p>"; 
     private static final String PGE = "</p>"; 
     private static final String OLS = "<ol>"; 
@@ -281,10 +313,9 @@ public class WLSBeanHelp {
     private int margin;
     private StringBuffer sb = new StringBuffer(25);
 
-    // populate sb with pretty printed version of s
-    DescriptionPretty(String s, int margin) {
+    PrettyHTML(String s, int margin) {
       this.margin = margin;
-      // TBD handle <a href='#getPagingMaxWindowBufferSize'>Paging Maximum Window Buffer Size</a>
+
       for (int i = 0; i < s.length(); i++) {
         // paragraph mark
         if      (s.startsWith(PGS, i)) { i += PGS.length()-1; if (indent==0) outln(); }
@@ -328,7 +359,6 @@ public class WLSBeanHelp {
         else if (s.startsWith(AT_, i)) { i += AT_.length()-1; out("@"); }
         else if (s.startsWith(BCK, i)) { i += BCK.length()-1; out("\\"); }
  
-        // skip new-lines TBD may not be appropriate in a code block
         else if (s.charAt(i) != ' ' && Character.isWhitespace(s.charAt(i))) { i++; }
 
         else out(s.charAt(i));
@@ -336,8 +366,6 @@ public class WLSBeanHelp {
       outln();
     }
 
-    // TBD test nested bullets
-    
     private void outln_bullet() {
       sb.append(EOL);
       for (int i = 0; i < indent * 2; i++) sb.append(" ");
@@ -419,18 +447,10 @@ public class WLSBeanHelp {
     return ret;
   }
 
-  private static BeanInfo getBeanInfo(String name) {
-    BeanInfo bi = null;
-    bi = getBeanInfoInner(name);
-    if (bi != null) return bi;
-    bi = getBeanInfoInner("weblogic.management.configuration." + name + "MBean");  // TBD retire once json alias DB populated?
-    if (bi != null) return bi; 
-    return getBeanInfoInner("weblogic.j2ee.descriptor.wl." + name + "Bean"); // TBD retire once json alias DB populated?
-  }
-
-  private static BeanInfo getBeanInfoInner(String beanName)
+  // returns BeanInfo for given bean name, or null if not found
+  private static BeanInfo getBeanInfo(String beanName)
   {
-    /* Use reflection to implement the equivalent of:
+    /* we use reflection to implement the equivalent of:
        try {
          return weblogic.management.provider
                 .ManagementServiceClient
@@ -480,4 +500,68 @@ public class WLSBeanHelp {
     return null;
   }
 
+  private static void mainHelp() {
+    println("Usage:");
+    println("  Ensure weblogic.jar is in CLASSPATH.");
+    println("  java -cp \"$CLASSPATH:./core/target/classes\" oracle.weblogic.deploy.util.WLSBeanHelp -bean weblogic.j2ee.descriptor.wl.UniformDistributedTopicBean -prop ForwardingPolicy -margin 60");
+    println("  java -cp \"$CLASSPATH:./core/target/classes\" oracle.weblogic.deploy.util.WLSBeanHelp -bean weblogic.j2ee.descriptor.wl.UniformDistributedTopicBean -margin 60");
+  }
+
+  // undocumented main to ad hoc retrieve help for a particular bean or bean prop
+  public static void main(String [] argv) {
+    String beanName = "BeanNotSpecified";
+    String propName = null;
+    int margin = 60;
+
+    if (argv.length == 0) {
+      mainHelp();
+      System.exit(1);
+    }
+
+    for (int i = 0; i < argv.length; i++) {
+      String arg = argv[i];
+      try {
+        if (arg.equals("-bean")) { 
+          beanName = argv[i+1]; i++; 
+        }
+        else if (arg.equals("-prop")) {
+          propName = argv[i+1]; i++;
+        }
+        else if (arg.equals("-margin")) {
+          margin = Integer.parseInt(argv[i+1]); i++;
+        }
+        else {
+          println("Error: Unrecognized parameter '" + arg +"'.");
+          mainHelp();
+          System.exit(1);
+        }
+      } catch (ArrayIndexOutOfBoundsException a) {
+        println("Error: Expected argument after parameter: " + arg);
+        mainHelp();
+        System.exit(1);
+      }
+    }
+
+    if (getBeanInfo(beanName) == null) {
+      println("Error: Bean '" + beanName + "' not found.");
+    }
+
+    if (propName == null) {
+      println("*** Abbreviated bean help for bean '" + beanName + "':");
+      println(get(beanName, null, true, margin, null));
+      println("*** Full bean help for bean '" + beanName + "':");
+      println(get(beanName, null, false, margin, null));
+      println("***");
+    } else {
+      println("*** Abbreviated property help for property '" + beanName + "/" + propName + "':");
+      println(get(beanName, propName, true, margin, null));
+      println("*** Full property help for property '" + beanName + "/" + propName + "':");
+      println(get(beanName, propName, false, margin, null));
+      println("*** Raw property help for property '" + beanName + "/" + propName + "':");
+      printAttributeHelp(beanName, propName, margin);
+      println("***");
+    }
+
+    prettyHTMLTest(); // tests HTML pretty printing - emits runtime exception on failure
+  }
 }

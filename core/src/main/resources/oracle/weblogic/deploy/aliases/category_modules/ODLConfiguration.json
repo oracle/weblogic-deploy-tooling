@@ -2,10 +2,12 @@
     "copyright": "Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "ODLConfiguration",
+    "online_bean": "unknown",
     "child_folders_type": "multiple",
     "folders": {
         "Handler": {
             "wlst_type": "Handler",
+            "online_bean": "unknown",
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {
@@ -24,6 +26,7 @@
         },
         "Logger": {
             "wlst_type": "Logger",
+            "online_bean": "unknown",
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {

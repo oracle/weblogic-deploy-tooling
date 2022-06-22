@@ -599,8 +599,8 @@ class ModelContext(object):
 
     def get_interactive_mode_option(self):
         """
-        Get the -it command-line switch for model help tool.
-        :return: the -it command-line switch
+        Get the -interactive command-line switch for model help tool.
+        :return: the -interactive command-line switch
         """
         return self._interactive_mode
 

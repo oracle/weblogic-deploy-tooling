@@ -2,15 +2,18 @@
     "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "SecurityConfiguration",
+    "online_bean": "weblogic.management.configuration.SecurityConfigurationMBean",
     "default_name_value": "%DOMAIN%",
     "short_name": "SecurityConfig",
     "folders": {
         "CertRevoc" : {
             "wlst_type": "CertRevoc",
+            "online_bean": "weblogic.management.configuration.CertRevocMBean",
             "default_name_value": "${NO_NAME_0:%DOMAIN%}",
             "folders" : {
                     "CertRevocCa" : {
                         "wlst_type" : "CertRevocCa${:s}",
+                        "online_bean": "weblogic.management.configuration.CertRevocCaMBean",
                         "child_folders_type": "multiple",
                         "folders" : {},
                         "attributes" : {
@@ -69,14 +72,17 @@
         },
         "Realm" : {
             "wlst_type": "Realm${:s}",
+            "online_bean": "weblogic.management.security.RealmMBean",
             "child_folders_type": "multiple",
             "folders": {
                 "Adjudicator" : {
                     "wlst_type" : "Adjudicator",
+                    "online_bean": "weblogic.management.security.authorization.AdjudicatorMBean",
                     "child_folders_type": "multiple_with_type_subfolder",
                     "folders" : {
                         "DefaultAdjudicator": {
                             "wlst_type": "${DefaultAdjudicator:weblogic.security.providers.authorization.DefaultAdjudicator}",
+                            "online_bean": "weblogic.security.providers.authorization.DefaultAdjudicatorMBean",
                             "child_folders_type": "none",
                             "folder_order": 1,
                             "folders": {},
@@ -101,10 +107,12 @@
                 },
                 "Auditor" : {
                     "wlst_type" : "Auditor${:s}",
+                    "online_bean": "weblogic.management.security.audit.AuditorMBean",
                     "child_folders_type": "multiple_with_type_subfolder",
                     "folders" : {
                         "DefaultAuditor": {
                             "wlst_type": "weblogic.security.providers.audit.DefaultAuditor",
+                            "online_bean": "weblogic.security.providers.audit.DefaultAuditorMBean",
                             "child_folders_type": "none",
                             "folders": {},
                             "attributes" : {
@@ -138,10 +146,12 @@
                 },
                 "AuthenticationProvider" : {
                     "wlst_type" : "AuthenticationProvider${:s}",
+                    "online_bean": "weblogic.management.security.authentication.AuthenticationProviderMBean",
                     "child_folders_type": "multiple_with_type_subfolder",
                     "folders": {
                         "ActiveDirectoryAuthenticator": {
                             "wlst_type": "${ActiveDirectoryAuthenticator:weblogic.security.providers.authentication.ActiveDirectoryAuthenticator}",
+                            "online_bean": "weblogic.security.providers.authentication.ActiveDirectoryAuthenticatorMBean",
                             "child_folders_type": "none",
                             "folders": {},
                             "attributes" : {
@@ -207,6 +217,7 @@
                         },
                         "CustomDBMSAuthenticator": {
                             "wlst_type": "${CustomDBMSAuthenticator:weblogic.security.providers.authentication.CustomDBMSAuthenticator}",
+                            "online_bean": "weblogic.security.providers.authentication.CustomDBMSAuthenticatorMBean",
                             "child_folders_type": "none",
                             "folders": {},
                             "attributes" : {
@@ -230,6 +241,7 @@
                         },
                         "DefaultAuthenticator": {
                             "wlst_type": "${DefaultAuthenticator:weblogic.security.providers.authentication.DefaultAuthenticator}",
+                            "online_bean": "weblogic.security.providers.authentication.DefaultAuthenticatorMBean",
                             "child_folders_type": "none",
                             "folder_order": 1,
                             "folders": {},
@@ -265,6 +277,7 @@
                         },
                         "DefaultIdentityAsserter": {
                             "wlst_type": "${DefaultIdentityAsserter:weblogic.security.providers.authentication.DefaultIdentityAsserter}",
+                            "online_bean": "weblogic.security.providers.authentication.DefaultIdentityAsserterMBean",
                             "child_folders_type": "none",
                             "folder_order": 2,
                             "folders": {},
@@ -295,6 +308,7 @@
                         },
                         "IPlanetAuthenticator": {
                             "wlst_type": "${IPlanetAuthenticator:weblogic.security.providers.authentication.IPlanetAuthenticator}",
+                            "online_bean": "weblogic.security.providers.authentication.IPlanetAuthenticatorMBean",
                             "child_folders_type": "none",
                             "folders": {},
                             "attributes" : {
@@ -357,6 +371,7 @@
                         },
                         "LDAPAuthenticator": {
                             "wlst_type": "${LDAPAuthenticator:weblogic.security.providers.authentication.LDAPAuthenticator}",
+                            "online_bean": "weblogic.security.providers.authentication.LDAPAuthenticatorMBean",
                             "child_folders_type": "none",
                             "folders": {},
                             "attributes" : {
@@ -417,6 +432,7 @@
                         },
                         "LDAPX509IdentityAsserter": {
                             "wlst_type": "${LDAPX509IdentityAsserter:weblogic.security.providers.authentication.LDAPX509IdentityAsserter}",
+                            "online_bean": "weblogic.security.providers.authentication.LDAPX509IdentityAsserterMBean",
                             "child_folders_type": "none",
                             "folders": {},
                             "attributes" : {
@@ -451,6 +467,7 @@
                         },
                         "NegotiateIdentityAsserter": {
                             "wlst_type": "${NegotiateIdentityAsserter:weblogic.security.providers.authentication.NegotiateIdentityAsserter}",
+                            "online_bean": "weblogic.security.providers.authentication.NegotiateIdentityAsserterMBean",
                             "child_folders_type": "none",
                             "folders": {},
                             "attributes" : {
@@ -467,6 +484,7 @@
                         },
                         "NovellAuthenticator": {
                             "wlst_type": "${NovellAuthenticator:weblogic.security.providers.authentication.NovellAuthenticator}",
+                            "online_bean": "weblogic.security.providers.authentication.NovellAuthenticatorMBean",
                             "child_folders_type": "none",
                             "folders": {},
                             "attributes" : {
@@ -527,6 +545,7 @@
                         },
                         "OpenLDAPAuthenticator": {
                             "wlst_type": "${OpenLDAPAuthenticator:weblogic.security.providers.authentication.OpenLDAPAuthenticator}",
+                            "online_bean": "weblogic.security.providers.authentication.OpenLDAPAuthenticatorMBean",
                             "child_folders_type": "none",
                             "folders": {},
                             "attributes" : {
@@ -587,6 +606,7 @@
                         },
                         "weblogic.security.providers.authentication.OracleIdentityCloudIntegrator": {
                             "wlst_type": "weblogic.security.providers.authentication.OracleIdentityCloudIntegrator",
+                            "online_bean": "weblogic.security.providers.authentication.OracleIdentityCloudIntegratorMBean",
                             "child_folders_type": "none",
                             "version": "[12.2.1.3,)",
                             "folders": {},
@@ -662,6 +682,7 @@
                         },
                         "OracleInternetDirectoryAuthenticator": {
                             "wlst_type": "${OracleInternetDirectoryAuthenticator:weblogic.security.providers.authentication.OracleInternetDirectoryAuthenticator}",
+                            "online_bean": "weblogic.security.providers.authentication.OracleInternetDirectoryAuthenticatorMBean",
                             "child_folders_type": "none",
                             "folders": {},
                             "attributes" : {
@@ -723,6 +744,7 @@
                         },
                         "OracleUnifiedDirectoryAuthenticator": {
                             "wlst_type": "${OracleUnifiedDirectoryAuthenticator:weblogic.security.providers.authentication.OracleUnifiedDirectoryAuthenticator}",
+                            "online_bean": "weblogic.security.providers.authentication.OracleUnifiedDirectoryAuthenticatorMBean",
                             "child_folders_type": "none",
                             "folders": {},
                             "attributes" : {
@@ -785,6 +807,7 @@
                         },
                         "OracleVirtualDirectoryAuthenticator": {
                             "wlst_type": "${OracleVirtualDirectoryAuthenticator:weblogic.security.providers.authentication.OracleVirtualDirectoryAuthenticator}",
+                            "online_bean": "weblogic.security.providers.authentication.OracleVirtualDirectoryAuthenticatorMBean",
                             "child_folders_type": "none",
                             "folders": {},
                             "attributes" : {
@@ -845,6 +868,7 @@
                         },
                         "ReadOnlySQLAuthenticator": {
                             "wlst_type": "${ReadOnlySQLAuthenticator:weblogic.security.providers.authentication.ReadOnlySQLAuthenticator}",
+                            "online_bean": "weblogic.security.providers.authentication.ReadOnlySQLAuthenticatorMBean",
                             "child_folders_type": "none",
                             "folders": {},
                             "attributes" : {
@@ -876,6 +900,7 @@
                         },
                         "SAML2IdentityAsserter": {
                             "wlst_type": "${SAML2IdentityAsserter:com.bea.security.saml2.providers.SAML2IdentityAsserter}",
+                            "online_bean": "com.bea.security.saml2.providers.SAML2IdentityAsserterMBean",
                             "child_folders_type": "none",
                             "folders": {},
                             "attributes" : {
@@ -894,6 +919,7 @@
                         },
                         "SAMLAuthenticator": {
                             "wlst_type": "${SAMLAuthenticator:weblogic.security.providers.saml.SAMLAuthenticator}",
+                            "online_bean": "weblogic.security.providers.saml.SAMLAuthenticatorMBean",
                             "child_folders_type": "none",
                             "folders": {},
                             "attributes" : {
@@ -908,6 +934,7 @@
                         },
                         "SAMLIdentityAsserterV2": {
                             "wlst_type": "${SAMLIdentityAsserterV2:weblogic.security.providers.saml.SAMLIdentityAsserterV2}",
+                            "online_bean": "weblogic.security.providers.saml.SAMLIdentityAsserterV2MBean",
                             "child_folders_type": "none",
                             "folders": {},
                             "attributes" : {
@@ -925,6 +952,7 @@
                         },
                         "SQLAuthenticator": {
                             "wlst_type": "${SQLAuthenticator:weblogic.security.providers.authentication.SQLAuthenticator}",
+                            "online_bean": "weblogic.security.providers.authentication.SQLAuthenticatorMBean",
                             "child_folders_type": "none",
                             "folders": {},
                             "attributes" : {
@@ -971,6 +999,7 @@
                         },
                         "TrustServiceIdentityAsserter": {
                             "wlst_type": "oracle.security.jps.wls.providers.trust.TrustServiceIdentityAsserter",
+                            "online_bean": "unknown",
                             "child_folders_type": "none",
                             "version": "[12.1.2,]",
                             "folders": {},
@@ -992,6 +1021,7 @@
                         },
                         "VirtualUserAuthenticator": {
                             "wlst_type": "${VirtualUserAuthenticator:weblogic.security.providers.authentication.VirtualUserAuthenticator}",
+                            "online_bean": "weblogic.security.providers.authentication.VirtualUserAuthenticatorMBean",
                             "child_folders_type": "none",
                             "folders": {},
                             "attributes" : {
@@ -1014,10 +1044,12 @@
                 },
                 "Authorizer" : {
                     "wlst_type" : "Authorizer${:s}",
+                    "online_bean": "weblogic.management.security.authorization.AuthorizerMBean",
                     "child_folders_type": "multiple_with_type_subfolder",
                     "folders" : {
                         "DefaultAuthorizer": {
                             "wlst_type": "${DefaultAuthorizer:weblogic.security.providers.authorization.DefaultAuthorizer}",
+                            "online_bean": "weblogic.security.providers.authorization.DefaultAuthorizerMBean",
                             "child_folders_type": "none",
                             "folders": {},
                             "attributes" : {
@@ -1031,6 +1063,7 @@
                         },
                         "XACMLAuthorizer": {
                             "wlst_type": "${XACMLAuthorizer:weblogic.security.providers.xacml.authorization.XACMLAuthorizer}",
+                            "online_bean": "weblogic.security.providers.xacml.authorization.XACMLAuthorizerMBean",
                             "child_folders_type": "none",
                             "folder_order": 1,
                             "folders": {},
@@ -1059,10 +1092,12 @@
                 },
                 "CertPathProvider" : {
                     "wlst_type" : "CertPathProvider${:s}",
+                    "online_bean": "weblogic.management.security.pk.CertPathProviderMBean",
                     "child_folders_type": "multiple_with_type_subfolder",
                     "folders" : {
                         "CertificateRegistry": {
                             "wlst_type": "${CertificateRegistry:weblogic.security.providers.pk.CertificateRegistry}",
+                            "online_bean": "weblogic.security.providers.pk.CertificateRegistryMBean",
                             "child_folders_type": "none",
                             "folders": { },
                             "attributes" : {
@@ -1075,6 +1110,7 @@
                         },
                         "WebLogicCertPathProvider": {
                             "wlst_type": "${WebLogicCertPathProvider:weblogic.security.providers.pk.WebLogicCertPathProvider}",
+                            "online_bean": "weblogic.security.providers.pk.WebLogicCertPathProviderMBean",
                             "child_folders_type": "none",
                             "folder_order": 1,
                             "folders": { },
@@ -1098,10 +1134,12 @@
                 },
                 "CredentialMapper" : {
                     "wlst_type" : "CredentialMapper${:s}",
+                    "online_bean": "weblogic.management.security.credentials.CredentialMapperMBean",
                     "child_folders_type": "multiple_with_type_subfolder",
                     "folders" : {
                         "DefaultCredentialMapper": {
                             "wlst_type": "${DefaultCredentialMapper:weblogic.security.providers.credentials.DefaultCredentialMapper}",
+                            "online_bean": "weblogic.security.providers.credentials.DefaultCredentialMapperMBean",
                             "child_folders_type": "none",
                             "folder_order": 1,
                             "folders": { },
@@ -1124,6 +1162,7 @@
                         },
                         "PKICredentialMapper": {
                             "wlst_type": "${PKICredentialMapper:weblogic.security.providers.credentials.PKICredentialMapper}",
+                            "online_bean": "weblogic.security.providers.credentials.PKICredentialMapperMBean",
                             "child_folders_type": "none",
                             "folders": { },
                             "attributes" : {
@@ -1142,6 +1181,7 @@
                         },
                         "SAML2CredentialMapper": {
                             "wlst_type": "${SAML2CredentialMapper:com.bea.security.saml2.providers.SAML2CredentialMapper}",
+                            "online_bean": "com.bea.security.saml2.providers.SAML2CredentialMapperMBean",
                             "child_folders_type": "none",
                             "folders": { },
                             "attributes" : {
@@ -1164,6 +1204,7 @@
                         },
                         "SAMLCredentialMapperV2": {
                             "wlst_type": "${SAMLCredentialMapperV2:weblogic.security.providers.saml.SAMLCredentialMapperV2}",
+                            "online_bean": "weblogic.security.providers.saml.SAMLCredentialMapperV2MBean",
                             "child_folders_type": "none",
                             "folders": { },
                             "attributes" : {
@@ -1193,10 +1234,12 @@
                 },
                 "PasswordValidator" : {
                     "wlst_type" : "PasswordValidator${:s}",
+                    "online_bean": "weblogic.management.security.authentication.PasswordValidatorMBean",
                     "child_folders_type": "multiple_with_type_subfolder",
                     "folders" : {
                         "SystemPasswordValidator": {
                             "wlst_type" : "${SystemPasswordValidator:com.bea.security.providers.authentication.passwordvalidator.SystemPasswordValidator}",
+                            "online_bean": "com.bea.security.providers.authentication.passwordvalidator.SystemPasswordValidatorMBean",
                             "child_folders_type": "none",
                             "folder_order": 1,
                             "folders" : { },
@@ -1232,6 +1275,7 @@
                 },
                 "RDBMSSecurityStore" : {
                     "wlst_type" : "RDBMSSecurityStore",
+                    "online_bean": "weblogic.management.security.RDBMSSecurityStoreMBean",
                     "default_name_value": "${NO_NAME_0:RDBMSSecurityStore}",
                     "folders" : {},
                     "attributes" : {
@@ -1255,10 +1299,12 @@
                 },
                 "RoleMapper" : {
                     "wlst_type" : "RoleMapper${:s}",
+                    "online_bean": "weblogic.management.security.authorization.RoleMapperMBean",
                     "child_folders_type": "multiple_with_type_subfolder",
                     "folders" : {
                         "DefaultRoleMapper": {
                             "wlst_type" : "${DefaultRoleMapper:weblogic.security.providers.authorization.DefaultRoleMapper}",
+                            "online_bean": "weblogic.security.providers.authorization.DefaultRoleMapperMBean",
                             "child_folders_type": "none",
                             "folders" : { },
                             "attributes" : {
@@ -1272,6 +1318,7 @@
                         },
                         "XACMLRoleMapper": {
                             "wlst_type" : "${XACMLRoleMapper:weblogic.security.providers.xacml.authorization.XACMLRoleMapper}",
+                            "online_bean": "weblogic.security.providers.xacml.authorization.XACMLRoleMapperMBean",
                             "child_folders_type": "none",
                             "folder_order": 1,
                             "folders" : { },
@@ -1300,6 +1347,7 @@
                 },
                 "UserLockoutManager" : {
                     "wlst_type" : "UserLockoutManager",
+                    "online_bean": "weblogic.management.security.authentication.UserLockoutManagerMBean",
                     "folders" : {},
                     "default_name_value": "${NO_NAME_0:UserLockoutManager}",
                     "attributes" : {
@@ -1364,6 +1412,7 @@
         },
         "SecureMode" : {
             "wlst_type" : "SecureMode",
+            "online_bean": "weblogic.management.configuration.SecureModeMBean",
             "version": "[12.2.1.1,)",
             "default_name_value": "${NO_NAME_0:%DOMAIN%}",
             "folders" : {},

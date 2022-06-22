@@ -2,11 +2,13 @@
     "copyright": "Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "WebAppContainer",
+    "online_bean": "weblogic.management.configuration.WebAppContainerMBean",
     "default_name_value": "${NO_NAME_0:%DOMAIN%}",
     "short_name": "WebApp",
     "folders": {
         "GzipCompression" : {
             "wlst_type": "GzipCompression",
+            "online_bean": "weblogic.management.configuration.GzipCompressionMBean",
             "version": "[12.2,)",
             "default_name_value": "${NO_NAME_0:%DOMAIN%}",
             "folders": {},

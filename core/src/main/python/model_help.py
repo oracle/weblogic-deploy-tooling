@@ -55,8 +55,6 @@ def __process_args(args):
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     argument_map = cla_util.process_args(args, trailing_arg_count=1)
 
-    # TBD if trailing arg is "-it" we could add it here, and so help allow interactive mode without requiring a trailing arg
-
     # zero or one output type arguments should be set
     found = False
     for key in __output_types:
@@ -71,7 +69,160 @@ def __process_args(args):
 
     return model_context_helper.create_context(_program_name, argument_map)
 
+def canonicalize_path(model_path):
+    """
+    canonicalize internally used model path so it:
+    -  has no ':'
+    -  always starts with '/'
+    -  does not end with a slash unless at top
+    -  converts 'top' to '/'
+    :param model_path: the model path
+    :return: canonicalized path
+    """
+    model_path = model_path.replace(':','')
+    while model_path.endswith('/'):
+      model_path = model_path[:-1]
+    while model_path.startswith('/'):
+      model_path = model_path[1:]
+    if model_path == 'top':
+      model_path = ''
+    model_path = '/' + model_path
+    return model_path
 
+def interactive_help(model_path,printer):
+    """
+    Runs the interactive help.
+    :param model_path: the model path to start with
+    :param printer: a model help printer
+    :return: returns when user types 'exit'
+    """
+    _method_name = 'interactive_help'
+
+    __logger.entering(model_path, class_name=_class_name, method_name=_method_name)
+
+    # list of all sections (not including 'top')
+    top_level_keys = model.get_model_top_level_keys()
+
+    # setup starting history
+    if model_path == 'top':
+      history = ['top']
+    else:
+      history = ['top', model_path]
+
+    model_path = canonicalize_path(model_path)
+
+    print "In interactive mode! Type 'help' for help."
+    while True:
+
+      model_prompt = history[-1]
+
+      input = raw_input("[" + model_prompt + "] --> ")
+
+      input = " ".join(input.split()) # remove extra white-space
+      if input == 'help':
+        print ''
+        print 'Commands:'
+        print ''
+        print '  ls                      - list contents of current location'
+        print '  top, cd, cd /, cd top   - go to "top"'
+        print '  cd x[/[...]]            - relative change (go to child location x...)'
+        print '  cd section[:/[...]]     - absolute change (go to exact section and location)'
+        print '  cd ..                   - go up'
+        print '  history                 - history of visited locations'
+        print '  exit                    - exit'
+        print ''
+        print 'Sections:'
+        print ''
+        print ' ' + str(', '.join(top_level_keys))
+        print ''
+        print 'Example:'
+        print ''
+        print '  cd topology:/Server/Log/StdoutSeverity'
+        print ''
+        continue
+      elif input == 'history':
+        for line in history:
+          print line
+        continue
+      elif input == 'exit':
+        break
+      elif input == 'ls':
+        model_path = model_path
+      elif input == 'cd ..':
+        model_path = model_path[:model_path.rfind('/')]
+        if not model_path:
+          model_path = '/'
+      elif input == 'cd':
+        model_path = '/'
+      elif input == 'top':
+        model_path = '/'
+      elif input.count(' ') > 1:
+        print "Syntax error '" + input + "'"
+        print "In interactive mode! Type 'help' for help."
+        continue
+      elif input.startswith('cd '):
+        input = input[3:]
+        input = input.replace(':','')
+        while input.endswith('/'):
+          input = input[:-1]
+
+        # if first token is a section name, make it an absolute path
+        slash_pos = input.find('/') 
+        if slash_pos == -1:
+          first_token = input
+        elif slash_pos > 0:
+          first_token = input[:slash_pos]
+        if first_token in top_level_keys:
+          input = '/' + input
+
+        # if first token is 'top' treat it like its starting absolute path
+        if first_token == 'top':
+          if slash_pos > 0:
+            input = input[3:]
+          else:
+            input = '/'
+          
+        if not input:
+          model_path = '/'
+        elif input.startswith('/'):
+          model_path = input
+        elif model_path == '/':
+          model_path = "/" + input
+        else:
+          model_path = model_path + "/" + input
+      elif input:
+        print "Unknown command '" + input + "'"
+        print "In interactive mode! Type 'help' for help."
+        continue
+      else:
+        # no input, just prompt again 
+        continue
+
+      try:
+        # prompt and get help using the public path format
+
+        model_prompt = model_path[1:]
+        slashpos = model_prompt.find('/')
+        if slashpos > 0:
+          model_prompt = model_prompt[0:slashpos] + ':' + model_prompt[slashpos:]
+        if not model_prompt:
+          model_prompt = 'top'
+
+        printer.print_model_help(model_prompt, ControlOptions.NORMAL)
+
+        if not history[-1] == model_prompt:
+          history.append(model_prompt)
+
+      except CLAException, ex:
+        print "Error getting '" + model_prompt + "': " + ex.getLocalizedMessage()
+        print "In interactive mode! Type 'help' for help."
+        model_path = history[-1]  # last successful path
+        model_path = canonicalize_path(model_path)
+
+    # end of "while True"
+
+    __logger.exiting(class_name=_class_name, method_name=_method_name)
+    
 def print_help(model_path, model_context):
     """
     Prints the folders and/or attributes for the specified given model_path,
@@ -99,161 +250,7 @@ def print_help(model_path, model_context):
     printer = ModelHelpPrinter(aliases, __logger)
 
     if model_context.get_interactive_mode_option():
-
-      # TBD move to dedicated helper method
-      # TBD move all text here-in to the text library
-
-      # all sections (not including 'top')
-      top_level_keys = model.get_model_top_level_keys()
-
-      # setup starting history
-      if model_path == 'top':
-        history = ['top']
-      else:
-        history = ['top', model_path]
-
-      # canonicalize starting model path so it:
-      #  -  has no ':'
-      #  -  always starts with '/'
-      #  -  does not end with a slash unless at top
-      #  -  converts 'top' to '/'
-      model_path = model_path.replace(':','')
-      while model_path.endswith('/'):
-        model_path = model_path[:-1]
-      while model_path.startswith('/'):
-        model_path = model_path[1:]
-      if model_path == 'top':
-        model_path = ''
-      model_path = '/' + model_path
-
-      print "In interactive mode! Type 'help' for help."
-      while True:
-
-        model_prompt = history[-1]
-
-        input = raw_input("[" + model_prompt + "] --> ")
-
-        input = " ".join(input.split()) # remove extra white-space
-        if input == 'help':
-          print ''
-          print 'Commands:'
-          print ''
-          print '  ls                      - list contents of current location'
-          print '  top, cd, cd /, cd top   - go to "top"'
-          print '  cd x[/[...]]            - relative change (go to child location x...)'
-          print '  cd section[:/[...]]     - absolute change (go to exact section and location)'
-          print '  cd ..                   - go up'
-          print '  history                 - history of visited locations'
-          print '  exit                    - exit'
-          print ''
-          print 'Sections:'
-          print ''
-          print ' ' + str(', '.join(top_level_keys))
-          print ''
-          print 'Example:'
-          print ''
-          print '  cd resources:/JMSServer/StoreMessageCompressionEnabled'
-          print ''
-          continue
-        elif input == 'history':
-          for line in history:
-            print line
-          continue
-        elif input == 'exit':
-          break
-        elif input == 'ls':
-          model_path = model_path
-        elif input == 'cd ..':
-          model_path = model_path[:model_path.rfind('/')]
-          if not model_path:
-            model_path = '/'
-        elif input == 'cd':
-          model_path = '/'
-        elif input == 'top':
-          model_path = '/'
-        elif input.count(' ') > 1:
-          print "Syntax error '" + input + "'"
-          print "In interactive mode! Type 'help' for help."
-          continue
-        elif input.startswith('cd '):
-          input = input[3:]
-          input = input.replace(':','')
-          while input.endswith('/'):
-            input = input[:-1]
-
-          # if first token is a section name, make it an absolute path
-          slash_pos = input.find('/') 
-          if slash_pos == -1:
-            first_token = input
-          elif slash_pos > 0:
-            first_token = input[:slash_pos]
-          if first_token in top_level_keys:
-            input = '/' + input
-
-          # if first token is 'top' treat it like its starting absolute path
-          if first_token == 'top':
-            if slash_pos > 0:
-              input = input[3:]
-            else:
-              input = '/'
-            
-          if not input:
-            model_path = '/'
-          elif input.startswith('/'):
-            model_path = input
-          elif model_path == '/':
-            model_path = "/" + input
-          else:
-            model_path = model_path + "/" + input
-        elif input:
-          print "Unknown command '" + input + "'"
-          print "In interactive mode! Type 'help' for help."
-          continue
-        else:
-          # no input, just prompt again 
-          continue
-
-        try:
-          # prompt and get help using the public path format
-
-          model_prompt = model_path[1:]
-          slashpos = model_prompt.find('/')
-          if slashpos > 0:
-            model_prompt = model_prompt[0:slashpos] + ':' + model_prompt[slashpos:]
-          if not model_prompt:
-            model_prompt = 'top'
-
-          # elif slashpos == -1:
-          #   model_prompt = model_prompt + ":/"
-
-          # if model_path == '/':
-          #   printer.print_model_help('top', control_option)
-          # else:
-
-          printer.print_model_help(model_prompt, control_option)
-
-          if not history[-1] == model_prompt:
-            history.append(model_prompt)
-
-        except CLAException, ex:
-          print "Error getting '" + model_prompt + "': " + ex.getLocalizedMessage()
-          print "In interactive mode! Type 'help' for help."
-          model_path = history[-1]  # last successful path
-
-          # TBD this is duplicated code
-          # canonicalize starting model path so it:
-          #  -  has no ':'
-          #  -  always starts with '/'
-          #  -  does not end with a slash unless at top
-          #  -  converts 'top' to '/'
-          model_path = model_path.replace(':','')
-          while model_path.endswith('/'):
-            model_path = model_path[:-1]
-          while model_path.startswith('/'):
-            model_path = model_path[1:]
-          if model_path == 'top':
-            model_path = ''
-          model_path = '/' + model_path
+      interactive_help(model_path,printer)
     else:
       printer.print_model_help(model_path, control_option)
 

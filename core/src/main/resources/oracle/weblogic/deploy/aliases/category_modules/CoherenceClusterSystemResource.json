@@ -2,12 +2,14 @@
     "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "CoherenceClusterSystemResource${:s}",
+    "online_bean": "weblogic.management.configuration.CoherenceClusterSystemResourceMBean",
     "child_folders_type": "multiple",
     "version" : "[12.1.2,)",
     "short_name": "Coherence",
     "folders": {
         "CoherenceCacheConfig": {
             "wlst_type": "CoherenceCacheConfig${:s}",
+            "online_bean": "weblogic.management.configuration.CoherenceCacheConfigMBean",
             "version" : "[12.1.2,)",
             "child_folders_type": "multiple",
             "folders": {},
@@ -29,22 +31,26 @@
         },
         "CoherenceResource": {
             "wlst_type": "${CoherenceResource:CoherenceClusterResource}",
+            "online_bean": "weblogic.coherence.descriptor.wl.WeblogicCoherenceBean",
             "version" : "[12.1.2,)",
             "child_folders_type": "single",
             "default_name_value": "%COHERENCECLUSTER%",
             "folders": {
                 "CoherenceAddressProvider": {
                     "wlst_type": "CoherenceAddressProvider${:s}",
+                    "online_bean": "weblogic.coherence.descriptor.wl.CoherenceAddressProvidersBean",
                     "version" : "[12.2.1.1,)",
                     "child_folders_type": "multiple",
                     "flattened_folder_data": {
-                        "wlst_type": "CoherenceAddressProviders",
+                        "wlst_type": "CoherenceAddressProvider",
+                        "online_bean": "weblogic.coherence.descriptor.wl.CoherenceAddressProvidersBean",
                         "name_value": "${NO_NAME_0:%COHERENCECLUSTER%}",
                         "path_token": "COHERENCEADDRESSPROVIDERS"
                     },
                     "folders": {
                         "CoherenceSocketAddress": {
                             "wlst_type": "CoherenceSocketAddress${:es}",
+                            "online_bean": "weblogic.coherence.descriptor.wl.CoherenceSocketAddressBean",
                             "version" : "[12.2.1.1,)",
                             "child_folders_type": "multiple",
                             "folders": {},
@@ -66,16 +72,19 @@
                 },
                 "CoherenceClusterParams": {
                     "wlst_type": "CoherenceClusterParams",
+                    "online_bean": "weblogic.coherence.descriptor.wl.CoherenceClusterParamsBean",
                     "version" : "[12.1.2,)",
                     "default_name_value": "${NO_NAME_0:%COHERENCECLUSTER%}",
                     "folders": {
                         "CoherenceIdentityAsserter": {
                             "wlst_type": "CoherenceIdentityAsserter",
+                            "online_bean": "weblogic.coherence.descriptor.wl.CoherenceIdentityAsserterBean",
                             "version" : "[12.2.1.1,)",
                             "default_name_value": "${NO_NAME_0:%COHERENCECLUSTER%}",
                             "folders": {
                                 "CoherenceInitParam": {
                                     "wlst_type": "CoherenceInitParam${:s}",
+                                    "online_bean": "weblogic.coherence.descriptor.wl.CoherenceInitParamBean",
                                     "version" : "[12.2.1.1,)",
                                     "child_folders_type": "multiple",
                                     "folders": {},
@@ -99,6 +108,7 @@
                         },
                         "CoherenceKeystoreParams": {
                             "wlst_type": "CoherenceKeystoreParams",
+                            "online_bean": "weblogic.coherence.descriptor.wl.CoherenceKeystoreParamsBean",
                             "version" : "[12.2.1.1,)",
                             "default_name_value": "${NO_NAME_0:%COHERENCECLUSTER%}",
                             "folders": {},
@@ -113,6 +123,7 @@
                         },
                         "CoherenceCache": {
                             "wlst_type": "CoherenceCache${:s}",
+                            "online_bean": "weblogic.coherence.descriptor.wl.CoherenceCacheBean",
                             "version" : "[12.2.1.1,)",
                             "child_folders_type": "multiple",
                             "folders": {},
@@ -126,10 +137,12 @@
                         },
                         "CoherenceClusterWellKnownAddress": {
                             "wlst_type": "CoherenceClusterWellKnownAddress${:es}",
+                            "online_bean": "weblogic.coherence.descriptor.wl.CoherenceClusterWellKnownAddressBean",
                             "version" : "[12.1.2,)",
                             "child_folders_type": "multiple",
                             "flattened_folder_data": {
                                 "wlst_type": "CoherenceClusterWellKnownAddresses",
+                                "online_bean": "weblogic.coherence.descriptor.wl.CoherenceClusterWellKnownAddressBean",
                                 "name_value": "${NO_NAME_0:%COHERENCECLUSTER%}",
                                 "path_token": "COHERENCECLUSTERWELLKNOWNADDRESSES"
                             },
@@ -145,6 +158,7 @@
                         },
                         "CoherenceService": {
                             "wlst_type": "CoherenceService${:s}",
+                            "online_bean": "weblogic.coherence.descriptor.wl.CoherenceServiceBean",
                             "version" : "[12.2.1.1,)",
                             "child_folders_type": "multiple",
                             "folders": {},
@@ -179,6 +193,7 @@
                 },
                 "CoherencePersistenceParams": {
                     "wlst_type": "CoherencePersistenceParams",
+                    "online_bean": "weblogic.coherence.descriptor.wl.CoherencePersistenceParamsBean",
                     "version" : "[12.2.1.1,)",
                     "default_name_value": "${NO_NAME_0:%COHERENCECLUSTER%}",
                     "folders": {},
@@ -195,6 +210,7 @@
                 },
                 "CoherenceFederationParams": {
                     "wlst_type": "CoherenceFederationParams",
+                    "online_bean": "weblogic.coherence.descriptor.wl.CoherenceFederationParamsBean",
                     "version" : "[12.2.1.1,)",
                     "default_name_value": "${NO_NAME_0:%COHERENCECLUSTER%}",
                     "folders": {},
@@ -211,6 +227,7 @@
                 },
                 "CoherenceLoggingParams": {
                     "wlst_type": "CoherenceLoggingParams",
+                    "online_bean": "weblogic.coherence.descriptor.wl.CoherenceLoggingParamsBean",
                     "version" : "[12.1.2,)",
                     "default_name_value": "${NO_NAME_0:%COHERENCECLUSTER%}",
                     "folders": {},
@@ -238,6 +255,7 @@
         },
         "SubDeployment": {
             "wlst_type": "SubDeployment${:s}",
+            "online_bean": "weblogic.management.configuration.SubDeploymentMBean",
             "child_folders_type": "multiple",
             "version" : "[12.1.2,)",
             "folders": {},

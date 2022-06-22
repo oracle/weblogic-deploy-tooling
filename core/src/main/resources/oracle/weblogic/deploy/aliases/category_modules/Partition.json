@@ -2,12 +2,14 @@
     "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "Partition${:s}",
+    "online_bean": "weblogic.management.configuration.PartitionMBean",
     "version": "[12.2.1,14.1.1)",
     "child_folders_type": "multiple",
     "short_name": "Part",
     "folders": {
         "PartitionWorkManager": {
             "wlst_type": "PartitionWorkManager",
+            "online_bean": "weblogic.management.configuration.PartitionWorkManagerMBean",
             "version": "[12.2.1,)",
             "child_folders_type": "multiple",
             "folders": {},
@@ -26,11 +28,13 @@
         },
         "CoherencePartitionCacheConfig": {
             "wlst_type": "CoherencePartitionCacheConfig${:s}",
+            "online_bean": "weblogic.management.configuration.CoherencePartitionCacheConfigMBean",
             "child_folders_type": "multiple",
             "version": "[12.2.1,)",
             "folders": {
                 "CoherencePartitionCacheProperty": {
                     "wlst_type": "CoherencePartitionCachePropert${y:ies}",
+                    "online_bean": "weblogic.management.configuration.CoherencePartitionCachePropertyMBean",
                     "child_folders_type": "multiple",
                     "folders": {},
                     "attributes": {
@@ -56,6 +60,7 @@
         },
         "ConfigurationProperty": {
             "wlst_type": "ConfigurationPropert${y:ies}",
+            "online_bean": "weblogic.management.configuration.ConfigurationPropertyMBean",
             "version": "[12.2.1,)",
             "child_folders_type": "multiple",
             "folders": {},
@@ -72,6 +77,7 @@
         },
         "DataSourcePartition": {
             "wlst_type": "DataSourcePartition",
+            "online_bean": "weblogic.management.configuration.DataSourcePartitionMBean",
             "version": "[12.2.1,)",
             "default_name_value": "${NO_NAME_0:%PARTITION%}",
             "folders": {},
@@ -86,11 +92,13 @@
         },
         "ForeignJndiProviderOverride": {
             "wlst_type": "Foreign${Jndi:JNDI}ProviderOverride${:s}",
+            "online_bean": "weblogic.management.configuration.ForeignJNDIProviderOverrideMBean",
             "version": "[12.2.1,)",
             "child_folders_type": "multiple",
             "folders": {
                 "ForeignJNDILink": {
                     "wlst_type": "ForeignJNDILink${:s}",
+                    "online_bean": "weblogic.management.configuration.ForeignJNDILinkMBean",
                     "version": "[12.2.1,)",
                     "child_folders_type": "multiple",
                     "folders": {},
@@ -120,11 +128,13 @@
         },
         "JdbcSystemResourceOverride": {
             "wlst_type": "${JdbcSystemResourceOverride:JDBCSystemResourceOverrides}",
+            "online_bean": "unknown",
             "version": "[12.2.1,)",
             "child_folders_type": "multiple",
             "folders": {
                 "JdbcPropertyOverride": {
                     "wlst_type": "${JdbcPropertyOverride:JDBCPropertyOverrides}",
+                    "online_bean": "unknown",
                     "version": "[12.2.1,)",
                     "child_folders_type": "multiple",
                     "folders": {},
@@ -157,16 +167,19 @@
         },
         "JmsSystemResourceOverride": {
             "wlst_type": "${Jms:JMS}SystemResourceOverride${:s}",
+            "online_bean": "weblogic.management.configuration.JMSSystemResourceOverrideMBean",
             "version": "[12.2.1,)",
             "child_folders_type": "multiple",
             "folders": {
                 "ForeignServer": {
                     "wlst_type": "ForeignServer${:s}",
+                    "online_bean": "weblogic.j2ee.descriptor.wl.ForeignServerBean",
                     "version": "[12.2.1,)",
                     "child_folders_type": "multiple",
                     "folders": {
                         "ForeignConnectionFactory": {
                             "wlst_type": "ForeignConnectionFactor${y:ies}",
+                            "online_bean": "weblogic.j2ee.descriptor.wl.ForeignConnectionFactoryBean",
                             "version": "[12.2.1,)",
                             "child_folders_type": "multiple",
                             "folders": {},
@@ -184,6 +197,7 @@
                         },
                         "ForeignDestination": {
                             "wlst_type": "ForeignDestination${:s}",
+                            "online_bean": "weblogic.j2ee.descriptor.wl.ForeignDestinationBean",
                             "version": "[12.2.1,)",
                             "child_folders_type": "multiple",
                             "folders": {},
@@ -199,6 +213,7 @@
                         },
                         "JndiProperty": {
                             "wlst_type": "${Jndi:JNDI}Propert${y:ies}",
+                            "online_bean": "unknown",
                             "version": "[12.2.1,)",
                             "child_folders_type": "multiple",
                             "folders": {},
@@ -234,6 +249,7 @@
         },
         "JtaPartition": {
             "wlst_type": "${JtaPartition:JTAPartition}",
+            "online_bean": "weblogic.management.configuration.JTAPartitionMBean",
             "version": "[12.2.1,)",
             "default_name_value": "${NO_NAME_0:%PARTITION%}",
             "folders": {},
@@ -248,6 +264,7 @@
         },
         "MailSessionOverride": {
             "wlst_type": "MailSessionOverride${:s}",
+            "online_bean": "weblogic.management.configuration.MailSessionOverrideMBean",
             "version": "[12.2.1,)",
             "child_folders_type": "multiple",
             "folders": {},
@@ -266,6 +283,7 @@
         },
         "PartitionLog": {
             "wlst_type": "PartitionLog",
+            "online_bean": "weblogic.management.configuration.PartitionLogMBean",
             "version": "[12.2.1,)",
             "default_name_value": "%PARTITION%",
             "folders": {},
@@ -281,6 +299,7 @@
         },
         "SystemFileSystem": {
             "wlst_type": "SystemFileSystem",
+            "online_bean": "unknown",
             "version": "[12.2.1,)",
             "default_name_value": "${NO_NAME_0:%PARTITION%}",
             "folders": {},
@@ -297,6 +316,7 @@
         },
         "UserFileSystem": {
             "wlst_type": "UserFileSystem",
+            "online_bean": "weblogic.management.configuration.PartitionUserFileSystemMBean",
             "version": "[12.2.1,)",
             "default_name_value": "${NO_NAME_0:%PARTITION%}",
             "folders": {},
@@ -313,16 +333,19 @@
         },
         "WebService": {
             "wlst_type": "WebService",
+            "online_bean": "weblogic.management.configuration.WebServiceMBean",
             "version": "[12.2.1,)",
             "default_name_value": "${NO_NAME_0:%PARTITION%}",
             "folders": {
                 "WebServiceBuffering": {
                     "wlst_type": "WebServiceBuffering",
+                    "online_bean": "weblogic.management.configuration.WebServiceBufferingMBean",
                     "version": "[12.2.1,)",
                     "default_name_value": "${NO_NAME_0:%PARTITION%}",
                     "folders": {
                         "WebServiceRequestBufferingQueue": {
                             "wlst_type": "WebServiceRequestBufferingQueue",
+                            "online_bean": "weblogic.management.configuration.WebServiceRequestBufferingQueueMBean",
                             "version": "[12.2.1,)",
                             "default_name_value": "${NO_NAME_0:%PARTITION%}",
                             "folders": {},
@@ -339,6 +362,7 @@
                         },
                         "WebServiceResponseBufferingQueue": {
                             "wlst_type": "WebServiceResponseBufferingQueue",
+                            "online_bean": "weblogic.management.configuration.WebServiceResponseBufferingQueueMBean",
                             "version": "[12.2.1,)",
                             "default_name_value": "${NO_NAME_0:%PARTITION%}",
                             "folders": {},
@@ -380,16 +404,19 @@
         },
         "ResourceManager": {
             "wlst_type": "ResourceManager",
+            "online_bean": "weblogic.management.configuration.ResourceManagerMBean",
             "version": "[12.2.1,)",
             "child_folders_type": "multiple",
             "folders": {
                 "CpuUtilization": {
                     "wlst_type": "CpuUtilization",
+                    "online_bean": "weblogic.management.configuration.CpuUtilizationMBean",
                     "version": "[12.2.1,)",
                     "default_name_value": "${NO_NAME_0:CpuTimeResource}",
                     "folders": {
                         "FairShareConstraint": {
                             "wlst_type": "FairShareConstraint",
+                            "online_bean": "weblogic.management.configuration.FairShareConstraintMBean",
                             "version": "[12.2.1,)",
                             "default_name_value": "${NO_NAME_0:CpuUtilizationFairShareConstraint}",
                             "folders": { },
@@ -404,6 +431,7 @@
                         },
                         "Trigger": {
                             "wlst_type": "Trigger${:s}",
+                            "online_bean": "weblogic.management.configuration.TriggerMBean",
                             "version": "[12.2.1,)",
                             "child_folders_type": "multiple",
                             "folders": { },
@@ -430,11 +458,13 @@
                 },
                 "FileOpen": {
                     "wlst_type": "FileOpen",
+                    "online_bean": "weblogic.management.configuration.FileOpenMBean",
                     "version": "[12.2.1,)",
                     "default_name_value": "${NO_NAME_0:FileOpenResource}",
                     "folders": {
                         "Trigger": {
                             "wlst_type": "Trigger${:s}",
+                            "online_bean": "weblogic.management.configuration.TriggerMBean",
                             "version": "[12.2.1,)",
                             "child_folders_type": "multiple",
                             "folders": { },
@@ -461,11 +491,13 @@
                 },
                 "HeapRetained": {
                     "wlst_type": "HeapRetained",
+                    "online_bean": "weblogic.management.configuration.HeapRetainedMBean",
                     "version": "[12.2.1,)",
                     "default_name_value": "${NO_NAME_0:HeapRetainedResource}",
                     "folders": {
                         "FairShareConstraint": {
                             "wlst_type": "FairShareConstraint",
+                            "online_bean": "weblogic.management.configuration.FairShareConstraintMBean",
                             "version": "[12.2.1,)",
                             "default_name_value": "${NO_NAME_0:HeapRetainedFairShareConstraint}",
                             "folders": { },
@@ -481,6 +513,7 @@
                         },
                         "Trigger": {
                             "wlst_type": "Trigger${:s}",
+                            "online_bean": "weblogic.management.configuration.TriggerMBean",
                             "version": "[12.2.1,)",
                             "child_folders_type": "multiple",
                             "folders": { },
@@ -507,6 +540,7 @@
                 },
                 "RestartLoopProtection": {
                     "wlst_type": "RestartLoopProtection",
+                    "online_bean": "weblogic.management.configuration.RestartLoopProtectionMBean",
                     "version": "[12.2.1,)",
                     "default_name_value": "${NO_NAME_0:%RESOURCEMANAGER%}",
                     "folders": { },

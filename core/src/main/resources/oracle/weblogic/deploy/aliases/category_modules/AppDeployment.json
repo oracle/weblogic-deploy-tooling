@@ -2,11 +2,13 @@
     "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "AppDeployment${:s}",
+    "online_bean": "weblogic.management.configuration.AppDeploymentMBean",
     "child_folders_type": "multiple",
     "short_name": "App",
     "folders": {
         "SubDeployment" : {
             "wlst_type": "SubDeployment${:s}",
+            "online_bean": "weblogic.management.configuration.SubDeploymentMBean",
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {

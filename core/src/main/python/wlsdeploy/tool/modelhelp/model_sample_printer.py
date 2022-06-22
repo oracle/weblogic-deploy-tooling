@@ -14,8 +14,6 @@ from oracle.weblogic.deploy.util import WLSBeanHelp as WLSBeanHelp
 
 _class_name = "ModelSamplePrinter"
 
-# TBD should ./weblogic-deploy/bin/modelHelp.sh domainInfo:/AdminPassword SEVERE as "no folder"? Does this and similar have obvious bean behind it for getting help?
-
 class ModelSamplePrinter(object):
     """
     Class for printing the recognized model metadata as a model sample.
@@ -88,6 +86,12 @@ class ModelSamplePrinter(object):
         section_name = model_path_tokens[0]
         top_folder = model_path_tokens[1]
         if top_folder not in valid_section_folder_keys:
+            # print attribute help if top_folder turns out to be an attribute, throw otherwise
+            if (len(model_path_tokens) == 2):
+                attributes_location = self._aliases.get_model_section_attribute_location(section_name)
+                if attributes_location is not None:
+                    if (self._print_attribute(attributes_location, 0, top_folder)):
+                        return
             ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
                                                        'WLSDPLY-10110', section_name + ':', top_folder,
                                                        ', '.join(valid_section_folder_keys))
@@ -109,10 +113,10 @@ class ModelSamplePrinter(object):
             if indent > 0:
                 code, message = self._aliases.is_valid_model_folder_name(model_location, token)
                 if code != ValidationCodes.VALID:
-                    # TBD do we care about "show_attributes" at this point?
+                    # print attribute help if the token turns out to be an attribute, throw otherwise
                     if (tokens_left == 0
                         and model_help_utils.show_attributes(control_option)
-                        and self._print_attribute(model_location, indent, last_token, token)):
+                        and self._print_attribute(model_location, indent, token)):
                         return
                     else:
                         ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
@@ -145,15 +149,10 @@ class ModelSamplePrinter(object):
         if model_help_utils.show_folders(control_option):
             self._print_subfolders_sample(model_location, control_option, indent)
 
-        # TBD do we need a show help control option? (for recursive mode?)
-        # TBD use canonicalized "online_bean" bean name from aliases instead of token name
-        help = WLSBeanHelp.get(token, False, 60)
+        mr_bean = self._aliases.get_online_bean_name(model_location)
+        help = WLSBeanHelp.get(mr_bean, False, 60)
         if help:
-            _print_indent('', 0)
             _print_indent(help, 0)
-
-        # TBD online_bean = self._aliases.get_online_bean_name(model_location)
-        # TBD _print_indent("DEBUG online_bean = '" + online_bean + "'", 0);
 
         return
 
@@ -227,14 +226,7 @@ class ModelSamplePrinter(object):
         """
         attr_infos = self._aliases.get_model_attribute_names_and_types(model_location)
 
-        # TBD name_token = self._aliases.get_name_token(model_location)
-        #     sample name_token JMSServer 
-        #     wlst_mbean = self._aliases.get_wlst_mbean_name(model_location)
-        model_key, model_name = self._aliases.get_model_type_and_name(model_location)
-        if not model_key:
-          model_name = "Unknown"
-        if not model_name:
-          model_name = "Unknown"
+        online_bean = self._aliases.get_online_bean_name(model_location)
 
         if attr_infos:
             attr_list = attr_infos.keys()
@@ -250,51 +242,57 @@ class ModelSamplePrinter(object):
 
             format_string = '%-' + str(maxlen_attr + 1) + 's # %-' + str(maxlen_type + 1) + 's'
             for attr_name in attr_list:
-                # TBD the 'short attribute help' is limited to 100 chars - is this too much? Make this configurable?
-                # TBD use canonicalized bean name from aliases instead of model_key
                 att_default = self._aliases.get_model_attribute_default_value(model_location, attr_name)
-                if not att_default:
+                if att_default is None:
                     att_default = ''
                 else:
                     att_default = ' (default=' + str(att_default) + ')'
-                help = WLSBeanHelp.get(model_key, attr_name, True, 100, att_default)
-                line = format_string % (attr_name + ":", attr_infos[attr_name]) + ' ' + help + att_default
+
+                att_help = WLSBeanHelp.get(online_bean, attr_name, True, 100, att_default)
+
+                # Instead of showing abbreviated help, use a trailing "+" to indicate
+                # that more help is avail for the attribute, and a "-" otherwise
+                if att_help:
+                    att_help = ' +'
+                else:
+                    att_help = ' -'
+
+                line = format_string % (attr_name + ":", attr_infos[attr_name]) + att_default + att_help
+
                 _print_indent(line, indent_level)
+
         else:
             _print_indent("# no attributes", indent_level)
 
-    def _print_attribute(self, model_location, indent_level, last_token, token):
+    def _print_attribute(self, model_location, indent_level, the_attribute):
         """
-        Checks if the token is an attribute of model_location, and if so prints it
+        Checks if the the_attribute is an attribute of model_location, and if so prints it
         :param model_location: An object containing data about the model location being worked on
         :param indent_level: The level to indent by, before printing output
-        :param token: The token to print
-        :return: True if the token was an attribute
+        :param the_attribute: The attribute to print
+        :return: True if the_attribute was an attribute
         """
         _method_name = '_print_attribute'
 
+        the_bean = self._aliases.get_online_bean_name(model_location)
         attr_infos = self._aliases.get_model_attribute_names_and_types(model_location)
 
         if attr_infos:
-          if token in attr_infos:
-            line = '%s # %s' % (token + ":", attr_infos[token])
+          if the_attribute in attr_infos:
+            line = '%s # %s' % (the_attribute + ":", attr_infos[the_attribute])
             _print_indent(line, indent_level)
-            # TBD use canonicalized bean name from aliases instead of last_token
 
-            # TBD default comes back blank for legal values (BlociingSendPolicy is ${__NULL__:FIFO})  - or FileMinSize (which varies based on version)
-            att_default = self._aliases.get_model_attribute_default_value(model_location, token)
-            if att_default:
+            att_default = self._aliases.get_model_attribute_default_value(model_location, the_attribute)
+            if not att_default is None:
                 att_default = str(att_default)
 
-            prop_desc = WLSBeanHelp.get(last_token, token, False, 60, att_default)
+            prop_desc = WLSBeanHelp.get(the_bean, the_attribute, False, 60, att_default)
 
             if prop_desc:
               print
               print prop_desc
               print
-            else:
-              # TBD print "No help found?"
-              _print_indent("(TBD No help found.)", indent_level)
+
             return True
 
         return False

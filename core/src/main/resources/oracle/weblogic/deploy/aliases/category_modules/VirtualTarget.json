@@ -2,17 +2,20 @@
     "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "VirtualTarget${:s}",
+    "online_bean": "weblogic.management.configuration.VirtualTargetMBean",
     "version": "[12.2.1,14.1.1)",
     "child_folders_type": "multiple",
     "short_name": "VTarg",
     "folders": {
         "WebServer": {
             "wlst_type": "WebServer",
+            "online_bean": "weblogic.management.configuration.WebServerMBean",
             "default_name_value": "${NO_NAME_0:%VIRTUALTARGET%}",
             "version": "[12.2.1,)",
             "folders": {
                 "WebServerLog": {
                     "wlst_type": "WebServerLog",
+                    "online_bean": "weblogic.management.configuration.WebServerLogMBean",
                     "default_name_value": "%VIRTUALTARGET%",
                     "version": "[12.2.1,)",
                     "folders": {},

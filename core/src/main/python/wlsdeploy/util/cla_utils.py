@@ -86,7 +86,7 @@ class CommandLineArgUtil(object):
     ATTRIBUTES_ONLY_SWITCH     = '-attributes_only'
     FOLDERS_ONLY_SWITCH        = '-folders_only'
     RECURSIVE_SWITCH           = '-recursive'
-    INTERACTIVE_MODE_SWITCH    = '-it'
+    INTERACTIVE_MODE_SWITCH    = '-interactive'
     UPDATE_RCU_SCHEMA_PASS_SWITCH = '-updateRCUSchemaPassword'
     VALIDATION_METHOD          = '-method'
     REMOTE_SWITCH              = '-remote'

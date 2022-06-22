@@ -2,19 +2,23 @@
     "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "WLDFSystemResource${:s}",
+    "online_bean": "weblogic.management.configuration.WLDFSystemResourceMBean",
     "child_folders_type": "multiple",
     "short_name": "Diagnostic",
     "folders": {
         "WLDFResource" : {
             "wlst_type" : "WLDFResource",
+            "online_bean": "weblogic.diagnostics.descriptor.WLDFResourceBean",
             "default_name_value": "%WLDFSYSTEMRESOURCE%",
             "folders" : {
                 "Harvester": {
                     "wlst_type": "Harvester",
+                    "online_bean": "weblogic.diagnostics.descriptor.WLDFHarvesterBean",
                     "default_name_value": "${NO_NAME_0:%WLDFRESOURCE%}",
                     "folders": {
                         "HarvestedType": {
                             "wlst_type": "HarvestedType${:s}",
+                            "online_bean": "weblogic.diagnostics.descriptor.WLDFHarvestedTypeBean",
                             "child_folders_type": "multiple",
                             "folders": {},
                             "attributes": {
@@ -41,10 +45,12 @@
                 },
                 "Instrumentation": {
                     "wlst_type": "Instrumentation",
+                    "online_bean": "weblogic.diagnostics.descriptor.WLDFInstrumentationBean",
                     "default_name_value": "${NO_NAME_0:%WLDFRESOURCE%}",
                     "folders": {
                         "WLDFInstrumentationMonitor": {
                             "wlst_type": "WLDFInstrumentationMonitor${:s}",
+                            "online_bean": "weblogic.diagnostics.descriptor.WLDFInstrumentationMonitorBean",
                             "child_folders_type": "multiple",
                             "folders": {},
                             "attributes": {
@@ -77,10 +83,12 @@
                 },
                 "WatchNotification": {
                     "wlst_type": "WatchNotification",
+                    "online_bean": "weblogic.diagnostics.descriptor.WLDFWatchNotificationBean",
                     "default_name_value": "${NO_NAME_0:%WLDFRESOURCE%}",
                     "folders": {
                         "HeapDumpAction": {
                             "wlst_type": "HeapDumpAction${:s}",
+                            "online_bean": "weblogic.diagnostics.descriptor.WLDFHeapDumpActionBean",
                             "version": "[12.2.1.1,)",
                             "child_folders_type": "multiple",
                             "folders": {},
@@ -96,6 +104,7 @@
                         },
                         "ImageNotification": {
                             "wlst_type": "ImageNotification${:s}",
+                            "online_bean": "weblogic.diagnostics.descriptor.WLDFImageNotificationBean",
                             "child_folders_type": "multiple",
                             "folders": {},
                             "attributes": {
@@ -111,6 +120,7 @@
                         },
                         "JMSNotification": {
                             "wlst_type": "JMSNotification${:s}",
+                            "online_bean": "weblogic.diagnostics.descriptor.WLDFJMSNotificationBean",
                             "child_folders_type": "multiple",
                             "folders": {},
                             "attributes": {
@@ -126,6 +136,7 @@
                         },
                         "JMXNotification": {
                             "wlst_type": "JMXNotification${:s}",
+                            "online_bean": "weblogic.diagnostics.descriptor.WLDFJMXNotificationBean",
                             "child_folders_type": "multiple",
                             "folders": {},
                             "attributes": {
@@ -140,6 +151,7 @@
                         },
                         "LogAction": {
                             "wlst_type": "LogAction${:s}",
+                            "online_bean": "weblogic.diagnostics.descriptor.WLDFLogActionBean",
                             "version": "[12.2.1.1,)",
                             "child_folders_type": "multiple",
                             "folders": {},
@@ -157,6 +169,7 @@
                         },
                         "RestNotification": {
                             "wlst_type": "${RestNotification:RESTNotifications}",
+                            "online_bean": "unknown",
                             "version": "[12.2.1.1,)",
                             "child_folders_type": "multiple",
                             "folders": {},
@@ -178,6 +191,7 @@
                         },
                         "ScaleDownAction": {
                             "wlst_type": "ScaleDownAction${:s}",
+                            "online_bean": "weblogic.diagnostics.descriptor.WLDFScaleDownActionBean",
                             "version": "[12.2.1.1,)",
                             "child_folders_type": "multiple",
                             "folders": {},
@@ -194,6 +208,7 @@
                         },
                         "ScaleUpAction": {
                             "wlst_type": "ScaleUpAction${:s}",
+                            "online_bean": "weblogic.diagnostics.descriptor.WLDFScaleUpActionBean",
                             "version": "[12.2.1.1,)",
                             "child_folders_type": "multiple",
                             "folders": {},
@@ -210,6 +225,7 @@
                         },
                         "ScriptAction": {
                             "wlst_type": "ScriptAction${:s}",
+                            "online_bean": "weblogic.diagnostics.descriptor.WLDFScriptActionBean",
                             "version": "[12.2.1.1,)",
                             "child_folders_type": "multiple",
                             "folders": {},
@@ -228,6 +244,7 @@
                         },
                         "SMTPNotification": {
                             "wlst_type": "SMTPNotification${:s}",
+                            "online_bean": "weblogic.diagnostics.descriptor.WLDFSMTPNotificationBean",
                             "child_folders_type": "multiple",
                             "folders": {},
                             "attributes": {
@@ -245,6 +262,7 @@
                         },
                         "SNMPNotification": {
                             "wlst_type": "SNMPNotification${:s}",
+                            "online_bean": "weblogic.diagnostics.descriptor.WLDFSNMPNotificationBean",
                             "child_folders_type": "multiple",
                             "folders": {},
                             "attributes": {
@@ -258,6 +276,7 @@
                         },
                         "ThreadDumpAction": {
                             "wlst_type": "ThreadDumpAction${:s}",
+                            "online_bean": "weblogic.diagnostics.descriptor.WLDFThreadDumpActionBean",
                             "version": "[12.2.1.1,)",
                             "child_folders_type": "multiple",
                             "folders": {},
@@ -274,10 +293,12 @@
                         },
                         "Watch": {
                             "wlst_type": "Watch${:es}",
+                            "online_bean": "weblogic.diagnostics.descriptor.WLDFWatchBean",
                             "child_folders_type": "multiple",
                             "folders": {
                                 "Schedule": {
                                     "wlst_type": "Schedule",
+                                    "online_bean": "weblogic.diagnostics.descriptor.WLDFScheduleBean",
                                     "default_name_value": "${NO_NAME_0:%WATCH%}",
                                     "version": "[12.2.1,)",
                                     "folders": {},
@@ -334,6 +355,7 @@
         },
         "SubDeployment" : {
             "wlst_type": "SubDeployment${:s}",
+            "online_bean": "weblogic.management.configuration.SubDeploymentMBean",
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {
