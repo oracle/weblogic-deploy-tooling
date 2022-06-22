@@ -402,10 +402,8 @@ public class WLSBeanHelp {
     String abbrevString(int len) {
       len = Math.max(4, len);
       String s = toString().trim().replace(EOL, " ");
-      s.replaceAll(" *", " ");
       if (s.length() == 0) return "";
       String retS = s.substring(0, Math.min(s.length(), len - 3));
-      retS.trim();
       if (retS.indexOf('.') > 0) {
         retS = s.substring(0, retS.indexOf('.') + 1);
         if (retS.length() < s.length())

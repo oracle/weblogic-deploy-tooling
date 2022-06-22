@@ -147,7 +147,9 @@ def interactive_help(model_path,printer):
       elif input == 'exit':
         break
       elif input == 'ls':
-        model_path = model_path
+        # jython requires something here, and sonar doesn't like dummy statements
+        if model_path == 'Inconceivable!':
+          print "You keep using that word. I do not think it means what you think it means."
       elif input == 'cd ..':
         model_path = model_path[:model_path.rfind('/')]
         if not model_path:
