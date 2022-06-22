@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import java.util.Properties as JProperties
@@ -57,15 +57,16 @@ def is_empty_dictionary_element(dictionary, element_name):
     return result
 
 
-def get_element(dictionary, element_name):
+def get_element(dictionary, element_name, default_value=None):
     """
     Retrieve the value for the provided element name from the dictionary.
-    Return None if name is not in the dictionary.
+    Return default value or None if name is not in the dictionary.
     :param dictionary: to find the element name
     :param element_name: for which to retrieve the value
-    :return: value from the dictionary
+    :param default_value: value to return if key is not in dictionary
+    :return: value from the dictionary, or default_value
     """
-    result = None
+    result = default_value
     if element_name in dictionary:
         result = dictionary[element_name]
     return result

@@ -54,6 +54,7 @@ HAS_MODEL = 'hasModel'
 NAMESPACE = 'namespace'
 REPLICAS = 'replicas'
 RUNTIME_ENCRYPTION_SECRET = "runtimeEncryptionSecret"
+SET_CLUSTER_REPLICAS = "setClusterReplicas"
 USE_PERSISTENT_VOLUME = "usePersistentVolume"
 WEBLOGIC_CREDENTIALS_SECRET = 'webLogicCredentialsSecret'
 
@@ -195,6 +196,7 @@ def _build_template_hash(model, model_context, aliases, credential_injector):
         cluster_values = dictionary_utils.get_dictionary_element(cluster_list, cluster_name)
         server_count = k8s_helper.get_server_count(cluster_name, cluster_values, model.get_model())
         cluster_hash[REPLICAS] = str(server_count)
+        cluster_hash[SET_CLUSTER_REPLICAS] = target_configuration.sets_cluster_replicas()
         clusters.append(cluster_hash)
 
     template_hash[CLUSTERS] = clusters

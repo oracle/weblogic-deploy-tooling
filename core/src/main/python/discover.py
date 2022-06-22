@@ -524,8 +524,8 @@ def __remote_report(model_context):
         for key in remote_map:
             archive_map = remote_map[key]
             missing_archive_entries.append({
-                'path': key,
-                'sourceFile': archive_map[discoverer.REMOTE_ARCHIVE_PATH],
+                'sourceFile': key,
+                'path': archive_map[discoverer.REMOTE_ARCHIVE_PATH],
                 'type': archive_map[discoverer.REMOTE_TYPE]
             })
         result_root = PyOrderedDict()

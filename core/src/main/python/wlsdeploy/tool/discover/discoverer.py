@@ -65,6 +65,11 @@ class Discoverer(object):
         self._wls_version = self._weblogic_helper.get_actual_weblogic_version()
 
     def add_to_remote_map(self, local_name, archive_name, file_type):
+        if not os.path.isabs(local_name):
+            local_name = os.path.join(self._model_context.get_domain_home(), local_name)
+        # we don't know the remote machine type, so automatically turn into forward
+        # slashes. 
+        local_name = local_name.replace('\\', '/')
         remote_dict[local_name] = OrderedDict()
         remote_dict[local_name][REMOTE_TYPE] = file_type
         remote_dict[local_name][REMOTE_ARCHIVE_PATH] = archive_name
