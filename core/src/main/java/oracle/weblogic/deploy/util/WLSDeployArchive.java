@@ -585,9 +585,9 @@ public class WLSDeployArchive {
      * @return archive path for use in the model
      */
     public String getApplicationDirectoryArchivePath(String appName, String appPath) {
-        File zipPath = new File(appPath).getParentFile();
+        File zipPlanPath = new File(appPath).getParentFile();
         File zipFile = new File(appPath);
-        return ARCHIVE_APPS_FOLD_TARGET_DIR + "/" + appName + "/" + zipPath.getName() + "/" + zipFile.getName();
+        return ARCHIVE_APPS_FOLD_TARGET_DIR + "/" + appName + "/" + zipPlanPath.getName() + "/" + zipFile.getName();
     }
 
     /**
@@ -634,7 +634,6 @@ public class WLSDeployArchive {
             throws WLSDeployArchiveIOException {
         final String METHOD = "addApplicationPathFolder";
         LOGGER.entering(CLASS, METHOD, appName, planDir);
-        System.out.println("plan dir ******* " + planDir);
         File zipPlan = new File(planDir);
         String zipprefix = ARCHIVE_APPS_FOLD_TARGET_DIR + "/" + appName + "/" + zipPlan.getName();
         String newName = walkDownFolders(zipprefix, zipPlan);

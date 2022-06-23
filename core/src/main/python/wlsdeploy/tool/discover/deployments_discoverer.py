@@ -327,10 +327,24 @@ class DeploymentsDiscoverer(Discoverer):
         _method_name = '_create_app_folder'
 
         _logger.entering(application_name, class_name=_class_name, method_name=_method_name)
-        app_dir = application_dict[model_constants.SOURCE_PATH]
-        plan_dir = application_dict[model_constants.PLAN_DIR]
-        archive_file = self._model_context.get_archive_file()
+
+        self._create_application_directory(application_name, application_dict)
+        self._create_plan_directory(application_name, application_dict)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+    def _test_app_folder(self, source_path, plan_dir):
+        app_folder = False
+        app_dir = File(source_path).getParent()
+        if app_dir.endswith('app') and plan_dir.endswith('plan'):
+            app_folder = True
+        return app_folder
+
+    def _create_application_directory(self, application_name, application_dict):
+        _method_name = 'createAppFolder'
         new_source_name = None
+        app_dir = application_dict[model_constants.SOURCE_PATH]
+        archive_file = self._model_context.get_archive_file()
         if self._model_context.is_remote():
             new_source_name = archive_file.getApplicationDirectoryArchivePath(application_name, app_dir)
 
@@ -359,6 +373,12 @@ class DeploymentsDiscoverer(Discoverer):
             _logger.finer('WLSDPLY-06398', application_name, new_source_name, class_name=_class_name,
                           method_name=_method_name)
             application_dict[model_constants.SOURCE_PATH] = new_source_name
+
+    def _create_plan_directory(self, application_name, application_dict):
+        _method_name = '_create_plan_directory'
+        new_source_name = None
+        plan_dir = application_dict[model_constants.PLAN_DIR]
+        archive_file = self._model_context.get_archive_file()
         if not os.path.abspath(plan_dir):
             plan_dir = os.path.join(self._model_context.get_domain_home(), plan_dir)
         if self._model_context.is_remote():
@@ -382,15 +402,6 @@ class DeploymentsDiscoverer(Discoverer):
             _logger.finer('WLSDPLY-06398', application_name, new_source_name, class_name=_class_name,
                           method_name=_method_name)
             application_dict[model_constants.PLAN_DIR] = new_source_name
-        _logger.exiting(class_name=_class_name, method_name=_method_name)
-        return
-
-    def _test_app_folder(self, source_path, plan_dir):
-        app_folder = False
-        app_dir = File(source_path).getParent()
-        if app_dir.endswith('app') and plan_dir.endswith('plan'):
-            app_folder = True
-        return app_folder
 
     def _get_plan_path(self, plan_path, archive_file, app_source_name, application_name, application_dict):
         _method_name = '_get_plan_path'
