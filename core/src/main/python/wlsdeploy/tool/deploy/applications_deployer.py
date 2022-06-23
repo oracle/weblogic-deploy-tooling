@@ -1141,15 +1141,14 @@ class ApplicationsDeployer(Deployer):
 
         if elements is not None and elements.getLength() > 0:
             element = elements.item(0)
-            nodeList = element.getChildNodes()
             element.setNodeValue(plan_dir)
             element.setTextContent(plan_dir)
             # document.appendChild(element)
 
             #new_element.setAttribute("config-root")
             ostream = FileOutputStream(plan_file)
-            transformerFactory = TransformerFactory.newInstance()
-            transformer = transformerFactory.newTransformer()
+            transformer_factory = TransformerFactory.newInstance()
+            transformer = transformer_factory.newTransformer()
             transformer.setOutputProperty(OutputKeys.INDENT, "yes")
             transformer.setOutputProperty(OutputKeys.STANDALONE, "no")
             source = DOMSource(document)
