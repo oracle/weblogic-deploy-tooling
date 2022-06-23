@@ -133,7 +133,7 @@ def interactive_help(model_path,printer):
         print ''
         print 'Sections:'
         print ''
-        print ' ' + str(', '.join(top_level_keys))
+        print '  ' + str(', '.join(top_level_keys))
         print ''
         print 'Example:'
         print ''
