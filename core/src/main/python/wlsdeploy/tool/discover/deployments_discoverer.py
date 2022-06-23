@@ -244,7 +244,9 @@ class DeploymentsDiscoverer(Discoverer):
         _logger.entering(application_name, class_name=_class_name, method_name=_method_name)
         archive_file = self._model_context.get_archive_file()
         if model_constants.SOURCE_PATH in application_dict:
-            if self._test_app_folder(application_dict[model_constants.SOURCE_PATH]):
+            if model_constants.PLAN_DIR in application_dict and \
+                self._test_app_folder(application_dict[model_constants.SOURCE_PATH],
+                                      application_dict[model_constants.PLAN_DIR]):
                 return self._create_app_folder(application_name, application_dict)
             file_name = application_dict[model_constants.SOURCE_PATH]
             if file_name:
@@ -363,7 +365,7 @@ class DeploymentsDiscoverer(Discoverer):
             new_source_name = archive_file.getApplicationPlanDirArchivePath(application_name, plan_dir)
             self.add_to_remote_map(plan_dir, new_source_name,
                                    WLSDeployArchive.ArchiveEntryType.APPLICATION_PLAN.name())
-        elif not self._model_context.skip_archive:
+        elif not self._model_context.skip_archive():
             try:
                 new_source_name = archive_file.addApplicationPlanFolder(application_name, plan_dir)
             except IllegalArgumentException, iae:
@@ -383,10 +385,10 @@ class DeploymentsDiscoverer(Discoverer):
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return
 
-    def _test_app_folder(self, source_path):
+    def _test_app_folder(self, source_path, plan_dir):
         app_folder = False
         app_dir = File(source_path).getParent()
-        if app_dir.endswith('app'):
+        if app_dir.endswith('app') and plan_dir.endswith('plan'):
             app_folder = True
         return app_folder
 
