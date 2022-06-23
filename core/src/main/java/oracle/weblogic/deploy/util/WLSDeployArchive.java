@@ -585,9 +585,9 @@ public class WLSDeployArchive {
      * @return archive path for use in the model
      */
     public String getApplicationDirectoryArchivePath(String appName, String appPath) {
-        File zipPlanPath = new File(appPath).getParentFile();
-        File zipFile = new File(appPath);
-        return ARCHIVE_APPS_FOLD_TARGET_DIR + "/" + appName + "/" + zipPlanPath.getName() + "/" + zipFile.getName();
+        File zipAppPath = new File(appPath).getParentFile();
+        File zipAppFile = new File(appPath);
+        return ARCHIVE_APPS_FOLD_TARGET_DIR + "/" + appName + "/" + zipAppPath.getName() + "/" + zipAppFile.getName();
     }
 
     /**

@@ -6,7 +6,6 @@ import os
 
 from java.io import File
 from java.lang import IllegalArgumentException
-from javax.xml.parsers import DocumentBuilderFactory
 
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 from oracle.weblogic.deploy.util import StringUtils
@@ -341,7 +340,7 @@ class DeploymentsDiscoverer(Discoverer):
         return app_folder
 
     def _create_application_directory(self, application_name, application_dict):
-        _method_name = 'createAppFolder'
+        _method_name = '_create_application_directory'
         new_source_name = None
         app_dir = application_dict[model_constants.SOURCE_PATH]
         archive_file = self._model_context.get_archive_file()

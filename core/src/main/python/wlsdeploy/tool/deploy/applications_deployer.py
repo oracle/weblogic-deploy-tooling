@@ -10,13 +10,6 @@ import os
 from java.io import File
 from java.io import IOException
 from java.io import FileOutputStream
-from java.lang import StringBuilder
-from java.io import BufferedReader
-from java.io import BufferedWriter
-from java.io import FileInputStream
-from java.io import FileOutputStream
-from java.io import InputStreamReader
-from java.io import OutputStreamWriter
 from java.security import NoSuchAlgorithmException
 from javax.xml.parsers import DocumentBuilderFactory
 from javax.xml.transform import OutputKeys
