@@ -150,7 +150,7 @@ class ModelSamplePrinter(object):
             self._print_subfolders_sample(model_location, control_option, indent)
 
         mr_bean = self._aliases.get_online_bean_name(model_location)
-        help = WLSBeanHelp.get(mr_bean, False, 60)
+        help = WLSBeanHelp.get(mr_bean, 60)
         if help:
             _print_indent(help, 0)
 
@@ -248,11 +248,9 @@ class ModelSamplePrinter(object):
                 else:
                     att_default = ' (default=' + str(att_default) + ')'
 
-                att_help = WLSBeanHelp.get(online_bean, attr_name, True, 100, att_default)
-
                 # Instead of showing abbreviated help, use a trailing "+" to indicate
                 # that more help is avail for the attribute, and a "-" otherwise
-                if att_help:
+                if WLSBeanHelp.get(online_bean, attr_name, 100, ''):
                     att_help = ' +'
                 else:
                     att_help = ' -'
@@ -286,7 +284,7 @@ class ModelSamplePrinter(object):
             if not att_default is None:
                 att_default = str(att_default)
 
-            prop_desc = WLSBeanHelp.get(the_bean, the_attribute, False, 60, att_default)
+            prop_desc = WLSBeanHelp.get(the_bean, the_attribute, 60, att_default)
 
             if prop_desc:
               print

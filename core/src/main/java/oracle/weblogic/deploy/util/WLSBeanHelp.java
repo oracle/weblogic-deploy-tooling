@@ -35,17 +35,13 @@ public class WLSBeanHelp {
   //   - returns "" if not found
   //   - if propName is null, gets description of bean,
   //     else gets description of prop
-  //   - in abbreviate mode, truncates to a single line of
-  //     maximum "width-3" or the first "."
-  //     (whichever comes first), and appends "..." if truncated
-  //   - in !abbreviate mode, yields full help, with newlines,
+  //   - yields full help, with newlines,
   //     and margin set to "width"
   //   - if propDefault not null, inline it as "default=" along with
   //     any of the discovered prop limits...
   public static String get(
     String beanName,
     String propName,
-    boolean abbreviate,
     int width,
     String propDefault
   ) {
@@ -59,9 +55,6 @@ public class WLSBeanHelp {
     if (ds.length() == 0)
       return "";
 
-    if (abbreviate)
-      return " - " + prettyHTMLAbbrev(ds, width);
-
     String limits = "";
     if (propName != null) {
       limits = getPropertyLimits(beanName, propName, propDefault);
@@ -73,10 +66,69 @@ public class WLSBeanHelp {
 
   public static String get(
     String beanName,
-    boolean abbreviate,
     int width
   ) {
-    return get(beanName, null, abbreviate, width, null);
+    return get(beanName, null, width, null);
+  }
+
+  // undocumented main to ad hoc retrieve help for a particular bean or bean prop
+  public static void main(String [] argv) {
+    String beanName = "BeanNotSpecified";
+    String propName = null;
+    int margin = 60;
+
+    if (argv.length == 0) {
+      mainHelp();
+      System.exit(1);
+    }
+
+    int i = 0;
+    while (i < argv.length) {
+      String arg = argv[i];
+      try {
+        if (arg.equals("-bean")) {
+          beanName = argv[i+1]; i++;
+        }
+        else if (arg.equals("-prop")) {
+          propName = argv[i+1]; i++;
+        }
+        else if (arg.equals("-margin")) {
+          margin = Integer.parseInt(argv[i+1]); i++;
+        }
+        else {
+          println("Error: Unrecognized parameter '" + arg +"'.");
+          mainHelp();
+          System.exit(1);
+        }
+      } catch (ArrayIndexOutOfBoundsException a) {
+        println("Error: Expected argument after parameter: " + arg);
+        mainHelp();
+        System.exit(1);
+      }
+      i++;
+    }
+
+    if (getBeanInfo(beanName) == null) {
+      println("Error: Bean '" + beanName + "' not found.");
+    }
+
+    if (propName == null) {
+      println("*** Full bean help for bean '" + beanName + "':");
+      println(get(beanName, null, margin, null));
+      println("***");
+    } else {
+      println("*** Full property help for property '" + beanName + "/" + propName + "':");
+      println(get(beanName, propName, margin, null));
+      println("*** Raw property help for property '" + beanName + "/" + propName + "':");
+      printAttributeHelp(beanName, propName, margin);
+      println("***");
+    }
+  }
+
+  // convert basic javadoc HTML to plain text
+  // (package visible to enable unit testing)
+  static String prettyHTML(String html, int margin) {
+    return new PrettyHTML(html, margin).toString();
   }
 
   private static String getFeatureDescription(
@@ -143,8 +195,6 @@ public class WLSBeanHelp {
       }
     } catch (Exception ignore) {
       // ignore
-    } catch (Error ignore) {
-      // ignore
     }
     return null;
   }
@@ -159,225 +209,11 @@ public class WLSBeanHelp {
       return info.getBeanDescriptor();
     } catch (Exception ignore) {
       // ignore
-    } catch (Error ignore) {
-      // ignore
     }
     return null;
   }
 
-  public static String prettyHTML(String html, int margin) {
-    return new PrettyHTML(html, margin).toString();
-  }
-
-  public static String prettyHTMLAbbrev(String html, int width) {
-    return new PrettyHTML(html, 1000000).abbrevString(width);
-  }
-
-  public static void prettyHTMLTest() {
-    String input = ""
-      + "<p>Paragraph</p>"
-      + "<p>This paragraph is expected to wrap because it is long.</p>"
-      + "<p>text highlighting bullets:</p>"
-      + "<ol><li><b>bold</b></li>"
-      + "<li><i>italic</i></li>"
-      + "<li><code>code</code></li></ol>"
-      + "<p>symbol bullets:<p>"
-      + "<ul><li>&lt;angle brackets&gt;</li>"
-      + "<li>ampersand=&amp;</li>"
-      + "<li>quote=&quot;</li>"
-      + "<li>at_symbol=&#35;</li>"
-      + "<li>backslash=&#92;</li>"
-      + "<li>This line is expected to wrap because it is long.</li></ul>";
-
-    String expect = ""
-      + "" + EOL
-      + "Paragraph" + EOL
-      + "" + EOL
-      + "This paragraph is expected " + EOL
-      + "to wrap because it is " + EOL
-      + "long." + EOL
-      + "" + EOL
-      + "text highlighting bullets:" + EOL
-      + "" + EOL
-      + "" + EOL
-      + "  * *bold*" + EOL
-      + "    " + EOL
-      + "  * *italic*" + EOL
-      + "    " + EOL
-      + "  * 'code'" + EOL
-      + "    " + EOL
-      + "    " + EOL
-      + "symbol bullets:" + EOL
-      + "" + EOL
-      + "" + EOL
-      + "  * <angle brackets>" + EOL
-      + "    " + EOL
-      + "  * ampersand=&" + EOL
-      + "    " + EOL
-      + "  * quote='" + EOL
-      + "    " + EOL
-      + "  * at_symbol=@" + EOL
-      + "    " + EOL
-      + "  * backslash=\\" + EOL
-      + "    " + EOL
-      + "  * This line is expected " + EOL
-      + "    to wrap because it " + EOL
-      + "    is long." + EOL
-      + "    " + EOL
-      + "    " + EOL;
-
-    String output = prettyHTML(input, 20);
-    String message = ""
-      + "--- error in bean help HTML pretty print test..." + EOL
-      + "--- input:" + EOL + input + EOL
-      + "--- expected output:" + EOL + expect
-      + "--- actual output:" + EOL + output
-      + "---" + EOL;
-
-    if (!output.equals(expect)) throw new AssertionError(message);
-  }
-
-  // helper class for converting mbean javadoc HTML to plain text
-  private static class PrettyHTML {
-    private static final String PGS = "<p>";
-    private static final String PGE = "</p>";
-    private static final String OLS = "<ol>";
-    private static final String OLE = "</ol>";
-    private static final String ULS = "<ul>";
-    private static final String ULE = "</ul>";
-    private static final String LIS = "<li>";
-    private static final String LIE = "</li>";
-    private static final String CDS = "<code>";
-    private static final String CDE = "</code>";
-    private static final String BOS = "<b>";
-    private static final String BOE = "</b>";
-    private static final String ITS = "<i>";
-    private static final String ITE = "</i>";
-    private static final String QUO = "&quot;";
-    private static final String LTH = "&lt;";
-    private static final String GTH = "&gt;";
-    private static final String AMP = "&amp;";
-    private static final String ATS = "&#35;";
-    private static final String BCK = "&#92;";
-
-    private int col;
-    private int indent;
-    private int margin;
-    private StringBuilder sb = new StringBuilder(25);
-
-    PrettyHTML(String s, int margin) {
-      this.margin = margin;
-
-      int i = 0;
-      while (i < s.length()) {
-
-        // paragraph mark
-        if      (s.startsWith(PGS, i)) { i += PGS.length()-1; if (indent==0) outln(); }
-        else if (s.startsWith(PGE, i)) { i += PGE.length()-1; outln(); }
-
-        // list of bullets
-        else if (s.startsWith(OLS, i)) { i += OLS.length()-1; outln(); indent++; }
-        else if (s.startsWith(OLE, i)) { i += OLE.length()-1; outln(); indent--; }
-
-        // list of bullets
-        else if (s.startsWith(ULS, i)) { i += ULS.length()-1; outln(); indent++; }
-        else if (s.startsWith(ULE, i)) { i += ULE.length()-1; outln(); indent--; }
-
-        // bullet
-        else if (s.startsWith(LIS, i)) { i += LIS.length()-1;
-                                         outlnBullet();
-                                         while (i + 1 < s.length()
-                                                && (s.charAt(i + 1) == ' '
-                                                    || Character.isWhitespace(s.charAt(i + 1))))
-                                           i++;
-                                       }
-        else if (s.startsWith(LIE, i)) { i += LIE.length()-1; outln(); }
-
-        // code
-        else if (s.startsWith(CDS, i)) { i += CDS.length()-1; out("'"); }
-        else if (s.startsWith(CDE, i)) { i += CDE.length()-1; out("'"); }
-
-        // bold
-        else if (s.startsWith(BOS, i)) { i += BOS.length()-1; out("*"); }
-        else if (s.startsWith(BOE, i)) { i += BOE.length()-1; out("*"); }
-
-        // italic
-        else if (s.startsWith(ITS, i)) { i += ITS.length()-1; out("*"); }
-        else if (s.startsWith(ITE, i)) { i += ITE.length()-1; out("*"); }
-
-        // quote, <, >, &, @, \
-        else if (s.startsWith(QUO, i)) { i += QUO.length()-1; out("'"); }
-        else if (s.startsWith(LTH, i)) { i += LTH.length()-1; out("<"); }
-        else if (s.startsWith(GTH, i)) { i += GTH.length()-1; out(">"); }
-        else if (s.startsWith(AMP, i)) { i += AMP.length()-1; out("&"); }
-        else if (s.startsWith(ATS, i)) { i += ATS.length()-1; out("@"); }
-        else if (s.startsWith(BCK, i)) { i += BCK.length()-1; out("\\"); }
-
-        else if (s.charAt(i) != ' ' && Character.isWhitespace(s.charAt(i))) { i++; }
-
-        else out(s.charAt(i));
-
-        i++;
-      }
-      outln();
-    }
-
-    private void outlnBullet() {
-      sb.append(EOL);
-      for (int i = 0; i < indent * 2; i++) sb.append(" ");
-      sb.append("* ");
-      col = indent * 2 + 2;
-    }
-
-    private void outln() {
-      sb.append(EOL);
-      if (indent > 0) {
-        col = indent * 2 + 2;
-        for (int i = 0; i < col; i++) sb.append(" ");
-      } else  {
-        col = 0;
-      }
-    }
-
-    private void out(String s) {
-      sb.append(s);
-      col += s.length();
-    }
-
-    private void out(char c) {
-      sb.append(c);
-      col+=1;
-      // poor man's word wrap:  we should wrap before we hit the margin
-      //                        but it's easier to wrap after...
-      if ((c == ' ') && (col > margin)) outln();
-    }
-
-    // string up to len "len" stripped of all new-lines and extra white-space.
-    // if string contains "." less then len, then string is truncated to the "."
-    // if string is truncated, then last three chars are replaced with "..."
-    String abbrevString(int len) {
-      len = Math.max(4, len);
-      String s = toString().trim().replace(EOL, " ");
-      if (s.length() == 0) return "";
-      String retS = s.substring(0, Math.min(s.length(), len - 3));
-      if (retS.indexOf('.') > 0) {
-        // the 0 in the if expression ^^^ is intentional - ignore the "sonar smell"
-        retS = s.substring(0, retS.indexOf('.') + 1);
-        if (retS.length() < s.length())
-          retS += "..";
-      } else {
-        if (retS.length() < s.length())
-          retS += "...";
-      }
-      return retS;
-    }
-
-    public String toString() {
-      return sb.toString();
-    }
-  }
-
-  static String legalValuesAsString(Object o) {
+  private static String legalValuesAsString(Object o) {
     ArrayList<String> arr = legalValues(o);
     StringBuilder ret = new StringBuilder();
     for (int i = 0; i < arr.size(); i++) {
@@ -387,7 +223,7 @@ public class WLSBeanHelp {
     return ret.toString();
   }
 
-  static ArrayList<String> legalValues(Object o) {
+  private static ArrayList<String> legalValues(Object o) {
     HashMap<String,String> foo = new HashMap<>();
     ArrayList<String> ret = new ArrayList<>();
     try {
@@ -407,41 +243,24 @@ public class WLSBeanHelp {
   // returns BeanInfo for given bean name, or null if not found
   private static BeanInfo getBeanInfo(String beanName)
   {
-    // use reflection to implement the equivalent of:
-    // try {
-    //   return weblogic.management.provider
-    //          .ManagementServiceClient
-    //          .getBeanInfoAccess()
-    //          .getBeanInfoForInterface(beanName, false, null);
-    // } catch (Throwable th) {
-    //   return null;
-    // }
 
     try {
+      // use reflection to implement the equivalent of:
+      //    weblogic.management.provider.ManagementServiceClient.getBeanInfoAccess()
+      //       .getBeanInfoForInterface(beanName, false, null);
+
       // ignore sonar smell asking for type on next line (we are purposely avoiding imports)
       Class mscClass = Class.forName("weblogic.management.provider.ManagementServiceClient");
 
-      //OLD Method getBeanInfoAccessMethod =
-      //  mscClass.getMethod(
-      //    "getBeanInfoAccess",
-      //    new Class[] { }
-      //  );
       Method getBeanInfoAccessMethod = mscClass.getMethod("getBeanInfoAccess");
 
       Object mscObject = mscClass.getDeclaredConstructor().newInstance();
 
-      //OLD  Object biaObject =
-      //  getBeanInfoAccessMethod.invoke(mscObject, new Object[] {});
       Object biaObject = getBeanInfoAccessMethod.invoke(mscObject);
 
       // ignore sonar smell asking for type on next line (we are purposely avoiding imports)
       Class biaClass = Class.forName("weblogic.management.provider.beaninfo.BeanInfoAccess");
 
-      //OLD Method getBeanInfoForInterfaceMethod =
-      //  biaClass.getMethod(
-      //    "getBeanInfoForInterface",
-      //    new Class[] { String.class, boolean.class, String.class}
-      //  );
       Method getBeanInfoForInterfaceMethod =
         biaClass.getMethod(
           "getBeanInfoForInterface",
@@ -450,10 +269,6 @@ public class WLSBeanHelp {
           String.class
         );
 
-      //OLD return (BeanInfo)getBeanInfoForInterfaceMethod.invoke(
-      //         biaObject,
-      //         new Object[] { beanName, Boolean.FALSE, null }
-      //       );
       return (BeanInfo)getBeanInfoForInterfaceMethod.invoke(
                biaObject,
                beanName,
@@ -463,71 +278,9 @@ public class WLSBeanHelp {
     } catch (InvocationTargetException ite) {
       // probably bean not found
     } catch (Exception ignore) {
-      // probably a reflection error of some kind
-    } catch (Error ignore) {
-      // probably a reflection error of some kind
+      // probably a reflection exception of some kind
     }
     return null;
-  }
-
-  // undocumented main to ad hoc retrieve help for a particular bean or bean prop
-  public static void main(String [] argv) {
-    String beanName = "BeanNotSpecified";
-    String propName = null;
-    int margin = 60;
-
-    if (argv.length == 0) {
-      mainHelp();
-      System.exit(1);
-    }
-
-    int i = 0;
-    while (i < argv.length) {
-      String arg = argv[i];
-      try {
-        if (arg.equals("-bean")) {
-          beanName = argv[i+1]; i++;
-        }
-        else if (arg.equals("-prop")) {
-          propName = argv[i+1]; i++;
-        }
-        else if (arg.equals("-margin")) {
-          margin = Integer.parseInt(argv[i+1]); i++;
-        }
-        else {
-          println("Error: Unrecognized parameter '" + arg +"'.");
-          mainHelp();
-          System.exit(1);
-        }
-      } catch (ArrayIndexOutOfBoundsException a) {
-        println("Error: Expected argument after parameter: " + arg);
-        mainHelp();
-        System.exit(1);
-      }
-      i++;
-    }
-
-    if (getBeanInfo(beanName) == null) {
-      println("Error: Bean '" + beanName + "' not found.");
-    }
-
-    if (propName == null) {
-      println("*** Abbreviated bean help for bean '" + beanName + "':");
-      println(get(beanName, null, true, margin, null));
-      println("*** Full bean help for bean '" + beanName + "':");
-      println(get(beanName, null, false, margin, null));
-      println("***");
-    } else {
-      println("*** Abbreviated property help for property '" + beanName + "/" + propName + "':");
-      println(get(beanName, propName, true, margin, null));
-      println("*** Full property help for property '" + beanName + "/" + propName + "':");
-      println(get(beanName, propName, false, margin, null));
-      println("*** Raw property help for property '" + beanName + "/" + propName + "':");
-      printAttributeHelp(beanName, propName, margin);
-      println("***");
-    }
-
-    prettyHTMLTest(); // tests HTML pretty printing - emits runtime exception on failure
   }
 
   // called solely by the main in this class
@@ -560,24 +313,22 @@ public class WLSBeanHelp {
       println("Error: Prop '" + propName + "' not found in bean '" + beanName + "'.");
     } catch (Exception th) {
       println("Exception: " + th.getMessage());
-    } catch (Error th) {
-      println("Error: " + th.getMessage());
     }
     return false;
   }
 
   // called solely by the main in this class
-  static void print(String s) {
+  private static void print(String s) {
     System.out.print(s);
   }
 
   // called solely by the main in this class
-  static void println(String s) {
+  private static void println(String s) {
     System.out.println(s);
   }
 
   // called solely by the main in this class
-  static void printPropertyDescriptor(PropertyDescriptor o, int margin) {
+  private static void printPropertyDescriptor(PropertyDescriptor o, int margin) {
     println("\nPROPERTY\n");
     println("  name=" + o.getName());
 
@@ -605,5 +356,145 @@ public class WLSBeanHelp {
     println("");
   }
 
+  // helper class for converting mbean javadoc HTML to plain text
+  private static class PrettyHTML {
+    private static final String PGS = "<p>";
+    private static final String PGE = "</p>";
+    private static final String OLS = "<ol>";
+    private static final String OLE = "</ol>";
+    private static final String ULS = "<ul>";
+    private static final String ULE = "</ul>";
+    private static final String LIS = "<li>";
+    private static final String LIE = "</li>";
+    private static final String CDS = "<code>";
+    private static final String CDE = "</code>";
+    private static final String BOS = "<b>";
+    private static final String BOE = "</b>";
+    private static final String ITS = "<i>";
+    private static final String ITE = "</i>";
+    private static final String QUO = "&quot;";
+    private static final String LTH = "&lt;";
+    private static final String GTH = "&gt;";
+    private static final String AMP = "&amp;";
+    private static final String ATS = "&#35;";
+    private static final String BCK = "&#92;";
+
+    private StringBuilder sb = new StringBuilder(25);  // output string
+    private int col;     // current column within output string
+    private int indent;  // current indent within output string
+    private int margin;  // right margin to use in output string
+
+    private String html; // input html string to parse
+    private int pos;     // current position within html string
+
+    PrettyHTML(String html, int margin) {
+      this.html = html;
+      this.margin = margin;
+
+      while (pos < html.length()) {
+
+        if (parseSimpleChars()) continue; // adjusts pos and returns true on success
+
+        if (parseBullets()) continue;     // ditto
+
+        if (parseParagraph()) continue;   // ditto
+
+        out(html.charAt(pos));
+
+        pos++;
+      }
+      outln();
+    }
+
+    private boolean parseSimpleChars() {
+      // code
+      if (html.startsWith(CDS, pos)) { pos += CDS.length(); out("'"); return true; }
+      if (html.startsWith(CDE, pos)) { pos += CDE.length(); out("'"); return true; }
+
+      // bold
+      if (html.startsWith(BOS, pos)) { pos += BOS.length(); out("*"); return true; }
+      if (html.startsWith(BOE, pos)) { pos += BOE.length(); out("*"); return true; }
+
+      // italic
+      if (html.startsWith(ITS, pos)) { pos += ITS.length(); out("*"); return true; }
+      if (html.startsWith(ITE, pos)) { pos += ITE.length(); out("*"); return true; }
+
+      // quote, <, >, &, @, \
+      if (html.startsWith(QUO, pos)) { pos += QUO.length(); out("'"); return true; }
+      if (html.startsWith(LTH, pos)) { pos += LTH.length(); out("<"); return true; }
+      if (html.startsWith(GTH, pos)) { pos += GTH.length(); out(">"); return true; }
+      if (html.startsWith(AMP, pos)) { pos += AMP.length(); out("&"); return true; }
+      if (html.startsWith(ATS, pos)) { pos += ATS.length(); out("@"); return true; }
+      if (html.startsWith(BCK, pos)) { pos += BCK.length(); out("\\"); return true; }
+
+      if (html.charAt(pos) != ' ' && Character.isWhitespace(html.charAt(pos))) { pos++; return true; }
+      return false;
+    }
+
+    private boolean parseParagraph() {
+      if (html.startsWith(PGS, pos)) { pos += PGS.length(); if (indent==0) outln(); return true; }
+      if (html.startsWith(PGE, pos)) { pos += PGE.length(); outln(); return true; }
+      return false;
+    }
+
+    private boolean parseBullets() {
+      // lists of bullets
+
+      if (html.startsWith(OLS, pos)) { pos += OLS.length(); outln(); indent++; return true; }
+      if (html.startsWith(OLE, pos)) { pos += OLE.length(); outln(); indent--; return true; }
+
+      if (html.startsWith(ULS, pos)) { pos += ULS.length(); outln(); indent++; return true; }
+      if (html.startsWith(ULE, pos)) { pos += ULE.length(); outln(); indent--; return true; }
+
+      // a bullet starts with LIS and ends with LIE
+
+      if (html.startsWith(LIS, pos)) {
+        pos += LIS.length();
+        outlnBullet();
+        while (pos < html.length()
+               && (html.charAt(pos)==' ' || Character.isWhitespace(html.charAt(pos))))
+          pos++;
+        return true;
+      }
+
+      if (html.startsWith(LIE, pos)) { pos += LIE.length(); outln(); return true; }
+
+      return false;
+    }
+
+    private void outlnBullet() {
+      sb.append(EOL);
+      for (int i = 0; i < indent * 2; i++) sb.append(" ");
+      sb.append("* ");
+      col = indent * 2 + 2;
+    }
+
+    private void outln() {
+      sb.append(EOL);
+      if (indent > 0) {
+        col = indent * 2 + 2;
+        for (int i = 0; i < col; i++) sb.append(" ");
+      } else  {
+        col = 0;
+      }
+    }
+
+    private void out(String s) {
+      sb.append(s);
+      col += s.length();
+    }
+
+    private void out(char c) {
+      sb.append(c);
+      col += 1;
+      // poor man's word wrap:  we should wrap before we hit the margin
+      //                        but it's easier to wrap after...
+      if ((c == ' ') && (col > margin)) outln();
+    }
+
+    public String toString() {
+      return sb.toString();
+    }
+  }
 
 }

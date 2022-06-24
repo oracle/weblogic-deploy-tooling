@@ -179,6 +179,11 @@ def interactive_help(model_path, printer):
 
     __logger.entering(model_path, class_name=_class_name, method_name=_method_name)
 
+    test_input_file_name = os.environ["InteractiveTestInputFile"]
+
+    if test_input_file_name:
+      test_input_file = open(test_input_file_name, "r")
+
     short_instructions = "In interactive mode! Type 'help' for help."
 
     # setup starting history
@@ -192,7 +197,23 @@ def interactive_help(model_path, printer):
 
       model_path = history[-1]
 
-      command_str = raw_input("[" + model_path + "] --> ")
+      prompt = "[" + model_path + "] --> "
+
+      if not test_input_file_name:
+        # prompt for input
+        command_str = raw_input(prompt)
+      else:
+        # emulate prompt using sys.stdout.write to avoid newline
+        sys.stdout.write(prompt)
+        sys.stdout.flush()
+
+        # get input from a test file
+        command_str = test_input_file.readline()
+        if not command_str: break
+        command_str = command_str.rstrip(os.linesep)
+
+        # add input after emulated prompt
+        print(command_str)
 
       command_str = " ".join(command_str.split()) # remove extra white-space
 
