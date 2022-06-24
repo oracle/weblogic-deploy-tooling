@@ -278,9 +278,9 @@ def interactive_help_process_command(printer, model_path, command_str, history):
     """
     Process an interactive help command.
     :param printer: a model help printer
-    :param model_path: the model path to start with
+    :param model_path: current model path before applying command
+    :param history: current history, a new model path added is added if command changes it
     :param command_str: the command
-    :return: the (potentially updated) model_path
     """
 
     if command_str == 'help':
@@ -302,8 +302,6 @@ def interactive_help_process_command(printer, model_path, command_str, history):
     elif command_str:
       print("Unknown command '" + command_str + "'")
       interactive_help_print_short_instructions()
-
-    return model_path
 
 
 def interactive_help_main_loop(model_path, printer):
@@ -337,7 +335,9 @@ def interactive_help_main_loop(model_path, printer):
       if command_str == 'exit':
         break
 
-      model_path = interactive_help_process_command(printer, model_path, command_str, history)
+      interactive_help_process_command(printer, model_path, command_str, history)
+
+      model_path = history[-1]
 
     __logger.exiting(class_name=_class_name, method_name=_method_name)
 
