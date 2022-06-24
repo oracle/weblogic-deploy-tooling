@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Oracle Corporation and/or its affiliates.  
+ * Copyright (c) 2022, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 
@@ -9,11 +9,8 @@ import java.beans.BeanDescriptor;
 import java.beans.BeanInfo;
 import java.beans.FeatureDescriptor;
 import java.beans.PropertyDescriptor;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -27,14 +24,21 @@ import java.util.HashMap;
 public class WLSBeanHelp {
   private static final String EOL = System.getProperty("line.separator");
 
+  // useful attribute names found in an mbean property descriptor
+  private static final String PD_ATT_DESCRIPTION = "description";
+  private static final String PD_ATT_LEGALVALUES = "legalValues";
+  private static final String PD_ATT_LEGALMIN    = "legalMin";
+  private static final String PD_ATT_LEGALMAX    = "legalMax";
+  private static final String PD_ATT_SEE         = "see";
+
   // gets description of given bean or property in "plain text HTML"
   //   - returns "" if not found
   //   - if propName is null, gets description of bean,
   //     else gets description of prop
   //   - in abbreviate mode, truncates to a single line of
-  //     maximum "width-3" or the first "." 
+  //     maximum "width-3" or the first "."
   //     (whichever comes first), and appends "..." if truncated
-  //   - in !abbreviate mode, yields full help, with newlines, 
+  //   - in !abbreviate mode, yields full help, with newlines,
   //     and margin set to "width"
   //   - if propDefault not null, inline it as "default=" along with
   //     any of the discovered prop limits...
@@ -56,7 +60,7 @@ public class WLSBeanHelp {
       return "";
 
     if (abbreviate)
-      return " - " + prettyHTMLAbbrev(ds, width); 
+      return " - " + prettyHTMLAbbrev(ds, width);
 
     String limits = "";
     if (propName != null) {
@@ -79,7 +83,7 @@ public class WLSBeanHelp {
     FeatureDescriptor fd
   ) {
     if (fd == null) return "";
-    Object d = fd.getValue("description");
+    Object d = fd.getValue(PD_ATT_DESCRIPTION);
     if (d == null) return ""; // should pretty much never happen
     return d.toString();
   }
@@ -92,29 +96,32 @@ public class WLSBeanHelp {
     String propName,
     String propDefault
   ) {
-    String ret = "";
+    StringBuilder ret = new StringBuilder();
     if (propDefault != null) {
-      // we report the passed in default from the alias DB instead of using the 
+      // we report the passed in default from the alias DB instead of using the
       // default obtained from the mbean
-      ret += "Default=" + propDefault + EOL;
+      ret.append("Default=").append(propDefault).append(EOL);
     }
 
     PropertyDescriptor pd = getPropertyDescriptor(beanName, propName);
-    if (pd == null) return ret;
+    if (pd == null) return ret.toString();
 
-    Object lval = pd.getValue("legalValues");
+    Object lval = pd.getValue(PD_ATT_LEGALVALUES);
     if (lval != null) {
-      ret += "Legal values: " + EOL;
+      ret.append("Legal values: ").append(EOL);
       for (String val : legalValues(lval))
-        ret += "   '" + val.trim() + "'" + EOL;
+        ret.append("   '").append(val.trim()).append("'").append(EOL);
     }
 
-    Object lmin = pd.getValue("legalMin");
-    if (lmin != null) ret += "Min=" + lmin.toString() + EOL;
+    Object lmin = pd.getValue(PD_ATT_LEGALMIN);
+    if (lmin != null)
+      ret.append("Min=").append(lmin.toString()).append(EOL);
 
-    Object lmax = pd.getValue("legalMax");
-    if (lmax != null) ret += "Max=" + lmax.toString() + EOL;
-    return ret;
+    Object lmax = pd.getValue(PD_ATT_LEGALMAX);
+    if (lmax != null)
+      ret.append("Max=").append(lmax.toString()).append(EOL);
+
+    return ret.toString();
   }
 
   // can return null if not found
@@ -134,7 +141,11 @@ public class WLSBeanHelp {
           if (pName.equalsIgnoreCase(pd.getName())) return pd;
         }
       }
-    } catch (Throwable ignore) {}
+    } catch (Exception ignore) {
+      // ignore
+    } catch (Error ignore) {
+      // ignore
+    }
     return null;
   }
 
@@ -146,67 +157,12 @@ public class WLSBeanHelp {
       BeanInfo info = getBeanInfo(beanName);
       if (info == null) return null;
       return info.getBeanDescriptor();
-    } catch (Throwable ignore) {}
+    } catch (Exception ignore) {
+      // ignore
+    } catch (Error ignore) {
+      // ignore
+    }
     return null;
-  }
-
-  private static boolean printAttributeHelp(String beanName, String propName, int margin) {
-    try {
-      BeanInfo info = getBeanInfo(beanName);
-
-      if (info == null)
-        throw new RuntimeException("Error:  Bean '" + beanName + "' not found.");
-
-      for (PropertyDescriptor pd:info.getPropertyDescriptors()) {
-        if (propName.equals(pd.getName())) {
-          println("Bean = " + beanName);
-          println("");
-          printPropertyDescriptor(pd, margin);
-          return true;
-        }
-      }
-
-      println("Error: Prop '" + propName + "' not found in bean '" + beanName + "'.");
-    } catch (Throwable th) {
-      println("Error: " + th.getMessage());
-    }
-    return false;
-  }
-
-  static void print(String s) {
-    System.out.print(s);
-  }
-
-  static void println(String s) {
-    System.out.println(s);
-  }
-
-  static void printPropertyDescriptor(PropertyDescriptor o, int margin) {
-    println("\nPROPERTY\n");
-    println("  name=" + o.getName());
-
-    if (!o.getName().equals(o.getDisplayName()))
-      println("  display name=" + o.getDisplayName());
-
-    if (!o.getName().equals(o.getShortDescription()))
-      println("  short description=" + o.getShortDescription());
-
-    println("  property type=" + o.getPropertyType());
-    println("  hidden=" + o.isHidden());
-
-    for (Enumeration<String> en = o.attributeNames();
-      en.hasMoreElements();) {
-      String s = en.nextElement();
-      Object v = o.getValue(s);
-      if (s.equals("description")) continue;
-      if (s.equals("legalValues")) v = legalValuesAsString(v);
-      if (s.equals("see")) v = legalValuesAsString(v);
-      println("  " + s + "=" + v);
-    }
-
-    println("  " + "description" + "=");
-    println(prettyHTML(o.getValue("description").toString(), margin));
-    println("");
   }
 
   public static String prettyHTML(String html, int margin) {
@@ -222,21 +178,17 @@ public class WLSBeanHelp {
       + "<p>Paragraph</p>"
       + "<p>This paragraph is expected to wrap because it is long.</p>"
       + "<p>text highlighting bullets:</p>"
-      + "<ol>"
-      + "<li><b>bold</b></li>"
+      + "<ol><li><b>bold</b></li>"
       + "<li><i>italic</i></li>"
-      + "<li><code>code</code></li>"
-      + "</ol>"
+      + "<li><code>code</code></li></ol>"
       + "<p>symbol bullets:<p>"
-      + "<ul>"
-      + "<li>&lt;angle brackets&gt;</li>"
+      + "<ul><li>&lt;angle brackets&gt;</li>"
       + "<li>ampersand=&amp;</li>"
       + "<li>quote=&quot;</li>"
       + "<li>at_symbol=&#35;</li>"
       + "<li>backslash=&#92;</li>"
-      + "<li>This line is expected to wrap because it is long.</li>"
-      + "</ul>";
-    
+      + "<li>This line is expected to wrap because it is long.</li></ul>";
+
     String expect = ""
       + "" + EOL
       + "Paragraph" + EOL
@@ -282,64 +234,66 @@ public class WLSBeanHelp {
       + "--- actual output:" + EOL + output
       + "---" + EOL;
 
-    if (!output.equals(expect)) throw new RuntimeException(message);
+    if (!output.equals(expect)) throw new AssertionError(message);
   }
 
   // helper class for converting mbean javadoc HTML to plain text
   private static class PrettyHTML {
-    private static final String PGS = "<p>"; 
-    private static final String PGE = "</p>"; 
-    private static final String OLS = "<ol>"; 
-    private static final String OLE = "</ol>"; 
-    private static final String ULS = "<ul>"; 
-    private static final String ULE = "</ul>"; 
-    private static final String LIS = "<li>"; 
-    private static final String LIE = "</li>"; 
-    private static final String CDS = "<code>"; 
+    private static final String PGS = "<p>";
+    private static final String PGE = "</p>";
+    private static final String OLS = "<ol>";
+    private static final String OLE = "</ol>";
+    private static final String ULS = "<ul>";
+    private static final String ULE = "</ul>";
+    private static final String LIS = "<li>";
+    private static final String LIE = "</li>";
+    private static final String CDS = "<code>";
     private static final String CDE = "</code>";
-    private static final String BOS = "<b>"; 
-    private static final String BOE = "</b>"; 
-    private static final String ITS = "<i>"; 
-    private static final String ITE = "</i>"; 
+    private static final String BOS = "<b>";
+    private static final String BOE = "</b>";
+    private static final String ITS = "<i>";
+    private static final String ITE = "</i>";
     private static final String QUO = "&quot;";
-    private static final String LT_ = "&lt;";
-    private static final String GT_ = "&gt;";
+    private static final String LTH = "&lt;";
+    private static final String GTH = "&gt;";
     private static final String AMP = "&amp;";
-    private static final String AT_ = "&#35;";
+    private static final String ATS = "&#35;";
     private static final String BCK = "&#92;";
 
     private int col;
     private int indent;
     private int margin;
-    private StringBuffer sb = new StringBuffer(25);
+    private StringBuilder sb = new StringBuilder(25);
 
     PrettyHTML(String s, int margin) {
       this.margin = margin;
 
-      for (int i = 0; i < s.length(); i++) {
+      int i = 0;
+      while (i < s.length()) {
+
         // paragraph mark
         if      (s.startsWith(PGS, i)) { i += PGS.length()-1; if (indent==0) outln(); }
         else if (s.startsWith(PGE, i)) { i += PGE.length()-1; outln(); }
- 
-        // list of bullets 
+
+        // list of bullets
         else if (s.startsWith(OLS, i)) { i += OLS.length()-1; outln(); indent++; }
         else if (s.startsWith(OLE, i)) { i += OLE.length()-1; outln(); indent--; }
- 
-        // list of bullets 
+
+        // list of bullets
         else if (s.startsWith(ULS, i)) { i += ULS.length()-1; outln(); indent++; }
         else if (s.startsWith(ULE, i)) { i += ULE.length()-1; outln(); indent--; }
- 
-        // bullet 
-        else if (s.startsWith(LIS, i)) { i += LIS.length()-1; 
-                                         outln_bullet(); 
+
+        // bullet
+        else if (s.startsWith(LIS, i)) { i += LIS.length()-1;
+                                         outlnBullet();
                                          while (i + 1 < s.length()
                                                 && (s.charAt(i + 1) == ' '
                                                     || Character.isWhitespace(s.charAt(i + 1))))
                                            i++;
-                                       } 
+                                       }
         else if (s.startsWith(LIE, i)) { i += LIE.length()-1; outln(); }
- 
-        // code 
+
+        // code
         else if (s.startsWith(CDS, i)) { i += CDS.length()-1; out("'"); }
         else if (s.startsWith(CDE, i)) { i += CDE.length()-1; out("'"); }
 
@@ -353,20 +307,22 @@ public class WLSBeanHelp {
 
         // quote, <, >, &, @, \
         else if (s.startsWith(QUO, i)) { i += QUO.length()-1; out("'"); }
-        else if (s.startsWith(LT_, i)) { i += LT_.length()-1; out("<"); }
-        else if (s.startsWith(GT_, i)) { i += GT_.length()-1; out(">"); }
+        else if (s.startsWith(LTH, i)) { i += LTH.length()-1; out("<"); }
+        else if (s.startsWith(GTH, i)) { i += GTH.length()-1; out(">"); }
         else if (s.startsWith(AMP, i)) { i += AMP.length()-1; out("&"); }
-        else if (s.startsWith(AT_, i)) { i += AT_.length()-1; out("@"); }
+        else if (s.startsWith(ATS, i)) { i += ATS.length()-1; out("@"); }
         else if (s.startsWith(BCK, i)) { i += BCK.length()-1; out("\\"); }
- 
+
         else if (s.charAt(i) != ' ' && Character.isWhitespace(s.charAt(i))) { i++; }
 
         else out(s.charAt(i));
+
+        i++;
       }
       outln();
     }
 
-    private void outln_bullet() {
+    private void outlnBullet() {
       sb.append(EOL);
       for (int i = 0; i < indent * 2; i++) sb.append(" ");
       sb.append("* ");
@@ -386,14 +342,14 @@ public class WLSBeanHelp {
     private void out(String s) {
       sb.append(s);
       col += s.length();
-    } 
+    }
 
     private void out(char c) {
       sb.append(c);
-      col+=1; 
+      col+=1;
       // poor man's word wrap:  we should wrap before we hit the margin
       //                        but it's easier to wrap after...
-      if ((c == ' ') && (col > margin)) outln(); 
+      if ((c == ' ') && (col > margin)) outln();
     }
 
     // string up to len "len" stripped of all new-lines and extra white-space.
@@ -405,12 +361,13 @@ public class WLSBeanHelp {
       if (s.length() == 0) return "";
       String retS = s.substring(0, Math.min(s.length(), len - 3));
       if (retS.indexOf('.') > 0) {
+        // the 0 in the if expression ^^^ is intentional - ignore the "sonar smell"
         retS = s.substring(0, retS.indexOf('.') + 1);
         if (retS.length() < s.length())
-          retS += ".."; 
+          retS += "..";
       } else {
         if (retS.length() < s.length())
-          retS += "..."; 
+          retS += "...";
       }
       return retS;
     }
@@ -422,17 +379,17 @@ public class WLSBeanHelp {
 
   static String legalValuesAsString(Object o) {
     ArrayList<String> arr = legalValues(o);
-    String ret = "";
+    StringBuilder ret = new StringBuilder();
     for (int i = 0; i < arr.size(); i++) {
-      ret += arr.get(i);
-      if (i < arr.size() - 1) ret += ", ";
+      ret.append(arr.get(i));
+      if (i < arr.size() - 1) ret.append(", ");
     }
-    return ret;
+    return ret.toString();
   }
 
   static ArrayList<String> legalValues(Object o) {
-    HashMap<String,String> foo = new HashMap<String,String>();
-    ArrayList<String> ret = new ArrayList<String>();
+    HashMap<String,String> foo = new HashMap<>();
+    ArrayList<String> ret = new ArrayList<>();
     try {
       for (Object xx : (Object [])o) {
         String cur = "" + xx;
@@ -441,68 +398,76 @@ public class WLSBeanHelp {
           ret.add(cur);
         }
       }
-    } catch (ClassCastException cce) {}
+    } catch (ClassCastException cce) {
+      // ignore - legal values is not an array of objects, so we don't know how to handle it...
+    }
     return ret;
   }
 
   // returns BeanInfo for given bean name, or null if not found
   private static BeanInfo getBeanInfo(String beanName)
   {
-    /* we use reflection to implement the equivalent of:
-       try {
-         return weblogic.management.provider
-                .ManagementServiceClient
-                .getBeanInfoAccess()
-                .getBeanInfoForInterface(beanName, false, null);
-       } catch (Throwable th) {
-         return null;
-       }
-    */
+    // use reflection to implement the equivalent of:
+    // try {
+    //   return weblogic.management.provider
+    //          .ManagementServiceClient
+    //          .getBeanInfoAccess()
+    //          .getBeanInfoForInterface(beanName, false, null);
+    // } catch (Throwable th) {
+    //   return null;
+    // }
+
     try {
-      Class mscClass = 
-        Class.forName("weblogic.management.provider.ManagementServiceClient");
+      // ignore sonar smell asking for type on next line (we are purposely avoiding imports)
+      Class mscClass = Class.forName("weblogic.management.provider.ManagementServiceClient");
 
-      Method getBeanInfoAccessMethod =
-        mscClass.getMethod(
-          "getBeanInfoAccess",
-          new Class[] { }
-        );
+      //OLD Method getBeanInfoAccessMethod =
+      //  mscClass.getMethod(
+      //    "getBeanInfoAccess",
+      //    new Class[] { }
+      //  );
+      Method getBeanInfoAccessMethod = mscClass.getMethod("getBeanInfoAccess");
 
-      // Deprecated Object mscObject = mscClass.newInstance();
       Object mscObject = mscClass.getDeclaredConstructor().newInstance();
 
-      Object biaObject =
-        getBeanInfoAccessMethod.invoke(mscObject, new Object[] {});
+      //OLD  Object biaObject =
+      //  getBeanInfoAccessMethod.invoke(mscObject, new Object[] {});
+      Object biaObject = getBeanInfoAccessMethod.invoke(mscObject);
 
-      Class biaClass =
-        Class.forName("weblogic.management.provider.beaninfo.BeanInfoAccess");
+      // ignore sonar smell asking for type on next line (we are purposely avoiding imports)
+      Class biaClass = Class.forName("weblogic.management.provider.beaninfo.BeanInfoAccess");
 
+      //OLD Method getBeanInfoForInterfaceMethod =
+      //  biaClass.getMethod(
+      //    "getBeanInfoForInterface",
+      //    new Class[] { String.class, boolean.class, String.class}
+      //  );
       Method getBeanInfoForInterfaceMethod =
         biaClass.getMethod(
           "getBeanInfoForInterface",
-          new Class[] { String.class, boolean.class, String.class}
+          String.class,
+          boolean.class,
+          String.class
         );
 
+      //OLD return (BeanInfo)getBeanInfoForInterfaceMethod.invoke(
+      //         biaObject,
+      //         new Object[] { beanName, Boolean.FALSE, null }
+      //       );
       return (BeanInfo)getBeanInfoForInterfaceMethod.invoke(
                biaObject,
-               new Object[] { beanName, Boolean.FALSE, null } 
+               beanName,
+               Boolean.FALSE,
+               null
              );
     } catch (InvocationTargetException ite) {
       // probably bean not found
-      // Throwable target = ite.getTargetException();
-      // target.printStackTrace(); 
-    } catch (Throwable th) {
+    } catch (Exception ignore) {
       // probably a reflection error of some kind
-      // th.printStackTrace();  
+    } catch (Error ignore) {
+      // probably a reflection error of some kind
     }
     return null;
-  }
-
-  private static void mainHelp() {
-    println("Usage:");
-    println("  Ensure weblogic.jar is in CLASSPATH.");
-    println("  java -cp \"$CLASSPATH:./core/target/classes\" oracle.weblogic.deploy.util.WLSBeanHelp -bean weblogic.j2ee.descriptor.wl.UniformDistributedTopicBean -prop ForwardingPolicy -margin 60");
-    println("  java -cp \"$CLASSPATH:./core/target/classes\" oracle.weblogic.deploy.util.WLSBeanHelp -bean weblogic.j2ee.descriptor.wl.UniformDistributedTopicBean -margin 60");
   }
 
   // undocumented main to ad hoc retrieve help for a particular bean or bean prop
@@ -516,11 +481,12 @@ public class WLSBeanHelp {
       System.exit(1);
     }
 
-    for (int i = 0; i < argv.length; i++) {
+    int i = 0;
+    while (i < argv.length) {
       String arg = argv[i];
       try {
-        if (arg.equals("-bean")) { 
-          beanName = argv[i+1]; i++; 
+        if (arg.equals("-bean")) {
+          beanName = argv[i+1]; i++;
         }
         else if (arg.equals("-prop")) {
           propName = argv[i+1]; i++;
@@ -538,6 +504,7 @@ public class WLSBeanHelp {
         mainHelp();
         System.exit(1);
       }
+      i++;
     }
 
     if (getBeanInfo(beanName) == null) {
@@ -562,4 +529,81 @@ public class WLSBeanHelp {
 
     prettyHTMLTest(); // tests HTML pretty printing - emits runtime exception on failure
   }
+
+  // called solely by the main in this class
+  private static void mainHelp() {
+    println("Usage:");
+    println("  Ensure weblogic.jar is in CLASSPATH.");
+    println("  java -cp \"$CLASSPATH:./core/target/classes\" oracle.weblogic.deploy.util.WLSBeanHelp -bean weblogic.j2ee.descriptor.wl.UniformDistributedTopicBean -prop ForwardingPolicy -margin 60");
+    println("  java -cp \"$CLASSPATH:./core/target/classes\" oracle.weblogic.deploy.util.WLSBeanHelp -bean weblogic.j2ee.descriptor.wl.UniformDistributedTopicBean -margin 60");
+  }
+
+  // called solely by the main in this class
+  private static boolean printAttributeHelp(String beanName, String propName, int margin) {
+    try {
+      BeanInfo info = getBeanInfo(beanName);
+
+      if (info == null) {
+        println("Error: Bean '" + beanName + "' not found.");
+        return false;
+      }
+
+      for (PropertyDescriptor pd:info.getPropertyDescriptors()) {
+        if (propName.equals(pd.getName())) {
+          println("Bean = " + beanName);
+          println("");
+          printPropertyDescriptor(pd, margin);
+          return true;
+        }
+      }
+
+      println("Error: Prop '" + propName + "' not found in bean '" + beanName + "'.");
+    } catch (Exception th) {
+      println("Exception: " + th.getMessage());
+    } catch (Error th) {
+      println("Error: " + th.getMessage());
+    }
+    return false;
+  }
+
+  // called solely by the main in this class
+  static void print(String s) {
+    System.out.print(s);
+  }
+
+  // called solely by the main in this class
+  static void println(String s) {
+    System.out.println(s);
+  }
+
+  // called solely by the main in this class
+  static void printPropertyDescriptor(PropertyDescriptor o, int margin) {
+    println("\nPROPERTY\n");
+    println("  name=" + o.getName());
+
+    if (!o.getName().equals(o.getDisplayName()))
+      println("  display name=" + o.getDisplayName());
+
+    if (!o.getName().equals(o.getShortDescription()))
+      println("  short description=" + o.getShortDescription());
+
+    println("  property type=" + o.getPropertyType());
+    println("  hidden=" + o.isHidden());
+
+    for (Enumeration<String> en = o.attributeNames();
+      en.hasMoreElements();) {
+      String s = en.nextElement();
+      Object v = o.getValue(s);
+      if (s.equals(PD_ATT_DESCRIPTION)) continue;
+      if (s.equals(PD_ATT_LEGALVALUES)) v = legalValuesAsString(v);
+      if (s.equals(PD_ATT_SEE)) v = legalValuesAsString(v);
+      println("  " + s + "=" + v);
+    }
+
+    println("  " + PD_ATT_DESCRIPTION + "=");
+    println(prettyHTML(o.getValue(PD_ATT_DESCRIPTION).toString(), margin));
+    println("");
+  }
+
+
 }

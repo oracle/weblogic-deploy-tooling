@@ -69,27 +69,106 @@ def __process_args(args):
 
     return model_context_helper.create_context(_program_name, argument_map)
 
-def canonicalize_path(model_path):
+
+def canonical_path_from_model_path(model_path):
     """
-    canonicalize internally used model path so it:
+    helper function for interactive help
+    canonicalize a model path so it:
     -  has no ':'
     -  always starts with '/'
     -  does not end with a slash unless at top
     -  converts 'top' to '/'
+    -  note: a standalone '/' implies "top"
+    -  note: first string after first '/' is normally a section
     :param model_path: the model path
     :return: canonicalized path
     """
-    model_path = model_path.replace(':','')
-    while model_path.endswith('/'):
-      model_path = model_path[:-1]
-    while model_path.startswith('/'):
-      model_path = model_path[1:]
-    if model_path == 'top':
-      model_path = ''
-    model_path = '/' + model_path
-    return model_path
+    ret_path = model_path.replace(':','')
+    while ret_path.endswith('/'):
+      ret_path = ret_path[:-1]
+    while ret_path.startswith('/'):
+      ret_path = ret_path[1:]
+    if ret_path == 'top':
+      ret_path = ''
+    ret_path = '/' + ret_path
+    return ret_path
 
-def interactive_help(model_path,printer):
+
+def model_path_from_canonical_path(canonical_path):
+    """
+    helper function for interactive help
+    returns "normal" model path based on canonicalized path
+    :param canonical_path: the path in "/.../..." format
+    :return: the model path with "section:/..." format or "top"
+    """
+    ret_path = canonical_path[1:]
+    slashpos = ret_path.find('/')
+    if slashpos > 0:
+      ret_path = ret_path[0:slashpos] + ':' + ret_path[slashpos:]
+    if not ret_path:
+      ret_path = 'top'
+    return ret_path
+
+
+def parse_dir_command(model_path, command_str):
+    """
+    helper function to process interactive help commands 'cd [path]', 'cd ..', 'cd', 'top', or 'ls'
+    :param model_path: the starting model path before the command
+    :param command_str: the command
+    :return: the resulting path (an absolute canonical path)
+    """
+
+    canonical_path = canonical_path_from_model_path(model_path)
+
+    if command_str == 'cd ..':
+      new_path = canonical_path[:canonical_path.rfind('/')]
+      if not new_path:
+        return '/'
+      else:
+        return new_path
+
+    if command_str == 'cd' or command_str == 'top':
+      return '/'
+
+    if command_str == 'ls':
+      return canonical_path
+
+    # if we get this far, then the command string must begin with 'cd '
+
+    command_str = command_str[3:]
+    command_str = command_str.replace(':','')
+    while command_str.endswith('/'):
+      command_str = command_str[:-1]
+
+    # if first token is a section name, make it an absolute path
+    slash_pos = command_str.find('/')
+    if slash_pos == -1:
+      first_token = command_str
+    elif slash_pos > 0:
+      first_token = command_str[:slash_pos]
+    if first_token in model.get_model_top_level_keys():
+      command_str = '/' + command_str
+
+    # if first token is 'top' treat it like its starting absolute path
+    if first_token == 'top':
+      if slash_pos > 0:
+        command_str = command_str[3:]
+      else:
+        command_str = '/'
+
+    if not command_str:
+      return '/'
+
+    if command_str.startswith('/'):
+      return command_str
+
+    if canonical_path == '/':
+      return "/" + command_str
+
+    return canonical_path + "/" + command_str
+
+
+def interactive_help(model_path, printer):
     """
     Runs the interactive help.
     :param model_path: the model path to start with
@@ -100,8 +179,7 @@ def interactive_help(model_path,printer):
 
     __logger.entering(model_path, class_name=_class_name, method_name=_method_name)
 
-    # list of all sections (not including 'top')
-    top_level_keys = model.get_model_top_level_keys()
+    short_instructions = "In interactive mode! Type 'help' for help."
 
     # setup starting history
     if model_path == 'top':
@@ -109,117 +187,74 @@ def interactive_help(model_path,printer):
     else:
       history = ['top', model_path]
 
-    model_path = canonicalize_path(model_path)
-
-    print "In interactive mode! Type 'help' for help."
+    print(short_instructions)
     while True:
 
-      model_prompt = history[-1]
+      model_path = history[-1]
 
-      input = raw_input("[" + model_prompt + "] --> ")
+      command_str = raw_input("[" + model_path + "] --> ")
 
-      input = " ".join(input.split()) # remove extra white-space
-      if input == 'help':
-        print ''
-        print 'Commands:'
-        print ''
-        print '  ls                      - list contents of current location'
-        print '  top, cd, cd /, cd top   - go to "top"'
-        print '  cd x[/[...]]            - relative change (go to child location x...)'
-        print '  cd section[:/[...]]     - absolute change (go to exact section and location)'
-        print '  cd ..                   - go up'
-        print '  history                 - history of visited locations'
-        print '  exit                    - exit'
-        print ''
-        print 'Sections:'
-        print ''
-        print '  ' + str(', '.join(top_level_keys))
-        print ''
-        print 'Example:'
-        print ''
-        print '  cd topology:/Server/Log/StdoutSeverity'
-        print ''
+      command_str = " ".join(command_str.split()) # remove extra white-space
+
+      if command_str == 'help':
+        print("")
+        print("Commands:")
+        print("")
+        print("  ls                      - list contents of current location")
+        print("  top, cd, cd /, cd top   - go to \"top\"")
+        print("  cd x[/[...]]            - relative change (go to child location x...)")
+        print("  cd section[:/[...]]     - absolute change (go to exact section and location)")
+        print("  cd ..                   - go up")
+        print("  history                 - history of visited locations")
+        print("  exit                    - exit")
+        print("")
+        print("Sections:")
+        print("")
+        print("  " + str(', '.join(model.get_model_top_level_keys())))
+        print("")
+        print("Example:")
+        print("")
+        print("  cd topology:/Server/Log/StdoutSeverity")
+        print("")
         continue
-      elif input == 'history':
+
+      if command_str == 'history':
         for line in history:
-          print line
+          print(line)
         continue
-      elif input == 'exit':
+
+      if command_str == 'exit':
         break
-      elif input == 'ls':
-        # jython requires something here, and sonar doesn't like dummy statements
-        if model_path == 'Inconceivable!':
-          print "You keep using that word. I do not think it means what you think it means."
-      elif input == 'cd ..':
-        model_path = model_path[:model_path.rfind('/')]
-        if not model_path:
-          model_path = '/'
-      elif input == 'cd':
-        model_path = '/'
-      elif input == 'top':
-        model_path = '/'
-      elif input.count(' ') > 1:
-        print "Syntax error '" + input + "'"
-        print "In interactive mode! Type 'help' for help."
-        continue
-      elif input.startswith('cd '):
-        input = input[3:]
-        input = input.replace(':','')
-        while input.endswith('/'):
-          input = input[:-1]
 
-        # if first token is a section name, make it an absolute path
-        slash_pos = input.find('/') 
-        if slash_pos == -1:
-          first_token = input
-        elif slash_pos > 0:
-          first_token = input[:slash_pos]
-        if first_token in top_level_keys:
-          input = '/' + input
-
-        # if first token is 'top' treat it like its starting absolute path
-        if first_token == 'top':
-          if slash_pos > 0:
-            input = input[3:]
-          else:
-            input = '/'
-          
-        if not input:
-          model_path = '/'
-        elif input.startswith('/'):
-          model_path = input
-        elif model_path == '/':
-          model_path = "/" + input
-        else:
-          model_path = model_path + "/" + input
-      elif input:
-        print "Unknown command '" + input + "'"
-        print "In interactive mode! Type 'help' for help."
-        continue
-      else:
-        # no input, just prompt again 
+      if command_str.count(' ') > 1:
+        print("Syntax error '" + command_str + "'")
+        print(short_instructions)
         continue
 
-      try:
-        # prompt and get help using the public path format
+      if command_str == 'ls' or command_str == 'cd' or command_str == 'top' or command_str.startswith('cd '):
+        canonical_path = parse_dir_command(model_path, command_str)
+        model_path = model_path_from_canonical_path(canonical_path)
 
-        model_prompt = model_path[1:]
-        slashpos = model_prompt.find('/')
-        if slashpos > 0:
-          model_prompt = model_prompt[0:slashpos] + ':' + model_prompt[slashpos:]
-        if not model_prompt:
-          model_prompt = 'top'
+        try:
+          printer.print_model_help(model_path, ControlOptions.NORMAL)
 
-        printer.print_model_help(model_prompt, ControlOptions.NORMAL)
+          # the print_model_help succeeded, add successful path to the history
+          if not history[-1] == model_path:
+            history.append(model_path)
 
-        if not history[-1] == model_prompt:
-          history.append(model_prompt)
+        except CLAException, ex:
+          print("Error getting '" + model_path + "': " + ex.getLocalizedMessage())
+          print(short_instructions)
 
-      except CLAException, ex:
-        print "Error getting '" + model_prompt + "': " + ex.getLocalizedMessage()
-        print "In interactive mode! Type 'help' for help."
-        model_path = history[-1]  # last successful path
-        model_path = canonicalize_path(model_path)
+        continue
+
+      if command_str:
+        print("Unknown command '" + command_str + "'")
+        print(short_instructions)
+        continue
+
+      # no command_str, just prompt again 
+      continue
 
     # end of "while True"
 
