@@ -179,10 +179,11 @@ def interactive_help(model_path, printer):
 
     __logger.entering(model_path, class_name=_class_name, method_name=_method_name)
 
-    test_input_file_name = os.environ["InteractiveTestInputFile"]
 
-    if test_input_file_name:
-      test_input_file = open(test_input_file_name, "r")
+    # undocumented feature for grabbing input from file instead of stdin
+    input_file_name = os.environ.get('WDT_INTERACTIVE_MODE_INPUT_FILE')
+    if input_file_name:
+      input_file = open(input_file_name, "r")
 
     short_instructions = "In interactive mode! Type 'help' for help."
 
@@ -199,7 +200,7 @@ def interactive_help(model_path, printer):
 
       prompt = "[" + model_path + "] --> "
 
-      if not test_input_file_name:
+      if not input_file_name:
         # prompt for input
         command_str = raw_input(prompt)
       else:
@@ -208,7 +209,7 @@ def interactive_help(model_path, printer):
         sys.stdout.flush()
 
         # get input from a test file
-        command_str = test_input_file.readline()
+        command_str = input_file.readline()
         if not command_str: break
         command_str = command_str.rstrip(os.linesep)
 
