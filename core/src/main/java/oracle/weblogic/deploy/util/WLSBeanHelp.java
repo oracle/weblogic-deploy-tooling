@@ -246,11 +246,10 @@ public class WLSBeanHelp {
 
     try {
       // use reflection to implement the equivalent of:
-      //    weblogic.management.provider.ManagementServiceClient.getBeanInfoAccess()
-      //       .getBeanInfoForInterface(beanName, false, null);
+      //    weblogic management provider ManagementServiceClient getBeanInfoAccess()
+      //       getBeanInfoForInterface(beanName, false, null)
 
-      // ignore sonar smell asking for type on next line (we are purposely avoiding imports)
-      Class mscClass = Class.forName("weblogic.management.provider.ManagementServiceClient");
+      Class<?> mscClass = Class.forName("weblogic.management.provider.ManagementServiceClient");
 
       Method getBeanInfoAccessMethod = mscClass.getMethod("getBeanInfoAccess");
 
@@ -258,8 +257,7 @@ public class WLSBeanHelp {
 
       Object biaObject = getBeanInfoAccessMethod.invoke(mscObject);
 
-      // ignore sonar smell asking for type on next line (we are purposely avoiding imports)
-      Class biaClass = Class.forName("weblogic.management.provider.beaninfo.BeanInfoAccess");
+      Class<?> biaClass = Class.forName("weblogic.management.provider.beaninfo.BeanInfoAccess");
 
       Method getBeanInfoForInterfaceMethod =
         biaClass.getMethod(
@@ -275,10 +273,8 @@ public class WLSBeanHelp {
                Boolean.FALSE,
                null
              );
-    } catch (InvocationTargetException ite) {
-      // probably bean not found
     } catch (Exception ignore) {
-      // probably a reflection exception of some kind
+      // probably a bean not found InvocationTargetException, but could be a reflection exception
     }
     return null;
   }
@@ -318,12 +314,8 @@ public class WLSBeanHelp {
   }
 
   // called solely by the main in this class
-  private static void print(String s) {
-    System.out.print(s);
-  }
-
-  // called solely by the main in this class
   private static void println(String s) {
+    // ignore sonar complaint - this is used for output from main
     System.out.println(s);
   }
 
@@ -393,11 +385,9 @@ public class WLSBeanHelp {
 
       while (pos < html.length()) {
 
-        if (parseSimpleChars()) continue; // adjusts pos and returns true on success
-
-        if (parseBullets()) continue;     // ditto
-
-        if (parseParagraph()) continue;   // ditto
+        if (parseSimpleChars()
+            || parseBullets()
+            || parseParagraph()) continue; // adjusts pos and returns true on success
 
         out(html.charAt(pos));
 
@@ -432,8 +422,16 @@ public class WLSBeanHelp {
     }
 
     private boolean parseParagraph() {
-      if (html.startsWith(PGS, pos)) { pos += PGS.length(); if (indent==0) outln(); return true; }
-      if (html.startsWith(PGE, pos)) { pos += PGE.length(); outln(); return true; }
+      if (html.startsWith(PGS, pos)) {
+        pos += PGS.length();
+        if (indent==0) outln();
+        return true;
+      }
+      if (html.startsWith(PGE, pos)) {
+        pos += PGE.length();
+        outln();
+        return true;
+      }
       return false;
     }
 

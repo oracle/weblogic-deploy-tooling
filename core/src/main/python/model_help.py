@@ -43,7 +43,6 @@ __output_types = [
     CommandLineArgUtil.RECURSIVE_SWITCH
 ]
 
-
 def __process_args(args):
     """
     Process the command-line arguments.
@@ -109,10 +108,9 @@ def model_path_from_canonical_path(canonical_path):
       ret_path = 'top'
     return ret_path
 
-
-def parse_dir_command(model_path, command_str):
+def parse_dir_command_simple(model_path, command_str):
     """
-    helper function to process interactive help commands 'cd [path]', 'cd ..', 'cd', 'top', or 'ls'
+    helper function to process interactive help commands 'cd ..', 'cd', 'top', or 'ls'
     :param model_path: the starting model path before the command
     :param command_str: the command
     :return: the resulting path (an absolute canonical path)
@@ -127,13 +125,21 @@ def parse_dir_command(model_path, command_str):
       else:
         return new_path
 
-    if command_str == 'cd' or command_str == 'top':
-      return '/'
-
     if command_str == 'ls':
       return canonical_path
 
-    # if we get this far, then the command string must begin with 'cd '
+    # must be 'top' or 'cd'
+    return '/'
+
+def parse_dir_command_cd_path(model_path, command_str):
+    """
+    helper function to process interactive help command 'cd [path]'
+    :param model_path: the starting model path before the command
+    :param command_str: the command
+    :return: the resulting path (an absolute canonical path)
+    """
+
+    canonical_path = canonical_path_from_model_path(model_path)
 
     command_str = command_str[3:]
     command_str = command_str.replace(':','')
@@ -168,76 +174,146 @@ def parse_dir_command(model_path, command_str):
     return canonical_path + "/" + command_str
 
 
-def interactive_help(model_path, printer):
+def parse_dir_command_all(model_path, command_str):
+    """
+    helper function to process interactive help commands 'cd [path]', 'cd ..', 'cd', 'top', or 'ls'
+    :param model_path: the starting model path before the command
+    :param command_str: the command
+    :return: the resulting path (an absolute canonical path)
+    """
+
+    if command_str == 'cd ..' or command_str == 'cd' or command_str == 'top' or command_str == 'ls':
+      return parse_dir_command_simple(model_path, command_str)
+    else:
+      return parse_dir_command_cd_path(model_path, command_str) # handle 'cd [path]'
+
+
+def interactive_help_init(model_path):
+    """
+    Initializes interactive help.
+    :param model_path: the starting model path passed from the command line
+    """
+
+
+
+def interactive_help_prompt(model_path, input_file):
+    """
+    Gets the next command from stdin or a file.
+    :param model_path: a current model path
+    :param input_file: specify a file to get input from file instead of stdin.
+    :param printer: a model help printer
+    :return: returns when user types 'exit'
+    """
+
+    # prompt using sys.stdout.write to avoid newline
+    sys.stdout.write("[" + model_path + "] --> ")
+    sys.stdout.flush()
+
+    if not input_file:
+      command_str = raw_input("") # get command from stdin 
+
+    else:
+      # get command from file instead of stdin (undocumented feature)
+      command_str = input_file.readline()
+      if not command_str:
+        command_str = 'exit' # reached EOF
+      else:
+        command_str = command_str.rstrip(os.linesep)
+
+      # show retrieved command_str right after the prompt
+      print(command_str)
+
+    command_str = " ".join(command_str.split()) # remove extra white-space
+    return command_str
+
+
+def interactive_help_print_path(printer, model_path, history):
+    """
+    Prints help for the given model_path, or an error message.
+    Also updates the help history on success.
+    :param model_path: the model path 
+    :param history: history of successful model paths
+    :param printer: a model help printer
+    """
+    try:
+      printer.print_model_help(model_path, ControlOptions.NORMAL)
+
+      # the print_model_help succeeded, add successful path to the history
+      if history[-1] != model_path:
+        history.append(model_path)
+
+    except CLAException, ex:
+      print("Error getting '" + model_path + "': " + ex.getLocalizedMessage())
+      interactive_help_print_short_instructions()
+
+
+def interactive_help_print_short_instructions():
+    """
+    Prints short instructions for interactive help.
+    """
+    print("In interactive mode! Type 'help' for help.")
+
+
+def interactive_help_full_instructions():
+    """
+    Prints full instructions for interactive help.
+    """
+    print("")
+    print("Commands:")
+    print("")
+    print("  ls                      - list contents of current location")
+    print("  top, cd, cd /, cd top   - go to \"top\"")
+    print("  cd x[/[...]]            - relative change (go to child location x...)")
+    print("  cd section[:/[...]]     - absolute change (go to exact section and location)")
+    print("  cd ..                   - go up")
+    print("  history                 - history of visited locations")
+    print("  exit                    - exit")
+    print("")
+    print("Sections:")
+    print("")
+    print("  " + str(', '.join(model.get_model_top_level_keys())))
+    print("")
+    print("Example:")
+    print("")
+    print("  cd topology:/Server/Log/StdoutSeverity")
+    print("")
+
+
+def interactive_help_main_loop(model_path, printer):
     """
     Runs the interactive help.
     :param model_path: the model path to start with
     :param printer: a model help printer
     :return: returns when user types 'exit'
     """
-    _method_name = 'interactive_help'
+    _method_name = 'interactive_help_main_loop'
 
     __logger.entering(model_path, class_name=_class_name, method_name=_method_name)
 
+    # setup starting history
+    history = ['top']
+    if history[-1] != model_path:
+      history.append(model_path)
 
-    # undocumented feature for grabbing input from file instead of stdin
+    # optionally get input from file instead of stdin (undocumented feature)
     input_file_name = os.environ.get('WDT_INTERACTIVE_MODE_INPUT_FILE')
+    input_file = None
     if input_file_name:
       input_file = open(input_file_name, "r")
 
-    short_instructions = "In interactive mode! Type 'help' for help."
+    interactive_help_print_short_instructions()
 
-    # setup starting history
-    if model_path == 'top':
-      history = ['top']
-    else:
-      history = ['top', model_path]
-
-    print(short_instructions)
     while True:
 
       model_path = history[-1]
 
-      prompt = "[" + model_path + "] --> "
+      command_str = interactive_help_prompt(model_path, input_file)
 
-      if not input_file_name:
-        # prompt for input
-        command_str = raw_input(prompt)
-      else:
-        # emulate prompt using sys.stdout.write to avoid newline
-        sys.stdout.write(prompt)
-        sys.stdout.flush()
-
-        # get input from a test file
-        command_str = input_file.readline()
-        if not command_str: break
-        command_str = command_str.rstrip(os.linesep)
-
-        # add input after emulated prompt
-        print(command_str)
-
-      command_str = " ".join(command_str.split()) # remove extra white-space
+      if command_str == 'exit':
+        break
 
       if command_str == 'help':
-        print("")
-        print("Commands:")
-        print("")
-        print("  ls                      - list contents of current location")
-        print("  top, cd, cd /, cd top   - go to \"top\"")
-        print("  cd x[/[...]]            - relative change (go to child location x...)")
-        print("  cd section[:/[...]]     - absolute change (go to exact section and location)")
-        print("  cd ..                   - go up")
-        print("  history                 - history of visited locations")
-        print("  exit                    - exit")
-        print("")
-        print("Sections:")
-        print("")
-        print("  " + str(', '.join(model.get_model_top_level_keys())))
-        print("")
-        print("Example:")
-        print("")
-        print("  cd topology:/Server/Log/StdoutSeverity")
-        print("")
+        interactive_help_full_instructions()
         continue
 
       if command_str == 'history':
@@ -245,34 +321,20 @@ def interactive_help(model_path, printer):
           print(line)
         continue
 
-      if command_str == 'exit':
-        break
-
       if command_str.count(' ') > 1:
         print("Syntax error '" + command_str + "'")
-        print(short_instructions)
+        interactive_help_print_short_instructions()
         continue
 
       if command_str == 'ls' or command_str == 'cd' or command_str == 'top' or command_str.startswith('cd '):
-        canonical_path = parse_dir_command(model_path, command_str)
+        canonical_path = parse_dir_command_all(model_path, command_str)
         model_path = model_path_from_canonical_path(canonical_path)
-
-        try:
-          printer.print_model_help(model_path, ControlOptions.NORMAL)
-
-          # the print_model_help succeeded, add successful path to the history
-          if not history[-1] == model_path:
-            history.append(model_path)
-
-        except CLAException, ex:
-          print("Error getting '" + model_path + "': " + ex.getLocalizedMessage())
-          print(short_instructions)
-
+        interactive_help_print_path(printer, model_path, history)
         continue
 
       if command_str:
         print("Unknown command '" + command_str + "'")
-        print(short_instructions)
+        interactive_help_print_short_instructions()
         continue
 
       # no command_str, just prompt again 
@@ -309,7 +371,7 @@ def print_help(model_path, model_context):
     printer = ModelHelpPrinter(aliases, __logger)
 
     if model_context.get_interactive_mode_option():
-      interactive_help(model_path,printer)
+      interactive_help_main_loop(model_path, printer)
     else:
       printer.print_model_help(model_path, control_option)
 

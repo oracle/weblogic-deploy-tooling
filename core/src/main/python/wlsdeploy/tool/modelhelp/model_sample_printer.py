@@ -90,7 +90,7 @@ class ModelSamplePrinter(object):
             if (len(model_path_tokens) == 2):
                 attributes_location = self._aliases.get_model_section_attribute_location(section_name)
                 if attributes_location is not None:
-                    if (self._print_attribute(attributes_location, 0, top_folder)):
+                    if (self._print_attribute_bean_help(attributes_location, 0, top_folder)):
                         return
             ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
                                                        'WLSDPLY-10110', section_name + ':', top_folder,
@@ -105,7 +105,6 @@ class ModelSamplePrinter(object):
         indent = 0
         model_location = LocationContext()
         tokens_left = len(model_path_tokens)
-        last_token = None
         for token in model_path_tokens:
             tokens_left = tokens_left - 1
             last_location = LocationContext(model_location)
@@ -116,7 +115,7 @@ class ModelSamplePrinter(object):
                     # print attribute help if the token turns out to be an attribute, throw otherwise
                     if (tokens_left == 0
                         and model_help_utils.show_attributes(control_option)
-                        and self._print_attribute(model_location, indent, token)):
+                        and self._print_attribute_bean_help(model_location, indent, token)):
                         return
                     else:
                         ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
@@ -138,8 +137,6 @@ class ModelSamplePrinter(object):
                 _print_indent(name + ":", indent)
                 indent += 1
 
-            last_token = token
-
         # list the attributes and folders, as specified
 
         if model_help_utils.show_attributes(control_option):
@@ -149,12 +146,10 @@ class ModelSamplePrinter(object):
         if model_help_utils.show_folders(control_option):
             self._print_subfolders_sample(model_location, control_option, indent)
 
-        mr_bean = self._aliases.get_online_bean_name(model_location)
-        help = WLSBeanHelp.get(mr_bean, 60)
-        if help:
-            _print_indent(help, 0)
-
-        return
+        online_bean = self._aliases.get_online_bean_name(model_location)
+        bean_help = WLSBeanHelp.get(online_bean, 60)
+        if bean_help:
+            _print_indent(bean_help, 0)
 
     def _print_subfolders_sample(self, model_location, control_option, indent_level):
         """
@@ -218,6 +213,29 @@ class ModelSamplePrinter(object):
 
             model_location.pop_location()
 
+    def _get_att_short_help(self, model_location, attr_name):
+        """
+        Gets short help for an attribute for appending after the att in a folder listing.
+        :param model_location: An object containing data about the model location being worked on
+        :param att_name: The attribute
+        :return: the short help
+        """
+        att_default = self._aliases.get_model_attribute_default_value(model_location, attr_name)
+
+        if att_default is None:
+            att_default = ''
+        else:
+            att_default = ' (default=' + str(att_default) + ')'
+
+        online_bean = self._aliases.get_online_bean_name(model_location)
+
+        # Instead of showing abbreviated help, use a trailing "+" to indicate
+        # that more help is avail for the attribute, and a "-" otherwise
+        if WLSBeanHelp.get(online_bean, attr_name, 100, ''):
+            return att_default + ' +'
+        else:
+            return att_default + ' -'
+
     def _print_attributes_sample(self, model_location, indent_level):
         """
         Prints a model sample for the attributes in a model location
@@ -225,8 +243,6 @@ class ModelSamplePrinter(object):
         :param indent_level: The level to indent by, before printing output
         """
         attr_infos = self._aliases.get_model_attribute_names_and_types(model_location)
-
-        online_bean = self._aliases.get_online_bean_name(model_location)
 
         if attr_infos:
             attr_list = attr_infos.keys()
@@ -242,27 +258,14 @@ class ModelSamplePrinter(object):
 
             format_string = '%-' + str(maxlen_attr + 1) + 's # %-' + str(maxlen_type + 1) + 's'
             for attr_name in attr_list:
-                att_default = self._aliases.get_model_attribute_default_value(model_location, attr_name)
-                if att_default is None:
-                    att_default = ''
-                else:
-                    att_default = ' (default=' + str(att_default) + ')'
-
-                # Instead of showing abbreviated help, use a trailing "+" to indicate
-                # that more help is avail for the attribute, and a "-" otherwise
-                if WLSBeanHelp.get(online_bean, attr_name, 100, ''):
-                    att_help = ' +'
-                else:
-                    att_help = ' -'
-
-                line = format_string % (attr_name + ":", attr_infos[attr_name]) + att_default + att_help
-
+                att_help = self._get_att_short_help(model_location, attr_name)
+                line = format_string % (attr_name + ":", attr_infos[attr_name]) + att_help
                 _print_indent(line, indent_level)
 
         else:
             _print_indent("# no attributes", indent_level)
 
-    def _print_attribute(self, model_location, indent_level, the_attribute):
+    def _print_attribute_bean_help(self, model_location, indent_level, the_attribute):
         """
         Checks if the the_attribute is an attribute of model_location, and if so prints it
         :param model_location: An object containing data about the model location being worked on
@@ -270,28 +273,26 @@ class ModelSamplePrinter(object):
         :param the_attribute: The attribute to print
         :return: True if the_attribute was an attribute
         """
-        _method_name = '_print_attribute'
 
         the_bean = self._aliases.get_online_bean_name(model_location)
         attr_infos = self._aliases.get_model_attribute_names_and_types(model_location)
 
-        if attr_infos:
-          if the_attribute in attr_infos:
-            line = '%s # %s' % (the_attribute + ":", attr_infos[the_attribute])
-            _print_indent(line, indent_level)
+        if attr_infos and the_attribute in attr_infos:
+          line = '%s # %s' % (the_attribute + ":", attr_infos[the_attribute])
+          _print_indent(line, indent_level)
 
-            att_default = self._aliases.get_model_attribute_default_value(model_location, the_attribute)
-            if not att_default is None:
-                att_default = str(att_default)
+          att_default = self._aliases.get_model_attribute_default_value(model_location, the_attribute)
+          if att_default is not None:
+              att_default = str(att_default)
 
-            prop_desc = WLSBeanHelp.get(the_bean, the_attribute, 60, att_default)
+          att_help = WLSBeanHelp.get(the_bean, the_attribute, 60, att_default)
 
-            if prop_desc:
-              print
-              print prop_desc
-              print
+          if att_help:
+            print()
+            print(att_help)
+            print()
 
-            return True
+          return True
 
         return False
 
