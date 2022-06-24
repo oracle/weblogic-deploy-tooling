@@ -43,6 +43,7 @@ __output_types = [
     CommandLineArgUtil.RECURSIVE_SWITCH
 ]
 
+
 def __process_args(args):
     """
     Process the command-line arguments.
@@ -108,6 +109,7 @@ def model_path_from_canonical_path(canonical_path):
       ret_path = 'top'
     return ret_path
 
+
 def parse_dir_command_simple(model_path, command_str):
     """
     helper function to process interactive help commands 'cd ..', 'cd', 'top', or 'ls'
@@ -130,6 +132,7 @@ def parse_dir_command_simple(model_path, command_str):
 
     # must be 'top' or 'cd'
     return '/'
+
 
 def parse_dir_command_cd_path(model_path, command_str):
     """
@@ -186,14 +189,6 @@ def parse_dir_command_all(model_path, command_str):
       return parse_dir_command_simple(model_path, command_str)
     else:
       return parse_dir_command_cd_path(model_path, command_str) # handle 'cd [path]'
-
-
-def interactive_help_init(model_path):
-    """
-    Initializes interactive help.
-    :param model_path: the starting model path passed from the command line
-    """
-
 
 
 def interactive_help_prompt(model_path, input_file):
@@ -254,7 +249,7 @@ def interactive_help_print_short_instructions():
     print("In interactive mode! Type 'help' for help.")
 
 
-def interactive_help_full_instructions():
+def interactive_help_print_full_instructions():
     """
     Prints full instructions for interactive help.
     """
@@ -277,6 +272,38 @@ def interactive_help_full_instructions():
     print("")
     print("  cd topology:/Server/Log/StdoutSeverity")
     print("")
+
+
+def interactive_help_process_command(printer, model_path, command_str, history):
+    """
+    Process an interactive help command.
+    :param printer: a model help printer
+    :param model_path: the model path to start with
+    :param command_str: the command
+    :return: the (potentially updated) model_path
+    """
+
+    if command_str == 'help':
+      interactive_help_print_full_instructions()
+
+    elif command_str == 'history':
+      for line in history:
+        print(line)
+
+    elif command_str.count(' ') > 1:
+      print("Syntax error '" + command_str + "'")
+      interactive_help_print_short_instructions()
+
+    elif command_str == 'ls' or command_str == 'cd' or command_str == 'top' or command_str.startswith('cd '):
+      canonical_path = parse_dir_command_all(model_path, command_str)
+      model_path = model_path_from_canonical_path(canonical_path)
+      interactive_help_print_path(printer, model_path, history)
+
+    elif command_str:
+      print("Unknown command '" + command_str + "'")
+      interactive_help_print_short_instructions()
+
+    return model_path
 
 
 def interactive_help_main_loop(model_path, printer):
@@ -305,44 +332,15 @@ def interactive_help_main_loop(model_path, printer):
 
     while True:
 
-      model_path = history[-1]
-
       command_str = interactive_help_prompt(model_path, input_file)
 
       if command_str == 'exit':
         break
 
-      if command_str == 'help':
-        interactive_help_full_instructions()
-        continue
-
-      if command_str == 'history':
-        for line in history:
-          print(line)
-        continue
-
-      if command_str.count(' ') > 1:
-        print("Syntax error '" + command_str + "'")
-        interactive_help_print_short_instructions()
-        continue
-
-      if command_str == 'ls' or command_str == 'cd' or command_str == 'top' or command_str.startswith('cd '):
-        canonical_path = parse_dir_command_all(model_path, command_str)
-        model_path = model_path_from_canonical_path(canonical_path)
-        interactive_help_print_path(printer, model_path, history)
-        continue
-
-      if command_str:
-        print("Unknown command '" + command_str + "'")
-        interactive_help_print_short_instructions()
-        continue
-
-      # no command_str, just prompt again 
-      continue
-
-    # end of "while True"
+      model_path = interactive_help_process_command(printer, model_path, command_str, history)
 
     __logger.exiting(class_name=_class_name, method_name=_method_name)
+
     
 def print_help(model_path, model_context):
     """
