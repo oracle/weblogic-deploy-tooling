@@ -31,6 +31,9 @@ public class WLSBeanHelp {
   private static final String PD_ATT_LEGALMAX    = "legalMax";
   private static final String PD_ATT_SEE         = "see";
 
+  // hide constructor (only static methods in this class)
+  private WLSBeanHelp() {}
+
   // gets description of given bean or property in "plain text HTML"
   //   - returns "" if not found
   //   - if propName is null, gets description of bean,
@@ -223,6 +226,7 @@ public class WLSBeanHelp {
     return ret.toString();
   }
 
+  // turn legal values property descriptor attribute into array of strings
   private static ArrayList<String> legalValues(Object o) {
     HashMap<String,String> foo = new HashMap<>();
     ArrayList<String> ret = new ArrayList<>();
@@ -379,7 +383,7 @@ public class WLSBeanHelp {
     private String html; // input html string to parse
     private int pos;     // current position within html string
 
-    PrettyHTML(String html, int margin) {
+    private PrettyHTML(String html, int margin) {
       this.html = html;
       this.margin = margin;
 

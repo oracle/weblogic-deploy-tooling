@@ -39,7 +39,7 @@ class ModelKubernetesPrinter(object):
         :param section_name: the name of the model section
         :param control_option: A command-line switch that controls what is output to STDOUT
         """
-        print()
+        print("")
         path = section_name + ":"
         _print_indent(path, 0)
 

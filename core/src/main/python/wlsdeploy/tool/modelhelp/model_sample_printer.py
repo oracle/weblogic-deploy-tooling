@@ -50,7 +50,7 @@ class ModelSamplePrinter(object):
         The -recursive flag is disregarded for this case.
         """
         for section in KNOWN_TOPLEVEL_MODEL_SECTIONS:
-            print()
+            print("")
             _print_indent(section + ":", 0)
             _print_indent("# see " + section + ":", 1)
 
@@ -61,7 +61,7 @@ class ModelSamplePrinter(object):
         :param valid_section_folder_keys: list of the valid top folders in the specified section
         :param control_option: A command-line switch that controls what is output to STDOUT
         """
-        print()
+        print("")
         _print_indent(section_name + ":", 0)
 
         if model_help_utils.show_attributes(control_option):
@@ -149,6 +149,7 @@ class ModelSamplePrinter(object):
         online_bean = self._aliases.get_online_bean_name(model_location)
         bean_help = WLSBeanHelp.get(online_bean, 60)
         if bean_help:
+            print("")
             _print_indent(bean_help, 0)
 
     def _print_subfolders_sample(self, model_location, control_option, indent_level):
@@ -288,9 +289,9 @@ class ModelSamplePrinter(object):
           att_help = WLSBeanHelp.get(the_bean, the_attribute, 60, att_default)
 
           if att_help:
-            print()
+            print("")
             print(att_help)
-            print()
+            print("")
 
           return True
 

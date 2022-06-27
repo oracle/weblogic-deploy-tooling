@@ -55,7 +55,7 @@ class ModelHelpPrinter(object):
         model_path = '%s:/%s' % (model_path_tokens[0], folder_path)
 
         # print format information
-        print()
+        print("")
         if control_option == ControlOptions.RECURSIVE:
             print(_format_message('WLSDPLY-10102', model_path))
         elif control_option == ControlOptions.FOLDERS_ONLY:
