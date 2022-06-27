@@ -42,7 +42,7 @@
                     "version" : "[12.2.1.1,)",
                     "child_folders_type": "multiple",
                     "flattened_folder_data": {
-                        "wlst_type": "CoherenceAddressProvider",
+                        "wlst_type": "CoherenceAddressProviders",
                         "online_bean": "weblogic.coherence.descriptor.wl.CoherenceAddressProvidersBean",
                         "name_value": "${NO_NAME_0:%COHERENCECLUSTER%}",
                         "path_token": "COHERENCEADDRESSPROVIDERS"
