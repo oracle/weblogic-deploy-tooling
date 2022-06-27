@@ -81,22 +81,11 @@ class ModelSamplePrinter(object):
         :param valid_section_folder_keys: A list of valid folder names for the model section in the path
         :param control_option: A command-line switch that controls what is output to STDOUT
         """
-        _method_name = '_print_model_folder_sample'
 
-        section_name = model_path_tokens[0]
-        top_folder = model_path_tokens[1]
-        if top_folder not in valid_section_folder_keys:
+        if model_path_tokens[1] not in valid_section_folder_keys:
             # print attribute help if top_folder turns out to be an attribute, throw otherwise
-            if (len(model_path_tokens) == 2):
-                attributes_location = self._aliases.get_model_section_attribute_location(section_name)
-                if attributes_location is not None:
-                    if (self._print_attribute_bean_help(attributes_location, 0, top_folder)):
-                        return
-            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
-                                                       'WLSDPLY-10110', section_name + ':', top_folder,
-                                                       ', '.join(valid_section_folder_keys))
-            self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
+            self._print_section_attribute_bean_help(model_path_tokens, valid_section_folder_keys)
+            return
 
         print("")
 
@@ -112,16 +101,10 @@ class ModelSamplePrinter(object):
             if indent > 0:
                 code, message = self._aliases.is_valid_model_folder_name(model_location, token)
                 if code != ValidationCodes.VALID:
-                    # print attribute help if the token turns out to be an attribute, throw otherwise
-                    if (tokens_left == 0
-                        and model_help_utils.show_attributes(control_option)
-                        and self._print_attribute_bean_help(model_location, indent, token)):
-                        return
-                    else:
-                        ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
-                                                                   "WLSDPLY-05027", message)
-                        self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                        raise ex
+                    # print attribute help if the token turns out to be an attribute, throws otherwise
+                    self._print_folder_attribute_bean_help(control_option, model_location,
+                                                           indent, tokens_left, token, message)
+                    return
                 model_location.append_location(token)
 
             if self._aliases.is_artificial_type_folder(model_location):
@@ -266,9 +249,55 @@ class ModelSamplePrinter(object):
         else:
             _print_indent("# no attributes", indent_level)
 
+    def _print_section_attribute_bean_help(self, model_path_tokens, valid_section_folder_keys):
+        """
+        Print attribute help if path turns out to be an attribute of a section, throw otherwise
+        :param model_path_tokens: a Python list of path elements built from model path
+        :param valid_section_folder_keys: A list of valid folder names for the model section in the path
+        """
+        _method_name = '_print_section_attribute_bean_help'
+
+        section_name = model_path_tokens[0]
+        attribute = model_path_tokens[1]
+
+        if (len(model_path_tokens) == 2):
+            attributes_location = self._aliases.get_model_section_attribute_location(section_name)
+            if attributes_location is not None:
+                if (self._print_attribute_bean_help(attributes_location, 0, attribute)):
+                    return
+
+        ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                   'WLSDPLY-10110', section_name + ':', attribute,
+                                                   ', '.join(valid_section_folder_keys))
+        self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
+
+    def _print_folder_attribute_bean_help(self, control_option, model_location, indent, tokens_left, token, message):
+        """
+        Print attribute help if the token turns out to be an attribute, throw otherwise
+        :param control_option: A command-line switch that controls what is output to STDOUT
+        :param model_location: An object containing data about the model location being worked on
+        :param indent: The level to indent by, before printing output
+        :param tokens_left: Equal to 0 if this is the last token in proposed model path.
+        :param token: The potential attribute name.
+        :param message: Error message if token is not an attribute
+        :param valid_section_folder_keys: A list of valid folder names for the model section in the path
+        """
+        _method_name = '_print_folder_attribute_bean_help'
+
+        if (tokens_left == 0
+            and model_help_utils.show_attributes(control_option)
+            and self._print_attribute_bean_help(model_location, indent, token)):
+            return
+
+        ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                                                   "WLSDPLY-05027", message)
+        self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
+
     def _print_attribute_bean_help(self, model_location, indent_level, the_attribute):
         """
-        Checks if the the_attribute is an attribute of model_location, and if so prints it
+        Checks if the the_attribute is an attribute of model_location, and if so prints its help
         :param model_location: An object containing data about the model location being worked on
         :param indent_level: The level to indent by, before printing output
         :param the_attribute: The attribute to print
