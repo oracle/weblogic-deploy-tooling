@@ -48650,7 +48650,7 @@
             }
         }
     },
-    "ManagedExecuFtorServiceTemplate" : {
+    "ManagedExecutorServiceTemplate" : {
         "instance" : "multiple",
         "attributes" : {
             "DeploymentOrder" : {
