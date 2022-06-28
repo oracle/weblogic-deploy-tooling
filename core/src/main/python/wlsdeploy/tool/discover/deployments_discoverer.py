@@ -266,14 +266,7 @@ class DeploymentsDiscoverer(Discoverer):
                         try:
                             new_source_name = archive_file.addApplication(file_name_path)
                         except IllegalArgumentException, iae:
-                            if model_constants.TARGET in application_dict:
-                                target = application_dict[model_constants.TARGET]
-                                del application_dict[model_constants.TARGET]
-                                _logger.warning('WLSDPLY-06395', application_name, target, iae.getLocalizedMessage(),
-                                                class_name=_class_name, method_name=_method_name)
-                            else:
-                                _logger.warning('WLSDPLY-06396', application_name, iae.getLocalizedMessage(),
-                                                class_name=_class_name, method_name=_method_name)
+                            self._disconnect_target(application_name, application_dict, iae.getLocalizedMessage())
                         except WLSDeployArchiveIOException, wioe:
                             de = exception_helper.create_discover_exception('WLSDPLY-06397', application_name,
                                                                         file_name_path, wioe.getLocalizedMessage())
@@ -339,6 +332,16 @@ class DeploymentsDiscoverer(Discoverer):
             app_folder = True
         return app_folder
 
+    def _disconnect_target(self, application_name, application_dict, message):
+        _method_name = '_disconnect_target'
+        if model_constants.TARGET in application_dict:
+            target = application_dict[model_constants.TARGET]
+            del application_dict[model_constants.TARGET]
+            _logger.warning('WLSDPLY-06395', application_name, target, message,
+                            class_name=_class_name, method_name=_method_name)
+        else:
+            _logger.warning('WLSDPLY-06396', application_name, iae.getLocalizedMessage(),
+                            class_name=_class_name, method_name=_method_name)
     def _create_application_directory(self, application_name, application_dict):
         _method_name = '_create_application_directory'
         new_source_name = None
@@ -355,16 +358,9 @@ class DeploymentsDiscoverer(Discoverer):
             try:
                 new_source_name = archive_file.addApplicationFolder(application_name, app_dir)
             except IllegalArgumentException, iae:
-                if model_constants.TARGET in application_dict:
-                    target = application_dict[model_constants.TARGET]
-                    del application_dict[model_constants.TARGET]
-                    _logger.warning('WLSDPLY-06395', application_name, target, iae.getLocalizedMessage(),
-                                    class_name=_class_name, method_name=_method_name)
-                else:
-                    _logger.warning('WLSDPLY-06396', application_name, iae.getLocalizedMessage(),
-                                    class_name=_class_name, method_name=_method_name)
+                self._disconnect_target(application_name, application_dict, iae.getLocalizedMessage())
             except WLSDeployArchiveIOException, wioe:
-                de = exception_helper.create_discover_exception('WLSDPLY-06397', application_name,
+                de = exception_helper.create_discover_exception('WLSDPLY-06403', application_name,
                                                                 file_name_path, wioe.getLocalizedMessage())
                 _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
                 raise de
