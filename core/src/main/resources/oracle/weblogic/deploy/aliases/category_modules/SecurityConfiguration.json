@@ -999,7 +999,6 @@
                         },
                         "TrustServiceIdentityAsserter": {
                             "wlst_type": "oracle.security.jps.wls.providers.trust.TrustServiceIdentityAsserter",
-                            "online_bean": "unknown",
                             "child_folders_type": "none",
                             "version": "[12.1.2,]",
                             "folders": {},

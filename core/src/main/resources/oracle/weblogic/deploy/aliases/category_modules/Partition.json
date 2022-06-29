@@ -128,13 +128,13 @@
         },
         "JdbcSystemResourceOverride": {
             "wlst_type": "${JdbcSystemResourceOverride:JDBCSystemResourceOverrides}",
-            "online_bean": "unknown",
+            "online_bean": "weblogic.management.configuration.JDBCSystemResourceOverrideMBean",
             "version": "[12.2.1,)",
             "child_folders_type": "multiple",
             "folders": {
                 "JdbcPropertyOverride": {
                     "wlst_type": "${JdbcPropertyOverride:JDBCPropertyOverrides}",
-                    "online_bean": "unknown",
+                    "online_bean": "weblogic.management.configuration.JDBCPropertyOverrideMBean",
                     "version": "[12.2.1,)",
                     "child_folders_type": "multiple",
                     "folders": {},
@@ -213,7 +213,7 @@
                         },
                         "JndiProperty": {
                             "wlst_type": "${Jndi:JNDI}Propert${y:ies}",
-                            "online_bean": "unknown",
+                            "online_bean": "weblogic.j2ee.descriptor.wl.PropertyBean",
                             "version": "[12.2.1,)",
                             "child_folders_type": "multiple",
                             "folders": {},
@@ -299,7 +299,7 @@
         },
         "SystemFileSystem": {
             "wlst_type": "SystemFileSystem",
-            "online_bean": "unknown",
+            "online_bean": "weblogic.management.configuration.PartitionFileSystemMBean",
             "version": "[12.2.1,)",
             "default_name_value": "${NO_NAME_0:%PARTITION%}",
             "folders": {},

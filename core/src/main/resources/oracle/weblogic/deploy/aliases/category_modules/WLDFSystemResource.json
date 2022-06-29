@@ -169,7 +169,7 @@
                         },
                         "RestNotification": {
                             "wlst_type": "${RestNotification:RESTNotifications}",
-                            "online_bean": "unknown",
+                            "online_bean": "weblogic.diagnostics.descriptor.WLDFRESTNotificationBean",
                             "version": "[12.2.1.1,)",
                             "child_folders_type": "multiple",
                             "folders": {},

@@ -927,7 +927,7 @@
         },
         "ServerDiagnosticConfig": {
             "wlst_type": "ServerDiagnosticConfig",
-            "online_bean": "unknown",
+            "online_bean": "weblogic.management.configuration.WLDFServerDiagnosticMBean",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "version": "[12.1.2,)",
             "folders": {},
