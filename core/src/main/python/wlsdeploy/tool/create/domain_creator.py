@@ -1157,8 +1157,10 @@ class DomainCreator(Creator):
 
             wlst_path = self.aliases.get_wlst_attributes_path(location)
             self.wlst_helper.cd(wlst_path)
-            orig_user = self.wlst_helper.get('Value')
-            schema_user = re.sub('^DEV_', rcu_prefix + '_', orig_user)
+
+            # Change the schema from the template and just change the prefix
+            template_schema_user = self.wlst_helper.get('Value')
+            schema_user = re.sub('^DEV_', rcu_prefix + '_', template_schema_user)
             wlst_name, wlst_value = \
                 self.aliases.get_wlst_attribute_name_and_value(location, DRIVER_PARAMS_PROPERTY_VALUE,
                                                                schema_user)
