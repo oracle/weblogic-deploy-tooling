@@ -121,6 +121,7 @@ class TopologyDiscoverer(Discoverer):
 
         model_folder_name, folder_result = self.get_managed_scheduled_executor_service()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+
         model_folder_name, folder_result = self._get_ws_securities()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
 
@@ -597,7 +598,31 @@ class TopologyDiscoverer(Discoverer):
         """
         _method_name = 'get_managed_scheduled_executor_service'
         _logger.entering(class_name=_class_name, method_name=_method_name)
-        model_top_folder_name = model_constants.MANAGED_THREAD_FACTORY_TEMPLATE
+        model_top_folder_name = model_constants.MANAGED_SCHEDULED_EXECUTOR_SERVICE
+        result = OrderedDict()
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        services = self._find_names_in_folder(location)
+        if services is not None:
+            _logger.info('WLSDPLY-06653', len(services), class_name=_class_name, method_name=_method_name)
+            name_token = self._aliases.get_name_token(location)
+            for service in services:
+                _logger.info('WLSDPLY-06654', service, class_name=_class_name, method_name=_method_name)
+                location.add_name_token(name_token, service)
+                result[service] = OrderedDict()
+                self._populate_model_parameters(result[service], location)
+                location.remove_name_token(name_token)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
+        return model_top_folder_name, result
+
+    def get_managed_thread_factory_template(self):
+        """
+        Discover the domain managed thread factory template
+        :return: model name for the folder: dictionary containing the discovered managed thread factory templates        """
+        _method_name = 'get_managed_thread_factory_template'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        model_top_folder_name = model_constants.MANAGED_SCHEDULED_EXECUTOR_SERVICE
         result = OrderedDict()
         location = LocationContext(self._base_location)
         location.append_location(model_top_folder_name)
@@ -614,7 +639,7 @@ class TopologyDiscoverer(Discoverer):
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
-
+    
     def _get_ws_securities(self):
         """
         Discover the Webservice Security configuration for the domain
