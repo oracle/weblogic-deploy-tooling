@@ -1071,9 +1071,6 @@ class DomainCreator(Creator):
         rcu_db_info = rcudbinfo_helper.create(self.model.get_model(), self.model_context, self.aliases)
 
         self.set_rcu_datasource_parameters(rcu_db_info)
-        if self.model_context.get_update_rcu_schema_pass() is True:
-            rcu_helper = RCUHelper(self.model, self.model_context, self.aliases, modifyBootStrapCredential=False)
-            rcu_helper.update_rcu_password()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
