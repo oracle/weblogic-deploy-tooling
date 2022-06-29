@@ -113,6 +113,14 @@ class TopologyDiscoverer(Discoverer):
         model_folder_name, folder_result = self._get_xml_registries()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
 
+        model_folder_name, folder_result = self.get_managed_executor_template()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+
+        model_folder_name, folder_result = self.get_managed_thread_factory_template()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+
+        model_folder_name, folder_result = self.get_managed_scheduled_executor_service()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self._get_ws_securities()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
 
@@ -318,6 +326,7 @@ class TopologyDiscoverer(Discoverer):
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self._get_nm_properties()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+
         model_folder_name, folder_result = self.discover_domain_mbean(model_constants.RESTFUL_MANAGEMENT_SERVICES)
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
 
@@ -427,6 +436,8 @@ class TopologyDiscoverer(Discoverer):
             self._populate_model_parameters(result, location)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return model_top_folder_name, result
+
+
 
     def _get_log_filters(self):
         """
@@ -548,6 +559,57 @@ class TopologyDiscoverer(Discoverer):
                 location.add_name_token(name_token, registry)
                 result[registry] = OrderedDict()
                 self._populate_model_parameters(result[registry], location)
+                location.remove_name_token(name_token)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
+        return model_top_folder_name, result
+
+    def get_managed_executor_template(self):
+        """
+        Discover the domain managed executor template
+        :return: model name for the folder: dictionary containing the discovered managed executor template
+        """
+        _method_name = 'get_managed_executor_template'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        model_top_folder_name = model_constants.MANAGED_EXECUTOR_SERVICE_TEMPLATE
+        result = OrderedDict()
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        templates = self._find_names_in_folder(location)
+        if templates is not None:
+            _logger.info('WLSDPLY-06651', len(templates), class_name=_class_name, method_name=_method_name)
+            name_token = self._aliases.get_name_token(location)
+            for template in templates:
+                _logger.info('WLSDPLY-06652', template, class_name=_class_name, method_name=_method_name)
+                location.add_name_token(name_token, template)
+                result[template] = OrderedDict()
+                self._populate_model_parameters(result[template], location)
+                location.remove_name_token(name_token)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
+        return model_top_folder_name, result
+
+
+    def get_managed_scheduled_executor_service(self):
+        """
+        Discover the domain managed scheduled executor service
+        :return: model name for the folder: dictionary containing the discovered managed scheduled executor
+        """
+        _method_name = 'get_managed_scheduled_executor_service'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        model_top_folder_name = model_constants.MANAGED_THREAD_FACTORY_TEMPLATE
+        result = OrderedDict()
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        factories = self._find_names_in_folder(location)
+        if factories is not None:
+            _logger.info('WLSDPLY-06655', len(factories), class_name=_class_name, method_name=_method_name)
+            name_token = self._aliases.get_name_token(location)
+            for factory in factories:
+                _logger.info('WLSDPLY-06656', factory, class_name=_class_name, method_name=_method_name)
+                location.add_name_token(name_token, factory)
+                result[factory] = OrderedDict()
+                self._populate_model_parameters(result[factory], location)
                 location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
