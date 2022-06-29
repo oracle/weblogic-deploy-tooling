@@ -1,0 +1,22 @@
+{
+  "copyright": "Copyright (c) 2022, Oracle Corporation and/or its affiliates.",
+  "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
+  "wlst_type": "ManagedExecutorServiceTemplate${:s}",
+  "child_folders_type": "multiple",
+  "version": "[12.2.1,)",
+  "short_name": "ManagedESTemplate",
+  "folders": {},
+  "attributes": {
+    "DispatchPolicy":                      [ {"version": "[12.2.1,)",       "wlst_mode": "both",   "wlst_name": "DispatchPolicy",                    "wlst_path": "WP001",  "default_value": "",    "wlst_type": "string"} ],
+    "LongRunningPriority":                 [ {"version": "[12.2.1,)",       "wlst_mode": "both",   "wlst_name": "LongRunningPriority",               "wlst_path": "WP001",  "default_value": 5,     "wlst_type": "integer"} ],
+    "MaxConcurrentLongRunningRequests":    [ {"version": "[12.2.1,)",       "wlst_mode": "both",   "wlst_name": "MaxConcurrentLongRunningRequests",  "wlst_path": "WP001",  "default_value": 10,    "wlst_type": "integer"} ],
+    "Notes":                               [ {"version": "[12.2.1,)",       "wlst_mode": "both",   "wlst_name": "Notes",                             "wlst_path": "WP001",  "default_value": null,   "wlst_type": "string"} ],
+    "Target":                              [ {"version": "[12.2.1,)",       "wlst_mode": "offline", "wlst_name": "Target",                           "wlst_path": "WP001",  "default_value": null,   "wlst_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans" },
+                                             {"version": "[12.2.1,)",       "wlst_mode": "online",  "wlst_name": "Targets",                          "wlst_path": "WP002",  "default_value": null,   "wlst_type": "jarray",          "get_method": "GET", "preferred_model_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ]
+  },
+  "wlst_attributes_path": "WP001",
+  "wlst_paths": {
+    "WP001": "/ManagedExecutorServiceTemplate${:s}/%MANAGEDEXECUTORSERVICETEMPLATE%",
+    "WP002": "/ManagedExecutorServiceTemplate${:s}/%MANAGEDEXECUTORSERVICETEMPLATE%/Targets"
+  }
+}

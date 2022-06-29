@@ -70,7 +70,32 @@
         "DataSource": {
             "wlst_type": "DataSource",
             "default_name_value": "${NO_NAME_0:%SERVER%}",
-            "folders": {},
+            "folders": {
+                "DataSourceLogFile": {
+                    "wlst_type": "DataSourceLogFile",
+                    "default_name_value": "${NO_NAME_0:%SERVER}",
+                    "folders": {},
+                    "attributes": {
+                        "BufferSizeKb":        [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "BufferSizeK${b:B}",    "wlst_path": "WP001", "default_value": 8,                                           "wlst_type": "integer"          } ],
+                        "DateFormatPattern":   [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "DateFormatPattern",    "wlst_path": "WP001", "default_value": "${null:MMM d, y, h:mm:ss,SSS a zzzz}",      "wlst_type": "string"           } ],
+                        "FileCount":           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "FileCount",            "wlst_path": "WP001", "default_value": 7,                                           "wlst_type": "integer"          } ],
+                        "FileMinSize":         [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "FileMinSize",          "wlst_path": "WP001", "default_value": 500,                                         "wlst_type": "integer"          } ],
+                        "FileName":            [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "FileName",             "wlst_path": "WP001", "default_value": "${null:logs/datasource}",                   "wlst_type": "string"           } ],
+                        "FileTimeSpan":        [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "FileTimeSpan",         "wlst_path": "WP001", "default_value": 24,                                          "wlst_type": "integer"          } ],
+                        "FileTimeSpanFactor":  [ {"version": "[10,)",       "wlst_mode": "offline", "wlst_name": "FileTimeSpanFactor",   "wlst_path": "WP001", "default_value": 3600000,                                     "wlst_type": "long"             } ],
+                        "LogFileRotationDir":  [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "LogFileRotationDir",   "wlst_path": "WP001", "default_value": null,                                        "wlst_type": "string"           } ],
+                        "Notes":               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                "wlst_path": "WP001", "default_value": null,                                        "wlst_type": "string"           } ],
+                        "NumberOfFilesLimited":[ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "NumberOfFilesLimited", "wlst_path": "WP001", "default_value": true,                                        "wlst_type": "boolean"          } ],
+                        "RotateLogOnStartup":  [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "RotateLogOnStartup",   "wlst_path": "WP001", "default_value": true,                                        "wlst_type": "boolean"          } ],
+                        "RotationTime":        [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "RotationTime",         "wlst_path": "WP001", "default_value": "00:00",                                     "wlst_type": "string"           } ],
+                        "RotationType":        [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "RotationType",         "wlst_path": "WP001", "default_value": "bySize",                                    "wlst_type": "string"           } ]
+                    },
+                    "wlst_attributes_path": "WP001",
+                    "wlst_paths": {
+                        "WP001": "/Server${:s}/%SERVER%/DataSource/%DATASOURCE%/DataSourceLogFile/%DATASOURCELOGFILE%"
+                    }
+                }
+            },
             "attributes": {
                 "DefaultDatasource": [ {"version": "[12.2.1,)",   "wlst_mode": "both",    "wlst_name": "DefaultDatasource", "wlst_path": "WP001", "default_value": null,                   "wlst_type": "string",          "restart_required": "true" } ],
                 "DeploymentOrder":   [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "DeploymentOrder",   "wlst_path": "WP001", "default_value": 1000,                   "wlst_type": "integer"          } ],
