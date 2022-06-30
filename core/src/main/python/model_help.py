@@ -155,6 +155,9 @@ def parse_dir_command_cd_path(model_path, command_str):
       first_token = command_str
     elif slash_pos > 0:
       first_token = command_str[:slash_pos]
+    else:
+      first_token = "/"
+
     if first_token in model.get_model_top_level_keys():
       command_str = '/' + command_str
 
@@ -238,9 +241,10 @@ def interactive_help_print_path(printer, model_path, history):
         history.append(model_path)
 
     except CLAException, ex:
+      print("")
       print("Error getting '" + model_path + "': " + ex.getLocalizedMessage())
+      print("")
       interactive_help_print_short_instructions()
-
 
 def interactive_help_print_short_instructions():
     """
@@ -288,10 +292,13 @@ def interactive_help_process_command(printer, model_path, command_str, history):
 
     elif command_str == 'history':
       for line in history:
+        print("")
         print(line)
 
     elif command_str.count(' ') > 1:
+      print("")
       print("Syntax error '" + command_str + "'")
+      print("")
       interactive_help_print_short_instructions()
 
     elif command_str == 'ls' or command_str == 'cd' or command_str == 'top' or command_str.startswith('cd '):
@@ -300,7 +307,9 @@ def interactive_help_process_command(printer, model_path, command_str, history):
       interactive_help_print_path(printer, model_path, history)
 
     elif command_str:
+      print("")
       print("Unknown command '" + command_str + "'")
+      print("")
       interactive_help_print_short_instructions()
 
 
@@ -317,8 +326,6 @@ def interactive_help_main_loop(model_path, printer):
 
     # setup starting history
     history = ['top']
-    if history[-1] != model_path:
-      history.append(model_path)
 
     # optionally get input from file instead of stdin (undocumented feature)
     input_file_name = os.environ.get('WDT_INTERACTIVE_MODE_INPUT_FILE')
@@ -326,18 +333,27 @@ def interactive_help_main_loop(model_path, printer):
     if input_file_name:
       input_file = open(input_file_name, "r")
 
+    # initial command (seeded from the command line)
+    command_str = "cd " + model_path
+
+    print("")
     interactive_help_print_short_instructions()
+    print("")
+    print("Starting with '" + command_str + "'.")
 
     while True:
-
-      command_str = interactive_help_prompt(model_path, input_file)
-
       if command_str == 'exit':
         break
 
-      interactive_help_process_command(printer, model_path, command_str, history)
+      # the "process command" prints the help (or error) for the command_str 
+      # plus appends a new path to the history if the str specifies a successful directory change
 
-      model_path = history[-1]
+      interactive_help_process_command(printer, history[-1], command_str, history)
+      print("")
+
+      # get the next command (from either stdin, or the input_file if input_file is set)
+
+      command_str = interactive_help_prompt(history[-1], input_file)
 
     __logger.exiting(class_name=_class_name, method_name=_method_name)
 
