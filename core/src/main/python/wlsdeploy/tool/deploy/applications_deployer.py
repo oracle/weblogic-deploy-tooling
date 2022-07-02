@@ -671,7 +671,12 @@ class ApplicationsDeployer(Deployer):
                                 existing_app_targets = dictionary_utils.get_element(existing_app_ref, 'target')
                                 existing_app_targets_set = Set(existing_app_targets)
 
-                                if existing_app_targets_set.issuperset(model_targets_set):
+                                if existing_app_targets_set == model_targets_set:
+                                    self.logger.info('WLSDPLY-09336', src_path,
+                                                     class_name=self._class_name, method_name=_method_name)
+                                    if versioned_name not in stop_and_undeploy_app_list:
+                                        stop_and_undeploy_app_list.append(versioned_name)
+                                elif existing_app_targets_set.issuperset(model_targets_set):
                                     self.__remove_app_from_deployment(model_apps, app)
                                 else:
                                     # Adjust the targets to only the new targets so that existing apps on
@@ -685,8 +690,7 @@ class ApplicationsDeployer(Deployer):
                                     if app_dict['SourcePath'] is None and src_path is not None:
                                         app_dict['SourcePath'] = src_path
                             else:
-                                self.logger.info('WLSDPLY-09336', src_path,
-                                                 class_name=self._class_name, method_name=_method_name)
+                                # same hash but different path, so redeploy it
                                 if versioned_name not in stop_and_undeploy_app_list:
                                     stop_and_undeploy_app_list.append(versioned_name)
                         else:
