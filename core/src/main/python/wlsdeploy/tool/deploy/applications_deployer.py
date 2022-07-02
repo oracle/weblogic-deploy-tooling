@@ -672,6 +672,7 @@ class ApplicationsDeployer(Deployer):
                                 existing_app_targets_set = Set(existing_app_targets)
 
                                 if existing_app_targets_set == model_targets_set:
+                                    # redeploy the app if everything is the same
                                     self.logger.info('WLSDPLY-09336', src_path,
                                                      class_name=self._class_name, method_name=_method_name)
                                     if versioned_name not in stop_and_undeploy_app_list:
