@@ -405,13 +405,6 @@ class ApplicationsDeployer(Deployer):
                 absolute_planpath = attributes_map['AbsolutePlanPath']
                 config_targets = self.__get_config_targets()
 
-                # AppRuntimeStateRuntime/AppRuntimeStateRuntime always return the app even if not targeted
-                # skip as if it is not there
-                if len(config_targets) == 0:
-                    continue
-                # There are case in application where absolute source path is not set but sourepath is
-                # if source path is not absolute then we need to add the domain path
-
                 if absolute_planpath is None:
                     absolute_planpath = attributes_map['PlanPath']
 
@@ -666,8 +659,8 @@ class ApplicationsDeployer(Deployer):
                     existing_plan_hash = self.__get_file_hash(plan_path)
                     if model_src_hash == existing_src_hash:
                         if model_plan_hash == existing_plan_hash:
-                            if not (os.path.isabs(src_path) and os.path.isabs(model_src_path) and
-                                    FileUtils.getCanonicalPath(src_path) == FileUtils.getCanonicalPath(model_src_path)):
+                            if (FileUtils.getCanonicalPath(src_path) == FileUtils.getCanonicalPath(model_src_path)):
+
                                 # If model hashes match existing hashes, the application did not change.
                                 # Unless targets were added, there's no need to redeploy.
                                 # If it is an absolute path, there is nothing to compare so assume redeploy
