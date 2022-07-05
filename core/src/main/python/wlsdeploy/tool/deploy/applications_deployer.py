@@ -679,7 +679,6 @@ class ApplicationsDeployer(Deployer):
                                 existing_app_targets = dictionary_utils.get_element(existing_app_ref, 'target')
                                 existing_app_targets_set = Set(existing_app_targets)
 
-
                                 if existing_app_targets_set == model_targets_set and len(existing_app_targets_set) > 0:
                                     # redeploy the app if everything is the same
                                     self.logger.info('WLSDPLY-09336', src_path,
