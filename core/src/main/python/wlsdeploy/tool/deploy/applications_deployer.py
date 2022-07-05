@@ -678,7 +678,7 @@ class ApplicationsDeployer(Deployer):
                                     if versioned_name not in stop_and_undeploy_app_list:
                                         stop_and_undeploy_app_list.append(versioned_name)
                                 elif existing_app_targets_set.issuperset(model_targets_set):
-                                    self.__remove_app_from_deployment(model_apps, app)
+                                    self.__remove_app_from_deployment(model_apps, app, "superset")
                                 else:
                                     # Adjust the targets to only the new targets so that existing apps on
                                     # already targeted servers are not impacted.
@@ -831,9 +831,14 @@ class ApplicationsDeployer(Deployer):
             adjusted_targets = ','.join(adjusted_set)
             model_libs[lib][TARGET] = adjusted_targets
 
-    def __remove_app_from_deployment(self, model_dict, app_name):
-        self.logger.info('WLSDPLY-09337', app_name,
-                         class_name=self._class_name, method_name='remove_app_from_deployment')
+    def __remove_app_from_deployment(self, model_dict, app_name, reason="delete"):
+        if "delete" == reason:
+            self.logger.info('WLSDPLY-09337', app_name,
+                             class_name=self._class_name, method_name='remove_app_from_deployment')
+        elif "superset" == reason:
+            self.logger.info('WLSDPLY-09338', app_name,
+                             class_name=self._class_name, method_name='remove_app_from_deployment')
+
         model_dict.pop(app_name)
 
     def __remove_lib_from_deployment(self, model_dict, lib_name):
