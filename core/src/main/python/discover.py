@@ -367,6 +367,7 @@ def __disconnect_domain(helper):
     _method_name = '__disconnect_domain'
 
     __logger.entering(class_name=_class_name, method_name=_method_name)
+
     if __wlst_mode == WlstModes.ONLINE:
         try:
             helper.disconnect()
@@ -571,7 +572,6 @@ def main(args):
     :return:
     """
     _method_name = 'main'
-
     __logger.entering(class_name=_class_name, method_name=_method_name)
     for index, arg in enumerate(args):
         __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
@@ -638,4 +638,8 @@ def main(args):
 
 if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    main(sys.argv)
+    try:
+        main(sys.argv)
+    except:
+        exception_helper.__handleUnexpectedException(sys.exc_info(), _program_name, _class_name, __logger)
+

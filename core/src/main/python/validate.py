@@ -196,4 +196,7 @@ def main(args):
 
 if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    main(sys.argv)
+    try:
+        main(sys.argv)
+    except:
+        exception_helper.__handleUnexpectedException(sys.exc_info(), _program_name, _class_name, __logger)

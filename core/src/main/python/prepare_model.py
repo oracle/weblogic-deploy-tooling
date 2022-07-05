@@ -15,6 +15,7 @@ from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 
 from oracle.weblogic.deploy.prepare import PrepareException
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.prepare.model_preparer import ModelPreparer
 from wlsdeploy.tool.util import model_context_helper
@@ -109,4 +110,7 @@ def main():
 
 if __name__ == "__main__" or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    main()
+    try:
+        main()
+    except:
+        exception_helper.__handleUnexpectedException(sys.exc_info(), _program_name, _class_name, __logger)

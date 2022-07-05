@@ -31,6 +31,8 @@ import oracle.weblogic.deploy.validate.ValidateException as ValidateException
 import oracle.weblogic.deploy.yaml.YamlException as JYamlException
 
 from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util import tool_exit
 
 _EXCEPTION_TYPE_MAP = {
     ExceptionType.ALIAS:                 'create_alias_exception',
@@ -462,3 +464,29 @@ def _return_exception_params(*args, **kwargs):
     arg_list = list(args)
     error = kwargs.pop('error', None)
     return arg_list, error
+
+def __log_and_exit(logger, exit_code, class_name):
+    """
+    Helper method to log the exiting message and call sys.exit()
+    :param logger:  the logger to use
+    :param exit_code: the exit code to use
+    :param class_name: the class name to pass  to the logger
+    """
+    logger.exiting(result=exit_code, class_name=class_name, method_name=None)
+    tool_exit.end(None, exit_code)
+
+def __handleUnexpectedException(ex, program_name, class_name, logger):
+    """
+    Helper method to log and unexpected exception with exiting message and call sys.exit()
+    Note that the user sees the 'Unexpected' message along with the exception, but no stack trace.
+    The stack trace goes to the log
+    :param ex:  the exception thrown
+    :param program_name: the program where it occurred
+    :param class_name: the class where it occurred
+    :param logger: the logger to use
+    """
+    exc_type, exc_obj, exc_tb = sys.exc_info()
+    ee_string = traceback.format_exception(exc_type, exc_obj, exc_tb)
+    logger.severe('WLSDPLY-20035', program_name, exc_obj)
+    logger.finer('WLSDPLY-20036', program_name, ee_string)
+    __log_and_exit(logger, CommandLineArgUtil.PROG_ERROR_EXIT_CODE, class_name)
