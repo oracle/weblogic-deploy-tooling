@@ -11,7 +11,6 @@ from java.io import File
 from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import IllegalStateException
-from java.lang import RuntimeException
 from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.discover import DiscoverException
 from oracle.weblogic.deploy.json import JsonException
