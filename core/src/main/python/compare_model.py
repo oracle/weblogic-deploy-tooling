@@ -350,5 +350,5 @@ def format_message(key, *args):
 if __name__ == "__main__":
     try:
         main()
-    except:
-        exception_helper.__handleUnexpectedException(sys.exc_info(), _program_name, _class_name,  _logger)
+    except Exception, ex:
+        exception_helper.__handleUnexpectedException(ex, _program_name, _class_name,  _logger)

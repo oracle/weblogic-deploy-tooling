@@ -485,8 +485,6 @@ def __handleUnexpectedException(ex, program_name, class_name, logger):
     :param class_name: the class where it occurred
     :param logger: the logger to use
     """
-    exc_type, exc_obj, exc_tb = sys.exc_info()
-    ee_string = traceback.format_exception(exc_type, exc_obj, exc_tb)
-    logger.severe('WLSDPLY-20035', program_name, exc_obj)
-    logger.finer('WLSDPLY-20036', program_name, ee_string)
+    logger.severe('WLSDPLY-20035', program_name, ex)
+    logger.finer('WLSDPLY-20036', program_name, ex.stackTrace)
     __log_and_exit(logger, CommandLineArgUtil.PROG_ERROR_EXIT_CODE, class_name)
