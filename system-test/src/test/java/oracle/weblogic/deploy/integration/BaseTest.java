@@ -28,6 +28,7 @@ public class BaseTest {
     private static final PlatformLogger logger = WLSDeployLogFactory.getLogger("integration.tests");
     protected static final String FS = File.separator;
     private static final String SAMPLE_ARCHIVE_FILE = "archive.zip";
+    private static final String UPDATED_SAMPLE_ARCHIVE_FILE = "archive2.zip";
     private static final String WDT_ZIPFILE = "weblogic-deploy.zip";
     private static final String WDT_HOME_DIR = "weblogic-deploy";
     protected static final String SAMPLE_MODEL_FILE_PREFIX = "simple-topology";
@@ -195,8 +196,18 @@ public class BaseTest {
         return executeAndVerify(command);
     }
 
+    protected static CommandResult updateSampleArchive() throws Exception {
+        logger.info("Update WDT archive ...");
+        String command = "sh " + getResourcePath() + FS + "update-archive.sh";
+        return executeAndVerify(command);
+    }
+
     protected static String getSampleArchiveFile() {
         return getGeneratedResourcePath() + FS + SAMPLE_ARCHIVE_FILE;
+    }
+
+    protected static String getUpdatedSampleArchiveFile() {
+        return getGeneratedResourcePath() + FS + UPDATED_SAMPLE_ARCHIVE_FILE;
     }
 
     protected static String getSampleModelFile(String suffix) {
