@@ -4,6 +4,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The entry point for the discoverDomain tool.
 """
+import exceptions
 import os
 import sys
 
@@ -11,6 +12,7 @@ from java.io import File
 from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import IllegalStateException
+from java.lang import Throwable
 from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.discover import DiscoverException
 from oracle.weblogic.deploy.json import JsonException
@@ -234,6 +236,7 @@ def __discover(model_context, aliases, credential_injector, helper):
     model = Model()
     base_location = LocationContext()
     __connect_to_domain(model_context, helper)
+
     try:
         _add_domain_name(base_location, aliases, helper)
         DomainInfoDiscoverer(model_context, model.get_model_domain_info(), base_location, wlst_mode=__wlst_mode,
@@ -640,6 +643,6 @@ if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
     try:
         main(sys.argv)
-    except Exception, ex:
+    except (exceptions.Exception, Throwable), ex:
         exception_helper.__handleUnexpectedException(ex, _program_name, _class_name, __logger)
 

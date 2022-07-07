@@ -486,5 +486,13 @@ def __handleUnexpectedException(ex, program_name, class_name, logger):
     :param logger: the logger to use
     """
     logger.severe('WLSDPLY-20035', program_name, ex)
-    logger.finer('WLSDPLY-20036', program_name, ex.stackTrace)
+
+    if hasattr(ex, 'stackTrace'):
+        # this works best for java exceptions, and gets the full stacktrace all the way back to weblogic.WLST
+        logger.finer('WLSDPLY-20036', program_name, ex.stackTrace)
+    else:
+        # this is for Python exceptions
+        # Note: since this is Python 2, it seems we can only get the traceback object via sys.exc_info, and of course only
+        # while in the except block handling code
+        logger.finer('WLSDPLY-20036', program_name, traceback.format_exception(type(ex), ex, sys.exc_info()[2]))
     __log_and_exit(logger, CommandLineArgUtil.PROG_ERROR_EXIT_CODE, class_name)

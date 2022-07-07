@@ -11,6 +11,7 @@
 #
 #   If the flag is not provided then all output is written to the standard out.
 #
+import exceptions
 import os
 import sets
 import sys
@@ -21,6 +22,7 @@ import java.io.FileOutputStream as JFileOutputStream
 import java.io.IOException as JIOException
 import java.io.PrintWriter as JPrintWriter
 from java.lang import System
+from java.lang import Throwable
 from oracle.weblogic.deploy.compare import CompareException
 from oracle.weblogic.deploy.exception import ExceptionHelper
 from oracle.weblogic.deploy.util import CLAException
@@ -350,5 +352,5 @@ def format_message(key, *args):
 if __name__ == "__main__":
     try:
         main()
-    except Exception, ex:
+    except (exceptions.Exception, Throwable), ex:
         exception_helper.__handleUnexpectedException(ex, _program_name, _class_name,  _logger)
