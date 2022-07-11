@@ -134,55 +134,59 @@ def parse_dir_command_simple(model_path, command_str):
     return '/'
 
 
-def parse_dir_command_cd_path(model_path, command_str):
+def parse_dir_command_cd_path(aliases, model_path, command_str):
     """
     helper function to process interactive help command 'cd [path]'
+    :param aliases: aliases
     :param model_path: the starting model path before the command
     :param command_str: the command
     :return: the resulting path (an absolute canonical path)
     """
 
-    canonical_path = canonical_path_from_model_path(model_path)
-
-    command_str = command_str[3:]
-    command_str = command_str.replace(':','')
+    command_str = command_str[3:].replace(':','').strip()
     while command_str.endswith('/'):
       command_str = command_str[:-1]
+    while command_str.replace('//','/') != command_str:
+      command_str = command_str.replace('//','/')
+    if command_str.startswith('top/'):
+      command_str = command_str[3:]
+    while command_str.startswith('/top/'):
+      command_str = command_str[4:]
 
-    # if first token is a section name, make it an absolute path
-    slash_pos = command_str.find('/')
-    if slash_pos == -1:
-      first_token = command_str
-    elif slash_pos > 0:
-      first_token = command_str[:slash_pos]
-    else:
-      first_token = "/"
-
-    if first_token in model.get_model_top_level_keys():
-      command_str = '/' + command_str
-
-    # if first token is 'top' treat it like its starting absolute path
-    if first_token == 'top':
-      if slash_pos > 0:
-        command_str = command_str[3:]
-      else:
-        command_str = '/'
-
-    if not command_str:
+    if not command_str or command_str == 'top' or command_str == '/':
       return '/'
 
+    tokens = command_str.split('/')
+
+    if tokens[0] in model.get_model_top_level_keys():
+      # if first token is a section name, make it an absolute path
+      return '/' + command_str
+
     if command_str.startswith('/'):
+      # starts with '/' so there must be a second token (tokens[1])
+
+      # if "/" + not-a-section + ..., then try guess section and prepend it in
+      if tokens[1] not in model.get_model_top_level_keys():
+        for section_name in model.get_model_top_level_keys():
+          if tokens[1] in aliases.get_model_section_top_level_folder_names(section_name):
+            command_str = '/' + section_name + command_str
+
       return command_str
 
-    if canonical_path == '/':
+    # this is a relative path, so append it to the current path
+
+    canonical_path = canonical_path_from_model_path(model_path)
+
+    if canonical_path == "/":
       return "/" + command_str
 
     return canonical_path + "/" + command_str
 
 
-def parse_dir_command_all(model_path, command_str):
+def parse_dir_command_all(aliases, model_path, command_str):
     """
     helper function to process interactive help commands 'cd [path]', 'cd ..', 'cd', 'top', or 'ls'
+    :param aliases: aliases
     :param model_path: the starting model path before the command
     :param command_str: the command
     :return: the resulting path (an absolute canonical path)
@@ -191,7 +195,7 @@ def parse_dir_command_all(model_path, command_str):
     if command_str == 'cd ..' or command_str == 'cd' or command_str == 'top' or command_str == 'ls':
       return parse_dir_command_simple(model_path, command_str)
     else:
-      return parse_dir_command_cd_path(model_path, command_str) # handle 'cd [path]'
+      return parse_dir_command_cd_path(aliases, model_path, command_str) # handle 'cd [path]'
 
 
 def interactive_help_prompt(model_path, input_file):
@@ -264,6 +268,7 @@ def interactive_help_print_full_instructions():
     print("  top, cd, cd /, cd top   - go to \"top\"")
     print("  cd x[/[...]]            - relative change (go to child location x...)")
     print("  cd section[:/[...]]     - absolute change (go to exact section and location)")
+    print("  cd /folder[/...]        - find section that contains the folder and go there")
     print("  cd ..                   - go up")
     print("  history                 - history of visited locations")
     print("  exit                    - exit")
@@ -272,15 +277,18 @@ def interactive_help_print_full_instructions():
     print("")
     print("  " + str(', '.join(model.get_model_top_level_keys())))
     print("")
-    print("Example:")
+    print("Examples:")
     print("")
+    print("  cd topology")
     print("  cd topology:/Server/Log/StdoutSeverity")
+    print("  cd /Server/Log/StdoutSeverity")
     print("")
 
 
-def interactive_help_process_command(printer, model_path, command_str, history):
+def interactive_help_process_command(aliases, printer, model_path, command_str, history):
     """
     Process an interactive help command.
+    :param aliases: aliases
     :param printer: a model help printer
     :param model_path: current model path before applying command
     :param history: current history, a new model path added is added if command changes it
@@ -302,7 +310,7 @@ def interactive_help_process_command(printer, model_path, command_str, history):
       interactive_help_print_short_instructions()
 
     elif command_str == 'ls' or command_str == 'cd' or command_str == 'top' or command_str.startswith('cd '):
-      canonical_path = parse_dir_command_all(model_path, command_str)
+      canonical_path = parse_dir_command_all(aliases, model_path, command_str)
       model_path = model_path_from_canonical_path(canonical_path)
       interactive_help_print_path(printer, model_path, history)
 
@@ -313,9 +321,10 @@ def interactive_help_process_command(printer, model_path, command_str, history):
       interactive_help_print_short_instructions()
 
 
-def interactive_help_main_loop(model_path, printer):
+def interactive_help_main_loop(aliases, model_path, printer):
     """
     Runs the interactive help.
+    :param aliases: aliases
     :param model_path: the model path to start with
     :param printer: a model help printer
     :return: returns when user types 'exit'
@@ -348,7 +357,7 @@ def interactive_help_main_loop(model_path, printer):
       # the "process command" prints the help (or error) for the command_str 
       # plus appends a new path to the history if the str specifies a successful directory change
 
-      interactive_help_process_command(printer, history[-1], command_str, history)
+      interactive_help_process_command(aliases, printer, history[-1], command_str, history)
       print("")
 
       # get the next command (from either stdin, or the input_file if input_file is set)
@@ -385,7 +394,7 @@ def print_help(model_path, model_context):
     printer = ModelHelpPrinter(aliases, __logger)
 
     if model_context.get_interactive_mode_option():
-      interactive_help_main_loop(model_path, printer)
+      interactive_help_main_loop(aliases, model_path, printer)
     else:
       printer.print_model_help(model_path, control_option)
 
