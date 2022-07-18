@@ -62,7 +62,7 @@ public class WLSDeployArchive {
      * Top-level archive subdirectory where the applications are stored and the subdirectory to which
      * they will be extracted. This is for structured applications found under /app
      */
-    public static final String ARCHIVE_APPS_FOLD_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/application_folder";
+    public static final String ARCHIVE_APPS_FOLD_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/applicationsFolder";
 
     /**
      * Top-level archive subdirectory where the shared libraries are stored and the subdirectory to
@@ -620,12 +620,11 @@ public class WLSDeployArchive {
         final String METHOD = "addApplicationFolder";
         LOGGER.entering(CLASS, METHOD, appName, appPath);
         File zipPath = new File(appPath);
-        if (zipPath.getParentFile() != null)
-        {
+        if (zipPath.getParentFile() != null) {
             zipPath = zipPath.getParentFile();
         }
-        String firstprefix = ARCHIVE_APPS_FOLD_TARGET_DIR + "/" + appName + "/" + zipPath.getName();
-        String newName = walkDownFolders(firstprefix, zipPath);
+        String firstPrefix = ARCHIVE_APPS_FOLD_TARGET_DIR + "/" + appName + "/" + zipPath.getName();
+        String newName = walkDownFolders(firstPrefix, zipPath);
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
     }
@@ -635,11 +634,11 @@ public class WLSDeployArchive {
         final String METHOD = "addApplicationPathFolder";
         LOGGER.entering(CLASS, METHOD, appName, planDir);
         File zipPlan = new File(planDir);
-        String zipprefix = ARCHIVE_APPS_FOLD_TARGET_DIR + "/" + appName + "/" + zipPlan.getName();
-        String newName = walkDownFolders(zipprefix, zipPlan);
+        String zipPrefix = ARCHIVE_APPS_FOLD_TARGET_DIR + "/" + appName + "/" + zipPlan.getName();
+        String newName = walkDownFolders(zipPrefix, zipPlan);
 
         LOGGER.exiting(CLASS, METHOD, newName);
-        return zipprefix;
+        return zipPrefix;
     }
 
     /**
@@ -717,7 +716,7 @@ public class WLSDeployArchive {
 
         String appPath = applicationPath;
         if (!applicationPath.startsWith(ARCHIVE_APPS_FOLD_TARGET_DIR) &&
-                !applicationPath.startsWith(ARCHIVE_APPS_TARGET_DIR)) {
+            !applicationPath.startsWith(ARCHIVE_APPS_TARGET_DIR)) {
             appPath = ARCHIVE_APPS_TARGET_DIR + ZIP_SEP + applicationPath;
         }
         extractFileFromZip(appPath, domainHome);
@@ -1877,13 +1876,16 @@ public class WLSDeployArchive {
         return inputStream;
     }
 
-    private String walkDownFolders(String zipprefix, File zipPath) throws WLSDeployArchiveIOException {
+    private String walkDownFolders(String zipPrefix, File zipPath) throws WLSDeployArchiveIOException {
         String newSourceName = null;
         if (zipPath != null) {
-            for (File item : zipPath.listFiles()) {
-                newSourceName = addItemToZip(zipprefix, item);
-                if (item.isDirectory()) {
-                    walkDownFolders(zipprefix + "/" + item.getName(), item);
+            File[] fileList = zipPath.listFiles();
+            if (fileList != null) {
+                for (File item : fileList) {
+                    newSourceName = addItemToZip(zipPrefix, item);
+                    if (item.isDirectory()) {
+                        walkDownFolders(zipPrefix + "/" + item.getName(), item);
+                    }
                 }
             }
         }

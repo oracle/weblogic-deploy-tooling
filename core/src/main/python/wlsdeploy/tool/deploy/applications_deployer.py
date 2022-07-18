@@ -1136,9 +1136,6 @@ class ApplicationsDeployer(Deployer):
             element = elements.item(0)
             element.setNodeValue(plan_dir)
             element.setTextContent(plan_dir)
-            # document.appendChild(element)
-
-            #new_element.setAttribute("config-root")
             ostream = FileOutputStream(plan_file)
             transformer_factory = TransformerFactory.newInstance()
             transformer = transformer_factory.newTransformer()
