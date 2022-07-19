@@ -204,7 +204,7 @@ class ApplicationsDeployer(Deployer):
             self._set_attributes_and_add_subfolders(application_location, application)
             application_location.remove_name_token(application_token)
 
-            if app_source_path.startswith(WLSDeployArchive.ARCHIVE_APPS_FOLD_TARGET_DIR):
+            if app_source_path.startswith(WLSDeployArchive.ARCHIVE_STRUCT_APPS_TARGET_DIR):
                 plan_dir = dictionary_utils.get_element(application, PLAN_DIR)
                 self._fix_plan_file(plan_dir)
 
@@ -643,7 +643,7 @@ class ApplicationsDeployer(Deployer):
                     if param in app_dict:
                         self.model_context.replace_tokens(APPLICATION, app, param, app_dict)
 
-                    if param == SOURCE_PATH and param.startswith(WLSDeployArchive.ARCHIVE_APPS_FOLD_TARGET_DIR):
+                    if param == SOURCE_PATH and param.startswith(WLSDeployArchive.ARCHIVE_STRUCT_APPS_TARGET_DIR):
                         plan_dir = dictionary_utils.get_element(app, PLAN_DIR)
                         self._fix_plan_file(plan_dir)
 
