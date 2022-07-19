@@ -475,7 +475,7 @@ def __log_and_exit(logger, exit_code, class_name):
     logger.exiting(result=exit_code, class_name=class_name, method_name=None)
     tool_exit.end(None, exit_code)
 
-def __handleUnexpectedException(ex, program_name, class_name, logger):
+def __handle_unexpected_exception(ex, program_name, class_name, logger):
     """
     Helper method to log and unexpected exception with exiting message and call sys.exit()
     Note that the user sees the 'Unexpected' message along with the exception, but no stack trace.

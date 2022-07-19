@@ -645,4 +645,4 @@ if __name__ == '__main__' or __name__ == 'main':
     except exceptions.SystemExit, ex:
         raise ex
     except (exceptions.Exception, java.lang.Exception), ex:
-        exception_helper.__handleUnexpectedException(ex, _program_name, _class_name, __logger)
+        exception_helper.__handle_unexpected_exception(ex, _program_name, _class_name, __logger)
