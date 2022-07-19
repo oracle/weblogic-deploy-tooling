@@ -11,6 +11,7 @@
 #
 #   If the flag is not provided then all output is written to the standard out.
 #
+import exceptions
 import os
 import sets
 import sys
@@ -348,4 +349,9 @@ def format_message(key, *args):
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except exceptions.SystemExit, ex:
+        raise ex
+    except (exceptions.Exception, java.lang.Exception), ex:
+        exception_helper.__handle_unexpected_exception(ex, _program_name, _class_name,  _logger)

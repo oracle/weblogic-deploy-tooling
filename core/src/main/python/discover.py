@@ -4,6 +4,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The entry point for the discoverDomain tool.
 """
+import exceptions
 import os
 import sys
 
@@ -234,6 +235,7 @@ def __discover(model_context, aliases, credential_injector, helper):
     model = Model()
     base_location = LocationContext()
     __connect_to_domain(model_context, helper)
+
     try:
         _add_domain_name(base_location, aliases, helper)
         DomainInfoDiscoverer(model_context, model.get_model_domain_info(), base_location, wlst_mode=__wlst_mode,
@@ -367,6 +369,7 @@ def __disconnect_domain(helper):
     _method_name = '__disconnect_domain'
 
     __logger.entering(class_name=_class_name, method_name=_method_name)
+
     if __wlst_mode == WlstModes.ONLINE:
         try:
             helper.disconnect()
@@ -571,7 +574,6 @@ def main(args):
     :return:
     """
     _method_name = 'main'
-
     __logger.entering(class_name=_class_name, method_name=_method_name)
     for index, arg in enumerate(args):
         __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
@@ -638,4 +640,9 @@ def main(args):
 
 if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    main(sys.argv)
+    try:
+        main(sys.argv)
+    except exceptions.SystemExit, ex:
+        raise ex
+    except (exceptions.Exception, java.lang.Exception), ex:
+        exception_helper.__handle_unexpected_exception(ex, _program_name, _class_name, __logger)

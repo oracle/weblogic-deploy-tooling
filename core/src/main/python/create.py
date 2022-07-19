@@ -4,8 +4,10 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The main module for the WLSDeploy tool to create empty domains.
 """
+import exceptions
 import os
 import sys
+
 from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import String
@@ -376,4 +378,9 @@ def main(args):
 
 if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    main(sys.argv)
+    try:
+        main(sys.argv)
+    except exceptions.SystemExit, ex:
+        raise ex
+    except (exceptions.Exception, java.lang.Exception), ex:
+        exception_helper.__handle_unexpected_exception(ex, _program_name, _class_name, __logger)

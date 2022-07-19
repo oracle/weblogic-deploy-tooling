@@ -4,6 +4,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The entry point for the deployApps tool.
 """
+import exceptions
 import os
 import sys
 
@@ -17,6 +18,7 @@ sys.path.insert(0, os.path.dirname(os.path.realpath(sys.argv[0])))
 # imports from local packages start here
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
@@ -258,4 +260,9 @@ def main(args):
 
 if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    main(sys.argv)
+    try:
+        main(sys.argv)
+    except exceptions.SystemExit, ex:
+        raise ex
+    except (exceptions.Exception, java.lang.Exception), ex:
+        exception_helper.__handle_unexpected_exception(ex, _program_name, _class_name, __logger)

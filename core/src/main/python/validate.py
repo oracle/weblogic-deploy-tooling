@@ -4,8 +4,11 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The WLS Deploy tooling entry point for the validateModel tool.
 """
+
 import copy
+import exceptions
 import sys
+
 from java.util.logging import Level
 
 from oracle.weblogic.deploy.logging import WLSDeployLogEndHandler
@@ -196,4 +199,9 @@ def main(args):
 
 if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    main(sys.argv)
+    try:
+        main(sys.argv)
+    except exceptions.SystemExit, ex:
+        raise ex
+    except (exceptions.Exception, java.lang.Exception), ex:
+        exception_helper.__handle_unexpected_exception(ex, _program_name, _class_name, __logger)

@@ -7,14 +7,16 @@
 #
 #   This code prepare a list of models for deploying to WebLogic Kubernetes Operator Environment.
 
+import exceptions
+import sys
 import traceback
 
-import sys
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 
 from oracle.weblogic.deploy.prepare import PrepareException
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.prepare.model_preparer import ModelPreparer
 from wlsdeploy.tool.util import model_context_helper
@@ -109,4 +111,9 @@ def main():
 
 if __name__ == "__main__" or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    main()
+    try:
+        main()
+    except exceptions.SystemExit, ex:
+        raise ex
+    except (exceptions.Exception, java.lang.Exception), ex:
+        exception_helper.__handle_unexpected_exception(ex, _program_name, _class_name, __logger)
