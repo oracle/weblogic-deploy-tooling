@@ -351,5 +351,7 @@ def format_message(key, *args):
 if __name__ == "__main__":
     try:
         main()
+    except exceptions.SystemExit, ex:
+        raise ex
     except (exceptions.Exception, java.lang.Exception), ex:
         exception_helper.__handleUnexpectedException(ex, _program_name, _class_name,  _logger)

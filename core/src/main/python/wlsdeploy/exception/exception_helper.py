@@ -485,7 +485,7 @@ def __handleUnexpectedException(ex, program_name, class_name, logger):
     :param class_name: the class where it occurred
     :param logger: the logger to use
     """
-    logger.severe('WLSDPLY-20035', program_name, ex)
+    logger.severe('WLSDPLY-20035', program_name, sys.exc_info()[0])
 
     if hasattr(ex, 'stackTrace'):
         # this works best for java exceptions, and gets the full stacktrace all the way back to weblogic.WLST
