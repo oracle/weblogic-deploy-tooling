@@ -12,7 +12,6 @@ from java.io import File
 from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import IllegalStateException
-from java.lang import Throwable
 from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.discover import DiscoverException
 from oracle.weblogic.deploy.json import JsonException
@@ -643,6 +642,6 @@ if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
     try:
         main(sys.argv)
-    except (exceptions.Exception, Throwable), ex:
+    except (exceptions.Exception, java.lang.Exception), ex:
         exception_helper.__handleUnexpectedException(ex, _program_name, _class_name, __logger)
 

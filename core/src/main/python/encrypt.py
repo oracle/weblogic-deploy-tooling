@@ -8,7 +8,7 @@ import exceptions
 import sys
 
 from java.io import IOException
-from java.lang import String, System, Throwable
+from java.lang import String, System
 
 from oracle.weblogic.deploy.encrypt import EncryptionException
 from oracle.weblogic.deploy.util import CLAException
@@ -256,5 +256,5 @@ if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
     try:
         main(sys.argv)
-    except (exceptions.Exception, Throwable), ex:
+    except (exceptions.Exception, java.lang.Exception), ex:
         exception_helper.__handleUnexpectedException(ex, _program_name, _class_name, __logger)

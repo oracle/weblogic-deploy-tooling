@@ -9,7 +9,6 @@ import copy
 import exceptions
 import sys
 
-from java.lang import Throwable
 from java.util.logging import Level
 
 from oracle.weblogic.deploy.logging import WLSDeployLogEndHandler
@@ -202,5 +201,5 @@ if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
     try:
         main(sys.argv)
-    except (exceptions.Exception, Throwable), ex:
+    except (exceptions.Exception, java.lang.Exception), ex:
         exception_helper.__handleUnexpectedException(ex, _program_name, _class_name, __logger)
