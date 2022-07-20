@@ -26,9 +26,17 @@ from wlsdeploy.aliases.model_constants import SSL_ADMIN_USER
 from wlsdeploy.aliases.model_constants import SSL_TNS_ENTRY
 from wlsdeploy.aliases.model_constants import USE_ATP
 from wlsdeploy.aliases.model_constants import USE_SSL
+from wlsdeploy.aliases.model_constants import DATABASE_TYPE
+from wlsdeploy.aliases.model_constants import RCU_DEFAULT_TBLSPACE
+from wlsdeploy.aliases.model_constants import RCU_TEMP_TBLSPACE
+from wlsdeploy.aliases.model_constants import RCU_TNS_ALIAS
+from wlsdeploy.aliases.model_constants import RCU_CONNECTION_PROPERTIES
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.model_context import ModelContext
+from wlsdeploy.logging.platform_logger import PlatformLogger
 
+__logger = PlatformLogger('wlsdeploy.util')
+_class_name = 'rcudbinfo_helper'
 
 class RcuDbInfo(object):
     """
@@ -42,6 +50,36 @@ class RcuDbInfo(object):
         self.aliases = aliases
         self.rcu_properties_map = rcu_properties_map
 
+    def get_database_type(self):
+        type = dictionary_utils.get_element(self.rcu_properties_map, DATABASE_TYPE)
+        if type is None:
+            return 'ORACLE'
+        else:
+            return type
+
+    def get_rcu_default_tablespace(self):
+        type = dictionary_utils.get_element(self.rcu_properties_map, RCU_DEFAULT_TBLSPACE)
+        if type is None:
+            if self.is_use_atp():
+                return 'DATA'
+            else:  # for both SSL and ORACLE
+                return 'USERS'
+        else:
+            return type
+
+    def get_rcu_temp_tablespace(self):
+        type = dictionary_utils.get_element(self.rcu_properties_map, RCU_TEMP_TBLSPACE)
+        if type is None:
+            return 'TEMP'
+        else:
+            return type
+
+    def get_rcu_tns_alias(self):
+        return dictionary_utils.get_element(self.rcu_properties_map, RCU_TNS_ALIAS)
+
+    def get_rcu_connection_properties(self):
+        return dictionary_utils.get_element(self.rcu_properties_map, RCU_CONNECTION_PROPERTIES)
+
     def get_atp_tns_admin(self):
         return dictionary_utils.get_element(self.rcu_properties_map, DRIVER_PARAMS_NET_TNS_ADMIN)
 
@@ -49,10 +87,16 @@ class RcuDbInfo(object):
         return dictionary_utils.get_element(self.rcu_properties_map, DRIVER_PARAMS_NET_TNS_ADMIN)
 
     def get_atp_entry(self):
-        return dictionary_utils.get_element(self.rcu_properties_map, ATP_TNS_ENTRY)
+        if ATP_TNS_ENTRY in self.rcu_properties_map:
+            return dictionary_utils.get_element(self.rcu_properties_map, ATP_TNS_ENTRY)
+        elif self.get_rcu_tns_alias() is not None:
+            return self.get_rcu_tns_alias()
 
     def get_ssl_entry(self):
-        return dictionary_utils.get_element(self.rcu_properties_map, SSL_TNS_ENTRY)
+        if SSL_TNS_ENTRY in self.rcu_properties_map:
+           return dictionary_utils.get_element(self.rcu_properties_map, SSL_TNS_ENTRY)
+        elif self.get_rcu_tns_alias() is not None:
+            return self.get_rcu_tns_alias()
 
     def get_rcu_prefix(self):
         return dictionary_utils.get_element(self.rcu_properties_map, RCU_PREFIX)
@@ -83,26 +127,46 @@ class RcuDbInfo(object):
         return dictionary_utils.get_element(self.rcu_properties_map, RCU_DB_CONN)
 
     def get_atp_default_tablespace(self):
+        _method_name = 'get_atp_default_tablespace'
         if ATP_DEFAULT_TABLESPACE in self.rcu_properties_map:
+            self._logger.info('WLSDPLY-22000', ATP_DEFAULT_TABLESPACE, RCU_DEFAULT_TBLSPACE,
+                              class_name=_class_name, method_name=_method_name)
             return self.rcu_properties_map[ATP_DEFAULT_TABLESPACE]
+        elif self.get_rcu_default_tablespace() is not None:
+            return self.get_rcu_default_tablespace()
         else:
-            return 'DATA'
+            return self.get_rcu_default_tablespace()
 
     def get_atp_temporary_tablespace(self):
+        _method_name = 'get_atp_temp_tablespace'
         if ATP_TEMPORARY_TABLESPACE in self.rcu_properties_map:
+            self._logger.info('WLSDPLY-22000', ATP_TEMPORARY_TABLESPACE, RCU_TEMP_TBLSPACE,
+                              class_name=_class_name, method_name=_method_name)
             return self.rcu_properties_map[ATP_TEMPORARY_TABLESPACE]
+        elif self.get_rcu_temp_tablespace() is not None:
+            return self.get_rcu_temp_tablespace()
         else:
             return 'TEMP'
 
     def get_atp_admin_user(self):
+        _method_name = 'get_atp_admin_user'
         if ATP_ADMIN_USER in self.rcu_properties_map:
+            self._logger.info('WLSDPLY-22000', ATP_ADMIN_USER, RCU_DB_USER,
+                              class_name=_class_name, method_name=_method_name)
             return self.rcu_properties_map[ATP_ADMIN_USER]
+        elif self.get_rcu_db_user() is not None:
+            return self.get_rcu_db_user()
         else:
             return 'admin'
 
     def get_ssl_admin_user(self):
+        _method_name = 'get_ssl_admin_user'
         if SSL_ADMIN_USER in self.rcu_properties_map:
+            self._logger.info('WLSDPLY-22000', SSL_ADMIN_USER, RCU_DB_USER,
+                              class_name=_class_name, method_name=_method_name)
             return self.rcu_properties_map[SSL_ADMIN_USER]
+        elif self.get_rcu_db_user() is not None:
+            return self.get_rcu_db_user()
         else:
             return 'admin'
 
@@ -140,12 +204,10 @@ class RcuDbInfo(object):
         return self.is_use_ssl()
 
     def is_regular_db(self):
-        is_regular = 0
-        if not self.is_use_atp():
-            is_regular = 1
         if RCU_DB_CONN in self.rcu_properties_map:
-            is_regular = 1
-        return is_regular
+            if self.get_database_type() == 'ORACLE' and  not (self.is_use_atp() or self.is_use_ssl()):
+                return True
+        return False
 
     def is_use_atp(self):
         """
@@ -154,22 +216,29 @@ class RcuDbInfo(object):
         The default when not specified is False.
         :return: True if the model value is present and indicates true, False otherwise
         """
+        _method_name = 'is_use_atp'
         if USE_ATP in self.rcu_properties_map:
+            self._logger.info('WLSDPLY-22000', USE_ATP, DATABASE_TYPE,
+                                                        class_name=_class_name, method_name=_method_name)
             model_value = self.rcu_properties_map[USE_ATP]
             value = alias_utils.convert_to_type('boolean', model_value)
             return value == 'true'
-        return False
+
+        return self.get_database_type() == 'ATP'
 
     def is_use_ssl(self):
         """
         Determine if the RCU DB info uses SSL.user
         :return: True if the model value is present and set to true
         """
+        _method_name = 'is_use_ssl'
         if USE_SSL in self.rcu_properties_map:
+            self._logger.info('WLSDPLY-22000', USE_ATP, DATABASE_TYPE,
+                              class_name=_class_name, method_name=_method_name)
             model_value = self.rcu_properties_map[USE_SSL]
             value = alias_utils.convert_to_type('boolean', model_value)
             return value == 'true'
-        return False
+        return self.get_database_type() == 'SSL'
         
     def get_preferred_db(self):
         """

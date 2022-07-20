@@ -283,6 +283,9 @@ class DomainCreator(Creator):
         rcu_sys_pass = rcu_db_info.get_preferred_sys_pass()
         rcu_schema_pass = rcu_db_info.get_preferred_schema_pass()
 
+        print 'DEBUG'
+        print rcu_db_info.get_rcu_connection_properties()
+
         if rcu_db_info.is_use_atp():
             # ATP database, build runner map from RCUDbInfo in the model.
 
