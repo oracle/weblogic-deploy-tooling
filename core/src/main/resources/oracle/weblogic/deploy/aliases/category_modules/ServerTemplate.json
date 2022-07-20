@@ -2,12 +2,14 @@
     "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "ServerTemplate${:s}",
+    "online_bean": "weblogic.management.configuration.ServerTemplateMBean",
     "version": "[12.1.2,)",
     "child_folders_type": "multiple",
     "short_name": "ServerTemp",
     "folders": {
         "CoherenceMemberConfig": {
             "wlst_type": "CoherenceMemberConfig",
+            "online_bean": "weblogic.management.configuration.CoherenceMemberConfigMBean",
             "version": "[12.1.2,)",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "folders": {},
@@ -34,6 +36,7 @@
         },
         "COM": {
             "wlst_type": "COM",
+            "online_bean": "weblogic.management.configuration.COMMBean",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "version": "[12.1.2,)",
             "folders": {},
@@ -64,6 +67,7 @@
 
             },
             "wlst_type" : "ConfigurationPropert${y:ies}",
+            "online_bean": "weblogic.management.configuration.ConfigurationPropertyMBean",
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
                 "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/ConfigurationPropert${y:ies}/%PROPERTY_NAME%"
@@ -71,6 +75,7 @@
         },
         "DataSource": {
             "wlst_type": "DataSource",
+            "online_bean": "weblogic.management.configuration.DataSourceMBean",
             "version": "[12.1.2,)",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "folders": {
@@ -115,6 +120,7 @@
         },
         "DefaultFileStore": {
             "wlst_type": "DefaultFileStore",
+            "online_bean": "weblogic.management.configuration.DefaultFileStoreMBean",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "version": "[12.1.2,)",
             "folders": {},
@@ -138,6 +144,7 @@
         },
         "ExecuteQueue": {
             "wlst_type": "ExecuteQueue${:s}",
+            "online_bean": "weblogic.management.configuration.ExecuteQueueMBean",
             "child_folders_type": "multiple",
             "version": "[12.1.2,)",
             "folders": {},
@@ -159,6 +166,7 @@
         },
         "FederationServices" : {
             "wlst_type" : "FederationServices",
+            "online_bean": "weblogic.management.configuration.FederationServicesMBean",
             "version" : "[12.2.1,)",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "folders" : {},
@@ -197,6 +205,7 @@
         },
         "IIOP": {
             "wlst_type": "IIOP",
+            "online_bean": "weblogic.management.configuration.IIOPMBean",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "version": "[12.1.2,)",
             "folders": {},
@@ -225,6 +234,7 @@
         },
         "JTAMigratableTarget": {
             "wlst_type": "JTAMigratableTarget",
+            "online_bean": "weblogic.management.configuration.JTAMigratableTargetMBean",
             "version": "[12.1.2,)",
             "default_name_value": "${serverName}",
             "folders": {},
@@ -259,6 +269,7 @@
         },
         "Log": {
             "wlst_type": "Log",
+            "online_bean": "weblogic.management.configuration.LogMBean",
             "default_name_value": "${serverName}",
             "version": "[12.1.2,)",
             "folders": {},
@@ -314,6 +325,7 @@
         },
         "NetworkAccessPoint": {
             "wlst_type": "NetworkAccessPoint${:s}",
+            "online_bean": "weblogic.management.configuration.NetworkAccessPointMBean",
             "child_folders_type": "multiple",
             "version": "[12.1.2,)",
             "folders": {},
@@ -385,11 +397,13 @@
         },
         "OverloadProtection": {
             "wlst_type": "OverloadProtection",
+            "online_bean": "weblogic.management.configuration.OverloadProtectionMBean",
             "version": "[12.1.2,)",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "folders": {
                 "ServerFailureTrigger": {
                     "wlst_type": "ServerFailureTrigger",
+                    "online_bean": "weblogic.management.configuration.ServerFailureTriggerMBean",
                     "version": "[12.1.2,)",
                     "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
                     "folders": {},
@@ -420,11 +434,13 @@
         },
         "ServerDebug": {
             "wlst_type": "ServerDebug",
+            "online_bean": "weblogic.management.configuration.ServerDebugMBean",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "version": "[12.1.2,)",
             "folders": {
                 "DebugScope": {
                     "wlst_type": "DebugScope${:s}",
+                    "online_bean": "weblogic.management.configuration.DebugScopeMBean",
                     "child_folders_type": "multiple",
                     "folders": {},
                     "attributes": {
@@ -936,6 +952,7 @@
         },
         "ServerDiagnosticConfig": {
             "wlst_type": "ServerDiagnosticConfig",
+            "online_bean": "weblogic.management.configuration.WLDFServerDiagnosticMBean",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "version": "[12.1.2,)",
             "folders": {},
@@ -979,6 +996,7 @@
         },
         "ServerStart": {
             "wlst_type": "ServerStart",
+            "online_bean": "weblogic.management.configuration.ServerStartMBean",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "version": "[12.1.2,)",
             "folders": {},
@@ -1005,6 +1023,7 @@
         },
         "SingleSignOnServices" : {
             "wlst_type" : "SingleSignOnServices",
+            "online_bean": "weblogic.management.configuration.SingleSignOnServicesMBean",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "version" : "[12.2.1,)",
             "folders" : {},
@@ -1068,6 +1087,7 @@
         },
         "SSL": {
             "wlst_type": "SSL",
+            "online_bean": "weblogic.management.configuration.SSLMBean",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "version": "[12.1.2,)",
             "short_name": "SSL",
@@ -1131,6 +1151,7 @@
         },
         "TransactionLogJDBCStore": {
             "wlst_type": "TransactionLogJDBCStore",
+            "online_bean": "weblogic.management.configuration.TransactionLogJDBCStoreMBean",
             "version": "[12.1.2,)",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "folders": {},
@@ -1181,11 +1202,13 @@
         },
         "WebServer": {
             "wlst_type": "WebServer",
+            "online_bean": "weblogic.management.configuration.WebServerMBean",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "version": "[12.1.2,)",
             "folders": {
                 "WebServerLog": {
                     "wlst_type": "WebServerLog",
+                    "online_bean": "weblogic.management.configuration.WebServerLogMBean",
                     "default_name_value": "%WEBSERVER%",
                     "version": "[12.1.2,)",
                     "folders": {},
@@ -1260,11 +1283,13 @@
         },
         "WebService": {
             "wlst_type": "WebService",
+            "online_bean": "weblogic.management.configuration.WebServiceMBean",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "version": "[12.1.2,)",
             "folders": {
                 "WebServiceReliability": {
                     "wlst_type": "WebServiceReliability",
+                    "online_bean": "weblogic.management.configuration.WebServiceReliabilityMBean",
                     "version": "[12.1.2,)",
                     "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
                     "folders": {},
@@ -1285,11 +1310,13 @@
                 },
                 "WebServicePersistence": {
                     "wlst_type": "WebServicePersistence",
+                    "online_bean": "weblogic.management.configuration.WebServicePersistenceMBean",
                     "version": "[12.1.2,)",
                     "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
                     "folders": {
                         "WebServiceLogicalStore": {
                             "wlst_type": "WebServiceLogicalStore${:s}",
+                            "online_bean": "weblogic.management.configuration.WebServiceLogicalStoreMBean",
                             "child_folders_type": "multiple",
                             "version": "[12.1.2,)",
                             "folders": {},
@@ -1309,6 +1336,7 @@
                         },
                         "WebServicePhysicalStore": {
                             "wlst_type": "WebServicePhysicalStore${:s}",
+                            "online_bean": "weblogic.management.configuration.WebServicePhysicalStoreMBean",
                             "child_folders_type": "multiple",
                             "version": "[12.1.2,)",
                             "folders": {},
@@ -1336,11 +1364,13 @@
                 },
                 "WebServiceBuffering": {
                     "wlst_type": "WebServiceBuffering",
+                    "online_bean": "weblogic.management.configuration.WebServiceBufferingMBean",
                     "version": "[12.1.2,)",
                     "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
                     "folders": {
                         "WebServiceRequestBufferingQueue": {
                             "wlst_type": "WebServiceRequestBufferingQueue",
+                            "online_bean": "weblogic.management.configuration.WebServiceRequestBufferingQueueMBean",
                             "version": "[12.1.2,)",
                             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
                             "folders": {},
@@ -1357,6 +1387,7 @@
                         },
                         "WebServiceResponseBufferingQueue": {
                             "wlst_type": "WebServiceResponseBufferingQueue",
+                            "online_bean": "weblogic.management.configuration.WebServiceResponseBufferingQueueMBean",
                             "version": "[12.1.2,)",
                             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
                             "folders": {},
@@ -1384,6 +1415,7 @@
                 },
                 "WebServiceResiliency": {
                     "wlst_type": "WebServiceResiliency",
+                    "online_bean": "weblogic.management.configuration.WebServiceResiliencyMBean",
                     "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
                     "version": "[12.2.1.4,)",
                     "folders": {},

@@ -2,11 +2,13 @@
     "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "SelfTuning",
+    "online_bean": "weblogic.management.configuration.SelfTuningMBean",
     "default_name_value": "${NO_NAME_0:%DOMAIN%}",
     "short_name": "WorkManager",
     "folders": {
         "Capacity": {
             "wlst_type": "Capacit${y:ies}",
+            "online_bean": "weblogic.management.configuration.CapacityMBean",
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {
@@ -24,10 +26,12 @@
         },
         "ContextRequestClass": {
             "wlst_type": "ContextRequestClass${:es}",
+            "online_bean": "weblogic.management.configuration.ContextRequestClassMBean",
             "child_folders_type": "multiple",
             "folders": {
                 "ContextCase": {
                     "wlst_type": "ContextCase${:s}",
+                    "online_bean": "weblogic.management.configuration.ContextCaseMBean",
                     "child_folders_type": "multiple",
                     "folders": {},
                     "attributes": {
@@ -60,6 +64,7 @@
         },
         "FairShareRequestClass": {
             "wlst_type": "FairShareRequestClass${:es}",
+            "online_bean": "weblogic.management.configuration.FairShareRequestClassMBean",
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {
@@ -77,6 +82,7 @@
         },
         "MaxThreadsConstraint": {
             "wlst_type": "MaxThreadsConstraint${:s}",
+            "online_bean": "weblogic.management.configuration.MaxThreadsConstraintMBean",
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {
@@ -96,6 +102,7 @@
         },
         "MinThreadsConstraint": {
             "wlst_type": "MinThreadsConstraint${:s}",
+            "online_bean": "weblogic.management.configuration.MinThreadsConstraintMBean",
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {
@@ -113,6 +120,7 @@
         },
         "ResponseTimeRequestClass": {
             "wlst_type": "ResponseTimeRequestClass${:es}",
+            "online_bean": "weblogic.management.configuration.ResponseTimeRequestClassMBean",
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {
@@ -130,10 +138,12 @@
         },
         "WorkManager": {
             "wlst_type": "WorkManager${:s}",
+            "online_bean": "weblogic.management.configuration.WorkManagerMBean",
             "child_folders_type": "multiple",
             "folders": {
                 "WorkManagerShutdownTrigger": {
                     "wlst_type": "WorkManagerShutdownTrigger",
+                    "online_bean": "weblogic.management.configuration.WorkManagerShutdownTriggerMBean",
                     "child_folders_type": "single",
                     "default_name_value": "${NO_NAME_0:%WORKMANAGER%}",
                     "folders": {},

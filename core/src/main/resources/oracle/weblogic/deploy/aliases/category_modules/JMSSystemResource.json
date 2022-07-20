@@ -2,11 +2,13 @@
       "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
       "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
       "wlst_type": "JMSSystemResource${:s}",
+      "online_bean": "weblogic.management.configuration.JMSSystemResourceMBean",
       "child_folders_type": "multiple",
       "short_name": "JMS",
       "folders": {
             "SubDeployment": {
                   "wlst_type": "SubDeployment${:s}",
+                  "online_bean": "weblogic.management.configuration.SubDeploymentMBean",
                   "child_folders_type": "multiple",
                   "folders": {},
                   "attributes": {
@@ -25,14 +27,17 @@
             },
             "JmsResource": {
                   "wlst_type": "${Jms:JMS}Resource",
+                  "online_bean": "weblogic.j2ee.descriptor.wl.JMSBean",
                   "default_name_value": "${NO_NAME_0:%JMSSYSTEMRESOURCE%}",
                   "folders": {
                         "ConnectionFactory": {
                               "wlst_type": "ConnectionFactor${y:ies}",
+                              "online_bean": "weblogic.j2ee.descriptor.wl.JMSConnectionFactoryBean",
                               "child_folders_type": "multiple",
                               "folders": {
                                     "ClientParams": {
                                           "wlst_type": "ClientParams",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.ClientParamsBean",
                                           "default_name_value": "${NO_NAME_0:%CONNECTIONFACTORY%}",
                                           "folders": {},
                                           "attributes": {
@@ -55,6 +60,7 @@
                                     },
                                     "DefaultDeliveryParams": {
                                           "wlst_type": "DefaultDeliveryParams",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.DefaultDeliveryParamsBean",
                                           "default_name_value": "${NO_NAME_0:%CONNECTIONFACTORY%}",
                                           "folders": {},
                                           "attributes": {
@@ -74,6 +80,7 @@
                                     },
                                     "FlowControlParams": {
                                           "wlst_type": "FlowControlParams",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.FlowControlParamsBean",
                                           "default_name_value": "${NO_NAME_0:%CONNECTIONFACTORY%}",
                                           "folders": {},
                                           "attributes": {
@@ -92,6 +99,7 @@
                                     },
                                     "LoadBalancingParams": {
                                           "wlst_type": "LoadBalancingParams",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.LoadBalancingParamsBean",
                                           "default_name_value": "${NO_NAME_0:%CONNECTIONFACTORY%}",
                                           "folders": {},
                                           "attributes": {
@@ -106,6 +114,7 @@
                                     },
                                     "SecurityParams": {
                                           "wlst_type": "SecurityParams",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.SecurityParamsBean",
                                           "default_name_value": "${NO_NAME_0:%CONNECTIONFACTORY%}",
                                           "folders": {},
                                           "attributes": {
@@ -119,6 +128,7 @@
                                     },
                                     "TransactionParams": {
                                           "wlst_type": "TransactionParams",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.TransactionParamsBean",
                                           "default_name_value": "${NO_NAME_0:%CONNECTIONFACTORY%}",
                                           "folders": {},
                                           "attributes": {
@@ -145,6 +155,7 @@
                         },
                         "DestinationKey": {
                               "wlst_type": "DestinationKey${:s}",
+                              "online_bean": "weblogic.j2ee.descriptor.wl.DestinationKeyBean",
                               "child_folders_type": "multiple",
                               "folders": {},
                               "attributes": {
@@ -160,10 +171,12 @@
                         },
                         "DistributedQueue": {
                               "wlst_type": "DistributedQueue${:s}",
+                              "online_bean": "weblogic.j2ee.descriptor.wl.DistributedQueueBean",
                               "child_folders_type": "multiple",
                               "folders": {
                                     "DistributedQueueMember": {
                                           "wlst_type": "DistributedQueueMember${:s}",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.DistributedDestinationMemberBean",
                                           "child_folders_type": "multiple",
                                           "folders": {},
                                           "attributes": {
@@ -195,10 +208,12 @@
                         },
                         "DistributedTopic": {
                               "wlst_type": "DistributedTopic${:s}",
+                              "online_bean": "weblogic.j2ee.descriptor.wl.DistributedTopicBean",
                               "child_folders_type": "multiple",
                               "folders": {
                                     "DistributedTopicMember": {
                                           "wlst_type": "DistributedTopicMember${:s}",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.DistributedDestinationMemberBean",
                                           "child_folders_type": "multiple",
                                           "folders": {},
                                           "attributes": {
@@ -228,10 +243,12 @@
                         },
                         "ForeignServer": {
                               "wlst_type": "ForeignServer${:s}",
+                              "online_bean": "weblogic.j2ee.descriptor.wl.ForeignServerBean",
                               "child_folders_type": "multiple",
                               "folders": {
                                     "ForeignConnectionFactory": {
                                           "wlst_type": "ForeignConnectionFactor${y:ies}",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.ForeignConnectionFactoryBean",
                                           "child_folders_type": "multiple",
                                           "folders": {},
                                           "attributes": {
@@ -250,6 +267,7 @@
                                     },
                                     "ForeignDestination": {
                                           "wlst_type": "ForeignDestination${:s}",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.ForeignDestinationBean",
                                           "child_folders_type": "multiple",
                                           "folders": {},
                                           "attributes": {
@@ -265,6 +283,7 @@
                                     },
                                     "JNDIProperty": {
                                           "wlst_type": "JNDIPropert${y:ies}",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.PropertyBean",
                                           "child_folders_type": "multiple",
                                           "folders": {},
                                           "attributes": {
@@ -293,10 +312,12 @@
                         },
                         "Queue": {
                               "wlst_type": "Queue${:s}",
+                              "online_bean": "weblogic.j2ee.descriptor.wl.QueueBean",
                               "child_folders_type": "multiple",
                               "folders": {
                                     "DeliveryFailureParams": {
                                           "wlst_type": "DeliveryFailureParams",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.DeliveryFailureParamsBean",
                                           "default_name_value": "${NO_NAME_0:%QUEUE%}",
                                           "folders": {},
                                           "attributes": {
@@ -312,6 +333,7 @@
                                     },
                                     "DeliveryParamsOverrides": {
                                           "wlst_type": "DeliveryParamsOverrides",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.DeliveryParamsOverridesBean",
                                           "default_name_value": "${NO_NAME_0:%QUEUE%}",
                                           "folders": {},
                                           "attributes": {
@@ -328,6 +350,7 @@
                                     },
                                     "MessageLoggingParams": {
                                           "wlst_type": "MessageLoggingParams",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.MessageLoggingParamsBean",
                                           "default_name_value": "${NO_NAME_0:%QUEUE%}",
                                           "folders": {},
                                           "attributes": {
@@ -341,6 +364,7 @@
                                     },
                                     "Thresholds": {
                                           "wlst_type": "Thresholds",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.ThresholdParamsBean",
                                           "default_name_value": "${NO_NAME_0:%QUEUE%}",
                                           "folders": {},
                                           "attributes": {
@@ -388,6 +412,7 @@
                         },
                         "Quota": {
                               "wlst_type": "Quota${:s}",
+                              "online_bean": "weblogic.j2ee.descriptor.wl.QuotaBean",
                               "child_folders_type": "multiple",
                               "folders": {},
                               "attributes": {
@@ -404,6 +429,7 @@
                         },
                         "SAFErrorHandling": {
                               "wlst_type": "SAFErrorHandling${:s}",
+                              "online_bean": "weblogic.j2ee.descriptor.wl.SAFErrorHandlingBean",
                               "child_folders_type": "multiple",
                               "folders": {},
                               "attributes": {
@@ -419,14 +445,17 @@
                         },
                         "SAFImportedDestinations": {
                               "wlst_type": "SAFImportedDestinations",
+                              "online_bean": "weblogic.j2ee.descriptor.wl.SAFImportedDestinationsBean",
                               "child_folders_type": "multiple",
                               "folders": {
                                     "SAFQueue": {
                                           "wlst_type": "SAFQueue${:s}",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.SAFQueueBean",
                                           "child_folders_type": "multiple",
                                           "folders": {
                                                 "MessageLoggingParams": {
                                                       "wlst_type": "MessageLoggingParams",
+                                                      "online_bean": "weblogic.j2ee.descriptor.wl.MessageLoggingParamsBean",
                                                       "default_name_value": "${NO_NAME_0:%SAFQUEUE%}",
                                                       "folders": {},
                                                       "attributes": {
@@ -458,10 +487,12 @@
                                     },
                                     "SAFTopic": {
                                           "wlst_type": "SAFTopic${:s}",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.SAFTopicBean",
                                           "child_folders_type": "multiple",
                                           "folders": {
                                                 "MessageLoggingParams": {
                                                       "wlst_type": "MessageLoggingParams",
+                                                      "online_bean": "weblogic.j2ee.descriptor.wl.MessageLoggingParamsBean",
                                                       "default_name_value": "${NO_NAME_0:%SAFTOPIC%}",
                                                       "folders": {},
                                                       "attributes": {
@@ -493,6 +524,7 @@
                                     },
                                     "MessageLoggingParams": {
                                           "wlst_type": "MessageLoggingParams",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.MessageLoggingParamsBean",
                                           "default_name_value": "${NO_NAME_0:%SAFIMPORTEDDESTINATION%}",
                                           "folders": {},
                                           "attributes": {
@@ -525,10 +557,12 @@
                         },
                         "SAFRemoteContext": {
                               "wlst_type": "SAFRemoteContext${:s}",
+                              "online_bean": "weblogic.j2ee.descriptor.wl.SAFRemoteContextBean",
                               "child_folders_type": "multiple",
                               "folders": {
                                     "SAFLoginContext": {
                                           "wlst_type": "SAFLoginContext",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.SAFLoginContextBean",
                                           "default_name_value": "${NO_NAME_0:%SAFREMOTECONTEXT%}",
                                           "folders": {},
                                           "attributes": {
@@ -554,10 +588,12 @@
                         },
                         "Template": {
                               "wlst_type": "Template${:s}",
+                              "online_bean": "weblogic.j2ee.descriptor.wl.TemplateBean",
                               "child_folders_type": "multiple",
                               "folders": {
                                     "DeliveryFailureParams": {
                                           "wlst_type": "DeliveryFailureParams",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.DeliveryFailureParamsBean",
                                           "default_name_value": "${NO_NAME_0:%TEMPLATE%}",
                                           "folders": {},
                                           "attributes": {
@@ -573,6 +609,7 @@
                                     },
                                     "DeliveryParamsOverrides": {
                                           "wlst_type": "DeliveryParamsOverrides",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.DeliveryParamsOverridesBean",
                                           "default_name_value": "${NO_NAME_0:%TEMPLATE%}",
                                           "folders": {},
                                           "attributes": {
@@ -589,6 +626,7 @@
                                     },
                                     "GroupParams": {
                                           "wlst_type": "GroupParams",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.GroupParamsBean",
                                           "child_folders_type": "multiple",
                                           "folders": {},
                                           "attributes": {
@@ -602,6 +640,7 @@
                                     },
                                     "MessageLoggingParams": {
                                           "wlst_type": "MessageLoggingParams",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.MessageLoggingParamsBean",
                                           "default_name_value": "${NO_NAME_0:%TEMPLATE%}",
                                           "folders": {},
                                           "attributes": {
@@ -615,6 +654,7 @@
                                     },
                                     "Multicast": {
                                           "wlst_type": "Multicast",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.MulticastParamsBean",
                                           "default_name_value": "${NO_NAME_0:%TEMPLATE%}",
                                           "folders": {},
                                           "attributes": {
@@ -631,6 +671,7 @@
                                     },
                                     "Thresholds": {
                                           "wlst_type": "Thresholds",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.ThresholdParamsBean",
                                           "default_name_value": "${NO_NAME_0:%TEMPLATE%}",
                                           "folders": {},
                                           "attributes": {
@@ -681,10 +722,12 @@
                         },
                         "Topic": {
                               "wlst_type": "Topic${:s}",
+                              "online_bean": "weblogic.j2ee.descriptor.wl.TopicBean",
                               "child_folders_type": "multiple",
                               "folders": {
                                     "DeliveryFailureParams": {
                                           "wlst_type": "DeliveryFailureParams",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.DeliveryFailureParamsBean",
                                           "default_name_value": "${NO_NAME_0:%TOPIC%}",
                                           "folders": {},
                                           "attributes": {
@@ -700,6 +743,7 @@
                                     },
                                     "DeliveryParamsOverrides": {
                                           "wlst_type": "DeliveryParamsOverrides",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.DeliveryParamsOverridesBean",
                                           "default_name_value": "${NO_NAME_0:%TOPIC%}",
                                           "folders": {},
                                           "attributes": {
@@ -716,6 +760,7 @@
                                     },
                                     "MessageLoggingParams": {
                                           "wlst_type": "MessageLoggingParams",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.MessageLoggingParamsBean",
                                           "default_name_value": "${NO_NAME_0:%TOPIC%}",
                                           "folders": {},
                                           "attributes": {
@@ -729,6 +774,7 @@
                                     },
                                     "Multicast": {
                                           "wlst_type": "Multicast",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.MulticastParamsBean",
                                           "default_name_value": "${NO_NAME_0:%TOPIC%}",
                                           "folders": {},
                                           "attributes": {
@@ -745,6 +791,7 @@
                                     },
                                     "Thresholds": {
                                           "wlst_type": "Thresholds",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.ThresholdParamsBean",
                                           "default_name_value": "${NO_NAME_0:%TOPIC%}",
                                           "folders": {},
                                           "attributes": {
@@ -804,10 +851,12 @@
                         },
                         "UniformDistributedQueue": {
                               "wlst_type": "UniformDistributedQueue${:s}",
+                              "online_bean": "weblogic.j2ee.descriptor.wl.UniformDistributedQueueBean",
                               "child_folders_type": "multiple",
                               "folders": {
                                     "DeliveryFailureParams": {
                                           "wlst_type": "DeliveryFailureParams",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.DeliveryFailureParamsBean",
                                           "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDQUEUE%}",
                                           "folders": {},
                                           "attributes": {
@@ -823,6 +872,7 @@
                                     },
                                     "DeliveryParamsOverrides": {
                                           "wlst_type": "DeliveryParamsOverrides",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.DeliveryParamsOverridesBean",
                                           "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDQUEUE%}",
                                           "folders": {},
                                           "attributes": {
@@ -839,6 +889,7 @@
                                     },
                                     "MessageLoggingParams": {
                                           "wlst_type": "MessageLoggingParams",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.MessageLoggingParamsBean",
                                           "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDQUEUE%}",
                                           "folders": {},
                                           "attributes": {
@@ -852,6 +903,7 @@
                                     },
                                     "Thresholds": {
                                           "wlst_type": "Thresholds",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.ThresholdParamsBean",
                                           "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDQUEUE%}",
                                           "folders": {},
                                           "attributes": {
@@ -913,10 +965,12 @@
                         },
                         "UniformDistributedTopic": {
                               "wlst_type": "UniformDistributedTopic${:s}",
+                              "online_bean": "weblogic.j2ee.descriptor.wl.UniformDistributedTopicBean",
                               "child_folders_type": "multiple",
                               "folders": {
                                     "DeliveryFailureParams": {
                                           "wlst_type": "DeliveryFailureParams",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.DeliveryFailureParamsBean",
                                           "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDTOPIC%}",
                                           "folders": {},
                                           "attributes": {
@@ -932,6 +986,7 @@
                                     },
                                     "DeliveryParamsOverrides": {
                                           "wlst_type": "DeliveryParamsOverrides",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.DeliveryParamsOverridesBean",
                                           "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDTOPIC%}",
                                           "folders": {},
                                           "attributes": {
@@ -948,6 +1003,7 @@
                                     },
                                     "MessageLoggingParams": {
                                           "wlst_type": "MessageLoggingParams",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.MessageLoggingParamsBean",
                                           "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDTOPIC%}",
                                           "folders": {},
                                           "attributes": {
@@ -961,6 +1017,7 @@
                                     },
                                     "Multicast": {
                                           "wlst_type": "Multicast",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.MulticastParamsBean",
                                           "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDTOPIC%}",
                                           "folders": {},
                                           "attributes": {
@@ -977,6 +1034,7 @@
                                     },
                                     "Thresholds": {
                                           "wlst_type": "Thresholds",
+                                          "online_bean": "weblogic.j2ee.descriptor.wl.ThresholdParamsBean",
                                           "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDTOPIC%}",
                                           "folders": {},
                                           "attributes": {

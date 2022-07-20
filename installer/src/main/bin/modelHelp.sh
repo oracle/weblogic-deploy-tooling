@@ -34,7 +34,7 @@ usage() {
   echo ""
   echo "Usage: $1 [-help]"
   echo "          [-oracle_home <oracle_home>]"
-  echo "          [-attributes_only | -folders_only | -recursive]"
+  echo "          [-attributes_only | -folders_only | -recursive | -interactive]"
   echo "          <model_path>"
   echo ""
   echo "    where:"
@@ -64,6 +64,9 @@ usage() {
   echo "    The -recursive switch will cause the tool to list only the folders"
   echo "    for the specified model path, and recursively include the folders below"
   echo "    that path."
+  echo ""
+  echo "    The -interactive switch will cause the tool to enter an interactive"
+  echo "    mode with the specified model path as your initial location."
   echo ""
 }
 
