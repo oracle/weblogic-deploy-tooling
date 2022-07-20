@@ -43,6 +43,7 @@ from wlsdeploy.util import getcreds
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.cla_utils import TOOL_TYPE_CREATE
+from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.tool.create import atp_helper
 from wlsdeploy.tool.create import ssl_helper
@@ -128,7 +129,7 @@ def __process_java_home_arg(optional_arg_map):
         try:
             java_home = FileUtils.validateExistingDirectory(java_home_name)
         except IllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-12400', _program_name, java_home_name,
                                                        iae.getLocalizedMessage(), error=iae)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -149,7 +150,7 @@ def __process_domain_location_args(optional_arg_map):
     has_parent = CommandLineArgUtil.DOMAIN_PARENT_SWITCH in optional_arg_map
 
     if (has_home and has_parent) or (not has_home and not has_parent):
-        ex = exception_helper.create_cla_exception(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE,
+        ex = exception_helper.create_cla_exception(ExitCode.USAGE_ERROR,
                                                    'WLSDPLY-20025', _program_name,
                                                    CommandLineArgUtil.DOMAIN_PARENT_SWITCH,
                                                    CommandLineArgUtil.DOMAIN_HOME_SWITCH)
@@ -183,7 +184,7 @@ def __process_rcu_args(optional_arg_map, domain_type, domain_typedef):
                     try:
                         password = getcreds.getpass('WLSDPLY-12403')
                     except IOException, ioe:
-                        ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                        ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                                    'WLSDPLY-12404', ioe.getLocalizedMessage(),
                                                                    error=ioe)
                         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -193,14 +194,14 @@ def __process_rcu_args(optional_arg_map, domain_type, domain_typedef):
                     try:
                         password = getcreds.getpass('WLSDPLY-12405')
                     except IOException, ioe:
-                        ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                        ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                                    'WLSDPLY-12406', ioe.getLocalizedMessage(),
                                                                    error=ioe)
                         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                         raise ex
                     optional_arg_map[CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH] = String(password)
             else:
-                ex = exception_helper.create_cla_exception(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE,
+                ex = exception_helper.create_cla_exception(ExitCode.USAGE_ERROR,
                                                            'WLSDPLY-12407', _program_name,
                                                            CommandLineArgUtil.RCU_DB_SWITCH,
                                                            CommandLineArgUtil.RCU_PREFIX_SWITCH)
@@ -223,7 +224,7 @@ def __process_opss_args(optional_arg_map):
         try:
             passphrase = getcreds.getpass('WLSDPLY-20027')
         except IOException, ioe:
-            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-20028', ioe.getLocalizedMessage(), error=ioe)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
@@ -259,7 +260,7 @@ def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
                     else:
                         __logger.severe('WLSDPLY-12411', error=None, class_name=_class_name, method_name=_method_name)
                         cla_helper.clean_up_temp_files()
-                        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+                        tool_exit.end(model_context, ExitCode.ERROR)
 
         else:
             if model_context.get_domain_typedef().required_rcu():
@@ -267,7 +268,7 @@ def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
                     __logger.severe('WLSDPLY-12408', model_context.get_domain_type(), CommandLineArgUtil.RCU_DB_SWITCH,
                                     CommandLineArgUtil.RCU_PREFIX_SWITCH)
                     cla_helper.clean_up_temp_files()
-                    tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+                    tool_exit.end(model_context, ExitCode.ERROR)
 
     return has_atpdbinfo, has_ssldbinfo
 
@@ -303,13 +304,13 @@ def main(args):
 
     WlstHelper(ExceptionType.CREATE).silence()
 
-    exit_code = CommandLineArgUtil.PROG_OK_EXIT_CODE
+    exit_code = ExitCode.OK
 
     try:
         model_context = __process_args(args)
     except CLAException, ex:
         exit_code = ex.getExitCode()
-        if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
+        if exit_code != ExitCode.HELP:
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
@@ -351,25 +352,25 @@ def main(args):
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+        tool_exit.end(model_context, ExitCode.ERROR)
 
     except CreateException, ex:
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+        tool_exit.end(model_context, ExitCode.ERROR)
 
     except IOException, ex:
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+        tool_exit.end(model_context, ExitCode.ERROR)
 
     except DeployException, ex:
         __logger.severe('WLSDPLY-12410', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+        tool_exit.end(model_context, ExitCode.ERROR)
 
     cla_helper.clean_up_temp_files()
 

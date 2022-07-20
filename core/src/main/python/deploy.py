@@ -29,6 +29,7 @@ from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -148,7 +149,7 @@ def __deploy_online(model, model_context, aliases):
 
     exit_code = deployer_utils.online_check_save_activate(model_context)
 
-    if exit_code != CommandLineArgUtil.PROG_CANCEL_CHANGES_IF_RESTART_EXIT_CODE:
+    if exit_code != ExitCode.CANCEL_CHANGES_IF_RESTART:
         model_deployer.deploy_applications(model, model_context, aliases, wlst_mode=__wlst_mode)
 
     try:
@@ -225,13 +226,13 @@ def main(args):
 
     __wlst_helper.silence()
 
-    exit_code = CommandLineArgUtil.PROG_OK_EXIT_CODE
+    exit_code = ExitCode.OK
 
     try:
         model_context = __process_args(args)
     except CLAException, ex:
         exit_code = ex.getExitCode()
-        if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
+        if exit_code != ExitCode.HELP:
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
@@ -251,7 +252,7 @@ def main(args):
         __logger.severe('WLSDPLY-09015', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+        tool_exit.end(model_context, ExitCode.ERROR)
 
     cla_helper.clean_up_temp_files()
 

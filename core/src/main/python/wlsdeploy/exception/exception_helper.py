@@ -31,7 +31,7 @@ import oracle.weblogic.deploy.validate.ValidateException as ValidateException
 import oracle.weblogic.deploy.yaml.YamlException as JYamlException
 
 from wlsdeploy.exception.expection_types import ExceptionType
-from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util import tool_exit
 
 _EXCEPTION_TYPE_MAP = {
@@ -495,4 +495,4 @@ def __handle_unexpected_exception(ex, program_name, class_name, logger):
         # Note: since this is Python 2, it seems we can only get the traceback object via sys.exc_info, and of course only
         # while in the except block handling code
         logger.finer('WLSDPLY-20036', program_name, traceback.format_exception(type(ex), ex, sys.exc_info()[2]))
-    __log_and_exit(logger, CommandLineArgUtil.PROG_ERROR_EXIT_CODE, class_name)
+    __log_and_exit(logger, ExitCode.ERROR, class_name)
