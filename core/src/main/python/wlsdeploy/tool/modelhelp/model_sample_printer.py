@@ -8,7 +8,7 @@ from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.tool.modelhelp import model_help_utils
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.exit_code import ExitCode
 
 from oracle.weblogic.deploy.util import WLSBeanHelp as WLSBeanHelp
 
@@ -266,7 +266,7 @@ class ModelSamplePrinter(object):
                 if (self._print_attribute_bean_help(attributes_location, 0, attribute)):
                     return
 
-        ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+        ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                    'WLSDPLY-10110', section_name + ':', attribute,
                                                    ', '.join(valid_section_folder_keys))
         self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -290,7 +290,7 @@ class ModelSamplePrinter(object):
             and self._print_attribute_bean_help(model_location, indent, token)):
             return
 
-        ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+        ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                    "WLSDPLY-05027", message)
         self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex

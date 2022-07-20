@@ -39,7 +39,7 @@ public class XPathUtil {
     }
 
     public XPathUtil() {
-        // for testing only
+        // for use by other types of docs
     }
 
     private static XPathFactory factory = null;

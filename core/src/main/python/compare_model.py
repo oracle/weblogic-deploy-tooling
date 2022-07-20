@@ -11,6 +11,7 @@
 #
 #   If the flag is not provided then all output is written to the standard out.
 #
+import exceptions
 import os
 import sets
 import sys
@@ -43,6 +44,7 @@ from wlsdeploy.util import cla_helper
 from wlsdeploy.util import validate_configuration
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
@@ -316,7 +318,7 @@ def main():
 
     except CLAException, ex:
         exit_code = 2
-        if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
+        if exit_code != ExitCode.HELP:
             _logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                            class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
@@ -348,4 +350,9 @@ def format_message(key, *args):
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except exceptions.SystemExit, ex:
+        raise ex
+    except (exceptions.Exception, java.lang.Exception), ex:
+        exception_helper.__handle_unexpected_exception(ex, _program_name, _class_name,  _logger)

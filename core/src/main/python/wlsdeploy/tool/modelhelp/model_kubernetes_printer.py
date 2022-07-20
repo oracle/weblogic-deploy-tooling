@@ -7,7 +7,8 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.extract import wko_schema_helper
 from wlsdeploy.tool.modelhelp import model_help_utils
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
-from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.exit_code import ExitCode
+
 
 class ModelKubernetesPrinter(object):
     """
@@ -75,7 +76,7 @@ class ModelKubernetesPrinter(object):
 
             valid_subfolder_keys = _get_folder_names(properties)
             if token not in valid_subfolder_keys:
-                ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                            "WLSDPLY-10111", model_path, token,
                                                            ', '.join(valid_subfolder_keys))
                 self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)

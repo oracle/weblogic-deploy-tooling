@@ -50,10 +50,7 @@ def update_from_model(output_dir, output_file_name, model):
     """
     _method_name = 'update_from_model'
 
-    # if model doesn't have kubernetes section, return
     kubernetes_content = model.get_model_kubernetes()
-    if not kubernetes_content:
-        return
 
     # failures will be logged as severe, but not cause tool failure.
     # this will allow the unaltered output file to be examined for problems.

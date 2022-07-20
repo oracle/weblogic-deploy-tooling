@@ -4,6 +4,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The entry point for the extractDomainResource tool.
 """
+import exceptions
 import sys
 
 from oracle.weblogic.deploy.deploy import DeployException
@@ -24,6 +25,7 @@ from wlsdeploy.util import tool_exit
 from wlsdeploy.util import validate_configuration
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.cla_utils import TOOL_TYPE_EXTRACT
+from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -87,7 +89,7 @@ def __process_args(args):
         __logger.warning('WLSDPLY-10040', CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH,
                          CommandLineArgUtil.OUTPUT_DIR_SWITCH, class_name=_class_name, method_name=_method_name)
     elif CommandLineArgUtil.OUTPUT_DIR_SWITCH not in argument_map:
-        ex = exception_helper.create_cla_exception(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE, 'WLSDPLY-20005',
+        ex = exception_helper.create_cla_exception(ExitCode.USAGE_ERROR, 'WLSDPLY-20005',
                                                    _program_name, CommandLineArgUtil.OUTPUT_DIR_SWITCH,
                                                    class_name=_class_name, method_name=_method_name)
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -122,13 +124,13 @@ def main(args):
     for index, arg in enumerate(args):
         __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
 
-    exit_code = CommandLineArgUtil.PROG_OK_EXIT_CODE
+    exit_code = ExitCode.OK
 
     try:
         model_context = __process_args(args)
     except CLAException, ex:
         exit_code = ex.getExitCode()
-        if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
+        if exit_code != ExitCode.HELP:
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
@@ -148,7 +150,7 @@ def main(args):
         __logger.severe('WLSDPLY-09015', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+        tool_exit.end(model_context, ExitCode.ERROR)
 
     cla_helper.clean_up_temp_files()
 
@@ -158,4 +160,9 @@ def main(args):
 
 if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    main(sys.argv)
+    try:
+        main(sys.argv)
+    except exceptions.SystemExit, ex:
+        raise ex
+    except (exceptions.Exception, java.lang.Exception), ex:
+        exception_helper.__handle_unexpected_exception(ex, _program_name, _class_name, __logger)
