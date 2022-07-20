@@ -133,54 +133,65 @@ def parse_dir_command_simple(model_path, command_str):
     # must be 'top' or 'cd'
     return '/'
 
+def add_section_if_missing(aliases, canonical_path, token):
+    """
+    helper function to try find and prepend section if missing
+    :param aliases: aliases
+    :param canonical_path: candidate canonical path starting with "/"
+    :param token: first token in canonical_path
+    :return: potentially updated canonical path
+    """
+
+    if token not in model.get_model_top_level_keys():
+      for section_name in model.get_model_top_level_keys():
+        if token in aliases.get_model_section_top_level_folder_names(section_name):
+          return '/' + section_name + canonical_path
+
+    return canonical_path
 
 def parse_dir_command_cd_path(aliases, model_path, command_str):
     """
     helper function to process interactive help command 'cd [path]'
     :param aliases: aliases
     :param model_path: the starting model path before the command
-    :param command_str: the command
+    :param command_str: the 'cd' command
     :return: the resulting path (an absolute canonical path)
     """
 
-    command_str = command_str[3:].replace(':','').strip()
-    while command_str.endswith('/'):
-      command_str = command_str[:-1]
-    while command_str.replace('//','/') != command_str:
-      command_str = command_str.replace('//','/')
-    if command_str.startswith('top/'):
-      command_str = command_str[3:]
-    while command_str.startswith('/top/'):
-      command_str = command_str[4:]
+    print("Parsing")
 
-    if not command_str or command_str == 'top' or command_str == '/':
+    ret_path = command_str[3:].replace(':','').strip()
+    while ret_path.endswith('/'):
+      ret_path = ret_path[:-1]
+    while ret_path.replace('//','/') != ret_path:
+      ret_path = ret_path.replace('//','/')
+    if ret_path.startswith('top/'):
+      ret_path = ret_path[3:]
+    while ret_path.startswith('/top/'):
+      ret_path = ret_path[4:]
+
+    if not ret_path or ret_path == 'top' or ret_path == '/':
       return '/'
 
-    tokens = command_str.split('/')
+    tokens = ret_path.split('/')
 
     if tokens[0] in model.get_model_top_level_keys():
       # if first token is a section name, make it an absolute path
-      return '/' + command_str
+      return '/' + ret_path
 
-    if command_str.startswith('/'):
-      # starts with '/' so there must be a second token (tokens[1])
-
-      # if "/" + not-a-section + ..., then try guess section and prepend it in
-      if tokens[1] not in model.get_model_top_level_keys():
-        for section_name in model.get_model_top_level_keys():
-          if tokens[1] in aliases.get_model_section_top_level_folder_names(section_name):
-            command_str = '/' + section_name + command_str
-
-      return command_str
+    if ret_path.startswith('/'):
+      # user specified an absolute path '/token1[/...]'
+      # (starts with '/' so there must be a second token (tokens[1]))
+      return add_section_if_missing(aliases, ret_path, tokens[1])
 
     # this is a relative path, so append it to the current path
 
     canonical_path = canonical_path_from_model_path(model_path)
 
     if canonical_path == "/":
-      return "/" + command_str
+      return "/" + ret_path
 
-    return canonical_path + "/" + command_str
+    return canonical_path + "/" + ret_path
 
 
 def parse_dir_command_all(aliases, model_path, command_str):
