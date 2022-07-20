@@ -47,7 +47,7 @@ from wlsdeploy.tool.util.string_output_stream import StringOutputStream
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model_helper
-from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.exit_code import ExitCode
 
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
@@ -587,13 +587,13 @@ def online_check_save_activate(model_context):
         if model_context.is_cancel_changes_if_restart_required() and restart_required:
             _wlst_helper.cancel_edit()
             _logger.warning('WLSDPLY-09018', is_restartreq_output)
-            exit_code = CommandLineArgUtil.PROG_CANCEL_CHANGES_IF_RESTART_EXIT_CODE
+            exit_code = ExitCode.CANCEL_CHANGES_IF_RESTART
             list_non_dynamic_changes(model_context, is_restartreq_output)
         else:
             _wlst_helper.save()
             _wlst_helper.activate(model_context.get_model_config().get_activate_timeout())
             if restart_required:
-                exit_code = CommandLineArgUtil.PROG_RESTART_REQUIRED
+                exit_code = ExitCode.RESTART_REQUIRED
                 list_non_dynamic_changes(model_context, is_restartreq_output)
                 exit_code = list_restarts(model_context, exit_code)
 

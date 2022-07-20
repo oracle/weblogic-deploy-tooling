@@ -55,6 +55,7 @@ from wlsdeploy.util import path_utils
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.cla_utils import TOOL_TYPE_DISCOVER
+from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.util import target_configuration_helper
@@ -124,11 +125,11 @@ def __process_model_archive_args(argument_map):
     if CommandLineArgUtil.ARCHIVE_FILE_SWITCH not in argument_map:
         if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH not in argument_map and \
             CommandLineArgUtil.REMOTE_SWITCH not in argument_map:
-            ex = exception_helper.create_cla_exception(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE, 'WLSDPLY-06028')
+            ex = exception_helper.create_cla_exception(ExitCode.USAGE_ERROR, 'WLSDPLY-06028')
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
         if CommandLineArgUtil.MODEL_FILE_SWITCH not in argument_map:
-            ex = exception_helper.create_cla_exception(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE, 'WLSDPLY-06029')
+            ex = exception_helper.create_cla_exception(ExitCode.USAGE_ERROR, 'WLSDPLY-06029')
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
@@ -144,7 +145,7 @@ def __process_archive_filename_arg(argument_map):
     if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH in argument_map or CommandLineArgUtil.REMOTE_SWITCH in argument_map:
         archive_file = WLSDeployArchive.noArchiveFile()
         if CommandLineArgUtil.ARCHIVE_FILE_SWITCH in argument_map:
-            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-06033')
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
@@ -152,14 +153,14 @@ def __process_archive_filename_arg(argument_map):
         archive_file_name = argument_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
         archive_dir_name = path_utils.get_parent_directory(archive_file_name)
         if os.path.exists(archive_dir_name) is False:
-            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-06026', archive_file_name)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
         try:
             archive_file = WLSDeployArchive(archive_file_name)
         except (IllegalArgumentException, IllegalStateException), ie:
-            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-06013', _program_name, archive_file_name,
                                                        ie.getLocalizedMessage(), error=ie)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -182,7 +183,7 @@ def __process_variable_filename_arg(optional_arg_map):
         try:
             FileUtils.validateWritableFile(variable_injector_file_name)
         except IllegalArgumentException, ie:
-            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-06021',
                                                        optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH],
                                                        variable_injector_file_name,
@@ -581,13 +582,13 @@ def main(args):
     helper = WlstHelper(ExceptionType.DISCOVER)
     helper.silence()
 
-    exit_code = CommandLineArgUtil.PROG_OK_EXIT_CODE
+    exit_code = ExitCode.OK
 
     try:
         model_context = __process_args(args)
     except CLAException, ex:
         exit_code = ex.getExitCode()
-        if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
+        if exit_code != ExitCode.HELP:
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
 
@@ -600,7 +601,7 @@ def main(args):
     except DiscoverException, ex:
         __logger.severe('WLSDPLY-06010', _program_name, model_context.get_archive_file_name(),
                         ex.getLocalizedMessage(), error=ex, class_name=_class_name, method_name=_method_name)
-        __log_and_exit(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
+        __log_and_exit(model_context, ExitCode.ERROR, _class_name, _method_name)
 
     aliases = Aliases(model_context, wlst_mode=__wlst_mode, exception_type=ExceptionType.DISCOVER)
     model = None
@@ -623,7 +624,7 @@ def main(args):
         __logger.severe('WLSDPLY-06011', _program_name, model_context.get_domain_name(),
                         model_context.get_domain_home(), ex.getLocalizedMessage(),
                         error=ex, class_name=_class_name, method_name=_method_name)
-        __log_and_exit(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
+        __log_and_exit(model_context, ExitCode.ERROR, _class_name, _method_name)
 
     try:
         __persist_model(model, model_context)
@@ -631,7 +632,7 @@ def main(args):
     except TranslateException, ex:
         __logger.severe('WLSDPLY-20024', _program_name, model_context.get_archive_file_name(), ex.getLocalizedMessage(),
                         error=ex, class_name=_class_name, method_name=_method_name)
-        __log_and_exit(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
+        __log_and_exit(model_context, ExitCode.ERROR, _class_name, _method_name)
 
     __close_archive(model_context)
 

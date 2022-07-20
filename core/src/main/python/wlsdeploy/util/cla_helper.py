@@ -31,6 +31,7 @@ from wlsdeploy.util import path_utils
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model_translator import FileToPython
 
 
@@ -59,7 +60,7 @@ def validate_optional_archive(program_name, optional_arg_map):
             try:
                 FileUtils.validateExistingFile(archive_file)
             except IllegalArgumentException, iae:
-                ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                            'WLSDPLY-20014', program_name, archive_file_name,
                                                            iae.getLocalizedMessage(), error=iae)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -89,7 +90,7 @@ def validate_model_present(program_name, optional_arg_map):
             try:
                 FileUtils.validateExistingFile(model_file)
             except IllegalArgumentException, iae:
-                ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                            'WLSDPLY-20006', program_name, model_file,
                                                            iae.getLocalizedMessage(), error=iae)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -104,13 +105,13 @@ def validate_model_present(program_name, optional_arg_map):
             model_file_name = FileUtils.fixupFileSeparatorsForJython(tmp_model_file.getAbsolutePath())
             optional_arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = model_file_name
         else:
-            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-20026', program_name, archive_file,
                                                        CommandLineArgUtil.MODEL_FILE_SWITCH)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
     else:
-        ex = exception_helper.create_cla_exception(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE,
+        ex = exception_helper.create_cla_exception(ExitCode.USAGE_ERROR,
                                                    'WLSDPLY-20015', program_name,
                                                    CommandLineArgUtil.MODEL_FILE_SWITCH,
                                                    CommandLineArgUtil.ARCHIVE_FILE_SWITCH)
@@ -135,7 +136,7 @@ def validate_variable_file_exists(program_name, argument_map):
                 variable_file = FileUtils.validateExistingFile(file)
                 result_files.append(variable_file.getAbsolutePath())
             except IllegalArgumentException, iae:
-                ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                            'WLSDPLY-20031', program_name, file,
                                                            iae.getLocalizedMessage(), error=iae)
                 __logger.throwing(ex, class_name=_class_name, method_name=method_name)
@@ -158,7 +159,7 @@ def process_encryption_args(optional_arg_map):
         try:
             passphrase = getcreds.getpass('WLSDPLY-20002')
         except IOException, ioe:
-            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-20003', ioe.getLocalizedMessage(), error=ioe)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
@@ -189,12 +190,12 @@ def validate_model(program_name, model_dictionary, model_context, aliases, wlst_
         __logger.severe('WLSDPLY-20000', program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         clean_up_temp_files()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+        tool_exit.end(model_context, ExitCode.ERROR)
 
     if return_code == Validator.ReturnCode.STOP:
         __logger.severe('WLSDPLY-20001', program_name, class_name=_class_name, method_name=_method_name)
         clean_up_temp_files()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+        tool_exit.end(model_context, ExitCode.ERROR)
 
 
 def load_model(program_name, model_context, aliases, filter_type, wlst_mode):
@@ -221,7 +222,7 @@ def load_model(program_name, model_context, aliases, filter_type, wlst_mode):
         __logger.severe('WLSDPLY-20004', program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         clean_up_temp_files()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+        tool_exit.end(model_context, ExitCode.ERROR)
 
     model_file_value = model_context.get_model_file()
     try:
@@ -230,7 +231,7 @@ def load_model(program_name, model_context, aliases, filter_type, wlst_mode):
         __logger.severe('WLSDPLY-09014', program_name, model_file_value, te.getLocalizedMessage(), error=te,
                         class_name=_class_name, method_name=_method_name)
         clean_up_temp_files()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+        tool_exit.end(model_context, ExitCode.ERROR)
 
     try:
         variables.substitute(model_dictionary, variable_map, model_context)
@@ -238,7 +239,7 @@ def load_model(program_name, model_context, aliases, filter_type, wlst_mode):
         __logger.severe('WLSDPLY-20004', program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         clean_up_temp_files()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+        tool_exit.end(model_context, ExitCode.ERROR)
 
     filter_helper.apply_filters(model_dictionary, filter_type, model_context)
 
@@ -264,7 +265,7 @@ def process_online_args(optional_arg_map):
             try:
                 username = getcreds.getuser('WLSDPLY-09001')
             except IOException, ioe:
-                ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                            'WLSDPLY-09002', ioe.getLocalizedMessage(), error=ioe)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
@@ -274,7 +275,7 @@ def process_online_args(optional_arg_map):
             try:
                 password = getcreds.getpass('WLSDPLY-09003')
             except IOException, ioe:
-                ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                            'WLSDPLY-09004', ioe.getLocalizedMessage(), error=ioe)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex

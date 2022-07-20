@@ -8,7 +8,7 @@ from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.tool.modelhelp import model_help_utils
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.exit_code import ExitCode
 
 _class_name = "ModelSamplePrinter"
 
@@ -85,7 +85,7 @@ class ModelSamplePrinter(object):
         section_name = model_path_tokens[0]
         top_folder = model_path_tokens[1]
         if top_folder not in valid_section_folder_keys:
-            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-10110', section_name + ':', top_folder,
                                                        ', '.join(valid_section_folder_keys))
             self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -103,7 +103,7 @@ class ModelSamplePrinter(object):
             if indent > 0:
                 code, message = self._aliases.is_valid_model_folder_name(model_location, token)
                 if code != ValidationCodes.VALID:
-                    ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                    ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                                "WLSDPLY-05027", message)
                     self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                     raise ex

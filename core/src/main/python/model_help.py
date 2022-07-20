@@ -21,6 +21,7 @@ from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.exit_code import ExitCode
 
 _program_name = 'modelHelp'
 _class_name = 'model_help'
@@ -60,7 +61,7 @@ def __process_args(args):
         if key in argument_map:
             if found:
                 types_text = ', '.join(__output_types)
-                ex = exception_helper.create_cla_exception(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE,
+                ex = exception_helper.create_cla_exception(ExitCode.USAGE_ERROR,
                                                            'WLSDPLY-10100', types_text)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
@@ -97,7 +98,7 @@ def print_help(model_path, model_context):
     printer.print_model_help(model_path, control_option)
 
     __logger.exiting(class_name=_class_name, method_name=_method_name)
-    return CommandLineArgUtil.PROG_OK_EXIT_CODE
+    return ExitCode.OK
 
 
 def main(args):
@@ -115,7 +116,7 @@ def main(args):
         model_context = __process_args(args)
     except CLAException, ex:
         exit_code = ex.getExitCode()
-        if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
+        if exit_code != ExitCode.HELP:
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
@@ -127,7 +128,7 @@ def main(args):
     except CLAException, ve:
         __logger.severe('WLSDPLY-10112', _program_name, ve.getLocalizedMessage(), error=ve,
                         class_name=_class_name, method_name=_method_name)
-        sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+        sys.exit(ExitCode.ERROR)
 
     __logger.exiting(result=exit_code, class_name=_class_name, method_name=_method_name)
     sys.exit(exit_code)
