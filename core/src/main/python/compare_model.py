@@ -232,6 +232,12 @@ def debug(format_string, *arguments):
     else:
         _logger.finest(format_string, arguments)
 
+def _checkModelExtension(file):
+    model_file = JFile(file)
+    if not (FileUtils.isYamlFile(model_file) or FileUtils.isJsonFile(model_file)):
+        return False
+    else:
+        return True
 
 def main():
     """
@@ -254,20 +260,11 @@ def main():
 
         for f in [model1, model2]:
             if not os.path.exists(f):
-                raise CLAException("Model %s does not exists" % f)
+                raise CLAException(2, 'WLSDPLY-85717', [f])
             if os.path.isdir(f):
-                raise CLAException("Model %s is a directory" % f)
-
-        model1_file = JFile(model1)
-        model2_file = JFile(model2)
-
-        if not (FileUtils.isYamlFile(model1_file) or FileUtils.isJsonFile(model1_file)):
-            raise CLAException("Model extension must be either yaml or json")
-
-        if not (FileUtils.isYamlFile(model1_file) and FileUtils.isYamlFile(model2_file)
-                or FileUtils.isJsonFile(model1_file) and FileUtils.isJsonFile(model2_file)):
-            ext = os.path.splitext(model1)[1]
-            raise CLAException("Model %s is not a %s file " % (model2, ext))
+                raise CLAException(2, 'WLSDPLY-85718', [f])
+            if not _checkModelExtension(f):
+                raise CLAException(2, 'WLSDPLY-85719', [f])
 
         obj = ModelFileDiffer(model1, model2, model_context, _outputdir)
         rc = obj.compare()
@@ -317,7 +314,7 @@ def main():
         System.exit(0)
 
     except CLAException, ex:
-        exit_code = 2
+        exit_code = ex.getExitCode()
         if exit_code != ExitCode.HELP:
             _logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                            class_name=_class_name, method_name=_method_name)
