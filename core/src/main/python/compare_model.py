@@ -203,7 +203,7 @@ class ModelFileDiffer:
             except YamlException, ye:
                 _logger.severe('WLSDPLY-05708', file_name, ye.getLocalizedMessage(),
                                error=ye, class_name=_class_name, method_name=_method_name)
-                return 2
+                System.exit(ExitCode.ERROR)
         else:
             # write the change model to standard output in YAML format
             print(format_message('WLSDPLY-05707'))
@@ -260,16 +260,16 @@ def main():
 
         for f in [model1, model2]:
             if not os.path.exists(f):
-                raise CLAException(2, 'WLSDPLY-85717', [f])
+                raise CLAException(ExitCode.ERROR, 'WLSDPLY-85717', [f])
             if os.path.isdir(f):
-                raise CLAException(2, 'WLSDPLY-85718', [f])
+                raise CLAException(ExitCode.ERROR, 'WLSDPLY-85718', [f])
             if not _checkModelExtension(f):
-                raise CLAException(2, 'WLSDPLY-85719', [f])
+                raise CLAException(ExitCode.ERROR, 'WLSDPLY-85719', [f])
 
         obj = ModelFileDiffer(model1, model2, model_context, _outputdir)
         rc = obj.compare()
         if rc == VALIDATION_FAIL:
-            System.exit(2)
+            System.exit(ExitCode.ERROR)
 
         if _outputdir:
             fos = None
@@ -323,17 +323,17 @@ def main():
     except CompareException, ce:
         cla_helper.clean_up_temp_files()
         _logger.severe('WLSDPLY-05704', ce.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
-        System.exit(2)
+        System.exit(ExitCode.ERROR)
     except PyWLSTException, pe:
         cla_helper.clean_up_temp_files()
         _logger.severe('WLSDPLY-05704', pe.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
-        System.exit(2)
+        System.exit(ExitCode.ERROR)
     except:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         ee_string = traceback.format_exception(exc_type, exc_obj, exc_tb)
         cla_helper.clean_up_temp_files()
         _logger.severe('WLSDPLY-05704', ee_string)
-        System.exit(2)
+        System.exit(ExitCode.ERROR)
 
 
 def format_message(key, *args):
