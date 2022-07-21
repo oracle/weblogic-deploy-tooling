@@ -232,7 +232,7 @@ def debug(format_string, *arguments):
     else:
         _logger.finest(format_string, arguments)
 
-def _checkModelExtension(file):
+def _check_model_extension(file):
     model_file = JFile(file)
     if not (FileUtils.isYamlFile(model_file) or FileUtils.isJsonFile(model_file)):
         return False
@@ -263,7 +263,7 @@ def main():
                 raise CLAException(ExitCode.ERROR, 'WLSDPLY-85717', [f])
             if os.path.isdir(f):
                 raise CLAException(ExitCode.ERROR, 'WLSDPLY-85718', [f])
-            if not _checkModelExtension(f):
+            if not _check_model_extension(f):
                 raise CLAException(ExitCode.ERROR, 'WLSDPLY-85719', [f])
 
         obj = ModelFileDiffer(model1, model2, model_context, _outputdir)
