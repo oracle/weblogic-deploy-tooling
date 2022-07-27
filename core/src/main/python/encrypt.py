@@ -11,6 +11,7 @@ from java.io import IOException
 from java.lang import String, System
 
 from oracle.weblogic.deploy.encrypt import EncryptionException
+from oracle.weblogic.deploy.logging import WLSDeployLoggingConfig
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import VariableException
@@ -254,6 +255,7 @@ def main(args):
 
 if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
+    WLSDeployLoggingConfig.logLoggingDirectory(_program_name)
     try:
         main(sys.argv)
     except exceptions.SystemExit, ex:

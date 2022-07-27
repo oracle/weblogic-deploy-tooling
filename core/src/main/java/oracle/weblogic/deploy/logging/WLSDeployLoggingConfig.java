@@ -156,6 +156,7 @@ public class WLSDeployLoggingConfig {
             System.exit(ERROR_EXIT_CODE);
         }
         PlatformLogger logger = WLSDeployLogFactory.getLogger(WLSDEPLOY_LOGGER_NAME);   // make sure that this is the first logger
+        // this doesn't appear to do anything.  do we need it?
         logger.info("The {0} program will write its log to {1}", programName, logFileName);
     }
 
@@ -166,6 +167,11 @@ public class WLSDeployLoggingConfig {
      */
     public static synchronized File getLoggingDirectory() {
         return new File(loggingDirectory.getAbsolutePath());
+    }
+
+    public static void logLoggingDirectory(String programName) {
+      PlatformLogger logger = WLSDeployLogFactory.getLogger(WLSDEPLOY_LOGGER_NAME);
+      logger.info("WLSDPLY-01755", programName, loggingDirectory.getAbsolutePath());
     }
 
     /**

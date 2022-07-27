@@ -14,6 +14,7 @@ from java.lang import String
 from java.lang import System
 from oracle.weblogic.deploy.create import CreateException
 from oracle.weblogic.deploy.deploy import DeployException
+from oracle.weblogic.deploy.logging import WLSDeployLoggingConfig
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
@@ -378,6 +379,7 @@ def main(args):
 
 if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
+    WLSDeployLoggingConfig.logLoggingDirectory(_program_name)
     try:
         main(sys.argv)
     except exceptions.SystemExit, ex:
