@@ -26,6 +26,7 @@ from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.util import model_translator, cla_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
@@ -167,14 +168,14 @@ def main(args):
     for index, arg in enumerate(args):
         __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
 
-    exit_code = CommandLineArgUtil.PROG_OK_EXIT_CODE
+    exit_code = ExitCode.OK
 
     model_context = None
     try:
         model_context = __process_args(args)
     except CLAException, ex:
         exit_code = ex.getExitCode()
-        if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
+        if exit_code != ExitCode.HELP:
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
         __log_and_exit(exit_code, _class_name, _method_name)
@@ -185,7 +186,7 @@ def main(args):
     except TranslateException, te:
         __logger.severe('WLSDPLY-20009', _program_name, model_file, te.getLocalizedMessage(), error=te,
                         class_name=_class_name, method_name=_method_name)
-        sys.exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+        sys.exit(ExitCode.ERROR)
 
     inserted, model = __inject(model, model_context)
     if inserted:
@@ -196,7 +197,7 @@ def main(args):
         except TranslateException, ex:
             __logger.severe('WLSDPLY-20024', _program_name, model_context.get_archive_file_name(),
                             ex.getLocalizedMessage(), error=ex, class_name=_class_name, method_name=_method_name)
-            __log_and_exit(CommandLineArgUtil.PROG_ERROR_EXIT_CODE, _class_name, _method_name)
+            __log_and_exit(ExitCode.ERROR, _class_name, _method_name)
 
     __close_archive(model_context)
 

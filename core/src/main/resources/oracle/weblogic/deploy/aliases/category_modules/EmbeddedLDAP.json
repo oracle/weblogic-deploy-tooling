@@ -2,6 +2,7 @@
     "copyright": "Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "EmbeddedLDAP",
+    "online_bean": "weblogic.management.configuration.EmbeddedLDAPMBean",
     "default_name_value": "%DOMAIN%",
     "short_name": "LDAP",
     "folders": {},

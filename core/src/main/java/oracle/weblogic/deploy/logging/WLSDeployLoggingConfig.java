@@ -169,6 +169,10 @@ public class WLSDeployLoggingConfig {
         return new File(loggingDirectory.getAbsolutePath());
     }
 
+    /**
+     * Log the logging directory path
+     *
+     */
     public static void logLoggingDirectory(String programName) {
       PlatformLogger logger = WLSDeployLogFactory.getLogger(WLSDEPLOY_LOGGER_NAME);
       logger.info("WLSDPLY-01755", programName, loggingDirectory.getAbsolutePath());

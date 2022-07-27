@@ -36,6 +36,7 @@ from wlsdeploy.util import tool_exit
 from wlsdeploy.util import validate_configuration
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
@@ -93,7 +94,7 @@ def __process_model_args(argument_map):
         if method == validate_configuration.LAX_METHOD:
             __logger.info('WLSDPLY-20032', _program_name, class_name=_class_name, method_name=_method_name)
             model_context = model_context_helper.create_exit_context(_program_name)
-            tool_exit.end(model_context, CommandLineArgUtil.PROG_OK_EXIT_CODE)
+            tool_exit.end(model_context, ExitCode.OK)
         raise ce
     return
 
@@ -159,13 +160,13 @@ def main(args):
     for index, arg in enumerate(args):
         __logger.finer('sys.argv[{0}] = {1}', str(index), arg, class_name=_class_name, method_name=_method_name)
 
-    exit_code = CommandLineArgUtil.PROG_OK_EXIT_CODE
+    exit_code = ExitCode.OK
 
     try:
         model_context = __process_args(args)
     except CLAException, ex:
         exit_code = ex.getExitCode()
-        if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
+        if exit_code != ExitCode.HELP:
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
@@ -183,9 +184,9 @@ def main(args):
             if summary_handler is not None:
                 summary_level = summary_handler.getMaximumMessageLevel()
                 if summary_level == Level.SEVERE:
-                    exit_code = CommandLineArgUtil.PROG_ERROR_EXIT_CODE
+                    exit_code = ExitCode.ERROR
                 elif summary_level == Level.WARNING:
-                    exit_code = CommandLineArgUtil.PROG_WARNING_EXIT_CODE
+                    exit_code = ExitCode.WARNING
 
     except ValidateException, ve:
         exit_code = CommandLineArgUtil.PROG_ERROR_EXIT_CODE
@@ -200,7 +201,6 @@ def main(args):
 
 if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    WLSDeployLoggingConfig.logLoggingDirectory(_program_name)
     try:
         main(sys.argv)
     except exceptions.SystemExit, ex:

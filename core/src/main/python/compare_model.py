@@ -44,6 +44,7 @@ from wlsdeploy.util import cla_helper
 from wlsdeploy.util import validate_configuration
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
@@ -202,7 +203,7 @@ class ModelFileDiffer:
             except YamlException, ye:
                 _logger.severe('WLSDPLY-05708', file_name, ye.getLocalizedMessage(),
                                error=ye, class_name=_class_name, method_name=_method_name)
-                return 2
+                System.exit(ExitCode.ERROR)
         else:
             # write the change model to standard output in YAML format
             print(format_message('WLSDPLY-05707'))
@@ -231,6 +232,12 @@ def debug(format_string, *arguments):
     else:
         _logger.finest(format_string, arguments)
 
+def _check_model_extension(file):
+    model_file = JFile(file)
+    if not (FileUtils.isYamlFile(model_file) or FileUtils.isJsonFile(model_file)):
+        return False
+    else:
+        return True
 
 def main():
     """
@@ -253,25 +260,16 @@ def main():
 
         for f in [model1, model2]:
             if not os.path.exists(f):
-                raise CLAException("Model %s does not exists" % f)
+                raise CLAException(ExitCode.ERROR, 'WLSDPLY-85717', [f])
             if os.path.isdir(f):
-                raise CLAException("Model %s is a directory" % f)
-
-        model1_file = JFile(model1)
-        model2_file = JFile(model2)
-
-        if not (FileUtils.isYamlFile(model1_file) or FileUtils.isJsonFile(model1_file)):
-            raise CLAException("Model extension must be either yaml or json")
-
-        if not (FileUtils.isYamlFile(model1_file) and FileUtils.isYamlFile(model2_file)
-                or FileUtils.isJsonFile(model1_file) and FileUtils.isJsonFile(model2_file)):
-            ext = os.path.splitext(model1)[1]
-            raise CLAException("Model %s is not a %s file " % (model2, ext))
+                raise CLAException(ExitCode.ERROR, 'WLSDPLY-85718', [f])
+            if not _check_model_extension(f):
+                raise CLAException(ExitCode.ERROR, 'WLSDPLY-85719', [f])
 
         obj = ModelFileDiffer(model1, model2, model_context, _outputdir)
         rc = obj.compare()
         if rc == VALIDATION_FAIL:
-            System.exit(2)
+            System.exit(ExitCode.ERROR)
 
         if _outputdir:
             fos = None
@@ -316,8 +314,8 @@ def main():
         System.exit(0)
 
     except CLAException, ex:
-        exit_code = 2
-        if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
+        exit_code = ex.getExitCode()
+        if exit_code != ExitCode.HELP:
             _logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                            class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
@@ -325,17 +323,17 @@ def main():
     except CompareException, ce:
         cla_helper.clean_up_temp_files()
         _logger.severe('WLSDPLY-05704', ce.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
-        System.exit(2)
+        System.exit(ExitCode.ERROR)
     except PyWLSTException, pe:
         cla_helper.clean_up_temp_files()
         _logger.severe('WLSDPLY-05704', pe.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
-        System.exit(2)
+        System.exit(ExitCode.ERROR)
     except:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         ee_string = traceback.format_exception(exc_type, exc_obj, exc_tb)
         cla_helper.clean_up_temp_files()
         _logger.severe('WLSDPLY-05704', ee_string)
-        System.exit(2)
+        System.exit(ExitCode.ERROR)
 
 
 def format_message(key, *args):

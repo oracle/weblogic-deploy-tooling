@@ -2,17 +2,20 @@
     "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "ResourceManager${:s}",
+    "online_bean": "weblogic.management.configuration.ResourceManagerMBean",
     "version": "[12.2.1,)",
     "child_folders_type": "multiple",
     "short_name": "ResManager",
     "folders": {
         "CpuUtilization": {
             "wlst_type": "CpuUtilization",
+            "online_bean": "weblogic.management.configuration.CpuUtilizationMBean",
             "version": "[12.2.1,)",
             "default_name_value": "${NO_NAME_0:CpuTimeResource}",
             "folders": {
                 "FairShareConstraint": {
                     "wlst_type": "FairShareConstraint",
+                    "online_bean": "weblogic.management.configuration.FairShareConstraintMBean",
                     "version": "[12.2.1,)",
                     "default_name_value": "${NO_NAME_0:CpuUtilizationFairShareConstraint}",
                     "folders": { },
@@ -27,6 +30,7 @@
                 },
                 "Trigger": {
                     "wlst_type": "Trigger${:s}",
+                    "online_bean": "weblogic.management.configuration.TriggerMBean",
                     "version": "[12.2.1,)",
                     "child_folders_type": "multiple",
                     "folders": { },
@@ -53,11 +57,13 @@
         },
         "FileOpen": {
             "wlst_type": "FileOpen",
+            "online_bean": "weblogic.management.configuration.FileOpenMBean",
             "version": "[12.2.1,)",
             "default_name_value": "${NO_NAME_0:FileOpenResource}",
             "folders": {
                 "Trigger": {
                     "wlst_type": "Trigger${:s}",
+                    "online_bean": "weblogic.management.configuration.TriggerMBean",
                     "version": "[12.2.1,)",
                     "child_folders_type": "multiple",
                     "folders": { },
@@ -84,11 +90,13 @@
         },
         "HeapRetained": {
             "wlst_type": "HeapRetained",
+            "online_bean": "weblogic.management.configuration.HeapRetainedMBean",
             "version": "[12.2.1,)",
             "default_name_value": "${NO_NAME_0:HeapRetainedResource}",
             "folders": {
                 "FairShareConstraint": {
                     "wlst_type": "FairShareConstraint",
+                    "online_bean": "weblogic.management.configuration.FairShareConstraintMBean",
                     "version": "[12.2.1,)",
                     "default_name_value": "${NO_NAME_0:HeapRetainedFairShareConstraint}",
                     "folders": { },
@@ -104,6 +112,7 @@
                 },
                 "Trigger": {
                     "wlst_type": "Trigger${:s}",
+                    "online_bean": "weblogic.management.configuration.TriggerMBean",
                     "version": "[12.2.1,)",
                     "child_folders_type": "multiple",
                     "folders": { },
@@ -130,6 +139,7 @@
         },
         "RestartLoopProtection": {
             "wlst_type": "RestartLoopProtection",
+            "online_bean": "weblogic.management.configuration.RestartLoopProtectionMBean",
             "version": "[12.2.1,)",
             "default_name_value": "${NO_NAME_0:%RESOURCEMANAGER%}",
             "folders": { },

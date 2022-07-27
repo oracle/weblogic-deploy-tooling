@@ -2,11 +2,13 @@
     "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "AppDeployment${:s}",
+    "online_bean": "weblogic.management.configuration.AppDeploymentMBean",
     "child_folders_type": "multiple",
     "short_name": "App",
     "folders": {
         "SubDeployment" : {
             "wlst_type": "SubDeployment${:s}",
+            "online_bean": "weblogic.management.configuration.SubDeploymentMBean",
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {
@@ -60,7 +62,7 @@
         "OnDemandDisplayRefresh":            [ {"version": "[10,)",        "wlst_mode": "online",  "wlst_name": "OnDemandDisplayRefresh",             "wlst_path": "WP001", "default_value": "false",    "wlst_type": "boolean",         "get_method": "GET", "access": "RO"  } ],
         "ParallelDeployModules":             [ {"version": "[12.2.1,)",    "wlst_mode": "both",    "wlst_name": "ParallelDeployModules",              "wlst_path": "WP001", "default_value": "false",    "wlst_type": "boolean"          } ],
         "PartitionName":                     [ {"version": "[12.2.1,)",    "wlst_mode": "online",  "wlst_name": "PartitionName",                      "wlst_path": "WP001", "default_value": null,       "wlst_type": "string" ,         "get_method": "GET", "access": "RO" } ],
-        "PlanDir":                           [ {"version": "[10,)",        "wlst_mode": "both",    "wlst_name": "PlanDir",                            "wlst_path": "WP001", "default_value": null,       "wlst_type": "string",          "access": "${:RO}", "uses_path_tokens": "true" } ],
+        "PlanDir":                           [ {"version": "[10,)",        "wlst_mode": "both",    "wlst_name": "PlanDir",                            "wlst_path": "WP001", "default_value": null,       "wlst_type": "string",          "access": "${:ROD}", "uses_path_tokens": "true" } ],
         "PlanPath":                          [ {"version": "[10,)",        "wlst_mode": "both",    "wlst_name": "PlanPath",                           "wlst_path": "WP001", "default_value": null,       "wlst_type": "string",          "access": "${:ROD}", "uses_path_tokens": "true" } ],
         "PlanStagingMode":                   [ {"version": "[12.1.2,)",    "wlst_mode": "both",    "wlst_name": "PlanStagingMode",                    "wlst_path": "WP001", "default_value": null,       "wlst_type": "string",          "access": "${:ROD}"} ],
         "RootStagingDir":                    [ {"version": "[10,)",        "wlst_mode": "online",  "wlst_name": "RootStagingDir",                     "wlst_path": "WP001", "default_value": null,       "wlst_type": "string",          "get_method": "GET", "uses_path_tokens": "true", "access": "RO"  } ],

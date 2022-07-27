@@ -69,7 +69,7 @@ ECHO.
 ECHO Usage: %SCRIPT_NAME%
 ECHO         [-help]
 ECHO         [-oracle_home ^<oracle_home^>]
-ECHO         [-attributes_only ^| -folders_only ^| -recursive]
+ECHO         [-attributes_only ^| -folders_only ^| -recursive ^| -interactive]
 ECHO         ^<model_path^>
 ECHO.
 ECHO     where:
@@ -99,6 +99,9 @@ ECHO.
 ECHO     The -recursive switch will cause the tool to list only the folders
 ECHO     for the specified model path, and recursively include the folders below
 ECHO     that path.
+ECHO.
+ECHO     The -interactive switch will cause the tool to enter an interactive
+ECHO     command line with the specified model path as your initial location.
 ECHO.
 
 :exit_script
