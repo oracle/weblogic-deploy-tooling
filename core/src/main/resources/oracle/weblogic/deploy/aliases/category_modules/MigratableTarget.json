@@ -2,6 +2,7 @@
     "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "MigratableTarget${:s}",
+    "online_bean": "weblogic.management.configuration.MigratableTargetMBean",
     "version": "[12.1.3,)",
     "child_folders_type": "multiple",
     "short_name": "Migratable",

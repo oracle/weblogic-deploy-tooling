@@ -180,6 +180,15 @@ class Aliases(object):
         """
         return self._alias_entries.get_folder_short_name_for_location(location)
 
+    def get_online_bean_name(self, location):
+        """
+        Get the online bean name for the specified location
+        :param location: the location to use
+        :return: the online bean name
+        :raises: Tool type exception: if an error occurs due to a bad location or bad alias data
+        """
+        return self._alias_entries.get_online_bean_name_for_location(location)
+
     ###########################################################################
     #                      WLST Path-related methods                          #
     ###########################################################################

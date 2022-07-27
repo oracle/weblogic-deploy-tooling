@@ -81,6 +81,7 @@ class ModelContext(object):
         self._wl_version = None
         self._wlst_mode = None
         self._recursive = False
+        self._interactive_mode = False
         self._attributes_only = False
         self._folders_only = False
         self._opss_wallet_passphrase = None
@@ -170,6 +171,9 @@ class ModelContext(object):
 
         if CommandLineArgUtil.RECURSIVE_SWITCH in arg_map:
             self._recursive = arg_map[CommandLineArgUtil.RECURSIVE_SWITCH]
+
+        if CommandLineArgUtil.INTERACTIVE_MODE_SWITCH in arg_map:
+            self._interactive_mode = arg_map[CommandLineArgUtil.INTERACTIVE_MODE_SWITCH]
 
         if CommandLineArgUtil.VARIABLE_FILE_SWITCH in arg_map:
             self._variable_file_name = arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH]
@@ -295,6 +299,8 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.FOLDERS_ONLY_SWITCH] = self._folders_only
         if self._recursive is not None:
             arg_map[CommandLineArgUtil.RECURSIVE_SWITCH] = self._recursive
+        if self._interactive_mode is not None:
+            arg_map[CommandLineArgUtil.INTERACTIVE_MODE_SWITCH] = self._interactive_mode
         if self._remote is not None:
             arg_map[CommandLineArgUtil.REMOTE_SWITCH] = self._remote
         if self._skip_archive is not None:
@@ -590,6 +596,13 @@ class ModelContext(object):
         :return: the -recursive command-line switch
         """
         return self._recursive
+
+    def get_interactive_mode_option(self):
+        """
+        Get the -interactive command-line switch for model help tool.
+        :return: the -interactive command-line switch
+        """
+        return self._interactive_mode
 
     def get_variable_file(self):
         """

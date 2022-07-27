@@ -20,10 +20,12 @@
         },
         "User": {
             "wlst_type": "User",
+            "online_bean": "Unknown",
             "child_folders_type": "multiple",
             "folders": {
                 "UserAttribute": {
                     "wlst_type": "UserAttribute",
+                    "online_bean": "Unknown",
                     "default_name_value": "${NO_NAME_0:%USER%}",
                     "folders": {},
                     "attributes": {

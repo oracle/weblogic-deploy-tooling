@@ -15,6 +15,7 @@ from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.exit_code import ExitCode
 
 
 class ArchiveHelper(object):
@@ -97,7 +98,7 @@ class ArchiveHelper(object):
                     break
 
         except (IllegalArgumentException, IllegalStateException, WLSDeployArchiveIOException), archex:
-            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-20010', program_name, self.__archive_files_text,
                                                        archex.getLocalizedMessage(), error=archex)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)

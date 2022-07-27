@@ -2,14 +2,17 @@
     "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "JMSServer${:s}",
+    "online_bean": "weblogic.management.configuration.JMSServerMBean",
     "child_folders_type": "multiple",
     "folders": {
         "JmsSessionPool": {
             "wlst_type": "${Jms:JMS}SessionPool${:s}",
+            "online_bean": "weblogic.management.configuration.JMSSessionPoolMBean",
             "child_folders_type": "multiple",
             "folders": {
                 "JmsConnectionConsumer": {
                     "wlst_type": "${Jms:JMS}ConnectionConsumer${:s}",
+                    "online_bean": "weblogic.management.configuration.JMSConnectionConsumerMBean",
                     "child_folders_type": "multiple",
                     "folders": {},
                     "attributes": {
@@ -40,6 +43,7 @@
         },
         "JmsMessageLogFile": {
             "wlst_type": "${Jms:JMS}MessageLogFile",
+            "online_bean": "weblogic.management.configuration.JMSMessageLogFileMBean",
             "default_name_value": "${NO_NAME_0:%JMSSERVER%}",
             "folders": {},
             "attributes": {

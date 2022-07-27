@@ -32,6 +32,7 @@ import oracle.weblogic.deploy.yaml.YamlException as JYamlException
 
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util import tool_exit
 
 _EXCEPTION_TYPE_MAP = {
@@ -195,7 +196,7 @@ def create_validate_exception(key, *args, **kwargs):
     """
     arg_list, error = _return_exception_params(*args, **kwargs)
     arg_len = len(arg_list)
-    if error is not None:
+    if error  https://github.com/jwgish/weblogic-deploy-tooling/pull/new/WDT-644is not None:
         if arg_len > 0:
             ex = ValidateException(key, error, arg_list)
         else:
@@ -295,7 +296,7 @@ def create_yaml_exception(key, *args, **kwargs):
     elif len(arg_list) > 0:
         ex = JYamlException(key, arg_list)
     else:
-        ex = JYamlException(key)
+        ex =  https://github.com/jwgish/weblogic-deploy-tooling/pull/new/WDT-644JYamlException(key)
     return ex
 
 

@@ -85,12 +85,12 @@ def main():
         _outputdir = model_context.get_output_dir()
         model_files = model_context.get_model_file()
 
-        obj = ModelPreparer(model_files, model_context, _outputdir)
+        obj = ModelPre https://github.com/jwgish/weblogic-deploy-tooling/pull/new/WDT-644parer(model_files, model_context, _outputdir)
         obj.prepare_models()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_OK_EXIT_CODE)
+        tool_exit.end(model_context, ExitCode.OK)
 
     except CLAException, ex:
-        exit_code = CommandLineArgUtil.PROG_ERROR_EXIT_CODE
+        exit_code = ExitCode.ERROR
         __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
@@ -100,14 +100,14 @@ def main():
         cla_helper.clean_up_temp_files()
         __logger.severe('WLSDPLY-05801', ex.getLocalizedMessage(), error=ex, class_name=_class_name,
                         method_name=_method_name)
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+        tool_exit.end(model_context, ExitCode.ERROR)
 
     except Exception, ex:
         cla_helper.clean_up_temp_files()
         message = str(sys.exc_type) + ': ' + str(sys.exc_value)
         __logger.severe('WLSDPLY-05801', message, error=ex, class_name=_class_name,
                         method_name=_method_name)
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+        tool_exit.end(model_context, ExitCode.ERROR)
 
 
 if __name__ == "__main__" or __name__ == 'main':
