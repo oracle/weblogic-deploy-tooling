@@ -11,6 +11,7 @@ import exceptions
 import sys
 import traceback
 
+from oracle.weblogic.deploy.logging import WLSDeployLoggingConfig
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
@@ -111,6 +112,7 @@ def main():
 
 if __name__ == "__main__" or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
+    WLSDeployLoggingConfig.logLoggingDirectory(_program_name)
     try:
         main()
     except exceptions.SystemExit, ex:
