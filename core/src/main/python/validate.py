@@ -189,7 +189,7 @@ def main(args):
                     exit_code = ExitCode.WARNING
 
     except ValidateException, ve:
-        exit_code = CommandLineArgUtil.PROG_ERROR_EXIT_CODE
+        exit_code = ExitCode.ERROR
         __logger.severe('WLSDPLY-20000', _program_name, ve.getLocalizedMessage(), error=ve,
                         class_name=_class_name, method_name=_method_name)
 
