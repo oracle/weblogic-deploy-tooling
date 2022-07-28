@@ -29,9 +29,14 @@ from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import DYNAMIC_CLUSTER_SIZE
 from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
 from wlsdeploy.aliases.model_constants import FILE_URI
-from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
 from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
+from wlsdeploy.aliases.model_constants import JDBC_DATASOURCE_PARAMS
+from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
+from wlsdeploy.aliases.model_constants import JDBC_CONNECTION_POOL_PARAMS
+from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS_PROPERTIES
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE
 from wlsdeploy.aliases.model_constants import LIBRARY
 from wlsdeploy.aliases.model_constants import MAX_DYNAMIC_SERVER_COUNT
 from wlsdeploy.aliases.model_constants import SERVER
@@ -88,7 +93,6 @@ def create_and_cd(location, existing_names, aliases):
     create_if_not_exist(mbean_name,
                         aliases.get_wlst_mbean_type(location),
                         existing_names)
-
     wlst_path = aliases.get_wlst_attributes_path(location)
     _logger.exiting(_class_name, method_name, wlst_path)
     return _wlst_helper.cd(wlst_path)
@@ -721,3 +725,178 @@ def __delete_online_targets(app_deployments, model_type, aliases):
                     _logger.info('WLSDPLY-09114', mbean_name, model_type, deploy_name, class_name=_class_name,
                                  method_name=_method_name)
                     mbean.removeTarget(mbean_target)
+
+def __copy_templated_ds_attributes(src_location, target_location, aliases):
+    src_ds_wlst_path = aliases.get_wlst_attributes_path(src_location)
+    _wlst_helper.cd(src_ds_wlst_path)
+
+    attributes = _wlst_helper.lsa()
+    for attribute in attributes:
+
+        if attribute in ['Tag', 'Id', 'Name', 'JNDIName', 'DescriptorFileName']:
+            continue
+        if attribute == 'Target' and attributes[attribute] is None:
+            continue
+
+        _wlst_helper.cd(aliases.get_wlst_attributes_path(target_location))
+        wlst_name, wlst_value = \
+            aliases.get_wlst_attribute_name_and_value(target_location, attribute,
+                                                      attributes[attribute])
+        _wlst_helper.set_if_needed(wlst_name, wlst_value)
+
+def __get_jdbc_datasource_params_location(ds_name):
+    ds_location = LocationContext()
+    ds_location.append_location(JDBC_SYSTEM_RESOURCE)
+    ds_location.append_location(JDBC_RESOURCE)
+    ds_location.append_location(JDBC_DATASOURCE_PARAMS)
+    ds_location.add_name_token('JDBCRESOURCE', ds_name)
+    ds_location.add_name_token('DATASOURCE', ds_name)
+    ds_location.add_name_token('JDBCDATASOURCEPARAMS', 'NO_NAME_0')
+    return ds_location
+
+def __get_jdbc_datasource_location(ds_name):
+    ds_location = LocationContext()
+    ds_location.append_location(JDBC_SYSTEM_RESOURCE)
+    ds_location.append_location(JDBC_RESOURCE)
+    ds_location.add_name_token('JDBCRESOURCE', ds_name)
+    ds_location.add_name_token('DATASOURCE', ds_name)
+    return ds_location
+
+def __get_jdbc_system_resource_location(ds_name):
+    ds_location = LocationContext()
+    ds_location.append_location(JDBC_SYSTEM_RESOURCE)
+    ds_location.add_name_token('DATASOURCE', ds_name)
+    return ds_location
+
+def __get_jdbc_driver_params_location(ds_name):
+    ds_location = LocationContext()
+    ds_location.append_location(JDBC_SYSTEM_RESOURCE)
+    ds_location.append_location(JDBC_RESOURCE)
+    ds_location.append_location(JDBC_DRIVER_PARAMS)
+    ds_location.add_name_token('JDBCRESOURCE', ds_name)
+    ds_location.add_name_token('DATASOURCE', ds_name)
+    ds_location.add_name_token('JDBCDRIVERPARAMS', 'NO_NAME_0')
+    return ds_location
+
+def __get_jdbc_connection_pool_params_location(ds_name):
+    ds_location = LocationContext()
+    ds_location.append_location(JDBC_SYSTEM_RESOURCE)
+    ds_location.append_location(JDBC_RESOURCE)
+    ds_location.append_location(JDBC_CONNECTION_POOL_PARAMS)
+    ds_location.add_name_token('JDBCRESOURCE', ds_name)
+    ds_location.add_name_token('DATASOURCE', ds_name)
+    ds_location.add_name_token('JDBCCONNECTIONPOOLPARAMS', 'NO_NAME_0')
+    return ds_location
+
+def __update_templated_ds_datasource_params(aliases, src_name, target_name):
+    target_ds_location = __get_jdbc_datasource_params_location(target_name)
+    src_ds_location = __get_jdbc_datasource_params_location(src_name)
+
+    __copy_templated_ds_attributes(src_ds_location, target_ds_location, aliases)
+
+def __update_templated_ds_driver_params(aliases, src_name, target_name):
+    target_ds_location = __get_jdbc_driver_params_location(target_name)
+    src_ds_location = __get_jdbc_driver_params_location(src_name)
+
+    __copy_templated_ds_attributes(src_ds_location, target_ds_location, aliases)
+
+    # copy properties
+    src_property_path = aliases.get_wlst_attributes_path(src_ds_location)  + '/Properties/NO_NAME_0/Property'
+    target_properties_path = aliases.get_wlst_attributes_path(target_ds_location)  + '/Properties/NO_NAME_0'
+    properties = _wlst_helper.lsc(src_property_path)
+
+    src_ds_location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
+    set_flattened_folder_token(src_ds_location, aliases)
+    target_ds_location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
+    set_flattened_folder_token(target_ds_location, aliases)
+
+    if properties is not None:
+        for property in properties:
+            token_name = aliases.get_name_token(src_ds_location)
+
+            if token_name is not None:
+                src_ds_location.add_name_token(token_name, property)
+
+            property_wlst_path = aliases.get_wlst_attributes_path(src_ds_location)
+            _wlst_helper.cd(property_wlst_path)
+            property_value = _wlst_helper.get('Value')
+            _wlst_helper.cd(target_properties_path)
+            _wlst_helper.create(property, 'Property')
+            target_ds_location.add_name_token(token_name, property)
+            property_wlst_path = aliases.get_wlst_attributes_path(target_ds_location)
+            _wlst_helper.cd(property_wlst_path)
+            wlst_name, wlst_value = \
+                aliases.get_wlst_attribute_name_and_value(target_ds_location, DRIVER_PARAMS_PROPERTY_VALUE,
+                                                          property_value)
+            _wlst_helper.set_if_needed(wlst_name, wlst_value)
+
+
+def __update_templated_ds_connpool_params(aliases, src_name, target_name):
+    target_ds_location = __get_jdbc_connection_pool_params_location(target_name)
+    src_ds_location = __get_jdbc_connection_pool_params_location(src_name)
+    __copy_templated_ds_attributes(src_ds_location, target_ds_location, aliases)
+
+def __update_datasource_toplevel_params(aliases, src_name, target_name):
+
+    target_ds_location = __get_jdbc_system_resource_location(target_name)
+    src_ds_location = __get_jdbc_system_resource_location(src_name)
+
+    create_and_cd(target_ds_location, [], aliases)
+    _wlst_helper.cd('JdbcResource/' + target_name)
+    _wlst_helper.create('NO_NAME_0', 'JDBCDriverParams', None)
+    _wlst_helper.create('NO_NAME_0', 'JDBCConnectionPoolParams', None)
+    _wlst_helper.create('NO_NAME_0', 'JDBCDataSourceParams', None)
+    _wlst_helper.cd('JDBCDriverParams/NO_NAME_0')
+    _wlst_helper.create('NO_NAME_0', 'Properties')
+
+    src_ds_wlst_path = aliases.get_wlst_attributes_path(src_ds_location)
+    _wlst_helper.cd(src_ds_wlst_path)
+    top_level_attributes = _wlst_helper.lsa()
+
+    __copy_templated_ds_attributes(src_ds_location, target_ds_location, aliases)
+
+    # new_descriptor_name = top_level_attributes['DescriptorFileName'].replace('.xml', '-' + target_name + '.xml')
+    # wlst_name, wlst_value = \
+    #     aliases.get_wlst_attribute_name_and_value(target_ds_location, 'DescriptorFileName',
+    #                                               new_descriptor_name)
+    # _wlst_helper.set_if_needed(wlst_name, wlst_value)
+
+
+def clone_templated_data_source(src_name, multi_data_source, aliases):
+    adjusted_names = []
+    urls = {}
+    # Create each physical datasource,
+    for target_name in multi_data_source:
+        new_target_name = src_name + '-' + target_name
+        adjusted_names.append(new_target_name)
+        urls[new_target_name] = { 'url': multi_data_source[target_name]['url']}
+
+        __update_datasource_toplevel_params(aliases, src_name, new_target_name)
+        __update_templated_ds_datasource_params(aliases, src_name, new_target_name)
+        __update_templated_ds_driver_params(aliases, src_name, new_target_name)
+        __update_templated_ds_connpool_params(aliases, src_name, new_target_name)
+
+    return adjusted_names, urls
+
+def convert_templated_ds_to_mds(ds_name,  multi_data_source, aliases):
+    ds_location = __get_jdbc_datasource_location(ds_name)
+    ds_wlst_path = aliases.get_wlst_attributes_path(ds_location)
+    _wlst_helper.cd(ds_wlst_path)
+    wlst_name, wlst_value = \
+        aliases.get_wlst_attribute_name_and_value(ds_location, 'DatasourceType', 'MDS')
+    _wlst_helper.set_if_needed(wlst_name, wlst_value)
+    # _wlst_helper.delete('NO_NAME_0', 'JDBCDriverParams')
+    # _wlst_helper.delete('NO_NAME_0', 'JDBCConnectionPoolParams')
+
+    ds_location = __get_jdbc_datasource_params_location(ds_name)
+    ds_wlst_path = aliases.get_wlst_attributes_path(ds_location)
+    _wlst_helper.cd(ds_wlst_path)
+
+    wlst_name, wlst_value = \
+        aliases.get_wlst_attribute_name_and_value(ds_location, 'AlgorithmType', 'Failover')
+    _wlst_helper.set_if_needed(wlst_name, wlst_value)
+    mds_list = list(multi_data_source)
+    wlst_name, wlst_value = \
+        aliases.get_wlst_attribute_name_and_value(ds_location, 'DataSourceList', mds_list)
+    _wlst_helper.set_if_needed(wlst_name, wlst_value)
+

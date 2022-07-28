@@ -27,10 +27,12 @@ from wlsdeploy.aliases.model_constants import SSL_TNS_ENTRY
 from wlsdeploy.aliases.model_constants import USE_ATP
 from wlsdeploy.aliases.model_constants import USE_SSL
 from wlsdeploy.aliases.model_constants import DATABASE_TYPE
+from wlsdeploy.aliases.model_constants import ORACLE_DATABASE_PARAMS
 from wlsdeploy.aliases.model_constants import RCU_DEFAULT_TBLSPACE
 from wlsdeploy.aliases.model_constants import RCU_TEMP_TBLSPACE
 from wlsdeploy.aliases.model_constants import RCU_TNS_ALIAS
 from wlsdeploy.aliases.model_constants import RCU_CONNECTION_PROPERTIES
+from wlsdeploy.aliases.model_constants import MULTIDATASOURCE_URLS
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -57,6 +59,12 @@ class RcuDbInfo(object):
         else:
             return type
 
+    def get_oracle_database_params(self):
+        return dictionary_utils.get_element(self.rcu_properties_map, ORACLE_DATABASE_PARAMS)
+
+    def get_multidatasource_urls(self):
+        return dictionary_utils.get_element(self.rcu_properties_map, MULTIDATASOURCE_URLS)
+
     def get_rcu_default_tablespace(self):
         type = dictionary_utils.get_element(self.rcu_properties_map, RCU_DEFAULT_TBLSPACE)
         if type is None:
@@ -78,7 +86,10 @@ class RcuDbInfo(object):
         return dictionary_utils.get_element(self.rcu_properties_map, RCU_TNS_ALIAS)
 
     def get_rcu_connection_properties(self):
-        return dictionary_utils.get_element(self.rcu_properties_map, RCU_CONNECTION_PROPERTIES)
+        result = dictionary_utils.get_element(self.rcu_properties_map, RCU_CONNECTION_PROPERTIES)
+        if result is None:
+            result = {}
+        return result
 
     def get_atp_tns_admin(self):
         return dictionary_utils.get_element(self.rcu_properties_map, DRIVER_PARAMS_NET_TNS_ADMIN)
@@ -203,11 +214,18 @@ class RcuDbInfo(object):
     def has_ssldbinfo(self):
         return self.is_use_ssl()
 
+    def is_multidatasource(self):
+        if self.get_multidatasource_urls() is not None and self.get_database_type() != 'AGL':
+            return True
+        else:
+            return False
+
     def is_regular_db(self):
         if RCU_DB_CONN in self.rcu_properties_map:
             if self.get_database_type() == 'ORACLE' and  not (self.is_use_atp() or self.is_use_ssl()):
                 return True
         return False
+
 
     def is_use_atp(self):
         """

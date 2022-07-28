@@ -27,11 +27,8 @@
             }
         },
         "connectionProperties": {
-            "wlst_type": "Property",
+            "wlst_type": "connectionProperties",
             "child_folders_type": "multiple",
-            "flattened_folder_data": {
-                "wlst_type": "Properties"
-            },
             "folders": { },
             "attributes": {
                 "Value":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Value", "wlst_path": "WP001", "default_value": "", "wlst_type": "string" }]
@@ -41,20 +38,16 @@
                 "WP001": "/RCUDbInfo/connectionProperties"
             }
         },
-
-        "multiDataSourceURL": {
-            "wlst_type": "Property",
+        "multiDataSource": {
+            "wlst_type": "multiDataSource",
             "child_folders_type": "multiple",
-            "flattened_folder_data": {
-                "wlst_type": "Properties"
-            },
-            "folders": { },
+            "folders": {},
             "attributes": {
-                "Value":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Value", "wlst_path": "WP001", "default_value": "", "wlst_type": "string" }]
+                "url":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Value", "wlst_path": "WP001", "default_value": "", "wlst_type": "string" }]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
-                "WP001": "/RCUDbInfo/multiDataSourceURL"
+                "WP001": "/RCUDbInfo/multiDataSource"
             }
         }
     },
