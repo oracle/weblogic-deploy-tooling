@@ -122,8 +122,9 @@ class ModelContext(object):
             psu = XPathUtil(self._oracle_home).getPSU()
             if psu is not None:
                 self._wl_version += '.' + psu
-                self._logger.info('WLSDPLY-01050', self._wl_version, class_name=self._class_name,
-                method_name=_method_name)
+
+            self._logger.info('WLSDPLY-01050', self._wl_version, class_name=self._class_name,
+                              method_name=_method_name)
             self._wl_home = self._wls_helper.get_weblogic_home(self._oracle_home)
 
         if CommandLineArgUtil.JAVA_HOME_SWITCH in arg_map:

@@ -58,7 +58,7 @@ public class XPathUtil {
     public String getPSU() {
         // find the names in the directory first
         if (!(new File(patchesHome)).exists()) {
-            LOGGER.info("No patches home at {0}", patchesHome);
+            LOGGER.fine("No PSU, patches directory not found at {0}", patchesHome);
             return null;
         }
         List<String> patchFiles = findPatchFiles();
