@@ -19,6 +19,7 @@ import oracle.weblogic.deploy.util.ScriptRunner;
 import oracle.weblogic.deploy.util.ScriptRunnerException;
 import oracle.weblogic.deploy.util.StringUtils;
 
+import org.python.core.PyClass;
 import org.python.core.PyDictionary;
 import org.python.core.PyString;
 
@@ -139,7 +140,7 @@ public class RCURunner {
      * @throws CreateException if a parameter validation error occurs
      */
     public static RCURunner createAtpRunner(String domainType, String oracleHome, String javaHome, String rcuDb,
-                                            String rcuPrefix, List<String> rcuSchemas, String rcuVariables,
+                                            List<String> rcuSchemas, String rcuPrefix, String rcuVariables,
                                             String databaseType, PyDictionary runnerMap,
                                             PyDictionary connectionProperties) throws CreateException {
 
@@ -153,27 +154,15 @@ public class RCURunner {
             }
             sslArgs.append(connectionProperty.toString());
             sslArgs.append('=');
-            PyDictionary valueOject = (PyDictionary)connectionProperties
+            PyDictionary valueObject = (PyDictionary)connectionProperties
                 .get(new PyString(connectionProperty.toString()));
-            sslArgs.append(valueOject.get(new PyString("Value")));
+            sslArgs.append(valueObject.get(new PyString("Value")));
         }
 
-        //  The password is encrypted in the model, so pick it from the map instead of the connection properties
-        //  if user provided an unencrypted passwords, then it's their choice
 
-        if (!connectionProperties.has_key(new PyString("javax.net.ssl.keyStorePassword")) &&
-            !get(runnerMap, "javax.net.ssl.keyStorePassword").equals("None")) {
-            sslArgs.append(",");
-            sslArgs.append("javax.net.ssl.keyStorePassword=");
-            sslArgs.append(get(runnerMap, "javax.net.ssl.keyStorePassword"));
-        }
+        addExtraSSLPropertyFromMap(runnerMap, connectionProperties, sslArgs, "javax.net.ssl.keyStorePassword");
+        addExtraSSLPropertyFromMap(runnerMap, connectionProperties, sslArgs, "javax.net.ssl.trustStorePassword");
 
-        if (!connectionProperties.has_key(new PyString("javax.net.ssl.trustStorePassword")) &&
-            !get(runnerMap, "javax.net.ssl.trustStorePassword").equals("None")) {
-            sslArgs.append(",");
-            sslArgs.append("javax.net.ssl.trustStorePassword=");
-            sslArgs.append(get(runnerMap, "javax.net.ssl.trustStorePassword"));
-        }
 
         runner.atpDB = "ATP".equals(databaseType);  // or scan if there are any 'ssl' in properties ?
         runner.atpSSlArgs = sslArgs.toString();
@@ -184,6 +173,17 @@ public class RCURunner {
 
         return runner;
     }
+
+    private static void addExtraSSLPropertyFromMap(PyDictionary runnerMap, PyDictionary connectionProperties,
+                                                   StringBuilder sslArgs, String key) {
+        if (!connectionProperties.has_key(new PyString(key)) &&
+            !get(runnerMap, key).equals("None")) {
+            sslArgs.append(",");
+            sslArgs.append(key);
+            sslArgs.append(get(runnerMap, key));
+        }
+    }
+
     /**
      * Build an RCU runner for an SSL database.
      *
