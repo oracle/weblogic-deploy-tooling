@@ -278,31 +278,43 @@ class DomainCreator(Creator):
             # ATP database, build runner map from RCUDbInfo in the model.
 
             # check it first
-            self.__retrieve_atp_rcudbinfo(rcu_db_info, True)
+            #self.__retrieve_atp_rcudbinfo(rcu_db_info, True)
             # make a copy of model's map to pass to RCURunner, since we will modify some values
-            rcu_properties_map = self.model.get_model_domain_info()[RCU_DB_INFO]
-            rcu_runner_map = dict(rcu_properties_map)
+            #rcu_db_info = self.model.get_model_domain_info()[RCU_DB_INFO]
+
+            # TODO: fix validation
+
+            rcu_runner_map = dict()
 
             # update password fields with decrypted passwords
-            rcu_runner_map[DRIVER_PARAMS_KEYSTOREPWD_PROPERTY] = rcu_db_info.get_keystore_password()
-            rcu_runner_map[DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY] = rcu_db_info.get_truststore_password()
+            if rcu_db_info.get_keystore_password() is not None:
+                rcu_runner_map[DRIVER_PARAMS_KEYSTOREPWD_PROPERTY] = rcu_db_info.get_keystore_password()
+
+            if rcu_db_info.get_truststore_password() is not None:
+                rcu_runner_map[DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY] = rcu_db_info.get_truststore_password()
 
             # reset these to pick up any defaults from rcu_db_info
             rcu_runner_map[ATP_ADMIN_USER] = rcu_db_info.get_atp_admin_user()
             rcu_runner_map[ATP_TEMPORARY_TABLESPACE] = rcu_db_info.get_atp_temporary_tablespace()
             rcu_runner_map[ATP_DEFAULT_TABLESPACE] = rcu_db_info.get_atp_default_tablespace()
 
-            self.__validate_rcudbinfo_entries(rcu_runner_map, [ATP_TNS_ENTRY,
-                                                               DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY,
-                                                               DRIVER_PARAMS_KEYSTOREPWD_PROPERTY])
+            # self.__validate_rcudbinfo_entries(rcu_runner_map, [ATP_TNS_ENTRY,
+            #                                                    DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY,
+            #                                                    DRIVER_PARAMS_KEYSTOREPWD_PROPERTY])
 
-            runner = RCURunner.createAtpRunner(domain_type, oracle_home, java_home, rcu_prefix, rcu_schemas,
-                                               rcu_db_info.get_rcu_variables(), rcu_runner_map)
+            # TODO: refactor
+
+            runner = RCURunner.createAtpRunner(domain_type, oracle_home, java_home, rcu_db_info.get_preferred_db(),
+                                               rcu_prefix, rcu_schemas,
+                                               rcu_db_info.get_rcu_variables(), rcu_db_info.get_database_type(),
+                                               rcu_runner_map,
+                                               rcu_db_info.get_rcu_connection_properties()
+                                               )
 
         elif rcu_db_info.is_use_ssl():
             rcu_db = rcu_db_info.get_preferred_db()
-            rcu_properties_map = self.model.get_model_domain_info()[RCU_DB_INFO]
-            rcu_runner_map =dict(rcu_properties_map)
+            #rcu_db_info = self.model.get_model_domain_info()[RCU_DB_INFO]
+            rcu_runner_map =dict()
             rcu_runner_map[SSL_ADMIN_USER] = rcu_db_info.get_ssl_tns_admin()
             runner = RCURunner.createSslRunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas,
                                                rcu_db_info.get_rcu_variables(), rcu_runner_map)
@@ -966,37 +978,38 @@ class DomainCreator(Creator):
         _method_name = '__retrieve_atp_rcudbinfo'
 
         tns_admin = rcu_db_info.get_atp_tns_admin()
-
-        if tns_admin is None or not os.path.exists(tns_admin + os.sep + "tnsnames.ora"):
-            ex = exception_helper.create_create_exception('WLSDPLY-12562')
-            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-
-        if rcu_db_info.get_atp_entry() is None:
-            ex = exception_helper.create_create_exception('WLSDPLY-12413','tns.alias',
-                                                          "['tns.alias','javax.net.ssl.keyStorePassword',"
-                                                          "'javax.net.ssl.trustStorePassword']")
-            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-
-        rcu_database, error = atp_helper.get_atp_connect_string(tns_admin + os.sep + 'tnsnames.ora',
-                                                         rcu_db_info.get_atp_entry())
-
+        tns_admin = '/home/johnny/dev/atp/wallet'
+        #rcu_database = rcu_db_info.get_preferred_db()
+        # if tns_admin is None or not os.path.exists(tns_admin + os.sep + "tnsnames.ora"):
+        #     ex = exception_helper.create_create_exception('WLSDPLY-12562')
+        #     self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+        #     raise ex
+        #
+        # if rcu_db_info.get_atp_entry() is None:
+        #     ex = exception_helper.create_create_exception('WLSDPLY-12413','tns.alias',
+        #                                                   "['tns.alias','javax.net.ssl.keyStorePassword',"
+        #                                                   "'javax.net.ssl.trustStorePassword']")
+        #     self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+        #     raise ex
+        #
+        rcu_database, error = atp_helper.get_atp_connect_string(tns_admin + os.sep + 'tnsnames.ora', 'apfkqb9uw2a2lflq_tp')
+                                                          #rcu_db_info.get_atp_entry())
+        #
         keystore_pwd = rcu_db_info.get_keystore_password()
         truststore_pwd = rcu_db_info.get_truststore_password()
-
-        if keystore_pwd is None:
-            ex = exception_helper.create_create_exception('WLSDPLY-12413','javax.net.ssl.keyStorePassword',
-                                                          "['tns.alias','javax.net.ssl.keyStorePassword',"
-                                                          "'javax.net.ssl.trustStorePassword']")
-            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-
-        if truststore_pwd is None:
-            ex = exception_helper.create_create_exception('WLSDPLY-12413','javax.net.ssl.trustStorePassword',
-                                                          "['tns.alias','javax.net.ssl.keyStorePassword',"
-                                                          "'javax.net.ssl.trustStorePassword']")
-            raise ex
+        #
+        # if keystore_pwd is None:
+        #     ex = exception_helper.create_create_exception('WLSDPLY-12413','javax.net.ssl.keyStorePassword',
+        #                                                   "['tns.alias','javax.net.ssl.keyStorePassword',"
+        #                                                   "'javax.net.ssl.trustStorePassword']")
+        #     self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+        #     raise ex
+        #
+        # if truststore_pwd is None:
+        #     ex = exception_helper.create_create_exception('WLSDPLY-12413','javax.net.ssl.trustStorePassword',
+        #                                                   "['tns.alias','javax.net.ssl.keyStorePassword',"
+        #                                                   "'javax.net.ssl.trustStorePassword']")
+        #     raise ex
 
         if check_admin_pwd:
             admin_pwd = rcu_db_info.get_admin_password()
@@ -1133,7 +1146,7 @@ class DomainCreator(Creator):
                 # delete JDBCConnectionPoolParams JDBCDriverParams
                 deployer_utils.convert_templated_ds_to_mds(ds_name, urls, self.aliases)
 
-            # MDS case
+            # non MDS case
             if adjusted_names is None:
                 adjusted_names = [ds_name]
                 urls = { ds_name: { 'url': fmw_database}}
@@ -1179,6 +1192,7 @@ class DomainCreator(Creator):
                     self.aliases.get_wlst_attribute_name_and_value(location, DRIVER_PARAMS_PROPERTY_VALUE,
                                                                    schema_user)
                 self.wlst_helper.set_if_needed(wlst_name, wlst_value)
+
                 # need to set other properties
 
                 location.remove_name_token(DRIVER_PARAMS_USER_PROPERTY)

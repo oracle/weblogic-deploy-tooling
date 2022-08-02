@@ -135,45 +135,53 @@ public class RCURunner {
      * @param javaHome   the JAVA_HOME location
      * @param rcuSchemas the list of RCU schemas to create (this list should not include STB)
      * @param rcuVariables a comma separated list of key=value variables
-     * @param rcuProperties dictionary of ATP specific arguments
+     * @param connectionProperties dictionary of ATP specific arguments
      * @throws CreateException if a parameter validation error occurs
      */
-    public static RCURunner createAtpRunner(String domainType, String oracleHome, String javaHome,
+    public static RCURunner createAtpRunner(String domainType, String oracleHome, String javaHome, String rcuDb,
                                             String rcuPrefix, List<String> rcuSchemas, String rcuVariables,
-                                            PyDictionary rcuProperties) throws CreateException {
-
-        String rcuDb = "jdbc:oracle:thin:@" + get(rcuProperties, "tns.alias");
+                                            String databaseType, PyDictionary runnerMap,
+                                            PyDictionary connectionProperties) throws CreateException {
 
         RCURunner runner = new RCURunner(domainType, oracleHome, javaHome, rcuDb, rcuPrefix, rcuSchemas, rcuVariables);
 
-        String tnsAdmin = get(rcuProperties, "oracle.net.tns_admin");
-        String keyStorePassword = get(rcuProperties, "javax.net.ssl.keyStorePassword");
-        String trustStorePassword = get(rcuProperties, "javax.net.ssl.trustStorePassword");
-
         StringBuilder sslArgs = new StringBuilder();
-        sslArgs.append("oracle.net.tns_admin=");
-        sslArgs.append(tnsAdmin);
-        sslArgs.append(",oracle.net.ssl_version=1.2");
-        sslArgs.append(",javax.net.ssl.trustStore=");
-        sslArgs.append(tnsAdmin);
-        sslArgs.append("/truststore.jks");
-        sslArgs.append(",javax.net.ssl.trustStoreType=JKS");
-        sslArgs.append(",javax.net.ssl.trustStorePassword=");
-        sslArgs.append(trustStorePassword);
-        sslArgs.append(",javax.net.ssl.keyStore=");
-        sslArgs.append(tnsAdmin);
-        sslArgs.append("/keystore.jks");
-        sslArgs.append(",javax.net.ssl.keyStoreType=JKS");
-        sslArgs.append(",javax.net.ssl.keyStorePassword=");
-        sslArgs.append(keyStorePassword);
-        sslArgs.append(",oracle.jdbc.fanEnabled=false");
-        sslArgs.append(",oracle.net.ssl_server_dn_match=false");
 
-        runner.atpDB = true;
+        for (Object connectionProperty: connectionProperties.keys()) {
+            if (sslArgs.length() != 0) {
+                sslArgs.append(',');
+            }
+            sslArgs.append(connectionProperty.toString());
+            sslArgs.append('=');
+            PyDictionary valueOject = (PyDictionary)connectionProperties
+                .get(new PyString(connectionProperty.toString()));
+            sslArgs.append(valueOject.get(new PyString("Value")));
+        }
+
+        //  The password is encrypted in the model, so pick it from the map instead of the connection properties
+        //  if user provided an unencrypted passwords, then it's their choice
+
+        if (!connectionProperties.has_key(new PyString("javax.net.ssl.keyStorePassword")) &&
+            !get(runnerMap, "javax.net.ssl.keyStorePassword").equals("None")) {
+            sslArgs.append(",");
+            sslArgs.append("javax.net.ssl.keyStorePassword=");
+            sslArgs.append(get(runnerMap, "javax.net.ssl.keyStorePassword"));
+        }
+
+        if (!connectionProperties.has_key(new PyString("javax.net.ssl.trustStorePassword")) &&
+            !get(runnerMap, "javax.net.ssl.trustStorePassword").equals("None")) {
+            sslArgs.append(",");
+            sslArgs.append("javax.net.ssl.trustStorePassword=");
+            sslArgs.append(get(runnerMap, "javax.net.ssl.trustStorePassword"));
+        }
+
+        runner.atpDB = "ATP".equals(databaseType);  // or scan if there are any 'ssl' in properties ?
         runner.atpSSlArgs = sslArgs.toString();
-        runner.atpAdminUser = get(rcuProperties, "atp.admin.user");
-        runner.atpDefaultTablespace = get(rcuProperties, "atp.default.tablespace");
-        runner.atpTemporaryTablespace = get(rcuProperties, "atp.temp.tablespace");
+
+        runner.atpAdminUser = get(runnerMap, "atp.admin.user");
+        runner.atpDefaultTablespace = get(runnerMap, "atp.default.tablespace");
+        runner.atpTemporaryTablespace = get(runnerMap, "atp.temp.tablespace");
+
         return runner;
     }
     /**
@@ -276,6 +284,7 @@ public class RCURunner {
         }
         // RCU is stupid and RCU drop exits with exit code 1 if the schemas do not exist...sigh
         //
+
         if (exitCode != 0 && !isSchemaNotExistError(runner)) {
             CreateException ce = new CreateException("WLSDPLY-12002", CLASS, exitCode, runner.getStdoutFileName());
             LOGGER.throwing(CLASS, METHOD, ce);
