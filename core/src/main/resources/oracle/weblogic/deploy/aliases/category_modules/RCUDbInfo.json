@@ -5,7 +5,6 @@
     "folders": {
         "oracleDatabaseParams": {
             "wlst_type": "JDBCOracleParams",
-            "default_name_value": "${NO_NAME_0:%DATASOURCE%}",
             "folders": {},
             "attributes": {
                 "ActiveGridlink":                    [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "ActiveGridlink",                    "wlst_path": "WP001", "default_value": "${__NULL__:false}",      "wlst_type": "boolean",        "get_method": "LSA"} ],

@@ -35,7 +35,7 @@ from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import JDBC_CONNECTION_POOL_PARAMS
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS_PROPERTIES
-from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
+from wlsdeploy.aliases.model_constants import JDBC_ORACLE_PARAMS
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE
 from wlsdeploy.aliases.model_constants import LIBRARY
 from wlsdeploy.aliases.model_constants import MAX_DYNAMIC_SERVER_COUNT
@@ -754,13 +754,25 @@ def __get_jdbc_datasource_params_location(ds_name):
     ds_location.add_name_token('JDBCDATASOURCEPARAMS', 'NO_NAME_0')
     return ds_location
 
-def __get_jdbc_datasource_location(ds_name):
+def get_jdbc_datasource_location(ds_name):
     ds_location = LocationContext()
     ds_location.append_location(JDBC_SYSTEM_RESOURCE)
     ds_location.append_location(JDBC_RESOURCE)
     ds_location.add_name_token('JDBCRESOURCE', ds_name)
     ds_location.add_name_token('DATASOURCE', ds_name)
     return ds_location
+
+def get_jdbc_datasource_oracleparams_location(ds_name):
+    ds_location = LocationContext()
+    ds_location.append_location(JDBC_SYSTEM_RESOURCE)
+    ds_location.append_location(JDBC_RESOURCE)
+    ds_location.append_location(JDBC_ORACLE_PARAMS)
+    ds_location.add_name_token('JDBCDATASOURCEPARAMS', 'NO_NAME_0')
+    ds_location.add_name_token('JDBCORACLEPARAMS', 'NO_NAME_0')
+    ds_location.add_name_token('JDBCRESOURCE', ds_name)
+    ds_location.add_name_token('DATASOURCE', ds_name)
+    return ds_location
+
 
 def __get_jdbc_system_resource_location(ds_name):
     ds_location = LocationContext()
@@ -776,6 +788,18 @@ def __get_jdbc_driver_params_location(ds_name):
     ds_location.add_name_token('JDBCRESOURCE', ds_name)
     ds_location.add_name_token('DATASOURCE', ds_name)
     ds_location.add_name_token('JDBCDRIVERPARAMS', 'NO_NAME_0')
+    return ds_location
+
+def get_jdbc_driver_params_properties_location(ds_name):
+    ds_location = LocationContext()
+    ds_location.append_location(JDBC_SYSTEM_RESOURCE)
+    ds_location.append_location(JDBC_RESOURCE)
+    ds_location.append_location(JDBC_DRIVER_PARAMS)
+    ds_location.add_name_token('JDBCRESOURCE', ds_name)
+    ds_location.add_name_token('DATASOURCE', ds_name)
+    ds_location.add_name_token('JDBCDRIVERPARAMS', 'NO_NAME_0')
+    ds_location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
+    ds_location.add_name_token('PROPERTIES', 'NO_NAME_0')
     return ds_location
 
 def __get_jdbc_connection_pool_params_location(ds_name):
@@ -879,7 +903,7 @@ def clone_templated_data_source(src_name, multi_data_source, aliases):
     return adjusted_names, urls
 
 def convert_templated_ds_to_mds(ds_name,  multi_data_source, aliases):
-    ds_location = __get_jdbc_datasource_location(ds_name)
+    ds_location = get_jdbc_datasource_location(ds_name)
     ds_wlst_path = aliases.get_wlst_attributes_path(ds_location)
     _wlst_helper.cd(ds_wlst_path)
     wlst_name, wlst_value = \
@@ -900,3 +924,10 @@ def convert_templated_ds_to_mds(ds_name,  multi_data_source, aliases):
         aliases.get_wlst_attribute_name_and_value(ds_location, 'DataSourceList', mds_list)
     _wlst_helper.set_if_needed(wlst_name, wlst_value)
 
+def set_datasource_type(ds_name, ds_type, aliases):
+    ds_location = get_jdbc_datasource_location(ds_name)
+    ds_wlst_path = aliases.get_wlst_attributes_path(ds_location)
+    _wlst_helper.cd(ds_wlst_path)
+    wlst_name, wlst_value = \
+        aliases.get_wlst_attribute_name_and_value(ds_location, 'DatasourceType', ds_type)
+    _wlst_helper.set_if_needed(wlst_name, wlst_value)
