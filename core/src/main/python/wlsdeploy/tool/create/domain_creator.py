@@ -11,7 +11,6 @@ from java.lang import IllegalArgumentException
 from java.util import Properties
 from oracle.weblogic.deploy.create import RCURunner
 from oracle.weblogic.deploy.util import FileUtils
-
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_SERVER_NAME
@@ -1014,8 +1013,8 @@ class DomainCreator(Creator):
             raise ex
 
         if rcu_db_info.get_atp_entry() is None:
-            ex = exception_helper.create_create_exception('WLSDPLY-12413','tns.alias',
-                                                          "['tns.alias','javax.net.ssl.keyStorePassword',"
+            ex = exception_helper.create_create_exception('WLSDPLY-12413','wallet_tns_alias',
+                                                          "['wallet_tns_alias','javax.net.ssl.keyStorePassword',"
                                                           "'javax.net.ssl.trustStorePassword']")
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
@@ -1028,14 +1027,14 @@ class DomainCreator(Creator):
 
         if keystore_pwd is None:
             ex = exception_helper.create_create_exception('WLSDPLY-12413','javax.net.ssl.keyStorePassword',
-                                                          "['tns.alias','javax.net.ssl.keyStorePassword',"
+                                                          "['wallet_tns_alias','javax.net.ssl.keyStorePassword',"
                                                           "'javax.net.ssl.trustStorePassword']")
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
         if truststore_pwd is None:
             ex = exception_helper.create_create_exception('WLSDPLY-12413','javax.net.ssl.trustStorePassword',
-                                                          "['tns.alias','javax.net.ssl.keyStorePassword',"
+                                                          "['wallet_tns_alias','javax.net.ssl.keyStorePassword',"
                                                           "'javax.net.ssl.trustStorePassword']")
             raise ex
 
@@ -1172,8 +1171,6 @@ class DomainCreator(Creator):
                                                                             rcu_db_info.get_multidatasource_urls(),
                                                                             self.aliases)
 
-                # change the DatasourceType to MDS
-                # delete JDBCConnectionPoolParams JDBCDriverParams
                 deployer_utils.convert_templated_ds_to_mds(ds_name, urls, self.aliases)
 
             # non MDS case
@@ -1204,18 +1201,18 @@ class DomainCreator(Creator):
                                                             truststore_type)
 
     def __set_user_provided_conn_properties(self, datasource_name, rcu_db_info):
-        location = deployer_utils.get_jdbc_driver_params_properties_location(datasource_name)
+        location = deployer_utils.get_jdbc_driver_params_properties_location(datasource_name, self.aliases)
         props = rcu_db_info.get_rcu_connection_properties()
         for prop in props:
             self.__set_connection_property(location, prop, props[prop]['Value'])
 
     def __set_datasource_oracleparmas(self, datasource_name, rcu_db_info):
         if rcu_db_info.get_oracle_database_params() is not None:
-            location = deployer_utils.get_jdbc_datasource_location(datasource_name)
+            location = deployer_utils.get_jdbc_datasource_location(datasource_name, self.aliases)
             wlst_path = self.aliases.get_wlst_attributes_path(location)
             self.wlst_helper.cd(wlst_path)
             self.wlst_helper.create('NO_NAME_0', 'JDBCOracleParams', None)
-            location = deployer_utils.get_jdbc_datasource_oracleparams_location(datasource_name)
+            location = deployer_utils.get_jdbc_datasource_oracleparams_location(datasource_name, self.aliases)
             wlst_path = self.aliases.get_wlst_attributes_path(location)
             oracle_ds_params = rcu_db_info.get_oracle_database_params()
             self.wlst_helper.cd(wlst_path)

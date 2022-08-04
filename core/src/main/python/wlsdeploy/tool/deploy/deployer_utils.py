@@ -744,83 +744,77 @@ def __copy_templated_ds_attributes(src_location, target_location, aliases):
                                                       attributes[attribute])
         _wlst_helper.set_if_needed(wlst_name, wlst_value)
 
-def __get_jdbc_datasource_params_location(ds_name):
+def __add_token_at_location(aliases, location, value):
+    token = aliases.get_name_token(location)
+    if token:
+        location.add_name_token(token, value)
+
+def __get_jdbc_system_resource_location(ds_name, aliases):
     ds_location = LocationContext()
     ds_location.append_location(JDBC_SYSTEM_RESOURCE)
+    __add_token_at_location(aliases, ds_location, ds_name)
+    #ds_location.add_name_token('DATASOURCE', ds_name)
+    return ds_location
+
+def get_jdbc_datasource_location(ds_name, aliases):
+    ds_location = __get_jdbc_system_resource_location(ds_name, aliases)
     ds_location.append_location(JDBC_RESOURCE)
+    __add_token_at_location(aliases, ds_location, ds_name)
+    # ds_location.add_name_token('JDBCRESOURCE', ds_name)
+    # ds_location.add_name_token('DATASOURCE', ds_name)
+    return ds_location
+
+def __get_jdbc_datasource_params_location(ds_name, aliases):
+    ds_location = get_jdbc_datasource_location(ds_name, aliases)
     ds_location.append_location(JDBC_DATASOURCE_PARAMS)
-    ds_location.add_name_token('JDBCRESOURCE', ds_name)
-    ds_location.add_name_token('DATASOURCE', ds_name)
-    ds_location.add_name_token('JDBCDATASOURCEPARAMS', 'NO_NAME_0')
+    __add_token_at_location(aliases, ds_location, 'NO_NAME_0')
+
+    # ds_location.add_name_token('JDBCRESOURCE', ds_name)
+    # ds_location.add_name_token('DATASOURCE', ds_name)
+    # ds_location.add_name_token('JDBCDATASOURCEPARAMS', 'NO_NAME_0')
     return ds_location
 
-def get_jdbc_datasource_location(ds_name):
-    ds_location = LocationContext()
-    ds_location.append_location(JDBC_SYSTEM_RESOURCE)
-    ds_location.append_location(JDBC_RESOURCE)
-    ds_location.add_name_token('JDBCRESOURCE', ds_name)
-    ds_location.add_name_token('DATASOURCE', ds_name)
-    return ds_location
-
-def get_jdbc_datasource_oracleparams_location(ds_name):
-    ds_location = LocationContext()
-    ds_location.append_location(JDBC_SYSTEM_RESOURCE)
-    ds_location.append_location(JDBC_RESOURCE)
+def get_jdbc_datasource_oracleparams_location(ds_name, aliases):
+    ds_location = get_jdbc_datasource_location(ds_name, aliases)
     ds_location.append_location(JDBC_ORACLE_PARAMS)
-    ds_location.add_name_token('JDBCDATASOURCEPARAMS', 'NO_NAME_0')
-    ds_location.add_name_token('JDBCORACLEPARAMS', 'NO_NAME_0')
-    ds_location.add_name_token('JDBCRESOURCE', ds_name)
-    ds_location.add_name_token('DATASOURCE', ds_name)
+    __add_token_at_location(aliases, ds_location, 'NO_NAME_0')
+    # ds_location.add_name_token('JDBCDATASOURCEPARAMS', 'NO_NAME_0')
+    # ds_location.add_name_token('JDBCORACLEPARAMS', 'NO_NAME_0')
+    # ds_location.add_name_token('JDBCRESOURCE', ds_name)
+    # ds_location.add_name_token('DATASOURCE', ds_name)
     return ds_location
 
-
-def __get_jdbc_system_resource_location(ds_name):
-    ds_location = LocationContext()
-    ds_location.append_location(JDBC_SYSTEM_RESOURCE)
-    ds_location.add_name_token('DATASOURCE', ds_name)
-    return ds_location
-
-def __get_jdbc_driver_params_location(ds_name):
-    ds_location = LocationContext()
-    ds_location.append_location(JDBC_SYSTEM_RESOURCE)
-    ds_location.append_location(JDBC_RESOURCE)
+def __get_jdbc_driver_params_location(ds_name, aliases):
+    ds_location = get_jdbc_datasource_location(ds_name, aliases)
     ds_location.append_location(JDBC_DRIVER_PARAMS)
-    ds_location.add_name_token('JDBCRESOURCE', ds_name)
-    ds_location.add_name_token('DATASOURCE', ds_name)
-    ds_location.add_name_token('JDBCDRIVERPARAMS', 'NO_NAME_0')
+    __add_token_at_location(aliases, ds_location, 'NO_NAME_0')
+    # ds_location.add_name_token('JDBCRESOURCE', ds_name)
+    # ds_location.add_name_token('DATASOURCE', ds_name)
+    # ds_location.add_name_token('JDBCDRIVERPARAMS', 'NO_NAME_0')
     return ds_location
 
-def get_jdbc_driver_params_properties_location(ds_name):
-    ds_location = LocationContext()
-    ds_location.append_location(JDBC_SYSTEM_RESOURCE)
-    ds_location.append_location(JDBC_RESOURCE)
-    ds_location.append_location(JDBC_DRIVER_PARAMS)
-    ds_location.add_name_token('JDBCRESOURCE', ds_name)
-    ds_location.add_name_token('DATASOURCE', ds_name)
-    ds_location.add_name_token('JDBCDRIVERPARAMS', 'NO_NAME_0')
+def get_jdbc_driver_params_properties_location(ds_name, aliases):
+    ds_location = __get_jdbc_driver_params_location(ds_name, aliases)
     ds_location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
     ds_location.add_name_token('PROPERTIES', 'NO_NAME_0')
+    __add_token_at_location(aliases, ds_location, 'NO_NAME_0')
     return ds_location
 
-def __get_jdbc_connection_pool_params_location(ds_name):
-    ds_location = LocationContext()
-    ds_location.append_location(JDBC_SYSTEM_RESOURCE)
-    ds_location.append_location(JDBC_RESOURCE)
+def __get_jdbc_connection_pool_params_location(ds_name, aliases):
+    ds_location = get_jdbc_datasource_location(ds_name, aliases)
     ds_location.append_location(JDBC_CONNECTION_POOL_PARAMS)
-    ds_location.add_name_token('JDBCRESOURCE', ds_name)
-    ds_location.add_name_token('DATASOURCE', ds_name)
-    ds_location.add_name_token('JDBCCONNECTIONPOOLPARAMS', 'NO_NAME_0')
+    __add_token_at_location(aliases, ds_location, 'NO_NAME_0')
     return ds_location
 
 def __update_templated_ds_datasource_params(aliases, src_name, target_name):
-    target_ds_location = __get_jdbc_datasource_params_location(target_name)
-    src_ds_location = __get_jdbc_datasource_params_location(src_name)
+    target_ds_location = __get_jdbc_datasource_params_location(target_name, aliases)
+    src_ds_location = __get_jdbc_datasource_params_location(src_name, aliases)
 
     __copy_templated_ds_attributes(src_ds_location, target_ds_location, aliases)
 
 def __update_templated_ds_driver_params(aliases, src_name, target_name):
-    target_ds_location = __get_jdbc_driver_params_location(target_name)
-    src_ds_location = __get_jdbc_driver_params_location(src_name)
+    target_ds_location = __get_jdbc_driver_params_location(target_name, aliases)
+    src_ds_location = __get_jdbc_driver_params_location(src_name, aliases)
 
     __copy_templated_ds_attributes(src_ds_location, target_ds_location, aliases)
 
@@ -856,14 +850,14 @@ def __update_templated_ds_driver_params(aliases, src_name, target_name):
 
 
 def __update_templated_ds_connpool_params(aliases, src_name, target_name):
-    target_ds_location = __get_jdbc_connection_pool_params_location(target_name)
-    src_ds_location = __get_jdbc_connection_pool_params_location(src_name)
+    target_ds_location = __get_jdbc_connection_pool_params_location(target_name, aliases)
+    src_ds_location = __get_jdbc_connection_pool_params_location(src_name, aliases)
     __copy_templated_ds_attributes(src_ds_location, target_ds_location, aliases)
 
 def __update_datasource_toplevel_params(aliases, src_name, target_name):
 
-    target_ds_location = __get_jdbc_system_resource_location(target_name)
-    src_ds_location = __get_jdbc_system_resource_location(src_name)
+    target_ds_location = __get_jdbc_system_resource_location(target_name, aliases)
+    src_ds_location = __get_jdbc_system_resource_location(src_name, aliases)
 
     create_and_cd(target_ds_location, [], aliases)
     _wlst_helper.cd('JdbcResource/' + target_name)
@@ -903,16 +897,17 @@ def clone_templated_data_source(src_name, multi_data_source, aliases):
     return adjusted_names, urls
 
 def convert_templated_ds_to_mds(ds_name,  multi_data_source, aliases):
-    ds_location = get_jdbc_datasource_location(ds_name)
+    ds_location = get_jdbc_datasource_location(ds_name, alises)
     ds_wlst_path = aliases.get_wlst_attributes_path(ds_location)
     _wlst_helper.cd(ds_wlst_path)
     wlst_name, wlst_value = \
         aliases.get_wlst_attribute_name_and_value(ds_location, 'DatasourceType', 'MDS')
     _wlst_helper.set_if_needed(wlst_name, wlst_value)
-    # _wlst_helper.delete('NO_NAME_0', 'JDBCDriverParams')
-    # _wlst_helper.delete('NO_NAME_0', 'JDBCConnectionPoolParams')
 
-    ds_location = __get_jdbc_datasource_params_location(ds_name)
+    # Note:  in order for JRF cie code to work,  JDBCDriverParams and JDBCConnectionPoolParams must be present
+    #  do not delete the mbeans.
+
+    ds_location = __get_jdbc_datasource_params_location(ds_name, aliases)
     ds_wlst_path = aliases.get_wlst_attributes_path(ds_location)
     _wlst_helper.cd(ds_wlst_path)
 
@@ -925,7 +920,7 @@ def convert_templated_ds_to_mds(ds_name,  multi_data_source, aliases):
     _wlst_helper.set_if_needed(wlst_name, wlst_value)
 
 def set_datasource_type(ds_name, ds_type, aliases):
-    ds_location = get_jdbc_datasource_location(ds_name)
+    ds_location = get_jdbc_datasource_location(ds_name, aliases)
     ds_wlst_path = aliases.get_wlst_attributes_path(ds_location)
     _wlst_helper.cd(ds_wlst_path)
     wlst_name, wlst_value = \
