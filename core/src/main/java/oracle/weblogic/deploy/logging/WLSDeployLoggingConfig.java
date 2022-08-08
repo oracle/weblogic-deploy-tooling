@@ -156,8 +156,6 @@ public class WLSDeployLoggingConfig {
             System.exit(ERROR_EXIT_CODE);
         }
         PlatformLogger logger = WLSDeployLogFactory.getLogger(WLSDEPLOY_LOGGER_NAME);   // make sure that this is the first logger
-        // this doesn't appear to do anything.  do we need it?
-        logger.info("The {0} program will write its log to {1}", programName, logFileName);
     }
 
     /**
