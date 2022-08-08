@@ -137,6 +137,7 @@ class AliasEntries(object):
         'ResourceGroup',
         'ResourceGroupTemplate',
         'ResourceManagement',
+        "RCUConfiguration",
         'SAFAgent',
         'SelfTuning',
         'ShutdownClass',

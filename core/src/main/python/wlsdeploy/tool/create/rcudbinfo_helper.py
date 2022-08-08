@@ -15,6 +15,7 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPER
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
 from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_COMP_INFO
+from wlsdeploy.aliases.model_constants import RCU_CONFIGURATION
 from wlsdeploy.aliases.model_constants import RCU_DB_CONN
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RCU_DB_USER
@@ -22,6 +23,7 @@ from wlsdeploy.aliases.model_constants import RCU_PREFIX
 from wlsdeploy.aliases.model_constants import RCU_SCHEMA_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_STG_INFO
 from wlsdeploy.aliases.model_constants import RCU_VARIABLES
+from wlsdeploy.aliases.model_constants import RESOURCES
 from wlsdeploy.aliases.model_constants import SSL_ADMIN_USER
 from wlsdeploy.aliases.model_constants import SSL_TNS_ENTRY
 from wlsdeploy.aliases.model_constants import USE_ATP
@@ -323,5 +325,8 @@ def create(model_dictionary, model_context, aliases):
     rcu_properties_map = {}
     if RCU_DB_INFO in domain_info:
         rcu_properties_map = domain_info[RCU_DB_INFO]
+    else:
+        resources = dictionary_utils.get_dictionary_element(model_dictionary, RESOURCES)
+        rcu_properties_map = resources[RCU_CONFIGURATION]
 
     return RcuDbInfo(model_context, aliases, rcu_properties_map)

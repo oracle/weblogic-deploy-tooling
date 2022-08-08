@@ -329,7 +329,6 @@ class DomainCreator(Creator):
             #                                                    DRIVER_PARAMS_KEYSTOREPWD_PROPERTY])
 
             fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_db_info.get_atp_entry())
-            # TODO: refactor
 
             runner = RCURunner.createAtpRunner(domain_type, oracle_home, java_home, fmw_database,
                                                rcu_schemas, rcu_prefix,
