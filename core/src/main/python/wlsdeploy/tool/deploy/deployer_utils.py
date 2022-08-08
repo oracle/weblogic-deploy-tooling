@@ -795,9 +795,9 @@ def __get_jdbc_driver_params_location(ds_name, aliases):
 
 def get_jdbc_driver_params_properties_location(ds_name, aliases):
     ds_location = __get_jdbc_driver_params_location(ds_name, aliases)
+    __add_token_at_location(aliases, ds_location, 'NO_NAME_0')
     ds_location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
     ds_location.add_name_token('PROPERTIES', 'NO_NAME_0')
-    __add_token_at_location(aliases, ds_location, 'NO_NAME_0')
     return ds_location
 
 def __get_jdbc_connection_pool_params_location(ds_name, aliases):

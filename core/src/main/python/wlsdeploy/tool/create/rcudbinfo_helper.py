@@ -39,7 +39,7 @@ from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
-__logger = PlatformLogger('wlsdeploy.util')
+
 _class_name = 'rcudbinfo_helper'
 
 class RcuDbInfo(object):
@@ -53,6 +53,7 @@ class RcuDbInfo(object):
         self.model_context = model_context
         self.aliases = aliases
         self.rcu_properties_map = rcu_properties_map
+        self._logger = PlatformLogger('wlsdeploy.util')
 
     def get_database_type(self):
         type = dictionary_utils.get_element(self.rcu_properties_map, DATABASE_TYPE)

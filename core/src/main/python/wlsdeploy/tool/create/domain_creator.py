@@ -316,7 +316,9 @@ class DomainCreator(Creator):
             atp_conn_properties[DRIVER_PARAMS_KEYSTORE_PROPERTY] = { 'Value': rcu_db_info.get_atp_tns_admin()
                                                                         + os.sep + "keystore.jks"}
 
-
+            # ATP-S vs ATP-D TODO
+            if not atp_conn_properties.has_key(DRIVER_PARAMS_NET_FAN_ENABLED):
+                atp_conn_properties[DRIVER_PARAMS_NET_FAN_ENABLED] = { 'Value' : 'false'}
 
             # reset these to pick up any defaults from rcu_db_info
 
@@ -329,7 +331,6 @@ class DomainCreator(Creator):
             #                                                    DRIVER_PARAMS_KEYSTOREPWD_PROPERTY])
 
             fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_db_info.get_atp_entry())
-
             runner = RCURunner.createAtpRunner(domain_type, oracle_home, java_home, fmw_database,
                                                rcu_schemas, rcu_prefix,
                                                rcu_db_info.get_rcu_variables(), rcu_db_info.get_database_type(),
@@ -1256,8 +1257,8 @@ class DomainCreator(Creator):
         self.wlst_helper.set_if_needed(wlst_name, wlst_value)
 
     def __set_ssl_standard_conn_properties(self, datasource_name, tns_admin, truststore, truststore_pwd, truststore_type):
-        location = deployer_utils.get_jdbc_driver_params_location(datasource_name, self.aliases)
-        location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
+        location = deployer_utils.get_jdbc_driver_params_properties_location(datasource_name, self.aliases)
+
         self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTORE_PROPERTY, tns_admin + os.sep
                                        + truststore)
         self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY,
@@ -1266,8 +1267,7 @@ class DomainCreator(Creator):
             self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd)
 
     def __set_atp_standard_conn_properties(self, keystore_pwd, datasource_name, tns_admin, truststore_pwd):
-        location = deployer_utils.get_jdbc_driver_params_location(datasource_name, self.aliases)
-        location.append_location(JDBC_DRIVER_PARAMS_PROPERTIES)
+        location = deployer_utils.get_jdbc_driver_params_properties_location(datasource_name, self.aliases)
 
         self.__set_connection_property(location, DRIVER_PARAMS_KEYSTORE_PROPERTY, tns_admin + os.sep
                                        + 'keystore.jks')

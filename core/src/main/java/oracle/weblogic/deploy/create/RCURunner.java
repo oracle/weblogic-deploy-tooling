@@ -164,7 +164,7 @@ public class RCURunner {
         addExtraSSLPropertyFromMap(runnerMap, connectionProperties, sslArgs, "javax.net.ssl.trustStorePassword");
 
 
-        runner.atpDB = "ATP".equals(databaseType);  // or scan if there are any 'ssl' in properties ?
+        runner.atpDB = true; // "ATP".equals(databaseType);  // or scan if there are any 'ssl' in properties ?
         runner.atpSSlArgs = sslArgs.toString();
 
         runner.atpAdminUser = get(runnerMap, "atp.admin.user");
