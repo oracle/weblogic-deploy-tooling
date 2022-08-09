@@ -206,25 +206,6 @@ class DomainCreator(Creator):
         self.topology_helper.qualify_nm_properties(type_name, model_nodes, base_location, self.model_context,
                                                    self.attribute_setter)
 
-    def __validate_rcudbinfo_entries(self, rcu_dbinfo_properties, keys):
-        _method_name = '_validate_rcudbinfo_entries'
-        error = 0
-        last_error = None
-        for key in keys:
-            if key in rcu_dbinfo_properties:
-                if rcu_dbinfo_properties[key] is None:
-                    error = 1
-            else:
-                error = 1
-            if error:
-                last_error = key
-                break
-
-        if error:
-            ex = exception_helper.create_create_exception('WLSDPLY-12413', last_error, str(keys))
-            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-
     def __extract_rcu_xml_file(self, xml_type, path):
         _method_name = '__extract_rcu_xml_files'
         self.logger.entering(path, class_name=self.__class_name, method_name=_method_name)
@@ -288,9 +269,7 @@ class DomainCreator(Creator):
             # ATP database, build runner map from RCUDbInfo in the model.
 
             # check it first
-            #self.__retrieve_atp_rcudbinfo(rcu_db_info, True)
-            # make a copy of model's map to pass to RCURunner, since we will modify some values
-            #rcu_db_info = self.model.get_model_domain_info()[RCU_DB_INFO]
+            self.__validate_and_get_atp_rcudbinfo(rcu_db_info, True)
 
             rcu_runner_map = dict()
             atp_conn_properties = rcu_db_info.get_rcu_connection_properties()
@@ -303,7 +282,6 @@ class DomainCreator(Creator):
             if rcu_db_info.get_truststore_password() is not None:
                 atp_conn_properties[DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY] \
                     = {'Value': rcu_db_info.get_truststore_password()}
-
 
             atp_conn_properties[DRIVER_PARAMS_NET_TNS_ADMIN] = { 'Value': rcu_db_info.get_atp_tns_admin() }
             atp_conn_properties[DRIVER_PARAMS_NET_SSL_VERSION] = { 'Value': 1.2 }
@@ -326,10 +304,6 @@ class DomainCreator(Creator):
             rcu_runner_map[ATP_TEMPORARY_TABLESPACE] = rcu_db_info.get_atp_temporary_tablespace()
             rcu_runner_map[ATP_DEFAULT_TABLESPACE] = rcu_db_info.get_atp_default_tablespace()
 
-            # self.__validate_rcudbinfo_entries(rcu_runner_map, [ATP_TNS_ENTRY,
-            #                                                    DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY,
-            #                                                    DRIVER_PARAMS_KEYSTOREPWD_PROPERTY])
-
             fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_db_info.get_atp_entry())
             runner = RCURunner.createAtpRunner(domain_type, oracle_home, java_home, fmw_database,
                                                rcu_schemas, rcu_prefix,
@@ -340,7 +314,6 @@ class DomainCreator(Creator):
 
         elif rcu_db_info.is_use_ssl():
             rcu_db = rcu_db_info.get_preferred_db()
-            #rcu_db_info = self.model.get_model_domain_info()[RCU_DB_INFO]
             rcu_runner_map =dict()
             rcu_runner_map[SSL_ADMIN_USER] = rcu_db_info.get_ssl_tns_admin()
             runner = RCURunner.createSslRunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas,
@@ -998,12 +971,12 @@ class DomainCreator(Creator):
 
         root_location.remove_name_token(property_name)
 
-    def __retrieve_atp_rcudbinfo(self, rcu_db_info, check_admin_pwd=False):
+    def __validate_and_get_atp_rcudbinfo(self, rcu_db_info, check_admin_pwd=False):
         """
         Check and return atp connection info and make sure atp rcudb info is complete
         :raises: CreateException: if an error occurs
         """
-        _method_name = '__retrieve_atp_rcudbinfo'
+        _method_name = '__validate_and_get_atp_rcudbinfo'
 
         tns_admin = rcu_db_info.get_atp_tns_admin()
 
@@ -1138,7 +1111,7 @@ class DomainCreator(Creator):
         is_ssl_ds = rcu_db_info.is_use_ssl()
 
         if is_atp_ds:
-            tns_admin, rcu_database, keystore_pwd, truststore_pwd = self.__retrieve_atp_rcudbinfo(rcu_db_info)
+            tns_admin, rcu_database, keystore_pwd, truststore_pwd = self.__validate_and_get_atp_rcudbinfo(rcu_db_info)
         elif is_ssl_ds:
             tns_admin, rcu_database, truststore_pwd, truststore_type, \
                 truststore = self.__retrieve_ssl_rcudbinfo(rcu_db_info)

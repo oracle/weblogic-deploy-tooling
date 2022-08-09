@@ -105,12 +105,16 @@ class RcuDbInfo(object):
             return dictionary_utils.get_element(self.rcu_properties_map, ATP_TNS_ENTRY)
         elif self.get_rcu_tns_alias() is not None:
             return self.get_rcu_tns_alias()
+        else:
+            return None
 
     def get_ssl_entry(self):
         if SSL_TNS_ENTRY in self.rcu_properties_map:
            return dictionary_utils.get_element(self.rcu_properties_map, SSL_TNS_ENTRY)
         elif self.get_rcu_tns_alias() is not None:
             return self.get_rcu_tns_alias()
+        else:
+            return None
 
     def get_rcu_prefix(self):
         return dictionary_utils.get_element(self.rcu_properties_map, RCU_PREFIX)
@@ -143,8 +147,6 @@ class RcuDbInfo(object):
     def get_atp_default_tablespace(self):
         _method_name = 'get_atp_default_tablespace'
         if ATP_DEFAULT_TABLESPACE in self.rcu_properties_map:
-            self._logger.info('WLSDPLY-22000', ATP_DEFAULT_TABLESPACE, RCU_DEFAULT_TBLSPACE,
-                              class_name=_class_name, method_name=_method_name)
             return self.rcu_properties_map[ATP_DEFAULT_TABLESPACE]
         elif self.get_rcu_default_tablespace() is not None:
             return self.get_rcu_default_tablespace()
@@ -154,8 +156,6 @@ class RcuDbInfo(object):
     def get_atp_temporary_tablespace(self):
         _method_name = 'get_atp_temp_tablespace'
         if ATP_TEMPORARY_TABLESPACE in self.rcu_properties_map:
-            self._logger.info('WLSDPLY-22000', ATP_TEMPORARY_TABLESPACE, RCU_TEMP_TBLSPACE,
-                              class_name=_class_name, method_name=_method_name)
             return self.rcu_properties_map[ATP_TEMPORARY_TABLESPACE]
         elif self.get_rcu_temp_tablespace() is not None:
             return self.get_rcu_temp_tablespace()
@@ -165,8 +165,6 @@ class RcuDbInfo(object):
     def get_atp_admin_user(self):
         _method_name = 'get_atp_admin_user'
         if ATP_ADMIN_USER in self.rcu_properties_map:
-            self._logger.info('WLSDPLY-22000', ATP_ADMIN_USER, RCU_DB_USER,
-                              class_name=_class_name, method_name=_method_name)
             return self.rcu_properties_map[ATP_ADMIN_USER]
         elif self.get_rcu_db_user() is not None:
             return self.get_rcu_db_user()
@@ -176,8 +174,6 @@ class RcuDbInfo(object):
     def get_ssl_admin_user(self):
         _method_name = 'get_ssl_admin_user'
         if SSL_ADMIN_USER in self.rcu_properties_map:
-            self._logger.info('WLSDPLY-22000', SSL_ADMIN_USER, RCU_DB_USER,
-                              class_name=_class_name, method_name=_method_name)
             return self.rcu_properties_map[SSL_ADMIN_USER]
         elif self.get_rcu_db_user() is not None:
             return self.get_rcu_db_user()
@@ -239,8 +235,6 @@ class RcuDbInfo(object):
         """
         _method_name = 'is_use_atp'
         if USE_ATP in self.rcu_properties_map:
-            self._logger.info('WLSDPLY-22000', USE_ATP, DATABASE_TYPE,
-                                                        class_name=_class_name, method_name=_method_name)
             model_value = self.rcu_properties_map[USE_ATP]
             value = alias_utils.convert_to_type('boolean', model_value)
             return value == 'true'
@@ -254,8 +248,6 @@ class RcuDbInfo(object):
         """
         _method_name = 'is_use_ssl'
         if USE_SSL in self.rcu_properties_map:
-            self._logger.info('WLSDPLY-22000', USE_ATP, DATABASE_TYPE,
-                              class_name=_class_name, method_name=_method_name)
             model_value = self.rcu_properties_map[USE_SSL]
             value = alias_utils.convert_to_type('boolean', model_value)
             return value == 'true'

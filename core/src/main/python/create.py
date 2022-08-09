@@ -235,25 +235,26 @@ def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
     has_ssldbinfo = 0
 
     if model_constants.DOMAIN_INFO in model and model_constants.RCU_DB_INFO in model[model_constants.DOMAIN_INFO]:
+            __logger.info('WLSDPLY-22000', class_name=_class_name, method_name=_method_name)
             rcu_db_info = RcuDbInfo(model_context, aliases,
                                     model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO])
             has_tns_admin = rcu_db_info.has_tns_admin()
-            has_regular_db = rcu_db_info.is_regular_db()
+            is_regular_db = rcu_db_info.is_regular_db()
             has_atpdbinfo = rcu_db_info.has_atpdbinfo()
             has_ssldbinfo = rcu_db_info.has_ssldbinfo()
 
-            _validate_atp_wallet_in_archive(archive_helper, has_regular_db, has_tns_admin, model,
+            _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin, model,
                                             model_context)
     elif model_constants.RESOURCES in model and model_constants.RCU_CONFIGURATION in model[model_constants.RESOURCES]:
         # New rcu information
         rcu_db_info = RcuDbInfo(model_context, aliases,
                                 model[model_constants.RESOURCES][model_constants.RCU_CONFIGURATION])
         has_tns_admin = rcu_db_info.has_tns_admin()
-        has_regular_db = rcu_db_info.is_regular_db()
+        is_regular_db = rcu_db_info.is_regular_db()
         has_atpdbinfo = rcu_db_info.has_atpdbinfo()
         has_ssldbinfo = rcu_db_info.has_ssldbinfo()
 
-        _validate_atp_wallet_in_archive(archive_helper, has_regular_db, has_tns_admin, model,
+        _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin, model,
                                         model_context)
     else:
         if model_context.get_domain_typedef().required_rcu():
@@ -266,11 +267,8 @@ def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
     return has_atpdbinfo, has_ssldbinfo
 
 
-def _validate_atp_wallet_in_archive(archive_helper, has_regular_db, has_tns_admin, model, model_context):
-    _method_name = '_validate_atp_wallet_in_archive'
-    if archive_helper and not has_regular_db:
-        System.setProperty('oracle.jdbc.fanEnabled', 'false')
-
+def _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin, model, model_context):
+    if archive_helper and not is_regular_db:
         # 1. If it does not have the oracle.net.tns_admin specified, then extract to domain/atpwallet
         # 2. If it is plain old regular oracle db, do nothing
         # 3. If it deos not have tns_admin in the model, then the wallet must be in the archive
@@ -284,6 +282,10 @@ def _validate_atp_wallet_in_archive(archive_helper, has_regular_db, has_tns_admi
                 __logger.severe('WLSDPLY-12411', error=None, class_name=_class_name, method_name=_method_name)
                 cla_helper.clean_up_temp_files()
                 tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
+    # TODO: check for support for ATP-D
+    if not is_regular_db:
+        System.setProperty('oracle.jdbc.fanEnabled', 'false')
 
 
 def _get_domain_path(model_context, model):

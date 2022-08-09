@@ -52,10 +52,6 @@
     },
     "attributes": {
         "databaseType":                     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "databaseType",                     "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
-        "atp.admin.user":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "atp.admin.user",                   "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
-        "ssl.admin.user":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ssl.admin.user",                   "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
-        "atp.default.tablespace":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "atp.default.tablespace",           "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
-        "atp.temp.tablespace":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "atp.temp.tablespace",              "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
         "compInfoXMLLocation":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "compInfoXMLLocation",              "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",  "uses_path_tokens":  "true"} ],
         "javax.net.ssl.keyStore":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "javax.net.ssl.keyStore",           "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
         "javax.net.ssl.keyStoreType":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "javax.net.ssl.keyStoreType",       "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
@@ -73,10 +69,7 @@
         "rcu_temp_tablespace":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "rcu_temp_tablespace",              "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
         "wallet_tns_alias":                 [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "wallet_tns_alias",                 "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
         "rcu_variables":                    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "rcu_variables",                    "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
-        "storageXMLLocation":               [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "storageXMLLocation",               "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",  "uses_path_tokens":  "true"} ],
-        "tns.alias":                        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "tns.alias",                        "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
-        "useATP":                           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "useATP",                           "wlst_path": "WP001", "default_value": null,    "wlst_type": "boolean" } ],
-        "useSSL":                           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "useSSL",                           "wlst_path": "WP001", "default_value": null,    "wlst_type": "boolean" } ]
+        "storageXMLLocation":               [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "storageXMLLocation",               "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",  "uses_path_tokens":  "true"} ]
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {
