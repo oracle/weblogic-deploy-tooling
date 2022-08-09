@@ -19,12 +19,13 @@ from wlsdeploy.aliases.model_constants import APP_DIR
 from wlsdeploy.aliases.model_constants import ATP_ADMIN_USER
 from wlsdeploy.aliases.model_constants import ATP_DEFAULT_TABLESPACE
 from wlsdeploy.aliases.model_constants import ATP_TEMPORARY_TABLESPACE
-from wlsdeploy.aliases.model_constants import ATP_TNS_ENTRY
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import CREATE_ONLY_DOMAIN_ATTRIBUTES
 from wlsdeploy.aliases.model_constants import DEFAULT_ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
+from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DOMAIN_NAME
+from wlsdeploy.aliases.model_constants import DRIVER_NAME
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
@@ -50,8 +51,10 @@ from wlsdeploy.aliases.model_constants import PASSWORD
 from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
 from wlsdeploy.aliases.model_constants import PRODUCTION_MODE_ENABLED
 from wlsdeploy.aliases.model_constants import RCU_COMP_INFO
+from wlsdeploy.aliases.model_constants import RCU_CONFIGURATION
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RCU_STG_INFO
+from wlsdeploy.aliases.model_constants import RESOURCES
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
 from wlsdeploy.aliases.model_constants import SECURITY
@@ -100,6 +103,7 @@ from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model
 from wlsdeploy.util import model_helper
 from wlsdeploy.util import string_utils
+from wlsdeploy.tool.util.rcu_helper import RCUHelper
 
 
 class DomainCreator(Creator):
@@ -1073,13 +1077,21 @@ class DomainCreator(Creator):
             return
 
         rcu_db_info = rcudbinfo_helper.create(self.model.get_model(), self.model_context, self.aliases)
-        self.set_rcu_datasource_parameters(rcu_db_info)
+        self.__set_rcu_datasource_parameters_without_shadow_table(rcu_db_info)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
 
-    def set_rcu_datasource_parameters(self, rcu_db_info):
+    def __rcudb_info_in_model(self):
+        model = self.model.get_model()
+        if (DOMAIN_INFO in model and RCU_DB_INFO in model[DOMAIN_INFO]) or \
+            (RESOURCES in model and RCU_CONFIGURATION in model[RESOURCES]):
+            return True
+        else:
+            return False
+
+    def __set_rcu_datasource_parameters_without_shadow_table(self, rcu_db_info):
         """
           Setting the rcu default datasources connection parameters by looping through th default list of datasrouces
           from the template instead of using getDatabaseDefaults()
@@ -1163,9 +1175,7 @@ class DomainCreator(Creator):
                 self.__set_datasource_password(adjusted_name, rcu_schema_pwd)
                 self.__reset_datasource_template_userid(adjusted_name, rcu_prefix)
                 self.__set_user_provided_conn_properties(adjusted_name, rcu_db_info)
-                self.__set_datasource_oracleparmas(adjusted_name, rcu_db_info)
-
-                # user may not aware they are needed
+                self.__set_datasource_oracleparams(adjusted_name, rcu_db_info)
 
                 if is_atp_ds:
                     self.__set_atp_standard_conn_properties(keystore_pwd, adjusted_name, tns_admin, truststore_pwd)
@@ -1173,13 +1183,14 @@ class DomainCreator(Creator):
                     self.__set_ssl_standard_conn_properties(adjusted_name, tns_admin, truststore, truststore_pwd,
                                                             truststore_type)
 
+
     def __set_user_provided_conn_properties(self, datasource_name, rcu_db_info):
         location = deployer_utils.get_jdbc_driver_params_properties_location(datasource_name, self.aliases)
         props = rcu_db_info.get_rcu_connection_properties()
         for prop in props:
             self.__set_connection_property(location, prop, props[prop]['Value'])
 
-    def __set_datasource_oracleparmas(self, datasource_name, rcu_db_info):
+    def __set_datasource_oracleparams(self, datasource_name, rcu_db_info):
         if rcu_db_info.get_oracle_database_params() is not None:
             location = deployer_utils.get_jdbc_datasource_location(datasource_name, self.aliases)
             wlst_path = self.aliases.get_wlst_attributes_path(location)

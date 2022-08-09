@@ -55,21 +55,27 @@ class RcuDbInfo(object):
         self.rcu_properties_map = rcu_properties_map
         self._logger = PlatformLogger('wlsdeploy.util')
 
+    def _get_dictionary_element_value(self, key):
+        if self.rcu_properties_map is None:
+            return None
+        else:
+            return dictionary_utils.get_element(self.rcu_properties_map, key)
+
     def get_database_type(self):
-        type = dictionary_utils.get_element(self.rcu_properties_map, DATABASE_TYPE)
+        type = self._get_dictionary_element_value(DATABASE_TYPE)
         if type is None:
             return 'ORACLE'
         else:
             return type
 
     def get_oracle_database_params(self):
-        return dictionary_utils.get_element(self.rcu_properties_map, ORACLE_DATABASE_PARAMS)
+        return self._get_dictionary_element_value(ORACLE_DATABASE_PARAMS)
 
     def get_multidatasource_urls(self):
-        return dictionary_utils.get_element(self.rcu_properties_map, MULTIDATASOURCE_URLS)
+        return self._get_dictionary_element_value(MULTIDATASOURCE_URLS)
 
     def get_rcu_default_tablespace(self):
-        type = dictionary_utils.get_element(self.rcu_properties_map, RCU_DEFAULT_TBLSPACE)
+        type = self._get_dictionary_element_value(RCU_DEFAULT_TBLSPACE)
         if type is None:
             if self.is_use_atp():
                 return 'DATA'
@@ -79,133 +85,140 @@ class RcuDbInfo(object):
             return type
 
     def get_rcu_temp_tablespace(self):
-        type = dictionary_utils.get_element(self.rcu_properties_map, RCU_TEMP_TBLSPACE)
+        type = self._get_dictionary_element_value(RCU_TEMP_TBLSPACE)
         if type is None:
             return 'TEMP'
         else:
             return type
 
     def get_rcu_tns_alias(self):
-        return dictionary_utils.get_element(self.rcu_properties_map, RCU_TNS_ALIAS)
+        return self._get_dictionary_element_value(RCU_TNS_ALIAS)
 
     def get_rcu_connection_properties(self):
-        result = dictionary_utils.get_element(self.rcu_properties_map, RCU_CONNECTION_PROPERTIES)
+        result = self._get_dictionary_element_value(RCU_CONNECTION_PROPERTIES)
         if result is None:
             result = {}
         return result
 
     def get_atp_tns_admin(self):
-        return dictionary_utils.get_element(self.rcu_properties_map, DRIVER_PARAMS_NET_TNS_ADMIN)
+        return self._get_dictionary_element_value(DRIVER_PARAMS_NET_TNS_ADMIN)
 
     def get_ssl_tns_admin(self):
-        return dictionary_utils.get_element(self.rcu_properties_map, DRIVER_PARAMS_NET_TNS_ADMIN)
+        return self._get_dictionary_element_value(DRIVER_PARAMS_NET_TNS_ADMIN)
 
     def get_atp_entry(self):
-        if ATP_TNS_ENTRY in self.rcu_properties_map:
-            return dictionary_utils.get_element(self.rcu_properties_map, ATP_TNS_ENTRY)
+        entry = self._get_dictionary_element_value(ATP_TNS_ENTRY)
+        if entry is not None:
+            return entry
         elif self.get_rcu_tns_alias() is not None:
             return self.get_rcu_tns_alias()
         else:
             return None
 
     def get_ssl_entry(self):
-        if SSL_TNS_ENTRY in self.rcu_properties_map:
-           return dictionary_utils.get_element(self.rcu_properties_map, SSL_TNS_ENTRY)
+        entry = self._get_dictionary_element_value(SSL_TNS_ENTRY)
+        if entry is not None:
+            return entry
         elif self.get_rcu_tns_alias() is not None:
             return self.get_rcu_tns_alias()
         else:
             return None
 
     def get_rcu_prefix(self):
-        return dictionary_utils.get_element(self.rcu_properties_map, RCU_PREFIX)
+        return self._get_dictionary_element_value(RCU_PREFIX)
 
     def get_rcu_schema_password(self):
-        password = dictionary_utils.get_element(self.rcu_properties_map, RCU_SCHEMA_PASSWORD)
+        password = self._get_dictionary_element_value(RCU_SCHEMA_PASSWORD)
         return self.aliases.decrypt_password(password)
 
     def get_keystore_password(self):
-        password = dictionary_utils.get_element(self.rcu_properties_map, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY)
+        password = self._get_dictionary_element_value(DRIVER_PARAMS_KEYSTOREPWD_PROPERTY)
         return self.aliases.decrypt_password(password)
 
     def get_truststore(self):
-        return dictionary_utils.get_element(self.rcu_properties_map, DRIVER_PARAMS_TRUSTSTORE_PROPERTY)
+        return self._get_dictionary_element_value(DRIVER_PARAMS_TRUSTSTORE_PROPERTY)
 
     def get_truststore_type(self):
-        return dictionary_utils.get_element(self.rcu_properties_map, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY)
+        return self._get_dictionary_element_value(DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY)
 
     def get_truststore_password(self):
-        password = dictionary_utils.get_element(self.rcu_properties_map, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY)
+        password = self._get_dictionary_element_value(DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY)
         return self.aliases.decrypt_password(password)
 
     def get_admin_password(self):
-        password = dictionary_utils.get_element(self.rcu_properties_map, RCU_ADMIN_PASSWORD)
+        password = self._get_dictionary_element_value(RCU_ADMIN_PASSWORD)
         return self.aliases.decrypt_password(password)
 
     def get_rcu_regular_db_conn(self):
-        return dictionary_utils.get_element(self.rcu_properties_map, RCU_DB_CONN)
+        return self._get_dictionary_element_value(RCU_DB_CONN)
 
     def get_atp_default_tablespace(self):
-        _method_name = 'get_atp_default_tablespace'
-        if ATP_DEFAULT_TABLESPACE in self.rcu_properties_map:
-            return self.rcu_properties_map[ATP_DEFAULT_TABLESPACE]
+        result = self._get_dictionary_element_value(ATP_DEFAULT_TABLESPACE)
+        if result is not None:
+            return result
         elif self.get_rcu_default_tablespace() is not None:
             return self.get_rcu_default_tablespace()
         else:
             return self.get_rcu_default_tablespace()
 
     def get_atp_temporary_tablespace(self):
-        _method_name = 'get_atp_temp_tablespace'
-        if ATP_TEMPORARY_TABLESPACE in self.rcu_properties_map:
-            return self.rcu_properties_map[ATP_TEMPORARY_TABLESPACE]
+        result = self._get_dictionary_element_value(ATP_TEMPORARY_TABLESPACE)
+        if result is not None:
+            return result
         elif self.get_rcu_temp_tablespace() is not None:
             return self.get_rcu_temp_tablespace()
         else:
             return 'TEMP'
 
     def get_atp_admin_user(self):
-        _method_name = 'get_atp_admin_user'
-        if ATP_ADMIN_USER in self.rcu_properties_map:
-            return self.rcu_properties_map[ATP_ADMIN_USER]
+        result = self._get_dictionary_element_value(ATP_ADMIN_USER)
+        if result is not None:
+            return result
         elif self.get_rcu_db_user() is not None:
             return self.get_rcu_db_user()
         else:
             return 'admin'
 
     def get_ssl_admin_user(self):
-        _method_name = 'get_ssl_admin_user'
-        if SSL_ADMIN_USER in self.rcu_properties_map:
-            return self.rcu_properties_map[SSL_ADMIN_USER]
+        result = self._get_dictionary_element_value(SSL_ADMIN_USER)
+        if result is not None:
+            return result
         elif self.get_rcu_db_user() is not None:
             return self.get_rcu_db_user()
         else:
             return 'admin'
 
     def get_rcu_db_user(self):
-        if RCU_DB_USER in self.rcu_properties_map:
-            return self.rcu_properties_map[RCU_DB_USER]
+        result = self._get_dictionary_element_value(RCU_DB_USER)
+        if result is not None:
+            return result
         else:
             return ModelContext.DB_USER_DEFAULT
 
     def get_comp_info_location(self):
-        if RCU_COMP_INFO in self.rcu_properties_map:
-            return self.model_context.replace_token_string(self.rcu_properties_map[RCU_COMP_INFO])
+        result = self._get_dictionary_element_value(RCU_DB_USER)
+        if result is not None:
+            return self.model_context.replace_token_string(result)
         return None
 
     def get_storage_location(self):
-        if RCU_STG_INFO in self.rcu_properties_map:
-            return self.model_context.replace_token_string(self.rcu_properties_map[RCU_STG_INFO])
+        result = self._get_dictionary_element_value(RCU_STG_INFO)
+        if result is not None:
+            return self.model_context.replace_token_string(result)
         return None
 
     def get_rcu_variables(self):
-        if RCU_VARIABLES in self.rcu_properties_map:
-            return self.rcu_properties_map[RCU_VARIABLES]
+        result = self._get_dictionary_element_value(RCU_VARIABLES)
+        if result is not None:
+            return result
         else:
             return None
 
     # has_tns_admin is used to find the extract location if it is already extracted by the user
     # its an optional field, so insufficient to determine whether it has atp
     def has_tns_admin(self):
-        return DRIVER_PARAMS_NET_TNS_ADMIN in self.rcu_properties_map
+        result = self._get_dictionary_element_value(DRIVER_PARAMS_NET_TNS_ADMIN)
+        return result is None
 
     def has_atpdbinfo(self):
         return self.is_use_atp()
@@ -220,11 +233,11 @@ class RcuDbInfo(object):
             return False
 
     def is_regular_db(self):
-        if RCU_DB_CONN in self.rcu_properties_map:
+        result = self._get_dictionary_element_value(RCU_DB_CONN)
+        if result is not None:
             if self.get_database_type() == 'ORACLE' and  not (self.is_use_atp() or self.is_use_ssl()):
                 return True
         return False
-
 
     def is_use_atp(self):
         """
@@ -233,8 +246,8 @@ class RcuDbInfo(object):
         The default when not specified is False.
         :return: True if the model value is present and indicates true, False otherwise
         """
-        _method_name = 'is_use_atp'
-        if USE_ATP in self.rcu_properties_map:
+        result = self._get_dictionary_element_value(USE_ATP)
+        if result is not None:
             model_value = self.rcu_properties_map[USE_ATP]
             value = alias_utils.convert_to_type('boolean', model_value)
             return value == 'true'
@@ -246,8 +259,8 @@ class RcuDbInfo(object):
         Determine if the RCU DB info uses SSL.user
         :return: True if the model value is present and set to true
         """
-        _method_name = 'is_use_ssl'
-        if USE_SSL in self.rcu_properties_map:
+        result = self._get_dictionary_element_value(USE_SSL)
+        if result is not None:
             model_value = self.rcu_properties_map[USE_SSL]
             value = alias_utils.convert_to_type('boolean', model_value)
             return value == 'true'
