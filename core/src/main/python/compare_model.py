@@ -318,22 +318,19 @@ def main():
         if _exit_code != ExitCode.HELP:
             _logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                            class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
     except CompareException, ce:
         _exit_code = ExitCode.ERROR
-        cla_helper.clean_up_temp_files()
         _logger.severe('WLSDPLY-05704', ce.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
     except PyWLSTException, pe:
         _exit_code = ExitCode.ERROR
-        cla_helper.clean_up_temp_files()
         _logger.severe('WLSDPLY-05704', pe.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
     except:
         exc_type, exc_obj, exc_tb = sys.exc_info()
         _exit_code = ExitCode.ERROR
         ee_string = traceback.format_exception(exc_type, exc_obj, exc_tb)
-        cla_helper.clean_up_temp_files()
         _logger.severe('WLSDPLY-05704', ee_string)
 
+    cla_helper.clean_up_temp_files()
     tool_exit.__log_and_exit(_logger, model_context, _exit_code, _class_name, _method_name)
 
 def format_message(key, *args):
