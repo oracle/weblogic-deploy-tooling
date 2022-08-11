@@ -41,6 +41,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.compare.model_comparer import ModelComparer
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
+from wlsdeploy.util import tool_exit
 from wlsdeploy.util import validate_configuration
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -203,7 +204,7 @@ class ModelFileDiffer:
             except YamlException, ye:
                 _logger.severe('WLSDPLY-05708', file_name, ye.getLocalizedMessage(),
                                error=ye, class_name=_class_name, method_name=_method_name)
-                System.exit(ExitCode.ERROR)
+                tool_exit.end(None, ExitCode.ERROR)
         else:
             # write the change model to standard output in YAML format
             print(format_message('WLSDPLY-05707'))
@@ -251,6 +252,7 @@ def main():
         _logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
 
     _outputdir = None
+    _exit_code = ExitCode.OK
 
     try:
         model_context = __process_args(sys.argv)
@@ -269,7 +271,7 @@ def main():
         obj = ModelFileDiffer(model1, model2, model_context, _outputdir)
         rc = obj.compare()
         if rc == VALIDATION_FAIL:
-            System.exit(ExitCode.ERROR)
+            tool_exit.__log_and_exit(_logger, model_context, ExitCode.ERROR, _class_name, _method_name)
 
         if _outputdir:
             fos = None
@@ -311,30 +313,28 @@ def main():
                     index = index + 1
                     print(BLANK_LINE)
 
-        System.exit(0)
-
     except CLAException, ex:
-        exit_code = ex.getExitCode()
-        if exit_code != ExitCode.HELP:
+        _exit_code = ex.getExitCode()
+        if _exit_code != ExitCode.HELP:
             _logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                            class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
-        sys.exit(exit_code)
     except CompareException, ce:
+        _exit_code = ExitCode.ERROR
         cla_helper.clean_up_temp_files()
         _logger.severe('WLSDPLY-05704', ce.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
-        System.exit(ExitCode.ERROR)
     except PyWLSTException, pe:
+        _exit_code = ExitCode.ERROR
         cla_helper.clean_up_temp_files()
         _logger.severe('WLSDPLY-05704', pe.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
-        System.exit(ExitCode.ERROR)
     except:
         exc_type, exc_obj, exc_tb = sys.exc_info()
+        _exit_code = ExitCode.ERROR
         ee_string = traceback.format_exception(exc_type, exc_obj, exc_tb)
         cla_helper.clean_up_temp_files()
         _logger.severe('WLSDPLY-05704', ee_string)
-        System.exit(ExitCode.ERROR)
 
+    tool_exit.__log_and_exit(_logger, model_context, _exit_code, _class_name, _method_name)
 
 def format_message(key, *args):
     """

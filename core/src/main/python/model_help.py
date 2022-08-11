@@ -12,9 +12,7 @@ from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 
 # Jython tools don't require sys.path modification
-
 from wlsdeploy.aliases.aliases import Aliases
-from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.modelhelp.model_help_printer import ModelHelpPrinter
@@ -22,6 +20,7 @@ from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import model
+from wlsdeploy.util import tool_exit
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
 
@@ -435,7 +434,7 @@ def main(args):
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
-        sys.exit(exit_code)
+        tool_exit.__log_and_exit(__logger, model_context, exit_code, _class_name, _method_name)
 
     try:
         model_path = model_context.get_trailing_argument(0)
@@ -443,10 +442,9 @@ def main(args):
     except CLAException, ve:
         __logger.severe('WLSDPLY-10112', _program_name, ve.getLocalizedMessage(), error=ve,
                         class_name=_class_name, method_name=_method_name)
-        sys.exit(ExitCode.ERROR)
+        exit_code  = ExitCode.ERROR
 
-    __logger.exiting(result=exit_code, class_name=_class_name, method_name=_method_name)
-    sys.exit(exit_code)
+    tool_exit.__log_and_exit(__logger, model_context, exit_code, _class_name, _method_name)
 
 
 if __name__ == '__main__' or __name__ == 'main':

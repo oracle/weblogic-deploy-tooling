@@ -171,7 +171,7 @@ def main(args):
         cla_helper.clean_up_temp_files()
         # create a minimal model for summary logging
         model_context = model_context_helper.create_exit_context(_program_name)
-        tool_exit.end(model_context, exit_code)
+        tool_exit.__log_and_exit(__logger, model_context, exit_code, _class_name, _method_name)
 
     model_file_name = model_context.get_model_file()
 
@@ -193,10 +193,7 @@ def main(args):
                         class_name=_class_name, method_name=_method_name)
 
     cla_helper.clean_up_temp_files()
-
-    tool_exit.end(model_context, exit_code)
-    return
-
+    tool_exit.__log_and_exit(__logger, model_context, exit_code, _class_name, _method_name)
 
 if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)

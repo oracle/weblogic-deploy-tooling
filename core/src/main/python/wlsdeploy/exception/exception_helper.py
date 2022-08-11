@@ -465,15 +465,6 @@ def _return_exception_params(*args, **kwargs):
     error = kwargs.pop('error', None)
     return arg_list, error
 
-def __log_and_exit(logger, exit_code, class_name):
-    """
-    Helper method to log the exiting message and call sys.exit()
-    :param logger:  the logger to use
-    :param exit_code: the exit code to use
-    :param class_name: the class name to pass  to the logger
-    """
-    logger.exiting(result=exit_code, class_name=class_name, method_name=None)
-    tool_exit.end(None, exit_code)
 
 def __handle_unexpected_exception(ex, program_name, class_name, logger):
     """
@@ -495,4 +486,4 @@ def __handle_unexpected_exception(ex, program_name, class_name, logger):
         # Note: since this is Python 2, it seems we can only get the traceback object via sys.exc_info, and of course only
         # while in the except block handling code
         logger.finer('WLSDPLY-20036', program_name, traceback.format_exception(type(ex), ex, sys.exc_info()[2]))
-    __log_and_exit(logger, ExitCode.ERROR, class_name)
+    tool_exit.end(logger, ExitCode.ERROR, class_name)
