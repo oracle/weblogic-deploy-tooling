@@ -753,44 +753,30 @@ def __get_jdbc_system_resource_location(ds_name, aliases):
     ds_location = LocationContext()
     ds_location.append_location(JDBC_SYSTEM_RESOURCE)
     __add_token_at_location(aliases, ds_location, ds_name)
-    #ds_location.add_name_token('DATASOURCE', ds_name)
     return ds_location
 
 def get_jdbc_datasource_location(ds_name, aliases):
     ds_location = __get_jdbc_system_resource_location(ds_name, aliases)
     ds_location.append_location(JDBC_RESOURCE)
     __add_token_at_location(aliases, ds_location, ds_name)
-    # ds_location.add_name_token('JDBCRESOURCE', ds_name)
-    # ds_location.add_name_token('DATASOURCE', ds_name)
     return ds_location
 
 def __get_jdbc_datasource_params_location(ds_name, aliases):
     ds_location = get_jdbc_datasource_location(ds_name, aliases)
     ds_location.append_location(JDBC_DATASOURCE_PARAMS)
     __add_token_at_location(aliases, ds_location, 'NO_NAME_0')
-
-    # ds_location.add_name_token('JDBCRESOURCE', ds_name)
-    # ds_location.add_name_token('DATASOURCE', ds_name)
-    # ds_location.add_name_token('JDBCDATASOURCEPARAMS', 'NO_NAME_0')
     return ds_location
 
 def get_jdbc_datasource_oracleparams_location(ds_name, aliases):
     ds_location = get_jdbc_datasource_location(ds_name, aliases)
     ds_location.append_location(JDBC_ORACLE_PARAMS)
     __add_token_at_location(aliases, ds_location, 'NO_NAME_0')
-    # ds_location.add_name_token('JDBCDATASOURCEPARAMS', 'NO_NAME_0')
-    # ds_location.add_name_token('JDBCORACLEPARAMS', 'NO_NAME_0')
-    # ds_location.add_name_token('JDBCRESOURCE', ds_name)
-    # ds_location.add_name_token('DATASOURCE', ds_name)
     return ds_location
 
 def __get_jdbc_driver_params_location(ds_name, aliases):
     ds_location = get_jdbc_datasource_location(ds_name, aliases)
     ds_location.append_location(JDBC_DRIVER_PARAMS)
     __add_token_at_location(aliases, ds_location, 'NO_NAME_0')
-    # ds_location.add_name_token('JDBCRESOURCE', ds_name)
-    # ds_location.add_name_token('DATASOURCE', ds_name)
-    # ds_location.add_name_token('JDBCDRIVERPARAMS', 'NO_NAME_0')
     return ds_location
 
 def get_jdbc_driver_params_properties_location(ds_name, aliases):
@@ -869,15 +855,8 @@ def __update_datasource_toplevel_params(aliases, src_name, target_name):
 
     src_ds_wlst_path = aliases.get_wlst_attributes_path(src_ds_location)
     _wlst_helper.cd(src_ds_wlst_path)
-    top_level_attributes = _wlst_helper.lsa()
 
     __copy_templated_ds_attributes(src_ds_location, target_ds_location, aliases)
-
-    # new_descriptor_name = top_level_attributes['DescriptorFileName'].replace('.xml', '-' + target_name + '.xml')
-    # wlst_name, wlst_value = \
-    #     aliases.get_wlst_attribute_name_and_value(target_ds_location, 'DescriptorFileName',
-    #                                               new_descriptor_name)
-    # _wlst_helper.set_if_needed(wlst_name, wlst_value)
 
 
 def clone_templated_data_source(src_name, multi_data_source, aliases):
