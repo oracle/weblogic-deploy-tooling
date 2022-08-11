@@ -6,7 +6,7 @@ from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.model_constants import ATP_ADMIN_USER
 from wlsdeploy.aliases.model_constants import ATP_DEFAULT_TABLESPACE
 from wlsdeploy.aliases.model_constants import ATP_TEMPORARY_TABLESPACE
-from wlsdeploy.aliases.model_constants import ATP_TNS_ENTRY
+from wlsdeploy.aliases.model_constants import TNS_ENTRY
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTOREPWD_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
@@ -14,7 +14,6 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
 from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
-from wlsdeploy.aliases.model_constants import RCU_COMP_INFO
 from wlsdeploy.aliases.model_constants import RCU_CONFIGURATION
 from wlsdeploy.aliases.model_constants import RCU_DB_CONN
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
@@ -22,17 +21,15 @@ from wlsdeploy.aliases.model_constants import RCU_DB_USER
 from wlsdeploy.aliases.model_constants import RCU_PREFIX
 from wlsdeploy.aliases.model_constants import RCU_SCHEMA_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_STG_INFO
+from wlsdeploy.aliases.model_constants import RCU_COMP_INFO
 from wlsdeploy.aliases.model_constants import RCU_VARIABLES
 from wlsdeploy.aliases.model_constants import RESOURCES
-from wlsdeploy.aliases.model_constants import SSL_ADMIN_USER
-from wlsdeploy.aliases.model_constants import SSL_TNS_ENTRY
 from wlsdeploy.aliases.model_constants import USE_ATP
 from wlsdeploy.aliases.model_constants import USE_SSL
 from wlsdeploy.aliases.model_constants import DATABASE_TYPE
 from wlsdeploy.aliases.model_constants import ORACLE_DATABASE_PARAMS
 from wlsdeploy.aliases.model_constants import RCU_DEFAULT_TBLSPACE
 from wlsdeploy.aliases.model_constants import RCU_TEMP_TBLSPACE
-from wlsdeploy.aliases.model_constants import RCU_TNS_ALIAS
 from wlsdeploy.aliases.model_constants import RCU_CONNECTION_PROPERTIES
 from wlsdeploy.aliases.model_constants import MULTIDATASOURCE_URLS
 from wlsdeploy.util import dictionary_utils
@@ -91,36 +88,19 @@ class RcuDbInfo(object):
         else:
             return type
 
-    def get_rcu_tns_alias(self):
-        return self._get_dictionary_element_value(RCU_TNS_ALIAS)
-
     def get_rcu_connection_properties(self):
         result = self._get_dictionary_element_value(RCU_CONNECTION_PROPERTIES)
         if result is None:
             result = {}
         return result
 
-    def get_atp_tns_admin(self):
+    def get_tns_admin(self):
         return self._get_dictionary_element_value(DRIVER_PARAMS_NET_TNS_ADMIN)
 
-    def get_ssl_tns_admin(self):
-        return self._get_dictionary_element_value(DRIVER_PARAMS_NET_TNS_ADMIN)
-
-    def get_atp_entry(self):
-        entry = self._get_dictionary_element_value(ATP_TNS_ENTRY)
+    def get_tns_entry(self):
+        entry = self._get_dictionary_element_value(TNS_ENTRY)
         if entry is not None:
             return entry
-        elif self.get_rcu_tns_alias() is not None:
-            return self.get_rcu_tns_alias()
-        else:
-            return None
-
-    def get_ssl_entry(self):
-        entry = self._get_dictionary_element_value(SSL_TNS_ENTRY)
-        if entry is not None:
-            return entry
-        elif self.get_rcu_tns_alias() is not None:
-            return self.get_rcu_tns_alias()
         else:
             return None
 
@@ -179,15 +159,6 @@ class RcuDbInfo(object):
         else:
             return 'admin'
 
-    def get_ssl_admin_user(self):
-        result = self._get_dictionary_element_value(SSL_ADMIN_USER)
-        if result is not None:
-            return result
-        elif self.get_rcu_db_user() is not None:
-            return self.get_rcu_db_user()
-        else:
-            return 'admin'
-
     def get_rcu_db_user(self):
         result = self._get_dictionary_element_value(RCU_DB_USER)
         if result is not None:
@@ -196,7 +167,7 @@ class RcuDbInfo(object):
             return ModelContext.DB_USER_DEFAULT
 
     def get_comp_info_location(self):
-        result = self._get_dictionary_element_value(RCU_DB_USER)
+        result = self._get_dictionary_element_value(RCU_COMP_INFO)
         if result is not None:
             return self.model_context.replace_token_string(result)
         return None
@@ -334,5 +305,4 @@ def create(model_dictionary, model_context, aliases):
     else:
         resources = dictionary_utils.get_dictionary_element(model_dictionary, RESOURCES)
         rcu_properties_map = resources[RCU_CONFIGURATION]
-
     return RcuDbInfo(model_context, aliases, rcu_properties_map)

@@ -44,6 +44,7 @@ from wlsdeploy.util.cla_utils import TOOL_TYPE_CREATE
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.tool.create import atp_helper
 from wlsdeploy.tool.create import ssl_helper
+from wlsdeploy.tool.create import rcudbinfo_helper
 
 wlst_helper.wlst_functions = globals()
 
@@ -356,12 +357,10 @@ def main(args):
         creator.create()
 
         if has_atp:
-            rcu_properties_map = model_dictionary[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO]
-            rcu_db_info = RcuDbInfo(model_context, aliases, rcu_properties_map)
+            rcu_db_info = rcudbinfo_helper.create(model_dictionary, model_context, aliases)
             atp_helper.fix_jps_config(rcu_db_info, model_context)
         elif has_ssl:
-            rcu_properties_map = model_dictionary[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO]
-            rcu_db_info = RcuDbInfo(model_context, aliases, rcu_properties_map)
+            rcu_db_info = rcudbinfo_helper.create(model_dictionary, model_context, aliases)
             ssl_helper.fix_jps_config(rcu_db_info, model_context)
     except WLSDeployArchiveIOException, ex:
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
