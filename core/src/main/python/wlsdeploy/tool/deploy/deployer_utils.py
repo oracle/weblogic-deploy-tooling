@@ -897,7 +897,7 @@ def clone_templated_data_source(src_name, multi_data_source, aliases):
     return adjusted_names, urls
 
 def convert_templated_ds_to_mds(ds_name,  multi_data_source, aliases):
-    ds_location = get_jdbc_datasource_location(ds_name, alises)
+    ds_location = get_jdbc_datasource_location(ds_name, aliases)
     ds_wlst_path = aliases.get_wlst_attributes_path(ds_location)
     _wlst_helper.cd(ds_wlst_path)
     wlst_name, wlst_value = \
