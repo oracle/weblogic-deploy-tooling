@@ -12,6 +12,7 @@ import sys
 from java.util.logging import Level
 
 from oracle.weblogic.deploy.logging import WLSDeployLogEndHandler
+from oracle.weblogic.deploy.logging import WLSDeployLoggingConfig
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import VariableException
