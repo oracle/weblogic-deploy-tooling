@@ -329,8 +329,6 @@ def main(args):
         if archive_file_name:
             domain_path = _get_domain_path(model_context, model_dictionary)
             archive_helper = ArchiveHelper(archive_file_name, domain_path, __logger, ExceptionType.CREATE)
-        cla_helper.clean_up_temp_files()
-        tool_exit.__log_and_exit(__logger, model_context, ExitCode.ERROR, _class_name, _method_name)
 
         has_atp, has_ssl = validate_rcu_args_and_model(model_context, model_dictionary, archive_helper, aliases)
 
