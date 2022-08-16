@@ -15,7 +15,6 @@ from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
-
 # Jython tools don't require sys.path modification
 
 import wlsdeploy.tool.util.variable_injector as variable_injector
@@ -24,7 +23,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util.variable_injector import VariableInjector
-from wlsdeploy.util import model_translator, cla_helper
+from wlsdeploy.util import model_translator, cla_helper, tool_exit
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model import Model
@@ -144,17 +143,6 @@ def __persist_model(model, model_context):
     __logger.exiting(class_name=_class_name, method_name=_method_name)
 
 
-def __log_and_exit(exit_code, class_name, _method_name):
-    """
-    Helper method to log the exiting message and call sys.exit()
-    :param exit_code: the exit code to use
-    :param class_name: the class name to pass  to the logger
-    :param _method_name: the method name to pass to the logger
-    """
-    __logger.exiting(result=exit_code, class_name=class_name, method_name=_method_name)
-    sys.exit(exit_code)
-
-
 def main(args):
     """
     The main entry point for the discoverDomain tool.
@@ -178,7 +166,7 @@ def main(args):
         if exit_code != ExitCode.HELP:
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
-        __log_and_exit(exit_code, _class_name, _method_name)
+        tool_exit.__log_and_exit(__logger, model_context, exit_code, _class_name, _method_name)
 
     model_file = model_context.get_model_file()
     try:
@@ -186,7 +174,7 @@ def main(args):
     except TranslateException, te:
         __logger.severe('WLSDPLY-20009', _program_name, model_file, te.getLocalizedMessage(), error=te,
                         class_name=_class_name, method_name=_method_name)
-        sys.exit(ExitCode.ERROR)
+        tool_exit.__log_and_exit(__logger, model_context, ExitCode.ERROR, _class_name, _method_name)
 
     inserted, model = __inject(model, model_context)
     if inserted:
@@ -197,13 +185,11 @@ def main(args):
         except TranslateException, ex:
             __logger.severe('WLSDPLY-20024', _program_name, model_context.get_archive_file_name(),
                             ex.getLocalizedMessage(), error=ex, class_name=_class_name, method_name=_method_name)
-            __log_and_exit(ExitCode.ERROR, _class_name, _method_name)
+            tool_exit.__log_and_exit(__logger, model_context, ExitCode.ERROR, _class_name, _method_name)
 
     __close_archive(model_context)
 
-    __logger.exiting(result=exit_code, class_name=_class_name, method_name=_method_name)
-    sys.exit(exit_code)
-
+    tool_exit.__log_and_exit(__logger, model_context, exit_code, _class_name, _method_name)
 
 if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
