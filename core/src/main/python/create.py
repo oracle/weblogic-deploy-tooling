@@ -236,7 +236,6 @@ def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
     has_ssldbinfo = 0
 
     if model_constants.DOMAIN_INFO in model and model_constants.RCU_DB_INFO in model[model_constants.DOMAIN_INFO]:
-            __logger.info('WLSDPLY-22000', class_name=_class_name, method_name=_method_name)
             rcu_db_info = RcuDbInfo(model_context, aliases,
                                     model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO])
             has_tns_admin = rcu_db_info.has_tns_admin()
@@ -246,17 +245,17 @@ def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
 
             _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin, model,
                                             model_context)
-    elif model_constants.RESOURCES in model and model_constants.RCU_CONFIGURATION in model[model_constants.RESOURCES]:
-        # New rcu information
-        rcu_db_info = RcuDbInfo(model_context, aliases,
-                                model[model_constants.RESOURCES][model_constants.RCU_CONFIGURATION])
-        has_tns_admin = rcu_db_info.has_tns_admin()
-        is_regular_db = rcu_db_info.is_regular_db()
-        has_atpdbinfo = rcu_db_info.has_atpdbinfo()
-        has_ssldbinfo = rcu_db_info.has_ssldbinfo()
-
-        _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin, model,
-                                        model_context)
+    # elif model_constants.RESOURCES in model and model_constants.RCU_CONFIGURATION in model[model_constants.RESOURCES]:
+    #     # New rcu information
+    #     rcu_db_info = RcuDbInfo(model_context, aliases,
+    #                             model[model_constants.RESOURCES][model_constants.RCU_CONFIGURATION])
+    #     has_tns_admin = rcu_db_info.has_tns_admin()
+    #     is_regular_db = rcu_db_info.is_regular_db()
+    #     has_atpdbinfo = rcu_db_info.has_atpdbinfo()
+    #     has_ssldbinfo = rcu_db_info.has_ssldbinfo()
+    #
+    #     _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin, model,
+    #                                     model_context)
     else:
         if model_context.get_domain_typedef().required_rcu():
             if not model_context.get_rcu_database() or not model_context.get_rcu_prefix():

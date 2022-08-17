@@ -133,8 +133,11 @@ class RcuDbInfo(object):
         return self._get_dictionary_element_value(RCU_DB_CONN)
 
     def get_atp_default_tablespace(self):
+        _method_name = 'get_atp_default_tablespace'
         result = self._get_dictionary_element_value(ATP_DEFAULT_TABLESPACE)
         if result is not None:
+            self._logger.info('WLSDPLY-22000', ATP_DEFAULT_TABLESPACE, RCU_DEFAULT_TBLSPACE,
+                              class_name=_class_name, method_name=_method_name)
             return result
         elif self.get_rcu_default_tablespace() is not None:
             return self.get_rcu_default_tablespace()
@@ -142,8 +145,11 @@ class RcuDbInfo(object):
             return self.get_rcu_default_tablespace()
 
     def get_atp_temporary_tablespace(self):
+        _method_name = 'get_atp_temp_tablespace'
         result = self._get_dictionary_element_value(ATP_TEMPORARY_TABLESPACE)
         if result is not None:
+            self._logger.info('WLSDPLY-22000', ATP_TEMPORARY_TABLESPACE, RCU_TEMP_TBLSPACE,
+                              class_name=_class_name, method_name=_method_name)
             return result
         elif self.get_rcu_temp_tablespace() is not None:
             return self.get_rcu_temp_tablespace()
@@ -151,8 +157,11 @@ class RcuDbInfo(object):
             return 'TEMP'
 
     def get_atp_admin_user(self):
+        _method_name = 'get_atp_admin_user'
         result = self._get_dictionary_element_value(ATP_ADMIN_USER)
         if result is not None:
+            self._logger.info('WLSDPLY-22000', ATP_ADMIN_USER, RCU_DB_USER,
+                              class_name=_class_name, method_name=_method_name)
             return result
         elif self.get_rcu_db_user() is not None:
             return self.get_rcu_db_user()
@@ -217,8 +226,11 @@ class RcuDbInfo(object):
         The default when not specified is False.
         :return: True if the model value is present and indicates true, False otherwise
         """
+        _method_name = 'is_use_atp'
         result = self._get_dictionary_element_value(USE_ATP)
         if result is not None:
+            self._logger.info('WLSDPLY-22000', USE_ATP, DATABASE_TYPE,
+                              class_name=_class_name, method_name=_method_name)
             model_value = self.rcu_properties_map[USE_ATP]
             value = alias_utils.convert_to_type('boolean', model_value)
             return value == 'true'
@@ -230,8 +242,11 @@ class RcuDbInfo(object):
         Determine if the RCU DB info uses SSL.user
         :return: True if the model value is present and set to true
         """
+        _method_name = 'is_use_ssl'
         result = self._get_dictionary_element_value(USE_SSL)
         if result is not None:
+            self._logger.info('WLSDPLY-22000', USE_ATP, DATABASE_TYPE,
+                              class_name=_class_name, method_name=_method_name)
             model_value = self.rcu_properties_map[USE_SSL]
             value = alias_utils.convert_to_type('boolean', model_value)
             return value == 'true'
@@ -302,7 +317,7 @@ def create(model_dictionary, model_context, aliases):
     rcu_properties_map = {}
     if RCU_DB_INFO in domain_info:
         rcu_properties_map = domain_info[RCU_DB_INFO]
-    else:
-        resources = dictionary_utils.get_dictionary_element(model_dictionary, RESOURCES)
-        rcu_properties_map = resources[RCU_CONFIGURATION]
+    # else:
+    #     resources = dictionary_utils.get_dictionary_element(model_dictionary, RESOURCES)
+    #     rcu_properties_map = resources[RCU_CONFIGURATION]
     return RcuDbInfo(model_context, aliases, rcu_properties_map)
