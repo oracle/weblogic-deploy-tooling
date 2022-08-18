@@ -198,7 +198,7 @@ class RcuDbInfo(object):
     # its an optional field, so insufficient to determine whether it has atp
     def has_tns_admin(self):
         result = self._get_dictionary_element_value(DRIVER_PARAMS_NET_TNS_ADMIN)
-        return result is None
+        return result is not None
 
     def has_atpdbinfo(self):
         return self.is_use_atp()

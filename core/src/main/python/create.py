@@ -29,7 +29,6 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
 from wlsdeploy.tool.create.domain_creator import DomainCreator
 from wlsdeploy.tool.create.domain_typedef import CREATE_DOMAIN
 from wlsdeploy.tool.util import model_context_helper
@@ -45,6 +44,8 @@ from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.tool.create import atp_helper
 from wlsdeploy.tool.create import ssl_helper
 from wlsdeploy.tool.create import rcudbinfo_helper
+from wlsdeploy.aliases.model_constants import DOMAIN_INFO
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
 
 wlst_helper.wlst_functions = globals()
 
@@ -236,8 +237,7 @@ def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
     has_ssldbinfo = 0
 
     if model_constants.DOMAIN_INFO in model and model_constants.RCU_DB_INFO in model[model_constants.DOMAIN_INFO]:
-            rcu_db_info = RcuDbInfo(model_context, aliases,
-                                    model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO])
+            rcu_db_info = rcudbinfo_helper.create(model, model_context, aliases)
             has_tns_admin = rcu_db_info.has_tns_admin()
             is_regular_db = rcu_db_info.is_regular_db()
             has_atpdbinfo = rcu_db_info.has_atpdbinfo()
@@ -247,8 +247,7 @@ def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
                                             model_context)
     # elif model_constants.RESOURCES in model and model_constants.RCU_CONFIGURATION in model[model_constants.RESOURCES]:
     #     # New rcu information
-    #     rcu_db_info = RcuDbInfo(model_context, aliases,
-    #                             model[model_constants.RESOURCES][model_constants.RCU_CONFIGURATION])
+    #        rcu_db_info = rcudbinfo_helper.create(model, model_context, aliases)
     #     has_tns_admin = rcu_db_info.has_tns_admin()
     #     is_regular_db = rcu_db_info.is_regular_db()
     #     has_atpdbinfo = rcu_db_info.has_atpdbinfo()
@@ -346,16 +345,18 @@ def main(args):
             archive_helper = ArchiveHelper(archive_file_name, domain_path, __logger, ExceptionType.CREATE)
 
         has_atp, has_ssl = validate_rcu_args_and_model(model_context, model_dictionary, archive_helper, aliases)
-
         # check if there is an atpwallet and extract in the domain dir
         # it is to support non JRF domain but user wants to use ATP database
-        if not has_atp and archive_helper:
+        if has_atp and archive_helper:
+            #extracted_wallet_path = archive_helper.extract_atp_wallet()
             archive_helper.extract_atp_wallet()
 
         creator = DomainCreator(model_dictionary, model_context, aliases)
         creator.create()
 
         if has_atp:
+            # if extracted_wallet_path is not None:
+            #     model_dictionary[DOMAIN_INFO][DRIVER_PARAMS_NET_TNS_ADMIN] = extracted_wallet_path
             rcu_db_info = rcudbinfo_helper.create(model_dictionary, model_context, aliases)
             atp_helper.fix_jps_config(rcu_db_info, model_context)
         elif has_ssl:
