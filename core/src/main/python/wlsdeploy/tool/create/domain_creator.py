@@ -27,6 +27,7 @@ from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import DRIVER_NAME
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE_ENCRYPTED
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORE_PROPERTY
@@ -947,7 +948,7 @@ class DomainCreator(Creator):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
-    def __set_connection_property(self, root_location, property_name, property_value):
+    def __set_connection_property(self, root_location, property_name, property_value, encrypted=False):
         create_path = self.aliases.get_wlst_create_path(root_location)
 
         self.wlst_helper.cd(create_path)
@@ -967,8 +968,13 @@ class DomainCreator(Creator):
 
         self.wlst_helper.cd(wlst_path)
 
+        if encrypted:
+            value_property = DRIVER_PARAMS_PROPERTY_VALUE_ENCRYPTED
+        else:
+            value_property = DRIVER_PARAMS_PROPERTY_VALUE
+
         wlst_name, wlst_value = \
-            self.aliases.get_wlst_attribute_name_and_value(root_location, DRIVER_PARAMS_PROPERTY_VALUE,
+            self.aliases.get_wlst_attribute_name_and_value(root_location, value_property,
                                                            property_value)
         self.wlst_helper.set(wlst_name, wlst_value)
 
@@ -1247,7 +1253,7 @@ class DomainCreator(Creator):
         self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY,
                                        truststore_type)
         if truststore_pwd is not None and truststore_pwd != 'None':
-            self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd)
+            self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd, True)
 
     def __set_atp_standard_conn_properties(self, keystore_pwd, datasource_name, tns_admin, truststore_pwd):
         location = deployer_utils.get_jdbc_driver_params_properties_location(datasource_name, self.aliases)
@@ -1256,12 +1262,12 @@ class DomainCreator(Creator):
                                        + 'keystore.jks')
         self.__set_connection_property(location, DRIVER_PARAMS_KEYSTORETYPE_PROPERTY,
                                        'JKS')
-        self.__set_connection_property(location, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_pwd)
+        self.__set_connection_property(location, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_pwd, True)
         self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTORE_PROPERTY, tns_admin + os.sep
                                        + 'truststore.jks')
         self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY,
                                        'JKS')
-        self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd)
+        self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd, True)
         self.__set_connection_property(location, DRIVER_PARAMS_NET_SSL_VERSION, '1.2')
         self.__set_connection_property(location, DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY, 'true')
         self.__set_connection_property(location, DRIVER_PARAMS_NET_TNS_ADMIN, tns_admin)
