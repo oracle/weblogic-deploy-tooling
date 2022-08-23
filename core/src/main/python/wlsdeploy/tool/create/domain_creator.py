@@ -276,7 +276,7 @@ class DomainCreator(Creator):
             self.__validate_and_get_atp_rcudbinfo(rcu_db_info, True)
 
             rcu_runner_map = dict()
-            atp_conn_properties = rcu_db_info.get_rcu_connection_properties()
+            atp_conn_properties = {}
 
             # update password fields with decrypted passwords
             if rcu_db_info.get_keystore_password() is not None:
@@ -298,7 +298,6 @@ class DomainCreator(Creator):
             atp_conn_properties[DRIVER_PARAMS_KEYSTORE_PROPERTY] = { 'Value': rcu_db_info.get_tns_admin()
                                                                         + os.sep + "keystore.jks"}
 
-            # ATP-S vs ATP-D TODO
             if not atp_conn_properties.has_key(DRIVER_PARAMS_NET_FAN_ENABLED):
                 atp_conn_properties[DRIVER_PARAMS_NET_FAN_ENABLED] = { 'Value' : 'false'}
 
@@ -1150,66 +1149,18 @@ class DomainCreator(Creator):
         self.wlst_helper.cd(folder_path)
         ds_names = self.wlst_helper.lsc()
 
-        is_mds = rcu_db_info.is_multidatasource()
         for ds_name in ds_names:
-            adjusted_names = None
-            # AGL cannot use MDS
-            if rcu_db_info.get_database_type == 'AGL':
-                deployer_utils.set_datasource_type(ds_name, 'AGL')
-            elif is_mds:
-                adjusted_names, urls = deployer_utils.clone_templated_data_source(ds_name,
-                                                                            rcu_db_info.get_multidatasource_urls(),
-                                                                            self.aliases)
-
-                deployer_utils.convert_templated_ds_to_mds(ds_name, urls, self.aliases)
-
-            # non MDS case
-            if adjusted_names is None:
-                adjusted_names = [ds_name]
-                urls = { ds_name: { 'url': fmw_database}}
-            else:
-                # cie script needs the original driver param and connection pool info for offline creation
-                adjusted_names.append(ds_name)
-                urls[ds_name] = {'url': fmw_database}
 
             # Set the driver params
+            self.__set_datasource_url(ds_name, fmw_database)
+            self.__set_datasource_password(ds_name, rcu_schema_pwd)
+            self.__reset_datasource_template_userid(ds_name, rcu_prefix)
 
-            for adjusted_name in adjusted_names:
-
-                self.__set_datasource_url(adjusted_name, urls)
-                self.__set_datasource_password(adjusted_name, rcu_schema_pwd)
-                self.__reset_datasource_template_userid(adjusted_name, rcu_prefix)
-                self.__set_user_provided_conn_properties(adjusted_name, rcu_db_info)
-                self.__set_datasource_oracleparams(adjusted_name, rcu_db_info)
-
-                if is_atp_ds:
-                    self.__set_atp_standard_conn_properties(keystore_pwd, adjusted_name, tns_admin, truststore_pwd)
-                elif is_ssl_ds:
-                    self.__set_ssl_standard_conn_properties(adjusted_name, tns_admin, truststore, truststore_pwd,
-                                                            truststore_type)
-
-
-    def __set_user_provided_conn_properties(self, datasource_name, rcu_db_info):
-        location = deployer_utils.get_jdbc_driver_params_properties_location(datasource_name, self.aliases)
-        props = rcu_db_info.get_rcu_connection_properties()
-        for prop in props:
-            self.__set_connection_property(location, prop, props[prop]['Value'])
-
-    def __set_datasource_oracleparams(self, datasource_name, rcu_db_info):
-        if rcu_db_info.get_oracle_database_params() is not None:
-            location = deployer_utils.get_jdbc_datasource_location(datasource_name, self.aliases)
-            wlst_path = self.aliases.get_wlst_attributes_path(location)
-            self.wlst_helper.cd(wlst_path)
-            self.wlst_helper.create('NO_NAME_0', 'JDBCOracleParams', None)
-            location = deployer_utils.get_jdbc_datasource_oracleparams_location(datasource_name, self.aliases)
-            wlst_path = self.aliases.get_wlst_attributes_path(location)
-            oracle_ds_params = rcu_db_info.get_oracle_database_params()
-            self.wlst_helper.cd(wlst_path)
-            for param in oracle_ds_params:
-                wlst_name, wlst_value = \
-                    self.aliases.get_wlst_attribute_name_and_value(location, param,
-                                                                   oracle_ds_params[param])
-                self.wlst_helper.set_if_needed(wlst_name, wlst_value)
+            if is_atp_ds:
+                self.__set_atp_standard_conn_properties(keystore_pwd, ds_name, tns_admin, truststore_pwd)
+            elif is_ssl_ds:
+                self.__set_ssl_standard_conn_properties(ds_name, tns_admin, truststore, truststore_pwd,
+                                                        truststore_type)
 
     def __reset_datasource_template_userid(self, datasource_name, rcu_prefix):
         location = deployer_utils.get_jdbc_driver_params_location(datasource_name, self.aliases)
@@ -1235,12 +1186,12 @@ class DomainCreator(Creator):
                                                            rcu_schema_pwd, masked=True)
         self.wlst_helper.set_if_needed(wlst_name, wlst_value, masked=True)
 
-    def __set_datasource_url(self, datasource_name, urls):
+    def __set_datasource_url(self, datasource_name, url_string):
         location = deployer_utils.get_jdbc_driver_params_location(datasource_name, self.aliases)
 
         wlst_path = self.aliases.get_wlst_attributes_path(location)
         self.wlst_helper.cd(wlst_path)
-        url = self.wls_helper.get_jdbc_url_from_rcu_connect_string(urls[datasource_name]['url'])
+        url = self.wls_helper.get_jdbc_url_from_rcu_connect_string(url_string)
         wlst_name, wlst_value = \
             self.aliases.get_wlst_attribute_name_and_value(location, URL, url)
         self.wlst_helper.set_if_needed(wlst_name, wlst_value)

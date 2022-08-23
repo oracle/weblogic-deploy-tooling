@@ -14,7 +14,6 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
 from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
-from wlsdeploy.aliases.model_constants import RCU_CONFIGURATION
 from wlsdeploy.aliases.model_constants import RCU_DB_CONN
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RCU_DB_USER
@@ -23,15 +22,11 @@ from wlsdeploy.aliases.model_constants import RCU_SCHEMA_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_STG_INFO
 from wlsdeploy.aliases.model_constants import RCU_COMP_INFO
 from wlsdeploy.aliases.model_constants import RCU_VARIABLES
-from wlsdeploy.aliases.model_constants import RESOURCES
 from wlsdeploy.aliases.model_constants import USE_ATP
 from wlsdeploy.aliases.model_constants import USE_SSL
 from wlsdeploy.aliases.model_constants import DATABASE_TYPE
-from wlsdeploy.aliases.model_constants import ORACLE_DATABASE_PARAMS
 from wlsdeploy.aliases.model_constants import RCU_DEFAULT_TBLSPACE
 from wlsdeploy.aliases.model_constants import RCU_TEMP_TBLSPACE
-from wlsdeploy.aliases.model_constants import RCU_CONNECTION_PROPERTIES
-from wlsdeploy.aliases.model_constants import MULTIDATASOURCE_URLS
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -65,12 +60,6 @@ class RcuDbInfo(object):
         else:
             return type
 
-    def get_oracle_database_params(self):
-        return self._get_dictionary_element_value(ORACLE_DATABASE_PARAMS)
-
-    def get_multidatasource_urls(self):
-        return self._get_dictionary_element_value(MULTIDATASOURCE_URLS)
-
     def get_rcu_default_tablespace(self):
         type = self._get_dictionary_element_value(RCU_DEFAULT_TBLSPACE)
         if type is None:
@@ -87,12 +76,6 @@ class RcuDbInfo(object):
             return 'TEMP'
         else:
             return type
-
-    def get_rcu_connection_properties(self):
-        result = self._get_dictionary_element_value(RCU_CONNECTION_PROPERTIES)
-        if result is None:
-            result = {}
-        return result
 
     def get_tns_admin(self):
         return self._get_dictionary_element_value(DRIVER_PARAMS_NET_TNS_ADMIN)
@@ -317,7 +300,4 @@ def create(model_dictionary, model_context, aliases):
     rcu_properties_map = {}
     if RCU_DB_INFO in domain_info:
         rcu_properties_map = domain_info[RCU_DB_INFO]
-    # else:
-    #     resources = dictionary_utils.get_dictionary_element(model_dictionary, RESOURCES)
-    #     rcu_properties_map = resources[RCU_CONFIGURATION]
     return RcuDbInfo(model_context, aliases, rcu_properties_map)
