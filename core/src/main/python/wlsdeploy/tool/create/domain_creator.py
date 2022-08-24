@@ -34,6 +34,7 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_SERVER_DN_MATCH_
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_SSL_VERSION
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE_ENCRYPTED
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
@@ -966,6 +967,32 @@ class DomainCreator(Creator):
         self.wlst_helper.set(wlst_name, wlst_value)
 
         root_location.remove_name_token(property_name)
+    
+    def __set_atp_connection_property_encrypted(self, root_location, property_name, property_value):
+        create_path = self.aliases.get_wlst_create_path(root_location)
+
+        self.wlst_helper.cd(create_path)
+
+        token_name = self.aliases.get_name_token(root_location)
+
+        if token_name is not None:
+            root_location.add_name_token(token_name, property_name)
+
+        mbean_name = self.aliases.get_wlst_mbean_name(root_location)
+        mbean_type = self.aliases.get_wlst_mbean_type(root_location)
+
+        self.wlst_helper.create(mbean_name, mbean_type)
+
+        wlst_path = self.aliases.get_wlst_attributes_path(root_location)
+
+        self.wlst_helper.cd(wlst_path)
+
+        wlst_name, wlst_value = \
+            self.aliases.get_wlst_attribute_name_and_value(root_location, DRIVER_PARAMS_PROPERTY_VALUE_ENCRYPTED,
+                                                           property_value)
+        self.wlst_helper.set(wlst_name, wlst_value)
+
+        root_location.remove_name_token(property_name)
 
     def __retrieve_atp_rcudbinfo(self, rcu_db_info, check_admin_pwd=False):
         """
@@ -1044,6 +1071,9 @@ class DomainCreator(Creator):
         truststore = rcu_db_info.get_truststore()
         truststore_type = rcu_db_info.get_truststore_type()
         truststore_pwd = rcu_db_info.get_truststore_password()
+        keystore = rcu_db_info.get_keystore()
+        keystore_type = rcu_db_info.get_keystore_type()
+        keystore_pwd = rcu_db_info.get_keystore_password()
 
         if check_admin_pwd:
             admin_pwd = rcu_db_info.get_admin_password()
@@ -1053,7 +1083,7 @@ class DomainCreator(Creator):
                                                               "'rcu_admin_password']")
                 raise ex
 
-        return tns_admin, rcu_database, truststore_pwd, truststore_type, truststore
+        return tns_admin, rcu_database, truststore_pwd, truststore_type, truststore, keystore_pwd, keystore_type, keystore   
 
     def __configure_fmw_infra_database(self):
         """
@@ -1098,10 +1128,12 @@ class DomainCreator(Creator):
             keystore_pwd = None
             truststore_type = None
             truststore = None
+            keystore_type = None
+            keystore = None
             if has_atp:
                 tns_admin, rcu_database, keystore_pwd, truststore_pwd = self.__retrieve_atp_rcudbinfo(rcu_db_info)
             else:
-                tns_admin, rcu_database, truststore_pwd, truststore_type, truststore = self.__retrieve_ssl_rcudbinfo(rcu_db_info)
+                tns_admin, rcu_database, truststore_pwd, truststore_type, truststore, keystore_pwd, keystore_type, keystore = self.__retrieve_ssl_rcudbinfo(rcu_db_info)
             # Need to set for the connection property for each datasource
 
             fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
@@ -1168,7 +1200,15 @@ class DomainCreator(Creator):
                     self.__set_atp_connection_property(location, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY,
                                                          truststore_type)
                     if truststore_pwd is not None and truststore_pwd != 'None':
-                        self.__set_atp_connection_property(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd)
+                        self.__set_atp_connection_property_encrypted(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd)
+                    if keystore is not None and keystore != 'None':
+                        self.__set_atp_connection_property(location, DRIVER_PARAMS_kEYSTORE_PROPERTY, tns_admin + os.sep
+                                                       + keystore)
+                    if keystore_type is not None and keystore_type != 'None':
+                        self.__set_atp_connection_property(location, DRIVER_PARAMS_KEYSTORETYPE_PROPERTY,
+                                                       keystore_type)
+                    if keystore_pwd is not None and keystore_pwd != 'None':
+                        self.__set_atp_connection_property_encrypted(location, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_pwd)
         else:
             rcu_database = rcu_db_info.get_preferred_db()
             if rcu_database is None:
