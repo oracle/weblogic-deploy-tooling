@@ -120,7 +120,7 @@ class DomainInfoDiscoverer(Discoverer):
         else:
             archive_file = self._model_context.get_archive_file()
             domain_bin = self._convert_path('bin')
-            if os.path.isdir(domain_bin):
+            if os.path.isdir(domain_bin) and not self._model_context.is_remote and not self._model_context.skip_archive:
                 search_directory = FileUtils.fixupFileSeparatorsForJython(os.path.join(domain_bin, "setUserOverrides*.*"))
                 _logger.finer('WLSDPLY-06425', search_directory, class_name=_class_name, method_name=_method_name)
                 file_list = glob.glob(search_directory)
