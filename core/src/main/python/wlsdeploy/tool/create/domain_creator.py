@@ -942,7 +942,7 @@ class DomainCreator(Creator):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
-    def __set_atp_connection_property(self, root_location, property_name, property_value):
+    def __set_atp_connection_property(self, root_location, property_name, property_value, encrypted=False):
         create_path = self.aliases.get_wlst_create_path(root_location)
 
         self.wlst_helper.cd(create_path)
@@ -960,40 +960,18 @@ class DomainCreator(Creator):
         wlst_path = self.aliases.get_wlst_attributes_path(root_location)
 
         self.wlst_helper.cd(wlst_path)
-
+        
+        if encrypted:
+            value_property = DRIVER_PARAMS_PROPERTY_VALUE_ENCRYPTED
+        else:
+            value_property = DRIVER_PARAMS_PROPERTY_VALUE
+       
         wlst_name, wlst_value = \
-            self.aliases.get_wlst_attribute_name_and_value(root_location, DRIVER_PARAMS_PROPERTY_VALUE,
-                                                           property_value)
+            self.aliases.get_wlst_attribute_name_and_value(root_location, value_property, property_value)
         self.wlst_helper.set(wlst_name, wlst_value)
 
         root_location.remove_name_token(property_name)
     
-    def __set_atp_connection_property_encrypted(self, root_location, property_name, property_value):
-        create_path = self.aliases.get_wlst_create_path(root_location)
-
-        self.wlst_helper.cd(create_path)
-
-        token_name = self.aliases.get_name_token(root_location)
-
-        if token_name is not None:
-            root_location.add_name_token(token_name, property_name)
-
-        mbean_name = self.aliases.get_wlst_mbean_name(root_location)
-        mbean_type = self.aliases.get_wlst_mbean_type(root_location)
-
-        self.wlst_helper.create(mbean_name, mbean_type)
-
-        wlst_path = self.aliases.get_wlst_attributes_path(root_location)
-
-        self.wlst_helper.cd(wlst_path)
-
-        wlst_name, wlst_value = \
-            self.aliases.get_wlst_attribute_name_and_value(root_location, DRIVER_PARAMS_PROPERTY_VALUE_ENCRYPTED,
-                                                           property_value)
-        self.wlst_helper.set(wlst_name, wlst_value)
-
-        root_location.remove_name_token(property_name)
-
     def __retrieve_atp_rcudbinfo(self, rcu_db_info, check_admin_pwd=False):
         """
         Check and return atp connection info and make sure atp rcudb info is complete
@@ -1200,7 +1178,7 @@ class DomainCreator(Creator):
                     self.__set_atp_connection_property(location, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY,
                                                          truststore_type)
                     if truststore_pwd is not None and truststore_pwd != 'None':
-                        self.__set_atp_connection_property_encrypted(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd)
+                        self.__set_atp_connection_property(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd, encrypted=True)
                     if keystore is not None and keystore != 'None':
                         self.__set_atp_connection_property(location, DRIVER_PARAMS_kEYSTORE_PROPERTY, tns_admin + os.sep
                                                        + keystore)
@@ -1208,7 +1186,7 @@ class DomainCreator(Creator):
                         self.__set_atp_connection_property(location, DRIVER_PARAMS_KEYSTORETYPE_PROPERTY,
                                                        keystore_type)
                     if keystore_pwd is not None and keystore_pwd != 'None':
-                        self.__set_atp_connection_property_encrypted(location, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_pwd)
+                        self.__set_atp_connection_property(location, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_pwd, encrypted=True)
         else:
             rcu_database = rcu_db_info.get_preferred_db()
             if rcu_database is None:
