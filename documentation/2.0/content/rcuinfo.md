@@ -52,7 +52,7 @@ For an Oracle SSL database with TW0_WAY SSL enabled, with an `SSO` wallet, use t
 domainInfo:
     RCUDbInfo:
       useSSL : true
-      rcu_db_conn_string: <reuired URL string for use with -run_rcu>
+      rcu_db_conn_string: <required URL string for use with -run_rcu>
       rcu_prefix : DEV
       rcu_admin_password: <required with -run_rcu flag>
       rcu_schema_password: <required with -run_rcu flag>
@@ -70,7 +70,7 @@ For an Oracle SSL database with ONE_WAY SSL enabled, with an `SSO` wallet, use t
 domainInfo:
     RCUDbInfo:
       useSSL : true
-      rcu_db_conn_string: <reuired URL string for use with -run_rcu>
+      rcu_db_conn_string: <required URL string for use with -run_rcu>
       rcu_prefix : DEV
       rcu_admin_password: <required with -run_rcu flag>
       rcu_schema_password: <required with -run_rcu flag>
@@ -88,7 +88,7 @@ For an Oracle SSL database with TW0_WAY SSL enabled, with a `PKCS12` wallet, use
 domainInfo:
     RCUDbInfo:
       useSSL : true
-      rcu_db_conn_string: <reuired URL string for use with -run_rcu>
+      rcu_db_conn_string: <required URL string for use with -run_rcu>
       rcu_prefix : DEV
       rcu_admin_password: <required with -run_rcu flag>
       rcu_schema_password: <required with -run_rcu flag>
@@ -107,7 +107,7 @@ For an Oracle SSL database with ONE_WAY SSL enabled, with a `PKCS12` wallet, use
 domainInfo:
     RCUDbInfo:
       useSSL : true
-      rcu_db_conn_string: <reuired URL string for use with -run_rcu>
+      rcu_db_conn_string: <required URL string for use with -run_rcu>
       rcu_prefix : DEV
       rcu_admin_password: <required with -run_rcu flag>
       rcu_schema_password: <required with -run_rcu flag>
