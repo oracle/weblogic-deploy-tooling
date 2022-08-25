@@ -13,7 +13,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 
 _logger = PlatformLogger('wlsdeploy.create')
 
-def set_ssl_properties(xml_doc, atp_creds_path, truststore, truststore_type, truststore_password):
+def set_ssl_properties(xml_doc, atp_creds_path, truststore, truststore_type, truststore_password, keystore, keystore_type, keystore_password):
     '''
     Add SSL config properties to the specified XML document.
     :param xml_doc:                  The XML document
@@ -31,6 +31,12 @@ def set_ssl_properties(xml_doc, atp_creds_path, truststore, truststore_type, tru
             set_property(dom_tree, prop, 'oracle.net.tns_admin', atp_creds_path)
             if truststore_password is not None:
                 set_property(dom_tree, prop, 'javax.net.ssl.trustStorePassword', truststore_password)
+            if keystore is not None:
+                set_property(dom_tree, prop, 'javax.net.ssl.keyStore', atp_creds_path + '/' + keystore)
+            if keystore_type is not None:
+                set_property(dom_tree, prop, 'javax.net.ssl.keyStoreType', keystore_type)
+            if keystore_password is not None:
+                set_property(dom_tree, prop, 'javax.net.ssl.keyStorePassword', keystore_password)
             # Persist the changes in the xml file
             file_handle = open(xml_doc,"w")
             dom_tree.writexml(file_handle)
@@ -57,12 +63,14 @@ def fix_jps_config(rcu_db_info, model_context):
     truststore = rcu_db_info.get_truststore()
     truststore_type = rcu_db_info.get_truststore_type()
     truststore_password = rcu_db_info.get_truststore_password()
+    keystore = rcu_db_info.get_keystore()
+    keystore_type = rcu_db_info.get_keystore_type()
+    keystore_password = rcu_db_info.get_keystore_password()
 
     jsp_config = model_context.get_domain_home() + '/config/fmwconfig/jps-config.xml'
     jsp_config_jse = model_context.get_domain_home() + '/config/fmwconfig/jps-config-jse.xml'
-    set_ssl_properties(jsp_config, tns_admin, truststore, truststore_type, truststore_password)
-    set_ssl_properties(jsp_config_jse, tns_admin, truststore, truststore_type, truststore_password)
-
+    set_ssl_properties(jsp_config, tns_admin, truststore, truststore_type, truststore_password, keystore, keystore_type, keystore_password)
+    set_ssl_properties(jsp_config_jse, tns_admin, truststore, truststore_type, truststore_password, keystore, keystore_type, keystore_password)
 
 def get_ssl_connect_string(tnsnames_ora_path, tns_sid_name):
     try:
