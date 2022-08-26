@@ -1,0 +1,6 @@
+appDeployments:
+  Application:
+    # Quote needed because of hyphen in string
+    'simple-app':
+      SourcePath: 'wlsdeploy/applications/simple-app.war'
+      Target: 'admin-server'

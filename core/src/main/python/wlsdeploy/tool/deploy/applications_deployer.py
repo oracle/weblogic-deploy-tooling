@@ -620,9 +620,14 @@ class ApplicationsDeployer(Deployer):
         # or if the model sourcepath + domain home is exactly equal to the running's app source path.
         # return True otherwise return False
         if not os.path.isabs(model_src_path):
-            return self.model_context.get_domain_home() + '/' + model_src_path == src_path
+            return FileUtils.getCanonicalPath(self.model_context.get_domain_home() + '/' + model_src_path) == src_path
         else:
             return FileUtils.getCanonicalPath(src_path) == FileUtils.getCanonicalPath(model_src_path)
+
+    def __append_to_stop_and_undeploy_apps(self, versioned_name, stop_and_undeploy_app_list, existing_targets_set):
+        if versioned_name not in stop_and_undeploy_app_list and len(existing_targets_set) > 0:
+            stop_and_undeploy_app_list.append(versioned_name)
+
 
     def __build_app_deploy_strategy(self, location, model_apps, existing_app_refs, stop_and_undeploy_app_list):
         """
@@ -684,10 +689,11 @@ class ApplicationsDeployer(Deployer):
 
                     existing_src_hash = self.__get_file_hash(src_path)
                     existing_plan_hash = self.__get_file_hash(plan_path)
+                    existing_app_targets = dictionary_utils.get_element(existing_app_ref, 'target')
+                    existing_app_targets_set = Set(existing_app_targets)
                     if model_src_hash == existing_src_hash:
                         if model_plan_hash == existing_plan_hash:
                             if self.__shouldCheckForTargetChange(src_path, model_src_path):
-
                                 # If model hashes match existing hashes, the application did not change.
                                 # Unless targets were added, there's no need to redeploy.
                                 # If it is an absolute path, there is nothing to compare so assume redeploy
@@ -695,15 +701,12 @@ class ApplicationsDeployer(Deployer):
                                 model_targets_list = alias_utils.create_list(model_targets, 'WLSDPLY-08000')
                                 model_targets_set = Set(model_targets_list)
 
-                                existing_app_targets = dictionary_utils.get_element(existing_app_ref, 'target')
-                                existing_app_targets_set = Set(existing_app_targets)
-
                                 if existing_app_targets_set == model_targets_set and len(existing_app_targets_set) > 0:
                                     # redeploy the app if everything is the same
                                     self.logger.info('WLSDPLY-09336', src_path,
                                                      class_name=self._class_name, method_name=_method_name)
-                                    if versioned_name not in stop_and_undeploy_app_list:
-                                        stop_and_undeploy_app_list.append(versioned_name)
+                                    self.__append_to_stop_and_undeploy_apps(versioned_name, stop_and_undeploy_app_list
+                                                                            , existing_app_targets_set)
                                 elif len(existing_app_targets_set) == 0 and len(model_targets_set) == 0:
                                     self.__remove_app_from_deployment(model_apps, app, "emptyset")
                                 elif existing_app_targets_set.issuperset(model_targets_set):
@@ -721,16 +724,16 @@ class ApplicationsDeployer(Deployer):
                                         app_dict['SourcePath'] = src_path
                             else:
                                 # same hash but different path, so redeploy it
-                                if versioned_name not in stop_and_undeploy_app_list:
-                                    stop_and_undeploy_app_list.append(versioned_name)
+                                self.__append_to_stop_and_undeploy_apps(versioned_name, stop_and_undeploy_app_list
+                                                                        , existing_app_targets_set)
                         else:
                             # updated deployment plan
-                            if versioned_name not in stop_and_undeploy_app_list:
-                                stop_and_undeploy_app_list.append(versioned_name)
+                            self.__append_to_stop_and_undeploy_apps(versioned_name, stop_and_undeploy_app_list
+                                                                    , existing_app_targets_set)
                     else:
                         # updated app
-                        if versioned_name not in stop_and_undeploy_app_list:
-                            stop_and_undeploy_app_list.append(versioned_name)
+                        self.__append_to_stop_and_undeploy_apps(versioned_name, stop_and_undeploy_app_list
+                                                                , existing_app_targets_set)
 
     def __remove_delete_targets(self, model_dict, existing_ref):
         """
