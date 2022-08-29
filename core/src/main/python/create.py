@@ -4,14 +4,17 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The main module for the WLSDeploy tool to create empty domains.
 """
+import exceptions
 import os
 import sys
+
 from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import String
 from java.lang import System
 from oracle.weblogic.deploy.create import CreateException
 from oracle.weblogic.deploy.deploy import DeployException
+from oracle.weblogic.deploy.logging import WLSDeployLoggingConfig
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
@@ -29,6 +32,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
 from wlsdeploy.tool.create.domain_creator import DomainCreator
 from wlsdeploy.tool.create.domain_typedef import CREATE_DOMAIN
 from wlsdeploy.tool.util import model_context_helper
@@ -40,10 +44,10 @@ from wlsdeploy.util import getcreds
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.cla_utils import TOOL_TYPE_CREATE
+from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.tool.create import atp_helper
 from wlsdeploy.tool.create import ssl_helper
-from wlsdeploy.tool.create import rcudbinfo_helper
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
 
@@ -128,7 +132,7 @@ def __process_java_home_arg(optional_arg_map):
         try:
             java_home = FileUtils.validateExistingDirectory(java_home_name)
         except IllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-12400', _program_name, java_home_name,
                                                        iae.getLocalizedMessage(), error=iae)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -149,7 +153,7 @@ def __process_domain_location_args(optional_arg_map):
     has_parent = CommandLineArgUtil.DOMAIN_PARENT_SWITCH in optional_arg_map
 
     if (has_home and has_parent) or (not has_home and not has_parent):
-        ex = exception_helper.create_cla_exception(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE,
+        ex = exception_helper.create_cla_exception(ExitCode.USAGE_ERROR,
                                                    'WLSDPLY-20025', _program_name,
                                                    CommandLineArgUtil.DOMAIN_PARENT_SWITCH,
                                                    CommandLineArgUtil.DOMAIN_HOME_SWITCH)
@@ -183,7 +187,7 @@ def __process_rcu_args(optional_arg_map, domain_type, domain_typedef):
                     try:
                         password = getcreds.getpass('WLSDPLY-12403')
                     except IOException, ioe:
-                        ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                        ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                                    'WLSDPLY-12404', ioe.getLocalizedMessage(),
                                                                    error=ioe)
                         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -193,14 +197,14 @@ def __process_rcu_args(optional_arg_map, domain_type, domain_typedef):
                     try:
                         password = getcreds.getpass('WLSDPLY-12405')
                     except IOException, ioe:
-                        ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+                        ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                                    'WLSDPLY-12406', ioe.getLocalizedMessage(),
                                                                    error=ioe)
                         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                         raise ex
                     optional_arg_map[CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH] = String(password)
             else:
-                ex = exception_helper.create_cla_exception(CommandLineArgUtil.USAGE_ERROR_EXIT_CODE,
+                ex = exception_helper.create_cla_exception(ExitCode.USAGE_ERROR,
                                                            'WLSDPLY-12407', _program_name,
                                                            CommandLineArgUtil.RCU_DB_SWITCH,
                                                            CommandLineArgUtil.RCU_PREFIX_SWITCH)
@@ -223,7 +227,7 @@ def __process_opss_args(optional_arg_map):
         try:
             passphrase = getcreds.getpass('WLSDPLY-20027')
         except IOException, ioe:
-            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-20028', ioe.getLocalizedMessage(), error=ioe)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
@@ -237,24 +241,14 @@ def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
     has_ssldbinfo = 0
 
     if model_constants.DOMAIN_INFO in model and model_constants.RCU_DB_INFO in model[model_constants.DOMAIN_INFO]:
-            rcu_db_info = rcudbinfo_helper.create(model, model_context, aliases)
-            has_tns_admin = rcu_db_info.has_tns_admin()
-            is_regular_db = rcu_db_info.is_regular_db()
-            has_atpdbinfo = rcu_db_info.has_atpdbinfo()
-            has_ssldbinfo = rcu_db_info.has_ssldbinfo()
+        rcu_db_info = RcuDbInfo(model_context, aliases, model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO])
+        has_tns_admin = rcu_db_info.has_tns_admin()
+        is_regular_db = rcu_db_info.is_regular_db()
+        has_atpdbinfo = rcu_db_info.has_atpdbinfo()
+        has_ssldbinfo = rcu_db_info.has_ssldbinfo()
 
-            _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin, model,
-                                            model_context)
-    # elif model_constants.RESOURCES in model and model_constants.RCU_CONFIGURATION in model[model_constants.RESOURCES]:
-    #     # New rcu information
-    #        rcu_db_info = rcudbinfo_helper.create(model, model_context, aliases)
-    #     has_tns_admin = rcu_db_info.has_tns_admin()
-    #     is_regular_db = rcu_db_info.is_regular_db()
-    #     has_atpdbinfo = rcu_db_info.has_atpdbinfo()
-    #     has_ssldbinfo = rcu_db_info.has_ssldbinfo()
-    #
-    #     _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin, model,
-    #                                     model_context)
+        _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin, model,
+                                        model_context)
     else:
         if model_context.get_domain_typedef().required_rcu():
             if not model_context.get_rcu_database() or not model_context.get_rcu_prefix():
@@ -318,20 +312,20 @@ def main(args):
 
     WlstHelper(ExceptionType.CREATE).silence()
 
-    exit_code = CommandLineArgUtil.PROG_OK_EXIT_CODE
+    _exit_code = ExitCode.OK
 
     try:
         model_context = __process_args(args)
     except CLAException, ex:
-        exit_code = ex.getExitCode()
-        if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
+        _exit_code = ex.getExitCode()
+        if _exit_code != ExitCode.HELP:
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
 
         # create a minimal model for summary logging
         model_context = model_context_helper.create_exit_context(_program_name)
-        tool_exit.end(model_context, exit_code)
+        tool_exit.__log_and_exit(__logger, model_context, _exit_code, _class_name, _method_name)
 
     aliases = Aliases(model_context, wlst_mode=__wlst_mode, exception_type=ExceptionType.CREATE)
 
@@ -357,40 +351,39 @@ def main(args):
         if has_atp:
             # if extracted_wallet_path is not None:
             #     model_dictionary[DOMAIN_INFO][DRIVER_PARAMS_NET_TNS_ADMIN] = extracted_wallet_path
-            rcu_db_info = rcudbinfo_helper.create(model_dictionary, model_context, aliases)
+            rcu_properties_map = model_dictionary[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO]
+            rcu_db_info = RcuDbInfo(model_context, aliases, rcu_properties_map)
             atp_helper.fix_jps_config(rcu_db_info, model_context)
         elif has_ssl:
-            rcu_db_info = rcudbinfo_helper.create(model_dictionary, model_context, aliases)
+            rcu_properties_map = model_dictionary[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO]
+            rcu_db_info = RcuDbInfo(model_context, aliases, rcu_properties_map)
             ssl_helper.fix_jps_config(rcu_db_info, model_context)
     except WLSDeployArchiveIOException, ex:
+        _exit_code = ExitCode.ERROR
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
-
     except CreateException, ex:
+        _exit_code = ExitCode.ERROR
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
-
     except IOException, ex:
+        _exit_code = ExitCode.ERROR
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
-
     except DeployException, ex:
+        _exit_code = ExitCode.ERROR
         __logger.severe('WLSDPLY-12410', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     cla_helper.clean_up_temp_files()
-
-    tool_exit.end(model_context, exit_code)
-
+    tool_exit.__log_and_exit(__logger, model_context, _exit_code, _class_name, _method_name)
 
 if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    main(sys.argv)
+    WLSDeployLoggingConfig.logLoggingDirectory(_program_name)
+    try:
+        main(sys.argv)
+    except exceptions.SystemExit, ex:
+        raise ex
+    except (exceptions.Exception, java.lang.Exception), ex:
+        exception_helper.__handle_unexpected_exception(ex, _program_name, _class_name, __logger)

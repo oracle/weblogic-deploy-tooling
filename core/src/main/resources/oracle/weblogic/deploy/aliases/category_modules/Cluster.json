@@ -2,11 +2,13 @@
     "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "Cluster${:s}",
+    "online_bean": "weblogic.management.configuration.ClusterMBean",
     "child_folders_type": "multiple",
     "short_name": "Cluster",
     "folders": {
         "DynamicServers": {
             "wlst_type": "DynamicServers",
+            "online_bean": "weblogic.management.configuration.DynamicServersMBean",
             "version": "[12.1.2,)",
             "default_name_value": "${NO_NAME_0:%CLUSTER%}",
             "folders": {},
@@ -45,6 +47,7 @@
         },
         "CoherenceTier" : {
             "wlst_type": "CoherenceTier",
+            "online_bean": "weblogic.management.configuration.CoherenceTierMBean",
             "version": "[12.1.2,)",
             "child_folders_type": "single",
             "default_name_value": "${NO_NAME_0:%CLUSTER%}",
@@ -62,6 +65,7 @@
         },
         "DatabaseLessLeasingBasis" : {
             "wlst_type": "DatabaseLessLeasingBasis",
+            "online_bean": "weblogic.management.configuration.DatabaseLessLeasingBasisMBean",
             "version": "[10.3.6,)",
             "default_name_value": "${NO_NAME_0:%CLUSTER%}",
             "folders": {},
@@ -81,6 +85,7 @@
         },
         "JTACluster" : {
             "wlst_type": "JTACluster",
+            "online_bean": "weblogic.management.configuration.JTAClusterMBean",
             "version": "[12.1.3,)",
             "child_folders_type": "single",
             "default_name_value": "${NO_NAME_0:%CLUSTER%}",
@@ -132,11 +137,13 @@
         },
         "OverloadProtection" : {
             "wlst_type": "OverloadProtection",
+            "online_bean": "weblogic.management.configuration.OverloadProtectionMBean",
             "child_folders_type": "single",
             "default_name_value": "${NO_NAME_0:%CLUSTER%}",
             "folders" : {
                 "ServerFailureTrigger" : {
                     "wlst_type": "ServerFailureTrigger",
+                    "online_bean": "weblogic.management.configuration.ServerFailureTriggerMBean",
                     "child_folders_type": "single",
                     "default_name_value": "${NO_NAME_0:%CLUSTER%}",
                     "folders" : {},

@@ -2,15 +2,18 @@
     "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "JDBCSystemResource${:s}",
+    "online_bean": "weblogic.management.configuration.JDBCSystemResourceMBean",
     "child_folders_type": "multiple",
     "short_name": "JDBC",
     "folders": {
         "JdbcResource" : {
             "wlst_type": "${Jdbc:JDBC}Resource",
+            "online_bean": "weblogic.j2ee.descriptor.wl.JDBCDataSourceBean",
             "default_name_value": "%DATASOURCE%",
             "folders": {
                 "JDBCConnectionPoolParams": {
                     "wlst_type": "JDBCConnectionPoolParams",
+                    "online_bean": "weblogic.j2ee.descriptor.wl.JDBCConnectionPoolParamsBean",
                     "default_name_value": "${NO_NAME_0:%DATASOURCE%}",
                     "folders": {},
                     "attributes": {
@@ -61,6 +64,7 @@
                 },
                 "JDBCDataSourceParams": {
                     "wlst_type": "JDBCDataSourceParams",
+                    "online_bean": "weblogic.j2ee.descriptor.wl.JDBCDataSourceParamsBean",
                     "default_name_value": "${NO_NAME_0:%DATASOURCE%}",
                     "folders": {},
                     "attributes": {
@@ -86,13 +90,16 @@
                 },
                 "JDBCDriverParams": {
                     "wlst_type": "JDBCDriverParams",
+                    "online_bean": "weblogic.j2ee.descriptor.wl.JDBCDriverParamsBean",
                     "default_name_value": "${NO_NAME_0:%DATASOURCE%}",
                     "folders": {
                         "Properties": {
                             "wlst_type": "Propert${y:ies}",
+                            "online_bean": "weblogic.j2ee.descriptor.wl.JDBCPropertyBean",
                             "child_folders_type": "multiple",
                             "flattened_folder_data": {
                                 "wlst_type": "Properties",
+                                "online_bean": "weblogic.j2ee.descriptor.wl.JDBCPropertyBean",
                                 "name_value": "${NO_NAME_0:%JDBCRESOURCE%}",
                                 "path_token": "PROPERTIES"
                             },
@@ -123,6 +130,7 @@
                 },
                 "JDBCOracleParams": {
                     "wlst_type": "JDBCOracleParams",
+                    "online_bean": "weblogic.j2ee.descriptor.wl.JDBCOracleParamsBean",
                     "default_name_value": "${NO_NAME_0:%DATASOURCE%}",
                     "folders": {},
                     "attributes": {
@@ -146,6 +154,7 @@
                 },
                 "JDBCXAParams": {
                     "wlst_type": "JDBCXAParams",
+                    "online_bean": "weblogic.j2ee.descriptor.wl.JDBCXAParamsBean",
                     "default_name_value": "${NO_NAME_0:%DATASOURCE%}",
                     "folders": {},
                     "attributes": {
@@ -179,6 +188,7 @@
         },
         "SubDeployment" : {
             "wlst_type": "SubDeployment${:s}",
+            "online_bean": "weblogic.management.configuration.SubDeploymentMBean",
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {

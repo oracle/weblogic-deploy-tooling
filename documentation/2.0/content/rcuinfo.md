@@ -47,12 +47,12 @@ Or, by specifying the unzipped root directory of the ATP wallet ZIP file in `ora
 
 #### SSL database using SSO for authentication
 
-For an SSL database, with an `SSO` wallet, use the following example:
+For an Oracle SSL database with TW0_WAY SSL enabled, with an `SSO` wallet, use the following example:
 ```yaml
 domainInfo:
     RCUDbInfo:
       useSSL : true
-      rcu_db_conn_string: <reuired URL string for use with -run_rcu>
+      rcu_db_conn_string: <required URL string for use with -run_rcu>
       rcu_prefix : DEV
       rcu_admin_password: <required with -run_rcu flag>
       rcu_schema_password: <required with -run_rcu flag>
@@ -64,14 +64,31 @@ domainInfo:
       oracle.net.tns_admin: <absolute path of the unzipped wallet root directory>
 
 ```
-#### SSL database using PKCS12 for authentication
 
-For an SSL database, with a `PKCS12` wallet, use the following example:
+For an Oracle SSL database with ONE_WAY SSL enabled, with an `SSO` wallet, use the following example:
 ```yaml
 domainInfo:
     RCUDbInfo:
       useSSL : true
-      rcu_db_conn_string: <reuired URL string for use with -run_rcu>
+      rcu_db_conn_string: <required URL string for use with -run_rcu>
+      rcu_prefix : DEV
+      rcu_admin_password: <required with -run_rcu flag>
+      rcu_schema_password: <required with -run_rcu flag>
+      tns.alias: <alias of ssl db in the tnsnames.ora file>
+      javax.net,ssl.trustStore: <truststore found in unzipped wallet, i.e cwallet.sso>
+      javax.net.ssl.trustStoreType: SSO
+      oracle.net.tns_admin: <absolute path of the unzipped wallet root directory>
+
+```
+
+#### SSL database using PKCS12 for authentication
+
+For an Oracle SSL database with TW0_WAY SSL enabled, with a `PKCS12` wallet, use the following example:
+```yaml
+domainInfo:
+    RCUDbInfo:
+      useSSL : true
+      rcu_db_conn_string: <required URL string for use with -run_rcu>
       rcu_prefix : DEV
       rcu_admin_password: <required with -run_rcu flag>
       rcu_schema_password: <required with -run_rcu flag>
@@ -79,6 +96,22 @@ domainInfo:
       javax.net.ssl.keyStore: <keystore found in the unzipped wallet, i.e. ewallet.p12>
       javax.net.ssl.keyStoreType: PKCS12
       javax.net.ssl.keyStorePassword: <keystore password>
+      javax.net.ssl.trustStore: <truststore found in the unzipped wallet, i.e ewallet.p12>
+      javax.net.ssl.trustStoreType: PKCS12
+      javax.net.ssl.trustStorePassword: <password of the truststore>
+      oracle.net.tns_admin: <absolute path of the unzipped wallet root directory>
+
+```
+For an Oracle SSL database with ONE_WAY SSL enabled, with a `PKCS12` wallet, use the following example:
+```yaml
+domainInfo:
+    RCUDbInfo:
+      useSSL : true
+      rcu_db_conn_string: <required URL string for use with -run_rcu>
+      rcu_prefix : DEV
+      rcu_admin_password: <required with -run_rcu flag>
+      rcu_schema_password: <required with -run_rcu flag>
+      tns.alias: <alias of ssl db in the tnsnames.ora file>
       javax.net.ssl.trustStore: <truststore found in the unzipped wallet, i.e ewallet.p12>
       javax.net.ssl.trustStoreType: PKCS12
       javax.net.ssl.trustStorePassword: <password of the truststore>

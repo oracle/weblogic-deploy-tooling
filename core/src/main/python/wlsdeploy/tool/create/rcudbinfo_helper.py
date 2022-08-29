@@ -8,6 +8,8 @@ from wlsdeploy.aliases.model_constants import ATP_DEFAULT_TABLESPACE
 from wlsdeploy.aliases.model_constants import ATP_TEMPORARY_TABLESPACE
 from wlsdeploy.aliases.model_constants import TNS_ENTRY
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
+#from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORE_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORETYPE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTOREPWD_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
@@ -93,6 +95,12 @@ class RcuDbInfo(object):
     def get_rcu_schema_password(self):
         password = self._get_dictionary_element_value(RCU_SCHEMA_PASSWORD)
         return self.aliases.decrypt_password(password)
+
+    def get_keystore(self):
+        return self._get_dictionary_element_value(DRIVER_PARAMS_kEYSTORE_PROPERTY)
+
+    def get_keystore_type(self):
+        return self._get_dictionary_element_value(DRIVER_PARAMS_KEYSTORETYPE_PROPERTY)
 
     def get_keystore_password(self):
         password = self._get_dictionary_element_value(DRIVER_PARAMS_KEYSTOREPWD_PROPERTY)

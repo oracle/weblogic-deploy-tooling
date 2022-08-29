@@ -2,16 +2,19 @@
     "copyright": "Copyright (c) 2022, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "WebserviceSecurit${y:ies}",
+    "online_bean": "weblogic.management.configuration.WebserviceSecurityMBean",
     "child_folders_type": "multiple",
     "short_name": "WSSecurity",
     "folders": {
          "WebserviceCredentialProvider" : {
              "wlst_type": "WebserviceCredentialProvider${:s}",
+             "online_bean": "weblogic.management.configuration.WebserviceCredentialProviderMBean",
              "version": "[10,)",
              "child_folders_type": "multiple",
              "folders": {
                 "ConfigurationProperty" : {
                    "wlst_type": "ConfigurationPropert${y:ies}",
+                   "online_bean": "weblogic.management.configuration.ConfigurationPropertyMBean",
                    "version": "[10,)",
                    "child_folders_type": "multiple",
                    "folders": {},
@@ -39,12 +42,14 @@
             },
       "WebserviceSecurityToken" : {
         "wlst_type": "WebserviceSecurityToken${:s}",
+        "online_bean": "weblogic.management.configuration.WebserviceSecurityTokenMBean",
         "version": "[10,)",
         "child_folders_type": "multiple",
         "folders": {
           "ConfigurationProperty" :
           {
             "wlst_type": "ConfigurationPropert${y:ies}",
+            "online_bean": "weblogic.management.configuration.ConfigurationPropertyMBean",
             "version": "[10,)",
             "child_folders_type": "multiple",
             "folders": {},
@@ -73,6 +78,7 @@
       },
       "WebserviceTimestamp" : {
         "wlst_type": "WebserviceTimestamp",
+        "online_bean": "weblogic.management.configuration.WebserviceTimestampMBean",
         "version": "[10,)",
         "default_name_value": "${NO_NAME_0:%WEBSERVICE%}",
         "folders": {},
@@ -90,12 +96,14 @@
       },
       "WebserviceTokenHandler" : {
         "wlst_type": "WebserviceTokenHandler${:s}",
+        "online_bean": "weblogic.management.configuration.WebserviceTokenHandlerMBean",
         "version": "[10,)",
         "child_folders_type": "multiple",
         "folders": {
           "ConfigurationProperty" :
           {
             "wlst_type": "ConfigurationPropert${y:ies}",
+            "online_bean": "weblogic.management.configuration.ConfigurationPropertyMBean",
             "version": "[10,)",
             "child_folders_type": "multiple",
             "folders": {},

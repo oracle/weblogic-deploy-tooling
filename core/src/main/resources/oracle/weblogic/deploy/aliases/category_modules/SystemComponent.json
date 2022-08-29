@@ -2,10 +2,12 @@
     "copyright": "Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "SystemComponent${:s}",
+    "online_bean": "weblogic.management.configuration.SystemComponentMBean",
     "child_folders_type": "multiple",
     "folders": {
         "SystemComponentStart": {
             "wlst_type": "SystemComponentStart",
+            "online_bean": "weblogic.management.configuration.SystemComponentStartMBean",
             "default_name_value": "${NO_NAME_0:%SYSTEMCOMPONENT%}",
             "folders": {},
             "attributes": {

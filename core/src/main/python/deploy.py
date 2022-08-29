@@ -4,11 +4,13 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The entry point for the deployApps tool.
 """
+import exceptions
 import os
 import sys
 
 from oracle.weblogic.deploy.deploy import DeployException
 from oracle.weblogic.deploy.exception import BundleAwareException
+from oracle.weblogic.deploy.logging import WLSDeployLoggingConfig
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 
@@ -17,6 +19,7 @@ sys.path.insert(0, os.path.dirname(os.path.realpath(sys.argv[0])))
 # imports from local packages start here
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
@@ -27,6 +30,7 @@ from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -146,7 +150,7 @@ def __deploy_online(model, model_context, aliases):
 
     exit_code = deployer_utils.online_check_save_activate(model_context)
 
-    if exit_code != CommandLineArgUtil.PROG_CANCEL_CHANGES_IF_RESTART_EXIT_CODE:
+    if exit_code != ExitCode.CANCEL_CHANGES_IF_RESTART:
         model_deployer.deploy_applications(model, model_context, aliases, wlst_mode=__wlst_mode)
 
     try:
@@ -223,20 +227,20 @@ def main(args):
 
     __wlst_helper.silence()
 
-    exit_code = CommandLineArgUtil.PROG_OK_EXIT_CODE
+    _exit_code = ExitCode.OK
 
     try:
         model_context = __process_args(args)
     except CLAException, ex:
-        exit_code = ex.getExitCode()
-        if exit_code != CommandLineArgUtil.HELP_EXIT_CODE:
+        _exit_code = ex.getExitCode()
+        if _exit_code != ExitCode.HELP:
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
 
         # create a minimal model for summary logging
         model_context = model_context_helper.create_exit_context(_program_name)
-        tool_exit.end(model_context, exit_code)
+        tool_exit.__log_and_exit(__logger, model_context, _exit_code, _class_name, _method_name)
 
     aliases = Aliases(model_context, wlst_mode=__wlst_mode, exception_type=ExceptionType.DEPLOY)
 
@@ -244,18 +248,21 @@ def main(args):
 
     try:
         model = Model(model_dictionary)
-        exit_code = __deploy(model, model_context, aliases)
+        _exit_code = __deploy(model, model_context, aliases)
     except DeployException, ex:
+        _exit_code = ExitCode.ERROR
         __logger.severe('WLSDPLY-09015', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     cla_helper.clean_up_temp_files()
-
-    tool_exit.end(model_context, exit_code)
-
+    tool_exit.__log_and_exit(__logger, model_context, _exit_code, _class_name, _method_name)
 
 if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    main(sys.argv)
+    WLSDeployLoggingConfig.logLoggingDirectory(_program_name)
+    try:
+        main(sys.argv)
+    except exceptions.SystemExit, ex:
+        raise ex
+    except (exceptions.Exception, java.lang.Exception), ex:
+        exception_helper.__handle_unexpected_exception(ex, _program_name, _class_name, __logger)

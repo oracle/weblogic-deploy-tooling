@@ -31,6 +31,8 @@ import oracle.weblogic.deploy.validate.ValidateException as ValidateException
 import oracle.weblogic.deploy.yaml.YamlException as JYamlException
 
 from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.util.exit_code import ExitCode
+from wlsdeploy.util import tool_exit
 
 _EXCEPTION_TYPE_MAP = {
     ExceptionType.ALIAS:                 'create_alias_exception',
@@ -462,3 +464,26 @@ def _return_exception_params(*args, **kwargs):
     arg_list = list(args)
     error = kwargs.pop('error', None)
     return arg_list, error
+
+
+def __handle_unexpected_exception(ex, program_name, class_name, logger):
+    """
+    Helper method to log and unexpected exception with exiting message and call sys.exit()
+    Note that the user sees the 'Unexpected' message along with the exception, but no stack trace.
+    The stack trace goes to the log
+    :param ex:  the exception thrown
+    :param program_name: the program where it occurred
+    :param class_name: the class where it occurred
+    :param logger: the logger to use
+    """
+    logger.severe('WLSDPLY-20035', program_name, sys.exc_info()[0])
+
+    if hasattr(ex, 'stackTrace'):
+        # this works best for java exceptions, and gets the full stacktrace all the way back to weblogic.WLST
+        logger.finer('WLSDPLY-20036', program_name, ex.stackTrace)
+    else:
+        # this is for Python exceptions
+        # Note: since this is Python 2, it seems we can only get the traceback object via sys.exc_info, and of course only
+        # while in the except block handling code
+        logger.finer('WLSDPLY-20036', program_name, traceback.format_exception(type(ex), ex, sys.exc_info()[2]))
+    tool_exit.end(logger, ExitCode.ERROR, class_name)

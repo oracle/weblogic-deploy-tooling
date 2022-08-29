@@ -28,6 +28,7 @@ from wlsdeploy.aliases.alias_constants import MODEL_NAME
 from wlsdeploy.aliases.alias_constants import NAME_VALUE
 from wlsdeploy.aliases.alias_constants import NONE_CHILD_FOLDERS_TYPE
 from wlsdeploy.aliases.alias_constants import NULL_VALUE_KEY
+from wlsdeploy.aliases.alias_constants import ONLINE_BEAN
 from wlsdeploy.aliases.alias_constants import PATH_TOKEN
 from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
@@ -667,6 +668,24 @@ class AliasEntries(object):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=wlst_type)
         return wlst_type
 
+    def get_online_bean_name_for_location(self, location):
+        """
+        Get the online bean class name for the specified location.
+        :param location: the location to use
+        :return: the bean class name
+        :raises AliasException: if an error occurs
+        """
+        _method_name = 'get_online_bean_name_for_location'
+        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+
+        online_bean = ''
+        folder_dict = self.__get_dictionary_for_location(location, False)
+        if ONLINE_BEAN in folder_dict:
+            online_bean = folder_dict[ONLINE_BEAN]
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=online_bean)
+        return online_bean
+
     def get_alias_attribute_entries_by_location(self, location):
         """
         Get the attribute entries for the specified location.  Note that since this method does not resolve
@@ -1204,6 +1223,9 @@ class AliasEntries(object):
 
         if FOLDER_ORDER in alias_dict:
             result[FOLDER_ORDER] = alias_dict[FOLDER_ORDER]
+
+        if ONLINE_BEAN in alias_dict:
+            result[ONLINE_BEAN] = alias_dict[ONLINE_BEAN]
 
         if WLST_PATHS in alias_dict:
             wlst_paths = alias_dict[WLST_PATHS]

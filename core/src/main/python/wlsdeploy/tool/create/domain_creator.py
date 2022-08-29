@@ -9,6 +9,7 @@ from java.io import File
 from java.io import FileOutputStream
 from java.lang import IllegalArgumentException
 from java.util import Properties
+
 from oracle.weblogic.deploy.create import RCURunner
 from oracle.weblogic.deploy.util import FileUtils
 from wlsdeploy.aliases.location_context import LocationContext
@@ -25,20 +26,19 @@ from wlsdeploy.aliases.model_constants import DEFAULT_ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DOMAIN_NAME
-from wlsdeploy.aliases.model_constants import DRIVER_NAME
-from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE
-from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE_ENCRYPTED
-from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
-from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORE_PROPERTY
-from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORETYPE_PROPERTY
-from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTOREPWD_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_SSL_VERSION
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_FAN_ENABLED
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE_ENCRYPTED
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS_PROPERTIES
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import LISTEN_PORT
@@ -77,10 +77,6 @@ from wlsdeploy.aliases.model_constants import WS_RELIABLE_DELIVERY_POLICY
 from wlsdeploy.aliases.model_constants import WEB_SERVICE_SECURITY
 from wlsdeploy.aliases.model_constants import XML_ENTITY_CACHE
 from wlsdeploy.aliases.model_constants import XML_REGISTRY
-
-
-
-
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.create import atp_helper
@@ -103,7 +99,7 @@ from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model
 from wlsdeploy.util import model_helper
 from wlsdeploy.util import string_utils
-from wlsdeploy.tool.util.rcu_helper import RCUHelper
+#from wlsdeploy.tool.util.rcu_helper import RCUHelper
 
 
 class DomainCreator(Creator):
@@ -966,7 +962,6 @@ class DomainCreator(Creator):
         wlst_path = self.aliases.get_wlst_attributes_path(root_location)
 
         self.wlst_helper.cd(wlst_path)
-
         if encrypted:
             value_property = DRIVER_PARAMS_PROPERTY_VALUE_ENCRYPTED
         else:
@@ -1056,6 +1051,9 @@ class DomainCreator(Creator):
         truststore = rcu_db_info.get_truststore()
         truststore_type = rcu_db_info.get_truststore_type()
         truststore_pwd = rcu_db_info.get_truststore_password()
+        keystore = rcu_db_info.get_keystore()
+        keystore_type = rcu_db_info.get_keystore_type()
+        keystore_pwd = rcu_db_info.get_keystore_password()
 
         if check_admin_pwd:
             admin_pwd = rcu_db_info.get_admin_password()
@@ -1065,7 +1063,7 @@ class DomainCreator(Creator):
                                                               "'rcu_admin_password']")
                 raise ex
 
-        return tns_admin, rcu_database, truststore_pwd, truststore_type, truststore
+        return tns_admin, rcu_database, truststore_pwd, truststore_type, truststore, keystore_pwd, keystore_type, keystore   
 
     def __configure_fmw_infra_database(self):
         """
@@ -1130,7 +1128,7 @@ class DomainCreator(Creator):
             tns_admin, rcu_database, keystore_pwd, truststore_pwd = self.__validate_and_get_atp_rcudbinfo(rcu_db_info)
         elif is_ssl_ds:
             tns_admin, rcu_database, truststore_pwd, truststore_type, \
-                truststore = self.__validate_and_get_ssl_rcudbinfo(rcu_db_info)
+            truststore, keystore_pwd, keystore_type, keystore  = self.__validate_and_get_ssl_rcudbinfo(rcu_db_info)
         else:
             rcu_database = rcu_db_info.get_preferred_db()
 
@@ -1159,8 +1157,8 @@ class DomainCreator(Creator):
             if is_atp_ds:
                 self.__set_atp_standard_conn_properties(keystore_pwd, ds_name, tns_admin, truststore_pwd)
             elif is_ssl_ds:
-                self.__set_ssl_standard_conn_properties(ds_name, tns_admin, truststore, truststore_pwd,
-                                                        truststore_type)
+                self.__set_ssl_standard_conn_properties(ds_name, tns_admin, truststore, truststore_pwd, truststore_type,
+                                keystore_pwd, keystore_type, keystore)
 
     def __reset_datasource_template_userid(self, datasource_name, rcu_prefix):
         location = deployer_utils.get_jdbc_driver_params_location(datasource_name, self.aliases)
@@ -1196,7 +1194,8 @@ class DomainCreator(Creator):
             self.aliases.get_wlst_attribute_name_and_value(location, URL, url)
         self.wlst_helper.set_if_needed(wlst_name, wlst_value)
 
-    def __set_ssl_standard_conn_properties(self, datasource_name, tns_admin, truststore, truststore_pwd, truststore_type):
+    def __set_ssl_standard_conn_properties(self, datasource_name, tns_admin, truststore, truststore_pwd,
+                                           truststore_type, keystore_pwd, keystore_type, keystore):
         location = deployer_utils.get_jdbc_driver_params_properties_location(datasource_name, self.aliases)
 
         self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTORE_PROPERTY, tns_admin + os.sep
@@ -1205,6 +1204,16 @@ class DomainCreator(Creator):
                                        truststore_type)
         if truststore_pwd is not None and truststore_pwd != 'None':
             self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd, True)
+
+        if keystore_pwd is not None and keystore_pwd != 'None':
+            self.__set_connection_property(location, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_pwd, True)
+
+        if keystore is not None and keystore != 'None':
+            self.__set_connection_property(location, DRIVER_PARAMS_KEYSTORE_PROPERTY, keystore, True)
+
+        if keystore_type is not None and keystore_type != 'None':
+            self.__set_connection_property(location, DRIVER_PARAMS_KEYSTORETYPE_PROPERTY, keystore_type, True)
+
 
     def __set_atp_standard_conn_properties(self, keystore_pwd, datasource_name, tns_admin, truststore_pwd):
         location = deployer_utils.get_jdbc_driver_params_properties_location(datasource_name, self.aliases)

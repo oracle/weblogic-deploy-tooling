@@ -15,7 +15,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.targeting_types import TargetingType
 from wlsdeploy.tool.util.topology_profiles import TopologyProfile
 from wlsdeploy.util import path_utils
-from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 CREATE_DOMAIN = 'createDomain'
@@ -56,14 +56,14 @@ class DomainTypedef(object):
             json_parser = JsonToPython(self._domain_typedef_filename)
             self._domain_typedefs_dict = json_parser.parse()
         except IllegalArgumentException, iae:
-            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-12300', self._program_name, self._domain_type,
                                                        self._domain_typedef_filename, iae.getLocalizedMessage(),
                                                        error=iae)
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         except JsonException, je:
-            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-12301', self._program_name, self._domain_type,
                                                        self._domain_typedef_filename, je.getLocalizedMessage(),
                                                        error=je)
@@ -468,7 +468,7 @@ class DomainTypedef(object):
 
         # there are no valid targeting types for version 12c and up
         if self.wls_helper.is_set_server_groups_supported():
-            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-12311', targeting_text, self._domain_typedef_filename,
                                                        self.wls_helper.get_weblogic_version())
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
@@ -476,7 +476,7 @@ class DomainTypedef(object):
 
         # if specified, targeting must be one of the known types
         if targeting_text not in TargetingType:
-            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-12312', targeting_text, self._domain_typedef_filename)
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
@@ -498,7 +498,7 @@ class DomainTypedef(object):
 
         # there are no valid topology profiles for versions 12.1.x and below
         if not self.wls_helper.is_topology_profile_supported():
-            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-12314', topology_profile, self._domain_typedef_filename,
                                                        self.wls_helper.get_weblogic_version())
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
@@ -506,7 +506,7 @@ class DomainTypedef(object):
 
         # if specified, toppology profile must be one of the known types
         if topology_profile not in TopologyProfile:
-            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-12315', topology_profile, self._domain_typedef_filename)
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex

@@ -2,11 +2,13 @@
   "copyright": "Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.",
   "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
   "wlst_type": "WTCServer${:s}",
+  "online_bean": "weblogic.management.configuration.WTCServerMBean",
   "child_folders_type": "multiple",
   "short_name": "WTC",
   "folders": {
     "WTCExport": {
       "wlst_type": "WTCExport${:s}",
+      "online_bean": "weblogic.management.configuration.WTCExportMBean",
       "child_folders_type": "multiple",
       "folders": {},
       "attributes": {
@@ -25,6 +27,7 @@
     },
     "WTCImport": {
       "wlst_type": "WTCImport${:s}",
+      "online_bean": "weblogic.management.configuration.WTCImportMBean",
       "child_folders_type": "multiple",
       "short_name": "Import",
       "folders": {},
@@ -44,6 +47,7 @@
     },
     "WTCLocalTuxDom": {
         "wlst_type": "WTCLocalTuxDom${:s}",
+        "online_bean": "weblogic.management.configuration.WTCLocalTuxDomMBean",
         "child_folders_type": "multiple",
         "short_name": "LocalTuxDom",
         "folders": {},
@@ -83,6 +87,7 @@
     },
     "WTCPassword": {
       "wlst_type": "WTCPassword${:s}",
+      "online_bean": "weblogic.management.configuration.WTCPasswordMBean",
       "child_folders_type": "multiple",
       "short_name": "Password",
       "folders": {},
@@ -102,6 +107,7 @@
     },
     "WTCRemoteTuxDom": {
       "wlst_type": "WTCRemoteTuxDom${:s}",
+      "online_bean": "weblogic.management.configuration.WTCRemoteTuxDomMBean",
       "child_folders_type": "multiple",
       "short_name": "RemoteTuxDom",
       "folders": {},
@@ -142,6 +148,7 @@
     },
     "WTCResources": {
       "wlst_type": "WTCResources",
+      "online_bean": "weblogic.management.configuration.WTCResourcesMBean",
       "default_name_value": "${NO_NAME_0:%WTCSERVER%}",
       "short_name": "Resources",
       "folders": {},
@@ -164,6 +171,7 @@
     },
     "WTCtBridgeGlobal": {
       "wlst_type": "WTCtBridgeGlobal",
+      "online_bean": "weblogic.management.configuration.WTCtBridgeGlobalMBean",
       "default_name_value": "${NO_NAME_0:%WTCSERVER%}",
       "short_name": "Global",
       "folders": {},
@@ -192,6 +200,7 @@
     },
     "WTCtBridgeRedirect": {
       "wlst_type": "WTCtBridgeRedirect${:s}",
+      "online_bean": "weblogic.management.configuration.WTCtBridgeRedirectMBean",
       "child_folders_type": "multiple",
       "short_name": "Redirect",
       "folders": {},

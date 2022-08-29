@@ -7,14 +7,17 @@
 #
 #   This code prepare a list of models for deploying to WebLogic Kubernetes Operator Environment.
 
+import exceptions
+import sys
 import traceback
 
-import sys
+from oracle.weblogic.deploy.logging import WLSDeployLoggingConfig
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 
 from oracle.weblogic.deploy.prepare import PrepareException
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.prepare.model_preparer import ModelPreparer
 from wlsdeploy.tool.util import model_context_helper
@@ -22,6 +25,7 @@ from wlsdeploy.util import cla_helper
 from wlsdeploy.util import target_configuration_helper
 from wlsdeploy.util import tool_exit
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model_context import ModelContext
 
 _program_name = 'prepareModel'
@@ -68,6 +72,7 @@ def main():
     :param args: the command-line arguments
     """
     _method_name = 'main'
+    _exit_code = ExitCode.OK
 
     __logger.entering(class_name=_class_name, method_name=_method_name)
     for index, arg in enumerate(sys.argv):
@@ -84,29 +89,31 @@ def main():
 
         obj = ModelPreparer(model_files, model_context, _outputdir)
         obj.prepare_models()
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_OK_EXIT_CODE)
+        tool_exit.__log_and_exit(__logger, model_context, _exit_code, _class_name, _method_name)
 
     except CLAException, ex:
-        exit_code = CommandLineArgUtil.PROG_ERROR_EXIT_CODE
+        _exit_code = ex.getExitCode()
         __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
-        tool_exit.end(model_context, exit_code)
-
     except (PrepareException, PyWLSTException), ex:
-        cla_helper.clean_up_temp_files()
+        _exit_code = ExitCode.ERROR
         __logger.severe('WLSDPLY-05801', ex.getLocalizedMessage(), error=ex, class_name=_class_name,
                         method_name=_method_name)
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
-
     except Exception, ex:
-        cla_helper.clean_up_temp_files()
+        _exit_code = ExitCode.ERROR
         message = str(sys.exc_type) + ': ' + str(sys.exc_value)
         __logger.severe('WLSDPLY-05801', message, error=ex, class_name=_class_name,
                         method_name=_method_name)
-        tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
+    cla_helper.clean_up_temp_files()
+    tool_exit.__log_and_exit(__logger, model_context, _exit_code, _class_name, _method_name)
 
 if __name__ == "__main__" or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    main()
+    WLSDeployLoggingConfig.logLoggingDirectory(_program_name)
+    try:
+        main()
+    except exceptions.SystemExit, ex:
+        raise ex
+    except (exceptions.Exception, java.lang.Exception), ex:
+        exception_helper.__handle_unexpected_exception(ex, _program_name, _class_name, __logger)

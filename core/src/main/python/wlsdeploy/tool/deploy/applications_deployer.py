@@ -9,10 +9,18 @@ from sets import Set
 import os
 from java.io import File
 from java.io import IOException
+from java.io import FileOutputStream
 from java.security import NoSuchAlgorithmException
+from javax.xml.parsers import DocumentBuilderFactory
+from javax.xml.transform import OutputKeys
+from javax.xml.transform import TransformerFactory
+from javax.xml.transform.dom import DOMSource
+from javax.xml.transform.stream import StreamResult
 
 import oracle.weblogic.deploy.util.FileUtils as FileUtils
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
+from oracle.weblogic.deploy.util import WLSDeployArchive
+
 from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
@@ -21,6 +29,7 @@ from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import DEPLOYMENT_ORDER
 from wlsdeploy.aliases.model_constants import LIBRARY
 from wlsdeploy.aliases.model_constants import PARTITION
+from wlsdeploy.aliases.model_constants import PLAN_DIR
 from wlsdeploy.aliases.model_constants import PLAN_PATH
 from wlsdeploy.aliases.model_constants import PLAN_STAGING_MODE
 from wlsdeploy.aliases.model_constants import RESOURCES
@@ -183,6 +192,7 @@ class ApplicationsDeployer(Deployer):
                     self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                     raise ex
 
+
             application_name = \
                 self.version_helper.get_application_versioned_name(app_source_path, application_name)
 
@@ -193,6 +203,11 @@ class ApplicationsDeployer(Deployer):
             deployer_utils.create_and_cd(application_location, existing_applications, self.aliases)
             self._set_attributes_and_add_subfolders(application_location, application)
             application_location.remove_name_token(application_token)
+
+            if app_source_path.startswith(WLSDeployArchive.ARCHIVE_STRUCT_APPS_TARGET_DIR):
+                plan_dir = dictionary_utils.get_element(application, PLAN_DIR)
+                self._fix_plan_file(plan_dir)
+
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 
     def __online_deploy_apps_and_libs(self, base_location):
@@ -405,13 +420,6 @@ class ApplicationsDeployer(Deployer):
                 absolute_planpath = attributes_map['AbsolutePlanPath']
                 config_targets = self.__get_config_targets()
 
-                # AppRuntimeStateRuntime/AppRuntimeStateRuntime always return the app even if not targeted
-                # skip as if it is not there
-                if len(config_targets) == 0:
-                    continue
-                # There are case in application where absolute source path is not set but sourepath is
-                # if source path is not absolute then we need to add the domain path
-
                 if absolute_planpath is None:
                     absolute_planpath = attributes_map['PlanPath']
 
@@ -607,6 +615,19 @@ class ApplicationsDeployer(Deployer):
                             if lib_dict['SourcePath'] is None and existing_src_path is not None:
                                 lib_dict['SourcePath'] = existing_src_path
 
+    def __shouldCheckForTargetChange(self, src_path, model_src_path):
+        # If the existing running app's source path (always absolute from runtime mbean) = the model's source path.
+        # or if the model sourcepath + domain home is exactly equal to the running's app source path.
+        # return True otherwise return False
+        if not os.path.isabs(model_src_path):
+            return FileUtils.getCanonicalPath(self.model_context.get_domain_home() + '/' + model_src_path) == src_path
+        else:
+            return FileUtils.getCanonicalPath(src_path) == FileUtils.getCanonicalPath(model_src_path)
+
+    def __append_to_stop_and_undeploy_apps(self, versioned_name, stop_and_undeploy_app_list, existing_targets_set):
+        if versioned_name not in stop_and_undeploy_app_list and len(existing_targets_set) > 0:
+            stop_and_undeploy_app_list.append(versioned_name)
+
 
     def __build_app_deploy_strategy(self, location, model_apps, existing_app_refs, stop_and_undeploy_app_list):
         """
@@ -627,6 +648,10 @@ class ApplicationsDeployer(Deployer):
                 for param in uses_path_tokens_model_attribute_names:
                     if param in app_dict:
                         self.model_context.replace_tokens(APPLICATION, app, param, app_dict)
+
+                    if param == SOURCE_PATH and param.startswith(WLSDeployArchive.ARCHIVE_STRUCT_APPS_TARGET_DIR):
+                        plan_dir = dictionary_utils.get_element(app, PLAN_DIR)
+                        self._fix_plan_file(plan_dir)
 
                 if model_helper.is_delete_name(app):
                     if self.__verify_delete_versioned_app(app, existing_apps, 'app'):
@@ -664,10 +689,11 @@ class ApplicationsDeployer(Deployer):
 
                     existing_src_hash = self.__get_file_hash(src_path)
                     existing_plan_hash = self.__get_file_hash(plan_path)
+                    existing_app_targets = dictionary_utils.get_element(existing_app_ref, 'target')
+                    existing_app_targets_set = Set(existing_app_targets)
                     if model_src_hash == existing_src_hash:
                         if model_plan_hash == existing_plan_hash:
-                            if not (os.path.isabs(src_path) and os.path.isabs(model_src_path) and
-                                    FileUtils.getCanonicalPath(src_path) == FileUtils.getCanonicalPath(model_src_path)):
+                            if self.__shouldCheckForTargetChange(src_path, model_src_path):
                                 # If model hashes match existing hashes, the application did not change.
                                 # Unless targets were added, there's no need to redeploy.
                                 # If it is an absolute path, there is nothing to compare so assume redeploy
@@ -675,11 +701,16 @@ class ApplicationsDeployer(Deployer):
                                 model_targets_list = alias_utils.create_list(model_targets, 'WLSDPLY-08000')
                                 model_targets_set = Set(model_targets_list)
 
-                                existing_app_targets = dictionary_utils.get_element(existing_app_ref, 'target')
-                                existing_app_targets_set = Set(existing_app_targets)
-
-                                if existing_app_targets_set.issuperset(model_targets_set):
-                                    self.__remove_app_from_deployment(model_apps, app)
+                                if existing_app_targets_set == model_targets_set and len(existing_app_targets_set) > 0:
+                                    # redeploy the app if everything is the same
+                                    self.logger.info('WLSDPLY-09336', src_path,
+                                                     class_name=self._class_name, method_name=_method_name)
+                                    self.__append_to_stop_and_undeploy_apps(versioned_name, stop_and_undeploy_app_list
+                                                                            , existing_app_targets_set)
+                                elif len(existing_app_targets_set) == 0 and len(model_targets_set) == 0:
+                                    self.__remove_app_from_deployment(model_apps, app, "emptyset")
+                                elif existing_app_targets_set.issuperset(model_targets_set):
+                                    self.__remove_app_from_deployment(model_apps, app, "superset")
                                 else:
                                     # Adjust the targets to only the new targets so that existing apps on
                                     # already targeted servers are not impacted.
@@ -692,18 +723,17 @@ class ApplicationsDeployer(Deployer):
                                     if app_dict['SourcePath'] is None and src_path is not None:
                                         app_dict['SourcePath'] = src_path
                             else:
-                                self.logger.info('WLSDPLY-09336', src_path,
-                                                 class_name=self._class_name, method_name=_method_name)
-                                if versioned_name not in stop_and_undeploy_app_list:
-                                    stop_and_undeploy_app_list.append(versioned_name)
+                                # same hash but different path, so redeploy it
+                                self.__append_to_stop_and_undeploy_apps(versioned_name, stop_and_undeploy_app_list
+                                                                        , existing_app_targets_set)
                         else:
                             # updated deployment plan
-                            if versioned_name not in stop_and_undeploy_app_list:
-                                stop_and_undeploy_app_list.append(versioned_name)
+                            self.__append_to_stop_and_undeploy_apps(versioned_name, stop_and_undeploy_app_list
+                                                                    , existing_app_targets_set)
                     else:
                         # updated app
-                        if versioned_name not in stop_and_undeploy_app_list:
-                            stop_and_undeploy_app_list.append(versioned_name)
+                        self.__append_to_stop_and_undeploy_apps(versioned_name, stop_and_undeploy_app_list
+                                                                , existing_app_targets_set)
 
     def __remove_delete_targets(self, model_dict, existing_ref):
         """
@@ -833,9 +863,17 @@ class ApplicationsDeployer(Deployer):
             adjusted_targets = ','.join(adjusted_set)
             model_libs[lib][TARGET] = adjusted_targets
 
-    def __remove_app_from_deployment(self, model_dict, app_name):
-        self.logger.info('WLSDPLY-09337', app_name,
-                         class_name=self._class_name, method_name='remove_app_from_deployment')
+    def __remove_app_from_deployment(self, model_dict, app_name, reason="delete"):
+        if "superset" == reason:
+            self.logger.info('WLSDPLY-09338', app_name,
+                             class_name=self._class_name, method_name='remove_app_from_deployment')
+        elif "emptyset" == reason:
+            self.logger.info('WLSDPLY-09339', app_name,
+                             class_name=self._class_name, method_name='remove_app_from_deployment')
+        else:
+            self.logger.info('WLSDPLY-09337', app_name,
+                             class_name=self._class_name, method_name='remove_app_from_deployment')
+
         model_dict.pop(app_name)
 
     def __remove_lib_from_deployment(self, model_dict, lib_name):
@@ -933,7 +971,6 @@ class ApplicationsDeployer(Deployer):
                             path = app_dict[uses_path_tokens_attribute_name]
                             if deployer_utils.is_path_into_archive(path):
                                 self.__extract_source_path_from_archive(path, APPLICATION, app_name)
-
                     location.add_name_token(token_name, app_name)
                     resource_group_template_name, resource_group_name, partition_name = \
                         self.__get_mt_names_from_location(location)
@@ -1104,6 +1141,29 @@ class ApplicationsDeployer(Deployer):
         self.logger.fine('WLSDPLY-09326', str(result_deploy_order),
                          class_name=self._class_name, method_name=_method_name)
         return result_deploy_order
+
+    def _fix_plan_file(self, plan_dir):
+        #self.archive_helper.extract_directory(plan_dir)
+        plan_file = os.path.join(self.model_context.get_domain_home(), plan_dir, "plan.xml")
+        dbf = DocumentBuilderFactory.newInstance()
+        db = dbf.newDocumentBuilder()
+        document = db.parse(File(plan_file))
+        document.normalizeDocument()
+        elements = document.getElementsByTagName("config-root")
+
+        if elements is not None and elements.getLength() > 0:
+            element = elements.item(0)
+            element.setNodeValue(plan_dir)
+            element.setTextContent(plan_dir)
+            ostream = FileOutputStream(plan_file)
+            transformer_factory = TransformerFactory.newInstance()
+            transformer = transformer_factory.newTransformer()
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes")
+            transformer.setOutputProperty(OutputKeys.STANDALONE, "no")
+            source = DOMSource(document)
+            result = StreamResult(ostream)
+
+            transformer.transform(source, result)
 
     def __start_all_apps(self, deployed_app_list, base_location):
 

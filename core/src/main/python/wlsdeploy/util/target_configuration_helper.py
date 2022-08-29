@@ -22,6 +22,7 @@ from wlsdeploy.tool.util.targets import additional_output_helper
 from wlsdeploy.tool.util.targets import file_template_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.json.json_translator import PythonToJson
 
 
@@ -86,7 +87,7 @@ def process_target_arguments(argument_map):
         # if -target is specified -output_dir is required
         output_dir = dictionary_utils.get_element(argument_map, CommandLineArgUtil.OUTPUT_DIR_SWITCH)
         if (output_dir is None) or (not os.path.isdir(output_dir)):
-            ex = exception_helper.create_cla_exception(CommandLineArgUtil.ARG_VALIDATION_ERROR_EXIT_CODE,
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-01642', CommandLineArgUtil.OUTPUT_DIR_SWITCH,
                                                        CommandLineArgUtil.TARGET_SWITCH, target_name)
             __logger.throwing(ex, class_name=__class_name, method_name=_method_name)

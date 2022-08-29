@@ -824,6 +824,111 @@ public class ITWdt extends BaseTest {
         }
     }
 
+    /**
+     * test updateDomain.sh online with untargeting, deploy, and app update
+     * @throws Exception - if any error occurs
+     */
+    @DisplayName("Test 30: createDomain and run updateDomain online for application")
+    @Order(30)
+    @Tag("gate")
+    @Test
+    void test30OnlineUpdateApp(TestInfo testInfo) throws Exception {
+        String domainDir = "domain2";
+        String cmd = createDomainScript
+            + " -oracle_home " + mwhome_12213
+            + " -domain_home " + domainParentDir + FS + domainDir
+            + " -model_file " + getSampleModelFile("-onlinebase")
+            + " -archive_file " + getSampleArchiveFile();
+
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+            assertEquals(0, result.exitValue(), "Unexpected return code");
+            assertTrue(result.stdout().contains("createDomain.sh completed successfully"), "Create failed");
+        }
+
+        String domainHome = domainParentDir + FS + domainDir;
+        setUpBootProperties(domainHome, "admin-server", "weblogic", "welcome1");
+        Path adminServerOut = getTestOutputPath(testInfo).resolve("admin-server.out");
+        boolean isServerUp = startAdminServer(domainHome, adminServerOut);
+
+        if (isServerUp) {
+            try (PrintWriter out = getTestMethodWriter(testInfo)) {
+                // update wdt model file
+                Path source = Paths.get(getSampleModelFile("-untargetapp"));
+                Path model = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "-onlineUpdate.yaml");
+                Files.copy(source, model, StandardCopyOption.REPLACE_EXISTING);
+
+                cmd = "echo welcome1 | "
+                    + updateDomainScript
+                    + " -oracle_home " + mwhome_12213
+                    + " -domain_home " + domainParentDir + FS + domainDir
+                    + " -model_file " + model
+                    + " -archive_file " + getSampleArchiveFile()
+                    + " -admin_url t3://localhost:7001 -admin_user weblogic";
+                CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+                assertEquals(0, result.exitValue(), "Unexpected return code for untargeting app");
+                assertTrue(result.stdout().contains("<remove_app_from_deployment> <WLSDPLY-09339>"),
+                    "Update does not contains expected message WLSDPLY-09339");
+
+                // Check result
+                source = Paths.get(getSampleModelFile("-targetapp"));
+                model = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "-onlineUpdate.yaml");
+                Files.copy(source, model, StandardCopyOption.REPLACE_EXISTING);
+
+                cmd = "echo welcome1 | "
+                    + updateDomainScript
+                    + " -oracle_home " + mwhome_12213
+                    + " -domain_home " + domainParentDir + FS + domainDir
+                    + " -model_file " + model
+                    + " -archive_file " + getSampleArchiveFile()
+                    + " -admin_url t3://localhost:7001 -admin_user weblogic";
+                result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+                assertEquals(0, result.exitValue(), "Unexpected return code for targeting app");
+                assertTrue(result.stdout().contains("<__deploy_app_online> <WLSDPLY-09316>"),
+                    "Update does not contains expected message WLSDPLY-09316");
+                assertTrue(result.stdout().contains("<__start_app> <WLSDPLY-09313>"),
+                    "Update does not contains expected message WLSDPLY-09313");
+
+                updateSampleArchive();
+
+                source = Paths.get(getSampleModelFile("-targetapp"));
+                model = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "-onlineUpdate.yaml");
+                Files.copy(source, model, StandardCopyOption.REPLACE_EXISTING);
+
+                cmd = "echo welcome1 | "
+                    + updateDomainScript
+                    + " -oracle_home " + mwhome_12213
+                    + " -domain_home " + domainParentDir + FS + domainDir
+                    + " -model_file " + model
+                    + " -archive_file " + getUpdatedSampleArchiveFile()
+                    + " -admin_url t3://localhost:7001 -admin_user weblogic";
+                result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+                assertEquals(0, result.exitValue(), "Unexpected return code for updating domain with new archive");
+                assertTrue(result.stdout().contains("<__stop_app> <WLSDPLY-09312>"),
+                    "Update does not contains expected message WLSDPLY-09312");
+                assertTrue(result.stdout().contains("<__undeploy_app> <WLSDPLY-09314>"),
+                    "Update does not contains expected message WLSDPLY-09314");
+                assertTrue(result.stdout().contains("<__deploy_app_online> <WLSDPLY-09316>"),
+                    "Update does not contains expected message WLSDPLY-09316");
+                assertTrue(result.stdout().contains("<__start_app> <WLSDPLY-09313>"),
+                    "Update does not contains expected message WLSDPLY-09313");
+
+                stopAdminServer(domainHome);
+            }
+
+        } else {
+            // Best effort to clean up server
+            tryKillTheAdminServer(domainHome, "admin-server");
+            throw new Exception("testDOnlineUpdate failed - cannot bring up server");
+        }
+
+
+    }
+
+
     private boolean startAdminServer(String domainHome, Path outputFile) throws Exception {
         boolean isServerUp = false;
         String cmd = "nohup " + domainHome + "/bin/startWebLogic.sh > " + outputFile + " 2>&1 &";
