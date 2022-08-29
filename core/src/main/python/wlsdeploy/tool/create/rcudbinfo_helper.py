@@ -8,7 +8,6 @@ from wlsdeploy.aliases.model_constants import ATP_DEFAULT_TABLESPACE
 from wlsdeploy.aliases.model_constants import ATP_TEMPORARY_TABLESPACE
 from wlsdeploy.aliases.model_constants import TNS_ENTRY
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
-#from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORETYPE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTOREPWD_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN

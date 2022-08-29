@@ -1,10 +1,29 @@
 ### Specifying RCU connection information in the model
 
-During creating or updating a domain, there is new section `RCUDbInfo` in the model, under the `domainInfo` section, for specifying RCU database connection information without using the command-line arguments `-rcu_db` and `-rcu_prefix`. Use this to support a database where the connection string is more complex and requires extra options.
+During creating or updating a JRF domain, you can provide all the RCU connection related information in a section `RCUDbInfo` in the model, under the `domainInfo` section.  This gives you more flexibility over the basic command line arguments of 
+`-rcu_db` and `-rcu_prefix`. Use this to support a database where the connection string is more complex and requires extra options.
+
+### Background on JRF domain RCU tables 
+
+A standard JRF domain creates several data sources from the JRF domain template.
+
+| Data source name        | JNDI name                  | Schema  | Target |
+|-------------------------|----------------------------|---------|---|
+| WLSSchemaDataSource     | jdbc/WLSSchemaDataSource   | prefix_WLS_RUNTIME | None |
+| LocalSvcTblDataSource   | jdbc/WLSSchemaDataSource   | prefix_STB | admin server |
+| opss-data-source        | jdbc/OpssDataSource        | prefix_OPSS | admin server and cluster |
+| opss-audit-viewDS       | jdbc/AuditViewDataSource   | prefix_IAU_VIEWER | admin server and cluster |
+| opss-audit-DBDS         | jdbc/AuditAppendDataSource | prefix_IAU_APPEND | admin server and cluster |
+| mds-owsm                | jdbc/mds/owsm              | prefix_MDS | admin server and cluster |
+
+By default, the JRF domain template data source only has the very basic information such as default URL and schema with default prefix `DEV`.  During domain creation,
+WDT will use the information provided in command line or the `RCUDbinfo` section to override the default values from the template so that it can connect to the database you specified.
+In some advanced use case, such as using Oracle Active Grid Link data source or Multi data sources, you can provide a sparse model of the above data sources in a separate model file
+during domain creation.  See [Advance use cases](#advanced-jrf-database-use-cases)
 
 ### Access a database using a wallet
 
-When accessing a database using a wallet, you need to obtain the wallet from your DBA and information about the database:
+When accessing a database such as ATP or SSL using a wallet, you need to obtain the wallet from your DBA and information about the database:
 
 - `tns alias` - The network service name. You can find this in the `tnsnames.ora` file inside the database wallet.  The alias is on the left side of the equals sign.
 
@@ -27,11 +46,11 @@ For example, to use the Oracle Autonomous Transaction Processing Cloud Database 
 ```yaml
 domainInfo:
     RCUDbInfo:
-        useATP : true
+        databaseType : 'ATP'
         rcu_prefix : DEV
         rcu_admin_password: <database admin password is required only when you specify -run_rcu flag>
         rcu_schema_password : <RCU schema password>
-        atp.admin.user : admin
+        rcu_db_user : admin
         tns.alias : <tns alias name. e.g. dbname_tp>
         javax.net.ssl.keyStorePassword : <atp wallet password when generating the wallet from Oracle Cloud Console>
         javax.net.ssl.trustStorePassword : <atp wallet password when generating the wallet from Oracle Cloud Console>
@@ -51,7 +70,7 @@ For an Oracle SSL database with TW0_WAY SSL enabled, with an `SSO` wallet, use t
 ```yaml
 domainInfo:
     RCUDbInfo:
-      useSSL : true
+      databaseType : 'SSL'
       rcu_db_conn_string: <required URL string for use with -run_rcu>
       rcu_prefix : DEV
       rcu_admin_password: <required with -run_rcu flag>
@@ -69,7 +88,7 @@ For an Oracle SSL database with ONE_WAY SSL enabled, with an `SSO` wallet, use t
 ```yaml
 domainInfo:
     RCUDbInfo:
-      useSSL : true
+      databaseType : 'SSL'
       rcu_db_conn_string: <required URL string for use with -run_rcu>
       rcu_prefix : DEV
       rcu_admin_password: <required with -run_rcu flag>
@@ -87,7 +106,7 @@ For an Oracle SSL database with TW0_WAY SSL enabled, with a `PKCS12` wallet, use
 ```yaml
 domainInfo:
     RCUDbInfo:
-      useSSL : true
+      databaseType : 'SSL'
       rcu_db_conn_string: <required URL string for use with -run_rcu>
       rcu_prefix : DEV
       rcu_admin_password: <required with -run_rcu flag>
@@ -106,7 +125,7 @@ For an Oracle SSL database with ONE_WAY SSL enabled, with a `PKCS12` wallet, use
 ```yaml
 domainInfo:
     RCUDbInfo:
-      useSSL : true
+      databaseType : 'SSL'
       rcu_db_conn_string: <required URL string for use with -run_rcu>
       rcu_prefix : DEV
       rcu_admin_password: <required with -run_rcu flag>
@@ -161,3 +180,203 @@ domainInfo:
         compInfoXMLLocation: wlsdeploy/rcu/config/MyComponentInfo.xml
         storageXMLLocation: wlsdeploy/rcu/config/MyStorage.xml
 ```
+
+### Advanced JRF database use cases
+
+The following examples provide a sparse model, so that you can further customize the JRF domain template data sources any way you want.
+
+#### Default template data source
+
+This is a sample data sources with prefix `FMW1`,  you can use this as a starting sparse model.  
+You will need to update at least the `URL`, `PasswordEncrypted`, and the `user` property value.
+
+```yaml
+   JDBCSystemResource:
+        WLSSchemaDataSource:
+            JdbcResource:
+                JDBCConnectionPoolParams:
+                    TestTableName: SQL ISVALID
+                    MaxCapacity: 75
+                JDBCDataSourceParams:
+                    GlobalTransactionsProtocol: None
+                    JNDIName: jdbc/WLSSchemaDataSource
+                JDBCDriverParams:
+                    URL: --FIX ME--
+                    PasswordEncrypted: --FIX ME--
+                    DriverName: oracle.jdbc.OracleDriver
+                    Properties:
+                        user:
+                            Value: FMW1_WLS_RUNTIME
+        LocalSvcTblDataSource:
+            Target: admin-server
+            JdbcResource:
+                JDBCConnectionPoolParams:
+                    InitialCapacity: 0
+                    CapacityIncrement: 1
+                    TestConnectionsOnReserve: true
+                    ConnectionCreationRetryFrequencySeconds: 10
+                    TestTableName: SQL ISVALID
+                    TestFrequencySeconds: 300
+                    SecondsToTrustAnIdlePoolConnection: 0
+                    MaxCapacity: 200
+                JDBCDataSourceParams:
+                    GlobalTransactionsProtocol: None
+                    JNDIName: jdbc/LocalSvcTblDataSource
+                JDBCDriverParams:
+                    URL: --FIX ME--
+                    PasswordEncrypted: --FIX ME--
+                    DriverName: oracle.jdbc.OracleDriver
+                    Properties:
+                        user:
+                            Value: FMW1_STB
+                        oracle.net.CONNECT_TIMEOUT:
+                            Value: '10000'
+                        SendStreamAsBlob:
+                            Value: 'true'
+                        weblogic.jdbc.crossPartitionEnabled:
+                            Value: 'true'
+        opss-data-source:
+            Target: cluster-1,admin-server
+            JdbcResource:
+                JDBCConnectionPoolParams:
+                    TestTableName: SQL ISVALID
+                JDBCDataSourceParams:
+                    GlobalTransactionsProtocol: None
+                    JNDIName: jdbc/OpssDataSource
+                JDBCDriverParams:
+                    URL: --FIX ME--
+                    PasswordEncrypted: --FIX ME--
+                    DriverName: oracle.jdbc.OracleDriver
+                    Properties:
+                        user:
+                            Value: FMW1_OPSS
+        opss-audit-viewDS:
+            Target: cluster-1,admin-server
+            JdbcResource:
+                JDBCConnectionPoolParams:
+                    TestTableName: SQL ISVALID
+                JDBCDataSourceParams:
+                    GlobalTransactionsProtocol: None
+                    JNDIName: jdbc/AuditViewDataSource
+                JDBCDriverParams:
+                    URL: --FIX ME--
+                    PasswordEncrypted: --FIX ME--
+                    DriverName: oracle.jdbc.OracleDriver
+                    Properties:
+                        user:
+                            Value: FMW1_IAU_VIEWER
+        opss-audit-DBDS:
+            Target: cluster-1,admin-server
+            JdbcResource:
+                JDBCConnectionPoolParams:
+                    TestTableName: SQL ISVALID
+                JDBCDataSourceParams:
+                    GlobalTransactionsProtocol: None
+                    JNDIName: jdbc/AuditAppendDataSource
+                JDBCDriverParams:
+                    URL: --FIX ME--
+                    PasswordEncrypted: --FIX ME--
+                    DriverName: oracle.jdbc.OracleDriver
+                    Properties:
+                        user:
+                            Value: FMW1_IAU_APPEND
+        mds-owsm:
+            Target: cluster-1,admin-server
+            JdbcResource:
+                JDBCConnectionPoolParams:
+                    InitialCapacity: 0
+                    TestConnectionsOnReserve: true
+                    ConnectionCreationRetryFrequencySeconds: 10
+                    TestTableName: SQL ISVALID
+                    TestFrequencySeconds: 300
+                    SecondsToTrustAnIdlePoolConnection: 0
+                JDBCDataSourceParams:
+                    GlobalTransactionsProtocol: None
+                    JNDIName: jdbc/mds/owsm
+                JDBCDriverParams:
+                    URL: --FIX ME--
+                    PasswordEncrypted: --FIX ME--
+                    DriverName: oracle.jdbc.OracleDriver
+                    Properties:
+                        user:
+                            Value: FMW1_MDS
+                        oracle.net.CONNECT_TIMEOUT:
+                            Value: '120000'
+                        SendStreamAsBlob:
+                            Value: 'true'
+```
+
+
+#### Oracle Active Grid Link Data Source (AGL)
+
+For Oracle Active Grid Link, besides updating the `URL`, `PasswordEncrypted`, and the `user` property value; 
+you can specify additional `JDBCOracleParams` under `JdbcResource` of each data source.  For example,
+
+```yaml
+      mds-owsm:
+            Target: cluster-1,admin-server
+            JdbcResource:
+              JDBCOracleParams:
+                OnsNodeList:  'node1, node2'
+                ....
+```
+
+You can run WDT tool `modelHelp.sh -oracle_home <oracle home> resources:/JDBCSystemResource/JdbcResource/JDBCOracleParmas` for the complete list 
+of fields.
+
+#### Multi Data Sources
+
+If your database does not support high availability natively such as RAC or AGL, then WebLogic provides a Multi Data Source option, which basically the main data source is a logical data source that
+contains multiple physical data sources.   In order to create a spare model,  you can for each data source
+
+1. Update the templated data source `URL`, `EncryptedPassword`, and 'user' property value.  In the `URL` part, you can specify one of the accessible physical database URL.
+2. Duplicate each datasource two times
+3. Change the duplicated data source name, `JNDIName` by appending `-1`, `-2` etc. The `-1`, `-2` data sources are the physical data source, you will need to update their `URL` too.
+
+For example (note: details replaced by `....` for easier reading),
+
+```yaml
+       opss-data-source:
+           ....
+                JDBCDriverParams:
+                    URL: jdbc:oracle:thin://@somewhere:1521/db-node1
+                    PasswordEncrypted:  'actualpassword`
+           .... 
+       'opss-data-source-1':
+           ....
+               JDBCDataSourceParams:
+                 GlobalTransactionsProtocol: None
+                 JNDIName: jdbc/OpssDataSource-2
+                JDBCDriverParams:
+                    URL: jdbc:oracle:thin://@somewhere:1521/db-node1
+                    PasswordEncrypted:  'actualpassword`
+           ....
+       'opss-data-source-2':
+          ....
+           JDBCDataSourceParams:
+             GlobalTransactionsProtocol: None
+             JNDIName: jdbc/OpssDataSource-2
+           JDBCDriverParams:
+             URL: jdbc:oracle:thin://@somewhere:1521/db-node2
+             PasswordEncrypted:  'actualpassword`
+             DriverName: oracle.jdbc.OracleDriver
+           ....
+```
+
+
+4. Update the original data source to include the physical data source list.
+
+For example,
+
+```yaml
+       opss-data-source:
+           ....
+            JDBCDataSourceParams:
+              DataSourceList:  'opss-data-source-1, opss-data-source-2'
+              AlgorithmType:  'FailOver'
+           ....
+```
+
+You can run WDT tool `modelHelp.sh -oracle_home <oracle home> resources:/JDBCSystemResource/JdbcResource/JDBCDataSourceParams` for the complete list
+of fields.
+
