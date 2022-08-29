@@ -1,11 +1,12 @@
 ### Specifying RCU connection information in the model
 
-During creating or updating a JRF domain, you can provide all the RCU connection related information in a section `RCUDbInfo` in the model, under the `domainInfo` section.  This gives you more flexibility over the basic command line arguments of 
-`-rcu_db` and `-rcu_prefix`. Use this to support a database where the connection string is more complex and requires extra options.
+During creating or updating a JRF domain, you can provide all the RCU connection related information in a section `RCUDbInfo` under the `domainInfo` section in the model.  
+It provides you with more flexibility over the basic command line arguments of 
+`-rcu_db` and `-rcu_prefix`.  Use this to support a database where the connection string is more complex and requires extra options.
 
 ### Background on JRF domain RCU tables 
 
-A standard JRF domain creates several data sources from the JRF domain template.
+A JRF domain creates several data sources from the JRF domain template.
 
 | Data source name        | JNDI name                  | Schema  | Target |
 |-------------------------|----------------------------|---------|---|
@@ -16,9 +17,10 @@ A standard JRF domain creates several data sources from the JRF domain template.
 | opss-audit-DBDS         | jdbc/AuditAppendDataSource | prefix_IAU_APPEND | admin server and cluster |
 | mds-owsm                | jdbc/mds/owsm              | prefix_MDS | admin server and cluster |
 
-By default, the JRF domain template data source only has the very basic information such as default URL and schema with default prefix `DEV`.  During domain creation,
-WDT will use the information provided in command line or the `RCUDbinfo` section to override the default values from the template so that it can connect to the database you specified.
-In some advanced use case, such as using Oracle Active Grid Link data source or Multi data sources, you can provide a sparse model of the above data sources in a separate model file
+By default, the JRF domain template data source only has the default information such as URL and schema with default prefix `DEV`.  During domain creation,
+WDT will use the information you provided in the command line or in the `RCUDbinfo` section to override the default values from the template so that it can connect to the database you specified.
+
+For some advanced use case, such as using Oracle Active Grid Link data source or Multi data sources, you can provide a sparse model of the above data sources in a separate model file
 during domain creation.  See [Advance use cases](#advanced-jrf-database-use-cases)
 
 ### Access a database using a wallet
@@ -183,11 +185,11 @@ domainInfo:
 
 ### Advanced JRF database use cases
 
-The following examples provide a sparse model, so that you can further customize the JRF domain template data sources any way you want.
+The following examples of JRF data source sparse model, you can further customize the JRF domain template data sources with it.
 
 #### Default template data source
 
-This is a sample data sources with prefix `FMW1`,  you can use this as a starting sparse model.  
+This is a sample data sources with prefix `FMW1`,  you can use this as a starting point for a sparse model.  
 You will need to update at least the `URL`, `PasswordEncrypted`, and the `user` property value.
 
 ```yaml
