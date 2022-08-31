@@ -190,7 +190,8 @@ The following examples of JRF data source sparse model, you can further customiz
 #### Default template data source
 
 This is a sample data sources with prefix `FMW1`,  you can use this as a starting point for a sparse model.  
-You will need to update at least the `URL`, `PasswordEncrypted`, and the `user` property value.
+You will need to update at least the `URL`, `PasswordEncrypted`, and the `user` property value.  When you specify the value of `URL`, it 
+must be a valid `JDBC URL` format, which is different to the `rcu_db_conn_string` which can do not require the `jdbc:oracle:thin:...` part. 
 
 ```yaml
    JDBCSystemResource:
