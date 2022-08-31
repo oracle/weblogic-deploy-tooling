@@ -39,6 +39,7 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPE
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_kEYSTORE_PROPERTY
+from wlsdeploy.aliases.model_constants import FRONTEND_HOST
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS_PROPERTIES
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import LISTEN_PORT
@@ -860,6 +861,17 @@ class DomainCreator(Creator):
 
         cluster_nodes = dictionary_utils.get_dictionary_element(self._topology, CLUSTER)
         if len(cluster_nodes) > 0:
+            self.topology_helper.create_placeholder_clusters(self._topology)
+            # Frontend Host needs to be set before FrontEndHTTPPort as required by WLST
+            for cluster in cluster_nodes:
+                frontend_host = dictionary_utils.get_element(self._topology[CLUSTER][cluster], FRONTEND_HOST)
+                if frontend_host is not None:
+                    temp_loc = LocationContext()
+                    temp_loc.append_location(CLUSTER)
+                    temp_loc.add_name_token(self.aliases.get_name_token(temp_loc), cluster)
+                    attribute_path = self.aliases.get_wlst_attributes_path(temp_loc)
+                    self.wlst_helper.cd(attribute_path)
+                    self._set_attribute(temp_loc, FRONTEND_HOST, frontend_host, [])
             self._create_named_mbeans(CLUSTER, cluster_nodes, location, log_created=True, delete_now=delete_now)
 
         #
