@@ -1203,16 +1203,17 @@ class DomainCreator(Creator):
         self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY,
                                        truststore_type)
         if truststore_pwd is not None and truststore_pwd != 'None':
-            self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd, True)
+            self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd,
+                                           encrypted=True)
 
         if keystore_pwd is not None and keystore_pwd != 'None':
-            self.__set_connection_property(location, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_pwd, True)
+            self.__set_connection_property(location, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_pwd, encrypted=True)
 
         if keystore is not None and keystore != 'None':
-            self.__set_connection_property(location, DRIVER_PARAMS_KEYSTORE_PROPERTY, keystore, True)
+            self.__set_connection_property(location, DRIVER_PARAMS_KEYSTORE_PROPERTY, keystore, encrypted=True)
 
         if keystore_type is not None and keystore_type != 'None':
-            self.__set_connection_property(location, DRIVER_PARAMS_KEYSTORETYPE_PROPERTY, keystore_type, True)
+            self.__set_connection_property(location, DRIVER_PARAMS_KEYSTORETYPE_PROPERTY, keystore_type, encrypted=True)
 
 
     def __set_atp_standard_conn_properties(self, keystore_pwd, datasource_name, tns_admin, truststore_pwd):
@@ -1222,12 +1223,12 @@ class DomainCreator(Creator):
                                        + 'keystore.jks')
         self.__set_connection_property(location, DRIVER_PARAMS_KEYSTORETYPE_PROPERTY,
                                        'JKS')
-        self.__set_connection_property(location, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_pwd, True)
+        self.__set_connection_property(location, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_pwd, encrypted=True)
         self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTORE_PROPERTY, tns_admin + os.sep
                                        + 'truststore.jks')
         self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY,
                                        'JKS')
-        self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd, True)
+        self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd, encrypted=True)
         self.__set_connection_property(location, DRIVER_PARAMS_NET_SSL_VERSION, '1.2')
         self.__set_connection_property(location, DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY, 'true')
         self.__set_connection_property(location, DRIVER_PARAMS_NET_TNS_ADMIN, tns_admin)
