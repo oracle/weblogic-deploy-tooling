@@ -183,6 +183,15 @@ class DomainCreator(Creator):
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
+    #Override
+    def _set_attributes(self, location, model_nodes):
+        model_type, model_name = self.aliases.get_model_type_and_name(location)
+        if model_type == CLUSTER:
+            if FRONTEND_HOST in model_nodes:
+                model_value = model_nodes[FRONTEND_HOST]
+                Creator._set_attribute(self, location, FRONTEND_HOST, model_value, list())
+        Creator._set_attributes(self, location, model_nodes)
+
     # Override
     def _create_named_mbeans(self, type_name, model_nodes, base_location, log_created=False, delete_now=True):
         """
@@ -861,17 +870,6 @@ class DomainCreator(Creator):
 
         cluster_nodes = dictionary_utils.get_dictionary_element(self._topology, CLUSTER)
         if len(cluster_nodes) > 0:
-            self.topology_helper.create_placeholder_clusters(self._topology)
-            # Frontend Host needs to be set before FrontEndHTTPPort as required by WLST
-            for cluster in cluster_nodes:
-                frontend_host = dictionary_utils.get_element(self._topology[CLUSTER][cluster], FRONTEND_HOST)
-                if frontend_host is not None:
-                    temp_loc = LocationContext()
-                    temp_loc.append_location(CLUSTER)
-                    temp_loc.add_name_token(self.aliases.get_name_token(temp_loc), cluster)
-                    attribute_path = self.aliases.get_wlst_attributes_path(temp_loc)
-                    self.wlst_helper.cd(attribute_path)
-                    self._set_attribute(temp_loc, FRONTEND_HOST, frontend_host, [])
             self._create_named_mbeans(CLUSTER, cluster_nodes, location, log_created=True, delete_now=delete_now)
 
         #
