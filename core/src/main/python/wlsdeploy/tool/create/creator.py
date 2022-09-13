@@ -307,7 +307,6 @@ class Creator(object):
         :raises: CreateException: if an error occurs
         """
         _method_name = '_set_attribute'
-
         if (model_name in uses_path_tokens_names) and (model_value is not None):
             self._extract_archive_files(location, model_name, model_value)
 

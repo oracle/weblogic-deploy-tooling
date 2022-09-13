@@ -9,7 +9,6 @@ import oracle.weblogic.deploy.util.WLSDeployContext.WLSTMode as mode
 
 from wlsdeploy.aliases.wlst_modes import WlstModes
 
-
 def end(model_context, exit_code):
     """
     Tools python code should use this tool to perform end actions, clean-up, and exit with exit code
@@ -25,3 +24,15 @@ def end(model_context, exit_code):
         if model_context.get_target_wlst_mode() == WlstModes.ONLINE:
             wlst_mode = mode.ONLINE
     WLSDeployExit.exit(WLSDeployContext(program, version, wlst_mode), exit_code)
+
+def __log_and_exit(logger, model_context, exit_code, class_name, _method_name=None):
+    """
+    Helper method to log the exiting message and exit
+    :param logger:  the logger to use
+    :param model_context:  the model_context to use
+    :param exit_code: the exit code to use
+    :param class_name: the class name to pass  to the logger
+    :param _method_name: the method name to pass to the logger
+    """
+    logger.exiting(result=exit_code, class_name=class_name, method_name=_method_name)
+    end(model_context, exit_code)

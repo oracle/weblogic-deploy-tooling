@@ -7,6 +7,7 @@ from wlsdeploy.aliases.model_constants import ADMIN_CONSOLE
 from wlsdeploy.aliases.model_constants import CDI_CONTAINER
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import CREATE_ONLY_DOMAIN_ATTRIBUTES
+from wlsdeploy.aliases.model_constants import FRONTEND_HOST
 from wlsdeploy.aliases.model_constants import MACHINE
 from wlsdeploy.aliases.model_constants import MIGRATABLE_TARGET
 from wlsdeploy.aliases.model_constants import SECURITY
@@ -47,6 +48,14 @@ class TopologyUpdater(Deployer):
 
         self.target_helper = TargetHelper(self.model, self.model_context, self.aliases, self._exception_type,
                                           self.logger)
+    #Override
+    def set_attributes(self, location, model_nodes, excludes=None):
+        model_type, model_name = self.aliases.get_model_type_and_name(location)
+        if model_type == CLUSTER:
+            if FRONTEND_HOST in model_nodes:
+                model_value = model_nodes[FRONTEND_HOST]
+                self.attribute_setter.set_attribute(location, FRONTEND_HOST, model_value, None)
+        Deployer.set_attributes(self, location, model_nodes, excludes)
 
     # Override
     def _add_named_elements(self, type_name, model_nodes, location, delete_now=True):

@@ -348,6 +348,8 @@ def __clear_archive_file(model_context):
             __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
             raise de
 
+    __logger.exiting(class_name=_class_name, method_name=_method_name)
+
 
 def __close_archive(model_context):
     """
@@ -509,6 +511,7 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
                                         archive_file_name=model_context.get_archive_file_name())
     except ValidateException, ex:
         __logger.warning('WLSDPLY-06015', ex.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
+    __logger.exiting(_class_name, _method_name)
     return model
 
 
@@ -555,19 +558,6 @@ def __remote_report(model_context):
         print key, ' ', wls_archive
     print ''
 
-
-def __log_and_exit(model_context, exit_code, class_name, method_name):
-    """
-    Helper method to log the exiting message and call sys.exit()
-    :param exit_code: the exit code to use
-    :param class_name: the class name to pass  to the logger
-    :param method_name: the method name to pass to the logger
-    """
-    __logger.exiting(result=exit_code, class_name=class_name, method_name=method_name)
-
-    tool_exit.end(model_context, exit_code)
-
-
 def main(args):
     """
     The main entry point for the discoverDomain tool.
@@ -595,14 +585,14 @@ def main(args):
 
         # create a minimal model for summary logging
         model_context = model_context_helper.create_exit_context(_program_name)
-        __log_and_exit(model_context, exit_code, _class_name, _method_name)
+        tool_exit.__log_and_exit(__logger, model_context, exit_code, _class_name, _method_name)
 
     try:
         __clear_archive_file(model_context)
     except DiscoverException, ex:
         __logger.severe('WLSDPLY-06010', _program_name, model_context.get_archive_file_name(),
                         ex.getLocalizedMessage(), error=ex, class_name=_class_name, method_name=_method_name)
-        __log_and_exit(model_context, ExitCode.ERROR, _class_name, _method_name)
+        tool_exit.__log_and_exit(__logger, model_context, ExitCode.ERROR, _class_name, _method_name)
 
     aliases = Aliases(model_context, wlst_mode=__wlst_mode, exception_type=ExceptionType.DISCOVER)
     model = None
@@ -625,7 +615,7 @@ def main(args):
         __logger.severe('WLSDPLY-06011', _program_name, model_context.get_domain_name(),
                         model_context.get_domain_home(), ex.getLocalizedMessage(),
                         error=ex, class_name=_class_name, method_name=_method_name)
-        __log_and_exit(model_context, ExitCode.ERROR, _class_name, _method_name)
+        tool_exit.__log_and_exit(__logger, model_context, ExitCode.ERROR, _class_name, _method_name)
 
     try:
         __persist_model(model, model_context)
@@ -633,11 +623,11 @@ def main(args):
     except TranslateException, ex:
         __logger.severe('WLSDPLY-20024', _program_name, model_context.get_archive_file_name(), ex.getLocalizedMessage(),
                         error=ex, class_name=_class_name, method_name=_method_name)
-        __log_and_exit(model_context, ExitCode.ERROR, _class_name, _method_name)
+        tool_exit.__log_and_exit(__logger, model_context, ExitCode.ERROR, _class_name, _method_name)
 
     __close_archive(model_context)
 
-    __log_and_exit(model_context, exit_code, _class_name, _method_name)
+    tool_exit.__log_and_exit(__logger, model_context, exit_code, _class_name, _method_name)
 
 
 if __name__ == '__main__' or __name__ == 'main':
@@ -648,4 +638,4 @@ if __name__ == '__main__' or __name__ == 'main':
     except exceptions.SystemExit, ex:
         raise ex
     except (exceptions.Exception, java.lang.Exception), ex:
-        exception_helper.__handle_unexpected_exception(ex, _program_name, _class_name, __logger)
+        tool_exit.__handle_unexpected_exception(ex, _program_name, _class_name, __logger)

@@ -269,6 +269,7 @@ def main(args):
     :return:
     """
     _method_name = 'main'
+    _exit_code = ExitCode.OK
 
     __logger.entering(args[0], class_name=_class_name, method_name=_method_name)
     for index, arg in enumerate(args):
@@ -276,20 +277,18 @@ def main(args):
 
     __wlst_helper.silence()
 
-    exit_code = ExitCode.OK
-
     try:
         model_context = __process_args(args)
     except CLAException, ex:
-        exit_code = ex.getExitCode()
-        if exit_code != ExitCode.HELP:
+        _exit_code = ex.getExitCode()
+        if _exit_code != ExitCode.HELP:
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
 
         # create a minimal model for summary logging
         model_context = model_context_helper.create_exit_context(_program_name)
-        tool_exit.end(model_context, exit_code)
+        tool_exit.__log_and_exit(__logger, model_context, _exit_code, _class_name, _method_name)
 
     aliases = Aliases(model_context, wlst_mode=__wlst_mode, exception_type=ExceptionType.DEPLOY)
 
@@ -297,16 +296,14 @@ def main(args):
 
     try:
         model = Model(model_dictionary)
-        exit_code = __update(model, model_context, aliases)
+        _exit_code = __update(model, model_context, aliases)
     except DeployException, ex:
+        _exit_code = ExitCode.ERROR
         __logger.severe('WLSDPLY-09015', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
-        tool_exit.end(model_context, ExitCode.ERROR)
 
     cla_helper.clean_up_temp_files()
-
-    tool_exit.end(model_context, exit_code)
+    tool_exit.__log_and_exit(__logger, model_context, _exit_code, _class_name, _method_name)
     return
 
 

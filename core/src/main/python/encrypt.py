@@ -26,8 +26,10 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.encrypt import encryption_utils
+from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.util import cla_utils
 from wlsdeploy.util import getcreds
+from wlsdeploy.util import tool_exit
 from wlsdeploy.util import variables as variable_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
@@ -216,6 +218,7 @@ def _process_request(args):
         if exit_code != ExitCode.HELP:
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
+        __logger.exiting(class_name=_class_name, method_name=_method_name, result=exit_code)
         return exit_code
 
     if model_context.is_encryption_manual():
@@ -250,9 +253,9 @@ def main(args):
         __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
 
     exit_code = _process_request(args)
-    __logger.exiting(class_name=_class_name, method_name=_method_name, result=exit_code)
-    sys.exit(exit_code)
-
+    # create a minimal model for summary logging
+    model_context = model_context_helper.create_exit_context(_program_name)
+    tool_exit.__log_and_exit(__logger, model_context, exit_code, _class_name, _method_name)
 
 if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)

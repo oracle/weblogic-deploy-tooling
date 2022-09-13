@@ -305,20 +305,20 @@ def main(args):
 
     WlstHelper(ExceptionType.CREATE).silence()
 
-    exit_code = ExitCode.OK
+    _exit_code = ExitCode.OK
 
     try:
         model_context = __process_args(args)
     except CLAException, ex:
-        exit_code = ex.getExitCode()
-        if exit_code != ExitCode.HELP:
+        _exit_code = ex.getExitCode()
+        if _exit_code != ExitCode.HELP:
             __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
                             class_name=_class_name, method_name=_method_name)
         cla_helper.clean_up_temp_files()
 
         # create a minimal model for summary logging
         model_context = model_context_helper.create_exit_context(_program_name)
-        tool_exit.end(model_context, exit_code)
+        tool_exit.__log_and_exit(__logger, model_context, _exit_code, _class_name, _method_name)
 
     aliases = Aliases(model_context, wlst_mode=__wlst_mode, exception_type=ExceptionType.CREATE)
 
@@ -350,33 +350,24 @@ def main(args):
             rcu_db_info = RcuDbInfo(model_context, aliases, rcu_properties_map)
             ssl_helper.fix_jps_config(rcu_db_info, model_context)
     except WLSDeployArchiveIOException, ex:
+        _exit_code = ExitCode.ERROR
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
-        tool_exit.end(model_context, ExitCode.ERROR)
-
     except CreateException, ex:
+        _exit_code = ExitCode.ERROR
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
-        tool_exit.end(model_context, ExitCode.ERROR)
-
     except IOException, ex:
+        _exit_code = ExitCode.ERROR
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
-        tool_exit.end(model_context, ExitCode.ERROR)
-
     except DeployException, ex:
+        _exit_code = ExitCode.ERROR
         __logger.severe('WLSDPLY-12410', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
-        tool_exit.end(model_context, ExitCode.ERROR)
 
     cla_helper.clean_up_temp_files()
-
-    tool_exit.end(model_context, exit_code)
-
+    tool_exit.__log_and_exit(__logger, model_context, _exit_code, _class_name, _method_name)
 
 if __name__ == '__main__' or __name__ == 'main':
     WebLogicDeployToolingVersion.logVersionInfo(_program_name)
