@@ -80,6 +80,14 @@ class TopologyHelper(object):
         self.create_placeholder_named_elements(LocationContext(), SERVER, topology)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
+    def create_placeholder_clusters(self, topology):
+        """
+        Create a placeholder cluster for each name in the topology.
+        This is necessary because there is a circular dependency between certain attributes.
+        :param topology: the topology model nodes
+        """
+        self.create_placeholder_named_elements(LocationContext(), CLUSTER, topology)
+
     def create_placeholder_server_templates(self, topology):
         """
         Create a placeholder server template for each name in the topology.

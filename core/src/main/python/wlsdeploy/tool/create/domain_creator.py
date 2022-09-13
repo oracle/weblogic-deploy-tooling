@@ -40,6 +40,7 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPE
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_kEYSTORE_PROPERTY
+from wlsdeploy.aliases.model_constants import FRONTEND_HOST
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS_PROPERTIES
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import LISTEN_PORT
@@ -182,6 +183,15 @@ class DomainCreator(Creator):
         self.__create_credential_mappings()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    #Override
+    def _set_attributes(self, location, model_nodes):
+        model_type, model_name = self.aliases.get_model_type_and_name(location)
+        if model_type == CLUSTER:
+            if FRONTEND_HOST in model_nodes:
+                model_value = model_nodes[FRONTEND_HOST]
+                Creator._set_attribute(self, location, FRONTEND_HOST, model_value, list())
+        Creator._set_attributes(self, location, model_nodes)
 
     # Override
     def _create_named_mbeans(self, type_name, model_nodes, base_location, log_created=False, delete_now=True):
