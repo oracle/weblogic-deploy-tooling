@@ -544,29 +544,6 @@ public class ITWdt extends BaseTest {
             verifyModelFile(discoveredModelFile.toString());
         }
     }
-    /**
-     * test discoverDomain.sh with -model_file argument
-     * @throws Exception - if any error occurs
-     */
-    @DisplayName("Test 18: Discover domain restrictedJRFD1 using model_file arg")
-    @Order(18)
-    @Tag("gate")
-    @Test
-    void test18DiscoverDomainWithModelFile(TestInfo testInfo) throws Exception {
-        Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
-        Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.yaml");
-        String cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
-            domainParentDir + FS + "restrictedJRFD1 -archive_file " + discoveredArchive +
-                " -model_file " + discoveredModelFile;
-        try (PrintWriter out = getTestMethodWriter(testInfo)) {
-            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-
-            verifyResult(result, "discoverDomain.sh completed successfully");
-
-            // verify model file
-            verifyModelFile(discoveredModelFile.toString());
-        }
-    }
 
   /**
    * test discoverDomain.sh with -variable_file argument
