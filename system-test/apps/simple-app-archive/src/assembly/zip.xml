@@ -11,14 +11,13 @@
         <format>zip</format>
     </formats>
 
-    <dependencySets>
-        <dependencySet>
+    <fileSets>
+        <fileSet>
+            <directory>${project.build.directory}</directory>
             <outputDirectory>applications</outputDirectory>
-            <outputFileNameMapping>simple-app.war</outputFileNameMapping>
-            <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>com.oracle.weblogic.lifecycle:weblogic-deploy-system-test-apps-simple-app</include>
+                <include>simple-app.war</include>
             </includes>
-        </dependencySet>
-    </dependencySets>
+        </fileSet>
+    </fileSets>
 </assembly>

@@ -16,15 +16,6 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.oracle.weblogic.lifecycle</groupId>
-            <artifactId>weblogic-deploy-system-test-apps-simple-app</artifactId>
-            <version>${project.version}</version>
-            <type>war</type>
-        </dependency>
-    </dependencies>
-
     <properties>
         <webapp-name>simple-app</webapp-name>
         <webapp-dir>${project.build.directory}/${webapp-name}</webapp-dir>
@@ -39,6 +30,7 @@
                 <executions>
                     <execution>
                         <id>get-simple-app-war</id>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>
@@ -64,7 +56,7 @@
                 <executions>
                     <execution>
                         <id>add-dummy-file</id>
-                        <phase>process-sources</phase>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
