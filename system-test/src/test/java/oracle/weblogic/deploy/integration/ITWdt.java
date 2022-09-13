@@ -521,7 +521,29 @@ public class ITWdt extends BaseTest {
          checkContents.add("SourcePath: wlsdeploy/applications/simple-app.war");
         verifyModelFileContents(expectedModelFile, checkContents);
     }
+    /**
+     * test discoverDomain.sh with -model_file argument
+     * @throws Exception - if any error occurs
+     */
+    @DisplayName("Test 18: Discover domain restrictedJRFD1 using model_file arg")
+    @Order(18)
+    @Tag("gate")
+    @Test
+    void test18DiscoverDomainWithModelFile(TestInfo testInfo) throws Exception {
+        Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
+        Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.yaml");
+        String cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
+                domainParentDir + FS + "restrictedJRFD1 -archive_file " + discoveredArchive +
+                " -model_file " + discoveredModelFile;
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
+            verifyResult(result, "discoverDomain.sh completed successfully");
+
+            // verify model file
+            verifyModelFile(discoveredModelFile.toString());
+        }
+    }
     /**
      * test discoverDomain.sh with -model_file argument
      * @throws Exception - if any error occurs
@@ -823,7 +845,49 @@ public class ITWdt extends BaseTest {
             verifyResult(result2, "createDomain.sh completed successfully");
         }
     }
+    /**
+     * test discoverDomain.sh with -model_file argument
+     * @throws Exception - if any error occurs
+     */
+    @DisplayName("Test 30: Discover domain restrictedJRFD1 using model_file arg")
+    @Order(30)
+    @Tag("gate")
+    @Test
+    void test30DiscoverDomainWithModelFile(TestInfo testInfo) throws Exception {
+        Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
+        Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.yaml");
+        Path discoveredVariableFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.properties");
+        String cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
+                domainParentDir + FS + "restrictedJRFD1 -archive_file " + discoveredArchive +
+                " -model_file " + discoveredModelFile + " -variable file " + discoveredVariableFile;
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
+            verifyResult(result, "discoverDomain.sh completed successfully");
+
+            // verify model file
+            verifyModelFile(discoveredModelFile.toString());
+
+
+        }
+        cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
+                " -archive_file " + discoveredArchive +
+                " -model_file " + discoveredModelFile + " -variableFile " + getSampleVariableFile();
+        String domainHome = domainParentDir + FS + "fromDiscoverModel";
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+            verifyResult(result, "createDomain.sh completed successfully");
+            Path adminServerOut = getTestOutputPath(testInfo).resolve("admin-server.out");
+            boolean isServerUp = startAdminServer(domainHome, adminServerOut );
+            if (!isServerUp) {
+                throw new Exception("Admin server did not come up after createDomain from discoverDomain");
+            }
+            stopAdminServer(domainHome);
+            assertEquals(104, result.exitValue(), "Test30 is expecting return code of 104");
+        }
+
+    }
     private boolean startAdminServer(String domainHome, Path outputFile) throws Exception {
         boolean isServerUp = false;
         String cmd = "nohup " + domainHome + "/bin/startWebLogic.sh > " + outputFile + " 2>&1 &";
