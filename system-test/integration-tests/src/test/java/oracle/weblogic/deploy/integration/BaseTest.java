@@ -81,12 +81,6 @@ public class BaseTest {
     protected static void setup() throws Exception {
 
         logger.info("Setting up the test environment ...");
-        logger.info("building WDT sample archive file");
-        buildSampleArchive();
-
-        // unzip weblogic-deploy-tooling/installer/target/weblogic-deploy.zip
-        String cmd = "unzip -q " + getInstallerTargetDir() + FS + WDT_ZIPFILE + " -d " + getTargetDir();
-        executeAndVerify(cmd);
 
         // create domain_parent directory if not existing
         File domainParentDir = new File(BaseTest.domainParentDir);
@@ -124,7 +118,7 @@ public class BaseTest {
 
         String cmd = "docker pull " + imagename + ":" + imagetag;
         CommandResult result = Runner.run(cmd);
-        assertEquals(0, result.exitValue(), "Docker pull failed for " + imagename);
+        assertEquals(0, result.exitValue(), "Docker pull failed for " + imagename + ":" + imagetag);
 
         // verify the docker image is pulled
         result = Runner.run("docker images | grep " + imagename  + " | grep " +
@@ -190,24 +184,12 @@ public class BaseTest {
         return getTargetDir() + FS + "resources";
     }
 
-    protected static CommandResult buildSampleArchive() throws Exception {
-        logger.info("Building WDT archive ...");
-        String command = "sh " + getResourcePath() + FS + "build-archive.sh";
-        return executeAndVerify(command);
-    }
-
-    protected static CommandResult updateSampleArchive() throws Exception {
-        logger.info("Update WDT archive ...");
-        String command = "sh " + getResourcePath() + FS + "update-archive.sh";
-        return executeAndVerify(command);
-    }
-
     protected static String getSampleArchiveFile() {
-        return getGeneratedResourcePath() + FS + SAMPLE_ARCHIVE_FILE;
+        return getTargetDir() + FS + SAMPLE_ARCHIVE_FILE;
     }
 
     protected static String getUpdatedSampleArchiveFile() {
-        return getGeneratedResourcePath() + FS + UPDATED_SAMPLE_ARCHIVE_FILE;
+        return getTargetDir() + FS + UPDATED_SAMPLE_ARCHIVE_FILE;
     }
 
     protected static String getSampleModelFile(String suffix) {
