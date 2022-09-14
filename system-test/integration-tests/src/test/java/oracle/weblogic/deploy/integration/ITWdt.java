@@ -890,8 +890,6 @@ public class ITWdt extends BaseTest {
                 assertTrue(result.stdout().contains("<__start_app> <WLSDPLY-09313>"),
                     "Update does not contains expected message WLSDPLY-09313");
 
-                updateSampleArchive();
-
                 source = Paths.get(getSampleModelFile("-targetapp"));
                 model = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "-onlineUpdate.yaml");
                 Files.copy(source, model, StandardCopyOption.REPLACE_EXISTING);
