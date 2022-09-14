@@ -1,7 +1,7 @@
 ### Specifying RCU connection information in the model
 
 When creating a JRF domain, you can provide all the RCU connection information in a section `RCUDbInfo` under the `domainInfo` section in the model.  
-It provides you with more flexibility over the basic command line arguments of 
+It provides you with more flexibility over the basic command-line arguments of 
 `-rcu_db` and `-rcu_prefix`.  Use this when the connection string is more complex and requires extra options.
 
 ### Background on JRF domain RCU tables 
@@ -17,15 +17,15 @@ A JRF domain creates several data sources from the JRF domain template.
 | opss-audit-DBDS         | jdbc/AuditAppendDataSource | prefix_IAU_APPEND | admin server and cluster |
 | mds-owsm                | jdbc/mds/owsm              | prefix_MDS | admin server and cluster |
 
-By default, the JRF domain template data source only has the default information such as URL and schema with the default prefix `DEV`.  During domain creation,
+By default, the JRF domain template data source has only the default information such as URL and schema with the default prefix `DEV`.  During domain creation,
 WDT will use the information you provided in the command line or in the `RCUDbinfo` section to override the default values from the template so that it can connect to the database you specified.
 
-For some advanced use case, such as using Oracle Active Grid Link data source or Multi data sources, you can provide a sparse model of the above data sources in a separate model file
-during domain creation.  See [Advance use cases](#advanced-jrf-database-use-cases)
+For some advanced use cases, such as using an Oracle Active GridLink data source or Multi Data Sources, you can provide a sparse model of the data sources in a separate model file
+during domain creation.  See [Advance use cases](#advanced-jrf-database-use-cases).
 
 ### Access a database using a wallet
 
-When accessing a database such as ATP or SSL using a wallet, you need to obtain the wallet from your DBA and information about the database:
+When accessing a database, such as ATP or SSL, using a wallet, you need to obtain the wallet from your DBA and information about the database:
 
 - `tns alias` - The network service name. You can find this in the `tnsnames.ora` file inside the database wallet.  The alias is on the left side of the equals sign.
 
@@ -189,9 +189,9 @@ In the following examples of the JRF data source sparse model, you can use it to
 
 #### Default template data source
 
-This is a sparse model for JRF data sources with the rcu prefix `FMW1`.  
+This is a sparse model for JRF data sources with the RCU prefix `FMW1`.  
 You will need to update at least the `URL`, `PasswordEncrypted`, and the `user` property value.  When you specify the value of `URL`, it 
-must be a valid `JDBC URL` format, which is different from the `rcu_db_conn_string` which can do not require the `jdbc:oracle:thin:...` part. 
+must be a valid `JDBC URL` format, which is different from the `rcu_db_conn_string` which does not require the `jdbc:oracle:thin:...` part. 
 
 ```yaml
 resources:
@@ -313,7 +313,7 @@ resources:
 
 #### Oracle Active Grid Link Data Source (AGL)
 
-For setting data source to access Oracle Active Grid Link database, besides updating the `URL`, `PasswordEncrypted`, and the `user` property value; 
+For setting the data source to access Oracle Active Grid Link database, besides updating the `URL`, `PasswordEncrypted`, and the `user` property value; 
 you can specify additional `JDBCOracleParams` under `JdbcResource` of each data source.  For example,
 
 ```yaml
@@ -325,19 +325,23 @@ you can specify additional `JDBCOracleParams` under `JdbcResource` of each data 
                 ....
 ```
 
-You can run WDT tool `modelHelp.sh -oracle_home <oracle home> resources:/JDBCSystemResource/JdbcResource/JDBCOracleParmas` for the complete list 
-of fields.
+For the complete list of fields, run the WDT command, 
+
+```shell
+modelHelp.sh -oracle_home <oracle home> resources:/JDBCSystemResource/JdbcResource/JDBCOracleParams
+```
+
 
 #### Multi Data Sources
 
-If your database does not support high availability natively such as RAC or AGL, then WebLogic provides a Multi Data Source option, which basically the main data source is a logical data source that
-contains multiple physical data sources.   In order to create a spare model,  you can for each data source
+If your database does not support high availability natively, such as RAC or AGL, then WebLogic provides a Multi Data Source option, where basically the main data source is a logical data source that
+contains multiple physical data sources.   In order to create a spare model, for each data source, you can:
 
 1. Update the templated data source `URL`, `EncryptedPassword`, and 'user' property value.  In the `URL` part, you can specify one of the accessible physical database URL.
-2. Duplicate each datasource two times
-3. Change the duplicated data source name, `JNDIName` by appending `-1`, `-2` etc. The `-1`, `-2` data sources are the physical data source, you will need to update their `URL` too.
+2. Duplicate each datasource two times.
+3. Change the duplicated data source name, `JNDIName` by appending `-1`, `-2`, and such. The `-1`, `-2` data sources are the physical data source; you will need to update their `URL` too.
 
-For example (note: details replaced by `....` for easier reading),
+For example (note: details replaced by `....` for easier reading):
 
 ```yaml
        opss-data-source:
@@ -381,6 +385,10 @@ For example,
            ....
 ```
 
-You can run WDT tool `modelHelp.sh -oracle_home <oracle home> resources:/JDBCSystemResource/JdbcResource/JDBCDataSourceParams` for the complete list
-of fields.
+
+For the complete list of fields, run the WDT command,
+
+```shell
+modelHelp.sh -oracle_home <oracle home> resources:/JDBCSystemResource/JdbcResource/JDBCOracleParams
+```
 
