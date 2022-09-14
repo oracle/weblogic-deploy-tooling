@@ -66,7 +66,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'system-test/target/failsafe-reports/*.xml'
+                    junit 'system-test/integration-tests/target/failsafe-reports/*.xml'
                 }
             }
         }
