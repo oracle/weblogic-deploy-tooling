@@ -946,13 +946,11 @@ public class ITWdt extends BaseTest {
 
             // verify model file
             verifyModelFile(discoveredModelFile.toString());
-            System.out.println(discoveredModelFile.toString());
-        }
-        cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
-                 " -model_file " + discoveredModelFile + " -variable_file " + getSampleVariableFile();
-        String domainHome = domainParentDir + FS + "fromDiscoverModel";
-        try (PrintWriter out = getTestMethodWriter(testInfo)) {
-            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+            
+            cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
+                    " -model_file " + discoveredModelFile + " -variable_file " + getSampleVariableFile();
+            String domainHome = domainParentDir + FS + "fromDiscoverModel";
+            result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
             verifyResult(result, "createDomain.sh completed successfully");
             Path adminServerOut = getTestOutputPath(testInfo).resolve("admin-server.out");
@@ -963,7 +961,6 @@ public class ITWdt extends BaseTest {
             stopAdminServer(domainHome);
             assertEquals(104, result.exitValue(), "Test31 is expecting return code of 104");
         }
-
     }
 
     private boolean startAdminServer(String domainHome, Path outputFile) throws Exception {
