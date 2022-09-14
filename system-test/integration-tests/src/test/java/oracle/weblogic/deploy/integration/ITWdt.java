@@ -946,7 +946,7 @@ public class ITWdt extends BaseTest {
 
             // verify model file
             verifyModelFile(discoveredModelFile.toString());
-
+            System.out.println(discoveredModelFile.toString());
         }
         cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
                  " -model_file " + discoveredModelFile + " -variable_file " + getSampleVariableFile();
