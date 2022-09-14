@@ -932,7 +932,7 @@ public class ITWdt extends BaseTest {
     @Order(31)
     @Tag("gate")
     @Test
-    void test31iscoverDomainWithModelFile(TestInfo testInfo) throws Exception {
+    void test31DiscoverDomainWithModelFile(TestInfo testInfo) throws Exception {
         Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
         Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.yaml");
         Path discoveredVariableFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.properties");
@@ -945,9 +945,10 @@ public class ITWdt extends BaseTest {
             verifyResult(result, "discoverDomain.sh completed successfully");
 
             // verify model file
-            //verifyModelFile(discoveredModelFile.toString());
+            verifyModelFile(discoveredModelFile.toString());
 
             cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
+                    domainParentDir + FS + "createDomainFromDiscover" +
                     " -model_file " + discoveredModelFile + " -variable_file " + getSampleVariableFile();
             String domainHome = domainParentDir + FS + "fromDiscoverModel";
             result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
