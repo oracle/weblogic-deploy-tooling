@@ -949,8 +949,7 @@ public class ITWdt extends BaseTest {
 
         }
         cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
-                " -archive_file " + discoveredArchive +
-                " -model_file " + discoveredModelFile + " -variable_file " + getSampleVariableFile();
+                 " -model_file " + discoveredModelFile + " -variable_file " + getSampleVariableFile();
         String domainHome = domainParentDir + FS + "fromDiscoverModel";
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
