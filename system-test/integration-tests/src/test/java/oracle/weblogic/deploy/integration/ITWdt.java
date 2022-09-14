@@ -932,13 +932,13 @@ public class ITWdt extends BaseTest {
     @Order(31)
     @Tag("gate")
     @Test
-    void test30DiscoverDomainWithModelFile(TestInfo testInfo) throws Exception {
+    void test31iscoverDomainWithModelFile(TestInfo testInfo) throws Exception {
         Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
         Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.yaml");
         Path discoveredVariableFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.properties");
         String cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
                 domainParentDir + FS + "restrictedJRFD1 -archive_file " + discoveredArchive +
-                " -model_file " + discoveredModelFile + " -variable file " + discoveredVariableFile;
+                " -model_file " + discoveredModelFile + " -variable_file " + discoveredVariableFile;
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
@@ -950,7 +950,7 @@ public class ITWdt extends BaseTest {
         }
         cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
                 " -archive_file " + discoveredArchive +
-                " -model_file " + discoveredModelFile + " -variableFile " + getSampleVariableFile();
+                " -model_file " + discoveredModelFile + " -variable_file " + getSampleVariableFile();
         String domainHome = domainParentDir + FS + "fromDiscoverModel";
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
@@ -962,7 +962,7 @@ public class ITWdt extends BaseTest {
                 throw new Exception("Admin server did not come up after createDomain from discoverDomain");
             }
             stopAdminServer(domainHome);
-            assertEquals(104, result.exitValue(), "Test30 is expecting return code of 104");
+            assertEquals(104, result.exitValue(), "Test31 is expecting return code of 104");
         }
 
     }
