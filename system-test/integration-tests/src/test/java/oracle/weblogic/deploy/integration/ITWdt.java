@@ -952,7 +952,7 @@ public class ITWdt extends BaseTest {
                     domainParentDir + FS + "createDomainFromDiscover" + " -archive_file " + discoveredArchive +
                     " -model_file " + discoveredModelFile + " -variable_file " + getSampleVariableFile() +
                     " -domain_type RestrictedJRF";
-            String domainHome = domainParentDir + FS + "fromDiscoverModel";
+            String domainHome = domainParentDir + FS + "createDomainFromDiscover";
             result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             cmd = "ls " + domainHome + FS + "/bin";
             result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
