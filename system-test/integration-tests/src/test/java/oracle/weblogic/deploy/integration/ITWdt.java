@@ -954,12 +954,7 @@ public class ITWdt extends BaseTest {
                     " -domain_type RestrictedJRF";
             String domainHome = domainParentDir + FS + "createDomainFromDiscover";
             result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-            cmd = "ls " + domainHome + FS + "/bin";
-            result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-            System.out.println(result.stdout());
-            if (!result.stdout().contains("startWebLogic.sh")) {
-                throw new Exception("missing startWebLogic.sh");
-            }
+            
             verifyResult(result, "createDomain.sh completed successfully");
             setUpBootProperties(domainHome, "admin-server", "weblogic", "welcome1");
             Path adminServerOut = getTestOutputPath(testInfo).resolve("admin-server.out");
