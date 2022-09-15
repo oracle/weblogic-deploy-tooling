@@ -938,7 +938,8 @@ public class ITWdt extends BaseTest {
         Path discoveredVariableFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.properties");
         String cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
                 domainParentDir + FS + "restrictedJRFD1 -archive_file " + discoveredArchive +
-                " -model_file " + discoveredModelFile + " -variable_file " + discoveredVariableFile;
+                " -model_file " + discoveredModelFile + " -variable_file " + discoveredVariableFile +
+                " -domain_type RestrictedJRF" ;
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
@@ -949,7 +950,8 @@ public class ITWdt extends BaseTest {
 
             cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
                     domainParentDir + FS + "createDomainFromDiscover" + " -archive_file " + discoveredArchive +
-                    " -model_file " + discoveredModelFile + " -variable_file " + getSampleVariableFile();
+                    " -model_file " + discoveredModelFile + " -variable_file " + getSampleVariableFile() +
+                    " -domain_type RestrictedJRF";
             String domainHome = domainParentDir + FS + "fromDiscoverModel";
             result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
