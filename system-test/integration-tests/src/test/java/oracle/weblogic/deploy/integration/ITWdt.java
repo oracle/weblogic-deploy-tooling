@@ -954,9 +954,9 @@ public class ITWdt extends BaseTest {
                     " -domain_type RestrictedJRF";
             String domainHome = domainParentDir + FS + "createDomainFromDiscover";
             result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-            
+
             verifyResult(result, "createDomain.sh completed successfully");
-            setUpBootProperties(domainHome, "admin-server", "weblogic", "welcome1");
+            setUpBootProperties(domainHome, "AdminServer", "weblogic", "welcome1");
             Path adminServerOut = getTestOutputPath(testInfo).resolve("admin-server.out");
             boolean isServerUp = startAdminServer(domainHome, adminServerOut );
             if (!isServerUp) {
