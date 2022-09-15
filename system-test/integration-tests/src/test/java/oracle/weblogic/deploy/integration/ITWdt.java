@@ -948,7 +948,7 @@ public class ITWdt extends BaseTest {
             verifyModelFile(discoveredModelFile.toString());
 
             cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
-                    domainParentDir + FS + "createDomainFromDiscover" +
+                    domainParentDir + FS + "createDomainFromDiscover" + " -archive_file " + discoveredArchive +
                     " -model_file " + discoveredModelFile + " -variable_file " + getSampleVariableFile();
             String domainHome = domainParentDir + FS + "fromDiscoverModel";
             result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
