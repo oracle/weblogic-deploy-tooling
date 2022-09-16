@@ -925,10 +925,10 @@ public class ITWdt extends BaseTest {
 
     }
     /**
-     * test discoverDomain.sh with -model_file argument
+     * test discoverDomain.sh that model can create a working domain
      * @throws Exception - if any error occurs
      */
-    @DisplayName("Test 31: Discover domain restrictedJRFD1 using model_file arg")
+    @DisplayName("Test 31: Discover domain and then create a new domain from the model")
     @Order(31)
     @Tag("gate")
     @Test
@@ -962,7 +962,6 @@ public class ITWdt extends BaseTest {
                 throw new Exception("Admin server did not come up after createDomain from discoverDomain");
             }
             stopAdminServer(domainHome);
-            assertEquals(104, result.exitValue(), "Test31 is expecting return code of 104");
         }
     }
 
