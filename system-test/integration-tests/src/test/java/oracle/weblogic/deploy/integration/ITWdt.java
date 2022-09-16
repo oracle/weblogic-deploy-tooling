@@ -956,8 +956,11 @@ public class ITWdt extends BaseTest {
             result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
             verifyResult(result, "createDomain.sh completed successfully");
+
+            System.out.println(domainHome + FS + "config" + FS + "config.xml");
+
             setUpBootProperties(domainHome, "AdminServer", "weblogic", "welcome1");
-            Path adminServerOut = getTestOutputPath(testInfo).resolve("admin-server.out");
+            Path adminServerOut = getTestOutputPath(testInfo).resolve("AdminServer.out");
             boolean isServerUp = startAdminServer(domainHome, adminServerOut );
             if (!isServerUp) {
                 throw new Exception("Admin server did not come up after createDomain from discoverDomain");
