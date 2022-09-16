@@ -12,20 +12,20 @@
     <title> :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1661455634" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1661455634" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1661455634" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1661455634" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1661455634" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1661455634" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1661455634" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1661455634" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1661455634" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1661455634" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1663356629" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1663356629" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1663356629" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1663356629" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1663356629" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1663356629" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1663356629" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1663356629" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1663356629" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1663356629" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1661455634"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1663356629"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1661455634"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1661455634"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1663356629"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1663356629"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1661455634"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1663356629"></script>
 
     
   </div>
@@ -1180,10 +1180,12 @@
     <li>
       <ul>
         <li><a href="#specifying-rcu-connection-information-in-the-model">Specifying RCU connection information in the model</a></li>
+        <li><a href="#background-on-jrf-domain-rcu-tables">Background on JRF domain RCU tables</a></li>
         <li><a href="#access-a-database-using-a-wallet">Access a database using a wallet</a></li>
         <li><a href="#access-a-database-without-using-a-wallet-non-wallet-based-access">Access a database without using a wallet (non wallet-based access)</a></li>
         <li><a href="#specify-variables-for-rcu">Specify variables for RCU</a></li>
         <li><a href="#specify-extended-xml-files-for-rcu">Specify extended XML files for RCU</a></li>
+        <li><a href="#advanced-jrf-database-use-cases">Advanced JRF database use cases</a></li>
       </ul>
     </li>
   </ul>
@@ -1211,9 +1213,65 @@
 
 
 <h3 id="specifying-rcu-connection-information-in-the-model">Specifying RCU connection information in the model</h3>
-<p>During creating or updating a domain, there is new section <code>RCUDbInfo</code> in the model, under the <code>domainInfo</code> section, for specifying RCU database connection information without using the command-line arguments <code>-rcu_db</code> and <code>-rcu_prefix</code>. Use this to support a database where the connection string is more complex and requires extra options.</p>
+<p>When creating a JRF domain, you can provide all the RCU connection information in a section <code>RCUDbInfo</code> under the <code>domainInfo</code> section in the model.<br>
+It provides you with more flexibility over the basic command-line arguments of
+<code>-rcu_db</code> and <code>-rcu_prefix</code>.  Use this when the connection string is more complex and requires extra options.</p>
+<h3 id="background-on-jrf-domain-rcu-tables">Background on JRF domain RCU tables</h3>
+<p>A JRF domain creates several data sources from the JRF domain template.</p>
+<table>
+<thead>
+<tr>
+<th>Data source name</th>
+<th>JNDI name</th>
+<th>Schema</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WLSSchemaDataSource</td>
+<td>jdbc/WLSSchemaDataSource</td>
+<td>prefix_WLS_RUNTIME</td>
+<td>None</td>
+</tr>
+<tr>
+<td>LocalSvcTblDataSource</td>
+<td>jdbc/WLSSchemaDataSource</td>
+<td>prefix_STB</td>
+<td>admin server</td>
+</tr>
+<tr>
+<td>opss-data-source</td>
+<td>jdbc/OpssDataSource</td>
+<td>prefix_OPSS</td>
+<td>admin server and cluster</td>
+</tr>
+<tr>
+<td>opss-audit-viewDS</td>
+<td>jdbc/AuditViewDataSource</td>
+<td>prefix_IAU_VIEWER</td>
+<td>admin server and cluster</td>
+</tr>
+<tr>
+<td>opss-audit-DBDS</td>
+<td>jdbc/AuditAppendDataSource</td>
+<td>prefix_IAU_APPEND</td>
+<td>admin server and cluster</td>
+</tr>
+<tr>
+<td>mds-owsm</td>
+<td>jdbc/mds/owsm</td>
+<td>prefix_MDS</td>
+<td>admin server and cluster</td>
+</tr>
+</tbody>
+</table>
+<p>By default, the JRF domain template data source has only the default information such as URL and schema with the default prefix <code>DEV</code>.  During domain creation,
+WDT will use the information you provided in the command line or in the <code>RCUDbinfo</code> section to override the default values from the template so that it can connect to the database you specified.</p>
+<p>For some advanced use cases, such as using an Oracle Active GridLink data source or Multi Data Sources, you can provide a sparse model of the data sources in a separate model file
+during domain creation.  See <a href="#advanced-jrf-database-use-cases">Advance use cases</a>.</p>
 <h3 id="access-a-database-using-a-wallet">Access a database using a wallet</h3>
-<p>When accessing a database using a wallet, you need to obtain the wallet from your DBA and information about the database:</p>
+<p>When accessing a database, such as ATP or SSL, using a wallet, you need to obtain the wallet from your DBA and information about the database:</p>
 <ul>
 <li>
 <p><code>tns alias</code> - The network service name. You can find this in the <code>tnsnames.ora</code> file inside the database wallet.  The alias is on the left side of the equals sign.</p>
@@ -1236,11 +1294,11 @@ yyyy = (DESCRIPTION ...)
 <p>For example, to use the Oracle Autonomous Transaction Processing Cloud Database for a JRF domain, specify the following information in the model:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
     <span style="color:#f92672">RCUDbInfo</span>:
-        <span style="color:#f92672">useATP </span>: <span style="color:#66d9ef">true</span>
+        <span style="color:#f92672">databaseType </span>: <span style="color:#e6db74">&#39;ATP&#39;</span>
         <span style="color:#f92672">rcu_prefix </span>: <span style="color:#ae81ff">DEV</span>
         <span style="color:#f92672">rcu_admin_password</span>: <span style="color:#ae81ff">&lt;database admin password is required only when you specify -run_rcu flag&gt;</span>
         <span style="color:#f92672">rcu_schema_password </span>: <span style="color:#ae81ff">&lt;RCU schema password&gt;</span>
-        <span style="color:#f92672">atp.admin.user </span>: <span style="color:#ae81ff">admin</span>
+        <span style="color:#f92672">rcu_db_user </span>: <span style="color:#ae81ff">admin</span>
         <span style="color:#f92672">tns.alias </span>: <span style="color:#ae81ff">&lt;tns alias name. e.g. dbname_tp&gt;</span>
         <span style="color:#f92672">javax.net.ssl.keyStorePassword </span>: <span style="color:#ae81ff">&lt;atp wallet password when generating the wallet from Oracle Cloud Console&gt;</span>
         <span style="color:#f92672">javax.net.ssl.trustStorePassword </span>: <span style="color:#ae81ff">&lt;atp wallet password when generating the wallet from Oracle Cloud Console&gt;</span>
@@ -1253,7 +1311,7 @@ yyyy = (DESCRIPTION ...)
 <p>For an Oracle SSL database with TW0_WAY SSL enabled, with an <code>SSO</code> wallet, use the following example:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
     <span style="color:#f92672">RCUDbInfo</span>:
-      <span style="color:#f92672">useSSL </span>: <span style="color:#66d9ef">true</span>
+      <span style="color:#f92672">databaseType </span>: <span style="color:#e6db74">&#39;SSL&#39;</span>
       <span style="color:#f92672">rcu_db_conn_string</span>: <span style="color:#ae81ff">&lt;required URL string for use with -run_rcu&gt;</span>
       <span style="color:#f92672">rcu_prefix </span>: <span style="color:#ae81ff">DEV</span>
       <span style="color:#f92672">rcu_admin_password</span>: <span style="color:#ae81ff">&lt;required with -run_rcu flag&gt;</span>
@@ -1268,7 +1326,7 @@ yyyy = (DESCRIPTION ...)
 </code></pre></div><p>For an Oracle SSL database with ONE_WAY SSL enabled, with an <code>SSO</code> wallet, use the following example:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
     <span style="color:#f92672">RCUDbInfo</span>:
-      <span style="color:#f92672">useSSL </span>: <span style="color:#66d9ef">true</span>
+      <span style="color:#f92672">databaseType </span>: <span style="color:#e6db74">&#39;SSL&#39;</span>
       <span style="color:#f92672">rcu_db_conn_string</span>: <span style="color:#ae81ff">&lt;required URL string for use with -run_rcu&gt;</span>
       <span style="color:#f92672">rcu_prefix </span>: <span style="color:#ae81ff">DEV</span>
       <span style="color:#f92672">rcu_admin_password</span>: <span style="color:#ae81ff">&lt;required with -run_rcu flag&gt;</span>
@@ -1282,7 +1340,7 @@ yyyy = (DESCRIPTION ...)
 <p>For an Oracle SSL database with TW0_WAY SSL enabled, with a <code>PKCS12</code> wallet, use the following example:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
     <span style="color:#f92672">RCUDbInfo</span>:
-      <span style="color:#f92672">useSSL </span>: <span style="color:#66d9ef">true</span>
+      <span style="color:#f92672">databaseType </span>: <span style="color:#e6db74">&#39;SSL&#39;</span>
       <span style="color:#f92672">rcu_db_conn_string</span>: <span style="color:#ae81ff">&lt;required URL string for use with -run_rcu&gt;</span>
       <span style="color:#f92672">rcu_prefix </span>: <span style="color:#ae81ff">DEV</span>
       <span style="color:#f92672">rcu_admin_password</span>: <span style="color:#ae81ff">&lt;required with -run_rcu flag&gt;</span>
@@ -1299,7 +1357,7 @@ yyyy = (DESCRIPTION ...)
 </code></pre></div><p>For an Oracle SSL database with ONE_WAY SSL enabled, with a <code>PKCS12</code> wallet, use the following example:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
     <span style="color:#f92672">RCUDbInfo</span>:
-      <span style="color:#f92672">useSSL </span>: <span style="color:#66d9ef">true</span>
+      <span style="color:#f92672">databaseType </span>: <span style="color:#e6db74">&#39;SSL&#39;</span>
       <span style="color:#f92672">rcu_db_conn_string</span>: <span style="color:#ae81ff">&lt;required URL string for use with -run_rcu&gt;</span>
       <span style="color:#f92672">rcu_prefix </span>: <span style="color:#ae81ff">DEV</span>
       <span style="color:#f92672">rcu_admin_password</span>: <span style="color:#ae81ff">&lt;required with -run_rcu flag&gt;</span>
@@ -1336,6 +1394,183 @@ yyyy = (DESCRIPTION ...)
     <span style="color:#f92672">RCUDbInfo</span>:
         <span style="color:#f92672">compInfoXMLLocation</span>: <span style="color:#ae81ff">wlsdeploy/rcu/config/MyComponentInfo.xml</span>
         <span style="color:#f92672">storageXMLLocation</span>: <span style="color:#ae81ff">wlsdeploy/rcu/config/MyStorage.xml</span>
+</code></pre></div><h3 id="advanced-jrf-database-use-cases">Advanced JRF database use cases</h3>
+<p>In the following examples of the JRF data source sparse model, you can use it to further customize the JRF domain template data sources.</p>
+<h4 id="default-template-data-source">Default template data source</h4>
+<p>This is a sparse model for JRF data sources with the RCU prefix <code>FMW1</code>.<br>
+You will need to update at least the <code>URL</code>, <code>PasswordEncrypted</code>, and the <code>user</code> property value.  When you specify the value of <code>URL</code>, it
+must be a valid <code>JDBC URL</code> format, which is different from the <code>rcu_db_conn_string</code> which does not require the <code>jdbc:oracle:thin:...</code> part.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">resources</span>:
+   <span style="color:#f92672">JDBCSystemResource</span>:
+        <span style="color:#f92672">WLSSchemaDataSource</span>:
+            <span style="color:#f92672">JdbcResource</span>:
+                <span style="color:#f92672">JDBCConnectionPoolParams</span>:
+                    <span style="color:#f92672">TestTableName</span>: <span style="color:#ae81ff">SQL ISVALID</span>
+                    <span style="color:#f92672">MaxCapacity</span>: <span style="color:#ae81ff">75</span>
+                <span style="color:#f92672">JDBCDataSourceParams</span>:
+                    <span style="color:#f92672">GlobalTransactionsProtocol</span>: <span style="color:#ae81ff">None</span>
+                    <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">jdbc/WLSSchemaDataSource</span>
+                <span style="color:#f92672">JDBCDriverParams</span>:
+                    <span style="color:#f92672">URL</span>: --<span style="color:#ae81ff">FIX ME--</span>
+                    <span style="color:#f92672">PasswordEncrypted</span>: --<span style="color:#ae81ff">FIX ME--</span>
+                    <span style="color:#f92672">DriverName</span>: <span style="color:#ae81ff">oracle.jdbc.OracleDriver</span>
+                    <span style="color:#f92672">Properties</span>:
+                        <span style="color:#f92672">user</span>:
+                            <span style="color:#f92672">Value</span>: <span style="color:#ae81ff">FMW1_WLS_RUNTIME</span>
+        <span style="color:#f92672">LocalSvcTblDataSource</span>:
+            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">admin-server</span>
+            <span style="color:#f92672">JdbcResource</span>:
+                <span style="color:#f92672">JDBCConnectionPoolParams</span>:
+                    <span style="color:#f92672">InitialCapacity</span>: <span style="color:#ae81ff">0</span>
+                    <span style="color:#f92672">CapacityIncrement</span>: <span style="color:#ae81ff">1</span>
+                    <span style="color:#f92672">TestConnectionsOnReserve</span>: <span style="color:#66d9ef">true</span>
+                    <span style="color:#f92672">ConnectionCreationRetryFrequencySeconds</span>: <span style="color:#ae81ff">10</span>
+                    <span style="color:#f92672">TestTableName</span>: <span style="color:#ae81ff">SQL ISVALID</span>
+                    <span style="color:#f92672">TestFrequencySeconds</span>: <span style="color:#ae81ff">300</span>
+                    <span style="color:#f92672">SecondsToTrustAnIdlePoolConnection</span>: <span style="color:#ae81ff">0</span>
+                    <span style="color:#f92672">MaxCapacity</span>: <span style="color:#ae81ff">200</span>
+                <span style="color:#f92672">JDBCDataSourceParams</span>:
+                    <span style="color:#f92672">GlobalTransactionsProtocol</span>: <span style="color:#ae81ff">None</span>
+                    <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">jdbc/LocalSvcTblDataSource</span>
+                <span style="color:#f92672">JDBCDriverParams</span>:
+                    <span style="color:#f92672">URL</span>: --<span style="color:#ae81ff">FIX ME--</span>
+                    <span style="color:#f92672">PasswordEncrypted</span>: --<span style="color:#ae81ff">FIX ME--</span>
+                    <span style="color:#f92672">DriverName</span>: <span style="color:#ae81ff">oracle.jdbc.OracleDriver</span>
+                    <span style="color:#f92672">Properties</span>:
+                        <span style="color:#f92672">user</span>:
+                            <span style="color:#f92672">Value</span>: <span style="color:#ae81ff">FMW1_STB</span>
+                        <span style="color:#f92672">oracle.net.CONNECT_TIMEOUT</span>:
+                            <span style="color:#f92672">Value</span>: <span style="color:#e6db74">&#39;10000&#39;</span>
+                        <span style="color:#f92672">SendStreamAsBlob</span>:
+                            <span style="color:#f92672">Value</span>: <span style="color:#e6db74">&#39;true&#39;</span>
+                        <span style="color:#f92672">weblogic.jdbc.crossPartitionEnabled</span>:
+                            <span style="color:#f92672">Value</span>: <span style="color:#e6db74">&#39;true&#39;</span>
+        <span style="color:#f92672">opss-data-source</span>:
+            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">cluster-1,admin-server</span>
+            <span style="color:#f92672">JdbcResource</span>:
+                <span style="color:#f92672">JDBCConnectionPoolParams</span>:
+                    <span style="color:#f92672">TestTableName</span>: <span style="color:#ae81ff">SQL ISVALID</span>
+                <span style="color:#f92672">JDBCDataSourceParams</span>:
+                    <span style="color:#f92672">GlobalTransactionsProtocol</span>: <span style="color:#ae81ff">None</span>
+                    <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">jdbc/OpssDataSource</span>
+                <span style="color:#f92672">JDBCDriverParams</span>:
+                    <span style="color:#f92672">URL</span>: --<span style="color:#ae81ff">FIX ME--</span>
+                    <span style="color:#f92672">PasswordEncrypted</span>: --<span style="color:#ae81ff">FIX ME--</span>
+                    <span style="color:#f92672">DriverName</span>: <span style="color:#ae81ff">oracle.jdbc.OracleDriver</span>
+                    <span style="color:#f92672">Properties</span>:
+                        <span style="color:#f92672">user</span>:
+                            <span style="color:#f92672">Value</span>: <span style="color:#ae81ff">FMW1_OPSS</span>
+        <span style="color:#f92672">opss-audit-viewDS</span>:
+            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">cluster-1,admin-server</span>
+            <span style="color:#f92672">JdbcResource</span>:
+                <span style="color:#f92672">JDBCConnectionPoolParams</span>:
+                    <span style="color:#f92672">TestTableName</span>: <span style="color:#ae81ff">SQL ISVALID</span>
+                <span style="color:#f92672">JDBCDataSourceParams</span>:
+                    <span style="color:#f92672">GlobalTransactionsProtocol</span>: <span style="color:#ae81ff">None</span>
+                    <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">jdbc/AuditViewDataSource</span>
+                <span style="color:#f92672">JDBCDriverParams</span>:
+                    <span style="color:#f92672">URL</span>: --<span style="color:#ae81ff">FIX ME--</span>
+                    <span style="color:#f92672">PasswordEncrypted</span>: --<span style="color:#ae81ff">FIX ME--</span>
+                    <span style="color:#f92672">DriverName</span>: <span style="color:#ae81ff">oracle.jdbc.OracleDriver</span>
+                    <span style="color:#f92672">Properties</span>:
+                        <span style="color:#f92672">user</span>:
+                            <span style="color:#f92672">Value</span>: <span style="color:#ae81ff">FMW1_IAU_VIEWER</span>
+        <span style="color:#f92672">opss-audit-DBDS</span>:
+            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">cluster-1,admin-server</span>
+            <span style="color:#f92672">JdbcResource</span>:
+                <span style="color:#f92672">JDBCConnectionPoolParams</span>:
+                    <span style="color:#f92672">TestTableName</span>: <span style="color:#ae81ff">SQL ISVALID</span>
+                <span style="color:#f92672">JDBCDataSourceParams</span>:
+                    <span style="color:#f92672">GlobalTransactionsProtocol</span>: <span style="color:#ae81ff">None</span>
+                    <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">jdbc/AuditAppendDataSource</span>
+                <span style="color:#f92672">JDBCDriverParams</span>:
+                    <span style="color:#f92672">URL</span>: --<span style="color:#ae81ff">FIX ME--</span>
+                    <span style="color:#f92672">PasswordEncrypted</span>: --<span style="color:#ae81ff">FIX ME--</span>
+                    <span style="color:#f92672">DriverName</span>: <span style="color:#ae81ff">oracle.jdbc.OracleDriver</span>
+                    <span style="color:#f92672">Properties</span>:
+                        <span style="color:#f92672">user</span>:
+                            <span style="color:#f92672">Value</span>: <span style="color:#ae81ff">FMW1_IAU_APPEND</span>
+        <span style="color:#f92672">mds-owsm</span>:
+            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">cluster-1,admin-server</span>
+            <span style="color:#f92672">JdbcResource</span>:
+                <span style="color:#f92672">JDBCConnectionPoolParams</span>:
+                    <span style="color:#f92672">InitialCapacity</span>: <span style="color:#ae81ff">0</span>
+                    <span style="color:#f92672">TestConnectionsOnReserve</span>: <span style="color:#66d9ef">true</span>
+                    <span style="color:#f92672">ConnectionCreationRetryFrequencySeconds</span>: <span style="color:#ae81ff">10</span>
+                    <span style="color:#f92672">TestTableName</span>: <span style="color:#ae81ff">SQL ISVALID</span>
+                    <span style="color:#f92672">TestFrequencySeconds</span>: <span style="color:#ae81ff">300</span>
+                    <span style="color:#f92672">SecondsToTrustAnIdlePoolConnection</span>: <span style="color:#ae81ff">0</span>
+                <span style="color:#f92672">JDBCDataSourceParams</span>:
+                    <span style="color:#f92672">GlobalTransactionsProtocol</span>: <span style="color:#ae81ff">None</span>
+                    <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">jdbc/mds/owsm</span>
+                <span style="color:#f92672">JDBCDriverParams</span>:
+                    <span style="color:#f92672">URL</span>: --<span style="color:#ae81ff">FIX ME--</span>
+                    <span style="color:#f92672">PasswordEncrypted</span>: --<span style="color:#ae81ff">FIX ME--</span>
+                    <span style="color:#f92672">DriverName</span>: <span style="color:#ae81ff">oracle.jdbc.OracleDriver</span>
+                    <span style="color:#f92672">Properties</span>:
+                        <span style="color:#f92672">user</span>:
+                            <span style="color:#f92672">Value</span>: <span style="color:#ae81ff">FMW1_MDS</span>
+                        <span style="color:#f92672">oracle.net.CONNECT_TIMEOUT</span>:
+                            <span style="color:#f92672">Value</span>: <span style="color:#e6db74">&#39;120000&#39;</span>
+                        <span style="color:#f92672">SendStreamAsBlob</span>:
+                            <span style="color:#f92672">Value</span>: <span style="color:#e6db74">&#39;true&#39;</span>
+</code></pre></div><h4 id="oracle-active-grid-link-data-source-agl">Oracle Active Grid Link Data Source (AGL)</h4>
+<p>For setting the data source to access Oracle Active Grid Link database, besides updating the <code>URL</code>, <code>PasswordEncrypted</code>, and the <code>user</code> property value;
+you can specify additional <code>JDBCOracleParams</code> under <code>JdbcResource</code> of each data source.  For example,</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">      <span style="color:#f92672">mds-owsm</span>:
+            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">cluster-1,admin-server</span>
+            <span style="color:#f92672">JdbcResource</span>:
+              <span style="color:#f92672">JDBCOracleParams</span>:
+                <span style="color:#f92672">OnsNodeList</span>:  <span style="color:#e6db74">&#39;node1, node2&#39;</span>
+                <span style="color:#ae81ff">....</span>
+</code></pre></div><p>For the complete list of fields, run the WDT command,</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">modelHelp.sh -oracle_home &lt;oracle home&gt; resources:/JDBCSystemResource/JdbcResource/JDBCOracleParams
+</code></pre></div><h4 id="multi-data-sources">Multi Data Sources</h4>
+<p>If your database does not support high availability natively, such as RAC or AGL, then WebLogic provides a Multi Data Source option, where basically the main data source is a logical data source that
+contains multiple physical data sources.   In order to create a spare model, for each data source, you can:</p>
+<ol>
+<li>Update the templated data source <code>URL</code>, <code>EncryptedPassword</code>, and &lsquo;user&rsquo; property value.  In the <code>URL</code> part, you can specify one of the accessible physical database URL.</li>
+<li>Duplicate each datasource two times.</li>
+<li>Change the duplicated data source name, <code>JNDIName</code> by appending <code>-1</code>, <code>-2</code>, and such. The <code>-1</code>, <code>-2</code> data sources are the physical data source; you will need to update their <code>URL</code> too.</li>
+</ol>
+<p>For example (note: details replaced by <code>....</code> for easier reading):</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">       <span style="color:#f92672">opss-data-source</span>:
+           <span style="color:#ae81ff">....</span>
+                <span style="color:#f92672">JDBCDriverParams</span>:
+                    <span style="color:#f92672">URL</span>: <span style="color:#ae81ff">jdbc:oracle:thin://@somewhere:1521/db-node1</span>
+                    <span style="color:#f92672">PasswordEncrypted</span>:  <span style="color:#e6db74">&#39;actualpassword`
+</span><span style="color:#e6db74">           .... 
+</span><span style="color:#e6db74">       &#39;</span><span style="color:#f92672">opss-data-source-1&#39;</span>:
+           <span style="color:#ae81ff">....</span>
+               <span style="color:#f92672">JDBCDataSourceParams</span>:
+                 <span style="color:#f92672">GlobalTransactionsProtocol</span>: <span style="color:#ae81ff">None</span>
+                 <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">jdbc/OpssDataSource-2</span>
+                <span style="color:#f92672">JDBCDriverParams</span>:
+                    <span style="color:#f92672">URL</span>: <span style="color:#ae81ff">jdbc:oracle:thin://@somewhere:1521/db-node1</span>
+                    <span style="color:#f92672">PasswordEncrypted</span>:  <span style="color:#e6db74">&#39;actualpassword`
+</span><span style="color:#e6db74">           ....
+</span><span style="color:#e6db74">       &#39;</span><span style="color:#f92672">opss-data-source-2&#39;</span>:
+          <span style="color:#ae81ff">....</span>
+           <span style="color:#f92672">JDBCDataSourceParams</span>:
+             <span style="color:#f92672">GlobalTransactionsProtocol</span>: <span style="color:#ae81ff">None</span>
+             <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">jdbc/OpssDataSource-2</span>
+           <span style="color:#f92672">JDBCDriverParams</span>:
+             <span style="color:#f92672">URL</span>: <span style="color:#ae81ff">jdbc:oracle:thin://@somewhere:1521/db-node2</span>
+             <span style="color:#f92672">PasswordEncrypted</span>:  <span style="color:#ae81ff">&#39;actualpassword`</span>
+             <span style="color:#f92672">DriverName</span>: <span style="color:#ae81ff">oracle.jdbc.OracleDriver</span>
+           <span style="color:#ae81ff">....</span>
+</code></pre></div><ol start="4">
+<li>Update the original data source to include the physical data source list.</li>
+</ol>
+<p>For example,</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">       <span style="color:#f92672">opss-data-source</span>:
+           <span style="color:#ae81ff">....</span>
+            <span style="color:#f92672">JDBCDataSourceParams</span>:
+              <span style="color:#f92672">DataSourceList</span>:  <span style="color:#e6db74">&#39;opss-data-source-1, opss-data-source-2&#39;</span>
+              <span style="color:#f92672">AlgorithmType</span>:  <span style="color:#e6db74">&#39;FailOver&#39;</span>
+           <span style="color:#ae81ff">....</span>
+</code></pre></div><p>For the complete list of fields, run the WDT command,</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">modelHelp.sh -oracle_home &lt;oracle home&gt; resources:/JDBCSystemResource/JdbcResource/JDBCOracleParams
 </code></pre></div>
 
 <footer class="footline">
@@ -2113,19 +2348,19 @@ yyyy = (DESCRIPTION ...)
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1661455634"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1661455634"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1661455634"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1661455634"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1661455634"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1661455634"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1663356629"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1663356629"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1663356629"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1663356629"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1663356629"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1663356629"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1661455634"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1661455634"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1661455634"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1663356629"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1663356629"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1663356629"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1661455634"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1663356629"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
