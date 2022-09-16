@@ -340,8 +340,9 @@ class DeploymentsDiscoverer(Discoverer):
             _logger.warning('WLSDPLY-06395', application_name, target, message,
                             class_name=_class_name, method_name=_method_name)
         else:
-            _logger.warning('WLSDPLY-06396', application_name, iae.getLocalizedMessage(),
+            _logger.warning('WLSDPLY-06396', application_name, message,
                             class_name=_class_name, method_name=_method_name)
+
     def _create_application_directory(self, application_name, application_dict):
         _method_name = '_create_application_directory'
         new_source_name = None
