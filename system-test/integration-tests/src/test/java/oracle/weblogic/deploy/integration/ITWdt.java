@@ -934,12 +934,11 @@ public class ITWdt extends BaseTest {
     @Test
     void test31DiscoverDomainWithModelFile(TestInfo testInfo) throws Exception {
         Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
-        Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.yaml");
-        Path discoveredVariableFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.properties");
+        Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredModel.yaml");
+        Path discoveredVariableFile = getTestOutputPath(testInfo).resolve("discoveredVariable.properties");
         String cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
-                domainParentDir + FS + "restrictedJRFD1 -archive_file " + discoveredArchive +
-                " -model_file " + discoveredModelFile + " -variable_file " + discoveredVariableFile +
-                " -domain_type RestrictedJRF" ;
+                domainParentDir + FS + "domain2 -archive_file " + discoveredArchive +
+                " -model_file " + discoveredModelFile + " -variable_file " + discoveredVariableFile;
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
@@ -948,16 +947,13 @@ public class ITWdt extends BaseTest {
             // verify model file
             verifyModelFile(discoveredModelFile.toString());
 
-            cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
-                    domainParentDir + FS + "createDomainFromDiscover" + " -archive_file " + discoveredArchive +
-                    " -model_file " + discoveredModelFile + " -variable_file " + getSampleVariableFile() +
-                    " -domain_type RestrictedJRF";
             String domainHome = domainParentDir + FS + "createDomainFromDiscover";
+            cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
+                    domainHome + " -archive_file " + discoveredArchive +
+                    " -model_file " + discoveredModelFile + " -variable_file " + getSampleVariableFile();
             result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
             verifyResult(result, "createDomain.sh completed successfully");
-
-            System.out.println(domainHome + FS + "config" + FS + "config.xml");
 
             setUpBootProperties(domainHome, "AdminServer", "weblogic", "welcome1");
             Path adminServerOut = getTestOutputPath(testInfo).resolve("AdminServer.out");
