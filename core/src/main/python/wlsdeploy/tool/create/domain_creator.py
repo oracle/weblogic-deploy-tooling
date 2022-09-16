@@ -53,7 +53,6 @@ from wlsdeploy.aliases.model_constants import PASSWORD
 from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
 from wlsdeploy.aliases.model_constants import PRODUCTION_MODE_ENABLED
 from wlsdeploy.aliases.model_constants import RCU_COMP_INFO
-from wlsdeploy.aliases.model_constants import RCU_CONFIGURATION
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RCU_STG_INFO
 from wlsdeploy.aliases.model_constants import RESOURCES
@@ -1097,8 +1096,7 @@ class DomainCreator(Creator):
 
     def __rcudb_info_in_model(self):
         model = self.model.get_model()
-        if (DOMAIN_INFO in model and RCU_DB_INFO in model[DOMAIN_INFO]) or \
-            (RESOURCES in model and RCU_CONFIGURATION in model[RESOURCES]):
+        if (DOMAIN_INFO in model and RCU_DB_INFO in model[DOMAIN_INFO]):
             return True
         else:
             return False
