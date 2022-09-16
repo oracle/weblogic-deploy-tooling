@@ -25,15 +25,15 @@ def set_ssl_properties(xml_doc, atp_creds_path, keystore_password, truststore_pa
 
     for prop in props:
         if prop.getAttribute('name') == 'props.db.1':
+            set_property(dom_tree, prop, 'oracle.net.ssl_server_dn_match', 'true')
+            set_property(dom_tree, prop, 'oracle.net.ssl_version', '1.2')
+            set_property(dom_tree, prop, 'oracle.net.tns_admin', atp_creds_path)
             set_property(dom_tree, prop, 'javax.net.ssl.trustStoreType', 'JKS')
             set_property(dom_tree, prop, 'javax.net.ssl.trustStore', atp_creds_path + '/truststore.jks')
-            set_property(dom_tree, prop, 'oracle.net.tns_admin', atp_creds_path)
             set_property(dom_tree, prop, 'javax.net.ssl.keyStoreType', 'JKS')
             set_property(dom_tree, prop, 'javax.net.ssl.keyStore', atp_creds_path + '/keystore.jks')
             set_property(dom_tree, prop, 'javax.net.ssl.keyStorePassword', keystore_password)
             set_property(dom_tree, prop, 'javax.net.ssl.trustStorePassword', truststore_password)
-            set_property(dom_tree, prop, 'oracle.net.ssl_server_dn_match', 'true')
-            set_property(dom_tree, prop, 'oracle.net.ssl_version', '1.2')
             # Persist the changes in the xml file
             file_handle = open(xml_doc, "w")
             dom_tree.writexml(file_handle)
@@ -56,14 +56,14 @@ def set_property(dom_tree, prop, name, value):
     prop.appendChild(newline)
 
 def fix_jps_config(rcu_db_info, model_context):
-    tns_admin = rcu_db_info.get_atp_tns_admin()
+    tns_admin = rcu_db_info.get_tns_admin()
     keystore_password = rcu_db_info.get_keystore_password()
     truststore_password = rcu_db_info.get_truststore_password()
 
-    jsp_config = model_context.get_domain_home() + '/config/fmwconfig/jps-config.xml'
-    jsp_config_jse = model_context.get_domain_home() + '/config/fmwconfig/jps-config-jse.xml'
-    set_ssl_properties(jsp_config, tns_admin, keystore_password, truststore_password)
-    set_ssl_properties(jsp_config_jse, tns_admin, keystore_password, truststore_password)
+    jps_config = model_context.get_domain_home() + '/config/fmwconfig/jps-config.xml'
+    jps_config_jse = model_context.get_domain_home() + '/config/fmwconfig/jps-config-jse.xml'
+    set_ssl_properties(jps_config, tns_admin, keystore_password, truststore_password)
+    set_ssl_properties(jps_config_jse, tns_admin, keystore_password, truststore_password)
 
 
 def get_atp_connect_string(tnsnames_ora_path, tns_sid_name):

@@ -59,7 +59,7 @@ def set_property(dom_tree, prop, name, value):
     prop.appendChild(newline)
 
 def fix_jps_config(rcu_db_info, model_context):
-    tns_admin = rcu_db_info.get_atp_tns_admin()
+    tns_admin = rcu_db_info.get_tns_admin()
     truststore = rcu_db_info.get_truststore()
     truststore_type = rcu_db_info.get_truststore_type()
     truststore_password = rcu_db_info.get_truststore_password()

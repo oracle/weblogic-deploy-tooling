@@ -48,6 +48,8 @@ from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.tool.create import atp_helper
 from wlsdeploy.tool.create import ssl_helper
+from wlsdeploy.aliases.model_constants import DOMAIN_INFO
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
 
 wlst_helper.wlst_functions = globals()
 
@@ -237,41 +239,45 @@ def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
 
     has_atpdbinfo = 0
     has_ssldbinfo = 0
-    domain_info = model[model_constants.DOMAIN_INFO]
-    if domain_info is not None:
-        if model_constants.RCU_DB_INFO in domain_info:
-            rcu_db_info = RcuDbInfo(model_context, aliases, domain_info[model_constants.RCU_DB_INFO])
-            has_tns_admin = rcu_db_info.has_tns_admin()
-            has_regular_db = rcu_db_info.is_regular_db()
-            has_atpdbinfo = rcu_db_info.has_atpdbinfo()
-            has_ssldbinfo = rcu_db_info.has_ssldbinfo()
 
-            if archive_helper and not has_regular_db:
-                System.setProperty('oracle.jdbc.fanEnabled', 'false')
+    if model_constants.DOMAIN_INFO in model and model_constants.RCU_DB_INFO in model[model_constants.DOMAIN_INFO]:
+        rcu_db_info = RcuDbInfo(model_context, aliases, model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO])
+        has_tns_admin = rcu_db_info.has_tns_admin()
+        is_regular_db = rcu_db_info.is_regular_db()
+        has_atpdbinfo = rcu_db_info.has_atpdbinfo()
+        has_ssldbinfo = rcu_db_info.has_ssldbinfo()
 
-                # 1. If it does not have the oracle.net.tns_admin specified, then extract to domain/atpwallet
-                # 2. If it is plain old regular oracle db, do nothing
-                # 3. If it deos not have tns_admin in the model, then the wallet must be in the archive
-                if not has_tns_admin:
-                    wallet_path = archive_helper.extract_atp_wallet()
-                    if wallet_path:
-                        # update the model to add the tns_admin
-                        model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
-                            model_constants.DRIVER_PARAMS_NET_TNS_ADMIN] = wallet_path
-                    else:
-                        __logger.severe('WLSDPLY-12411', error=None, class_name=_class_name, method_name=_method_name)
-                        cla_helper.clean_up_temp_files()
-                        tool_exit.end(model_context, ExitCode.ERROR)
-
-        else:
-            if model_context.get_domain_typedef().required_rcu():
-                if not model_context.get_rcu_database() or not model_context.get_rcu_prefix():
-                    __logger.severe('WLSDPLY-12408', model_context.get_domain_type(), CommandLineArgUtil.RCU_DB_SWITCH,
-                                    CommandLineArgUtil.RCU_PREFIX_SWITCH)
-                    cla_helper.clean_up_temp_files()
-                    tool_exit.end(model_context, ExitCode.ERROR)
+        _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin, model,
+                                        model_context)
+    else:
+        if model_context.get_domain_typedef().required_rcu():
+            if not model_context.get_rcu_database() or not model_context.get_rcu_prefix():
+                __logger.severe('WLSDPLY-12408', model_context.get_domain_type(), CommandLineArgUtil.RCU_DB_SWITCH,
+                                CommandLineArgUtil.RCU_PREFIX_SWITCH)
+                cla_helper.clean_up_temp_files()
+                tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
     return has_atpdbinfo, has_ssldbinfo
+
+
+def _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin, model, model_context):
+    if archive_helper and not is_regular_db:
+        # 1. If it does not have the oracle.net.tns_admin specified, then extract to domain/atpwallet
+        # 2. If it is plain old regular oracle db, do nothing
+        # 3. If it deos not have tns_admin in the model, then the wallet must be in the archive
+        if not has_tns_admin:
+            wallet_path = archive_helper.extract_atp_wallet()
+            if wallet_path:
+                # update the model to add the tns_admin
+                model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
+                    model_constants.DRIVER_PARAMS_NET_TNS_ADMIN] = wallet_path
+            else:
+                __logger.severe('WLSDPLY-12411', error=None, class_name=_class_name, method_name=_method_name)
+                cla_helper.clean_up_temp_files()
+                tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+
+    if not is_regular_db:
+        System.setProperty('oracle.jdbc.fanEnabled', 'false')
 
 
 def _get_domain_path(model_context, model):
@@ -332,16 +338,17 @@ def main(args):
             archive_helper = ArchiveHelper(archive_file_name, domain_path, __logger, ExceptionType.CREATE)
 
         has_atp, has_ssl = validate_rcu_args_and_model(model_context, model_dictionary, archive_helper, aliases)
-
         # check if there is an atpwallet and extract in the domain dir
         # it is to support non JRF domain but user wants to use ATP database
-        if not has_atp and archive_helper:
+        if has_atp and archive_helper:
             archive_helper.extract_atp_wallet()
 
         creator = DomainCreator(model_dictionary, model_context, aliases)
         creator.create()
 
         if has_atp:
+            # if extracted_wallet_path is not None:
+            #     model_dictionary[DOMAIN_INFO][DRIVER_PARAMS_NET_TNS_ADMIN] = extracted_wallet_path
             rcu_properties_map = model_dictionary[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO]
             rcu_db_info = RcuDbInfo(model_context, aliases, rcu_properties_map)
             atp_helper.fix_jps_config(rcu_db_info, model_context)
