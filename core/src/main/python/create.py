@@ -276,7 +276,6 @@ def _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin
                 cla_helper.clean_up_temp_files()
                 tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
 
-    # TODO: check for support for ATP-D
     if not is_regular_db:
         System.setProperty('oracle.jdbc.fanEnabled', 'false')
 
@@ -342,7 +341,6 @@ def main(args):
         # check if there is an atpwallet and extract in the domain dir
         # it is to support non JRF domain but user wants to use ATP database
         if has_atp and archive_helper:
-            #extracted_wallet_path = archive_helper.extract_atp_wallet()
             archive_helper.extract_atp_wallet()
 
         creator = DomainCreator(model_dictionary, model_context, aliases)
