@@ -55,7 +55,6 @@ from wlsdeploy.aliases.model_constants import PRODUCTION_MODE_ENABLED
 from wlsdeploy.aliases.model_constants import RCU_COMP_INFO
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RCU_STG_INFO
-from wlsdeploy.aliases.model_constants import RESOURCES
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
 from wlsdeploy.aliases.model_constants import SECURITY
@@ -99,7 +98,6 @@ from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model
 from wlsdeploy.util import model_helper
 from wlsdeploy.util import string_utils
-#from wlsdeploy.tool.util.rcu_helper import RCUHelper
 
 
 class DomainCreator(Creator):
