@@ -521,7 +521,6 @@ public class ITWdt extends BaseTest {
          checkContents.add("SourcePath: wlsdeploy/applications/simple-app.war");
         verifyModelFileContents(expectedModelFile, checkContents);
     }
-
     /**
      * test discoverDomain.sh with -model_file argument
      * @throws Exception - if any error occurs
@@ -534,7 +533,7 @@ public class ITWdt extends BaseTest {
         Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
         Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.yaml");
         String cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
-            domainParentDir + FS + "restrictedJRFD1 -archive_file " + discoveredArchive +
+                domainParentDir + FS + "restrictedJRFD1 -archive_file " + discoveredArchive +
                 " -model_file " + discoveredModelFile;
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
@@ -925,7 +924,46 @@ public class ITWdt extends BaseTest {
 
 
     }
+    /**
+     * test discoverDomain.sh that model can create a working domain
+     * @throws Exception - if any error occurs
+     */
+    @DisplayName("Test 31: Discover domain and then create a new domain from the model")
+    @Order(31)
+    @Tag("gate")
+    @Test
+    void test31DiscoverDomainWithModelFile(TestInfo testInfo) throws Exception {
+        Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
+        Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredModel.yaml");
+        Path discoveredVariableFile = getTestOutputPath(testInfo).resolve("discoveredVariable.properties");
+        String cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
+                domainParentDir + FS + "domain2 -archive_file " + discoveredArchive +
+                " -model_file " + discoveredModelFile + " -variable_file " + discoveredVariableFile;
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
+            verifyResult(result, "discoverDomain.sh completed successfully");
+
+            // verify model file
+            verifyModelFile(discoveredModelFile.toString());
+
+            String domainHome = domainParentDir + FS + "createDomainFromDiscover";
+            cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
+                    domainHome + " -archive_file " + discoveredArchive +
+                    " -model_file " + discoveredModelFile + " -variable_file " + getSampleVariableFile();
+            result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+            verifyResult(result, "createDomain.sh completed successfully");
+
+            setUpBootProperties(domainHome, "AdminServer", "weblogic", "welcome1");
+            Path adminServerOut = getTestOutputPath(testInfo).resolve("AdminServer.out");
+            boolean isServerUp = startAdminServer(domainHome, adminServerOut );
+            if (!isServerUp) {
+                throw new Exception("Admin server did not come up after createDomain from discoverDomain");
+            }
+            stopAdminServer(domainHome);
+        }
+    }
 
     private boolean startAdminServer(String domainHome, Path outputFile) throws Exception {
         boolean isServerUp = false;
