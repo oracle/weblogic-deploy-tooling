@@ -979,7 +979,7 @@ public class ITWdt extends BaseTest {
         }
 
         try {
-            Thread.sleep(120000);
+            Thread.sleep(60000);
             String readinessCmd = "export no_proxy=localhost && curl -sw '%{http_code}' http://localhost:7001/weblogic/ready";
             result = Runner.run(readinessCmd);
             for (int i=0; i < 60; i++) {
