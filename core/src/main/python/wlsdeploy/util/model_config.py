@@ -42,9 +42,21 @@ WLST_EDIT_LOCK_RELEASE_TIMEOUT_PROP = 'wlst.edit.lock.release.timeout'
 WLST_EDIT_LOCK_RELEASE_TIMEOUT_DEFAULT = '-1'
 WLST_EDIT_LOCK_EXCLUSIVE_PROP = 'wlst.edit.lock.exclusive'
 WLST_EDIT_LOCK_EXCLUSIVE_DEFAULT = 'false'
+YAML_FILE_MAX_CODE_POINTS_PROP = 'yaml.max.file.size'
+YAML_FILE_MAX_CODE_POINTS_DEFAULT = '0'
 
 # System Property overrides for WLST timeout properties
 SYS_PROP_PREFIX = 'wdt.config.'
+
+__config_object = None
+
+# This method is used to get the model configuration singleton object.
+# There is an implicit assumption that the object is created by the
+# model context
+def get_model_config(program_name='unknown'):
+    if __config_object is None:
+        __config_object = ModelConfiguration(program_name)
+    return __config_object
 
 
 class ModelConfiguration(object):
@@ -136,6 +148,13 @@ class ModelConfiguration(object):
         :return: the string 'true' or 'false' (default)
         """
         return self._get_from_dict(WLST_EDIT_LOCK_EXCLUSIVE_PROP, WLST_EDIT_LOCK_EXCLUSIVE_DEFAULT)
+
+    def get_yaml_file_max_code_points(self):
+        """
+        Returns the exclusive value for startEdit from tool properties
+        :return: the string 'true' or 'false' (default)
+        """
+        return self._get_from_dict_as_long(YAML_FILE_MAX_CODE_POINTS_PROP, YAML_FILE_MAX_CODE_POINTS_DEFAULT)
 
     def _get_from_dict(self, name, default_value=None):
         _method_name = '_get_from_dict'

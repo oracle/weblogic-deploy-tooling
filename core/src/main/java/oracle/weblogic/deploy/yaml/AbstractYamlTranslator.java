@@ -36,6 +36,7 @@ public abstract class AbstractYamlTranslator {
 
     private final boolean useOrderedDict;
     private final String fileName;
+    private final int codePointsLimit;
 
     protected abstract PlatformLogger getLogger();
     protected abstract String getClassName();
@@ -46,9 +47,10 @@ public abstract class AbstractYamlTranslator {
     // override to write a list of documents as Python dictionaries to the YAML
     public abstract void dumpDocuments(List<?> documents) throws YamlException;
 
-    protected AbstractYamlTranslator(String fileName, boolean useOrderedDict) {
+    protected AbstractYamlTranslator(String fileName, boolean useOrderedDict, int codePointsLimit) {
         this.fileName = fileName;
         this.useOrderedDict = useOrderedDict;
+        this.codePointsLimit = codePointsLimit;
     }
 
     /**
@@ -139,6 +141,12 @@ public abstract class AbstractYamlTranslator {
         // Turning on setProcessComments seems to trigger a parsing bug when dealing with
         // tags with no value so leave it off...
         //
+        if (this.codePointsLimit > 0) {
+            System.out.println("\n\n\n\n\n\n\n\n\n\nthis.codePointsLimit = " + this.codePointsLimit + "\n\n\n\n\n\n\n\n\n\n");
+            result.setCodePointLimit(this.codePointsLimit);
+        } else if (this.codePointsLimit < 0 ){
+            getLogger().fine("WLSDPLY-18111", this.codePointsLimit);
+        }
         return result;
     }
 

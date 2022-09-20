@@ -19,7 +19,7 @@ from wlsdeploy.util import validate_configuration
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import string_utils
-from wlsdeploy.util.model_config import ModelConfiguration
+from wlsdeploy.util import model_config
 from wlsdeploy.util.target_configuration import TargetConfiguration
 from wlsdeploy.util.validate_configuration import ValidateConfiguration
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
@@ -52,6 +52,7 @@ class ModelContext(object):
         self._program_name = program_name
         self._logger = platform_logger.PlatformLogger('wlsdeploy.util')
         self._wls_helper = WebLogicHelper(self._logger)
+        self._model_config = model_config.get_model_config(self._program_name)
 
         self._oracle_home = None
         self._wl_home = None
@@ -370,11 +371,8 @@ class ModelContext(object):
     def get_model_config(self):
         """
         Return the encapsulated tool properties configuration instance.
-        This will load the ModelConfiguration from the tool properties on the first request
         :return: model configuration instance
         """
-        if self._model_config is None:
-            self._model_config = ModelConfiguration(self._program_name)
         return self._model_config
 
     def get_program_name(self):
