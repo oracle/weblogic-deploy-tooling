@@ -48,8 +48,6 @@ from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.tool.create import atp_helper
 from wlsdeploy.tool.create import ssl_helper
-from wlsdeploy.aliases.model_constants import DOMAIN_INFO
-from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
 
 wlst_helper.wlst_functions = globals()
 
@@ -255,12 +253,13 @@ def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
                 __logger.severe('WLSDPLY-12408', model_context.get_domain_type(), CommandLineArgUtil.RCU_DB_SWITCH,
                                 CommandLineArgUtil.RCU_PREFIX_SWITCH)
                 cla_helper.clean_up_temp_files()
-                tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+                tool_exit.end(model_context, ExitCode.ERROR)
 
     return has_atpdbinfo, has_ssldbinfo
 
 
 def _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin, model, model_context):
+    _method_name = '_validate_atp_wallet_in_archive'
     if archive_helper and not is_regular_db:
         # 1. If it does not have the oracle.net.tns_admin specified, then extract to domain/atpwallet
         # 2. If it is plain old regular oracle db, do nothing
@@ -274,7 +273,7 @@ def _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin
             else:
                 __logger.severe('WLSDPLY-12411', error=None, class_name=_class_name, method_name=_method_name)
                 cla_helper.clean_up_temp_files()
-                tool_exit.end(model_context, CommandLineArgUtil.PROG_ERROR_EXIT_CODE)
+                tool_exit.end(model_context, ExitCode.ERROR)
 
     if not is_regular_db:
         System.setProperty('oracle.jdbc.fanEnabled', 'false')
