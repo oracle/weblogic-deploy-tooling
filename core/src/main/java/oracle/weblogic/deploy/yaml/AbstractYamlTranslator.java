@@ -122,7 +122,7 @@ public abstract class AbstractYamlTranslator {
 
         if (outputWriter != null) {
             DumperOptions dumperOptions = getDefaultDumperOptions();
-            YamlRepresenter representer = new YamlRepresenter();
+            YamlRepresenter representer = new YamlRepresenter(dumperOptions);
             Yaml yaml = new Yaml(representer, dumperOptions);
 
             try {
@@ -142,7 +142,6 @@ public abstract class AbstractYamlTranslator {
         // tags with no value so leave it off...
         //
         if (this.codePointsLimit > 0) {
-            System.out.println("\n\n\n\n\n\n\n\n\n\nthis.codePointsLimit = " + this.codePointsLimit + "\n\n\n\n\n\n\n\n\n\n");
             result.setCodePointLimit(this.codePointsLimit);
         } else if (this.codePointsLimit < 0 ){
             getLogger().fine("WLSDPLY-18111", this.codePointsLimit);

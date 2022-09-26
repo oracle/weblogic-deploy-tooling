@@ -16,6 +16,7 @@ TOOL_PROPERTIES_FILE_NAME = 'tool.properties'
 
 _logger = PlatformLogger('wlsdeploy.config')
 _class_name = 'ModelConfig'
+_config_object = None
 
 # Tool Properties for configuration and default values if properties not loaded
 
@@ -48,15 +49,14 @@ YAML_FILE_MAX_CODE_POINTS_DEFAULT = '0'
 # System Property overrides for WLST timeout properties
 SYS_PROP_PREFIX = 'wdt.config.'
 
-__config_object = None
-
 # This method is used to get the model configuration singleton object.
 # There is an implicit assumption that the object is created by the
 # model context
 def get_model_config(program_name='unknown'):
-    if __config_object is None:
-        __config_object = ModelConfiguration(program_name)
-    return __config_object
+    global _config_object
+    if _config_object is None:
+        _config_object = ModelConfiguration(program_name)
+    return _config_object
 
 
 class ModelConfiguration(object):
@@ -192,5 +192,13 @@ def _load_properties_file():
     except IOException, ioe:
         _logger.warning('WLSDPLY-01570', wlsdeploy_path, ioe.getMessage(),
                         class_name=_class_name, method_name=_method_name)
+
+        # Return an empty dict so that failing to load the tool.properties file does
+        # not prevent the code above from working using the default values.  The WLST
+        # unit tests are depending on this behavior until they are refactored to all
+        # copy the tool.properties file into the target/unit_tests/config directory
+        # and setting the WDT_CUSTOM_CONFIG environment variable to point to it.
+        #
+        result = dict()
     _logger.exiting(class_name=_class_name, method_name=_method_name)
     return result

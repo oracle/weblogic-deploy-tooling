@@ -24,7 +24,7 @@ class FileToPython(object):
         self.file_name = file_name
         self.use_ordering = use_ordering
         self.logger = platform_logger.PlatformLogger('wlsdeploy.translator')
-        self.model_config = model_config.get_mode_config()
+        self.model_config = model_config.get_model_config()
 
     def parse(self):
         """
@@ -72,12 +72,12 @@ class FileToPython(object):
         """
         _method_name = '_parse_yaml'
 
-        from wlsdeploy.yaml.yaml_translator import YamlToPython as JYamlToPython
+        from wlsdeploy.yaml.yaml_translator import YamlToPython
         self.logger.finer('WLSDPLY-01711', 'YAML', self.file_name,
                           class_name=self._class_name, method_name=_method_name)
         try:
             max_size = self.model_config.get_yaml_file_max_code_points()
-            return JYamlToPython(self.file_name, self.use_ordering, max_size).parse()
+            return YamlToPython(self.file_name, self.use_ordering, max_size).parse()
         except JYamlException, ye:
             translate_ex = exception_helper.create_translate_exception('WLSDPLY-01710', self.file_name,
                                                                        ye.getLocalizedMessage(), error=ye)
