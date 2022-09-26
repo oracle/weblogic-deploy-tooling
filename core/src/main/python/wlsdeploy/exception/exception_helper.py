@@ -486,4 +486,4 @@ def __handle_unexpected_exception(ex, program_name, class_name, logger):
         # Note: since this is Python 2, it seems we can only get the traceback object via sys.exc_info, and of course only
         # while in the except block handling code
         logger.finer('WLSDPLY-20036', program_name, traceback.format_exception(type(ex), ex, sys.exc_info()[2]))
-    tool_exit.end(logger, ExitCode.ERROR, class_name)
+    tool_exit.end(ExitCode.ERROR, class_name)

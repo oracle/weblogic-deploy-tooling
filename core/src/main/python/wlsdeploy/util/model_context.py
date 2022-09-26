@@ -101,7 +101,6 @@ class ModelContext(object):
         self._rcu_db_user = self.DB_USER_DEFAULT
         self._discard_current_edit = False
         self._wait_for_edit_lock = False
-        self._model_config = None
         self._remote = False
         self._skip_archive = False
 
