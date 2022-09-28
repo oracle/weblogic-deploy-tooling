@@ -4,13 +4,9 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The entry point for the extractDomainResource tool.
 """
-import exceptions
 import sys
 
 from oracle.weblogic.deploy.deploy import DeployException
-from oracle.weblogic.deploy.logging import WLSDeployLoggingConfig
-from oracle.weblogic.deploy.util import CLAException
-from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 
 # Jython tools don't require sys.path modification
 
@@ -22,7 +18,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.extract.domain_resource_extractor import DomainResourceExtractor
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.util import cla_helper
-from wlsdeploy.util import tool_exit
+from wlsdeploy.util import tool_main
 from wlsdeploy.util import validate_configuration
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.cla_utils import TOOL_TYPE_EXTRACT
@@ -114,37 +110,19 @@ def __extract_resource(model, model_context, aliases):
     return 0
 
 
-def main(args):
+def main(model_context):
     """
     The python entry point for extractDomainResource.
-    :param args: the command-line arguments
+    :param model_context: the model context object
     """
     _method_name = 'main'
-
-    __logger.entering(args[0], class_name=_class_name, method_name=_method_name)
-    for index, arg in enumerate(args):
-        __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
+    __logger.entering(class_name=_class_name, method_name=_method_name)
 
     _exit_code = ExitCode.OK
 
     try:
-        model_context = __process_args(args)
-    except CLAException, ex:
-        _exit_code = ex.getExitCode()
-        if _exit_code != ExitCode.HELP:
-            __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
-                            class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
-
-        # create a minimal model for summary logging
-        model_context = model_context_helper.create_exit_context(_program_name)
-        tool_exit.__log_and_exit(__logger, model_context, _exit_code, _class_name, _method_name)
-
-    aliases = Aliases(model_context, wlst_mode=__wlst_mode)
-
-    model_dictionary = cla_helper.load_model(_program_name, model_context, aliases, "extract", __wlst_mode)
-
-    try:
+        aliases = Aliases(model_context, wlst_mode=__wlst_mode)
+        model_dictionary = cla_helper.load_model(_program_name, model_context, aliases, "extract", __wlst_mode)
         model = Model(model_dictionary)
         _exit_code = __extract_resource(model, model_context, aliases)
     except DeployException, ex:
@@ -152,17 +130,9 @@ def main(args):
         __logger.severe('WLSDPLY-09015', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
 
-    cla_helper.clean_up_temp_files()
-    tool_exit.__log_and_exit(__logger, model_context, _exit_code, _class_name, _method_name)
-    return
+    __logger.exiting(class_name=_class_name, method_name=_method_name, result=_exit_code)
+    return _exit_code
 
 
 if __name__ == '__main__' or __name__ == 'main':
-    WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    WLSDeployLoggingConfig.logLoggingDirectory(_program_name)
-    try:
-        main(sys.argv)
-    except exceptions.SystemExit, ex:
-        raise ex
-    except (exceptions.Exception, java.lang.Exception), ex:
-        exception_helper.__handle_unexpected_exception(ex, _program_name, _class_name, __logger)
+    tool_main.run_tool(main, __process_args, sys.argv, _program_name, _class_name, __logger)

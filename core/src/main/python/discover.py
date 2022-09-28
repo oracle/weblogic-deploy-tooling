@@ -4,7 +4,6 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The entry point for the discoverDomain tool.
 """
-import exceptions
 import os
 import sys
 
@@ -15,15 +14,12 @@ from java.lang import IllegalStateException
 from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.discover import DiscoverException
 from oracle.weblogic.deploy.json import JsonException
-from oracle.weblogic.deploy.logging import WLSDeployLoggingConfig
-from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyOrderedDict
 from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
-from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.validate import ValidateException
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(sys.argv[0])))
@@ -53,7 +49,7 @@ from wlsdeploy.util import cla_helper
 from wlsdeploy.util import cla_utils
 from wlsdeploy.util import model_translator
 from wlsdeploy.util import path_utils
-from wlsdeploy.util import tool_exit
+from wlsdeploy.util import tool_main
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.cla_utils import TOOL_TYPE_DISCOVER
 from wlsdeploy.util.exit_code import ExitCode
@@ -545,97 +541,79 @@ def __remote_report(model_context):
                              class_name=_class_name, method_name=_method_name)
 
     # write to stdout
-    print ''
+    print('')
     if len(remote_map) == 0:
         message = exception_helper.get_message('WLSDPLY-06030')
     else:
         message = exception_helper.get_message('WLSDPLY-06031')
-    print message
-    print ''
+    print(message)
+    print('')
     for key in remote_map:
         other_map = remote_map[key]
         wls_archive = other_map[discoverer.REMOTE_ARCHIVE_PATH]
-        print key, ' ', wls_archive
-    print ''
+        print(key, ' ', wls_archive)
+    print('')
 
-def main(args):
+
+def main(model_context):
     """
     The main entry point for the discoverDomain tool.
 
-    :param args:
-    :return:
+    :param model_context: the model context object
+    :return: exit code
     """
     _method_name = 'main'
     __logger.entering(class_name=_class_name, method_name=_method_name)
-    for index, arg in enumerate(args):
-        __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
 
     helper = WlstHelper(ExceptionType.DISCOVER)
     helper.silence()
 
-    exit_code = ExitCode.OK
-
-    try:
-        model_context = __process_args(args)
-    except CLAException, ex:
-        exit_code = ex.getExitCode()
-        if exit_code != ExitCode.HELP:
-            __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
-                            class_name=_class_name, method_name=_method_name)
-
-        # create a minimal model for summary logging
-        model_context = model_context_helper.create_exit_context(_program_name)
-        tool_exit.__log_and_exit(__logger, model_context, exit_code, _class_name, _method_name)
+    _exit_code = ExitCode.OK
 
     try:
         __clear_archive_file(model_context)
     except DiscoverException, ex:
         __logger.severe('WLSDPLY-06010', _program_name, model_context.get_archive_file_name(),
                         ex.getLocalizedMessage(), error=ex, class_name=_class_name, method_name=_method_name)
-        tool_exit.__log_and_exit(__logger, model_context, ExitCode.ERROR, _class_name, _method_name)
+        _exit_code = ExitCode.ERROR
 
-    aliases = Aliases(model_context, wlst_mode=__wlst_mode, exception_type=ExceptionType.DISCOVER)
     model = None
-    credential_injector = None
-    if model_context.get_variable_file() is not None or model_context.get_target() is not None:
-        credential_injector = CredentialInjector(_program_name, dict(), model_context,
-                                                 WebLogicHelper(__logger).get_actual_weblogic_version())
+    if _exit_code == ExitCode.OK:
+        aliases = Aliases(model_context, wlst_mode=__wlst_mode, exception_type=ExceptionType.DISCOVER)
+        credential_injector = None
+        if model_context.get_variable_file() is not None or model_context.get_target() is not None:
+            credential_injector = CredentialInjector(_program_name, dict(), model_context,
+                                                     WebLogicHelper(__logger).get_actual_weblogic_version())
 
-        __logger.info('WLSDPLY-06025', class_name=_class_name, method_name=_method_name)
-    else:
-        __logger.info('WLSDPLY-06024', class_name=_class_name, method_name=_method_name)
+            __logger.info('WLSDPLY-06025', class_name=_class_name, method_name=_method_name)
+        else:
+            __logger.info('WLSDPLY-06024', class_name=_class_name, method_name=_method_name)
 
-    try:
-        model = __discover(model_context, aliases, credential_injector, helper)
+        try:
+            model = __discover(model_context, aliases, credential_injector, helper)
 
-        model = __check_and_customize_model(model, model_context, aliases, credential_injector)
+            model = __check_and_customize_model(model, model_context, aliases, credential_injector)
 
-        __remote_report(model_context)
-    except DiscoverException, ex:
-        __logger.severe('WLSDPLY-06011', _program_name, model_context.get_domain_name(),
-                        model_context.get_domain_home(), ex.getLocalizedMessage(),
-                        error=ex, class_name=_class_name, method_name=_method_name)
-        tool_exit.__log_and_exit(__logger, model_context, ExitCode.ERROR, _class_name, _method_name)
+            __remote_report(model_context)
+        except DiscoverException, ex:
+            __logger.severe('WLSDPLY-06011', _program_name, model_context.get_domain_name(),
+                            model_context.get_domain_home(), ex.getLocalizedMessage(),
+                            error=ex, class_name=_class_name, method_name=_method_name)
+            _exit_code = ExitCode.ERROR
 
-    try:
-        __persist_model(model, model_context)
+    if _exit_code == ExitCode.OK:
+        try:
+            __persist_model(model, model_context)
 
-    except TranslateException, ex:
-        __logger.severe('WLSDPLY-20024', _program_name, model_context.get_archive_file_name(), ex.getLocalizedMessage(),
-                        error=ex, class_name=_class_name, method_name=_method_name)
-        tool_exit.__log_and_exit(__logger, model_context, ExitCode.ERROR, _class_name, _method_name)
+        except TranslateException, ex:
+            __logger.severe('WLSDPLY-20024', _program_name, model_context.get_archive_file_name(), ex.getLocalizedMessage(),
+                            error=ex, class_name=_class_name, method_name=_method_name)
+            _exit_code = ExitCode.ERROR
 
     __close_archive(model_context)
-
-    tool_exit.__log_and_exit(__logger, model_context, exit_code, _class_name, _method_name)
+    __logger.exiting(class_name=_class_name, method_name=_method_name, result=_exit_code)
+    return _exit_code
 
 
 if __name__ == '__main__' or __name__ == 'main':
-    WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    WLSDeployLoggingConfig.logLoggingDirectory(_program_name)
-    try:
-        main(sys.argv)
-    except exceptions.SystemExit, ex:
-        raise ex
-    except (exceptions.Exception, java.lang.Exception), ex:
-        tool_exit.__handle_unexpected_exception(ex, _program_name, _class_name, __logger)
+    tool_main.run_tool(main, __process_args, sys.argv, _program_name, _class_name, __logger)

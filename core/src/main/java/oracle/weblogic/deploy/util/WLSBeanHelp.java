@@ -2,7 +2,6 @@
  * Copyright (c) 2022, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
-
 package oracle.weblogic.deploy.util;
 
 import java.beans.BeanDescriptor;
@@ -20,7 +19,6 @@ import java.util.HashMap;
  *
  * Includes an undocumented main intended for ad-hoc printing of a particular bean or bean property help.
  */
-
 public class WLSBeanHelp {
   private static final String EOL = System.getProperty("line.separator");
 
@@ -42,12 +40,7 @@ public class WLSBeanHelp {
   //     and margin set to "width"
   //   - if propDefault not null, inline it as "default=" along with
   //     any of the discovered prop limits...
-  public static String get(
-    String beanName,
-    String propName,
-    int width,
-    String propDefault
-  ) {
+  public static String get(String beanName, String propName, int width, String propDefault) {
     String ds;
 
     if (propName == null)
@@ -67,65 +60,8 @@ public class WLSBeanHelp {
     return limits + prettyHTML(ds, width);
   }
 
-  public static String get(
-    String beanName,
-    int width
-  ) {
+  public static String get(String beanName, int width) {
     return get(beanName, null, width, null);
-  }
-
-  // undocumented main to ad hoc retrieve help for a particular bean or bean prop
-  public static void main(String [] argv) {
-    String beanName = "BeanNotSpecified";
-    String propName = null;
-    int margin = 60;
-
-    if (argv.length == 0) {
-      mainHelp();
-      System.exit(1);
-    }
-
-    int i = 0;
-    while (i < argv.length) {
-      String arg = argv[i];
-      try {
-        if (arg.equals("-bean")) {
-          beanName = argv[i+1]; i++;
-        }
-        else if (arg.equals("-prop")) {
-          propName = argv[i+1]; i++;
-        }
-        else if (arg.equals("-margin")) {
-          margin = Integer.parseInt(argv[i+1]); i++;
-        }
-        else {
-          println("Error: Unrecognized parameter '" + arg +"'.");
-          mainHelp();
-          System.exit(1);
-        }
-      } catch (ArrayIndexOutOfBoundsException a) {
-        println("Error: Expected argument after parameter: " + arg);
-        mainHelp();
-        System.exit(1);
-      }
-      i++;
-    }
-
-    if (getBeanInfo(beanName) == null) {
-      println("Error: Bean '" + beanName + "' not found.");
-    }
-
-    if (propName == null) {
-      println("*** Full bean help for bean '" + beanName + "':");
-      println(get(beanName, null, margin, null));
-      println("***");
-    } else {
-      println("*** Full property help for property '" + beanName + "/" + propName + "':");
-      println(get(beanName, propName, margin, null));
-      println("*** Raw property help for property '" + beanName + "/" + propName + "':");
-      printAttributeHelp(beanName, propName, margin);
-      println("***");
-    }
   }
 
   // convert basic javadoc HTML to plain text
@@ -134,9 +70,7 @@ public class WLSBeanHelp {
     return new PrettyHTML(html, margin).toString();
   }
 
-  private static String getFeatureDescription(
-    FeatureDescriptor fd
-  ) {
+  private static String getFeatureDescription(FeatureDescriptor fd) {
     if (fd == null) return "";
     Object d = fd.getValue(PD_ATT_DESCRIPTION);
     if (d == null) return ""; // should pretty much never happen
@@ -146,11 +80,7 @@ public class WLSBeanHelp {
   // gets pretty printed default for a given bean prop, legal values, min, or max
   // default is passed in from outside
   // returns "" if not applicable or not found
-  private static String getPropertyLimits(
-    String beanName,
-    String propName,
-    String propDefault
-  ) {
+  private static String getPropertyLimits(String beanName, String propName, String propDefault) {
     StringBuilder ret = new StringBuilder();
     if (propDefault != null) {
       // we report the passed in default from the alias DB instead of using the
@@ -180,10 +110,7 @@ public class WLSBeanHelp {
   }
 
   // can return null if not found
-  private static PropertyDescriptor getPropertyDescriptor(
-    String beanName,
-    String propName
-  ) {
+  private static PropertyDescriptor getPropertyDescriptor(String beanName, String propName) {
     try {
       BeanInfo info = getBeanInfo(beanName);
       if (info == null) return null;
@@ -203,9 +130,7 @@ public class WLSBeanHelp {
   }
 
   // can return null if not found
-  private static BeanDescriptor getBeanDescriptor(
-    String beanName
-  ) {
+  private static BeanDescriptor getBeanDescriptor(String beanName) {
     try {
       BeanInfo info = getBeanInfo(beanName);
       if (info == null) return null;
@@ -252,15 +177,11 @@ public class WLSBeanHelp {
       // use reflection to implement the equivalent of:
       //    weblogic management provider ManagementServiceClient getBeanInfoAccess()
       //       getBeanInfoForInterface(beanName, false, null)
-
+      //
       Class<?> mscClass = Class.forName("weblogic.management.provider.ManagementServiceClient");
-
       Method getBeanInfoAccessMethod = mscClass.getMethod("getBeanInfoAccess");
-
       Object mscObject = mscClass.getDeclaredConstructor().newInstance();
-
       Object biaObject = getBeanInfoAccessMethod.invoke(mscObject);
-
       Class<?> biaClass = Class.forName("weblogic.management.provider.beaninfo.BeanInfoAccess");
 
       Method getBeanInfoForInterfaceMethod =
@@ -281,75 +202,6 @@ public class WLSBeanHelp {
       // probably a bean not found InvocationTargetException, but could be a reflection exception
     }
     return null;
-  }
-
-  // called solely by the main in this class
-  private static void mainHelp() {
-    println("Usage:");
-    println("  Ensure weblogic.jar is in CLASSPATH.");
-    println("  java -cp \"$CLASSPATH:./core/target/classes\" oracle.weblogic.deploy.util.WLSBeanHelp -bean weblogic.j2ee.descriptor.wl.UniformDistributedTopicBean -prop ForwardingPolicy -margin 60");
-    println("  java -cp \"$CLASSPATH:./core/target/classes\" oracle.weblogic.deploy.util.WLSBeanHelp -bean weblogic.j2ee.descriptor.wl.UniformDistributedTopicBean -margin 60");
-  }
-
-  // called solely by the main in this class
-  private static boolean printAttributeHelp(String beanName, String propName, int margin) {
-    try {
-      BeanInfo info = getBeanInfo(beanName);
-
-      if (info == null) {
-        println("Error: Bean '" + beanName + "' not found.");
-        return false;
-      }
-
-      for (PropertyDescriptor pd:info.getPropertyDescriptors()) {
-        if (propName.equals(pd.getName())) {
-          println("Bean = " + beanName);
-          println("");
-          printPropertyDescriptor(pd, margin);
-          return true;
-        }
-      }
-
-      println("Error: Prop '" + propName + "' not found in bean '" + beanName + "'.");
-    } catch (Exception th) {
-      println("Exception: " + th.getMessage());
-    }
-    return false;
-  }
-
-  // called solely by the main in this class
-  private static void println(String s) {
-    // ignore sonar complaint - this is used for output from main
-    System.out.println(s);
-  }
-
-  // called solely by the main in this class
-  private static void printPropertyDescriptor(PropertyDescriptor o, int margin) {
-    println("\nPROPERTY\n");
-    println("  name=" + o.getName());
-
-    if (!o.getName().equals(o.getDisplayName()))
-      println("  display name=" + o.getDisplayName());
-
-    if (!o.getName().equals(o.getShortDescription()))
-      println("  short description=" + o.getShortDescription());
-
-    println("  property type=" + o.getPropertyType());
-    println("  hidden=" + o.isHidden());
-
-    for (Enumeration<String> en = o.attributeNames();
-      en.hasMoreElements();) {
-      String s = en.nextElement();
-      Object v = o.getValue(s);
-      if (s.equals(PD_ATT_DESCRIPTION)) continue;
-      if (s.equals(PD_ATT_LEGALVALUES)) v = legalValuesAsString(v);
-      if (s.equals(PD_ATT_SEE)) v = legalValuesAsString(v);
-      println("  " + s + "=" + v);
-    }
-
-    println("  " + PD_ATT_DESCRIPTION + "=");
-    println(prettyHTML(o.getValue(PD_ATT_DESCRIPTION).toString(), margin));
-    println("");
   }
 
   // helper class for converting mbean javadoc HTML to plain text
@@ -498,5 +350,4 @@ public class WLSBeanHelp {
       return sb.toString();
     }
   }
-
 }
