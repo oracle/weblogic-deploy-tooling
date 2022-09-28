@@ -11,11 +11,9 @@ from java.io import IOException
 from java.lang import String, System
 
 from oracle.weblogic.deploy.encrypt import EncryptionException
-from oracle.weblogic.deploy.logging import WLSDeployLoggingConfig
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import VariableException
-from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 
 # Jython tools don't require sys.path modification
 
@@ -26,10 +24,9 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.encrypt import encryption_utils
-from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.util import cla_utils
 from wlsdeploy.util import getcreds
-from wlsdeploy.util import tool_exit
+from wlsdeploy.util import tool_main
 from wlsdeploy.util import variables as variable_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
@@ -201,7 +198,7 @@ def __encrypt_model_and_variables(model_context):
 
 
 #  Factored out for unit testing...
-def _process_request(args):
+def _process_request(args, model_context=None):
     """
     Performs the work for the encryptModel tool.
 
@@ -211,15 +208,16 @@ def _process_request(args):
     _method_name = '_process_request'
 
     __logger.entering(args[0], class_name=_class_name, method_name=_method_name)
-    try:
-        model_context = __process_args(args)
-    except CLAException, ex:
-        exit_code = ex.getExitCode()
-        if exit_code != ExitCode.HELP:
-            __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
-                            class_name=_class_name, method_name=_method_name)
-        __logger.exiting(class_name=_class_name, method_name=_method_name, result=exit_code)
-        return exit_code
+    if model_context is None:
+        try:
+            model_context = __process_args(args)
+        except CLAException, ex:
+            exit_code = ex.getExitCode()
+            if exit_code != ExitCode.HELP:
+                __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
+                                class_name=_class_name, method_name=_method_name)
+            __logger.exiting(class_name=_class_name, method_name=_method_name, result=exit_code)
+            return exit_code
 
     if model_context.is_encryption_manual():
         try:
@@ -239,30 +237,21 @@ def _process_request(args):
     return exit_code
 
 
-def main(args):
+def main(model_context):
     """
     The main entry point for the encryptModel tool.
 
-    :param args:
+    :param model_context:
     :return:
     """
     _method_name = 'main'
+    __logger.entering(sys.argv[0], class_name=_class_name, method_name=_method_name)
 
-    __logger.entering(args[0], class_name=_class_name, method_name=_method_name)
-    for index, arg in enumerate(args):
-        __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
+    exit_code = _process_request(sys.argv, model_context=model_context)
 
-    exit_code = _process_request(args)
-    # create a minimal model for summary logging
-    model_context = model_context_helper.create_exit_context(_program_name)
-    tool_exit.__log_and_exit(__logger, model_context, exit_code, _class_name, _method_name)
+    __logger.exiting(class_name=_class_name, method_name=_method_name, result=exit_code)
+    return exit_code
+
 
 if __name__ == '__main__' or __name__ == 'main':
-    WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    WLSDeployLoggingConfig.logLoggingDirectory(_program_name)
-    try:
-        main(sys.argv)
-    except exceptions.SystemExit, ex:
-        raise ex
-    except (exceptions.Exception, java.lang.Exception), ex:
-        exception_helper.__handle_unexpected_exception(ex, _program_name, _class_name, __logger)
+    tool_main.run_tool(main, __process_args, sys.argv, _program_name, _class_name, __logger)

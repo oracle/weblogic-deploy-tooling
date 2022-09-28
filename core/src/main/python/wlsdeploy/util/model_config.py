@@ -16,6 +16,7 @@ TOOL_PROPERTIES_FILE_NAME = 'tool.properties'
 
 _logger = PlatformLogger('wlsdeploy.config')
 _class_name = 'ModelConfig'
+_config_object = None
 
 # Tool Properties for configuration and default values if properties not loaded
 
@@ -42,9 +43,20 @@ WLST_EDIT_LOCK_RELEASE_TIMEOUT_PROP = 'wlst.edit.lock.release.timeout'
 WLST_EDIT_LOCK_RELEASE_TIMEOUT_DEFAULT = '-1'
 WLST_EDIT_LOCK_EXCLUSIVE_PROP = 'wlst.edit.lock.exclusive'
 WLST_EDIT_LOCK_EXCLUSIVE_DEFAULT = 'false'
+YAML_FILE_MAX_CODE_POINTS_PROP = 'yaml.max.file.size'
+YAML_FILE_MAX_CODE_POINTS_DEFAULT = '0'
 
 # System Property overrides for WLST timeout properties
 SYS_PROP_PREFIX = 'wdt.config.'
+
+# This method is used to get the model configuration singleton object.
+# There is an implicit assumption that the object is created by the
+# model context
+def get_model_config(program_name='unknown'):
+    global _config_object
+    if _config_object is None:
+        _config_object = ModelConfiguration(program_name)
+    return _config_object
 
 
 class ModelConfiguration(object):
@@ -137,6 +149,13 @@ class ModelConfiguration(object):
         """
         return self._get_from_dict(WLST_EDIT_LOCK_EXCLUSIVE_PROP, WLST_EDIT_LOCK_EXCLUSIVE_DEFAULT)
 
+    def get_yaml_file_max_code_points(self):
+        """
+        Returns the exclusive value for startEdit from tool properties
+        :return: the string 'true' or 'false' (default)
+        """
+        return self._get_from_dict_as_long(YAML_FILE_MAX_CODE_POINTS_PROP, YAML_FILE_MAX_CODE_POINTS_DEFAULT)
+
     def _get_from_dict(self, name, default_value=None):
         _method_name = '_get_from_dict'
         _logger.entering(name, default_value, class_name=_class_name, method_name=_method_name)
@@ -173,5 +192,13 @@ def _load_properties_file():
     except IOException, ioe:
         _logger.warning('WLSDPLY-01570', wlsdeploy_path, ioe.getMessage(),
                         class_name=_class_name, method_name=_method_name)
+
+        # Return an empty dict so that failing to load the tool.properties file does
+        # not prevent the code above from working using the default values.  The WLST
+        # unit tests are depending on this behavior until they are refactored to all
+        # copy the tool.properties file into the target/unit_tests/config directory
+        # and setting the WDT_CUSTOM_CONFIG environment variable to point to it.
+        #
+        result = dict()
     _logger.exiting(class_name=_class_name, method_name=_method_name)
     return result

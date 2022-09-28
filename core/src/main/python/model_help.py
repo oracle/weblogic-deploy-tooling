@@ -4,13 +4,10 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The entry point for the modelHelp tool.
 """
-import exceptions
 import os
 import sys
 
-from oracle.weblogic.deploy.logging import WLSDeployLoggingConfig
 from oracle.weblogic.deploy.util import CLAException
-from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 
 # Jython tools don't require sys.path modification
 from wlsdeploy.aliases.aliases import Aliases
@@ -19,9 +16,8 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.modelhelp.model_help_printer import ModelHelpPrinter
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
 from wlsdeploy.tool.util import model_context_helper
-from wlsdeploy.util import cla_helper
 from wlsdeploy.util import model
-from wlsdeploy.util import tool_exit
+from wlsdeploy.util import tool_main
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
 
@@ -416,44 +412,26 @@ def print_help(model_path, model_context):
     return ExitCode.OK
 
 
-def main(args):
+def main(model_context):
     """
-    The main entry point for the discoverDomain tool.
-    :param args: the command-line arguments
+    The main entry point for the modelHelp tool.
+    :param model_context: the model context object
     """
     _method_name = 'main'
-
     __logger.entering(class_name=_class_name, method_name=_method_name)
-    for index, arg in enumerate(args):
-        __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
 
-    try:
-        model_context = __process_args(args)
-    except CLAException, ex:
-        exit_code = ex.getExitCode()
-        if exit_code != ExitCode.HELP:
-            __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
-                            class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
-        tool_exit.__log_and_exit(__logger, model_context, exit_code, _class_name, _method_name)
-
+    _exit_code = ExitCode.OK
     try:
         model_path = model_context.get_trailing_argument(0)
-        exit_code = print_help(model_path, model_context)
+        _exit_code = print_help(model_path, model_context)
     except CLAException, ve:
         __logger.severe('WLSDPLY-10112', _program_name, ve.getLocalizedMessage(), error=ve,
                         class_name=_class_name, method_name=_method_name)
-        exit_code  = ExitCode.ERROR
+        _exit_code = ExitCode.ERROR
 
-    tool_exit.__log_and_exit(__logger, model_context, exit_code, _class_name, _method_name)
+    __logger.exiting(class_name=_class_name, method_name=_method_name, result=_exit_code)
+    return _exit_code
 
 
 if __name__ == '__main__' or __name__ == 'main':
-    WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    WLSDeployLoggingConfig.logLoggingDirectory(_program_name)
-    try:
-        main(sys.argv)
-    except exceptions.SystemExit, ex:
-        raise ex
-    except (exceptions.Exception, java.lang.Exception), ex:
-        exception_helper.__handle_unexpected_exception(ex, _program_name, _class_name, __logger)
+    tool_main.run_tool(main, __process_args, sys.argv, _program_name, _class_name, __logger)
