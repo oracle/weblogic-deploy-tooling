@@ -303,6 +303,7 @@ class OfflineGenerator(GeneratorHelper):
                     dict_name = attribute
                     holder = all_utils.dict_obj()
                     self.add_default_value(holder, lsa_map, attribute_helper, method_attribute_helper)
+                    self.add_derived_default(holder, attribute_helper, attribute)
                     attribute_helper.generate_attribute(holder)
                     _add_restart_value(holder)
                     attribute_map[dict_name] = all_utils.sort_dict(holder)
@@ -323,6 +324,7 @@ class OfflineGenerator(GeneratorHelper):
                     holder = all_utils.dict_obj()
                     self.add_default_value(holder, lsa_map, attribute_helper, method_attribute_helper,
                                            attribute_name=dict_name)
+                    self.add_derived_default(holder, attribute_helper, dict_name)
                     attribute_helper.generate_attribute(holder)
                     _add_restart_value(holder)
                     attribute_map[dict_name] = all_utils.sort_dict(holder)
@@ -350,6 +352,7 @@ class OfflineGenerator(GeneratorHelper):
                 holder = all_utils.dict_obj()
                 self.add_default_value(holder, lsa_map, attribute_helper, method_attribute_helper,
                                        attribute_name=lsa_only)
+                self.add_derived_default(holder, attribute_helper, lsa_only)
                 method_attribute_helper.generate_attribute(holder)
                 _add_restart_value(holder)
                 attribute_map[lsa_only] = all_utils.sort_dict(holder)

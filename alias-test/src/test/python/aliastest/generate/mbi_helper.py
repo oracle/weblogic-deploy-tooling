@@ -281,6 +281,9 @@ class MBIAttributeHelper(object):
                              class_name=self.__class_name__, method_name=_method_name)
         return attr_type
 
+    def derived_default_value(self):
+        return self.__get_descriptor_value('restDerivedDefault')
+
     def default_value(self):
         _method_name = 'default_value'
         self.__logger.entering(class_name=self.__class_name__, method_name=_method_name)
@@ -307,6 +310,7 @@ class MBIAttributeHelper(object):
                                    ' in descriptor. Using the attribute value {2} : descriptor keys={3}',
                                    self.get_mbean_type(), self.get_name(), default, self.__get_descriptor_field_keys(),
                                    class_name=self.__class_name__, method_name=_method_name)
+
         self.__logger.exiting(result=default, class_name=self.__class_name__, method_name=_method_name)
         return default
 

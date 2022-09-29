@@ -37,6 +37,11 @@ class GeneratorHelper:
         self._helper = TestHelper(model_context)
         self._ignore_list = self._helper.aliases().get_ignore_attribute_names()
 
+    def add_derived_default(self, dictionary, cmo_helper, attribute_name):
+        if cmo_helper is None:
+            return None
+        dictionary[all_utils.DERIVED_DEFAULT] = cmo_helper.derived_default_value()
+
     def add_default_value(self, dictionary, lsa_map, cmo_helper, method_helper, attribute_name=None):
         """
          Add information about the attribute value to the dictionary. Store the values from the wlst.ls() map
@@ -81,6 +86,7 @@ class GeneratorHelper:
                                class_name=self.__class_name, method_name=_method_name)
 
         if cmo_value != all_utils.FAIL and cmo_attr_type != all_utils.UNKNOWN:
+
             dictionary[all_utils.CMO_TYPE] = self.type_it(mbean_type, attribute_name, cmo_attr_type)
             dictionary[all_utils.CMO_DEFAULT] = \
                 self.convert_attribute(attribute_name, cmo_value, value_type=dictionary[all_utils.CMO_TYPE])

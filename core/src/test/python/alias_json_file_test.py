@@ -26,6 +26,7 @@ from wlsdeploy.aliases.alias_constants import CHILD_FOLDERS_TYPE
 from wlsdeploy.aliases.alias_constants import CONTAINS
 from wlsdeploy.aliases.alias_constants import DEFAULT_NAME_VALUE
 from wlsdeploy.aliases.alias_constants import DEFAULT_VALUE
+from wlsdeploy.aliases.alias_constants import DERIVED_DEFAULT
 from wlsdeploy.aliases.alias_constants import FLATTENED_FOLDER_DATA
 from wlsdeploy.aliases.alias_constants import FOLDER_ORDER
 from wlsdeploy.aliases.alias_constants import FOLDER_PARAMS
@@ -86,6 +87,7 @@ class ListTestCase(unittest.TestCase):
         CHILD_FOLDERS_TYPE,
         CONTAINS,
         DEFAULT_NAME_VALUE,
+        DERIVED_DEFAULT,
         FLATTENED_FOLDER_DATA,
         FOLDER_ORDER,
         FOLDER_PARAMS,
@@ -109,6 +111,7 @@ class ListTestCase(unittest.TestCase):
 
     _optional_attribute_keys = [
         ACCESS,
+        DERIVED_DEFAULT,
         GET_MBEAN_TYPE,
         GET_METHOD,
         MERGE,
@@ -597,6 +600,9 @@ class ListTestCase(unittest.TestCase):
 
     def _verify_attribute_default_value_attribute_value(self, folder_name, attribute_name, alias_attribute_value):
         # nothing to verify - default_value can be any type or null
+        return []
+
+    def _verify_attribute_derived_default_attribute_value(self, folder_name, attribute_name, alias_attribute_value):
         return []
 
     def _verify_attribute_version_attribute_value(self, folder_name, attribute_name, alias_attribute_value):

@@ -129,9 +129,15 @@ class Discoverer(object):
                     wlst_value = wlst_lsa_params[wlst_lsa_param]
 
                 # if attribute was never set (online only), don't add to the model
-                if not self._wlst_helper.is_set(wlst_lsa_param):
-                    _logger.finest('WLSDPLY-06157', wlst_lsa_param, str(location), class_name=_class_name,
-                                   method_name=_method_name)
+                try:
+                    if self._aliases.is_derived_default(location, wlst_lsa_param) and \
+                            not self._wlst_helper.is_set(wlst_lsa_param):
+                        _logger.finest('WLSDPLY-06157', wlst_lsa_param, str(location), class_name=_class_name,
+                                       method_name=_method_name)
+                        continue
+                except DiscoverException, de:
+                    _logger.info("WLSDPLY-06158", wlst_lsa_param, str(location), de.getLocalizedMessage(),
+                                 class_name=_class_name, method_name=_method_name)
                     continue
 
                 self._add_to_dictionary(dictionary, location, wlst_lsa_param, wlst_value, wlst_path)
@@ -153,7 +159,7 @@ class Discoverer(object):
             wlst_value = self._wlst_helper.get(wlst_get_param)
             success = True
         except DiscoverException, pe:
-            _logger.warning('WLSDPLY-06127', wlst_get_param, wlst_path, pe.getLocalizedMessage(),
+            _logger.info('WLSDPLY-06127', wlst_get_param, wlst_path, pe.getLocalizedMessage(),
                             class_name=_class_name, method_name=_method_name)
         return success, wlst_value
 

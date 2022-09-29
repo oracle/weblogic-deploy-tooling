@@ -65,6 +65,7 @@ TRUE = 'true'
 FALSE = 'false'
 RECHECK = 'recheck'
 ADDITIONAL_RECHECK = "additional"
+DERIVED_DEFAULT = 'derived_default'
 TYPE = 'wlst_type'
 LSA_TYPE = 'lsa_wlst_type'
 GET_TYPE = 'get_wlst_type'

@@ -75,8 +75,6 @@ class OnlineGenerator(GeneratorHelper):
                 self.__logger.fine('Child MBean {0} is in the MBI information but not the MBeanInfo information',
                                    mbean_type, class_name=self.__class_name__, method_name=_method_name)
 
-            print 'mbean_type = ', mbean_type
-
             if attribute_helper.is_reference_only():
                 mbean_dictionary[mbean_type] = all_utils.dict_obj()
                 # This non-attribute might have been added as a folder, which it is not
@@ -192,6 +190,7 @@ class OnlineGenerator(GeneratorHelper):
                                        class_name=self.__class_name__, method_name=_method_name)
                     holder = all_utils.dict_obj()
                     self.add_default_value(holder, lsa_map, attribute_helper, method_helper)
+                    self.add_derived_default(holder, attribute_helper, attribute)
                     attribute_helper.generate_attribute(holder)
                     attributes[attribute] = all_utils.sort_dict(holder)
             else:
@@ -202,6 +201,7 @@ class OnlineGenerator(GeneratorHelper):
                                         class_name=self.__class_name__, method_name=_method_name)
                     holder = all_utils.dict_obj()
                     self.add_default_value(holder, lsa_map, attribute_helper, method_helper)
+                    self.add_derived_default(holder, info_attribute_helper, attribute)
                     attribute_helper.generate_attribute(holder)
                     attributes[attribute] = all_utils.sort_dict(holder)
 
@@ -221,6 +221,7 @@ class OnlineGenerator(GeneratorHelper):
                                    class_name=self.__class_name__, method_name=_method_name)
                 holder = all_utils.dict_obj()
                 self.add_default_value(holder, lsa_map, attribute_helper, method_helper)
+                self.add_derived_default(holder, info_attribute_helper, attribute)
                 attribute_helper.generate_attribute(holder)
                 attributes[attribute] = all_utils.sort_dict(holder)
 
@@ -251,6 +252,7 @@ class OnlineGenerator(GeneratorHelper):
                 # if to find attributes without a set method that CAN be set in offline.
                 # However, I suspect that if no set method, then cannot RW
                 self.add_default_value(holder, lsa_map, attribute_helper, method_helper)
+                self.add_derived_default(holder, info_attribute_helper, attribute)
                 if attribute_helper.is_attribute_found():
                     self.__logger.finer('MBean {0} attribute {1} in LSA map will generate attribute info '
                                         'from additional helper', mbean_type, lsa_only,
