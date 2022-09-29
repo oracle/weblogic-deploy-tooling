@@ -28,6 +28,7 @@ from wlsdeploy.aliases.model_constants import ABSOLUTE_SOURCE_PATH
 from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import DEPLOYMENT_ORDER
 from wlsdeploy.aliases.model_constants import LIBRARY
+from wlsdeploy.aliases.model_constants import MODULE_TYPE
 from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PLAN_DIR
 from wlsdeploy.aliases.model_constants import PLAN_PATH
@@ -38,6 +39,8 @@ from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
 from wlsdeploy.aliases.model_constants import SECURITY_DD_MODEL
 from wlsdeploy.aliases.model_constants import SOURCE_PATH
 from wlsdeploy.aliases.model_constants import STAGE_MODE
+from wlsdeploy.aliases.model_constants import SUB_DEPLOYMENT
+from wlsdeploy.aliases.model_constants import SUB_MODULE_TARGETS
 from wlsdeploy.aliases.model_constants import TARGET
 from wlsdeploy.aliases.model_constants import TARGETS
 from wlsdeploy.aliases.wlst_modes import WlstModes
@@ -192,10 +195,11 @@ class ApplicationsDeployer(Deployer):
                     self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                     raise ex
 
+            module_type = dictionary_utils.get_element(application, MODULE_TYPE)
 
             application_name = \
-                self.version_helper.get_application_versioned_name(app_source_path, application_name)
-
+                self.version_helper.get_application_versioned_name(app_source_path, application_name,
+                                                                   module_type=module_type)
             quoted_application_name = self.wlst_helper.get_quoted_name_for_wlst(application_name)
             application_location.add_name_token(application_token, quoted_application_name)
 
@@ -935,7 +939,8 @@ class ApplicationsDeployer(Deployer):
                     plan_file = dictionary_utils.get_element(lib_dict, PLAN_PATH)
                     targets = dictionary_utils.get_element(lib_dict, TARGET)
                     stage_mode = dictionary_utils.get_element(lib_dict, STAGE_MODE)
-                    options = _get_deploy_options(model_libs, lib_name, library_module='true')
+                    options, sub_module_targets = _get_deploy_options(model_libs, lib_name, library_module='true',
+                                                                      application_version_helper=self.version_helper)
                     for uses_path_tokens_attribute_name in uses_path_tokens_attribute_names:
                         if uses_path_tokens_attribute_name in lib_dict:
                             path = lib_dict[uses_path_tokens_attribute_name]
@@ -963,7 +968,8 @@ class ApplicationsDeployer(Deployer):
                     plan_file = dictionary_utils.get_element(app_dict, PLAN_PATH)
                     stage_mode = dictionary_utils.get_element(app_dict, STAGE_MODE)
                     targets = dictionary_utils.get_element(app_dict, TARGET)
-                    options = _get_deploy_options(model_apps, app_name, library_module='false')
+                    options, sub_module_targets  = _get_deploy_options(model_apps, app_name, library_module='false',
+                                                                       application_version_helper=self.version_helper)
 
                     # any attribute with 'uses_path_tokens' may be in the archive (such as SourcePath)
                     for uses_path_tokens_attribute_name in uses_path_tokens_attribute_names:
@@ -975,10 +981,14 @@ class ApplicationsDeployer(Deployer):
                     resource_group_template_name, resource_group_name, partition_name = \
                         self.__get_mt_names_from_location(location)
 
+                    module_type = dictionary_utils.get_element(app_dict, MODULE_TYPE)
+
                     new_app_name = self.__deploy_app_online(app_name, src_path, targets, plan=plan_file,
                                                             stage_mode=stage_mode, partition=partition_name,
                                                             resource_group=resource_group_name,
                                                             resource_group_template=resource_group_template_name,
+                                                            module_type=module_type,
+                                                            sub_module_targets=sub_module_targets,
                                                             options=options)
                     location.remove_name_token(token_name)
                     deployed_applist.append(new_app_name)
@@ -1005,7 +1015,8 @@ class ApplicationsDeployer(Deployer):
         return resource_group_template_name, resource_group_name, partition_name
 
     def __deploy_app_online(self, application_name, source_path, targets, stage_mode=None, plan=None, partition=None,
-                            resource_group=None, resource_group_template=None, options=None):
+                            resource_group=None, resource_group_template=None, sub_module_targets = None,
+                            module_type = None, options=None):
         """
         Deploy an application or shared library in online mode.
         :param application_name: the name of the app or library from the model
@@ -1048,7 +1059,8 @@ class ApplicationsDeployer(Deployer):
         if is_library:
             computed_name = self.version_helper.get_library_versioned_name(source_path, application_name)
         else:
-            computed_name = self.version_helper.get_application_versioned_name(source_path, application_name)
+            computed_name = self.version_helper.get_application_versioned_name(source_path, application_name,
+                                                                               module_type=module_type)
 
         application_name = computed_name
 
@@ -1076,6 +1088,9 @@ class ApplicationsDeployer(Deployer):
             for key, value in options.iteritems():
                 kwargs[key] = value
         kwargs['timeout'] = self.model_context.get_model_config().get_deploy_timeout()
+
+        if module_type in ['jms', 'jdbc', 'wldf' ] and sub_module_targets is not None:
+            kwargs[SUB_MODULE_TARGETS] = sub_module_targets
 
         self.logger.fine('WLSDPLY-09320', type_name, application_name, kwargs,
                          class_name=self._class_name, method_name=_method_name)
@@ -1187,7 +1202,7 @@ class ApplicationsDeployer(Deployer):
             self.__start_app(app)
 
 
-def _get_deploy_options(model_apps, app_name, library_module):
+def _get_deploy_options(model_apps, app_name, library_module, application_version_helper):
     """
     Get the deploy command options.
     :param model_apps: the apps dictionary
@@ -1197,8 +1212,8 @@ def _get_deploy_options(model_apps, app_name, library_module):
     """
     deploy_options = OrderedDict()
     # not sure about altDD, altWlsDD
+    app = dictionary_utils.get_dictionary_element(model_apps, app_name)
     for option in [DEPLOYMENT_ORDER, SECURITY_DD_MODEL, PLAN_STAGING_MODE, STAGE_MODE]:
-        app = dictionary_utils.get_dictionary_element(model_apps, app_name)
         value = dictionary_utils.get_element(app, option)
 
         option_name = ''
@@ -1219,8 +1234,21 @@ def _get_deploy_options(model_apps, app_name, library_module):
 
     if len(deploy_options) == 0:
         deploy_options = None
-    return deploy_options
 
+    module_type = dictionary_utils.get_element(app, MODULE_TYPE)
+    sub_module_targets = ''
+    if application_version_helper.is_module_type_resource_type(module_type):
+        sub_deployments = dictionary_utils.get_element(app, SUB_DEPLOYMENT)
+        if sub_deployments is not None:
+            for sub_deployment in sub_deployments:
+                if sub_module_targets != '':
+                    sub_module_targets += ','
+                name = sub_deployment
+                target = sub_deployments[name][TARGET]
+                sub_module_targets += '%s@%s' % (name, target)
+
+
+    return deploy_options, sub_module_targets
 
 def _find_deployorder_list(apps_dict, ordered_list, order):
     """
