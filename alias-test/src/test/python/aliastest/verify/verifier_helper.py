@@ -73,7 +73,6 @@ ERROR_ATTRIBUTE_IN_IGNORE_LIST = 4021
 ERROR_ATTRIBUTE_PATH_TOKEN_REQUIRED = 4022
 ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE = 4023
 ERROR_ATTRIBUTE_MUST_BE_NO_NAME = 4024
-ERROR_ATTRIBUTE_DERIVED_DEFAULT_NOT_MATCH = 4025
 
 WARN_ATTRIBUTE_HAS_UNKNOWN_TYPE = 5500
 WARN_ALIAS_FOLDER_NOT_IMPLEMENTED = 5501
@@ -96,7 +95,6 @@ MSG_MAP = {
     ERROR_ATTRIBUTE_NOT_READONLY_VERSION:          'Attribute is marked readonly or is invalid version range',
     ERROR_ATTRIBUTE_NOT_READONLY:                  'Attribute is not marked readwrite',
     ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE:           'Attribute wrong default value',
-    ERROR_ATTRIBUTE_DERIVED_DEFAULT_NOT_MATCH:     'Attribute does not match derived default value',
     ERROR_ATTRIBUTE_INVALID_VERSION:               'Attribute invalid version',
     ERROR_ATTRIBUTE_GET_REQUIRED:                  'Attribute requires GET',
     ERROR_ATTRIBUTE_LSA_REQUIRED:                  'Attribute requires LSA',
@@ -744,16 +742,7 @@ class VerifierHelper:
                 'Attribute=%s  :  Alias=%s' % (str(check_attr), str(model_default_value))
             self.add_error(location, ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE, message=message,
                            attribute=attribute)
-        derived_default = self._helper.aliases().get_derived_default(location, attribute)
-        wlst_derived_default = False
 
-        if all_utils.DERIVED_DEFAULT in attribute_info and attribute_info[all_utils.DERIVED_DEFAULT] is not None:
-            wlst_derived_default = Boolean(attribute_info[all_utils.DERIVED_DEFAULT])
-            if wlst_derived_default is None:
-                wlst_derived_default = False
-        if derived_default != wlst_derived_default:
-            message = "Model=%s : WLST=%s" % (str(derived_default), str(wlst_derived_default))
-            self.add_error(location,ERROR_ATTRIBUTE_DERIVED_DEFAULT_NOT_MATCH, attribute=attribute, message=message)
         _logger.exiting(result=all_utils.str_bool(match), class_name=CLASS_NAME, method_name=_method_name)
         return match, model_name, model_value
 

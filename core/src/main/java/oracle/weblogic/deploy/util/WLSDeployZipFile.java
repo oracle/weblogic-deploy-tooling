@@ -880,6 +880,7 @@ public class WLSDeployZipFile {
 
         boolean renameNeeded = false;
         Map<String, ZipEntry> zipEntryMap = getZipFileEntries(getFile());
+        System.out.println("zipEntryMap *** " + zipEntryMap.toString());
         if (zipEntryMap.containsKey(entryName)) {
             LOGGER.finest("WLSDPLY-01534", entryName);
             renameNeeded = true;
