@@ -1145,7 +1145,11 @@ class ApplicationsDeployer(Deployer):
         return result_deploy_order
 
     def _fix_plan_file(self, plan_dir, plan_path):
-        plan_file = os.path.join(self.model_context.get_domain_home(), plan_dir, plan_path)
+        plan_file_name = 'plan.xml'
+        if plan_path is not None and len(str(plan_path)) > 0:
+            plan_file_name = plan_path
+        
+        plan_file = os.path.join(self.model_context.get_domain_home(), plan_dir, plan_file_name)
         dbf = DocumentBuilderFactory.newInstance()
         db = dbf.newDocumentBuilder()
         document = db.parse(File(plan_file))
