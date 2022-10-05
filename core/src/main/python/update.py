@@ -4,15 +4,11 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The entry point for the updateDomain tool.
 """
-import exceptions
 import os
 import sys
 
 from oracle.weblogic.deploy.deploy import DeployException
-from oracle.weblogic.deploy.logging import WLSDeployLoggingConfig
 from oracle.weblogic.deploy.exception import BundleAwareException
-from oracle.weblogic.deploy.util import CLAException
-from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(sys.argv[0])))
 
@@ -30,7 +26,7 @@ from wlsdeploy.tool.util import wlst_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.util.rcu_helper import RCUHelper
 from wlsdeploy.util import cla_helper
-from wlsdeploy.util import tool_exit
+from wlsdeploy.util import tool_main
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model import Model
@@ -261,40 +257,22 @@ def __close_domain_on_error():
     return
 
 
-def main(args):
+def main(model_context):
     """
     The python entry point for updateDomain.
 
-    :param args:
-    :return:
+    :param model_context: the model context object
+    :return: exit code
     """
     _method_name = 'main'
+    __logger.entering(class_name=_class_name, method_name=_method_name)
+
     _exit_code = ExitCode.OK
-
-    __logger.entering(args[0], class_name=_class_name, method_name=_method_name)
-    for index, arg in enumerate(args):
-        __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
-
     __wlst_helper.silence()
 
     try:
-        model_context = __process_args(args)
-    except CLAException, ex:
-        _exit_code = ex.getExitCode()
-        if _exit_code != ExitCode.HELP:
-            __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
-                            class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
-
-        # create a minimal model for summary logging
-        model_context = model_context_helper.create_exit_context(_program_name)
-        tool_exit.__log_and_exit(__logger, model_context, _exit_code, _class_name, _method_name)
-
-    aliases = Aliases(model_context, wlst_mode=__wlst_mode, exception_type=ExceptionType.DEPLOY)
-
-    model_dictionary = cla_helper.load_model(_program_name, model_context, aliases, "update", __wlst_mode)
-
-    try:
+        aliases = Aliases(model_context, wlst_mode=__wlst_mode, exception_type=ExceptionType.DEPLOY)
+        model_dictionary = cla_helper.load_model(_program_name, model_context, aliases, "update", __wlst_mode)
         model = Model(model_dictionary)
         _exit_code = __update(model, model_context, aliases)
     except DeployException, ex:
@@ -302,17 +280,9 @@ def main(args):
         __logger.severe('WLSDPLY-09015', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
 
-    cla_helper.clean_up_temp_files()
-    tool_exit.__log_and_exit(__logger, model_context, _exit_code, _class_name, _method_name)
-    return
+    __logger.exiting(class_name=_class_name, method_name=_method_name, result=_exit_code)
+    return _exit_code
 
 
 if __name__ == '__main__' or __name__ == 'main':
-    WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    WLSDeployLoggingConfig.logLoggingDirectory(_program_name)
-    try:
-        main(sys.argv)
-    except exceptions.SystemExit, ex:
-        raise ex
-    except (exceptions.Exception, java.lang.Exception), ex:
-        exception_helper.__handle_unexpected_exception(ex, _program_name, _class_name, __logger)
+    tool_main.run_tool(main, __process_args, sys.argv, _program_name, _class_name, __logger)

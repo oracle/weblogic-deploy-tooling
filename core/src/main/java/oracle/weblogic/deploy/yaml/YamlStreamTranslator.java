@@ -43,7 +43,22 @@ public class YamlStreamTranslator extends AbstractYamlTranslator {
      * @param useOrderedDict whether or not to use an ordered dictionary to maintain the order
      */
     public YamlStreamTranslator(String streamFileName, InputStream yamlStream, boolean useOrderedDict) {
-        super(streamFileName, useOrderedDict);
+        super(streamFileName, useOrderedDict, 0);
+        this.streamFileName = streamFileName;
+        this.yamlStream = yamlStream;
+        this.yamlOutputWriter = null;
+    }
+
+    /**
+     * The constructor that allows control of ordering.
+     *
+     * @param streamFileName the name of the file used to create the InputStream (used only for logging purposes)
+     * @param yamlStream the input stream
+     * @param useOrderedDict whether or not to use an ordered dictionary to maintain the order
+     * @param maxCodePoints the maximum number of characters that the parser will accept
+     */
+    public YamlStreamTranslator(String streamFileName, InputStream yamlStream, boolean useOrderedDict, int maxCodePoints) {
+        super(streamFileName, useOrderedDict, maxCodePoints);
         this.streamFileName = streamFileName;
         this.yamlStream = yamlStream;
         this.yamlOutputWriter = null;
@@ -56,7 +71,7 @@ public class YamlStreamTranslator extends AbstractYamlTranslator {
      * @param yamlOutputWriter the Writer to use for writing the YAML output
      */
     public YamlStreamTranslator(String streamFileName, Writer yamlOutputWriter) {
-        super(streamFileName, true);
+        super(streamFileName, true, 0);
         this.streamFileName = streamFileName;
         this.yamlStream = null;
         this.yamlOutputWriter = yamlOutputWriter;

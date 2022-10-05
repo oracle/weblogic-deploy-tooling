@@ -28,7 +28,6 @@ from wlsdeploy.util import model_helper
 from wlsdeploy.util import model_translator
 from wlsdeploy.util import path_utils
 
-from wlsdeploy.util import tool_exit
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
@@ -101,7 +100,7 @@ def validate_model_present(program_name, optional_arg_map):
         archive_helper = ArchiveHelper(archive_file, None, __logger, exception_helper.ExceptionType.CLA)
 
         if archive_helper.contains_model():
-            tmp_model_dir, tmp_model_file = archive_helper.extract_model(program_name)
+            __tmp_model_dir, tmp_model_file = archive_helper.extract_model(program_name)
             model_file_name = FileUtils.fixupFileSeparatorsForJython(tmp_model_file.getAbsolutePath())
             optional_arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = model_file_name
         else:
@@ -164,7 +163,6 @@ def process_encryption_args(optional_arg_map):
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
         optional_arg_map[CommandLineArgUtil.PASSPHRASE_SWITCH] = String(passphrase)
-    return
 
 
 def validate_model(program_name, model_dictionary, model_context, aliases, wlst_mode):
@@ -189,13 +187,18 @@ def validate_model(program_name, model_dictionary, model_context, aliases, wlst_
     except ValidateException, ex:
         __logger.severe('WLSDPLY-20000', program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
-        clean_up_temp_files()
-        tool_exit.end(model_context, ExitCode.ERROR)
+        tool_exception = \
+            exception_helper.create_exception(aliases.get_exception_type(), 'WLSDPLY-20000', program_name,
+                                              ex.getLocalizedMessage(), error=ex)
+        __logger.throwing(tool_exception, class_name=_class_name, method_name=_method_name)
+        raise tool_exception
 
     if return_code == Validator.ReturnCode.STOP:
         __logger.severe('WLSDPLY-20001', program_name, class_name=_class_name, method_name=_method_name)
-        clean_up_temp_files()
-        tool_exit.end(model_context, ExitCode.ERROR)
+        tool_exception = \
+            exception_helper.create_exception(aliases.get_exception_type(), 'WLSDPLY-20001', program_name)
+        __logger.throwing(tool_exception, class_name=_class_name, method_name=_method_name)
+        raise tool_exception
 
 
 def load_model(program_name, model_context, aliases, filter_type, wlst_mode):
@@ -221,8 +224,11 @@ def load_model(program_name, model_context, aliases, filter_type, wlst_mode):
     except VariableException, ex:
         __logger.severe('WLSDPLY-20004', program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
-        clean_up_temp_files()
-        tool_exit.end(model_context, ExitCode.ERROR)
+        tool_exception = \
+            exception_helper.create_exception(aliases.get_exception_type(), 'WLSDPLY-20004', program_name,
+                                              ex.getLocalizedMessage(), error=ex)
+        __logger.throwing(tool_exception, class_name=_class_name, method_name=_method_name)
+        raise tool_exception
 
     model_file_value = model_context.get_model_file()
     try:
@@ -230,16 +236,22 @@ def load_model(program_name, model_context, aliases, filter_type, wlst_mode):
     except TranslateException, te:
         __logger.severe('WLSDPLY-09014', program_name, model_file_value, te.getLocalizedMessage(), error=te,
                         class_name=_class_name, method_name=_method_name)
-        clean_up_temp_files()
-        tool_exit.end(model_context, ExitCode.ERROR)
+        tool_exception = \
+            exception_helper.create_exception(aliases.get_exception_type(), 'WLSDPLY-09014', program_name,
+                                              model_file_value, te.getLocalizedMessage(), error=te)
+        __logger.throwing(tool_exception, class_name=_class_name, method_name=_method_name)
+        raise tool_exception
 
     try:
         variables.substitute(model_dictionary, variable_map, model_context)
     except VariableException, ex:
         __logger.severe('WLSDPLY-20004', program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
-        clean_up_temp_files()
-        tool_exit.end(model_context, ExitCode.ERROR)
+        tool_exception = \
+            exception_helper.create_exception(aliases.get_exception_type(), 'WLSDPLY-20004', program_name,
+                                              ex.getLocalizedMessage(), error=ex)
+        __logger.throwing(tool_exception, class_name=_class_name, method_name=_method_name)
+        raise tool_exception
 
     filter_helper.apply_filters(model_dictionary, filter_type, model_context)
 

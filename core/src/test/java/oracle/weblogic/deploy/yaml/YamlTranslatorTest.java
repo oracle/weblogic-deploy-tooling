@@ -467,6 +467,16 @@ public class YamlTranslatorTest {
         assertTrue(((PyRealBoolean) value).getValue(), "RejectEqualOrContainReverseUsername value should be true");
     }
 
+    @Test
+    public void testLargeFileIsSuccessful() throws Exception {
+        File yamlFile = new File("src/test/resources/yaml/big-model.yaml").getAbsoluteFile();
+        YamlTranslator yamlTranslator = new YamlTranslator(yamlFile.getAbsolutePath(), true, 20000000);
+
+        PyDictionary actual = yamlTranslator.parse();
+
+        assertNotNull(actual, "big model file should return dict");
+    }
+
     /**
      * Verify that a lexical error will throw an Exception
      */
