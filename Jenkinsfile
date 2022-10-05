@@ -64,11 +64,6 @@ pipeline {
             steps {
                 sh 'mvn -B -DskipITs=false -Dmw_home=${ORACLE_HOME} -Ddb.use.container.network=true install'
             }
-            post {
-                always {
-                    junit 'system-test/integration-tests/target/failsafe-reports/*.xml'
-                }
-            }
         }
         stage ('Analyze') {
             when {

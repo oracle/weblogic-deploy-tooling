@@ -320,7 +320,7 @@
     <modules>
         <module>core</module>
         <module>installer</module>
-        <module>system-test</module>
+        <module>integration-tests</module>
         <module>alias-test</module>
     </modules>
 </project>

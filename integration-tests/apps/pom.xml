@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
 
     <parent>
-        <artifactId>weblogic-deploy-system-test</artifactId>
+        <artifactId>weblogic-deploy-integration-tests</artifactId>
         <groupId>com.oracle.weblogic.lifecycle</groupId>
         <version>2.3.4-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
