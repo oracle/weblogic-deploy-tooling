@@ -33,14 +33,14 @@ class YamlToPython(object):
     """
     _class_name = 'YamlToPython'
 
-    def __init__(self, file_name, use_ordering=False):
+    def __init__(self, file_name, use_ordering=False, max_size=0):
         _method_name = '__init__'
 
         self._file_name = file_name
         self._use_ordering = use_ordering
         self._logger = PlatformLogger('wlsdeploy.yaml')
         try:
-            self._translator = JYamlTranslator(self._file_name, self._use_ordering)
+            self._translator = JYamlTranslator(self._file_name, self._use_ordering, max_size)
         except JIllegalArgumentException, iae:
             yaml_ex = \
                 exception_helper.create_yaml_exception('WLSDPLY-18008', file_name, iae.getLocalizedMessage(), error=iae)

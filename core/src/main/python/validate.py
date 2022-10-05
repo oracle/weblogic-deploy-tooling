@@ -4,19 +4,15 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The WLS Deploy tooling entry point for the validateModel tool.
 """
-
 import copy
-import exceptions
 import sys
 
 from java.util.logging import Level
 
 from oracle.weblogic.deploy.logging import WLSDeployLogEndHandler
-from oracle.weblogic.deploy.logging import WLSDeployLoggingConfig
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import VariableException
-from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.validate import ValidateException
 
 # Jython tools don't require sys.path modification
@@ -32,7 +28,7 @@ from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import dictionary_utils
-from wlsdeploy.util import tool_exit
+from wlsdeploy.util import tool_main
 from wlsdeploy.util import validate_configuration
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -93,10 +89,9 @@ def __process_model_args(argument_map):
         method = dictionary_utils.get_element(argument_map, CommandLineArgUtil.VALIDATION_METHOD)
         if method == validate_configuration.LAX_METHOD:
             __logger.info('WLSDPLY-20032', _program_name, class_name=_class_name, method_name=_method_name)
-            model_context = model_context_helper.create_exit_context(_program_name)
-            tool_exit.end(model_context, ExitCode.OK)
+            ex = exception_helper.create_cla_exception(ExitCode.OK, 'WLSDPLY-20032', _program_name)
+            raise ex
         raise ce
-    return
 
 
 def __perform_model_file_validation(model_file_name, model_context):
@@ -147,33 +142,17 @@ def __perform_model_file_validation(model_file_name, model_context):
     __logger.exiting(class_name=_class_name, method_name=_method_name)
 
 
-def main(args):
+def main(model_context):
     """
     The main entry point for the validateModel tool.
 
-    :param args:
-    :return:
+    :param model_context: the model context object
+    :return: exit code
     """
     _method_name = 'main'
+    __logger.entering(class_name=_class_name, method_name=_method_name)
 
-    __logger.entering(args[0], class_name=_class_name, method_name=_method_name)
-    for index, arg in enumerate(args):
-        __logger.finer('sys.argv[{0}] = {1}', str(index), arg, class_name=_class_name, method_name=_method_name)
-
-    exit_code = ExitCode.OK
-
-    try:
-        model_context = __process_args(args)
-    except CLAException, ex:
-        exit_code = ex.getExitCode()
-        if exit_code != ExitCode.HELP:
-            __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
-                            class_name=_class_name, method_name=_method_name)
-        cla_helper.clean_up_temp_files()
-        # create a minimal model for summary logging
-        model_context = model_context_helper.create_exit_context(_program_name)
-        tool_exit.__log_and_exit(__logger, model_context, exit_code, _class_name, _method_name)
-
+    _exit_code = ExitCode.OK
     model_file_name = model_context.get_model_file()
 
     try:
@@ -184,23 +163,18 @@ def main(args):
             if summary_handler is not None:
                 summary_level = summary_handler.getMaximumMessageLevel()
                 if summary_level == Level.SEVERE:
-                    exit_code = ExitCode.ERROR
+                    _exit_code = ExitCode.ERROR
                 elif summary_level == Level.WARNING:
-                    exit_code = ExitCode.WARNING
+                    _exit_code = ExitCode.WARNING
 
     except ValidateException, ve:
-        exit_code = ExitCode.ERROR
+        _exit_code = ExitCode.ERROR
         __logger.severe('WLSDPLY-20000', _program_name, ve.getLocalizedMessage(), error=ve,
                         class_name=_class_name, method_name=_method_name)
 
-    cla_helper.clean_up_temp_files()
-    tool_exit.__log_and_exit(__logger, model_context, exit_code, _class_name, _method_name)
+    __logger.exiting(class_name=_class_name, method_name=_method_name, result=_exit_code)
+    return _exit_code
+
 
 if __name__ == '__main__' or __name__ == 'main':
-    WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    try:
-        main(sys.argv)
-    except exceptions.SystemExit, ex:
-        raise ex
-    except (exceptions.Exception, java.lang.Exception), ex:
-        exception_helper.__handle_unexpected_exception(ex, _program_name, _class_name, __logger)
+    tool_main.run_tool(main, __process_args, sys.argv, _program_name, _class_name, __logger)

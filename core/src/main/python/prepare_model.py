@@ -7,23 +7,16 @@
 #
 #   This code prepare a list of models for deploying to WebLogic Kubernetes Operator Environment.
 
-import exceptions
 import sys
-import traceback
 
-from oracle.weblogic.deploy.logging import WLSDeployLoggingConfig
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import PyWLSTException
-from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 
 from oracle.weblogic.deploy.prepare import PrepareException
-from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.prepare.model_preparer import ModelPreparer
-from wlsdeploy.tool.util import model_context_helper
-from wlsdeploy.util import cla_helper
 from wlsdeploy.util import target_configuration_helper
-from wlsdeploy.util import tool_exit
+from wlsdeploy.util import tool_main
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model_context import ModelContext
@@ -66,31 +59,23 @@ def __process_args(args):
     return model_context
 
 
-def main():
+def main(model_context):
     """
-    The main entry point for the discoverDomain tool.
-    :param args: the command-line arguments
+    The main entry point for the modelHelp tool.
+    :param model_context: the model context object
     """
     _method_name = 'main'
-    _exit_code = ExitCode.OK
-
     __logger.entering(class_name=_class_name, method_name=_method_name)
-    for index, arg in enumerate(sys.argv):
-        __logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=_class_name, method_name=_method_name)
 
-    # create a minimal model for summary logging
-    model_context = model_context_helper.create_exit_context(_program_name)
-    _outputdir = None
+    _exit_code = ExitCode.OK
+    _output_dir = None
 
     try:
-        model_context = __process_args(sys.argv)
-        _outputdir = model_context.get_output_dir()
+        _output_dir = model_context.get_output_dir()
         model_files = model_context.get_model_file()
 
-        obj = ModelPreparer(model_files, model_context, _outputdir)
+        obj = ModelPreparer(model_files, model_context, _output_dir)
         obj.prepare_models()
-        tool_exit.__log_and_exit(__logger, model_context, _exit_code, _class_name, _method_name)
-
     except CLAException, ex:
         _exit_code = ex.getExitCode()
         __logger.severe('WLSDPLY-20008', _program_name, ex.getLocalizedMessage(), error=ex,
@@ -105,15 +90,9 @@ def main():
         __logger.severe('WLSDPLY-05801', message, error=ex, class_name=_class_name,
                         method_name=_method_name)
 
-    cla_helper.clean_up_temp_files()
-    tool_exit.__log_and_exit(__logger, model_context, _exit_code, _class_name, _method_name)
+    __logger.exiting(class_name=_class_name, method_name=_method_name, result=_exit_code)
+    return _exit_code
+
 
 if __name__ == "__main__" or __name__ == 'main':
-    WebLogicDeployToolingVersion.logVersionInfo(_program_name)
-    WLSDeployLoggingConfig.logLoggingDirectory(_program_name)
-    try:
-        main()
-    except exceptions.SystemExit, ex:
-        raise ex
-    except (exceptions.Exception, java.lang.Exception), ex:
-        exception_helper.__handle_unexpected_exception(ex, _program_name, _class_name, __logger)
+    tool_main.run_tool(main, __process_args, sys.argv, _program_name, _class_name, __logger)

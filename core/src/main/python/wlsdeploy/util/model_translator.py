@@ -10,6 +10,7 @@ import oracle.weblogic.deploy.yaml.YamlException as JYamlException
 
 from wlsdeploy.logging import platform_logger
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.util import model_config
 
 
 class FileToPython(object):
@@ -23,6 +24,7 @@ class FileToPython(object):
         self.file_name = file_name
         self.use_ordering = use_ordering
         self.logger = platform_logger.PlatformLogger('wlsdeploy.translator')
+        self.model_config = model_config.get_model_config()
 
     def parse(self):
         """
@@ -70,11 +72,12 @@ class FileToPython(object):
         """
         _method_name = '_parse_yaml'
 
-        from wlsdeploy.yaml.yaml_translator import YamlToPython as JYamlToPython
+        from wlsdeploy.yaml.yaml_translator import YamlToPython
         self.logger.finer('WLSDPLY-01711', 'YAML', self.file_name,
                           class_name=self._class_name, method_name=_method_name)
         try:
-            return JYamlToPython(self.file_name, self.use_ordering).parse()
+            max_size = self.model_config.get_yaml_file_max_code_points()
+            return YamlToPython(self.file_name, self.use_ordering, max_size).parse()
         except JYamlException, ye:
             translate_ex = exception_helper.create_translate_exception('WLSDPLY-01710', self.file_name,
                                                                        ye.getLocalizedMessage(), error=ye)

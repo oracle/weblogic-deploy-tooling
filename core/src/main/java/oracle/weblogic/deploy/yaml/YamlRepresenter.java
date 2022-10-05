@@ -27,6 +27,10 @@ import static oracle.weblogic.deploy.util.CommentMap.BLANK_LINE_KEY;
  */
 public class YamlRepresenter extends Representer {
 
+  public YamlRepresenter(DumperOptions dumperOptions) {
+    super(dumperOptions);
+  }
+
   @Override
   protected Node representMapping(Tag tag, Map<?, ?> mapping, DumperOptions.FlowStyle flowStyle) {
     MappingNode node = (MappingNode) super.representMapping(tag, mapping, flowStyle);

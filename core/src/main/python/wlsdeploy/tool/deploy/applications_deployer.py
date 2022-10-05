@@ -206,7 +206,8 @@ class ApplicationsDeployer(Deployer):
 
             if app_source_path.startswith(WLSDeployArchive.ARCHIVE_STRUCT_APPS_TARGET_DIR):
                 plan_dir = dictionary_utils.get_element(application, PLAN_DIR)
-                self._fix_plan_file(plan_dir)
+                plan_path = dictionary_utils.get_element(application, PLAN_PATH)
+                self._fix_plan_file(plan_dir, plan_path)
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 
@@ -651,7 +652,8 @@ class ApplicationsDeployer(Deployer):
 
                     if param == SOURCE_PATH and param.startswith(WLSDeployArchive.ARCHIVE_STRUCT_APPS_TARGET_DIR):
                         plan_dir = dictionary_utils.get_element(app, PLAN_DIR)
-                        self._fix_plan_file(plan_dir)
+                        plan_path = dictionary_utils.get_element(app, PLAN_PATH)
+                        self._fix_plan_file(plan_dir, plan_path)
 
                 if model_helper.is_delete_name(app):
                     if self.__verify_delete_versioned_app(app, existing_apps, 'app'):
@@ -1142,9 +1144,12 @@ class ApplicationsDeployer(Deployer):
                          class_name=self._class_name, method_name=_method_name)
         return result_deploy_order
 
-    def _fix_plan_file(self, plan_dir):
-        #self.archive_helper.extract_directory(plan_dir)
-        plan_file = os.path.join(self.model_context.get_domain_home(), plan_dir, "plan.xml")
+    def _fix_plan_file(self, plan_dir, plan_path):
+        plan_file_name = 'plan.xml'
+        if plan_path is not None and len(str(plan_path)) > 0:
+            plan_file_name = plan_path
+        
+        plan_file = os.path.join(self.model_context.get_domain_home(), plan_dir, plan_file_name)
         dbf = DocumentBuilderFactory.newInstance()
         db = dbf.newDocumentBuilder()
         document = db.parse(File(plan_file))
