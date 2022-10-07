@@ -326,6 +326,11 @@ class VerifierHelper:
         :param location: current location in aliases
         """
         _method_name = 'verify_attributes'
+        flattened_info = self._helper.aliases().get_wlst_flattened_folder_info(location)
+        if flattened_info is not None:
+            path_token = flattened_info.get_path_token()
+            mbean_name = flattened_info.get_mbean_name()
+            location.add_name_token(path_token, mbean_name)
         model_name_map = self._model_attribute_map(location)
         _logger.fine('WLSDPLYST-01211', location.get_folder_path(), model_name_map,
                      class_name=CLASS_NAME, method_name=_method_name)
@@ -742,7 +747,6 @@ class VerifierHelper:
                 'Attribute=%s  :  Alias=%s' % (str(check_attr), str(model_default_value))
             self.add_error(location, ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE, message=message,
                            attribute=attribute)
-
         _logger.exiting(result=all_utils.str_bool(match), class_name=CLASS_NAME, method_name=_method_name)
         return match, model_name, model_value
 
@@ -974,6 +978,9 @@ class VerifierHelper:
         if flattened_info is not None:
             _logger.finer('WLSDPLYST-01203', location.get_folder_path(), class_name=CLASS_NAME,
                           method_name=_method_name)
+            path_token = flattened_info.get_path_token()
+            mbean_name = flattened_info.get_mbean_name()
+            location.add_name_token(path_token, mbean_name)
         else:
             keys = folder_map.keys()
             lower_case_map = all_utils.get_lower_case_dict(dictionary.keys())
