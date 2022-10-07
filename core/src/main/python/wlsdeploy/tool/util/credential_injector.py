@@ -81,6 +81,8 @@ class CredentialInjector(VariableInjector):
         VariableInjector.__init__(self, program_name, model, model_context, version=version,
                                   variable_dictionary=variable_dictionary)
         self._model_context = model_context
+        self._no_filter_keys_cache = []
+        self._no_filter_keys_cache.append(self.NO_FILTER_KEYS)
 
     def check_and_tokenize(self, model_dict, attribute, location):
         """
@@ -137,6 +139,22 @@ class CredentialInjector(VariableInjector):
                 for key in properties:
                     assigns.append('%s=%s' % (key, properties[key]))
                 model_dict[attribute] = split_value.join(assigns)
+
+    def injection_out_of_model(self, token):
+        """
+        This is for tokenizing variables that are not in the model but need to be in the variable file
+        :param token: name for cache to create a token for
+        :param attribute: attribute name
+        :return: tokenized name
+        """
+        _method_name = 'injection_out_of_model'
+        _logger.entering(token, class_name=_class_name, method_name=_method_name)
+        result = self.get_variable_token(None, token)
+        self.add_to_cache(token_name=token, token_value='')
+
+        self._no_filter_keys_cache.append(token)
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
+        return result
 
     def get_variable_name(self, attribute_location, attribute, suffix=None):
         """
@@ -222,7 +240,7 @@ class CredentialInjector(VariableInjector):
 
         cache_keys = self.get_variable_cache().keys()
         for key in cache_keys:
-            if key in self.NO_FILTER_KEYS:
+            if key in self._no_filter_keys_cache:
                 continue
 
             if credentials_method == SECRETS_METHOD:
