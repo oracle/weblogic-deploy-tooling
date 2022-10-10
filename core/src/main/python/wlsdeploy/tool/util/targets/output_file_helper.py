@@ -81,7 +81,7 @@ def _update_documents(documents, kubernetes_content, output_file_path):
     _method_name = '_update_documents'
     found = False
 
-    schema = wko_schema_helper.get_domain_resource_schema(ExceptionType.DEPLOY)
+    schema = wko_schema_helper.get_domain_resource_schema(wko_schema_helper.WKO_VERSION_3, ExceptionType.DEPLOY)
 
     # update section(s) based on their kind, etc.
     for document in documents:

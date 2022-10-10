@@ -18,7 +18,7 @@ class ModelKubernetesPrinter(object):
     _logger = PlatformLogger('wlsdeploy.modelhelp')
 
     def __init__(self):
-        self._schema = wko_schema_helper.get_domain_resource_schema()
+        self._schema = wko_schema_helper.get_domain_resource_schema(wko_schema_helper.WKO_VERSION_3)
 
     def print_model_sample(self, model_path_tokens, control_option):
         """

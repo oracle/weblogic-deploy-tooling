@@ -10,9 +10,11 @@ from wlsdeploy.json.json_translator import JsonStreamToPython
 from wlsdeploy.logging import platform_logger
 from wlsdeploy.util import dictionary_utils
 
-DOMAIN_RESOURCE_SCHEMA_ROOT = "openAPIV3Schema"
-DOMAIN_RESOURCE_SCHEMA_FILE = 'domain-crd-schema-v8.json'
-DOMAIN_RESOURCE_SCHEMA_PATH = 'oracle/weblogic/deploy/wko/' + DOMAIN_RESOURCE_SCHEMA_FILE
+CLUSTER_RESOURCE_SCHEMA_NAME = 'cluster-crd-schema'
+DOMAIN_RESOURCE_SCHEMA_NAME = 'domain-crd-schema'
+RESOURCE_SCHEMA_EXTENSION = '.json'
+RESOURCE_SCHEMA_PATH = 'oracle/weblogic/deploy/wko'
+RESOURCE_SCHEMA_ROOT = "openAPIV3Schema"
 
 SIMPLE_TYPES = [
     'integer',
@@ -39,28 +41,70 @@ OBJECT_NAME_ATTRIBUTES = {
     'spec/managedServers': 'serverName'
 }
 
+WKO_VERSION_3 = 'v3'
+WKO_VERSION_4 = 'v4'
+
+DOMAIN_VERSION_MAP = {
+    WKO_VERSION_3: 'v8',
+    WKO_VERSION_4: 'v9'
+}
+
+CLUSTER_VERSION_MAP = {
+    WKO_VERSION_4: 'v1'
+}
+
 _logger = platform_logger.PlatformLogger('wlsdeploy.deploy')
 _class_name = 'wko_schema_helper'
 
 
-def get_domain_resource_schema(exception_type=ExceptionType.DEPLOY):
+def get_domain_resource_schema(wko_version, exception_type=ExceptionType.DEPLOY):
     """
     Read the WKO domain resource schema from its resource path.
     """
-    _method_name = 'get_domain_resource_schema'
+    schema_version = _get_schema_version(DOMAIN_VERSION_MAP, wko_version, DOMAIN_RESOURCE_SCHEMA_NAME, exception_type)
+    return _get_resource_schema(DOMAIN_RESOURCE_SCHEMA_NAME, schema_version, exception_type)
+
+
+def get_cluster_resource_schema(wko_version, exception_type=ExceptionType.DEPLOY):
+    """
+    Read the WKO cluster resource schema from its resource path.
+    """
+    schema_version = _get_schema_version(CLUSTER_VERSION_MAP, wko_version, CLUSTER_RESOURCE_SCHEMA_NAME, exception_type)
+    return _get_resource_schema(CLUSTER_RESOURCE_SCHEMA_NAME, schema_version, exception_type)
+
+
+def _get_schema_version(version_map, wko_version, type_name, exception_type):
+    _method_name = '_get_schema_version'
+
+    schema_version = dictionary_utils.get_element(version_map, wko_version)
+    if not schema_version:
+        ex = exception_helper.create_exception(exception_type, 'WLSDPLY-10011', type_name, wko_version,
+                                               ', '.join(version_map.keys()))
+        _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
+    return schema_version;
+
+
+def _get_resource_schema(resource_name, schema_version, exception_type=ExceptionType.DEPLOY):
+    """
+    Read the specified resource schema from its resource path.
+    """
+    _method_name = '_get_resource_schema'
 
     template_stream = None
     try:
-        template_stream = FileUtils.getResourceAsStream(DOMAIN_RESOURCE_SCHEMA_PATH)
+        resource_full_name = resource_name + '-' + schema_version + RESOURCE_SCHEMA_EXTENSION
+        resource_path = RESOURCE_SCHEMA_PATH + '/' + resource_full_name
+        template_stream = FileUtils.getResourceAsStream(resource_path)
         if template_stream is None:
-            ex = exception_helper.create_exception(exception_type, 'WLSDPLY-10010', DOMAIN_RESOURCE_SCHEMA_PATH)
+            ex = exception_helper.create_exception(exception_type, 'WLSDPLY-10010', resource_path)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
-        full_schema = JsonStreamToPython(DOMAIN_RESOURCE_SCHEMA_FILE, template_stream, True).parse()
+        full_schema = JsonStreamToPython(resource_name, template_stream, True).parse()
 
         # remove the root element, since it has a version-specific name
-        schema = full_schema[DOMAIN_RESOURCE_SCHEMA_ROOT]
+        schema = full_schema[RESOURCE_SCHEMA_ROOT]
 
     finally:
         if template_stream:

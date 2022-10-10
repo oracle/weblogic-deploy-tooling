@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -13,24 +13,50 @@ from wlsdeploy.tool.extract import wko_schema_helper
 
 class KubernetesSchemaTest(unittest.TestCase):
     _model_dir = '../../unit-tests/wko'
-    _model_path = _model_dir + '/model.yaml'
-
-    def setUp(self):
-        self.schema_map = wko_schema_helper.get_domain_resource_schema()
-
-        if not os.path.exists(self._model_dir):
-            os.makedirs(self._model_dir)
-        file_path = self._model_dir + "/model.yaml"
-        self.out_file = open(file_path, "w")
-
-    def tearDown(self):
-        self.out_file.close()
 
     def testKubernetesSchema(self):
         # create a model with every element.
         # verify that there are no unknown types or structures.
-        self._write_line(KUBERNETES + ":")
-        self._write_folder(self.schema_map, False, "", "  ")
+        try:
+            version = wko_schema_helper.WKO_VERSION_3
+            schema_map = wko_schema_helper.get_domain_resource_schema(version)
+
+            if not os.path.exists(self._model_dir):
+                os.makedirs(self._model_dir)
+            file_path = self._model_dir + "/model.yaml"
+            self.out_file = open(file_path, "w")
+
+            self._write_line(KUBERNETES + ":  # " + version)
+            self._write_folder(schema_map, False, "", "  ")
+
+            self.out_file.close()
+        except Exception, e:
+            self.fail(e.message)
+
+    def testKubernetes4Schemas(self):
+        # create a model with every element.
+        # verify that there are no unknown types or structures.
+        try:
+            version = wko_schema_helper.WKO_VERSION_4
+            domain_map = wko_schema_helper.get_domain_resource_schema(version)
+            cluster_map = wko_schema_helper.get_cluster_resource_schema(version)
+
+            if not os.path.exists(self._model_dir):
+                os.makedirs(self._model_dir)
+            file_path = self._model_dir + "/model-v4.yaml"
+            self.out_file = open(file_path, "w")
+
+            self._write_line(KUBERNETES + ":  # " + version)
+
+            self._write_line("  domain:")
+            self._write_folder(domain_map, False, "", "    ")
+
+            self._write_line("  cluster:")
+            self._write_folder(cluster_map, False, "", "    ")
+
+            self.out_file.close()
+        except Exception, e:
+            self.fail(e.message)
 
     def _write_folder(self, folder, in_array, path, indent):
         # for an object in an array, the first field is prefixed with a hyphen
@@ -107,6 +133,8 @@ class KubernetesSchemaTest(unittest.TestCase):
 def _get_sample_value(simple_type):
     if simple_type == 'boolean':
         return 'true'
+    elif simple_type == 'integer':
+        return '345'
     elif simple_type == 'number':
         return '123'
     else:
