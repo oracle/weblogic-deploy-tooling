@@ -1883,9 +1883,6 @@ public class WLSDeployArchive {
             if (fileList != null) {
                 for (File item : fileList) {
                     newSourceName = addItemToZip(zipPrefix, item);
-                    if (item.isDirectory()) {
-                        walkDownFolders(zipPrefix + "/" + item.getName(), item);
-                    }
                 }
             }
         }
