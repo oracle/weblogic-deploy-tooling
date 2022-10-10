@@ -366,6 +366,7 @@ class DeploymentsDiscoverer(Discoverer):
                 bos.write(line)
             elif found and 'value' in line:
                 bos.write(self._get_pass_replacement(jdbc_file, '.user', 'value'))
+                found = False
 
             else:
                 bos.write(line)
