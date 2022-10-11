@@ -6,6 +6,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.validate_configuration import VALIDATION_METHODS
+from wlsdeploy.tool.extract import wko_schema_helper
 
 # types for credential method
 CREDENTIALS_METHOD = "credentials_method"
@@ -28,6 +29,10 @@ DOMAIN_HOME_SOURCE_TYPE = "domain_home_source_type"
 
 # Determines if replica count is applied at the cluster level
 SET_CLUSTER_REPLICAS = "set_cluster_replicas"
+
+# Determines the version of the target application.
+TARGET_VERSION = 'target_version'
+DEFAULT_TARGET_VERSION = 'v3'  # default for WKO and VZ
 
 # put secret tokens in the model, and build a script to create the secrets.
 SECRETS_METHOD = 'secrets'
@@ -208,6 +213,16 @@ class TargetConfiguration(object):
         result = dictionary_utils.get_element(self.config_dictionary, SET_CLUSTER_REPLICAS)
         return result or False
 
+    def get_target_version(self):
+        """
+        Return the version of the application being targeted.
+        :return: the application version
+        """
+        result = dictionary_utils.get_element(self.config_dictionary, TARGET_VERSION)
+        if result is not None:
+            return result
+        return DEFAULT_TARGET_VERSION
+
     def validate_configuration(self, exit_code, target_configuration_file):
         validation_method = self.get_validation_method()
         self._validate_enumerated_field(VALIDATION_METHOD, validation_method, VALIDATION_METHODS, exit_code,
@@ -216,6 +231,10 @@ class TargetConfiguration(object):
         credentials_method = self.get_credentials_method()
         self._validate_enumerated_field(CREDENTIALS_METHOD, credentials_method, CREDENTIALS_METHODS, exit_code,
                                         target_configuration_file)
+
+        target_version = self.get_target_version()
+        self._validate_enumerated_field(TARGET_VERSION, target_version, wko_schema_helper.get_valid_wko_versions(),
+                                        exit_code, target_configuration_file)
 
         source_type = self._get_domain_home_source_type()
         self._validate_enumerated_field(DOMAIN_HOME_SOURCE_TYPE, source_type, SOURCE_TYPE_NAMES.keys(), exit_code,

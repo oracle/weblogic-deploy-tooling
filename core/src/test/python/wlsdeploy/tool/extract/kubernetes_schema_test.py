@@ -9,54 +9,44 @@ from oracle.weblogic.deploy.util import PyOrderedDict
 
 from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.tool.extract import wko_schema_helper
+from wlsdeploy.util import dictionary_utils
 
 
 class KubernetesSchemaTest(unittest.TestCase):
     _model_dir = '../../unit-tests/wko'
 
     def testKubernetesSchema(self):
-        # create a model with every element.
-        # verify that there are no unknown types or structures.
-        try:
-            version = wko_schema_helper.WKO_VERSION_3
-            schema_map = wko_schema_helper.get_domain_resource_schema(version)
-
-            if not os.path.exists(self._model_dir):
-                os.makedirs(self._model_dir)
-            file_path = self._model_dir + "/model.yaml"
-            self.out_file = open(file_path, "w")
-
-            self._write_line(KUBERNETES + ":  # " + version)
-            self._write_folder(schema_map, False, "", "  ")
-
-            self.out_file.close()
-        except Exception, e:
-            self.fail(e.message)
+        self._testSchemas(wko_schema_helper.WKO_VERSION_3, "model.yaml")
 
     def testKubernetes4Schemas(self):
+        self._testSchemas(wko_schema_helper.WKO_VERSION_4, "model-v4.yaml")
+
+    def _testSchemas(self, wko_version, file_name):
         # create a model with every element.
         # verify that there are no unknown types or structures.
         try:
-            version = wko_schema_helper.WKO_VERSION_4
-            domain_map = wko_schema_helper.get_domain_resource_schema(version)
-            cluster_map = wko_schema_helper.get_cluster_resource_schema(version)
-
             if not os.path.exists(self._model_dir):
                 os.makedirs(self._model_dir)
-            file_path = self._model_dir + "/model-v4.yaml"
+            file_path = self._model_dir + "/" + file_name
             self.out_file = open(file_path, "w")
 
-            self._write_line(KUBERNETES + ":  # " + version)
+            self._write_line(KUBERNETES + ":  # " + wko_version)
 
-            self._write_line("  domain:")
-            self._write_folder(domain_map, False, "", "    ")
-
-            self._write_line("  cluster:")
-            self._write_folder(cluster_map, False, "", "    ")
+            folder_infos = wko_schema_helper.get_folder_infos(wko_version)
+            folder_keys = folder_infos.keys()
+            folder_keys.sort()
+            for folder_key in folder_keys:
+                indent = "  "
+                if len(folder_key):
+                    self._write_line(indent + folder_key + ":")
+                    indent = indent + "  "
+                folder_info = folder_infos[folder_key]
+                is_array = dictionary_utils.get_element(folder_info, 'is_array')
+                self._write_folder(folder_info['schema'], is_array, "", indent)
 
             self.out_file.close()
         except Exception, e:
-            self.fail(e.message)
+            self.fail(str(e))
 
     def _write_folder(self, folder, in_array, path, indent):
         # for an object in an array, the first field is prefixed with a hyphen

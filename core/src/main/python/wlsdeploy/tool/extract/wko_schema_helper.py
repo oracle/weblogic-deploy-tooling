@@ -44,57 +44,57 @@ OBJECT_NAME_ATTRIBUTES = {
 WKO_VERSION_3 = 'v3'
 WKO_VERSION_4 = 'v4'
 
-DOMAIN_VERSION_MAP = {
-    WKO_VERSION_3: 'v8',
-    WKO_VERSION_4: 'v9'
+VERSION_FOLDER_INFOS = {
+    WKO_VERSION_3: {
+        "": {
+            'schema_name': DOMAIN_RESOURCE_SCHEMA_NAME + '-v8'
+        }
+    },
+    WKO_VERSION_4: {
+        "domain": {
+            'schema_name': DOMAIN_RESOURCE_SCHEMA_NAME + '-v9'
+        },
+        "clusters": {
+            'schema_name': CLUSTER_RESOURCE_SCHEMA_NAME + '-v1',
+            'is_array': True
+        }
+    }
 }
 
-CLUSTER_VERSION_MAP = {
-    WKO_VERSION_4: 'v1'
-}
 
 _logger = platform_logger.PlatformLogger('wlsdeploy.deploy')
 _class_name = 'wko_schema_helper'
 
 
-def get_domain_resource_schema(wko_version, exception_type=ExceptionType.DEPLOY):
-    """
-    Read the WKO domain resource schema from its resource path.
-    """
-    schema_version = _get_schema_version(DOMAIN_VERSION_MAP, wko_version, DOMAIN_RESOURCE_SCHEMA_NAME, exception_type)
-    return _get_resource_schema(DOMAIN_RESOURCE_SCHEMA_NAME, schema_version, exception_type)
+def get_valid_wko_versions():
+    return VERSION_FOLDER_INFOS.keys()
 
 
-def get_cluster_resource_schema(wko_version, exception_type=ExceptionType.DEPLOY):
-    """
-    Read the WKO cluster resource schema from its resource path.
-    """
-    schema_version = _get_schema_version(CLUSTER_VERSION_MAP, wko_version, CLUSTER_RESOURCE_SCHEMA_NAME, exception_type)
-    return _get_resource_schema(CLUSTER_RESOURCE_SCHEMA_NAME, schema_version, exception_type)
+# get information about the model folders directly under kubernetes,
+# such as domain and clusters. these are not part of the schemas.
+def get_folder_infos(wko_version, exception_type=ExceptionType.DEPLOY):
+    folder_infos = VERSION_FOLDER_INFOS[wko_version]
+    for folder_info in folder_infos.values():
+        folder_schema = dictionary_utils.get_element(folder_info, 'schema')
+        if not folder_schema:
+            folder_schema = _get_schema(folder_info['schema_name'], exception_type)
+            folder_info['schema'] = folder_schema
+    return folder_infos
 
 
-def _get_schema_version(version_map, wko_version, type_name, exception_type):
-    _method_name = '_get_schema_version'
-
-    schema_version = dictionary_utils.get_element(version_map, wko_version)
-    if not schema_version:
-        ex = exception_helper.create_exception(exception_type, 'WLSDPLY-10011', type_name, wko_version,
-                                               ', '.join(version_map.keys()))
-        _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-        raise ex
-    return schema_version;
+# used by test only, should be obsolete
+def get_default_domain_resource_schema(exception_type=ExceptionType.DEPLOY):
+    folder_infos = get_folder_infos(WKO_VERSION_3, exception_type)
+    return folder_infos['']['schema']
 
 
-def _get_resource_schema(resource_name, schema_version, exception_type=ExceptionType.DEPLOY):
-    """
-    Read the specified resource schema from its resource path.
-    """
-    _method_name = '_get_resource_schema'
+def _get_schema(schema_name, exception_type):
+    _method_name = '_get_schema'
 
     template_stream = None
     try:
-        resource_full_name = resource_name + '-' + schema_version + RESOURCE_SCHEMA_EXTENSION
-        resource_path = RESOURCE_SCHEMA_PATH + '/' + resource_full_name
+        resource_name = schema_name + RESOURCE_SCHEMA_EXTENSION
+        resource_path = RESOURCE_SCHEMA_PATH + '/' + resource_name
         template_stream = FileUtils.getResourceAsStream(resource_path)
         if template_stream is None:
             ex = exception_helper.create_exception(exception_type, 'WLSDPLY-10010', resource_path)

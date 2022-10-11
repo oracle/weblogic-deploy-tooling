@@ -7,6 +7,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.extract import wko_schema_helper
 from wlsdeploy.tool.modelhelp import model_help_utils
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
+from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.exit_code import ExitCode
 
 
@@ -17,8 +18,9 @@ class ModelKubernetesPrinter(object):
     _class_name = "ModelKubernetesPrinter"
     _logger = PlatformLogger('wlsdeploy.modelhelp')
 
-    def __init__(self):
-        self._schema = wko_schema_helper.get_domain_resource_schema(wko_schema_helper.WKO_VERSION_3)
+    def __init__(self, model_context):
+        wko_version = model_context.get_target_configuration().get_target_version()
+        self._wko_model_folders = wko_schema_helper.get_folder_infos(wko_version)
 
     def print_model_sample(self, model_path_tokens, control_option):
         """
@@ -44,11 +46,35 @@ class ModelKubernetesPrinter(object):
         path = section_name + ":"
         _print_indent(path, 0)
 
-        if model_help_utils.show_attributes(control_option):
-            self._print_attributes_sample(self._schema, 1, False)
+        # examine model folders directly under kubernetes
 
-        if model_help_utils.show_folders(control_option):
-            self._print_subfolders_sample(self._schema, control_option, 1, path, False)
+        folder_keys = self._wko_model_folders.keys()
+        folder_keys.sort()
+        for folder_key in folder_keys:
+            folder_path = path
+            show_children = True
+            indent = 1
+
+            if len(folder_key):
+                if control_option != ControlOptions.RECURSIVE:
+                    print("")
+
+                _print_indent(folder_key + ':', indent)
+                show_children = control_option == ControlOptions.RECURSIVE
+                folder_path = path + '/' + folder_key
+                indent = indent + 1
+
+            if show_children:
+                folder_info = self._wko_model_folders[folder_key]
+                in_array = dictionary_utils.get_element(folder_info, 'is_array')
+
+                if model_help_utils.show_attributes(control_option):
+                    in_array = self._print_attributes_sample(folder_info['schema'], indent, in_array)
+
+                if model_help_utils.show_folders(control_option):
+                    self._print_subfolders_sample(folder_info['schema'], control_option, indent, folder_path, in_array)
+            else:
+                _print_indent("# see " + folder_path, indent)
 
     def _print_model_folder_sample(self, section_name, model_path_tokens, control_option):
         """
@@ -70,8 +96,32 @@ class ModelKubernetesPrinter(object):
 
         in_object_array = False
         model_path = section_name + ":"
-        current_folder = self._schema
-        for token in model_path_tokens[1:]:
+        token_index = 1
+
+        # resolve model folders directly under kubernetes
+
+        folder_info = dictionary_utils.get_element(self._wko_model_folders, '')
+        first_token = model_path_tokens[token_index]
+        if not folder_info:
+            folder_info = dictionary_utils.get_element(self._wko_model_folders, first_token)
+            _print_indent(first_token + ":", indent, in_object_array)
+            model_path += '/' + first_token
+            token_index += 1
+            indent += 1
+
+        if not folder_info:
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
+                                                       "WLSDPLY-10111", model_path, first_token,
+                                                       ', '.join(self._wko_model_folders.keys()))
+            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+
+        schema = folder_info['schema']
+
+        # process elements inside kubernetes sub-folders
+
+        current_folder = schema
+        for token in model_path_tokens[token_index:]:
             properties = _get_properties(current_folder)
 
             valid_subfolder_keys = _get_folder_names(properties)

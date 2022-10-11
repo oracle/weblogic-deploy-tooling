@@ -30,8 +30,7 @@ class KubernetesValidator(object):
         if not kubernetes_section:
             return
 
-        schema = wko_schema_helper.get_domain_resource_schema(wko_schema_helper.WKO_VERSION_3,
-                                                              ExceptionType.VALIDATE)
+        schema = wko_schema_helper.get_default_domain_resource_schema(ExceptionType.VALIDATE)
 
         model_path = KUBERNETES + ":"
         self.validate_folder(kubernetes_section, schema, None, model_path)
