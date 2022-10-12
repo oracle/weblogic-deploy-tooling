@@ -976,7 +976,7 @@ public class ITWdt extends BaseTest {
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             String wkoModelFile = getSampleModelFile("-targetwko");
-            Path outputFiles = getTestOutputPath(testInfo).resolve("outputDir/");
+            Path outputFiles = getTestOutputPath(testInfo);
             String cmd = prepareModelScript
                     + " -oracle_home " + mwhome_12213
                     + " -output_dir " + outputFiles
