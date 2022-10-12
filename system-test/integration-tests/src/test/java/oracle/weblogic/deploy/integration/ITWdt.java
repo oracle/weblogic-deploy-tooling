@@ -964,6 +964,39 @@ public class ITWdt extends BaseTest {
             stopAdminServer(domainHome);
         }
     }
+    /**
+     * test discoverDomain.sh with -domain_type as JRF
+     * @throws Exception - if any error occurs
+     */
+    @DisplayName("Test 32: Prepare model")
+    @Order(32)
+    @Tag("gate")
+    @Test
+    void test32PrepareModel(TestInfo testInfo) throws Exception {
+
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            String wkoModelFile = getSampleModelFile("-targetwko");
+            Path outputFiles = getTestOutputPath(testInfo).resolve("outputDir/");
+            String cmd = prepareModelScript
+                    + " -oracle_home " + mwhome_12213
+                    + " -output_dir " + outputFiles
+                    + " -model_file " + wkoModelFile
+                    + " -target " + "wko";
+
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+            verifyResult(result, "prepareModel.sh completed successfully");
+
+            // verify model file
+
+            cmd = "grep -c '@@SECRET' " + outputFiles + FS + "wkoModelFile";
+            CommandResult result2 = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+            assertEquals(2, result2.exitValue(), "wkoModelFile does not have the secret tokens");
+            cmd = "grep -c 'Partition' " + outputFiles.toString() + FS + "wkoModelFile";
+            result2 = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+            assertEquals(0, result2.exitValue(), "Partition section was not removed from model");
+        }
+    }
 
     private boolean startAdminServer(String domainHome, Path outputFile) throws Exception {
         boolean isServerUp = false;

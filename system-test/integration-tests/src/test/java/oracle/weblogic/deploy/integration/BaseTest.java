@@ -44,6 +44,7 @@ public class BaseTest {
     protected static String encryptModelScript = "";
     protected static String validateModelScript = "";
     protected static String domainParentDir = "";
+    protected static String prepareModelScript = "";
     protected static final String ORACLE_DB_IMG = "phx.ocir.io/weblogick8s/database/enterprise";
     protected static final String ORACLE_DB_IMG_TAG = "12.2.0.1-slim";
     private static final String DB_CONTAINER_NAME = generateDatabaseContainerName();
@@ -74,6 +75,7 @@ public class BaseTest {
         encryptModelScript = getWDTScriptsHome() + FS + "encryptModel.sh";
         validateModelScript = getWDTScriptsHome() + FS + "validateModel.sh";
         compareModelScript = getWDTScriptsHome() + FS + "compareModel.sh";
+        prepareModelScript = getWDTScriptsHome() + FS + "prepareModel.sh";
 
         domainParentDir = "." + FS + "target" + FS + "domains";
     }
