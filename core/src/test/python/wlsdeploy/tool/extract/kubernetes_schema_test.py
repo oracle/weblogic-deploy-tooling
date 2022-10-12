@@ -8,7 +8,7 @@ import unittest
 from oracle.weblogic.deploy.util import PyOrderedDict
 
 from wlsdeploy.aliases.model_constants import KUBERNETES
-from wlsdeploy.tool.util.wko import wko_schema_helper
+from wlsdeploy.tool.util.targets import wko_schema_helper
 
 
 class KubernetesSchemaTest(unittest.TestCase):

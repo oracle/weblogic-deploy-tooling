@@ -8,7 +8,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.json.json_translator import JsonStreamToPython
 from wlsdeploy.logging import platform_logger
-from wlsdeploy.tool.util.wko.wko_document_folder import WkoDocumentFolder
+from wlsdeploy.tool.util.targets.wko_document_folder import WkoDocumentFolder
 from wlsdeploy.util import dictionary_utils
 
 CLUSTER_SCHEMA_NAME = 'cluster-crd-schema'

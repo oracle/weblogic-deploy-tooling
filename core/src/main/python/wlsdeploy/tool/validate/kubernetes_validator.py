@@ -6,7 +6,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.util.wko import wko_schema_helper
+from wlsdeploy.tool.util.targets import wko_schema_helper
 from wlsdeploy.util import dictionary_utils
 
 

@@ -2,7 +2,7 @@
 Copyright (c) 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-from wlsdeploy.tool.util.wko import wko_schema_helper
+from wlsdeploy.tool.util.targets import wko_schema_helper
 
 
 class WkoDocumentFolder:

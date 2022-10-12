@@ -4,7 +4,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.util.wko import wko_schema_helper
+from wlsdeploy.tool.util.targets import wko_schema_helper
 from wlsdeploy.tool.modelhelp import model_help_utils
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
 from wlsdeploy.util.exit_code import ExitCode
