@@ -634,8 +634,8 @@ class VerifierHelper:
                               class_name=CLASS_NAME, method_name=_method_name)
                 valid = True
             elif alias_type == alias_constants.PROPERTIES and \
-                self.valid_alias_property_type(location, attribute, attribute_info, alias_type, model_name,
-                                               get_required_attribute_list):
+                    self.valid_alias_property_type(location, attribute, attribute_info, alias_type, model_name,
+                                                   get_required_attribute_list):
                 valid = True
             elif alias_type in alias_constants.ALIAS_LIST_TYPES and \
                     self.check_complex_type(location, attribute, attribute_info, alias_type, model_name,
@@ -1118,7 +1118,7 @@ class VerifierHelper:
         if not isinstance(dictionary, dict) or entry not in dictionary:
             return False
         return not all_utils.ignore_mbean(entry) and \
-            entry not in getattr(self, 'IGNORE_DICT_FOLDERS') and isinstance(dictionary[entry], dict)
+               entry not in getattr(self, 'IGNORE_DICT_FOLDERS') and isinstance(dictionary[entry], dict)
 
     def _check_attribute_list_for_flattened(self, location, attributes):
         """
@@ -1190,8 +1190,8 @@ def _check_boolean_type(attribute, attribute_info, get_required_attribute_list):
     valid = False
     if attribute in get_required_attribute_list and \
             (get_type in alias_constants.ALIAS_BOOLEAN_TYPES or
-                (get_type in CONVERT_TO_BOOLEAN_TYPES and
-                    (cmo_type in alias_constants.ALIAS_BOOLEAN_TYPES or cmo_type is None))):
+             (get_type in CONVERT_TO_BOOLEAN_TYPES and
+              (cmo_type in alias_constants.ALIAS_BOOLEAN_TYPES or cmo_type is None))):
         valid = True
     elif lsa_type in alias_constants.ALIAS_BOOLEAN_TYPES or \
             (lsa_type in CONVERT_TO_BOOLEAN_TYPES and
@@ -1206,7 +1206,7 @@ def _check_boolean_type(attribute, attribute_info, get_required_attribute_list):
 
 def _lsa_type_can_match(lsa_type, get_type, cmo_type, check_type):
     return lsa_type == check_type or \
-        ((lsa_type is None or lsa_type == alias_constants.STRING or lsa_type == all_utils.UNKNOWN) and
+           ((lsa_type is None or lsa_type == alias_constants.STRING or lsa_type == all_utils.UNKNOWN) and
             (cmo_type == check_type or get_type == check_type))
 
 
@@ -1248,7 +1248,7 @@ def object_type(attribute_info):
     """
     lsa_type, get_type, cmo_type = _get_attribute_types(attribute_info)
     return lsa_type == alias_constants.OBJECT or \
-        (unknown_type(lsa_type) and
+           (unknown_type(lsa_type) and
             (get_type == alias_constants.OBJECT or (cmo_type == alias_constants.OBJECT)))
 
 
@@ -1311,7 +1311,7 @@ def _massage_special(attribute, attr_type, attr_default):
 
 def _is_of_type(attribute, alias_type, attribute_info, get_required_attribute_list):
     return _is_of_type_with_get_required(attribute, alias_type, attribute_info, get_required_attribute_list) or \
-        _is_of_type_with_lsa(attribute, alias_type, attribute_info, get_required_attribute_list)
+           _is_of_type_with_lsa(attribute, alias_type, attribute_info, get_required_attribute_list)
 
 
 def _is_of_type_with_get_required(attribute, alias_type, attribute_info, get_required_attribute_list):
@@ -1322,15 +1322,15 @@ def _is_of_type_with_get_required(attribute, alias_type, attribute_info, get_req
 def _is_of_type_with_lsa(attribute, alias_type, attribute_info, get_required_attribute_list):
     lsa_type, get_type, cmo_type = _get_attribute_types(attribute_info)
     return attribute not in get_required_attribute_list and lsa_type is not None and \
-        (lsa_type == alias_type or
-         ((unknown_type(lsa_type) or lsa_type == alias_constants.STRING or lsa_type == alias_constants.INTEGER) and
-          ((unknown_type(get_type) and cmo_type is None) or (get_type == alias_type or cmo_type == alias_type))))
+           (lsa_type == alias_type or
+            ((unknown_type(lsa_type) or lsa_type == alias_constants.STRING or lsa_type == alias_constants.INTEGER) and
+             ((unknown_type(get_type) and cmo_type is None) or (get_type == alias_type or cmo_type == alias_type))))
 
 
 def _is_in_types(attribute, alias_types, attribute_info, get_required_attribute_list):
     lsa_type, get_type, cmo_type = _get_attribute_types(attribute_info)
     return (attribute in get_required_attribute_list and (get_type in alias_types or cmo_type in alias_types)) or \
-        lsa_type in alias_types or \
+           lsa_type in alias_types or \
            ((lsa_type == alias_constants.STRING or lsa_type == all_utils.UNKNOWN or
              lsa_type == alias_constants.INTEGER) and
             (cmo_type in alias_types or get_type in alias_types))
@@ -1353,8 +1353,8 @@ def _is_in_types_with_get_required(attribute, alias_types, attribute_info, get_r
 def _is_in_types_with_lsa(attribute, alias_types, attribute_info, get_required_attribute_list):
     lsa_type, get_type, cmo_type = _get_attribute_types(attribute_info)
     return attribute not in get_required_attribute_list and \
-        (lsa_type in alias_types or ((lsa_type == alias_constants.STRING or lsa_type == all_utils.UNKNOWN) and
-                                     (cmo_type in alias_types or get_type in alias_types)))
+           (lsa_type in alias_types or ((lsa_type == alias_constants.STRING or lsa_type == all_utils.UNKNOWN) and
+                                        (cmo_type in alias_types or get_type in alias_types)))
 
 
 def _is_any_string_type(attribute_info):

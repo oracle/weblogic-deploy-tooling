@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem doGenerateSC.cmd
 @rem
-@rem Copyright (c) 2021, Oracle Corporation and/or its affiliates.
+@rem Copyright (c) 2021, 2022, Oracle Corporation and/or its affiliates.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -28,7 +28,7 @@
 @rem
 SETLOCAL
 
-SET WLSDEPLOY_PROGRAM_NAME=aliases_test_generate_offline
+SET WLSDEPLOY_PROGRAM_NAME=aliases_test_generate_security_configuration
 
 SET SCRIPT_PATH=%~dp0
 FOR %%i IN ("%SCRIPT_PATH%") DO SET SCRIPT_PATH=%%~fsi

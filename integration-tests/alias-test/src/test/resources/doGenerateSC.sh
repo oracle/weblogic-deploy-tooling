@@ -156,6 +156,7 @@ if [ "${ORACLE_HOME}" = "" ]; then
     echo "Required argument ORACLE_HOME not provided" >&2
     usage `basename $0`
     exit 99
+fi
 
 echo "WLS_VERSION=${WLS_VERSION}"
 if [ "${WLS_VERSION}" = "" ]; then

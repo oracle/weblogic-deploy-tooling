@@ -19,6 +19,7 @@
     <modules>
         <module>apps</module>
         <module>system-test</module>
+        <module>alias-test</module>
     </modules>
 
     <build>
@@ -26,13 +27,13 @@
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-war-plugin</artifactId>
-                    <version>3.3.2</version>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.3.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.3.0</version>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>3.3.2</version>
                 </plugin>
             </plugins>
         </pluginManagement>

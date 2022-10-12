@@ -307,9 +307,9 @@ echo "CLASSPATH = ${CLASSPATH}"
 echo "WLST_PROPERTIES = ${WLST_PROPERTIES}"
 
 PY_SCRIPTS_PATH=${TEST_HOME}/python
-echo "${WLST} ${PY_SCRIPTS_PATH}/generate_and_verify.py ${SCRIPT_ARGS}"
+echo "${WLST} ${PY_SCRIPTS_PATH}/generate_offline.py ${SCRIPT_ARGS}"
 
-"${WLST}" "${PY_SCRIPTS_PATH}/generate_and_verify.py" ${SCRIPT_ARGS}
+"${WLST}" "${PY_SCRIPTS_PATH}/generate_offline.py" ${SCRIPT_ARGS}
 
 RETURN_CODE=$?
 if [ ${RETURN_CODE} -eq 100 ]; then
