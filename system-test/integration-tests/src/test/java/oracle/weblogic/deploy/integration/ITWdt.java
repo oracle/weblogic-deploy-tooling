@@ -989,10 +989,10 @@ public class ITWdt extends BaseTest {
 
             // verify model file
 
-            cmd = "grep -c '@@SECRET' " + outputFiles + FS + "wkoModelFile";
+            cmd = "grep -c '@@SECRET' " + outputFiles + FS + "simple-topology-targetwko.yaml";
             CommandResult result2 = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(2, result2.exitValue(), "wkoModelFile does not have the secret tokens");
-            cmd = "grep -c 'Partition' " + outputFiles.toString() + FS + "wkoModelFile";
+            cmd = "grep -c 'Partition' " + outputFiles.toString() + FS + "simple-topology-targetwko.yaml";
             CommandResult result3 = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result3.exitValue(), "Partition section was not removed from model");
         }
