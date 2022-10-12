@@ -6,7 +6,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.extract import wko_schema_helper
+from wlsdeploy.tool.util.wko import wko_schema_helper
 from wlsdeploy.util import dictionary_utils
 
 
@@ -26,14 +26,39 @@ class KubernetesValidator(object):
         :param model_dict: A Python dictionary of the model to be validated
         :raises ValidationException: if problems occur during validation
         """
+        _method_name = 'validate_model'
+
         kubernetes_section = dictionary_utils.get_dictionary_element(model_dict, KUBERNETES)
         if not kubernetes_section:
             return
 
-        schema = wko_schema_helper.get_default_domain_resource_schema(ExceptionType.VALIDATE)
-
         model_path = KUBERNETES + ":"
-        self.validate_folder(kubernetes_section, schema, None, model_path)
+
+        wko_version = self._model_context.get_target_configuration().get_target_version()
+
+        keyless_doc_folder = wko_schema_helper.get_keyless_document_folder(wko_version, ExceptionType.VALIDATE)
+        if keyless_doc_folder:
+            # this WKO version does not require kubernetes sub-folders, continue with that schema
+            schema = keyless_doc_folder.get_schema()
+            self.validate_folder(kubernetes_section, schema, None, model_path)
+        else:
+            # this WKO version requires kubernetes sub-folders, validate and process each folder
+            for key in kubernetes_section:
+                doc_folder = wko_schema_helper.get_document_folder(wko_version, key, ExceptionType.VALIDATE)
+                if not doc_folder:
+                    valid_keys = wko_schema_helper.get_document_folder_keys(wko_version)
+                    self._logger.severe("WLSDPLY-05026", key, len(valid_keys), model_path,
+                                        '%s' % ', '.join(valid_keys),
+                                        class_name=self._class_name, method_name=_method_name)
+                    continue
+
+                model_content = kubernetes_section[key]
+                model_path += '/' + key
+                schema = doc_folder.get_schema()
+                if doc_folder.is_array():
+                    self._validate_object_array(model_content, schema, None, model_path)
+                else:
+                    self.validate_folder(model_content, schema, None, model_path)
 
     def validate_folder(self, model_folder, schema_folder, schema_path, model_path):
         """

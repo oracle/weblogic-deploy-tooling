@@ -8,41 +8,36 @@ import unittest
 from oracle.weblogic.deploy.util import PyOrderedDict
 
 from wlsdeploy.aliases.model_constants import KUBERNETES
-from wlsdeploy.tool.extract import wko_schema_helper
-from wlsdeploy.util import dictionary_utils
+from wlsdeploy.tool.util.wko import wko_schema_helper
 
 
 class KubernetesSchemaTest(unittest.TestCase):
     _model_dir = '../../unit-tests/wko'
 
     def testKubernetesSchema(self):
-        self._testSchemas(wko_schema_helper.WKO_VERSION_3, "model.yaml")
+        self._testSchemas(wko_schema_helper.WKO_VERSION_3)
 
     def testKubernetes4Schemas(self):
-        self._testSchemas(wko_schema_helper.WKO_VERSION_4, "model-v4.yaml")
+        self._testSchemas(wko_schema_helper.WKO_VERSION_4)
 
-    def _testSchemas(self, wko_version, file_name):
+    def _testSchemas(self, wko_version):
         # create a model with every element.
         # verify that there are no unknown types or structures.
         try:
             if not os.path.exists(self._model_dir):
                 os.makedirs(self._model_dir)
-            file_path = self._model_dir + "/" + file_name
+            file_path = self._model_dir + "/model-" + wko_version + ".yaml"
             self.out_file = open(file_path, "w")
 
             self._write_line(KUBERNETES + ":  # " + wko_version)
 
-            folder_infos = wko_schema_helper.get_folder_infos(wko_version)
-            folder_keys = folder_infos.keys()
-            folder_keys.sort()
-            for folder_key in folder_keys:
+            doc_folders = wko_schema_helper.get_document_folders(wko_version)
+            for doc_folder in doc_folders:
                 indent = "  "
-                if len(folder_key):
-                    self._write_line(indent + folder_key + ":")
+                if doc_folder.has_model_key():
+                    self._write_line(indent + doc_folder.get_model_key() + ":")
                     indent = indent + "  "
-                folder_info = folder_infos[folder_key]
-                is_array = dictionary_utils.get_element(folder_info, 'is_array')
-                self._write_folder(folder_info['schema'], is_array, "", indent)
+                self._write_folder(doc_folder.get_schema(), doc_folder.is_array(), "", indent)
 
             self.out_file.close()
         except Exception, e:

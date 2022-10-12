@@ -51,6 +51,7 @@ __optional_arguments = [
     CommandLineArgUtil.MODEL_FILE_SWITCH,
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,
+    CommandLineArgUtil.TARGET_SWITCH,
     CommandLineArgUtil.TARGET_VERSION_SWITCH,
     CommandLineArgUtil.TARGET_MODE_SWITCH,
     CommandLineArgUtil.VALIDATION_METHOD

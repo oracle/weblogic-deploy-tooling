@@ -6,7 +6,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.validate_configuration import VALIDATION_METHODS
-from wlsdeploy.tool.extract import wko_schema_helper
+from wlsdeploy.tool.util.wko import wko_schema_helper
 
 # types for credential method
 CREDENTIALS_METHOD = "credentials_method"

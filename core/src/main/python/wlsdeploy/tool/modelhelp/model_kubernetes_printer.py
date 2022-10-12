@@ -4,10 +4,9 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.extract import wko_schema_helper
+from wlsdeploy.tool.util.wko import wko_schema_helper
 from wlsdeploy.tool.modelhelp import model_help_utils
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
-from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.exit_code import ExitCode
 
 
@@ -19,8 +18,8 @@ class ModelKubernetesPrinter(object):
     _logger = PlatformLogger('wlsdeploy.modelhelp')
 
     def __init__(self, model_context):
-        wko_version = model_context.get_target_configuration().get_target_version()
-        self._wko_model_folders = wko_schema_helper.get_folder_infos(wko_version)
+        self._wko_version = model_context.get_target_configuration().get_target_version()
+        self._document_folders = wko_schema_helper.get_document_folders(self._wko_version)
 
     def print_model_sample(self, model_path_tokens, control_option):
         """
@@ -48,31 +47,30 @@ class ModelKubernetesPrinter(object):
 
         # examine model folders directly under kubernetes
 
-        folder_keys = self._wko_model_folders.keys()
-        folder_keys.sort()
-        for folder_key in folder_keys:
+        for document_folder in self._document_folders:
             folder_path = path
             show_children = True
             indent = 1
 
-            if len(folder_key):
+            if document_folder.has_model_key():
                 if control_option != ControlOptions.RECURSIVE:
                     print("")
 
-                _print_indent(folder_key + ':', indent)
+                model_key = document_folder.get_model_key()
+                _print_indent(model_key + ':', indent)
                 show_children = control_option == ControlOptions.RECURSIVE
-                folder_path = path + '/' + folder_key
+                folder_path = path + '/' + model_key
                 indent = indent + 1
 
             if show_children:
-                folder_info = self._wko_model_folders[folder_key]
-                in_array = dictionary_utils.get_element(folder_info, 'is_array')
+                schema = document_folder.get_schema()
+                in_array = document_folder.is_array()
 
                 if model_help_utils.show_attributes(control_option):
-                    in_array = self._print_attributes_sample(folder_info['schema'], indent, in_array)
+                    in_array = self._print_attributes_sample(schema, indent, in_array)
 
                 if model_help_utils.show_folders(control_option):
-                    self._print_subfolders_sample(folder_info['schema'], control_option, indent, folder_path, in_array)
+                    self._print_subfolders_sample(schema, control_option, indent, folder_path, in_array)
             else:
                 _print_indent("# see " + folder_path, indent)
 
@@ -100,23 +98,24 @@ class ModelKubernetesPrinter(object):
 
         # resolve model folders directly under kubernetes
 
-        folder_info = dictionary_utils.get_element(self._wko_model_folders, '')
-        first_token = model_path_tokens[token_index]
-        if not folder_info:
-            folder_info = dictionary_utils.get_element(self._wko_model_folders, first_token)
-            _print_indent(first_token + ":", indent, in_object_array)
-            model_path += '/' + first_token
+        doc_folder = wko_schema_helper.get_keyless_document_folder(self._wko_version)
+        if not doc_folder:
+            first_token = model_path_tokens[token_index]
+            doc_folder = wko_schema_helper.get_document_folder(self._wko_version, first_token)
+            if not doc_folder:
+                ex = exception_helper.create_cla_exception(
+                    ExitCode.ARG_VALIDATION_ERROR, "WLSDPLY-10111", model_path, first_token,
+                    ', '.join(wko_schema_helper.get_document_folder_keys(self._wko_version)))
+                self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
+
+            model_key = doc_folder.get_model_key()
+            _print_indent(model_key + ":", indent, in_object_array)
+            model_path += '/' + model_key
             token_index += 1
             indent += 1
 
-        if not folder_info:
-            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
-                                                       "WLSDPLY-10111", model_path, first_token,
-                                                       ', '.join(self._wko_model_folders.keys()))
-            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-            raise ex
-
-        schema = folder_info['schema']
+        schema = doc_folder.get_schema()
 
         # process elements inside kubernetes sub-folders
 
