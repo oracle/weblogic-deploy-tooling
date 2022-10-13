@@ -359,8 +359,10 @@ class DeploymentsDiscoverer(Discoverer):
         found = False
         while bis.ready():
             line = bis.readLine()
-            if 'password-encrypted' in line:
+            if '<password-encrypted>' in line:
                 bos.write(self._get_pass_replacement(jdbc_file, '.pass.encrypt', 'password-encrypted'))
+            elif '<ons-wallet-password-encrypted>' in line:
+                bos.write(self._get_pass_replacement(jdbc_file, '.ons.pass.encrypt', 'ons-wallet-password-encrypted'))
             elif '<name>user' in line:
                 found = True
                 bos.write(line)
