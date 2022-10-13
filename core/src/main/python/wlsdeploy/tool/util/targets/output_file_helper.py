@@ -28,6 +28,7 @@ KIND = 'kind'
 SPEC = 'spec'
 
 WKO_DOMAIN_KIND = 'Domain'
+CLUSTER_NAME = 'clusterName'
 CLUSTERS = 'clusters'
 DOMAIN_HOME = 'domainHome'
 IMAGE_PULL_SECRETS = 'imagePullSecrets'
@@ -40,12 +41,11 @@ VERRAZZANO_WEBLOGIC_WORKLOAD_KIND = 'VerrazzanoWebLogicWorkload'
 WORKLOAD = 'workload'
 
 
-def update_from_model(output_dir, output_file_name, model):
+def update_from_model(crd_file, model):
     """
     Update the output content with information from the kubernetes section of the model.
     Output files are (currently) always Kubernetes resource files.
-    :param output_dir: the directory of the output file to update
-    :param output_file_name: the name of the output file
+    :param crd_file: the CRD java.io.File to be updated
     :param model: the model to use for update
     """
     _method_name = 'update_from_model'
@@ -55,24 +55,23 @@ def update_from_model(output_dir, output_file_name, model):
     # failures will be logged as severe, but not cause tool failure.
     # this will allow the unaltered output file to be examined for problems.
 
-    output_file = File(output_dir, output_file_name)
-    __logger.info('WLSDPLY-01675', output_file, KUBERNETES, class_name=__class_name, method_name=_method_name)
+    __logger.info('WLSDPLY-01675', crd_file, KUBERNETES, class_name=__class_name, method_name=_method_name)
 
     try:
-        reader = YamlToPython(output_file.getPath(), True)
+        reader = YamlToPython(crd_file.getPath(), True)
         documents = reader.parse_documents()
     except YamlException, ex:
-        __logger.severe('WLSDPLY-01673', output_file, str(ex), error=ex, class_name=__class_name,
+        __logger.severe('WLSDPLY-01673', crd_file, str(ex), error=ex, class_name=__class_name,
                         method_name=_method_name)
         return
 
-    _update_documents(documents, kubernetes_content, output_file.getPath())
+    _update_documents(documents, kubernetes_content, crd_file.getPath())
 
     try:
         writer = PythonToYaml(documents)
-        writer.write_to_yaml_file(output_file.getPath())
+        writer.write_to_yaml_file(crd_file.getPath())
     except YamlException, ex:
-        __logger.severe('WLSDPLY-01674', output_file, str(ex), error=ex, class_name=__class_name,
+        __logger.severe('WLSDPLY-01674', crd_file, str(ex), error=ex, class_name=__class_name,
                         method_name=_method_name)
     return
 
@@ -271,8 +270,9 @@ def _add_comments(wko_dictionary):
 
     clusters = dictionary_utils.get_dictionary_element(spec, CLUSTERS)
     for cluster in clusters:
-        cluster_replicas = dictionary_utils.get_element(cluster, REPLICAS)
-        if cluster_replicas is None and len(cluster):
+        cluster_keys = cluster.keys()
+        # check for clusterName to avoid commenting WKO V4
+        if CLUSTER_NAME in cluster_keys and REPLICAS not in cluster_keys:
             last_key = cluster.keys()[-1]
             message = exception_helper.get_message('WLSDPLY-01680')
             cluster.addComment(last_key, REPLICAS + ': 99  # ' + message)

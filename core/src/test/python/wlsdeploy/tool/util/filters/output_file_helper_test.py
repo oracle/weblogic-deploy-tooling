@@ -6,6 +6,8 @@ import os
 import shutil
 
 from base_test import BaseTestCase
+from java.io import File
+
 from wlsdeploy.tool.util.targets import output_file_helper
 from wlsdeploy.util.model import Model
 from wlsdeploy.yaml.yaml_translator import YamlToPython
@@ -38,7 +40,7 @@ class OutputFileHelperTest(BaseTestCase):
         output_file = os.path.join(self.OUTPUT_DIR, file_name)
         shutil.copyfile(source_file, output_file)
 
-        output_file_helper.update_from_model(self.OUTPUT_DIR, file_name, model)
+        output_file_helper.update_from_model(File(output_file), model)
 
         # re-read the output file
         reader = YamlToPython(output_file, True)

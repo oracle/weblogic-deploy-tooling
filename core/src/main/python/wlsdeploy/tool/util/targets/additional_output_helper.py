@@ -21,6 +21,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import k8s_helper
 from wlsdeploy.tool.util.targets import file_template_helper
 from wlsdeploy.tool.util.targets import output_file_helper
+from wlsdeploy.tool.util.targets import wko_schema_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import target_configuration_helper
@@ -35,6 +36,7 @@ APPLICATIONS = 'applications'
 APPLICATION_NAME = 'applicationName'
 APPLICATION_PREFIX = 'applicationPrefix'
 CLUSTER_NAME = 'clusterName'
+CLUSTER_UID = 'clusterUid'
 CLUSTERS = 'clusters'
 DATASOURCE_CREDENTIALS = 'datasourceCredentials'
 DATASOURCE_PREFIX = 'datasourcePrefix'
@@ -68,6 +70,7 @@ def create_additional_output(model, model_context, aliases, credential_injector,
     :param credential_injector: used to identify secrets
     :param exception_type: the type of exception to throw if needed
     """
+    target_configuration = model_context.get_target_configuration()
 
     # -output_dir argument was previously verified
     output_dir = model_context.get_output_dir()
@@ -76,59 +79,65 @@ def create_additional_output(model, model_context, aliases, credential_injector,
     template_hash = _build_template_hash(model, model_context, aliases, credential_injector)
     template_names = model_context.get_target_configuration().get_additional_output_types()
     for index, template_name in enumerate(template_names):
-        # special processing for deprecated -domain_resource_file argument
-        # used only by extractDomainResource
-        if _create_named_file(index, template_name, template_hash, model, model_context, exception_type):
-            continue
+        source_file_name = _get_template_source_name(template_name, target_configuration)
 
-        _create_file(template_name, template_hash, output_dir, exception_type)
-        output_file_helper.update_from_model(output_dir, template_name, model)
+        # special processing for deprecated -domain_resource_file argument of extractDomainResource
+        extract_output_file = _get_extract_output_file(template_name, index, model_context)
+        if extract_output_file:
+            output_file = extract_output_file
+        else:
+            output_file = File(os.path.join(output_dir, template_name))
+
+        _create_file(source_file_name, template_hash, output_file, exception_type)
+        output_file_helper.update_from_model(output_file, model)
 
 
 # *** DELETE METHOD WHEN deprecated -domain_resource_file IS REMOVED ***
-def _create_named_file(index, template_name, template_hash, model, model_context, exception_type):
+def _get_extract_output_file(template_name, index, model_context):
     """
     Special processing for deprecated -domain_resource_file argument used by extractDomainResource.
     Use the directory of -domain_resource_file for all templates,
     and the name of -domain_resource_file for the first (usually only) template.
     """
-    _method_name = '_create_named_file'
+    _method_name = '_get_extract_output_file'
 
     resource_file = model_context.get_domain_resource_file()
     if resource_file:
-        template_subdir = "targets/templates/" + template_name
-        template_path = path_utils.find_config_path(template_subdir)
-
         output_dir, output_name = os.path.split(resource_file)
         if index > 0:
             output_name = template_name
-
-        output_file = File(os.path.join(output_dir, output_name))
-        __logger.info('WLSDPLY-01662', output_file, class_name=__class_name, method_name=_method_name)
-        file_template_helper.create_file_from_file(template_path, template_hash, output_file, exception_type)
-        output_file_helper.update_from_model(output_dir, output_name, model)
-        return True
-    return False
+        return File(os.path.join(output_dir, output_name))
+    return None
 
 
-def _create_file(template_name, template_hash, output_dir, exception_type):
+def _create_file(template_name, template_hash, output_file, exception_type):
     """
     Read the template from the resource stream, perform any substitutions,
     and write it to a file with the same name in the output directory.
-    :param template_name: the name of the template file, and the output file
+    :param template_name: the name of the template file
     :param template_hash: a dictionary of substitution values
-    :param output_dir: the directory to write the output file
+    :param output_file: the CRD java.io.File to be created
     :param exception_type: the type of exception to throw if needed
     """
     _method_name = '_create_file'
 
     template_subdir = "targets/templates/" + template_name
     template_path = path_utils.find_config_path(template_subdir)
-    output_file = File(output_dir, template_name)
 
     __logger.info('WLSDPLY-01662', output_file, class_name=__class_name, method_name=_method_name)
 
     file_template_helper.create_file_from_file(template_path, template_hash, output_file, exception_type)
+
+
+def _get_template_source_name(template_name, target_configuration):
+    product_version = target_configuration.get_product_version()
+
+    # for backward compatibility with WKO v3
+    if product_version == wko_schema_helper.WKO_VERSION_3:
+        return template_name
+
+    prefix, suffix = os.path.splitext(template_name)
+    return prefix + "-" + product_version + suffix
 
 
 def _build_template_hash(model, model_context, aliases, credential_injector):
@@ -192,6 +201,7 @@ def _build_template_hash(model, model_context, aliases, credential_injector):
     for cluster_name in cluster_list:
         cluster_hash = dict()
         cluster_hash[CLUSTER_NAME] = cluster_name
+        cluster_hash[CLUSTER_UID] = k8s_helper.get_dns_name(cluster_name)
 
         cluster_values = dictionary_utils.get_dictionary_element(cluster_list, cluster_name)
         server_count = k8s_helper.get_server_count(cluster_name, cluster_values, model.get_model())

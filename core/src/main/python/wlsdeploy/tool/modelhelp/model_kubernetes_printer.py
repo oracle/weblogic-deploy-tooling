@@ -18,7 +18,7 @@ class ModelKubernetesPrinter(object):
     _logger = PlatformLogger('wlsdeploy.modelhelp')
 
     def __init__(self, model_context):
-        self._wko_version = model_context.get_target_configuration().get_target_version()
+        self._wko_version = model_context.get_target_configuration().get_product_version()
         self._document_folders = wko_schema_helper.get_document_folders(self._wko_version)
 
     def print_model_sample(self, model_path_tokens, control_option):

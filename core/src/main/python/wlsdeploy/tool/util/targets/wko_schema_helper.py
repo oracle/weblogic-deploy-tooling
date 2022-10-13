@@ -8,7 +8,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.json.json_translator import JsonStreamToPython
 from wlsdeploy.logging import platform_logger
-from wlsdeploy.tool.util.targets.wko_document_folder import WkoDocumentFolder
+from wlsdeploy.tool.util.targets.document_folder import DocumentFolder
 from wlsdeploy.util import dictionary_utils
 
 CLUSTER_SCHEMA_NAME = 'cluster-crd-schema'
@@ -264,6 +264,6 @@ def _get_document_folder(folder_infos, folder_key, exception_type):
     if not doc_folder:
         schema = _get_schema(folder_info['schema_name'], exception_type)
         is_array = dictionary_utils.get_element(folder_info, 'is_array')
-        doc_folder = WkoDocumentFolder(folder_key, schema, is_array)
+        doc_folder = DocumentFolder(folder_key, schema, is_array)
         folder_info['doc_folder'] = doc_folder
     return doc_folder

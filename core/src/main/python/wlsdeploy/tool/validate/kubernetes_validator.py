@@ -34,7 +34,7 @@ class KubernetesValidator(object):
 
         model_path = KUBERNETES + ":"
 
-        wko_version = self._model_context.get_target_configuration().get_target_version()
+        wko_version = self._model_context.get_target_configuration().get_product_version()
 
         keyless_doc_folder = wko_schema_helper.get_keyless_document_folder(wko_version, ExceptionType.VALIDATE)
         if keyless_doc_folder:

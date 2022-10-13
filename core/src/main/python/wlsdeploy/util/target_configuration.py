@@ -30,9 +30,9 @@ DOMAIN_HOME_SOURCE_TYPE = "domain_home_source_type"
 # Determines if replica count is applied at the cluster level
 SET_CLUSTER_REPLICAS = "set_cluster_replicas"
 
-# Determines the version of the target application.
-TARGET_VERSION = 'target_version'
-DEFAULT_TARGET_VERSION = 'v3'  # default for WKO and VZ
+# Determines the version of the target product.
+PRODUCT_VERSION = 'product_version'
+DEFAULT_PRODUCT_VERSION = 'v3'  # default for WKO and WKO in VZ
 
 # put secret tokens in the model, and build a script to create the secrets.
 SECRETS_METHOD = 'secrets'
@@ -213,15 +213,15 @@ class TargetConfiguration(object):
         result = dictionary_utils.get_element(self.config_dictionary, SET_CLUSTER_REPLICAS)
         return result or False
 
-    def get_target_version(self):
+    def get_product_version(self):
         """
-        Return the version of the application being targeted.
-        :return: the application version
+        Return the version of the product being targeted, such as WKO or VZ.
+        :return: the product version
         """
-        result = dictionary_utils.get_element(self.config_dictionary, TARGET_VERSION)
+        result = dictionary_utils.get_element(self.config_dictionary, PRODUCT_VERSION)
         if result is not None:
             return result
-        return DEFAULT_TARGET_VERSION
+        return DEFAULT_PRODUCT_VERSION
 
     def validate_configuration(self, exit_code, target_configuration_file):
         validation_method = self.get_validation_method()
@@ -232,8 +232,8 @@ class TargetConfiguration(object):
         self._validate_enumerated_field(CREDENTIALS_METHOD, credentials_method, CREDENTIALS_METHODS, exit_code,
                                         target_configuration_file)
 
-        target_version = self.get_target_version()
-        self._validate_enumerated_field(TARGET_VERSION, target_version, wko_schema_helper.get_valid_wko_versions(),
+        product_version = self.get_product_version()
+        self._validate_enumerated_field(PRODUCT_VERSION, product_version, wko_schema_helper.get_valid_wko_versions(),
                                         exit_code, target_configuration_file)
 
         source_type = self._get_domain_home_source_type()

@@ -5,7 +5,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 from wlsdeploy.tool.util.targets import wko_schema_helper
 
 
-class WkoDocumentFolder:
+class DocumentFolder:
     """
     A model folder that corresponds to a schema for a CRD document.
     """
