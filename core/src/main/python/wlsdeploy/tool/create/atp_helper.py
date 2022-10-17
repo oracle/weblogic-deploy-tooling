@@ -103,11 +103,11 @@ def cleanup_connect_string(connect_string):
     so this is the best effort to remove the spaces.
 
     Input:
-        (description= (address=(protocol=tcps)(port=1522)(host=adb-preprod.us-phoenix-1.oraclecloud.com))(connect_data=(service_name=uq7p1eavz8qlvts_watsh01_medium.atp.oraclecloud.com))(security=(ssl_server_cert_dn= "CN=adwc-preprod.uscom-east-1.oraclecloud.com,OU=Oracle BMCS US,O=Oracle Corporation,L=Redwood City,ST=California,C=US")) )
+        (description= (address=(protocol=tcps)(port=1522)(host=*******.oraclecloud.com))(connect_data=(service_name=someservice-in.oraclecloud.com))(security=(ssl_server_cert_dn= "CN=somewhere-in.oraclecloud.com,OU=Oracle BMCS US,O=Oracle Corporation,L=Redwood City,ST=California,C=US")) )
     Output Parts:
-        1.      (description=(address=(protocol=tcps)(port=1522)(host=adb-preprod.us-phoenix-1.oraclecloud.com))(connect_data=(service_name=uq7p1eavz8qlvts_watsh01_medium.atp.oraclecloud.com))(security=(
+        1.      (description=(address=(protocol=tcps)(port=1522)(host=*******.oraclecloud.com))(connect_data=(service_name=someservice-in.oraclecloud.com))(security=(
         2.      ssl_server_cert_dn=
-        3.      "CN=adwc-preprod.uscom-east-1.oraclecloud.com,OU=Oracle BMCS US,O=Oracle Corporation,L=Redwood City,ST=California,C=US"
+        3.      "CN=somewhere-in.oraclecloud.com,OU=Oracle BMCS US,O=Oracle Corporation,L=Redwood City,ST=California,C=US"
         4.      )))
     :param connect_string:
     :return:
