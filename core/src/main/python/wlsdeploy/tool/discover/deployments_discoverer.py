@@ -10,6 +10,9 @@ from java.io import File
 from java.io import FileReader
 from java.io import FileWriter
 from java.lang import IllegalArgumentException
+from java.lang import StringBuilder
+from java.util.regex import Matcher
+from java.util.regex import Pattern
 
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 from oracle.weblogic.deploy.util import FileUtils
@@ -355,27 +358,35 @@ class DeploymentsDiscoverer(Discoverer):
         jdbc_out = archive_file.extractFile(source_name, jdbc_out)
         bis = BufferedReader(FileReader(jdbc_file))
         bos = BufferedWriter(FileWriter(jdbc_out))
-
+        cache = StringBuilder()
         found = False
         while bis.ready():
-            line = bis.readLine()
-            if '<password-encrypted>' in line:
-                bos.write(self._get_pass_replacement(jdbc_file, '.pass.encrypt', 'password-encrypted'))
-            elif '<ons-wallet-password-encrypted>' in line:
-                bos.write(self._get_pass_replacement(jdbc_file, '.ons.pass.encrypt', 'ons-wallet-password-encrypted'))
-            elif '<name>user' in line:
-                found = True
-                bos.write(line)
-            elif found and 'value' in line:
-                bos.write(self._get_pass_replacement(jdbc_file, '.user', 'value'))
-                found = False
-
-            else:
-                bos.write(line)
-            bos.newLine()
+            cache.append(bis.readLine())
         bis.close()
+        pattern = Pattern.compile("<name>(\s?)user(\s?)</name>")
+        matcher = pattern.matcher(cache.toString())
+        end = -1
+        if matcher.find():
+            end = matcher.end()
+        result = cache.toString()
+        if end >= 0:
+            pattern = Pattern.compile("<value>(.+?)</value>")
+            matcher = pattern.matcher(result[end:])
+            matcher.find()
+            pattern = Pattern.compile(matcher.group())
+            matcher = pattern.matcher(cache.toString())
+            result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '.user', 'value'))
+
+        pattern = Pattern.compile('<password-encrypted>(.+?)</password-encrypted>')
+        matcher = pattern.matcher(result)
+        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '.pass.encrypt', 'password-encrypted'))
+
+        pattern = Pattern.compile('<ons-wallet-password-encrypted>(.+?)</ons-wallet-password-encrypted>')
+        matcher = pattern.matcher(result)
+        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '.ons.pass.encrypt', 'ons-wallet-password-encrypted'))
+        bos.write(result)
         bos.close()
-        archive_file.readdApplication(source_name, jdbc_out)
+        archive_file.replaceApplication(source_name, jdbc_out)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
     def _get_pass_replacement(self, jdbc_file, name, type):

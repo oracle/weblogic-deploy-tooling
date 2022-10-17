@@ -615,8 +615,8 @@ public class WLSDeployArchive {
         return newName;
     }
 
-    public String readdApplication(String appPath, String tempFile) throws WLSDeployArchiveIOException {
-        final String METHOD = "readdApplication";
+    public String replaceApplication(String appPath, String tempFile) throws WLSDeployArchiveIOException {
+        final String METHOD = "replaceApplication";
         LOGGER.entering(CLASS, METHOD, appPath);
         getZipFile().removeZipEntry(appPath);
         String newName = addApplication(tempFile);
