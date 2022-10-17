@@ -98,26 +98,39 @@ def get_atp_connect_string(tnsnames_ora_path, tns_sid_name):
 
 def cleanup_connect_string(connect_string):
     """
-    Formats connect string for ATP DB by removing unwanted whitespaces.
+    Formats connect string for ATP DB by removing unwanted whitespaces. It appears the wallet's tnsnames.ora file in
+    the wallet has various whitespaces from various periods.  The cie code somehow parses this connection string also,
+    so this is the best effort to remove the spaces.
+
     Input:
-        (description= (address=(protocol=tcps)(port=1522)(host=adb-preprod.us-phoenix-1.oraclecloud.com))(connect_data=(service_name=uq7p1eavz8qlvts_watsh01_medium.atp.oraclecloud.com))(security=(ssl_server_cert_dn= "CN=adwc-preprod.uscom-east-1.oraclecloud.com,OU=Oracle BMCS US,O=Oracle Corporation,L=Redwood City,ST=California,C=US")) )
+        (description= (address=(protocol=tcps)(port=1522)(host=*******.oraclecloud.com))(connect_data=(service_name=someservice-in.oraclecloud.com))(security=(ssl_server_cert_dn= "CN=somewhere-in.oraclecloud.com,OU=Oracle BMCS US,O=Oracle Corporation,L=Redwood City,ST=California,C=US")) )
     Output Parts:
-        1.      (description=(address=(protocol=tcps)(port=1522)(host=adb-preprod.us-phoenix-1.oraclecloud.com))(connect_data=(service_name=uq7p1eavz8qlvts_watsh01_medium.atp.oraclecloud.com))(security=(
+        1.      (description=(address=(protocol=tcps)(port=1522)(host=*******.oraclecloud.com))(connect_data=(service_name=someservice-in.oraclecloud.com))(security=(
         2.      ssl_server_cert_dn=
-        3.      "CN=adwc-preprod.uscom-east-1.oraclecloud.com,OU=Oracle BMCS US,O=Oracle Corporation,L=Redwood City,ST=California,C=US"
+        3.      "CN=somewhere-in.oraclecloud.com,OU=Oracle BMCS US,O=Oracle Corporation,L=Redwood City,ST=California,C=US"
         4.      )))
     :param connect_string:
     :return:
     """
-    pattern = "(.*)(ssl_server_cert_dn=)\s*(\".*\")(.*)"
-    match = re.search(pattern, connect_string)
 
-    if match:
-        part1 = match.group(1).replace(' ','')
-        part2 = match.group(2).replace(' ', '')
-        # We don't want to remove the spaces from serverDN part.
-        part3 = match.group(3)
-        part4 = match.group(4).replace(' ', '')
-        connect_string = "%s%s%s%s" % (part1, part2, part3, part4)
-    # if no match then return original one
-    return connect_string
+    toks = connect_string.split('(description=')
+    pattern = "(.*)(ssl_server_cert_dn=)\s*(\".*\")(.*)"
+    result = ''
+    for token in toks:
+        if token.find("(ssl_server_cert_dn=") > 0:
+            match = re.search(pattern, token)
+            if match:
+                part1 = match.group(1).replace(' ','')
+                part2 = match.group(2).replace(' ', '')
+                # We don't want to remove the spaces from serverDN part.
+                part3 = match.group(3)
+                part4 = match.group(4).replace(' ', '')
+                result += "(description=%s%s%s%s" % (part1, part2, part3, part4)
+        else:
+            result += token.replace(' ', '')
+
+    if result == '':
+        result = connect_string
+
+    return result
+
