@@ -21,6 +21,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging import platform_logger
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
+from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 _class_name = "variables"
 _logger = platform_logger.PlatformLogger('wlsdeploy.variables')
@@ -29,6 +30,7 @@ _property_pattern = re.compile("(@@PROP:([\\w.-]+)@@)")
 _environment_pattern = re.compile("(@@ENV:([\\w.-]+)@@)")
 _secret_pattern = re.compile("(@@SECRET:([\\w.-]+):([\\w.-]+)@@)")
 _file_nested_variable_pattern = re.compile("(@@FILE:(@@[\w]+@@[\w.\\\/:-]+)@@)")
+__wls_helper = WebLogicHelper(_logger)
 
 # these match a string containing ONLY a token
 _property_string_pattern = re.compile("^(@@PROP:([\\w.-]+)@@)$")
@@ -166,7 +168,7 @@ def get_variable_names(text):
     return names
 
 
-def substitute_value(text, variables, model_context):
+def substitute_value(text, variables, model_context, encrypt_value=False):
     """
     Perform token substitutions on a single text value.
     If errors occur during substitution, throw a single VariableException.
@@ -176,7 +178,7 @@ def substitute_value(text, variables, model_context):
     """
     method_name = 'substitute_value'
     error_info = {'errorCount': 0}
-    result = _substitute(text, variables, model_context, error_info)
+    result = _substitute(text, variables, model_context, error_info, encrypt_value=encrypt_value)
     error_count = error_info['errorCount']
     if error_count:
         ex = exception_helper.create_variable_exception("WLSDPLY-01740", error_count)
@@ -232,19 +234,21 @@ def _process_node(nodes, variables, model_context, error_info):
             for member in value:
                 if type(member) in [str, unicode]:
                     index = value.index(member)
-                    value[index] = _substitute(member, variables, model_context, error_info, key)
+                    value[index] = _substitute(member, variables, model_context, error_info, attribute_name=key)
 
         elif type(value) in [str, unicode]:
-            nodes[key] = _substitute(value, variables, model_context, error_info, key)
+            nodes[key] = _substitute(value, variables, model_context, error_info, attribute_name=key)
 
 
-def _substitute(text, variables, model_context, error_info, attribute_name=None):
+def _substitute(text, variables, model_context, error_info, attribute_name=None, encrypt_value=False):
     """
     Substitute token placeholders with their derived values.
     :param text: the text to process for token placeholders
     :param variables: the variables to use
     :param model_context: used to determine the validation method (strict, lax, etc.)
     :param error_info: collects information about errors encountered
+    :param encrypt_value: encrypt the clear text value with the domain salt before substitution.  It is only used
+    :      for app module application.
     :return: the replaced text
     """
     method_name = '_substitute'
@@ -270,6 +274,8 @@ def _substitute(text, variables, model_context, error_info, attribute_name=None)
                 continue
 
             value = variables[key]
+            if encrypt_value:
+                value = __wls_helper.encrypt(value, model_context.get_domain_home())
             text = text.replace(token, value)
 
         # check environment variables before @@FILE:/dir/@@ENV:name@@.txt@@
@@ -297,6 +303,10 @@ def _substitute(text, variables, model_context, error_info, attribute_name=None)
                 _increment_error_count(error_info, allow_unresolved)
                 problem_found = True
                 continue
+
+            if encrypt_value:
+                value = __wls_helper.encrypt(value, model_context.get_domain_home())
+
             text = text.replace(token, value)
 
         matches = _file_variable_pattern.findall(text)
@@ -339,6 +349,7 @@ def _substitute(text, variables, model_context, error_info, attribute_name=None)
             else:
                 _report_token_issue("WLSDPLY-01746", method_name, allow_unresolved, attribute_name, text, sample)
                 _increment_error_count(error_info, allow_unresolved)
+
 
     return text
 

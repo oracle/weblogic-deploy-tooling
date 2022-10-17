@@ -100,7 +100,7 @@ class ApplicationsVersionHelper(object):
 
         # if no manifest version is found, leave the original name unchanged
         versioned_name = model_name
-        if self.is_module_type_resource_type(module_type):
+        if self.is_module_type_app_module(module_type):
             return model_name
 
         try:
@@ -125,7 +125,7 @@ class ApplicationsVersionHelper(object):
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=versioned_name)
         return versioned_name
 
-    def is_module_type_resource_type(self, module_type):
+    def is_module_type_app_module(self, module_type):
         if module_type in [ 'jms', 'jdbc', 'wldf']:
             return True
         else:

@@ -52,6 +52,8 @@ from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model_helper
 from wlsdeploy.util import string_utils
 
+import wlsdeploy.util.variables as variables
+
 
 class ApplicationsDeployer(Deployer):
     """
@@ -200,13 +202,18 @@ class ApplicationsDeployer(Deployer):
             application_name = \
                 self.version_helper.get_application_versioned_name(app_source_path, application_name,
                                                                    module_type=module_type)
+
             quoted_application_name = self.wlst_helper.get_quoted_name_for_wlst(application_name)
+
             application_location.add_name_token(application_token, quoted_application_name)
 
             self.wlst_helper.cd(root_path)
             deployer_utils.create_and_cd(application_location, existing_applications, self.aliases)
+
             self._set_attributes_and_add_subfolders(application_location, application)
+
             application_location.remove_name_token(application_token)
+            self.__substitute_appmodule_token(app_source_path, module_type)
 
             if app_source_path.startswith(WLSDeployArchive.ARCHIVE_STRUCT_APPS_TARGET_DIR):
                 plan_dir = dictionary_utils.get_element(application, PLAN_DIR)
@@ -214,6 +221,27 @@ class ApplicationsDeployer(Deployer):
                 self._fix_plan_file(plan_dir, plan_path)
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
+
+    def __substitute_appmodule_token(self, path, module_type):
+        if  self.version_helper.is_module_type_app_module(module_type):
+            if os.path.isabs(path):
+                abspath = path
+            else:
+                abspath = self.model_context.get_domain_home() + os.sep + path
+
+            original_variables = {}
+            variable_file = self.model_context.get_variable_file()
+            if variable_file is not None and os.path.exists(variable_file):
+                original_variables = variables.load_variables(variable_file)
+            fh = open(abspath, 'r')
+            text = fh.read()
+            fh.close()
+            newtext = variables.substitute_value(text, original_variables, self.model_context, encrypt_value=True)
+            newfh = open(abspath, 'w')
+            newfh.write(newtext)
+            newfh.close()
+
+
 
     def __online_deploy_apps_and_libs(self, base_location):
         """
@@ -994,8 +1022,10 @@ class ApplicationsDeployer(Deployer):
                                                             options=options)
                     location.remove_name_token(token_name)
                     deployed_applist.append(new_app_name)
+                    self.__substitute_appmodule_token(path, module_type)
 
-    def __get_mt_names_from_location(self, app_location):
+
+def __get_mt_names_from_location(self, app_location):
         dummy_location = LocationContext()
         token_name = self.aliases.get_name_token(dummy_location)
         dummy_location.add_name_token(token_name, self.model_context.get_domain_name())
@@ -1108,7 +1138,6 @@ class ApplicationsDeployer(Deployer):
         :param model_name: the element name (my-app, etc.), used for logging
         """
         _method_name = '__extract_source_path_from_archive'
-
         # source path may be may be a single file (jar, war, etc.)
         if self.archive_helper.contains_file(source_path):
             self.archive_helper.extract_file(source_path)
@@ -1242,7 +1271,7 @@ def _get_deploy_options(model_apps, app_name, library_module, application_versio
 
     module_type = dictionary_utils.get_element(app, MODULE_TYPE)
     sub_module_targets = ''
-    if application_version_helper.is_module_type_resource_type(module_type):
+    if application_version_helper.is_module_type_app_module(module_type):
         sub_deployments = dictionary_utils.get_element(app, SUB_DEPLOYMENT)
         if sub_deployments is not None:
             for sub_deployment in sub_deployments:
