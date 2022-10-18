@@ -492,8 +492,10 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
 
     # Apply the injectors specified in model_variable_injector.json, or in the target configuration.
     # Include the variable mappings that were collected in credential_cache.
+    extra_cache = dict()
     variable_injector = VariableInjector(_program_name, model.get_model(), model_context,
-                                         WebLogicHelper(__logger).get_actual_weblogic_version(), credential_cache)
+                                         WebLogicHelper(__logger).get_actual_weblogic_version(), credential_cache,
+                                         extra_cache)
 
     inserted, variable_model, variable_file_name = variable_injector.inject_variables_keyword_file()
 
