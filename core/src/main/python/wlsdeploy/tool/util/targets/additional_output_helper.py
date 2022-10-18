@@ -20,8 +20,8 @@ from wlsdeploy.aliases.model_constants import URL
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import k8s_helper
 from wlsdeploy.tool.util.targets import file_template_helper
+from wlsdeploy.tool.util.targets import model_crd_helper
 from wlsdeploy.tool.util.targets import output_file_helper
-from wlsdeploy.tool.util.targets import wko_schema_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import target_configuration_helper
@@ -133,7 +133,7 @@ def _get_template_source_name(template_name, target_configuration):
     product_version = target_configuration.get_product_version()
 
     # for backward compatibility with WKO v3
-    if product_version == wko_schema_helper.WKO_VERSION_3:
+    if product_version == model_crd_helper.WKO_VERSION_3:
         return template_name
 
     prefix, suffix = os.path.splitext(template_name)

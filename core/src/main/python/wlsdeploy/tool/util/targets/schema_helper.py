@@ -8,14 +8,11 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.json.json_translator import JsonStreamToPython
 from wlsdeploy.logging import platform_logger
-from wlsdeploy.tool.util.targets.document_folder import DocumentFolder
 from wlsdeploy.util import dictionary_utils
 
-CLUSTER_SCHEMA_NAME = 'cluster-crd-schema'
-DOMAIN_SCHEMA_NAME = 'domain-crd-schema'
+DOMAIN_RESOURCE_SCHEMA_ROOT = "openAPIV3Schema"
 SCHEMA_RESOURCE_EXTENSION = '.json'
 SCHEMA_RESOURCE_PATH = 'oracle/weblogic/deploy/wko'
-SCHEMA_ROOT_KEY = "openAPIV3Schema"
 
 SIMPLE_TYPES = [
     'integer',
@@ -42,73 +39,37 @@ OBJECT_NAME_ATTRIBUTES = {
     'spec/managedServers': 'serverName'
 }
 
-WKO_VERSION_3 = 'v3'
-WKO_VERSION_4 = 'v4'
-
-NO_DOC_FOLDER_KEY = "__NO_KEY__"
-
-# the folder name "" indicates there is no extra folder level
-# in the model between kubernetes and the schema data
-VERSION_FOLDER_INFOS = {
-    WKO_VERSION_3: {
-        NO_DOC_FOLDER_KEY: {
-            'schema_name': DOMAIN_SCHEMA_NAME + '-v8'
-        }
-    },
-    WKO_VERSION_4: {
-        "domain": {
-            'schema_name': DOMAIN_SCHEMA_NAME + '-v9'
-        },
-        "clusters": {
-            'schema_name': CLUSTER_SCHEMA_NAME + '-v1',
-            'is_array': True
-        }
-    }
-}
-
-
 _logger = platform_logger.PlatformLogger('wlsdeploy.deploy')
-_class_name = 'wko_schema_helper'
+_class_name = 'schema_helper'
 
 
-def get_valid_wko_versions():
-    return VERSION_FOLDER_INFOS.keys()
+def get_schema(schema_name, exception_type=ExceptionType.DEPLOY):
+    """
+    Read the CRD schema from its resource path.
+    """
+    _method_name = 'get_schema'
 
+    resource_name = schema_name + SCHEMA_RESOURCE_EXTENSION
+    resource_path = SCHEMA_RESOURCE_PATH + '/' + resource_name
 
-# get document folder information for model folders directly under kubernetes,
-# such as domain and clusters. these are not part of the schema definitions.
-def get_document_folders(wko_version, exception_type=ExceptionType.DEPLOY):
-    folder_infos = VERSION_FOLDER_INFOS[wko_version]
-    folder_keys = folder_infos.keys()
-    folder_keys.sort()
-    folders = []
-    for folder_key in folder_keys:
-        # lazy-load the folder information when requested
-        doc_folder = _get_document_folder(folder_infos, folder_key, exception_type)
-        folders.append(doc_folder)
-    return folders
+    template_stream = None
+    try:
+        template_stream = FileUtils.getResourceAsStream(resource_path)
+        if template_stream is None:
+            ex = exception_helper.create_exception(exception_type, 'WLSDPLY-10010', resource_path)
+            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
 
+        full_schema = JsonStreamToPython(resource_name, template_stream, True).parse()
 
-# return the document folder for the specified wko_version and model key.
-def get_document_folder(wko_version, model_key, exception_type=ExceptionType.DEPLOY):
-    folder_infos = VERSION_FOLDER_INFOS[wko_version]
-    return _get_document_folder(folder_infos, model_key, exception_type)
+        # remove the root element, since it has a version-specific name
+        schema = full_schema[DOMAIN_RESOURCE_SCHEMA_ROOT]
 
+    finally:
+        if template_stream:
+            template_stream.close()
 
-# return the keyless document folder for the specified wko_version, if available.
-def get_keyless_document_folder(wko_version, exception_type=ExceptionType.DEPLOY):
-    return get_document_folder(wko_version, NO_DOC_FOLDER_KEY, exception_type)
-
-
-def get_document_folder_keys(wko_version):
-    folder_infos = VERSION_FOLDER_INFOS[wko_version]
-    return folder_infos.keys()
-
-
-# deprecated, should be obsolete after WKO v4 changes
-def get_default_domain_resource_schema(exception_type=ExceptionType.DEPLOY):
-    doc_folder = get_document_folder(WKO_VERSION_3, NO_DOC_FOLDER_KEY, exception_type)
-    return doc_folder.get_schema()
+    return schema
 
 
 def is_single_object(schema_map):
@@ -226,44 +187,3 @@ def append_path(path, element):
     if path:
         return path + "/" + element
     return element
-
-
-def _get_schema(schema_name, exception_type):
-    _method_name = '_get_schema'
-
-    template_stream = None
-    try:
-        resource_name = schema_name + SCHEMA_RESOURCE_EXTENSION
-        resource_path = SCHEMA_RESOURCE_PATH + '/' + resource_name
-        template_stream = FileUtils.getResourceAsStream(resource_path)
-        if template_stream is None:
-            ex = exception_helper.create_exception(exception_type, 'WLSDPLY-10010', resource_path)
-            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-
-        full_schema = JsonStreamToPython(resource_name, template_stream, True).parse()
-
-        # remove the root element, since it has a version-specific name
-        schema = full_schema[SCHEMA_ROOT_KEY]
-
-    finally:
-        if template_stream:
-            template_stream.close()
-
-    return schema
-
-
-# return the document folder object for folder_info.
-# lazy load the document folder and its schema.
-def _get_document_folder(folder_infos, folder_key, exception_type):
-    folder_info = dictionary_utils.get_element(folder_infos, folder_key)
-    if not folder_info:
-        return None
-
-    doc_folder = dictionary_utils.get_element(folder_info, 'doc_folder')
-    if not doc_folder:
-        schema = _get_schema(folder_info['schema_name'], exception_type)
-        is_array = dictionary_utils.get_element(folder_info, 'is_array')
-        doc_folder = DocumentFolder(folder_key, schema, is_array)
-        folder_info['doc_folder'] = doc_folder
-    return doc_folder

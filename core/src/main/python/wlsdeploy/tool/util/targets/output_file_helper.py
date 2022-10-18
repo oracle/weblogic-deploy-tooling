@@ -4,8 +4,6 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 Methods to update an output file with information from the kubernetes section of the model.
 """
-from java.io import File
-
 from oracle.weblogic.deploy.util import PyOrderedDict
 from oracle.weblogic.deploy.util import PyRealBoolean
 from oracle.weblogic.deploy.yaml import YamlException
@@ -16,7 +14,8 @@ from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.util.targets import wko_schema_helper
+from wlsdeploy.tool.util.targets import model_crd_helper
+from wlsdeploy.tool.util.targets import schema_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
 from wlsdeploy.yaml.yaml_translator import YamlToPython
@@ -80,7 +79,7 @@ def _update_documents(documents, kubernetes_content, output_file_path):
     _method_name = '_update_documents'
     found = False
 
-    schema = wko_schema_helper.get_default_domain_resource_schema(ExceptionType.DEPLOY)
+    schema = model_crd_helper.get_default_domain_resource_schema(ExceptionType.DEPLOY)
 
     # update section(s) based on their kind, etc.
     for document in documents:
@@ -115,7 +114,7 @@ def _update_dictionary(output_dictionary, model_dictionary, schema_folder, schem
     :param output_dictionary: the dictionary to be updated
     :param model_dictionary: the dictionary to update from (type previously validated)
     :param schema_folder: the schema for this folder
-    :param schema_path: used for wko_schema_helper lookups and logging
+    :param schema_path: used for schema_helper lookups and logging
     :param output_file_path: used for logging
     """
     _method_name = '_update_dictionary'
@@ -125,16 +124,16 @@ def _update_dictionary(output_dictionary, model_dictionary, schema_folder, schem
         return
 
     # no type checking for elements of simple (single type) map
-    if wko_schema_helper.is_simple_map(schema_folder):
+    if schema_helper.is_simple_map(schema_folder):
         for key, value in model_dictionary.items():
             output_dictionary[key] = value
         return
 
-    properties = wko_schema_helper.get_properties(schema_folder)
+    properties = schema_helper.get_properties(schema_folder)
 
     for key, value in model_dictionary.items():
         property_folder = properties[key]
-        element_type = wko_schema_helper.get_type(property_folder)
+        element_type = schema_helper.get_type(property_folder)
 
         # deprecated "named object list" format
         value = _check_named_object_list(value, element_type, property_folder, schema_path, key)
@@ -144,7 +143,7 @@ def _update_dictionary(output_dictionary, model_dictionary, schema_folder, schem
 
         if isinstance(value, dict):
             output_dictionary[key] = dictionary_utils.get_element(output_dictionary, key, PyOrderedDict())
-            next_schema_path = wko_schema_helper.append_path(schema_path, key)
+            next_schema_path = schema_helper.append_path(schema_path, key)
             _update_dictionary(output_dictionary[key], value, property_folder, next_schema_path, output_file_path)
         elif isinstance(value, list):
             if not value:
@@ -152,7 +151,7 @@ def _update_dictionary(output_dictionary, model_dictionary, schema_folder, schem
                 output_dictionary[key] = value
             else:
                 output_dictionary[key] = dictionary_utils.get_element(output_dictionary, key, [])
-                next_schema_path = wko_schema_helper.append_path(schema_path, key)
+                next_schema_path = schema_helper.append_path(schema_path, key)
                 _update_list(output_dictionary[key], value, property_folder, next_schema_path, output_file_path)
         else:
             output_dictionary[key] = value
@@ -164,7 +163,7 @@ def _update_list(output_list, model_list, schema_folder, schema_path, output_fil
     :param output_list: the list to be updated
     :param model_list: the list to update from (type previously validated)
     :param schema_folder: the schema for members of this list
-    :param schema_path: used for wko_schema_helper lookups and logging
+    :param schema_path: used for schema_helper lookups and logging
     :param output_file_path: used for logging
     """
     _method_name = '_update_list'
@@ -177,12 +176,12 @@ def _update_list(output_list, model_list, schema_folder, schema_path, output_fil
         if isinstance(item, dict):
             match = _find_object_match(item, output_list, schema_path)
             if match:
-                next_schema_folder = wko_schema_helper.get_array_item_info(schema_folder)
+                next_schema_folder = schema_helper.get_array_item_info(schema_folder)
                 _update_dictionary(match, item, next_schema_folder, schema_path, output_file_path)
             else:
                 output_list.append(item)
         elif item not in output_list:
-            element_type = wko_schema_helper.get_array_element_type(schema_folder)
+            element_type = schema_helper.get_array_element_type(schema_folder)
             item = _convert_value(item, element_type)
             output_list.append(item)
 
@@ -192,10 +191,10 @@ def _find_object_match(item, match_list, schema_path):
     Find an object in match_list that has a name matching the item.
     :param item: the item to be matched
     :param match_list: a list of items
-    :param schema_path: used for wko_schema_helper key lookup
+    :param schema_path: used for schema_helper key lookup
     :return: a matching dictionary object
     """
-    key = wko_schema_helper.get_object_list_key(schema_path)
+    key = schema_helper.get_object_list_key(schema_path)
     item_key = item[key]
     if item_key:
         for match_item in match_list:
@@ -233,16 +232,16 @@ def _check_named_object_list(model_value, type_name, schema_folder, schema_path,
     :param model_value: the value to be checked
     :param type_name: the schema type name of the value
     :param schema_folder: the schema for the value being checked
-    :param schema_path: used for wko_schema_helper key lookup
-    :param key: used for wko_schema_helper key lookup
+    :param schema_path: used for schema_helper key lookup
+    :param key: used for schema_helper key lookup
     :return: the converted value
     """
     if type_name == 'array' and isinstance(model_value, dict):
         object_list = list()
-        next_schema_path = wko_schema_helper.append_path(schema_path, key)
-        list_key = wko_schema_helper.get_object_list_key(next_schema_path)
-        item_info = wko_schema_helper.get_array_item_info(schema_folder)
-        properties = wko_schema_helper.get_properties(item_info)
+        next_schema_path = schema_helper.append_path(schema_path, key)
+        list_key = schema_helper.get_object_list_key(next_schema_path)
+        item_info = schema_helper.get_array_item_info(schema_folder)
+        properties = schema_helper.get_properties(item_info)
 
         for model_key, model_object in model_value.items():
             new_object = model_object.copy()

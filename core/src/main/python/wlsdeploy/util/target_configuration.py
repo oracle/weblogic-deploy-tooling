@@ -6,7 +6,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.validate_configuration import VALIDATION_METHODS
-from wlsdeploy.tool.util.targets import wko_schema_helper
+from wlsdeploy.tool.util.targets import model_crd_helper
 
 # types for credential method
 CREDENTIALS_METHOD = "credentials_method"
@@ -233,8 +233,9 @@ class TargetConfiguration(object):
                                         target_configuration_file)
 
         product_version = self.get_product_version()
-        self._validate_enumerated_field(PRODUCT_VERSION, product_version, wko_schema_helper.get_valid_wko_versions(),
-                                        exit_code, target_configuration_file)
+        valid_product_versions = model_crd_helper.get_valid_versions(model_crd_helper.WKO_PRODUCT_KEY)
+        self._validate_enumerated_field(PRODUCT_VERSION, product_version, valid_product_versions, exit_code,
+                                        target_configuration_file)
 
         source_type = self._get_domain_home_source_type()
         self._validate_enumerated_field(DOMAIN_HOME_SOURCE_TYPE, source_type, SOURCE_TYPE_NAMES.keys(), exit_code,

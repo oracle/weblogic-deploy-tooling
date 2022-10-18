@@ -2,14 +2,14 @@
 Copyright (c) 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-from wlsdeploy.tool.util.targets import wko_schema_helper
+NO_FOLDER_KEY = "__NO_KEY__"
 
 
-class DocumentFolder:
+class ModelCrdFolder:
     """
-    A model folder that corresponds to a schema for a CRD document.
+    A model folder that represents the schema for a CRD document.
     """
-    _class_name = "WkoDocumentFolder"
+    _class_name = "ModelCrdFolder"
 
     def __init__(self, model_key, schema, is_array):
         self._model_key = model_key
@@ -26,4 +26,4 @@ class DocumentFolder:
         return self._schema
 
     def has_model_key(self):
-        return self._model_key != wko_schema_helper.NO_DOC_FOLDER_KEY
+        return self._model_key != NO_FOLDER_KEY

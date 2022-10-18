@@ -4,7 +4,8 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.util.targets import wko_schema_helper
+from wlsdeploy.tool.util.targets import model_crd_helper
+from wlsdeploy.tool.util.targets import schema_helper
 from wlsdeploy.tool.modelhelp import model_help_utils
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
 from wlsdeploy.util.exit_code import ExitCode
@@ -18,8 +19,7 @@ class ModelKubernetesPrinter(object):
     _logger = PlatformLogger('wlsdeploy.modelhelp')
 
     def __init__(self, model_context):
-        self._wko_version = model_context.get_target_configuration().get_product_version()
-        self._document_folders = wko_schema_helper.get_document_folders(self._wko_version)
+        self._crd_helper = model_crd_helper.get_helper(model_context)
 
     def print_model_sample(self, model_path_tokens, control_option):
         """
@@ -47,24 +47,24 @@ class ModelKubernetesPrinter(object):
 
         # examine model folders directly under kubernetes
 
-        for document_folder in self._document_folders:
+        for crd_folder in self._crd_helper.get_crd_folders():
             folder_path = path
             show_children = True
             indent = 1
 
-            if document_folder.has_model_key():
+            if crd_folder.has_model_key():
                 if control_option != ControlOptions.RECURSIVE:
                     print("")
 
-                model_key = document_folder.get_model_key()
+                model_key = crd_folder.get_model_key()
                 _print_indent(model_key + ':', indent)
                 show_children = control_option == ControlOptions.RECURSIVE
                 folder_path = path + '/' + model_key
                 indent = indent + 1
 
             if show_children:
-                schema = document_folder.get_schema()
-                in_array = document_folder.is_array()
+                schema = crd_folder.get_schema()
+                in_array = crd_folder.is_array()
 
                 if model_help_utils.show_attributes(control_option):
                     in_array = self._print_attributes_sample(schema, indent, in_array)
@@ -98,24 +98,24 @@ class ModelKubernetesPrinter(object):
 
         # resolve model folders directly under kubernetes
 
-        doc_folder = wko_schema_helper.get_keyless_document_folder(self._wko_version)
-        if not doc_folder:
+        crd_folder = self._crd_helper.get_keyless_crd_folder()
+        if not crd_folder:
             first_token = model_path_tokens[token_index]
-            doc_folder = wko_schema_helper.get_document_folder(self._wko_version, first_token)
-            if not doc_folder:
+            crd_folder = self._crd_helper.get_crd_folder(first_token)
+            if not crd_folder:
                 ex = exception_helper.create_cla_exception(
                     ExitCode.ARG_VALIDATION_ERROR, "WLSDPLY-10111", model_path, first_token,
-                    ', '.join(wko_schema_helper.get_document_folder_keys(self._wko_version)))
+                    ', '.join(self._crd_helper.get_crd_folder_keys()))
                 self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
 
-            model_key = doc_folder.get_model_key()
+            model_key = crd_folder.get_model_key()
             _print_indent(model_key + ":", indent, in_object_array)
             model_path += '/' + model_key
             token_index += 1
             indent += 1
 
-        schema = doc_folder.get_schema()
+        schema = crd_folder.get_schema()
 
         # process elements inside kubernetes sub-folders
 
@@ -137,7 +137,7 @@ class ModelKubernetesPrinter(object):
             indent += 1
 
             # apply to the next folder in the path
-            in_object_array = wko_schema_helper.is_object_array(current_folder)
+            in_object_array = schema_helper.is_object_array(current_folder)
             model_path = model_path + "/" + token
 
         # list the attributes and folders, as specified
@@ -166,11 +166,11 @@ class ModelKubernetesPrinter(object):
             property_map = folder_info[key]
 
             if property_map is not None:
-                if wko_schema_helper.is_single_object(property_map):
+                if schema_helper.is_single_object(property_map):
                     folder_map[key] = property_map
 
-                elif wko_schema_helper.is_object_array(property_map):
-                    folder_map[key] = wko_schema_helper.get_array_item_info(property_map)
+                elif schema_helper.is_object_array(property_map):
+                    folder_map[key] = schema_helper.get_array_item_info(property_map)
                     object_array_keys.append(key)
 
         folder_keys = list(folder_map.keys())
@@ -212,17 +212,17 @@ class ModelKubernetesPrinter(object):
         for key in properties:
             property_map = properties[key]
             if property_map is not None:
-                if wko_schema_helper.is_simple_map(property_map):
+                if schema_helper.is_simple_map(property_map):
                     # map of key / value pairs
                     attribute_map[key] = 'properties'
 
-                elif wko_schema_helper.is_simple_array(property_map):
+                elif schema_helper.is_simple_array(property_map):
                     # array of simple type
-                    attribute_map[key] = 'list of ' + wko_schema_helper.get_array_element_type(property_map)
+                    attribute_map[key] = 'list of ' + schema_helper.get_array_element_type(property_map)
 
-                elif not wko_schema_helper.is_object_type(property_map):
-                    type_text = wko_schema_helper.get_type(property_map)
-                    enum_values = wko_schema_helper.get_enum_values(property_map)
+                elif not schema_helper.is_object_type(property_map):
+                    type_text = schema_helper.get_type(property_map)
+                    enum_values = schema_helper.get_enum_values(property_map)
                     if enum_values:
                         type_text += ' (' + ', '.join(enum_values) + ')'
                     attribute_map[key] = type_text
@@ -249,11 +249,11 @@ class ModelKubernetesPrinter(object):
 
 def _get_properties(schema_folder):
     # in array elements, the properties are under "items"
-    if wko_schema_helper.is_object_array(schema_folder):
-        item_info = wko_schema_helper.get_array_item_info(schema_folder)
-        return wko_schema_helper.get_properties(item_info)
+    if schema_helper.is_object_array(schema_folder):
+        item_info = schema_helper.get_array_item_info(schema_folder)
+        return schema_helper.get_properties(item_info)
     else:
-        return wko_schema_helper.get_properties(schema_folder)
+        return schema_helper.get_properties(schema_folder)
 
 
 def _get_folder_names(schema_properties):
@@ -266,7 +266,7 @@ def _get_folder_names(schema_properties):
     for key in schema_properties:
         property_map = schema_properties[key]
         if property_map is not None:
-            if wko_schema_helper.is_object_type(property_map):
+            if schema_helper.is_object_type(property_map):
                 folder_names.append(key)
     return folder_names
 
