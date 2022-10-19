@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem modelHelp.cmd
 @rem
-@rem Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
+@rem Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME

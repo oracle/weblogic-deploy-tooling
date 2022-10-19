@@ -25,19 +25,6 @@ WKO_VALID_VERSIONS = [
 WKO_CLUSTER_SCHEMA_NAME = 'cluster-crd-schema'
 WKO_DOMAIN_SCHEMA_NAME = 'domain-crd-schema'
 
-UNSUPPORTED_FOLDERS = [
-    'status',
-    'metadata/initializers',
-    'metadata/ownerReferences'
-]
-
-# some object list members don't use 'name' as a key
-OBJECT_NAME_ATTRIBUTES = {
-    'spec/adminServer/adminService/channels': 'channelName',
-    'spec/clusters': 'clusterName',
-    'spec/managedServers': 'serverName'
-}
-
 
 class ModelCrdHelper:
     """
