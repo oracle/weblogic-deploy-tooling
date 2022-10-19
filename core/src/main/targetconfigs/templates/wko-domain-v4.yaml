@@ -1,7 +1,7 @@
 # Copyright (c) 2022, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-apiVersion: "weblogic.oracle/v8-zz"
+apiVersion: "weblogic.oracle/v9"
 kind: Domain
 metadata:
   name: {{{domainUid}}}
@@ -84,15 +84,15 @@ spec:
 
 {{#clusters}}
 ---
-apiVersion: "weblogic.oracle/v8-TODO"
-kind: Cluster?TODO
+apiVersion: "weblogic.oracle/v1"
+kind: Cluster
 metadata:
-  name: {{{domainUid}}}
+  name: {{{domainUid}}}-{{{clusterUid}}}
   namespace: {{{namespace}}}
   labels:
     weblogic.domainUID: {{{domainUid}}}
 spec:
-  clusterName: {{{domainUid}}}-{{{clusterUid}}}
+  clusterName: {{{clusterName}}}
   serverPod:
     # Instructs Kubernetes scheduler to prefer nodes for new cluster members where there are not
     # already members of the same cluster.
