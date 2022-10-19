@@ -12,9 +12,7 @@ from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.util.targets import model_crd_helper
 from wlsdeploy.tool.util.targets import schema_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
@@ -26,6 +24,7 @@ __logger = PlatformLogger('wlsdeploy.tool.util')
 KIND = 'kind'
 SPEC = 'spec'
 
+WKO_CLUSTER_KIND = 'Cluster'
 WKO_DOMAIN_KIND = 'Domain'
 CLUSTER_NAME = 'clusterName'
 CLUSTERS = 'clusters'
@@ -40,12 +39,12 @@ VERRAZZANO_WEBLOGIC_WORKLOAD_KIND = 'VerrazzanoWebLogicWorkload'
 WORKLOAD = 'workload'
 
 
-def update_from_model(crd_file, model):
+def update_from_model(crd_file, model, crd_helper):
     """
-    Update the output content with information from the kubernetes section of the model.
-    Output files are (currently) always Kubernetes resource files.
+    Update the CRD file content with information from the kubernetes section of the model.
     :param crd_file: the CRD java.io.File to be updated
     :param model: the model to use for update
+    :param crd_helper: used to get CRD folder information
     """
     _method_name = 'update_from_model'
 
@@ -64,7 +63,7 @@ def update_from_model(crd_file, model):
                         method_name=_method_name)
         return
 
-    _update_documents(documents, kubernetes_content, crd_file.getPath())
+    _update_documents(documents, kubernetes_content, crd_helper, crd_file.getPath())
 
     try:
         writer = PythonToYaml(documents)
@@ -75,37 +74,104 @@ def update_from_model(crd_file, model):
     return
 
 
-def _update_documents(documents, kubernetes_content, output_file_path):
+def _update_documents(crd_documents, model_content, crd_helper, output_file_path):
+    """
+    Update each CRD document from the model, if required.
+    :param crd_documents: the CRD documents to be updated
+    :param model_content: the model content to use for update
+    :param crd_helper: used to get CRD folder information
+    :param output_file_path: used for logging
+    """
     _method_name = '_update_documents'
     found = False
 
-    schema = model_crd_helper.get_default_domain_resource_schema(ExceptionType.DEPLOY)
-
     # update section(s) based on their kind, etc.
-    for document in documents:
-        if isinstance(document, dict):
-            kind = dictionary_utils.get_element(document, KIND)
+    for crd_document in crd_documents:
+        if isinstance(crd_document, dict):
+            kind = dictionary_utils.get_element(crd_document, KIND)
 
-            # is this a standard WKO document?
+            # is this a WKO domain document?
             if kind == WKO_DOMAIN_KIND:
-                _update_dictionary(document, kubernetes_content, schema, None, output_file_path)
-                _add_comments(document)
+                _update_crd_domain(crd_document, model_content, crd_helper, output_file_path)
+                _add_domain_comments(crd_document)
+                found = True
+
+            # is this a WKO v4 cluster document?
+            elif kind == WKO_CLUSTER_KIND:
+                _update_crd_cluster(crd_document, model_content, crd_helper, output_file_path)
                 found = True
 
             # is this a Verrazzano WebLogic workload document?
             elif kind == COMPONENT_KIND:
-                spec = dictionary_utils.get_dictionary_element(document, SPEC)
+                spec = dictionary_utils.get_dictionary_element(crd_document, SPEC)
                 workload = dictionary_utils.get_dictionary_element(spec, WORKLOAD)
                 component_kind = dictionary_utils.get_element(workload, KIND)
                 if component_kind == VERRAZZANO_WEBLOGIC_WORKLOAD_KIND:
                     component_spec = _get_or_create_dictionary(workload, SPEC)
                     component_template = _get_or_create_dictionary(component_spec, TEMPLATE)
-                    _update_dictionary(component_template, kubernetes_content, schema, None, output_file_path)
-                    _add_comments(component_template)
+                    _update_crd_domain(component_template, model_content, crd_helper, output_file_path)
+                    _add_domain_comments(component_template)
                     found = True
 
     if not found:
         __logger.warning('WLSDPLY-01676', output_file_path, class_name=__class_name, method_name=_method_name)
+
+
+def _update_crd_domain(crd_dictionary, model_dictionary, crd_helper, output_file_path):
+    """
+    Update the CRD domain dictionary from the model.
+    :param crd_dictionary: the CRD dictionary to be updated
+    :param model_dictionary: the model content to use for update
+    :param crd_helper: used to get CRD folder information
+    :param output_file_path: used for logging
+    """
+    keyless_crd_folder = crd_helper.get_keyless_crd_folder()
+    if keyless_crd_folder:
+        # this WKO version does not use model CRD sub-folders, use the single schema
+        schema = keyless_crd_folder.get_schema()
+        _update_dictionary(crd_dictionary, model_dictionary, schema, None, output_file_path)
+    else:
+        # this WKO version uses CRD sub-folders, use the domain folder
+        folder_key = 'domain'
+        domain_crd_folder = crd_helper.get_crd_folder(folder_key)
+        model_content = dictionary_utils.get_element(model_dictionary, folder_key)
+        if model_content:
+            schema = domain_crd_folder.get_schema()
+            _update_dictionary(crd_dictionary, model_content, schema, None, output_file_path)
+
+
+def _update_crd_cluster(crd_dictionary, model_dictionary, crd_helper, output_file_path):
+    """
+    Update the CRD cluster dictionary from the model.
+    :param crd_dictionary: the CRD dictionary to be updated
+    :param model_dictionary: the model content to use for update
+    :param crd_helper: used to get CRD folder information
+    :param output_file_path: used for logging
+    """
+    _method_name = '_update_crd_cluster'
+
+    folder_key = 'clusters'
+    model_clusters = dictionary_utils.get_element(model_dictionary, folder_key)
+    if model_clusters:
+        crd_name = _get_cluster_name(crd_dictionary)
+        model_cluster = _find_model_cluster(crd_name, model_clusters)
+        if model_cluster:
+            cluster_crd_folder = crd_helper.get_crd_folder(folder_key)
+            schema = cluster_crd_folder.get_schema()
+            _update_dictionary(crd_dictionary, model_cluster, schema, None, output_file_path)
+
+
+def _find_model_cluster(crd_name, model_clusters):
+    for model_cluster in model_clusters:
+        model_name = _get_cluster_name(model_cluster)
+        if crd_name == model_name:
+            return model_cluster
+    return None
+
+
+def _get_cluster_name(cluster):
+    spec = dictionary_utils.get_dictionary_element(cluster, SPEC)
+    return dictionary_utils.get_element(spec, CLUSTER_NAME)
 
 
 def _update_dictionary(output_dictionary, model_dictionary, schema_folder, schema_path, output_file_path):
@@ -256,10 +322,10 @@ def _check_named_object_list(model_value, type_name, schema_folder, schema_path,
     return model_value
 
 
-def _add_comments(wko_dictionary):
+def _add_domain_comments(wko_dictionary):
     """
     Add relevant comments to the output dictionary to provide additional information.
-    :param wko_dictionary: the top-level WKO dictionary containing metadata, spec, etc.
+    :param wko_dictionary: the WKO dictionary containing metadata, spec, etc.
     """
     spec = dictionary_utils.get_dictionary_element(wko_dictionary, SPEC)
     image_pull_secrets = dictionary_utils.get_element(spec, IMAGE_PULL_SECRETS)

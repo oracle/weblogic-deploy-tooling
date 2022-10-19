@@ -94,6 +94,30 @@ def process_target_arguments(argument_map):
             raise ex
 
 
+def generate_all_output_files(model, aliases, credential_injector, model_context, exception_type):
+    """
+    :param model: Model object, used to derive some values in the output
+    :param aliases: used to derive secret names
+    :param credential_injector: used to identify secrets
+    :param model_context: used to determine location and content for the output
+    :param exception_type: the type of exception to throw if needed
+    """
+    target_config = model_context.get_target_configuration()
+    credential_cache = credential_injector.get_variable_cache()
+
+    # Generate k8s create secret script
+    if target_config.generate_script_for_secrets():
+        generate_k8s_script(model_context, credential_cache, model.get_model(), exception_type)
+
+    if target_config.generate_json_for_secrets():
+        generate_k8s_json(model_context, credential_cache, model.get_model())
+
+    # create additional output after filtering, but before variables have been inserted
+    if model_context.is_targetted_config():
+        additional_output_helper.create_additional_output(model, model_context, aliases, credential_injector,
+                                                          exception_type)
+
+
 def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
 
     # determine the domain name and UID
@@ -270,19 +294,6 @@ def get_secret_name_for_location(location, domain_uid, aliases):
     variable_name = variable_injector_functions.format_variable_name(location, '(none)', aliases)
     secret_name = create_secret_name(variable_name)
     return domain_uid + '-' + secret_name
-
-
-def create_additional_output(model, model_context, aliases, credential_injector, exception_type):
-    """
-    Create any additional output specified in the target configuration.
-    :param model: used to create additional content
-    :param model_context: provides access to the target configuration
-    :param aliases: used for template fields
-    :param credential_injector: used to identify secrets
-    :param exception_type: type of exception to throw
-    """
-    additional_output_helper.create_additional_output(model, model_context, aliases, credential_injector,
-                                                      exception_type)
 
 
 def create_secret_name(variable_name, suffix=None):

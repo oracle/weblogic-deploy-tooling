@@ -108,9 +108,3 @@ def get_valid_versions(product_key):
     if product_key == WKO_PRODUCT_KEY:
         return WKO_VALID_VERSIONS
     return []
-
-
-# deprecated, should be obsolete after WKO v4 changes
-def get_default_domain_resource_schema(exception_type=ExceptionType.DEPLOY):
-    crd_helper = get_product_helper(WKO_PRODUCT_KEY, WKO_VERSION_3, exception_type)
-    return crd_helper.get_keyless_crd_folder().get_schema()

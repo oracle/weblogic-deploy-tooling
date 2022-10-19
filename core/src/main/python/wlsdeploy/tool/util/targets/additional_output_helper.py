@@ -19,9 +19,9 @@ from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.aliases.model_constants import URL
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import k8s_helper
+from wlsdeploy.tool.util.targets import crd_file_updater
 from wlsdeploy.tool.util.targets import file_template_helper
 from wlsdeploy.tool.util.targets import model_crd_helper
-from wlsdeploy.tool.util.targets import output_file_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import target_configuration_helper
@@ -43,6 +43,7 @@ DATASOURCE_PREFIX = 'datasourcePrefix'
 DATASOURCES = 'datasources'
 DATASOURCE_NAME = 'datasourceName'
 DATASOURCE_URL = 'url'
+DOMAIN_HOME = 'domainHome'
 DOMAIN_HOME_SOURCE_TYPE = 'domainHomeSourceType'
 DOMAIN_NAME = 'domainName'
 DOMAIN_PREFIX = 'domainPrefix'
@@ -61,14 +62,22 @@ USE_PERSISTENT_VOLUME = "usePersistentVolume"
 WEBLOGIC_CREDENTIALS_SECRET = 'webLogicCredentialsSecret'
 
 
-def create_additional_output(model, model_context, aliases, credential_injector, exception_type):
+def create_additional_output(model, model_context, aliases, credential_injector, exception_type,
+                             domain_home_override=None):
     """
     Create and write additional output for the configured target type.
+    Build a hash map of values to be applied to each template.
+    For each additional output type:
+      1) read the source template
+      2) apply the template hash to the template
+      3) write the result to the template output file
+      4) update the output file with content from the model (crd_file_updater)
     :param model: Model object, used to derive some values in the output
     :param model_context: used to determine location and content for the output
     :param aliases: used to derive secret names
     :param credential_injector: used to identify secrets
     :param exception_type: the type of exception to throw if needed
+    :param domain_home_override: (optionsl) domain home value to use in CRD, or None
     """
     target_configuration = model_context.get_target_configuration()
 
@@ -76,7 +85,7 @@ def create_additional_output(model, model_context, aliases, credential_injector,
     output_dir = model_context.get_output_dir()
 
     # all current output types use this hash, and process a set of template files
-    template_hash = _build_template_hash(model, model_context, aliases, credential_injector)
+    template_hash = _build_template_hash(model, model_context, aliases, credential_injector, domain_home_override)
     template_names = model_context.get_target_configuration().get_additional_output_types()
     for index, template_name in enumerate(template_names):
         source_file_name = _get_template_source_name(template_name, target_configuration)
@@ -89,7 +98,9 @@ def create_additional_output(model, model_context, aliases, credential_injector,
             output_file = File(os.path.join(output_dir, template_name))
 
         _create_file(source_file_name, template_hash, output_file, exception_type)
-        output_file_helper.update_from_model(output_file, model)
+
+        crd_helper = model_crd_helper.get_helper(model_context)
+        crd_file_updater.update_from_model(output_file, model, crd_helper)
 
 
 # *** DELETE METHOD WHEN deprecated -domain_resource_file IS REMOVED ***
@@ -140,13 +151,14 @@ def _get_template_source_name(template_name, target_configuration):
     return prefix + "-" + product_version + suffix
 
 
-def _build_template_hash(model, model_context, aliases, credential_injector):
+def _build_template_hash(model, model_context, aliases, credential_injector, domain_home_override):
     """
     Create a dictionary of substitution values to apply to the templates.
     :param model: Model object used to derive values
     :param model_context: used to determine domain type
     :param aliases: used to derive folder names
     :param credential_injector: used to identify secrets
+    :param domain_home_override: used as domain home if not None
     :return: the hash dictionary
     """
     template_hash = dict()
@@ -158,6 +170,9 @@ def _build_template_hash(model, model_context, aliases, credential_injector):
     if domain_name is None:
         domain_name = DEFAULT_WLS_DOMAIN_NAME
     template_hash[DOMAIN_NAME] = domain_name
+
+    if domain_home_override:
+        template_hash[DOMAIN_HOME] = domain_home_override
 
     # domain UID, prefix, and namespace must follow DNS-1123
 
