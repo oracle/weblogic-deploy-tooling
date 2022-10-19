@@ -69,6 +69,7 @@ ECHO.
 ECHO Usage: %SCRIPT_NAME%
 ECHO         [-help]
 ECHO         [-oracle_home ^<oracle_home^>]
+ECHO         [-target ^<target^>]
 ECHO         [-attributes_only ^| -folders_only ^| -recursive ^| -interactive]
 ECHO         ^<model_path^>
 ECHO.

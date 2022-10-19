@@ -77,6 +77,7 @@ ECHO              [-oracle_home ^<oracle_home^>]
 ECHO              [-model_file ^<model_file^>]
 ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-archive_file ^<archive_file^>]
+ECHO              [-target ^<target^>]
 ECHO              [-target_version ^<target_version^>]
 ECHO              [-target_mode ^<target_mode^>]
 ECHO              [-domain_type ^<domain_type^>]
@@ -110,6 +111,9 @@ ECHO                           not provided, validation will only validate the
 ECHO                           artifacts provided.  This can also be specified as a
 ECHO                           comma-separated list of archive files.  The overlapping contents in
 ECHO                           each archive take precedence over previous archives in the list.
+ECHO.
+ECHO         target          - target platform (wko, etc.).
+ECHO                           this determines the structure of the kubernetes section.
 ECHO.
 ECHO         target_version  - the target version of WebLogic Server the tool
 ECHO                           should use to validate the model content.  This
