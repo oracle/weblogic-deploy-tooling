@@ -11,7 +11,6 @@ from java.io import FileReader
 from java.io import FileWriter
 from java.lang import IllegalArgumentException
 from java.lang import StringBuilder
-from java.util.regex import Matcher
 from java.util.regex import Pattern
 
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
@@ -359,9 +358,8 @@ class DeploymentsDiscoverer(Discoverer):
         bis = BufferedReader(FileReader(jdbc_file))
         bos = BufferedWriter(FileWriter(jdbc_out))
         cache = StringBuilder()
-        found = False
         while bis.ready():
-            cache.append(bis.readLine())
+            cache.append(bis.readLine()).append("\n")
         bis.close()
         pattern = Pattern.compile("<name>(\s?)user(\s?)</name>")
         matcher = pattern.matcher(cache.toString())
@@ -375,26 +373,30 @@ class DeploymentsDiscoverer(Discoverer):
             matcher.find()
             pattern = Pattern.compile(matcher.group())
             matcher = pattern.matcher(cache.toString())
-            result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '.user', 'value'))
+            result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '.user:username', 'value'))
 
         pattern = Pattern.compile('<password-encrypted>(.+?)</password-encrypted>')
         matcher = pattern.matcher(result)
-        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '.pass.encrypt', 'password-encrypted'))
+        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '.user:password', 'password-encrypted'))
+
+        pattern = Pattern.compile('<url>(.+?)</url')
+        matcher = pattern.matcher(result)
+        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '.url', 'url', True))
 
         pattern = Pattern.compile('<ons-wallet-password-encrypted>(.+?)</ons-wallet-password-encrypted>')
         matcher = pattern.matcher(result)
-        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '.ons.pass.encrypt', 'ons-wallet-password-encrypted'))
+        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '.ons.pass.encrypt:password', 'ons-wallet-password-encrypted'))
         bos.write(result)
         bos.close()
         archive_file.replaceApplication(source_name, jdbc_out)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
-    def _get_pass_replacement(self, jdbc_file, name, type):
+    def _get_pass_replacement(self, jdbc_file, name, type, property=False):
         if self._credential_injector is not None:
             head, tail = os.path.split(jdbc_file)
             token = tail[:len(jdbc_file) - len('jdbc.xml')]
             token = token + name
-            result = self._credential_injector.injection_out_of_model(token)
+            result = self._credential_injector.injection_out_of_model(token, property)
         else:
             result = PASSWORD_TOKEN
         result = '<' + type + '>' + result + '</' + type + '>'

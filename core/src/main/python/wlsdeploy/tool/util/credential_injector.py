@@ -140,7 +140,7 @@ class CredentialInjector(VariableInjector):
                     assigns.append('%s=%s' % (key, properties[key]))
                 model_dict[attribute] = split_value.join(assigns)
 
-    def injection_out_of_model(self, token):
+    def injection_out_of_model(self, token, property=False):
         """
         This is for tokenizing variables that are not in the model but need to be in the variable file
         :param token: name for cache to create a token for
@@ -149,7 +149,10 @@ class CredentialInjector(VariableInjector):
         """
         _method_name = 'injection_out_of_model'
         _logger.entering(token, class_name=_class_name, method_name=_method_name)
-        result = self.get_variable_token(None, token)
+        if property:
+            result = self.get_property_token(None, token)
+        else:
+            result = self.get_variable_token(None, token)
         self.add_to_cache(token_name=token, token_value='')
 
         self._no_filter_keys_cache.append(token)
@@ -208,6 +211,9 @@ class CredentialInjector(VariableInjector):
             return target_configuration_helper.format_as_overrides_secret(variable_name)
         else:
             return VariableInjector.get_variable_token(self, attribute, variable_name)
+
+    def get_property_token(self, attribute, variable_name):
+        return VariableInjector.get_variable_token(self, attribute, variable_name)
 
     def _check_tokenized(self, attribute_value):
         """
