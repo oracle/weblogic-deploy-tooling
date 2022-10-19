@@ -32,13 +32,6 @@ UNSUPPORTED_FOLDERS = [
     'metadata/ownerReferences'
 ]
 
-# some object list members don't use 'name' as a key
-OBJECT_NAME_ATTRIBUTES = {
-    'spec/adminServer/adminService/channels': 'channelName',
-    'spec/clusters': 'clusterName',
-    'spec/managedServers': 'serverName'
-}
-
 _logger = platform_logger.PlatformLogger('wlsdeploy.deploy')
 _class_name = 'schema_helper'
 
@@ -168,19 +161,6 @@ def get_enum_values(schema_map):
 
 def is_unsupported_folder(path):
     return path in UNSUPPORTED_FOLDERS
-
-
-def get_object_list_key(schema_path):
-    """
-    Return the name of the attribute that acts as a key for objects in an object list.
-    In most cases, this is 'name', but there are a few exceptions.
-    :param schema_path: the path to be checked
-    :return: the object key
-    """
-    mapped_key = dictionary_utils.get_element(OBJECT_NAME_ATTRIBUTES, schema_path)
-    if mapped_key is not None:
-        return mapped_key
-    return 'name'
 
 
 def append_path(path, element):

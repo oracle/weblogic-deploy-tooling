@@ -30,59 +30,55 @@ class CrdFileUpdaterTest(BaseTestCase):
         Test that kubernetes section of the model is merged into the
         domain resource file correctly.
         """
-        resource = self._merge_and_read('k8s-model.yaml', 'wko-domain.yaml', model_crd_helper.WKO_VERSION_3)
+        documents = self._merge_and_read('k8s-model.yaml', 'wko-domain.yaml', model_crd_helper.WKO_VERSION_3)
+        self._match_values("Document count", len(documents), 1)
+        domain_resource = documents[0]
 
-        # domain home was overridden
-        domain_home = self._traverse(resource, 'spec', 'domainHome')
-        self._match_values("Domain home", domain_home, "modelHome")
+        # check simple fields
+        self._check_domain_crd(domain_resource)
 
         # only one cluster was added
-        cluster_list = self._traverse(resource, 'spec', 'clusters')
+        cluster_list = self._traverse(domain_resource, 'spec', 'clusters')
         self._match_values("Cluster count", len(cluster_list), 3)
         self._match_values("Third cluster name", cluster_list[2]['clusterName'], 'cluster3')
 
         # replica count of the first cluster was overridden
         self._match_values("First cluster replicas", cluster_list[0]['replicas'], 999)
-
-        # only one secret was added
-        secret_list = self._traverse(resource, 'spec', 'configuration', 'secrets')
-        self._match_values("Cluster count", len(secret_list), 3)
-        self._match_values("Third secret", secret_list[2], 'secret-three')
-
-        # only one env was added
-        env_list = self._traverse(resource, 'spec', 'serverPod', 'env')
-        self._match_values("Env count", len(env_list), 3)
-        self._match_values("Third env name", env_list[2]['name'], 'FROM_MODEL')
-
-        # value of the first env was overridden
-        self._match_values("First env value", env_list[0]['value'], '-DfromModel')
 
     def test_crd_file_updater_v4(self):
         """
         Test that kubernetes section of the model is merged into the
         domain resource file correctly.
         """
-        resource = self._merge_and_read('k8s-model-v4.yaml', 'wko-domain-v4.yaml', model_crd_helper.WKO_VERSION_4)
+        documents = self._merge_and_read('k8s-model-v4.yaml', 'wko-domain-v4.yaml', model_crd_helper.WKO_VERSION_4)
+        self._match_values("Document count", len(documents), 4)
+        domain_resource = documents[0]
 
-        # domain home was overridden
-        domain_home = self._traverse(resource, 'spec', 'domainHome')
-        self._match_values("Domain home", domain_home, "modelHome")
+        # check simple fields
+        self._check_domain_crd(domain_resource)
 
         # only one cluster was added
-        cluster_list = self._traverse(resource, 'spec', 'clusters')
-        self._match_values("Cluster count", len(cluster_list), 3)
-        self._match_values("Third cluster name", cluster_list[2]['clusterName'], 'cluster3')
+        cluster_list = self._traverse(domain_resource, 'spec', 'clusters')
+        self._match_values("Domain cluster count", len(cluster_list), 3)
+        self._match_values("Third domain cluster name", cluster_list[2]['name'], 'cluster3')
 
         # replica count of the first cluster was overridden
-        self._match_values("First cluster replicas", cluster_list[0]['replicas'], 999)
+        cluster_resource = documents[1]
+        replica_count = self._traverse(cluster_resource, 'spec', 'replicas')
+        self._match_values("First cluster replicas", replica_count, 999)
+
+    def _check_domain_crd(self, domain_resource):
+        # domain home was overridden
+        domain_home = self._traverse(domain_resource, 'spec', 'domainHome')
+        self._match_values("Domain home", domain_home, "modelHome")
 
         # only one secret was added
-        secret_list = self._traverse(resource, 'spec', 'configuration', 'secrets')
+        secret_list = self._traverse(domain_resource, 'spec', 'configuration', 'secrets')
         self._match_values("Cluster count", len(secret_list), 3)
         self._match_values("Third secret", secret_list[2], 'secret-three')
 
         # only one env was added
-        env_list = self._traverse(resource, 'spec', 'serverPod', 'env')
+        env_list = self._traverse(domain_resource, 'spec', 'serverPod', 'env')
         self._match_values("Env count", len(env_list), 3)
         self._match_values("Third env name", env_list[2]['name'], 'FROM_MODEL')
 
@@ -108,4 +104,4 @@ class CrdFileUpdaterTest(BaseTestCase):
 
         # re-read the output file
         reader = YamlToPython(output_file, True)
-        return reader.parse()
+        return reader.parse_documents()

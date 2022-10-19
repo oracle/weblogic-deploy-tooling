@@ -129,7 +129,7 @@ def _update_crd_domain(crd_dictionary, model_dictionary, crd_helper, output_file
     if keyless_crd_folder:
         # this WKO version does not use model CRD sub-folders, use the single schema
         schema = keyless_crd_folder.get_schema()
-        _update_dictionary(crd_dictionary, model_dictionary, schema, None, output_file_path)
+        _update_dictionary(crd_dictionary, model_dictionary, schema, None, keyless_crd_folder, output_file_path)
     else:
         # this WKO version uses CRD sub-folders, use the domain folder
         folder_key = 'domain'
@@ -137,7 +137,7 @@ def _update_crd_domain(crd_dictionary, model_dictionary, crd_helper, output_file
         model_content = dictionary_utils.get_element(model_dictionary, folder_key)
         if model_content:
             schema = domain_crd_folder.get_schema()
-            _update_dictionary(crd_dictionary, model_content, schema, None, output_file_path)
+            _update_dictionary(crd_dictionary, model_content, schema, None, domain_crd_folder, output_file_path)
 
 
 def _update_crd_cluster(crd_dictionary, model_dictionary, crd_helper, output_file_path):
@@ -158,7 +158,7 @@ def _update_crd_cluster(crd_dictionary, model_dictionary, crd_helper, output_fil
         if model_cluster:
             cluster_crd_folder = crd_helper.get_crd_folder(folder_key)
             schema = cluster_crd_folder.get_schema()
-            _update_dictionary(crd_dictionary, model_cluster, schema, None, output_file_path)
+            _update_dictionary(crd_dictionary, model_cluster, schema, None, cluster_crd_folder, output_file_path)
 
 
 def _find_model_cluster(crd_name, model_clusters):
@@ -174,13 +174,15 @@ def _get_cluster_name(cluster):
     return dictionary_utils.get_element(spec, CLUSTER_NAME)
 
 
-def _update_dictionary(output_dictionary, model_dictionary, schema_folder, schema_path, output_file_path):
+def _update_dictionary(output_dictionary, model_dictionary, schema_folder, schema_path, model_crd_folder,
+                       output_file_path):
     """
     Update output_dictionary with attributes from model_dictionary.
     :param output_dictionary: the dictionary to be updated
     :param model_dictionary: the dictionary to update from (type previously validated)
     :param schema_folder: the schema for this folder
     :param schema_path: used for schema_helper lookups and logging
+    :param model_crd_folder: required for object list matching
     :param output_file_path: used for logging
     """
     _method_name = '_update_dictionary'
@@ -202,7 +204,7 @@ def _update_dictionary(output_dictionary, model_dictionary, schema_folder, schem
         element_type = schema_helper.get_type(property_folder)
 
         # deprecated "named object list" format
-        value = _check_named_object_list(value, element_type, property_folder, schema_path, key)
+        value = _check_named_object_list(value, element_type, property_folder, schema_path, key, model_crd_folder)
         # end deprecated
 
         value = _convert_value(value, element_type)
@@ -210,7 +212,8 @@ def _update_dictionary(output_dictionary, model_dictionary, schema_folder, schem
         if isinstance(value, dict):
             output_dictionary[key] = dictionary_utils.get_element(output_dictionary, key, PyOrderedDict())
             next_schema_path = schema_helper.append_path(schema_path, key)
-            _update_dictionary(output_dictionary[key], value, property_folder, next_schema_path, output_file_path)
+            _update_dictionary(output_dictionary[key], value, property_folder, next_schema_path, model_crd_folder,
+                               output_file_path)
         elif isinstance(value, list):
             if not value:
                 # if the model has an empty list, override output value
@@ -218,18 +221,20 @@ def _update_dictionary(output_dictionary, model_dictionary, schema_folder, schem
             else:
                 output_dictionary[key] = dictionary_utils.get_element(output_dictionary, key, [])
                 next_schema_path = schema_helper.append_path(schema_path, key)
-                _update_list(output_dictionary[key], value, property_folder, next_schema_path, output_file_path)
+                _update_list(output_dictionary[key], value, property_folder, next_schema_path, model_crd_folder,
+                             output_file_path)
         else:
             output_dictionary[key] = value
 
 
-def _update_list(output_list, model_list, schema_folder, schema_path, output_file_path):
+def _update_list(output_list, model_list, schema_folder, schema_path, model_crd_folder, output_file_path):
     """
     Update output_list from model_list, overriding or merging existing values
     :param output_list: the list to be updated
     :param model_list: the list to update from (type previously validated)
     :param schema_folder: the schema for members of this list
     :param schema_path: used for schema_helper lookups and logging
+    :param model_crd_folder: required for object list matching
     :param output_file_path: used for logging
     """
     _method_name = '_update_list'
@@ -240,10 +245,10 @@ def _update_list(output_list, model_list, schema_folder, schema_path, output_fil
 
     for item in model_list:
         if isinstance(item, dict):
-            match = _find_object_match(item, output_list, schema_path)
+            match = _find_object_match(item, output_list, schema_path, model_crd_folder)
             if match:
                 next_schema_folder = schema_helper.get_array_item_info(schema_folder)
-                _update_dictionary(match, item, next_schema_folder, schema_path, output_file_path)
+                _update_dictionary(match, item, next_schema_folder, schema_path, model_crd_folder, output_file_path)
             else:
                 output_list.append(item)
         elif item not in output_list:
@@ -252,15 +257,16 @@ def _update_list(output_list, model_list, schema_folder, schema_path, output_fil
             output_list.append(item)
 
 
-def _find_object_match(item, match_list, schema_path):
+def _find_object_match(item, match_list, schema_path, model_crd_folder):
     """
     Find an object in match_list that has a name matching the item.
     :param item: the item to be matched
     :param match_list: a list of items
     :param schema_path: used for schema_helper key lookup
+    :param model_crd_folder: required for object list matching
     :return: a matching dictionary object
     """
-    key = schema_helper.get_object_list_key(schema_path)
+    key = model_crd_folder.get_object_list_key(schema_path)
     item_key = item[key]
     if item_key:
         for match_item in match_list:
@@ -292,7 +298,7 @@ def _convert_value(model_value, type_name):
 
 
 # *** DELETE METHOD WHEN deprecated "named object list" IS REMOVED ***
-def _check_named_object_list(model_value, type_name, schema_folder, schema_path, key):
+def _check_named_object_list(model_value, type_name, schema_folder, schema_path, key, model_crd_folder):
     """
     Convert specified model value to an object list if it uses deprecated "named object list" format.
     :param model_value: the value to be checked
@@ -300,12 +306,13 @@ def _check_named_object_list(model_value, type_name, schema_folder, schema_path,
     :param schema_folder: the schema for the value being checked
     :param schema_path: used for schema_helper key lookup
     :param key: used for schema_helper key lookup
+    :param model_crd_folder: required for object list matching
     :return: the converted value
     """
     if type_name == 'array' and isinstance(model_value, dict):
         object_list = list()
         next_schema_path = schema_helper.append_path(schema_path, key)
-        list_key = schema_helper.get_object_list_key(next_schema_path)
+        list_key = model_crd_folder.get_object_list_key(next_schema_path)
         item_info = schema_helper.get_array_item_info(schema_folder)
         properties = schema_helper.get_properties(item_info)
 

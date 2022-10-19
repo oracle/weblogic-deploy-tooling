@@ -93,12 +93,17 @@ def get_product_helper(product_key, product_version, exception_type=ExceptionTyp
 
         domain_schema = schema_helper.get_schema(WKO_DOMAIN_SCHEMA_NAME + "-v9", exception_type)
         domain_folder = ModelCrdFolder("domain", domain_schema, False)
+        domain_folder.add_object_list_key('spec/adminServer/adminService/channels', 'channelName')
+        domain_folder.add_object_list_key('spec/managedServers', 'serverName')
         helper.add_crd_folder(domain_folder)
 
     elif product_version == WKO_VERSION_3:
         domain_schema = schema_helper.get_schema(WKO_DOMAIN_SCHEMA_NAME + "-v8", exception_type)
-        crd_folder = ModelCrdFolder(model_crd_folder.NO_FOLDER_KEY, domain_schema, False)
-        helper.add_crd_folder(crd_folder)
+        domain_folder = ModelCrdFolder(model_crd_folder.NO_FOLDER_KEY, domain_schema, False)
+        domain_folder.add_object_list_key('spec/adminServer/adminService/channels', 'channelName')
+        domain_folder.add_object_list_key('spec/managedServers', 'serverName')
+        domain_folder.add_object_list_key('spec/clusters', 'clusterName')
+        helper.add_crd_folder(domain_folder)
 
     return helper
 

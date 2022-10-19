@@ -26,3 +26,24 @@ spec:
               value: "-Dweblogic.StdoutDebugEnabled=false"
             - name: USER_MEM_ARGS
               value: '-Djava.security.egd=file:/dev/./urandom -Xms64m -Xmx256m '
+---
+apiVersion: weblogic.oracle/v1
+kind: Cluster
+metadata:
+    name: demodomain-my-cluster
+spec:
+    clusterName: cluster1
+---
+apiVersion: weblogic.oracle/v1
+kind: Cluster
+metadata:
+    name: demodomain-my-cluster
+spec:
+    clusterName: cluster2
+---
+apiVersion: weblogic.oracle/v1
+kind: Cluster
+metadata:
+    name: demodomain-my-cluster
+spec:
+    clusterName: cluster3
