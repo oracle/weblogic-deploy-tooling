@@ -371,17 +371,20 @@ class DeploymentsDiscoverer(Discoverer):
             pattern = Pattern.compile("<value>(.+?)</value>")
             matcher = pattern.matcher(result[end:])
             matcher.find()
+            username = matcher.group()
+            username = username[len('<value>'):len(username) - len('</value>')]
             pattern = Pattern.compile(matcher.group())
             matcher = pattern.matcher(cache.toString())
-            result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '.user:username', 'value'))
+            result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '-user:username',
+                                                                     'value', username=username))
 
         pattern = Pattern.compile('<password-encrypted>(.+?)</password-encrypted>')
         matcher = pattern.matcher(result)
-        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '.user:password', 'password-encrypted'))
+        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '-user:password', 'password-encrypted'))
 
         pattern = Pattern.compile('<url>(.+?)</url')
         matcher = pattern.matcher(result)
-        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '.url', 'url', True))
+        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '-url', 'url', True))
 
         pattern = Pattern.compile('<ons-wallet-password-encrypted>(.+?)</ons-wallet-password-encrypted>')
         matcher = pattern.matcher(result)
@@ -391,12 +394,12 @@ class DeploymentsDiscoverer(Discoverer):
         archive_file.replaceApplication(source_name, jdbc_out)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
-    def _get_pass_replacement(self, jdbc_file, name, type, property=False):
+    def _get_pass_replacement(self, jdbc_file, name, type, property=False, username=''):
         if self._credential_injector is not None:
             head, tail = os.path.split(jdbc_file)
             token = tail[:len(jdbc_file) - len('jdbc.xml')]
             token = token + name
-            result = self._credential_injector.injection_out_of_model(token, property)
+            result = self._credential_injector.injection_out_of_model(token, property, username)
         else:
             result = PASSWORD_TOKEN
         result = '<' + type + '>' + result + '</' + type + '>'
