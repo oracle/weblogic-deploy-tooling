@@ -51,6 +51,7 @@ from wlsdeploy.tool.deploy.deployer import Deployer
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model_helper
 from wlsdeploy.util import string_utils
+from wlsdeploy.tool.util import appmodule_helper
 
 import wlsdeploy.util.variables as variables
 
@@ -223,6 +224,7 @@ class ApplicationsDeployer(Deployer):
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 
     def __substitute_appmodule_token(self, path, module_type):
+        # we need to substitute any token in the app module xml file
         if  self.version_helper.is_module_type_app_module(module_type):
             if os.path.isabs(path):
                 abspath = path
@@ -233,14 +235,20 @@ class ApplicationsDeployer(Deployer):
             variable_file = self.model_context.get_variable_file()
             if variable_file is not None and os.path.exists(variable_file):
                 original_variables = variables.load_variables(variable_file)
+
             fh = open(abspath, 'r')
             text = fh.read()
             fh.close()
-            newtext = variables.substitute_value(text, original_variables, self.model_context, encrypt_value=True)
+            tokens = []
+            # only jdbc for now
+            if module_type == 'jdbc':
+                origtext, result_tokens = appmodule_helper.process_jdbc_appmodule_xml(text, search_password_only=True)
+                tokens = result_tokens['found_tokens']
+
+            newtext = variables.substitute_value(text, original_variables, self.model_context, encrypt_token_list=tokens)
             newfh = open(abspath, 'w')
             newfh.write(newtext)
             newfh.close()
-
 
 
     def __online_deploy_apps_and_libs(self, base_location):
@@ -1025,7 +1033,7 @@ class ApplicationsDeployer(Deployer):
                     self.__substitute_appmodule_token(path, module_type)
 
 
-def __get_mt_names_from_location(self, app_location):
+    def __get_mt_names_from_location(self, app_location):
         dummy_location = LocationContext()
         token_name = self.aliases.get_name_token(dummy_location)
         dummy_location.add_name_token(token_name, self.model_context.get_domain_name())
@@ -1047,7 +1055,7 @@ def __get_mt_names_from_location(self, app_location):
         return resource_group_template_name, resource_group_name, partition_name
 
     def __deploy_app_online(self, application_name, source_path, targets, stage_mode=None, plan=None, partition=None,
-                            resource_group=None, resource_group_template=None, sub_module_targets = None,
+                            resource_group=None, resource_group_template=None, sub_module_targets=None,
                             module_type = None, options=None):
         """
         Deploy an application or shared library in online mode.

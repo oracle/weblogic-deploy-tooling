@@ -168,17 +168,18 @@ def get_variable_names(text):
     return names
 
 
-def substitute_value(text, variables, model_context, encrypt_value=False):
+def substitute_value(text, variables, model_context, encrypt_token_list=None):
     """
     Perform token substitutions on a single text value.
     If errors occur during substitution, throw a single VariableException.
     :param text: the original text
     :param variables: a dictionary of variables for substitution
     :param model_context: used to resolve variables in file paths
+    :param encrypt_token_list: encrypt the value if the token is in this list for app module xml
     """
     method_name = 'substitute_value'
     error_info = {'errorCount': 0}
-    result = _substitute(text, variables, model_context, error_info, encrypt_value=encrypt_value)
+    result = _substitute(text, variables, model_context, error_info, encrypt_token_list=encrypt_token_list)
     error_count = error_info['errorCount']
     if error_count:
         ex = exception_helper.create_variable_exception("WLSDPLY-01740", error_count)
@@ -240,14 +241,30 @@ def _process_node(nodes, variables, model_context, error_info):
             nodes[key] = _substitute(value, variables, model_context, error_info, attribute_name=key)
 
 
-def _substitute(text, variables, model_context, error_info, attribute_name=None, encrypt_value=False):
+def __in_appmodule_secret_token_list(token, name, key, encrypted_token_list):
+    if encrypted_token_list:
+        for item in encrypted_token_list:
+            env_matches = _environment_pattern.findall(item)
+            # first substitute @@ENV first, by this time it should have already flagged any error of missing ENV
+            for env_match_token, env_match_key in env_matches:
+                value = os.environ.get(str(env_match_key))
+                item = item.replace(env_match_token, value)
+                break
+
+            secret_matches = _secret_pattern.findall(item)
+            for matched_token, matched_name, matched_key in secret_matches:
+                if matched_token == token and matched_name == name and matched_key == key:
+                    return True
+    return False
+
+def _substitute(text, variables, model_context, error_info, attribute_name=None, encrypt_token_list=None):
     """
     Substitute token placeholders with their derived values.
     :param text: the text to process for token placeholders
     :param variables: the variables to use
     :param model_context: used to determine the validation method (strict, lax, etc.)
     :param error_info: collects information about errors encountered
-    :param encrypt_value: encrypt the clear text value with the domain salt before substitution.  It is only used
+    :param encrypt_token_list: encrypt the clear text value with the domain salt before substitution.  It is only used
     :      for app module application.
     :return: the replaced text
     """
@@ -274,8 +291,6 @@ def _substitute(text, variables, model_context, error_info, attribute_name=None,
                 continue
 
             value = variables[key]
-            if encrypt_value:
-                value = __wls_helper.encrypt(value, model_context.get_domain_home())
             text = text.replace(token, value)
 
         # check environment variables before @@FILE:/dir/@@ENV:name@@.txt@@
@@ -304,7 +319,7 @@ def _substitute(text, variables, model_context, error_info, attribute_name=None,
                 problem_found = True
                 continue
 
-            if encrypt_value:
+            if __in_appmodule_secret_token_list(token, name, key, encrypt_token_list):
                 value = __wls_helper.encrypt(value, model_context.get_domain_home())
 
             text = text.replace(token, value)
@@ -349,7 +364,6 @@ def _substitute(text, variables, model_context, error_info, attribute_name=None,
             else:
                 _report_token_issue("WLSDPLY-01746", method_name, allow_unresolved, attribute_name, text, sample)
                 _increment_error_count(error_info, allow_unresolved)
-
 
     return text
 
