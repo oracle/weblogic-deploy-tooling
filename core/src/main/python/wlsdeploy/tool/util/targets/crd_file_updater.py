@@ -99,6 +99,7 @@ def _update_documents(crd_documents, model_content, crd_helper, output_file_path
             # is this a WKO v4 cluster document?
             elif kind == WKO_CLUSTER_KIND:
                 _update_crd_cluster(crd_document, model_content, crd_helper, output_file_path)
+                _add_cluster_comments(crd_document)
                 found = True
 
             # is this a Verrazzano WebLogic workload document?
@@ -331,7 +332,7 @@ def _check_named_object_list(model_value, type_name, schema_folder, schema_path,
 
 def _add_domain_comments(wko_dictionary):
     """
-    Add relevant comments to the output dictionary to provide additional information.
+    Add relevant comments to the domain CRD dictionary to provide additional information.
     :param wko_dictionary: the WKO dictionary containing metadata, spec, etc.
     """
     spec = dictionary_utils.get_dictionary_element(wko_dictionary, SPEC)
@@ -348,6 +349,19 @@ def _add_domain_comments(wko_dictionary):
             last_key = cluster.keys()[-1]
             message = exception_helper.get_message('WLSDPLY-01680')
             cluster.addComment(last_key, REPLICAS + ': 99  # ' + message)
+
+
+def _add_cluster_comments(wko_dictionary):
+    """
+    Add relevant comments to the cluster CRD dictionary to provide additional information.
+    :param wko_dictionary: the WKO dictionary containing metadata, spec, etc.
+    """
+    spec = dictionary_utils.get_dictionary_element(wko_dictionary, SPEC)
+    cluster_keys = spec.keys()
+    if CLUSTER_NAME in cluster_keys and REPLICAS not in cluster_keys:
+        last_key = spec.keys()[-1]
+        message = exception_helper.get_message('WLSDPLY-01680')
+        spec.addComment(last_key, REPLICAS + ': 99  # ' + message)
 
 
 def _get_or_create_dictionary(dictionary, key):
