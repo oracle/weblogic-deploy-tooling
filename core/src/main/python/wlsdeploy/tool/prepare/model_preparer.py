@@ -367,7 +367,7 @@ class ModelPreparer:
 
             target_configuration_helper.generate_all_output_files(Model(full_model_dictionary), self._aliases,
                                                                   self.credential_injector, self.model_context,
-                                                                  ExceptionType.VALIDATE)
+                                                                  ExceptionType.PREPARE)
 
         except (ValidateException, VariableException, TranslateException), e:
             self._logger.severe('WLSDPLY-20009', _program_name, model_file_name, e.getLocalizedMessage(),

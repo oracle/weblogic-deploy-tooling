@@ -7,6 +7,7 @@ import re
 import os
 from java.io import File
 
+from oracle.weblogic.deploy.json import JsonException
 from oracle.weblogic.deploy.util import FileUtils
 
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
@@ -69,8 +70,8 @@ SECURITY_NM_PATTERN = re.compile('^SecurityConfig.NodeManager')
 SECURITY_NM_REPLACEMENT = 'SecurityConfig.NodeManager.'
 
 K8S_SCRIPT_NAME = 'create_k8s_secrets.sh'
-K8S_SECRET_JSON_NAME = 'k8s_secrets.json'
 K8S_SCRIPT_RESOURCE_PATH = 'oracle/weblogic/deploy/k8s/' + K8S_SCRIPT_NAME
+RESULTS_FILE_NAME = 'results.json'
 
 
 def process_target_arguments(argument_map):
@@ -96,6 +97,8 @@ def process_target_arguments(argument_map):
 
 def generate_all_output_files(model, aliases, credential_injector, model_context, exception_type):
     """
+    Create all output files indicated by the target configuration.
+    This should be called after model is filtered, but before it is tokenized.
     :param model: Model object, used to derive some values in the output
     :param aliases: used to derive secret names
     :param credential_injector: used to identify secrets
@@ -105,15 +108,14 @@ def generate_all_output_files(model, aliases, credential_injector, model_context
     target_config = model_context.get_target_configuration()
     credential_cache = credential_injector.get_variable_cache()
 
-    # Generate k8s create secret script
-    if target_config.generate_script_for_secrets():
+    if target_config.generate_results_file():
+        generate_results_json(model_context, credential_cache, model.get_model(), exception_type)
+
+    if target_config.generate_output_files():
+        # Generate k8s create secret script
         generate_k8s_script(model_context, credential_cache, model.get_model(), exception_type)
 
-    if target_config.generate_json_for_secrets():
-        generate_k8s_json(model_context, credential_cache, model.get_model())
-
-    # create additional output after filtering, but before variables have been inserted
-    if model_context.is_targetted_config():
+        # create additional output files
         additional_output_helper.create_additional_output(model, model_context, aliases, credential_injector,
                                                           exception_type)
 
@@ -200,55 +202,48 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary, excep
     FileUtils.chmod(k8s_file.getPath(), 0750)
 
 
-def generate_k8s_json(model_context, token_dictionary, model_dictionary):
+def generate_results_json(model_context, token_dictionary, model_dictionary, exception_type):
     """
-    Generate a json file.
+    Generate a JSON results file.
     :param model_context: used to determine output directory
     :param token_dictionary: contains every token
-    :param model_dictionary: used to determine domain UID
+    :param model_dictionary: used to determine data
     :param exception_type: type of exception to throw
     """
-    script_hash = _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary)
-
     file_location = model_context.get_output_dir()
-    k8s_file = os.path.join(file_location, K8S_SECRET_JSON_NAME)
-    result = _build_json_secrets_result(script_hash)
-    json_object = PythonToJson(result)
-    json_object.write_to_json_file(k8s_file)
-
-
-def _build_json_secrets_result(script_hash):
+    results_file = os.path.join(file_location, RESULTS_FILE_NAME)
 
     result = {}
-    secrets_array = []
+    result['secrets'] = _build_json_secrets_result(model_context, token_dictionary, model_dictionary)
 
-    for node in script_hash['secrets']:
-        secret = {}
-        for item in ['secretName', 'comments']:
-            secret[item] = node[item]
-        secret['keys'] = {}
-        secret['keys']['password'] = ""
-        secrets_array.append(secret)
+    json_object = PythonToJson(result)
+    try:
+        json_object.write_to_json_file(results_file)
+    except JsonException, ex:
+        raise exception_helper.create_exception(exception_type, 'WLSDPLY-01681', results_file,
+                                                ex.getLocalizedMessage(), error=ex)
 
-    for node in script_hash['pairedSecrets']:
-        secret = {}
-        for item in ['secretName', 'comments']:
-            secret[item] = node[item]
-        secret['keys'] = {}
-        secret['keys']['password'] = ""
-        secret['keys']['username'] = node['user']
-        # For ui, empty it now.
-        if secret['keys']['username'].startswith('@@SECRET:'):
-            secret['keys']['username'] = ""
-        if secret['secretName'] == 'weblogic-credentials':
-            secret['keys']['username'] = ""
-        secrets_array.append(secret)
 
-    result['secrets'] = secrets_array
-    result['domainUID'] = script_hash['domainUid']
-    result['namespace'] = script_hash['namespace']
+def _build_json_secrets_result(model_context, token_dictionary, model_dictionary):
+    script_hash = _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary)
+    secrets_map = {}
+    for secretType in ['secrets', 'pairedSecrets']:
+        for node in script_hash[secretType]:
+            secret_name = node['secretName']
+            keys = {}
+            user = dictionary_utils.get_element(node, 'user')
+            if user:
+                # For ui, empty it now.
+                if user.startswith('@@SECRET:'):
+                    user = ""
+                if secret_name == WEBLOGIC_CREDENTIALS_SECRET_NAME:
+                    user = ""
+                keys['username'] = user
 
-    return result
+            keys['password'] = ""
+            secret = {'keys': keys}
+            secrets_map[secret_name] = secret
+    return secrets_map
 
 
 def format_as_secret_token(secret_id, target_config):

@@ -80,13 +80,15 @@ def create_additional_output(model, model_context, aliases, credential_injector,
     :param domain_home_override: (optionsl) domain home value to use in CRD, or None
     """
     target_configuration = model_context.get_target_configuration()
+    template_names = target_configuration.get_additional_output_types()
+    if not len(template_names):
+        return
 
     # -output_dir argument was previously verified
     output_dir = model_context.get_output_dir()
 
     # all current output types use this hash, and process a set of template files
     template_hash = _build_template_hash(model, model_context, aliases, credential_injector, domain_home_override)
-    template_names = model_context.get_target_configuration().get_additional_output_types()
     for index, template_name in enumerate(template_names):
         source_file_name = _get_template_source_name(template_name, target_configuration)
 
