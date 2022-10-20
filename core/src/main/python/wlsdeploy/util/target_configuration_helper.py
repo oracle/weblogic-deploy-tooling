@@ -142,6 +142,7 @@ def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
     for secret_name in secret_names:
         secret_keys = secret_map[secret_name]
         user_name = dictionary_utils.get_element(secret_keys, SECRET_USERNAME_KEY)
+
         if user_name is None:
             secrets.append(_build_secret_hash(secret_name, None, PASSWORD_TAG))
         else:
