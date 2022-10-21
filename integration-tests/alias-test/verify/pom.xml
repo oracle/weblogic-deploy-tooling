@@ -6,11 +6,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>weblogic-deploy-alias-test</artifactId>
+    <artifactId>weblogic-deploy-alias-test-verify</artifactId>
     <packaging>pom</packaging>
 
     <parent>
-        <artifactId>weblogic-deploy-integration-tests</artifactId>
+        <artifactId>weblogic-deploy-alias-test</artifactId>
         <groupId>com.oracle.weblogic.lifecycle</groupId>
         <version>2.3.4-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -19,9 +19,4 @@
     <properties>
         <mw_home>${env.ORACLE_HOME}</mw_home>
     </properties>
-
-    <modules>
-        <module>generate</module>
-        <module>verify</module>
-    </modules>
 </project>

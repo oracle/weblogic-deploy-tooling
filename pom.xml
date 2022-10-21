@@ -59,6 +59,7 @@
         <unit-test-wlst-dir>${env.WLST_DIR}</unit-test-wlst-dir>
         <skipITs>true</skipITs>
         <alias-test-skipITs>true</alias-test-skipITs>
+        <alias-test-skip-generate>true</alias-test-skip-generate>
         <test.groups>gate</test.groups>
     </properties>
 
