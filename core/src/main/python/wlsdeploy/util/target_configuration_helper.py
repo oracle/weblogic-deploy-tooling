@@ -13,8 +13,6 @@ from oracle.weblogic.deploy.util import FileUtils
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
 from wlsdeploy.aliases.model_constants import CLUSTER
-from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
-from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -124,11 +122,7 @@ def generate_all_output_files(model, aliases, credential_injector, model_context
 def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
 
     # determine the domain name and UID
-    topology = dictionary_utils.get_dictionary_element(model_dictionary, TOPOLOGY)
-    domain_name = dictionary_utils.get_element(topology, NAME)
-    if domain_name is None:
-        domain_name = DEFAULT_WLS_DOMAIN_NAME
-
+    domain_name = k8s_helper.get_domain_name(model_dictionary)
     domain_uid = k8s_helper.get_domain_uid(domain_name)
     comment = exception_helper.get_message("WLSDPLY-01665")
     script_hash = {'domainUid': domain_uid, 'topComment': comment, 'namespace': domain_uid}
@@ -213,7 +207,12 @@ def generate_results_json(model_context, token_dictionary, model_dictionary, exc
     """
     file_location = model_context.get_output_dir()
     results_file = os.path.join(file_location, RESULTS_FILE_NAME)
+
+    domain_name = k8s_helper.get_domain_name(model_dictionary)
+    domain_uid = k8s_helper.get_domain_uid(domain_name)
+
     result = {
+        'domainUID': domain_uid,
         'secrets': _build_json_secrets_result(model_context, token_dictionary, model_dictionary),
         'clusters': _build_json_cluster_result(model_dictionary)
     }

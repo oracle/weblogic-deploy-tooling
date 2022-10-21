@@ -11,11 +11,9 @@ from java.io import File
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import CLUSTER
-from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
 from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
-from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.aliases.model_constants import URL
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import k8s_helper
@@ -168,9 +166,7 @@ def _build_template_hash(model, model_context, aliases, credential_injector, dom
 
     # actual domain name
 
-    domain_name = dictionary_utils.get_element(model.get_model_topology(), NAME)
-    if domain_name is None:
-        domain_name = DEFAULT_WLS_DOMAIN_NAME
+    domain_name = k8s_helper.get_domain_name(model.get_model())
     template_hash[DOMAIN_NAME] = domain_name
 
     if domain_home_override:

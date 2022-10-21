@@ -9,12 +9,22 @@ import re
 
 from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.model_constants import CLUSTER
+from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import DYNAMIC_CLUSTER_SIZE
 from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
 from wlsdeploy.aliases.model_constants import MAX_DYNAMIC_SERVER_COUNT
+from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.util import dictionary_utils
+
+
+def get_domain_name(model_dictionary):
+    topology = dictionary_utils.get_dictionary_element(model_dictionary, TOPOLOGY)
+    domain_name = dictionary_utils.get_element(topology, NAME)
+    if domain_name is None:
+        domain_name = DEFAULT_WLS_DOMAIN_NAME
+    return domain_name
 
 
 def get_domain_uid(domain_name):
