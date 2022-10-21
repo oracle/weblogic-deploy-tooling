@@ -488,14 +488,13 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
 
         # if target handles credential configuration, clear property cache to keep out of variables file.
         if model_context.get_target_configuration().manages_credentials():
-            credential_cache.clear()
+            credential_injector.clear_cache(credential_cache)
 
     # Apply the injectors specified in model_variable_injector.json, or in the target configuration.
     # Include the variable mappings that were collected in credential_cache.
-    extra_cache = dict()
+
     variable_injector = VariableInjector(_program_name, model.get_model(), model_context,
-                                         WebLogicHelper(__logger).get_actual_weblogic_version(), credential_cache,
-                                         extra_cache)
+                                         WebLogicHelper(__logger).get_actual_weblogic_version(), credential_cache)
 
     inserted, variable_model, variable_file_name = variable_injector.inject_variables_keyword_file()
 

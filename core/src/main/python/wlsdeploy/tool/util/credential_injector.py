@@ -144,7 +144,8 @@ class CredentialInjector(VariableInjector):
         """
         This is for tokenizing variables that are not in the model but need to be in the variable file
         :param token: name for cache to create a token for
-        :param attribute: attribute name
+        :param property: Determine if the property is a property or a secret
+        :param username: usernames appear as part of property value
         :return: tokenized name
         """
         _method_name = 'injection_out_of_model'

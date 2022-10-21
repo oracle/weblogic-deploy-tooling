@@ -107,6 +107,18 @@ class VariableInjector(object):
             self.__aliases = Aliases(model_context)
         self.__variable_dictionary = variable_dictionary
 
+    def clear_cache(self, cache):
+        """
+        Clear the cache of password and usernames.
+        :param cache: to c
+        """
+        entries = list()
+        for item in cache:
+            if ':password' in item or ':username' in item:
+                entries.append(item)
+        for entry in entries:
+            cache.pop(entry)
+
     def get_variable_cache(self):
         """
         This caches all variable information, both from running as a tool, and collected during special
