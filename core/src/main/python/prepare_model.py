@@ -9,10 +9,10 @@
 
 import sys
 
+from oracle.weblogic.deploy.prepare import PrepareException
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import PyWLSTException
 
-from oracle.weblogic.deploy.prepare import PrepareException
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.prepare.model_preparer import ModelPreparer
 from wlsdeploy.util import target_configuration_helper
@@ -83,11 +83,6 @@ def main(model_context):
     except (PrepareException, PyWLSTException), ex:
         _exit_code = ExitCode.ERROR
         __logger.severe('WLSDPLY-05801', ex.getLocalizedMessage(), error=ex, class_name=_class_name,
-                        method_name=_method_name)
-    except Exception, ex:
-        _exit_code = ExitCode.ERROR
-        message = str(sys.exc_type) + ': ' + str(sys.exc_value)
-        __logger.severe('WLSDPLY-05801', message, error=ex, class_name=_class_name,
                         method_name=_method_name)
 
     __logger.exiting(class_name=_class_name, method_name=_method_name, result=_exit_code)
