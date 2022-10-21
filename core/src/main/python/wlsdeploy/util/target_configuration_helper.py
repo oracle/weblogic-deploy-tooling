@@ -12,6 +12,7 @@ from oracle.weblogic.deploy.util import FileUtils
 
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
+from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.aliases.model_constants import TOPOLOGY
@@ -212,11 +213,12 @@ def generate_results_json(model_context, token_dictionary, model_dictionary, exc
     """
     file_location = model_context.get_output_dir()
     results_file = os.path.join(file_location, RESULTS_FILE_NAME)
-
-    result = {}
-    result['secrets'] = _build_json_secrets_result(model_context, token_dictionary, model_dictionary)
-
+    result = {
+        'secrets': _build_json_secrets_result(model_context, token_dictionary, model_dictionary),
+        'clusters': _build_json_cluster_result(model_dictionary)
+    }
     json_object = PythonToJson(result)
+
     try:
         json_object.write_to_json_file(results_file)
     except JsonException, ex:
@@ -244,6 +246,17 @@ def _build_json_secrets_result(model_context, token_dictionary, model_dictionary
             secret = {'keys': keys}
             secrets_map[secret_name] = secret
     return secrets_map
+
+
+def _build_json_cluster_result(model_dictionary):
+    clusters_map = {}
+    topology = dictionary_utils.get_dictionary_element(model_dictionary, TOPOLOGY)
+    clusters = dictionary_utils.get_dictionary_element(topology, CLUSTER)
+    for cluster_name, cluster_values in clusters.items():
+        server_count = k8s_helper.get_server_count(cluster_name, cluster_values, model_dictionary)
+        cluster_data = {'serverCount': server_count}
+        clusters_map[cluster_name] = cluster_data
+    return clusters_map
 
 
 def format_as_secret_token(secret_id, target_config):
