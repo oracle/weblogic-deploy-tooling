@@ -83,12 +83,6 @@
                                     <directory>${project.basedir}/src/test/resources</directory>
                                     <targetPath>${test_home}/resources</targetPath>
                                     <filtering>false</filtering>
-                                    <excludes>
-                                        <exclude>*.sh</exclude>
-                                        <exclude>*.cmd</exclude>
-                                        <exclude>generated</exclude>
-                                        <exclude>Dockerfile</exclude>
-                                    </excludes>
                                     <includes>
                                         <include>*</include>
                                     </includes>
