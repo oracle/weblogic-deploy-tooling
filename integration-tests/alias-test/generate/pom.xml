@@ -206,6 +206,38 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>generate-offline</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${project.basedir}/src/test/bin/doGenerateOffline.sh</executable>
+                            <!--
+                                  Once the admin server is running, don't stop the build if this script fails
+                                  so that the post-integration-test phase cleanup steps will execute.  Instead,
+                                  detect build failure in the verify step.
+                            -->
+                            <successCodes>
+                                <successCode>0</successCode>
+                                <successCode>1</successCode>
+                            </successCodes>
+                            <environmentVariables>
+                                <JAVA_HOME>${env.JAVA_HOME}</JAVA_HOME>
+                                <WLSDEPLOY_HOME>${project.build.directory}/weblogic-deploy</WLSDEPLOY_HOME>
+                                <TEST_HOME>${test_home}</TEST_HOME>
+                            </environmentVariables>
+                            <arguments>
+                                <argument>-oracle_home</argument>
+                                <argument>${mw_home}</argument>
+                                <argument>-domain_home</argument>
+                                <argument>${domain_home}</argument>
+                                <argument>-output_dir</argument>
+                                <argument>${project.build.directory}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>stop-admin-server</id>
                         <phase>post-integration-test</phase>
                         <goals>
@@ -220,6 +252,16 @@
                                 <argument>weblogic</argument>
                                 <argument>welcome1</argument>
                             </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>verify-generation</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${project.basedir}/src/test/bin/verifyGeneration.sh</executable>
                         </configuration>
                     </execution>
                 </executions>

@@ -15,11 +15,11 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 import aliastest.generate.generator_wlst as generator_wlst
 import aliastest.generate.utils as generator_utils
 
-CMO_READ_TYPE = 'cmo_read_type'
-FAIL = '*FAIL*'
-READ_ONLY = 'readonly'
-READ_WRITE = 'readwrite'
-UNKNOWN = 'unknown'
+CMO_READ_TYPE = generator_utils.CMO_READ_TYPE
+FAIL = generator_utils.FAIL
+READ_ONLY = generator_utils.READ_ONLY
+READ_WRITE = generator_utils.READ_WRITE
+UNKNOWN = generator_utils.UNKNOWN
 
 
 class MBeanMethodHelper(object):

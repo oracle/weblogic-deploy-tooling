@@ -14,13 +14,13 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 import aliastest.generate.generator_wlst as generate_wlst
 import aliastest.generate.utils as generator_utils
 
-CMO_READ_TYPE = 'cmo_read_type'
-DEPRECATED = 'deprecated'
-READ_ONLY = 'readonly'
-READ_WRITE = 'readwrite'
-RESTART = 'restart_required'
-SINCE_VERSION = 'since_version'
-UNKNOWN = 'unknown'
+CMO_READ_TYPE = generator_utils.CMO_READ_TYPE
+DEPRECATED = generator_utils.DEPRECATED
+READ_ONLY = generator_utils.READ_ONLY
+READ_WRITE = generator_utils.READ_WRITE
+RESTART = generator_utils.RESTART
+SINCE_VERSION = generator_utils.SINCE_VERSION
+UNKNOWN = generator_utils.UNKNOWN
 
 
 class MBeanInfoHelper(object):

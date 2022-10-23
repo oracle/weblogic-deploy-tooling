@@ -1,5 +1,5 @@
 """
-Copyright (c) 2021, Oracle Corporation and/or its affiliates.
+Copyright (c) 2021, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -19,16 +19,16 @@ from aliastest.generate.mbean_info_helper import MBeanInfoHelper
 from aliastest.generate.mbean_method_helper import MBeanMethodHelper
 from aliastest.generate.mbi_helper import MBIHelper
 
-ATTRIBUTES = 'attributes'
+ATTRIBUTES = generator_utils.ATTRIBUTES
 FALSE = 'false'
-INSTANCE_TYPE = 'instance'
-MULTIPLE = 'multiple'
+INSTANCE_TYPE = generator_utils.INSTANCE_TYPE
+MULTIPLE = generator_utils.MULTIPLE
 ONLINE_REFERENCE_ONLY = 'reference_only'
-RECHECK = 'recheck'
-SINGLE = 'single'
-SINGLE_NO_NAME = 'single_no_name'
+RECHECK = generator_utils.RECHECK
+SINGLE = generator_utils.SINGLE
+SINGLE_NO_NAME = generator_utils.SINGLE_NO_NAME
 TRUE = 'true'
-TYPE = 'wlst_type'
+TYPE = generator_utils.TYPE
 
 
 class OnlineGenerator(GeneratorBase):

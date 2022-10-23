@@ -8,7 +8,6 @@ import traceback
 
 import java.lang.System as System
 import java.util.logging.Level as Level
-import oracle.weblogic.deploy.json.JsonException as JJsonException
 
 pathname = os.path.join(os.environ['TEST_HOME'], 'python')
 sys.path.append(pathname)
@@ -19,8 +18,6 @@ sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 print sys.path
 
 from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.json.json_translator import JsonToPython
-from wlsdeploy.json.json_translator import PythonToJson
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
 import aliastest.generate.generator_wlst as generator_wlst
@@ -30,31 +27,6 @@ from aliastest.generate.generator_online import OnlineGenerator
 __logger = PlatformLogger('test.aliases.generate.online')
 __logger.set_level(Level.FINEST)
 CLASS_NAME = 'generate_online'
-
-
-def persist_file(model_context, dictionary):
-    """
-    Persist the generated online dictionary to the test files location and generated file name.
-    :param model_context: containing the test files location
-    :param dictionary: generated dictionary
-    :return: File name for persisted dictionary
-    """
-    _method_name = 'persist_file'
-    __logger.entering(class_name=CLASS_NAME, method_name=_method_name)
-
-    output_file = generator_utils.get_output_file_name(model_context, 'online')
-    __logger.info('Persist generated online dictionary to {0}', output_file,
-                  class_name=CLASS_NAME, method_name=_method_name)
-    try:
-        json_writer = PythonToJson(dictionary)
-        json_writer.write_to_json_file(output_file)
-    except JJsonException, ex:
-        __logger.severe('Failed to write online data to {0}: {1}', output_file, ex.getMessage(),
-                        error=ex, class_name=CLASS_NAME, method_name=_method_name)
-        raise ex
-
-    __logger.exiting(result=output_file, class_name=CLASS_NAME, method_name=_method_name)
-    return output_file
 
 
 def generate_online(model_context, sc_provider_dict):
@@ -70,25 +42,9 @@ def generate_online(model_context, sc_provider_dict):
     __logger.info('Generate online dictionary', class_name=CLASS_NAME,
                   method_name=_method_name)
     online_dictionary = OnlineGenerator(model_context, sc_provider_dict).generate()
+
     __logger.exiting(class_name=CLASS_NAME, method_name=_method_name)
     return online_dictionary
-
-
-def load_sc_provider_dict(model_context):
-    _method_name = 'load_sc_provider_dict'
-    __logger.entering(class_name=CLASS_NAME, method_name=_method_name)
-
-    sc_file_name = generator_utils.get_output_file_name(model_context, 'SC')
-    try:
-        json_reader = JsonToPython(sc_file_name)
-        dictionary = json_reader.parse()
-    except JJsonException, ex:
-        __logger.severe('Failed to read security configuration from {0}: {1}', sc_file_name, ex.getMessage(),
-                        error=ex, class_name=CLASS_NAME, method_name=_method_name)
-        raise ex
-
-    __logger.exiting(class_name=CLASS_NAME, method_name=_method_name, result=len(dictionary))
-    return dictionary
 
 
 def main(args):
@@ -112,15 +68,15 @@ def main(args):
         generator_wlst.connect(admin_user, admin_pass, admin_url)
         connected = True
         generator_wlst.wlst_silence()
-        sc_provider_dict = load_sc_provider_dict(online_model_context)
+        sc_provider_dict = generator_utils.load_sc_provider_dict(online_model_context)
         online_dictionary = generate_online(online_model_context, sc_provider_dict)
         if len(online_dictionary) == 0:
-            __logger.severe('Nothing generated for security configuration',
+            __logger.severe('Nothing generated for online',
                             class_name=CLASS_NAME, method_name=_method_name)
             system_exit = 1
         else:
-            result = persist_file(online_model_context, online_dictionary)
-            __logger.info('Security configuration generated and saved to {0}', result,
+            result = generator_utils.persist_file(online_model_context, online_dictionary, 'online')
+            __logger.info('Online generated and saved to {0}', result,
                           class_name=CLASS_NAME, method_name=_method_name)
     except:
         __logger.severe('Unhandled exception occurred', class_name=CLASS_NAME, method_name=_method_name)

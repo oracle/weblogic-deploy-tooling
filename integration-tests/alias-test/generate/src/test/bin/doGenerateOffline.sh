@@ -1,15 +1,15 @@
 #!/usr/bin/env sh
 # *****************************************************************************
-# doGenerateOnline.sh
+# doGenerateOffline.sh
 #
 # Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 # The Universal Permissive License (UPL), Version 1.0
 #
 #     NAME
-#       doGenerateOnline.sh - generate a JSON file with descriptions for the online MBeans.
+#       doGenerateOffline.sh - generate a JSON file with descriptions for the offline MBeans.
 #
 #     DESCRIPTION
-#       This script connects to the admin server and collects the information about the different
+#       This script connects reads the domain home and collects the information about the different
 #       MBeans that exist.
 #
 # This script uses the following command-line arguments directly, the rest
@@ -19,9 +19,6 @@
 #     - -output_dir         The location where to store the generated files and reports
 #                           and where to read the generated files to create the reports.
 #     - -domain_home        The directory where the domain is installed
-#     - -admin_user         The WebLogic Server admin username
-#     - -admin_pass         The WebLogic Server admin password
-#     - -admin_url          The running Admin Server URL
 #     - -status_dir         The directory where the successful completion status file will be created.
 #
 # This script uses the following variables:
@@ -43,7 +40,7 @@ BASEDIR="$(pwd)"
 
 . "${scriptPath}/helpers.sh"
 
-WLSDEPLOY_PROGRAM_NAME="alias_test_generate_online"; export WLSDEPLOY_PROGRAM_NAME
+WLSDEPLOY_PROGRAM_NAME="alias_test_generate_offline"; export WLSDEPLOY_PROGRAM_NAME
 
 if [ "${WLSDEPLOY_HOME}" = "" ]; then
     echo "WLSDEPLOY_HOME environment variable must be set" >&2
@@ -63,9 +60,6 @@ fi
 #
 # Find the args required to determine the WLST script to run
 #
-ADMIN_URL=$(getT3AdminUrl)
-ADMIN_USER=weblogic
-ADMIN_PASS=welcome1
 OUTPUT_DIR="${BASEDIR}/target"
 STATUS_DIR=""
 
@@ -86,18 +80,6 @@ while [[ $# -gt 1 ]]; do
         ;;
         -status_dir)
           STATUS_DIR="$2"
-          shift
-        ;;
-        -admin_user)
-          ADMIN_USER="$2"
-          shift
-        ;;
-        -admin_pass)
-          ADMIN_PASS="$2"
-          shift
-        ;;
-        -admin_url)
-          ADMIN_URL="$2"
           shift
         ;;
         *)
@@ -131,10 +113,13 @@ if [ -z "${STATUS_DIR}" ]; then
 fi
 
 #
-# Verify that the doGenerateSC script completed successfully; otherwise, exit.
+# Verify that the doGenerateSC and doGenerateOnline scripts completed successfully; otherwise, exit.
 #
 if [ ! -f "${STATUS_DIR}/doGenerateSC" ]; then
   echo "The doGenerateSC script status file ${STATUS_DIR}/doGenerateSC was not found so exiting" >&2
+  exit 1
+elif [ ! -f "${STATUS_DIR}/doGenerateOnline" ]; then
+  echo "The doGenerateOnline script status file ${STATUS_DIR}/doGenerateOnline was not found so exiting" >&2
   exit 1
 fi
 
@@ -178,26 +163,20 @@ echo "JAVA_PROPERTIES = ${JAVA_PROPERTIES}"
 
 PY_SCRIPTS_PATH=${TEST_HOME}/python
 
-echo "${WLST} ${PY_SCRIPTS_PATH}/generate_online.py \
+echo "${WLST} ${PY_SCRIPTS_PATH}/generate_offline.py \
     -oracle_home ${ORACLE_HOME} \
     -domain_home ${DOMAIN_HOME} \
-    -output_dir ${OUTPUT_DIR} \
-    -admin_user ${ADMIN_USER} \
-    -admin_pass ${ADMIN_PASS} \
-    -admin_url ${ADMIN_URL}"
-"${WLST}" "${PY_SCRIPTS_PATH}/generate_online.py" \
+    -output_dir ${OUTPUT_DIR}"
+"${WLST}" "${PY_SCRIPTS_PATH}/generate_offline.py" \
     -oracle_home "${ORACLE_HOME}" \
     -domain_home "${DOMAIN_HOME}" \
-    -output_dir "${OUTPUT_DIR}" \
-    -admin_user "${ADMIN_USER}" \
-    -admin_pass "${ADMIN_PASS}" \
-    -admin_url "${ADMIN_URL}"
+    -output_dir "${OUTPUT_DIR}"
 
 RETURN_CODE=$?
 if [ "${RETURN_CODE}" = "0" ]; then
-  echo "doGenerateOnline.sh completed successfully"
-  touch "${STATUS_DIR}/doGenerateOnline"
+  echo "doGenerateOffline.sh completed successfully"
+  touch "${STATUS_DIR}/doGenerateOffline"
 else
-  echo "doGenerateOnline.sh failed (exit code = ${RETURN_CODE})"
+  echo "doGenerateOffline.sh failed (exit code = ${RETURN_CODE})"
 fi
 exit ${RETURN_CODE}

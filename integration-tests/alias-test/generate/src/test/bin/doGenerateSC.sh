@@ -149,7 +149,7 @@ elif [ -f "${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh" ]; then
   WLST="${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh"
 elif [ -f "${ORACLE_HOME}/wlserver_12.1/common/bin/wlst.sh" ]; then
   WLST="${ORACLE_HOME}/wlserver_12.1/common/bin/wlst.sh"
-elif [-f "${ORACLE_HOME}/wlserver/common/bin/wlst.sh" ] && [ -f "${ORACLE_HOME}/wlserver/.product.properties" ]; then
+elif [ -f "${ORACLE_HOME}/wlserver/common/bin/wlst.sh" ] && [ -f "${ORACLE_HOME}/wlserver/.product.properties" ]; then
   WLST="${ORACLE_HOME}/wlserver/common/bin/wlst.sh"
 else
   echo "Unable to locate wlst.sh script in ORACLE_HOME ${ORACLE_HOME}" >&2

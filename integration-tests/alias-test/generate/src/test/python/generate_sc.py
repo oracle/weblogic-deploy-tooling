@@ -8,7 +8,6 @@ import traceback
 
 import java.lang.System as System
 import java.util.logging.Level as Level
-import oracle.weblogic.deploy.json.JsonException as JJsonException
 
 pathname = os.path.join(os.environ['TEST_HOME'], 'python')
 sys.path.append(pathname)
@@ -19,7 +18,6 @@ sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 print sys.path
 
 from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.json.json_translator import PythonToJson
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
 import aliastest.generate.generator_security_configuration as generator_security_configuration
@@ -30,30 +28,6 @@ import aliastest.generate.utils as generator_utils
 __logger = PlatformLogger('test.aliases.generate.sc')
 __logger.set_level(Level.FINEST)
 CLASS_NAME = 'generate_sc'
-
-
-def persist_file(model_context, dictionary):
-    """
-    Persist the generated online dictionary to the test files location and generated file name.
-    :param model_context: containing the test files location
-    :param dictionary: generated dictionary
-    :return: File name for persisted dictionary
-    """
-    _method_name = 'persist_file'
-    __logger.entering(class_name=CLASS_NAME, method_name=_method_name)
-
-    output_file = generator_utils.get_output_file_name(model_context, 'SC')
-    __logger.info('Persist generated SC dictionary to {0}', output_file, class_name=CLASS_NAME, method_name=_method_name)
-    try:
-        json_writer = PythonToJson(dictionary)
-        json_writer.write_to_json_file(output_file)
-    except JJsonException, ex:
-        __logger.severe('Failed to write security configuration to {0}: {1}', output_file, ex.getMessage(),
-                        error=ex, class_name=CLASS_NAME, method_name=_method_name)
-        raise ex
-
-    __logger.exiting(result=output_file, class_name=CLASS_NAME, method_name=_method_name)
-    return output_file
 
 
 def generate_sc(model_context):
@@ -100,7 +74,7 @@ def main(args):
                                 class_name=CLASS_NAME, method_name=_method_name)
                 system_exit = 1
             else:
-                result = persist_file(online_model_context, online_dictionary)
+                result = generator_utils.persist_file(online_model_context, online_dictionary, 'SC')
                 __logger.info('Security configuration generated and saved to {0}', result,
                               class_name=CLASS_NAME, method_name=_method_name)
         except:

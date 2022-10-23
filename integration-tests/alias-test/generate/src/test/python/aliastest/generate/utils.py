@@ -9,11 +9,52 @@ import java.lang.Boolean as Boolean
 import java.lang.Exception as JException
 import java.util.logging.Level as Level
 
+import oracle.weblogic.deploy.json.JsonException as JJsonException
+
 from oracle.weblogic.deploy.util import PyOrderedDict
 
+from wlsdeploy.json.json_translator import JsonToPython
+from wlsdeploy.json.json_translator import PythonToJson
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
+
+ATTRIBUTES = 'attributes'
+CMO_READ_TYPE = 'cmo_read_type'
+CMO_TYPE = 'cmo_wlst_type'
+DEPRECATED = 'deprecated'
+FAIL = '*FAIL*'
+INSTANCE_TYPE = 'instance'
+MULTIPLE = 'multiple'
+READ_ONLY = 'readonly'
+READ_WRITE = 'readwrite'
+RECHECK = 'recheck'
+RESTART = 'restart_required'
+SINCE_VERSION = 'since_version'
+SINGLE = 'single'
+SINGLE_NO_NAME = 'single_no_name'
+TYPE = 'wlst_type'
+UNKNOWN = 'unknown'
+
+ADJUDICATOR_STRING = 'Adjudicator'
+AUDITOR_STRING = 'Auditors'
+AUTHENTICATION_PROVIDER_STRING = 'AuthenticationProviders'
+AUTHORIZER_STRING = 'Authorizers'
+CERTPATH_PROVIDER_STRING = 'CertPathProviders'
+CREDENTIAL_MAPPER_STRING = 'CredentialMappers'
+PASSWORD_VALIDATOR_STRING = 'PasswordValidators'
+ROLE_MAPPER_STRING = 'RoleMappers'
+
+PROVIDERS = [
+    ADJUDICATOR_STRING,
+    AUDITOR_STRING,
+    AUTHENTICATION_PROVIDER_STRING,
+    AUTHORIZER_STRING,
+    CERTPATH_PROVIDER_STRING,
+    CREDENTIAL_MAPPER_STRING,
+    PASSWORD_VALIDATOR_STRING,
+    ROLE_MAPPER_STRING
+]
 
 OUTPUT_DIR_SWITCH = '-output_dir'
 
@@ -52,6 +93,66 @@ def get_generate_args_map(args):
 def get_model_context(program_name, wlst_mode, generate_args):
     generate_args[CommandLineArgUtil.TARGET_MODE_SWITCH] = wlst_mode
     return GenerateModelContext(program_name, generate_args)
+
+
+def load_sc_provider_dict(model_context):
+    _method_name = 'load_sc_provider_dict'
+    __logger.entering(class_name=CLASS_NAME, method_name=_method_name)
+
+    sc_file_name = get_output_file_name(model_context, 'SC')
+    try:
+        json_reader = JsonToPython(sc_file_name)
+        dictionary = json_reader.parse()
+    except JJsonException, ex:
+        __logger.severe('Failed to read security configuration from {0}: {1}', sc_file_name, ex.getMessage(),
+                        error=ex, class_name=CLASS_NAME, method_name=_method_name)
+        raise ex
+
+    __logger.exiting(class_name=CLASS_NAME, method_name=_method_name, result=len(dictionary))
+    return dictionary
+
+
+def load_online_dict(model_context):
+    _method_name = 'load_online_dict'
+    __logger.entering(class_name=CLASS_NAME, method_name=_method_name)
+
+    online_file_name = get_output_file_name(model_context, 'online')
+    try:
+        json_reader = JsonToPython(online_file_name)
+        dictionary = json_reader.parse()
+    except JJsonException, ex:
+        __logger.severe('Failed to read online file from {0}: {1}', online_file_name, ex.getMessage(),
+                        error=ex, class_name=CLASS_NAME, method_name=_method_name)
+        raise ex
+
+    __logger.exiting(class_name=CLASS_NAME, method_name=_method_name, result=len(dictionary))
+    return dictionary
+
+
+def persist_file(model_context, dictionary, mode):
+    """
+    Persist the generated online dictionary to the test files location and generated file name.
+    :param model_context: containing the test files' location
+    :param dictionary: generated dictionary
+    :mode: the mode being run (SC, online, or offline)
+    :return: File name for persisted dictionary
+    """
+    _method_name = 'persist_file'
+    __logger.entering(class_name=CLASS_NAME, method_name=_method_name)
+
+    output_file = get_output_file_name(model_context, mode)
+    __logger.info('Persist generated {0} dictionary to {1}', mode, output_file,
+                  class_name=CLASS_NAME, method_name=_method_name)
+    try:
+        json_writer = PythonToJson(dictionary)
+        json_writer.write_to_json_file(output_file)
+    except JJsonException, ex:
+        __logger.severe('Failed to write {0}} data to {1}: {2}', mode, output_file, ex.getMessage(),
+                        error=ex, class_name=CLASS_NAME, method_name=_method_name)
+        raise ex
+
+    __logger.exiting(result=output_file, class_name=CLASS_NAME, method_name=_method_name)
+    return output_file
 
 
 def get_output_file_name(model_context, mode_type):
@@ -139,6 +240,18 @@ def sort_dict(dictionary):
     return new_dictionary
 
 
+def get_lower_case_dict(value_list):
+    """
+    Create a dictionary whose key is the provided key value in lower case and whose value is the original key value.
+    :param value_list: List of key strings.
+    :return: Dictionary with lower case key and original value
+    """
+    lower_case_map = PyOrderedDict()
+    for value in value_list:
+        lower_case_map[value.lower()] = value
+    return lower_case_map
+
+
 def mbean_name(mbean_type):
     """
     Generate two different names for creating an MBean. The first name is a randomly generated name. The second
@@ -148,6 +261,16 @@ def mbean_name(mbean_type):
     """
 
     return mbean_type + '-' + str(random.randint(100, 65535)),  mbean_type
+
+
+def is_valid_getter(mbean_instance, mbean_type, get_method_name, attribute):
+    _method_name = 'is_valid_getter'
+    __logger.entering(get_method_name, mbean_type, class_name=CLASS_NAME, method_name=_method_name)
+
+    valid, __ = get_from_bean_proxy(mbean_instance, mbean_type, get_method_name, attribute)
+
+    __logger.exiting(class_name=CLASS_NAME, method_name=_method_name, result=Boolean(valid))
+    return valid
 
 
 def list_from_enumerations(enumerations):

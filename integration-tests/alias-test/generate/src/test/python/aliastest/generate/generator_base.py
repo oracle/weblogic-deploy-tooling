@@ -23,8 +23,8 @@ import aliastest.generate.utils as generator_utils
 BAD_ATTR_ERR = 'Attribute {0} is not present in LSA map and both the wlst.get() and CMO getter failed. ' \
                'This attribute should have been filtered out as it seems it is not valid'
 CMO_DEFAULT = 'cmo_default'
-CMO_TYPE = 'cmo_wlst_type'
-FAIL = '*FAIL*'
+CMO_TYPE = generator_utils.CMO_TYPE
+FAIL = generator_utils.FAIL
 GET_DEFAULT = 'get_default'
 GET_TYPE = 'get_wlst_type'
 IGNORE_METHODS_LIST = [
@@ -47,11 +47,11 @@ IGNORE_METHODS_LIST = [
 ]
 LSA_DEFAULT = 'lsa_default'
 LSA_TYPE = 'lsa_wlst_type'
-READ_ONLY = 'readonly'
+READ_ONLY = generator_utils.READ_ONLY
 READ_TYPE = 'read_type'
-READ_WRITE = 'readwrite'
-TYPE = 'wlst_type'
-UNKNOWN = 'unknown'
+READ_WRITE = generator_utils.READ_WRITE
+TYPE = generator_utils.TYPE
+UNKNOWN = generator_utils.UNKNOWN
 VARIATIONS = {'ies': 'y', 'es': '', 's': ''}
 
 

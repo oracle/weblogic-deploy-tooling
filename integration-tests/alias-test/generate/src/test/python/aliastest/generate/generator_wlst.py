@@ -1,5 +1,5 @@
 """
-Copyright (c) 2021, Oracle Corporation and/or its affiliates.
+Copyright (c) 2021, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import java.lang.Boolean as Boolean
@@ -7,7 +7,6 @@ import java.util.logging.Level as Level
 import java.util.Map as Map
 
 import com.oracle.cie.domain.script.jython.WLSTException as offlineWLSTException
-import weblogic.version as WebLogicVersionClass
 
 import java.lang.ClassCastException as ClassCastException
 import java.lang.NoSuchMethodException as NoSuchMethodException
@@ -20,14 +19,14 @@ __class_name = 'generate_wlst'
 
 wlst_functions = None
 
-STANDARD_VERSION_NUMBER_PLACES = 5
 
 def wlst_silence():
-    _method_name = 'wlst_silence'
-    __logger.entering(class_name=__class_name, method_name=_method_name)
     """
     Silence the chatter that wlst generates by default.
     """
+    _method_name = 'wlst_silence'
+    __logger.entering(class_name=__class_name, method_name=_method_name)
+
     local_wls = _load_global('WLS')
     local_wls_on = _load_global('WLS_ON')
     local_wls.setLogToStdOut(False)
@@ -36,6 +35,7 @@ def wlst_silence():
     local_wls_on.setHideDumpStack('true')
     local_wls.getCommandExceptionHandler().setMode(True)
     local_wls.getCommandExceptionHandler().setSilent(True)
+
     __logger.exiting(class_name=__class_name, method_name=_method_name)
 
 
@@ -49,26 +49,32 @@ def connect(userid, password, url):
     """
     _method_name = 'connect'
     __logger.entering(userid, url, class_name=__class_name, method_name=_method_name)
+
     online_wlst_exception = _load_global('WLSTException')
     try:
-        __logger.finer('WLSDPLYST-01323', url, class_name=__class_name, method_name=_method_name)
+        __logger.finer('Connect to admin server at {0}', url, class_name=__class_name, method_name=_method_name)
         local_connect = _load_global('connect')
 
         local_connect(username=userid, password=password, url=url)
         is_connected = _load_global('connected')
-        __logger.finer('WLSDPLYST-01324', url, is_connected, class_name=__class_name, method_name=_method_name)
+        __logger.finer('Status of connect to admin server at url {0} is {1}', url, is_connected,
+                       class_name=__class_name, method_name=_method_name)
         local_edit = _load_global('edit')
         local_edit()
-        __logger.finer('WLSDPLYST-01325', url, class_name=__class_name, method_name=_method_name)
+        __logger.finer('Cancel outstanding edit sessions for admin server at {0}', url,
+                       class_name=__class_name, method_name=_method_name)
         cancel_edit = _load_global('cancelEdit')
         cancel_edit('y')
-        __logger.finer('WLSDPLYST-01326', url, class_name=__class_name, method_name=_method_name)
+        __logger.finer('Start edit session under admin server at {0}', url,
+                       class_name=__class_name, method_name=_method_name)
 
         local_start_edit = _load_global('startEdit')
         local_start_edit()
     except online_wlst_exception, we:
-        __logger.warning('WLSDPLYST-01318', url, str(we), class_name=__class_name, method_name=_method_name)
+        __logger.warning('Unable to connect to the domain at url {0} : {1}', url, str(we),
+                         class_name=__class_name, method_name=_method_name)
     is_connected = _load_global('connected')
+
     __logger.exiting(result=is_connected, class_name=__class_name, method_name=_method_name)
     return is_connected
 
@@ -78,6 +84,7 @@ def disconnect():
     Disconnect from the connected domain admin server.
     """
     _method_name = 'disconnect'
+
     online_wlst_exception = _load_global('WLSTException')
     __logger.entering(class_name=__class_name, method_name=_method_name)
     try:
@@ -86,32 +93,15 @@ def disconnect():
         local_disconnect = _load_global('disconnect')
         local_disconnect()
     except online_wlst_exception, we:
-        __logger.warning('WLSDPLYST-01322', str(we), class_name=__class_name, method_name=_method_name)
+        __logger.warning('Unable to cancel edit session and disconnect : {0}', str(we),
+                         class_name=__class_name, method_name=_method_name)
+
     __logger.exiting(class_name=__class_name, method_name=_method_name)
-
-
-def get_domain_home():
-    """
-    Return the root directory of the domain while maintaining the current wlst location.
-    """
-    _method_name = 'get_domain_home'
-    __logger.entering(class_name=__class_name, method_name=_method_name)
-    domain_home = None
-    online_wlst_exception = _load_global('WLSTException')
-    local_cd = _load_global('cd')
-    try:
-        curr_path = current_path()
-        local_cd('/')
-        __, domain_home = get('RootDirectory')
-        local_cd(curr_path)
-    except online_wlst_exception, we:
-        __logger.warning('WLSDPLYST-01327', str(we), class_name=__class_name, method_name=_method_name)
-    __logger.exiting(class_name=__class_name, method_name=_method_name, result=domain_home)
-    return domain_home
 
 
 def get(attribute_name):
     _method_name = 'get'
+
     online_wlst_exception = _load_global('WLSTException')
     local_get = _load_global('get')
     get_value = None
@@ -120,8 +110,9 @@ def get(attribute_name):
         get_value = local_get(attribute_name)
     except (online_wlst_exception, offlineWLSTException), we:
         success = False
-        __logger.warning('WLSDPLYST-01339', attribute_name, current_path(), we.getLocalizedMessage(),
-                         class_name=__class_name, method_name=_method_name)
+        __logger.warning('Unable to get attribute{0} at location {1} : {2}', attribute_name, current_path(),
+                         we.getLocalizedMessage(), class_name=__class_name, method_name=_method_name)
+
     return success, get_value
 
 
@@ -141,6 +132,7 @@ def current_path():
 def get_mbean_proxy(path=None):
     _method_name = 'get_mbean_proxy'
     __logger.entering(path, class_name=__class_name, method_name=_method_name)
+
     if path is None:
         path = current_path()
     local_cd = _load_global('cd')
@@ -153,12 +145,14 @@ def get_mbean_proxy(path=None):
             update_cmo()
             local_cmo = _load_global('cmo')
             mbean_proxy = local_cmo
+
     __logger.exiting(class_name=__class_name, method_name=_method_name, result=mbean_proxy)
     return mbean_proxy
 
 
 def get_singleton_name(mbean_type):
     _method_name = 'get_singleton_name'
+
     online_wlst_exception = _load_global('WLSTException')
     local_ls = _load_global('ls')
     try:
@@ -174,6 +168,7 @@ def get_singleton_name(mbean_type):
     if len(name_list) > 1:
         __logger.warning('Singleton MBean {0} has more than one instance at location {1}', mbean_type, current_path(),
                          class_name=__class_name, method_name=_method_name)
+
     return name_list[0]
 
 
@@ -186,14 +181,17 @@ def read_domain(domain_home):
     """
     _method_name = 'read_domain'
     __logger.entering(domain_home, class_name=__class_name, method_name=_method_name)
+
     online_wlst_exception = _load_global('WLSTException')
     try:
         local_read_domain = _load_global('readDomain')
         local_read_domain(domain_home)
         open_domain = True
     except (online_wlst_exception, offlineWLSTException), we:
-        __logger.severe('WLSDPLYST-01319', domain_home, str(we), class_name=__class_name, method_name=_method_name)
+        __logger.severe('Unable to read the domain {0}: {1}', domain_home, str(we),
+                        class_name=__class_name, method_name=_method_name)
         open_domain = False
+
     __logger.exiting(result=open_domain, class_name=__class_name, method_name=_method_name)
     return open_domain
 
@@ -201,6 +199,7 @@ def read_domain(domain_home):
 def can_get(mbean_type, attribute_name):
     _method_name = 'can_get'
     __logger.entering(mbean_type, attribute_name, class_name=__class_name, method_name=_method_name)
+
     online_wlst_exception = _load_global('WLSTException')
     local_get = _load_global('get')
     success = True
@@ -230,15 +229,16 @@ def created(mbean_type, name):
     :return: True if successfully created
     """
     _method_name = 'created'
+
     online_wlst_exception = _load_global('WLSTException')
     try:
         local_create = _load_global('create')
         local_create(name, mbean_type)
     except (online_wlst_exception, offlineWLSTException, ClassCastException, NoSuchMethodException), e:
-        __logger.fine('Unable to create MBean {0} with name {1}  at location {2} : {3}',
-                      mbean_type, name, current_path(), str(e),
-                      class_name=__class_name, method_name=_method_name)
+        __logger.fine('Unable to create MBean {0} with name {1}  at location {2} : {3}', mbean_type, name,
+                      current_path(), str(e), class_name=__class_name, method_name=_method_name)
         return False
+
     return True
 
 
@@ -252,6 +252,7 @@ def created_security_provider(mbean_type, name, package):
     :return: True if successfully created
     """
     _method_name = 'created'
+
     online_wlst_exception = _load_global('WLSTException')
     result = None
     try:
@@ -261,20 +262,23 @@ def created_security_provider(mbean_type, name, package):
         __logger.fine('Unable to create MBean {0} with name {1} and provider name {2} at location {3} : {4}',
                       mbean_type, name, package, current_path(), str(e),
                       class_name=__class_name, method_name=_method_name)
+
     return result
 
 
 def cd_proxy(bean_dir):
     _method_name = 'cd_proxy'
     __logger.entering(bean_dir, class_name=__class_name, method_name=_method_name)
+
     online_wlst_exception = _load_global('WLSTException')
     local_cd = _load_global('cd')
     proxy = None
     try:
         proxy = local_cd(bean_dir)
     except (online_wlst_exception, offlineWLSTException), we:
-        __logger.warning('WLSDPLYST-01340', bean_dir, current_path(), we,
+        __logger.warning('Failure on wlst.cd({0}) at location {1}: {2}', bean_dir, current_path(), we,
                          class_name=__class_name, method_name=_method_name)
+
     __logger.exiting(class_name=__class_name, method_name=_method_name, result=proxy)
     return proxy
 
@@ -282,14 +286,16 @@ def cd_proxy(bean_dir):
 def cd_mbean(bean_dir):
     _method_name = 'cd_mbean'
     __logger.entering(bean_dir, class_name=__class_name, method_name=_method_name)
+
     online_wlst_exception = _load_global('WLSTException')
     success = True
     try:
         _load_global('cd')(bean_dir)
     except (online_wlst_exception, offlineWLSTException), we:
-        __logger.warning('WLSDPLYST-01340', bean_dir, current_path(), we.getLocalizedMessage(),
-                         class_name=__class_name, method_name=_method_name)
+        __logger.warning('Failure on wlst.cd({0}) at location {1}: {2}', bean_dir, current_path(),
+                         we.getLocalizedMessage(), class_name=__class_name, method_name=_method_name)
         success = False
+
     __logger.exiting(class_name=__class_name, method_name=_method_name, result=Boolean(success))
     return success
 
@@ -297,14 +303,16 @@ def cd_mbean(bean_dir):
 def child_mbean_types():
     _method_name = 'child_mbean_types'
     __logger.entering(class_name=__class_name, method_name=_method_name)
+
     online_wlst_exception = _load_global('WLSTException')
     child_mbeans = None
     try:
         list_child_types = _load_global('listChildTypes')
         child_mbeans = list_child_types()
     except online_wlst_exception, we:
-        __logger.warning('WLSDPLYST-01344', current_path(), we.getLocalizedMessage(),
-                         class_name=__class_name, method_name=_method_name)
+        __logger.warning('Unable to wlst.listChildTypes() at the current {0}: {1}', current_path(),
+                         we.getLocalizedMessage(), class_name=__class_name, method_name=_method_name)
+
     __logger.exiting(class_name=__class_name, method_name=_method_name, result=child_mbeans)
     return child_mbeans
 
@@ -312,14 +320,16 @@ def child_mbean_types():
 def ls_mbean_names(mbean_type):
     _method_name = 'ls_mbean_names'
     __logger.entering(mbean_type, class_name=__class_name, method_name=_method_name)
+
     online_wlst_exception = _load_global('WLSTException')
     local_ls = _load_global('ls')
     mbean_names_map = None
     try:
         mbean_names_map = local_ls(mbean_type, returnMap='true')
     except (online_wlst_exception, offlineWLSTException), we:
-        __logger.warning('WLSDPLYST-01341', mbean_type, current_path(), we.getLocalizedMessage(),
-                         class_name=__class_name, method_name=_method_name)
+        __logger.warning('Unable wlst.ls({0}), returnMap=true) at location {1}: {2}', mbean_type, current_path(),
+                         we.getLocalizedMessage(), class_name=__class_name, method_name=_method_name)
+
     __logger.exiting(class_name=__class_name, method_name=_method_name, result=mbean_names_map)
     return mbean_names_map
 
@@ -327,6 +337,7 @@ def ls_mbean_names(mbean_type):
 def ls_operations():
     _method_name = 'ls_operations'
     __logger.entering(class_name=__class_name, method_name=_method_name)
+
     online_wlst_exception = _load_global('WLSTException')
     local_ls = _load_global('ls')
     operations_list = list()
@@ -335,22 +346,24 @@ def ls_operations():
         if operations_map is not None and not isinstance(operations_map, basestring):
             operations_list = [operation for operation in operations_map]
     except (online_wlst_exception, offlineWLSTException), we:
-        __logger.warning('WLSDPLYST-01343', current_path(), we.getLocalizedMessage(),
-                         class_name=__class_name, method_name=_method_name)
+        __logger.warning('Unable wlst.ls(\'o\', returnMap=true) at location {0}: {1}', current_path(),
+                         we.getLocalizedMessage(), class_name=__class_name, method_name=_method_name)
+
     __logger.exiting(class_name=__class_name, method_name=_method_name, result=operations_list)
     return operations_list
 
 
 def lsa_string():
     _method_name = 'lsa_string'
+
     online_wlst_exception = _load_global('WLSTException')
     local_ls = _load_global('ls')
     attributes_str = None
     try:
         attributes_str = local_ls('a')
     except (online_wlst_exception, offlineWLSTException), we:
-        __logger.warning('WLSDPLYST-01321', current_path(), we.getLocalizedMessage(),
-                         class_name=__class_name, method_name=_method_name)
+        __logger.warning('Cannot get attribute information for mbean at location {0}', current_path(),
+                         we.getLocalizedMessage(), class_name=__class_name, method_name=_method_name)
     return attributes_str
 
 
@@ -360,7 +373,6 @@ def lsa_map():
      The reformatting converts to a valid dict and converts string none and null to None.
     :return: map of attributes at current location
     """
-    _method_name = 'lsa_map'
     make_dict = dict()
     result = lsa()
     if result and len(result) > 0:
@@ -375,6 +387,7 @@ def lsa_map():
                     make_dict[key] = new_value
             else:
                 make_dict[key] = value
+
     return make_dict
 
 
@@ -384,7 +397,6 @@ def lsa_map_modified():
      The reformatting converts to a valid dict and converts string none and null to None.
     :return: map of attributes at current location
     """
-    _method_name = 'lsa_map'
     make_dict = dict()
     result = lsa_modified()
     if result and len(result) > 0:
@@ -399,11 +411,13 @@ def lsa_map_modified():
                     make_dict[key] = new_value
             else:
                 make_dict[key] = value
+
     return make_dict
 
 
 def lsa():
     _method_name = 'lsa'
+
     online_wlst_exception = _load_global('WLSTException')
     local_lsa = _load_global('ls')
     mbean_map = None
@@ -417,14 +431,15 @@ def lsa():
             __logger.finer('LSA map at location {0} : {1}', current_path(), mbean_map,
                            class_name=__class_name, method_name=_method_name)
     except (online_wlst_exception, offlineWLSTException), we:
-        __logger.warning('WLSDPLYST-01321', current_path(), we.getLocalizedMessage(),
-                         class_name=__class_name, method_name=_method_name)
+        __logger.warning('Cannot get attribute information for mbean at location {0}', current_path(),
+                         we.getLocalizedMessage(), class_name=__class_name, method_name=_method_name)
 
     return mbean_map
 
 
 def lsa_modified():
     _method_name = 'lsa_modified'
+
     online_wlst_exception = _load_global('WLSTException')
     local_lsa = _load_global('ls')
     mbean_map = None
@@ -438,22 +453,24 @@ def lsa_modified():
             __logger.finer('LSA map at location {0} : {1}', current_path(), mbean_map,
                            class_name=__class_name, method_name=_method_name)
     except (online_wlst_exception, offlineWLSTException), we:
-        __logger.warning('WLSDPLYST-01321', current_path(), we.getLocalizedMessage(),
-                         class_name=__class_name, method_name=_method_name)
+        __logger.warning('Cannot get attribute information for mbean at location {0}', current_path(),
+                         we.getLocalizedMessage(), class_name=__class_name, method_name=_method_name)
 
     return mbean_map
 
 
 def lsc():
     _method_name = 'lsc'
+
     online_wlst_exception = _load_global('WLSTException')
     local_lsc = _load_global('ls')
     mbean_list = list()
     try:
         mbean_list = local_lsc(returnType='c', returnMap='true')
     except (online_wlst_exception, offlineWLSTException), we:
-        __logger.warning('WLSDPLYST-01321', current_path(), we.getLocalizedMessage(), 
-                         class_name=__class_name, method_name=_method_name)
+        __logger.warning('Cannot get attribute information for mbean at location {0}', current_path(),
+                         we.getLocalizedMessage(), class_name=__class_name, method_name=_method_name)
+
     return mbean_list
 
 
@@ -465,14 +482,15 @@ def lsc_modified():
     try:
         mbean_list = local_lsc('c', returnMap='true')
     except (online_wlst_exception, offlineWLSTException), we:
-        __logger.warning('WLSDPLYST-01321', current_path(), we.getLocalizedMessage(),
-                         class_name=__class_name, method_name=_method_name)
+        __logger.warning('Cannot get attribute information for mbean at location {0}', current_path(),
+                         we.getLocalizedMessage(), class_name=__class_name, method_name=_method_name)
     return mbean_list
 
 
 def get_mbi_info():
     _method_name = 'get_mbi_info'
     __logger.entering(class_name=__class_name, method_name=_method_name)
+
     mbi_info = None
     online_wlst_exception = _load_global('WLSTException')
     try:
@@ -480,9 +498,10 @@ def get_mbi_info():
         mbi_info = local_mbi()
         result = mbi_info.getMBeanDescriptor()
     except online_wlst_exception, we:
-        __logger.warning('WLSDPLYST-01345', current_path(), we.getLocalizedMessage(),
+        __logger.warning('Unable to wlst.getMBI() at the current {0} : {1}', current_path(), we.getLocalizedMessage(),
                          class_name=__class_name, method_name='get_mbi_info')
         result = 'Not found'
+
     __logger.exiting(class_name=__class_name, method_name=_method_name, result=result)
     return mbi_info
 
@@ -495,58 +514,3 @@ def _load_global(global_name):
     if member is None:
         raise AttributeError(global_name)
     return member
-
-
-def wls_version():
-    """
-    Return the version of the oracle home for the current wlst session.
-    :return: weblogic version
-    """
-    return str(WebLogicVersionClass.getReleaseBuildVersion())
-
-
-def _get_wl_version_array():
-    """
-    Get the WebLogic version number padded to the standard number of digits.
-    :return: the padded WebLogic version number
-    """
-    result = wls_version().split('.')
-
-    if len(result) < STANDARD_VERSION_NUMBER_PLACES:
-        index = len(result)
-        while index < STANDARD_VERSION_NUMBER_PLACES:
-            result.append('0')
-            index += 1
-
-    return result
-
-
-def is_weblogic_version_or_above(str_version):
-    """
-    Is the provided version number equal to or greater than the version encapsualted by this version instance
-    :param str_version: the string representation of the version to be compared
-    :return: True if the provided version is equal or greater than the version represented by this helper instance
-    """
-    result = False
-    array_version = str_version.split('.')
-    array_wl_version = _get_wl_version_array()
-
-    len_compare = len(array_wl_version)
-    if len(array_version) < len_compare:
-        len_compare = len(array_version)
-
-    idx = 0
-    while idx < len_compare:
-        compare_value = String(array_version[idx]).compareTo(String(array_wl_version[idx]))
-        if compare_value < 0:
-            result = True
-            break
-        elif compare_value > 0:
-            result = False
-            break
-        elif idx + 1 == len_compare:
-            result = True
-
-        idx += 1
-
-    return result
