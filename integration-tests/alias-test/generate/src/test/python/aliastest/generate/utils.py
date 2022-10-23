@@ -162,7 +162,7 @@ def get_output_file_name(model_context, mode_type):
     :param mode_type: 'offline', 'online', or 'SC'
     :return: full path to the output file
     """
-    file_name = 'generated%s%s' % (mode_type, model_context.get_target_wls_version().replace('.', ''))
+    file_name = 'generated%s-%s.json' % (mode_type, model_context.get_target_wls_version())
     return os.path.join(model_context.get_output_dir(), file_name)
 
 
