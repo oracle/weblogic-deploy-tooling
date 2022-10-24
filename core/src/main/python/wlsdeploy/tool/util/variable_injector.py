@@ -476,7 +476,7 @@ class VariableInjector(object):
 
     def get_variable_name(self, location, attribute, suffix=None):
         """
-        Return the variable name for use in the cache, and in the variable token. v
+        Return the variable name for use in the cache, and in the variable token.
         The default behavior is to return the concatenated location paths, with invalid characters cleared.
         Sub-classes may extend this for other types of tokens, such as @@SECRET.
         :param location: the location to be used
