@@ -280,6 +280,40 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.kordamp.maven</groupId>
+                <artifactId>oci-maven-plugin</artifactId>
+                <configuration>
+                    <skip>${alias-test-skip-generate}</skip>
+                    <namespaceName>${alias_test_tenancy}</namespaceName>
+                    <bucketName>wdt-alias-test-files</bucketName>
+                    <profile>DEFAULT</profile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>upload-online-file</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>put-object</goal>
+                        </goals>
+                        <configuration>
+                            <objectName>${alias-test-generated-online-file-name}</objectName>
+                            <file>${project.build.directory}/${alias-test-generated-online-file-name}</file>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>upload-offline-file</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>put-object</goal>
+                        </goals>
+                        <configuration>
+                            <objectName>${alias-test-generated-offline-file-name}</objectName>
+                            <file>${project.build.directory}/${alias-test-generated-offline-file-name}</file>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>

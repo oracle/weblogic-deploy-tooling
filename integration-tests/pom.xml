@@ -45,6 +45,11 @@
                     <artifactId>gmaven-plugin</artifactId>
                     <version>1.5</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.kordamp.maven</groupId>
+                    <artifactId>oci-maven-plugin</artifactId>
+                    <version>0.5.1</version>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
