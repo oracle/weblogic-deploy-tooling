@@ -60,7 +60,7 @@ def main(args):
             __logger.severe('Nothing generated for offline', class_name=CLASS_NAME, method_name=_method_name)
             system_exit = 1
         else:
-            result = generator_utils.persist_file(offline_model_context, offline_dictionary, 'offline')
+            result = generator_utils.persist_file(offline_model_context, offline_dictionary, 'Offline')
             __logger.info('Offline generated and saved to {0}', result,
                           class_name=CLASS_NAME, method_name=_method_name)
     except:

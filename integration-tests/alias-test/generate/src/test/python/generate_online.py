@@ -75,7 +75,7 @@ def main(args):
                             class_name=CLASS_NAME, method_name=_method_name)
             system_exit = 1
         else:
-            result = generator_utils.persist_file(online_model_context, online_dictionary, 'online')
+            result = generator_utils.persist_file(online_model_context, online_dictionary, 'Online')
             __logger.info('Online generated and saved to {0}', result,
                           class_name=CLASS_NAME, method_name=_method_name)
     except:

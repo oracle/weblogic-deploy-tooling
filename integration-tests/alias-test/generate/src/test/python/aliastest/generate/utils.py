@@ -116,7 +116,7 @@ def load_online_dict(model_context):
     _method_name = 'load_online_dict'
     __logger.entering(class_name=CLASS_NAME, method_name=_method_name)
 
-    online_file_name = get_output_file_name(model_context, 'online')
+    online_file_name = get_output_file_name(model_context, 'Online')
     try:
         json_reader = JsonToPython(online_file_name)
         dictionary = json_reader.parse()
@@ -159,7 +159,7 @@ def get_output_file_name(model_context, mode_type):
     """
     Get the full path to the file we want to write.
     :param model_context: model context object
-    :param mode_type: 'offline', 'online', or 'SC'
+    :param mode_type: 'Offline', 'Online', or 'SC'
     :return: full path to the output file
     """
     file_name = 'generated%s-%s.json' % (mode_type, model_context.get_target_wls_version())
