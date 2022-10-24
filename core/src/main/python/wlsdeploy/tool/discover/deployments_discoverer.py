@@ -233,14 +233,14 @@ class DeploymentsDiscoverer(Discoverer):
                     location.add_name_token(name_token, application)
                     result[application] = OrderedDict()
                     self._populate_model_parameters(result[application], location)
-                    self._add_application_to_archive(application, result[application], location)
+                    self._add_application_to_archive(application, result[application])
                     self._discover_subfolders(result[application], location)
                     location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result
 
-    def _add_application_to_archive(self, application_name, application_dict, location):
+    def _add_application_to_archive(self, application_name, application_dict):
         """
         Add the binary or directory referenced by the application to the archive file.
         If the binary can not be located and added to the archive file, un-target the application and log the problem.
