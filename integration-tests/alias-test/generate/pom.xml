@@ -318,7 +318,7 @@
                 <executions>
                     <execution>
                         <id>upload-online-file</id>
-                        <phase>verify</phase>
+                        <phase>install</phase>
                         <goals>
                             <goal>put-object</goal>
                         </goals>
@@ -329,7 +329,7 @@
                     </execution>
                     <execution>
                         <id>upload-offline-file</id>
-                        <phase>verify</phase>
+                        <phase>install</phase>
                         <goals>
                             <goal>put-object</goal>
                         </goals>
