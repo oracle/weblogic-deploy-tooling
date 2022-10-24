@@ -168,7 +168,7 @@ def get_singleton_name(mbean_type):
                          class_name=__class_name, method_name=_method_name)
         return None
     if len(name_list) == 0:
-        __logger.fine('No MBean instance found for {0} at location {1} and was not in listChildTypes',
+        __logger.warning('No MBean instance found for {0} at location {1} and was not in listChildTypes',
                          mbean_type, current_path(), class_name=__class_name, method_name=_method_name)
         return None
     if len(name_list) > 1:
