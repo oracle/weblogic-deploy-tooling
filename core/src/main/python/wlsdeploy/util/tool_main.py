@@ -97,10 +97,11 @@ def __handle_unexpected_exception(ex, model_context, class_name, method_name, lo
 
     if hasattr(ex, 'stackTrace'):
         # this works best for java exceptions, and gets the full stacktrace all the way back to weblogic.WLST
-        logger.fine('WLSDPLY-20036', program_name, ex.stackTrace, class_name=class_name, method_name=method_name)
+        logger.fine('WLSDPLY-20036', program_name, ex.stackTrace, class_name=class_name, method_name=method_name,
+                    error=ex)
     else:
         # this is for Python exceptions
         # Note: since this is Python 2, it seems we can only get the traceback object via sys.exc_info,
         # and of course only while in the except block handling code
         logger.fine('WLSDPLY-20036', program_name, traceback.format_exception(type(ex), ex, sys.exc_info()[2]),
-                    class_name=class_name, method_name=method_name)
+                    class_name=class_name, method_name=method_name, error=ex)

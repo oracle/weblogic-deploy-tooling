@@ -11,8 +11,8 @@ from wlsdeploy.logging import platform_logger
 from wlsdeploy.util import dictionary_utils
 
 DOMAIN_RESOURCE_SCHEMA_ROOT = "openAPIV3Schema"
-DOMAIN_RESOURCE_SCHEMA_FILE = 'domain-crd-schema-v8.json'
-DOMAIN_RESOURCE_SCHEMA_PATH = 'oracle/weblogic/deploy/wko/' + DOMAIN_RESOURCE_SCHEMA_FILE
+SCHEMA_RESOURCE_EXTENSION = '.json'
+SCHEMA_RESOURCE_PATH = 'oracle/weblogic/deploy/wko'
 
 SIMPLE_TYPES = [
     'integer',
@@ -32,32 +32,28 @@ UNSUPPORTED_FOLDERS = [
     'metadata/ownerReferences'
 ]
 
-# some object list members don't use 'name' as a key
-OBJECT_NAME_ATTRIBUTES = {
-    'spec/adminServer/adminService/channels': 'channelName',
-    'spec/clusters': 'clusterName',
-    'spec/managedServers': 'serverName'
-}
-
 _logger = platform_logger.PlatformLogger('wlsdeploy.deploy')
-_class_name = 'wko_schema_helper'
+_class_name = 'schema_helper'
 
 
-def get_domain_resource_schema(exception_type=ExceptionType.DEPLOY):
+def get_schema(schema_name, exception_type=ExceptionType.DEPLOY):
     """
-    Read the WKO domain resource schema from its resource path.
+    Read the CRD schema from its resource path.
     """
-    _method_name = 'get_domain_resource_schema'
+    _method_name = 'get_schema'
+
+    resource_name = schema_name + SCHEMA_RESOURCE_EXTENSION
+    resource_path = SCHEMA_RESOURCE_PATH + '/' + resource_name
 
     template_stream = None
     try:
-        template_stream = FileUtils.getResourceAsStream(DOMAIN_RESOURCE_SCHEMA_PATH)
+        template_stream = FileUtils.getResourceAsStream(resource_path)
         if template_stream is None:
-            ex = exception_helper.create_exception(exception_type, 'WLSDPLY-10010', DOMAIN_RESOURCE_SCHEMA_PATH)
+            ex = exception_helper.create_exception(exception_type, 'WLSDPLY-10010', resource_path)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
-        full_schema = JsonStreamToPython(DOMAIN_RESOURCE_SCHEMA_FILE, template_stream, True).parse()
+        full_schema = JsonStreamToPython(resource_name, template_stream, True).parse()
 
         # remove the root element, since it has a version-specific name
         schema = full_schema[DOMAIN_RESOURCE_SCHEMA_ROOT]
@@ -165,19 +161,6 @@ def get_enum_values(schema_map):
 
 def is_unsupported_folder(path):
     return path in UNSUPPORTED_FOLDERS
-
-
-def get_object_list_key(schema_path):
-    """
-    Return the name of the attribute that acts as a key for objects in an object list.
-    In most cases, this is 'name', but there are a few exceptions.
-    :param schema_path: the path to be checked
-    :return: the object key
-    """
-    mapped_key = dictionary_utils.get_element(OBJECT_NAME_ATTRIBUTES, schema_path)
-    if mapped_key is not None:
-        return mapped_key
-    return 'name'
 
 
 def append_path(path, element):

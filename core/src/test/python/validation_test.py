@@ -9,6 +9,7 @@ from java.util.logging import Level
 from oracle.weblogic.deploy.logging import SummaryHandler
 from oracle.weblogic.deploy.logging import WLSDeployLogEndHandler
 
+from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.util.model_translator import FileToPython
@@ -37,6 +38,7 @@ class ValidationTestCase(unittest.TestCase):
     # _model_file = _resources_dir + '/test_empty.json'
     # _variable_file = _resources_dir + "/test_invalid_variable_file.properties"
     # _archive_file = _resources_dir + "/test_jms_archive.zip"
+    _wls_version = '12.2.1.3'
 
     def setUp(self):
         self.name = 'ValidationTestCase'
@@ -79,11 +81,11 @@ class ValidationTestCase(unittest.TestCase):
         }
 
         model_context = ModelContext('ValidationTestCase', args_map)
+        aliases = Aliases(model_context, wls_version=self._wls_version)
 
         try:
             model_dictionary = FileToPython(model_context.get_model_file()).parse()
-            model_validator = Validator(model_context,
-                                        wlst_mode=WlstModes.ONLINE)
+            model_validator = Validator(model_context, aliases, wlst_mode=WlstModes.ONLINE)
             return_code = model_validator.validate_in_tool_mode(model_dictionary,
                                                                 model_context.get_variable_file(),
                                                                 model_context.get_archive_file_name())
@@ -129,11 +131,11 @@ class ValidationTestCase(unittest.TestCase):
         }
 
         model_context = ModelContext('ValidationTestCase', args_map)
+        aliases = Aliases(model_context, wls_version=self._wls_version)
 
         try:
             model_dictionary = FileToPython(model_context.get_model_file()).parse()
-            model_validator = Validator(model_context,
-                                        wlst_mode=WlstModes.ONLINE)
+            model_validator = Validator(model_context, aliases, wlst_mode=WlstModes.ONLINE)
             return_code = model_validator.validate_in_tool_mode(model_dictionary,
                                                                 model_context.get_variable_file(),
                                                                 model_context.get_archive_file_name())

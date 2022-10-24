@@ -7,12 +7,12 @@ import re
 import os
 from java.io import File
 
+from oracle.weblogic.deploy.json import JsonException
 from oracle.weblogic.deploy.util import FileUtils
 
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
-from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
-from wlsdeploy.aliases.model_constants import NAME
+from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -69,8 +69,8 @@ SECURITY_NM_PATTERN = re.compile('^SecurityConfig.NodeManager')
 SECURITY_NM_REPLACEMENT = 'SecurityConfig.NodeManager.'
 
 K8S_SCRIPT_NAME = 'create_k8s_secrets.sh'
-K8S_SECRET_JSON_NAME = 'k8s_secrets.json'
 K8S_SCRIPT_RESOURCE_PATH = 'oracle/weblogic/deploy/k8s/' + K8S_SCRIPT_NAME
+RESULTS_FILE_NAME = 'results.json'
 
 
 def process_target_arguments(argument_map):
@@ -94,14 +94,35 @@ def process_target_arguments(argument_map):
             raise ex
 
 
+def generate_all_output_files(model, aliases, credential_injector, model_context, exception_type):
+    """
+    Create all output files indicated by the target configuration.
+    This should be called after model is filtered, but before it is tokenized.
+    :param model: Model object, used to derive some values in the output
+    :param aliases: used to derive secret names
+    :param credential_injector: used to identify secrets
+    :param model_context: used to determine location and content for the output
+    :param exception_type: the type of exception to throw if needed
+    """
+    target_config = model_context.get_target_configuration()
+    credential_cache = credential_injector.get_variable_cache()
+
+    if target_config.generate_results_file():
+        generate_results_json(model_context, credential_cache, model.get_model(), exception_type)
+
+    if target_config.generate_output_files():
+        # Generate k8s create secret script
+        generate_k8s_script(model_context, credential_cache, model.get_model(), exception_type)
+
+        # create additional output files
+        additional_output_helper.create_additional_output(model, model_context, aliases, credential_injector,
+                                                          exception_type)
+
+
 def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
 
     # determine the domain name and UID
-    topology = dictionary_utils.get_dictionary_element(model_dictionary, TOPOLOGY)
-    domain_name = dictionary_utils.get_element(topology, NAME)
-    if domain_name is None:
-        domain_name = DEFAULT_WLS_DOMAIN_NAME
-
+    domain_name = k8s_helper.get_domain_name(model_dictionary)
     domain_uid = k8s_helper.get_domain_uid(domain_name)
     comment = exception_helper.get_message("WLSDPLY-01665")
     script_hash = {'domainUid': domain_uid, 'topComment': comment, 'namespace': domain_uid}
@@ -176,55 +197,65 @@ def generate_k8s_script(model_context, token_dictionary, model_dictionary, excep
     FileUtils.chmod(k8s_file.getPath(), 0750)
 
 
-def generate_k8s_json(model_context, token_dictionary, model_dictionary):
+def generate_results_json(model_context, token_dictionary, model_dictionary, exception_type):
     """
-    Generate a json file.
+    Generate a JSON results file.
     :param model_context: used to determine output directory
     :param token_dictionary: contains every token
-    :param model_dictionary: used to determine domain UID
+    :param model_dictionary: used to determine data
     :param exception_type: type of exception to throw
     """
-    script_hash = _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary)
-
     file_location = model_context.get_output_dir()
-    k8s_file = os.path.join(file_location, K8S_SECRET_JSON_NAME)
-    result = _build_json_secrets_result(script_hash)
+    results_file = os.path.join(file_location, RESULTS_FILE_NAME)
+
+    domain_name = k8s_helper.get_domain_name(model_dictionary)
+    domain_uid = k8s_helper.get_domain_uid(domain_name)
+
+    result = {
+        'domainUID': domain_uid,
+        'secrets': _build_json_secrets_result(model_context, token_dictionary, model_dictionary),
+        'clusters': _build_json_cluster_result(model_dictionary)
+    }
     json_object = PythonToJson(result)
-    json_object.write_to_json_file(k8s_file)
+
+    try:
+        json_object.write_to_json_file(results_file)
+    except JsonException, ex:
+        raise exception_helper.create_exception(exception_type, 'WLSDPLY-01681', results_file,
+                                                ex.getLocalizedMessage(), error=ex)
 
 
-def _build_json_secrets_result(script_hash):
+def _build_json_secrets_result(model_context, token_dictionary, model_dictionary):
+    script_hash = _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary)
+    secrets_map = {}
+    for secretType in ['secrets', 'pairedSecrets']:
+        for node in script_hash[secretType]:
+            secret_name = node['secretName']
+            keys = {}
+            user = dictionary_utils.get_element(node, 'user')
+            if user:
+                # For ui, empty it now.
+                if user.startswith('@@SECRET:'):
+                    user = ""
+                if secret_name == WEBLOGIC_CREDENTIALS_SECRET_NAME:
+                    user = ""
+                keys['username'] = user
 
-    result = {}
-    secrets_array = []
+            keys['password'] = ""
+            secret = {'keys': keys}
+            secrets_map[secret_name] = secret
+    return secrets_map
 
-    for node in script_hash['secrets']:
-        secret = {}
-        for item in ['secretName', 'comments']:
-            secret[item] = node[item]
-        secret['keys'] = {}
-        secret['keys']['password'] = ""
-        secrets_array.append(secret)
 
-    for node in script_hash['pairedSecrets']:
-        secret = {}
-        for item in ['secretName', 'comments']:
-            secret[item] = node[item]
-        secret['keys'] = {}
-        secret['keys']['password'] = ""
-        secret['keys']['username'] = node['user']
-        # For ui, empty it now.
-        if secret['keys']['username'].startswith('@@SECRET:'):
-            secret['keys']['username'] = ""
-        if secret['secretName'] == 'weblogic-credentials':
-            secret['keys']['username'] = ""
-        secrets_array.append(secret)
-
-    result['secrets'] = secrets_array
-    result['domainUID'] = script_hash['domainUid']
-    result['namespace'] = script_hash['namespace']
-
-    return result
+def _build_json_cluster_result(model_dictionary):
+    clusters_map = {}
+    topology = dictionary_utils.get_dictionary_element(model_dictionary, TOPOLOGY)
+    clusters = dictionary_utils.get_dictionary_element(topology, CLUSTER)
+    for cluster_name, cluster_values in clusters.items():
+        server_count = k8s_helper.get_server_count(cluster_name, cluster_values, model_dictionary)
+        cluster_data = {'serverCount': server_count}
+        clusters_map[cluster_name] = cluster_data
+    return clusters_map
 
 
 def format_as_secret_token(secret_id, target_config):
@@ -270,19 +301,6 @@ def get_secret_name_for_location(location, domain_uid, aliases):
     variable_name = variable_injector_functions.format_variable_name(location, '(none)', aliases)
     secret_name = create_secret_name(variable_name)
     return domain_uid + '-' + secret_name
-
-
-def create_additional_output(model, model_context, aliases, credential_injector, exception_type):
-    """
-    Create any additional output specified in the target configuration.
-    :param model: used to create additional content
-    :param model_context: provides access to the target configuration
-    :param aliases: used for template fields
-    :param credential_injector: used to identify secrets
-    :param exception_type: type of exception to throw
-    """
-    additional_output_helper.create_additional_output(model, model_context, aliases, credential_injector,
-                                                      exception_type)
 
 
 def create_secret_name(variable_name, suffix=None):

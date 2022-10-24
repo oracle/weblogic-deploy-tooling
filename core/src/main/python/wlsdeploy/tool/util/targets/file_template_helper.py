@@ -30,7 +30,7 @@ def create_file_from_resource(resource_path, template_hash, output_file, excepti
     and write it to the output file.
     :param resource_path: the resource path of the source template
     :param template_hash: a dictionary of substitution values
-    :param output_file: the file to write
+    :param output_file: the java.io.File to write
     :param exception_type: the type of exception to throw if needed
     """
     _method_name = 'create_file_from_resource'
@@ -50,7 +50,7 @@ def append_file_from_resource(resource_path, template_hash, output_file, excepti
     and write it to the output file.
     :param resource_path: the resource path of the source template
     :param template_hash: a dictionary of substitution values
-    :param output_file: the file to write
+    :param output_file: the java.io.File to write
     :param exception_type: the type of exception to throw if needed
     """
     _method_name = 'append_file_from_resource'
@@ -70,7 +70,7 @@ def create_file_from_file(file_path, template_hash, output_file, exception_type)
     and write it to the output file.
     :param file_path: the absolute file path of the source template
     :param template_hash: a dictionary of substitution values
-    :param output_file: the file to write
+    :param output_file: the java.io.File to write
     :param exception_type: the type of exception to throw if needed
     """
     _method_name = 'create_file_from_file'
@@ -86,6 +86,14 @@ def create_file_from_file(file_path, template_hash, output_file, exception_type)
 
 
 def _create_file_from_stream(template_stream, template_hash, output_file, write_access='w'):
+    """
+    Read the template from the template file, perform any substitutions,
+    and write it to the output file.
+    :param template_stream: the stream to read the source template
+    :param template_hash: a dictionary of substitution values
+    :param output_file: the java.io.File to write
+    :param write_access: write access for the resulting file
+    """
     template_reader = BufferedReader(InputStreamReader(template_stream))
     file_writer = open(output_file.getPath(), write_access)
 
