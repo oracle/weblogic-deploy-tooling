@@ -28,6 +28,32 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-build-environment</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${alias-test-skip-generate}</skip>
+                            <rules>
+                                <requireProperty>
+                                    <property>alias_test_tenancy</property>
+                                    <message>
+                                        You must specify the alias_test_tenancy property that determines the
+                                        namespaceName used to upload the generated files.
+                                    </message>
+                                    <regex>^[a-zA-Z0-9_]+.*$</regex>
+                                    <regexMessage>The alias_test_tenancy must start with an alphanumeric character</regexMessage>
+                                </requireProperty>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <configuration>
                     <skip>${alias-test-skip-generate}</skip>
