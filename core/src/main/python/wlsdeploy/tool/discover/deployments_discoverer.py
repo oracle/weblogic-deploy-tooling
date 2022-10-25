@@ -41,9 +41,10 @@ class DeploymentsDiscoverer(Discoverer):
     """
 
     def __init__(self, model_context, deployments_dictionary, base_location,
-                 wlst_mode=WlstModes.OFFLINE, aliases=None, credential_injector=None):
+                 wlst_mode=WlstModes.OFFLINE, aliases=None, credential_injector=None, extra_tokens=None):
         Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases, credential_injector)
         self._dictionary = deployments_dictionary
+        self._extra_tokens = extra_tokens
 
     def discover(self):
         """
@@ -382,24 +383,29 @@ class DeploymentsDiscoverer(Discoverer):
         matcher = pattern.matcher(result)
         result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '-user:password', 'password-encrypted'))
 
-        pattern = Pattern.compile('<url>(.+?)</url')
+        pattern = Pattern.compile('<url>(\s*)(.+?)(\s*)</url')
         matcher = pattern.matcher(result)
-        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '-url', 'url', True))
+        matcher.find()
+        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '-url', 'url',
+                                                                 properties=matcher.group(2)))
 
         pattern = Pattern.compile('<ons-wallet-password-encrypted>(.+?)</ons-wallet-password-encrypted>')
         matcher = pattern.matcher(result)
-        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '.ons.pass.encrypt:password', 'ons-wallet-password-encrypted'))
+        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '.ons.pass.encrypt:password',
+                                                                 'ons-wallet-password-encrypted'))
         bos.write(result)
         bos.close()
         archive_file.replaceApplication(source_name, jdbc_out)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
-    def _get_pass_replacement(self, jdbc_file, name, type, property=False, username=''):
+    def _get_pass_replacement(self, jdbc_file, name, type, properties=None, username=''):
         if self._credential_injector is not None:
             head, tail = os.path.split(jdbc_file)
             token = tail[:len(jdbc_file) - len('jdbc.xml')]
             token = token + name
-            result = self._credential_injector.injection_out_of_model(token, property, username)
+            if properties is not None:
+                self._extra_tokens[token] = properties
+            result = self._credential_injector.injection_out_of_model(token, properties, username)
         else:
             result = PASSWORD_TOKEN
         result = '<' + type + '>' + result + '</' + type + '>'

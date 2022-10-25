@@ -144,7 +144,7 @@ class CredentialInjector(VariableInjector):
         """
         This is for tokenizing variables that are not in the model but need to be in the variable file
         :param token: name for cache to create a token for
-        :param property: Determine if the property is a property or a secret
+        :param property: value is a property not a secret
         :param username: usernames appear as part of property value
         :return: tokenized name
         """
@@ -154,9 +154,9 @@ class CredentialInjector(VariableInjector):
             result = self.get_property_token(None, token)
         else:
             result = self.get_variable_token(None, token)
-        if username is None:
-            username = ''
-        self.add_to_cache(token_name=token, token_value=username)
+            if username is None:
+                username = ''
+            self.add_to_cache(token_name=token, token_value=username)
 
         self._no_filter_keys_cache.append(token)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
