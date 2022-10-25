@@ -21,7 +21,6 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging import platform_logger
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 _class_name = "variables"
 _logger = platform_logger.PlatformLogger('wlsdeploy.variables')
@@ -30,7 +29,6 @@ _property_pattern = re.compile("(@@PROP:([\\w.-]+)@@)")
 _environment_pattern = re.compile("(@@ENV:([\\w.-]+)@@)")
 _secret_pattern = re.compile("(@@SECRET:([\\w.-]+):([\\w.-]+)@@)")
 _file_nested_variable_pattern = re.compile("(@@FILE:(@@[\w]+@@[\w.\\\/:-]+)@@)")
-__wls_helper = WebLogicHelper(_logger)
 
 # these match a string containing ONLY a token
 _property_string_pattern = re.compile("^(@@PROP:([\\w.-]+)@@)$")
@@ -168,7 +166,7 @@ def get_variable_names(text):
     return names
 
 
-def substitute_value(text, variables, model_context, encrypt_token_list=None):
+def substitute_value(text, variables, model_context):
     """
     Perform token substitutions on a single text value.
     If errors occur during substitution, throw a single VariableException.
@@ -179,7 +177,7 @@ def substitute_value(text, variables, model_context, encrypt_token_list=None):
     """
     method_name = 'substitute_value'
     error_info = {'errorCount': 0}
-    result = _substitute(text, variables, model_context, error_info, encrypt_token_list=encrypt_token_list)
+    result = _substitute(text, variables, model_context, error_info)
     error_count = error_info['errorCount']
     if error_count:
         ex = exception_helper.create_variable_exception("WLSDPLY-01740", error_count)
@@ -241,23 +239,7 @@ def _process_node(nodes, variables, model_context, error_info):
             nodes[key] = _substitute(value, variables, model_context, error_info, attribute_name=key)
 
 
-def __in_appmodule_secret_token_list(token, name, key, encrypted_token_list):
-    if encrypted_token_list:
-        for item in encrypted_token_list:
-            env_matches = _environment_pattern.findall(item)
-            # first substitute @@ENV first, by this time it should have already flagged any error of missing ENV
-            for env_match_token, env_match_key in env_matches:
-                value = os.environ.get(str(env_match_key))
-                item = item.replace(env_match_token, value)
-                break
-
-            secret_matches = _secret_pattern.findall(item)
-            for matched_token, matched_name, matched_key in secret_matches:
-                if matched_token == token and matched_name == name and matched_key == key:
-                    return True
-    return False
-
-def _substitute(text, variables, model_context, error_info, attribute_name=None, encrypt_token_list=None):
+def _substitute(text, variables, model_context, error_info, attribute_name=None):
     """
     Substitute token placeholders with their derived values.
     :param text: the text to process for token placeholders
@@ -318,9 +300,6 @@ def _substitute(text, variables, model_context, error_info, attribute_name=None,
                 _increment_error_count(error_info, allow_unresolved)
                 problem_found = True
                 continue
-
-            if __in_appmodule_secret_token_list(token, name, key, encrypt_token_list):
-                value = __wls_helper.encrypt(value, model_context.get_domain_home())
 
             text = text.replace(token, value)
 

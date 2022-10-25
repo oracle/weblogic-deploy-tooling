@@ -239,13 +239,11 @@ class ApplicationsDeployer(Deployer):
             fh = open(abspath, 'r')
             text = fh.read()
             fh.close()
-            tokens = []
+            newtext = variables.substitute_value(text, original_variables, self.model_context)
             # only jdbc for now
             if module_type == 'jdbc':
-                origtext, result_tokens = appmodule_helper.process_jdbc_appmodule_xml(text, search_password_only=True)
-                tokens = result_tokens['found_tokens']
+                newtext = appmodule_helper.process_jdbc_appmodule_xml(newtext, self.model_context)
 
-            newtext = variables.substitute_value(text, original_variables, self.model_context, encrypt_token_list=tokens)
             newfh = open(abspath, 'w')
             newfh.write(newtext)
             newfh.close()
