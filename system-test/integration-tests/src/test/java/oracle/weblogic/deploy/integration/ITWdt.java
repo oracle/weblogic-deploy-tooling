@@ -991,6 +991,7 @@ public class ITWdt extends BaseTest {
             String tempWkoModel = outputFiles + FS + "simple-topology-targetwko.yaml";
             System.out.println("**** tempWKOMOdel " + tempWkoModel);
             cmd = "cat tempWkoModel";
+            result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             cmd = "grep -c @@SECRET " + tempWkoModel;
             CommandResult result2 = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(2, result2.exitValue(), "wkoModelFile does not have the secret tokens");
