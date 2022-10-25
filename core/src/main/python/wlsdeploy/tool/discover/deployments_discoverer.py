@@ -405,7 +405,9 @@ class DeploymentsDiscoverer(Discoverer):
             token = token + name
             if properties is not None:
                 self._extra_tokens[token] = properties
-            result = self._credential_injector.injection_out_of_model(token, properties, username)
+                result = self._credential_injector.get_property_token(None, token)
+            else:
+                result = self._credential_injector.injection_out_of_model(token, username)
         else:
             result = PASSWORD_TOKEN
         result = '<' + type + '>' + result + '</' + type + '>'

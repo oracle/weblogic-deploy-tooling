@@ -140,23 +140,17 @@ class CredentialInjector(VariableInjector):
                     assigns.append('%s=%s' % (key, properties[key]))
                 model_dict[attribute] = split_value.join(assigns)
 
-    def injection_out_of_model(self, token, property=False, username=''):
+    def injection_out_of_model(self, token, username=''):
         """
         This is for tokenizing variables that are not in the model but need to be in the variable file
         :param token: name for cache to create a token for
-        :param property: value is a property not a secret
         :param username: usernames appear as part of property value
         :return: tokenized name
         """
         _method_name = 'injection_out_of_model'
         _logger.entering(token, class_name=_class_name, method_name=_method_name)
-        if property:
-            result = self.get_property_token(None, token)
-        else:
-            result = self.get_variable_token(None, token)
-            if username is None:
-                username = ''
-            self.add_to_cache(token_name=token, token_value=username)
+        result = self.get_variable_token(None, token)
+        self.add_to_cache(token_name=token, token_value=username)
 
         self._no_filter_keys_cache.append(token)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
