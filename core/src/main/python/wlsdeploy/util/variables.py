@@ -173,7 +173,6 @@ def substitute_value(text, variables, model_context):
     :param text: the original text
     :param variables: a dictionary of variables for substitution
     :param model_context: used to resolve variables in file paths
-    :param encrypt_token_list: encrypt the value if the token is in this list for app module xml
     """
     method_name = 'substitute_value'
     error_info = {'errorCount': 0}
@@ -233,10 +232,10 @@ def _process_node(nodes, variables, model_context, error_info):
             for member in value:
                 if type(member) in [str, unicode]:
                     index = value.index(member)
-                    value[index] = _substitute(member, variables, model_context, error_info, attribute_name=key)
+                    value[index] = _substitute(member, variables, model_context, error_info, key)
 
         elif type(value) in [str, unicode]:
-            nodes[key] = _substitute(value, variables, model_context, error_info, attribute_name=key)
+            nodes[key] = _substitute(value, variables, model_context, error_info, key)
 
 
 def _substitute(text, variables, model_context, error_info, attribute_name=None):
@@ -246,8 +245,6 @@ def _substitute(text, variables, model_context, error_info, attribute_name=None)
     :param variables: the variables to use
     :param model_context: used to determine the validation method (strict, lax, etc.)
     :param error_info: collects information about errors encountered
-    :param encrypt_token_list: encrypt the clear text value with the domain salt before substitution.  It is only used
-    :      for app module application.
     :return: the replaced text
     """
     method_name = '_substitute'
@@ -300,7 +297,6 @@ def _substitute(text, variables, model_context, error_info, attribute_name=None)
                 _increment_error_count(error_info, allow_unresolved)
                 problem_found = True
                 continue
-
             text = text.replace(token, value)
 
         matches = _file_variable_pattern.findall(text)
