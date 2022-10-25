@@ -383,7 +383,7 @@ class DeploymentsDiscoverer(Discoverer):
         matcher = pattern.matcher(result)
         result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '-user:password', 'password-encrypted'))
 
-        pattern = Pattern.compile('<url>(\s*)(.+?)(\s*)</url')
+        pattern = Pattern.compile('<url>(\s*)(.+?)(\s*)</url>')
         matcher = pattern.matcher(result)
         matcher.find()
         result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '-url', 'url',
@@ -391,7 +391,7 @@ class DeploymentsDiscoverer(Discoverer):
 
         pattern = Pattern.compile('<ons-wallet-password-encrypted>(.+?)</ons-wallet-password-encrypted>')
         matcher = pattern.matcher(result)
-        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '.ons.pass.encrypt:password',
+        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '-ons-pass-encrypt:password',
                                                                  'ons-wallet-password-encrypted'))
         bos.write(result)
         bos.close()
@@ -401,7 +401,7 @@ class DeploymentsDiscoverer(Discoverer):
     def _get_pass_replacement(self, jdbc_file, name, type, properties=None, username=''):
         if self._credential_injector is not None:
             head, tail = os.path.split(jdbc_file)
-            token = tail[:len(jdbc_file) - len('jdbc.xml')]
+            token = tail[:len(tail) - len('.xml')]
             token = token + name
             if properties is not None:
                 self._extra_tokens[token] = properties
