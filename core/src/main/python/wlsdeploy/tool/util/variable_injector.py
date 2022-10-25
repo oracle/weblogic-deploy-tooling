@@ -80,7 +80,7 @@ _logger = PlatformLogger('wlsdeploy.tool.util')
 
 class VariableInjector(object):
 
-    def __init__(self, program_name, model, model_context, version=None, variable_dictionary=None, extra_cache=None):
+    def __init__(self, program_name, model, model_context, version=None, variable_dictionary=None):
         """
         Construct an instance of the injector with the model and information used by the injector.
         :param program_name: name of the calling tool
@@ -92,7 +92,6 @@ class VariableInjector(object):
         self.__program_name = program_name
         self.__original = copy.deepcopy(model)
         self.__model = model
-        self.__extra_cache = extra_cache
         self.__model_context = model_context
         if self.__model_context:
             self.__wlst_mode = self.__model_context.get_target_wlst_mode()

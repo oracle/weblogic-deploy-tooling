@@ -351,10 +351,10 @@ class DeploymentsDiscoverer(Discoverer):
         _method_name = '_jdbc_password_fix'
         _logger.entering(source_name, class_name=_class_name, method_name=_method_name)
         archive_file = self._model_context.get_archive_file()
-        tmpDir = FileUtils.getTmpDir();
-        temp_file = FileUtils.createTempDirectory(tmpDir, 'jdbc-xml')
+        tmp_dir = FileUtils.getTmpDir();
+        temp_file = FileUtils.createTempDirectory(tmp_dir, 'jdbc-xml')
         jdbc_file = archive_file.extractFile(source_name, temp_file)
-        jdbc_out = FileUtils.createTempDirectory(tmpDir, 'jdbc-out')
+        jdbc_out = FileUtils.createTempDirectory(tmp_dir, 'jdbc-out')
         jdbc_out = archive_file.extractFile(source_name, jdbc_out)
         bis = BufferedReader(FileReader(jdbc_file))
         bos = BufferedWriter(FileWriter(jdbc_out))
