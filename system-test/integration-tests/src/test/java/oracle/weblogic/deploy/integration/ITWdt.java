@@ -990,6 +990,7 @@ public class ITWdt extends BaseTest {
             // verify model file
             String tempWkoModel = outputFiles + FS + "simple-topology-targetwko.yaml";
             System.out.println("**** tempWKOMOdel " + tempWkoModel);
+            System.out.println("******** len of tempWKOModel " + tempWkoModel.length());
             cmd = "cat tempWkoModel";
             result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             cmd = "grep -c @@SECRET " + tempWkoModel;
