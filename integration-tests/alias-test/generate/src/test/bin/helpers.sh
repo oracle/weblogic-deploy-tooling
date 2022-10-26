@@ -5,12 +5,11 @@
 #
 
 getHostName() {
-  result=$(hostname)
-  if [ "$?" != "0" ]; then
+  if ! result=$(hostname); then
     # Probably running inside a Docker container
-    if [ ! -z "${HOSTNAME}" ]; then
+    if [ -n "${HOSTNAME}" ]; then
       result="${HOSTNAME}"
-    elif [ ! -z "${HOST}" ]; then
+    elif [ -n "${HOST}" ]; then
       result="${HOST}"
     else
       echo "Failed to determine the hostname" >&2
@@ -27,21 +26,18 @@ getHostName() {
     result="${result}.local"
   fi
 
-  echo ${result}
-  exit 0
+  echo "${result}"
 }
 
 getT3AdminUrl() {
-  hostname=$(getHostName)
-  if [ "$?" != "0" ]; then
+  if ! hostname=$(getHostName); then
     exit 1
   fi
   echo "t3://${hostname}:7001"
 }
 
 getHttpAdminUrl() {
-  hostname=$(getHostName)
-  if [ "$?" != "0" ]; then
+  if ! hostname=$(getHostName); then
     exit 1
   fi
   echo "http://${hostname}:7001"
@@ -54,7 +50,7 @@ getNoProxyValue() {
   else
     result="${no_proxy},${hostname}"
   fi
-  echo ${result}
+  echo "${result}"
 }
 
 isAdminServerRunning() {

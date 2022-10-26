@@ -313,7 +313,7 @@
                     <skip>${alias-test-skip-generate}</skip>
                     <namespaceName>${alias_test_tenancy}</namespaceName>
                     <bucketName>wdt-alias-test-files</bucketName>
-                    <profile>DEFAULT</profile>
+                    <profile>${alias_test_oci_profile}</profile>
                 </configuration>
                 <executions>
                     <execution>

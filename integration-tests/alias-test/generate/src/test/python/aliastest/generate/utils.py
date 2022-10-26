@@ -76,16 +76,22 @@ def get_generate_args_map(args):
         idx += 1
         if OUTPUT_DIR_SWITCH == key:
             generate_args[OUTPUT_DIR_SWITCH] = args[idx]
-        if CommandLineArgUtil.ORACLE_HOME_SWITCH == key:
+            idx += 1
+        elif CommandLineArgUtil.ORACLE_HOME_SWITCH == key:
             generate_args[CommandLineArgUtil.ORACLE_HOME_SWITCH] = args[idx]
+            idx += 1
         elif CommandLineArgUtil.DOMAIN_HOME_SWITCH == key:
             generate_args[CommandLineArgUtil.DOMAIN_HOME_SWITCH] = args[idx]
+            idx += 1
         elif CommandLineArgUtil.ADMIN_USER_SWITCH == key:
             generate_args[CommandLineArgUtil.ADMIN_USER_SWITCH] = args[idx]
+            idx += 1
         elif CommandLineArgUtil.ADMIN_PASS_SWITCH == key:
             generate_args[CommandLineArgUtil.ADMIN_PASS_SWITCH] = args[idx]
+            idx += 1
         elif CommandLineArgUtil.ADMIN_URL_SWITCH == key:
             generate_args[CommandLineArgUtil.ADMIN_URL_SWITCH] = args[idx]
+            idx += 1
 
     return generate_args
 

@@ -331,6 +331,14 @@ class GeneratorBase(object):
                 return_value = value.getKeyProperty('Name')
             else:
                 return_value = value.toString()
+        #
+        # FIXME - This is the place in the generate code where we interpret the value and set the generated value
+        #         to the string "None".  Since the string "None" is a valid value in some attributes, we need to
+        #         change this code to return a Python None, which will be converted to a JSON null.
+        #
+        #         We should verify that the string "none" needs to be included in these next two elif checks
+        #         since we know that the string "None" is a valid value for some attributes...
+        #
         elif value is None or value_type == alias_constants.PASSWORD or \
                 (value_type == alias_constants.STRING and (value == 'null' or value == 'none')):
             return_value = 'None'
