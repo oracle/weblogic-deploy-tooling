@@ -204,7 +204,7 @@ class DefaultAuthenticatorHelper(object):
         result = dictionary_utils.get_element(dictionary, name)
 
         if result is None:
-            pwe = exception_helper.create_exception(self._exception_type, '-01791', name, mapping_type,
+            pwe = exception_helper.create_exception(self._exception_type, 'WLSDPLY-01791', name, mapping_type,
                                                     mapping_name)
             self._logger.throwing(class_name=self._class_name, method_name=_method_name, error=pwe)
             raise pwe

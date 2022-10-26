@@ -1,11 +1,13 @@
 """
-Copyright (c) 2021, Oracle and/or its affiliates.
+Copyright (c) 2021, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
 import shutil
 
 from base_test import BaseTestCase
+
+from oracle.weblogic.deploy.util import PyOrderedDict
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
@@ -47,7 +49,7 @@ class PrepareTestCase(BaseTestCase):
         if not os.path.exists(target_file):
             self._establish_directory(targets_dir)
             self._establish_directory(target_dir)
-            source_target_file = os.path.join(self.MODELS_DIR, 'target.json')
+            source_target_file = os.path.join(self.MODELS_DIR, 'target-1.json')
             shutil.copy(source_target_file, target_file)
 
         self._establish_injector_config(config_dir)
@@ -126,22 +128,14 @@ class PrepareTestCase(BaseTestCase):
         # this was never used in the original model
         self._no_dictionary_key(variables, 'unused.xyz')
 
-        # Check the secrets file
+        # Check the results file
 
-        target_secrets_file = os.path.join(output_dir, 'k8s_secrets.json')
-        secrets_translator = FileToPython(target_secrets_file, use_ordering=True)
-        secrets_dict = secrets_translator.parse()
-        secrets_list = secrets_dict['secrets']
-        if not isinstance(secrets_list, list):
-            self.fail('Secrets should be a list')
+        target_results_file = os.path.join(output_dir, 'results.json')
+        results_translator = FileToPython(target_results_file, use_ordering=True)
+        results_dict = results_translator.parse()
+        secrets_dict = results_dict['secrets']
+        if not isinstance(secrets_dict, PyOrderedDict):
+            self.fail('Secrets should be a PyOrderedDict')
 
         # db user secret should retain original value from the variables file
-        db_secret = self._find_secret(secrets_list, 'jdbc-ds1')
-        self._match('dsUser9', db_secret, 'keys', 'username')
-
-    def _find_secret(self, secrets, name):
-        for secret in secrets:
-            secret_name = self._traverse(secret, 'secretName')
-            if secret_name == name:
-                return secret
-        self.fail('No secret named ' + name)
+        self._match('dsUser9', secrets_dict, 'jdbc-ds1', 'keys', 'username')

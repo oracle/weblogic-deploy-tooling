@@ -365,21 +365,9 @@ class ModelPreparer:
             # correct any secret values that point to @@PROP values
             self.fix_property_secrets()
 
-            target_config = self.model_context.get_target_configuration()
-            if target_config.generate_script_for_secrets():
-                target_configuration_helper.generate_k8s_script(self.model_context,
-                                                                self.credential_injector.get_variable_cache(),
-                                                                full_model_dictionary, ExceptionType.VALIDATE)
-
-            if target_config.generate_json_for_secrets():
-                target_configuration_helper.generate_k8s_json(self.model_context,
-                                                              self.credential_injector.get_variable_cache(),
-                                                              full_model_dictionary)
-
-            # create any additional outputs from full model dictionary
-            target_configuration_helper.create_additional_output(Model(full_model_dictionary), self.model_context,
-                                                                 self._aliases, self.credential_injector,
-                                                                 ExceptionType.VALIDATE)
+            target_configuration_helper.generate_all_output_files(Model(full_model_dictionary), self._aliases,
+                                                                  self.credential_injector, self.model_context,
+                                                                  ExceptionType.PREPARE)
 
         except (ValidateException, VariableException, TranslateException), e:
             self._logger.severe('WLSDPLY-20009', _program_name, model_file_name, e.getLocalizedMessage(),

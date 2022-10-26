@@ -272,7 +272,8 @@ def main(model_context):
 
     try:
         aliases = Aliases(model_context, wlst_mode=__wlst_mode, exception_type=ExceptionType.DEPLOY)
-        model_dictionary = cla_helper.load_model(_program_name, model_context, aliases, "update", __wlst_mode)
+        model_dictionary = cla_helper.load_model(_program_name, model_context, aliases, "update", __wlst_mode,
+                                                 validate_crd_sections=False)
         model = Model(model_dictionary)
         _exit_code = __update(model, model_context, aliases)
     except DeployException, ex:

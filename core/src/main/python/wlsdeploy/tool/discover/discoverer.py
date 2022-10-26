@@ -68,7 +68,7 @@ class Discoverer(object):
         if not os.path.isabs(local_name):
             local_name = os.path.join(self._model_context.get_domain_home(), local_name)
         # we don't know the remote machine type, so automatically turn into forward
-        # slashes. 
+        # slashes.
         local_name = local_name.replace('\\', '/')
         remote_dict[local_name] = OrderedDict()
         remote_dict[local_name][REMOTE_TYPE] = file_type
@@ -129,9 +129,15 @@ class Discoverer(object):
                     wlst_value = wlst_lsa_params[wlst_lsa_param]
 
                 # if attribute was never set (online only), don't add to the model
-                if not self._wlst_helper.is_set(wlst_lsa_param):
-                    _logger.finest('WLSDPLY-06157', wlst_lsa_param, str(location), class_name=_class_name,
-                                   method_name=_method_name)
+                try:
+
+                    if self._omit_from_model(location, wlst_lsa_param):
+                        _logger.finest('WLSDPLY-06157', wlst_lsa_param, str(location), class_name=_class_name,
+                                       method_name=_method_name)
+                        continue
+                except DiscoverException, de:
+                    _logger.info("WLSDPLY-06158", wlst_lsa_param, str(location), de.getLocalizedMessage(),
+                                 class_name=_class_name, method_name=_method_name)
                     continue
 
                 self._add_to_dictionary(dictionary, location, wlst_lsa_param, wlst_value, wlst_path)
@@ -144,6 +150,21 @@ class Discoverer(object):
             if success:
                 self._add_to_dictionary(dictionary, location, get_attribute, wlst_value, wlst_path)
 
+    def _omit_from_model(self, location, wlst_lsa_param):
+        """
+        Determine if the specified attribute should be omitted from the model.
+        Avoid calling wlst_helper.is_set() if possible, it slows down the online discovery process.
+        :param location: the location of the attribute to be examined
+        :param wlst_lsa_param: the name of the attribute to be examined
+        :return: True if attribute should be omitted, False otherwise
+        """
+        # attributes with derived defaults need to call is_set(), since their value is dynamic.
+        # don't call is_set() if the -remote command-line argument is used.
+        if self._aliases.is_derived_default(location, wlst_lsa_param) or not self._model_context.is_remote():
+            # wlst_helper.is_set already checks for offline / online
+            return not self._wlst_helper.is_set(wlst_lsa_param)
+        return False
+
     def _get_attribute_value_with_get(self, wlst_get_param, wlst_path):
         _method_name = '_get_attribute_value_with_get'
         _logger.finest('WLSDPLY-06104', wlst_get_param, class_name=_class_name, method_name=_method_name)
@@ -153,7 +174,7 @@ class Discoverer(object):
             wlst_value = self._wlst_helper.get(wlst_get_param)
             success = True
         except DiscoverException, pe:
-            _logger.warning('WLSDPLY-06127', wlst_get_param, wlst_path, pe.getLocalizedMessage(),
+            _logger.info('WLSDPLY-06127', wlst_get_param, wlst_path, pe.getLocalizedMessage(),
                             class_name=_class_name, method_name=_method_name)
         return success, wlst_value
 

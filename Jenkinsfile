@@ -64,11 +64,6 @@ pipeline {
             steps {
                 sh 'mvn -B -DskipITs=false -Dmw_home=${ORACLE_HOME} -Ddb.use.container.network=true install'
             }
-            post {
-                always {
-                    junit 'system-test/integration-tests/target/failsafe-reports/*.xml'
-                }
-            }
         }
         stage ('Analyze') {
             when {
@@ -89,6 +84,7 @@ pipeline {
                 }
             }
         }
+/*
         stage ('Alias Test') {
             // only run this stage when triggered by a cron timer and the commit does not have []skip-ci in the message
             // for example, only run integration tests during the timer triggered nightly build
@@ -130,6 +126,7 @@ pipeline {
                }
             }
         }
+*/
         stage ('Save Nightly Installer'){
             when {
                 allOf {

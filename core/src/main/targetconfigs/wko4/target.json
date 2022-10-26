@@ -1,0 +1,17 @@
+{
+  "model_filters" : {
+        "discover": [
+          { "id": "wko_filter" }
+        ]
+  },
+  "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},
+  "validation_method" : "lax",
+  "domain_home_source_type" : "mii",
+  "credentials_method" : "secrets",
+  "credentials_output_method" : "script",
+  "exclude_domain_bin_contents": true,
+  "product_version" : "v4",
+  "wls_credentials_name" : "__weblogic-credentials__",
+  "additional_secrets": "runtime-encryption-secret",
+  "additional_output" : "wko-domain.yaml"
+}

@@ -449,6 +449,8 @@ def convert_error_to_exception():
         custom_exception = PyAttributeErrorException(exception_message)
     else:
         custom_exception = PyBaseException(exception_message)
+
+    custom_exception.setStackTrace(exception_message)
     return custom_exception
 
 

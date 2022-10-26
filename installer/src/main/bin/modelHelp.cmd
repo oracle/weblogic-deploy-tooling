@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem modelHelp.cmd
 @rem
-@rem Copyright (c) 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -69,6 +69,7 @@ ECHO.
 ECHO Usage: %SCRIPT_NAME%
 ECHO         [-help]
 ECHO         [-oracle_home ^<oracle_home^>]
+ECHO         [-target ^<target^>]
 ECHO         [-attributes_only ^| -folders_only ^| -recursive ^| -interactive]
 ECHO         ^<model_path^>
 ECHO.
@@ -76,6 +77,9 @@ ECHO     where:
 ECHO         oracle_home - an existing Oracle Home directory.
 ECHO                       This is required unless the ORACLE_HOME environment
 ECHO                       variable is set.
+ECHO.
+ECHO         target      - target platform (wko, etc.).
+ECHO                       this determines the structure of the kubernetes section.
 ECHO.
 ECHO         model_path  - the path to the model element to be examined.
 ECHO                       the format is [^<section^>:][/^<folder^>]...
