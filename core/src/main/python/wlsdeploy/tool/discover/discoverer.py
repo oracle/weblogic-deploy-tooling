@@ -68,7 +68,7 @@ class Discoverer(object):
         if not os.path.isabs(local_name):
             local_name = os.path.join(self._model_context.get_domain_home(), local_name)
         # we don't know the remote machine type, so automatically turn into forward
-        # slashes. 
+        # slashes.
         local_name = local_name.replace('\\', '/')
         remote_dict[local_name] = OrderedDict()
         remote_dict[local_name][REMOTE_TYPE] = file_type
@@ -130,8 +130,8 @@ class Discoverer(object):
 
                 # if attribute was never set (online only), don't add to the model
                 try:
-                    if self._aliases.is_derived_default(location, wlst_lsa_param) and \
-                            not self._wlst_helper.is_set(wlst_lsa_param):
+
+                    if self._omit_from_model(location, wlst_lsa_param):
                         _logger.finest('WLSDPLY-06157', wlst_lsa_param, str(location), class_name=_class_name,
                                        method_name=_method_name)
                         continue
@@ -149,6 +149,21 @@ class Discoverer(object):
             success, wlst_value = self._get_attribute_value_with_get(get_attribute, wlst_path)
             if success:
                 self._add_to_dictionary(dictionary, location, get_attribute, wlst_value, wlst_path)
+
+    def _omit_from_model(self, location, wlst_lsa_param):
+        """
+        Determine if the specified attribute should be omitted from the model.
+        Avoid calling wlst_helper.is_set() if possible, it slows down the online discovery process.
+        :param location: the location of the attribute to be examined
+        :param wlst_lsa_param: the name of the attribute to be examined
+        :return: True if attribute should be omitted, False otherwise
+        """
+        # attributes with derived defaults need to call is_set(), since their value is dynamic.
+        # don't call is_set() if the -remote command-line argument is used.
+        if self._aliases.is_derived_default(location, wlst_lsa_param) or not self._model_context.is_remote():
+            # wlst_helper.is_set already checks for offline / online
+            return not self._wlst_helper.is_set(wlst_lsa_param)
+        return False
 
     def _get_attribute_value_with_get(self, wlst_get_param, wlst_path):
         _method_name = '_get_attribute_value_with_get'
