@@ -41,9 +41,10 @@ class DeploymentsDiscoverer(Discoverer):
     """
 
     def __init__(self, model_context, deployments_dictionary, base_location,
-                 wlst_mode=WlstModes.OFFLINE, aliases=None, credential_injector=None):
+                 wlst_mode=WlstModes.OFFLINE, aliases=None, credential_injector=None, extra_tokens=None):
         Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases, credential_injector)
         self._dictionary = deployments_dictionary
+        self._extra_tokens = extra_tokens
 
     def discover(self):
         """
@@ -233,14 +234,14 @@ class DeploymentsDiscoverer(Discoverer):
                     location.add_name_token(name_token, application)
                     result[application] = OrderedDict()
                     self._populate_model_parameters(result[application], location)
-                    self._add_application_to_archive(application, result[application], location)
+                    self._add_application_to_archive(application, result[application])
                     self._discover_subfolders(result[application], location)
                     location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result
 
-    def _add_application_to_archive(self, application_name, application_dict, location):
+    def _add_application_to_archive(self, application_name, application_dict):
         """
         Add the binary or directory referenced by the application to the archive file.
         If the binary can not be located and added to the archive file, un-target the application and log the problem.
@@ -350,10 +351,10 @@ class DeploymentsDiscoverer(Discoverer):
         _method_name = '_jdbc_password_fix'
         _logger.entering(source_name, class_name=_class_name, method_name=_method_name)
         archive_file = self._model_context.get_archive_file()
-        tmpDir = FileUtils.getTmpDir();
-        temp_file = FileUtils.createTempDirectory(tmpDir, 'jdbc-xml')
+        tmp_dir = FileUtils.getTmpDir();
+        temp_file = FileUtils.createTempDirectory(tmp_dir, 'jdbc-xml')
         jdbc_file = archive_file.extractFile(source_name, temp_file)
-        jdbc_out = FileUtils.createTempDirectory(tmpDir, 'jdbc-out')
+        jdbc_out = FileUtils.createTempDirectory(tmp_dir, 'jdbc-out')
         jdbc_out = archive_file.extractFile(source_name, jdbc_out)
         bis = BufferedReader(FileReader(jdbc_file))
         bos = BufferedWriter(FileWriter(jdbc_out))
@@ -382,24 +383,31 @@ class DeploymentsDiscoverer(Discoverer):
         matcher = pattern.matcher(result)
         result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '-user:password', 'password-encrypted'))
 
-        pattern = Pattern.compile('<url>(.+?)</url')
+        pattern = Pattern.compile('<url>(\s*)(.+?)(\s*)</url>')
         matcher = pattern.matcher(result)
-        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '-url', 'url', True))
+        matcher.find()
+        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '-url', 'url',
+                                                                 properties=matcher.group(2)))
 
         pattern = Pattern.compile('<ons-wallet-password-encrypted>(.+?)</ons-wallet-password-encrypted>')
         matcher = pattern.matcher(result)
-        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '.ons.pass.encrypt:password', 'ons-wallet-password-encrypted'))
+        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '-ons-pass-encrypt:password',
+                                                                 'ons-wallet-password-encrypted'))
         bos.write(result)
         bos.close()
         archive_file.replaceApplication(source_name, jdbc_out)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
-    def _get_pass_replacement(self, jdbc_file, name, type, property=False, username=''):
+    def _get_pass_replacement(self, jdbc_file, name, type, properties=None, username=''):
         if self._credential_injector is not None:
             head, tail = os.path.split(jdbc_file)
-            token = tail[:len(jdbc_file) - len('jdbc.xml')]
+            token = tail[:len(tail) - len('.xml')]
             token = token + name
-            result = self._credential_injector.injection_out_of_model(token, property, username)
+            if properties is not None:
+                self._extra_tokens[token] = properties
+                result = self._credential_injector.get_property_token(None, token)
+            else:
+                result = self._credential_injector.injection_out_of_model(token, username)
         else:
             result = PASSWORD_TOKEN
         result = '<' + type + '>' + result + '</' + type + '>'
