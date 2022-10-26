@@ -2,7 +2,7 @@
 # *****************************************************************************
 # modelHelp.sh
 #
-# Copyright (c) 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+# Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -34,6 +34,7 @@ usage() {
   echo ""
   echo "Usage: $1 [-help]"
   echo "          [-oracle_home <oracle_home>]"
+  echo "          [-target <target>]"
   echo "          [-attributes_only | -folders_only | -recursive | -interactive]"
   echo "          <model_path>"
   echo ""
@@ -41,6 +42,9 @@ usage() {
   echo "        oracle_home - an existing Oracle Home directory."
   echo "                      This is required unless the ORACLE_HOME environment"
   echo "                      variable is set."
+  echo ""
+  echo "        target      - target platform (wko, etc.)."
+  echo "                      this determines the structure of the kubernetes section."
   echo ""
   echo "        model_path  - the path to the model element to be examined."
   echo "                      the format is [<section>:][/<folder>]..."

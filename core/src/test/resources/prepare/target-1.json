@@ -1,0 +1,8 @@
+{
+  "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},
+  "validation_method" : "lax",
+  "credentials_method" : "secrets",
+  "results_output_method" : "json",
+  "wls_credentials_name" : "__weblogic-credentials__",
+  "additional_secrets": "runtime-encryption-secret"
+}

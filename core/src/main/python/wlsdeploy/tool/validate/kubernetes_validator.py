@@ -6,7 +6,8 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.extract import wko_schema_helper
+from wlsdeploy.tool.util.targets import model_crd_helper
+from wlsdeploy.tool.util.targets import schema_helper
 from wlsdeploy.util import dictionary_utils
 
 
@@ -19,6 +20,7 @@ class KubernetesValidator(object):
 
     def __init__(self, model_context):
         self._model_context = model_context
+        self._crd_helper = model_crd_helper.get_helper(model_context, ExceptionType.VALIDATE)
 
     def validate_model(self, model_dict):
         """
@@ -26,14 +28,37 @@ class KubernetesValidator(object):
         :param model_dict: A Python dictionary of the model to be validated
         :raises ValidationException: if problems occur during validation
         """
+        _method_name = 'validate_model'
+
         kubernetes_section = dictionary_utils.get_dictionary_element(model_dict, KUBERNETES)
         if not kubernetes_section:
             return
 
-        schema = wko_schema_helper.get_domain_resource_schema(exception_type=ExceptionType.VALIDATE)
-
         model_path = KUBERNETES + ":"
-        self.validate_folder(kubernetes_section, schema, None, model_path)
+
+        keyless_crd_folder = self._crd_helper.get_keyless_crd_folder()
+        if keyless_crd_folder:
+            # this WKO version does not require kubernetes sub-folders, continue with that schema
+            schema = keyless_crd_folder.get_schema()
+            self.validate_folder(kubernetes_section, schema, None, model_path)
+        else:
+            # this WKO version requires kubernetes sub-folders, validate and process each folder
+            for key in kubernetes_section:
+                crd_folder = self._crd_helper.get_crd_folder(key)
+                if not crd_folder:
+                    valid_keys = self._crd_helper.get_crd_folder_keys()
+                    self._logger.severe("WLSDPLY-05026", key, len(valid_keys), model_path,
+                                        '%s' % ', '.join(valid_keys),
+                                        class_name=self._class_name, method_name=_method_name)
+                    continue
+
+                model_content = kubernetes_section[key]
+                model_path += '/' + key
+                schema = crd_folder.get_schema()
+                if crd_folder.is_array():
+                    self._validate_object_array(model_content, schema, None, model_path)
+                else:
+                    self.validate_folder(model_content, schema, None, model_path)
 
     def validate_folder(self, model_folder, schema_folder, schema_path, model_path):
         """
@@ -50,7 +75,7 @@ class KubernetesValidator(object):
             self._logger.severe("WLSDPLY-05038", model_path, class_name=self._class_name, method_name=_method_name)
             return
 
-        schema_properties = wko_schema_helper.get_properties(schema_folder)
+        schema_properties = schema_helper.get_properties(schema_folder)
 
         for key in model_folder:
             properties = dictionary_utils.get_element(schema_properties, key)
@@ -58,37 +83,37 @@ class KubernetesValidator(object):
 
             if properties is not None:
 
-                if wko_schema_helper.is_single_object(properties):
+                if schema_helper.is_single_object(properties):
                     # single object instance
                     self._log_debug('  ' + key + ': single object')
-                    next_schema_path = wko_schema_helper.append_path(schema_path, key)
+                    next_schema_path = schema_helper.append_path(schema_path, key)
                     next_model_path = model_path + "/" + key
                     if self._check_folder_path(next_schema_path, next_model_path):
                         self.validate_folder(model_value, properties, next_schema_path, next_model_path)
 
-                elif wko_schema_helper.is_object_array(properties):
+                elif schema_helper.is_object_array(properties):
                     self._log_debug('  ' + key + ': object array')
-                    next_schema_path = wko_schema_helper.append_path(schema_path, key)
+                    next_schema_path = schema_helper.append_path(schema_path, key)
                     next_model_path = model_path + "/" + key
                     if self._check_folder_path(next_schema_path, next_model_path):
-                        item_info = wko_schema_helper.get_array_item_info(properties)
+                        item_info = schema_helper.get_array_item_info(properties)
                         self._validate_object_array(model_value, item_info, next_schema_path, next_model_path)
 
-                elif wko_schema_helper.is_simple_map(properties):
+                elif schema_helper.is_simple_map(properties):
                     # map of key / value pairs
-                    element_type = wko_schema_helper.get_map_element_type(properties)
+                    element_type = schema_helper.get_map_element_type(properties)
                     self._log_debug('  ' + key + ': map of ' + element_type)
                     self._validate_simple_map(model_value, key, model_path)
 
-                elif wko_schema_helper.is_simple_array(properties):
+                elif schema_helper.is_simple_array(properties):
                     # array of simple type
-                    element_type = wko_schema_helper.get_array_element_type(properties)
+                    element_type = schema_helper.get_array_element_type(properties)
                     self._log_debug('  ' + key + ': array of ' + element_type)
                     self._validate_simple_array(model_value, key, model_path)
 
                 else:
                     # simple type
-                    property_type = wko_schema_helper.get_type(properties)
+                    property_type = schema_helper.get_type(properties)
                     self._log_debug('  ' + key + ': ' + property_type)
                     self._validate_simple_type(model_value, property_type, key, model_path)
 
@@ -153,7 +178,7 @@ class KubernetesValidator(object):
         :return: True if the path is supported, False otherwise
         """
         _method_name = '_check_folder_path'
-        if wko_schema_helper.is_unsupported_folder(schema_path):
+        if schema_helper.is_unsupported_folder(schema_path):
             self._logger.warning("WLSDPLY-05090", model_path, class_name=self._class_name, method_name=_method_name)
             return False
         return True

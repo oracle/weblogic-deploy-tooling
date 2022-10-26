@@ -17,6 +17,7 @@ from wlsdeploy.aliases.alias_constants import ALIAS_MAP_TYPES
 from wlsdeploy.aliases.alias_constants import ATTRIBUTES
 from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
 from wlsdeploy.aliases.alias_constants import DEFAULT_VALUE
+from wlsdeploy.aliases.alias_constants import DERIVED_DEFAULT
 from wlsdeploy.aliases.alias_constants import FLATTENED_FOLDER_DATA
 from wlsdeploy.aliases.alias_constants import FOLDERS
 from wlsdeploy.aliases.alias_constants import GET
@@ -1296,6 +1297,26 @@ class Aliases(object):
                 rtnval = String.valueOf(rtnval)
 
         return rtnval
+
+    def is_derived_default(self, location, model_attribute):
+        """
+        Return whether the default is derived by WLST.
+        :param location: current location
+        :param model_attribute: model name of attribute to check
+        :return: True if the default is derived
+        """
+        _method_name = "get_derived_default"
+        self._logger.entering(model_attribute, class_name=self._class_name, method_name=_method_name)
+        result = False
+        try:
+            attribute_info = self._alias_entries.get_alias_attribute_entry_by_wlst_name(location, model_attribute)
+            if attribute_info is not None and DERIVED_DEFAULT in attribute_info:
+                result = attribute_info[DERIVED_DEFAULT]
+        except AliasException, ae:
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19045', model_attribute, location.get_folder_path(),
+                              ae.getLocalizedMessage())
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
 
     ###########################################################################
     #                          Convenience Methods                            #

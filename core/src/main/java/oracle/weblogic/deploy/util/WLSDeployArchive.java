@@ -615,6 +615,15 @@ public class WLSDeployArchive {
         return newName;
     }
 
+    public String replaceApplication(String appPath, String tempFile) throws WLSDeployArchiveIOException {
+        final String METHOD = "replaceApplication";
+        LOGGER.entering(CLASS, METHOD, appPath);
+        getZipFile().removeZipEntry(appPath);
+        String newName = addApplication(tempFile);
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
     public String addApplicationFolder(String appName, String appPath)
             throws WLSDeployArchiveIOException {
         final String METHOD = "addApplicationFolder";
@@ -1883,9 +1892,6 @@ public class WLSDeployArchive {
             if (fileList != null) {
                 for (File item : fileList) {
                     newSourceName = addItemToZip(zipPrefix, item);
-                    if (item.isDirectory()) {
-                        walkDownFolders(zipPrefix + "/" + item.getName(), item);
-                    }
                 }
             }
         }

@@ -6,10 +6,13 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.validate_configuration import VALIDATION_METHODS
+from wlsdeploy.tool.util.targets import model_crd_helper
 
 # types for credential method
 CREDENTIALS_METHOD = "credentials_method"
-CREDENTIALS_OUTPUT_METHOD = "credentials_output_method"
+
+# results output method: "default" (script and additional output) or "json" (single results file)
+RESULTS_OUTPUT_METHOD = "results_output_method"
 
 # type for validation method
 VALIDATION_METHOD = "validation_method"
@@ -28,6 +31,10 @@ DOMAIN_HOME_SOURCE_TYPE = "domain_home_source_type"
 
 # Determines if replica count is applied at the cluster level
 SET_CLUSTER_REPLICAS = "set_cluster_replicas"
+
+# Determines the version of the target product.
+PRODUCT_VERSION = 'product_version'
+DEFAULT_PRODUCT_VERSION = 'v3'  # default for WKO and WKO in VZ
 
 # put secret tokens in the model, and build a script to create the secrets.
 SECRETS_METHOD = 'secrets'
@@ -50,6 +57,13 @@ SOURCE_TYPE_NAMES = {
     MODEL_IN_IMAGE_SOURCE_TYPE: 'FromModel',
     PERSISTENT_VOLUME_SOURCE_TYPE: 'PersistentVolume'
 }
+
+DEFAULT_RESULTS_OUTPUT_METHOD = "default"
+JSON_RESULTS_OUTPUT_METHOD = "json"
+RESULTS_OUTPUT_METHODS = [
+    DEFAULT_RESULTS_OUTPUT_METHOD,
+    JSON_RESULTS_OUTPUT_METHOD
+]
 
 
 class TargetConfiguration(object):
@@ -76,12 +90,15 @@ class TargetConfiguration(object):
         """
         return dictionary_utils.get_element(self.config_dictionary, CREDENTIALS_METHOD)
 
-    def get_credentials_output_method(self):
+    def get_results_output_method(self):
         """
-        Returns the method for generating secrets creation method.
-        :return: script or json
+        Returns the method for generating results output.
+        :return: "default" (script and additional files) or "json" (single results file)
         """
-        return dictionary_utils.get_element(self.config_dictionary, CREDENTIALS_OUTPUT_METHOD)
+        result = dictionary_utils.get_element(self.config_dictionary, RESULTS_OUTPUT_METHOD)
+        if result is None:
+            result = DEFAULT_RESULTS_OUTPUT_METHOD
+        return result
 
     def get_wls_credentials_name(self):
         """
@@ -138,20 +155,19 @@ class TargetConfiguration(object):
         """
         return self.get_credentials_method() in [SECRETS_METHOD, CONFIG_OVERRIDES_SECRETS_METHOD]
 
-    def generate_script_for_secrets(self):
+    def generate_results_file(self):
         """
-        Determine if it needs to generate shell script for creating secrets.
-        :return: True if it is not equal to json
+        Determine if a JSON results file should be created.
+        :return: True if results file should be created, False otherwise
         """
-        # output method is None for discover with no target
-        return not self.get_credentials_output_method() in [None, 'json']
+        return self.get_results_output_method() == JSON_RESULTS_OUTPUT_METHOD
 
-    def generate_json_for_secrets(self):
+    def generate_output_files(self):
         """
-        Determine if it needs to generate json file for creating secrets.
-        :return: True if generating json file, False otherwise
+        Determine if scripts and additional output files should be created.
+        :return: True files should be created, False otherwise
         """
-        return self.get_credentials_output_method() in ['json']
+        return self.get_results_output_method() == DEFAULT_RESULTS_OUTPUT_METHOD
 
     def manages_credentials(self):
         """
@@ -208,6 +224,16 @@ class TargetConfiguration(object):
         result = dictionary_utils.get_element(self.config_dictionary, SET_CLUSTER_REPLICAS)
         return result or False
 
+    def get_product_version(self):
+        """
+        Return the version of the product being targeted, such as WKO or VZ.
+        :return: the product version
+        """
+        result = dictionary_utils.get_element(self.config_dictionary, PRODUCT_VERSION)
+        if result is not None:
+            return result
+        return DEFAULT_PRODUCT_VERSION
+
     def validate_configuration(self, exit_code, target_configuration_file):
         validation_method = self.get_validation_method()
         self._validate_enumerated_field(VALIDATION_METHOD, validation_method, VALIDATION_METHODS, exit_code,
@@ -217,8 +243,17 @@ class TargetConfiguration(object):
         self._validate_enumerated_field(CREDENTIALS_METHOD, credentials_method, CREDENTIALS_METHODS, exit_code,
                                         target_configuration_file)
 
+        product_version = self.get_product_version()
+        valid_product_versions = model_crd_helper.get_valid_versions(model_crd_helper.WKO_PRODUCT_KEY)
+        self._validate_enumerated_field(PRODUCT_VERSION, product_version, valid_product_versions, exit_code,
+                                        target_configuration_file)
+
         source_type = self._get_domain_home_source_type()
         self._validate_enumerated_field(DOMAIN_HOME_SOURCE_TYPE, source_type, SOURCE_TYPE_NAMES.keys(), exit_code,
+                                        target_configuration_file)
+
+        output_method = self.get_results_output_method()
+        self._validate_enumerated_field(RESULTS_OUTPUT_METHOD, output_method, RESULTS_OUTPUT_METHODS, exit_code,
                                         target_configuration_file)
 
     ###################
