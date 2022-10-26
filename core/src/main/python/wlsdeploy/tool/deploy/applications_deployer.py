@@ -240,9 +240,11 @@ class ApplicationsDeployer(Deployer):
             text = fh.read()
             fh.close()
             newtext = variables.substitute_value(text, original_variables, self.model_context)
-            # only jdbc for now
+            # only jdbc and jms for now
             if module_type == 'jdbc':
                 newtext = appmodule_helper.process_jdbc_appmodule_xml(newtext, self.model_context)
+            elif module_type == 'jms':
+                newtext = appmodule_helper.process_jms_appmodule_xml(newtext, self.model_context)
 
             newfh = open(abspath, 'w')
             newfh.write(newtext)
