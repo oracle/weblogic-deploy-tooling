@@ -992,7 +992,9 @@ public class ITWdt extends BaseTest {
             System.out.println("**** tempWKOMOdel " + tempWkoModel);
             System.out.println("******** len of tempWKOModel " + tempWkoModel.length());
             cmd = "cat tempWkoModel";
+            System.out.println(result.stdout());
             result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
             cmd = "grep -c @@SECRET " + tempWkoModel;
             CommandResult result2 = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(2, result2.exitValue(), "wkoModelFile does not have the secret tokens");
