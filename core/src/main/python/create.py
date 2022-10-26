@@ -310,7 +310,8 @@ def main(model_context):
 
     try:
         aliases = Aliases(model_context, wlst_mode=__wlst_mode, exception_type=ExceptionType.CREATE)
-        model_dictionary = cla_helper.load_model(_program_name, model_context, aliases, "create", __wlst_mode)
+        model_dictionary = cla_helper.load_model(_program_name, model_context, aliases, "create", __wlst_mode,
+                                                 validate_crd_sections=False)
 
         archive_helper = None
         archive_file_name = model_context.get_archive_file_name()

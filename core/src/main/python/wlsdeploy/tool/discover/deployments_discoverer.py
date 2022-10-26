@@ -4,14 +4,22 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 import os
 
+from java.io import BufferedReader
+from java.io import BufferedWriter
 from java.io import File
+from java.io import FileReader
+from java.io import FileWriter
 from java.lang import IllegalArgumentException
+from java.lang import StringBuilder
+from java.util.regex import Pattern
 
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
+from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import StringUtils
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 from oracle.weblogic.deploy.util import WLSDeployArchive
 
+from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
@@ -19,6 +27,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
+from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import path_utils
 
 _class_name = 'DeploymentsDiscoverer'
@@ -32,9 +41,10 @@ class DeploymentsDiscoverer(Discoverer):
     """
 
     def __init__(self, model_context, deployments_dictionary, base_location,
-                 wlst_mode=WlstModes.OFFLINE, aliases=None, credential_injector=None):
+                 wlst_mode=WlstModes.OFFLINE, aliases=None, credential_injector=None, extra_tokens=None):
         Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases, credential_injector)
         self._dictionary = deployments_dictionary
+        self._extra_tokens = extra_tokens
 
     def discover(self):
         """
@@ -241,6 +251,7 @@ class DeploymentsDiscoverer(Discoverer):
         """
         _method_name = 'add_application_to_archive'
         _logger.entering(application_name, class_name=_class_name, method_name=_method_name)
+
         archive_file = self._model_context.get_archive_file()
         if model_constants.SOURCE_PATH in application_dict:
             if model_constants.PLAN_DIR in application_dict and \
@@ -265,6 +276,11 @@ class DeploymentsDiscoverer(Discoverer):
                                      method_name=_method_name)
                         try:
                             new_source_name = archive_file.addApplication(file_name_path)
+                            module_type = dictionary_utils.get_dictionary_element(application_dict,
+                                                                                  model_constants.MODULE_TYPE)
+                            if module_type == 'jdbc':
+                                self._jdbc_password_fix(new_source_name)
+
                         except IllegalArgumentException, iae:
                             self._disconnect_target(application_name, application_dict, iae.getLocalizedMessage())
                         except WLSDeployArchiveIOException, wioe:
@@ -324,6 +340,78 @@ class DeploymentsDiscoverer(Discoverer):
         self._create_plan_directory(application_name, application_dict)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+    def _jdbc_password_fix(self, source_name):
+        """
+        This will look for password and userid in the jdbc standalone xml and
+        replace with either fix password token or a token in the xml and variable file.
+        It extracts the jdbc xml from the archive and then replaces it with the updated file.
+        :param source_name: Name of the path and file for the standalone xml file
+        """
+        _method_name = '_jdbc_password_fix'
+        _logger.entering(source_name, class_name=_class_name, method_name=_method_name)
+        archive_file = self._model_context.get_archive_file()
+        tmp_dir = FileUtils.getTmpDir();
+        temp_file = FileUtils.createTempDirectory(tmp_dir, 'jdbc-xml')
+        jdbc_file = archive_file.extractFile(source_name, temp_file)
+        jdbc_out = FileUtils.createTempDirectory(tmp_dir, 'jdbc-out')
+        jdbc_out = archive_file.extractFile(source_name, jdbc_out)
+        bis = BufferedReader(FileReader(jdbc_file))
+        bos = BufferedWriter(FileWriter(jdbc_out))
+        cache = StringBuilder()
+        while bis.ready():
+            cache.append(bis.readLine()).append("\n")
+        bis.close()
+        pattern = Pattern.compile("<name>(\s?)user(\s?)</name>")
+        matcher = pattern.matcher(cache.toString())
+        end = -1
+        if matcher.find():
+            end = matcher.end()
+        result = cache.toString()
+        if end >= 0:
+            pattern = Pattern.compile("<value>(.+?)</value>")
+            matcher = pattern.matcher(result[end:])
+            matcher.find()
+            username = matcher.group()
+            username = username[len('<value>'):len(username) - len('</value>')]
+            pattern = Pattern.compile(matcher.group())
+            matcher = pattern.matcher(cache.toString())
+            result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '-user:username',
+                                                                     'value', username=username))
+
+        pattern = Pattern.compile('<password-encrypted>(.+?)</password-encrypted>')
+        matcher = pattern.matcher(result)
+        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '-user:password', 'password-encrypted'))
+
+        pattern = Pattern.compile('<url>(\s*)(.+?)(\s*)</url>')
+        matcher = pattern.matcher(result)
+        matcher.find()
+        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '-url', 'url',
+                                                                 properties=matcher.group(2)))
+
+        pattern = Pattern.compile('<ons-wallet-password-encrypted>(.+?)</ons-wallet-password-encrypted>')
+        matcher = pattern.matcher(result)
+        result = matcher.replaceFirst(self._get_pass_replacement(jdbc_file, '-ons-pass-encrypt:password',
+                                                                 'ons-wallet-password-encrypted'))
+        bos.write(result)
+        bos.close()
+        archive_file.replaceApplication(source_name, jdbc_out)
+        _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+    def _get_pass_replacement(self, jdbc_file, name, type, properties=None, username=''):
+        if self._credential_injector is not None:
+            head, tail = os.path.split(jdbc_file)
+            token = tail[:len(tail) - len('.xml')]
+            token = token + name
+            if properties is not None:
+                self._extra_tokens[token] = properties
+                result = self._credential_injector.get_property_token(None, token)
+            else:
+                result = self._credential_injector.injection_out_of_model(token, username)
+        else:
+            result = PASSWORD_TOKEN
+        result = '<' + type + '>' + result + '</' + type + '>'
+        return result
 
     def _test_app_folder(self, source_path, plan_dir):
         app_folder = False

@@ -14,6 +14,7 @@ from oracle.weblogic.deploy.deploy import DeployException
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.extract.domain_resource_extractor import DomainResourceExtractor
 from wlsdeploy.tool.util import model_context_helper
@@ -121,7 +122,7 @@ def main(model_context):
     _exit_code = ExitCode.OK
 
     try:
-        aliases = Aliases(model_context, wlst_mode=__wlst_mode)
+        aliases = Aliases(model_context, wlst_mode=__wlst_mode, exception_type=ExceptionType.DEPLOY)
         model_dictionary = cla_helper.load_model(_program_name, model_context, aliases, "extract", __wlst_mode)
         model = Model(model_dictionary)
         _exit_code = __extract_resource(model, model_context, aliases)
