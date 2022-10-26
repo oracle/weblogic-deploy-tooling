@@ -68,6 +68,8 @@ class ValidationTestCase(unittest.TestCase):
     def testModelValidation(self):
         _method_name = 'testModelValidation'
 
+        # The model file refers to two File Stores that are not in the archive so validation should fail.
+
         _model_file = self._resources_dir + '/variablestest.yaml'
         _variable_file = self._resources_dir + '/variablestest.properties'
         _archive_file = self._resources_dir + '/variablestest.zip'
@@ -89,9 +91,6 @@ class ValidationTestCase(unittest.TestCase):
             return_code = model_validator.validate_in_tool_mode(model_dictionary,
                                                                 model_context.get_variable_file(),
                                                                 model_context.get_archive_file_name())
-            self._logger.info('The Validator.validate_in_tool_mode() call returned {0}',
-                              Validator.ReturnCode.from_value(return_code),
-                              class_name=self._class_name, method_name=_method_name)
         except TranslateException, te:
             return_code = Validator.ReturnCode.STOP
             self._logger.severe('WLSDPLY-20009',
@@ -100,7 +99,7 @@ class ValidationTestCase(unittest.TestCase):
                                 te.getLocalizedMessage(), error=te,
                                 class_name=self._class_name, method_name=_method_name)
 
-        self.assertNotEqual(return_code, Validator.ReturnCode.STOP)
+        self.assertEqual(return_code, Validator.ReturnCode.STOP)
 
     def testIsCompatibleDataType(self):
         _method_name = 'testIsCompatibleDataType'
