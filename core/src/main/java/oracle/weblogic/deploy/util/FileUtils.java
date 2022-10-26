@@ -618,7 +618,7 @@ public final class FileUtils {
     }
 
     public static File writeInputStreamToFile(InputStream input, String fileName) throws IOException {
-        File tmpdir = new File(System.getProperty("java.io.tmpdir"));
+        File tmpdir = getTmpDir();
         File file = new File(tmpdir, fileName);
         try (FileOutputStream fos = new FileOutputStream(file)) {
             byte[] byteArray = FileUtils.readInputStreamToByteArray(input);
@@ -627,6 +627,9 @@ public final class FileUtils {
         return file;
     }
 
+    public static File getTmpDir() {
+        return new File(System.getProperty("java.io.tmpdir"));
+    }
 
     public static void extractZipFileContent(WLSDeployArchive archiveFile, String zipEntry, String extractPath)  {
         final String METHOD = "extractZipFileContent";

@@ -219,13 +219,14 @@ def __process_domain_home(arg_map, wlst_mode):
         arg_map[CommandLineArgUtil.DOMAIN_HOME_SWITCH] = full_path
 
 
-def __discover(model_context, aliases, credential_injector, helper):
+def __discover(model_context, aliases, credential_injector, helper, extra_tokens):
     """
     Populate the model from the domain.
     :param model_context: the model context
     :param aliases: aliases instance for discover
     :param credential_injector: credential injector instance
     :param helper: wlst_helper instance
+    :param extra_tokens: dictionary to store non-credential tokens during credential search
     :return: the fully-populated model
     :raises DiscoverException: if an error occurred while discover the domain
     """
@@ -233,7 +234,6 @@ def __discover(model_context, aliases, credential_injector, helper):
     model = Model()
     base_location = LocationContext()
     __connect_to_domain(model_context, helper)
-
     try:
         _add_domain_name(base_location, aliases, helper)
         DomainInfoDiscoverer(model_context, model.get_model_domain_info(), base_location, wlst_mode=__wlst_mode,
@@ -243,7 +243,8 @@ def __discover(model_context, aliases, credential_injector, helper):
         ResourcesDiscoverer(model_context, model.get_model_resources(), base_location, wlst_mode=__wlst_mode,
                             aliases=aliases, credential_injector=credential_injector).discover()
         DeploymentsDiscoverer(model_context, model.get_model_app_deployments(), base_location, wlst_mode=__wlst_mode,
-                              aliases=aliases, credential_injector=credential_injector).discover()
+                              aliases=aliases, credential_injector=credential_injector,
+                              extra_tokens=extra_tokens).discover()
         __discover_multi_tenant(model, model_context, base_location, aliases, credential_injector)
     except AliasException, ae:
         wls_version = WebLogicHelper(__logger).get_actual_weblogic_version()
@@ -448,7 +449,7 @@ def __persist_model(model, model_context):
     __logger.exiting(class_name=_class_name, method_name=_method_name)
 
 
-def __check_and_customize_model(model, model_context, aliases, credential_injector):
+def __check_and_customize_model(model, model_context, aliases, credential_injector, extra_tokens):
     """
     Customize the model dictionary before persisting. Validate the model after customization for informational
     purposes. Any validation errors will not stop the discovered model to be persisted.
@@ -456,6 +457,7 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
     :param model_context: configuration from command-line
     :param aliases: used for validation if model changes are made
     :param credential_injector: injector created to collect and tokenize credentials, possibly None
+    :param extra_tokens: dictionary to handle non-credential tokenized arguments
     """
     _method_name = '__check_and_customize_model'
     __logger.entering(class_name=_class_name, method_name=_method_name)
@@ -482,8 +484,11 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
 
     # Apply the injectors specified in model_variable_injector.json, or in the target configuration.
     # Include the variable mappings that were collected in credential_cache.
+
     variable_injector = VariableInjector(_program_name, model.get_model(), model_context,
                                          WebLogicHelper(__logger).get_actual_weblogic_version(), credential_cache)
+
+    variable_injector.add_to_cache(dictionary=extra_tokens)
 
     inserted, variable_model, variable_file_name = variable_injector.inject_variables_keyword_file()
 
@@ -579,10 +584,11 @@ def main(model_context):
         else:
             __logger.info('WLSDPLY-06024', class_name=_class_name, method_name=_method_name)
 
+        extra_tokens = {}
         try:
-            model = __discover(model_context, aliases, credential_injector, helper)
+            model = __discover(model_context, aliases, credential_injector, helper, extra_tokens)
 
-            model = __check_and_customize_model(model, model_context, aliases, credential_injector)
+            model = __check_and_customize_model(model, model_context, aliases, credential_injector, extra_tokens)
 
             __remote_report(model_context)
         except DiscoverException, ex:

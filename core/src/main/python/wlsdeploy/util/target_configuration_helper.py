@@ -33,6 +33,15 @@ __logger = PlatformLogger('wlsdeploy.tool.util')
 WEBLOGIC_CREDENTIALS_SECRET_NAME = 'weblogic-credentials'
 WEBLOGIC_CREDENTIALS_SECRET_SUFFIX = '-' + WEBLOGIC_CREDENTIALS_SECRET_NAME
 
+JDBC_CREDENTIALS_SECRET_USER_NAME = 'standalone-jdbc.xml.user'
+JDBC_CREDENTIALS_SECRET_USER_SUFFIX = '-' + JDBC_CREDENTIALS_SECRET_USER_NAME
+
+JDBC_CREDENTIALS_SECRET_PASS_NAME = 'standalone-jdbc.xml.pass.encrypt'
+JDBC_CREDENTIALS_SECRET_PASS_SUFFIX = '-' + JDBC_CREDENTIALS_SECRET_PASS_NAME
+
+JDBC_CREDENTIALS_SECRET_ONS_PASS_NAME = 'standalone-jdbc.xml.ons.pass.encrypt'
+JDBC_CREDENTIALS_SECRET_ONS_PASS_SUFFIX = '-' + JDBC_CREDENTIALS_SECRET_ONS_PASS_NAME
+
 RUNTIME_ENCRYPTION_SECRET_NAME = 'runtime-encryption-secret'
 RUNTIME_ENCRYPTION_SECRET_SUFFIX = '-' + RUNTIME_ENCRYPTION_SECRET_NAME
 
@@ -154,6 +163,7 @@ def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
     for secret_name in secret_names:
         secret_keys = secret_map[secret_name]
         user_name = dictionary_utils.get_element(secret_keys, SECRET_USERNAME_KEY)
+
         if user_name is None:
             secrets.append(_build_secret_hash(secret_name, None, PASSWORD_TAG))
         else:
