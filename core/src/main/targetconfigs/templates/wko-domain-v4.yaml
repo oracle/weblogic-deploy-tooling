@@ -1,0 +1,111 @@
+# Copyright (c) 2022, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+apiVersion: "weblogic.oracle/v9"
+kind: Domain
+metadata:
+  name: {{{domainUid}}}
+  namespace: {{{namespace}}}
+  labels:
+    weblogic.domainUID: {{{domainUid}}}
+spec:
+  # The WebLogic Domain Home
+  domainHome: '{{{domainHome}}}'
+
+  # The domain home source type
+  # Set to PersistentVolume for domain-in-pv, Image for domain-in-image, or FromModel for model-in-image
+  domainHomeSourceType: {{{domainHomeSourceType}}}
+
+  # The WebLogic Server Docker image that the Operator uses to start the domain
+  image: '{{{imageName}}}'
+
+  # Identify which Secret contains the credentials for pulling an image
+  imagePullSecrets: []
+
+  # Identify which Secret contains the WebLogic Admin credentials
+  webLogicCredentialsSecret:
+    name: {{{webLogicCredentialsSecret}}}
+
+  serverPod:
+    # an (optional) list of environment variable to be set on the servers
+    env:
+    - name: JAVA_OPTIONS
+      value: "-Dweblogic.StdoutDebugEnabled=false"
+    - name: USER_MEM_ARGS
+      value: "-Djava.security.egd=file:/dev/./urandom -Xms64m -Xmx256m "
+{{#usePersistentVolume}}
+
+    # volume information for persistent volume
+    volumes:
+      - name: weblogic-domain-storage-volume
+        persistentVolumeClaim:
+          claimName: '--FIX ME--'
+    volumeMounts:
+      - mountPath: /shared
+        name: weblogic-domain-storage-volume
+{{/usePersistentVolume}}
+{{#hasClusters}}
+
+  clusters:
+{{/hasClusters}}
+{{#clusters}}
+  - name: {{{domainUid}}}-{{{clusterUid}}}
+{{#setClusterReplicas}}
+
+    # The number of cluster member Managed Server instances to start for this WebLogic cluster
+    replicas: {{{replicas}}}
+{{/setClusterReplicas}}
+{{/clusters}}
+
+  configuration:
+    introspectorJobActiveDeadlineSeconds: 900
+{{#hasModel}}
+    model:
+      domainType: {{{domainType}}}
+
+      # WebLogic Image Tool provides modelHome
+      modelHome: '{{{modelHome}}}'
+{{#runtimeEncryptionSecret}}
+
+      # encryption for the WDT model and the SystemSerializedIni.data file.
+      # used only for model-in-image deployment, can be removed for other types.
+      runtimeEncryptionSecret: {{{runtimeEncryptionSecret}}}
+{{/runtimeEncryptionSecret}}
+{{/hasModel}}
+{{#hasAdditionalSecrets}}
+
+    # Secrets that are referenced by model yaml macros
+    # (the model yaml in the optional configMap or in the image)
+    secrets:
+{{/hasAdditionalSecrets}}
+{{#additionalSecrets}}
+    - {{{additionalSecretName}}}
+{{/additionalSecrets}}
+
+{{#clusters}}
+---
+apiVersion: "weblogic.oracle/v1"
+kind: Cluster
+metadata:
+  name: {{{domainUid}}}-{{{clusterUid}}}
+  namespace: {{{namespace}}}
+  labels:
+    weblogic.domainUID: {{{domainUid}}}
+spec:
+  clusterName: {{{clusterName}}}
+  serverPod:
+    # Instructs Kubernetes scheduler to prefer nodes for new cluster members where there are not
+    # already members of the same cluster.
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+              - key: "weblogic.clusterName"
+                operator: In
+                values:
+                - $(CLUSTER_NAME)
+            topologyKey: "kubernetes.io/hostname"
+  {{/clusters}}

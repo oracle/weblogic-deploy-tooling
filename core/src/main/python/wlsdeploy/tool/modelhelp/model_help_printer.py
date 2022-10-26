@@ -24,13 +24,15 @@ class ModelHelpPrinter(object):
     Class for printing the recognized model metadata to STDOUT.
     """
 
-    def __init__(self, aliases, logger):
+    def __init__(self, model_context, aliases, logger):
         """
+        :param model_context: The model context
         :param aliases: A reference to an Aliases class instance
         :param logger: A reference to the platform logger to write to, if a log entry needs to be made
         """
         self._logger = logger
         self._aliases = aliases
+        self._model_context = model_context
 
     def print_model_help(self, model_path, control_option):
         """
@@ -66,7 +68,7 @@ class ModelHelpPrinter(object):
             print(_format_message('WLSDPLY-10105', model_path))
 
         if model_path_tokens[0] == KUBERNETES:
-            sample_printer = ModelKubernetesPrinter()
+            sample_printer = ModelKubernetesPrinter(self._model_context)
             sample_printer.print_model_sample(model_path_tokens, control_option)
         else:
             sample_printer = ModelSamplePrinter(self._aliases, self._logger)

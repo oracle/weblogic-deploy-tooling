@@ -8,9 +8,7 @@ from oracle.weblogic.deploy.util import PyOrderedDict
 
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.util.credential_injector import CredentialInjector
-from wlsdeploy.tool.util.targets.output_file_helper import DOMAIN_HOME
-from wlsdeploy.tool.util.targets.output_file_helper import SPEC
-from wlsdeploy.util import target_configuration_helper
+from wlsdeploy.tool.util.targets import additional_output_helper
 
 _secret_pattern = re.compile("^@@SECRET:(.*)@@$")
 
@@ -33,16 +31,13 @@ class DomainResourceExtractor:
         credential_injector = CredentialInjector(DomainResourceExtractor, model_dict, self._model_context)
         _add_secrets(model_dict, credential_injector)
 
-        # if -domain_home was specified on the command line, it should override any value in the model
-        domain_home_override = self._model_context.get_domain_home()
-        if domain_home_override:
-            kubernetes_dict = self._model.get_model_kubernetes()
-            spec_dict = get_or_create_dictionary(kubernetes_dict, SPEC)
-            spec_dict[DOMAIN_HOME] = domain_home_override
+        # if -domain_home was specified on the extract command line, it should override any value in the model
+        domain_home = self._model_context.get_domain_home()
 
         # create the output files with information from the model
-        target_configuration_helper.create_additional_output(self._model, self._model_context, self._aliases,
-                                                             credential_injector, ExceptionType.DEPLOY)
+        additional_output_helper.create_additional_output(
+            self._model, self._model_context, self._aliases, credential_injector, ExceptionType.DEPLOY,
+            domain_home_override=domain_home)
 
 
 def _add_secrets(folder, credential_injector):

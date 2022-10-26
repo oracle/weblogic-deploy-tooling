@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import unittest
@@ -86,7 +86,7 @@ class ModelHelpPrinterTestCase(unittest.TestCase):
 
             model_context = ModelContext(self._program_name, { })
             aliases = Aliases(model_context, WlstModes.OFFLINE, self.wls_version)
-            printer = ModelHelpPrinter(aliases, self._logger)
+            printer = ModelHelpPrinter(model_context, aliases, self._logger)
             printer.print_model_help(path, control_option)
 
             sys.stdout.flush()
