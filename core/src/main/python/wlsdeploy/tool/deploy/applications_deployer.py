@@ -1129,7 +1129,7 @@ class ApplicationsDeployer(Deployer):
                 kwargs[key] = value
         kwargs['timeout'] = self.model_context.get_model_config().get_deploy_timeout()
 
-        if module_type in ['jms', 'jdbc', 'wldf' ] and sub_module_targets is not None:
+        if self.version_helper.is_module_type_app_module(module_type) and sub_module_targets is not None:
             kwargs[SUB_MODULE_TARGETS] = sub_module_targets
 
         self.logger.fine('WLSDPLY-09320', type_name, application_name, kwargs,
