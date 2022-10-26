@@ -988,14 +988,14 @@ public class ITWdt extends BaseTest {
             verifyResult(result, "prepareModel.sh completed successfully");
 
             // verify model file
-            String tempWkoModel = outputFiles + FS + "simple-topology-targetwko.yaml";
+            String tempWkoModel = outputFiles + FS + wkoModelFile;
 
-            cmd = "grep -c 'Partition' " + outputFiles.toString() + FS + "simple-topology-targetwko.yaml";
+            cmd = "grep -c 'Partition' " + tempWkoModel;
             CommandResult result3 = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-            assertEquals(0, result3.exitValue(), "Partition section was not removed from model");
+            assertEquals(1, result3.exitValue(), "Partition section was not removed from model");
             cmd = "grep -c  SECRET " + tempWkoModel;
             CommandResult result2 = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-            assertEquals(2, result2.exitValue(), "wkoModelFile does not have the secret tokens");
+            assertEquals(0, result2.exitValue(), "wkoModelFile does not have the secret tokens");
         }
     }
 
