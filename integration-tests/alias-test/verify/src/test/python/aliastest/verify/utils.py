@@ -8,6 +8,7 @@ import java.lang.Boolean as Boolean
 import java.util.logging.Level as Level
 
 import oracle.weblogic.deploy.json.JsonException as JJsonException
+from oracle.weblogic.deploy.util import PyOrderedDict
 
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.json.json_translator import JsonToPython
@@ -182,6 +183,21 @@ def get_wlst_mode_as_string(model_context):
 def get_report_file_name(model_context):
     return 'report%s-%s.txt' % \
            (get_wlst_mode_as_string(model_context).lower().capitalize(), model_context.get_target_wls_version())
+
+
+def sort_dict(dictionary):
+    """
+    Return a dictionary that is sorted with the keys in order.
+    :param dictionary: Original dictionary
+    :return: Dictionary now in order of the sorted keys.
+    """
+    new_dictionary = PyOrderedDict()
+    if dictionary:
+        keys = dictionary.keys()
+        keys.sort()
+        for key in keys:
+            new_dictionary[key] = dictionary[key]
+    return new_dictionary
 
 
 def _key_in_case_map(key, case_map):

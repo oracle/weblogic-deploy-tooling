@@ -1468,7 +1468,8 @@ class VerifierResult(object):
         report_file.write(header)
 
     def _write_errors(self, report_file):
-        for location, error_list in self._error_dictionary.iteritems():
+        error_dict = verify_utils.sort_dict(self._error_dictionary)
+        for location, error_list in error_dict.iteritems():
             error_number = 1
             report_file.write('\tFound %s error(s) at location "%s":\n' % (len(error_list), location))
 
@@ -1480,7 +1481,8 @@ class VerifierResult(object):
         report_file.write('\n')
 
     def _write_warnings(self, report_file):
-        for location, warning_list in self._warning_dictionary.iteritems():
+        warning_dict = verify_utils.sort_dict(self._warning_dictionary)
+        for location, warning_list in warning_dict.iteritems():
             warning_number = 1
             report_file.write('\tFound %s warning(s) at location "%s":\n' % (len(warning_list), location))
 
@@ -1492,7 +1494,8 @@ class VerifierResult(object):
         report_file.write('\n')
 
     def _write_infos(self, report_file):
-        for location, info_list in self._info_dictionary.iteritems():
+        info_dict = verify_utils.sort_dict(self._info_dictionary)
+        for location, info_list in info_dict.iteritems():
             info_number = 1
             report_file.write('\tFound %s info message(s) at location "%s":\n' % (len(info_list), location))
 
@@ -1515,10 +1518,12 @@ class VerifierResult(object):
                       self._error_count, class_name=self.CLASS_NAME, method_name=_method_name)
         for location, error_list in self._error_dictionary.iteritems():
             error_number = 1
-            logger.severe('Found {0} error(s) at location "{1}":', len(error_list), location)
+            logger.severe('Found {0} error(s) at location "{1}":', len(error_list), location,
+                          class_name=self.CLASS_NAME, method_name=_method_name)
 
             for error_dict in error_list:
-                logger.severe(_format_message(error_number, error_dict, location))
+                logger.severe(_format_message(error_number, error_dict, location),
+                              class_name=self.CLASS_NAME, method_name=_method_name)
                 error_number += 1
 
     def _write_warnings_to_log(self, logger):
@@ -1533,10 +1538,12 @@ class VerifierResult(object):
                        self._warning_count, class_name=self.CLASS_NAME, method_name=_method_name)
         for location, warning_list in self._warning_dictionary.iteritems():
             warning_number = 1
-            logger.warning('Found {0} warning(s) at location "{1}":', len(warning_list), location)
+            logger.warning('Found {0} warning(s) at location "{1}":', len(warning_list), location,
+                           class_name=self.CLASS_NAME, method_name=_method_name)
 
             for warning_dict in warning_list:
-                logger.warning(_format_message(warning_number, warning_dict, location))
+                logger.warning(_format_message(warning_number, warning_dict, location),
+                               class_name=self.CLASS_NAME, method_name=_method_name)
                 warning_number += 1
 
 

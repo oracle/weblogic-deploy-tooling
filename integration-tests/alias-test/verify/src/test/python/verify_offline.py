@@ -32,7 +32,7 @@ def verify_offline_aliases(model_context, generated_offline_dict):
     __logger.entering(model_context, class_name=CLASS_NAME, method_name=_method_name)
 
     __logger.info('Verify online aliases', class_name=CLASS_NAME, method_name=_method_name)
-    verify_results = Verifier(model_context, generated_online_dict).verify()
+    verify_results = Verifier(model_context, generated_offline_dict).verify()
 
     __logger.exiting(class_name=CLASS_NAME, method_name=_method_name)
     return verify_results
