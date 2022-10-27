@@ -730,12 +730,14 @@ class Verifier(object):
         match = True
         model_name = None
         model_value = None
+        is_derived_default = False
         # aliases will automatically return None for a None in value
         if generated_default is not None:
             try:
                 model_name, model_value = \
                     self._alias_helper.get_model_attribute_name_and_value(location, generated_attribute,
                                                                           generated_default)
+                is_derived_default = self._alias_helper.is_derived_default(location, model_name)
             except TypeError, te:
                 self._add_error(location, ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE,
                                 message=te, attribute=generated_attribute)
@@ -747,7 +749,7 @@ class Verifier(object):
         else:
             model_value = model_default_value
 
-        if match and model_value is not None:
+        if match and model_value is not None and not is_derived_default:
             match = False
             attr_type = type(generated_default)
             if CMO_TYPE in generated_attribute_info and \
@@ -799,7 +801,8 @@ class Verifier(object):
                 self._add_error(location, ERROR_ATTRIBUTE_NOT_RESTART, attribute=model_attribute_name)
                 valid = False
         elif RESTART in generated_attribute_info and generated_attribute_info[RESTART] == 'true':
-            self._add_error(location, ERROR_ATTRIBUTE_RESTART, attribute=generated_attribute)
+            # TODO - temporary change to warning until we decide what to do about the restart attributes of the aliases.
+            self._add_warning(location, ERROR_ATTRIBUTE_RESTART, attribute=generated_attribute)
             valid = False
 
         _logger.exiting(result=verify_utils.bool_to_string(valid), class_name=CLASS_NAME, method_name=_method_name)
