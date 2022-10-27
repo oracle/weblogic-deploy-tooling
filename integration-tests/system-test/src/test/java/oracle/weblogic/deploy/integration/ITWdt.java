@@ -34,8 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @IntegrationTest
@@ -991,8 +990,9 @@ public class ITWdt extends BaseTest {
             String tempWkoModel = outputFiles + FS + wkoModelFile;
 
             cmd = "grep -c 'Partition' " + tempWkoModel;
+
             CommandResult result3 = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-            assertEquals(1, result3.exitValue(), "Partition section was not removed from model");
+            assertNotEquals(0, result3.exitValue(), "Partition section was not removed from model");
             cmd = "grep -c  SECRET " + tempWkoModel;
             CommandResult result2 = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result2.exitValue(), "wkoModelFile does not have the secret tokens");
