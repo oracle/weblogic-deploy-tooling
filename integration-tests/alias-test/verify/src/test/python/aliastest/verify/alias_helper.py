@@ -138,3 +138,5 @@ class AliasHelper(object):
     def get_wlst_read_type(self, location, model_name):
         return self.__aliases.get_wlst_read_type(location, model_name)
 
+    def is_derived_default(self, location, model_name):
+        return self.__aliases.is_derived_default(location, model_name)

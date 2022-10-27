@@ -730,12 +730,19 @@ class Verifier(object):
         match = True
         model_name = None
         model_value = None
-        # aliases will automatically return None for a None in value
+        is_derived_default = False
         if generated_default is not None:
             try:
+                # This code is sort of non-intuitive because the method was written for a different
+                # purpose.  This get_model_attribute_name_and_value() function compared the value
+                # we pass in with the alias default (accounting for type conversion).  If the value
+                # passed in matches the alias default value, it returns None for model_value.
+                # Otherwise, it returns the passed in value converted to the alias type, if necessary.
+                #
                 model_name, model_value = \
                     self._alias_helper.get_model_attribute_name_and_value(location, generated_attribute,
                                                                           generated_default)
+                is_derived_default = self._alias_helper.is_derived_default(location, model_name)
             except TypeError, te:
                 self._add_error(location, ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE,
                                 message=te, attribute=generated_attribute)
@@ -747,8 +754,10 @@ class Verifier(object):
         else:
             model_value = model_default_value
 
-        if match and model_value is not None:
-            match = False
+        # This if statement will be true if the default values do not match and the alias attribute
+        # is not marked as a derived_default.
+        #
+        if match and model_value is not None and not is_derived_default:
             attr_type = type(generated_default)
             if CMO_TYPE in generated_attribute_info and \
                     (generated_attribute_info[CMO_TYPE] == alias_constants.BOOLEAN or
@@ -799,7 +808,8 @@ class Verifier(object):
                 self._add_error(location, ERROR_ATTRIBUTE_NOT_RESTART, attribute=model_attribute_name)
                 valid = False
         elif RESTART in generated_attribute_info and generated_attribute_info[RESTART] == 'true':
-            self._add_error(location, ERROR_ATTRIBUTE_RESTART, attribute=generated_attribute)
+            # TODO - temporary change to warning until we decide what to do about the restart attributes of the aliases.
+            self._add_warning(location, ERROR_ATTRIBUTE_RESTART, attribute=generated_attribute)
             valid = False
 
         _logger.exiting(result=verify_utils.bool_to_string(valid), class_name=CLASS_NAME, method_name=_method_name)

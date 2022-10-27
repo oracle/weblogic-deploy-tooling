@@ -1305,11 +1305,11 @@ class Aliases(object):
         :param model_attribute: model name of attribute to check
         :return: True if the default is derived
         """
-        _method_name = "get_derived_default"
+        _method_name = "is_derived_default"
         self._logger.entering(model_attribute, class_name=self._class_name, method_name=_method_name)
         result = False
         try:
-            attribute_info = self._alias_entries.get_alias_attribute_entry_by_wlst_name(location, model_attribute)
+            attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute)
             if attribute_info is not None and DERIVED_DEFAULT in attribute_info:
                 result = attribute_info[DERIVED_DEFAULT]
         except AliasException, ae:
