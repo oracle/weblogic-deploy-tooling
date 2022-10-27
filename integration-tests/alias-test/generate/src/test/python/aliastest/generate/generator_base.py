@@ -70,6 +70,11 @@ class GeneratorBase(object):
             Aliases(model_context, model_context.get_target_wlst_mode(), model_context.get_target_wls_version())
         self._ignore_list = self._aliases.get_ignore_attribute_names()
 
+    def add_derived_default(self, dictionary, cmo_helper, attribute_name):
+        if cmo_helper is None:
+            return None
+        dictionary[all_utils.DERIVED_DEFAULT] = cmo_helper.derived_default_value()
+
     def add_default_value(self, dictionary, lsa_map, cmo_helper, method_helper, attribute_name=None):
         """
          Add information about the attribute value to the dictionary. Store the values from the wlst.ls() map
@@ -88,11 +93,45 @@ class GeneratorBase(object):
             attribute_name = cmo_helper.get_name()
         mbean_type = cmo_helper.get_mbean_type()
 
+<<<<<<< HEAD:integration-tests/alias-test/generate/src/test/python/aliastest/generate/generator_base.py
         cmo_attr_type, cmo_value = self._get_cmo_attr_type_and_value(cmo_helper, method_helper, attribute_name)
         if cmo_value != FAIL and cmo_attr_type != UNKNOWN:
             dictionary[CMO_TYPE] = self.type_it(mbean_type, attribute_name, cmo_attr_type)
             dictionary[CMO_DEFAULT] = \
                 self.convert_attribute(attribute_name, cmo_value, value_type=dictionary[CMO_TYPE])
+=======
+        if lsa_map is not None and attribute_name in lsa_map:
+            lsa_value = lsa_map.get(attribute_name)
+            self.__logger.finest('WLSDPLYST-01101', attribute_name, lsa_value,
+                                 class_name=self.__class_name, method_name=_method_name)
+        else:
+            self.__logger.finer('WLSDPLYST-01102', attribute_name,
+                                class_name=self.__class_name, method_name=_method_name)
+            lsa_value = all_utils.FAIL
+
+        cmo_attr_type = all_utils.UNKNOWN
+        cmo_value = all_utils.FAIL
+        if self._is_valid_cmo_attribute(cmo_helper):
+            if cmo_helper.is_encrypted():
+                cmo_attr_type = alias_constants.PASSWORD
+                cmo_value = cmo_helper.default_value()
+            else:
+                cmo_attr_type = cmo_helper.attribute_type()
+                cmo_value = cmo_helper.default_value()
+        elif method_helper is not None and self._is_valid_cmo_attribute(method_helper):
+            cmo_attr_type = method_helper.attribute_type()
+            cmo_value = method_helper.default_value()
+            self.__logger.fine('MBean {0} attribute {1} is using CMO method for cmo info : '
+                               'cmo_attr_type={2} cmo_value={3}',
+                               mbean_type, attribute_name, cmo_attr_type, cmo_value,
+                               class_name=self.__class_name, method_name=_method_name)
+
+        if cmo_value != all_utils.FAIL and cmo_attr_type != all_utils.UNKNOWN:
+
+            dictionary[all_utils.CMO_TYPE] = self.type_it(mbean_type, attribute_name, cmo_attr_type)
+            dictionary[all_utils.CMO_DEFAULT] = \
+                self.convert_attribute(attribute_name, cmo_value, value_type=dictionary[all_utils.CMO_TYPE])
+>>>>>>> main:integration-tests/alias-test/src/test/python/aliastest/generate/generator_helper.py
             self.__logger.finest('MBean {5} attribute {0} {1}  is {2} and {3} is {4}',
                                  attribute_name, CMO_TYPE, dictionary[CMO_TYPE], CMO_DEFAULT, dictionary[CMO_DEFAULT],
                                  mbean_type, class_name=self.__class_name, method_name=_method_name)

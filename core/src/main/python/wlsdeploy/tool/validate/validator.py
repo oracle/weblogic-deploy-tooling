@@ -60,7 +60,15 @@ class Validator(object):
     ValidationStatus = Enum(['VALID', 'INFOS_VALID', 'WARNINGS_INVALID', 'INVALID'])
     ReturnCode = Enum(['PROCEED', 'STOP'])
 
-    def __init__(self, model_context, aliases=None, logger=None, wlst_mode=None, domain_name='base_domain'):
+    def __init__(self, model_context, aliases, logger=None, wlst_mode=None, validate_crd_sections=True):
+        """
+        Create a validator instance.
+        :param model_context: used to get command-line options
+        :param aliases: used to validate folders, attributes. also determines exception type
+        :param logger: alternate logger to use
+        :param wlst_mode: online or offline mode
+        :param validate_crd_sections: True if CRD sections (such as kubernetes) should be validated
+        """
         self._model_context = model_context
         self._validate_configuration = model_context.get_validate_configuration()
 
@@ -85,18 +93,17 @@ class Validator(object):
             self._wlst_mode = model_context.get_target_wlst_mode()
             self._wls_version = model_context.get_target_wls_version()
 
-        if aliases is None:
-            self._aliases = Aliases(model_context=model_context, exception_type=ExceptionType.VALIDATE)
-        else:
-            self._aliases = aliases
+        self._aliases = aliases
 
+        # need a token here for alias path resolution
         self._name_tokens_location = LocationContext()
-        self._name_tokens_location.add_name_token('DOMAIN', domain_name)
+        self._name_tokens_location.add_name_token('DOMAIN', 'base_domain')
 
         self._archive_helper = None
         self._archive_file_name = None
         self._archive_entries = None
         self._model_file_name = self._model_context.get_model_file()
+        self._validate_crd_sections = validate_crd_sections
 
     def validate_in_standalone_mode(self, model_dict, variable_map, archive_file_name=None):
         """
@@ -254,8 +261,9 @@ class Validator(object):
         self.__validate_model_section(model.get_model_deployments_key(), model_dict,
                                       self._aliases.get_model_app_deployments_top_level_folder_names())
 
-        k8s_validator = KubernetesValidator(self._model_context)
-        k8s_validator.validate_model(model_dict)
+        if self._validate_crd_sections:
+            k8s_validator = KubernetesValidator(self._model_context)
+            k8s_validator.validate_model(model_dict)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
 

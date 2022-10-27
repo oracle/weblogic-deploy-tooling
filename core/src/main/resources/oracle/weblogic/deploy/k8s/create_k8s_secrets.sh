@@ -34,7 +34,7 @@ function create_paired_k8s_secret {
 {{#comments}}
 # {{{comment}}}
 {{/comments}}
-create_paired_k8s_secret {{{secretName}}} {{{user}}} {{{password}}}
+create_paired_k8s_secret {{{secretName}}} "{{{user}}}" {{{password}}}
 {{/pairedSecrets}}
 {{#secrets}}
 

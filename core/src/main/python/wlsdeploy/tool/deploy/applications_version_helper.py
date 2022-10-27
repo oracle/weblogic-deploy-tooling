@@ -82,7 +82,7 @@ class ApplicationsVersionHelper(object):
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=versioned_name)
         return versioned_name
 
-    def get_application_versioned_name(self, source_path, model_name, from_archive=False):
+    def get_application_versioned_name(self, source_path, model_name, from_archive=False, module_type=None):
         """
         Get the proper name of the deployable application that WLST requires in the target domain.
         This method is needed for the case where the application is explicitly versioned in its ear/war manifest.
@@ -100,6 +100,8 @@ class ApplicationsVersionHelper(object):
 
         # if no manifest version is found, leave the original name unchanged
         versioned_name = model_name
+        if self.is_module_type_app_module(module_type):
+            return model_name
 
         try:
             manifest = self.__get_manifest(source_path, from_archive)
@@ -122,6 +124,12 @@ class ApplicationsVersionHelper(object):
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=versioned_name)
         return versioned_name
+
+    def is_module_type_app_module(self, module_type):
+        if module_type in [ 'jms', 'jdbc', 'wldf']:
+            return True
+        else:
+            return False
 
     def __get_manifest(self, source_path, from_archive):
         """

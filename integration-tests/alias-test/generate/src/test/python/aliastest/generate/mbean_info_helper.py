@@ -324,6 +324,7 @@ class MBeanInfoAttributeHelper(object):
         self.__logger.entering(class_name=self.__class_name__, method_name=_method_name)
 
         default = None
+        derivedDefault = None
         if self.__exists:
             values = self.__get_descriptor_values_keys()
             if 'defaultValueNull' in values:
@@ -349,6 +350,11 @@ class MBeanInfoAttributeHelper(object):
 
         self.__logger.exiting(result=default, class_name=self.__class_name__, method_name=_method_name)
         return default
+
+    def derived_default_value(self):
+        if self.__attribute_info is None:
+            return None
+        return self.__attribute_info.getValue('restDerivedDefault')
 
     def attribute_value(self):
         if self.is_valid_getter():

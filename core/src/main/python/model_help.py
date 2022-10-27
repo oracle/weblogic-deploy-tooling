@@ -33,7 +33,8 @@ __optional_arguments = [
     CommandLineArgUtil.ATTRIBUTES_ONLY_SWITCH,
     CommandLineArgUtil.FOLDERS_ONLY_SWITCH,
     CommandLineArgUtil.RECURSIVE_SWITCH,
-    CommandLineArgUtil.INTERACTIVE_MODE_SWITCH
+    CommandLineArgUtil.INTERACTIVE_MODE_SWITCH,
+    CommandLineArgUtil.TARGET_SWITCH
 ]
 
 __output_types = [
@@ -222,7 +223,7 @@ def interactive_help_prompt(model_path, input_file):
     sys.stdout.flush()
 
     if not input_file:
-      command_str = raw_input("") # get command from stdin 
+      command_str = raw_input("") # get command from stdin
 
     else:
       # get command from file instead of stdin (undocumented feature)
@@ -243,7 +244,7 @@ def interactive_help_print_path(printer, model_path, history):
     """
     Prints help for the given model_path, or an error message.
     Also updates the help history on success.
-    :param model_path: the model path 
+    :param model_path: the model path
     :param history: history of successful model paths
     :param printer: a model help printer
     """
@@ -364,7 +365,7 @@ def interactive_help_main_loop(aliases, model_path, printer):
       if command_str == 'exit':
         break
 
-      # the "process command" prints the help (or error) for the command_str 
+      # the "process command" prints the help (or error) for the command_str
       # plus appends a new path to the history if the str specifies a successful directory change
 
       interactive_help_process_command(aliases, printer, history[-1], command_str, history)
@@ -376,7 +377,7 @@ def interactive_help_main_loop(aliases, model_path, printer):
 
     __logger.exiting(class_name=_class_name, method_name=_method_name)
 
-    
+
 def print_help(model_path, model_context):
     """
     Prints the folders and/or attributes for the specified given model_path,
@@ -401,7 +402,7 @@ def print_help(model_path, model_context):
         control_option = ControlOptions.FOLDERS_ONLY
 
     aliases = Aliases(model_context)
-    printer = ModelHelpPrinter(aliases, __logger)
+    printer = ModelHelpPrinter(model_context, aliases, __logger)
 
     if model_context.get_interactive_mode_option():
       interactive_help_main_loop(aliases, model_path, printer)

@@ -165,7 +165,8 @@ def process_encryption_args(optional_arg_map):
         optional_arg_map[CommandLineArgUtil.PASSPHRASE_SWITCH] = String(passphrase)
 
 
-def validate_model(program_name, model_dictionary, model_context, aliases, wlst_mode):
+def validate_model(program_name, model_dictionary, model_context, aliases, wlst_mode,
+                   validate_crd_sections=True):
     """
     Validate the model dictionary based on the specified model context and aliases.
     The tool will exit if exceptions are encountered, or the validation returns a STOP code.
@@ -174,12 +175,13 @@ def validate_model(program_name, model_dictionary, model_context, aliases, wlst_
     :param model_context: the model context
     :param aliases: the aliases
     :param wlst_mode: offline or online
+    :param validate_crd_sections: True if CRD sections (such as kubernetes) should be validated
     :return:
     """
     _method_name = 'validate_model'
 
     try:
-        validator = Validator(model_context, aliases, wlst_mode=wlst_mode)
+        validator = Validator(model_context, aliases, wlst_mode=wlst_mode, validate_crd_sections=validate_crd_sections)
 
         # no need to pass the variable file for processing, substitution has already been performed
         return_code = validator.validate_in_tool_mode(model_dictionary, variables_file_name=None,
@@ -201,7 +203,7 @@ def validate_model(program_name, model_dictionary, model_context, aliases, wlst_
         raise tool_exception
 
 
-def load_model(program_name, model_context, aliases, filter_type, wlst_mode):
+def load_model(program_name, model_context, aliases, filter_type, wlst_mode, validate_crd_sections=True):
     """
     Load the model based on the arguments in the model context.
     Apply the variable substitution, if specified, and validate the model.
@@ -212,6 +214,7 @@ def load_model(program_name, model_context, aliases, filter_type, wlst_mode):
     :param aliases: the alias configuration
     :param filter_type: the type of any filters to be applied
     :param wlst_mode: offline or online
+    :param validate_crd_sections: True if CRD sections (such as kubernetes) should be validated
     :return: the resulting model dictionary
     """
     _method_name = 'load_model'
@@ -257,7 +260,8 @@ def load_model(program_name, model_context, aliases, filter_type, wlst_mode):
 
     persist_model(model_context, model_dictionary)
 
-    validate_model(program_name, model_dictionary, model_context, aliases, wlst_mode)
+    validate_model(program_name, model_dictionary, model_context, aliases, wlst_mode,
+                   validate_crd_sections=validate_crd_sections)
 
     return model_dictionary
 

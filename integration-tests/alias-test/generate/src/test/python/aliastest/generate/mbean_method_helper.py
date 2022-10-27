@@ -297,6 +297,9 @@ class MBeanMethodAttributeHelper(object):
 
         return attr_type
 
+    def derived_default_value(self):
+        return None
+
     def default_value(self):
         return self.attribute_value()
 

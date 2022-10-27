@@ -297,6 +297,9 @@ class MBIAttributeHelper(object):
 
         return attr_type
 
+    def derived_default_value(self):
+        return self.__get_descriptor_value('restDerivedDefault')
+
     def default_value(self):
         _method_name = 'default_value'
         self.__logger.entering(class_name=self.__class_name__, method_name=_method_name)
