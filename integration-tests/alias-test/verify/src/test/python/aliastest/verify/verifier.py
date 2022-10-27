@@ -730,14 +730,12 @@ class Verifier(object):
         match = True
         model_name = None
         model_value = None
-        is_derived_default = False
         # aliases will automatically return None for a None in value
         if generated_default is not None:
             try:
                 model_name, model_value = \
                     self._alias_helper.get_model_attribute_name_and_value(location, generated_attribute,
                                                                           generated_default)
-                is_derived_default = self._alias_helper.is_derived_default(location, model_name)
             except TypeError, te:
                 self._add_error(location, ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE,
                                 message=te, attribute=generated_attribute)
@@ -749,7 +747,7 @@ class Verifier(object):
         else:
             model_value = model_default_value
 
-        if not match and model_value is not None and not is_derived_default:
+        if not match and model_value is not None:
             attr_type = type(generated_default)
             if CMO_TYPE in generated_attribute_info and \
                     (generated_attribute_info[CMO_TYPE] == alias_constants.BOOLEAN or
