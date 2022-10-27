@@ -993,7 +993,7 @@ public class ITWdt extends BaseTest {
 
             CommandResult result3 = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertNotEquals(0, result3.exitValue(), "Partition section was not removed from model");
-            cmd = "grep -c  SECRET " + tempWkoModel;
+            cmd = "grep -q  SECRET " + tempWkoModel;
             CommandResult result2 = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result2.exitValue(), "wkoModelFile does not have the secret tokens");
         }
