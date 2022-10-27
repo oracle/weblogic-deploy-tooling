@@ -130,7 +130,6 @@ class Discoverer(object):
 
                 # if attribute was never set (online only), don't add to the model
                 try:
-
                     if self._omit_from_model(location, wlst_lsa_param):
                         _logger.finest('WLSDPLY-06157', wlst_lsa_param, str(location), class_name=_class_name,
                                        method_name=_method_name)
