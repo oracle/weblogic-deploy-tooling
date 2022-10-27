@@ -1,3 +1,9 @@
+def skip = project.properties.skip
+if (skip == 'true') {
+    println "Execution skipped"
+    return
+}
+
 def dirName = project.properties.buildDir
 def directory = new File(dirName)
 if (!directory.isDirectory()) {

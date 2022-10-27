@@ -290,8 +290,11 @@
                 <groupId>org.codehaus.gmaven</groupId>
                 <artifactId>gmaven-plugin</artifactId>
                 <configuration>
-                    <skip>${alias-test-skip-generate}</skip>
+                    <!--
+                        This plugin does not support the skip parameter so putting the functionality into the script
+                    -->
                     <properties>
+                        <skip>${alias-test-skip-generate}</skip>
                         <buildDir>${project.build.directory}</buildDir>
                     </properties>
                     <source>${project.basedir}/src/test/bin/GetFileNames.groovy</source>

@@ -83,11 +83,7 @@ class OnlineGenerator(GeneratorBase):
                                      mbean_type, class_name=self.__class_name, method_name=_method_name)
             else:
                 self.__logger.fine('Child MBean {0} is in the MBI information but not the MBeanInfo information',
-<<<<<<< HEAD:integration-tests/alias-test/generate/src/test/python/aliastest/generate/generator_online.py
                                    mbean_type, class_name=self.__class_name, method_name=_method_name)
-=======
-                                   mbean_type, class_name=self.__class_name__, method_name=_method_name)
->>>>>>> main:integration-tests/alias-test/src/test/python/aliastest/generate/generator_online.py
 
             if attribute_helper.is_reference_only():
                 mbean_dictionary[mbean_type] = PyOrderedDict()

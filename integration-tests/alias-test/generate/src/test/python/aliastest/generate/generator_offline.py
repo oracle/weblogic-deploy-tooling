@@ -507,7 +507,8 @@ class OfflineGenerator(GeneratorBase):
             cd_mbean_name = mbean_name_list[0]
             bean_dir = converted_mbean_type + '/' + cd_mbean_name
             if not generator_wlst.cd_mbean(bean_dir):
-                self.__logger.fine('WLSDPLYST-01117', converted_mbean_type, generator_wlst.current_path(), '',
+                self.__logger.fine('Unable to create and navigate to mbean type {0} at location {1}',
+                                   converted_mbean_type, generator_wlst.current_path(),
                                    class_name=self.__class_name, method_name=_method_name)
                 success = False
 
