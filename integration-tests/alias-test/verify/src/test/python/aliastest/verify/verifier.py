@@ -53,11 +53,13 @@ MBEAN_ERROR_RANGE = range(3000, 3999)
 ATTRIBUTE_ERROR_RANGE = range(4000, 4999)
 
 TESTED_MBEAN_FOLDER = 1000
+INFO_ATTRIBUTE_IN_IGNORE_LIST = 1001
 
 WARN_MBEAN_NOT_NO_NAME_0 = 5101
 WARN_ATTRIBUTE_DEPRECATED = 5502
 WARN_ATTRIBUTE_HAS_UNKNOWN_TYPE = 5500
 WARN_ALIAS_FOLDER_NOT_IMPLEMENTED = 5501
+
 
 ERROR_FAILURE_ATTRIBUTE_LIST = 2000
 ERROR_FAILURE_ATTRIBUTE_UNEXPECTED = 2001
@@ -90,7 +92,6 @@ ERROR_ATTRIBUTE_REQUIRES_PREFERRED_MODEL_TYPE = 4017
 ERROR_ATTRIBUTE_NOT_IN_WLST = 4018
 ERROR_ATTRIBUTE_CANNOT_CONVERT_BACK = 4019
 ERROR_ATTRIBUTE_CANNOT_SET = 4020
-ERROR_ATTRIBUTE_IN_IGNORE_LIST = 4021
 ERROR_ATTRIBUTE_PATH_TOKEN_REQUIRED = 4022
 ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE = 4023
 ERROR_ATTRIBUTE_MUST_BE_NO_NAME = 4024
@@ -127,7 +128,7 @@ MSG_MAP = {
     ERROR_ATTRIBUTE_NOT_RESTART:                   'Attribute marked restart',
     ERROR_ATTRIBUTE_CANNOT_SET:                    'Cannot SET default value',
     ERROR_ATTRIBUTE_MUST_BE_NO_NAME:               'Attribute name must be set to NO_NAME_0',
-    ERROR_ATTRIBUTE_IN_IGNORE_LIST:                'Alias attribute is WLST attribute in the ignore list',
+    INFO_ATTRIBUTE_IN_IGNORE_LIST:                 'Alias attribute is WLST attribute in the ignore list',
     ERROR_ATTRIBUTE_NOT_IN_WLST:                   'Alias attribute not in MBean',
     ERROR_FAILURE_ATTRIBUTE_LIST:                  'Invalid Alias attribute list',
     ERROR_CANNOT_TEST_MBEAN_UNSPECIFIED:           'Unspecified problem',
@@ -404,7 +405,7 @@ class Verifier(object):
 
             for unprocessed in unprocessed_alias_list:
                 if unprocessed in self._alias_helper.get_ignore_attribute_names():
-                    self._add_error(location, ERROR_ATTRIBUTE_IN_IGNORE_LIST, attribute=unprocessed)
+                    self._add_info(location, INFO_ATTRIBUTE_IN_IGNORE_LIST, attribute=unprocessed)
                 else:
                     message = ''
                     if verify_utils.is_clear_text_password(unprocessed):
