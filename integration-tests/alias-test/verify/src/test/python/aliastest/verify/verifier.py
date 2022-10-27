@@ -889,7 +889,7 @@ class Verifier(object):
                 valid = True
             elif alias_type == alias_constants.STRING and _is_object_type(generated_attribute_info):
                 valid = True
-                if model_name not in set_method_list:
+                if self._model_context.get_target_wlst_mode() == model_name not in set_method_list:
                     _logger.fine('Attribute {0} is an object but is not in the set method list {1}',
                                  generated_attribute, set_method_list, class_name=CLASS_NAME, method_name=_method_name)
                     self._add_error(location, ERROR_ATTRIBUTE_SET_METHOD_MISSING, attribute=generated_attribute)
