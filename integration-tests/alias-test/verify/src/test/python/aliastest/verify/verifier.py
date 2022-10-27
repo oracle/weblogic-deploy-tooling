@@ -749,8 +749,7 @@ class Verifier(object):
         else:
             model_value = model_default_value
 
-        if match and model_value is not None and not is_derived_default:
-            match = False
+        if not match and model_value is not None and not is_derived_default:
             attr_type = type(generated_default)
             if CMO_TYPE in generated_attribute_info and \
                     (generated_attribute_info[CMO_TYPE] == alias_constants.BOOLEAN or
