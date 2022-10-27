@@ -44,6 +44,15 @@
                                     <regex>^\d+(\.\d+){3,5}$</regex>
                                     <regexMessage>The wls_version must be a proper WLS version number with 4 to 6 numbers</regexMessage>
                                 </requireProperty>
+                                <requireProperty>
+                                    <property>alias_test_tenancy</property>
+                                    <message>
+                                        You must specify the alias_test_tenancy property that determines the
+                                        namespaceName used to download the generated files.
+                                    </message>
+                                    <regex>^[a-zA-Z0-9_]+.*$</regex>
+                                    <regexMessage>The alias_test_tenancy must start with an alphanumeric character</regexMessage>
+                                </requireProperty>
                             </rules>
                         </configuration>
                     </execution>
