@@ -30,6 +30,7 @@ MULTIPLE = 'multiple'
 ONLINE_REFERENCE_ONLY = 'reference_only'
 READ_ONLY = 'readonly'
 READ_TYPE = 'read_type'
+READ_WRITE = 'readwrite'
 RECHECK = 'recheck'
 RESTART = 'restart_required'
 RESTART_NO_CHECK = 'none'
@@ -486,12 +487,13 @@ class Verifier(object):
                                                           alias_get_required_attribute_list)
                 if read_only is not None:
                     if not read_only and not _is_clear_text_password(generated_attribute):
-                        message = None
                         if CMO_READ_TYPE in generated_attribute_info and \
                                 generated_attribute_info[CMO_READ_TYPE] == READ_ONLY:
-                            message = 'LSA has READ_WRITE and CMO has READ_ONLY'
-                        self._add_error(location, ERROR_ATTRIBUTE_NOT_READONLY_VERSION,
-                                        message=message, attribute=generated_attribute)
+                            # if CMO_READ_TYPE is read only, no error...
+                            pass
+                        else:
+                            self._add_error(location, ERROR_ATTRIBUTE_NOT_READONLY_VERSION,
+                                            attribute=generated_attribute)
             else:
                 if self._is_generated_attribute_readonly(location, generated_attribute, generated_attribute_info,
                                                          alias_get_required_attribute_list):
@@ -557,6 +559,8 @@ class Verifier(object):
         :return: True if the generated attribute is defined as readonly
         """
         _method_name = '_is_generated_attribute_readonly'
+        _logger.entering(location.get_folder_path(), generated_attribute, str(generated_attribute_info),
+                         str(alias_get_required_attribute_list), class_name=CLASS_NAME, method_name=_method_name)
 
         if READ_TYPE not in generated_attribute_info and CMO_READ_TYPE not in generated_attribute_info:
             self._add_error(location, ERROR_FAILURE_ATTRIBUTE_UNEXPECTED,
@@ -568,17 +572,28 @@ class Verifier(object):
             read_type = generated_attribute_info[CMO_READ_TYPE]
             _logger.finer('Using CMO read type {0} for attribute {1} which is in GET required list',
                           read_type, generated_attribute, class_name=CLASS_NAME, method_name=_method_name)
+        # elif READ_TYPE in generated_attribute_info and CMO_READ_TYPE in generated_attribute_info:
+        #     if generated_attribute_info[READ_TYPE] == READ_ONLY or generated_attribute_info[CMO_READ_TYPE] == READ_ONLY:
+        #         read_type = READ_ONLY
+        #     else:
+        #         read_type = READ_WRITE
+        #     _logger.finer('Using both LSA read type {0} and CMO read type {1} for attribute {2}',
+        #                   read_type, generated_attribute_info[CMO_READ_TYPE], generated_attribute,
+        #                   class_name=CLASS_NAME, method_name=_method_name)
         elif READ_TYPE in generated_attribute_info:
             read_type = generated_attribute_info[READ_TYPE]
-        else:
-            _logger.finer('No LSA read type found, using the CMO read type for attribute {0} at location {1}',
-                          generated_attribute, location.get_folder_path(),
+            _logger.finer('Using both LSA read type {0} for attribute {1}', read_type, generated_attribute,
                           class_name=CLASS_NAME, method_name=_method_name)
+        else:
             read_type = generated_attribute_info[CMO_READ_TYPE]
+            _logger.finer('No LSA read type found, using the CMO read type {0} for attribute {1} at location {2}',
+                          read_type, generated_attribute, location.get_folder_path(),
+                          class_name=CLASS_NAME, method_name=_method_name)
 
-        _logger.fine('The attribute {0} read type is {1}', generated_attribute, read_type,
-                     class_name=CLASS_NAME, method_name=_method_name)
-        return read_type == READ_ONLY
+        result = read_type == READ_ONLY
+
+        _logger.exiting(class_name=CLASS_NAME, method_name=_method_name, result=result)
+        return result
 
     def _is_valid_attribute_type_and_value(self, location, generated_attribute, generated_attribute_info,
                                            model_attribute_name, alias_get_required_attribute_list):
