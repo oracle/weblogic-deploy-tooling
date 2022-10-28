@@ -242,7 +242,7 @@ def created(mbean_type, name):
     return True
 
 
-def created_security_provider(mbean_type, name, package):
+def create_security_provider(mbean_type, name, package):
     """
     Create the MBean with the provided name at the current wlst location. WLST Exceptions are caught and returned
     as False from the method.

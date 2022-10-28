@@ -419,13 +419,14 @@ class OfflineGenerator(GeneratorBase):
 
         singular = mbean_type
         if singular.endswith('s'):
+            # FIXME - This doesn't seem very rigorous, e.g., directories => directory
             lenm = len(mbean_type)-1
             singular = mbean_type[0:lenm]
         for item in types:
             idx = item.rfind('.')
             short = item[idx + 1:]
             package = short
-            mbean_instance = generator_wlst.created_security_provider(singular, short, package)
+            mbean_instance = generator_wlst.create_security_provider(singular, short, package)
             orig = generator_wlst.current_path()
             folder_dict[short] = PyOrderedDict()
             folder_dict[short][ATTRIBUTES] = self.__get_attributes(mbean_instance)
