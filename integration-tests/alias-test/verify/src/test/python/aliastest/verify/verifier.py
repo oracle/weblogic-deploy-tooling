@@ -535,7 +535,10 @@ class Verifier(object):
                     message = 'Since Version=', generated_attribute_info[SINCE_VERSION]
 
                 if generated_attribute.lower() in lower_case_list:
-                    self._add_error(location, ERROR_ATTRIBUTE_INCORRECT_CASE, attribute=generated_attribute)
+                    expected_wlst_name = _get_dict_key_from_value(alias_name_map, generated_attribute.lower())
+                    message = 'WLST name in aliases is %s' % expected_wlst_name
+                    self._add_error(location, ERROR_ATTRIBUTE_INCORRECT_CASE,
+                                    message=message, attribute=generated_attribute)
                 elif self._is_generated_attribute_readonly(location, generated_attribute, generated_attribute_info):
                     self._add_error(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND_IS_READONLY,
                                     attribute=generated_attribute, message=message)
@@ -1455,6 +1458,15 @@ def _type_can_be_lsa_string(attribute_type):
     return attribute_type in [alias_constants.STRING, alias_constants.OBJECT, alias_constants.PASSWORD] or \
            attribute_type in alias_constants.ALIAS_LIST_TYPES or \
            attribute_type in alias_constants.ALIAS_MAP_TYPES
+
+
+def _get_dict_key_from_value(alias_name_map, lower_case_value):
+    result = None
+    for key, value in alias_name_map.iteritems():
+        if value == lower_case_value:
+            result = key
+            break
+    return result
 
 
 class VerifierResult(object):

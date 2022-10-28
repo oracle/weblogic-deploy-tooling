@@ -325,7 +325,7 @@ class OnlineGenerator(GeneratorBase):
             short = item[idx + 1:]
             orig = generator_wlst.current_path()
             if short not in existing:
-                mbean_instance = generator_wlst.created_security_provider(mbean_type, short, item)
+                mbean_instance = generator_wlst.create_security_provider(mbean_type, short, item)
                 generator_wlst.cd_mbean(curr_path + '/' + mbean_type + '/' + short)
             else:
                 mbean_instance = generator_wlst.get_mbean_proxy(curr_path + '/' + mbean_type + '/' + short)
