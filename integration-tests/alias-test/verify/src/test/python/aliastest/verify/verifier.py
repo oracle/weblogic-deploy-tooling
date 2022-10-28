@@ -1056,15 +1056,19 @@ class Verifier(object):
         :return: True if the delimited type contains properties
         """
         _method_name = '_check_complex_type'
-        _logger.entering(generated_attribute, alias_type, model_name,
+        _logger.entering(location.get_folder_path(), generated_attribute, alias_type, model_name,
                          class_name=CLASS_NAME, method_name=_method_name)
 
         valid = False
         lsa_type, get_type, cmo_type = _get_attribute_types(generated_attr_info)
-        _logger.finest('Attribute {0} lsa_type {1} cmo_type {2} get_type {3} : alias_type {4} get required {5}',
-                       generated_attribute, lsa_type, cmo_type, get_type, alias_type,
-                       Boolean(generated_attribute in get_required_attribute_list),
-                       class_name=CLASS_NAME, method_name=_method_name)
+        if _logger.is_finest_enabled():
+            wlst_read_type = self._alias_helper.get_wlst_read_type(location, model_name)
+            _logger.finest('Location {0} Attribute {1} with alias_type {2}: lsa_type={3} cmo_type={4}'
+                           ' get_type={5} wlst_read_type={6}, get_required={7}',
+                           location.get_folder_path(), generated_attribute, alias_type, lsa_type, cmo_type, get_type,
+                           wlst_read_type, Boolean(generated_attribute in get_required_attribute_list),
+                           class_name=CLASS_NAME, method_name=_method_name)
+
         if alias_type == alias_constants.SEMI_COLON_DELIMITED_STRING and \
                 _is_of_type_with_lsa(generated_attribute, alias_constants.PROPERTIES, generated_attr_info,
                                      get_required_attribute_list):
@@ -1083,6 +1087,9 @@ class Verifier(object):
                         alias_constants.ALIAS_DELIMITED_TYPES:
                     self._add_invalid_type_error(location, generated_attribute, alias_constants.STRING, alias_type,
                                                  get_required_attribute_list, 'GET or WLST_READ_TYPE required')
+            elif _is_wlst_read_type_compatible_list_type(generated_attribute, lsa_type,
+                                                         self._alias_helper.get_wlst_read_type(location, model_name)):
+                valid = True
         elif alias_type == alias_constants.LIST:
             if _is_of_type_with_get_required(generated_attribute, alias_type, generated_attr_info,
                                              get_required_attribute_list):
@@ -1094,6 +1101,9 @@ class Verifier(object):
                         alias_constants.ALIAS_DELIMITED_TYPES:
                     self._add_invalid_type_error(location, generated_attribute, alias_constants.STRING, alias_type,
                                                  get_required_attribute_list, 'LSA GET_METHOD requires WLST_READ_TYPE')
+            elif _is_wlst_read_type_compatible_list_type(generated_attribute, lsa_type,
+                                                         self._alias_helper.get_wlst_read_type(location, model_name)):
+                valid = True
         elif alias_type in alias_constants.ALIAS_DELIMITED_TYPES:
             if _is_any_string_type(generated_attr_info):
                 valid = True
@@ -1232,24 +1242,46 @@ def _get_attribute_types(attribute_info):
     return lsa_type, get_type, cmo_type
 
 
+def _is_of_type_with_get_required(attribute, alias_type, attribute_info, get_required_attribute_list):
+    lsa_type, get_type, cmo_type = _get_attribute_types(attribute_info)
+    return attribute in get_required_attribute_list and (get_type == alias_type or cmo_type == alias_type)
+
+
 def _is_of_type_with_lsa(attribute, alias_type, attribute_info, get_required_attribute_list):
     lsa_type, get_type, cmo_type = _get_attribute_types(attribute_info)
-    return attribute not in get_required_attribute_list and lsa_type is not None and \
-        (lsa_type == alias_type or
-         ((_is_type_an_unknown_type(lsa_type) or lsa_type == alias_constants.STRING or
-           lsa_type == alias_constants.INTEGER) and
-          ((_is_type_an_unknown_type(get_type) and cmo_type is None) or (get_type == alias_type
-                                                                         or cmo_type == alias_type))))
+
+    is_lsa_type = attribute not in get_required_attribute_list and lsa_type is not None
+    is_lsa_and_alias_types_equal = lsa_type == alias_type
+    is_lsa_type_unknown = _is_type_an_unknown_type(lsa_type)
+    is_lsa_type_string_or_integer = lsa_type == alias_constants.STRING or lsa_type == alias_constants.INTEGER
+    is_lsa_type_unknown_or_string_or_integer = is_lsa_type_unknown or is_lsa_type_string_or_integer
+    is_lsa_type_unknown_and_cmo_type_is_none = _is_type_an_unknown_type(get_type) and cmo_type is None
+    is_get_and_alias_types_equal = get_type == alias_type
+    is_cmo_and_alias_types_equal = cmo_type == alias_type
+    is_cmo_or_get_and_alias_types_equal = is_get_and_alias_types_equal or is_cmo_and_alias_types_equal
+
+    return is_lsa_type and \
+           (is_lsa_and_alias_types_equal or
+            (is_lsa_type_unknown_or_string_or_integer and
+             (is_lsa_type_unknown_and_cmo_type_is_none or is_cmo_or_get_and_alias_types_equal)))
+
+
+def _is_wlst_read_type_compatible_list_type(attribute, lsa_type, wlst_read_type):
+    _method_name = '_is_wlst_read_type_compatible_list_type'
+    _logger.entering(attribute, lsa_type, wlst_read_type, class_name=CLASS_NAME, method_name=_method_name)
+
+    result = False
+    if wlst_read_type is not None and lsa_type is not None:
+        # if the lsa_type is 'string' and the wlst_read_type is 'delimited_string[*]', the types are a match
+        result = wlst_read_type in alias_constants.ALIAS_DELIMITED_TYPES and lsa_type in wlst_read_type
+
+    _logger.exiting(class_name=CLASS_NAME, method_name=_method_name, result=result)
+    return result
 
 
 def _is_in_types_with_get_required(attribute, alias_types, attribute_info, get_required_attribute_list):
     lsa_type, get_type, cmo_type = _get_attribute_types(attribute_info)
     return attribute in get_required_attribute_list and (get_type in alias_types or cmo_type in alias_types)
-
-
-def _is_of_type_with_get_required(attribute, alias_type, attribute_info, get_required_attribute_list):
-    lsa_type, get_type, cmo_type = _get_attribute_types(attribute_info)
-    return attribute in get_required_attribute_list and (get_type == alias_type or cmo_type == alias_type)
 
 
 def _check_for_allowed_unknowns(location, generated_attribute, wlst_type, alias_type, generated_attr_info,
