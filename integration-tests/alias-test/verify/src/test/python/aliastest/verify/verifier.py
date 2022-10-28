@@ -96,6 +96,7 @@ ERROR_ATTRIBUTE_CANNOT_SET = 4020
 ERROR_ATTRIBUTE_PATH_TOKEN_REQUIRED = 4022
 ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE = 4023
 ERROR_ATTRIBUTE_MUST_BE_NO_NAME = 4024
+ERROR_FLATTENED_MBEAN_ATTRIBUTE_ERROR = 4025
 
 MSG_MAP = {
     TESTED_MBEAN_FOLDER:                           'Verified',
@@ -135,7 +136,8 @@ MSG_MAP = {
     ERROR_CANNOT_TEST_MBEAN_UNSPECIFIED:           'Unspecified problem',
     ERROR_CANNOT_TEST_MBEAN_CD:                    'Cannot create MBean',
     ERROR_FAILURE_ATTRIBUTE_UNEXPECTED:            'Unexpected condition for attribute',
-    ERROR_ATTRIBUTE_PASSWORD_NOT_MARKED:           'Attribute not marked as password'
+    ERROR_ATTRIBUTE_PASSWORD_NOT_MARKED:           'Attribute not marked as password',
+    ERROR_FLATTENED_MBEAN_ATTRIBUTE_ERROR:         'Attribute exists for flattened folder in aliases'
 }
 MSG_ID = 'id'
 LOCATION = 'location'
@@ -537,6 +539,12 @@ class Verifier(object):
                 elif self._is_generated_attribute_readonly(location, generated_attribute, generated_attribute_info):
                     self._add_error(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND_IS_READONLY,
                                     attribute=generated_attribute, message=message)
+                elif location.get_folder_path().startswith('/SecurityConfiguration/Realm'):
+                    # We are not fully implementing Security Providers and only intend to
+                    # add attributes as customers need them so make these warnings.
+                    #
+                    self._add_warning(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND,
+                                      attribute=generated_attribute, message=message)
                 else:
                     self._add_error(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND,
                                     attribute=generated_attribute, message=message)
@@ -963,7 +971,8 @@ class Verifier(object):
         if len(attributes) > 0:
             self._add_error(location, ERROR_FLATTENED_MBEAN_HAS_ATTRIBUTES)
             for attribute in attributes:
-                self._add_error(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND, attribute=attribute)
+                message = 'Flattened location %s has attribute %s' % (location.get_folder_path(), attribute)
+                self._add_error(location, ERROR_FLATTENED_MBEAN_ATTRIBUTE_ERROR, message=message, attribute=attribute)
 
     def _check_single_folder(self, dictionary, location, is_flattened_folder):
         """
