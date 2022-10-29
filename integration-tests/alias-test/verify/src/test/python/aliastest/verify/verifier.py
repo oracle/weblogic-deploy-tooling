@@ -72,6 +72,7 @@ ERROR_ALIAS_FOLDER_NOT_IN_WLST = 3004
 ERROR_FLATTENED_MBEAN_HAS_ATTRIBUTES = 3005
 ERROR_CANNOT_TEST_MBEAN_CD = 3006
 ERROR_SINGLE_UNPREDICTABLE = 3007
+ERROR_FLATTENED_FOLDER_ERROR = 3008
 
 ERROR_ATTRIBUTE_ALIAS_NOT_FOUND = 4000
 ERROR_ATTRIBUTE_ALIAS_NOT_FOUND_IS_READONLY = 4001
@@ -107,6 +108,7 @@ MSG_MAP = {
     ERROR_UNABLE_TO_VERIFY_MBEAN_FOLDER:           'Unable to generate information for MBean',
     ERROR_ALIAS_FOLDER_NOT_IN_WLST:                'Alias Folder not an mbean',
     ERROR_SINGLE_UNPREDICTABLE:                    'Alias Folder not marked single unpredictable',
+    ERROR_FLATTENED_FOLDER_ERROR:                  'Alias Flattened Folder not found',
     ERROR_FLATTENED_MBEAN_HAS_ATTRIBUTES:          'Alias flattened Folder has attributes',
     ERROR_USING_REFERENCE_AS_FOLDER:               'Reference attribute used as folder mbean',
     ERROR_ATTRIBUTE_ALIAS_NOT_FOUND:               'Attribute not found',
@@ -583,17 +585,9 @@ class Verifier(object):
             read_type = generated_attribute_info[CMO_READ_TYPE]
             _logger.finer('Using CMO read type {0} for attribute {1} which is in GET required list',
                           read_type, generated_attribute, class_name=CLASS_NAME, method_name=_method_name)
-        # elif READ_TYPE in generated_attribute_info and CMO_READ_TYPE in generated_attribute_info:
-        #     if generated_attribute_info[READ_TYPE] == READ_ONLY or generated_attribute_info[CMO_READ_TYPE] == READ_ONLY:
-        #         read_type = READ_ONLY
-        #     else:
-        #         read_type = READ_WRITE
-        #     _logger.finer('Using both LSA read type {0} and CMO read type {1} for attribute {2}',
-        #                   read_type, generated_attribute_info[CMO_READ_TYPE], generated_attribute,
-        #                   class_name=CLASS_NAME, method_name=_method_name)
         elif READ_TYPE in generated_attribute_info:
             read_type = generated_attribute_info[READ_TYPE]
-            _logger.finer('Using both LSA read type {0} for attribute {1}', read_type, generated_attribute,
+            _logger.finer('Using read type {0} for attribute {1}', read_type, generated_attribute,
                           class_name=CLASS_NAME, method_name=_method_name)
         else:
             read_type = generated_attribute_info[CMO_READ_TYPE]
@@ -986,20 +980,32 @@ class Verifier(object):
         :param is_flattened_folder: if current mbean is a flattened and single folder
         :param location: current location context of mbean
         """
+        _method_name = '_check_single_folder'
+        _logger.entering(location.get_folder_path(), is_flattened_folder,
+                         class_name=CLASS_NAME, method_name=_method_name)
+
         if INSTANCE_TYPE in dictionary:
             instance_type = dictionary[INSTANCE_TYPE]
             is_multiple = self._alias_helper.supports_multiple_mbean_instances(location)
             if is_flattened_folder:
                 is_multiple = False
+                token_name = self._alias_helper.get_name_token(location)
+                location.add_name_token(token_name, 'foo')
             if is_multiple:
                 if instance_type != MULTIPLE:
                     self._add_error(location, ERROR_SINGLE_UNPREDICTABLE)
             else:
                 try:
+                    _logger.finer('Calling get_wlst_mbean_name() on location {0}', location.get_folder_path,
+                                  class_name=CLASS_NAME, method_name=_method_name)
                     token_name = self._alias_helper.get_wlst_mbean_name(location)
-                except AliasException:
-                    self._add_error(location, ERROR_ATTRIBUTE_INVALID_VERSION)
+                except AliasException, e:
+                    if is_flattened_folder:
+                        self._add_error(location, ERROR_FLATTENED_FOLDER_ERROR, message=str(e))
+                    else:
+                        self._add_error(location, ERROR_ATTRIBUTE_INVALID_VERSION)
                     return
+
                 if instance_type == SINGLE_NO_NAME:
                     if token_name != 'NO_NAME_0':
                         self._add_error(location, ERROR_ATTRIBUTE_MUST_BE_NO_NAME)
