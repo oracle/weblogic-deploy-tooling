@@ -22,10 +22,10 @@ pre = "<b> </b>"
 - #1220 - Added support for application modules for JDBC, JMS, and WLDF with normal WDT tokenization mechanisms (WDT-675).
 
 #### Bug Fixes
-- #1194: Resolved an ordering issue when setting the `FrontendHost` and `FrontendHTTPPort` with dynamic clusters (WDT-668)
+- #1194: Resolved an ordering issue when setting the `FrontendHost` and `FrontendHTTPPort` with dynamic clusters (WDT-668).
 - #1196: Fixed issue #1170 which was causing an unexpected `NameError`.
-- #1197: Log a warning when the security provider schematype file is missing (WDT-645) 
-- #1208: Refactored tool exit handling to simplify the logic and resolve various errors
+- #1197: Log a warning when the security provider schematype file is missing (WDT-645) .
+- #1208: Refactored tool exit handling to simplify the logic and resolve various errors.
 - #1209: Resolved an issue with structured applications where the model data was not being honored for the deployment plan file name.
 - #1214: Resolved an issue with structured application discovery causing duplicate override files to show up in the archive file.
 - #1217: Resolved an issue with ATP database support that was not handling connect strings with multiple description fields.
@@ -33,6 +33,6 @@ pre = "<b> </b>"
 
 #### Known Issues
 - Due to the changes made for WDT-663, the resulting remotely discovered model contains extra fields that would not normally be there.
-  This is an area of ongoing work to try to clean up the online aliases to not depend on these extra remote calls to produce a clean model.
+  This is an area of ongoing work to clean up the online aliases to not depend on these extra remote calls to produce a clean model.
 
 
