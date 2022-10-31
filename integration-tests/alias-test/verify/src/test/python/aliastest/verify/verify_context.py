@@ -4,6 +4,8 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 from aliastest.verify import constants
 
+from wlsdeploy.aliases.wlst_modes import WlstModes
+
 
 class VerifyModelContext(object):
     def __init__(self, program_name, wlst_mode, arg_map):
@@ -41,6 +43,20 @@ class VerifyModelContext(object):
         :return: the target WLST mode
         """
         return self._wlst_mode
+
+    def is_wlst_online(self):
+        """
+        Determine if the tool was started using WLST online mode
+        :return: True if the tool is in online mode
+        """
+        return self._wlst_mode == WlstModes.ONLINE
+
+    def is_wlst_offline(self):
+        """
+        Determine if the tool was started using WLST offline mode
+        :return: True if the tool is in offline mode
+        """
+        return self._wlst_mode == WlstModes.OFFLINE
 
     def get_generated_dir(self):
         return self._generated_dir

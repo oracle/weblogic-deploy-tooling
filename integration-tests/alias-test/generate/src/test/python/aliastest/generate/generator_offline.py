@@ -270,6 +270,7 @@ class OfflineGenerator(GeneratorBase):
 
         attribute_map = PyOrderedDict()
         lsa_map = generator_wlst.lsa_map()
+        self.__logger.finer('lsa_map = {0}', lsa_map, class_name=self.__class_name, method_name=_method_name)
         not_found_mbean_list = list()
         if len(lsa_map) > 0:
             not_found_mbean_list = lsa_map.keys()
@@ -278,11 +279,15 @@ class OfflineGenerator(GeneratorBase):
         method_helper = MBeanMethodHelper(mbean_instance, mbean_path)
         methods_map = method_helper.get_attributes()
         methods_attributes = methods_map.keys()
+        self.__logger.finer('MBeanMethodHelper found attributes: {0}', methods_attributes,
+                            class_name=self.__class_name, method_name=_method_name)
 
         # As the driver it needs to have all attributes
         info_helper = MBeanInfoHelper(mbean_instance, mbean_path)
         info_map = info_helper.get_all_attributes()
         mbean_type = info_helper.get_mbean_type()
+        self.__logger.finer('MBeanInfoHelper for MBean type {0} found attributes: {1}', mbean_type, info_map,
+                            class_name=self.__class_name, method_name=_method_name)
 
         for attribute, attribute_helper in info_map.iteritems():
             method_attribute_helper = None
@@ -415,23 +420,27 @@ class OfflineGenerator(GeneratorBase):
     def create_security_type(self, mbean_type):
         folder_dict = PyOrderedDict()
         folder_dict[TYPE] = 'Provider'
-        types = self._sc_providers[mbean_type]
+        provider_sub_types = self._sc_providers[mbean_type]
 
-        singular = mbean_type
-        if singular.endswith('s'):
+        singular_mbean_type = mbean_type
+        if singular_mbean_type.endswith('s'):
             lenm = len(mbean_type)-1
-            singular = mbean_type[0:lenm]
-        for item in types:
-            idx = item.rfind('.')
-            short = item[idx + 1:]
-            package = short
-            mbean_instance = generator_wlst.created_security_provider(singular, short, package)
-            orig = generator_wlst.current_path()
-            folder_dict[short] = PyOrderedDict()
-            folder_dict[short][ATTRIBUTES] = self.__get_attributes(mbean_instance)
-            generator_wlst.cd_mbean(orig)
-        return True, singular, folder_dict
+            singular_mbean_type = mbean_type[0:lenm]
+        for provider_sub_type in provider_sub_types:
+            # Remove the package name from the subclass.
+            idx = provider_sub_type.rfind('.')
+            shortened_provider_sub_type = provider_sub_type[idx + 1:]
 
+            mbean_name = shortened_provider_sub_type
+            mbean_instance = \
+                generator_wlst.create_security_provider(mbean_name, shortened_provider_sub_type, singular_mbean_type)
+            orig = generator_wlst.current_path()
+            folder_dict[shortened_provider_sub_type] = PyOrderedDict()
+            folder_dict[shortened_provider_sub_type][ATTRIBUTES] = self.__get_attributes(mbean_instance)
+            generator_wlst.cd_mbean(orig)
+        return True, singular_mbean_type, folder_dict
+
+    # FIXME - This is dead code
     def _slim_maps_for_report(self, mbean_proxy, mbean_type, lsa_map, methods_map, mbean_info_map):
         # Unlike the slim_maps method, this report discards additional information to determine how
         # different is the usable information in LSA, versus cmo.getClass().getMethods versus
@@ -461,6 +470,7 @@ class OfflineGenerator(GeneratorBase):
         print(' lsa_map size ', len(lsa_map), '  methods_map size ', len(methods_map),
               ' mbean_info_size ', len(mbean_info_map))
 
+    # FIXME - This is dead code
     def _report_differences(self, mbean_proxy, mbean_type, lsa_map, methods_map, mbean_info_map):
         print('*************************************************************')
         print('Reporting on MBean ', str(mbean_proxy))

@@ -916,19 +916,6 @@
                                           "wlst_paths": {
                                                 "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/UniformDistributedQueue${:s}/%UNIFORMDISTRIBUTEDQUEUE%/Thresholds/%THRESHOLDS%"
                                           }
-                                    },
-                                    "TopicSubscriptionParams": {
-                                          "wlst_type": "TopicSubscriptionParams",
-                                          "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDQUEUE%}",
-                                          "version": "[12.2.1.3,)",
-                                          "folders": {},
-                                          "attributes": {
-                                                "MessagesLimitOverride":    [ {"version": "[12.2.1.3,)", "wlst_mode": "both", "wlst_name": "MessagesLimitOverride",    "wlst_path": "WP001", "default_value": -1,  "wlst_type": "long"  } ]
-                                          },
-                                          "wlst_attributes_path": "WP001",
-                                          "wlst_paths": {
-                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/UniformDistributedQueue${:s}/%UNIFORMDISTRIBUTEDQUEUE%/TopicSubscriptionParams/%TOPICSUBSCRIPTIONPARAMS%"
-                                          }
                                     }
                               },
                               "attributes": {
@@ -1046,6 +1033,19 @@
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
                                                 "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/UniformDistributedTopic${:s}/%UNIFORMDISTRIBUTEDTOPIC%/Thresholds/%THRESHOLDS%"
+                                          }
+                                    },
+                                    "TopicSubscriptionParams": {
+                                          "wlst_type": "TopicSubscriptionParams",
+                                          "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDTOPIC%}",
+                                          "version": "[12.2.1.3,)",
+                                          "folders": {},
+                                          "attributes": {
+                                                "MessagesLimitOverride":    [ {"version": "[12.2.1.3,)", "wlst_mode": "both", "wlst_name": "MessagesLimitOverride",    "wlst_path": "WP001", "default_value": -1,  "wlst_type": "long"  } ]
+                                          },
+                                          "wlst_attributes_path": "WP001",
+                                          "wlst_paths": {
+                                                "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%/UniformDistributedTopic${:s}/%UNIFORMDISTRIBUTEDTOPIC%/TopicSubscriptionParams/%TOPICSUBSCRIPTIONPARAMS%"
                                           }
                                     }
                               },

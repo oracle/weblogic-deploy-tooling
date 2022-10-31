@@ -242,27 +242,29 @@ def created(mbean_type, name):
     return True
 
 
-def created_security_provider(mbean_type, name, package):
+def create_security_provider(name, mbean_subtype, mbean_type):
     """
     Create the MBean with the provided name at the current wlst location. WLST Exceptions are caught and returned
     as False from the method.
     :param mbean_type: MBean type to create
     :param name: Name of the MBean to create
-    :param package: package name of the security provider to create
+    :param mbean_subtype: the subtype of the security provider to create
     :return: True if successfully created
     """
-    _method_name = 'created'
+    _method_name = 'create_security_provider'
+    __logger.entering(name, mbean_subtype, mbean_type, class_name=__class_name, method_name=_method_name)
 
     online_wlst_exception = _load_global('WLSTException')
     result = None
     try:
         local_create = _load_global('create')
-        result = local_create(name, package, mbean_type)
+        result = local_create(name, mbean_subtype, mbean_type)
     except (online_wlst_exception, offlineWLSTException, ClassCastException, NoSuchMethodException), e:
-        __logger.fine('Unable to create MBean {0} with name {1} and provider name {2} at location {3} : {4}',
-                      mbean_type, name, package, current_path(), str(e),
+        __logger.fine('Unable to create MBean {0} with name {1} and provider subtype {2} at location {3} : {4}',
+                      mbean_type, name, mbean_subtype, current_path(), str(e),
                       class_name=__class_name, method_name=_method_name)
 
+    __logger.exiting(class_name=__class_name, method_name=_method_name, result=result)
     return result
 
 

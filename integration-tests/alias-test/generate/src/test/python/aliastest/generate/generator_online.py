@@ -315,22 +315,22 @@ class OnlineGenerator(GeneratorBase):
 
     def generate_security_mbean(self, dictionary, mbean_type):
         dictionary[mbean_type][TYPE] = 'Provider'
-        types = self._sc_providers[mbean_type]
+        provider_subtypes = self._sc_providers[mbean_type]
         curr_path = generator_wlst.current_path()
         generator_wlst.cd_mbean(curr_path + '/' + mbean_type)
         existing = generator_wlst.lsc()
         generator_wlst.cd_mbean(curr_path)
-        for item in types:
-            idx = item.rfind('.')
-            short = item[idx + 1:]
+        for provider_subtype in provider_subtypes:
+            idx = provider_subtype.rfind('.')
+            name = provider_subtype[idx + 1:]
             orig = generator_wlst.current_path()
-            if short not in existing:
-                mbean_instance = generator_wlst.created_security_provider(mbean_type, short, item)
-                generator_wlst.cd_mbean(curr_path + '/' + mbean_type + '/' + short)
+            if name not in existing:
+                mbean_instance = generator_wlst.create_security_provider(name, provider_subtype, mbean_type)
+                generator_wlst.cd_mbean(curr_path + '/' + mbean_type + '/' + name)
             else:
-                mbean_instance = generator_wlst.get_mbean_proxy(curr_path + '/' + mbean_type + '/' + short)
-            dictionary[mbean_type][item] = PyOrderedDict()
-            dictionary[mbean_type][item][ATTRIBUTES] = self.__get_attributes(mbean_instance)
+                mbean_instance = generator_wlst.get_mbean_proxy(curr_path + '/' + mbean_type + '/' + name)
+            dictionary[mbean_type][provider_subtype] = PyOrderedDict()
+            dictionary[mbean_type][provider_subtype][ATTRIBUTES] = self.__get_attributes(mbean_instance)
             generator_wlst.cd_mbean(orig)
         generator_wlst.cd_mbean(curr_path)
 

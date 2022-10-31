@@ -30,6 +30,7 @@ MULTIPLE = 'multiple'
 ONLINE_REFERENCE_ONLY = 'reference_only'
 READ_ONLY = 'readonly'
 READ_TYPE = 'read_type'
+READ_WRITE = 'readwrite'
 RECHECK = 'recheck'
 RESTART = 'restart_required'
 RESTART_NO_CHECK = 'none'
@@ -53,11 +54,13 @@ MBEAN_ERROR_RANGE = range(3000, 3999)
 ATTRIBUTE_ERROR_RANGE = range(4000, 4999)
 
 TESTED_MBEAN_FOLDER = 1000
+INFO_ATTRIBUTE_IN_IGNORE_LIST = 1001
 
 WARN_MBEAN_NOT_NO_NAME_0 = 5101
 WARN_ATTRIBUTE_DEPRECATED = 5502
 WARN_ATTRIBUTE_HAS_UNKNOWN_TYPE = 5500
 WARN_ALIAS_FOLDER_NOT_IMPLEMENTED = 5501
+
 
 ERROR_FAILURE_ATTRIBUTE_LIST = 2000
 ERROR_FAILURE_ATTRIBUTE_UNEXPECTED = 2001
@@ -69,6 +72,7 @@ ERROR_ALIAS_FOLDER_NOT_IN_WLST = 3004
 ERROR_FLATTENED_MBEAN_HAS_ATTRIBUTES = 3005
 ERROR_CANNOT_TEST_MBEAN_CD = 3006
 ERROR_SINGLE_UNPREDICTABLE = 3007
+ERROR_FLATTENED_FOLDER_ERROR = 3008
 
 ERROR_ATTRIBUTE_ALIAS_NOT_FOUND = 4000
 ERROR_ATTRIBUTE_ALIAS_NOT_FOUND_IS_READONLY = 4001
@@ -90,10 +94,10 @@ ERROR_ATTRIBUTE_REQUIRES_PREFERRED_MODEL_TYPE = 4017
 ERROR_ATTRIBUTE_NOT_IN_WLST = 4018
 ERROR_ATTRIBUTE_CANNOT_CONVERT_BACK = 4019
 ERROR_ATTRIBUTE_CANNOT_SET = 4020
-ERROR_ATTRIBUTE_IN_IGNORE_LIST = 4021
 ERROR_ATTRIBUTE_PATH_TOKEN_REQUIRED = 4022
 ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE = 4023
 ERROR_ATTRIBUTE_MUST_BE_NO_NAME = 4024
+ERROR_FLATTENED_MBEAN_ATTRIBUTE_ERROR = 4025
 
 MSG_MAP = {
     TESTED_MBEAN_FOLDER:                           'Verified',
@@ -104,6 +108,7 @@ MSG_MAP = {
     ERROR_UNABLE_TO_VERIFY_MBEAN_FOLDER:           'Unable to generate information for MBean',
     ERROR_ALIAS_FOLDER_NOT_IN_WLST:                'Alias Folder not an mbean',
     ERROR_SINGLE_UNPREDICTABLE:                    'Alias Folder not marked single unpredictable',
+    ERROR_FLATTENED_FOLDER_ERROR:                  'Alias Flattened Folder not found',
     ERROR_FLATTENED_MBEAN_HAS_ATTRIBUTES:          'Alias flattened Folder has attributes',
     ERROR_USING_REFERENCE_AS_FOLDER:               'Reference attribute used as folder mbean',
     ERROR_ATTRIBUTE_ALIAS_NOT_FOUND:               'Attribute not found',
@@ -127,13 +132,14 @@ MSG_MAP = {
     ERROR_ATTRIBUTE_NOT_RESTART:                   'Attribute marked restart',
     ERROR_ATTRIBUTE_CANNOT_SET:                    'Cannot SET default value',
     ERROR_ATTRIBUTE_MUST_BE_NO_NAME:               'Attribute name must be set to NO_NAME_0',
-    ERROR_ATTRIBUTE_IN_IGNORE_LIST:                'Alias attribute is WLST attribute in the ignore list',
+    INFO_ATTRIBUTE_IN_IGNORE_LIST:                 'Alias attribute is WLST attribute in the ignore list',
     ERROR_ATTRIBUTE_NOT_IN_WLST:                   'Alias attribute not in MBean',
     ERROR_FAILURE_ATTRIBUTE_LIST:                  'Invalid Alias attribute list',
     ERROR_CANNOT_TEST_MBEAN_UNSPECIFIED:           'Unspecified problem',
     ERROR_CANNOT_TEST_MBEAN_CD:                    'Cannot create MBean',
     ERROR_FAILURE_ATTRIBUTE_UNEXPECTED:            'Unexpected condition for attribute',
-    ERROR_ATTRIBUTE_PASSWORD_NOT_MARKED:           'Attribute not marked as password'
+    ERROR_ATTRIBUTE_PASSWORD_NOT_MARKED:           'Attribute not marked as password',
+    ERROR_FLATTENED_MBEAN_ATTRIBUTE_ERROR:         'Attribute exists for flattened folder in aliases'
 }
 MSG_ID = 'id'
 LOCATION = 'location'
@@ -404,7 +410,7 @@ class Verifier(object):
 
             for unprocessed in unprocessed_alias_list:
                 if unprocessed in self._alias_helper.get_ignore_attribute_names():
-                    self._add_error(location, ERROR_ATTRIBUTE_IN_IGNORE_LIST, attribute=unprocessed)
+                    self._add_info(location, INFO_ATTRIBUTE_IN_IGNORE_LIST, attribute=unprocessed)
                 else:
                     message = ''
                     if verify_utils.is_clear_text_password(unprocessed):
@@ -485,12 +491,13 @@ class Verifier(object):
                                                           alias_get_required_attribute_list)
                 if read_only is not None:
                     if not read_only and not _is_clear_text_password(generated_attribute):
-                        message = None
                         if CMO_READ_TYPE in generated_attribute_info and \
                                 generated_attribute_info[CMO_READ_TYPE] == READ_ONLY:
-                            message = 'LSA has READ_WRITE and CMO has READ_ONLY'
-                        self._add_error(location, ERROR_ATTRIBUTE_NOT_READONLY_VERSION,
-                                        message=message, attribute=generated_attribute)
+                            # if CMO_READ_TYPE is read only, no error...
+                            pass
+                        else:
+                            self._add_error(location, ERROR_ATTRIBUTE_NOT_READONLY_VERSION,
+                                            attribute=generated_attribute)
             else:
                 if self._is_generated_attribute_readonly(location, generated_attribute, generated_attribute_info,
                                                          alias_get_required_attribute_list):
@@ -530,10 +537,19 @@ class Verifier(object):
                     message = 'Since Version=', generated_attribute_info[SINCE_VERSION]
 
                 if generated_attribute.lower() in lower_case_list:
-                    self._add_error(location, ERROR_ATTRIBUTE_INCORRECT_CASE, attribute=generated_attribute)
+                    expected_wlst_name = _get_dict_key_from_value(alias_name_map, generated_attribute.lower())
+                    message = 'WLST name in aliases is %s' % expected_wlst_name
+                    self._add_error(location, ERROR_ATTRIBUTE_INCORRECT_CASE,
+                                    message=message, attribute=generated_attribute)
                 elif self._is_generated_attribute_readonly(location, generated_attribute, generated_attribute_info):
                     self._add_error(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND_IS_READONLY,
                                     attribute=generated_attribute, message=message)
+                elif location.get_folder_path().startswith('/SecurityConfiguration/Realm'):
+                    # We are not fully implementing Security Providers and only intend to
+                    # add attributes as customers need them so make these warnings.
+                    #
+                    self._add_warning(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND,
+                                      attribute=generated_attribute, message=message)
                 else:
                     self._add_error(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND,
                                     attribute=generated_attribute, message=message)
@@ -556,6 +572,8 @@ class Verifier(object):
         :return: True if the generated attribute is defined as readonly
         """
         _method_name = '_is_generated_attribute_readonly'
+        _logger.entering(location.get_folder_path(), generated_attribute, str(generated_attribute_info),
+                         str(alias_get_required_attribute_list), class_name=CLASS_NAME, method_name=_method_name)
 
         if READ_TYPE not in generated_attribute_info and CMO_READ_TYPE not in generated_attribute_info:
             self._add_error(location, ERROR_FAILURE_ATTRIBUTE_UNEXPECTED,
@@ -569,15 +587,18 @@ class Verifier(object):
                           read_type, generated_attribute, class_name=CLASS_NAME, method_name=_method_name)
         elif READ_TYPE in generated_attribute_info:
             read_type = generated_attribute_info[READ_TYPE]
-        else:
-            _logger.finer('No LSA read type found, using the CMO read type for attribute {0} at location {1}',
-                          generated_attribute, location.get_folder_path(),
+            _logger.finer('Using read type {0} for attribute {1}', read_type, generated_attribute,
                           class_name=CLASS_NAME, method_name=_method_name)
+        else:
             read_type = generated_attribute_info[CMO_READ_TYPE]
+            _logger.finer('No LSA read type found, using the CMO read type {0} for attribute {1} at location {2}',
+                          read_type, generated_attribute, location.get_folder_path(),
+                          class_name=CLASS_NAME, method_name=_method_name)
 
-        _logger.fine('The attribute {0} read type is {1}', generated_attribute, read_type,
-                     class_name=CLASS_NAME, method_name=_method_name)
-        return read_type == READ_ONLY
+        result = read_type == READ_ONLY
+
+        _logger.exiting(class_name=CLASS_NAME, method_name=_method_name, result=result)
+        return result
 
     def _is_valid_attribute_type_and_value(self, location, generated_attribute, generated_attribute_info,
                                            model_attribute_name, alias_get_required_attribute_list):
@@ -889,7 +910,7 @@ class Verifier(object):
                 valid = True
             elif alias_type == alias_constants.STRING and _is_object_type(generated_attribute_info):
                 valid = True
-                if model_name not in set_method_list:
+                if self._model_context.is_wlst_online() and model_name not in set_method_list:
                     _logger.fine('Attribute {0} is an object but is not in the set method list {1}',
                                  generated_attribute, set_method_list, class_name=CLASS_NAME, method_name=_method_name)
                     self._add_error(location, ERROR_ATTRIBUTE_SET_METHOD_MISSING, attribute=generated_attribute)
@@ -947,7 +968,8 @@ class Verifier(object):
         if len(attributes) > 0:
             self._add_error(location, ERROR_FLATTENED_MBEAN_HAS_ATTRIBUTES)
             for attribute in attributes:
-                self._add_error(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND, attribute=attribute)
+                message = 'Flattened location %s has attribute %s' % (location.get_folder_path(), attribute)
+                self._add_error(location, ERROR_FLATTENED_MBEAN_ATTRIBUTE_ERROR, message=message, attribute=attribute)
 
     def _check_single_folder(self, dictionary, location, is_flattened_folder):
         """
@@ -958,20 +980,32 @@ class Verifier(object):
         :param is_flattened_folder: if current mbean is a flattened and single folder
         :param location: current location context of mbean
         """
+        _method_name = '_check_single_folder'
+        _logger.entering(location.get_folder_path(), is_flattened_folder,
+                         class_name=CLASS_NAME, method_name=_method_name)
+
         if INSTANCE_TYPE in dictionary:
             instance_type = dictionary[INSTANCE_TYPE]
             is_multiple = self._alias_helper.supports_multiple_mbean_instances(location)
             if is_flattened_folder:
                 is_multiple = False
+                token_name = self._alias_helper.get_name_token(location)
+                location.add_name_token(token_name, 'foo')
             if is_multiple:
                 if instance_type != MULTIPLE:
                     self._add_error(location, ERROR_SINGLE_UNPREDICTABLE)
             else:
                 try:
+                    _logger.finer('Calling get_wlst_mbean_name() on location {0}', location.get_folder_path,
+                                  class_name=CLASS_NAME, method_name=_method_name)
                     token_name = self._alias_helper.get_wlst_mbean_name(location)
-                except AliasException:
-                    self._add_error(location, ERROR_ATTRIBUTE_INVALID_VERSION)
+                except AliasException, e:
+                    if is_flattened_folder:
+                        self._add_error(location, ERROR_FLATTENED_FOLDER_ERROR, message=str(e))
+                    else:
+                        self._add_error(location, ERROR_ATTRIBUTE_INVALID_VERSION)
                     return
+
                 if instance_type == SINGLE_NO_NAME:
                     if token_name != 'NO_NAME_0':
                         self._add_error(location, ERROR_ATTRIBUTE_MUST_BE_NO_NAME)
@@ -1055,15 +1089,19 @@ class Verifier(object):
         :return: True if the delimited type contains properties
         """
         _method_name = '_check_complex_type'
-        _logger.entering(generated_attribute, alias_type, model_name,
+        _logger.entering(location.get_folder_path(), generated_attribute, alias_type, model_name,
                          class_name=CLASS_NAME, method_name=_method_name)
 
         valid = False
         lsa_type, get_type, cmo_type = _get_attribute_types(generated_attr_info)
-        _logger.finest('Attribute {0} lsa_type {1} cmo_type {2} get_type {3} : alias_type {4} get required {5}',
-                       generated_attribute, lsa_type, cmo_type, get_type, alias_type,
-                       Boolean(generated_attribute in get_required_attribute_list),
-                       class_name=CLASS_NAME, method_name=_method_name)
+        if _logger.is_finest_enabled():
+            wlst_read_type = self._alias_helper.get_wlst_read_type(location, model_name)
+            _logger.finest('Location {0} Attribute {1} with alias_type {2}: lsa_type={3} cmo_type={4}'
+                           ' get_type={5} wlst_read_type={6}, get_required={7}',
+                           location.get_folder_path(), generated_attribute, alias_type, lsa_type, cmo_type, get_type,
+                           wlst_read_type, Boolean(generated_attribute in get_required_attribute_list),
+                           class_name=CLASS_NAME, method_name=_method_name)
+
         if alias_type == alias_constants.SEMI_COLON_DELIMITED_STRING and \
                 _is_of_type_with_lsa(generated_attribute, alias_constants.PROPERTIES, generated_attr_info,
                                      get_required_attribute_list):
@@ -1082,6 +1120,9 @@ class Verifier(object):
                         alias_constants.ALIAS_DELIMITED_TYPES:
                     self._add_invalid_type_error(location, generated_attribute, alias_constants.STRING, alias_type,
                                                  get_required_attribute_list, 'GET or WLST_READ_TYPE required')
+            elif _is_wlst_read_type_compatible_list_type(generated_attribute, lsa_type,
+                                                         self._alias_helper.get_wlst_read_type(location, model_name)):
+                valid = True
         elif alias_type == alias_constants.LIST:
             if _is_of_type_with_get_required(generated_attribute, alias_type, generated_attr_info,
                                              get_required_attribute_list):
@@ -1093,6 +1134,9 @@ class Verifier(object):
                         alias_constants.ALIAS_DELIMITED_TYPES:
                     self._add_invalid_type_error(location, generated_attribute, alias_constants.STRING, alias_type,
                                                  get_required_attribute_list, 'LSA GET_METHOD requires WLST_READ_TYPE')
+            elif _is_wlst_read_type_compatible_list_type(generated_attribute, lsa_type,
+                                                         self._alias_helper.get_wlst_read_type(location, model_name)):
+                valid = True
         elif alias_type in alias_constants.ALIAS_DELIMITED_TYPES:
             if _is_any_string_type(generated_attr_info):
                 valid = True
@@ -1231,24 +1275,46 @@ def _get_attribute_types(attribute_info):
     return lsa_type, get_type, cmo_type
 
 
+def _is_of_type_with_get_required(attribute, alias_type, attribute_info, get_required_attribute_list):
+    lsa_type, get_type, cmo_type = _get_attribute_types(attribute_info)
+    return attribute in get_required_attribute_list and (get_type == alias_type or cmo_type == alias_type)
+
+
 def _is_of_type_with_lsa(attribute, alias_type, attribute_info, get_required_attribute_list):
     lsa_type, get_type, cmo_type = _get_attribute_types(attribute_info)
-    return attribute not in get_required_attribute_list and lsa_type is not None and \
-        (lsa_type == alias_type or
-         ((_is_type_an_unknown_type(lsa_type) or lsa_type == alias_constants.STRING or
-           lsa_type == alias_constants.INTEGER) and
-          ((_is_type_an_unknown_type(get_type) and cmo_type is None) or (get_type == alias_type
-                                                                         or cmo_type == alias_type))))
+
+    is_lsa_type = attribute not in get_required_attribute_list and lsa_type is not None
+    is_lsa_and_alias_types_equal = lsa_type == alias_type
+    is_lsa_type_unknown = _is_type_an_unknown_type(lsa_type)
+    is_lsa_type_string_or_integer = lsa_type == alias_constants.STRING or lsa_type == alias_constants.INTEGER
+    is_lsa_type_unknown_or_string_or_integer = is_lsa_type_unknown or is_lsa_type_string_or_integer
+    is_lsa_type_unknown_and_cmo_type_is_none = _is_type_an_unknown_type(get_type) and cmo_type is None
+    is_get_and_alias_types_equal = get_type == alias_type
+    is_cmo_and_alias_types_equal = cmo_type == alias_type
+    is_cmo_or_get_and_alias_types_equal = is_get_and_alias_types_equal or is_cmo_and_alias_types_equal
+
+    return is_lsa_type and \
+           (is_lsa_and_alias_types_equal or
+            (is_lsa_type_unknown_or_string_or_integer and
+             (is_lsa_type_unknown_and_cmo_type_is_none or is_cmo_or_get_and_alias_types_equal)))
+
+
+def _is_wlst_read_type_compatible_list_type(attribute, lsa_type, wlst_read_type):
+    _method_name = '_is_wlst_read_type_compatible_list_type'
+    _logger.entering(attribute, lsa_type, wlst_read_type, class_name=CLASS_NAME, method_name=_method_name)
+
+    result = False
+    if wlst_read_type is not None and lsa_type is not None:
+        # if the lsa_type is 'string' and the wlst_read_type is 'delimited_string[*]', the types are a match
+        result = wlst_read_type in alias_constants.ALIAS_DELIMITED_TYPES and lsa_type in wlst_read_type
+
+    _logger.exiting(class_name=CLASS_NAME, method_name=_method_name, result=result)
+    return result
 
 
 def _is_in_types_with_get_required(attribute, alias_types, attribute_info, get_required_attribute_list):
     lsa_type, get_type, cmo_type = _get_attribute_types(attribute_info)
     return attribute in get_required_attribute_list and (get_type in alias_types or cmo_type in alias_types)
-
-
-def _is_of_type_with_get_required(attribute, alias_type, attribute_info, get_required_attribute_list):
-    lsa_type, get_type, cmo_type = _get_attribute_types(attribute_info)
-    return attribute in get_required_attribute_list and (get_type == alias_type or cmo_type == alias_type)
 
 
 def _check_for_allowed_unknowns(location, generated_attribute, wlst_type, alias_type, generated_attr_info,
@@ -1398,6 +1464,15 @@ def _type_can_be_lsa_string(attribute_type):
     return attribute_type in [alias_constants.STRING, alias_constants.OBJECT, alias_constants.PASSWORD] or \
            attribute_type in alias_constants.ALIAS_LIST_TYPES or \
            attribute_type in alias_constants.ALIAS_MAP_TYPES
+
+
+def _get_dict_key_from_value(alias_name_map, lower_case_value):
+    result = None
+    for key, value in alias_name_map.iteritems():
+        if value == lower_case_value:
+            result = key
+            break
+    return result
 
 
 class VerifierResult(object):
