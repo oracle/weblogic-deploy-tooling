@@ -579,13 +579,7 @@ class Verifier(object):
             self._add_error(location, ERROR_FAILURE_ATTRIBUTE_UNEXPECTED,
                             message='Generated attribute has no read type', attribute=generated_attribute)
             return None
-
-        if alias_get_required_attribute_list is not None and \
-                generated_attribute in alias_get_required_attribute_list and CMO_READ_TYPE in generated_attribute_info:
-            read_type = generated_attribute_info[CMO_READ_TYPE]
-            _logger.finer('Using CMO read type {0} for attribute {1} which is in GET required list',
-                          read_type, generated_attribute, class_name=CLASS_NAME, method_name=_method_name)
-        elif READ_TYPE in generated_attribute_info:
+        if READ_TYPE in generated_attribute_info:
             read_type = generated_attribute_info[READ_TYPE]
             _logger.finer('Using read type {0} for attribute {1}', read_type, generated_attribute,
                           class_name=CLASS_NAME, method_name=_method_name)
@@ -1113,6 +1107,8 @@ class Verifier(object):
             if _is_of_type_with_get_required(generated_attribute, alias_type, generated_attr_info,
                                              get_required_attribute_list):
                 valid = True
+                _logger.finer('alias type JARRAY has get_required for attribute {0}', generated_attribute, 
+                              class_name=CLASS_NAME, method_name=_method_name)
             elif _is_of_type_with_lsa(generated_attribute, alias_type, generated_attr_info,
                                       get_required_attribute_list):
                 valid = True
