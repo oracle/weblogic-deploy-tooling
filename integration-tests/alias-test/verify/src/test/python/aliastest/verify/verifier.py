@@ -1116,6 +1116,8 @@ class Verifier(object):
             elif _is_of_type_with_lsa(generated_attribute, alias_type, generated_attr_info,
                                       get_required_attribute_list):
                 valid = True
+                _logger.finer('alias type JARRAY is in lsa type for attribute {0}', generated_attribute,
+                              class_name=CLASS_NAME, method_name=_method_name)
                 if self._alias_helper.get_wlst_read_type(location, model_name) not in \
                         alias_constants.ALIAS_DELIMITED_TYPES:
                     self._add_invalid_type_error(location, generated_attribute, alias_constants.STRING, alias_type,
