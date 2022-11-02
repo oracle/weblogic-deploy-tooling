@@ -258,7 +258,7 @@ class Verifier(object):
                                   location.get_folder_path(), class_name=CLASS_NAME, method_name=_method_name)
                     self._check_attribute_list_for_flattened(location, attributes)
                     # Swallow the intermediate layer that is not relevant in a flattened location
-                    this_dictionary = this_dictionary[this_dictionary.keys()[0]]
+                    this_dictionary = this_dictionary[this_dictionary.keys()[2]]
                     attributes = _get_generated_attribute_list(this_dictionary)
                     flattened_folder = True
                 self._check_single_folder(this_dictionary, location, flattened_folder)
