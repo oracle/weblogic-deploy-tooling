@@ -258,7 +258,7 @@ class Verifier(object):
                                   location.get_folder_path(), class_name=CLASS_NAME, method_name=_method_name)
                     self._check_attribute_list_for_flattened(location, attributes)
                     # Swallow the intermediate layer that is not relevant in a flattened location
-                    this_dictionary = this_dictionary[this_dictionary.keys()[0]]
+                    this_dictionary = this_dictionary[this_dictionary.keys()[2]]
                     attributes = _get_generated_attribute_list(this_dictionary)
                     flattened_folder = True
                 self._check_single_folder(this_dictionary, location, flattened_folder)
@@ -579,7 +579,6 @@ class Verifier(object):
             self._add_error(location, ERROR_FAILURE_ATTRIBUTE_UNEXPECTED,
                             message='Generated attribute has no read type', attribute=generated_attribute)
             return None
-
         if alias_get_required_attribute_list is not None and \
                 generated_attribute in alias_get_required_attribute_list and CMO_READ_TYPE in generated_attribute_info:
             read_type = generated_attribute_info[CMO_READ_TYPE]
@@ -1113,6 +1112,8 @@ class Verifier(object):
             if _is_of_type_with_get_required(generated_attribute, alias_type, generated_attr_info,
                                              get_required_attribute_list):
                 valid = True
+                _logger.finer('alias type JARRAY has get_required for attribute {0}', generated_attribute, 
+                              class_name=CLASS_NAME, method_name=_method_name)
             elif _is_of_type_with_lsa(generated_attribute, alias_type, generated_attr_info,
                                       get_required_attribute_list):
                 valid = True
