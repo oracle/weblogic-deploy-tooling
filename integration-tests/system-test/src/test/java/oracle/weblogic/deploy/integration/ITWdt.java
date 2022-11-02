@@ -34,8 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 @IntegrationTest
@@ -962,6 +961,37 @@ public class ITWdt extends BaseTest {
                 throw new Exception("Admin server did not come up after createDomain from discoverDomain");
             }
             stopAdminServer(domainHome);
+        }
+    }
+    /**
+     * test discoverDomain.sh with -domain_type as JRF
+     * @throws Exception - if any error occurs
+     */
+    @DisplayName("Test 32: Prepare model")
+    @Order(32)
+    @Tag("gate")
+    @Test
+    void test32PrepareModel(TestInfo testInfo) throws Exception {
+
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            String wkoModelFile = getSampleModelFile("-targetwko");
+            Path outputFiles = getTestOutputPath(testInfo);
+            String cmd = prepareModelScript
+                    + " -oracle_home " + mwhome_12213
+                    + " -output_dir " + outputFiles
+                    + " -model_file " + wkoModelFile
+                    + " -target " + "wko";
+
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+            verifyResult(result, "prepareModel.sh completed successfully");
+
+            // verify model file
+            String tempWkoModel = outputFiles + FS + wkoModelFile;
+
+            cmd = "grep -c 'Partition' " + tempWkoModel;
+            CommandResult result3 = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+            assertNotEquals(0, result3.exitValue(), "Partition section was not removed from model");
         }
     }
 
