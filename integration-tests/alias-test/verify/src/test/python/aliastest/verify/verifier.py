@@ -579,7 +579,12 @@ class Verifier(object):
             self._add_error(location, ERROR_FAILURE_ATTRIBUTE_UNEXPECTED,
                             message='Generated attribute has no read type', attribute=generated_attribute)
             return None
-        if READ_TYPE in generated_attribute_info:
+        if alias_get_required_attribute_list is not None and \
+                generated_attribute in alias_get_required_attribute_list and CMO_READ_TYPE in generated_attribute_info:
+            read_type = generated_attribute_info[CMO_READ_TYPE]
+            _logger.finer('Using CMO read type {0} for attribute {1} which is in GET required list',
+                          read_type, generated_attribute, class_name=CLASS_NAME, method_name=_method_name)
+        elif READ_TYPE in generated_attribute_info:
             read_type = generated_attribute_info[READ_TYPE]
             _logger.finer('Using read type {0} for attribute {1}', read_type, generated_attribute,
                           class_name=CLASS_NAME, method_name=_method_name)
