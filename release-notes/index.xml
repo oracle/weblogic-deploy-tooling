@@ -7,5 +7,14 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 22 Feb 2019 15:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Release 2.4.0</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.0/</link>
+      <pubDate>Wed, 02 Nov 2022 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.0/</guid>
+      <description>Changes in Release 2.4.0  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features  None  Other Changes  #1193 - Added support for changing the RCU Data Source type during JRF domain creation (WDT-636). #1210 - Improved the speed of remote discovery by bypassing remote calls to determine if a field was set (WDT-663). #1218 - Added -target support for WebLogic Kubernetes Operator 4.0 to generate the domain and cluster schema resources.</description>
+    </item>
+    
   </channel>
 </rss>
