@@ -113,19 +113,20 @@ def generate_all_output_files(model, aliases, credential_injector, model_context
     :param model_context: used to determine location and content for the output
     :param exception_type: the type of exception to throw if needed
     """
-    target_config = model_context.get_target_configuration()
-    credential_cache = credential_injector.get_variable_cache()
+    if model_context.is_targetted_config():
+        target_config = model_context.get_target_configuration()
+        credential_cache = credential_injector.get_variable_cache()
 
-    if target_config.generate_results_file():
-        generate_results_json(model_context, credential_cache, model.get_model(), exception_type)
+        if target_config.generate_results_file():
+            generate_results_json(model_context, credential_cache, model.get_model(), exception_type)
 
-    if target_config.generate_output_files():
-        # Generate k8s create secret script
-        generate_k8s_script(model_context, credential_cache, model.get_model(), exception_type)
+        if target_config.generate_output_files():
+            # Generate k8s create secret script
+            generate_k8s_script(model_context, credential_cache, model.get_model(), exception_type)
 
-        # create additional output files
-        additional_output_helper.create_additional_output(model, model_context, aliases, credential_injector,
-                                                          exception_type)
+            # create additional output files
+            additional_output_helper.create_additional_output(model, model_context, aliases, credential_injector,
+                                                              exception_type)
 
 
 def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
