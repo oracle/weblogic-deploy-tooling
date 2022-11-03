@@ -258,7 +258,10 @@ class Verifier(object):
                                   location.get_folder_path(), class_name=CLASS_NAME, method_name=_method_name)
                     self._check_attribute_list_for_flattened(location, attributes)
                     # Swallow the intermediate layer that is not relevant in a flattened location
-                    this_dictionary = this_dictionary[this_dictionary.keys()[2]]
+                    _logger.finer('MBean {0} now at dictionary {1}', entry, this_dictionary.keys(), 
+                                  class_name=CLASS_NAME, method_name=_method_name)
+                    this_dictionary = self._get_next_entry(this_dictionary)
+                    
                     attributes = _get_generated_attribute_list(this_dictionary)
                     flattened_folder = True
                 self._check_single_folder(this_dictionary, location, flattened_folder)
@@ -274,6 +277,22 @@ class Verifier(object):
 
         _logger.exiting(class_name=CLASS_NAME, method_name=_method_name)
 
+    def _get_next_entry(self, dictionary):
+        keys = dictionary.keys()
+        if len(keys) == 3:
+            if ATTRIBUTES in keys[0] or INSTANCE_TYPE in keys[0]:
+                if ATTRIBUTES in keys[2] or INSTANCE_TYPE in keys[2]:
+                    next_entry = dictionary[keys[1]]
+                else:
+                    next_entry = dictionary[keys[2]]
+            else:
+                next_entry = dictionary[keys[0]]
+        elif len(keys) == 1:
+            next_entry = dictionary[keys[0]]
+        else:
+             return dictionary
+        return next_entry 
+        
     def _check_generated_against_alias_folders(self, location, generated_dictionary, folder_map):
         """
         Verify the aliases MBeans for the current location for MBeans are in the generated dictionary.
