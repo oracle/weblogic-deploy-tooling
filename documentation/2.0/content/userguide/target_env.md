@@ -42,9 +42,11 @@ These target environment configurations are included in the WebLogic Deploy Tool
 
 You can use these targets to customize the model and create a domain resource file for use with WebLogic Kubernetes Operator. There are three targets for specific [domain home source types](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/choosing-a-model/):
 
-- `wko` for [Model in Image](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/model-in-image/) deployments
-- `wko-dii` for Domain in Image deployments
-- `wko-pv` for Domain in PV deployments
+- `wko` and `wko4` for [Model in Image](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/model-in-image/) deployments
+- `wko-dii` and `wko4-dii` for Domain in Image deployments
+- `wko-pv`and `wko4-pv` for Domain in PV deployments
+
+Targets beginning with `wko4` are for use with WebLogic Kubernetes Operator versions 4.0 and later.
 
 Each of these targets provides this additional processing:
 
@@ -130,6 +132,22 @@ kubernetes:
 ```
 These fields will override the values in the output file, and the file would be rewritten with the revised values. List values in the model will be combined with existing values in the output file. For example, if `my-cluster` was in the original output file, the model content for `my-cluster` would be merged with it, overriding the `replicas` value. If `my-cluster` was not in the original output file, it would be added to the list of clusters.
 
+When creating a resource file for WebLogic Kubernetes Operator 4.0, the `kubernetes` section of the model has to be structured differently. This is because there are multiple documents in the resource file for version 4.0. This example uses `domain` and `cluster` folders that will merge with the corresponding documents in the resource file:
+```yaml
+kubernetes:
+  domain:
+    spec:
+      domainHome: /etc/domainHome
+      image: my-image
+  clusters:
+  - spec:
+      clusterName: my-cluster
+      replicas: 4
+  - spec:
+      clusterName: other-cluster
+      replicas: 6
+```
+
 ### Target environment configuration files
 
 A target environment is configured in a JSON file at this location:
@@ -157,7 +175,6 @@ Here is an example of a target environment file:
     "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},
     "validation_method" : "lax",
     "credentials_method" : "secrets",
-    "credentials_output_method" : "script",
     "exclude_domain_bin_contents": true,
     "wls_credentials_name" : "__weblogic-credentials__",
     "use_persistent_volume" : true,
