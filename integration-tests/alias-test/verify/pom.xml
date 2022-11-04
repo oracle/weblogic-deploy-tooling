@@ -20,6 +20,7 @@
         <test_home>${project.build.directory}/test-home</test_home>
         <alias-test-generated-online-file-name>generatedOnline-${wls_version}.json</alias-test-generated-online-file-name>
         <alias-test-generated-offline-file-name>generatedOffline-${wls_version}.json</alias-test-generated-offline-file-name>
+        <skip-generated-file-download>${alias-test-skipITs}</skip-generated-file-download>
     </properties>
 
     <build>
@@ -108,7 +109,7 @@
                 <groupId>org.kordamp.maven</groupId>
                 <artifactId>oci-maven-plugin</artifactId>
                 <configuration>
-                    <skip>${alias-test-skipITs}</skip>
+                    <skip>${skip-generated-file-download}</skip>
                     <namespaceName>${alias_test_tenancy}</namespaceName>
                     <bucketName>wdt-alias-test-files</bucketName>
                     <profile>${alias_test_oci_profile}</profile>
