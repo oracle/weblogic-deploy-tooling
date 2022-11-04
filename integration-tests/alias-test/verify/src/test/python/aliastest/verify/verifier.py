@@ -146,23 +146,6 @@ LOCATION = 'location'
 MESSAGE = 'message'
 ATTRIBUTE = 'attribute'
 
-ALIAS_FOLDER_IGNORE_MAP = {
-    '/': [
-        'ODLConfiguration',
-        'OHS',
-        'RCUDbInfo',
-        'Security',
-        'UnixMachine',
-        'WLSRoles',
-        'WLSUserPasswordCredentialMappings'
-    ],
-    '/ResourceGroupTemplate': [
-        'OHS',
-        'SystemComponent',
-        'SystemComponents'
-    ]
-}
-
 _logger = PlatformLogger('test.aliases.verify')
 _logger.set_level(Level.FINER)
 CLASS_NAME = 'Verifier'
@@ -316,7 +299,7 @@ class Verifier(object):
                            class_name=CLASS_NAME, method_name=_method_name)
             if keys is not None:
                 for alias_name in keys:
-                    if _is_in_ignore_list(location, alias_name):
+                    if verify_utils.is_alias_folder_in_ignore_list(self._model_context, location, alias_name):
                         continue
 
                     found, mbean_info_name = verify_utils.find_name_in_mbean_with_model_name(alias_name, lower_case_map)
@@ -798,15 +781,16 @@ class Verifier(object):
         # is not marked as a derived_default.
         #
         if match and model_value is not None and not is_derived_default:
-            attr_type = type(generated_default)
-            if CMO_TYPE in generated_attribute_info and \
-                    (generated_attribute_info[CMO_TYPE] == alias_constants.BOOLEAN or
-                     generated_attribute_info[CMO_TYPE] == alias_constants.JAVA_LANG_BOOLEAN) and \
-                    generated_default is not None and (attr_type in [str, unicode, int]):
-                generated_default = Boolean(generated_default)
-            message = 'Attribute=%s  :  Alias=%s' % (str(generated_default), str(model_default_value))
-            self._add_error(location, ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE,
-                            message=message, attribute=generated_attribute)
+            if not verify_utils.is_attribute_value_test_anomaly(self._model_context, location, model_name, model_value):
+                attr_type = type(generated_default)
+                if CMO_TYPE in generated_attribute_info and \
+                        (generated_attribute_info[CMO_TYPE] == alias_constants.BOOLEAN or
+                         generated_attribute_info[CMO_TYPE] == alias_constants.JAVA_LANG_BOOLEAN) and \
+                        generated_default is not None and (attr_type in [str, unicode, int]):
+                    generated_default = Boolean(generated_default)
+                message = 'Attribute=%s  :  Alias=%s' % (str(generated_default), str(model_default_value))
+                self._add_error(location, ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE,
+                                message=message, attribute=generated_attribute)
 
         _logger.exiting(result=verify_utils.bool_to_string(match), class_name=CLASS_NAME, method_name=_method_name)
         return match, model_name, model_value
@@ -1496,13 +1480,6 @@ def _get_dict_key_from_value(alias_name_map, lower_case_value):
             result = key
             break
     return result
-
-
-def _is_in_ignore_list(location, alias_name):
-    path = location.get_folder_path()
-    if path in ALIAS_FOLDER_IGNORE_MAP and alias_name in ALIAS_FOLDER_IGNORE_MAP[path]:
-        return True
-    return False
 
 
 class VerifierResult(object):
