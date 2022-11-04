@@ -146,6 +146,23 @@ LOCATION = 'location'
 MESSAGE = 'message'
 ATTRIBUTE = 'attribute'
 
+ALIAS_FOLDER_IGNORE_MAP = {
+    '/': [
+        'ODLConfiguration',
+        'OHS',
+        'RCUDbInfo',
+        'Security',
+        'UnixMachine',
+        'WLSRoles',
+        'WLSUserPasswordCredentialMappings'
+    ],
+    '/ResourceGroupTemplate': [
+        'OHS',
+        'SystemComponent',
+        'SystemComponents'
+    ]
+}
+
 _logger = PlatformLogger('test.aliases.verify')
 _logger.set_level(Level.FINER)
 CLASS_NAME = 'Verifier'
@@ -299,6 +316,9 @@ class Verifier(object):
                            class_name=CLASS_NAME, method_name=_method_name)
             if keys is not None:
                 for alias_name in keys:
+                    if _is_in_ignore_list(location, alias_name):
+                        continue
+
                     found, mbean_info_name = verify_utils.find_name_in_mbean_with_model_name(alias_name, lower_case_map)
                     if found:
                         _logger.fine('Alias mbean type {0} found in dictionary as {1}', alias_name, mbean_info_name,
@@ -1476,6 +1496,13 @@ def _get_dict_key_from_value(alias_name_map, lower_case_value):
             result = key
             break
     return result
+
+
+def _is_in_ignore_list(location, alias_name):
+    path = location.get_folder_path()
+    if path in ALIAS_FOLDER_IGNORE_MAP and alias_name in ALIAS_FOLDER_IGNORE_MAP[path]:
+        return True
+    return False
 
 
 class VerifierResult(object):
