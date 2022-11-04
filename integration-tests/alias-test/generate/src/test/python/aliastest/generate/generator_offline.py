@@ -122,7 +122,7 @@ class OfflineGenerator(GeneratorBase):
 
             if self._is_valid_folder(mbean_helper):
                 if mbean_type in PROVIDERS:
-                    print('Found security provider folder ', mbean_type)
+                    self.__logger.fine('Found security provider folder {0}', mbean_type)
                     success, lsc_name, attributes = self.create_security_type(mbean_type)
                     mbean_dictionary[lsc_name] = attributes
                     continue
@@ -150,8 +150,17 @@ class OfflineGenerator(GeneratorBase):
                                        online_dictionary_name, parent_mbean_type,
                                        class_name=self.__class_name, method_name=_method_name)
                     methods_name_list.remove(online_dictionary_name)
-                success, lsc_name, attributes = \
-                    self.__generate_folder(mbean_instance, parent_mbean_type, online_dictionary_name, None)
+
+                # Have to make sure what we are processing is not a security provider type.
+                if online_dictionary_name in PROVIDERS:
+                    self.__logger.fine('Found security provider folder {0} in online_dictionary_names',
+                                       online_dictionary_name)
+                    success, lsc_name, attributes = self.create_security_type(online_dictionary_name)
+                    mbean_dictionary[lsc_name] = attributes
+                    continue
+                else:
+                    success, lsc_name, attributes = \
+                        self.__generate_folder(mbean_instance, parent_mbean_type, online_dictionary_name, None)
                 if success:
                     self.__logger.fine('Processing MBean {0} child {1} from online dictionary',
                                        lsc_name, parent_mbean_type,
