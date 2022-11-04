@@ -240,11 +240,7 @@ class GeneratorBase(object):
                                  attribute_name,
                                  class_name=self.__class_name, method_name=_method_name)
             valid = False
-        elif self._is_clear_text_password(attribute_helper):
-            self.__logger.finest('Ignore MBean{1} attribute {0} that is a clear text password attribute',
-                                 attribute_name, mbean_type, class_name=self.__class_name, method_name=_method_name)
-            valid = False
-
+        
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=Boolean(valid))
         return valid
 
@@ -259,11 +255,7 @@ class GeneratorBase(object):
                                  attribute_name, mbean_type,
                                  class_name=self.__class_name, method_name=_method_name)
             valid = False
-        elif self._is_clear_text_password(helper):
-            self.__logger.finest('Ignore MBean{1} attribute {0} that is a clear text password attribute',
-                                 attribute_name, mbean_type, class_name=self.__class_name, method_name=_method_name)
-            valid = False
-
+        
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=Boolean(valid))
         return valid
 
@@ -309,11 +301,7 @@ class GeneratorBase(object):
             self.__logger.finest('MBean {0} attribute {1} is in the WDT ignore list', mbean_type, converted_name,
                                  class_name=self.__class_name, method_name=_method_name)
             valid = False
-        elif self._is_clear_text_password(helper):
-            self.__logger.finer('Ignore MBeanInfo attribute {0} for MBean {1} that is a clear text password attribute',
-                                converted_name, mbean_type, class_name=self.__class_name, method_name=_method_name)
-            valid = False
-
+        
         self.__logger.exiting(result=Boolean(valid), class_name=self.__class_name, method_name=_method_name)
         return valid
 
