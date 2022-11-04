@@ -435,7 +435,6 @@ class OfflineGenerator(GeneratorBase):
             mbean_instance = \
                 generator_wlst.create_security_provider(mbean_name, shortened_provider_sub_type, singular_mbean_type)
             orig = generator_wlst.current_path()
-            generator_wlst.cd_mbean(singular_mbean_type + '/' + mbean_name)
             folder_dict[shortened_provider_sub_type] = PyOrderedDict()
             folder_dict[shortened_provider_sub_type][ATTRIBUTES] = self.__get_attributes(mbean_instance)
             generator_wlst.cd_mbean(orig)
