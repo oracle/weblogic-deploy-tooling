@@ -418,9 +418,6 @@ class OfflineGenerator(GeneratorBase):
         return generator_utils.sort_dict(attribute_map)
 
     def create_security_type(self, mbean_type):
-        _method_name = 'create_security_type'
-        self.__logger.entering(mbean_type, class_name=self.__class_name, method_name=_method_name)
-
         folder_dict = PyOrderedDict()
         folder_dict[TYPE] = 'Provider'
         provider_sub_types = self._sc_providers[mbean_type]
@@ -429,37 +426,87 @@ class OfflineGenerator(GeneratorBase):
         if singular_mbean_type.endswith('s'):
             lenm = len(mbean_type)-1
             singular_mbean_type = mbean_type[0:lenm]
-
-        curr_path = generator_wlst.current_path()
-        existing_provider_types = generator_wlst.lsc()
-        existing_providers = []
-        if mbean_type in existing_provider_types:
-            generator_wlst.cd_mbean(curr_path + '/' + mbean_type)
-            existing_providers = generator_wlst.lsc()
-            self.__logger.fine('existing providers for mbean_type {0}: {1}', mbean_type, existing_providers,
-                               class_name=self.__class_name, method_name=_method_name)
-            generator_wlst.cd_mbean(curr_path)
-
         for provider_sub_type in provider_sub_types:
             # Remove the package name from the subclass.
             idx = provider_sub_type.rfind('.')
-            mbean_name = provider_sub_type[idx + 1:]
-            shortened_provider_sub_type = mbean_name
+            shortened_provider_sub_type = provider_sub_type[idx + 1:]
 
-            mbean_path = '%s/%s/%s' % (curr_path, mbean_type, mbean_name)
-            if mbean_name not in existing_providers:
-                mbean_instance = generator_wlst.create_security_provider(mbean_name, provider_sub_type,
-                                                                         singular_mbean_type)
-            else:
-                mbean_instance = generator_wlst.get_mbean_proxy(mbean_path)
-
-            generator_wlst.cd_mbean(mbean_path)
+            mbean_name = shortened_provider_sub_type
+            mbean_instance = \
+                generator_wlst.create_security_provider(mbean_name, shortened_provider_sub_type, singular_mbean_type)
+            orig = generator_wlst.current_path()
+            generator_wlst.cd_mbean(singular_mbean_type + '/' + mbean_name)
             folder_dict[shortened_provider_sub_type] = PyOrderedDict()
             folder_dict[shortened_provider_sub_type][ATTRIBUTES] = self.__get_attributes(mbean_instance)
-            generator_wlst.cd_mbean(curr_path)
-
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=singular_mbean_type)
+            generator_wlst.cd_mbean(orig)
         return True, singular_mbean_type, folder_dict
+
+    # FIXME - This is dead code
+    def _slim_maps_for_report(self, mbean_proxy, mbean_type, lsa_map, methods_map, mbean_info_map):
+        # Unlike the slim_maps method, this report discards additional information to determine how
+        # different is the usable information in LSA, versus cmo.getClass().getMethods versus
+        # MBeanInfo PropertyDescriptor.
+        _lsa_remove_read_only(lsa_map)
+        _methods_remove_read_only(methods_map)
+        _mbean_info_remove_read_only(mbean_info_map)
+        print('After removing read only ')
+        print('    lsa_map size ', len(lsa_map), '  methods_map size ', len(methods_map),
+              ' mbean_info_size ', len(mbean_info_map))
+
+        _remove_invalid_getters_methods(mbean_proxy, mbean_type, methods_map)
+        _remove_invalid_getters_mbean_info(mbean_proxy, mbean_type, mbean_info_map)
+        print('After removing invalid getters from methods and mbean_info ')
+        print(' lsa_map size ', len(lsa_map), '  methods_map size ', len(methods_map),
+              ' mbean_info_size ', len(mbean_info_map))
+
+        self._remove_should_ignores(lsa_map)
+        self._remove_should_ignores(methods_map)
+        self._remove_should_ignores(mbean_info_map)
+        print('After removing alias ignores ')
+        print(' lsa_map size ', len(lsa_map), '  methods_map size ', len(methods_map),
+              ' mbean_info_size ', len(mbean_info_map))
+
+        self._remove_subfolders(methods_map, mbean_info_map)
+        print('After removing subfolders from methods and mbean_info ')
+        print(' lsa_map size ', len(lsa_map), '  methods_map size ', len(methods_map),
+              ' mbean_info_size ', len(mbean_info_map))
+
+    # FIXME - This is dead code
+    def _report_differences(self, mbean_proxy, mbean_type, lsa_map, methods_map, mbean_info_map):
+        print('*************************************************************')
+        print('Reporting on MBean ', str(mbean_proxy))
+        self._slim_maps_for_report(mbean_proxy, mbean_type, lsa_map, methods_map, mbean_info_map)
+        print('')
+        lsa_keys = lsa_map.keys()
+        lsa_keys.sort()
+        methods_keys = methods_map.keys()
+        methods_keys.sort()
+        mbean_info_keys = mbean_info_map.keys()
+        mbean_info_keys.sort()
+        _report_lsa_not_in(lsa_keys, methods_keys, mbean_info_keys)
+
+        _report_attribute_not_in(methods_keys,    'Method attribute    ', lsa_keys, mbean_info_keys, 'MBeanInfo ')
+        _report_attribute_not_in(mbean_info_keys, 'MBeanInfo attribute ', lsa_keys, methods_keys, 'Method ')
+        print('*************************************************************')
+        print('')
+
+    def __valid_child_folder(self, mbean_helper):
+        _method_name = '__valid_child_folder'
+
+        mbean_type = mbean_helper.get_name()
+        valid = True
+        if mbean_helper.is_reference():
+            self.__logger.finest('Ignore MBean {0} which is a reference to an MBean at location {1}',
+                                 mbean_type, generator_wlst.current_path(),
+                                 class_name=self.__class_name, method_name=_method_name)
+            valid = False
+        elif self._should_ignore(mbean_helper):
+            self.__logger.finest('MBean {0} found in ignore list at location {1}',
+                                 mbean_type, generator_wlst.current_path(),
+                                 class_name=self.__class_name, method_name=_method_name)
+            valid = False
+
+        return valid
 
     def __cd_to_mbean_name(self, mbean_type):
         _method_name = '__cd_to_mbean_name'
@@ -525,6 +572,29 @@ class OfflineGenerator(GeneratorBase):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return found, result
     
+    def __get_name_from_map_using_lower_case(self, attribute, mbean_map):
+        _method_name = '__get_name_from_map_using_lower_case'
+        self.__logger.entering(attribute, class_name=self.__class_name, method_name=_method_name)
+
+        lower_case_attribute = attribute.lower()
+    
+        name = None
+        try:
+            found_list = [key for key in mbean_map if key.lower() == lower_case_attribute]
+            if len(found_list) > 0:
+                name = found_list[0]
+            else:
+                self.__logger.finest('lower case attribute {0} not found in map {1}',
+                                     lower_case_attribute, [key.lower() for key in mbean_map],
+                                     class_name=self.__class_name, method_name=_method_name)
+        except (ValueError, KeyError), e:
+            self.__logger.fine('Attribute name {0} had error in mbean map : {1}', attribute, str(e),
+                               class_name=self.__class_name, method_name=_method_name)
+            pass
+    
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=name)
+        return name
+
     def __get_mbean_name_list(self, mbean_type, try_special=False):
         _method_name = '__get_mbean_name_list'
         self.__logger.entering(mbean_type, class_name=self.__class_name, method_name=_method_name)
@@ -537,7 +607,7 @@ class OfflineGenerator(GeneratorBase):
         return mbean_type, mbean_name_list
     
     def __check_how_implemented(self, mbean_proxy, search_mbean):
-        _method_name = '__check_how_implemented'
+        _method_name = '_check_how_implemented'
         self.__logger.entering(search_mbean, class_name=self.__class_name, method_name=_method_name)
 
         get_method = False
@@ -693,6 +763,152 @@ class OfflineGenerator(GeneratorBase):
         return return_converted, converted
     
     
+def _remove_invalid_getters(mbean_instance, mbean_type, methods_map, mbean_info_map):
+    for name, method_list in methods_map.iteritems():
+        getter = method_list[0].getName()
+        if not generator_utils.is_valid_getter(mbean_instance, mbean_type, getter, name):
+            del methods_map[name]
+            if name in mbean_info_map:
+                del mbean_info_map[name]
+
+
+def _remove_invalid_getters_mbean_info(mbean_proxy, mbean_type, mbean_info_map):
+    remove_list = list()
+    for name, descriptor in mbean_info_map.iteritems():
+        if not generator_utils.is_valid_getter(mbean_proxy, mbean_type, descriptor.getReadMethod().getName(), name):
+            remove_list.append(name)
+
+    for name in remove_list:
+        mbean_info_map.pop(name)
+
+
+def _remove_invalid_getters_methods(mbean_proxy, mbean_type, method_map):
+    remove_list = list()
+    for name, method_list in method_map.iteritems():
+        if not generator_utils.is_valid_getter(mbean_proxy, mbean_type, method_list[0].getName(), name):
+            remove_list.append(name)
+
+    for name in remove_list:
+        method_map.pop(name)
+
+
+def _report_lsa_not_in(lsa_keys, methods_keys, mbean_info_keys):
+    for lsa_name in lsa_keys:
+        if not _find_lsa_in_other_map(lsa_name, methods_keys):
+            print('   LSA attribute         ', lsa_name, ' not in Methods map ')
+        if not _find_lsa_in_other_map(lsa_name, mbean_info_keys):
+            print('   LSA attribute         ', lsa_name, ' not in MBeanInfo map ')
+
+
+def _report_attribute_not_in(this_map_keys, this_map_type, lsa_map_keys, other_map_keys, other_map_type):
+    for attribute in this_map_keys:
+        not_in_lsa = False
+        not_in_other = False
+        if not _find_attribute_in_lsa_map(attribute, lsa_map_keys):
+            print('  ', this_map_type, ' ', attribute, ' not in LSA map')
+            not_in_lsa = True
+        if not _find_lsa_in_other_map(attribute, other_map_keys):
+            append = ''
+            if not not_in_lsa:
+                append = ' BUT is in LSA map'
+            print('  ', this_map_type, ' ', attribute, ' ** not in ', other_map_type, append, ' **')
+            not_in_other = True
+        if not_in_lsa and not_in_other:
+            print('   Attribute ', attribute, '** not in LSA and not in ', other_map_type, ' **')
+
+
+def _find_lsa_in_other_map(lsa_name, bean_map_keys):
+    if lsa_name not in bean_map_keys and not _is_found_with_lower_case(lsa_name, bean_map_keys):
+        if not lsa_name.endswith('y') or \
+                not _is_found_with_lower_case(lsa_name[:len(lsa_name) - 1] + 'ies', bean_map_keys):
+            if not _is_found_with_lower_case(lsa_name + 'es', bean_map_keys):
+                if not _is_found_with_lower_case(lsa_name + 's', bean_map_keys):
+                    return False
+    return True
+
+
+def _find_attribute_in_lsa_map(attribute_name, lsa_map_keys):
+    if attribute_name not in lsa_map_keys and not _is_found_with_lower_case(attribute_name, lsa_map_keys):
+        if not attribute_name.endswith('ies') or \
+                        not _is_found_with_lower_case(attribute_name[:len(attribute_name) - 3] + 'y', lsa_map_keys):
+            if not attribute_name.endswith('es') or \
+                            not _is_found_with_lower_case(attribute_name[:len(attribute_name) - 2], lsa_map_keys):
+                if not attribute_name.endswith('s') or \
+                                not _is_found_with_lower_case(attribute_name[:len(attribute_name) - 1],
+                                                              lsa_map_keys):
+                    return False
+    return True
+
+
+def _is_found_with_lower_case(attribute, mbean_list):
+    found = False
+    try:
+        found = len([key for key in mbean_list if key.lower() == attribute.lower()]) > 0
+    except (ValueError, KeyError):
+        pass
+
+    return found
+
+
+def _lsa_remove_read_only(lsa_map):
+    remove_list = list()
+    attributes_str = generator_wlst.lsa_string()
+    for attribute_str in attributes_str.split('\n'):
+        if attribute_str:
+            read_type = attribute_str[0:4].strip()
+            attr = attribute_str[7:attribute_str.find(' ', 7)+1].strip()
+            if read_type == '-r--' and attr in lsa_map:
+                remove_list.append(attr)
+
+    for attr in remove_list:
+        lsa_map.pop(attr)
+
+
+def _mbean_info_remove_read_only(mbean_info_map):
+    remove_list = list()
+    for attribute_name, descriptor in mbean_info_map.iteritems():
+        if descriptor.getWriteMethod() is None:
+            remove_list.append(attribute_name)
+
+    for attribute_name in remove_list:
+        mbean_info_map.pop(attribute_name)
+
+
+def _methods_remove_read_only(methods_map):
+    remove_list = list()
+    for attribute_name, method_list in methods_map.iteritems():
+        if len(method_list) != 2:
+            remove_list.append(attribute_name)
+
+    for attribute_name in remove_list:
+        methods_map.pop(attribute_name)
+
+
+def _remove_method_subfolders(mbean_proxy, methods_map):
+    # already removed read_only
+    methods_list = [method.getName() for method in mbean_proxy.getClass().getMethods()
+                    if method.getName().startswith('create') or method.getName().startswith('add')]
+    remove_list = list()
+    for attribute in methods_map:
+        if 'create' + attribute in methods_list or 'add' + attribute in methods_list:
+            remove_list.append(attribute)
+
+    for attribute in remove_list:
+        methods_map.pop(attribute)
+
+
+def _remove_mbean_info_subfolders(mbean_info):
+    remove_list = list()
+
+    for attribute, descriptor in mbean_info.iteritems():
+        relationship = descriptor.getValue('relationship')
+        if relationship == 'containment' or (relationship == 'reference' and descriptor.getWriteMethod() is None):
+            remove_list.append(attribute)
+
+    for attribute in remove_list:
+        mbean_info.pop(attribute)
+
+
 def _add_restart_value(attribute_map):
     attribute_map[RESTART] = RESTART_NO_CHECK
 
@@ -719,3 +935,7 @@ def _fix_plural_with_s(mbean_type):
     if mbean_type.endswith('s'):
         return True, mbean_type[:len(mbean_type)-1]
     return False, mbean_type
+
+
+def _not_at_top():
+    return generator_wlst.current_path().find('/', 1) > 0
