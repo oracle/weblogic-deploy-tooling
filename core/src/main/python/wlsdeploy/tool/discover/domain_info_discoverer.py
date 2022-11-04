@@ -87,7 +87,7 @@ class DomainInfoDiscoverer(Discoverer):
         archive_file = self._model_context.get_archive_file()
         domain_lib = self._convert_path('lib')
         entries = []
-        if os.path.isdir(domain_lib):
+        if os.path.isdir(domain_lib) and not self._model_context.skip_archive:
             _logger.finer('WLSDPLY-06420', domain_lib, class_name=_class_name, method_name=_method_name)
             for entry in os.listdir(domain_lib):
                 entry_path = os.path.join(domain_lib, entry)
