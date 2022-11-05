@@ -58,9 +58,25 @@ PROVIDERS = [
 
 OUTPUT_DIR_SWITCH = '-output_dir'
 
+# In offline mode, we cannot create a JDBC Store if the domain doesn't
+# have a JDBCSystemResource (or other JDBCStore) so we need to make sure
+# to reorder the dictionary so that JDBCStores comes after
+# JDBCSystemResources.
+#
+TOP_LEVEL_INFO_MAP_DEPENDENCIES = {
+    'JDBCStores': 'JDBCSystemResources'
+}
+
+
 __logger = PlatformLogger('test.aliases')
 __logger.set_level(Level.FINER)
 CLASS_NAME = 'generate/utils'
+
+
+def reorder_info_map(mbean_path, info_map):
+    if mbean_path == '/':
+        return _reorder_top_level_info_map(info_map)
+    return info_map
 
 
 def get_generate_args_map(args):
@@ -304,6 +320,27 @@ def get_mbean_methods(mbean_instance):
     if mbean_instance is not None:
         return mbean_instance.getClass().getMethods()
     return list()
+
+
+def _reorder_top_level_info_map(info_map):
+    keys = info_map.keys()
+
+    new_keys = list()
+    delayed_keys = list()
+    for key in keys:
+        if key in TOP_LEVEL_INFO_MAP_DEPENDENCIES and TOP_LEVEL_INFO_MAP_DEPENDENCIES[key] not in new_keys:
+            delayed_keys.append(key)
+        else:
+            new_keys.append(key)
+
+    if len(delayed_keys) > 0:
+        new_info_map = PyOrderedDict()
+        for key in new_keys:
+            new_info_map[key] = info_map[key]
+        for key in delayed_keys:
+            new_info_map[key] = info_map[key]
+        return new_info_map
+    return info_map
 
 
 class GenerateModelContext(ModelContext):
