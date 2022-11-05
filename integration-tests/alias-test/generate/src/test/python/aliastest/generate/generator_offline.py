@@ -92,7 +92,7 @@ class OfflineGenerator(GeneratorBase):
         mbean_dictionary[ATTRIBUTES] = self.__get_attributes(mbean_instance)
 
         info_helper = MBeanInfoHelper(mbean_instance, mbean_path)
-        info_map = info_helper.get_child_mbeans()
+        info_map = generator_utils.reorder_info_map(mbean_path, info_helper.get_child_mbeans())
 
         methods_helper = MBeanMethodHelper(mbean_instance, mbean_path)
         methods_map = methods_helper.get_child_mbeans()

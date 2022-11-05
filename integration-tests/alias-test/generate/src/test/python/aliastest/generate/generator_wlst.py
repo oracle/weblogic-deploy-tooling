@@ -110,7 +110,7 @@ def get(attribute_name):
         get_value = local_get(attribute_name)
     except (online_wlst_exception, offlineWLSTException), we:
         success = False
-        __logger.warning('Unable to get attribute{0} at location {1} : {2}', attribute_name, current_path(),
+        __logger.warning('Unable to get attribute {0} at location {1} : {2}', attribute_name, current_path(),
                          we.getLocalizedMessage(), class_name=__class_name, method_name=_method_name)
 
     return success, get_value
