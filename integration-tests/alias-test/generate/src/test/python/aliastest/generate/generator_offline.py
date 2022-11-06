@@ -7,7 +7,6 @@ import copy
 
 import java.lang.Boolean as Boolean
 import java.lang.String as String
-import java.util.logging.Level as Level
 
 from oracle.weblogic.deploy.util import PyOrderedDict
 
@@ -47,8 +46,7 @@ class OfflineGenerator(GeneratorBase):
     by the mbean information in dictionary generated from online.
     """
     __logger = PlatformLogger('test.aliases.generate')
-    __logger.set_level(Level.FINER)
-    
+
     def __init__(self, model_context, sc_providers, online_dictionary):
         super(OfflineGenerator, self).__init__(model_context, PyOrderedDict())
         self.__class_name = self.__class__.__name__

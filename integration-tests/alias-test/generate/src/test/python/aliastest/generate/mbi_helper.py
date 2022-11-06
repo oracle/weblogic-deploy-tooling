@@ -27,8 +27,7 @@ UNKNOWN = generator_utils.UNKNOWN
 class MBIHelper(object):
 
     __logger = PlatformLogger('test.aliases.generate')
-    __logger.set_level(Level.FINER)
-    
+
     def __init__(self, mbean_instance, mbean_path, mbean_type=None):
         self.__class_name__ = self.__class__.__name__
         self.__mbean_path = mbean_path
@@ -190,8 +189,7 @@ class MBIHelper(object):
 class MBIAttributeHelper(object):
     
     __logger = PlatformLogger('test.aliases.generate')
-    __logger.set_level(Level.FINER)
-    
+
     def __init__(self, mbean_info, attribute_name, mbean_instance):
         self.__class_name__ = self.__class__.__name__
         self.__attribute_name = attribute_name

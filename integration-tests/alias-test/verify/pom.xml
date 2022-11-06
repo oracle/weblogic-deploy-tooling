@@ -190,6 +190,7 @@
                             <environmentVariables>
                                 <JAVA_HOME>${env.JAVA_HOME}</JAVA_HOME>
                                 <WLSDEPLOY_HOME>${project.build.directory}/weblogic-deploy</WLSDEPLOY_HOME>
+                                <WLSDEPLOY_LOG_PROPERTIES>${project.basedir}/src/test/resources/logging.properties</WLSDEPLOY_LOG_PROPERTIES>
                                 <TEST_HOME>${test_home}</TEST_HOME>
                             </environmentVariables>
                             <arguments>
@@ -217,6 +218,7 @@
                             <environmentVariables>
                                 <JAVA_HOME>${env.JAVA_HOME}</JAVA_HOME>
                                 <WLSDEPLOY_HOME>${project.build.directory}/weblogic-deploy</WLSDEPLOY_HOME>
+                                <WLSDEPLOY_LOG_PROPERTIES>${project.basedir}/src/test/resources/logging.properties</WLSDEPLOY_LOG_PROPERTIES>
                                 <TEST_HOME>${test_home}</TEST_HOME>
                             </environmentVariables>
                             <arguments>

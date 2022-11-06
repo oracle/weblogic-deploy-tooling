@@ -19,7 +19,6 @@ from aliastest.verify import constants
 from aliastest.verify.verify_context import VerifyModelContext
 
 __logger = PlatformLogger('test.aliases')
-__logger.set_level(Level.FINER)
 CLASS_NAME = 'generate/utils'
 
 OFFLINE_ALIAS_FOLDER_IGNORE_MAP = {

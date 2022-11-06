@@ -14,7 +14,6 @@ import aliastest.verify.utils as verify_utils
 
 class AliasHelper(object):
     __logger = PlatformLogger('test.aliases')
-    __logger.set_level(Level.FINEST)
 
     def __init__(self, model_context):
         self.__class_name__ = self.__class__.__name__
