@@ -4,7 +4,6 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 
 import java.lang.Boolean as Boolean
-import java.util.logging.Level as Level
 
 from oracle.weblogic.deploy.util import PyOrderedDict
 
@@ -37,7 +36,6 @@ class OnlineGenerator(GeneratorBase):
     The data is traversed using the registered mbean information for the online session.
     """
     __logger = PlatformLogger('test.aliases.generate.online')
-    __logger.set_level(Level.FINER)
 
     def __init__(self, model_context, sc_providers):
         super(OnlineGenerator, self).__init__(model_context, PyOrderedDict())

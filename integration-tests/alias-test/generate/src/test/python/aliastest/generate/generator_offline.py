@@ -46,9 +46,8 @@ class OfflineGenerator(GeneratorBase):
     Generate the offline folder and attribute information into a dictionary. The offline generate is seeded
     by the mbean information in dictionary generated from online.
     """
-    __logger = PlatformLogger('test.aliases.generate')
-    __logger.set_level(Level.FINER)
-    
+    __logger = PlatformLogger('test.aliases.generate.offline')
+
     def __init__(self, model_context, sc_providers, online_dictionary):
         super(OfflineGenerator, self).__init__(model_context, PyOrderedDict())
         self.__class_name = self.__class__.__name__
@@ -93,16 +92,21 @@ class OfflineGenerator(GeneratorBase):
 
         info_helper = MBeanInfoHelper(mbean_instance, mbean_path)
         info_map = generator_utils.reorder_info_map(mbean_path, info_helper.get_child_mbeans())
+        self.__logger.finest('At {0}, MBeanInfoHelper found child MBeans: {1}', mbean_path, info_map.keys(),
+                             class_name=self.__class_name, method_name=_method_name)
 
         methods_helper = MBeanMethodHelper(mbean_instance, mbean_path)
         methods_map = methods_helper.get_child_mbeans()
         methods_name_list = methods_map.keys()
         methods_name_list.sort()
+        self.__logger.finest('At {0}, MBeanMethodHelper found child MBeans: {1}', mbean_path, methods_name_list,
+                             class_name=self.__class_name, method_name=_method_name)
 
         online_dictionary_names = copy.copy(online_dictionary.keys())
         online_dictionary_names.sort()
-        self.__logger.fine('Online dictionary names for location {0} : {1}', mbean_path, online_dictionary_names,
-                           class_name=self.__class_name, method_name=_method_name)
+        self.__logger.finest('At {0}, online dictionary names: {1}', mbean_path, online_dictionary_names,
+                             class_name=self.__class_name, method_name=_method_name)
+
         for mbean_type, mbean_helper in info_map.iteritems():
             if mbean_type in methods_name_list:
                 self.__logger.fine('Child MBean {0} of {1} in both the MBeanInfo and the CMO methods',
@@ -142,23 +146,26 @@ class OfflineGenerator(GeneratorBase):
                                     class_name=self.__class_name, method_name=_method_name)
 
         if len(online_dictionary_names) > 0:
-            self.__logger.finest('The online dictionary names has MBeans not in MBeanInfo or methods',
-                                 class_name=self.__class_name, method_name=_method_name)
+            self.__logger.finest('The online dictionary names at path {0} has MBeans not in MBeanInfo or methods',
+                                 mbean_path, class_name=self.__class_name, method_name=_method_name)
             for online_dictionary_name in online_dictionary_names:
+                self.__logger.finest('Processing online_dictionary_name {0} at path {1}', online_dictionary_name,
+                                     mbean_path, class_name=self.__class_name, method_name=_method_name)
                 if online_dictionary_name in methods_name_list:
-                    self.__logger.fine('Child MBean {0} of {1} found in CMO methods',
-                                       online_dictionary_name, parent_mbean_type,
-                                       class_name=self.__class_name, method_name=_method_name)
+                    self.__logger.fine('Found Child MBean {0} of {1} found in CMO methods', online_dictionary_name,
+                                       parent_mbean_type, class_name=self.__class_name, method_name=_method_name)
                     methods_name_list.remove(online_dictionary_name)
 
                 # Have to make sure what we are processing is not a security provider type.
                 if online_dictionary_name in PROVIDERS:
                     self.__logger.fine('Found security provider folder {0} in online_dictionary_names',
-                                       online_dictionary_name)
+                                       online_dictionary_name, class_name=self.__class_name, method_name=_method_name)
                     success, lsc_name, attributes = self.create_security_type(online_dictionary_name)
                     mbean_dictionary[lsc_name] = attributes
                     continue
                 else:
+                    self.__logger.fine('Found folder {0} in online_dictionary_names', online_dictionary_name,
+                                       class_name=self.__class_name, method_name=_method_name)
                     success, lsc_name, attributes = \
                         self.__generate_folder(mbean_instance, parent_mbean_type, online_dictionary_name, None)
                 if success:
@@ -288,15 +295,15 @@ class OfflineGenerator(GeneratorBase):
         method_helper = MBeanMethodHelper(mbean_instance, mbean_path)
         methods_map = method_helper.get_attributes()
         methods_attributes = methods_map.keys()
-        self.__logger.finer('MBeanMethodHelper found attributes: {0}', methods_attributes,
+        self.__logger.finer('At {0}, MBeanMethodHelper found attributes: {1}', mbean_path, methods_attributes,
                             class_name=self.__class_name, method_name=_method_name)
 
         # As the driver it needs to have all attributes
         info_helper = MBeanInfoHelper(mbean_instance, mbean_path)
         info_map = info_helper.get_all_attributes()
         mbean_type = info_helper.get_mbean_type()
-        self.__logger.finer('MBeanInfoHelper for MBean type {0} found attributes: {1}', mbean_type, info_map,
-                            class_name=self.__class_name, method_name=_method_name)
+        self.__logger.finer('At {0}, MBeanInfoHelper for MBean type {0} found attributes: {1}', mbean_type,
+                            info_map.keys(), class_name=self.__class_name, method_name=_method_name)
 
         for attribute, attribute_helper in info_map.iteritems():
             method_attribute_helper = None

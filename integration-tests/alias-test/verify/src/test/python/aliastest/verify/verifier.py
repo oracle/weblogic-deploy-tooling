@@ -147,7 +147,6 @@ MESSAGE = 'message'
 ATTRIBUTE = 'attribute'
 
 _logger = PlatformLogger('test.aliases.verify')
-_logger.set_level(Level.FINER)
 CLASS_NAME = 'Verifier'
 
 
@@ -331,7 +330,7 @@ class Verifier(object):
                                          location.get_folder_path(), class_name=CLASS_NAME, method_name=_method_name)
                             self._add_error(location, ERROR_USING_REFERENCE_AS_FOLDER, attribute=mbean_info_name)
                             # TODO - commenting out deletions
-                            # del generated_dictionary[mbean_info_name]
+                            del generated_dictionary[mbean_info_name]
                         elif RECHECK in generated_dictionary[mbean_info_name]:
                             message = generated_dictionary[mbean_info_name][RECHECK]
                             if ADDITIONAL_RECHECK in generated_dictionary[mbean_info_name]:
@@ -340,9 +339,9 @@ class Verifier(object):
                                             attribute=mbean_info_name, message=message)
                             _logger.fine('Remove alias folder {0} as it cannot be verified', alias_name,
                                          class_name=CLASS_NAME, method_name=_method_name)
-                            # TODO - commenting out deletions
-                            # del folder_map[alias_name]
-                            # del generated_dictionary[mbean_info_name]
+                            # Removing these results in duplicate errors
+                            del folder_map[alias_name]
+                            del generated_dictionary[mbean_info_name]
                         elif TYPE in generated_dictionary[mbean_info_name]:
                             self._process_security_provider(generated_dictionary, mbean_info_name, folder_map,
                                                             alias_name, location)
@@ -362,7 +361,7 @@ class Verifier(object):
                     _logger.fine('Reference item {0} not implemented as folder at location {1}', item,
                                  location.get_folder_path(), class_name=CLASS_NAME, method_name=_method_name)
                     # TODO - commenting out deletions
-                    # del generated_dictionary[item]
+                    del generated_dictionary[item]
 
     def _verify_attributes_at_location(self, generated_attributes, location):
         """
@@ -1190,8 +1189,14 @@ class Verifier(object):
         :param get_required_attribute_list: List of attributes for the MBean that require a WLST list
         :return: True if the type is a type that can be converted to a dictionary
         """
+        _method_name = '_is_valid_alias_property_type'
+        _logger.entering(location.get_folder_path(), attribute, alias_type, model_name,
+                         class_name=CLASS_NAME, method_name=_method_name)
+
         lsa_type, get_type, cmo_type = _get_attribute_types(attr_info)
         if attribute in get_required_attribute_list:
+            _logger.finest('Attribute {0} in get_required_attribute_list', attribute,
+                           class_name=CLASS_NAME, method_name=_method_name)
             valid = True
             attr_type = _is_attribute_type_for_get_required(get_type, cmo_type)
             if attr_type != alias_constants.PROPERTIES:
@@ -1199,8 +1204,12 @@ class Verifier(object):
                                              'Alias has GET with wrong type')
         elif _is_any_string_type(attr_info) and self._alias_helper.get_wlst_read_type(location, model_name) == \
                 alias_constants.SEMI_COLON_DELIMITED_STRING:
+            _logger.finest('Attribute {0} is string type and WLST read type is a delimited string type', attribute,
+                           class_name=CLASS_NAME, method_name=_method_name)
             valid = True
         else:
+            _logger.finest('Attribute {0} is lsa_type {1}, get_type {2}, and cmo_type {3}', attribute, lsa_type,
+                           get_type, cmo_type, class_name=CLASS_NAME, method_name=_method_name)
             valid = True
             attr_type = _is_attribute_type_for_lsa_required(attr_info)
             message = 'Attribute requires WLST_READ_TYPE of ' + alias_constants.SEMI_COLON_DELIMITED_STRING

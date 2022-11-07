@@ -6,8 +6,6 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 import java.lang.Boolean as Boolean
 import java.lang.Exception as JException
 
-import java.util.logging.Level as Level
-
 from oracle.weblogic.deploy.util import PyOrderedDict
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -24,8 +22,7 @@ UNKNOWN = generator_utils.UNKNOWN
 
 class MBeanMethodHelper(object):
     
-    __logger = PlatformLogger('test.aliases.generate')
-    __logger.set_level(Level.FINER)
+    __logger = PlatformLogger('test.aliases.generate.mbean.method')
 
     def __init__(self, mbean_instance, mbean_path, mbean_type=None):
         self.__class_name__ = self.__class__.__name__
@@ -187,7 +184,6 @@ class MBeanMethodAttributeHelper(object):
 
     __tossed_attributes = ['DefaultedMBean', 'Attribute', 'Comments', 'Attributes', 'PersistenceEnabled']
     __logger = PlatformLogger('test.aliases.generate')
-    __logger.set_level(Level.FINER)
 
     def __init__(self, mbean_info, attribute_name, mbean_instance):
         self.__class_name__ = self.__class__.__name__
@@ -291,7 +287,7 @@ class MBeanMethodAttributeHelper(object):
                         attr_type = type_getter()
                     except (Exception, JException):
                         attr_type = str(check_type)
-        self.__logger.finest('Attribute type for MBean {0} attribute {1} is {3}',
+        self.__logger.finest('Attribute type for MBean {0} attribute {1} is {2}',
                              self.get_mbean_type(), self.get_name(), attr_type,
                              class_name=self.__class_name__, method_name=_method_name)
 

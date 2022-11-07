@@ -7,7 +7,6 @@ import random
 
 import java.lang.Boolean as Boolean
 import java.lang.Exception as JException
-import java.util.logging.Level as Level
 
 import oracle.weblogic.deploy.json.JsonException as JJsonException
 
@@ -68,8 +67,7 @@ TOP_LEVEL_INFO_MAP_DEPENDENCIES = {
 }
 
 
-__logger = PlatformLogger('test.aliases')
-__logger.set_level(Level.FINER)
+__logger = PlatformLogger('test.aliases.generate.utils')
 CLASS_NAME = 'generate/utils'
 
 
@@ -108,6 +106,9 @@ def get_generate_args_map(args):
         elif CommandLineArgUtil.ADMIN_URL_SWITCH == key:
             generate_args[CommandLineArgUtil.ADMIN_URL_SWITCH] = args[idx]
             idx += 1
+
+    java_home = os.environ['JAVA_HOME']
+    generate_args[CommandLineArgUtil.JAVA_HOME_SWITCH] = java_home
 
     return generate_args
 

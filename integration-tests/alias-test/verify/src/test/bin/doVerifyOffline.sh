@@ -124,8 +124,9 @@ export JAVA_PROPERTIES
 CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar:${TEST_HOME}/resources:${BASEDIR}/target/jython-standalone.jar"
 
 if [ -z "${WLSDEPLOY_LOG_PROPERTIES}" ]; then
-    WLSDEPLOY_LOG_PROPERTIES=${WLSDEPLOY_HOME}/etc/logging.properties; export WLSDEPLOY_LOG_PROPERTIES
+    WLSDEPLOY_LOG_PROPERTIES=${WLSDEPLOY_HOME}/etc/logging.properties
 fi
+export WLSDEPLOY_LOG_PROPERTIES
 
 if [ -z "${WLSDEPLOY_LOG_DIRECTORY}" ]; then
     WLSDEPLOY_LOG_DIRECTORY=${WLSDEPLOY_HOME}/logs

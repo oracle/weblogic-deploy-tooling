@@ -25,7 +25,7 @@ import aliastest.generate.generator_wlst as generator_wlst
 import aliastest.generate.utils as generator_utils
 from aliastest.generate.generator_offline import OfflineGenerator
 
-__logger = PlatformLogger('test.aliases')
+__logger = PlatformLogger('test.aliases.generate.offline')
 __logger.set_level(Level.FINEST)
 CLASS_NAME = 'generate_offline'
 

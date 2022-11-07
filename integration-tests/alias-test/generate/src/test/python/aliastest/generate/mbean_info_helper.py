@@ -3,7 +3,6 @@ Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
-import java.util.logging.Level as Level
 import java.lang.Boolean as Boolean
 import weblogic.management.provider.ManagementServiceClient as ManagementServiceClient
 
@@ -30,8 +29,7 @@ class MBeanInfoHelper(object):
     encapsulated in an instance.
     """
     
-    __logger = PlatformLogger('test.aliases.generate')
-    __logger.set_level(Level.FINER)
+    __logger = PlatformLogger('test.aliases.generate.mbean.info')
 
     def __init__(self, mbean_instance, mbean_path, mbean_type=None):
         self.__class_name__ = self.__class__.__name__
@@ -216,7 +214,6 @@ class MBeanInfoHelper(object):
 class MBeanInfoAttributeHelper(object):
 
     __logger = PlatformLogger('test.aliases.generate')
-    __logger.set_level(Level.FINER)
 
     def __init__(self, mbean_info, attribute_name, mbean_instance, mbean_type=None):
         self.__class_name__ = self.__class__.__name__
@@ -313,7 +310,7 @@ class MBeanInfoAttributeHelper(object):
                 check_type = self.get_read_method().getReturnType()
             if check_type is not None:
                 attr_type = check_type
-        self.__logger.fine('Attribute type for MBean {0} attribute {1} is {3}',
+        self.__logger.fine('Attribute type for MBean {0} attribute {1} is {2}',
                            self.get_mbean_type(), self.get_name(), attr_type,
                            class_name=self.__class_name__, method_name=_method_name)
 
