@@ -40,7 +40,7 @@ These target environment configurations are included in the WebLogic Deploy Tool
 
 #### The WebLogic Kubernetes Operator targets
 
-You can use these targets to customize the model and create a domain resource file for use with WebLogic Kubernetes Operator. There are three targets for specific [domain home source types](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/domain-resource/):
+You can use these targets to customize the model and create a domain resource file for use with WebLogic Kubernetes Operator. There are three targets for specific [domain home source types](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/choosing-a-model/):
 
 - `wko` and `wko4` for [Model in Image](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/model-in-image/) deployments
 - `wko-dii` and `wko4-dii` for Domain in Image deployments
@@ -59,7 +59,7 @@ In addition, the `wko` target will replace credentials in the model with referen
 
 #### The Verrazzano targets
 
-You can use these targets to customize the model and create a Kubernetes resource file for use with Verrazzano. There are three targets for specific [domain home source types](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/domain-resource/):
+You can use these targets to customize the model and create a Kubernetes resource file for use with Verrazzano. There are three targets for specific [domain home source types](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/choosing-a-model/):
 
 - `vz` for [Model in Image](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/model-in-image/) deployments
 - `vz-dii` for Domain in Image deployments
@@ -216,7 +216,7 @@ This field specifies a name for use with the WDT_MODEL_SECRETS_NAME_DIR_PAIRS en
 
 #### `use_persistent_volume`
 
-This field specifies if the domain is to be created for the Domain in PV [domain home source type](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/domain-resource/). If set to `true`, volume information will be added to the Kubernetes resource file that is generated.
+This field specifies if the domain is to be created for the Domain in PV [domain home source type](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/choosing-a-model/). If set to `true`, volume information will be added to the Kubernetes resource file that is generated.
 
 #### `additional_secrets`
 
