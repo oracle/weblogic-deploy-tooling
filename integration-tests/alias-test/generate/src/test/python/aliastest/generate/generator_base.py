@@ -60,7 +60,7 @@ class GeneratorBase(object):
     Common helper methods for generation of folder and attribute information for both online and offline
     generators.
     """
-    __logger = PlatformLogger('test.aliases.generate')
+    __logger = PlatformLogger('test.aliases.generate.base')
 
     def __init__(self, model_context, dictionary):
         self.__class_name = self.__class__.__name__

@@ -22,7 +22,7 @@ JAVA_HOME_TOKEN = '@@JAVA_HOME@@'
 CURRENT_DIRECTORY_TOKEN = '@@PWD@@'
 TEMP_DIRECTORY_TOKEN = '@@TMP@@'
 
-__logger = PlatformLogger('test.aliases')
+__logger = PlatformLogger('test.generate.wlst')
 __class_name = 'generate_wlst'
 
 wlst_functions = None

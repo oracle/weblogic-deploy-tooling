@@ -29,7 +29,7 @@ class MBeanInfoHelper(object):
     encapsulated in an instance.
     """
     
-    __logger = PlatformLogger('test.aliases.generate')
+    __logger = PlatformLogger('test.aliases.generate.mbean.info')
 
     def __init__(self, mbean_instance, mbean_path, mbean_type=None):
         self.__class_name__ = self.__class__.__name__
@@ -310,7 +310,7 @@ class MBeanInfoAttributeHelper(object):
                 check_type = self.get_read_method().getReturnType()
             if check_type is not None:
                 attr_type = check_type
-        self.__logger.fine('Attribute type for MBean {0} attribute {1} is {3}',
+        self.__logger.fine('Attribute type for MBean {0} attribute {1} is {2}',
                            self.get_mbean_type(), self.get_name(), attr_type,
                            class_name=self.__class_name__, method_name=_method_name)
 

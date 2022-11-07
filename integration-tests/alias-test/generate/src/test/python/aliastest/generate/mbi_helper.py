@@ -26,7 +26,7 @@ UNKNOWN = generator_utils.UNKNOWN
 
 class MBIHelper(object):
 
-    __logger = PlatformLogger('test.aliases.generate')
+    __logger = PlatformLogger('test.aliases.generate.mbean.mbi')
 
     def __init__(self, mbean_instance, mbean_path, mbean_type=None):
         self.__class_name__ = self.__class__.__name__

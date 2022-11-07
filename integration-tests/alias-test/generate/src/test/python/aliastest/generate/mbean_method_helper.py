@@ -22,7 +22,7 @@ UNKNOWN = generator_utils.UNKNOWN
 
 class MBeanMethodHelper(object):
     
-    __logger = PlatformLogger('test.aliases.generate')
+    __logger = PlatformLogger('test.aliases.generate.mbean.method')
 
     def __init__(self, mbean_instance, mbean_path, mbean_type=None):
         self.__class_name__ = self.__class__.__name__
@@ -287,7 +287,7 @@ class MBeanMethodAttributeHelper(object):
                         attr_type = type_getter()
                     except (Exception, JException):
                         attr_type = str(check_type)
-        self.__logger.finest('Attribute type for MBean {0} attribute {1} is {3}',
+        self.__logger.finest('Attribute type for MBean {0} attribute {1} is {2}',
                              self.get_mbean_type(), self.get_name(), attr_type,
                              class_name=self.__class_name__, method_name=_method_name)
 

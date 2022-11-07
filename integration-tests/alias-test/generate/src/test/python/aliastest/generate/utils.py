@@ -67,7 +67,7 @@ TOP_LEVEL_INFO_MAP_DEPENDENCIES = {
 }
 
 
-__logger = PlatformLogger('test.aliases')
+__logger = PlatformLogger('test.aliases.generate.utils')
 CLASS_NAME = 'generate/utils'
 
 
