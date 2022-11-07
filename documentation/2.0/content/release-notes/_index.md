@@ -32,7 +32,7 @@ This may require some changes to existing models in order to be parsed correctly
 
 
 - Object lists in the `kubernetes` section of the model now should be specified in a hyphenated list format,
-similar to how they appear in the domain resource file produced for [WebLogic Kubernetes Operator]( https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/domain-resource/).
+similar to how they appear in the domain resource file produced for [WebLogic Kubernetes Operator](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/domain-resource/).
 
    ```yaml
        clusters:
