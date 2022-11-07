@@ -40,13 +40,13 @@ These target environment configurations are included in the WebLogic Deploy Tool
 
 #### The WebLogic Kubernetes Operator targets
 
-You can use these targets to customize the model and create a domain resource file for use with WebLogic Kubernetes Operator. There are three targets for specific [domain home source types](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/choosing-a-model/):
+You can use these targets to customize the model and create a domain resource file for use with WebLogic Kubernetes Operator. There are three targets for specific [domain home source types](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/domain-resource/):
 
-- `wko` and `wko4` for [Model in Image](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/model-in-image/) deployments
+- `wko` and `wko4` for [Model in Image](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/model-in-image/) deployments
 - `wko-dii` and `wko4-dii` for Domain in Image deployments
 - `wko-pv`and `wko4-pv` for Domain in PV deployments
 
-Targets beginning with `wko4` are for use with WebLogic Kubernetes Operator versions 4.0 and later.
+Targets beginning with `wko` are for use with WebLogic Kubernetes Operator versions 3.*, and those beginning with `wko4` are for use with versions 4.0.0 and later.
 
 Each of these targets provides this additional processing:
 
@@ -59,9 +59,9 @@ In addition, the `wko` target will replace credentials in the model with referen
 
 #### The Verrazzano targets
 
-You can use these targets to customize the model and create a Kubernetes resource file for use with Verrazzano. There are three targets for specific [domain home source types](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/choosing-a-model/):
+You can use these targets to customize the model and create a Kubernetes resource file for use with Verrazzano. There are three targets for specific [domain home source types](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/domain-resource/):
 
-- `vz` for [Model in Image](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/model-in-image/) deployments
+- `vz` for [Model in Image](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/model-in-image/) deployments
 - `vz-dii` for Domain in Image deployments
 - `vz-pv` for Domain in PV deployments
 
@@ -103,7 +103,7 @@ WDT_MODEL_SECRETS_NAME_DIR_PAIRS=__weblogic-credentials__=/etc/my-secrets
 ```
 For more details about using the `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` environment variable, see [Model Tokens]({{< relref "/concepts/model#model-tokens" >}}) .
 
-In WebLogic Kubernetes Operator [Model in Image](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/model-in-image/) environments, the environment variable `DOMAIN_UID` is automatically set from the value in the domain resource file. The variable `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` is automatically set to the directory containing WebLogic admin credentials.
+In WebLogic Kubernetes Operator [Model in Image](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/model-in-image/) environments, the environment variable `DOMAIN_UID` is automatically set from the value in the domain resource file. The variable `WDT_MODEL_SECRETS_NAME_DIR_PAIRS` is automatically set to the directory containing WebLogic admin credentials.
 
 #### The create secrets script
 
@@ -132,7 +132,7 @@ kubernetes:
 ```
 These fields will override the values in the output file, and the file would be rewritten with the revised values. List values in the model will be combined with existing values in the output file. For example, if `my-cluster` was in the original output file, the model content for `my-cluster` would be merged with it, overriding the `replicas` value. If `my-cluster` was not in the original output file, it would be added to the list of clusters.
 
-When creating a resource file for WebLogic Kubernetes Operator 4.0, the `kubernetes` section of the model has to be structured differently. This is because there are multiple documents in the resource file for version 4.0. This example uses `domain` and `cluster` folders that will merge with the corresponding documents in the resource file:
+When creating a resource file for WebLogic Kubernetes Operator version 4.0.0 and later, the `kubernetes` section of the model has to be structured differently. This is because there are multiple documents in the resource file for those versions. This example uses `domain` and `cluster` folders that will merge with the corresponding documents in the resource file:
 ```yaml
 kubernetes:
   domain:
@@ -216,7 +216,7 @@ This field specifies a name for use with the WDT_MODEL_SECRETS_NAME_DIR_PAIRS en
 
 #### `use_persistent_volume`
 
-This field specifies if the domain is to be created for the Domain in PV [domain home source type](https://oracle.github.io/weblogic-kubernetes-operator/userguide/managing-domains/choosing-a-model/). If set to `true`, volume information will be added to the Kubernetes resource file that is generated.
+This field specifies if the domain is to be created for the Domain in PV [domain home source type](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/domain-resource/). If set to `true`, volume information will be added to the Kubernetes resource file that is generated.
 
 #### `additional_secrets`
 
