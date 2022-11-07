@@ -339,7 +339,7 @@ class Verifier(object):
                                             attribute=mbean_info_name, message=message)
                             _logger.fine('Remove alias folder {0} as it cannot be verified', alias_name,
                                          class_name=CLASS_NAME, method_name=_method_name)
-                            # Not removing these results in duplicate errors
+                            # Removing these results in duplicate errors
                             del folder_map[alias_name]
                             del generated_dictionary[mbean_info_name]
                         elif TYPE in generated_dictionary[mbean_info_name]:
