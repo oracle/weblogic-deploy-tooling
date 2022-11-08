@@ -31,6 +31,7 @@ import oracle.weblogic.deploy.validate.ValidateException as ValidateException
 import oracle.weblogic.deploy.yaml.YamlException as JYamlException
 
 from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.util import unicode_helper as str_helper
 
 _EXCEPTION_TYPE_MAP = {
     ExceptionType.ALIAS:                 'create_alias_exception',
@@ -68,7 +69,7 @@ def create_exception(exception_type, key, *args, **kwargs):
     if exception_type in _EXCEPTION_TYPE_MAP:
         method_name = _EXCEPTION_TYPE_MAP[exception_type]
     else:
-        raise TypeError('Unknown exception type: ' + str(exception_type))
+        raise TypeError(str_helper.to_string('Unknown exception type: ') + str_helper.to_string(exception_type))
 
     return globals()[method_name](key, *args, **kwargs)
 
@@ -204,6 +205,7 @@ def create_validate_exception(key, *args, **kwargs):
         else:
             ex = ValidateException(key)
     return ex
+
 
 def create_compare_exception(key, *args, **kwargs):
     """
@@ -435,7 +437,7 @@ def convert_error_to_exception():
     for ex_string in ex_strings:
         exception_message += ex_string
 
-    exception_type = str(exc_type)
+    exception_type = str_helper.to_string(exc_type)
 
     if exception_type.find("exceptions.IOError") == 0:
         custom_exception = PyIOErrorException(exception_message)

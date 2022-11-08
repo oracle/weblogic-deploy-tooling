@@ -28,6 +28,7 @@ from wlsdeploy.tool.util.attribute_setter import AttributeSetter
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 import wlsdeploy.util.dictionary_utils as dictionary_utils
+import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
@@ -287,7 +288,7 @@ class Deployer(object):
         :return: the type of the last element in the location
         """
         _method_name = 'get_location_type'
-        self.logger.entering(str(location), class_name=self._class_name, method_name=_method_name)
+        self.logger.entering(str_helper.to_string(location), class_name=self._class_name, method_name=_method_name)
 
         folders = location.get_model_folders()
         if len(folders) == 0:
@@ -338,8 +339,9 @@ class Deployer(object):
         :raise: DeployException: if an error occurs
         """
         _method_name = '_extract_from_archive_if_needed'
+        self.logger.entering(str_helper.to_string(location), key, value,
+                             class_name=self._class_name, method_name=_method_name)
 
-        self.logger.entering(str(location), key, value, class_name=self._class_name, method_name=_method_name)
         result = False
         short_value = deployer_utils.get_rel_path_from_uri(self.model_context, value)
         if deployer_utils.is_path_into_archive(short_value):
@@ -363,8 +365,9 @@ class Deployer(object):
         :return: True if the artifact was extracted, False otherwise
         """
         _method_name = '__process_archive_entry'
+        self.logger.entering(str_helper.to_string(location), key, value,
+                             class_name=self._class_name, method_name=_method_name)
 
-        self.logger.entering(str(location), key, value, class_name=self._class_name, method_name=_method_name)
         result = False
         fullpath = os.path.join(self.model_context.get_domain_home(), value)
         if self.archive_helper.contains_file(value):
@@ -439,7 +442,7 @@ class Deployer(object):
         :return: True, if the directory was created, False otherwise
         """
         _method_name = '__process_directory_entry'
-        self.logger.entering(str(path), class_name=self._class_name, method_name=_method_name)
+        self.logger.entering(str_helper.to_string(path), class_name=self._class_name, method_name=_method_name)
 
         result = False
         if not os.path.isdir(path):

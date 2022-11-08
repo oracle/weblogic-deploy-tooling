@@ -2,6 +2,7 @@
 Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+from wlsdeploy.util import unicode_helper as str_helper
 
 
 class LocationContext(object):
@@ -150,7 +151,7 @@ class LocationContext(object):
         return len(self._model_folders) == 0
 
     def __str__(self):
-        location_model_folders = 'model_folders = %s' % (str(self._model_folders))
+        location_model_folders = 'model_folders = %s' % (str_helper.to_string(self._model_folders))
         tmp = ''
         for key, value in self._name_tokens.iteritems():
             tmp += "'%s': '%s'," % (key, value)
@@ -158,6 +159,17 @@ class LocationContext(object):
             tmp = tmp[:-1]
         location_name_tokens = " 'name_tokens' = {%s}" % tmp
         return '%s, %s' % (location_model_folders, location_name_tokens)
+
+    def __unicode__(self):
+        location_model_folders = u'model_folders = %s' % (str_helper.to_string(self._model_folders))
+        tmp = u''
+        for key in self._name_tokens.keys():
+            value = self._name_tokens[key]
+            tmp += u"'%s': '%s'," % (str_helper.to_string(key), str_helper.to_string(value))
+        if len(tmp) > 0:
+            tmp = tmp[:-1]
+        location_name_tokens = u" 'name_tokens' = {%s}" % str_helper.to_string(tmp)
+        return u'%s, %s' % (location_model_folders, location_name_tokens)
 
     def __len__(self):
         return len(self._model_folders)

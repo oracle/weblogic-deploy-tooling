@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
@@ -14,6 +14,7 @@ from wlsdeploy.tool.discover.deployments_discoverer import DeploymentsDiscoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
 from wlsdeploy.tool.discover.multi_tenant_resources_discoverer import MultiTenantResourcesDiscoverer
 from wlsdeploy.tool.discover.multi_tenant_topology_discoverer import MultiTenantTopologyDiscoverer
+import wlsdeploy.util.unicode_helper as str_helper
 
 _class_name = 'MultiTenantDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
@@ -86,7 +87,7 @@ class MultiTenantDiscoverer(Discoverer):
         :return: model name for dictionary:dictionary containing the discovered resource groups
         """
         _method_name = 'get_resource_groups'
-        _logger.entering(str(base_location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(base_location), class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
         model_top_folder_name = model_constants.RESOURCE_GROUP
         location = LocationContext(base_location)

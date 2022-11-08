@@ -27,6 +27,7 @@ from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import model
 from wlsdeploy.util import target_configuration_helper
+import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
@@ -225,7 +226,7 @@ class ModelPreparer:
             if isinstance(value, dict):
                 self._add_model_variables(value, all_variables)
             else:
-                matches = variables.get_variable_matches(str(value))
+                matches = variables.get_variable_matches(str_helper.to_string(value))
                 for token, variable_key in matches:
                     all_variables.append(variable_key)
 

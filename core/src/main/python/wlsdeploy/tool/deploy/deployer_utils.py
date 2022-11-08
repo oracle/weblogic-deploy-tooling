@@ -52,6 +52,7 @@ from wlsdeploy.tool.util.string_output_stream import StringOutputStream
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model_helper
+import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.exit_code import ExitCode
 
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
@@ -84,7 +85,7 @@ def create_and_cd(location, existing_names, aliases):
     :param aliases: the alias helper used to determine path names
     """
     method_name = 'create_and_cd'
-    _logger.entering(str(location), existing_names, _class_name, method_name)
+    _logger.entering(str_helper.to_string(location), existing_names, _class_name, method_name)
 
     mbean_name = get_mbean_name(location, existing_names, aliases)
     create_path = aliases.get_wlst_create_path(location)
@@ -313,7 +314,7 @@ def ensure_no_uncommitted_changes_or_edit_sessions(ignore_edit_session_check=Fal
             raise ex
 
         if current_editor is not None and not ignore_edit_session_check:
-            ex = exception_helper.create_deploy_exception('WLSDPLY-09104', str(current_editor))
+            ex = exception_helper.create_deploy_exception('WLSDPLY-09104', str_helper.to_string(current_editor))
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
     except PyWLSTException, e:
@@ -474,7 +475,7 @@ def get_cluster_for_server(server_name, aliases):
         _wlst_helper.cd(attr_path)
         cluster_name = _wlst_helper.get(CLUSTER)
     except DeployException, de:
-        _logger.fine('WLSDPLY-09205', server_name, str(location), de.getLocalizedMessage,
+        _logger.fine('WLSDPLY-09205', server_name, str_helper.to_string(location), de.getLocalizedMessage,
                      SERVER, class_name=_class_name, method_name=_method_name)
     _logger.exiting(result=cluster_name, class_name=_class_name, method_name=_method_name)
     return cluster_name
@@ -516,7 +517,7 @@ def list_non_dynamic_changes(model_context, non_dynamic_changes_string):
     _method_name = 'list_non_dynamic_changes'
     _logger.entering(class_name=_class_name, method_name=_method_name)
     output_dir = model_context.get_output_dir()
-    if len(str(non_dynamic_changes_string)) > 0 and output_dir is not None:
+    if len(str_helper.to_string(non_dynamic_changes_string)) > 0 and output_dir is not None:
         file_name = os.path.join(output_dir, 'non_dynamic_changes.file')
         pw = FileUtils.getPrintWriter(file_name)
         pw.println(non_dynamic_changes_string)
@@ -642,7 +643,7 @@ def check_if_dynamic_cluster(server_name, cluster_name, aliases):
     try:
         _wlst_helper.cd(attr_path)
     except DeployException, de:
-        _logger.fine('WLSDPLY-09205', cluster_name, str(location), de.getLocalizedMessage,
+        _logger.fine('WLSDPLY-09205', cluster_name, str_helper.to_string(location), de.getLocalizedMessage,
                      CLUSTER, class_name=_class_name, method_name=_method_name)
         return True
     location.append_location(DYNAMIC_SERVERS)

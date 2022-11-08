@@ -23,6 +23,7 @@ from wlsdeploy.tool.util.targets import model_crd_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import target_configuration_helper
+import wlsdeploy.util.unicode_helper as str_helper
 
 __class_name = 'vz_config_helper'
 __logger = PlatformLogger('wlsdeploy.tool.util')
@@ -218,7 +219,7 @@ def _build_template_hash(model, model_context, aliases, credential_injector, dom
 
         cluster_values = dictionary_utils.get_dictionary_element(cluster_list, cluster_name)
         server_count = k8s_helper.get_server_count(cluster_name, cluster_values, model.get_model())
-        cluster_hash[REPLICAS] = str(server_count)
+        cluster_hash[REPLICAS] = str_helper.to_string(server_count)
         cluster_hash[SET_CLUSTER_REPLICAS] = target_configuration.sets_cluster_replicas()
         clusters.append(cluster_hash)
 

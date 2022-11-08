@@ -12,6 +12,7 @@ import java.util.logging.Logger as JLogger
 import java.util.logging.LogRecord as JLogRecord
 
 import wlsdeploy.exception.exception_helper as exception_helper
+import wlsdeploy.util.unicode_helper as str_helper
 
 
 class PlatformLogger(object):
@@ -265,6 +266,7 @@ class PlatformLogger(object):
 
         return record
 
+
 def _get_args_as_java_array(*args):
     """
     Convert the Python args list into a Java array of strings.
@@ -280,7 +282,7 @@ def _get_args_as_java_array(*args):
                 elif isinstance(arg, JObject):
                     result.add(arg.toString())
                 else:
-                    result.add(unicode(arg))
+                    result.add(str_helper.to_string(arg))
             else:
-                result.add(str(arg))
+                result.add(str_helper.to_string(arg))
     return result.toArray()

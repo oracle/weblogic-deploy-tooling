@@ -21,6 +21,7 @@ from wlsdeploy.util import path_utils
 from wlsdeploy.util import string_utils
 from wlsdeploy.util import model_config
 from wlsdeploy.util.target_configuration import TargetConfiguration
+import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.validate_configuration import ValidateConfiguration
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -843,7 +844,7 @@ class ModelContext(object):
             return
         uri = URI(attribute_value)
         uri_scheme = uri.getScheme()
-        if uri_scheme is not None and str(uri_scheme).startswith('file'):
+        if uri_scheme is not None and str_helper.to_string(uri_scheme).startswith('file'):
             attribute_value = uri.getPath()
 
         message = "Replacing {0} in {1} {2} {3} with {4}"

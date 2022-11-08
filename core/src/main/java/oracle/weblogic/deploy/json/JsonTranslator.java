@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+ * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.json;
@@ -44,6 +44,21 @@ public class JsonTranslator extends AbstractJsonTranslator {
     public JsonTranslator(String fileName, boolean useOrdering) {
         this.jsonFile = FileUtils.validateExistingFile(fileName);
         this.useOrderedDict = useOrdering;
+        this.useUnicode = false;
+    }
+
+    /**
+     * Constructor for parsing JSON file into a Python dictionary and control ordering and unicode usage.
+     *
+     * @param fileName - the name of the existing JSON file to parse
+     * @param useOrdering - whether or not to use an ordered dictionary
+     * @param useUnicode - whether or not to use PyUnicode instead of PyString
+     * @throws IllegalArgumentException if the file name is null or does not point to a valid, existing file.
+     */
+    public JsonTranslator(String fileName, boolean useOrdering, boolean useUnicode) {
+        this.jsonFile = FileUtils.validateExistingFile(fileName);
+        this.useOrderedDict = useOrdering;
+        this.useUnicode = useUnicode;
     }
 
     /**

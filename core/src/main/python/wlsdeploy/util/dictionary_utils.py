@@ -5,6 +5,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 import java.util.Properties as JProperties
 
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
+import wlsdeploy.util.unicode_helper as str_helper
 
 
 def get_dictionary_element(dictionary, element_name):
@@ -79,7 +80,7 @@ def format_dictionary_element_name(parent, key):
     :param key: key to element in dictionary
     :return: string representation of element
     """
-    return str(parent) + '[' + str(key) + ']'
+    return str_helper.to_string(parent) + '[' + str_helper.to_string(key) + ']'
 
 
 def create_property_object(properties_string):

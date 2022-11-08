@@ -98,7 +98,7 @@ from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model
 from wlsdeploy.util import model_helper
 from wlsdeploy.util import string_utils
-
+import wlsdeploy.util.unicode_helper as str_helper
 
 class DomainCreator(Creator):
     """
@@ -699,7 +699,7 @@ class DomainCreator(Creator):
         if USE_SAMPLE_DATABASE in self._domain_info:
             use_sample_db = self._domain_info[USE_SAMPLE_DATABASE]
             if not isinstance(use_sample_db, basestring):
-                use_sample_db = str(use_sample_db)
+                use_sample_db = str_helper.to_string(use_sample_db)
             self.wlst_helper.set_option_if_needed(USE_SAMPLE_DATABASE, use_sample_db)
 
         self.__set_domain_name()
@@ -707,7 +707,6 @@ class DomainCreator(Creator):
         self.__set_admin_server_name()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __create_mbeans_used_by_topology_mbeans(self, topology_folder_list):
         """
@@ -720,7 +719,7 @@ class DomainCreator(Creator):
         domain_name_token = self.aliases.get_name_token(location)
         location.add_name_token(domain_name_token, self._domain_name)
 
-        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
+        self.logger.entering(str_helper.to_string(location), class_name=self.__class_name, method_name=_method_name)
         self.__create_log_filters(location)
         topology_folder_list.remove(LOG_FILTER)
 
@@ -754,7 +753,7 @@ class DomainCreator(Creator):
         """
         _method_name = '__create_log_filters'
 
-        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
+        self.logger.entering(str_helper.to_string(location), class_name=self.__class_name, method_name=_method_name)
         log_filter_nodes = dictionary_utils.get_dictionary_element(self._topology, LOG_FILTER)
 
         if len(log_filter_nodes) > 0:
@@ -770,7 +769,7 @@ class DomainCreator(Creator):
         """
         _method_name = '__create_reliable_delivery_policy'
 
-        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
+        self.logger.entering(str_helper.to_string(location), class_name=self.__class_name, method_name=_method_name)
         policy_nodes = dictionary_utils.get_dictionary_element(self._topology, WS_RELIABLE_DELIVERY_POLICY)
 
         if len(policy_nodes) > 0:
@@ -786,7 +785,7 @@ class DomainCreator(Creator):
         """
         _method_name = '__create_xml_entity_cache'
 
-        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
+        self.logger.entering(str_helper.to_string(location), class_name=self.__class_name, method_name=_method_name)
         cache_nodes = dictionary_utils.get_dictionary_element(self._topology, XML_ENTITY_CACHE)
 
         if len(cache_nodes) > 0:
@@ -802,7 +801,7 @@ class DomainCreator(Creator):
         """
         _method_name = '__create_xml_registry'
 
-        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
+        self.logger.entering(str_helper.to_string(location), class_name=self.__class_name, method_name=_method_name)
         registry_nodes = dictionary_utils.get_dictionary_element(self._topology, XML_REGISTRY)
 
         if len(registry_nodes) > 0:
@@ -816,7 +815,7 @@ class DomainCreator(Creator):
         :param location: the current location
         """
         _method_name = '__create_ws_security'
-        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
+        self.logger.entering(str_helper.to_string(location), class_name=self.__class_name, method_name=_method_name)
         ws_security = dictionary_utils.get_dictionary_element(self._topology, WEB_SERVICE_SECURITY)
 
         if len(ws_security) > 0:
@@ -832,7 +831,7 @@ class DomainCreator(Creator):
         """
         _method_name = '__create_machines'
 
-        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
+        self.logger.entering(str_helper.to_string(location), class_name=self.__class_name, method_name=_method_name)
         machine_nodes = dictionary_utils.get_dictionary_element(self._topology, MACHINE)
         unix_machine_nodes = dictionary_utils.get_dictionary_element(self._topology, UNIX_MACHINE)
 
@@ -854,7 +853,7 @@ class DomainCreator(Creator):
         location = LocationContext()
         domain_name_token = self.aliases.get_name_token(location)
         location.add_name_token(domain_name_token, self._domain_name)
-        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
+        self.logger.entering(str_helper.to_string(location), class_name=self.__class_name, method_name=_method_name)
 
         self.__create_machines(location)
         #
@@ -918,7 +917,7 @@ class DomainCreator(Creator):
         """
         _method_name = '__create_migratable_targets'
 
-        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
+        self.logger.entering(str_helper.to_string(location), class_name=self.__class_name, method_name=_method_name)
         migratable_target_nodes = dictionary_utils.get_dictionary_element(self._topology, MIGRATABLE_TARGET)
 
         if len(migratable_target_nodes) > 0:
@@ -935,8 +934,9 @@ class DomainCreator(Creator):
         :raises: CreateException: if an error occurs
         """
         _method_name = '__create_other_domain_artifacts'
+        self.logger.entering(str_helper.to_string(location), mbean_type_list,
+                             class_name=self.__class_name, method_name=_method_name)
 
-        self.logger.entering(str(location), mbean_type_list, class_name=self.__class_name, method_name=_method_name)
         for mbean_type in mbean_type_list:
             mbean_nodes = dictionary_utils.get_dictionary_element(self._topology, mbean_type)
 

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2021, Oracle and/or its affiliates.
+Copyright (c) 2020, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Methods and constants for building Kubernetes resource files,
@@ -17,6 +17,7 @@ from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.util import dictionary_utils
+import wlsdeploy.util.unicode_helper as str_helper
 
 
 def get_domain_name(model_dictionary):
@@ -74,7 +75,7 @@ def get_server_count(cluster_name, cluster_values, model_dictionary):
         servers = dictionary_utils.get_dictionary_element(topology, SERVER)
         for server_name, server_value in servers.items():
             server_cluster = dictionary_utils.get_element(server_value, CLUSTER)
-            if str(server_cluster) == cluster_name:
+            if str_helper.to_string(server_cluster) == cluster_name:
                 count = count + 1
         return count
 

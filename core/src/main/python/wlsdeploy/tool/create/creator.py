@@ -16,6 +16,7 @@ from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util.model import Model
+import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.tool.deploy import deployer_utils
 
@@ -55,7 +56,7 @@ class Creator(object):
         """
         _method_name = '_create_named_mbeans'
 
-        self.logger.entering(type_name, str(base_location), log_created,
+        self.logger.entering(type_name, str_helper.to_string(base_location), log_created,
                              class_name=self.__class_name, method_name=_method_name)
         if model_nodes is None or len(model_nodes) == 0 or not self._is_type_valid(base_location, type_name):
             return
@@ -112,8 +113,7 @@ class Creator(object):
         :raises: CreateException: if an error occurs
         """
         _method_name = '_create_mbean'
-
-        self.logger.entering(type_name, str(base_location), log_created,
+        self.logger.entering(type_name, str_helper.to_string(base_location), log_created,
                              class_name=self.__class_name, method_name=_method_name)
 
         if model_nodes is None or len(model_nodes) == 0:
@@ -196,21 +196,21 @@ class Creator(object):
                 sub_location = LocationContext(location).append_location(key)
 
                 if self.aliases.requires_artificial_type_subfolder_handling(sub_location):
-                    self.logger.finest('WLSDPLY-12116', key, str(sub_location), subfolder_nodes,
+                    self.logger.finest('WLSDPLY-12116', key, str_helper.to_string(sub_location), subfolder_nodes,
                                        class_name=self.__class_name, method_name=_method_name)
                     self._create_named_subtype_mbeans(key, subfolder_nodes, location, True)
                 elif self.aliases.supports_multiple_mbean_instances(sub_location):
-                    self.logger.finest('WLSDPLY-12109', key, str(sub_location), subfolder_nodes,
+                    self.logger.finest('WLSDPLY-12109', key, str_helper.to_string(sub_location), subfolder_nodes,
                                        class_name=self.__class_name, method_name=_method_name)
                     self._create_named_mbeans(key, subfolder_nodes, location)
                 elif self.aliases.is_artificial_type_folder(sub_location):
                     # these should have been handled inside create_named_subtype_mbeans
-                    ex = exception_helper.create_create_exception('WLSDPLY-12120', str(sub_location),
-                                                                  key, str(location))
+                    ex = exception_helper.create_create_exception('WLSDPLY-12120', str_helper.to_string(sub_location),
+                                                                  key, str_helper.to_string(location))
                     self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                     raise ex
                 else:
-                    self.logger.finest('WLSDPLY-12110', key, str(sub_location), subfolder_nodes,
+                    self.logger.finest('WLSDPLY-12110', key, str_helper.to_string(sub_location), subfolder_nodes,
                                        class_name=self.__class_name, method_name=_method_name)
                     self._create_mbean(key, subfolder_nodes, location)
 

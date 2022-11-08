@@ -50,6 +50,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import string_utils
+from wlsdeploy.util import unicode_helper as str_helper
 
 
 class Aliases(object):
@@ -143,7 +144,8 @@ class Aliases(object):
         try:
             return self._alias_entries.get_model_subfolder_names_for_location(location)
         except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19000', str(location), ae.getLocalizedMessage())
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19000', str_helper.to_string(location),
+                                  ae.getLocalizedMessage())
 
     def get_name_token(self, location):
         """
@@ -156,7 +158,8 @@ class Aliases(object):
         try:
             return self._alias_entries.get_name_token_for_location(location)
         except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19001', str(location), ae.getLocalizedMessage())
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19001', str_helper.to_string(location),
+                                  ae.getLocalizedMessage())
 
     def get_model_folder_path(self, location):
         """
@@ -169,7 +172,8 @@ class Aliases(object):
         try:
             return self._alias_entries.get_model_folder_path_for_location(location)
         except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19002', str(location), ae.getLocalizedMessage())
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19002', str_helper.to_string(location),
+                                  ae.getLocalizedMessage())
 
     def get_folder_short_name(self, location):
         """
@@ -205,7 +209,8 @@ class Aliases(object):
         try:
             return self._alias_entries.get_wlst_attribute_path_for_location(location)
         except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19003', str(location), ae.getLocalizedMessage())
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19003', str_helper.to_string(location),
+                                  ae.getLocalizedMessage())
 
     def get_wlst_subfolders_path(self, location):
         """
@@ -219,7 +224,8 @@ class Aliases(object):
         try:
             return self._alias_entries.get_wlst_subfolders_path_for_location(location)
         except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19004', str(location), ae.getLocalizedMessage())
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19004', str_helper.to_string(location),
+                                  ae.getLocalizedMessage())
 
     def get_wlst_list_path(self, location):
         """
@@ -233,7 +239,8 @@ class Aliases(object):
         try:
             return self._alias_entries.get_wlst_list_path_for_location(location)
         except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19005', str(location), ae.getLocalizedMessage())
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19005', str_helper.to_string(location),
+                                  ae.getLocalizedMessage())
 
     def get_wlst_create_path(self, location):
         """
@@ -247,7 +254,8 @@ class Aliases(object):
         try:
             return self._alias_entries.get_wlst_create_path_for_location(location)
         except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19006', str(location), ae.getLocalizedMessage())
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19006', str_helper.to_string(location),
+                                  ae.getLocalizedMessage())
 
     def get_wlst_flattened_folder_list_path(self, location):
         """
@@ -262,7 +270,8 @@ class Aliases(object):
         try:
             return self._alias_entries.get_wlst_flattened_folder_list_path_for_location(location)
         except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19007', str(location), ae.getLocalizedMessage())
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19007', str_helper.to_string(location),
+                                  ae.getLocalizedMessage())
 
     def get_wlst_flattened_folder_create_path(self, location):
         """
@@ -276,7 +285,8 @@ class Aliases(object):
         try:
             return self._alias_entries.get_wlst_flattened_folder_create_path_for_location(location)
         except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19007', str(location), ae.getLocalizedMessage())
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19007', str_helper.to_string(location),
+                                  ae.getLocalizedMessage())
 
     ###########################################################################
     #                    Child folder-related methods                         #
@@ -311,7 +321,8 @@ class Aliases(object):
         try:
             return self._alias_entries.is_location_child_folder_type(location, ChildFoldersTypes.MULTIPLE)
         except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19008', str(location), ae.getLocalizedMessage())
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19008', str_helper.to_string(location),
+                                  ae.getLocalizedMessage())
 
     def get_subfolders_in_order(self, location):
         """
@@ -341,7 +352,8 @@ class Aliases(object):
             return self._alias_entries.is_location_child_folder_type(location,
                                                                      ChildFoldersTypes.MULTIPLE_WITH_TYPE_SUBFOLDER)
         except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19024', str(location), ae.getLocalizedMessage())
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19024', str_helper.to_string(location),
+                                  ae.getLocalizedMessage())
 
     def is_artificial_type_folder(self, location):
         """
@@ -355,7 +367,8 @@ class Aliases(object):
         try:
             return self._alias_entries.is_location_child_folder_type(location, ChildFoldersTypes.NONE)
         except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19026', str(location), ae.getLocalizedMessage())
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19026', str_helper.to_string(location),
+                                  ae.getLocalizedMessage())
 
     def is_custom_folder_allowed(self, location):
         """
@@ -372,7 +385,8 @@ class Aliases(object):
             return self._alias_entries.is_location_child_folder_type(location,
                                                                      ChildFoldersTypes.MULTIPLE_WITH_TYPE_SUBFOLDER)
         except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19035', str(location), ae.getLocalizedMessage())
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19035', str_helper.to_string(location),
+                                  ae.getLocalizedMessage())
 
     def is_security_provider_type(self, location):
         """
@@ -389,7 +403,8 @@ class Aliases(object):
             return self._alias_entries.is_location_child_folder_type(location,
                                                                      ChildFoldersTypes.MULTIPLE_WITH_TYPE_SUBFOLDER)
         except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19036', str(location), ae.getLocalizedMessage())
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19036', str_helper.to_string(location),
+                                  ae.getLocalizedMessage())
 
     ###########################################################################
     #                     WLST Folder create-related methods                  #
@@ -407,7 +422,8 @@ class Aliases(object):
         try:
             return self._alias_entries.get_wlst_mbean_name_for_location(location)
         except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19009', str(location), ae.getLocalizedMessage())
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19009', str_helper.to_string(location),
+                                  ae.getLocalizedMessage())
 
     def get_wlst_mbean_type(self, location):
         """
@@ -421,7 +437,8 @@ class Aliases(object):
         try:
             return self._alias_entries.get_wlst_mbean_type_for_location(location)
         except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19010', str(location), ae.getLocalizedMessage())
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19010', str_helper.to_string(location),
+                                  ae.getLocalizedMessage())
 
     def get_wlst_flattened_folder_info(self, location):
         """
@@ -435,7 +452,8 @@ class Aliases(object):
         try:
             return self._alias_entries.get_wlst_flattened_folder_info_for_location(location)
         except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19013', str(location), ae.getLocalizedMessage())
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19013', str_helper.to_string(location),
+                                  ae.getLocalizedMessage())
 
     ###########################################################################
     #                   WLST attribute-related methods                        #
@@ -522,7 +540,7 @@ class Aliases(object):
 
                             if uses_path_tokens and model_val is not None:
                                 for index, item in enumerate(model_val):
-                                    item_value = self._model_context.replace_token_string(str(item))
+                                    item_value = self._model_context.replace_token_string(str_helper.to_string(item))
                                     model_val[index] = item_value
 
                             _read_type, read_delimiter = \
@@ -562,8 +580,8 @@ class Aliases(object):
             if masked:
                 value = '<masked>'
 
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19014', model_attribute_name, value, str(location),
-                                  ae.getLocalizedMessage())
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19014', model_attribute_name, value,
+                                  str_helper.to_string(location), ae.getLocalizedMessage())
 
     def get_wlst_attribute_name(self, location, model_attribute_name, check_read_only=True):
         """
@@ -578,7 +596,7 @@ class Aliases(object):
         :raises: Tool type exception: if an error occurs due to a bad location or bad alias data
         """
         _method_name = 'get_wlst_attribute_name'
-        self._logger.entering(str(location), model_attribute_name,
+        self._logger.entering(str_helper.to_string(location), model_attribute_name,
                               class_name=self._class_name, method_name=_method_name)
 
         try:
@@ -598,8 +616,8 @@ class Aliases(object):
 
             return wlst_attribute_name
         except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19015', model_attribute_name, str(location),
-                                  ae.getLocalizedMessage())
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19015', model_attribute_name,
+                                  str_helper.to_string(location), ae.getLocalizedMessage())
 
     def get_wlst_get_required_attribute_names(self, location):
         """
@@ -698,7 +716,7 @@ class Aliases(object):
         :raises: Tool type exception: if an error occurred
         """
         _method_name = 'is_valid_model_folder_name'
-        self._logger.entering(str(location), model_folder_name,
+        self._logger.entering(str_helper.to_string(location), model_folder_name,
                               class_name=self._class_name, method_name=_method_name)
         try:
             result, valid_version_range = \
@@ -977,7 +995,7 @@ class Aliases(object):
         :raises: Tool type exception: if an error occurs
         """
         _method_name = 'get_model_attribute_name_and_value'
-        self._logger.entering(str(location), wlst_attribute_name, wlst_attribute_value,
+        self._logger.entering(str_helper.to_string(location), wlst_attribute_name, wlst_attribute_value,
                               class_name=self._class_name, method_name=_method_name)
 
         try:
@@ -1043,7 +1061,7 @@ class Aliases(object):
                 elif default_value is None:
                     model_attribute_value = converted_value
 
-                elif str(converted_value) != str(default_value):
+                elif str_helper.to_string(converted_value) != str_helper.to_string(default_value):
                     if _strings_are_empty(converted_value, default_value):
                         model_attribute_value = None
                     else:
@@ -1054,7 +1072,8 @@ class Aliases(object):
             return model_attribute_name, model_attribute_value
 
         except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19028', str(location), ae.getLocalizedMessage())
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19028', str_helper.to_string(location),
+                                  ae.getLocalizedMessage())
 
     def get_model_attribute_name(self, location, wlst_attribute_name, check_read_only=True):
         """
@@ -1070,7 +1089,7 @@ class Aliases(object):
         _method_name = 'get_model_attribute_name'
 
         try:
-            self._logger.entering(str(location), wlst_attribute_name,
+            self._logger.entering(str_helper.to_string(location), wlst_attribute_name,
                                   class_name=self._class_name, method_name=_method_name)
             model_attribute_name = None
 
@@ -1083,7 +1102,8 @@ class Aliases(object):
                                  result=model_attribute_name)
             return model_attribute_name
         except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19039', str(location), ae.getLocalizedMessage())
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19039', str_helper.to_string(location),
+                                  ae.getLocalizedMessage())
 
     def get_model_attribute_names(self, location):
         """
@@ -1093,9 +1113,9 @@ class Aliases(object):
         :raises: Tool type exception: if an error occurs
         """
         _method_name = 'get_model_attribute_names'
+        self._logger.entering(str_helper.to_string(location), class_name=self._class_name, method_name=_method_name)
 
         try:
-            self._logger.entering(str(location), class_name=self._class_name, method_name=_method_name)
             attributes_dict = self._alias_entries.get_alias_attribute_entries_by_location(location)
             result = list(attributes_dict.keys())
             self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
@@ -1112,7 +1132,7 @@ class Aliases(object):
         :raises: Tool type exception: if an error occurs
         """
         _method_name = 'get_model_attribute_names_and_types'
-        self._logger.entering(str(location), class_name=self._class_name, method_name=_method_name)
+        self._logger.entering(str_helper.to_string(location), class_name=self._class_name, method_name=_method_name)
 
         try:
             result = {}
@@ -1148,10 +1168,10 @@ class Aliases(object):
         :raises: Tool type exception: if an error occurred
         """
         _method_name = 'is_valid_model_attribute_name'
+        self._logger.entering(str_helper.to_string(location), model_attribute_name,
+                              class_name=self._class_name, method_name=_method_name)
 
         try:
-            self._logger.entering(str(location), model_attribute_name,
-                                  class_name=self._class_name, method_name=_method_name)
             result, valid_version_range = \
                 self._alias_entries.is_valid_model_attribute_name_for_location(location, model_attribute_name)
 
@@ -1205,7 +1225,7 @@ class Aliases(object):
         :raises: Tool type exception: if an error occurred
         """
         _method_name = 'get_model_attribute_default_value'
-        self._logger.entering(str(location), model_attribute_name,
+        self._logger.entering(str_helper.to_string(location), model_attribute_name,
                               class_name=self._class_name, method_name=_method_name)
         try:
             default_value = None
@@ -1243,8 +1263,9 @@ class Aliases(object):
         :raises: Tool Exception if an AliasException encountered
         """
         _method_name = 'get_preferred_model_type'
-        self._logger.entering(str(location), model_attribute_name,
+        self._logger.entering(str_helper.to_string(location), model_attribute_name,
                               class_name=self._class_name, method_name=_method_name)
+
         result = None
         try:
             attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute_name)
@@ -1265,8 +1286,9 @@ class Aliases(object):
         :raises: Tool Exception when AliasException occurs retrieving read type
         """
         _method_name = 'get_wlst_read_type'
-        self._logger.entering(str(location), model_attribute_name,
+        self._logger.entering(str_helper.to_string(location), model_attribute_name,
                               class_name=self._class_name, method_name=_method_name)
+
         result = None
         try:
             attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute_name)
@@ -1285,7 +1307,7 @@ class Aliases(object):
         :return: the clear text
         :raises EncryptionException: if an error occurs while decrypting the password
         """
-        if text is None or len(str(text)) == 0 or \
+        if text is None or len(str_helper.to_string(text)) == 0 or \
                 (self._model_context and not self._model_context.is_using_encryption()) or \
                 not EncryptionUtils.isEncryptedString(text):
 
@@ -1421,7 +1443,7 @@ def _convert_to_string(value):
     if type(value) in [str, unicode]:
         str_converted_value = value
     else:
-        str_converted_value = str(value)
+        str_converted_value = str_helper.to_string(value)
     return str_converted_value
 
 
