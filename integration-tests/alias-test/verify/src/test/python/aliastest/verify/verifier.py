@@ -547,6 +547,11 @@ class Verifier(object):
         try:
             # no exception is thrown if it is found but read only, just returns empty model_attribute name
             model_attribute = self._alias_helper.get_model_attribute_name(location, generated_attribute)
+            # if value returned check to see if access type is ROD. If so change model_attribute to None
+            if model_attribute is not None:
+               wlst_attributes = self._alias_helper.get_wlst_access_rod_attribute_names(location)
+               if wlst_attributes is not None and generated_attribute in wlst_attributes:
+                   model_attribute = None
         except AliasException:
             exists = False
 
