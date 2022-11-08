@@ -496,15 +496,16 @@ class Verifier(object):
         _logger.entering(location.get_folder_path(), generated_attribute,
                          class_name=CLASS_NAME, method_name=_method_name)
 
-        exists, model_attribute_name = self._does_alias_attribute_exist(location, generated_attribute,
+        exists, model_attribute_name, rod = self._does_alias_attribute_exist(location, generated_attribute,
                                                                         generated_attribute_info, alias_name_map)
         if exists:
-            if model_attribute_name is None:
+            if model_attribute_name is None or rod:
                 # if the alias attribute is correctly identified as read-only, it's not an error, but we cannot
                 # verify any of the other attribute information using aliases methods. And since its read-only
                 # we don't really care about any of the attribute information. This is also true for clear
                 # text password fields.
-                exists = False
+                if not rod:
+                    exists = False
                 # clear text attributes (don't have Encrypted on the end) are not defined in the definitions
                 # they are only artificially known and ignored by alias definitions
                 read_only = \
@@ -544,6 +545,7 @@ class Verifier(object):
         lower_case_list = alias_name_map.values()
         exists = True
         model_attribute = None
+        rod = False
         try:
             # no exception is thrown if it is found but read only, just returns empty model_attribute name
             model_attribute = self._alias_helper.get_model_attribute_name(location, generated_attribute)
@@ -551,7 +553,7 @@ class Verifier(object):
             if model_attribute is not None:
                wlst_attributes = self._alias_helper.get_wlst_access_rod_attribute_names(location)
                if wlst_attributes is not None and generated_attribute in wlst_attributes:
-                   model_attribute = None
+                   rod = True
         except AliasException:
             exists = False
 
@@ -585,7 +587,7 @@ class Verifier(object):
                              class_name=CLASS_NAME, method_name=_method_name)
 
         _logger.exiting(result=model_attribute, class_name=CLASS_NAME, method_name=_method_name)
-        return exists, model_attribute
+        return exists,  model_attribute, rod
 
     def _is_generated_attribute_readonly(self, location, generated_attribute, generated_attribute_info,
                                          alias_get_required_attribute_list=None):
