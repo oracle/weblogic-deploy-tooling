@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Hugo 0.82.0" />
-    <meta name="description" content="A domain model with a typical configuration for Work Manager.">
+    <meta name="description" content="">
 
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Modeling a Work Manager :: WebLogic Deploy Tooling</title>
+    <title>Release 2.4.1 :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1668010895" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/samples/workmanager-model/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-2.4.1/">
     <nav id="sidebar" class="">
 
 
@@ -656,7 +656,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/samples/" title="Samples" class="dd-item
-        parent
+        
         
         
         ">
@@ -766,7 +766,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/samples/workmanager-model/" title="Modeling a Work Manager" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/samples/workmanager-model/" title="Modeling a Work Manager" class="dd-item ">
         <a href="/weblogic-deploy-tooling/samples/workmanager-model/">
         Modeling a Work Manager
         
@@ -1102,7 +1102,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
-        
+        parent
         
         
         ">
@@ -1128,7 +1128,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-2.4.1/" title="Release 2.4.1" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-2.4.1/" title="Release 2.4.1" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-2.4.1/">
         <b> </b>Release 2.4.1
         
@@ -1220,7 +1220,7 @@
             
           
           
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/samples/'>Samples</a> > Modeling a Work Manager
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release 2.4.1
           
         
           
@@ -1233,7 +1233,15 @@
                 
                     <div class="progress">
     <div class="wrapper">
-<nav id="TableOfContents"></nav>
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#changes-in-release-241">Changes in Release 2.4.1</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
     </div>
 </div>
 
@@ -1249,68 +1257,35 @@
           
             <h1>
               
-              Modeling a Work Manager
+              Release 2.4.1
             </h1>
           
 
         
 
 
-<p>This WDT domain model sample section has typical configurations for a Work Manager and its related request classes and constraints. These elements are configured in the <code>SelfTuning</code> folder in the <code>resources</code> section of the model.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">resources</span>:
-    <span style="color:#f92672">SelfTuning</span>:
-        <span style="color:#f92672">Capacity</span>:
-            <span style="color:#f92672">capacity40</span>:
-                <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">cluster-1</span>
-                <span style="color:#f92672">Count</span>: <span style="color:#ae81ff">40</span>
-        <span style="color:#f92672">MaxThreadsConstraint</span>:
-            <span style="color:#f92672">threeMax</span>:
-                <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">cluster-1</span>
-                <span style="color:#f92672">Count</span>: <span style="color:#ae81ff">3</span>
-        <span style="color:#f92672">MinThreadsConstraint</span>:
-            <span style="color:#f92672">twoMin</span>:
-                <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">cluster-1</span>
-                <span style="color:#f92672">Count</span>: <span style="color:#ae81ff">2</span>
-        <span style="color:#f92672">FairShareRequestClass</span>:
-            <span style="color:#f92672">appFairShare</span>:
-                <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">cluster-1</span>
-                <span style="color:#f92672">FairShare</span>: <span style="color:#ae81ff">50</span>
-            <span style="color:#f92672">highFairshare</span>:
-                <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">cluster-1</span>
-                <span style="color:#f92672">FairShare</span>: <span style="color:#ae81ff">80</span>
-            <span style="color:#f92672">lowFairshare</span>:
-                <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">cluster-1</span>
-                <span style="color:#f92672">FairShare</span>: <span style="color:#ae81ff">20</span>
-        <span style="color:#f92672">ResponseTimeRequestClass</span>:
-            <span style="color:#f92672">fiveSecondResponse</span>:
-                <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">cluster-1</span>
-                <span style="color:#f92672">GoalMs</span>: <span style="color:#ae81ff">5000</span>
-        <span style="color:#f92672">ContextRequestClass</span>:
-            <span style="color:#f92672">appContextRequest</span>:
-                <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">cluster-1</span>
-                <span style="color:#f92672">ContextCase</span>:
-                    <span style="color:#f92672">Case1</span>:
-                        <span style="color:#f92672">GroupName</span>: <span style="color:#ae81ff">Administrators</span>
-                        <span style="color:#f92672">RequestClassName</span>: <span style="color:#ae81ff">highFairshare</span>
-                        <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">cluster-1</span>
-                    <span style="color:#f92672">Case2</span>:
-                        <span style="color:#f92672">UserName</span>: <span style="color:#ae81ff">weblogic</span>
-                        <span style="color:#f92672">RequestClassName</span>: <span style="color:#ae81ff">lowFairshare</span>
-                        <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">cluster-1</span>
-        <span style="color:#f92672">WorkManager</span>:
-            <span style="color:#f92672">myWorkManager</span>:
-                <span style="color:#f92672">Capacity</span>: <span style="color:#ae81ff">capacity40</span>
-                <span style="color:#f92672">ContextRequestClass</span>: <span style="color:#ae81ff">appContextRequest</span>
-                <span style="color:#75715e"># FairShareRequestClass: appFairShare</span>
-                <span style="color:#f92672">IgnoreStuckThreads</span>: <span style="color:#66d9ef">true</span>
-                <span style="color:#f92672">MaxThreadsConstraint</span>: <span style="color:#ae81ff">threeMax</span>
-                <span style="color:#f92672">MinThreadsConstraint</span>: <span style="color:#ae81ff">twoMin</span>
-                <span style="color:#75715e"># ResponseTimeRequestClass: fiveSecondResponse</span>
-                <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">cluster-1</span>
-</code></pre></div><p>In this sample, assignments for <code>FairShareRequestClass</code> and <code>ResponseTimeRequestClass</code> are included as comments under <code>myWorkManager</code>. A Work Manager can only specify one request class type.</p>
-<p>There are additional sub-folders and attributes available for more configuration options. These can be determined using the <a href="/weblogic-deploy-tooling/userguide/tools/model_help/">Model Help Tool</a>. For example, this command will list the attributes and sub-folders for the <code>WorkManager</code> folder:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#e6db74">${</span>WDT_HOME<span style="color:#e6db74">}</span>/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/WorkManager
-</code></pre></div><p>For this sample, the target cluster <code>cluster-1</code> should be defined elsewhere within this model, or should already exist in a domain that is being updated.</p>
+<h3 id="changes-in-release-241">Changes in Release 2.4.1</h3>
+<ul>
+<li><a href="#major-new-features">Major New Features</a></li>
+<li><a href="#other-changes">Other Changes</a></li>
+<li><a href="#bug-fixes">Bugs Fixes</a></li>
+<li><a href="#known-issues">Known Issues</a></li>
+</ul>
+<h4 id="major-new-features">Major New Features</h4>
+<ul>
+<li>None</li>
+</ul>
+<h4 id="other-changes">Other Changes</h4>
+<p>None</p>
+<h4 id="bug-fixes">Bug Fixes</h4>
+<ul>
+<li>#1237: Resolved an issue where the tools supporting the <code>-target</code> parameter were doing target-related work even if the parameter was not specified.</li>
+</ul>
+<h4 id="known-issues">Known Issues</h4>
+<ul>
+<li>Due to the changes made for WDT-663 in WDT 2.4.0, the resulting remotely discovered model contains extra fields that would not normally be there.
+This is an area of ongoing work to clean up the online aliases to not depend on these extra remote calls to produce a clean model.</li>
+</ul>
 
 
 <footer class="footline">
@@ -1737,7 +1712,6 @@
             
                 
                     
-                    
                 
                 
 
@@ -1750,9 +1724,6 @@
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -1818,7 +1789,6 @@
             
                 
                     
-                    
                 
                 
 
@@ -1834,9 +1804,6 @@
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2065,6 +2032,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -2077,6 +2045,7 @@
             
             
                 
+                    
                     
                 
                 
@@ -2093,6 +2062,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2117,10 +2089,10 @@
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/samples/jdbc-model/" title="Modeling a JDBC data source"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/samples/securityproviders-model/" title="Modeling security providers" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-2.4.0/" title="Release 2.4.0" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -2130,19 +2102,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1668010896"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1668010896"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1668010896"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1668010896"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1668010896"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1668010896"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1668010895"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1668010895"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1668010895"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1668010895"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1668010895"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1668010895"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1668010896"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1668010896"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1668010896"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1668010895"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1668010895"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1668010895"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1668010896"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1668010895"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

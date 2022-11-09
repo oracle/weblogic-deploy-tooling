@@ -8,6 +8,16 @@
     <language>en-us</language>
     <lastBuildDate>Fri, 22 Feb 2019 15:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Release 2.4.1</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.1/</link>
+      <pubDate>Thu, 03 Nov 2022 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.1/</guid>
+      <description>Changes in Release 2.4.1  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features  None  Other Changes None
+Bug Fixes  #1237: Resolved an issue where the tools supporting the -target parameter were doing target-related work even if the parameter was not specified.  Known Issues  Due to the changes made for WDT-663 in WDT 2.4.0, the resulting remotely discovered model contains extra fields that would not normally be there.</description>
+    </item>
+    
+    <item>
       <title>Release 2.4.0</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.0/</link>
       <pubDate>Wed, 02 Nov 2022 15:27:38 -0500</pubDate>
