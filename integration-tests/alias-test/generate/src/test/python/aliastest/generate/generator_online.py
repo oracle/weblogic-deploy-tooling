@@ -29,6 +29,10 @@ SINGLE_NO_NAME = generator_utils.SINGLE_NO_NAME
 TRUE = 'true'
 TYPE = generator_utils.TYPE
 
+NOT_SINGLE_INSTANCE = [
+ 'AppDeployments',
+ 'Libraries'
+]
 
 class OnlineGenerator(GeneratorBase):
     """
@@ -102,7 +106,7 @@ class OnlineGenerator(GeneratorBase):
                     if mbean_name is None:
                         mbean_name = generator_wlst.get_singleton_name(mbean_type)
                     if mbean_name is not None:
-                        if mbean_type in generator_wlst.child_mbean_types():
+                        if mbean_type in generator_wlst.child_mbean_types() or mbean_type in NOT_SINGLE_INSTANCE:
                             mbean_dictionary[mbean_type][INSTANCE_TYPE] = MULTIPLE
                         else:
                             mbean_dictionary[mbean_type][INSTANCE_TYPE] = SINGLE
