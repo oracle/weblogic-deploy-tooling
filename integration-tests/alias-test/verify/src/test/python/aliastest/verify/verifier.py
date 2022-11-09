@@ -257,10 +257,10 @@ class Verifier(object):
                                   location.get_folder_path(), class_name=CLASS_NAME, method_name=_method_name)
                     self._check_attribute_list_for_flattened(location, attributes)
                     # Swallow the intermediate layer that is not relevant in a flattened location
-                    _logger.finer('MBean {0} now at dictionary {1}', entry, this_dictionary.keys(), 
+                    _logger.finer('MBean {0} now at dictionary {1}', entry, this_dictionary.keys(),
                                   class_name=CLASS_NAME, method_name=_method_name)
                     this_dictionary = self._get_next_entry(this_dictionary)
-                    
+
                     attributes = _get_generated_attribute_list(this_dictionary)
                     flattened_folder = True
                 self._check_single_folder(this_dictionary, location, flattened_folder)
@@ -290,8 +290,8 @@ class Verifier(object):
             next_entry = dictionary[keys[0]]
         else:
              return dictionary
-        return next_entry 
-        
+        return next_entry
+
     def _check_generated_against_alias_folders(self, location, generated_dictionary, folder_map):
         """
         Verify the aliases MBeans for the current location for MBeans are in the generated dictionary.
@@ -806,7 +806,7 @@ class Verifier(object):
                          generated_attribute_info[CMO_TYPE] == alias_constants.JAVA_LANG_BOOLEAN) and \
                         generated_default is not None and (attr_type in [str, unicode, int]):
                     generated_default = Boolean(generated_default)
-                message = 'Attribute=%s  :  Alias=%s' % (str(generated_default), str(model_default_value))
+                message = 'WLST: %s / Alias: %s' % (str(generated_default), str(model_default_value))
                 self._add_error(location, ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE,
                                 message=message, attribute=generated_attribute)
 
@@ -1045,7 +1045,7 @@ class Verifier(object):
                          generated_attribute, class_name=CLASS_NAME, method_name=_method_name)
         if len(extra_blurb) == 0 and generated_attribute in get_required_attribute_list:
             extra_blurb = 'Alias has GET required'
-        message = 'Attribute type %-10s :  Alias type %-30s  %s' % (wlst_type, alias_type, extra_blurb)
+        message = 'WLST type: %s / Alias type: %s  (%s)' % (wlst_type, alias_type, extra_blurb)
         self._add_error(location, ERROR_ATTRIBUTE_WRONG_TYPE, message=message, attribute=generated_attribute)
 
     def _validate_primitive_type(self, location, generated_attribute, generated_attribute_info,
@@ -1134,7 +1134,7 @@ class Verifier(object):
             if _is_of_type_with_get_required(generated_attribute, alias_type, generated_attr_info,
                                              get_required_attribute_list):
                 valid = True
-                _logger.finer('alias type JARRAY has get_required for attribute {0}', generated_attribute, 
+                _logger.finer('alias type JARRAY has get_required for attribute {0}', generated_attribute,
                               class_name=CLASS_NAME, method_name=_method_name)
             elif _is_of_type_with_lsa(generated_attribute, alias_type, generated_attr_info,
                                       get_required_attribute_list):
