@@ -629,6 +629,34 @@ class Aliases(object):
             self._raise_exception(ae, _method_name, 'WLSDPLY-19020', location.get_current_model_folder(),
                                   location.get_folder_path(), ae.getLocalizedMessage())
 
+    def get_wlst_access_rod_attribute_names(self, location):
+        """
+        Get the list of attribute names that have their ACCESS type set to ROD (readonly but discover)
+        :param location: the location
+        :return: list[string]: the list of attribute names
+        :raises: Tool type exception: if an error occurs due to a bad location or bad alias data
+        """
+        _method_name = 'get_wlst_access_rod_attribute_names'
+
+        try:
+            wlst_attribute_names = []
+
+            module_folder = self._alias_entries.get_dictionary_for_location(location)
+
+            if ATTRIBUTES not in module_folder:
+                ex = exception_helper.create_alias_exception('WLSDPLY-08400', location.get_folder_path())
+                self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
+
+            for key, value in module_folder[ATTRIBUTES].iteritems():
+                if ACCESS in value and value[ACCESS] == ROD:
+                    wlst_attribute_names.append(value[WLST_NAME])
+
+            return wlst_attribute_names
+        except AliasException, ae:
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19046', location.get_current_model_folder(),
+                                  location.get_folder_path(), ae.getLocalizedMessage())
+                                  
     ###########################################################################
     #                    Model folder-related methods                         #
     ###########################################################################
