@@ -8,7 +8,6 @@ import java.util.Properties as Properties
 import java.io.FileInputStream as FileInputStream
 import java.io.IOException as IOException
 
-import weblogic.version as version_helper
 from oracle.weblogic.deploy.aliases import VersionUtils
 import wlsdeploy.exception.exception_helper as exception_helper
 
@@ -16,7 +15,6 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 
 __logger = PlatformLogger('wlsdeploy.util')
 _class_name = 'string_utils'
-__version = version_helper.getReleaseBuildVersion()
 
 
 def is_empty(text):
