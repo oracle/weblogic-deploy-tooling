@@ -8,6 +8,7 @@ from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.tool.modelhelp import model_help_utils
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
 from wlsdeploy.exception import exception_helper
+import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.exit_code import ExitCode
 
 from oracle.weblogic.deploy.util import WLSBeanHelp as WLSBeanHelp
@@ -209,7 +210,7 @@ class ModelSamplePrinter(object):
         if att_default is None:
             att_default = ''
         else:
-            att_default = ' (default=' + str(att_default) + ')'
+            att_default = ' (default=' + str_helper.to_string(att_default) + ')'
 
         online_bean = self._aliases.get_online_bean_name(model_location)
 
@@ -240,7 +241,8 @@ class ModelSamplePrinter(object):
                 if len(attr_infos[name]) > maxlen_type:
                     maxlen_type = len(attr_infos[name])
 
-            format_string = '%-' + str(maxlen_attr + 1) + 's # %-' + str(maxlen_type + 1) + 's'
+            format_string = '%-' + str_helper.to_string(maxlen_attr + 1) + 's # %-' + \
+                            str_helper.to_string(maxlen_type + 1) + 's'
             for attr_name in attr_list:
                 att_help = self._get_att_short_help(model_location, attr_name)
                 line = format_string % (attr_name + ":", attr_infos[attr_name]) + att_help
@@ -260,10 +262,10 @@ class ModelSamplePrinter(object):
         section_name = model_path_tokens[0]
         attribute = model_path_tokens[1]
 
-        if (len(model_path_tokens) == 2):
+        if len(model_path_tokens) == 2:
             attributes_location = self._aliases.get_model_section_attribute_location(section_name)
             if attributes_location is not None:
-                if (self._print_attribute_bean_help(attributes_location, 0, attribute)):
+                if self._print_attribute_bean_help(attributes_location, 0, attribute):
                     return
 
         ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
@@ -285,9 +287,8 @@ class ModelSamplePrinter(object):
         """
         _method_name = '_print_folder_attribute_bean_help'
 
-        if (tokens_left == 0
-            and model_help_utils.show_attributes(control_option)
-            and self._print_attribute_bean_help(model_location, indent, token)):
+        if tokens_left == 0 and model_help_utils.show_attributes(control_option) and \
+                self._print_attribute_bean_help(model_location, indent, token):
             return
 
         ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
@@ -308,21 +309,21 @@ class ModelSamplePrinter(object):
         attr_infos = self._aliases.get_model_attribute_names_and_types(model_location)
 
         if attr_infos and the_attribute in attr_infos:
-          line = '%s # %s' % (the_attribute + ":", attr_infos[the_attribute])
-          _print_indent(line, indent_level)
+            line = '%s # %s' % (the_attribute + ":", attr_infos[the_attribute])
+            _print_indent(line, indent_level)
 
-          att_default = self._aliases.get_model_attribute_default_value(model_location, the_attribute)
-          if att_default is not None:
-              att_default = str(att_default)
+            att_default = self._aliases.get_model_attribute_default_value(model_location, the_attribute)
+            if att_default is not None:
+                att_default = str_helper.to_string(att_default)
 
-          att_help = WLSBeanHelp.get(the_bean, the_attribute, 60, att_default)
+            att_help = WLSBeanHelp.get(the_bean, the_attribute, 60, att_default)
 
-          if att_help:
-            print("")
-            print(att_help)
-            print("")
+            if att_help:
+                print("")
+                print(att_help)
+                print("")
 
-          return True
+            return True
 
         return False
 
@@ -348,7 +349,7 @@ class ModelSamplePrinter(object):
         short_name = self._aliases.get_folder_short_name(location)
         if len(short_name) == 0:
             short_name = location.get_current_model_folder()
-        return "'" + short_name + "-" + str(index + 1) + "'"
+        return "'%s-%s'" % (short_name, str_helper.to_string(index + 1))
 
 
 def _print_indent(msg, level=1):

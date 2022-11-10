@@ -9,6 +9,7 @@ from oracle.weblogic.deploy.util import PyOrderedDict
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.util.credential_injector import CredentialInjector
 from wlsdeploy.tool.util.targets import additional_output_helper
+import wlsdeploy.util.unicode_helper as str_helper
 
 _secret_pattern = re.compile("^@@SECRET:(.*)@@$")
 
@@ -51,7 +52,7 @@ def _add_secrets(folder, credential_injector):
         if isinstance(value, dict):
             _add_secrets(value, credential_injector)
         else:
-            text = str(value)
+            text = str_helper.to_string(value)
             matches = _secret_pattern.findall(text)
             for secret_name in matches:
                 # remove the domain UID variable prefix, the output helper will prepend the actual UID

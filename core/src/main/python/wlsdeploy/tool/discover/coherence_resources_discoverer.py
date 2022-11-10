@@ -1,14 +1,10 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-from java.io import File
-from java.io import IOException
 from java.lang import IllegalArgumentException
-from java.lang import SecurityException
 
 
-from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
@@ -16,11 +12,11 @@ from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
+import wlsdeploy.util.unicode_helper as str_helper
 
 _class_name = 'CoherenceResourcesDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
@@ -108,7 +104,7 @@ class CoherenceResourcesDiscoverer(Discoverer):
         :return: model name for the coherence cache config: resource dictionary containing the discovered cache config
         """
         _method_name = '_get_coherence_cache_config'
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
         model_top_folder_name = model_constants.COHERENCE_CACHE_CONFIG
         location.append_location(model_top_folder_name)
@@ -135,7 +131,7 @@ class CoherenceResourcesDiscoverer(Discoverer):
         :return: model name for coherence resource: dictionary containing coherence resources.
         """
         _method_name = '_get_coherence_resource'
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
         model_top_folder_name = model_constants.COHERENCE_RESOURCE
         location.append_location(model_top_folder_name)

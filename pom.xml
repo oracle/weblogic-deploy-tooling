@@ -58,6 +58,8 @@
 
         <unit-test-wlst-dir>${env.WLST_DIR}</unit-test-wlst-dir>
         <skipITs>true</skipITs>
+        <system-test-skip-jrf-tests>false</system-test-skip-jrf-tests>
+        <system-test-skip-rjrf-tests>false</system-test-skip-rjrf-tests>
         <alias-test-skipITs>true</alias-test-skipITs>
         <alias-test-skip-generate>true</alias-test-skip-generate>
         <test.groups>gate</test.groups>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+ * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.json;
@@ -43,6 +43,23 @@ public class JsonStreamTranslator extends AbstractJsonTranslator {
         this.streamFileName = streamFileName;
         this.jsonStream = jsonStream;
         this.useOrderedDict = useOrderedDict;
+        this.useUnicode = false;
+    }
+
+    /**
+     * The constructor used to specify ordering and unicode usage.
+     *
+     * @param streamFileName the name of the file used to create the InputStream (used only for logging purposes)
+     * @param jsonStream the input stream
+     * @param useOrderedDict whether or not to use an ordered dictionary for storing translation results
+     * @param useUnicode whether or not to use PyUnicode instead of PyString
+     */
+    public JsonStreamTranslator(String streamFileName, InputStream jsonStream,
+                                boolean useOrderedDict, boolean useUnicode) {
+        this.streamFileName = streamFileName;
+        this.jsonStream = jsonStream;
+        this.useOrderedDict = useOrderedDict;
+        this.useUnicode = useUnicode;
     }
 
     /**

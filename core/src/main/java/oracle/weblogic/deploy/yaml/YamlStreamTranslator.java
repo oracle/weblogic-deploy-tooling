@@ -32,7 +32,7 @@ public class YamlStreamTranslator extends AbstractYamlTranslator {
      * @param yamlStream the input stream
      */
     public YamlStreamTranslator(String streamFileName, InputStream yamlStream) {
-        this(streamFileName, yamlStream, false);
+        this(streamFileName, yamlStream, false, false, 0);
     }
 
     /**
@@ -43,7 +43,7 @@ public class YamlStreamTranslator extends AbstractYamlTranslator {
      * @param useOrderedDict whether or not to use an ordered dictionary to maintain the order
      */
     public YamlStreamTranslator(String streamFileName, InputStream yamlStream, boolean useOrderedDict) {
-        super(streamFileName, useOrderedDict, 0);
+        super(streamFileName, useOrderedDict, false, 0);
         this.streamFileName = streamFileName;
         this.yamlStream = yamlStream;
         this.yamlOutputWriter = null;
@@ -57,12 +57,30 @@ public class YamlStreamTranslator extends AbstractYamlTranslator {
      * @param useOrderedDict whether or not to use an ordered dictionary to maintain the order
      * @param maxCodePoints the maximum number of characters that the parser will accept
      */
-    public YamlStreamTranslator(String streamFileName, InputStream yamlStream, boolean useOrderedDict, int maxCodePoints) {
-        super(streamFileName, useOrderedDict, maxCodePoints);
+    public YamlStreamTranslator(String streamFileName, InputStream yamlStream, boolean useOrderedDict,
+                                int maxCodePoints) {
+        super(streamFileName, useOrderedDict, false, maxCodePoints);
         this.streamFileName = streamFileName;
         this.yamlStream = yamlStream;
         this.yamlOutputWriter = null;
     }
+
+    /**
+     * The constructor that allows control of everything.
+     * @param streamFileName the name of the file used to create the InputStream (used only for logging purposes)
+     * @param yamlStream the input stream
+     * @param useOrderedDict whether or not to use an ordered dictionary to maintain the order
+     * @param useUnicode whether or not to use PyUnicode instead of PyString
+     * @param maxCodePoints the maximum number of characters that the parser will accept
+     */
+    public YamlStreamTranslator(String streamFileName, InputStream yamlStream, boolean useOrderedDict,
+                                boolean useUnicode, int maxCodePoints) {
+        super(streamFileName, useOrderedDict, useUnicode, maxCodePoints);
+        this.streamFileName = streamFileName;
+        this.yamlStream = yamlStream;
+        this.yamlOutputWriter = null;
+    }
+
 
     /**
      * The constructor for writing YAML output.
@@ -71,7 +89,7 @@ public class YamlStreamTranslator extends AbstractYamlTranslator {
      * @param yamlOutputWriter the Writer to use for writing the YAML output
      */
     public YamlStreamTranslator(String streamFileName, Writer yamlOutputWriter) {
-        super(streamFileName, true, 0);
+        super(streamFileName, true, false, 0);
         this.streamFileName = streamFileName;
         this.yamlStream = null;
         this.yamlOutputWriter = yamlOutputWriter;

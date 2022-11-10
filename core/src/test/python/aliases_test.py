@@ -9,8 +9,10 @@ from java.lang import Boolean
 from java.lang import String, Long
 from java.util import Properties
 
+import weblogic.version as version_helper
 from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.aliases import TypeUtils
+from oracle.weblogic.deploy.aliases import VersionUtils
 
 from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.aliases import Aliases
@@ -619,6 +621,11 @@ class AliasesTestCase(unittest.TestCase):
         return
 
     def testMTAliasLoading(self):
+        # MT code is not functional in 14.1.1 so skip this test if using 14.1.1 or higher
+        version = version_helper.getReleaseBuildVersion()
+        if VersionUtils.compareVersions(version, '14.1.1') >= 0:
+            return
+
         aliases = Aliases(self.model_context, WlstModes.OFFLINE)
 
         attr_expected = '/JDBCSystemResource/my-datasource/JdbcResource/my-datasource/JDBCDriverParams/NO_NAME_0'

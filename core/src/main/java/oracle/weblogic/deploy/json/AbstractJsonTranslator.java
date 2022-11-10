@@ -29,6 +29,7 @@ import org.python.core.PyList;
 import org.python.core.PyLong;
 import org.python.core.PyObject;
 import org.python.core.PyString;
+import org.python.core.PyUnicode;
 
 /**
  * This class does the heavy-lifting of walking the parse tree and performing the conversion into a Python dictionary.
@@ -43,6 +44,8 @@ public abstract class AbstractJsonTranslator extends JSONBaseListener {
     private PyObject currentScalarValue;
     @SuppressWarnings("WeakerAccess")
     protected boolean useOrderedDict;
+    @SuppressWarnings("WeakerAccess")
+    protected boolean useUnicode;
 
     /**
      * This method triggers parsing of the JSON and conversion into the Python dictionary.
@@ -109,7 +112,7 @@ public abstract class AbstractJsonTranslator extends JSONBaseListener {
                 getLogger().severe("WLSDPLY-18027", name, valueType);
                 value = Py.None;
         }
-        container.__setitem__(new PyString(name), value);
+        container.__setitem__(this.getPythonString(name), value);
     }
 
     /**
@@ -135,7 +138,7 @@ public abstract class AbstractJsonTranslator extends JSONBaseListener {
 
         String name = currentPairName.peek();
         PyDictionary nextDict = currentDict.peek();
-        if (name != null && nextDict != null && nextDict.has_key(new PyString(name))) {
+        if (name != null && nextDict != null && nextDict.has_key(this.getPythonString(name))) {
             String message = ExceptionHelper.getMessage("WLSDPLY-18028", name);
             ParseCancellationException ex =
                 new ParseCancellationException(message);
@@ -184,7 +187,7 @@ public abstract class AbstractJsonTranslator extends JSONBaseListener {
     @Override
     public void enterJsonString(JSONParser.JsonStringContext ctx) {
         String cleanString = resolveEscapeSequences(StringUtils.stripQuotes(ctx.STRING().getText()));
-        currentScalarValue = new PyString(cleanString);
+        currentScalarValue = this.getPythonString(cleanString);
         currentValueType.push(ValueType.SCALAR);
     }
 
@@ -359,6 +362,14 @@ public abstract class AbstractJsonTranslator extends JSONBaseListener {
             }
         } else {
             currentValueType.push(myValueType);
+        }
+    }
+
+    private PyObject getPythonString(String text) {
+        if (this.useUnicode) {
+            return new PyUnicode(text);
+        } else {
+            return new PyString(text);
         }
     }
 

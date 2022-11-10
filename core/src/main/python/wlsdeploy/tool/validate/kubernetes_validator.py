@@ -9,6 +9,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.targets import model_crd_helper
 from wlsdeploy.tool.util.targets import schema_helper
 from wlsdeploy.util import dictionary_utils
+import wlsdeploy.util.unicode_helper as str_helper
 
 
 class KubernetesValidator(object):
@@ -69,7 +70,7 @@ class KubernetesValidator(object):
         :param model_path: the path of model elements (including array indices), used for logging
         """
         _method_name = 'validate_folder'
-        self._log_debug(str(model_path))
+        self._log_debug(str_helper.to_string(model_path))
 
         if not isinstance(model_folder, dict):
             self._logger.severe("WLSDPLY-05038", model_path, class_name=self._class_name, method_name=_method_name)
@@ -155,19 +156,21 @@ class KubernetesValidator(object):
     def _validate_simple_map(self, model_value, property_name, model_path):
         _method_name = '_validate_simple_map'
         if not isinstance(model_value, dict):
-            self._logger.severe("WLSDPLY-05032", property_name, model_path, str(type(model_value)),
+            self._logger.severe("WLSDPLY-05032", property_name, model_path, str_helper.to_string(type(model_value)),
                                 class_name=self._class_name, method_name=_method_name)
 
     def _validate_simple_array(self, model_value, property_name, model_path):
         _method_name = '_validate_simple_array'
         if isinstance(model_value, dict):
-            self._logger.severe("WLSDPLY-05017", property_name, model_path, "list", str(type(model_value)),
+            self._logger.severe("WLSDPLY-05017", property_name, model_path, "list",
+                                str_helper.to_string(type(model_value)),
                                 class_name=self._class_name, method_name=_method_name)
 
     def _validate_simple_type(self, model_value, property_type, property_name, model_path):
         _method_name = '_validate_simple_type'
         if isinstance(model_value, list) or isinstance(model_value, dict):
-            self._logger.severe("WLSDPLY-05017", property_name, model_path, property_type, str(type(model_value)),
+            self._logger.severe("WLSDPLY-05017", property_name, model_path, property_type,
+                                str_helper.to_string(type(model_value)),
                                 class_name=self._class_name, method_name=_method_name)
 
     def _check_folder_path(self, schema_path, model_path):

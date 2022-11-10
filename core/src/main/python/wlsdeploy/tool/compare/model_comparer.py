@@ -17,7 +17,7 @@ from wlsdeploy.aliases.model_constants import LIBRARY
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model_helper
-
+import wlsdeploy.util.unicode_helper as str_helper
 
 class ModelComparer(object):
     """
@@ -365,7 +365,7 @@ class ModelComparer(object):
 
             else:
                 if not isinstance(past_value, dict):
-                    comment = key + ": '" + str(past_value) + "'"
+                    comment = key + ": '" + str_helper.to_string(past_value) + "'"
                     change_folder.addComment(key, comment)
                 change_folder[key] = current_value
 
@@ -384,7 +384,7 @@ class ModelComparer(object):
             if property_key in past_value:
                 past_property_value = past_value[property_key]
                 if past_property_value != current_property_value:
-                    comment = property_key + ": '" + str(past_property_value) + "'"
+                    comment = property_key + ": '" + str_helper.to_string(past_property_value) + "'"
                     property_dict.addComment(property_key, comment)
                     property_dict[property_key] = current_property_value
             else:

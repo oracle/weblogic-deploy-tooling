@@ -11,6 +11,7 @@ from wlsdeploy.tool.util.filters import wko_filter
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import path_utils
 from wlsdeploy.util.model_translator import FileToPython
+import wlsdeploy.util.unicode_helper as str_helper
 
 __class_name = 'filter_helper'
 __logger = PlatformLogger('wlsdeploy.tool.util')
@@ -79,7 +80,8 @@ def apply_filters(model, tool_type, model_context):
                           method_name=_method_name)
 
     except Exception, ex:
-        __logger.severe('WLSDPLY-20018', str(ex), error=ex, class_name=__class_name, method_name=_method_name)
+        __logger.severe('WLSDPLY-20018', str_helper.to_string(ex), error=ex,
+                        class_name=__class_name, method_name=_method_name)
 
     return filter_applied
 
@@ -107,7 +109,8 @@ def _apply_filter(model, the_filter, model_context, filter_file_location):
         __logger.info('WLSDPLY-20033', name, class_name=__class_name, method_name=_method_name)
         return _apply_path_filter(model, path)
 
-    __logger.severe('WLSDPLY-20019', str(filter_file_location), class_name=__class_name, method_name=_method_name)
+    __logger.severe('WLSDPLY-20019', str_helper.to_string(filter_file_location),
+                    class_name=__class_name, method_name=_method_name)
     return False
 
 
@@ -124,7 +127,7 @@ def _apply_id_filter(model, id, model_context):
 
     filter_method = dictionary_utils.get_element(__id_filter_map, id)
     if filter_method is None:
-        __logger.severe('WLSDPLY-20020', str(id), class_name=__class_name, method_name=_method_name)
+        __logger.severe('WLSDPLY-20020', str_helper.to_string(id), class_name=__class_name, method_name=_method_name)
         return False
     else:
         filter_method(model, model_context)
@@ -142,7 +145,8 @@ def _apply_path_filter(model, script_path):
     _method_name = '_apply_path_filter'
 
     if not os.path.isfile(script_path):
-        __logger.severe('WLSDPLY-20021', str(script_path), class_name=__class_name, method_name=_method_name)
+        __logger.severe('WLSDPLY-20021', str_helper.to_string(script_path),
+                        class_name=__class_name, method_name=_method_name)
         return False
 
     python_path = os.path.dirname(script_path)
@@ -158,7 +162,7 @@ def _apply_path_filter(model, script_path):
         return True
 
     except Exception, ex:
-        __logger.severe('WLSDPLY-20022', str(script_path), ex, error=ex, class_name=__class_name,
-                        method_name=_method_name)
+        __logger.severe('WLSDPLY-20022', str_helper.to_string(script_path), ex, error=ex,
+                        class_name=__class_name, method_name=_method_name)
 
     return False

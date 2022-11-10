@@ -6,6 +6,7 @@ import os
 from java.io import File
 from java.lang import String
 from wlsdeploy.exception import exception_helper
+import wlsdeploy.util.unicode_helper as str_helper
 
 import com.bea.common.security.utils.encoders.BASE64Encoder as BASE64Encoder
 import com.bea.common.security.xacml.DocumentParseException as DocumentParseException
@@ -131,15 +132,18 @@ class WebLogicRolesHelper(object):
             os.rename(update_filename, ldift_filename)
 
         except ValueError, ve:
-            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-01805', 'ValueError', str(ve), error=ve)
+            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-01805', 'ValueError',
+                                                   str_helper.to_string(ve), error=ve)
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         except IOError, ioe:
-            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-01805', 'IOError', str(ioe), error=ioe)
+            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-01805', 'IOError',
+                                                   str_helper.to_string(ioe), error=ioe)
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         except OSError, ose:
-            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-01805', 'OSError', str(ose), error=ose)
+            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-01805', 'OSError',
+                                                   str_helper.to_string(ose), error=ose)
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 

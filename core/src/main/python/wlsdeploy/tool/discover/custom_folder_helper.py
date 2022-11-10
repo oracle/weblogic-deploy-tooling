@@ -24,6 +24,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.mbean_utils import MBeanUtils
 from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
+import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
@@ -67,7 +68,7 @@ class CustomFolderHelper(object):
 
         attribute_helper = self._info_helper.get_info_attribute_helper(location)
         if attribute_helper is None:
-            _logger.warning('WLSDPLY-06753', model_type, str(attribute_helper), mbean_name,
+            _logger.warning('WLSDPLY-06753', model_type, str_helper.to_string(attribute_helper), mbean_name,
                             class_name=_class_name, method_name=_method_name)
         else:
             subfolder_result[mbean_name] = PyOrderedDict()
@@ -93,7 +94,7 @@ class CustomFolderHelper(object):
         :return: model ready dictionary of the discovered MBean
         """
         _method_name = 'get_model_attribute_map'
-        _logger.entering(str(attribute_helper), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(attribute_helper), class_name=_class_name, method_name=_method_name)
         mbean_attributes = PyOrderedDict()
         for attribute_name in attribute_helper.get_mbean_attributes():
             model_value = self.get_model_attribute_value(attribute_helper, attribute_name)
@@ -126,8 +127,8 @@ class CustomFolderHelper(object):
                 if model_type == alias_constants.PASSWORD:
                     print_orig = alias_constants.MASKED
                     print_conv = print_orig
-                _logger.finer('WLSDPLY-06770', mbean_string, attribute_name, model_type, str(print_conv),
-                              class_name=_class_name, method_name=_method_name)
+                _logger.finer('WLSDPLY-06770', mbean_string, attribute_name, model_type,
+                              str_helper.to_string(print_conv), class_name=_class_name, method_name=_method_name)
                 default_value = self.__get_default_value(attribute_helper, attribute_name)
                 if not is_empty(model_value):
                     if not is_empty(default_value):
@@ -151,9 +152,9 @@ class CustomFolderHelper(object):
         :return: converted data type and value
         """
         _method_name = 'convert_method'
-        if str(value_type).startswith('<type '):
+        if str_helper.to_string(value_type).startswith('<type '):
            # strip off type, introduced in 14.1.1
-           value_type = str(value_type)[7:-2]
+           value_type = str_helper.to_string(value_type)[7:-2]
         converted_type = None
         converted = None
         try:
@@ -201,7 +202,7 @@ class CustomFolderHelper(object):
                 _logger.fine('WLSDPLY-06768', value_type, converted_type,
                              class_name=_class_name, method_name=_method_name)
         except Exception, e:
-            _logger.fine('WLSDPLY-06769', value_type, converted_type, str(e),
+            _logger.fine('WLSDPLY-06769', value_type, converted_type, str_helper.to_string(e),
                          class_name=_class_name, method_name=_method_name)
         return converted_type, converted
 
@@ -289,8 +290,8 @@ class CustomFolderHelper(object):
     def __offline_default(self, model_value, model_type, default_value):
         _method_name = '__offline_default'
         if self._model_context.is_wlst_offline() and is_empty(model_value) and not is_empty(default_value):
-            _logger.fine('WLSDPLY-06775', model_type, str(model_value), str(default_value),
-                         class_name=_class_name, method_name=_method_name)
+            _logger.fine('WLSDPLY-06775', model_type, str_helper.to_string(model_value),
+                         str_helper.to_string(default_value), class_name=_class_name, method_name=_method_name)
             return True
         return False
 
@@ -298,8 +299,8 @@ class CustomFolderHelper(object):
         _method_name = '__offline_default_numeric'
         if self._model_context.is_wlst_offline() and \
                 (model_value is None or model_value == 0) and default_value != 0:
-            _logger.fine('WLSDPLY-06775', model_type, str(model_value), str(default_value),
-                         class_name=_class_name, method_name=_method_name)
+            _logger.fine('WLSDPLY-06775', model_type, str_helper.to_string(model_value),
+                         str_helper.to_string(default_value), class_name=_class_name, method_name=_method_name)
             return True
         return False
 
@@ -371,7 +372,8 @@ def security_provider_interface_name(mbean_instance, mbean_interface_name):
         result = getter()
         if result.endswith('ProviderMBean'):
             result = mbean_interface_name
-            _logger.warning('WLSDPLY-06779', str(mbean_instance), class_name=_class_name, method_name=_method_name)
+            _logger.warning('WLSDPLY-06779', str_helper.to_string(mbean_instance),
+                            class_name=_class_name, method_name=_method_name)
     except (Exception, JException):
         _logger.warning('WLSDPLY-06778', mbean_interface_name, class_name=_class_name, method_name=_method_name)
         result = mbean_interface_name
@@ -391,7 +393,7 @@ def attribute_type(attribute_helper, attribute_name):
     attr_type = None
     check_type = attribute_helper.get_type(attribute_name)
     if check_type is not None:
-        attr_type = str(check_type)
+        attr_type = str_helper.to_string(check_type)
     return attr_type
 
 
@@ -461,7 +463,7 @@ def convert_string(value):
     """
     converted = None
     if not is_empty(value):
-        converted = str(value)
+        converted = str_helper.to_string(value)
     return converted
 
 
@@ -473,7 +475,7 @@ def convert_boolean(boolean_value):
 
 def convert_byte_buffer(buffer_value):
     if buffer_value is not None:
-        return str(String(buffer_value))
+        return str_helper.to_string(String(buffer_value))
     return None
 
 
@@ -529,10 +531,10 @@ def convert_value(value):
             converted = value.getKeyProperty('Name')
         elif isinstance(value, String):
             converted_type = alias_constants.STRING
-            converted = str(value)
+            converted = str_helper.to_string(value)
         elif isinstance(value, Enum):
             converted_type = alias_constants.STRING
-            converted = str(value.toString())
+            converted = str_helper.to_string(value.toString())
         else:
             converted_type = alias_constants.OBJECT
             converted = value

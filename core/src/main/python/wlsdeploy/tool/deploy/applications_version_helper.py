@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -20,6 +20,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.util import string_utils
+import wlsdeploy.util.unicode_helper as str_helper
 
 
 class ApplicationsVersionHelper(object):
@@ -75,7 +76,8 @@ class ApplicationsVersionHelper(object):
                                  class_name=self._class_name, method_name=_method_name)
 
         except (IOException, FileNotFoundException, ZipException, IllegalStateException), e:
-            ex = exception_helper.create_deploy_exception('WLSDPLY-09325', model_name, source_path, str(e), error=e)
+            ex = exception_helper.create_deploy_exception('WLSDPLY-09325', model_name, source_path,
+                                                          str_helper.to_string(e), error=e)
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
@@ -118,7 +120,8 @@ class ApplicationsVersionHelper(object):
                                      method_name=_method_name)
 
         except (IOException, FileNotFoundException, ZipException, IllegalStateException), e:
-            ex = exception_helper.create_deploy_exception('WLSDPLY-09329', model_name, source_path, str(e), error=e)
+            ex = exception_helper.create_deploy_exception('WLSDPLY-09329', model_name, source_path,
+                                                          str_helper.to_string(e), error=e)
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 

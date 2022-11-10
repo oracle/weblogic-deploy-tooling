@@ -147,6 +147,14 @@
                             <name>db.use.container.network</name>
                             <value>${db.use.container.network}</value>
                         </property>
+                        <property>
+                            <name>system-test-skip-jrf-tests</name>
+                            <value>${system-test-skip-jrf-tests}</value>
+                        </property>
+                        <property>
+                            <name>system-test-skip-rjrf-tests</name>
+                            <value>${system-test-skip-rjrf-tests}</value>
+                        </property>
                     </systemProperties>
                 </configuration>
                 <executions>

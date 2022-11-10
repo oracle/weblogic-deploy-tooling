@@ -32,7 +32,7 @@ pipeline {
                 docker {
                     alwaysPull true
                     reuseNode true
-                    image 'phx.ocir.io/weblogick8s/wdt/jenkinsslave:wls12213'
+                    image 'phx.ocir.io/weblogick8s/wdt/jenkins-slave:122130'
                     args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
@@ -57,7 +57,7 @@ pipeline {
                 docker {
                     alwaysPull true
                     reuseNode true
-                    image 'phx.ocir.io/weblogick8s/wdt/jenkinsslave:wls12213'
+                    image 'phx.ocir.io/weblogick8s/wdt/jenkins-slave:122130'
                     args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
