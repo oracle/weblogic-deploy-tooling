@@ -11,18 +11,15 @@ topology:
       ClientCertProxyEnabled: true
       FrontendHost: localhost
       DynamicServers:
-        # ServerTemplate: i_più_vistia̜
         ServerTemplate: template1̜
         CalculatedListenPorts: true
-        # ServerNamePrefix: 'Felicità-'
-        ServerNamePrefix: 'Server1-'
+        ServerNamePrefix: 'Server-'
         DynamicClusterSize: 2
         MaxDynamicClusterSize: 2
   Server:
     'admin-server':
       ListenPort: 7001
   ServerTemplate:
-    # i_più_vistia̜:
     template1̜:
       ListenPort: 8001
 appDeployments:
