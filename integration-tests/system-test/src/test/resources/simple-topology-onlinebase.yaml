@@ -4,30 +4,34 @@ domainInfo:
   ServerStartMode: prod
 topology:
   Name: domain2
-  AdminServerName: 'admin-server'
+  AdminServerName: admin-server
   ProductionModeEnabled: true
   Cluster:
-    'cluster1':
+    cluster1:
       ClientCertProxyEnabled: true
       FrontendHost: localhost
       DynamicServers:
-        ServerTemplate: i_più_vistia
+        ServerTemplate: template1
+        # ServerTemplate: i_più_vistia
         CalculatedListenPorts: true
-        ServerNamePrefix: 'Felicità-'
+        ServerNamePrefix: 'Server1-'
+        # ServerNamePrefix: 'Felicità-'
         DynamicClusterSize: 2
         MaxDynamicClusterSize: 2
   Server:
-    'admin-server':
+    admin-server:
       ListenPort: 7001
   ServerTemplate:
-    i_più_vistia̜:
+    template1:
       ListenPort: 8001
+    # i_più_vistia̜:
+    #   ListenPort: 8001
 appDeployments:
   Application:
     # Quote needed because of hyphen in string
-    'simple-app':
-      SourcePath: 'wlsdeploy/applications/simple-app.war'
-      Target: 'admin-server'
+    simple-app:
+      SourcePath: wlsdeploy/applications/simple-app.war
+      Target: admin-server
       ModuleType: war
       StagingMode: nostage
       PlanStagingMode: nostage
