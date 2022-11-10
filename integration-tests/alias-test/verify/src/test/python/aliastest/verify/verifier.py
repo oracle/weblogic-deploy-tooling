@@ -1387,7 +1387,10 @@ def _check_for_allowed_unknowns(location, generated_attribute, wlst_type, alias_
         else:
             if get_type in CONVERT_TO_DELIMITED_TYPES or cmo_type in CONVERT_TO_DELIMITED_TYPES:
                 message_type = 'delimited'
-            message = 'Alias has LSA required'
+             
+                message = 'Alias has LSA required'
+            if alias_type == alias_constants.STRING or alias_type == alias_constants.LIST:
+                local_valid =True
 
     _logger.exiting(class_name=CLASS_NAME, method_name=_method_name, result=Boolean(local_valid))
     return local_valid, message_type, message
