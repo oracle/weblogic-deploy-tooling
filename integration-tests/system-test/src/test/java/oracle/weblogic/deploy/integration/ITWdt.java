@@ -25,7 +25,6 @@ import oracle.weblogic.deploy.integration.annotations.TestingLogger;
 import oracle.weblogic.deploy.integration.utils.CommandResult;
 import oracle.weblogic.deploy.integration.utils.Runner;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -57,12 +56,10 @@ public class ITWdt extends BaseTest {
         // setup the test environment
         setup();
 
-        if (!SKIP_JRF_TESTS) {
-            // pull Oracle DB image for FMW RCU testing
-            pullOracleDBDockerImage();
-            // create a db container for RCU
-            createDBContainer();
-        }
+        // pull Oracle DB image for FMW RCU testing
+        pullOracleDBDockerImage();
+        // create a db container for RCU
+        createDBContainer();
     }
 
     @AfterAll
@@ -176,7 +173,7 @@ public class ITWdt extends BaseTest {
     }
 
     /**
-     * test createDomain.sh with required arguments using simple-topology-constant.yaml (domain = domain1)
+     * test createDomain.sh with required arguments
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 5: createDomain with domain_parent")
@@ -195,8 +192,8 @@ public class ITWdt extends BaseTest {
     }
 
     /**
-     * test createDomain.sh using simple-topology-constant.yaml with different domain name in
-     * -domain_home and model file in model file, it specifies the domain name as 'domain1'
+     * test createDomain.sh with different domain name in -domain_home and model file
+     * in model file, it specifies the domain name as 'domain1'
      * in -domain_home argument, it specifies the domain home as 'domain2'
      * @throws Exception - if any error occurs
      */
@@ -218,7 +215,7 @@ public class ITWdt extends BaseTest {
     }
 
     /**
-     * test createDomain.sh with WLS domain_type using simple-topology-constant.yaml (domain = domain2)
+     * test createDomain.sh with WLS domain_type
      * @throws Exception -if any error occurs
      */
     @Order(7)
@@ -257,7 +254,7 @@ public class ITWdt extends BaseTest {
     }
 
     /**
-     * test createDomain.sh with variable_file argument using simple-topology1.yaml (domain = domain2)
+     * test createDomain.sh with variable_file argument
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 9: createDomain with variable file")
@@ -277,7 +274,7 @@ public class ITWdt extends BaseTest {
     }
 
     /**
-     * test createDomain.sh with wlst_path set to mwhome/wlserver using simple-topology1.yaml (domain = domain2)
+     * test createDomain.sh with wlst_path set to mwhome/wlserver
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 10: createDomain with WLS wlst_path")
@@ -298,7 +295,7 @@ public class ITWdt extends BaseTest {
     }
 
     /**
-     * test createDomain.sh with -wlst_path set to mwhome/oracle_common using simple-topology1.yaml (domain = domain2)
+     * test createDomain.sh with -wlst_path set to mwhome/oracle_common
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 11: createDomain with oracle_commmon wlst_path")
@@ -327,7 +324,6 @@ public class ITWdt extends BaseTest {
     @Tag("gate")
     @Test
     void test12CreateJRFDomainNoRunRCU(TestInfo testInfo) throws Exception {
-        Assumptions.assumeTrue(new JrfChecker(), "User specified skipping JRF tests");
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             Path source = Paths.get(getSampleModelFile("2"));
             Path modelOut = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "2.yaml");
@@ -353,7 +349,6 @@ public class ITWdt extends BaseTest {
     @Tag("gate")
     @Test
     void test13CreateJRFDomainRunRCU(TestInfo testInfo) throws Exception {
-        Assumptions.assumeTrue(new JrfChecker(), "User specified skipping JRF tests");
         waitForDatabase();
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             Path source = Paths.get(getSampleModelFile("2"));
@@ -383,7 +378,6 @@ public class ITWdt extends BaseTest {
     @Tag("gate")
     @Test
     void test14OnlineUpdate1(TestInfo testInfo) throws Exception {
-        Assumptions.assumeTrue(new JrfChecker(), "User specified skipping JRF tests");
         assumeTrue(rcuDomainCreated, "testDOnlineUpdate skipped because testDCreateJRFDomainRunRCU failed");
 
         // Setup boot.properties
@@ -430,7 +424,6 @@ public class ITWdt extends BaseTest {
     @Tag("gate")
     @Test
     void test15OnlineUpdate2(TestInfo testInfo) throws Exception {
-        Assumptions.assumeTrue(new JrfChecker(), "User specified skipping JRF tests");
         assumeTrue(rcuDomainCreated, "testDOnlineUpdate2 skipped because testDCreateJRFDomainRunRCU failed");
 
         String domainHome = domainParentDir + FS + "jrfDomain1";
@@ -473,7 +466,6 @@ public class ITWdt extends BaseTest {
     @Tag("gate")
     @Test
     void test16CreateRestrictedJRFDomain(TestInfo testInfo) throws Exception {
-        Assumptions.assumeTrue(new RestrictedJrfChecker(), "User specified skipping Restricted JRF tests");
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
             domainParentDir + FS + "restrictedJRFD1 -model_file " +
                 getSampleModelFile("-constant") + " -archive_file " + getSampleArchiveFile() +
@@ -495,7 +487,6 @@ public class ITWdt extends BaseTest {
     @Tag("gate")
     @Test
     void test17DiscoverDomainWithRequiredArgument(TestInfo testInfo) throws Exception {
-        Assumptions.assumeTrue(new RestrictedJrfChecker(), "User specified skipping Restricted JRF tests");
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
             String cmd = discoverDomainScript
@@ -538,7 +529,6 @@ public class ITWdt extends BaseTest {
     @Tag("gate")
     @Test
     void test18DiscoverDomainWithModelFile(TestInfo testInfo) throws Exception {
-        Assumptions.assumeTrue(new RestrictedJrfChecker(), "User specified skipping Restricted JRF tests");
         Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
         Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.yaml");
         String cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
@@ -563,7 +553,6 @@ public class ITWdt extends BaseTest {
   @Tag("gate")
   @Test
   void test19DiscoverDomainWithVariableFile(TestInfo testInfo) throws Exception {
-      Assumptions.assumeTrue(new RestrictedJrfChecker(), "User specified skipping Restricted JRF tests");
       Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
       Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.yaml");
       Path discoveredVariableFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.properties");
@@ -601,10 +590,9 @@ public class ITWdt extends BaseTest {
     @Tag("gate")
     @Test
     void test20DiscoverDomainJRFDomainType(TestInfo testInfo) throws Exception {
-        Assumptions.assumeTrue(new JrfChecker(), "User specified skipping JRF tests");
-        assumeTrue(rcuDomainCreated, "testHDiscoverDomainJRFDomainType skipped because testDCreateJRFDomainRunRCU failed");
+      assumeTrue(rcuDomainCreated, "testHDiscoverDomainJRFDomainType skipped because testDCreateJRFDomainRunRCU failed");
 
-        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+      try (PrintWriter out = getTestMethodWriter(testInfo)) {
             Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
             Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredJRFD1.yaml");
             String cmd = discoverDomainScript
@@ -999,11 +987,13 @@ public class ITWdt extends BaseTest {
             verifyResult(result, "prepareModel.sh completed successfully");
 
             // verify model file
-            String tempWkoModel = outputFiles + FS + wkoModelFile;
-
-            cmd = "grep -c 'Partition' " + tempWkoModel;
+            String tempWkoModel = outputFiles + FS + "simple-topology-targetwko.yaml";
+            cmd = "grep  \"PasswordEncrypted: '@@SECRET\" " + tempWkoModel;
+            CommandResult result2 = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+            assertEquals(0, result2.exitValue(), "Missing JDBC Secret");
+            cmd = "grep -c 'Machine' " + tempWkoModel;
             CommandResult result3 = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-            assertNotEquals(0, result3.exitValue(), "Partition section was not removed from model");
+            assertNotEquals(0, result3.exitValue(), "Machine section was not removed from model");
         }
     }
 
