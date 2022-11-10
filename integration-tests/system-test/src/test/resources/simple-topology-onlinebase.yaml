@@ -11,7 +11,7 @@ topology:
       ClientCertProxyEnabled: true
       FrontendHost: localhost
       DynamicServers:
-        ServerTemplate: template1̜
+        ServerTemplate: template1
         CalculatedListenPorts: true
         ServerNamePrefix: 'Server-'
         DynamicClusterSize: 2
@@ -20,7 +20,7 @@ topology:
     'admin-server':
       ListenPort: 7001
   ServerTemplate:
-    template1̜:
+    template1:
       ListenPort: 8001
 appDeployments:
   Application:
