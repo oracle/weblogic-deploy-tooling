@@ -645,7 +645,7 @@ class Verifier(object):
             self._is_valid_default_type(location, generated_attribute, generated_attribute_info,
                                         alias_get_required_attribute_list)
         if valid:
-            __, model_default_value, wlst_default_value = \
+            __, model_default_value = \
                 self._get_attribute_default_values(generated_attribute, location, model_attribute_name)
             self._is_valid_default_value(location, generated_attribute, generated_attribute_info,
                                          generated_attr_default, model_default_value)
@@ -746,16 +746,15 @@ class Verifier(object):
         wlst_default_value = None
         if valid:
             try:
-                wlst_attr, wlst_default_value = \
-                    self._alias_helper.get_wlst_attribute_name_and_value(location, model_attribute_name,
-                                                                         model_default_value)
+                wlst_attr = \
+                    self._alias_helper.get_wlst_attribute_name(location, model_attribute_name)
             except AliasException, ae:
                 self._add_error(location, ERROR_FAILURE_ATTRIBUTE_UNEXPECTED, message=ae.getLocalizedMessage(),
                                 attribute=generated_attribute)
                 valid = False
 
         _logger.exiting(result=verify_utils.bool_to_string(valid), class_name=CLASS_NAME, method_name=_method_name)
-        return valid, model_default_value, wlst_default_value
+        return valid, model_default_value
 
     def _is_valid_default_value(self, location, generated_attribute, generated_attribute_info,
                                 generated_default_value, model_default_value):
