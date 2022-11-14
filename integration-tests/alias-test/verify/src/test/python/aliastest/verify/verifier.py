@@ -854,7 +854,8 @@ class Verifier(object):
             if RESTART not in generated_attribute_info or \
                     (generated_attribute_info[RESTART] != RESTART_NO_CHECK and
                      generated_attribute_info[RESTART] != 'true'):
-                self._add_error(location, ERROR_ATTRIBUTE_NOT_RESTART, attribute=model_attribute_name)
+                # TODO - temporary change to warning until we decide what to do about the restart attributes of the aliases.
+                self._add_warning(location, ERROR_ATTRIBUTE_NOT_RESTART, attribute=model_attribute_name)
                 valid = False
         elif RESTART in generated_attribute_info and generated_attribute_info[RESTART] == 'true':
             # TODO - temporary change to warning until we decide what to do about the restart attributes of the aliases.
