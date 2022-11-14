@@ -1333,11 +1333,12 @@ def _is_of_type_with_lsa(attribute, alias_type, attribute_info, get_required_att
     is_get_and_alias_types_equal = get_type == alias_type
     is_cmo_and_alias_types_equal = cmo_type == alias_type
     is_cmo_or_get_and_alias_types_equal = is_get_and_alias_types_equal or is_cmo_and_alias_types_equal
+    is_alias_type_list_type = alias_type in LIST_TYPES
 
     return is_lsa_type and \
            (is_lsa_and_alias_types_equal or
             (is_lsa_type_unknown_or_string_or_integer and
-             (is_lsa_type_unknown_and_cmo_type_is_none or is_cmo_or_get_and_alias_types_equal)))
+             (is_lsa_type_unknown_and_cmo_type_is_none or is_cmo_or_get_and_alias_types_equal or is_alias_type_list_type)))
 
 
 def _is_wlst_read_type_compatible_list_type(attribute, lsa_type, wlst_read_type):
