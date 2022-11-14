@@ -11,6 +11,7 @@ import weblogic.version as version_helper
 
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.util import string_utils
+import wlsdeploy.util.unicode_helper as str_helper
 
 import os
 import re
@@ -32,10 +33,10 @@ class WebLogicHelper(object):
         """
         self.logger = logger
         if wls_version is not None:
-            self.wl_version = str(wls_version)
-            self.wl_version_actual = str(version_helper.getReleaseBuildVersion())
+            self.wl_version = str_helper.to_string(wls_version)
+            self.wl_version_actual = str_helper.to_string(version_helper.getReleaseBuildVersion())
         else:
-            self.wl_version = str(version_helper.getReleaseBuildVersion())
+            self.wl_version = str_helper.to_string(version_helper.getReleaseBuildVersion())
             self.wl_version_actual = self.wl_version
 
     def get_actual_weblogic_version(self):

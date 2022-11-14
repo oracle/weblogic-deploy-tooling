@@ -15,6 +15,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.targets import schema_helper
 from wlsdeploy.util import dictionary_utils
+import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
 from wlsdeploy.yaml.yaml_translator import YamlToPython
 
@@ -59,7 +60,7 @@ def update_from_model(crd_file, model, crd_helper):
         reader = YamlToPython(crd_file.getPath(), True)
         documents = reader.parse_documents()
     except YamlException, ex:
-        __logger.severe('WLSDPLY-01673', crd_file, str(ex), error=ex, class_name=__class_name,
+        __logger.severe('WLSDPLY-01673', crd_file, str_helper.to_string(ex), error=ex, class_name=__class_name,
                         method_name=_method_name)
         return
 
@@ -69,7 +70,7 @@ def update_from_model(crd_file, model, crd_helper):
         writer = PythonToYaml(documents)
         writer.write_to_yaml_file(crd_file.getPath())
     except YamlException, ex:
-        __logger.severe('WLSDPLY-01674', crd_file, str(ex), error=ex, class_name=__class_name,
+        __logger.severe('WLSDPLY-01674', crd_file, str_helper.to_string(ex), error=ex, class_name=__class_name,
                         method_name=_method_name)
     return
 

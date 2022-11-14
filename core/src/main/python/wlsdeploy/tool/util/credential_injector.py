@@ -23,6 +23,7 @@ from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
 from wlsdeploy.tool.util.variable_injector import VARIABLE_VALUE
 from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.util import target_configuration_helper
+import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util import variables
 from wlsdeploy.util.target_configuration import CONFIG_OVERRIDES_SECRETS_METHOD
 from wlsdeploy.util.target_configuration import SECRETS_METHOD
@@ -266,6 +267,6 @@ class CredentialInjector(VariableInjector):
             if isinstance(value, dict):
                 self._add_model_variables(value, variables)
             else:
-                text = str(value)
+                text = str_helper.to_string(value)
                 if text.startswith('@@'):
                     variables.append(text)

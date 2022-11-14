@@ -28,6 +28,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import path_utils
+import wlsdeploy.util.unicode_helper as str_helper
 
 WEBLOGIC_DEPLOY_HOME_TOKEN = '@@WLSDEPLOY@@'
 
@@ -452,8 +453,8 @@ class VariableInjector(object):
             _logger.fine('WLSDPLY-19525', variable_name, attribute_value, attribute, variable_value,
                          class_name=_class_name, method_name=_method_name)
         else:
-            _logger.finer('WLSDPLY-19526', attribute_value, attribute, str(location), class_name=_class_name,
-                          method_name=_method_name)
+            _logger.finer('WLSDPLY-19526', attribute_value, attribute, str_helper.to_string(location),
+                          class_name=_class_name, method_name=_method_name)
 
         if variable_value is not None:
             variable_dict[variable_name] = self._check_replace_variable_value(location, attribute,
@@ -844,7 +845,7 @@ def _format_variable_value(value):
             return 'True'
         return 'False'
     else:
-        return str(value)
+        return str_helper.to_string(value)
 
 
 def _compile_pattern(pattern):

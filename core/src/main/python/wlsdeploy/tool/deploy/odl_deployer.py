@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.io import File
@@ -20,6 +20,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import dictionary_utils
+import wlsdeploy.util.unicode_helper as str_helper
 
 _ADD_JVM_NUMBER = "AddJvmNumber"
 _CLASS = "Class"
@@ -185,49 +186,49 @@ class OdlDeployer(object):
                                    class_name=self.__class_name, method_name=_method_name)
                 return
             try:
-                document.addHandler(handler_name, str(handler_class))
+                document.addHandler(handler_name, str_helper.to_string(handler_class))
             except IllegalArgumentException, iae:
                 self.logger.severe('WLSDPLY-19702', handler_name, handler_path, iae.getLocalizedMessage(),
                                    class_name=self.__class_name, method_name=_method_name)
 
         elif handler_class is not None:
             try:
-                document.setHandlerClass(handler_name, str(handler_class))
+                document.setHandlerClass(handler_name, str_helper.to_string(handler_class))
             except IllegalArgumentException, iae:
                 self._log_invalid_set(_CLASS, handler_class, iae, _method_name, handler_path)
 
         level = dictionary_utils.get_element(handler, _LEVEL)
         if level is not None:
             try:
-                document.setHandlerLevel(handler_name, str(level))
+                document.setHandlerLevel(handler_name, str_helper.to_string(level))
             except IllegalArgumentException, iae:
                 self._log_invalid_set(_LEVEL, level, iae, _method_name, handler_path)
 
         error_manager = dictionary_utils.get_element(handler, _ERROR_MANAGER)
         if error_manager is not None:
             try:
-                document.setHandlerErrorManager(handler_name, str(error_manager))
+                document.setHandlerErrorManager(handler_name, str_helper.to_string(error_manager))
             except IllegalArgumentException, iae:
                 self._log_invalid_set(_ERROR_MANAGER, error_manager, iae, _method_name, handler_path)
 
         handler_filter = dictionary_utils.get_element(handler, _FILTER)
         if handler_filter is not None:
             try:
-                document.setHandlerFilter(handler_name, str(handler_filter))
+                document.setHandlerFilter(handler_name, str_helper.to_string(handler_filter))
             except IllegalArgumentException, iae:
                 self._log_invalid_set(_FILTER, level, iae, _method_name, handler_path)
 
         formatter = dictionary_utils.get_element(handler_filter, _FORMATTER)
         if formatter is not None:
             try:
-                document.setHandlerFormatter(handler_name, str(formatter))
+                document.setHandlerFormatter(handler_name, str_helper.to_string(formatter))
             except IllegalArgumentException, iae:
                 self._log_invalid_set(_FORMATTER, formatter, iae, _method_name, handler_path)
 
         encoding = dictionary_utils.get_element(handler, _ENCODING)
         if encoding is not None:
             try:
-                document.setHandlerEncoding(handler_name, str(encoding))
+                document.setHandlerEncoding(handler_name, str_helper.to_string(encoding))
             except IllegalArgumentException, iae:
                 self._log_invalid_set(_ENCODING, encoding, iae, _method_name, handler_path)
 
@@ -268,14 +269,14 @@ class OdlDeployer(object):
         level = dictionary_utils.get_element(logger, _LEVEL)
         if level is not None:
             try:
-                document.setLoggerLevel(logger_name, str(level))
+                document.setLoggerLevel(logger_name, str_helper.to_string(level))
             except IllegalArgumentException, iae:
                 self._log_invalid_set(_LEVEL, level, iae, _method_name, logger_path)
 
         logger_filter = dictionary_utils.get_element(logger, _FILTER)
         if logger_filter is not None:
             try:
-                document.setLoggerFilter(logger_name, str(logger_filter))
+                document.setLoggerFilter(logger_name, str_helper.to_string(logger_filter))
             except IllegalArgumentException, iae:
                 self._log_invalid_set(_FILTER, logger_filter, iae, _method_name, logger_path)
 
@@ -321,4 +322,4 @@ def _get_property_text(value):
     :param value: the value to be evaluated
     :return: the corresponding text value
     """
-    return str(value)
+    return str_helper.to_string(value)

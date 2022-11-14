@@ -16,6 +16,7 @@ import weblogic.management.mbeanservers.edit.ValidationException as ValidationEx
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.string_output_stream import StringOutputStream
+import wlsdeploy.util.unicode_helper as str_helper
 
 wlst_functions = None
 
@@ -1413,7 +1414,8 @@ class WlstHelper(object):
         if current_path is not None:
             self.cd(current_path)
 
-        self.__logger.exiting(result=str(result), class_name=self.__class_name, method_name=_method_name)
+        self.__logger.exiting(result=str_helper.to_string(result),
+                              class_name=self.__class_name, method_name=_method_name)
         return result
 
     def set_shared_secret_store_with_password(self, wallet_path, password):
@@ -1638,4 +1640,4 @@ def _format_exception(e):
                 message = cause.getLocalizedMessage()
                 cause = cause.getCause()
         return message
-    return str(e)
+    return str_helper.to_string(e)

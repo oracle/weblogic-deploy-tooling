@@ -25,6 +25,7 @@ from oracle.weblogic.deploy.util import PyOrderedDict
 
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
+import wlsdeploy.util.unicode_helper as str_helper
 
 
 class YamlToPython(object):
@@ -38,9 +39,10 @@ class YamlToPython(object):
 
         self._file_name = file_name
         self._use_ordering = use_ordering
+        self._use_unicode = str_helper.use_unicode()
         self._logger = PlatformLogger('wlsdeploy.yaml')
         try:
-            self._translator = JYamlTranslator(self._file_name, self._use_ordering, max_size)
+            self._translator = JYamlTranslator(self._file_name, self._use_ordering, self._use_unicode, max_size)
         except JIllegalArgumentException, iae:
             yaml_ex = \
                 exception_helper.create_yaml_exception('WLSDPLY-18008', file_name, iae.getLocalizedMessage(), error=iae)
@@ -86,14 +88,16 @@ class YamlStreamToPython(object):
     """
     _class_name = 'YamlStreamToPython'
 
-    def __init__(self, file_name, input_stream, use_ordering=False):
+    def __init__(self, file_name, input_stream, use_ordering=False, max_size=0):
         _method_name = '__init__'
 
         self._file_name = file_name
         self._use_ordering = use_ordering
+        self._use_unicode = str_helper.use_unicode()
         self._logger = PlatformLogger('wlsdeploy.yaml')
         try:
-            self._translator = JYamlStreamTranslator(self._file_name, input_stream, self._use_ordering)
+            self._translator = JYamlStreamTranslator(self._file_name, input_stream, self._use_ordering,
+                                                     self._use_unicode, max_size)
         except JIllegalArgumentException, iae:
             yaml_ex = \
                 exception_helper.create_yaml_exception('WLSDPLY-18008', file_name, iae.getLocalizedMessage(), error=iae)
@@ -185,7 +189,7 @@ class PythonToJava(object):
         elif type(py_value) is int:
             result = JInteger(py_value)
         elif type(py_value) is long:
-            result = JLong(JString(str(py_value)))
+            result = JLong(JString(str_helper.to_string(py_value)))
         elif type(py_value) is float:
             result = JDouble(py_value)
         elif isinstance(py_value, PyRealBoolean):

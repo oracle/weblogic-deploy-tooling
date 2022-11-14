@@ -76,6 +76,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import model_helper
+import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
@@ -657,7 +658,8 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if an error occurs
         """
-        encrypted_value = self.__weblogic_helper.encrypt(str(value), self.__model_context.get_domain_home())
+        encrypted_value = \
+            self.__weblogic_helper.encrypt(str_helper.to_string(value), self.__model_context.get_domain_home())
         self.set_attribute(location, key, encrypted_value, wlst_merge_value=wlst_value)
 
     #
@@ -687,7 +689,7 @@ class AttributeSetter(object):
         if wlst_param is None:
             self.__logger.info('WLSDPLY-20011', model_key, class_name=self._class_name, method_name=_method_name)
         elif wlst_value is None:
-            self.__logger.info('WLSDPLY-20012', model_key, str(model_value),
+            self.__logger.info('WLSDPLY-20012', model_key, str_helper.to_string(model_value),
                                class_name=self._class_name, method_name=_method_name)
         else:
             if self.__logger.is_finer_enabled():
@@ -710,7 +712,7 @@ class AttributeSetter(object):
         if wlst_attr_name is None:
             self.__logger.info('WLSDPLY-20011', key, class_name=self._class_name, method_name=_method_name)
         elif wlst_attr_value is None:
-            log_value = str(value)
+            log_value = str_helper.to_string(value)
             if masked:
                 log_value = '<masked>'
             self.__logger.info('WLSDPLY-20012', key, log_value, class_name=self._class_name, method_name=_method_name)
@@ -966,7 +968,7 @@ class AttributeSetter(object):
         :return: the domain location
         """
         _method_name = '__get_domain_location'
-        self.__logger.entering(str(location), class_name=self._class_name, method_name=_method_name)
+        self.__logger.entering(str_helper.to_string(location), class_name=self._class_name, method_name=_method_name)
 
         location = LocationContext(location)
         while len(location.get_model_folders()) > 0:
@@ -990,7 +992,8 @@ class AttributeSetter(object):
                 location.pop_location()
         except:
             # index throws a ValueError if the item is not in the list...
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19205', folder_name, str(location))
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19205', folder_name,
+                                                   str_helper.to_string(location))
             self.__logger.throwing(class_name=self._class_name, method_name=method_name, error=ex)
             raise ex
         return location
@@ -1004,7 +1007,7 @@ class AttributeSetter(object):
         """
         _method_name = '__get_existing_object_list'
 
-        self.__logger.entering(str(location), class_name=self._class_name, method_name=_method_name)
+        self.__logger.entering(str_helper.to_string(location), class_name=self._class_name, method_name=_method_name)
         list_path = self.__aliases.get_wlst_list_path(location)
         existing_names = self.__wlst_helper.get_existing_object_list(list_path)
         self.__logger.exiting(class_name=self._class_name, method_name=_method_name, result=existing_names)
@@ -1025,7 +1028,8 @@ class AttributeSetter(object):
         :raises BundleAwareException of the specified type: if the WLDF Action/Notification is not found
         """
         _method_name = '__merge_existing_items'
-        self.__logger.entering(str(items), str(existing_value), class_name=self._class_name, method_name=_method_name)
+        self.__logger.entering(str_helper.to_string(items), str_helper.to_string(existing_value),
+                               class_name=self._class_name, method_name=_method_name)
 
         result = alias_utils.create_list(existing_value, 'WLSDPLY-08001')
         items_iterator = alias_utils.create_list(items, 'WLSDPLY-08000')

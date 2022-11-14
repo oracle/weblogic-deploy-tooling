@@ -6,6 +6,7 @@ import re
 import types
 
 from oracle.weblogic.deploy.exception import ExceptionHelper
+import wlsdeploy.util.unicode_helper as str_helper
 
 divider_string = '-----------------------------------------------'
 
@@ -38,7 +39,7 @@ def extract_path_tokens(tokenized_value):
     if tokenized_value.isunicode():
         path_pattern = unicode(_path_token_pattern)
     elif not isinstance(tokenized_value, basestring):
-        path_value = str(tokenized_value)
+        path_value = str_helper.to_string(tokenized_value)
     tokens = re.findall(path_pattern, path_value)
     if len(tokens) == 0:
         # tokenized_value didn't contain any variable expressions, so
@@ -85,10 +86,10 @@ def get_python_data_type(value):
     data_type = type(value)
     if data_type in data_types_map:
         rtnval = data_types_map[data_type]
-    elif str(data_type) in data_types_map:
-        rtnval = data_types_map[str(data_type)]
+    elif str_helper.to_string(data_type) in data_types_map:
+        rtnval = data_types_map[str_helper.to_string(data_type)]
     else:
-        rtnval = str(data_type)
+        rtnval = str_helper.to_string(data_type)
 
     return rtnval
 

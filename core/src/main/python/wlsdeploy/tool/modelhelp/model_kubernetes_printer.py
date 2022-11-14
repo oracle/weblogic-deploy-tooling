@@ -8,6 +8,7 @@ from wlsdeploy.tool.util.targets import model_crd_helper
 from wlsdeploy.tool.util.targets import schema_helper
 from wlsdeploy.tool.modelhelp import model_help_utils
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
+import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.exit_code import ExitCode
 
 
@@ -236,7 +237,7 @@ class ModelKubernetesPrinter(object):
                 if len(name) > maxlen:
                     maxlen = len(name)
 
-            format_string = '%-' + str(maxlen + 1) + 's # %s'
+            format_string = '%-' + str_helper.to_string(maxlen + 1) + 's # %s'
             for attr_name in attr_list:
                 line = format_string % (attr_name + ":", attribute_map[attr_name])
                 _print_indent(line, indent_level, in_object_array)

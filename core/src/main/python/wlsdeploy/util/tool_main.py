@@ -18,8 +18,8 @@ import oracle.weblogic.deploy.util.WLSDeployContext.WLSTMode as JWLSTMode
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.util import cla_helper
+import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.exit_code import ExitCode
-
 
 def run_tool(main, process_args, args, program_name, class_name, logger):
     """
@@ -39,7 +39,8 @@ def run_tool(main, process_args, args, program_name, class_name, logger):
 
     logger.entering(args[0], class_name=class_name, method_name=_method_name)
     for index, arg in enumerate(args):
-        logger.finer('sys.argv[{0}] = {1}', str(index), str(arg), class_name=class_name, method_name=_method_name)
+        logger.finer('sys.argv[{0}] = {1}', str_helper.to_string(index), str_helper.to_string(arg),
+                     class_name=class_name, method_name=_method_name)
 
     model_context_obj = model_context_helper.create_exit_context(program_name)
     try:
@@ -93,7 +94,8 @@ def __handle_unexpected_exception(ex, model_context, class_name, method_name, lo
     :param logger: the logger to use
     """
     program_name = model_context.get_program_name()
-    logger.severe('WLSDPLY-20035', program_name, sys.exc_info()[0])
+    logger.severe('WLSDPLY-20035', program_name, sys.exc_info()[0], error=ex,
+                  class_name=class_name, method_name=method_name)
 
     if hasattr(ex, 'stackTrace'):
         # this works best for java exceptions, and gets the full stacktrace all the way back to weblogic.WLST

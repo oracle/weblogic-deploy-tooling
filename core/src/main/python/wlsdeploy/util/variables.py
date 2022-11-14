@@ -17,6 +17,7 @@ from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import string_utils
+import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging import platform_logger
 from wlsdeploy.util import dictionary_utils
@@ -275,13 +276,13 @@ def _substitute(text, variables, model_context, error_info, attribute_name=None)
         # check environment variables before @@FILE:/dir/@@ENV:name@@.txt@@
         matches = _environment_pattern.findall(text)
         for token, key in matches:
-            if not os.environ.has_key(str(key)):
+            if str_helper.to_string(key) not in os.environ:
                 allow_unresolved = validation_config.allow_unresolved_environment_tokens()
                 _report_token_issue('WLSDPLY-01737', method_name, allow_unresolved, key)
                 _increment_error_count(error_info, allow_unresolved)
                 problem_found = True
                 continue
-            value = os.environ.get(str(key))
+            value = os.environ.get(str_helper.to_string(key))
             text = text.replace(token, value)
 
         # check secret variables before @@FILE:/dir/@@SECRET:name:key@@.txt@@
@@ -369,7 +370,7 @@ def _read_value_from_file(file_path, allow_unresolved):
     if line is None:
         line = ''
 
-    return str(line).strip()
+    return str_helper.to_string(line).strip()
 
 
 def _resolve_secret_token(name, key, model_context):
@@ -408,7 +409,7 @@ def _init_secret_token_map(model_context):
 
     # add name/key pairs for files in sub-directories of directories in WDT_MODEL_SECRETS_DIRS.
 
-    locations = os.environ.get(str(_secret_dirs_variable), None)
+    locations = os.environ.get(str_helper.to_string(_secret_dirs_variable), None)
     if locations is not None:
         for secret_dir in locations.split(","):
             if not os.path.isdir(secret_dir):
@@ -425,7 +426,7 @@ def _init_secret_token_map(model_context):
     # add name/key pairs for files in directories assigned in WDT_MODEL_SECRETS_NAME_DIR_PAIRS.
     # these pairs will override if they were previously added as sub-directory pairs.
 
-    dir_pairs_text = os.environ.get(str(_secret_dir_pairs_variable), None)
+    dir_pairs_text = os.environ.get(str_helper.to_string(_secret_dir_pairs_variable), None)
     if dir_pairs_text is not None:
         dir_pairs = dir_pairs_text.split(',')
         for dir_pair in dir_pairs:
@@ -521,10 +522,10 @@ def substitute_key(text, variables):
     matches = _environment_pattern.findall(text)
     for token, key in matches:
         # log, or throw an exception if key is not found.
-        if not os.environ.has_key(str(key)):
+        if str_helper.to_string(key) not in os.environ:
             continue
 
-        value = os.environ.get(str(key))
+        value = os.environ.get(str_helper.to_string(key))
         text = text.replace(token, value)
 
     return text

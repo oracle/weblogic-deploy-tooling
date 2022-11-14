@@ -1,8 +1,7 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-from java.io import File
 from java.lang import IllegalArgumentException
 
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
@@ -13,11 +12,11 @@ from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import FILE_URI
 from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
+import wlsdeploy.util.unicode_helper as str_helper
 
 _class_name = 'JmsResourcesDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
@@ -239,8 +238,8 @@ class JmsResourcesDiscoverer(Discoverer):
         :param location: context containing the current location information
         :return: model folder name: dictionary containing the discovered foreign servers for the JMS resource
         """
-        _method_name = 'get_foreign_servers'
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _method_name = '_get_foreign_servers'
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
         model_top_folder_name = model_constants.FOREIGN_SERVER
         location.append_location(model_top_folder_name)
@@ -278,8 +277,8 @@ class JmsResourcesDiscoverer(Discoverer):
         :param location: context containing the current location information
         :return: model folder name: dictionary containing the discovered JMS template
         """
-        _method_name = 'get_jms_templates'
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _method_name = '_get_jms_templates'
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
         model_top_folder_name = model_constants.TEMPLATE
         location.append_location(model_top_folder_name)
@@ -318,8 +317,9 @@ class JmsResourcesDiscoverer(Discoverer):
         :param location: context containing the current location information
         :return: model folder name: dictionary containing the discovered group params
         """
-        _method_name = 'get_group_params'
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _method_name = '_get_group_params'
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
+
         model_subfolder_name = model_constants.GROUP_PARAMS
         subfolder_result = OrderedDict()
         location.append_location(model_subfolder_name)
@@ -362,8 +362,9 @@ class JmsResourcesDiscoverer(Discoverer):
         :param location: context containing current location information
         :return: model name for the properties: dictionary containing the discovered foreign server properties
         """
-        _method_name = 'get_foreign_server_properties'
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _method_name = '_get_foreign_server_properties'
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
+
         model_subfolder_name = model_constants.JNDI_PROPERTY
         subfolder_result = OrderedDict()
         location.append_location(model_subfolder_name)

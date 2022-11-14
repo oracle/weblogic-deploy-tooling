@@ -13,6 +13,7 @@ from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
 from wlsdeploy.tool.modelhelp.model_kubernetes_printer import ModelKubernetesPrinter
 from wlsdeploy.tool.modelhelp.model_sample_printer import ModelSamplePrinter
 from wlsdeploy.util import model
+import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.exit_code import ExitCode
 
 _class_name = "ModelHelpPrinter"
@@ -94,8 +95,8 @@ class ModelHelpPrinter(object):
             self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
-        self._logger.finest('match.group(1)={0}, match.group(2)={1}', str(match.group(1)), str(match.group(2)),
-                            class_name=_class_name, method_name=_method_name)
+        self._logger.finest('match.group(1)={0}, match.group(2)={1}', str_helper.to_string(match.group(1)),
+                            str_helper.to_string(match.group(2)), class_name=_class_name, method_name=_method_name)
 
         section = match.group(1)
         path = match.group(2)
@@ -119,8 +120,8 @@ class ModelHelpPrinter(object):
         all_section_keys.extend(top_level_keys)
 
         if section not in all_section_keys:
-            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
-                                                       'WLSDPLY-10109', section, str(', '.join(top_level_keys)))
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-10109', section,
+                                                       str_helper.to_string(', '.join(top_level_keys)))
             self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 

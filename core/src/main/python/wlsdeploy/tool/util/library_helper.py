@@ -12,7 +12,8 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 
-import wlsdeploy.util.dictionary_utils as dictionary_utils
+from wlsdeploy.util import dictionary_utils
+import wlsdeploy.util.unicode_helper as str_helper
 
 
 class LibraryHelper(object):
@@ -145,7 +146,7 @@ class LibraryHelper(object):
         target_dir = File(self.domain_home, 'lib').getPath()
 
         try:
-            copy(str(source_path), str(target_dir))
+            copy(str_helper.to_string(source_path), str_helper.to_string(target_dir))
         except IOError:
             ex = exception_helper.create_create_exception('WLSDPLY-12234', source_path, target_dir)
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
@@ -162,7 +163,7 @@ class LibraryHelper(object):
         target_dir = File(self.domain_home, 'bin').getPath()
 
         try:
-            copy(str(source_path), str(target_dir))
+            copy(str_helper.to_string(source_path), str_helper.to_string(target_dir))
         except IOError:
             ex = exception_helper.create_create_exception('WLSDPLY-12253', source_path, target_dir)
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)

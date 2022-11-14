@@ -32,7 +32,7 @@ public class YamlTranslator extends AbstractYamlTranslator {
      * @throws IllegalArgumentException if the file name is null or does not point to a valid, existing file.
      */
     public YamlTranslator(String fileName) {
-        this(fileName, false, 0);
+        this(fileName, false, false, 0);
     }
 
     /**
@@ -43,7 +43,7 @@ public class YamlTranslator extends AbstractYamlTranslator {
      * @throws IllegalArgumentException if the file name is null or does not point to a valid, existing file.
      */
     public YamlTranslator(String fileName, boolean useOrderedDict) {
-        super(fileName, useOrderedDict, 0);
+        super(fileName, useOrderedDict, false, 0);
         this.yamlFile = FileUtils.validateExistingFile(fileName);
     }
 
@@ -57,7 +57,21 @@ public class YamlTranslator extends AbstractYamlTranslator {
      * @throws IllegalArgumentException if the file name is null or does not point to a valid, existing file.
      */
     public YamlTranslator(String fileName, boolean useOrderedDict, int maxCodePoints) {
-        super(fileName, useOrderedDict, maxCodePoints);
+        super(fileName, useOrderedDict, false, maxCodePoints);
+        this.yamlFile = FileUtils.validateExistingFile(fileName);
+    }
+
+    /**
+     * Constructor for parsing YAML file into a Python dictionary, controlling everything.
+     *
+     * @param fileName the name of the existing YAML file to parse
+     * @param useOrderedDict whether or not to use an ordered dictionary to maintain the order
+     * @param useUnicode whether or not to use PyUnicode instead of PyString
+     * @param maxCodePoints the maximum number of code points for the input file, or zero to accept the default
+     * @throws IllegalArgumentException if the file name is null or does not point to a valid, existing file.
+     */
+    public YamlTranslator(String fileName, boolean useOrderedDict, boolean useUnicode, int maxCodePoints) {
+        super(fileName, useOrderedDict, useUnicode, maxCodePoints);
         this.yamlFile = FileUtils.validateExistingFile(fileName);
     }
 

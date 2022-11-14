@@ -21,6 +21,7 @@ from wlsdeploy.exception.exception_helper import create_cla_exception
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import path_utils
+import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.target_configuration import TargetConfiguration
 from wlsdeploy.util.validate_configuration import VALIDATION_METHODS
@@ -434,7 +435,7 @@ class CommandLineArgUtil(object):
         return self.HELP_SWITCH == key
 
     def get_oracle_home_key(self):
-        return str(self.ORACLE_HOME_SWITCH)
+        return str_helper.to_string(self.ORACLE_HOME_SWITCH)
 
     def is_oracle_home_key(self, key):
         return self.ORACLE_HOME_SWITCH == key
@@ -472,7 +473,7 @@ class CommandLineArgUtil(object):
         return oh_name
 
     def get_java_home_key(self):
-        return str(self.JAVA_HOME_SWITCH)
+        return str_helper.to_string(self.JAVA_HOME_SWITCH)
 
     def is_java_home_key(self, key):
         return self.JAVA_HOME_SWITCH == key

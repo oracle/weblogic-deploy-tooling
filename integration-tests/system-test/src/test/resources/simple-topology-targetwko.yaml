@@ -42,8 +42,6 @@ topology:
   Machine:
     # this machine and any references to it should be removed
     machine-1:
-  VirtualTarget:
-    target-2:
 
   # confirm that model traversal deals with artificial type folders correctly
   SecurityConfiguration:
@@ -57,11 +55,25 @@ topology:
               ProviderClassName: 'com.defaultClass'
 
 resources:
-  Partition:
-    my-partition:
-  ResourceGroup:
-    my-resource-group:
-
+     JDBCSystemResource:
+        datasource-1:
+            Target: AdminServer,staticCluster
+            JdbcResource:
+                DatasourceType: GENERIC
+                JDBCConnectionPoolParams:
+                    ConnectionReserveTimeoutSeconds: 10
+                    InitialCapacity: 0
+                    MaxCapacity: 5
+                    MinCapacity: 0
+                    TestConnectionsOnReserve: true
+                    TestTableName: SQL ISVALID
+                JDBCDriverParams:
+                    DriverName: oracle.jdbc.OracleDriver
+                    PasswordEncrypted: tiger
+                    URL: jdbc:oracle:thin:@//localhost:1521/myDB
+                    Properties:
+                        user:
+                            Value: scott
 appDeployments:
   Application:
     myApp:

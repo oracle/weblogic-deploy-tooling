@@ -12,6 +12,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.create.creator import Creator
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.util import dictionary_utils
+import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
@@ -68,7 +69,7 @@ class SecurityProviderCreator(Creator):
         """
         _method_name = '__create_security_configuration'
 
-        self.logger.entering(str(location), class_name=self.__class_name, method_name=_method_name)
+        self.logger.entering(str_helper.to_string(location), class_name=self.__class_name, method_name=_method_name)
         security_configuration_nodes = dictionary_utils.get_dictionary_element(self._topology, SECURITY_CONFIGURATION)
 
         # in WLS 11g, the SecurityConfiguration mbean is not created until the domain is written.
@@ -97,9 +98,8 @@ class SecurityProviderCreator(Creator):
         :raises: CreateException: if an error occurs
         """
         _method_name = '_create_named_subtype_mbeans'
-
-        self.logger.entering(type_name, str(base_location), log_created, class_name=self.__class_name,
-                             method_name=_method_name)
+        self.logger.entering(type_name, str_helper.to_string(base_location), log_created,
+                             class_name=self.__class_name,method_name=_method_name)
 
         if not self._is_type_valid(base_location, type_name):
             return
@@ -122,7 +122,7 @@ class SecurityProviderCreator(Creator):
         list_path = self.aliases.get_wlst_list_path(location)
         existing_folder_names = self._get_existing_folders(list_path)
         known_providers = self.aliases.get_model_subfolder_names(location)
-        allow_custom = str(self.aliases.is_custom_folder_allowed(location))
+        allow_custom = str_helper.to_string(self.aliases.is_custom_folder_allowed(location))
 
         for model_name in model_nodes:
             model_node = model_nodes[model_name]

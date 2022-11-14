@@ -19,6 +19,7 @@ import oracle.weblogic.deploy.json.JsonTranslator as JJsonTranslator
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
 import wlsdeploy.exception.exception_helper as exception_helper
+import wlsdeploy.util.unicode_helper as str_helper
 
 
 class JsonToPython(object):
@@ -33,7 +34,7 @@ class JsonToPython(object):
         self._file_name = file_name
         self._logger = PlatformLogger('wlsdeploy.json')
         try:
-            self._translator = JJsonTranslator(file_name, use_ordering)
+            self._translator = JJsonTranslator(file_name, use_ordering, str_helper.use_unicode())
         except JIllegalArgumentException, iae:
             json_ex = \
                 exception_helper.create_json_exception('WLSDPLY-18014', file_name, iae.getLocalizedMessage(), error=iae)
@@ -70,7 +71,7 @@ class JsonStreamToPython(object):
 
         self._logger = PlatformLogger('wlsdeploy.json')
         try:
-            self._translator = JJsonStreamTranslator(file_name, input_stream, use_ordering)
+            self._translator = JJsonStreamTranslator(file_name, input_stream, use_ordering, str_helper.use_unicode())
         except JIllegalArgumentException, iae:
             json_ex = \
                 exception_helper.create_json_exception('WLSDPLY-18014', file_name, iae.getLocalizedMessage(), error=iae)

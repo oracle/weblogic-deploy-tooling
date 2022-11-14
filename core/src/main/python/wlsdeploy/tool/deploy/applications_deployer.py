@@ -51,6 +51,7 @@ from wlsdeploy.tool.deploy.deployer import Deployer
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model_helper
 from wlsdeploy.util import string_utils
+import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.tool.util import appmodule_helper
 
 import wlsdeploy.util.variables as variables
@@ -340,7 +341,7 @@ class ApplicationsDeployer(Deployer):
     def __get_parent_by_location(self, location):
         _method_name = '_get_parent_by_location'
 
-        self.logger.entering(str(location), class_name=self._class_name, method_name=_method_name)
+        self.logger.entering(str_helper.to_string(location), class_name=self._class_name, method_name=_method_name)
         location_folders = location.get_model_folders()
         if len(location_folders) == 0:
             parent_dict = self.model.get_model_app_deployments()
@@ -411,8 +412,9 @@ class ApplicationsDeployer(Deployer):
 
     def __get_parent_dict_and_name_for_resource_group(self, location, parent_dict, parent_path):
         _method_name = '__get_parent_dict_and_name_for_resource_group'
+        self.logger.entering(str_helper.to_string(location), parent_path,
+                             class_name=self._class_name, method_name=_method_name)
 
-        self.logger.entering(str(location), parent_path, class_name=self._class_name, method_name=_method_name)
         if RESOURCE_GROUP not in parent_dict:
             ex = exception_helper.create_deploy_exception('WLSDPLY-09305', RESOURCE_GROUP, parent_path)
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
@@ -432,8 +434,9 @@ class ApplicationsDeployer(Deployer):
 
     def __get_existing_apps(self, base_location):
         _method_name = '__get_existing_apps'
+        self.logger.entering(str_helper.to_string(base_location),
+                             class_name=self._class_name, method_name=_method_name)
 
-        self.logger.entering(str(base_location), class_name=self._class_name, method_name=_method_name)
         ref_dictionary = OrderedDict()
 
         location = LocationContext(base_location).append_location(APPLICATION)
@@ -488,8 +491,9 @@ class ApplicationsDeployer(Deployer):
 
     def __get_library_references(self, base_location):
         _method_name = '__get_library_references'
+        self.logger.entering(str_helper.to_string(base_location),
+                             class_name=self._class_name, method_name=_method_name)
 
-        self.logger.entering(str(base_location), class_name=self._class_name, method_name=_method_name)
         # In 12.1.3 and older release this internal library is accidentally exposed in libraryruntimes mbean
 
         internal_skip_list = ['bea_wls_async_response']
@@ -1092,7 +1096,7 @@ class ApplicationsDeployer(Deployer):
 
         if not os.path.exists(full_source_path):
             ex = exception_helper.create_deploy_exception('WLSDPLY-09318', type_name, application_name,
-                                                          str(full_source_path))
+                                                          str_helper.to_string(full_source_path))
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
@@ -1106,7 +1110,7 @@ class ApplicationsDeployer(Deployer):
 
         # build the dictionary of named arguments to pass to the deploy_application method
         args = list()
-        kwargs = {'path': str(full_source_path), 'targets': str(targets)}
+        kwargs = {'path': str_helper.to_string(full_source_path), 'targets': str_helper.to_string(targets)}
         if plan is not None:
             if not os.path.isabs(plan):
                 plan = self.model_context.get_domain_home() + '/' + plan
@@ -1115,15 +1119,15 @@ class ApplicationsDeployer(Deployer):
                 ex = exception_helper.create_deploy_exception('WLSDPLY-09319', type_name, application_name, plan)
                 self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
-            kwargs['planPath'] = str(plan)
+            kwargs['planPath'] = str_helper.to_string(plan)
         if resource_group is not None:
-            kwargs['resourceGroup'] = str(resource_group)
+            kwargs['resourceGroup'] = str_helper.to_string(resource_group)
         if resource_group_template is not None:
-            kwargs['resourceGroupTemplate'] = str(resource_group_template)
+            kwargs['resourceGroupTemplate'] = str_helper.to_string(resource_group_template)
         if partition is not None:
-            kwargs['partition'] = str(partition)
+            kwargs['partition'] = str_helper.to_string(partition)
         if stage_mode is not None:
-            kwargs['stageMode'] = str(stage_mode)
+            kwargs['stageMode'] = str_helper.to_string(stage_mode)
         if options is not None:
             for key, value in options.iteritems():
                 kwargs[key] = value
@@ -1192,13 +1196,13 @@ class ApplicationsDeployer(Deployer):
         if name_sorted_keys is not None:
             result_deploy_order.extend(name_sorted_keys)
 
-        self.logger.fine('WLSDPLY-09326', str(result_deploy_order),
+        self.logger.fine('WLSDPLY-09326', str_helper.to_string(result_deploy_order),
                          class_name=self._class_name, method_name=_method_name)
         return result_deploy_order
 
     def _fix_plan_file(self, plan_dir, plan_path):
         plan_file_name = 'plan.xml'
-        if plan_path is not None and len(str(plan_path)) > 0:
+        if plan_path is not None and len(str_helper.to_string(plan_path)) > 0:
             plan_file_name = plan_path
         
         plan_file = os.path.join(self.model_context.get_domain_home(), plan_dir, plan_file_name)
@@ -1269,7 +1273,7 @@ def _get_deploy_options(model_apps, app_name, library_module, application_versio
             option_name = 'stageMode'
 
         if value is not None:
-            deploy_options[option_name] = str(value)
+            deploy_options[option_name] = str_helper.to_string(value)
 
     if library_module == 'true':
         deploy_options['libraryModule'] = 'true'
