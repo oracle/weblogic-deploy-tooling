@@ -253,7 +253,7 @@ public final class VersionUtils {
             }
         }
 
-        // check if range2 lower value is inside range1
+        // check if range2 upper value is inside range1
 
         if(StringUtils.isEmpty(upperVersion2)) {
             // if range2 has empty upper version, its lower version must be above range1
@@ -263,6 +263,7 @@ public final class VersionUtils {
                 result = true;
             }
         } else if(isVersionInRange(upperVersion2, range1)) {
+            // it's only ok to be inside range1 if the end of range2 is adjacent to range1
             boolean adjacent = !inclusiveEnd2 && upperVersion2.equals(lowerVersion1);
             if(!adjacent) {
                 result = true;
