@@ -71,9 +71,16 @@ class GeneratorBase(object):
         self._ignore_list = self._aliases.get_ignore_attribute_names()
 
     def add_derived_default(self, dictionary, cmo_helper, attribute_name):
-        if cmo_helper is None:
-            return None
-        dictionary[DERIVED_DEFAULT] = cmo_helper.derived_default_value()
+        _method_name = "add_derived_default"
+        self.__logger.entering(attribute_name, class_name=self.__class_name, method_name=_method_name)
+
+        value = None
+        if cmo_helper is not None:
+            value = cmo_helper.derived_default_value()
+        if value is not None and value:
+            dictionary[DERIVED_DEFAULT] = value
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=value)
 
     def add_default_value(self, dictionary, lsa_map, cmo_helper, method_helper, attribute_name=None):
         """
@@ -321,27 +328,18 @@ class GeneratorBase(object):
         _method_name = 'convert_attribute'
 
         self.__logger.entering(attribute, value, value_type, class_name=self.__class_name, method_name=_method_name)
-        if value is not None and '$Proxy' in str(type(value)):
+        if value is None or value_type == alias_constants.PASSWORD:
+            return_value = None
+        elif '$Proxy' in str(type(value)):
             if value.isProxyClass(JObjectName):
                 return_value = value.getKeyProperty('Name')
             else:
                 return_value = value.toString()
-        #
-        # FIXME - This is the place in the generate code where we interpret the value and set the generated value
-        #         to the string "None".  Since the string "None" is a valid value in some attributes, we need to
-        #         change this code to return a Python None, which will be converted to a JSON null.
-        #
-        #         We should verify that the string "none" needs to be included in these next two elif checks
-        #         since we know that the string "None" is a valid value for some attributes...
-        #
-        elif value is None or value_type == alias_constants.PASSWORD or \
-                (value_type == alias_constants.STRING and (value == 'null' or value == 'none')):
-            return_value = 'None'
-        elif value is None or value == 'null' or value == 'none' \
-                or value_type == alias_constants.PASSWORD:
-            return_value = 'None'
-        elif not isinstance(value, basestring) and \
-                (value_type == alias_constants.BOOLEAN or value_type == alias_constants.JAVA_LANG_BOOLEAN):
+        elif isinstance(value, basestring):
+            return_value = value
+        elif value_type == alias_constants.STRING:
+            return_value = value.toString()
+        elif value_type == alias_constants.BOOLEAN or value_type == alias_constants.JAVA_LANG_BOOLEAN:
             if value:
                 return_value = Boolean.toString(Boolean.TRUE)
             else:
