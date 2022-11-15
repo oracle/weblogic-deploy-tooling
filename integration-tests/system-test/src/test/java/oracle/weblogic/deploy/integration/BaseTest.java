@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.function.BooleanSupplier;
 
 import oracle.weblogic.deploy.integration.annotations.TestingLogger;
 import oracle.weblogic.deploy.integration.utils.CommandResult;
@@ -26,6 +27,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class BaseTest {
     @TestingLogger
     private static final PlatformLogger logger = WLSDeployLogFactory.getLogger("integration.tests");
+
+    protected static final boolean SKIP_JRF_TESTS = skipJrfTests();
+    protected static final boolean SKIP_RESTRICTED_JRF_TESTS = skipRestrictedJrfTests();
     protected static final String FS = File.separator;
     private static final String SAMPLE_ARCHIVE_FILE = "archive.zip";
     private static final String UPDATED_SAMPLE_ARCHIVE_FILE = "archive2.zip";
@@ -44,9 +48,20 @@ public class BaseTest {
     protected static String encryptModelScript = "";
     protected static String validateModelScript = "";
     protected static String domainParentDir = "";
+    protected static String prepareModelScript = "";
     protected static final String ORACLE_DB_IMG = "phx.ocir.io/weblogick8s/database/enterprise";
     protected static final String ORACLE_DB_IMG_TAG = "12.2.0.1-slim";
     private static final String DB_CONTAINER_NAME = generateDatabaseContainerName();
+
+    private static boolean skipJrfTests() {
+        String value = System.getProperty("system-test-skip-jrf-tests", "false").toLowerCase();
+        return Boolean.parseBoolean(value);
+    }
+
+    private static boolean skipRestrictedJrfTests() {
+        String value = System.getProperty("system-test-skip-rjrf-tests", "false").toLowerCase();
+        return Boolean.parseBoolean(value);
+    }
 
     private static String generateDatabaseContainerName() {
         String branchName = System.getenv("BRANCH_NAME");
@@ -74,6 +89,7 @@ public class BaseTest {
         encryptModelScript = getWDTScriptsHome() + FS + "encryptModel.sh";
         validateModelScript = getWDTScriptsHome() + FS + "validateModel.sh";
         compareModelScript = getWDTScriptsHome() + FS + "compareModel.sh";
+        prepareModelScript = getWDTScriptsHome() + FS + "prepareModel.sh";
 
         domainParentDir = "." + FS + "target" + FS + "domains";
     }
@@ -92,8 +108,10 @@ public class BaseTest {
     protected static void cleanup() throws Exception {
         logger.info("cleaning up the test environment ...");
 
-        String command = "docker rm -f " + DB_CONTAINER_NAME;
-        Runner.run(command);
+        if (!SKIP_JRF_TESTS) {
+            String command = "docker rm -f " + DB_CONTAINER_NAME;
+            Runner.run(command);
+        }
     }
 
     protected static Path getTargetDir() {
@@ -109,9 +127,11 @@ public class BaseTest {
     }
 
     protected static void pullOracleDBDockerImage() throws Exception {
-        logger.info("Pulling Oracle DB image from OCIIR ...");
+        if (!SKIP_JRF_TESTS) {
+            logger.info("Pulling Oracle DB image from OCIR ...");
 
-        pullDockerImage(ORACLE_DB_IMG, ORACLE_DB_IMG_TAG);
+            pullDockerImage(ORACLE_DB_IMG, ORACLE_DB_IMG_TAG);
+        }
     }
 
     private static void pullDockerImage(String imagename, String imagetag) throws Exception {
@@ -205,25 +225,29 @@ public class BaseTest {
     }
 
     protected static void createDBContainer() throws Exception {
-        logger.info("Creating an Oracle db docker container ...");
-        String command = "docker rm -f " + DB_CONTAINER_NAME;
-        Runner.run(command);
+        if (!SKIP_JRF_TESTS) {
+            logger.info("Creating an Oracle db docker container ...");
+            String command = "docker rm -f " + DB_CONTAINER_NAME;
+            Runner.run(command);
 
-        String exposePort = "";
-        if (System.getProperty("db.use.container.network").equals("false")) {
-            exposePort = " -p1521:1521 -p5500:5500 ";
-        }
+            String exposePort = "";
+            if (System.getProperty("db.use.container.network").equals("false")) {
+                exposePort = " -p1521:1521 -p5500:5500 ";
+            }
 
-        command = "docker run -d --name " + DB_CONTAINER_NAME + " --env=\"DB_PDB=InfraPDB1\"" +
+            command = "docker run -d --name " + DB_CONTAINER_NAME + " --env=\"DB_PDB=InfraPDB1\"" +
                 " --env=\"DB_DOMAIN=us.oracle.com\" --env=\"DB_BUNDLE=basic\" " + exposePort
-            + ORACLE_DB_IMG + ":" + ORACLE_DB_IMG_TAG;
-        Runner.run(command);
+                + ORACLE_DB_IMG + ":" + ORACLE_DB_IMG_TAG;
+            Runner.run(command);
+        }
     }
 
     static void waitForDatabase() throws IOException, InterruptedException {
-        // Wait for the database container to be healthy before continuing
-        String command = "docker inspect --format='{{json .State.Health}}' " + DB_CONTAINER_NAME;
-        checkCmdInLoop(command, "\"Status\":\"healthy");
+        if (!SKIP_JRF_TESTS) {
+            // Wait for the database container to be healthy before continuing
+            String command = "docker inspect --format='{{json .State.Health}}' " + DB_CONTAINER_NAME;
+            checkCmdInLoop(command, "\"Status\":\"healthy");
+        }
     }
 
     protected static void replaceStringInFile(Path original, Path output, String originalString, String newString)
@@ -235,14 +259,17 @@ public class BaseTest {
     }
 
     protected String getDBContainerIP() throws Exception {
-        if (System.getProperty("db.use.container.network").equals("false")) {
-            return "localhost";
-        }
-        String getDBContainerIP = "docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' " +
+        String dbHost = "";
+        if (!SKIP_JRF_TESTS) {
+            if (System.getProperty("db.use.container.network").equals("false")) {
+                return "localhost";
+            }
+            String getDBContainerIP = "docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' " +
                 DB_CONTAINER_NAME;
-        String dbhost = Runner.run(getDBContainerIP).stdout().trim();
-        logger.info("DEBUG: DB_HOST=" + dbhost);
-        return dbhost;
+            dbHost = Runner.run(getDBContainerIP).stdout().trim();
+            logger.info("DEBUG: DB_HOST=" + dbHost);
+        }
+        return dbHost;
     }
 
     protected void verifyModelFileContents(String modelFileName, List<String> textToFind) throws Exception {
@@ -309,6 +336,20 @@ public class BaseTest {
                 logger.info("Found expected result: " + matchStr);
                 break;
             }
+        }
+    }
+
+    static class JrfChecker implements BooleanSupplier {
+        @Override
+        public boolean getAsBoolean() {
+            return !SKIP_JRF_TESTS;
+        }
+    }
+
+    static class RestrictedJrfChecker implements BooleanSupplier {
+        @Override
+        public boolean getAsBoolean() {
+            return !SKIP_RESTRICTED_JRF_TESTS;
         }
     }
 }

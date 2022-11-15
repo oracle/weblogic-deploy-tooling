@@ -24,6 +24,7 @@ from wlsdeploy.tool.util.library_helper import LibraryHelper
 from wlsdeploy.tool.util.target_helper import TargetHelper
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.util import dictionary_utils
+import wlsdeploy.util.unicode_helper as str_helper
 
 
 class TopologyUpdater(Deployer):
@@ -278,6 +279,6 @@ class TopologyUpdater(Deployer):
                 location.remove_name_token(name_token)
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name,
-                            result='configured_clusters=' + str(existing_configured_clusters) +
-                                   ' managed servers=' + str(existing_managed_servers))
+                            result='configured_clusters=' + str_helper.to_string(existing_configured_clusters) +
+                                   ' managed servers=' + str_helper.to_string(existing_managed_servers))
         return existing_configured_clusters, existing_managed_servers

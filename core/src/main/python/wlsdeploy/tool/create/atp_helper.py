@@ -1,14 +1,13 @@
 """
 Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
-
-
 """
 import re
 from xml.dom.minidom import parse
 from wlsdeploy.exception import exception_helper
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
+import wlsdeploy.util.unicode_helper as str_helper
 
 _logger = PlatformLogger('wlsdeploy.create')
 
@@ -88,11 +87,11 @@ def get_atp_connect_string(tnsnames_ora_path, tns_sid_name):
             _logger.throwing(ex, class_name='atp_helper', method_name='get_atp_connect_string')
             raise ex
     except IOError, ioe:
-        ex = exception_helper.create_create_exception("WLSDPLY-12570", str(ioe))
+        ex = exception_helper.create_create_exception("WLSDPLY-12570", str_helper.to_string(ioe))
         _logger.throwing(ex, class_name='atp_helper', method_name='get_atp_connect_string')
         raise ex
     except Exception, ex:
-        ex = exception_helper.create_create_exception("WLSDPLY-12570", str(ex))
+        ex = exception_helper.create_create_exception("WLSDPLY-12570", str_helper.to_string(ex))
         _logger.throwing(ex, class_name='atp_helper', method_name='get_atp_connect_string')
         raise ex
 

@@ -72,6 +72,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import string_utils
+from wlsdeploy.util import unicode_helper as str_helper
 
 _class_name = 'AliasEntries'
 _logger = PlatformLogger('wlsdeploy.aliases')
@@ -219,7 +220,7 @@ class AliasEntries(object):
         """
         _method_name = 'get_dictionary_for_location'
 
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
         result = self.__get_dictionary_for_location(location, resolve)
         # not one caller checks to see if the dictionary returned is None
         if result is None:
@@ -307,7 +308,7 @@ class AliasEntries(object):
         """
         _method_name = 'get_model_subfolder_names_for_location'
 
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
         folder_dict = self.__get_dictionary_for_location(location, False)
         if folder_dict is not None and FOLDERS in folder_dict:
             subfolders_dict = folder_dict[FOLDERS]
@@ -327,7 +328,7 @@ class AliasEntries(object):
         """
         _method_name = 'get_model_folder_path_for_location'
 
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
 
         # Initialize return variable
         model_folder_path = ''
@@ -363,7 +364,8 @@ class AliasEntries(object):
                         elif location_folder != location_folders[-1]:
                             # Throw AliasException if name_token is missing
                             # from any location folder, except the last one
-                            ex = exception_helper.create_alias_exception('WLSDPLY-08101', str(location), name_token)
+                            ex = exception_helper.create_alias_exception('WLSDPLY-08101',
+                                                                         str_helper.to_string(location), name_token)
                             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                             raise ex
 
@@ -391,7 +393,7 @@ class AliasEntries(object):
         """
         _method_name = 'get_wlst_attribute_path_for_location'
 
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
         tokenized_path = self.__get_path_for_location(location, WLST_ATTRIBUTES_PATH)
         result = alias_utils.replace_tokens_in_path(location, tokenized_path)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
@@ -407,7 +409,7 @@ class AliasEntries(object):
         """
         _method_name = 'get_wlst_subfolders_path_for_location'
 
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
         tokenized_path = self.__get_path_for_location(location, WLST_SUBFOLDERS_PATH)
         result = alias_utils.replace_tokens_in_path(location, tokenized_path)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
@@ -423,7 +425,7 @@ class AliasEntries(object):
         """
         _method_name = 'get_wlst_list_path_for_location'
 
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
         tokenized_path = self.__get_path_for_location(location, WLST_LIST_PATH)
         result = alias_utils.replace_tokens_in_path(location, tokenized_path)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
@@ -439,7 +441,7 @@ class AliasEntries(object):
         """
         _method_name = 'get_wlst_list_path_for_location'
 
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
         tokenized_path = self.__get_path_for_location(location, WLST_CREATE_PATH)
         result = alias_utils.replace_tokens_in_path(location, tokenized_path)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
@@ -456,7 +458,7 @@ class AliasEntries(object):
         """
         _method_name = 'is_location_child_folder_type'
 
-        _logger.entering(str(location), ChildFoldersTypes.from_value(child_folders_type),
+        _logger.entering(str_helper.to_string(location), ChildFoldersTypes.from_value(child_folders_type),
                          class_name=_class_name, method_name=_method_name)
         result = False
         folder_dict = self.__get_dictionary_for_location(location, False)
@@ -485,7 +487,7 @@ class AliasEntries(object):
         """
         _method_name = 'get_wlst_flattened_folder_info_for_location'
 
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
         result = None
 
         folder_dict = self.__get_dictionary_for_location(location, False)
@@ -512,7 +514,7 @@ class AliasEntries(object):
         """
         _method_name = 'get_wlst_flattened_folder_list_path_for_location'
 
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
         tokenized_path = self.__get_path_for_location(location, WLST_CREATE_PATH)
         tokenized_child_path = alias_utils.strip_trailing_folders_in_path(tokenized_path, 1)
         result = alias_utils.replace_tokens_in_path(location, tokenized_child_path)
@@ -529,7 +531,7 @@ class AliasEntries(object):
         """
         _method_name = 'get_wlst_flattened_folder_create_path_for_location'
 
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
         tokenized_path = self.__get_path_for_location(location, WLST_CREATE_PATH)
         tokenized_child_path = alias_utils.strip_trailing_folders_in_path(tokenized_path, 2)
         result = alias_utils.replace_tokens_in_path(location, tokenized_child_path)
@@ -545,7 +547,7 @@ class AliasEntries(object):
         """
         _method_name = 'get_name_token_for_location'
 
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
 
         result = None
 
@@ -608,7 +610,7 @@ class AliasEntries(object):
         """
         _method_name = 'get_wlst_mbean_name_for_location'
 
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
         folder_dict = self.__get_dictionary_for_location(location, False)
 
         mbean_name = None
@@ -647,7 +649,7 @@ class AliasEntries(object):
         :raises AliasException: if an error occurs
         """
         _method_name = 'get_wlst_mbean_type_for_location'
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
 
         # some callers use this method to check for location valid.
         # they should call is_model_location_valid(location) directly instead.
@@ -675,7 +677,7 @@ class AliasEntries(object):
         :raises AliasException: if an error occurs
         """
         _method_name = 'get_online_bean_name_for_location'
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
 
         online_bean = ''
         folder_dict = self.__get_dictionary_for_location(location, False)
@@ -695,7 +697,7 @@ class AliasEntries(object):
         """
         _method_name = 'get_alias_attribute_entries_by_location'
 
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
         folder_dict = self.__get_dictionary_for_location(location, False)
         model_attr_dict = dict()
         if folder_dict is not None and ATTRIBUTES in folder_dict:
@@ -724,8 +726,9 @@ class AliasEntries(object):
         :raises AliasException: if an error occurs
         """
         _method_name = 'get_alias_attribute_entry_by_model_name'
+        _logger.entering(str_helper.to_string(location), model_attribute_name,
+                         class_name=_class_name, method_name=_method_name)
 
-        _logger.entering(str(location), model_attribute_name, class_name=_class_name, method_name=_method_name)
         folder_dict = self.__get_dictionary_for_location(location, False)
         if folder_dict is not None and ATTRIBUTES in folder_dict:
             if model_attribute_name in folder_dict[ATTRIBUTES]:
@@ -755,7 +758,7 @@ class AliasEntries(object):
         """
         _method_name = 'get_alias_attribute_entry_by_wlst_name'
 
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
         folder_dict = self.__get_dictionary_for_location(location, False)
         if self._is_wlst_attribute_skipped(folder_dict, wlst_attribute_name) or \
                 self._is_wlst_attribute_ignored(wlst_attribute_name):
@@ -794,8 +797,9 @@ class AliasEntries(object):
         :raises: AliasException: if an error occurs
         """
         _method_name = 'is_valid_model_folder_name_for_location'
+        _logger.entering(str_helper.to_string(location), model_folder_name,
+                         class_name=_class_name, method_name=_method_name)
 
-        _logger.entering(str(location), model_folder_name, class_name=_class_name, method_name=_method_name)
         valid_version_range = None
         if len(location.get_model_folders()) == 0 and model_folder_name in self.get_model_domain_subfolder_names():
             sub_location = LocationContext(location).append_location(model_folder_name)
@@ -849,7 +853,7 @@ class AliasEntries(object):
         """
         _method_name = 'is_version_valid_location'
 
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
 
         code = ValidationCodes.VALID
         message = ''
@@ -873,8 +877,9 @@ class AliasEntries(object):
         :raises: AliasException: if an error occurs
         """
         _method_name = 'is_valid_model_attribute_name_for_location'
+        _logger.entering(str_helper.to_string(location), model_attribute_name,
+                         class_name=_class_name, method_name=_method_name)
 
-        _logger.entering(str(location), model_attribute_name, class_name=_class_name, method_name=_method_name)
         folder_dict = self.__get_dictionary_for_location(location, True)
         valid_version_range = None
         if folder_dict is None:
@@ -1004,7 +1009,7 @@ class AliasEntries(object):
         """
         _method_name = '__get_dictionary_for_location'
 
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
         if location is None:
             ex = exception_helper.create_alias_exception('WLSDPLY-08115')
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -1504,7 +1509,7 @@ class AliasEntries(object):
         :param value: the original value
         :return: the modified value, or the original if not curly braces were embedded
         """
-        str_value = str(value)
+        str_value = str_helper.to_string(value)
         if '${' in str_value:
             parts = alias_utils.parse_curly_braces(str_value)
             return parts[self._wlst_mode]
@@ -1544,7 +1549,7 @@ class AliasEntries(object):
         """
         _method_name = '__get_valid_version_range_for_folder'
 
-        _logger.entering(str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
         version_range = None
         parent_dict = self._category_dict
         path_name = ''
@@ -1590,7 +1595,7 @@ class AliasEntries(object):
         """
         _method_name = '__get_path_for_location'
 
-        _logger.entering(str(location), path_type, class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), path_type, class_name=_class_name, method_name=_method_name)
         folder_dict = self.__get_dictionary_for_location(location, False)
         if folder_dict is not None and path_type in folder_dict:
             paths_index = folder_dict[path_type]

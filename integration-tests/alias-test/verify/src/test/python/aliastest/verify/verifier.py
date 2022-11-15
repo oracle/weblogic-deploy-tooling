@@ -147,7 +147,6 @@ MESSAGE = 'message'
 ATTRIBUTE = 'attribute'
 
 _logger = PlatformLogger('test.aliases.verify')
-_logger.set_level(Level.FINER)
 CLASS_NAME = 'Verifier'
 
 
@@ -258,7 +257,10 @@ class Verifier(object):
                                   location.get_folder_path(), class_name=CLASS_NAME, method_name=_method_name)
                     self._check_attribute_list_for_flattened(location, attributes)
                     # Swallow the intermediate layer that is not relevant in a flattened location
-                    this_dictionary = this_dictionary[this_dictionary.keys()[0]]
+                    _logger.finer('MBean {0} now at dictionary {1}', entry, this_dictionary.keys(),
+                                  class_name=CLASS_NAME, method_name=_method_name)
+                    this_dictionary = self._get_next_entry(this_dictionary)
+
                     attributes = _get_generated_attribute_list(this_dictionary)
                     flattened_folder = True
                 self._check_single_folder(this_dictionary, location, flattened_folder)
@@ -273,6 +275,22 @@ class Verifier(object):
                 self._clean_up_location(location)
 
         _logger.exiting(class_name=CLASS_NAME, method_name=_method_name)
+
+    def _get_next_entry(self, dictionary):
+        keys = dictionary.keys()
+        if len(keys) == 3:
+            if ATTRIBUTES in keys[0] or INSTANCE_TYPE in keys[0]:
+                if ATTRIBUTES in keys[2] or INSTANCE_TYPE in keys[2]:
+                    next_entry = dictionary[keys[1]]
+                else:
+                    next_entry = dictionary[keys[2]]
+            else:
+                next_entry = dictionary[keys[0]]
+        elif len(keys) == 1:
+            next_entry = dictionary[keys[0]]
+        else:
+             return dictionary
+        return next_entry
 
     def _check_generated_against_alias_folders(self, location, generated_dictionary, folder_map):
         """
@@ -299,6 +317,9 @@ class Verifier(object):
                            class_name=CLASS_NAME, method_name=_method_name)
             if keys is not None:
                 for alias_name in keys:
+                    if verify_utils.is_alias_folder_in_ignore_list(self._model_context, location, alias_name):
+                        continue
+
                     found, mbean_info_name = verify_utils.find_name_in_mbean_with_model_name(alias_name, lower_case_map)
                     if found:
                         _logger.fine('Alias mbean type {0} found in dictionary as {1}', alias_name, mbean_info_name,
@@ -309,7 +330,7 @@ class Verifier(object):
                                          location.get_folder_path(), class_name=CLASS_NAME, method_name=_method_name)
                             self._add_error(location, ERROR_USING_REFERENCE_AS_FOLDER, attribute=mbean_info_name)
                             # TODO - commenting out deletions
-                            # del generated_dictionary[mbean_info_name]
+                            del generated_dictionary[mbean_info_name]
                         elif RECHECK in generated_dictionary[mbean_info_name]:
                             message = generated_dictionary[mbean_info_name][RECHECK]
                             if ADDITIONAL_RECHECK in generated_dictionary[mbean_info_name]:
@@ -318,9 +339,9 @@ class Verifier(object):
                                             attribute=mbean_info_name, message=message)
                             _logger.fine('Remove alias folder {0} as it cannot be verified', alias_name,
                                          class_name=CLASS_NAME, method_name=_method_name)
-                            # TODO - commenting out deletions
-                            # del folder_map[alias_name]
-                            # del generated_dictionary[mbean_info_name]
+                            # Removing these results in duplicate errors
+                            del folder_map[alias_name]
+                            del generated_dictionary[mbean_info_name]
                         elif TYPE in generated_dictionary[mbean_info_name]:
                             self._process_security_provider(generated_dictionary, mbean_info_name, folder_map,
                                                             alias_name, location)
@@ -340,7 +361,7 @@ class Verifier(object):
                     _logger.fine('Reference item {0} not implemented as folder at location {1}', item,
                                  location.get_folder_path(), class_name=CLASS_NAME, method_name=_method_name)
                     # TODO - commenting out deletions
-                    # del generated_dictionary[item]
+                    del generated_dictionary[item]
 
     def _verify_attributes_at_location(self, generated_attributes, location):
         """
@@ -475,15 +496,16 @@ class Verifier(object):
         _logger.entering(location.get_folder_path(), generated_attribute,
                          class_name=CLASS_NAME, method_name=_method_name)
 
-        exists, model_attribute_name = self._does_alias_attribute_exist(location, generated_attribute,
+        exists, model_attribute_name, rod = self._does_alias_attribute_exist(location, generated_attribute,
                                                                         generated_attribute_info, alias_name_map)
         if exists:
-            if model_attribute_name is None:
+            if model_attribute_name is None or rod:
                 # if the alias attribute is correctly identified as read-only, it's not an error, but we cannot
                 # verify any of the other attribute information using aliases methods. And since its read-only
                 # we don't really care about any of the attribute information. This is also true for clear
                 # text password fields.
-                exists = False
+                if not rod:
+                    exists = False
                 # clear text attributes (don't have Encrypted on the end) are not defined in the definitions
                 # they are only artificially known and ignored by alias definitions
                 read_only = \
@@ -523,9 +545,15 @@ class Verifier(object):
         lower_case_list = alias_name_map.values()
         exists = True
         model_attribute = None
+        rod = False
         try:
             # no exception is thrown if it is found but read only, just returns empty model_attribute name
             model_attribute = self._alias_helper.get_model_attribute_name(location, generated_attribute)
+            # if value returned check to see if access type is ROD. If so change model_attribute to None
+            if model_attribute is not None:
+               wlst_attributes = self._alias_helper.get_wlst_access_rod_attribute_names(location)
+               if wlst_attributes is not None and generated_attribute in wlst_attributes:
+                   rod = True
         except AliasException:
             exists = False
 
@@ -559,7 +587,7 @@ class Verifier(object):
                              class_name=CLASS_NAME, method_name=_method_name)
 
         _logger.exiting(result=model_attribute, class_name=CLASS_NAME, method_name=_method_name)
-        return exists, model_attribute
+        return exists,  model_attribute, rod
 
     def _is_generated_attribute_readonly(self, location, generated_attribute, generated_attribute_info,
                                          alias_get_required_attribute_list=None):
@@ -579,7 +607,6 @@ class Verifier(object):
             self._add_error(location, ERROR_FAILURE_ATTRIBUTE_UNEXPECTED,
                             message='Generated attribute has no read type', attribute=generated_attribute)
             return None
-
         if alias_get_required_attribute_list is not None and \
                 generated_attribute in alias_get_required_attribute_list and CMO_READ_TYPE in generated_attribute_info:
             read_type = generated_attribute_info[CMO_READ_TYPE]
@@ -618,7 +645,7 @@ class Verifier(object):
             self._is_valid_default_type(location, generated_attribute, generated_attribute_info,
                                         alias_get_required_attribute_list)
         if valid:
-            __, model_default_value, wlst_default_value = \
+            __, model_default_value = \
                 self._get_attribute_default_values(generated_attribute, location, model_attribute_name)
             self._is_valid_default_value(location, generated_attribute, generated_attribute_info,
                                          generated_attr_default, model_default_value)
@@ -678,14 +705,6 @@ class Verifier(object):
                 self._add_error(location, ERROR_ATTRIBUTE_LSA_REQUIRED, message=message, attribute=generated_attribute)
                 valid = False
 
-        #
-        # FIXME - This is the place in the verify code where we interpret the generated value that represents None.
-        #         Since the string "None" is a valid value in some attributes, we need to change the generate code
-        #         to use a JSON null, which will be parsed as a Python None.
-        #
-        if attr_default == "None":
-            attr_default = None
-
         if attr_type == alias_constants.INTEGER and CMO_TYPE in generated_attribute_info and \
                 generated_attribute_info[CMO_TYPE] == alias_constants.BOOLEAN:
             attr_type = alias_constants.BOOLEAN
@@ -719,16 +738,15 @@ class Verifier(object):
         wlst_default_value = None
         if valid:
             try:
-                wlst_attr, wlst_default_value = \
-                    self._alias_helper.get_wlst_attribute_name_and_value(location, model_attribute_name,
-                                                                         model_default_value)
+                wlst_attr = \
+                    self._alias_helper.get_wlst_attribute_name(location, model_attribute_name)
             except AliasException, ae:
                 self._add_error(location, ERROR_FAILURE_ATTRIBUTE_UNEXPECTED, message=ae.getLocalizedMessage(),
                                 attribute=generated_attribute)
                 valid = False
 
         _logger.exiting(result=verify_utils.bool_to_string(valid), class_name=CLASS_NAME, method_name=_method_name)
-        return valid, model_default_value, wlst_default_value
+        return valid, model_default_value
 
     def _is_valid_default_value(self, location, generated_attribute, generated_attribute_info,
                                 generated_default_value, model_default_value):
@@ -779,15 +797,16 @@ class Verifier(object):
         # is not marked as a derived_default.
         #
         if match and model_value is not None and not is_derived_default:
-            attr_type = type(generated_default)
-            if CMO_TYPE in generated_attribute_info and \
-                    (generated_attribute_info[CMO_TYPE] == alias_constants.BOOLEAN or
-                     generated_attribute_info[CMO_TYPE] == alias_constants.JAVA_LANG_BOOLEAN) and \
-                    generated_default is not None and (attr_type in [str, unicode, int]):
-                generated_default = Boolean(generated_default)
-            message = 'Attribute=%s  :  Alias=%s' % (str(generated_default), str(model_default_value))
-            self._add_error(location, ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE,
-                            message=message, attribute=generated_attribute)
+            if not verify_utils.is_attribute_value_test_anomaly(self._model_context, location, model_name, model_value):
+                attr_type = type(generated_default)
+                if CMO_TYPE in generated_attribute_info and \
+                        (generated_attribute_info[CMO_TYPE] == alias_constants.BOOLEAN or
+                         generated_attribute_info[CMO_TYPE] == alias_constants.JAVA_LANG_BOOLEAN) and \
+                        generated_default is not None and (attr_type in [str, unicode, int]):
+                    generated_default = Boolean(generated_default)
+                message = 'WLST: %s / Alias: %s' % (str(generated_default), str(model_default_value))
+                self._add_error(location, ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE,
+                                message=message, attribute=generated_attribute)
 
         _logger.exiting(result=verify_utils.bool_to_string(match), class_name=CLASS_NAME, method_name=_method_name)
         return match, model_name, model_value
@@ -826,7 +845,8 @@ class Verifier(object):
             if RESTART not in generated_attribute_info or \
                     (generated_attribute_info[RESTART] != RESTART_NO_CHECK and
                      generated_attribute_info[RESTART] != 'true'):
-                self._add_error(location, ERROR_ATTRIBUTE_NOT_RESTART, attribute=model_attribute_name)
+                # TODO - temporary change to warning until we decide what to do about the restart attributes of the aliases.
+                self._add_warning(location, ERROR_ATTRIBUTE_NOT_RESTART, attribute=model_attribute_name)
                 valid = False
         elif RESTART in generated_attribute_info and generated_attribute_info[RESTART] == 'true':
             # TODO - temporary change to warning until we decide what to do about the restart attributes of the aliases.
@@ -1024,7 +1044,7 @@ class Verifier(object):
                          generated_attribute, class_name=CLASS_NAME, method_name=_method_name)
         if len(extra_blurb) == 0 and generated_attribute in get_required_attribute_list:
             extra_blurb = 'Alias has GET required'
-        message = 'Attribute type %-10s :  Alias type %-30s  %s' % (wlst_type, alias_type, extra_blurb)
+        message = 'WLST type: %s / Alias type: %s  (%s)' % (wlst_type, alias_type, extra_blurb)
         self._add_error(location, ERROR_ATTRIBUTE_WRONG_TYPE, message=message, attribute=generated_attribute)
 
     def _validate_primitive_type(self, location, generated_attribute, generated_attribute_info,
@@ -1113,9 +1133,13 @@ class Verifier(object):
             if _is_of_type_with_get_required(generated_attribute, alias_type, generated_attr_info,
                                              get_required_attribute_list):
                 valid = True
+                _logger.finer('alias type JARRAY has get_required for attribute {0}', generated_attribute,
+                              class_name=CLASS_NAME, method_name=_method_name)
             elif _is_of_type_with_lsa(generated_attribute, alias_type, generated_attr_info,
                                       get_required_attribute_list):
                 valid = True
+                _logger.finer('alias type JARRAY is in lsa type for attribute {0}', generated_attribute,
+                              class_name=CLASS_NAME, method_name=_method_name)
                 if self._alias_helper.get_wlst_read_type(location, model_name) not in \
                         alias_constants.ALIAS_DELIMITED_TYPES:
                     self._add_invalid_type_error(location, generated_attribute, alias_constants.STRING, alias_type,
@@ -1164,8 +1188,14 @@ class Verifier(object):
         :param get_required_attribute_list: List of attributes for the MBean that require a WLST list
         :return: True if the type is a type that can be converted to a dictionary
         """
+        _method_name = '_is_valid_alias_property_type'
+        _logger.entering(location.get_folder_path(), attribute, alias_type, model_name,
+                         class_name=CLASS_NAME, method_name=_method_name)
+
         lsa_type, get_type, cmo_type = _get_attribute_types(attr_info)
         if attribute in get_required_attribute_list:
+            _logger.finest('Attribute {0} in get_required_attribute_list', attribute,
+                           class_name=CLASS_NAME, method_name=_method_name)
             valid = True
             attr_type = _is_attribute_type_for_get_required(get_type, cmo_type)
             if attr_type != alias_constants.PROPERTIES:
@@ -1173,8 +1203,12 @@ class Verifier(object):
                                              'Alias has GET with wrong type')
         elif _is_any_string_type(attr_info) and self._alias_helper.get_wlst_read_type(location, model_name) == \
                 alias_constants.SEMI_COLON_DELIMITED_STRING:
+            _logger.finest('Attribute {0} is string type and WLST read type is a delimited string type', attribute,
+                           class_name=CLASS_NAME, method_name=_method_name)
             valid = True
         else:
+            _logger.finest('Attribute {0} is lsa_type {1}, get_type {2}, and cmo_type {3}', attribute, lsa_type,
+                           get_type, cmo_type, class_name=CLASS_NAME, method_name=_method_name)
             valid = True
             attr_type = _is_attribute_type_for_lsa_required(attr_info)
             message = 'Attribute requires WLST_READ_TYPE of ' + alias_constants.SEMI_COLON_DELIMITED_STRING
@@ -1292,11 +1326,12 @@ def _is_of_type_with_lsa(attribute, alias_type, attribute_info, get_required_att
     is_get_and_alias_types_equal = get_type == alias_type
     is_cmo_and_alias_types_equal = cmo_type == alias_type
     is_cmo_or_get_and_alias_types_equal = is_get_and_alias_types_equal or is_cmo_and_alias_types_equal
+    is_alias_type_list_type = alias_type in LIST_TYPES
 
     return is_lsa_type and \
            (is_lsa_and_alias_types_equal or
             (is_lsa_type_unknown_or_string_or_integer and
-             (is_lsa_type_unknown_and_cmo_type_is_none or is_cmo_or_get_and_alias_types_equal)))
+             (is_lsa_type_unknown_and_cmo_type_is_none or is_cmo_or_get_and_alias_types_equal or is_alias_type_list_type)))
 
 
 def _is_wlst_read_type_compatible_list_type(attribute, lsa_type, wlst_read_type):
@@ -1352,7 +1387,10 @@ def _check_for_allowed_unknowns(location, generated_attribute, wlst_type, alias_
         else:
             if get_type in CONVERT_TO_DELIMITED_TYPES or cmo_type in CONVERT_TO_DELIMITED_TYPES:
                 message_type = 'delimited'
-            message = 'Alias has LSA required'
+             
+                message = 'Alias has LSA required'
+            if alias_type == alias_constants.STRING or alias_type == alias_constants.LIST:
+                local_valid =True
 
     _logger.exiting(class_name=CLASS_NAME, method_name=_method_name, result=Boolean(local_valid))
     return local_valid, message_type, message

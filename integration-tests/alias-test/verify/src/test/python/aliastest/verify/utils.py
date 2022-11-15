@@ -19,9 +19,28 @@ from aliastest.verify import constants
 from aliastest.verify.verify_context import VerifyModelContext
 
 __logger = PlatformLogger('test.aliases')
-__logger.set_level(Level.FINER)
 CLASS_NAME = 'generate/utils'
 
+OFFLINE_ALIAS_FOLDER_IGNORE_MAP = {
+    '/': ['ODLConfiguration', 'OHS', 'RCUDbInfo', 'Security', 'UnixMachine', 'WLSRoles',
+          'WLSUserPasswordCredentialMappings'],
+    '/ResourceGroupTemplate': ['OHS', 'SystemComponent']
+}
+
+ONLINE_ALIAS_FOLDER_IGNORE_MAP = {
+    '/ResourceGroupTemplate': ['SystemComponents']
+}
+
+OFFLINE_TEST_ANOMALIES_MAP = {
+    '/Application': {
+        'ModuleType': 'war',
+        'SourcePath': 'wlsdeploy/applications/get-listen-address-app.war'
+    },
+    '/Library': {
+        'ModuleType': 'war',
+        'SourcePath': 'wlsdeploy/sharedLibraries/jstl-1.2.war'
+    }
+}
 
 def get_verify_args_map(args):
     """
@@ -198,6 +217,25 @@ def sort_dict(dictionary):
         for key in keys:
             new_dictionary[key] = dictionary[key]
     return new_dictionary
+
+
+def is_alias_folder_in_ignore_list(model_context, location, alias_name):
+    if model_context.get_target_wlst_mode == WlstModes.ONLINE:
+        ignore_map = ONLINE_ALIAS_FOLDER_IGNORE_MAP
+    else:
+        ignore_map = OFFLINE_ALIAS_FOLDER_IGNORE_MAP
+
+    path = location.get_folder_path()
+    if path in ignore_map and alias_name in ignore_map[path]:
+        return True
+    return False
+
+
+def is_attribute_value_test_anomaly(model_context, location, attribute_name, attribute_value):
+    anomaly_map = OFFLINE_TEST_ANOMALIES_MAP
+    path = location.get_folder_path()
+    return path in anomaly_map and attribute_name in anomaly_map[path] and \
+        anomaly_map[path][attribute_name] == attribute_value
 
 
 def _key_in_case_map(key, case_map):

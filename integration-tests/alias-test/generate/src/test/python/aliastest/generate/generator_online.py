@@ -4,7 +4,6 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 
 import java.lang.Boolean as Boolean
-import java.util.logging.Level as Level
 
 from oracle.weblogic.deploy.util import PyOrderedDict
 
@@ -30,6 +29,10 @@ SINGLE_NO_NAME = generator_utils.SINGLE_NO_NAME
 TRUE = 'true'
 TYPE = generator_utils.TYPE
 
+NOT_SINGLE_INSTANCE = [
+ 'AppDeployments',
+ 'Libraries'
+]
 
 class OnlineGenerator(GeneratorBase):
     """
@@ -37,7 +40,6 @@ class OnlineGenerator(GeneratorBase):
     The data is traversed using the registered mbean information for the online session.
     """
     __logger = PlatformLogger('test.aliases.generate.online')
-    __logger.set_level(Level.FINER)
 
     def __init__(self, model_context, sc_providers):
         super(OnlineGenerator, self).__init__(model_context, PyOrderedDict())
@@ -104,7 +106,7 @@ class OnlineGenerator(GeneratorBase):
                     if mbean_name is None:
                         mbean_name = generator_wlst.get_singleton_name(mbean_type)
                     if mbean_name is not None:
-                        if mbean_type in generator_wlst.child_mbean_types():
+                        if mbean_type in generator_wlst.child_mbean_types() or mbean_type in NOT_SINGLE_INSTANCE:
                             mbean_dictionary[mbean_type][INSTANCE_TYPE] = MULTIPLE
                         else:
                             mbean_dictionary[mbean_type][INSTANCE_TYPE] = SINGLE

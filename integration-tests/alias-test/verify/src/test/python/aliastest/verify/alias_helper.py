@@ -14,7 +14,6 @@ import aliastest.verify.utils as verify_utils
 
 class AliasHelper(object):
     __logger = PlatformLogger('test.aliases')
-    __logger.set_level(Level.FINEST)
 
     def __init__(self, model_context):
         self.__class_name__ = self.__class__.__name__
@@ -140,3 +139,7 @@ class AliasHelper(object):
 
     def is_derived_default(self, location, model_name):
         return self.__aliases.is_derived_default(location, model_name)
+
+    def get_wlst_access_rod_attribute_names(self, location):
+        return self.__aliases.get_wlst_access_rod_attribute_names(location)
+  

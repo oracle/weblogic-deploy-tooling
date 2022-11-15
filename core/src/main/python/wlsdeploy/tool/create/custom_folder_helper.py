@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.lang import IllegalArgumentException
@@ -10,6 +10,7 @@ from oracle.weblogic.deploy.create import CustomBeanUtils
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
+import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
@@ -72,8 +73,8 @@ class CustomFolderHelper(object):
 
         property_map = dict()
         for property_descriptor in bean_info.getPropertyDescriptors():
-            self.logger.finer('WLSDPLY-12126', str(property_descriptor), class_name=self.__class_name,
-                              method_name=_method_name)
+            self.logger.finer('WLSDPLY-12126', str_helper.to_string(property_descriptor),
+                              class_name=self.__class_name, method_name=_method_name)
             property_map[property_descriptor.getName()] = property_descriptor
 
         for model_key in model_nodes:
@@ -91,12 +92,12 @@ class CustomFolderHelper(object):
             method = property_descriptor.writeMethod
             if not method:
                 # this must be a read-only attribute, just log it and continue with next attribute
-                self.logger.info('WLSDPLY-12129', str(model_key), class_name=self.__class_name,
+                self.logger.info('WLSDPLY-12129', str_helper.to_string(model_key), class_name=self.__class_name,
                                  method_name=_method_name)
                 continue
 
-            self.logger.finer('WLSDPLY-12127', str(model_key), str(model_value), class_name=self.__class_name,
-                              method_name=_method_name)
+            self.logger.finer('WLSDPLY-12127', str_helper.to_string(model_key), str_helper.to_string(model_value),
+                              class_name=self.__class_name, method_name=_method_name)
 
             # determine the data type from the set method
 
@@ -127,7 +128,8 @@ class CustomFolderHelper(object):
             # failure converting value or calling method
             except (IllegalAccessException, IllegalArgumentException, InvocationTargetException), ex:
                 ex = exception_helper.create_exception(self.exception_type, 'WLSDPLY-12131', method,
-                                                       str(model_value), ex.getLocalizedMessage(), error=ex)
+                                                       str_helper.to_string(model_value), ex.getLocalizedMessage(),
+                                                       error=ex)
                 self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
 

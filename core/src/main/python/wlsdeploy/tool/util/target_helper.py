@@ -23,6 +23,7 @@ from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import string_utils
+import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
@@ -119,7 +120,7 @@ class TargetHelper(object):
             server_group_targeting_limits = \
                 self._get_server_group_targeting_limits(server_group_targeting_limits, cluster_map)
 
-        self.logger.finer('WLSDPLY-12240', str(server_group_targeting_limits),
+        self.logger.finer('WLSDPLY-12240', str_helper.to_string(server_group_targeting_limits),
                           class_name=self.__class_name, method_name=_method_name)
 
         # Get the map of server names to server groups to target
@@ -128,8 +129,8 @@ class TargetHelper(object):
                                                   server_names,
                                                   server_groups_to_target,
                                                   server_group_targeting_limits)  # type: dict
-        self.logger.finer('WLSDPLY-12242', str(server_to_server_groups_map), class_name=self.__class_name,
-                          method_name=_method_name)
+        self.logger.finer('WLSDPLY-12242', str_helper.to_string(server_to_server_groups_map),
+                          class_name=self.__class_name, method_name=_method_name)
 
         final_assignment_map = dict()
         # Target servers and dynamic clusters to the server group resources
@@ -173,7 +174,8 @@ class TargetHelper(object):
                     self.logger.info('WLSDPLY-12248', no_targets,
                                      class_name=self.__class_name, method_name=_method_name)
 
-        self.logger.exiting(result=str(final_assignment_map), class_name=self.__class_name, method_name=_method_name)
+        self.logger.exiting(result=str_helper.to_string(final_assignment_map),
+                            class_name=self.__class_name, method_name=_method_name)
         return final_assignment_map
 
     def target_server_groups_to_dynamic_clusters(self, server_groups_to_target):
@@ -210,10 +212,11 @@ class TargetHelper(object):
         dynamic_cluster_assigns = \
             self.get_dc_to_server_groups_map(dynamic_cluster_names, server_groups_to_target,
                                              dc_server_group_targeting_limits)  # type: dict
-        self.logger.finer('WLSDPLY-12240', str(dc_server_group_targeting_limits),
+        self.logger.finer('WLSDPLY-12240', str_helper.to_string(dc_server_group_targeting_limits),
                           class_name=self.__class_name, method_name=_method_name)
 
-        self.logger.exiting(result=str(dynamic_cluster_assigns), class_name=self.__class_name, method_name=_method_name)
+        self.logger.exiting(result=str_helper.to_string(dynamic_cluster_assigns),
+                            class_name=self.__class_name, method_name=_method_name)
         return dynamic_cluster_assigns
 
     def target_server_groups(self, server_assigns):
@@ -224,11 +227,12 @@ class TargetHelper(object):
         :param server_assigns: map of server to server group
         """
         _method_name = 'target_server_groups'
-        self.logger.entering(str(server_assigns), class_name=self.__class_name, method_name=_method_name)
+        self.logger.entering(str_helper.to_string(server_assigns),
+                             class_name=self.__class_name, method_name=_method_name)
 
         for server, server_groups in server_assigns.iteritems():
             server_name = self.wlst_helper.get_quoted_name_for_wlst(server)
-            self.logger.info('WLSDPLY-12224', str(server_groups), server_name,
+            self.logger.info('WLSDPLY-12224', str_helper.to_string(server_groups), server_name,
                              class_name=self.__class_name, method_name=_method_name)
             self.wlst_helper.set_server_groups(server_name, server_groups,
                                                self.model_context.get_model_config().get_set_server_grps_timeout())
@@ -244,7 +248,8 @@ class TargetHelper(object):
         :param dynamic_cluster_assigns: The assignments from domainInfo targeting limits applied to dynamic lusters
         """
         _method_name = 'target_dynamic_server_groups'
-        self.logger.entering(str(dynamic_cluster_assigns), class_name=self.__class_name, method_name=_method_name)
+        self.logger.entering(str_helper.to_string(dynamic_cluster_assigns),
+                             class_name=self.__class_name, method_name=_method_name)
 
         domain_typedef = self.model_context.get_domain_typedef()
 
@@ -274,7 +279,8 @@ class TargetHelper(object):
         :param server_assigns: map of server to server group
         """
         _method_name = 'target_dynamic_clusters'
-        self.logger.entering(str(server_assigns), class_name=self.__class_name, method_name=_method_name)
+        self.logger.entering(str_helper.to_string(server_assigns),
+                             class_name=self.__class_name, method_name=_method_name)
 
         for cluster, server_groups in server_assigns.iteritems():
             cluster_name = self.wlst_helper.get_quoted_name_for_wlst(cluster)
@@ -298,10 +304,10 @@ class TargetHelper(object):
             names_only.append(name)
         if self.model_context.is_wlst_online() and \
                 self.model_context.get_domain_typedef().is_restricted_jrf_domain_type():
-            self.logger.warning('WLSDPLY-12244', str(names_only), class_name=self.__class_name,
+            self.logger.warning('WLSDPLY-12244', str_helper.to_string(names_only), class_name=self.__class_name,
                                 _method_name=_method_name)
         else:
-            self.logger.info('WLSDPLY-12236', str(names_only),
+            self.logger.info('WLSDPLY-12236', str_helper.to_string(names_only),
                              class_name=self.__class_name, method_name=_method_name)
             self.wlst_helper.apply_jrf_with_context(names_only, self.model_context)
 
@@ -418,9 +424,10 @@ class TargetHelper(object):
         :return: the map of server groups to server names to target
         """
         _method_name = '_get_server_group_targeting_limits'
-
-        self.logger.entering(str(server_group_targeting_limits), str(clusters_map),
+        self.logger.entering(str_helper.to_string(server_group_targeting_limits),
+                             str_helper.to_string(clusters_map),
                              class_name=self.__class_name, method_name=_method_name)
+
         sg_targeting_limits = copy.deepcopy(server_group_targeting_limits)
         for server_group_name, sg_targeting_limit in sg_targeting_limits.iteritems():
             if type(sg_targeting_limit) is str:
@@ -462,9 +469,9 @@ class TargetHelper(object):
         :return: the map of server groups to server names to target
         """
         _method_name = '_get_dynamic_cluster_server_group_targeting_limits'
-
-        self.logger.entering(str(targeting_limits), str(clusters_map),
+        self.logger.entering(str_helper.to_string(targeting_limits), str_helper.to_string(clusters_map),
                              class_name=self.__class_name, method_name=_method_name)
+
         dc_sg_targeting_limits = copy.deepcopy(targeting_limits)
         for server_group_name, dc_sg_targeting_limit in dc_sg_targeting_limits.iteritems():
             if type(dc_sg_targeting_limit) is str:
@@ -503,9 +510,10 @@ class TargetHelper(object):
         :return: the map of server names to the list of server groups to target to that server
         """
         _method_name = '_get_server_to_server_groups_map'
-
-        self.logger.entering(admin_server_name, str(server_names), str(server_groups), str(sg_targeting_limits),
+        self.logger.entering(admin_server_name, str_helper.to_string(server_names),
+                             str_helper.to_string(server_groups), str_helper.to_string(sg_targeting_limits),
                              class_name=self.__class_name, method_name=_method_name)
+
         result = OrderedDict()
         revised_server_groups = self._revised_list_server_groups(server_groups, sg_targeting_limits)
         for server_name in server_names:
@@ -534,9 +542,10 @@ class TargetHelper(object):
         :return: result: map of dynamic cluster to server groups
         """
         _method_name = 'get_dc_to_server_groups_list'
-
-        self.logger.entering(str(dynamic_cluster_names), str(server_groups), str(dc_sg_targeting_limits),
+        self.logger.entering(str_helper.to_string(dynamic_cluster_names), str_helper.to_string(server_groups),
+                             str_helper.to_string(dc_sg_targeting_limits),
                              class_name=self.__class_name, method_name=_method_name)
+
         result = OrderedDict()
         revised_server_groups = self._revised_list_server_groups(server_groups, dc_sg_targeting_limits)
         for cluster_name in dynamic_cluster_names:

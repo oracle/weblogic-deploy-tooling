@@ -7,7 +7,6 @@ import types
 import java.lang.Boolean as Boolean
 import java.lang.Exception as JException
 import java.lang.Object as JObject
-import java.util.logging.Level as Level
 import javax.management.ObjectName as JObjectName
 
 import org.python.core.PyArray as PyArray
@@ -61,20 +60,27 @@ class GeneratorBase(object):
     Common helper methods for generation of folder and attribute information for both online and offline
     generators.
     """
-    __logger = PlatformLogger('test.aliases.generate')
-    __logger.set_level(Level.FINER)
+    __logger = PlatformLogger('test.aliases.generate.base')
 
     def __init__(self, model_context, dictionary):
         self.__class_name = self.__class__.__name__
+        self._model_context = model_context
         self._dictionary = dictionary
         self._aliases = \
             Aliases(model_context, model_context.get_target_wlst_mode(), model_context.get_target_wls_version())
         self._ignore_list = self._aliases.get_ignore_attribute_names()
 
     def add_derived_default(self, dictionary, cmo_helper, attribute_name):
-        if cmo_helper is None:
-            return None
-        dictionary[DERIVED_DEFAULT] = cmo_helper.derived_default_value()
+        _method_name = "add_derived_default"
+        self.__logger.entering(attribute_name, class_name=self.__class_name, method_name=_method_name)
+
+        value = None
+        if cmo_helper is not None:
+            value = cmo_helper.derived_default_value()
+        if value is not None and value:
+            dictionary[DERIVED_DEFAULT] = value
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=value)
 
     def add_default_value(self, dictionary, lsa_map, cmo_helper, method_helper, attribute_name=None):
         """
@@ -111,9 +117,9 @@ class GeneratorBase(object):
         if get_value != FAIL:
             dictionary[GET_TYPE] = self.type_it(mbean_type, attribute_name, get_attr_type)
             dictionary[GET_DEFAULT] = self.convert_attribute(attribute_name, get_value, value_type=dictionary[GET_TYPE])
-            self.__logger.finest('Attribute {0} {1}  is {2} and {3} is {4}', attribute_name, GET_TYPE,
-                                 dictionary[GET_TYPE], GET_DEFAULT, dictionary[GET_DEFAULT],
-                                 class_name=self.__class_name, method_name=_method_name)
+            self.__logger.finer('Attribute {0} {1} is {2} and {3} is {4}', attribute_name, GET_TYPE,
+                                dictionary[GET_TYPE], GET_DEFAULT, dictionary[GET_DEFAULT],
+                                class_name=self.__class_name, method_name=_method_name)
 
         lsa_attr_type, lsa_value = self._get_lsa_type_and_value(lsa_map, attribute_name)
         if lsa_value != FAIL:
@@ -125,9 +131,11 @@ class GeneratorBase(object):
                 dictionary[LSA_TYPE] = self.type_it(mbean_type, attribute_name, lsa_attr_type)
             dictionary[LSA_DEFAULT] = self.convert_attribute(attribute_name, lsa_value, value_type=dictionary[LSA_TYPE])
             self._add_lsa_readwrite(dictionary, attribute_name)
-            self.__logger.finest('Attribute {0} {1} is {2} and {3} is {4}', attribute_name, LSA_TYPE,
-                                 dictionary[LSA_TYPE], LSA_DEFAULT, dictionary[LSA_DEFAULT],
-                                 class_name=self.__class_name, method_name=_method_name)
+            self.__logger.finer('Attribute {0} {1} is {2} and {3} is {4} and {5} is {6}', attribute_name, LSA_TYPE,
+                                dictionary[LSA_TYPE], LSA_DEFAULT, dictionary[LSA_DEFAULT], READ_TYPE,
+                                dictionary[READ_TYPE], class_name=self.__class_name, method_name=_method_name)
+        else:
+            self.__logger.finer('Attribute {0} has lsa_value of {1} so skipping', attribute_name, FAIL)
 
         if lsa_value == FAIL and get_value == FAIL and cmo_value == FAIL:
             self.__logger.fine(BAD_ATTR_ERR, attribute_name, class_name=self.__class_name, method_name=_method_name)
@@ -240,11 +248,7 @@ class GeneratorBase(object):
                                  attribute_name,
                                  class_name=self.__class_name, method_name=_method_name)
             valid = False
-        elif self._is_clear_text_password(attribute_helper):
-            self.__logger.finest('Ignore MBean{1} attribute {0} that is a clear text password attribute',
-                                 attribute_name, mbean_type, class_name=self.__class_name, method_name=_method_name)
-            valid = False
-
+        
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=Boolean(valid))
         return valid
 
@@ -259,11 +263,7 @@ class GeneratorBase(object):
                                  attribute_name, mbean_type,
                                  class_name=self.__class_name, method_name=_method_name)
             valid = False
-        elif self._is_clear_text_password(helper):
-            self.__logger.finest('Ignore MBean{1} attribute {0} that is a clear text password attribute',
-                                 attribute_name, mbean_type, class_name=self.__class_name, method_name=_method_name)
-            valid = False
-
+        
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=Boolean(valid))
         return valid
 
@@ -309,11 +309,7 @@ class GeneratorBase(object):
             self.__logger.finest('MBean {0} attribute {1} is in the WDT ignore list', mbean_type, converted_name,
                                  class_name=self.__class_name, method_name=_method_name)
             valid = False
-        elif self._is_clear_text_password(helper):
-            self.__logger.finer('Ignore MBeanInfo attribute {0} for MBean {1} that is a clear text password attribute',
-                                converted_name, mbean_type, class_name=self.__class_name, method_name=_method_name)
-            valid = False
-
+        
         self.__logger.exiting(result=Boolean(valid), class_name=self.__class_name, method_name=_method_name)
         return valid
 
@@ -332,27 +328,18 @@ class GeneratorBase(object):
         _method_name = 'convert_attribute'
 
         self.__logger.entering(attribute, value, value_type, class_name=self.__class_name, method_name=_method_name)
-        if value is not None and '$Proxy' in str(type(value)):
+        if value is None or value_type == alias_constants.PASSWORD:
+            return_value = None
+        elif '$Proxy' in str(type(value)):
             if value.isProxyClass(JObjectName):
                 return_value = value.getKeyProperty('Name')
             else:
                 return_value = value.toString()
-        #
-        # FIXME - This is the place in the generate code where we interpret the value and set the generated value
-        #         to the string "None".  Since the string "None" is a valid value in some attributes, we need to
-        #         change this code to return a Python None, which will be converted to a JSON null.
-        #
-        #         We should verify that the string "none" needs to be included in these next two elif checks
-        #         since we know that the string "None" is a valid value for some attributes...
-        #
-        elif value is None or value_type == alias_constants.PASSWORD or \
-                (value_type == alias_constants.STRING and (value == 'null' or value == 'none')):
-            return_value = 'None'
-        elif value is None or value == 'null' or value == 'none' \
-                or value_type == alias_constants.PASSWORD:
-            return_value = 'None'
-        elif not isinstance(value, basestring) and \
-                (value_type == alias_constants.BOOLEAN or value_type == alias_constants.JAVA_LANG_BOOLEAN):
+        elif isinstance(value, basestring):
+            return_value = value
+        elif value_type == alias_constants.STRING:
+            return_value = value.toString()
+        elif value_type == alias_constants.BOOLEAN or value_type == alias_constants.JAVA_LANG_BOOLEAN:
             if value:
                 return_value = Boolean.toString(Boolean.TRUE)
             else:
@@ -365,6 +352,9 @@ class GeneratorBase(object):
             return_value = value.toString()
         else:
             return_value = value
+
+        if generator_wlst.is_path_field(attribute):
+            return_value = generator_wlst.tokenize_path_value(self._model_context, attribute, value)
 
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=return_value)
         return return_value
@@ -427,9 +417,23 @@ class GeneratorBase(object):
         return return_type
 
     def _add_lsa_readwrite(self, attribute_map, lsa_name):
-        _method_name = '_get_lsa_readwrite'
+        _method_name = '_add_lsa_readwrite'
         self.__logger.entering(lsa_name, class_name=self.__class_name, method_name=_method_name)
 
+        # We cannot simply parse the attribute name out of the lsa_string() results.  If the attribute name is too
+        # long, it will run into the value making it difficult to separate the name from the value.  For example,
+        # the first field below will never have a value for attr because there is no space between the
+        # attribute name and value.
+        #
+        # -rw-   CustomClusterConfigurationFileLastUpdatedTimestamp0
+        # -rw-   CustomClusterConfigurationFileName            null
+        # -rw-   Name                                          foo
+        # -rw-   Version                                       null
+        #
+        # Figuring out if the row matches the lsa_name or not is tricky.  But, we can rely on the lsa_string to have
+        # the fields in alphabetical order such that the first <rest-of-the-row>.startswith(lsa_name) match should
+        # always be the correct row.
+        #
         attributes_str = generator_wlst.lsa_string()
         read_type = None
         if attributes_str is not None:
@@ -437,16 +441,26 @@ class GeneratorBase(object):
                 if attribute_str:
                     read_type = attribute_str[0:4].strip()
                     attr = attribute_str[7:attribute_str.find(' ', 7)+1].strip()
-                    if attr == lsa_name:
+
+                    if attr == lsa_name or (len(attr) == 0 and attributes_str[7:].strip().startswith(lsa_name)):
+                        self.__logger.finer('Attribute {0} has read_type {1}', lsa_name, read_type,
+                                            class_name=self.__class_name, method_name=_method_name)
                         if read_type == '-rw-':
                             attribute_map[READ_TYPE] = READ_WRITE
                         elif read_type == '-r--':
                             attribute_map[READ_TYPE] = READ_ONLY
+                        else:
+                            self.__logger.warning('READ_TYPE for attribute {0} with read_type "{1}"'
+                                                  ' not added to attribute map', lsa_name, read_type,
+                                                  class_name=self.__class_name, method_name=_method_name)
                         break
+                    else:
+                        self.__logger.finer('Attribute "{0}" not a match with the lsa_name "{1}"',
+                                            attr, lsa_name, class_name=self.__class_name, method_name=_method_name)
 
         self.__logger.finer('MBeanInfo property descriptors has attribute {0} access {1}', lsa_name, read_type,
                             class_name=self.__class_name, method_name=_method_name)
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=attribute_map[READ_TYPE])
 
     def _can_get(self, mbean_type, attribute_name, index=0):
         success = generator_wlst.can_get(mbean_type, attribute_name)
@@ -534,7 +548,3 @@ class GeneratorBase(object):
 
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=Boolean(result))
         return result
-
-
-def filename():
-    return 'generated'

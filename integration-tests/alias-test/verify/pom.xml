@@ -12,7 +12,7 @@
     <parent>
         <artifactId>weblogic-deploy-alias-test</artifactId>
         <groupId>com.oracle.weblogic.lifecycle</groupId>
-        <version>2.3.4-SNAPSHOT</version>
+        <version>2.4.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -20,6 +20,7 @@
         <test_home>${project.build.directory}/test-home</test_home>
         <alias-test-generated-online-file-name>generatedOnline-${wls_version}.json</alias-test-generated-online-file-name>
         <alias-test-generated-offline-file-name>generatedOffline-${wls_version}.json</alias-test-generated-offline-file-name>
+        <skip-generated-file-download>${alias-test-skipITs}</skip-generated-file-download>
     </properties>
 
     <build>
@@ -108,7 +109,7 @@
                 <groupId>org.kordamp.maven</groupId>
                 <artifactId>oci-maven-plugin</artifactId>
                 <configuration>
-                    <skip>${alias-test-skipITs}</skip>
+                    <skip>${skip-generated-file-download}</skip>
                     <namespaceName>${alias_test_tenancy}</namespaceName>
                     <bucketName>wdt-alias-test-files</bucketName>
                     <profile>${alias_test_oci_profile}</profile>
@@ -189,6 +190,7 @@
                             <environmentVariables>
                                 <JAVA_HOME>${env.JAVA_HOME}</JAVA_HOME>
                                 <WLSDEPLOY_HOME>${project.build.directory}/weblogic-deploy</WLSDEPLOY_HOME>
+                                <WLSDEPLOY_LOG_PROPERTIES>${project.basedir}/src/test/resources/logging.properties</WLSDEPLOY_LOG_PROPERTIES>
                                 <TEST_HOME>${test_home}</TEST_HOME>
                             </environmentVariables>
                             <arguments>
@@ -216,6 +218,7 @@
                             <environmentVariables>
                                 <JAVA_HOME>${env.JAVA_HOME}</JAVA_HOME>
                                 <WLSDEPLOY_HOME>${project.build.directory}/weblogic-deploy</WLSDEPLOY_HOME>
+                                <WLSDEPLOY_LOG_PROPERTIES>${project.basedir}/src/test/resources/logging.properties</WLSDEPLOY_LOG_PROPERTIES>
                                 <TEST_HOME>${test_home}</TEST_HOME>
                             </environmentVariables>
                             <arguments>

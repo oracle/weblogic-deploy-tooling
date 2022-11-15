@@ -12,7 +12,7 @@
     <parent>
         <groupId>com.oracle.weblogic.lifecycle</groupId>
         <artifactId>weblogic-deploy-integration-tests</artifactId>
-        <version>2.3.4-SNAPSHOT</version>
+        <version>2.4.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -146,6 +146,14 @@
                         <property>
                             <name>db.use.container.network</name>
                             <value>${db.use.container.network}</value>
+                        </property>
+                        <property>
+                            <name>system-test-skip-jrf-tests</name>
+                            <value>${system-test-skip-jrf-tests}</value>
+                        </property>
+                        <property>
+                            <name>system-test-skip-rjrf-tests</name>
+                            <value>${system-test-skip-rjrf-tests}</value>
                         </property>
                     </systemProperties>
                 </configuration>

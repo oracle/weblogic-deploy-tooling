@@ -13,6 +13,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
+import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
@@ -111,7 +112,8 @@ class MBeanUtils(object):
         interface_helper = self.__get_interface_helper(location)
         interface_attributes = self.get_mbean_attributes(interface_helper)
 
-        self.__remove_duplicates(interface_attributes, str(interface_helper), info_attributes, str(info_helper))
+        self.__remove_duplicates(interface_attributes, str_helper.to_string(interface_helper), info_attributes,
+                                 str_helper.to_string(info_helper))
         # This is the main list to drive from
         info_attributes = self.__slim_list(info_attributes, info_helper)
         # Because there are very few valid attributes in the Interface methods that are not in either the LSA map
@@ -391,10 +393,11 @@ class MBeanAttributes(object):
         if self.__mbean_interface is None:
             _logger.entering(class_name=self.__class__.__name__, method_name=_method_name)
             interfaces = [interface for interface in self._get_mbean_interfaces()
-                          if re.search(self.__interface_matcher, str(interface)) is not None]
+                          if re.search(self.__interface_matcher, str_helper.to_string(interface)) is not None]
             if len(interfaces) == 0:
                 ex = exception_helper.create_exception(self._get_exception_type(), 'WLSDPLY-01777',
-                                                       str(self._get_mbean_interfaces()), self.get_mbean_instance())
+                                                       str_helper.to_string(self._get_mbean_interfaces()),
+                                                       self.get_mbean_instance())
                 _logger.throwing(ex, class_name=self.__class__.__name__, method_name=_method_name)
                 raise ex
             else:
@@ -402,7 +405,7 @@ class MBeanAttributes(object):
                     _logger.fine('WLSDPLY-01770', interfaces, self.get_mbean_instance(),
                                  class_name=self.__class__.__name__, method_name=_method_name)
                 self.__mbean_interface = interfaces[0]
-                self.__mbean_name = str(self.__mbean_interface.getSimpleName())
+                self.__mbean_name = str_helper.to_string(self.__mbean_interface.getSimpleName())
                 self.__mbean_interface_name = get_interface_name(self._get_mbean_interface())
             _logger.exiting(class_name=self.__class__.__name__, method_name=_method_name,
                             result=self.__mbean_interface_name)
@@ -451,7 +454,7 @@ class MBeanAttributes(object):
                 _logger.finer('WLSDPLY-01786', self._get_mbean_name(), getter,
                               class_name=self.__class__.__name__, method_name=_method_name)
         except (Exception, JException), e:
-            _logger.finest('WLSDPLY-01785', self._get_mbean_name(), getter, str(e),
+            _logger.finest('WLSDPLY-01785', self._get_mbean_name(), getter, str_helper.to_string(e),
                            class_name=self.__class__.__name__, method_name=_method_name)
         return success, value
 
@@ -464,7 +467,7 @@ def get_interface_name(mbean_interface):
         getname = getattr(mbean_interface, 'getTypeName')
         result = getname()
     except (Exception, JException):
-        result = str(mbean_interface)
+        result = str_helper.to_string(mbean_interface)
     return result
 
 
@@ -608,7 +611,7 @@ class InterfaceAttributes(MBeanAttributes):
         """
         method_list = self.__get_mbean_attribute(attribute_name)
         if method_list is not None:
-            return str(method_list[0].getReturnType())
+            return str_helper.to_string(method_list[0].getReturnType())
         return None
 
     def get_default_value(self, attribute_name):
@@ -697,7 +700,7 @@ class InterfaceAttributes(MBeanAttributes):
 
     def __is_setter(self, method):
         setter = self.__get_method_name(method)
-        return setter.startswith('set') and str(setter.getReturnType) == 'void'
+        return setter.startswith('set') and str_helper.to_string(setter.getReturnType) == 'void'
 
     def __is_subfolder_method(self, method):
         name = self.__get_method_name(method)
@@ -826,7 +829,8 @@ class MBeanInfoAttributes(MBeanAttributes):
         descriptor = self.__get_mbean_attribute(attribute_name)
         if descriptor is not None:
             setter = descriptor.getWriteMethod()
-            if setter is not None and (str(setter.getReturnType()) == 'void' or str(setter.getReturnType()) == "<type \'void\'>"):
+            if setter is not None and (str_helper.to_string(setter.getReturnType()) == 'void' or
+                                       str_helper.to_string(setter.getReturnType()) == "<type \'void\'>"):
                 return setter.getName()
         return None
 
@@ -848,7 +852,8 @@ class MBeanInfoAttributes(MBeanAttributes):
         :param attribute_name: name of the attribute to test
         :return: True if the attribute is a clear text security attribute
         """
-        return self.is_encrypted(attribute_name) and str(self.get_type(attribute_name)) == 'java.lang.String'
+        return self.is_encrypted(attribute_name) and \
+            str_helper.to_string(self.get_type(attribute_name)) == 'java.lang.String'
 
     def get_type(self, attribute_name):
         """

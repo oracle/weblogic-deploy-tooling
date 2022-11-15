@@ -1,5 +1,5 @@
 """
-Copyright (c) 2018, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2018, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import re
@@ -9,6 +9,7 @@ import wlsdeploy.util.model as model_sections
 from oracle.weblogic.deploy.aliases import AliasException
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.logging.platform_logger import PlatformLogger
+import wlsdeploy.util.unicode_helper as str_helper
 
 _class_name = 'variable_injector'
 _logger = PlatformLogger('wlsdeploy.tool.util')
@@ -123,7 +124,7 @@ def __traverse_location(iterate_location, attribute, name_list, aliases, last_fo
                 iterate_location.remove_name_token(name_token)
             iterate_location.pop_location()
         except AliasException, ae:
-            _logger.warning('WLSDPLY-19531', str(iterate_location), attribute, ae.getLocalizedMessage(),
-                            class_name=_class_name, method_name=_method_name)
+            _logger.warning('WLSDPLY-19531', str_helper.to_string(iterate_location), attribute,
+                            ae.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
         __traverse_location(iterate_location, attribute, name_list, aliases, current_folder, short_folder)
     return name_list

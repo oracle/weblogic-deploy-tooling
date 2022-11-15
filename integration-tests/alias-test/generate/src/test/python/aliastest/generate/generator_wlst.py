@@ -3,7 +3,6 @@ Copyright (c) 2021, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import java.lang.Boolean as Boolean
-import java.util.logging.Level as Level
 import java.util.Map as Map
 
 import com.oracle.cie.domain.script.jython.WLSTException as offlineWLSTException
@@ -13,8 +12,17 @@ import java.lang.NoSuchMethodException as NoSuchMethodException
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
-__logger = PlatformLogger('test.aliases')
-__logger.set_level(Level.FINER)
+CREDENTIAL_FIELD_NAME_MARKERS = ['Password', 'PassPhrase', 'Credential', 'Encrypted', 'Secret']
+PATH_ATTRIBUTE_NAME_ENDINGS = ['File', 'Directory', 'FileName', 'Home']
+PATH_ATTRIBUTE_NAME_EXCEPTIONS = ['CacheInAppDirectory', 'UsingCustomClusterConfigurationFile']
+DOMAIN_HOME_TOKEN = '@@DOMAIN_HOME@@'
+WL_HOME_TOKEN = '@@WL_HOME@@'
+ORACLE_HOME_TOKEN = '@@ORACLE_HOME@@'
+JAVA_HOME_TOKEN = '@@JAVA_HOME@@'
+CURRENT_DIRECTORY_TOKEN = '@@PWD@@'
+TEMP_DIRECTORY_TOKEN = '@@TMP@@'
+
+__logger = PlatformLogger('test.generate.wlst')
 __class_name = 'generate_wlst'
 
 wlst_functions = None
@@ -110,8 +118,14 @@ def get(attribute_name):
         get_value = local_get(attribute_name)
     except (online_wlst_exception, offlineWLSTException), we:
         success = False
-        __logger.warning('Unable to get attribute{0} at location {1} : {2}', attribute_name, current_path(),
-                         we.getLocalizedMessage(), class_name=__class_name, method_name=_method_name)
+        # We don't expect to be able to retrieve credential fields so don't log a warning for them.
+        if _is_credential_field(attribute_name):
+            __logger.fine('Unable to get credential attribute {0} at location {1} : {2}',
+                          attribute_name, current_path(), we.getLocalizedMessage(),
+                          class_name=__class_name, method_name=_method_name)
+        else:
+            __logger.warning('Unable to get attribute {0} at location {1} : {2}', attribute_name, current_path(),
+                             we.getLocalizedMessage(), class_name=__class_name, method_name=_method_name)
 
     return success, get_value
 
@@ -508,6 +522,38 @@ def get_mbi_info():
     return mbi_info
 
 
+def is_path_field(attribute_name):
+    for name_ending in PATH_ATTRIBUTE_NAME_ENDINGS:
+        if attribute_name.endswith(name_ending) and attribute_name not in PATH_ATTRIBUTE_NAME_EXCEPTIONS:
+            return True
+
+    return False
+
+
+def tokenize_path_value(model_context, attribute_name, attribute_value):
+    _method_name = 'tokenize_path_value'
+
+    if attribute_value is None:
+        pass
+    elif isinstance(attribute_value, basestring):
+        if attribute_value.startswith(model_context.get_domain_home()):
+            index = len(model_context.get_domain_home())
+            return '%s%s' % (DOMAIN_HOME_TOKEN, attribute_value[index:])
+        elif attribute_value.startswith(model_context.get_wl_home()):
+            index = len(model_context.get_wl_home())
+            return '%s%s' % (WL_HOME_TOKEN, attribute_value[index:])
+        elif attribute_value.startswith(model_context.get_oracle_home()):
+            index = len(model_context.get_oracle_home())
+            return '%s%s' % (ORACLE_HOME_TOKEN, attribute_value[index:])
+        elif attribute_value.startswith(model_context.get_java_home()):
+            index = len(model_context.get_java_home())
+            return '%s%s' % (JAVA_HOME_TOKEN, attribute_value[index:])
+    else:
+        __logger.warning('Attribute {0} value {1} is not a string', attribute_name, attribute_value,
+                         class_name=__class_name, method_name=_method_name)
+    return attribute_value
+
+
 def _load_global(global_name):
     member = None
     if wlst_functions is not None and global_name in wlst_functions:
@@ -516,3 +562,11 @@ def _load_global(global_name):
     if member is None:
         raise AttributeError(global_name)
     return member
+
+
+def _is_credential_field(attribute_name):
+    for credential_marker in CREDENTIAL_FIELD_NAME_MARKERS:
+        if credential_marker in attribute_name:
+            return True
+
+    return False

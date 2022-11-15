@@ -12,7 +12,7 @@
     <parent>
         <artifactId>weblogic-deploy-alias-test</artifactId>
         <groupId>com.oracle.weblogic.lifecycle</groupId>
-        <version>2.3.4-SNAPSHOT</version>
+        <version>2.4.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -181,6 +181,7 @@
                             <environmentVariables>
                                 <JAVA_HOME>${env.JAVA_HOME}</JAVA_HOME>
                                 <WLSDEPLOY_HOME>${project.build.directory}/weblogic-deploy</WLSDEPLOY_HOME>
+                                <WLSDEPLOY_LOG_PROPERTIES>${project.basedir}/src/test/resources/logging.properties</WLSDEPLOY_LOG_PROPERTIES>
                                 <TEST_HOME>${test_home}</TEST_HOME>
                             </environmentVariables>
                             <arguments>
@@ -213,6 +214,7 @@
                             <environmentVariables>
                                 <JAVA_HOME>${env.JAVA_HOME}</JAVA_HOME>
                                 <WLSDEPLOY_HOME>${project.build.directory}/weblogic-deploy</WLSDEPLOY_HOME>
+                                <WLSDEPLOY_LOG_PROPERTIES>${project.basedir}/src/test/resources/logging.properties</WLSDEPLOY_LOG_PROPERTIES>
                                 <TEST_HOME>${test_home}</TEST_HOME>
                             </environmentVariables>
                             <arguments>
@@ -245,6 +247,7 @@
                             <environmentVariables>
                                 <JAVA_HOME>${env.JAVA_HOME}</JAVA_HOME>
                                 <WLSDEPLOY_HOME>${project.build.directory}/weblogic-deploy</WLSDEPLOY_HOME>
+                                <WLSDEPLOY_LOG_PROPERTIES>${project.basedir}/src/test/resources/logging.properties</WLSDEPLOY_LOG_PROPERTIES>
                                 <TEST_HOME>${test_home}</TEST_HOME>
                             </environmentVariables>
                             <arguments>

@@ -54,6 +54,7 @@ from wlsdeploy.aliases.alias_constants import WLST_READ_TYPE
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
 from wlsdeploy.aliases.alias_constants import WLST_SUBFOLDERS_PATH
 from wlsdeploy.util import model_helper
+from wlsdeploy.util import unicode_helper as str_helper
 
 _class_name = 'alias_utils'
 _logger = PlatformLogger('wlsdeploy.aliases')
@@ -130,7 +131,7 @@ def merge_model_and_existing_properties(model_props, existing_props, string_prop
         elif TypeUtils.isInstanceOfClass(Properties().getClass(), model_props):
             model_properties = model_props
         else:
-            ex = exception_helper.create_deploy_exception('WLSDPLY-08002', str(type(model_props)))
+            ex = exception_helper.create_deploy_exception('WLSDPLY-08002', str_helper.to_string(type(model_props)))
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
@@ -139,14 +140,14 @@ def merge_model_and_existing_properties(model_props, existing_props, string_prop
         elif TypeUtils.isInstanceOfClass(Properties().getClass(), existing_props):
             existing_properties = existing_props
         else:
-            ex = exception_helper.create_deploy_exception('WLSDPLY-08003', str(type(existing_props)))
+            ex = exception_helper.create_deploy_exception('WLSDPLY-08003', str_helper.to_string(type(existing_props)))
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
         for entry_set in model_properties.entrySet():
             key = entry_set.getKey()
             value = entry_set.getValue()
-            existing_properties.setProperty(key, str(value))
+            existing_properties.setProperty(key, str_helper.to_string(value))
         if model_props_is_string:
             result = _properties_to_string(existing_properties, string_props_separator_char)
         else:
@@ -393,7 +394,7 @@ def resolve_path_index(folder_dict, paths_index, path_attribute_name_used, locat
     _method_name = 'resolve_path_index'
 
     # Don't log folder dictionary because it is likely very large
-    _logger.entering(paths_index, path_attribute_name_used, str(location),
+    _logger.entering(paths_index, path_attribute_name_used, str_helper.to_string(location),
                      class_name=_class_name, method_name=_method_name)
     if WLST_PATHS in folder_dict:
         if paths_index in folder_dict[WLST_PATHS]:
@@ -421,7 +422,7 @@ def replace_tokens_in_path(location, path):
     """
     _method_name = 'replace_tokens_in_path'
 
-    _logger.entering(str(location), path, class_name=_class_name, method_name=_method_name)
+    _logger.entering(str_helper.to_string(location), path, class_name=_class_name, method_name=_method_name)
     name_tokens = location.get_name_tokens()
     new_path = path
     if name_tokens:
@@ -648,7 +649,7 @@ def convert_to_model_type(data_type, value, delimiter=None):
         # java.lang.String() is able to properly convert it to the cipher text string.  However,
         # we don't really want to return a java.lang.String to the caller so convert that Java
         # String back to a Python string...ugly but effective.
-        new_value = str(String(value))
+        new_value = str_helper.to_string(String(value))
     elif value is not None and isinstance(value, ObjectName):
         new_value = value.getKeyProperty('Name')
     else:
@@ -675,7 +676,7 @@ def convert_to_type(data_type, value, subtype=None, delimiter=None):
         # java.lang.String() is able to properly convert it to the cipher text string.  However,
         # we don't really want to return a java.lang.String to the caller so convert that Java
         # String back to a Python string...ugly but effective.
-        new_value = str(String(value))
+        new_value = str_helper.to_string(String(value))
     else:
         try:
             new_value = TypeUtils.convertToType(data_type, value, delimiter)
@@ -728,7 +729,8 @@ def get_child_folder_type_value_from_enum_value(child_folder_type):
         enum_text = ChildFoldersTypes.from_value(child_folder_type)
         result = enum_text.lower()
     except ValueError, ve:
-        ex = exception_helper.create_alias_exception('WLSDPLY-08016', child_folder_type, str(ve), error=ve)
+        ex = exception_helper.create_alias_exception('WLSDPLY-08016', child_folder_type,
+                                                     str_helper.to_string(ve), error=ve)
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
     return result
@@ -814,7 +816,7 @@ def create_list(list_value, message_key):
     elif item_type is list or item_type is array:
         item_list = list(list_value)
     else:
-        ex = exception_helper.create_deploy_exception(message_key, str(item_type))
+        ex = exception_helper.create_deploy_exception(message_key, str_helper.to_string(item_type))
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
 
@@ -866,7 +868,8 @@ def _convert_value_to_model_type(data_type, value, delimiter):
                 converted = _create_array(converted, model_delimiter)
                 converted = model_delimiter.join(converted)
     except TypeError, te:
-        ex = exception_helper.create_alias_exception('WLSDPLY-08021', value, data_type, delimiter, str(te))
+        ex = exception_helper.create_alias_exception('WLSDPLY-08021', value, data_type, delimiter,
+                                                     str_helper.to_string(te))
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
     return converted
@@ -1018,7 +1021,7 @@ def _properties_to_string(props, string_props_separator_char):
             value = entry_set.getValue()
             if len(result) > 0:
                 result += string_props_separator_char
-            result += str(key) + '=' + str(value)
+            result += str_helper.to_string(key) + '=' + str_helper.to_string(value)
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
 
@@ -1093,7 +1096,7 @@ def _create_string_jarray(iterable):
         elif isinstance(element, ObjectName):
             myarray[idx] = ObjectName.unquote(element.getKeyProperty('Name'))
         else:
-            myarray[idx] = str(element)
+            myarray[idx] = str_helper.to_string(element)
         idx += 1
     return myarray
 
@@ -1112,7 +1115,7 @@ def _create_array(iterable, delimiter):
             if isinstance(element, ObjectName):
                 myarray.append(element.getKeyProperty('Name'))
             elif delimiter or isinstance(element, String):
-                myarray.append(str(element))
+                myarray.append(str_helper.to_string(element))
             else:
                 myarray.append(element)
     return myarray

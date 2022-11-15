@@ -2,8 +2,6 @@
 Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-from java.io import File
-from java.lang import Boolean
 from java.lang import IllegalArgumentException
 
 from oracle.weblogic.deploy.discover import DiscoverException
@@ -30,7 +28,7 @@ from wlsdeploy.tool.util.variable_injector import VARIABLE_SEP
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import string_utils
-from wlsdeploy.util import variables
+import wlsdeploy.util.unicode_helper as str_helper
 
 
 _class_name = 'TopologyDiscoverer'
@@ -808,7 +806,7 @@ class TopologyDiscoverer(Discoverer):
         :return: modified location and name for the model keystore file
         """
         _method_name = '_add_keystore_file_to_archive'
-        _logger.entering(model_name, str(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(model_name, str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
         new_name = None
         if not string_utils.is_empty(model_value):
             _logger.finer('WLSDPLY-06641', location.get_folder_path(), model_value,

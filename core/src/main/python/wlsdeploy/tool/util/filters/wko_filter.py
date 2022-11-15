@@ -43,6 +43,7 @@ from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.filters.model_traverse import ModelTraverse
 from wlsdeploy.util import dictionary_utils
+import wlsdeploy.util.unicode_helper as str_helper
 
 _class_name = 'wko_filter'
 _logger = PlatformLogger('wlsdeploy.tool.util')
@@ -124,7 +125,7 @@ def check_clustered_server_ports(model, _model_context):
         server_port = server_fields[LISTEN_PORT]
 
         if server_cluster and (server_port is not None):
-            server_port_text = str(server_port)
+            server_port_text = str_helper.to_string(server_port)
             if '@@' in server_port_text:
                 # prepareModel filters the model before and after it is tokenized,
                 # so disregard variable values in the tokenized pass

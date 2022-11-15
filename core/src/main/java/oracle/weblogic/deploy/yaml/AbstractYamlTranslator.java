@@ -24,6 +24,7 @@ import org.python.core.PyList;
 import org.python.core.PyLong;
 import org.python.core.PyObject;
 import org.python.core.PyString;
+import org.python.core.PyUnicode;
 
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -35,6 +36,7 @@ import org.yaml.snakeyaml.Yaml;
 public abstract class AbstractYamlTranslator {
 
     private final boolean useOrderedDict;
+    private final boolean useUnicode;
     private final String fileName;
     private final int codePointsLimit;
 
@@ -47,9 +49,10 @@ public abstract class AbstractYamlTranslator {
     // override to write a list of documents as Python dictionaries to the YAML
     public abstract void dumpDocuments(List<?> documents) throws YamlException;
 
-    protected AbstractYamlTranslator(String fileName, boolean useOrderedDict, int codePointsLimit) {
+    protected AbstractYamlTranslator(String fileName, boolean useOrderedDict, boolean useUnicode, int codePointsLimit) {
         this.fileName = fileName;
         this.useOrderedDict = useOrderedDict;
+        this.useUnicode = useUnicode;
         this.codePointsLimit = codePointsLimit;
     }
 
@@ -268,7 +271,11 @@ public abstract class AbstractYamlTranslator {
             String classname = object.getClass().getName();
             switch (classname) {
                 case "java.lang.String":
-                    result = new PyString((String) object);
+                    if (this.useUnicode) {
+                        result = new PyUnicode((String) object);
+                    } else {
+                        result = new PyString((String) object);
+                    }
                     break;
 
                 case "java.lang.Boolean":

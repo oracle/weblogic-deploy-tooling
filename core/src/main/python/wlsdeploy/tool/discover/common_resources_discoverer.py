@@ -1,8 +1,7 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-from java.io import File
 from java.lang import IllegalArgumentException
 
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
@@ -21,6 +20,7 @@ from wlsdeploy.tool.discover.coherence_resources_discoverer import CoherenceReso
 from wlsdeploy.tool.discover.discoverer import Discoverer
 from wlsdeploy.tool.discover.jms_resources_discoverer import JmsResourcesDiscoverer
 from wlsdeploy.util import dictionary_utils
+import wlsdeploy.util.unicode_helper as str_helper
 
 _class_name = 'CommonResourcesDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
@@ -453,8 +453,8 @@ def _fix_passwords_in_mail_session_properties(dictionary):
             iterator = properties.stringPropertyNames().iterator()
             while iterator.hasNext():
                 key = iterator.next()
-                new_key = str(key).strip()
-                value = str(properties.getProperty(key))
+                new_key = str_helper.to_string(key).strip()
+                value = str_helper.to_string(properties.getProperty(key))
                 tokenized = value.startswith('@@')
                 if StringUtils.matches(match_pattern, new_key) and not tokenized:
                     value = replacement

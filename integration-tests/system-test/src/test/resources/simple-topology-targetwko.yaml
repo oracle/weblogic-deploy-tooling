@@ -1,0 +1,82 @@
+domainInfo:
+  AdminUserName: weblogic
+  AdminPassword: 'welcome1'
+topology:
+  Name: DemoDomain
+  Cluster:
+    staticCluster:
+      CoherenceClusterSystemResource: DataGridConfig
+      JTACluster:
+        # remove, attribute is online only
+        DeterminerCandidateResourceInfoList: []
+        Notes: not here
+    dynamicCluster:
+      DynamicServers:
+        # add CalculatedListenPorts set to false
+        MaxDynamicClusterSize: 4
+        DynamicClusterSize: 3
+    dynamicCluster2:
+      DynamicServers:
+        MaxDynamicClusterSize: 4
+        # change CalculatedListenPorts to false
+        CalculatedListenPorts: true
+        DynamicClusterSize: 3
+  Server:
+    m1:
+      Cluster: staticCluster
+      ListenPort: 5001
+      Machine: "machine-1"
+    m2:
+      Cluster: staticCluster
+      # string value should match numeric value
+      ListenPort: "5001"
+      Machine: "machine-1"
+    m3:
+      Cluster: staticCluster
+      # this should cause a warning message
+      ListenPort: 5002
+      Machine: "machine-1"
+  ServerTemplate:
+    'template-1':
+      Machine: "machine-1"
+  Machine:
+    # this machine and any references to it should be removed
+    machine-1:
+
+  # confirm that model traversal deals with artificial type folders correctly
+  SecurityConfiguration:
+    Realm:
+      yourRealm:
+        AuthenticationProvider:
+          DefaultAuthenticator:
+            DefaultAuthenticator:
+              ControlFlag: OPTIONAL
+              # remove, attribute is online only
+              ProviderClassName: 'com.defaultClass'
+
+resources:
+     JDBCSystemResource:
+        datasource-1:
+            Target: AdminServer,staticCluster
+            JdbcResource:
+                DatasourceType: GENERIC
+                JDBCConnectionPoolParams:
+                    ConnectionReserveTimeoutSeconds: 10
+                    InitialCapacity: 0
+                    MaxCapacity: 5
+                    MinCapacity: 0
+                    TestConnectionsOnReserve: true
+                    TestTableName: SQL ISVALID
+                JDBCDriverParams:
+                    DriverName: oracle.jdbc.OracleDriver
+                    PasswordEncrypted: tiger
+                    URL: jdbc:oracle:thin:@//localhost:1521/myDB
+                    Properties:
+                        user:
+                            Value: scott
+appDeployments:
+  Application:
+    myApp:
+      SourcePath: 'wlsdeploy/applications/sample-app.war'
+      # remove, attribute is online only
+      MultiVersionApp: false
