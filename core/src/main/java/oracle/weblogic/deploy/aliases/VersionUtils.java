@@ -204,6 +204,76 @@ public final class VersionUtils {
     }
 
     /**
+     * Determine if the specified version ranges overlap.
+     *
+     * @param range1 the version range to test
+     * @param range2 the version range to test against
+     * @return true if the specified version ranges overlap, false otherwise
+     * @throws VersionException if either version range is not a valid version or version range
+     * @throws IllegalArgumentException if either version range argument is empty or null
+     */
+    public static boolean doVersionRangesOverlap(String range1, String range2) throws VersionException {
+        final String METHOD = "doVersionRangesOverlap";
+        LOGGER.entering(CLASS, METHOD, range1, range2);
+
+        if (StringUtils.isEmpty(range1) || StringUtils.isEmpty(range2)) {
+            String message = ExceptionHelper.getMessage("WLSDPLY-08215");
+            IllegalArgumentException iae = new IllegalArgumentException(message);
+            LOGGER.throwing(CLASS, METHOD, iae);
+            throw iae;
+        }
+
+        boolean result = false;
+        String[] versions1 = getLowerAndUpperVersionStrings(range1);
+        boolean isSingleVersion1 = (versions1.length == VERSION_SIZE);
+        String lowerVersion1 = versions1[RANGE_LOW_INDEX];
+        String upperVersion1 = !isSingleVersion1 ? versions1[RANGE_HIGH_INDEX] : lowerVersion1;
+
+        String[] versions2 = getLowerAndUpperVersionStrings(range2);
+        boolean isSingleVersion2 = versions2.length == VERSION_SIZE;
+        String lowerVersion2 = versions2[RANGE_LOW_INDEX];
+        String upperVersion2 = !isSingleVersion2 ? versions2[RANGE_HIGH_INDEX] : lowerVersion2;
+        boolean inclusiveStart2 = range2.startsWith("[");
+        boolean inclusiveEnd2 = range2.endsWith("]");
+
+        // check if range2 lower value is inside range1
+
+        if(StringUtils.isEmpty(lowerVersion2)) {
+            // if range2 has empty lower version, its upper version must be below range1
+            if(StringUtils.isEmpty(lowerVersion1)) {
+                result = true;
+            } else if(compareVersions(upperVersion2, lowerVersion1) > 0) {
+                result = true;
+            }
+        } else if(isVersionInRange(lowerVersion2, range1)) {
+            // it's only ok to be inside range1 if the start of range2 is adjacent to range1
+            boolean adjacent = !inclusiveStart2 && lowerVersion2.equals(upperVersion1);
+            if(!adjacent) {
+                result = true;
+            }
+        }
+
+        // check if range2 lower value is inside range1
+
+        if(StringUtils.isEmpty(upperVersion2)) {
+            // if range2 has empty upper version, its lower version must be above range1
+            if(StringUtils.isEmpty(upperVersion1)) {
+                result = true;
+            } else if(compareVersions(upperVersion1, lowerVersion2) > 0) {
+                result = true;
+            }
+        } else if(isVersionInRange(upperVersion2, range1)) {
+            boolean adjacent = !inclusiveEnd2 && upperVersion2.equals(lowerVersion1);
+            if(!adjacent) {
+                result = true;
+            }
+        }
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    /**
      * Get the version range message to use for validation.
      *
      * @param name the attribute name
