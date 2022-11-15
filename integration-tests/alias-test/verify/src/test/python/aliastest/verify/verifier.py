@@ -705,14 +705,6 @@ class Verifier(object):
                 self._add_error(location, ERROR_ATTRIBUTE_LSA_REQUIRED, message=message, attribute=generated_attribute)
                 valid = False
 
-        #
-        # FIXME - This is the place in the verify code where we interpret the generated value that represents None.
-        #         Since the string "None" is a valid value in some attributes, we need to change the generate code
-        #         to use a JSON null, which will be parsed as a Python None.
-        #
-        if attr_default == "None":
-            attr_default = None
-
         if attr_type == alias_constants.INTEGER and CMO_TYPE in generated_attribute_info and \
                 generated_attribute_info[CMO_TYPE] == alias_constants.BOOLEAN:
             attr_type = alias_constants.BOOLEAN
