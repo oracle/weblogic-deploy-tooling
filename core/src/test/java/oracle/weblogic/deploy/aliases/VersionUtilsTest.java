@@ -32,32 +32,32 @@ public class VersionUtilsTest {
     public void testClientGreaterThanServer() throws Exception {
         String clientVersion = "0.7.4";
         String serverVersion = "0.7.3";
-        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) > 0, 
+        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) > 0,
             "Expected client " + clientVersion + " to be newer than server " + serverVersion);
 
         clientVersion = "0.8";
         serverVersion = "0.7.4";
-        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) > 0, 
+        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) > 0,
             "Expected client " + clientVersion + " to be newer than server " + serverVersion);
 
         clientVersion = "1.2.3";
         serverVersion = "1.2";
-        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) > 0, 
+        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) > 0,
             "Expected client " + clientVersion + " to be newer than server " + serverVersion);
 
         clientVersion = "1.2.3";
         serverVersion = "1.2.3-SNAPSHOT";
-        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) > 0, 
+        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) > 0,
             "Expected client " + clientVersion + " to be newer than server " + serverVersion);
 
         clientVersion = "1.2.3-BETA1";
         serverVersion = "1.2.3-ALPHA3";
-        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) > 0, 
+        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) > 0,
             "Expected client " + clientVersion + " to be newer than server " + serverVersion);
 
         clientVersion = "1.2.3-SNAPSHOT";
         serverVersion = "1.2.2";
-        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) > 0, 
+        assertTrue(VersionUtils.compareVersions(clientVersion, serverVersion) > 0,
             "Expected client " + clientVersion + " to be newer than server " + serverVersion);
     }
 
@@ -256,5 +256,43 @@ public class VersionUtilsTest {
 
         answer = VersionUtils.isVersionInRange(VERSION_18, RANGE_BETWEEN_1212_AND_12213);
         assertFalse(answer, "expected " + VERSION_18 + " to not be in range " + RANGE_BETWEEN_1212_AND_12213);
+    }
+
+    @Test
+    public void testDoVersionRangesOverlap() throws Exception {
+        // single value range, range2 is not adjacent
+        checkVersionRange("[12.1.2]", "[12.1.2,12.1.3)", true);
+
+        // obvious overlaps
+        checkVersionRange("[12.1.1,12.1.3)", "[12.1.2,12.1.4)", true);
+        checkVersionRange("[12.1.2,12.1.4)", "[12.1.1,12.1.3)", true);
+
+        // ranges are adjacent
+        checkVersionRange("[12.1.1,12.1.2]", "(12.1.2,12.1.3)", false);
+        checkVersionRange("[12.1.2,12.1.3]", "(12.1.1,12.1.2)", false);
+
+        // both ranges have no upper limit
+        checkVersionRange("[12.1.1,)", "[12.1.2,)", true);
+        checkVersionRange("[12.1.2,)", "[12.1.1,)", true);
+
+        // range1 has no upper limit, but is above range2
+        checkVersionRange("[12.1.2,)", "[12.1.1,12.1.2)", false);
+
+        // range2 has no upper limit, and starts below range 1
+        checkVersionRange("[12.1.2,12.1.3)", "[12.1.1,)", true);
+
+        // range2 has no upper limit, but is above range1
+        checkVersionRange("[12.1.2,12.1.3)", "[12.1.4,)", false);
+
+        // range2 has no upper limit, but is adjacent to range1
+        checkVersionRange("[12.1.2,12.1.3)", "[12.1.3,)", false);
+
+        // range2 has no upper limit, and is not adjacent to range1
+        checkVersionRange("[12.1.2,12.1.3]", "[12.1.3,)", true);
+    }
+
+    private void checkVersionRange(String range1, String range2, boolean expected) throws VersionException {
+        assertEquals(expected, VersionUtils.doVersionRangesOverlap(range1, range2),
+                "Expected ranges " + range1 + " and " + range2 + " to have overlap = " + expected);
     }
 }
