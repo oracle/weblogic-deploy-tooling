@@ -77,7 +77,7 @@ class GeneratorBase(object):
 
         value = None
         # Currently, there is no concept of derived default in WLST offline.
-        if self._model_context.get_target_wlst_mode == WlstModes.ONLINE:
+        if self._model_context.get_target_wlst_mode() == WlstModes.ONLINE:
             if cmo_helper is not None:
                 value = cmo_helper.derived_default_value()
             if value is not None and value:
