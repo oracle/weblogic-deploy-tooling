@@ -292,7 +292,7 @@ class Verifier(object):
         elif len(keys) == 1:
             next_entry = dictionary[keys[0]]
         else:
-             return dictionary
+            return dictionary
         return next_entry
 
     def _check_generated_against_alias_folders(self, location, generated_dictionary, folder_map):
@@ -499,8 +499,8 @@ class Verifier(object):
         _logger.entering(location.get_folder_path(), generated_attribute,
                          class_name=CLASS_NAME, method_name=_method_name)
 
-        exists, model_attribute_name, rod = self._does_alias_attribute_exist(location, generated_attribute,
-                                                                        generated_attribute_info, alias_name_map)
+        exists, model_attribute_name, rod = \
+            self._does_alias_attribute_exist(location, generated_attribute, generated_attribute_info, alias_name_map)
         if exists:
             if model_attribute_name is None or rod:
                 # if the alias attribute is correctly identified as read-only, it's not an error, but we cannot
@@ -554,9 +554,9 @@ class Verifier(object):
             model_attribute = self._alias_helper.get_model_attribute_name(location, generated_attribute)
             # if value returned check to see if access type is ROD. If so change model_attribute to None
             if model_attribute is not None:
-               wlst_attributes = self._alias_helper.get_wlst_access_rod_attribute_names(location)
-               if wlst_attributes is not None and generated_attribute in wlst_attributes:
-                   rod = True
+                wlst_attributes = self._alias_helper.get_wlst_access_rod_attribute_names(location)
+                if wlst_attributes is not None and generated_attribute in wlst_attributes:
+                    rod = True
         except AliasException:
             exists = False
 
