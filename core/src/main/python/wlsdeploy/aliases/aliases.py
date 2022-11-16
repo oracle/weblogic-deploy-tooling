@@ -1363,7 +1363,7 @@ class Aliases(object):
             attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute)
             if attribute_info is not None and DERIVED_DEFAULT in attribute_info:
                 result = attribute_info[DERIVED_DEFAULT]
-                if result is None or len(result) == 0:
+                if result is None or (isinstance(result, basestring) and len(result) == 0):
                     result = False
         except AliasException, ae:
             self._raise_exception(ae, _method_name, 'WLSDPLY-19045', model_attribute, location.get_folder_path(),
