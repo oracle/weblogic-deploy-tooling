@@ -60,7 +60,7 @@ topology:
                         DefaultAuthenticator:
                             ControlFlag: OPTIONAL
                             # remove, attribute is online only
-                            ProviderClassName: 'com.defaultClass'
+                            Description: 'authenticator description'
                     'My custom IdentityAsserter':
                         # confirm that model traversal allows unrecognized provider type,
                         # such as this custom provider

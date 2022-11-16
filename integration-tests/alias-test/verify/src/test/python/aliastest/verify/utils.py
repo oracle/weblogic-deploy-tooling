@@ -5,13 +5,14 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 import random
 
 import java.lang.Boolean as Boolean
-import java.util.logging.Level as Level
 
 import oracle.weblogic.deploy.json.JsonException as JJsonException
+import oracle.weblogic.deploy.json.JsonTranslator as JJsonTranslator
 from oracle.weblogic.deploy.util import PyOrderedDict
+from oracle.weblogic.deploy.aliases import VersionUtils
 
+from wlsdeploy.aliases import alias_constants
 from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 
@@ -81,7 +82,7 @@ def load_generated_online_dict(model_context):
 
     generated_file_name = get_generated_file_name(model_context, 'Online')
     try:
-        json_reader = JsonToPython(generated_file_name)
+        json_reader = _get_json_translator(model_context, generated_file_name)
         dictionary = json_reader.parse()
     except JJsonException, ex:
         __logger.severe('Failed to read generated online configuration from {0}: {1}', generated_file_name,
@@ -98,7 +99,7 @@ def load_generated_offline_dict(model_context):
 
     generated_file_name = get_generated_file_name(model_context, 'Offline')
     try:
-        json_reader = JsonToPython(generated_file_name)
+        json_reader = _get_json_translator(model_context, generated_file_name)
         dictionary = json_reader.parse()
     except JJsonException, ex:
         __logger.severe('Failed to read generated offline configuration from {0}: {1}', generated_file_name,
@@ -238,8 +239,66 @@ def is_attribute_value_test_anomaly(model_context, location, attribute_name, att
         anomaly_map[path][attribute_name] == attribute_value
 
 
+def check_list_of_strings_equal(model_name, model_value, wlst_value):
+    _method_name = 'check_list_of_strings_equal'
+    __logger.entering(model_name, model_value, wlst_value, class_name=CLASS_NAME, method_name=_method_name)
+
+    result = model_value
+    if _is_list_of_strings(model_value) and _is_list_of_strings(wlst_value) and len(model_value) == len(wlst_value):
+        model_list = _get_list_of_strings(model_value)
+        wlst_list = _get_list_of_strings(wlst_value)
+        __logger.finest('model_list = {0}, wlst_list = {1}', model_list, wlst_list,
+                        class_name=CLASS_NAME, method_name=_method_name)
+
+        result = None
+        for model_element in model_list:
+            if model_element not in wlst_list:
+                __logger.finest("model_list element {0} not in wlst_list: {1}", model_element, wlst_list,
+                                class_name=CLASS_NAME, method_name=_method_name)
+                result = model_value
+                break
+            else:
+                wlst_list.remove(model_element)
+
+        # Make sure there are no more items in the wlst_list
+        if result is None and len(wlst_list) > 0:
+            __logger.finest('wlst_list contains unmatched elements: {0}', wlst_list,
+                            class_name=CLASS_NAME, method_name=_method_name)
+            result = model_value
+
+    __logger.exiting(class_name=CLASS_NAME, method_name=_method_name, result=result)
+    return result
+
+
 def _key_in_case_map(key, case_map):
     if key in case_map:
         return case_map[key]
     return None
 
+
+# Use the Java Parser directly so that we can control the use of unicode based on
+# the target WLS version instead of the version of Jython being used.
+def _get_json_translator(model_context, filename):
+    use_unicode = VersionUtils.compareVersions(model_context.get_target_wls_version(), '14.1.1.0') >= 0
+    return JJsonTranslator(filename, True, use_unicode)
+
+
+def _is_list_of_strings(value):
+    _method_name = '_is_list_of_strings'
+    __logger.entering(type(value), value, class_name=CLASS_NAME, method_name=_method_name)
+
+    result = False
+    if value is not None and not isinstance(value, basestring) and isinstance(value, list):
+        if len(value) > 0:
+            result = isinstance(value[0], basestring)
+
+    __logger.exiting(result=result, class_name=CLASS_NAME, method_name=_method_name)
+    return result
+
+
+def _get_list_of_strings(value):
+    result = list()
+    if _is_list_of_strings(value):
+        for element in value:
+            result.append(str(element))
+    return result

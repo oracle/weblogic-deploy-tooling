@@ -32,7 +32,7 @@ class WkoFilterTestCase(BaseTestCase):
     _program_name = 'wko_filter_test'
     _jta_cluster = 'JTACluster'
     _jta_cluster_info_list = 'DeterminerCandidateResourceInfoList'
-    _provider_class_name = 'ProviderClassName'
+    _description_name = 'Description'
     _multi_version_app = 'MultiVersionApp'
 
     def __init__(self, *args):
@@ -60,8 +60,8 @@ class WkoFilterTestCase(BaseTestCase):
 
         authenticator = self._traverse(model, TOPOLOGY, SECURITY_CONFIGURATION, REALM, 'yourRealm',
                                        AUTHENTICATION_PROVIDER, DEFAULT_AUTHENTICATOR, DEFAULT_AUTHENTICATOR)
-        self.assertEqual(True, self._provider_class_name in authenticator,
-                         self._provider_class_name + " should be in " + DEFAULT_AUTHENTICATOR + " before filtering")
+        self.assertEqual(True, self._description_name in authenticator,
+                         self._description_name + " should be in " + DEFAULT_AUTHENTICATOR + " before filtering")
 
         my_app = self._traverse(model, APP_DEPLOYMENTS, APPLICATION, 'myApp')
         self.assertEqual(True, self._multi_version_app in my_app,
@@ -106,7 +106,7 @@ class WkoFilterTestCase(BaseTestCase):
 
         authenticator = self._traverse(model, TOPOLOGY, SECURITY_CONFIGURATION, REALM, 'yourRealm',
                                        AUTHENTICATION_PROVIDER, DEFAULT_AUTHENTICATOR, DEFAULT_AUTHENTICATOR)
-        self._no_dictionary_key(authenticator, self._provider_class_name)
+        self._no_dictionary_key(authenticator, self._description_name)
 
         my_app = self._traverse(model, APP_DEPLOYMENTS, APPLICATION, 'myApp')
         self._no_dictionary_key(my_app, self._multi_version_app)

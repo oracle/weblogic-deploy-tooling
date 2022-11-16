@@ -41,7 +41,7 @@ sleep 10
 
 
 i=0
-while [[ $i -lt 60 ]]; do
+while [ $i -lt 60 ]; do
   echo "Checking admin server shutdown (i = $i)"
   return_code=$(curl -sw '%{http_code}' "${READY_APP_URL}")
   if [ "${return_code}" = "000" ]; then
