@@ -73,5 +73,8 @@ class VerifyModelContext(object):
     def tokenize_path(self, path):
         return path
 
+    def tokenize_classpath(self, value):
+        return value
+
     def is_using_encryption(self):
         return False
