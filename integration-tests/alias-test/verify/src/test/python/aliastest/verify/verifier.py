@@ -773,6 +773,7 @@ class Verifier(object):
         model_name = None
         model_value = None
         is_derived_default = False
+        generated_derived = False
         if generated_default is not None:
             try:
                 # This code is sort of non-intuitive because the method was written for a different
@@ -784,18 +785,21 @@ class Verifier(object):
                 model_name, model_value = \
                     self._alias_helper.get_model_attribute_name_and_value(location, generated_attribute,
                                                                           generated_default)
-                _logger.finest('model_value ({0}) = {1}', type(model_value), model_value,
-                               class_name=CLASS_NAME, method_name=_method_name)
                 model_value = verify_utils.check_list_of_strings_equal(model_name, model_value, generated_default)
-                _logger.finest('after list of strings check, model_value ({0}) = {1}', type(model_value), model_value,
-                               class_name=CLASS_NAME, method_name=_method_name)
 
                 is_derived_default = self._alias_helper.is_derived_default(location, model_name)
-                generated_derived = False
                 if DERIVED_DEFAULT in generated_attribute_info:
-                   generated_derived = generated_attribute_info[DERIVED_DEFAULT]
+                    generated_derived = generated_attribute_info[DERIVED_DEFAULT]
+                    if isinstance(generated_derived, long):
+                        generated_derived = bool(generated_derived)
+
+                _logger.finest('is_derived_default ({0}) = {1}', type(is_derived_default), is_derived_default,
+                               class_name=CLASS_NAME, method_name=_method_name)
+                _logger.finest('generated_derived ({0}) = {1}', type(generated_derived), generated_derived,
+                               class_name=CLASS_NAME, method_name=_method_name)
                 if is_derived_default != generated_derived:
-                    message = 'WLST: %s  :  Alias: %s' % (str(Boolean(generated_derived)), str(is_derived_default))
+                    _logger.finest('derived default value mismatch', class_name=CLASS_NAME, method_name=_method_name)
+                    message = 'WLST: %s  :  Alias: %s' % (str(generated_derived), str(is_derived_default))
                     self._add_error(location, ERROR_DERIVED_DEFAULT_DOES_NOT_MATCH, message=message, attribute=generated_attribute)
                     match = False
             except TypeError, te:
