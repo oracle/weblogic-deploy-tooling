@@ -21,6 +21,7 @@ CMO_DEFAULT = 'cmo_default'
 CMO_READ_TYPE = 'cmo_read_type'
 CMO_TYPE = 'cmo_wlst_type'
 DEPRECATED = 'deprecated'
+DERIVED_DEFAULT = 'derived_default'
 GET_DEFAULT = 'get_default'
 GET_TYPE = 'get_wlst_type'
 INSTANCE_TYPE = 'instance'
@@ -98,6 +99,7 @@ ERROR_ATTRIBUTE_PATH_TOKEN_REQUIRED = 4022
 ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE = 4023
 ERROR_ATTRIBUTE_MUST_BE_NO_NAME = 4024
 ERROR_FLATTENED_MBEAN_ATTRIBUTE_ERROR = 4025
+ERROR_DERIVED_DEFAULT_DOES_NOT_MATCH = 4026
 
 MSG_MAP = {
     TESTED_MBEAN_FOLDER:                           'Verified',
@@ -118,6 +120,7 @@ MSG_MAP = {
     ERROR_ATTRIBUTE_NOT_READONLY_VERSION:          'Attribute is marked readonly or is invalid version range',
     ERROR_ATTRIBUTE_NOT_READONLY:                  'Attribute is not marked readwrite',
     ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE:           'Attribute wrong default value',
+    ERROR_DERIVED_DEFAULT_DOES_NOT_MATCH:          'Attribute does not match Alias derived_default',
     ERROR_ATTRIBUTE_INVALID_VERSION:               'Attribute invalid version',
     ERROR_ATTRIBUTE_GET_REQUIRED:                  'Attribute requires GET',
     ERROR_ATTRIBUTE_LSA_REQUIRED:                  'Attribute requires LSA',
@@ -782,6 +785,13 @@ class Verifier(object):
                     self._alias_helper.get_model_attribute_name_and_value(location, generated_attribute,
                                                                           generated_default)
                 is_derived_default = self._alias_helper.is_derived_default(location, model_name)
+                generated_derived = False
+                if DERIVED_DEFAULT in generated_attribute_info:
+                   generated_derived = generated_attribute_info[DERIVED_DEFAULT]
+                if is_derived_default != generated_derived:
+                    message = 'WLST: %s  :  Alias: %s' % (str(Boolean(generated_derived)), str(is_derived_default))
+                    self._add_error(location, ERROR_DERIVED_DEFAULT_DOES_NOT_MATCH, message=message, attribute=generated_attribute)
+                    match = False
             except TypeError, te:
                 self._add_error(location, ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE,
                                 message=te, attribute=generated_attribute)
