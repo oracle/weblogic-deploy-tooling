@@ -797,7 +797,7 @@ class Verifier(object):
                 if DERIVED_DEFAULT in generated_attribute_info:
                    generated_derived = generated_attribute_info[DERIVED_DEFAULT]
                 if is_derived_default != generated_derived:
-                    message = 'WLST: %s  :  Alias: %s' % (str(generated_derived), str(is_derived_default))
+                    message = 'WLST: %s  :  Alias: %s' % (str(Boolean(generated_derived)), str(is_derived_default))
                     self._add_error(location, ERROR_DERIVED_DEFAULT_DOES_NOT_MATCH, message=message, attribute=generated_attribute)
                     match = False
             except TypeError, te:
