@@ -23,7 +23,7 @@ fi
 WDT_MODEL=""
 WDT_ARCHIVE=""
 DOMAIN_PARENT_DIR=""
-while [[ $# -gt 1 ]]; do
+while [ $# -gt 1 ]; do
     key="$1"
     case $key in
         -model_file)

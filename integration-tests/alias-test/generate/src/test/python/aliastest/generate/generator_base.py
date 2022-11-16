@@ -14,6 +14,7 @@ import org.python.core.PyInstance as PyInstance
 
 from wlsdeploy.aliases import alias_constants
 from wlsdeploy.aliases.aliases import Aliases
+from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
 import aliastest.generate.generator_wlst as generator_wlst
@@ -75,10 +76,12 @@ class GeneratorBase(object):
         self.__logger.entering(attribute_name, class_name=self.__class_name, method_name=_method_name)
 
         value = None
-        if cmo_helper is not None:
-            value = cmo_helper.derived_default_value()
-        if value is not None and value:
-            dictionary[DERIVED_DEFAULT] = value
+        # Currently, there is no concept of derived default in WLST offline.
+        if self._model_context.get_target_wlst_mode == WlstModes.ONLINE:
+            if cmo_helper is not None:
+                value = cmo_helper.derived_default_value()
+            if value is not None and value:
+                dictionary[DERIVED_DEFAULT] = value
 
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=value)
 
@@ -336,7 +339,7 @@ class GeneratorBase(object):
             else:
                 return_value = value.toString()
         elif isinstance(value, basestring):
-            return_value = value
+            return_value = str(value)
         elif value_type == alias_constants.STRING:
             return_value = value.toString()
         elif value_type == alias_constants.BOOLEAN or value_type == alias_constants.JAVA_LANG_BOOLEAN:

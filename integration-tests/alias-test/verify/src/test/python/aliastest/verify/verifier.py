@@ -784,6 +784,12 @@ class Verifier(object):
                 model_name, model_value = \
                     self._alias_helper.get_model_attribute_name_and_value(location, generated_attribute,
                                                                           generated_default)
+                _logger.finest('model_value ({0}) = {1}', type(model_value), model_value,
+                               class_name=CLASS_NAME, method_name=_method_name)
+                model_value = verify_utils.check_list_of_strings_equal(model_name, model_value, generated_default)
+                _logger.finest('after list of strings check, model_value ({0}) = {1}', type(model_value), model_value,
+                               class_name=CLASS_NAME, method_name=_method_name)
+
                 is_derived_default = self._alias_helper.is_derived_default(location, model_name)
                 generated_derived = False
                 if DERIVED_DEFAULT in generated_attribute_info:
