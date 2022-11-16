@@ -28,22 +28,26 @@ class AliasHelper(object):
         return self.get_folder_map(self.__aliases.get_model_subfolder_names(location), location)
 
     def get_folder_map(self, model_folder_list, base_location):
+        _method_name = 'get_folder_map'
+
         location = LocationContext(base_location)
         folder_map = dict()
         for name in model_folder_list:
             if name is None:
                 self.__logger.warning('Have a problem with the list at location {0} : {1}', location.get_folder_path(),
-                                      model_folder_list)
+                                      model_folder_list, class_name=self.__class_name__, method_name=_method_name)
             else:
                 location.append_location(name)
-                self.__logger.finer('Checking the folder {0} for flattened and type', location.get_folder_path())
+                self.__logger.finer('Checking the folder {0} for flattened and type', location.get_folder_path(),
+                                    class_name=self.__class_name__, method_name=_method_name)
                 flattened_info = None
                 if not location.get_folder_path().startswith('/NMProperties') and not location.get_folder_path() == '/':
                     flattened_info = self.__aliases.get_wlst_flattened_folder_info(location)
                 if flattened_info is not None:
                     # make a message
                     self.__logger.fine('The mbean type {0} at location {1} is a flattened folder ', name,
-                                       location.get_folder_path())
+                                       location.get_folder_path(),
+                                       class_name=self.__class_name__, method_name=_method_name)
                     wlst_mbean = flattened_info.get_mbean_type()
                 else:
                     wlst_mbean = self.__aliases.get_wlst_mbean_type(location)
@@ -51,7 +55,8 @@ class AliasHelper(object):
                     # create a message for this
                     self.__logger.finer(
                         'Mbean folder {0} at location {1} is not implemented in aliases for version {2}}',
-                        name, location.get_folder_path(), self.__model_context.get_target_wls_version())
+                        name, location.get_folder_path(), self.__model_context.get_target_wls_version(),
+                        class_name=self.__class_name__, method_name=_method_name)
                 else:
                     folder_map[wlst_mbean] = name
                 location.pop_location()
