@@ -65,7 +65,7 @@ WLS_VERSION=""
 OUTPUT_DIR="${BASEDIR}/target"
 GENERATED_DIR="${BASEDIR}/target"
 STATUS_DIR=""
-while [[ $# -gt 1 ]]; do
+while [ $# -gt 1 ]; do
     key="$1"
     case $key in
         -wls_version)
