@@ -118,8 +118,11 @@ class GeneratorBase(object):
 
         get_attr_type, get_value = self._get_get_type_and_value(method_helper, attribute_name)
         if get_value != FAIL:
+            if get_attr_type == 'byte[]' and cmo_attr_type == alias_constants.PASSWORD:
+                get_attr_type = alias_constants.PASSWORD
             dictionary[GET_TYPE] = self.type_it(mbean_type, attribute_name, get_attr_type)
             dictionary[GET_DEFAULT] = self.convert_attribute(attribute_name, get_value, value_type=dictionary[GET_TYPE])
+        
             self.__logger.finer('Attribute {0} {1} is {2} and {3} is {4}', attribute_name, GET_TYPE,
                                 dictionary[GET_TYPE], GET_DEFAULT, dictionary[GET_DEFAULT],
                                 class_name=self.__class_name, method_name=_method_name)
@@ -225,6 +228,7 @@ class GeneratorBase(object):
         if get_value != FAIL:
             if method_helper is not None:
                 get_attr_type = method_helper.attribute_type()
+                
             elif get_value is not None:
                 if isinstance(get_value, PyInstance):
                     get_attr_type = get_value.getClass().getName()
