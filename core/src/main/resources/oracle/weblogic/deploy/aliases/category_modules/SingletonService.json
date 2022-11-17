@@ -13,7 +13,7 @@
         "Cluster":                             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Cluster",                            "wlst_path": "WP001", "default_value": null,                          "wlst_type": "string"     } ],
         "ConstrainedCandidateServer":          [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ConstrainedCandidateServer${:s}",    "wlst_path": "WP001", "default_value": null,                          "wlst_type": "string"     } ],
         "HostingServer":                       [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "HostingServer",                      "wlst_path": "WP001", "default_value": null,                          "wlst_type": "string"     } ],
-        "MillisToSleepBetweenAttempts":        [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "MillisToSleepBetweenAttempts",       "wlst_path": "WP001", "default_value": 30000,                         "wlst_type": "long"       } ],
+        "MillisToSleepBetweenAttempts":        [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "MillisToSleepBetweenAttempts",       "wlst_path": "WP001", "default_value": 300000,                        "wlst_type": "long"       } ],
         "UserPreferredServer":                 [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "UserPreferredServer",                "wlst_path": "WP001", "default_value": null,                          "wlst_type": "string"     } ],
         "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "default_value": null,                          "wlst_type": "string"     } ]
     },

@@ -13,8 +13,9 @@ import java.lang.NoSuchMethodException as NoSuchMethodException
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
 CREDENTIAL_FIELD_NAME_MARKERS = ['Password', 'PassPhrase', 'Credential', 'Encrypted', 'Secret']
-PATH_ATTRIBUTE_NAME_ENDINGS = ['File', 'Directory', 'FileName', 'Home']
+PATH_ATTRIBUTE_NAME_ENDINGS = ['File', 'Directory', 'FileName', 'Home', 'DirectoryName']
 PATH_ATTRIBUTE_NAME_EXCEPTIONS = ['CacheInAppDirectory', 'UsingCustomClusterConfigurationFile']
+PATH_SERVER_NAMES = ['AdminServer']
 DOMAIN_HOME_TOKEN = '@@DOMAIN_HOME@@'
 WL_HOME_TOKEN = '@@WL_HOME@@'
 ORACLE_HOME_TOKEN = '@@ORACLE_HOME@@'
@@ -533,25 +534,30 @@ def is_path_field(attribute_name):
 def tokenize_path_value(model_context, attribute_name, attribute_value):
     _method_name = 'tokenize_path_value'
 
+    result = attribute_value
     if attribute_value is None:
         pass
     elif isinstance(attribute_value, basestring):
         if attribute_value.startswith(model_context.get_domain_home()):
             index = len(model_context.get_domain_home())
-            return '%s%s' % (DOMAIN_HOME_TOKEN, attribute_value[index:])
+            result = '%s%s' % (DOMAIN_HOME_TOKEN, attribute_value[index:])
         elif attribute_value.startswith(model_context.get_wl_home()):
             index = len(model_context.get_wl_home())
-            return '%s%s' % (WL_HOME_TOKEN, attribute_value[index:])
+            result = '%s%s' % (WL_HOME_TOKEN, attribute_value[index:])
         elif attribute_value.startswith(model_context.get_oracle_home()):
             index = len(model_context.get_oracle_home())
-            return '%s%s' % (ORACLE_HOME_TOKEN, attribute_value[index:])
+            result = '%s%s' % (ORACLE_HOME_TOKEN, attribute_value[index:])
         elif attribute_value.startswith(model_context.get_java_home()):
             index = len(model_context.get_java_home())
-            return '%s%s' % (JAVA_HOME_TOKEN, attribute_value[index:])
+            result = '%s%s' % (JAVA_HOME_TOKEN, attribute_value[index:])
+
+        for server_name in PATH_SERVER_NAMES:
+            if server_name in result:
+                result = result.replace(server_name, '%SERVER%')
     else:
         __logger.warning('Attribute {0} value {1} is not a string', attribute_name, attribute_value,
                          class_name=__class_name, method_name=_method_name)
-    return attribute_value
+    return result
 
 
 def _load_global(global_name):
