@@ -80,7 +80,7 @@ class GeneratorBase(object):
         if self._model_context.get_target_wlst_mode() == WlstModes.ONLINE:
             if cmo_helper is not None:
                 value = cmo_helper.derived_default_value()
-            if value is not None and value:
+            if value is not None:
                 dictionary[DERIVED_DEFAULT] = value
 
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=value)
