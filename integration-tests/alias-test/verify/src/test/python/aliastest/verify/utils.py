@@ -45,11 +45,19 @@ OFFLINE_TEST_ANOMALIES_MAP = {
 }
 
 ONLINE_TEST_ANOMALIES_MAP = {
+    '/Application': {
+        'ModuleType': 'war',
+        'SourcePath': 'wlsdeploy/applications/get-listen-address-app.war'
+    },
     '/JMSSystemResource/JmsResource/ForeignServer/JNDIProperty': {
         'Key': 'JNDIProperties-\\d{3,5}'
     },
     '/JMSSystemResource/JmsResource/Template/GroupParams': {
         'SubDeploymentName': 'GroupParams-\\d{3,5}'
+    },
+    '/Library': {
+        'ModuleType': 'war',
+        'SourcePath': 'wlsdeploy/sharedLibraries/jstl-1.2.war'
     },
     '/Partition/ResourceGroup/JMSSystemResource/JmsResource/ForeignServer/JNDIProperty': {
         'Key': 'JNDIProperties-\\d{3,5}'
@@ -70,6 +78,7 @@ ONLINE_TEST_ANOMALIES_MAP = {
         'SubDeploymentName': 'GroupParams-\\d{3,5}'
     }
 }
+
 
 def get_verify_args_map(args):
     """
