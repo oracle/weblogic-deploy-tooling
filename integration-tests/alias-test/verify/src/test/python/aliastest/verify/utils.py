@@ -3,6 +3,7 @@ Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import random
+import re
 
 import java.lang.Boolean as Boolean
 
@@ -40,6 +41,33 @@ OFFLINE_TEST_ANOMALIES_MAP = {
     '/Library': {
         'ModuleType': 'war',
         'SourcePath': 'wlsdeploy/sharedLibraries/jstl-1.2.war'
+    }
+}
+
+ONLINE_TEST_ANOMALIES_MAP = {
+    '/JMSSystemResource/JmsResource/ForeignServer/JNDIProperty': {
+        'Key': 'JNDIProperties-\\d{3,5}'
+    },
+    '/JMSSystemResource/JmsResource/Template/GroupParams': {
+        'SubDeploymentName': 'GroupParams-\\d{3,5}'
+    },
+    '/Partition/ResourceGroup/JMSSystemResource/JmsResource/ForeignServer/JNDIProperty': {
+        'Key': 'JNDIProperties-\\d{3,5}'
+    },
+    '/Partition/ResourceGroup/JMSSystemResource/JmsResource/Template/GroupParams': {
+        'SubDeploymentName': 'GroupParams-\\d{3,5}'
+    },
+    '/ResourceGroup/JMSSystemResource/JmsResource/ForeignServer/JNDIProperty': {
+        'Key': 'JNDIProperties-\\d{3,5}'
+    },
+    '/ResourceGroup/JMSSystemResource/JmsResource/Template/GroupParams': {
+        'SubDeploymentName': 'GroupParams-\\d{3,5}'
+    },
+    '/ResourceGroupTemplate/JMSSystemResource/JmsResource/ForeignServer/JNDIProperty': {
+        'Key': 'JNDIProperties-\\d{3,5}'
+    },
+    '/ResourceGroupTemplate/JMSSystemResource/JmsResource/Template/GroupParams': {
+        'SubDeploymentName': 'GroupParams-\\d{3,5}'
     }
 }
 
@@ -233,10 +261,15 @@ def is_alias_folder_in_ignore_list(model_context, location, alias_name):
 
 
 def is_attribute_value_test_anomaly(model_context, location, attribute_name, attribute_value):
-    anomaly_map = OFFLINE_TEST_ANOMALIES_MAP
+    if model_context.get_target_wlst_mode() == WlstModes.OFFLINE:
+        anomaly_map = OFFLINE_TEST_ANOMALIES_MAP
+    else:
+        anomaly_map = ONLINE_TEST_ANOMALIES_MAP
+
     path = location.get_folder_path()
     return path in anomaly_map and attribute_name in anomaly_map[path] and \
-        anomaly_map[path][attribute_name] == attribute_value
+        (anomaly_map[path][attribute_name] == attribute_value or
+         _matches_regex(anomaly_map[path][attribute_name], attribute_value))
 
 
 def check_list_of_strings_equal(model_name, model_value, wlst_value, wlst_read_type):
@@ -325,3 +358,8 @@ def _get_splitter(wlst_read_type):
     elif wlst_read_type == alias_constants.PATH_SEPARATOR_DELIMITED_STRING:
         result = ':'  # Unix only for this test
     return result
+
+
+def _matches_regex(regex_pattern, value):
+    regex = re.compile(regex_pattern)
+    return regex.match(value) is not None
