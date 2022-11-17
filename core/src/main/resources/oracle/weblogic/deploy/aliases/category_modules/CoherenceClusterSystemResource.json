@@ -173,7 +173,7 @@
                     },
                     "attributes": {
                         "ClusterListenPort":                [ {"version": "[12.2.1,)",          "wlst_mode": "both",    "wlst_name": "ClusterListenPort",        "wlst_path": "WP001", "default_value": 0,                     "wlst_type": "integer"   } ],
-                        "ClusteringMode":                   [ {"version": "[12.1.2,)",          "wlst_mode": "both",    "wlst_name": "ClusteringMode",           "wlst_path": "WP001", "default_value": "${__NULL__:unicast}", "wlst_type": "string"    } ],
+                        "ClusteringMode":                   [ {"version": "[12.1.2,)",          "wlst_mode": "both",    "wlst_name": "ClusteringMode",           "wlst_path": "WP001", "default_value": "${__NULL__:unicast}", "derived_default": "${:true}", "wlst_type": "string"    } ],
                         "MulticastListenAddress":           [ {"version": "[12.1.2,)",          "wlst_mode": "both",    "wlst_name": "MulticastListenAddress",   "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string"    } ],
                         "MulticastListenPort":              [ {"version": "[12.1.2,)",          "wlst_mode": "both",    "wlst_name": "MulticastListenPort",      "wlst_path": "WP001", "default_value": "${__NULL__:33387}",   "wlst_type": "integer",  "get_method": "LSA"} ],
                         "SecurityFrameworkEnabled":         [ {"version": "[12.1.2,)",          "wlst_mode": "both",    "wlst_name": "SecurityFrameworkEnabled", "wlst_path": "WP001", "default_value": "${__NULL__:false}",   "wlst_type": "boolean",  "get_method": "LSA"} ],
@@ -218,7 +218,7 @@
                         "FederationTopology":                [ {"version": "[12.2.1.1,)",     "wlst_mode": "both",    "wlst_name": "FederationTopology",               "wlst_path": "WP001", "default_value": null,              "wlst_type": "string" } ],
                         "RemoteCoherenceClusterListenPort":  [ {"version": "[12.2.1.1,)",     "wlst_mode": "both",    "wlst_name": "RemoteCoherenceClusterListenPort", "wlst_path": "WP001", "default_value": "${__NULL__:7574}",    "wlst_type": "integer"} ],
                         "RemoteCoherenceClusterName":        [ {"version": "[12.2.1.1,)",     "wlst_mode": "both",    "wlst_name": "RemoteCoherenceClusterName",       "wlst_path": "WP001", "default_value": null,              "wlst_type": "string" } ],
-                        "RemoteParticipantHost":             [ {"version": "[12.2.1.1,)",     "wlst_mode": "both",    "wlst_name": "RemoteParticipantHost${:s}",       "wlst_path": "WP001", "default_value": null,              "wlst_type": "${list:jarray}",  "preferred_model_type": "delimited_string" } ]
+                        "RemoteParticipantHost":             [ {"version": "[12.2.1.1,)",     "wlst_mode": "both",    "wlst_name": "RemoteParticipantHost${:s}",       "wlst_path": "WP001", "default_value": null,              "wlst_type": "${list:jarray}", "wlst_read_type": "delimited_string[semicolon]", "get_method": "${LSA:GET}", "preferred_model_type": "delimited_string" } ]
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
@@ -235,7 +235,7 @@
                         "Enabled":           [ {"version": "[12.1.2,)",     "wlst_mode": "both",    "wlst_name": "Enabled",       "wlst_path": "WP001", "default_value": "${__NULL__:true}",                                                                            "wlst_type": "boolean"} ],
                         "LoggerName":        [ {"version": "[12.1.2,)",     "wlst_mode": "both",    "wlst_name": "LoggerName",    "wlst_path": "WP001", "default_value": "${__NULL__:com.oracle.coherence}",                                                            "wlst_type": "string" } ],
                         "MessageFormat":     [ {"version": "[12.1.2,)",     "wlst_mode": "offline", "wlst_name": "MessageFormat", "wlst_path": "WP001", "default_value": null,                                                                                          "wlst_type": "string", "get_method": "LSA" },
-                                               {"version": "[12.1.2,)",     "wlst_mode": "online",  "wlst_name": "MessageFormat", "wlst_path": "WP001", "default_value": "{date}/{uptime} {product} {version} &lt;{level}> (thread={thread}, member={member}): {text}", "wlst_type": "string", "get_method": "GET" } ]
+                                               {"version": "[12.1.2,)",     "wlst_mode": "online",  "wlst_name": "MessageFormat", "wlst_path": "WP001", "default_value": "{date}/{uptime} {product} {version} <{level}> (thread={thread}, member={member}): {text}",    "wlst_type": "string", "get_method": "GET" } ]
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
