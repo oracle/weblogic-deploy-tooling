@@ -5,7 +5,7 @@
 #
 
 if [ -z "${DOMAIN_HOME}" ]; then
-    echo "ORACLE_HOME environment variable must be set" >&2
+    echo "DOMAIN_HOME environment variable must be set" >&2
     exit 1
 fi
 

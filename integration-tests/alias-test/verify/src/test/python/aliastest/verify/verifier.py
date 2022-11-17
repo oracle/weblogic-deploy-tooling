@@ -785,7 +785,6 @@ class Verifier(object):
                 model_name, model_value = \
                     self._alias_helper.get_model_attribute_name_and_value(location, generated_attribute,
                                                                           generated_default)
-                model_value = verify_utils.check_list_of_strings_equal(model_name, model_value, generated_default)
 
                 is_derived_default = self._alias_helper.is_derived_default(location, model_name)
                 if DERIVED_DEFAULT in generated_attribute_info:
@@ -802,6 +801,12 @@ class Verifier(object):
                     message = 'WLST: %s  :  Alias: %s' % (str(generated_derived), str(is_derived_default))
                     self._add_error(location, ERROR_DERIVED_DEFAULT_DOES_NOT_MATCH, message=message, attribute=generated_attribute)
                     match = False
+
+                if match and model_value is not None and not is_derived_default:
+                    wlst_read_type = self._alias_helper.get_wlst_read_type(location, model_name)
+                    model_value = verify_utils.check_list_of_strings_equal(model_name, model_value, generated_default,
+                                                                           wlst_read_type)
+
             except TypeError, te:
                 self._add_error(location, ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE,
                                 message=te, attribute=generated_attribute)
