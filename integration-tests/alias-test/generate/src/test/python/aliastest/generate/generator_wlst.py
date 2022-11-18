@@ -15,6 +15,33 @@ import java.lang.NoSuchMethodException as NoSuchMethodException
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
 CREDENTIAL_FIELD_NAME_MARKERS = ['Password', 'PassPhrase', 'Credential', 'Encrypted', 'Secret']
+CREDENTIAL_FIELD_EXCEPTIONS = [
+    'ClearTextCredentialAccessEnabled',
+    'CredentialGenerated',
+    'CredentialMappingDeploymentEnabled',
+    'CredentialMappingEnabled',
+    'CredentialPolicy',
+    'DebugSecurityPasswordPolicy',
+    'DefaultCredentialProviderSTSURI',
+    'DefaultCredentialProviderStsuri',
+    'DeployCredentialMappingIgnored',
+    'EnforceValidBasicAuthCredentials',
+    'KeyEncrypted',
+    'MaxPasswordLength',
+    'MinimumPasswordLength',
+    'MinPasswordLength',
+    'PasswordAlgorithm',
+    'PasswordDigestEnabled',
+    'PasswordStyle',
+    'PasswordStyleRetained',
+    'PlaintextPasswordsEnabled',
+    'SQLGetUsersPassword',
+    'SQLSetUserPassword',
+    'UseDatabaseCredentials',
+    'UsePasswordIndirection',
+    'WarnOnUsernamePasswords'
+]
+
 PATH_ATTRIBUTE_NAME_ENDINGS = ['File', 'Directory', 'FileName', 'Home', 'DirectoryName', 'Path', 'Dir', 'Root']
 PATH_ATTRIBUTE_NAME_EXCEPTIONS = [
     'CacheInAppDirectory',
@@ -36,8 +63,6 @@ PATH_SERVER_NAMES = ['AdminServer']
 SERVER_NAME_PATTERN = r'Server[s]?-\d{3,5}'
 PARTITION_NAME_PATTERN = r'Partition[s]?-\d{3,5}'
 RESOURCE_GROUP_TEMPLATE_PATTERN = r'ResourceGroupTemplate[s]?-\d{3,5}'
-
-
 
 DOMAIN_HOME_TOKEN = '@@DOMAIN_HOME@@'
 WL_HOME_TOKEN = '@@WL_HOME@@'
@@ -598,7 +623,7 @@ def _load_global(global_name):
 
 def is_credential_field(attribute_name):
     for credential_marker in CREDENTIAL_FIELD_NAME_MARKERS:
-        if credential_marker in attribute_name:
+        if credential_marker in attribute_name and attribute_name not in CREDENTIAL_FIELD_EXCEPTIONS:
             return True
 
     return False
