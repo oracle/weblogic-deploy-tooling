@@ -853,6 +853,7 @@ class Verifier(object):
                 message = 'WLST: %s / Alias: %s' % (str(generated_default), str(model_default_value))
                 self._add_error(location, ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE,
                                 message=message, attribute=generated_attribute)
+                match = False
 
         _logger.exiting(result=verify_utils.bool_to_string(match), class_name=CLASS_NAME, method_name=_method_name)
         return match, model_name, model_value
