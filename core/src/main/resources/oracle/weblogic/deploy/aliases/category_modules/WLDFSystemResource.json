@@ -109,7 +109,7 @@
                             "folders": {},
                             "attributes": {
                                 "Enabled":        [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "Enabled",        "wlst_path": "WP001",  "default_value": "true",                             "wlst_type": "boolean" } ],
-                                "ImageDirectory": [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "ImageDirectory", "wlst_path": "WP001",  "default_value": "${__NULL__:logs/diagnostic_images}",   "wlst_type": "string",  "uses_path_tokens": "true" } ],
+                                "ImageDirectory": [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "ImageDirectory", "wlst_path": "WP001",  "default_value": "${__NULL__:logs/diagnostic_images}",  "derived_default": "${:true}", "wlst_type": "string",  "uses_path_tokens": "true" } ],
                                 "ImageLockout":   [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "ImageLockout",   "wlst_path": "WP001",  "default_value": 0,                                  "wlst_type": "integer" } ],
                                 "Timeout":        [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Timeout",        "wlst_path": "WP001",  "default_value": 0,                                  "wlst_type": "integer" } ]
                             },
