@@ -143,7 +143,7 @@ def get(attribute_name):
     except (online_wlst_exception, offlineWLSTException), we:
         success = False
         # We don't expect to be able to retrieve credential fields so don't log a warning for them.
-        if _is_credential_field(attribute_name):
+        if is_credential_field(attribute_name):
             __logger.fine('Unable to get credential attribute {0} at location {1} : {2}',
                           attribute_name, current_path(), we.getLocalizedMessage(),
                           class_name=__class_name, method_name=_method_name)
@@ -596,7 +596,7 @@ def _load_global(global_name):
     return member
 
 
-def _is_credential_field(attribute_name):
+def is_credential_field(attribute_name):
     for credential_marker in CREDENTIAL_FIELD_NAME_MARKERS:
         if credential_marker in attribute_name:
             return True

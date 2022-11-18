@@ -118,7 +118,8 @@ class GeneratorBase(object):
 
         get_attr_type, get_value = self._get_get_type_and_value(method_helper, attribute_name)
         if get_value != FAIL:
-            if get_attr_type == 'byte[]' and cmo_attr_type == alias_constants.PASSWORD:
+            if (get_attr_type == 'byte[]' and cmo_attr_type == alias_constants.PASSWORD) or \
+               generator_wlst.is_credential_field(attribute_name):
                 get_attr_type = alias_constants.PASSWORD
             dictionary[GET_TYPE] = self.type_it(mbean_type, attribute_name, get_attr_type)
             dictionary[GET_DEFAULT] = self.convert_attribute(attribute_name, get_value, value_type=dictionary[GET_TYPE])
@@ -129,7 +130,8 @@ class GeneratorBase(object):
 
         lsa_attr_type, lsa_value = self._get_lsa_type_and_value(lsa_map, attribute_name)
         if lsa_value != FAIL:
-            if lsa_value is not None and cmo_attr_type == alias_constants.PASSWORD and \
+            if lsa_value is not None and \
+                    (cmo_attr_type == alias_constants.PASSWORD or generator_wlst.is_credential_field(attribute_name)) and \
                     (self._is_string_type(lsa_attr_type) and lsa_value.startswith('****')):
                 lsa_value = None
                 dictionary[LSA_TYPE] = alias_constants.PASSWORD
@@ -385,6 +387,8 @@ class GeneratorBase(object):
             return_type = attr_type
         elif attr_type == int or 'java.lang.Integer' in str(attr_type) or 'int' in str(attr_type):
             return_type = alias_constants.INTEGER
+        elif generator_wlst.is_credential_field(attr_name):
+            return_type = alias_constants.PASSWORD
         elif attr_type in [str, unicode] or str(attr_type) == "<type 'java.lang.String'>" or \
                 attr_type == 'java.lang.String' or 'string' in str(attr_type):
             return_type = alias_constants.STRING

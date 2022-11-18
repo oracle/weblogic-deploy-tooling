@@ -45,7 +45,7 @@ def populate_security_types(model_context):
 
 def get_jarray(name):
     plist = generator_wlst.get(name)
-    if plist is None or len(plist) == 0:
+    if plist is None or len(plist) < 2:
         return []
     result = TypeUtils.convertToObjectArray(plist[1], str(plist), ',')
     provider = []
