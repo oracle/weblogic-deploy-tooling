@@ -4,13 +4,13 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 import java.io.IOException as IOException
 import java.lang.Boolean as Boolean
-import java.util.logging.Level as Level
 
 from oracle.weblogic.deploy.aliases import AliasException
 
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.logging.platform_logger import PlatformLogger
 import wlsdeploy.aliases.alias_constants as alias_constants
+from wlsdeploy.aliases.wlst_modes import WlstModes
 
 from aliastest.verify.alias_helper import AliasHelper
 import aliastest.verify.utils as verify_utils
@@ -61,6 +61,7 @@ WARN_MBEAN_NOT_NO_NAME_0 = 5101
 WARN_ATTRIBUTE_DEPRECATED = 5502
 WARN_ATTRIBUTE_HAS_UNKNOWN_TYPE = 5500
 WARN_ALIAS_FOLDER_NOT_IMPLEMENTED = 5501
+WARN_NO_DERIVED_DEFAULT_IN_GENERATED = 5502
 
 
 ERROR_FAILURE_ATTRIBUTE_LIST = 2000
@@ -107,6 +108,7 @@ MSG_MAP = {
     WARN_MBEAN_NOT_NO_NAME_0:                      'MBean can be named other than NO_NAME_0',
     WARN_ATTRIBUTE_DEPRECATED:                     'Attribute is deprecated',
     WARN_ATTRIBUTE_HAS_UNKNOWN_TYPE:               'Unable to determine the WLST attribute type',
+    WARN_NO_DERIVED_DEFAULT_IN_GENERATED:          'Generated file contained no derived default information',
     ERROR_UNABLE_TO_VERIFY_MBEAN_FOLDER:           'Unable to generate information for MBean',
     ERROR_ALIAS_FOLDER_NOT_IN_WLST:                'Alias Folder not an mbean',
     ERROR_SINGLE_UNPREDICTABLE:                    'Alias Folder not marked single unpredictable',
@@ -773,9 +775,12 @@ class Verifier(object):
         model_name = None
         model_value = None
         is_derived_default = False
-        generated_derived = False
         if generated_default is not None:
             try:
+                _logger.finest('getting model name and value with generated_default ({0}) of "{1}"',
+                               type(generated_default), generated_default,
+                               class_name=CLASS_NAME, method_name=_method_name)
+
                 # This code is sort of non-intuitive because the method was written for a different
                 # purpose.  This get_model_attribute_name_and_value() function compared the value
                 # we pass in with the alias default (accounting for type conversion).  If the value
@@ -786,26 +791,42 @@ class Verifier(object):
                     self._alias_helper.get_model_attribute_name_and_value(location, generated_attribute,
                                                                           generated_default)
 
+                _logger.finest('aliases returned model_name {0} and model_value ({1}) of "{2}"', model_name,
+                               type(model_value), model_value, class_name=CLASS_NAME, method_name=_method_name)
+
                 is_derived_default = self._alias_helper.is_derived_default(location, model_name)
                 if DERIVED_DEFAULT in generated_attribute_info:
                     generated_derived = generated_attribute_info[DERIVED_DEFAULT]
                     if isinstance(generated_derived, long):
                         generated_derived = bool(generated_derived)
+                else:
+                    # The generator was unable to find the information about the derived default
+                    # so just assume that the alias is correct.
+                    #
+                    generated_derived = is_derived_default
+                    if self._model_context.get_target_wlst_mode() == WlstModes.ONLINE:
+                        _logger.finest('No information about derived_default in the generated file',
+                                       class_name=CLASS_NAME, method_name=_method_name)
+                        message = 'Alias %s' % str(is_derived_default)
+                        self._add_warning(location, WARN_NO_DERIVED_DEFAULT_IN_GENERATED,
+                                          message=message, attribute=generated_attribute)
 
-                _logger.finest('is_derived_default ({0}) = {1}', type(is_derived_default), is_derived_default,
-                               class_name=CLASS_NAME, method_name=_method_name)
-                _logger.finest('generated_derived ({0}) = {1}', type(generated_derived), generated_derived,
-                               class_name=CLASS_NAME, method_name=_method_name)
                 if is_derived_default != generated_derived:
                     _logger.finest('derived default value mismatch', class_name=CLASS_NAME, method_name=_method_name)
                     message = 'WLST: %s  :  Alias: %s' % (str(generated_derived), str(is_derived_default))
-                    self._add_error(location, ERROR_DERIVED_DEFAULT_DOES_NOT_MATCH, message=message, attribute=generated_attribute)
+                    self._add_error(location, ERROR_DERIVED_DEFAULT_DOES_NOT_MATCH,
+                                    message=message, attribute=generated_attribute)
                     match = False
 
                 if match and model_value is not None and not is_derived_default:
-                    wlst_read_type = self._alias_helper.get_wlst_read_type(location, model_name)
-                    model_value = verify_utils.check_list_of_strings_equal(model_name, model_value, generated_default,
-                                                                           wlst_read_type)
+                    # the alias code is not treating the strings or lists of strings as equal so test them here...
+                    if isinstance(generated_default, basestring) and isinstance(model_value, basestring):
+                        if str(generated_default) == str(model_value):
+                            model_value = None
+                    if model_value is not None:
+                        wlst_read_type = self._alias_helper.get_wlst_read_type(location, model_name)
+                        model_value = verify_utils.check_list_of_strings_equal(model_name, model_value,
+                                                                               generated_default, wlst_read_type)
 
             except TypeError, te:
                 self._add_error(location, ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE,

@@ -4,11 +4,18 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 This module provides methods to help properly handle unicode across WLST versions of Jython
 """
+import os
 import sys
 
 # DO NOT import any WDT Python code into this file--ever!
 
 __use_unicode = sys.version_info >= (2, 7)
+if os.getenv('WLSDEPLOY_USE_UNICODE') is not None:
+    __val = os.getenv('WLSDEPLOY_USE_UNICODE').lower()
+    if __val == 'true':
+        __use_unicode = True
+    elif __val == 'false':
+        __use_unicode = False
 
 
 def use_unicode():

@@ -270,7 +270,7 @@
             "folders": {},
             "attributes": {
                 "Notes":                    [ {"version": "[12.2.1,)",          "wlst_mode": "both",    "wlst_name": "Notes",                        "wlst_path": "WP001", "default_value": null,      "wlst_type": "string"           } ],
-                "Properties":               [ {"version": "[12.2.1,)",          "wlst_mode": "both",    "wlst_name": "Properties",                   "wlst_path": "WP001", "default_value": null,      "wlst_type": "properties",      "wlst_read_type": "delimited_string[semicolon]", "get_method": "LSA" } ],
+                "Properties":               [ {"version": "[12.2.1,)",          "wlst_mode": "both",    "wlst_name": "Properties",                   "wlst_path": "WP001", "default_value": null,      "wlst_type": "properties",      "preferred_model_type": "dict", "wlst_read_type": "delimited_string[semicolon]", "get_method": "LSA" } ],
                 "SessionPasswordEncrypted": [ {"version": "[12.2.1,12.2.1.1)",  "wlst_mode": "offline", "wlst_name": "SessionPasswordEncrypted",     "wlst_path": "WP001", "default_value": null,      "wlst_type": "password",        "get_method": "LSA" } ,
                                               {"version": "[12.2.1.3,)",        "wlst_mode": "offline", "wlst_name": "SessionPasswordEncrypted",     "wlst_path": "WP001", "default_value": null,      "wlst_type": "password",        "get_method": "GET" } ,
                                               {"version": "[12.2.1.1,)",        "wlst_mode": "online",  "wlst_name": "SessionPasswordEncrypted",     "wlst_path": "WP001", "default_value": null,      "wlst_type": "password",        "get_method": "GET" } ],
@@ -321,10 +321,10 @@
             "default_name_value": "${NO_NAME_0:%PARTITION%}",
             "folders": {},
             "attributes": {
-                "CreateOnDemand": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "CreateOnDemand", "wlst_path": "WP001", "default_value": "true",  "wlst_type": "boolean"} ],
+                "CreateOnDemand": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "CreateOnDemand", "wlst_path": "WP001", "default_value": "true",   "wlst_type": "boolean"} ],
                 "Notes":          [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes",          "wlst_path": "WP001", "default_value": null,     "wlst_type": "string" } ],
-                "Preserved":      [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Preserved",      "wlst_path": "WP001", "default_value": "true",  "wlst_type": "boolean"} ],
-                "Root":           [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Root",           "wlst_path": "WP001", "default_value": null,     "wlst_type": "string" } ]
+                "Preserved":      [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Preserved",      "wlst_path": "WP001", "default_value": "true",   "wlst_type": "boolean"} ],
+                "Root":           [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Root",           "wlst_path": "WP001", "default_value": null,     "derived_default": "${:true}", "wlst_type": "string" } ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
@@ -594,7 +594,7 @@
         "ResourceDeploymentPlanPath":            [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "ResourceDeploymentPlanPath",              "wlst_path": "WP001", "default_value": null,              "wlst_type": "string",           "uses_path_tokens": "true" } ],
         "ResourceManagerRef":                    [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "ResourceManagerRef",                      "wlst_path": "WP001", "default_value": null,              "wlst_type": "string",           "get_method": "LSA", "set_method": "MBEAN.set_resource_manager_mbean", "set_mbean_type": "weblogic.management.configuration.ResourceManagerMBean"} ],
         "StartupTimeout":                        [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "StartupTimeout",                          "wlst_path": "WP001", "default_value": 0,                 "wlst_type": "integer"           } ],
-        "UploadDirectoryName":                   [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "UploadDirectoryName",                     "wlst_path": "WP001", "default_value": null, "derived_default": "${:true}", "wlst_type": "string" } ]
+        "UploadDirectoryName":                   [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "UploadDirectoryName",                     "wlst_path": "WP001", "default_value": null,              "wlst_type": "string",            "uses_path_tokens": "true" } ]
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {

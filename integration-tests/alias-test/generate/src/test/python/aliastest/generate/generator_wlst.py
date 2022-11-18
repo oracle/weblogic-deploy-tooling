@@ -2,6 +2,8 @@
 Copyright (c) 2021, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+import re
+
 import java.lang.Boolean as Boolean
 import java.util.Map as Map
 
@@ -13,9 +15,30 @@ import java.lang.NoSuchMethodException as NoSuchMethodException
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
 CREDENTIAL_FIELD_NAME_MARKERS = ['Password', 'PassPhrase', 'Credential', 'Encrypted', 'Secret']
-PATH_ATTRIBUTE_NAME_ENDINGS = ['File', 'Directory', 'FileName', 'Home', 'DirectoryName']
-PATH_ATTRIBUTE_NAME_EXCEPTIONS = ['CacheInAppDirectory', 'UsingCustomClusterConfigurationFile']
+PATH_ATTRIBUTE_NAME_ENDINGS = ['File', 'Directory', 'FileName', 'Home', 'DirectoryName', 'Path', 'Dir', 'Root']
+PATH_ATTRIBUTE_NAME_EXCEPTIONS = [
+    'CacheInAppDirectory',
+    'UsingCustomClusterConfigurationFile',
+    'DefaultWebAppContextRoot',
+    'OidRoot',
+    'ConsoleContextPath',
+    'DebugJMSMessagePath',
+    'DebugSAFMessagePath',
+    'DebugSecurityCertPath',
+    'AcceptContextPathInGetRealPath',
+    'ErrorPath',
+    'OracleEnableJavaNetFastPath',
+    'UriPath',
+    'BasePath'
+]
+
 PATH_SERVER_NAMES = ['AdminServer']
+SERVER_NAME_PATTERN = r'Server[s]?-\d{3,5}'
+PARTITION_NAME_PATTERN = r'Partition[s]?-\d{3,5}'
+RESOURCE_GROUP_TEMPLATE_PATTERN = r'ResourceGroupTemplate[s]?-\d{3,5}'
+
+
+
 DOMAIN_HOME_TOKEN = '@@DOMAIN_HOME@@'
 WL_HOME_TOKEN = '@@WL_HOME@@'
 ORACLE_HOME_TOKEN = '@@ORACLE_HOME@@'
@@ -554,6 +577,9 @@ def tokenize_path_value(model_context, attribute_name, attribute_value):
         for server_name in PATH_SERVER_NAMES:
             if server_name in result:
                 result = result.replace(server_name, '%SERVER%')
+        result = re.sub(SERVER_NAME_PATTERN, '%SERVER%', result)
+        result = re.sub(PARTITION_NAME_PATTERN, '%PARTITION%', result)
+        result = re.sub(RESOURCE_GROUP_TEMPLATE_PATTERN, '%RESOURCEGROUPTEMPLATE%', result)
     else:
         __logger.warning('Attribute {0} value {1} is not a string', attribute_name, attribute_value,
                          class_name=__class_name, method_name=_method_name)
