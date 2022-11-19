@@ -44,19 +44,19 @@ CREDENTIAL_FIELD_EXCEPTIONS = [
 
 PATH_ATTRIBUTE_NAME_ENDINGS = ['File', 'Directory', 'FileName', 'Home', 'DirectoryName', 'Path', 'Dir', 'Root']
 PATH_ATTRIBUTE_NAME_EXCEPTIONS = [
+    'AcceptContextPathInGetRealPath',
+    'BasePath',
     'CacheInAppDirectory',
-    'UsingCustomClusterConfigurationFile',
-    'DefaultWebAppContextRoot',
-    'OidRoot',
     'ConsoleContextPath',
     'DebugJMSMessagePath',
     'DebugSAFMessagePath',
     'DebugSecurityCertPath',
-    'AcceptContextPathInGetRealPath',
+    'DefaultWebAppContextRoot',
     'ErrorPath',
+    'OidRoot',
     'OracleEnableJavaNetFastPath',
     'UriPath',
-    'BasePath'
+    'UsingCustomClusterConfigurationFile'
 ]
 
 PATH_SERVER_NAMES = ['AdminServer']

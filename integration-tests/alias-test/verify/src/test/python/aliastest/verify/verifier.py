@@ -917,8 +917,8 @@ class Verifier(object):
         :return: True if the generated attribute indicates it needs a path token
         """
         _method_name = '_is_valid_uses_path_token'
-        _logger.entering(location.get_folder_path(), generated_attribute, model_name, class_name=CLASS_NAME,
-                         method_name=_method_name)
+        _logger.entering(location.get_folder_path(), generated_attribute, model_name, path_tokens_map,
+                         class_name=CLASS_NAME, method_name=_method_name)
 
         valid = True
         if model_name not in path_tokens_map and \
@@ -1339,8 +1339,32 @@ def _adjust_default_value_for_special_cases(attribute, attr_type, attr_default):
     return attr_default
 
 
+PATH_INCLUDES_TOKENS = ['Path', 'Dir']
+PATH_EXCLUDES_TOKENS = ['ClassPath']
+PATH_EXCLUDE_ATTRIBUTE_NAMES = ['Direction', 'ErrorPath']
+
+
 def _is_file_location_type(attribute):
-    return ('ClassPath' not in attribute and 'Path' in attribute) or ('Dir' in attribute and attribute != 'Direction')
+    _method_name = '_is_file_location_type'
+    _logger.entering(attribute, class_name=CLASS_NAME, method_name=_method_name)
+
+    result = False
+    for include_token in PATH_INCLUDES_TOKENS:
+        if include_token in attribute:
+            result = True
+            break
+
+    if result:
+        for exclude_token in PATH_EXCLUDES_TOKENS:
+            if exclude_token in attribute:
+                result = False
+                break
+
+    if result and attribute in PATH_EXCLUDE_ATTRIBUTE_NAMES:
+        result = False
+
+    _logger.exiting(result=result, class_name=CLASS_NAME, method_name=_method_name)
+    return result
 
 
 def _get_attribute_types(attribute_info):
