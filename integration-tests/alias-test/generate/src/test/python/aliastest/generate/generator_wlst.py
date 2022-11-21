@@ -21,6 +21,7 @@ CREDENTIAL_FIELD_EXCEPTIONS = [
     'CredentialMappingDeploymentEnabled',
     'CredentialMappingEnabled',
     'CredentialPolicy',
+    'CORSAllowedCredentials',
     'DebugSecurityPasswordPolicy',
     'DefaultCredentialProviderSTSURI',
     'DefaultCredentialProviderStsuri',
