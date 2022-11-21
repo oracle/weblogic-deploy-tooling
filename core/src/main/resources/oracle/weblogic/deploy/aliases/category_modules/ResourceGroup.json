@@ -26,7 +26,6 @@
     },
     "contains": [
         "Application",
-        "CoherenceClusterSystemResource",
         "FileStore",
         "ForeignJNDIProvider",
         "JDBCStore",

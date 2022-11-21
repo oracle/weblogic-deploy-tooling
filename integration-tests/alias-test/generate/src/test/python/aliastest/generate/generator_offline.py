@@ -128,12 +128,15 @@ class OfflineGenerator(GeneratorBase):
                 if mbean_type in PROVIDERS:
                     self.__logger.fine('Found security provider folder {0}', mbean_type)
                     success, lsc_name, attributes = self.create_security_type(mbean_type)
-                    mbean_dictionary[lsc_name] = attributes
+                    if attributes is not None:
+                        mbean_dictionary[lsc_name] = attributes
                     continue
                 else:
                     success, lsc_name, attributes = \
                         self.__generate_folder(mbean_instance, parent_mbean_type, mbean_type, mbean_helper)
-                mbean_dictionary[lsc_name] = attributes
+                    if attributes is not None:
+                        mbean_dictionary[lsc_name] = attributes
+
                 if success:
                     next_online_dictionary = dict()
                     if mbean_type in online_dictionary:
@@ -161,7 +164,8 @@ class OfflineGenerator(GeneratorBase):
                     self.__logger.fine('Found security provider folder {0} in online_dictionary_names',
                                        online_dictionary_name, class_name=self.__class_name, method_name=_method_name)
                     success, lsc_name, attributes = self.create_security_type(online_dictionary_name)
-                    mbean_dictionary[lsc_name] = attributes
+                    if attributes is not None:
+                        mbean_dictionary[lsc_name] = attributes
                     continue
                 else:
                     self.__logger.fine('Found folder {0} in online_dictionary_names', online_dictionary_name,
@@ -172,7 +176,8 @@ class OfflineGenerator(GeneratorBase):
                     self.__logger.fine('Processing MBean {0} child {1} from online dictionary',
                                        lsc_name, parent_mbean_type,
                                        class_name=self.__class_name, method_name=_method_name)
-                    mbean_dictionary[lsc_name] = attributes
+                    if attributes is not None:
+                        mbean_dictionary[lsc_name] = attributes
                     next_online_dictionary = online_dictionary[online_dictionary_name]
                     self.__folder_hierarchy(mbean_dictionary[lsc_name], next_online_dictionary,
                                             generator_wlst.current_path(), lsc_name)
@@ -247,7 +252,10 @@ class OfflineGenerator(GeneratorBase):
                 else:
                     self.__logger.fine('MBean {0} from MBeanInfo cannot be created with invoke', lsc_name,
                                        class_name=self.__class_name, method_name=_method_name)
-                    folder_dict[RECHECK] = 'Unable to create MBean instance'
+                    if self._is_coherence_mt_mbean(lsc_name):
+                        folder_dict = None
+                    else:
+                        folder_dict[RECHECK] = 'Unable to create MBean instance'
         else:
             success = True
 
@@ -707,8 +715,18 @@ class OfflineGenerator(GeneratorBase):
 
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=converted)
         return return_converted, converted
-    
-    
+
+    def _is_coherence_mt_mbean(self, mbean_type):
+        _method_name = '_is_coherence_mt_mbean'
+        current_path = generator_wlst.current_path()
+        self.__logger.entering(mbean_type, current_path, class_name=self.__class_name, method_name=_method_name)
+
+        result = mbean_type == 'CoherenceClusterSystemResources' and 'ResourceGroup' in current_path
+
+        self.__logger.exiting(result=result, class_name=self.__class_name, method_name=_method_name)
+        return result
+
+
 def _add_restart_value(attribute_map):
     attribute_map[RESTART] = RESTART_NO_CHECK
 
