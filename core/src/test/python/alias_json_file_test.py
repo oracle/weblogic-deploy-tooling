@@ -9,6 +9,7 @@ import os
 import pprint
 import unittest
 
+from oracle.weblogic.deploy.aliases import VersionUtils
 from oracle.weblogic.deploy.json import JsonStreamTranslator
 from oracle.weblogic.deploy.util import FileUtils
 
@@ -251,9 +252,9 @@ class ListTestCase(unittest.TestCase):
         if type(attribute_value) is not list:
             result.append(self._get_invalid_list_type_message(folder_path, attribute_name, attribute_value))
         else:
+            new_folder_path = folder_path + '/' + ATTRIBUTES
             attr_list_element = 0
             for attr_element_dict in attribute_value:
-                new_folder_path = folder_path + '/' + ATTRIBUTES
                 new_attribute_name = attribute_name + '[' + str(attr_list_element) + ']'
                 if type(attr_element_dict) is not dict:
                     result.append(self._get_invalid_dictionary_type_message(new_folder_path, new_attribute_name,
@@ -262,6 +263,9 @@ class ListTestCase(unittest.TestCase):
                     result.extend(self._process_attribute_entry(new_folder_path, new_attribute_name, attr_element_dict))
 
                 attr_list_element += 1
+
+            # after all syntax checks, check for overlapping version ranges
+            result.extend(self._check_version_ranges(attribute_value, new_folder_path, attribute_name))
 
         return result
 
@@ -772,7 +776,7 @@ class ListTestCase(unittest.TestCase):
                 result.append("Folder at path %s: %s %s should start with \"%s\"" %
                               (folder_path, WLST_PATHS, key, parent_path))
 
-            # for single folder, the final token in each wlst_path should be correspond to the folder name.
+            # for single folder, the final token in each wlst_path should correspond to the folder name.
             # this will ensure that the final token is unique in the path.
             if is_single_folder and (last_token is not None) and (last_token != required_last_token):
                 result.append("Folder at path %s: %s %s last token should reflect folder name: %s" %
@@ -785,6 +789,28 @@ class ListTestCase(unittest.TestCase):
                 result.append("Folder at path %s: %s is required for single MBean folder with path tokens" %
                               (folder_path, DEFAULT_NAME_VALUE))
 
+        return result
+
+    def _check_version_ranges(self, attribute_value, new_folder_path, attribute_name):
+        result = []
+
+        for mode in ['offline', 'online']:
+            wlst_modes = [mode, 'both']
+            versions = []
+            for attr_element_dict in attribute_value:
+                if type(attr_element_dict) is dict:
+                    wlst_mode = dictionary_utils.get_element(attr_element_dict, WLST_MODE)
+                    if wlst_mode in wlst_modes:
+                        version = dictionary_utils.get_element(attr_element_dict, VERSION)
+                        versions.append(version)
+
+            for index in range(len(versions) - 1):
+                version_1 = versions[index]
+                for nextIndex in range(index + 1, len(versions)):
+                    version_2 = versions[nextIndex]
+                    if VersionUtils.doVersionRangesOverlap(version_1, version_2):
+                        result.append('Attribute %s at path %s: Version ranges for %s overlap: %s %s' %
+                                      (attribute_name, new_folder_path, mode, version_1, version_2))
         return result
 
     ###########################################################################

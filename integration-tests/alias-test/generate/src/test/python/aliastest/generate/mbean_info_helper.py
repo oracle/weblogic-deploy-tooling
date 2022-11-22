@@ -351,7 +351,10 @@ class MBeanInfoAttributeHelper(object):
     def derived_default_value(self):
         if self.__attribute_info is None:
             return None
-        return self.__attribute_info.getValue('restDerivedDefault')
+        value = self.__attribute_info.getValue('restDerivedDefault')
+        if value is None:
+            value = False
+        return value
 
     def attribute_value(self):
         if self.is_valid_getter():

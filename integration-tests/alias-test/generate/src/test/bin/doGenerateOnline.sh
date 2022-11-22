@@ -69,7 +69,7 @@ ADMIN_PASS=welcome1
 OUTPUT_DIR="${BASEDIR}/target"
 STATUS_DIR=""
 
-while [[ $# -gt 1 ]]; do
+while [ $# -gt 1 ]; do
     key="$1"
     case $key in
         -oracle_home)

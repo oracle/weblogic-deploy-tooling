@@ -14,6 +14,7 @@ import org.python.core.PyInstance as PyInstance
 
 from wlsdeploy.aliases import alias_constants
 from wlsdeploy.aliases.aliases import Aliases
+from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
 import aliastest.generate.generator_wlst as generator_wlst
@@ -75,10 +76,12 @@ class GeneratorBase(object):
         self.__logger.entering(attribute_name, class_name=self.__class_name, method_name=_method_name)
 
         value = None
-        if cmo_helper is not None:
-            value = cmo_helper.derived_default_value()
-        if value is not None and value:
-            dictionary[DERIVED_DEFAULT] = value
+        # Currently, there is no concept of derived default in WLST offline.
+        if self._model_context.get_target_wlst_mode() == WlstModes.ONLINE:
+            if cmo_helper is not None:
+                value = cmo_helper.derived_default_value()
+            if value is not None:
+                dictionary[DERIVED_DEFAULT] = value
 
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=value)
 
@@ -115,15 +118,20 @@ class GeneratorBase(object):
 
         get_attr_type, get_value = self._get_get_type_and_value(method_helper, attribute_name)
         if get_value != FAIL:
+            if (get_attr_type == 'byte[]' and cmo_attr_type == alias_constants.PASSWORD) or \
+               generator_wlst.is_credential_field(attribute_name):
+                get_attr_type = alias_constants.PASSWORD
             dictionary[GET_TYPE] = self.type_it(mbean_type, attribute_name, get_attr_type)
             dictionary[GET_DEFAULT] = self.convert_attribute(attribute_name, get_value, value_type=dictionary[GET_TYPE])
+        
             self.__logger.finer('Attribute {0} {1} is {2} and {3} is {4}', attribute_name, GET_TYPE,
                                 dictionary[GET_TYPE], GET_DEFAULT, dictionary[GET_DEFAULT],
                                 class_name=self.__class_name, method_name=_method_name)
 
         lsa_attr_type, lsa_value = self._get_lsa_type_and_value(lsa_map, attribute_name)
         if lsa_value != FAIL:
-            if lsa_value is not None and cmo_attr_type == alias_constants.PASSWORD and \
+            if lsa_value is not None and \
+                    (cmo_attr_type == alias_constants.PASSWORD or generator_wlst.is_credential_field(attribute_name)) and \
                     (self._is_string_type(lsa_attr_type) and lsa_value.startswith('****')):
                 lsa_value = None
                 dictionary[LSA_TYPE] = alias_constants.PASSWORD
@@ -222,6 +230,7 @@ class GeneratorBase(object):
         if get_value != FAIL:
             if method_helper is not None:
                 get_attr_type = method_helper.attribute_type()
+                
             elif get_value is not None:
                 if isinstance(get_value, PyInstance):
                     get_attr_type = get_value.getClass().getName()
@@ -336,7 +345,7 @@ class GeneratorBase(object):
             else:
                 return_value = value.toString()
         elif isinstance(value, basestring):
-            return_value = value
+            return_value = str(value)
         elif value_type == alias_constants.STRING:
             return_value = value.toString()
         elif value_type == alias_constants.BOOLEAN or value_type == alias_constants.JAVA_LANG_BOOLEAN:
@@ -378,6 +387,8 @@ class GeneratorBase(object):
             return_type = attr_type
         elif attr_type == int or 'java.lang.Integer' in str(attr_type) or 'int' in str(attr_type):
             return_type = alias_constants.INTEGER
+        elif generator_wlst.is_credential_field(attr_name):
+            return_type = alias_constants.PASSWORD
         elif attr_type in [str, unicode] or str(attr_type) == "<type 'java.lang.String'>" or \
                 attr_type == 'java.lang.String' or 'string' in str(attr_type):
             return_type = alias_constants.STRING

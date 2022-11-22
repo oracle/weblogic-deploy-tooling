@@ -12,7 +12,7 @@ BASEDIR="$(pwd)"
 . "${scriptPath}/helpers.sh"
 
 STATUS_DIR=""
-while [[ $# -gt 1 ]]; do
+while [ $# -gt 1 ]; do
     key="$1"
     case $key in
         -status_dir)

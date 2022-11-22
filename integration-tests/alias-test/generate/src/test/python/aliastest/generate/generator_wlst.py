@@ -2,6 +2,8 @@
 Copyright (c) 2021, 2022, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+import re
+
 import java.lang.Boolean as Boolean
 import java.util.Map as Map
 
@@ -13,8 +15,55 @@ import java.lang.NoSuchMethodException as NoSuchMethodException
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
 CREDENTIAL_FIELD_NAME_MARKERS = ['Password', 'PassPhrase', 'Credential', 'Encrypted', 'Secret']
-PATH_ATTRIBUTE_NAME_ENDINGS = ['File', 'Directory', 'FileName', 'Home']
-PATH_ATTRIBUTE_NAME_EXCEPTIONS = ['CacheInAppDirectory', 'UsingCustomClusterConfigurationFile']
+CREDENTIAL_FIELD_EXCEPTIONS = [
+    'ClearTextCredentialAccessEnabled',
+    'CredentialGenerated',
+    'CredentialMappingDeploymentEnabled',
+    'CredentialMappingEnabled',
+    'CredentialPolicy',
+    'DebugSecurityPasswordPolicy',
+    'DefaultCredentialProviderSTSURI',
+    'DefaultCredentialProviderStsuri',
+    'DeployCredentialMappingIgnored',
+    'EnforceValidBasicAuthCredentials',
+    'KeyEncrypted',
+    'MaxPasswordLength',
+    'MinimumPasswordLength',
+    'MinPasswordLength',
+    'PasswordAlgorithm',
+    'PasswordDigestEnabled',
+    'PasswordStyle',
+    'PasswordStyleRetained',
+    'PlaintextPasswordsEnabled',
+    'SQLGetUsersPassword',
+    'SQLSetUserPassword',
+    'UseDatabaseCredentials',
+    'UsePasswordIndirection',
+    'WarnOnUsernamePasswords'
+]
+
+PATH_ATTRIBUTE_NAME_ENDINGS = ['File', 'Directory', 'FileName', 'Home', 'DirectoryName', 'Path', 'Dir', 'Root']
+PATH_ATTRIBUTE_NAME_EXCEPTIONS = [
+    'AcceptContextPathInGetRealPath',
+    'BasePath',
+    'CacheInAppDirectory',
+    'ConsoleContextPath',
+    'DebugJMSMessagePath',
+    'DebugSAFMessagePath',
+    'DebugSecurityCertPath',
+    'DefaultWebAppContextRoot',
+    'ErrorPath',
+    'OidRoot',
+    'OracleEnableJavaNetFastPath',
+    'UriPath',
+    'UsingCustomClusterConfigurationFile'
+]
+
+PATH_SERVER_NAMES = ['AdminServer']
+SERVER_NAME_PATTERN = r'Server[s]?-\d{3,5}'
+PARTITION_NAME_PATTERN = r'Partition[s]?-\d{3,5}'
+RESOURCE_GROUP_TEMPLATE_PATTERN = r'ResourceGroupTemplate[s]?-\d{3,5}'
+
 DOMAIN_HOME_TOKEN = '@@DOMAIN_HOME@@'
 WL_HOME_TOKEN = '@@WL_HOME@@'
 ORACLE_HOME_TOKEN = '@@ORACLE_HOME@@'
@@ -119,7 +168,7 @@ def get(attribute_name):
     except (online_wlst_exception, offlineWLSTException), we:
         success = False
         # We don't expect to be able to retrieve credential fields so don't log a warning for them.
-        if _is_credential_field(attribute_name):
+        if is_credential_field(attribute_name):
             __logger.fine('Unable to get credential attribute {0} at location {1} : {2}',
                           attribute_name, current_path(), we.getLocalizedMessage(),
                           class_name=__class_name, method_name=_method_name)
@@ -533,25 +582,33 @@ def is_path_field(attribute_name):
 def tokenize_path_value(model_context, attribute_name, attribute_value):
     _method_name = 'tokenize_path_value'
 
+    result = attribute_value
     if attribute_value is None:
         pass
     elif isinstance(attribute_value, basestring):
         if attribute_value.startswith(model_context.get_domain_home()):
             index = len(model_context.get_domain_home())
-            return '%s%s' % (DOMAIN_HOME_TOKEN, attribute_value[index:])
+            result = '%s%s' % (DOMAIN_HOME_TOKEN, attribute_value[index:])
         elif attribute_value.startswith(model_context.get_wl_home()):
             index = len(model_context.get_wl_home())
-            return '%s%s' % (WL_HOME_TOKEN, attribute_value[index:])
+            result = '%s%s' % (WL_HOME_TOKEN, attribute_value[index:])
         elif attribute_value.startswith(model_context.get_oracle_home()):
             index = len(model_context.get_oracle_home())
-            return '%s%s' % (ORACLE_HOME_TOKEN, attribute_value[index:])
+            result = '%s%s' % (ORACLE_HOME_TOKEN, attribute_value[index:])
         elif attribute_value.startswith(model_context.get_java_home()):
             index = len(model_context.get_java_home())
-            return '%s%s' % (JAVA_HOME_TOKEN, attribute_value[index:])
+            result = '%s%s' % (JAVA_HOME_TOKEN, attribute_value[index:])
+
+        for server_name in PATH_SERVER_NAMES:
+            if server_name in result:
+                result = result.replace(server_name, '%SERVER%')
+        result = re.sub(SERVER_NAME_PATTERN, '%SERVER%', result)
+        result = re.sub(PARTITION_NAME_PATTERN, '%PARTITION%', result)
+        result = re.sub(RESOURCE_GROUP_TEMPLATE_PATTERN, '%RESOURCEGROUPTEMPLATE%', result)
     else:
         __logger.warning('Attribute {0} value {1} is not a string', attribute_name, attribute_value,
                          class_name=__class_name, method_name=_method_name)
-    return attribute_value
+    return result
 
 
 def _load_global(global_name):
@@ -564,9 +621,9 @@ def _load_global(global_name):
     return member
 
 
-def _is_credential_field(attribute_name):
+def is_credential_field(attribute_name):
     for credential_marker in CREDENTIAL_FIELD_NAME_MARKERS:
-        if credential_marker in attribute_name:
+        if credential_marker in attribute_name and attribute_name not in CREDENTIAL_FIELD_EXCEPTIONS:
             return True
 
     return False

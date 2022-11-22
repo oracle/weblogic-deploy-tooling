@@ -1244,7 +1244,7 @@ class AliasesTestCase(unittest.TestCase):
     def testIssue91Fix(self):
         location = LocationContext().append_location(FOLDERS.NM_PROPERTIES)
 
-        expected = 'startWebLogic.cmd'
+        expected = 'startWebLogic.sh'
         default_value = self.aliases.get_model_attribute_default_value(location, 'weblogic.StartScriptName')
         self.assertEqual(default_value, expected)
 

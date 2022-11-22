@@ -20,8 +20,10 @@
         <mw_home>${env.ORACLE_HOME}</mw_home>
         <test_home>${project.build.directory}/test-home</test_home>
         <domain_name>system_test_domain</domain_name>
-        <domain_parent>${project.build.directory}/domains</domain_parent>
-        <domain_home>${domain_parent}/${domain_name}</domain_home>
+        <online_domain_parent>${project.build.directory}/domains/online</online_domain_parent>
+        <offline_domain_parent>${project.build.directory}/domains/offline</offline_domain_parent>
+        <online_domain_home>${online_domain_parent}/${domain_name}</online_domain_home>
+        <offline_domain_home>${offline_domain_parent}/${domain_name}</offline_domain_home>
     </properties>
 
     <build>
@@ -126,7 +128,7 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>create-domain</id>
+                        <id>create-online-domain</id>
                         <phase>pre-integration-test</phase>
                         <goals>
                             <goal>exec</goal>
@@ -144,7 +146,34 @@
                                 <argument>-archive_file</argument>
                                 <argument>${project.basedir}/src/test/resources/alias-test-archive.zip</argument>
                                 <argument>-domain_parent</argument>
-                                <argument>${domain_parent}</argument>
+                                <argument>${online_domain_parent}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <!--
+                        Create a second domain that will never be started so that the generated offline file
+                        does not have config.xml changes that are made when the server starts the first time.
+                     -->
+                    <execution>
+                        <id>create-offline-domain</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${project.basedir}/src/test/bin/createDomain.sh</executable>
+                            <environmentVariables>
+                                <JAVA_HOME>${env.JAVA_HOME}</JAVA_HOME>
+                                <ORACLE_HOME>${mw_home}</ORACLE_HOME>
+                                <WLSDEPLOY_HOME>${project.build.directory}/weblogic-deploy</WLSDEPLOY_HOME>
+                            </environmentVariables>
+                            <arguments>
+                                <argument>-model_file</argument>
+                                <argument>${project.basedir}/src/test/resources/alias-test-model.yaml</argument>
+                                <argument>-archive_file</argument>
+                                <argument>${project.basedir}/src/test/resources/alias-test-archive.zip</argument>
+                                <argument>-domain_parent</argument>
+                                <argument>${offline_domain_parent}</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -157,7 +186,7 @@
                         <configuration>
                             <executable>${project.basedir}/src/test/bin/startAdminServer.sh</executable>
                             <environmentVariables>
-                                <DOMAIN_HOME>${domain_home}</DOMAIN_HOME>
+                                <DOMAIN_HOME>${online_domain_home}</DOMAIN_HOME>
                             </environmentVariables>
                         </configuration>
                     </execution>
@@ -188,7 +217,7 @@
                                 <argument>-oracle_home</argument>
                                 <argument>${mw_home}</argument>
                                 <argument>-domain_home</argument>
-                                <argument>${domain_home}</argument>
+                                <argument>${online_domain_home}</argument>
                                 <argument>-output_dir</argument>
                                 <argument>${project.build.directory}</argument>
                             </arguments>
@@ -221,7 +250,7 @@
                                 <argument>-oracle_home</argument>
                                 <argument>${mw_home}</argument>
                                 <argument>-domain_home</argument>
-                                <argument>${domain_home}</argument>
+                                <argument>${online_domain_home}</argument>
                                 <argument>-output_dir</argument>
                                 <argument>${project.build.directory}</argument>
                             </arguments>
@@ -254,7 +283,7 @@
                                 <argument>-oracle_home</argument>
                                 <argument>${mw_home}</argument>
                                 <argument>-domain_home</argument>
-                                <argument>${domain_home}</argument>
+                                <argument>${offline_domain_home}</argument>
                                 <argument>-output_dir</argument>
                                 <argument>${project.build.directory}</argument>
                             </arguments>
@@ -269,7 +298,7 @@
                         <configuration>
                             <executable>${project.basedir}/src/test/bin/stopAdminServer.sh</executable>
                             <environmentVariables>
-                                <DOMAIN_HOME>${domain_home}</DOMAIN_HOME>
+                                <DOMAIN_HOME>${online_domain_home}</DOMAIN_HOME>
                             </environmentVariables>
                             <arguments>
                                 <argument>weblogic</argument>

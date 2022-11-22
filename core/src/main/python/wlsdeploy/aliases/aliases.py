@@ -1353,18 +1353,27 @@ class Aliases(object):
         Return whether the default is derived by WLST.
         :param location: current location
         :param model_attribute: model name of attribute to check
-        :return: True if the default is derived
+        :return: True if the default is derived, False otherwise
         """
         _method_name = "is_derived_default"
         self._logger.entering(model_attribute, class_name=self._class_name, method_name=_method_name)
+
         result = False
         try:
             attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute)
             if attribute_info is not None and DERIVED_DEFAULT in attribute_info:
                 result = attribute_info[DERIVED_DEFAULT]
+                if result is None:
+                    result = False
+                elif isinstance(result, basestring):
+                    if result == 'true':
+                        result = True
+                    else:
+                        result = False
         except AliasException, ae:
             self._raise_exception(ae, _method_name, 'WLSDPLY-19045', model_attribute, location.get_folder_path(),
-                              ae.getLocalizedMessage())
+                                  ae.getLocalizedMessage())
+
         self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
         return result
 

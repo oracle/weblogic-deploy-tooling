@@ -65,7 +65,7 @@ WLS_VERSION=""
 OUTPUT_DIR="${BASEDIR}/target"
 GENERATED_DIR="${BASEDIR}/target"
 STATUS_DIR=""
-while [[ $# -gt 1 ]]; do
+while [ $# -gt 1 ]; do
     key="$1"
     case $key in
         -wls_version)
@@ -139,6 +139,8 @@ if [ -z "${WLSDEPLOY_LOG_DIRECTORY}" ]; then
     WLSDEPLOY_LOG_DIRECTORY=${WLSDEPLOY_HOME}/logs
     export WLSDEPLOY_LOG_DIRECTORY
 fi
+
+export WLSDEPLOY_USE_UNICODE=false
 
 echo "JAVA_HOME = ${JAVA_HOME}"
 echo "CLASSPATH = ${CLASSPATH}"
