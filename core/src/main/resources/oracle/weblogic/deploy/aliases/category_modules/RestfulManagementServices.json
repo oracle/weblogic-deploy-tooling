@@ -9,7 +9,7 @@
     "folders": {},
     "attributes": {
         "CorsAllowedCredentials":               [ {"version": "[12.2.1.4.0.210930,)",       "wlst_mode": "online",    "wlst_name": "CORSAllowedCredentials",        "wlst_path": "WP001", "default_value": "false",  "wlst_type": "boolean" } ,
-	                                              {"version": "[14,)",                      "wlst_mode": "offline",   "wlst_name": "CorsAllowedCredentials",        "wlst_path": "WP001", "default_value": "false",  "wlst_type": "boolean" } ],
+                                                  {"version": "[14,)",                      "wlst_mode": "offline",   "wlst_name": "CorsAllowedCredentials",        "wlst_path": "WP001", "default_value": "false",  "wlst_type": "boolean" } ],
         "CorsAllowedHeaders":                   [ {"version": "[12.2.1.4.0.210930,)",       "wlst_mode": "online",    "wlst_name": "CORSAllowedHeaders",            "wlst_path": "WP001", "default_value": "*",      "wlst_type": "string"  } ,
                                                   {"version": "[14,)",                      "wlst_mode": "offline",   "wlst_name": "CorsAllowedHeaders",            "wlst_path": "WP001", "default_value": "*",      "wlst_type": "string"  } ],
         "CorsAllowedMethods":                   [ {"version": "[12.2.1.4.0.210930,)",       "wlst_mode": "online",    "wlst_name": "CORSAllowedMethods",            "wlst_path": "WP001", "default_value": "*",      "wlst_type": "string"  } ,
