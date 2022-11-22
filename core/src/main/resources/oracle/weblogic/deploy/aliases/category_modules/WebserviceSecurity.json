@@ -137,7 +137,7 @@
     "attributes": {
                 "CompatibilityOrderingPreference":     [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "CompatibilityOrderingPreference",    "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ],
                 "CompatibilityPreference":             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "CompatibilityPreference",            "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ],
-                "DefaultCredentialProviderSTSURI":     [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "DefaultCredentialProviderSTSURI",    "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ],
+                "DefaultCredentialProviderStsuri":     [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "DefaultCredentialProviderS${tsuri:TSURI}", "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ],
                 "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ],
                 "PolicySelectionPreference":           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "PolicySelectionPreference",          "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ]
     },

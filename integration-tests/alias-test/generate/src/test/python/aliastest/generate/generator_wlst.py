@@ -17,11 +17,11 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 CREDENTIAL_FIELD_NAME_MARKERS = ['Password', 'PassPhrase', 'Credential', 'Encrypted', 'Secret']
 CREDENTIAL_FIELD_EXCEPTIONS = [
     'ClearTextCredentialAccessEnabled',
+    'CORSAllowedCredentials',
     'CredentialGenerated',
     'CredentialMappingDeploymentEnabled',
     'CredentialMappingEnabled',
     'CredentialPolicy',
-    'CORSAllowedCredentials',
     'DebugSecurityPasswordPolicy',
     'DefaultCredentialProviderSTSURI',
     'DefaultCredentialProviderStsuri',
