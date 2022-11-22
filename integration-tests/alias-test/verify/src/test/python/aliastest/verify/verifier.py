@@ -959,8 +959,9 @@ class Verifier(object):
                 _logger.fine('Test attribute {0} type {1} with value {2} for valid conversion to alias type {3} ',
                              generated_attribute, generated_attr_type, generated_attr_value, alias_type,
                              class_name=CLASS_NAME, method_name=_method_name)
-            elif self._validate_primitive_type(location, generated_attribute, generated_attribute_info, generated_attr_type,
-                                               generated_attr_value, alias_type, get_required_attribute_list):
+            elif self._validate_primitive_type(location, generated_attribute, generated_attribute_info,
+                                               generated_attr_type, generated_attr_value, alias_type,
+                                               get_required_attribute_list):
                 _logger.finer('Attribute [0} with alias type {0} passed special primitive test', model_name, alias_type,
                               class_name=CLASS_NAME, method_name=_method_name)
                 valid = True
@@ -1063,8 +1064,10 @@ class Verifier(object):
                     self._add_error(location, ERROR_SINGLE_UNPREDICTABLE)
             else:
                 try:
-                    _logger.finer('Calling get_wlst_mbean_name() on location {0}', location.get_folder_path,
+                    _logger.finer('Calling get_wlst_mbean_name() on location {0}', location.get_folder_path(),
                                   class_name=CLASS_NAME, method_name=_method_name)
+                    token_name = self._alias_helper.get_name_token(location)
+                    location.add_name_token(token_name, 'foo')
                     token_name = self._alias_helper.get_wlst_mbean_name(location)
                 except AliasException, e:
                     if is_flattened_folder:
@@ -1128,9 +1131,6 @@ class Verifier(object):
             elif alias_type == alias_constants.LONG and generated_attribute_type == alias_constants.INTEGER and \
                     generated_attribute not in get_required_attribute_list:
                 valid = True
-                self._add_invalid_type_error(location, generated_attribute, generated_attribute_type, alias_type,
-                                             get_required_attribute_list,
-                                             'Attribute requires GET for LONG value')
             elif alias_type in NUMBER_TYPES and \
                     _is_in_types(generated_attribute, NUMBER_TYPES, generated_attribute_info,
                                  get_required_attribute_list):
