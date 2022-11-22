@@ -91,12 +91,12 @@
       "folders": {},
       "attributes": {
         "LocalAccessPoint":                    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "LocalAccessPoint",                 "wlst_path": "WP001", "default_value": "myLAP",               "wlst_type": "string"      } ],
-        "LocalPassword":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "LocalPassword",                    "wlst_path": "WP001", "default_value": "${__NULL__:myLPWD}",  "wlst_type": "password",   "get_method": "GET"} ],
-        "LocalPasswordIV":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "LocalPasswordIV",                  "wlst_path": "WP001", "default_value": "myLPWDIV",            "wlst_type": "password",   "get_method": "GET"} ],
+        "LocalPassword":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "LocalPassword",                    "wlst_path": "WP001", "default_value": null,                  "wlst_type": "password",   "get_method": "GET"} ],
+        "LocalPasswordIV":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "LocalPasswordIV",                  "wlst_path": "WP001", "default_value": null,                  "wlst_type": "password",   "get_method": "GET"} ],
         "Notes":                               [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Notes",                            "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string"      } ],
         "RemoteAccessPoint":                   [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "RemoteAccessPoint",                "wlst_path": "WP001", "default_value": "myRAP",               "wlst_type": "string"      } ],
-        "RemotePassword":                      [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "RemotePassword",                   "wlst_path": "WP001", "default_value": "${__NULL__:myRPWD}",  "wlst_type": "password",   "get_method": "GET"} ],
-        "RemotePasswordIV":                    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "RemotePasswordIV",                 "wlst_path": "WP001", "default_value": "myRPWDIV",            "wlst_type": "password",   "get_method": "GET" } ]
+        "RemotePassword":                      [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "RemotePassword",                   "wlst_path": "WP001", "default_value": null,                  "wlst_type": "password",   "get_method": "GET"} ],
+        "RemotePasswordIV":                    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "RemotePasswordIV",                 "wlst_path": "WP001", "default_value": null,                  "wlst_type": "password",   "get_method": "GET" } ]
       },
       "wlst_attributes_path": "WP001",
       "wlst_paths": {
@@ -224,10 +224,8 @@
   "attributes": {
     "DeploymentOrder":                            [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "DeploymentOrder",                    "wlst_path": "WP001", "default_value": 1000,                  "wlst_type": "integer"                        } ],
     "Notes":                                      [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string"                         } ],
-    "Resource":                                   [ {"version": "[10,)",         "wlst_mode": "online",  "wlst_name": "Resource",                           "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string",                        "get_method": "${LSA:GET}" } ],
     "Target":                                     [ {"version": "[10,)",         "wlst_mode": "offline", "wlst_name": "Target",                             "wlst_path": "WP001", "default_value": null,                  "wlst_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans" } ,
-                                                    {"version": "[10,)",         "wlst_mode": "online",  "wlst_name": "Targets",                            "wlst_path": "WP003", "default_value": null,                  "wlst_type": "jarray",                        "preferred_model_type": "delimited_string", "get_method": "${LSA:GET}", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ],
-    "tBridgeGlobal":                              [ {"version": "[10,)",         "wlst_mode": "online",  "wlst_name": "tBridgeGlobal",                      "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string",                        "get_method": "${LSA:GET}"} ]
+                                                    {"version": "[10,)",         "wlst_mode": "online",  "wlst_name": "Targets",                            "wlst_path": "WP003", "default_value": null,                  "wlst_type": "jarray",                        "preferred_model_type": "delimited_string", "get_method": "${LSA:GET}", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ]
   },
   "wlst_attributes_path": "WP001",
   "wlst_paths": {
