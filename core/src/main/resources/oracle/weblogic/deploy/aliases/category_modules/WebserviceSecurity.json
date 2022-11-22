@@ -20,9 +20,9 @@
                    "folders": {},
                    "attributes": {
                              "EncryptValueRequired":                [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "EncryptValueRequired",               "wlst_path": "WP001", "default_value": null, "wlst_type": "boolean"           } ],
-                             "EncryptedValueEncrypted":             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "EncryptedValueEncrypted",            "wlst_path": "WP001", "default_value": null, "wlst_type": "password",        "get_method": "GET"          } ],
+                             "EncryptedValueEncrypted":             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "EncryptedValueEncrypted",            "wlst_path": "WP001", "default_value": null, "wlst_type": "password",        "get_method": "GET", "access": "RO" } ],
                              "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ],
-                             "Value":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Value",                              "wlst_path": "WP001", "default_value": "true", "wlst_type": "string",          "get_method": "GET"         } ]
+                             "Value":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Value",                              "wlst_path": "WP001", "default_value": "${__NULL__:true}", "wlst_type": "string", "get_method": "GET" } ]
                    },
                    "wlst_attributes_path": "WP001",
                        "wlst_paths": {
@@ -31,9 +31,9 @@
                    }
                 },
                 "attributes": {
-                    "ClassName":                           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ClassName",                          "wlst_path": "WP001", "default_value": "weblogic.xml.crypto.wss.UNTCredentialProvider",         "wlst_type": "string"            } ],
-                    "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "default_value": null,                                                    "wlst_type": "string"            } ],
-                    "TokenType":                           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "TokenType",                          "wlst_path": "WP001", "default_value": "ut",                                                    "wlst_type": "string"            } ]
+                    "ClassName": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ClassName", "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                    "Notes":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",     "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                    "TokenType": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "TokenType", "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ]
                 },
                 "wlst_attributes_path": "WP001",
                 "wlst_paths": {
@@ -55,7 +55,7 @@
             "folders": {},
             "attributes": {
               "EncryptValueRequired":                [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "EncryptValueRequired",               "wlst_path": "WP001", "default_value": null, "wlst_type": "boolean"          } ],
-              "EncryptedValueEncrypted":             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "EncryptedValueEncrypted",            "wlst_path": "WP001", "default_value": null, "wlst_type": "password",        "get_method": "GET"          } ],
+              "EncryptedValueEncrypted":             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "EncryptedValueEncrypted",            "wlst_path": "WP001", "default_value": null, "wlst_type": "password",        "get_method": "GET", "access": "RO" } ],
               "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ],
               "Value":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Value",                              "wlst_path": "WP001", "default_value": null, "wlst_type": "string",           "get_method": "GET" } ]
 
@@ -83,10 +83,10 @@
         "default_name_value": "${NO_NAME_0:%WEBSERVICE%}",
         "folders": {},
         "attributes": {
-          "ClockPrecision":                      [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ClockPrecision",                     "wlst_path": "WP001", "default_value": 60000, "wlst_type": "long",             "get_method": "GET" } ],
+          "ClockPrecision":                      [ {"version": "[10,12.2.1.1)", "wlst_mode": "both",    "wlst_name": "ClockPrecision",                     "wlst_path": "WP001", "default_value": 60000, "wlst_type": "long",             "get_method": "GET" } ],
           "ClockSkew":                           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ClockSkew",                          "wlst_path": "WP001", "default_value": 60000, "wlst_type": "integer"           } ],
           "ClockSynchronized":                   [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ClockSynchronized",                  "wlst_path": "WP001", "default_value": true,  "wlst_type": "boolean"           } ],
-          "LaxPrecision":                        [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "LaxPrecision",                       "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean"           } ],
+          "LaxPrecision":                        [ {"version": "[10,12.2.1.1)", "wlst_mode": "both",    "wlst_name": "LaxPrecision",                       "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean"           } ],
           "MaxProcessingDelay":                  [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "MaxProcessingDelay",                 "wlst_path": "WP001", "default_value": -1,    "wlst_type": "integer"           } ],
           "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "default_value": null,  "wlst_type": "string"            } ],
           "ValidityPeriod":                      [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ValidityPeriod",                     "wlst_path": "WP001", "default_value": 60,    "wlst_type": "integer"           } ]
@@ -111,9 +111,9 @@
             "folders": {},
             "attributes": {
               "EncryptValueRequired":                [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "EncryptValueRequired",               "wlst_path": "WP001", "default_value": null,  "wlst_type": "boolean"           } ],
-              "EncryptedValueEncrypted":             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "EncryptedValueEncrypted",            "wlst_path": "WP001", "default_value": null, "wlst_type": "password",        "get_method": "GET"          } ],
+              "EncryptedValueEncrypted":             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "EncryptedValueEncrypted",            "wlst_path": "WP001", "default_value": null,  "wlst_type": "password",        "get_method": "GET", "access": "RO" } ],
               "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "default_value": null,  "wlst_type": "string"            } ],
-              "Value":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Value",                              "wlst_path": "WP001", "default_value": "true", "wlst_type": "string",          "get_method": "GET"  } ]
+              "Value":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Value",                              "wlst_path": "WP001", "default_value": null,  "wlst_type": "string",          "get_method": "GET"  } ]
 
             },
             "wlst_attributes_path": "WP001",
@@ -123,10 +123,10 @@
           }
         },
         "attributes": {
-          "ClassName":                           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ClassName",                          "wlst_path": "WP001", "default_value": "weblogic.xml.crypto.wss.BinarySecurityTokenHandler", "wlst_type": "string"            } ],
-          "HandlingOrder":                       [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "HandlingOrder",                      "wlst_path": "WP001", "default_value": 10,                                                   "wlst_type": "integer"           } ],
-          "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "default_value": null,                                                 "wlst_type": "string"            } ],
-          "TokenType":                           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "TokenType",                          "wlst_path": "WP001", "default_value": "x509",                                               "wlst_type": "string"            } ]
+          "ClassName":                           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ClassName",                          "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ],
+          "HandlingOrder":                       [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "HandlingOrder",                      "wlst_path": "WP001", "default_value": 0,    "wlst_type": "integer"           } ],
+          "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ],
+          "TokenType":                           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "TokenType",                          "wlst_path": "WP001", "default_value": null, "wlst_type": "string"            } ]
         },
         "wlst_attributes_path": "WP001",
         "wlst_paths": {
