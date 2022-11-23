@@ -1288,7 +1288,7 @@
                         "InactivityTimeout":                [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "InactivityTimeout",                "wlst_path": "WP001", "default_value": "P0DT600S", "wlst_type": "string"   } ],
                         "NonBufferedDestination":           [
                             {"version": "[10,14.1.1)", "wlst_mode": "both",      "wlst_name": "NonBufferedDestination", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean" },
-                            {"version": "[14.1.1,)",   "wlst_mode": "online",    "wlst_name": "NonBufferedDestination", "wlst_path": "WP001", "default_value": "true",  "wlst_type": "boolean"  }
+                            {"version": "[14.1.1,)",   "wlst_mode": "online",    "wlst_name": "NonBufferedDestination", "wlst_path": "WP001", "default_value": "true",  "wlst_type": "boolean"  },
                             {"version": "[14.1.1,)",   "wlst_mode": "offline",   "wlst_name": "NonBufferedDestination", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"  }
                         ],
                         "NonBufferedSource":                [ {"version": "[10,14)", "wlst_mode": "both", "wlst_name": "NonBufferedSource",              "wlst_path": "WP001", "default_value": "false",    "wlst_type": "boolean"  } ,
