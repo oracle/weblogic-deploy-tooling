@@ -119,8 +119,8 @@ def __deploy_online(model, model_context, aliases):
     admin_pwd = model_context.get_admin_password()
     timeout = model_context.get_model_config().get_connect_timeout()
     skip_edit_session_check = model_context.is_discard_current_edit() or model_context.is_wait_for_edit_lock()
-    edit_lock_acquire_timeout = model_context.get_model_config.get_wlst_edit_lock_acquire_timeout()
-    edit_lock_release_timeout = model_context.get_model_config.get_wlst_edit_lock_release_timeout()
+    edit_lock_acquire_timeout = model_context.get_model_config().get_wlst_edit_lock_acquire_timeout()
+    edit_lock_release_timeout = model_context.get_model_config().get_wlst_edit_lock_release_timeout()
     edit_lock_exclusive = model_context.get_model_config().get_wlst_edit_lock_exclusive()
 
     __logger.info("WLSDPLY-09005", admin_url, timeout, method_name=_method_name, class_name=_class_name)

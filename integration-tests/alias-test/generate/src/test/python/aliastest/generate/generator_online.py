@@ -34,6 +34,23 @@ NOT_SINGLE_INSTANCE = [
  'Libraries'
 ]
 
+STRIP_FROM_GENERATED_FILE = {
+    'Servers': {
+        'ServerDebug': {
+            'attributes': ['DebugJAXPOutputStream', 'DebugXMLEntityCacheOutputStream', 'DebugXMLRegistryOutputStream']
+        }
+    },
+    'ServerTemplates': {
+        'ServerDebug': {
+            'attributes': ['DebugJAXPOutputStream', 'DebugXMLEntityCacheOutputStream', 'DebugXMLRegistryOutputStream']
+        }
+    },
+    'WTCServers': {
+        'attributes': ['Resource', 'tBridgeGlobal']
+    }
+}
+
+
 class OnlineGenerator(GeneratorBase):
     """
     Generate MBean and attribute information and store into a dictionary.
@@ -55,9 +72,44 @@ class OnlineGenerator(GeneratorBase):
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
         self.__folder_hierarchy(self._dictionary, '/')
+        self.__clean_dictionary(self._dictionary, STRIP_FROM_GENERATED_FILE)
 
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return self._dictionary
+
+    def __clean_dictionary(self, dictionary, remove_dict):
+        _method_name = '__clean_dictionary'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        for key, remove_value in remove_dict.iteritems():
+            self.__logger.finest('key = {0} and remove_value ({1}) = {2}', key, type(remove_value), remove_value,
+                                 class_name=self.__class_name, method_name=_method_name)
+            if key == 'attributes':
+                for attribute in remove_value:
+                    self.__logger.finest('attribute = {0}', attribute,
+                                         class_name=self.__class_name, method_name=_method_name)
+                    if attribute in dictionary['attributes']:
+                        self.__logger.finest('Found attribute {0} in dictionary', attribute,
+                                             class_name=self.__class_name, method_name=_method_name)
+                        del dictionary['attributes'][attribute]
+                    else:
+                        self.__logger.finest('Attribute {0} not found in dictionary', attribute,
+                                             class_name=self.__class_name, method_name=_method_name)
+            elif key in dictionary:
+                self.__logger.finest('key {0} in dictionary', key,
+                                     class_name=self.__class_name, method_name=_method_name)
+                if isinstance(remove_value, dict):
+                    self.__logger.finest('remove_value for key {0} is dictionary so making recursive call', key,
+                                         class_name=self.__class_name, method_name=_method_name)
+                    self.__clean_dictionary(dictionary[key], remove_value)
+                else:
+                    self.__logger.finest('remove_value for key {0} is unexpected type {1}', key, type(remove_value),
+                                         class_name=self.__class_name, method_name=_method_name)
+            else:
+                self.__logger.finest('key {0} is not in dictionary so skipping', key,
+                                     class_name=self.__class_name, method_name=_method_name)
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def __folder_hierarchy(self, mbean_dictionary, mbean_path):
         _method_name = '__folder_hierarchy'
