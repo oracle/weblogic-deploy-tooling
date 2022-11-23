@@ -324,7 +324,8 @@
                                                 "ErrorDestination":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ErrorDestination",        "wlst_path": "WP001", "default_value": null,                "wlst_type": "string", "get_method": "LSA", "set_method": "MBEAN.set_jms_error_destination_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.DestinationBean"} ],
                                                 "ExpirationLoggingPolicy": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ExpirationLoggingPolicy", "wlst_path": "WP001", "default_value": null,                "wlst_type": "string"  } ],
                                                 "ExpirationPolicy":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ExpirationPolicy",        "wlst_path": "WP001", "default_value": "${__NULL__:Discard}", "derived_default": "${:true}", "wlst_type": "string"  } ],
-                                                "RedeliveryLimit":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RedeliveryLimit",         "wlst_path": "WP001", "default_value": -1,                  "derived_default": "${:true}", "wlst_type": "integer" } ]
+                                                "RedeliveryLimit":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RedeliveryLimit",         "wlst_path": "WP001", "default_value": -1,                  "derived_default": "${:true}", "wlst_type": "integer" } ],
+                                                "TemplateBean":            [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean",          "wlst_path": "WP001", "default_value": null,                "wlst_type": "string", "access": "RO" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -340,6 +341,7 @@
                                                 "DeliveryMode":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DeliveryMode",    "wlst_path": "WP001", "default_value": "${__NULL__:No-Delivery}",  "derived_default": "${:true}", "wlst_type": "string" } ],
                                                 "Priority":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Priority",        "wlst_path": "WP001", "default_value": "${0:-1}",              "derived_default": "${:true}", "wlst_type": "integer"} ],
                                                 "RedeliveryDelay": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RedeliveryDelay", "wlst_path": "WP001", "default_value": "${0:-1}",              "derived_default": "${:true}", "wlst_type": "long"   } ],
+                                                "TemplateBean":    [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean",  "wlst_path": "WP001", "default_value": null,                   "wlst_type": "string",         "access": "RO" } ],
                                                 "TimeToDeliver":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "TimeToDeliver",   "wlst_path": "WP001", "default_value": "${__NULL__:-1}",       "derived_default": "${:true}", "wlst_type": "string" } ],
                                                 "TimeToLive":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "TimeToLive",      "wlst_path": "WP001", "default_value": "${0:-1}",              "derived_default": "${:true}", "wlst_type": "long"   } ]
                                           },
@@ -355,7 +357,8 @@
                                           "folders": {},
                                           "attributes": {
                                                 "MessageLoggingEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingEnabled", "wlst_path": "WP001", "default_value": "false", "derived_default": "${:true}", "wlst_type": "boolean"} ],
-                                                "MessageLoggingFormat":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingFormat",  "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ]
+                                                "MessageLoggingFormat":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingFormat",  "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
+                                                "TemplateBean":          [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean",        "wlst_path": "WP001", "default_value": null,    "wlst_type": "string", "access": "RO" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -371,7 +374,8 @@
                                                 "BytesHigh":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "BytesHigh",    "wlst_path": "WP001", "default_value": "${0:9223372036854775807}", "derived_default": "${:true}", "wlst_type": "long" } ],
                                                 "BytesLow":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "BytesLow",     "wlst_path": "WP001", "default_value": "${0:9223372036854775807}", "derived_default": "${:true}", "wlst_type": "long" } ],
                                                 "MessagesHigh": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagesHigh", "wlst_path": "WP001", "default_value": "${0:9223372036854775807}", "derived_default": "${:true}", "wlst_type": "long" } ],
-                                                "MessagesLow":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagesLow",  "wlst_path": "WP001", "default_value": "${0:9223372036854775807}", "derived_default": "${:true}", "wlst_type": "long" } ]
+                                                "MessagesLow":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagesLow",  "wlst_path": "WP001", "default_value": "${0:9223372036854775807}", "derived_default": "${:true}", "wlst_type": "long" } ],
+                                                "TemplateBean": [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean", "wlst_path": "WP001", "default_value": null,                     "wlst_type": "string", "access": "RO" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -460,7 +464,8 @@
                                                       "folders": {},
                                                       "attributes": {
                                                             "MessageLoggingEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingEnabled", "wlst_path": "WP001", "default_value": null,   "derived_default": "${:true}", "wlst_type": "boolean"} ],
-                                                            "MessageLoggingFormat":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingFormat",  "wlst_path": "WP001", "default_value": null,   "wlst_type": "string" } ]
+                                                            "MessageLoggingFormat":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingFormat",  "wlst_path": "WP001", "default_value": null,   "wlst_type": "string" } ],
+                                                            "TemplateBean":          [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean",        "wlst_path": "WP001", "default_value": null,   "wlst_type": "string", "access": "RO" } ]
                                                       },
                                                       "wlst_attributes_path": "WP001",
                                                       "wlst_paths": {
@@ -497,7 +502,8 @@
                                                       "folders": {},
                                                       "attributes": {
                                                             "MessageLoggingEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingEnabled", "wlst_path": "WP001", "default_value": null,   "derived_default": "${:true}", "wlst_type": "boolean"} ],
-                                                            "MessageLoggingFormat":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingFormat",  "wlst_path": "WP001", "default_value": null,   "wlst_type": "string" } ]
+                                                            "MessageLoggingFormat":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingFormat",  "wlst_path": "WP001", "default_value": null,   "wlst_type": "string" } ],
+                                                            "TemplateBean":          [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean",        "wlst_path": "WP001", "default_value": null,   "wlst_type": "string", "access": "RO" } ]
                                                       },
                                                       "wlst_attributes_path": "WP001",
                                                       "wlst_paths": {
@@ -529,7 +535,8 @@
                                           "folders": {},
                                           "attributes": {
                                                 "MessageLoggingEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingEnabled", "wlst_path": "WP001", "derived_default": "${:true}", "default_value": null,   "wlst_type": "boolean"} ],
-                                                "MessageLoggingFormat":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingFormat",  "wlst_path": "WP001", "default_value": null,   "wlst_type": "string" } ]
+                                                "MessageLoggingFormat":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingFormat",  "wlst_path": "WP001", "default_value": null,   "wlst_type": "string" } ],
+                                                "TemplateBean":          [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean",        "wlst_path": "WP001", "default_value": null,   "wlst_type": "string", "access": "RO" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -600,7 +607,8 @@
                                                 "ErrorDestination":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ErrorDestination",        "wlst_path": "WP001", "default_value": null,                "wlst_type": "string", "get_method": "LSA", "set_method": "MBEAN.set_jms_error_destination_mbean",  "set_mbean_type": "weblogic.j2ee.descriptor.wl.DestinationBean"} ],
                                                 "ExpirationLoggingPolicy": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ExpirationLoggingPolicy", "wlst_path": "WP001", "default_value": null,                "wlst_type": "string"  } ],
                                                 "ExpirationPolicy":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ExpirationPolicy",        "wlst_path": "WP001", "default_value": "${__NULL__:Discard}", "derived_default": "${:true}", "wlst_type": "string"  } ],
-                                                "RedeliveryLimit":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RedeliveryLimit",         "wlst_path": "WP001", "default_value": -1,                  "derived_default": "${:true}", "wlst_type": "integer" } ]
+                                                "RedeliveryLimit":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RedeliveryLimit",         "wlst_path": "WP001", "default_value": -1,                  "derived_default": "${:true}", "wlst_type": "integer" } ],
+                                                "TemplateBean":            [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean",          "wlst_path": "WP001", "default_value": null,                "wlst_type": "string", "access": "RO" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -616,6 +624,7 @@
                                                 "DeliveryMode":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DeliveryMode",    "wlst_path": "WP001", "default_value": "${__NULL__:No-Delivery}", "derived_default": "${:true}", "wlst_type": "string"  } ],
                                                 "Priority":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Priority",        "wlst_path": "WP001", "default_value": "${0:-1}",               "derived_default": "${:true}", "wlst_type": "integer" } ],
                                                 "RedeliveryDelay":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RedeliveryDelay", "wlst_path": "WP001", "default_value": "${0:-1}",               "derived_default": "${:true}", "wlst_type": "long"    } ],
+                                                "TemplateBean":     [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean",  "wlst_path": "WP001", "default_value": null,                    "wlst_type": "string",         "access": "RO" } ],
                                                 "TimeToDeliver":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "TimeToDeliver",   "wlst_path": "WP001", "default_value": "${__NULL__:-1}",        "derived_default": "${:true}", "wlst_type": "string"  } ],
                                                 "TimeToLive":       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "TimeToLive",      "wlst_path": "WP001", "default_value": "${0:-1}",               "derived_default": "${:true}", "wlst_type": "long"    } ]
                                           },
@@ -645,7 +654,8 @@
                                           "folders": {},
                                           "attributes": {
                                                 "MessageLoggingEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingEnabled", "wlst_path": "WP001", "default_value": "false", "derived_default": "${:true}", "wlst_type": "boolean"} ],
-                                                "MessageLoggingFormat":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingFormat",  "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ]
+                                                "MessageLoggingFormat":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingFormat",  "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
+                                                "TemplateBean":          [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean",        "wlst_path": "WP001", "default_value": null,    "wlst_type": "string", "access": "RO" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -662,7 +672,8 @@
                                                 "MulticastPort":       [ {"version": "[10,12.2.1.1)",  "wlst_mode": "both", "wlst_name": "MulticastPort",       "wlst_path": "WP001", "default_value": 6001,          "derived_default": "${:true}", "wlst_type": "integer", "restart_required": "true"} ,
                                                                          {"version": "[12.2.1.1,)",    "wlst_mode": "both", "wlst_name": "MulticastPort",       "wlst_path": "WP001", "default_value": "${0:6001}",   "derived_default": "${:true}", "wlst_type": "integer", "restart_required": "true"} ],
                                                 "MulticastTimeToLive": [ {"version": "[10,12.2.1.1)",  "wlst_mode": "both", "wlst_name": "MulticastTimeToLive", "wlst_path": "WP001", "default_value": 1,             "derived_default": "${:true}", "wlst_type": "integer", "restart_required": "true"} ,
-                                                                         {"version": "[12.2.1.1,)",    "wlst_mode": "both", "wlst_name": "MulticastTimeToLive", "wlst_path": "WP001", "default_value": "${0:1}",      "derived_default": "${:true}", "wlst_type": "integer", "restart_required": "true"} ]
+                                                                         {"version": "[12.2.1.1,)",    "wlst_mode": "both", "wlst_name": "MulticastTimeToLive", "wlst_path": "WP001", "default_value": "${0:1}",      "derived_default": "${:true}", "wlst_type": "integer", "restart_required": "true"} ],
+                                                "TemplateBean":        [ {"version": "[10,)",          "wlst_mode": "online", "wlst_name": "TemplateBean",      "wlst_path": "WP001", "default_value": null,          "wlst_type": "string", "access": "RO" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -678,7 +689,8 @@
                                                 "BytesHigh":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "BytesHigh",    "wlst_path": "WP001", "default_value": "${0:9223372036854775807}",  "derived_default": "${:true}", "wlst_type": "long"  } ],
                                                 "BytesLow":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "BytesLow",     "wlst_path": "WP001", "default_value": "${0:9223372036854775807}",  "derived_default": "${:true}", "wlst_type": "long"  } ],
                                                 "MessagesHigh": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagesHigh", "wlst_path": "WP001", "default_value": "${0:9223372036854775807}",  "derived_default": "${:true}", "wlst_type": "long"  } ],
-                                                "MessagesLow":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagesLow",  "wlst_path": "WP001", "default_value": "${0:9223372036854775807}",  "derived_default": "${:true}", "wlst_type": "long"  } ]
+                                                "MessagesLow":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagesLow",  "wlst_path": "WP001", "default_value": "${0:9223372036854775807}",  "derived_default": "${:true}", "wlst_type": "long"  } ],
+                                                "TemplateBean": [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean", "wlst_path": "WP001", "default_value": null,                      "wlst_type": "string", "access": "RO" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -691,7 +703,8 @@
                                           "version": "[12.2.1.3,)",
                                           "folders": {},
                                           "attributes": {
-                                                "MessagesLimitOverride":    [ {"version": "[12.2.1.3,)", "wlst_mode": "both", "wlst_name": "MessagesLimitOverride",    "wlst_path": "WP001", "default_value": -1,  "derived_default": "${:true}", "wlst_type": "long"  } ]
+                                                "MessagesLimitOverride":    [ {"version": "[12.2.1.3,)", "wlst_mode": "both", "wlst_name": "MessagesLimitOverride",    "wlst_path": "WP001", "default_value": -1,  "derived_default": "${:true}", "wlst_type": "long"  } ],
+                                                "TemplateBean":             [ {"version": "[12.2.1.3,)", "wlst_mode": "online", "wlst_name": "TemplateBean",           "wlst_path": "WP001", "default_value": null, "wlst_type": "string", "access": "RO" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -734,7 +747,8 @@
                                                 "ErrorDestination":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ErrorDestination",        "wlst_path": "WP001", "default_value": null,                "wlst_type": "string", "get_method": "LSA", "set_method": "MBEAN.set_jms_error_destination_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.DestinationBean"} ],
                                                 "ExpirationLoggingPolicy": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ExpirationLoggingPolicy", "wlst_path": "WP001", "default_value": null,                "wlst_type": "string"  } ],
                                                 "ExpirationPolicy":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ExpirationPolicy",        "wlst_path": "WP001", "default_value": "${__NULL__:Discard}",   "derived_default": "${:true}", "wlst_type": "string"  } ],
-                                                "RedeliveryLimit":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RedeliveryLimit",         "wlst_path": "WP001", "default_value": -1,                  "derived_default": "${:true}", "wlst_type": "integer" } ]
+                                                "RedeliveryLimit":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RedeliveryLimit",         "wlst_path": "WP001", "default_value": -1,                  "derived_default": "${:true}", "wlst_type": "integer" } ],
+                                                "TemplateBean":            [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean",          "wlst_path": "WP001", "default_value": null,                "wlst_type": "string", "access": "RO" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -750,6 +764,7 @@
                                                 "DeliveryMode":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DeliveryMode",    "wlst_path": "WP001", "default_value": "${__NULL__:No-Delivery}",   "derived_default": "${:true}", "wlst_type": "string"  } ],
                                                 "Priority":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Priority",        "wlst_path": "WP001", "default_value": "${0:-1}",               "derived_default": "${:true}", "wlst_type": "integer" } ],
                                                 "RedeliveryDelay": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RedeliveryDelay", "wlst_path": "WP001", "default_value": "${0:-1}",               "derived_default": "${:true}", "wlst_type": "long"    } ],
+                                                "TemplateBean":    [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean",  "wlst_path": "WP001", "default_value": null,                    "wlst_type": "string",         "access": "RO" } ],
                                                 "TimeToDeliver":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "TimeToDeliver",   "wlst_path": "WP001", "default_value": "${__NULL__:-1}",        "derived_default": "${:true}", "wlst_type": "string"  } ],
                                                 "TimeToLive":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "TimeToLive",      "wlst_path": "WP001", "default_value": "${0:-1}",               "derived_default": "${:true}", "wlst_type": "long"    } ]
                                           },
@@ -765,7 +780,8 @@
                                           "folders": {},
                                           "attributes": {
                                                 "MessageLoggingEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingEnabled", "wlst_path": "WP001", "default_value": "false", "derived_default": "${:true}", "wlst_type": "boolean" } ],
-                                                "MessageLoggingFormat":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingFormat",  "wlst_path": "WP001", "default_value": null,    "wlst_type": "string"  } ]
+                                                "MessageLoggingFormat":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingFormat",  "wlst_path": "WP001", "default_value": null,    "wlst_type": "string"  } ],
+                                                "TemplateBean":          [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean",        "wlst_path": "WP001", "default_value": null,    "wlst_type": "string", "access": "RO" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -782,7 +798,8 @@
                                                 "MulticastPort":       [ {"version": "[10,12.2.1.1)", "wlst_mode": "both", "wlst_name": "MulticastPort",       "wlst_path": "WP001", "default_value": 6001,          "derived_default": "${:true}", "wlst_type": "integer", "restart_required": "true"} ,
                                                                          {"version": "[12.2.1.1,)",   "wlst_mode": "both", "wlst_name": "MulticastPort",       "wlst_path": "WP001", "default_value": "${0:6001}",   "derived_default": "${:true}", "wlst_type": "integer", "restart_required": "true"} ],
                                                 "MulticastTimeToLive": [ {"version": "[10,12.2.1.1)", "wlst_mode": "both", "wlst_name": "MulticastTimeToLive", "wlst_path": "WP001", "default_value": 1,             "derived_default": "${:true}", "wlst_type": "integer", "restart_required": "true"} ,
-                                                                         {"version": "[12.2.1.1,)",   "wlst_mode": "both", "wlst_name": "MulticastTimeToLive", "wlst_path": "WP001", "default_value": "${0:1}",      "derived_default": "${:true}", "wlst_type": "integer", "restart_required": "true"} ]
+                                                                         {"version": "[12.2.1.1,)",   "wlst_mode": "both", "wlst_name": "MulticastTimeToLive", "wlst_path": "WP001", "default_value": "${0:1}",      "derived_default": "${:true}", "wlst_type": "integer", "restart_required": "true"} ],
+                                                "TemplateBean":        [ {"version": "[10,)",         "wlst_mode": "online", "wlst_name": "TemplateBean",      "wlst_path": "WP001", "default_value": null,          "wlst_type": "string", "access": "RO" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -798,7 +815,8 @@
                                                 "BytesHigh":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "BytesHigh",    "wlst_path": "WP001", "default_value": "${0:9223372036854775807}", "derived_default": "${:true}", "wlst_type": "long"} ],
                                                 "BytesLow":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "BytesLow",     "wlst_path": "WP001", "default_value": "${0:9223372036854775807}", "derived_default": "${:true}", "wlst_type": "long"} ],
                                                 "MessagesHigh":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagesHigh", "wlst_path": "WP001", "default_value": "${0:9223372036854775807}", "derived_default": "${:true}", "wlst_type": "long"} ],
-                                                "MessagesLow":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagesLow",  "wlst_path": "WP001", "default_value": "${0:9223372036854775807}", "derived_default": "${:true}", "wlst_type": "long"} ]
+                                                "MessagesLow":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagesLow",  "wlst_path": "WP001", "default_value": "${0:9223372036854775807}", "derived_default": "${:true}", "wlst_type": "long"} ],
+                                                "TemplateBean":  [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean", "wlst_path": "WP001", "default_value": null,                     "wlst_type": "string", "access": "RO" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -811,7 +829,8 @@
                                           "version": "[12.2.1.3,)",
                                           "folders": {},
                                           "attributes": {
-                                                "MessagesLimitOverride":    [ {"version": "[12.2.1.3,)", "wlst_mode": "both", "wlst_name": "MessagesLimitOverride",    "wlst_path": "WP001", "default_value": -1,  "derived_default": "${:true}", "wlst_type": "long"  } ]
+                                                "MessagesLimitOverride":    [ {"version": "[12.2.1.3,)", "wlst_mode": "both", "wlst_name": "MessagesLimitOverride",    "wlst_path": "WP001", "default_value": -1,  "derived_default": "${:true}", "wlst_type": "long"  } ],
+                                                "TemplateBean":             [ {"version": "[12.2.1.3,)", "wlst_mode": "online", "wlst_name": "TemplateBean",           "wlst_path": "WP001", "default_value": null, "wlst_type": "string", "access": "RO" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -863,7 +882,8 @@
                                                 "ErrorDestination":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ErrorDestination",        "wlst_path": "WP001", "default_value": null,                "wlst_type": "string", "get_method": "${LSA:GET}", "set_method": "MBEAN.set_jms_error_destination_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.DestinationBean"} ],
                                                 "ExpirationLoggingPolicy": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ExpirationLoggingPolicy", "wlst_path": "WP001", "default_value": null,                "wlst_type": "string"  } ],
                                                 "ExpirationPolicy":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ExpirationPolicy",        "wlst_path": "WP001", "default_value": "${__NULL__:Discard}",   "derived_default": "${:true}", "wlst_type": "string"  } ],
-                                                "RedeliveryLimit":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RedeliveryLimit",         "wlst_path": "WP001", "default_value": -1,                  "derived_default": "${:true}", "wlst_type": "integer" } ]
+                                                "RedeliveryLimit":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RedeliveryLimit",         "wlst_path": "WP001", "default_value": -1,                  "derived_default": "${:true}", "wlst_type": "integer" } ],
+                                                "TemplateBean":            [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean",          "wlst_path": "WP001", "default_value": null,                "wlst_type": "string", "access": "RO" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -879,7 +899,8 @@
                                                 "DeliveryMode":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DeliveryMode",    "wlst_path": "WP001", "default_value": "${__NULL__:No-Delivery}",   "derived_default": "${:true}", "wlst_type": "string" } ],
                                                 "Priority":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Priority",        "wlst_path": "WP001", "default_value": "${0:-1}",               "derived_default": "${:true}", "wlst_type": "integer"} ],
                                                 "RedeliveryDelay": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RedeliveryDelay", "wlst_path": "WP001", "default_value": "${0:-1}",               "derived_default": "${:true}", "wlst_type": "long"   } ],
-                                                "TimeToDeliver":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "TimeToDeliver",   "wlst_path": "WP001", "default_value": "${__NULL__:-1}",        "derived_default": "${:true}", "wlst_type": "string" } ],
+                                                "TemplateBean":    [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean",  "wlst_path": "WP001", "default_value": null,                    "wlst_type": "string",         "access": "RO" } ],
+                                                 "TimeToDeliver":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "TimeToDeliver",   "wlst_path": "WP001", "default_value": "${__NULL__:-1}",        "derived_default": "${:true}", "wlst_type": "string" } ],
                                                 "TimeToLive":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "TimeToLive",      "wlst_path": "WP001", "default_value": "${0:-1}",               "derived_default": "${:true}", "wlst_type": "long"   } ]
                                           },
                                           "wlst_attributes_path": "WP001",
@@ -894,7 +915,8 @@
                                           "folders": {},
                                           "attributes": {
                                                 "MessageLoggingEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingEnabled", "wlst_path": "WP001", "default_value": "false", "derived_default": "${:true}", "wlst_type": "boolean"} ],
-                                                "MessageLoggingFormat":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingFormat",  "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ]
+                                                "MessageLoggingFormat":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingFormat",  "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
+                                                "TemplateBean":          [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean",        "wlst_path": "WP001", "default_value": null,    "wlst_type": "string", "access": "RO" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -910,7 +932,8 @@
                                                 "BytesHigh":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "BytesHigh",    "wlst_path": "WP001", "default_value": "${0:9223372036854775807}", "derived_default": "${:true}", "wlst_type": "long"   } ],
                                                 "BytesLow":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "BytesLow",     "wlst_path": "WP001", "default_value": "${0:9223372036854775807}", "derived_default": "${:true}", "wlst_type": "long"   } ],
                                                 "MessagesHigh": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagesHigh", "wlst_path": "WP001", "default_value": "${0:9223372036854775807}", "derived_default": "${:true}", "wlst_type": "long"   } ],
-                                                "MessagesLow":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagesLow",  "wlst_path": "WP001", "default_value": "${0:9223372036854775807}", "derived_default": "${:true}", "wlst_type": "long"   } ]
+                                                "MessagesLow":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagesLow",  "wlst_path": "WP001", "default_value": "${0:9223372036854775807}", "derived_default": "${:true}", "wlst_type": "long"   } ],
+                                                "TemplateBean": [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean", "wlst_path": "WP001", "default_value": null,                     "wlst_type": "string", "access": "RO" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -964,7 +987,8 @@
                                                 "ErrorDestination":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ErrorDestination",        "wlst_path": "WP001", "default_value": null,                "wlst_type": "string", "get_method": "LSA", "set_method": "MBEAN.set_jms_error_destination_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.DestinationBean"} ],
                                                 "ExpirationLoggingPolicy": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ExpirationLoggingPolicy", "wlst_path": "WP001", "default_value": null,                "wlst_type": "string"  } ],
                                                 "ExpirationPolicy":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ExpirationPolicy",        "wlst_path": "WP001", "default_value": "${__NULL__:Discard}",   "derived_default": "${:true}", "wlst_type": "string"  } ],
-                                                "RedeliveryLimit":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RedeliveryLimit",         "wlst_path": "WP001", "default_value": -1,                  "derived_default": "${:true}", "wlst_type": "integer" } ]
+                                                "RedeliveryLimit":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RedeliveryLimit",         "wlst_path": "WP001", "default_value": -1,                  "derived_default": "${:true}", "wlst_type": "integer" } ],
+                                                "TemplateBean":            [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean",          "wlst_path": "WP001", "default_value": null,                "wlst_type": "string", "access": "RO" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -980,6 +1004,7 @@
                                                 "DeliveryMode":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DeliveryMode",    "wlst_path": "WP001", "default_value": "${__NULL__:No-Delivery}",  "derived_default": "${:true}", "wlst_type": "string" } ],
                                                 "Priority":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Priority",        "wlst_path": "WP001", "default_value": "${0:-1}",              "derived_default": "${:true}", "wlst_type": "integer"} ],
                                                 "RedeliveryDelay": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RedeliveryDelay", "wlst_path": "WP001", "default_value": "${0:-1}",              "derived_default": "${:true}", "wlst_type": "long"   } ],
+                                                "TemplateBean":    [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean",  "wlst_path": "WP001", "default_value": null,                   "wlst_type": "string",         "access": "RO" } ],
                                                 "TimeToDeliver":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "TimeToDeliver",   "wlst_path": "WP001", "default_value": "${__NULL__:-1}",       "derived_default": "${:true}", "wlst_type": "string" } ],
                                                 "TimeToLive":      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "TimeToLive",      "wlst_path": "WP001", "default_value": "${0:-1}",              "derived_default": "${:true}", "wlst_type": "long"   } ]
                                           },
@@ -995,7 +1020,8 @@
                                           "folders": {},
                                           "attributes": {
                                                 "MessageLoggingEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingEnabled", "wlst_path": "WP001", "default_value": "false", "derived_default": "${:true}", "wlst_type": "boolean"} ],
-                                                "MessageLoggingFormat":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingFormat",  "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ]
+                                                "MessageLoggingFormat":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageLoggingFormat",  "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
+                                                "TemplateBean":          [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean",        "wlst_path": "WP001", "default_value": null,    "wlst_type": "string", "access": "RO" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -1012,7 +1038,8 @@
                                                 "MulticastPort":       [ {"version": "[10,12.2.1.1)",    "wlst_mode": "both", "wlst_name": "MulticastPort",       "wlst_path": "WP001", "default_value": 6001,            "derived_default": "${:true}", "wlst_type": "integer",      "restart_required": "true" } ,
                                                                          {"version": "[12.2.1.1,)",      "wlst_mode": "both", "wlst_name": "MulticastPort",       "wlst_path": "WP001", "default_value": "${0:6001}",     "derived_default": "${:true}", "wlst_type": "integer",      "restart_required": "true" } ],
                                                 "MulticastTimeToLive": [ {"version": "[10,12.2.1.1)",    "wlst_mode": "both", "wlst_name": "MulticastTimeToLive", "wlst_path": "WP001", "default_value": 1,               "derived_default": "${:true}", "wlst_type": "integer",      "restart_required": "true" } ,
-                                                                         {"version": "[12.2.1.1,)",      "wlst_mode": "both", "wlst_name": "MulticastTimeToLive", "wlst_path": "WP001", "default_value": "${0:1}",        "derived_default": "${:true}", "wlst_type": "integer",      "restart_required": "true" } ]
+                                                                         {"version": "[12.2.1.1,)",      "wlst_mode": "both", "wlst_name": "MulticastTimeToLive", "wlst_path": "WP001", "default_value": "${0:1}",        "derived_default": "${:true}", "wlst_type": "integer",      "restart_required": "true" } ],
+                                                "TemplateBean":        [ {"version": "[10,)",            "wlst_mode": "online", "wlst_name": "TemplateBean",      "wlst_path": "WP001", "default_value": null,            "wlst_type": "string", "access": "RO" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -1028,7 +1055,8 @@
                                                 "BytesHigh":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "BytesHigh",    "wlst_path": "WP001", "default_value": "${0:9223372036854775807}", "derived_default": "${:true}", "wlst_type": "long" } ],
                                                 "BytesLow":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "BytesLow",     "wlst_path": "WP001", "default_value": "${0:9223372036854775807}", "derived_default": "${:true}", "wlst_type": "long" } ],
                                                 "MessagesHigh": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagesHigh", "wlst_path": "WP001", "default_value": "${0:9223372036854775807}", "derived_default": "${:true}", "wlst_type": "long" } ],
-                                                "MessagesLow":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagesLow",  "wlst_path": "WP001", "default_value": "${0:9223372036854775807}", "derived_default": "${:true}", "wlst_type": "long" } ]
+                                                "MessagesLow":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MessagesLow",  "wlst_path": "WP001", "default_value": "${0:9223372036854775807}", "derived_default": "${:true}", "wlst_type": "long" } ],
+                                                "TemplateBean": [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "TemplateBean", "wlst_path": "WP001", "default_value": null,                     "wlst_type": "string", "access": "RO" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {
@@ -1041,7 +1069,8 @@
                                           "version": "[12.2.1.3,)",
                                           "folders": {},
                                           "attributes": {
-                                                "MessagesLimitOverride":    [ {"version": "[12.2.1.3,)", "wlst_mode": "both", "wlst_name": "MessagesLimitOverride",    "wlst_path": "WP001", "default_value": -1,  "derived_default": "${:true}", "wlst_type": "long"  } ]
+                                                "MessagesLimitOverride":    [ {"version": "[12.2.1.3,)", "wlst_mode": "both", "wlst_name": "MessagesLimitOverride",    "wlst_path": "WP001", "default_value": -1,  "derived_default": "${:true}", "wlst_type": "long"  } ],
+                                                "TemplateBean":             [ {"version": "[12.2.1.3,)", "wlst_mode": "online", "wlst_name": "TemplateBean",           "wlst_path": "WP001", "default_value": null, "wlst_type": "string", "access": "RO" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
                                           "wlst_paths": {

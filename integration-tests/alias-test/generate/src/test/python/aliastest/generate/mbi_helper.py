@@ -187,7 +187,7 @@ class MBIHelper(object):
 
 
 class MBIAttributeHelper(object):
-    
+
     __logger = PlatformLogger('test.aliases.generate')
 
     def __init__(self, mbean_info, attribute_name, mbean_instance):
@@ -269,7 +269,7 @@ class MBIAttributeHelper(object):
     def is_attribute(self):
         if self.__exists:
             return self.__get_descriptor_value('descriptorType') == 'Attribute' and \
-                not self.is_mbean() and (not self.is_reference() or self.is_valid_reference())
+                not self.is_mbean()
         return None
 
     def is_reference(self):
