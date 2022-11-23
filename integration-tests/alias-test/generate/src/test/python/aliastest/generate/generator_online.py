@@ -249,7 +249,7 @@ class OnlineGenerator(GeneratorBase):
 
             if attribute not in lsa_map:
                 if attribute_helper.is_reference_only():
-                    self.__logger.info(
+                    self.__logger.fine(
                         'Excluding transient MBean {0} attribute {1} from location {2}'
                         ' that is in MBI map and not in LSA map', mbean_type, attribute, mbean_path,
                         class_name=self.__class_name, method_name=_method_name)
