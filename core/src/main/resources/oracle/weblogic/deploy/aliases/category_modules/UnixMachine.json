@@ -38,7 +38,7 @@
         }
     },
     "attributes": {
-        "Address":            [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Address${:es}",      "wlst_path": "WP001", "default_value": "${'':__NULL__}",      "wlst_type": "${list:jarray}", "preferred_model_type": "delimited_string[semicolon]", "get_method": "${LSA:GET}", "wlst_read_type": "delimited_string[semicolon]" } ],
+        "Address":            [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Address${:es}",      "wlst_path": "WP001", "default_value": "${'':__NULL__}",      "wlst_type": "${list:jarray}", "preferred_model_type": "delimited_string", "get_method": "${LSA:GET}", "wlst_read_type": "delimited_string[semicolon]" } ],
         "Notes":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",              "wlst_path": "WP001", "default_value": null,      "wlst_type": "string"           } ],
         "PostBindGID":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "PostBindGID",        "wlst_path": "WP001", "default_value": "nobody",  "wlst_type": "string"           } ],
         "PostBindGIDEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "PostBindGIDEnabled", "wlst_path": "WP001", "default_value": "false",   "wlst_type": "boolean"          } ],
