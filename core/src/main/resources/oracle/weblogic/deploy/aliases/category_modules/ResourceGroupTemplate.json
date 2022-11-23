@@ -32,7 +32,6 @@
         "OHS",
         "PathService",
         "SAFAgent",
-        "SystemComponent",
         "WLDFSystemResource"
     ]
 }

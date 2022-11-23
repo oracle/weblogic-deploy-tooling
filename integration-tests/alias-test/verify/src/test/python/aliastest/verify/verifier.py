@@ -799,6 +799,9 @@ class Verifier(object):
                     generated_derived = generated_attribute_info[DERIVED_DEFAULT]
                     if isinstance(generated_derived, long):
                         generated_derived = bool(generated_derived)
+                    elif not isinstance(generated_derived, bool):
+                        val = str(generated_derived)
+                        generated_derived = val.lower() == 'true'
                 else:
                     # The generator was unable to find the information about the derived default
                     # so just assume that the alias is correct.

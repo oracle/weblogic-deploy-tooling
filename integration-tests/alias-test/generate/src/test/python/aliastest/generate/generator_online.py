@@ -44,6 +44,9 @@ STRIP_FROM_GENERATED_FILE = {
         'ServerDebug': {
             'attributes': ['DebugJAXPOutputStream', 'DebugXMLEntityCacheOutputStream', 'DebugXMLRegistryOutputStream']
         }
+    },
+    'WTCServers': {
+        'attributes': ['Resource', 'tBridgeGlobal']
     }
 }
 
