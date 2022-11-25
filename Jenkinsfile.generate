@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        oci-config-file-creds: 'd27ac861-e952-459b-8479-6c5a2f23655d'
-        oci-signing-key-creds: '2db98e3d-8b85-4b53-9c70-73979397e6ad'
+        oci-config-file-creds = 'd27ac861-e952-459b-8479-6c5a2f23655d'
+        oci-signing-key-creds = '2db98e3d-8b85-4b53-9c70-73979397e6ad'
     }
 
     stages {
