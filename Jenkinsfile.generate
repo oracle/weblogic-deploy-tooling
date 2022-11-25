@@ -59,8 +59,8 @@ pipeline {
                             sh 'mkdir -p ~/.oci'
                             withCredentials([file(credentialsId: ${oci-config-file-creds}, variable: 'OCI_CONFIG_FILE'),
                                              file(credentialsId: ${oci-signing-key-creds}, variable: 'OCI_SIGNING_KEY')]) {
-                                writeFile file: '~/.oci/config' text: readFile(OCI_CONFIG_FILE)
-                                writeFile file: '~/.oci/oci-signing-key.pem' text: readFile(OCI_SIGNING_KEY)
+                                writeFile file: '~/.oci/config', text: readFile(OCI_CONFIG_FILE)
+                                writeFile file: '~/.oci/oci-signing-key.pem', text: readFile(OCI_SIGNING_KEY)
                             }
                             sh 'mvn clean install -Dalias-test-skip-generate=false'
                         }
