@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        oci-config-file-creds = 'd27ac861-e952-459b-8479-6c5a2f23655d'
-        oci-signing-key-creds = '2db98e3d-8b85-4b53-9c70-73979397e6ad'
+        oci_config_file_creds = 'd27ac861-e952-459b-8479-6c5a2f23655d'
+        oci_signing_key_creds = '2db98e3d-8b85-4b53-9c70-73979397e6ad'
     }
 
     stages {
@@ -57,8 +57,8 @@ pipeline {
                         }
                         steps {
                             sh 'mkdir -p ~/.oci'
-                            withCredentials([file(credentialsId: ${oci-config-file-creds}, variable: 'OCI_CONFIG_FILE'),
-                                             file(credentialsId: ${oci-signing-key-creds}, variable: 'OCI_SIGNING_KEY')]) {
+                            withCredentials([file(credentialsId: ${oci_config_file_creds}, variable: 'OCI_CONFIG_FILE'),
+                                             file(credentialsId: ${oci_signing_key_creds}, variable: 'OCI_SIGNING_KEY')]) {
                                 writeFile file: '~/.oci/config', text: readFile(OCI_CONFIG_FILE)
                                 writeFile file: '~/.oci/oci-signing-key.pem', text: readFile(OCI_SIGNING_KEY)
                             }
