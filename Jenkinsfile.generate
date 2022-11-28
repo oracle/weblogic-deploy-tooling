@@ -65,7 +65,7 @@ pipeline {
                                 sh "cp \"\$OCI_SIGNING_KEY\" ${jenkins_home_directory}/.oci/"
                             }
                             sh "ls -al ${jenkins_home_directory}/.oci"
-                            sh 'mvn clean install -Dalias-test-skip-generate=false'
+                            sh 'mvn clean install -DskipTests -Dalias-test-skip-generate=false'
                         }
                     }
                 }
