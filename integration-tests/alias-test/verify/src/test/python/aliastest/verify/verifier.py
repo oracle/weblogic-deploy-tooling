@@ -189,7 +189,9 @@ class Verifier(object):
         top_alias_location = LocationContext()
         top_alias_location.add_name_token('DOMAIN', 'system_test_domain')
         top_alias_folder_map = self._alias_helper.get_top_folder_map(top_alias_location)
-        top_generated_attributes = _get_generated_attribute_list(self._generated_dictionary)
+        top_generated_attributes = \
+            verify_utils.filter_generated_attributes(top_alias_location,
+                                                     _get_generated_attribute_list(self._generated_dictionary))
         self._verify_attributes_at_location(top_generated_attributes, top_alias_location)
         self._verify_aliases_at_location(self._generated_dictionary, top_alias_location, top_alias_folder_map)
 
@@ -450,7 +452,8 @@ class Verifier(object):
     def _get_alias_attribute_map_for_location(self, location):
         wlst_name_map = None
         try:
-            alias_attribute_name_list = self._alias_helper.get_model_attribute_names(location)
+            alias_attribute_name_list = \
+                verify_utils.filter_attributes(location, self._alias_helper.get_model_attribute_names(location))
             wlst_name_map = dict()
             if alias_attribute_name_list:
                 for alias_attribute_name in alias_attribute_name_list:
