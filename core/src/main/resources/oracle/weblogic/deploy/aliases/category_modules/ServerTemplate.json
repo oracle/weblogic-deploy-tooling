@@ -1310,9 +1310,9 @@
                             {"version": "[14.1.1,)",       "wlst_mode": "offline", "wlst_name": "NonBufferedDestination", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean" },
                             {"version": "[14.1.1,)",       "wlst_mode": "online",  "wlst_name": "NonBufferedDestination", "wlst_path": "WP001", "default_value": "true",  "wlst_type": "boolean" }
                         ],
-                        "NonBufferedSource":                [ {"version": "[12.1.2,14)", "wlst_mode": "both",       "wlst_name": "NonBufferedSource",        "wlst_path": "WP001", "default_value": "false",    "wlst_type": "boolean"  } ,
-                                                              {"version": "[14,)",       "wlst_mode": "offline",    "wlst_name": "NonBufferedSource",        "wlst_path": "WP001", "default_value": "false",    "wlst_type": "boolean"  } ,
-                                                              {"version": "[14,)",       "wlst_mode": "online ",    "wlst_name": "NonBufferedSource",        "wlst_path": "WP001", "default_value": "true",     "wlst_type": "boolean"  } ],
+                        "NonBufferedSource":                [ {"version": "[12.1.2,14.1.1)", "wlst_mode": "both",       "wlst_name": "NonBufferedSource",        "wlst_path": "WP001", "default_value": "false",    "wlst_type": "boolean"  } ,
+                                                              {"version": "[14.1.1,)",       "wlst_mode": "offline",    "wlst_name": "NonBufferedSource",        "wlst_path": "WP001", "default_value": "false",    "wlst_type": "boolean"  } ,
+                                                              {"version": "[14.1.1,)",       "wlst_mode": "online ",    "wlst_name": "NonBufferedSource",        "wlst_path": "WP001", "default_value": "true",     "wlst_type": "boolean"  } ],
                         "Notes":                            [ {"version": "[12.1.2,)", "wlst_mode": "both", "wlst_name": "Notes",                            "wlst_path": "WP001", "default_value": null,       "wlst_type": "string"   } ],
                         "RetransmissionExponentialBackoff": [ {"version": "[12.1.2,)", "wlst_mode": "both", "wlst_name": "RetransmissionExponentialBackoff", "wlst_path": "WP001", "default_value": "false",    "wlst_type": "boolean"  } ],
                         "SequenceExpiration":               [ {"version": "[12.1.2,)", "wlst_mode": "both", "wlst_name": "SequenceExpiration",               "wlst_path": "WP001", "default_value": "P1D",      "wlst_type": "string"   } ]
