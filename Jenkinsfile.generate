@@ -13,8 +13,6 @@ pipeline {
                 axes {
                     axis {
                         name 'WLS_VERSION'
-                        values '14.1.1.0.0'
-                        /*
                         values '10.3.6.0',
                                '12.1.1.0',
                                '12.1.2.0.0',
@@ -43,7 +41,6 @@ pipeline {
                                '14.1.1.0.0.220329',
                                '14.1.1.0.0.220727',
                                '14.1.1.0.0.221010'
-                        */
                     }
                 }
                 stages {
@@ -57,15 +54,14 @@ pipeline {
                             }
                         }
                         steps {
-                            sh "ls -al ${jenkins_home_directory}/.oci"
-                            sh "touch ${jenkins_home_directory}/.oci/config"
-                            sh "touch ${jenkins_home_directory}/.oci/oci-signing-key.pem"
                             withCredentials([file(credentialsId: "${oci_config_file_creds}", variable: 'OCI_CONFIG_FILE'),
                                              file(credentialsId: "${oci_signing_key_creds}", variable: 'OCI_SIGNING_KEY')]) {
-                                // writeFile file: "${jenkins_home_directory}/.oci/config", text: readFile(OCI_CONFIG_FILE)
-                                // writeFile file: "${jenkins_home_directory}/.oci/oci-signing-key.pem", text: readFile(OCI_SIGNING_KEY)
-                                sh "ls -al ${jenkins_home_directory}/.oci"
                                 sh "cp \$OCI_CONFIG_FILE ${jenkins_home_directory}/.oci/config"
+
+                                // WARNING: The OCI config file has the path to the signing key hard-coded to
+                                //          /home/jenkins/.oci/oci-signing-key.pem so any attempts to move it
+                                //          will require updating the Jenkins Secret File for the config file.
+                                //
                                 sh "cp \$OCI_SIGNING_KEY ${jenkins_home_directory}/.oci/oci-signing-key.pem"
                             }
                             sh "ls -al ${jenkins_home_directory}/.oci"
