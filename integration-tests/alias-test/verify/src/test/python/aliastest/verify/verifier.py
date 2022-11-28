@@ -562,7 +562,7 @@ class Verifier(object):
                 wlst_attributes = self._alias_helper.get_wlst_access_rod_attribute_names(location)
                 if wlst_attributes is not None and generated_attribute in wlst_attributes:
                     rod = True
-        except AliasException:
+        except AliasException, ae:
             exists = False
 
             if DEPRECATED not in generated_attribute_info:
