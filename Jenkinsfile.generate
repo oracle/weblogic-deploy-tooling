@@ -12,7 +12,7 @@ pipeline {
                 axes {
                     axis {
                         name 'WLS_VERSION'
-                        values '14.1.1.0.0.221010'
+                        values '14.1.1.0.0.210701'
                         /*
                         values '10.3.6.0',
                                '12.1.1.0',
