@@ -57,6 +57,10 @@ pipeline {
                             }
                         }
                         steps {
+                            sh "ls -al ${jenkins_home_directory}/.oci"
+                            sh "touch ${jenkins_home_directory}/.oci/config"
+                            sh "touch ${jenkins_home_directory}/.oci/oci-signing-key.pem"
+                            sh "ls -al ${jenkins_home_directory}/.oci"
                             withCredentials([file(credentialsId: "${oci_config_file_creds}", variable: 'OCI_CONFIG_FILE'),
                                              file(credentialsId: "${oci_signing_key_creds}", variable: 'OCI_SIGNING_KEY')]) {
                                 writeFile file: "${jenkins_home_directory}/.oci/config", text: readFile(OCI_CONFIG_FILE)
