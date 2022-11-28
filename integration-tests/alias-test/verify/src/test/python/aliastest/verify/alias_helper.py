@@ -11,6 +11,8 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 
 import aliastest.verify.utils as verify_utils
 
+TOP_FOLDERS_TO_IGNORE = ['UnixMachine']
+
 
 class AliasHelper(object):
     __logger = PlatformLogger('test.aliases')
@@ -22,7 +24,10 @@ class AliasHelper(object):
                                  self.__model_context.get_target_wls_version())
 
     def get_top_folder_map(self, location):
-        return self.get_folder_map(self.__aliases.get_model_top_level_folder_names(), location)
+        top_folder_names = [folder for folder in self.__aliases.get_model_top_level_folder_names()
+                            if folder not in TOP_FOLDERS_TO_IGNORE]
+
+        return self.get_folder_map(top_folder_names, location)
 
     def get_subfolder_map(self, location):
         return self.get_folder_map(self.__aliases.get_model_subfolder_names(location), location)
