@@ -75,6 +75,7 @@ ERROR_FLATTENED_MBEAN_HAS_ATTRIBUTES = 3005
 ERROR_CANNOT_TEST_MBEAN_CD = 3006
 ERROR_SINGLE_UNPREDICTABLE = 3007
 ERROR_FLATTENED_FOLDER_ERROR = 3008
+ERROR_UNABLE_TO_VERIFY_NON_ALIAS_MBEAN_FOLDER = 3009
 
 ERROR_ATTRIBUTE_ALIAS_NOT_FOUND = 4000
 ERROR_ATTRIBUTE_ALIAS_NOT_FOUND_IS_READONLY = 4001
@@ -110,6 +111,7 @@ MSG_MAP = {
     WARN_ATTRIBUTE_HAS_UNKNOWN_TYPE:               'Unable to determine the WLST attribute type',
     WARN_NO_DERIVED_DEFAULT_IN_GENERATED:          'Generated file contained no derived default information',
     ERROR_UNABLE_TO_VERIFY_MBEAN_FOLDER:           'Unable to generate information for MBean',
+    ERROR_UNABLE_TO_VERIFY_NON_ALIAS_MBEAN_FOLDER: 'Unable to generate information for non-alias MBean',
     ERROR_ALIAS_FOLDER_NOT_IN_WLST:                'Alias Folder not an mbean',
     ERROR_SINGLE_UNPREDICTABLE:                    'Alias Folder not marked single unpredictable',
     ERROR_FLATTENED_FOLDER_ERROR:                  'Alias Flattened Folder not found',
@@ -219,7 +221,7 @@ class Verifier(object):
                         message = generated_dictionary[entry][RECHECK]
                         if ADDITIONAL_RECHECK in generated_dictionary[entry]:
                             message += ' : ' + generated_dictionary[entry][ADDITIONAL_RECHECK]
-                        self._add_error(location, ERROR_UNABLE_TO_VERIFY_MBEAN_FOLDER, attribute=entry, message=message)
+                        self._add_missing_mbean(folder_map_name, location, message=message)
                     else:
                         _logger.fine('The wlst mbean {0} at location {2} is not in the folder map {1}',
                                      entry, folder_map, location.get_folder_path(),
@@ -342,8 +344,7 @@ class Verifier(object):
                             message = generated_dictionary[mbean_info_name][RECHECK]
                             if ADDITIONAL_RECHECK in generated_dictionary[mbean_info_name]:
                                 message += ' : ' + generated_dictionary[mbean_info_name][ADDITIONAL_RECHECK]
-                            self._add_error(location, ERROR_UNABLE_TO_VERIFY_MBEAN_FOLDER,
-                                            attribute=mbean_info_name, message=message)
+                            self._add_missing_mbean(mbean_info_name, location, message=message)
                             _logger.fine('Remove alias folder {0} as it cannot be verified', alias_name,
                                          class_name=CLASS_NAME, method_name=_method_name)
                             # Removing these results in duplicate errors
@@ -1310,6 +1311,21 @@ class Verifier(object):
         """
         self._results.add_info(location, msg_id, message, attribute)
 
+    def _add_missing_mbean(self, mbean_name, location, message=None):
+        """
+        Add a message identifying a missing MBean to the error result, or to the info result
+        if there is no corresponding alias folder.
+        :param mbean_name: the WLST name of the MBean to be checked
+        :param location: context of the current location
+        :param message: additional information to add the message
+        """
+        model_name = self._alias_helper.get_model_subfolder_name(location, mbean_name)
+        if model_name:
+            self._add_error(location, ERROR_UNABLE_TO_VERIFY_MBEAN_FOLDER, attribute=mbean_name, message=message)
+        else:
+            self._add_info(location, ERROR_UNABLE_TO_VERIFY_NON_ALIAS_MBEAN_FOLDER, attribute=mbean_name,
+                           message=message)
+
 
 def _get_generated_attribute_list(dictionary):
     """
@@ -1464,7 +1480,7 @@ def _check_for_allowed_unknowns(location, generated_attribute, wlst_type, alias_
         else:
             if get_type in CONVERT_TO_DELIMITED_TYPES or cmo_type in CONVERT_TO_DELIMITED_TYPES:
                 message_type = 'delimited'
-             
+
                 message = 'Alias has LSA required'
             if alias_type == alias_constants.STRING or alias_type == alias_constants.LIST:
                 local_valid =True
