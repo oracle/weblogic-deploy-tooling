@@ -34,7 +34,6 @@ class MBIHelper(object):
         self.__mbean_instance = self.__encapsulate_mbean_instance(mbean_instance=mbean_instance, mbean_path=mbean_path)
         self.__mbean_type = mbean_type
         self.__mbean_info = None
-        self.__mbean_info_names = None
         self.__all_helpers = None
         self.__child_mbean_helpers = None
         self.__attribute_mbean_helpers = None
@@ -158,7 +157,7 @@ class MBIHelper(object):
             self.__mbean_info = dict()
             mbi_info = generator_wlst.get_mbi_info()
             if mbi_info is None:
-                self.__logger.fine('Unable to locate the MBI information at this location {0} : {1}', self.__mbean_path,
+                self.__logger.fine('Unable to locate the MBI information at this location {0}', self.__mbean_path,
                                    class_name=self.__class_name__, method_name=_method_name)
             else:
                 self.__mbean_info = mbi_info
@@ -187,7 +186,7 @@ class MBIHelper(object):
 
 
 class MBIAttributeHelper(object):
-    
+
     __logger = PlatformLogger('test.aliases.generate')
 
     def __init__(self, mbean_info, attribute_name, mbean_instance):
@@ -269,7 +268,7 @@ class MBIAttributeHelper(object):
     def is_attribute(self):
         if self.__exists:
             return self.__get_descriptor_value('descriptorType') == 'Attribute' and \
-                not self.is_mbean() and (not self.is_reference() or self.is_valid_reference())
+                not self.is_mbean()
         return None
 
     def is_reference(self):

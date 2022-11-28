@@ -79,6 +79,10 @@ ONLINE_TEST_ANOMALIES_MAP = {
     }
 }
 
+ATTRIBUTES_TO_FILTER = {
+    '/': ['ConfigurationVersion', 'DomainVersion']
+}
+
 
 def get_verify_args_map(args):
     """
@@ -312,6 +316,26 @@ def check_list_of_strings_equal(model_name, model_value, wlst_value, wlst_read_t
                 result = model_value
 
     __logger.exiting(class_name=CLASS_NAME, method_name=_method_name, result=result)
+    return result
+
+
+def filter_attributes(location, attribute_names):
+    result = attribute_names
+    if location.get_folder_path() in ATTRIBUTES_TO_FILTER:
+        filter_list = ATTRIBUTES_TO_FILTER[location.get_folder_path()]
+        result = [attribute for attribute in attribute_names if attribute not in filter_list]
+
+    return result
+
+
+def filter_generated_attributes(location, generated_attributes):
+    result = generated_attributes
+    if location.get_folder_path() in ATTRIBUTES_TO_FILTER:
+        filter_list = ATTRIBUTES_TO_FILTER[location.get_folder_path()]
+        for attribute in filter_list:
+            if attribute in generated_attributes:
+                del generated_attributes[attribute]
+
     return result
 
 

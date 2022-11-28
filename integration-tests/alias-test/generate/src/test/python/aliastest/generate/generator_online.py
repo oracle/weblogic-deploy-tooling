@@ -251,7 +251,17 @@ class OnlineGenerator(GeneratorBase):
                 method_helper = method_map[attribute]
 
             if attribute not in lsa_map:
-                if self._is_valid_cmo_attribute(attribute_helper, info_attribute_helper):
+                if attribute_helper.is_reference_only():
+                    self.__logger.fine(
+                        'Excluding transient MBean {0} attribute {1} from location {2}'
+                        ' that is in MBI map and not in LSA map', mbean_type, attribute, mbean_path,
+                        class_name=self.__class_name, method_name=_method_name)
+
+                # if attribute is not in LSA, see if it is a valid CMO attribute and add it.
+                # transient attributes (is_reference_only) that are not in the LSA map
+                # should be excluded at this point.
+                if self._is_valid_cmo_attribute(attribute_helper, info_attribute_helper) and \
+                        not attribute_helper.is_reference_only():
                     self.__logger.fine(
                         'Adding MBean {0} attribute {1} from location {2} that is in MBI map and not in LSA map',
                         mbean_type, attribute, mbean_path, class_name=self.__class_name, method_name=_method_name)
