@@ -24,6 +24,7 @@
         <offline_domain_parent>${project.build.directory}/domains/offline</offline_domain_parent>
         <online_domain_home>${online_domain_parent}/${domain_name}</online_domain_home>
         <offline_domain_home>${offline_domain_parent}/${domain_name}</offline_domain_home>
+        <skip-wdt-install>${alias-test-skip-generate}</skip-wdt-install>
     </properties>
 
     <build>
@@ -58,7 +59,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <configuration>
-                    <skip>${alias-test-skip-generate}</skip>
+                    <skip>${skip-wdt-install}</skip>
                 </configuration>
                 <executions>
                     <execution>

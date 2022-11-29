@@ -36,7 +36,7 @@ pipeline {
         oci_os_bucket_name = 'wdt-alias-test-files'
         oci_os_prefix = 'generatedOnline'
 
-
+        downstream_job_name = 'wdt-alias-test-generate-child'
     }
     stages {
         stage ('Environment') {
@@ -77,7 +77,12 @@ pipeline {
             steps {
                 script {
                     versions_to_generate.each() {
-                        echo it
+                        build job: "${downstream_job_name}" propagate: false, parameters: [
+                            string(name: "parent_git_commit", value: "${GIT_COMMIT}"),
+                            string(name: "parent_job_name", value: "${JOB_NAME}"),
+                            string(name: "parent_job_number", value: "${BUILD_NUMBER}")
+                            string(name: "wls_version", value: it)
+                        ]
                     }
                 }
             }

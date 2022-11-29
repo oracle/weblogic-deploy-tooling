@@ -1,0 +1,68 @@
+pipeline {
+    agent any
+    parameters {
+        string(name: 'parent_git_commit', description: 'The git commit ID used by the main build')
+        string(name: 'parent_job_name', description: 'name of the parent job', defaultValue: 'wdt-alias-test-generate')
+        string(name: 'parent_job_number', description: 'Jenkins BUILD_NUMBER from the parent job')
+        string(name: 'wls_version', description: 'The WebLogic Server version number to use'
+    }
+    environment {
+        oci_config_file_creds = 'd27ac861-e952-459b-8479-6c5a2f23655d'
+        oci_signing_key_creds = '2db98e3d-8b85-4b53-9c70-73979397e6ad'
+        jenkins_home_directory = '/home/jenkins'
+        github_url = "https://github.com/oracle/weblogic-deploy-tooling"
+        github_creds = 'ecnj_github'
+    }
+    stages {
+        stage ('Git Checkout') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: "${parent_git_commit}"]],
+                          doGenerateSubmoduleConfigurations: false,
+                          extensions: [], submoduleCfg: [],
+                          userRemoteConfigs: [[credentialsId: "${github_creds}", url: "${github_url}"]]])
+            }
+        }
+        stage ('Copy WDT') {
+            steps {
+                copyArtifacts(projectName: "${parent_job_name}", filter: 'weblogic-deploy.zip', selector: specific("${parent_job_number}"))
+            }
+        }
+        stage ('Install WDT') {
+            steps {
+                sh '''
+                    rm -rf "${WORKSPACE}/integration-tests/alias-test/generate/target"
+                    mkdir -p "${WORKSPACE}/integration-tests/alias-test/generate/target"
+                    cd "${WORKSPACE}/integration-tests/alias-test/generate/target"
+                    unzip "${WORKSPACE}/weblogic-deploy.zip"
+                    cd "${WORKSPACE}"
+                    rm "${WORKSPACE}/weblogic-deploy.zip"
+            }
+        }
+        stage ('Run Alias Test Generate') {
+            agent {
+                docker {
+                    alwaysPull true
+                    reuseNode true
+                    image "phx.ocir.io/weblogick8s/wdt/jenkins-alias-test-slave:${wls_version}"
+                    args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock'
+                }
+            }
+            steps {
+                withCredentials([file(credentialsId: "${oci_config_file_creds}", variable: 'OCI_CONFIG_FILE'),
+                                 file(credentialsId: "${oci_signing_key_creds}", variable: 'OCI_SIGNING_KEY')]) {
+                    sh "cp \"\$OCI_CONFIG_FILE\" ${jenkins_home_directory}/.oci/"
+
+                    // WARNING: The OCI config file has the path to the signing key hard-coded to
+                    //          /home/jenkins/.oci/oci-signing-key.pem so any attempts to move it
+                    //          will require updating the Jenkins Secret File for the config file.
+                    //
+                    sh "cp \"\$OCI_SIGNING_KEY\" ${jenkins_home_directory}/.oci/"
+                }
+                sh '''
+                    cd integration-tests/alias-test/generate
+                    mvn install -Dalias-test-skip-generate=false -Dskip-wdt-install=true
+                '''
+            }
+        }
+    }
+}
