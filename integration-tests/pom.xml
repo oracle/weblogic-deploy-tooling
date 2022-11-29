@@ -48,8 +48,7 @@
                 <plugin>
                     <groupId>org.kordamp.maven</groupId>
                     <artifactId>oci-maven-plugin</artifactId>
-                    <!-- 0.7.0 is busted -->
-                    <version>0.6.0</version>
+                    <version>0.8.0</version>
                 </plugin>
             </plugins>
         </pluginManagement>
