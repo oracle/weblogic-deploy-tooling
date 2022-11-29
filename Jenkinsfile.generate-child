@@ -2,7 +2,7 @@ pipeline {
     agent any
     parameters {
         string(name: 'parent_git_commit', description: 'The git commit ID used by the main build')
-        string(name: 'parent_job_name', description: 'name of the parent job', defaultValue: 'wdt-alias-test-generate')
+        string(name: 'parent_job_name', description: 'Name of the parent job', defaultValue: 'wdt-alias-test-generate')
         string(name: 'parent_job_number', description: 'Jenkins BUILD_NUMBER from the parent job')
         string(name: 'wls_version', description: 'The WebLogic Server version number to use')
     }
@@ -10,7 +10,7 @@ pipeline {
         oci_config_file_creds = 'd27ac861-e952-459b-8479-6c5a2f23655d'
         oci_signing_key_creds = '2db98e3d-8b85-4b53-9c70-73979397e6ad'
         jenkins_home_directory = '/home/jenkins'
-        github_url = "https://github.com/oracle/weblogic-deploy-tooling"
+        github_url = 'https://github.com/oracle/weblogic-deploy-tooling'
         github_creds = 'ecnj_github'
     }
     stages {
@@ -36,6 +36,7 @@ pipeline {
                     unzip "${WORKSPACE}/weblogic-deploy.zip"
                     cd "${WORKSPACE}"
                     rm "${WORKSPACE}/weblogic-deploy.zip"
+                '''
             }
         }
         stage ('Run Alias Test Generate') {
