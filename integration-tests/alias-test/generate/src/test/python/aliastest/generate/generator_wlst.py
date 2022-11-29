@@ -18,6 +18,7 @@ CREDENTIAL_FIELD_NAME_MARKERS = ['Password', 'PassPhrase', 'Credential', 'Encryp
 CREDENTIAL_FIELD_EXCEPTIONS = [
     'ClearTextCredentialAccessEnabled',
     'CORSAllowedCredentials',
+    'CorsAllowedCredentials',
     'CredentialGenerated',
     'CredentialMappingDeploymentEnabled',
     'CredentialMappingEnabled',

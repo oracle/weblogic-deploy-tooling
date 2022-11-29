@@ -124,12 +124,12 @@ export JAVA_PROPERTIES
 CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar:${TEST_HOME}/resources:${BASEDIR}/target/jython-standalone.jar"
 
 if [ -z "${WLSDEPLOY_LOG_PROPERTIES}" ]; then
-    WLSDEPLOY_LOG_PROPERTIES=${WLSDEPLOY_HOME}/etc/logging.properties
+    WLSDEPLOY_LOG_PROPERTIES="${WLSDEPLOY_HOME}/etc/logging.properties"
 fi
 export WLSDEPLOY_LOG_PROPERTIES
 
 if [ -z "${WLSDEPLOY_LOG_DIRECTORY}" ]; then
-    WLSDEPLOY_LOG_DIRECTORY=${WLSDEPLOY_HOME}/logs
+    WLSDEPLOY_LOG_DIRECTORY="${WLSDEPLOY_HOME}/logs"
     export WLSDEPLOY_LOG_DIRECTORY
 fi
 
@@ -139,7 +139,7 @@ echo "JAVA_HOME = ${JAVA_HOME}"
 echo "CLASSPATH = ${CLASSPATH}"
 echo "JAVA_PROPERTIES = ${JAVA_PROPERTIES}"
 
-PY_SCRIPTS_PATH=${TEST_HOME}/python
+PY_SCRIPTS_PATH="${TEST_HOME}/python"
 
 echo "${JAVA_HOME}/bin/java -cp ${CLASSPATH} ${JAVA_PROPERTIES} \
     org.python.util.jython ${PY_SCRIPTS_PATH}/verify_offline.py \
