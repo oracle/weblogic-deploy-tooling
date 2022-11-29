@@ -76,8 +76,8 @@ pipeline {
             }
             steps {
                 script {
-                    for (version in versions_to_generate) {
-                        echo "calling ${downstream_job_name} for WebLogic Server version ${version}"
+                    for (String version in versions_to_generate) {
+                        echo "Calling ${downstream_job_name} for WebLogic Server version ${version}"
                         build job: "${downstream_job_name}", parameters: [
                             string(name: "parent_git_commit", value: "${GIT_COMMIT}"),
                             string(name: "parent_job_name", value: "${JOB_NAME}"),
