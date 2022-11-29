@@ -54,7 +54,7 @@ pipeline {
                 oci_files = sh(script: "${oci_cli_exe} os object list --profile ${oci_profile_name} --bucket-name ${oci_os_bucket_name} --namespace ${oci_os_namespace_name} --prefix ${oci_os_prefix} | jq -r '.data[].name'", returnStdout: true).trim()
             }
             steps {
-                computeGenerateVersions("${ocir_versions}", "${oci_files}", "${REGENERATE_ALL}")
+                computeGenerateVersions("${ocir_versions}", "${oci_files}", "${params.REGENERATE_ALL}")
             }
         }
         stage ('Build') {
@@ -76,13 +76,14 @@ pipeline {
             }
             steps {
                 script {
-                    versions_to_generate.each() {
-                        build job: "${downstream_job_name}", propagate: false, parameters: [
+                    for (version in versions_to_generate) {
+                        echo("version = " + version)
+                        build(job: "${downstream_job_name}", propagate: false, parameters: [
                             string(name: "parent_git_commit", value: "${GIT_COMMIT}"),
                             string(name: "parent_job_name", value: "${JOB_NAME}"),
                             string(name: "parent_job_number", value: "${BUILD_NUMBER}"),
-                            string(name: "wls_version", value: it)
-                        ]
+                            string(name: "wls_version", value: version)
+                        ])
                     }
                 }
             }
