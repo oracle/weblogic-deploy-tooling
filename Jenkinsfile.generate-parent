@@ -27,10 +27,10 @@ pipeline {
         stage ('Compute Versions') {
             steps {
                 sh '''
-                    ocir_version=$(${oci_cli_exe} artifacts container image list --repository-name ${ocir_repo_name} --compartment-id ${ocir_compartment_id} --is-versioned true | jq -r '.data.items[].version')
+                    ocir_version=$(${oci_cli_exe} artifacts container image list --profile ${oci_profile_name} --repository-name ${ocir_repo_name} --compartment-id ${ocir_compartment_id} --is-versioned true | jq -r '.data.items[].version')
                     echo ${ocir_versions}
 
-                    oci_files=$(${oci_cli_exe} os object list --bucket-name ${oci_os_bucket_name} --namespace ${oci_os_namespace_name} --prefix ${oci_os_prefix} | jq -r '.data[].name')
+                    oci_files=$(${oci_cli_exe} os object list --profile ${oci_profile_name} --bucket-name ${oci_os_bucket_name} --namespace ${oci_os_namespace_name} --prefix ${oci_os_prefix} | jq -r '.data[].name')
                     echo ${oci_files}
                 '''
             }
