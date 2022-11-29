@@ -1,3 +1,21 @@
+def versions_to_generate = null
+
+def computeGenerateVersions(String versions, String existingFiles, String regenerate) {
+    def versionList = versions.readLines()
+    def regenerateAll = regenerate.toBoolean()
+    if (!regenerateAll) {
+        def fileList = existingFiles.readLines()
+        for (file in fileList) {
+            def matcher = file =~ /generatedOnline-(\d+(\.\d+){3,5}).json/
+            def fileVersion = matcher[0][1]
+            println('fileVersion = ' + fileVersion)
+            versionList.remove(fileVersion)
+        }
+    }
+    versions_to_generate = versionList
+    print('versions_to_generate = ' + versions_to_generate)
+}
+
 pipeline {
     agent any
     parameters {
@@ -25,17 +43,14 @@ pipeline {
             }
         }
         stage ('Compute Versions') {
+            environment {
+                ocir_versions = sh(script: "${oci_cli_exe} artifacts container image list --profile ${oci_profile_name} --repository-name ${ocir_repo_name} --compartment-id ${ocir_compartment_id} --is-versioned true | jq -r '.data.items[].version'", returnStdout: true).trim()
+                oci_files = sh(script: "${oci_cli_exe} os object list --profile ${oci_profile_name} --bucket-name ${oci_os_bucket_name} --namespace ${oci_os_namespace_name} --prefix ${oci_os_prefix} | jq -r '.data[].name'", returnStdout: true).trim()
+            }
             steps {
-                sh '''
-                    ocir_version=$(${oci_cli_exe} artifacts container image list --profile ${oci_profile_name} --repository-name ${ocir_repo_name} --compartment-id ${ocir_compartment_id} --is-versioned true | jq -r '.data.items[].version')
-                    echo ${ocir_versions}
-
-                    oci_files=$(${oci_cli_exe} os object list --profile ${oci_profile_name} --bucket-name ${oci_os_bucket_name} --namespace ${oci_os_namespace_name} --prefix ${oci_os_prefix} | jq -r '.data[].name')
-                    echo ${oci_files}
-                '''
+                computeGenerateVersions("${ocir_versions}", "${oci_files}", "${REGENERATE_ALL}")
             }
         }
-        /*
         stage ('Build') {
             tools {
                 maven 'maven-3.6.0'
@@ -43,8 +58,18 @@ pipeline {
             }
             steps {
                 sh 'mvn clean install -DskipTests'
+                sh 'cp installers/target/weblogic-deploy.zip .'
+                archiveArtifacts "weblogic-deploy.zip"
             }
         }
-        */
+        stage ('Call Child Process') {
+            steps {
+                script {
+                    versions_to_generate.each() {
+                        echo it
+                    }
+                }
+            }
+        }
     }
 }
