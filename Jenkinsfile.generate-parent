@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+    parameters {
+        booleanParam(name: 'REGENERATE_ALL', defaultValue: false,
+                     description: 'Regenerate files for all versions')
+    }
+    environment {
+        oci_cli_exe = '/usr/bin/oci'
+        oci_profile_name = 'WDTBUILD'
+        ocir_repo_name = 'wdt/jenkins-alias-test-slave'
+        ocir_compartment_id = 'ocid1.tenancy.oc1..aaaaaaaahmcbb5mp2h6toh4vj7ax526xtmihrneoumyat557rvlolsx63imq'
+
+        oci_os_namespace_name = "${env.WDT_ALIAS_TEST_TENANCY}"
+        oci_os_bucket_name = 'wdt-alias-test-files'
+        oci_os_prefix = 'generatedOnline'
+    }
+    stages {
+        stage ('Environment') {
+            tools {
+                maven 'maven-3.6.0'
+                jdk 'jdk8'
+            }
+            steps {
+                sh 'env|sort'
+            }
+        }
+        stage ('Compute Versions') {
+            steps {
+                sh '''
+                    ocir_version=$(${oci_cli_exe} artifacts container image list --repository-name ${ocir_repo_name} --compartment-id ${ocir_compartment_id} --is-versioned true | jq -r '.data.items[].version')
+                    echo ${ocir_versions}
+
+                    oci_files=$(${oci_cli_exe} os object list --bucket-name ${oci_os_bucket_name} --namespace ${oci_os_namespace_name} --prefix ${oci_os_prefix} | jq -r '.data[].name')
+                    echo ${oci_files}
+                '''
+            }
+        }
+        /*
+        stage ('Build') {
+            tools {
+                maven 'maven-3.6.0'
+                jdk 'jdk8'
+            }
+            steps {
+                sh 'mvn clean install -DskipTests'
+            }
+        }
+        */
+    }
+}
