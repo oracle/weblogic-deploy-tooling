@@ -71,7 +71,8 @@ pipeline {
             }
             steps {
                 sh 'mvn clean install -DskipTests'
-                archiveArtifacts 'installer/target/weblogic-deploy.zip'
+                sh "cp ${WORKSPACE}/installer/target/weblogic-deploy.zip ${WORKSPACE}/"
+                archiveArtifacts 'weblogic-deploy.zip'
             }
         }
         stage ('Call Child Process') {
