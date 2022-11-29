@@ -24,7 +24,8 @@ pipeline {
         }
         stage ('Copy WDT') {
             steps {
-                copyArtifacts(projectName: "${params.parent_job_name}", filter: 'weblogic-deploy.zip', selector: specific("${params.parent_job_number}"))
+                copyArtifacts(projectName: "${params.parent_job_name}", filter: '**/*.zip', selector: specific("${params.parent_job_number}"))
+                sh "ls -l ${WORKSPACE}"
             }
         }
         stage ('Install WDT') {
