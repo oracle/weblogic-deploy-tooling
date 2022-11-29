@@ -20,6 +20,10 @@ def haveVersionsToBuild() {
     return !versions_to_generate.isEmpty()
 }
 
+def getComputedVersions() {
+    return versions_to_generate
+}
+
 pipeline {
     agent any
     parameters {
@@ -76,7 +80,9 @@ pipeline {
             }
             steps {
                 script {
-                    for (String version in versions_to_generate) {
+                    def versions = getComputedVersions()
+                    echo "computed versions = ${versions}"
+                    for (String version in versions) {
                         echo "Calling ${downstream_job_name} for WebLogic Server version ${version}"
                         build job: "${downstream_job_name}", parameters: [
                             string(name: "parent_git_commit", value: "${GIT_COMMIT}"),
