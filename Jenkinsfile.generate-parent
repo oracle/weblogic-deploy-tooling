@@ -1,4 +1,4 @@
-def versions_to_generate = null
+def versions_to_generate = []
 
 def computeGenerateVersions(String versions, String existingFiles, String regenerate) {
     def versionList = versions.readLines()
@@ -16,6 +16,10 @@ def computeGenerateVersions(String versions, String existingFiles, String regene
     print('versions_to_generate = ' + versions_to_generate)
 }
 
+def haveVersionsToBuild() {
+    return !versions_to_generate.isEmpty()
+}
+
 pipeline {
     agent any
     parameters {
@@ -31,6 +35,8 @@ pipeline {
         oci_os_namespace_name = "${env.WDT_ALIAS_TEST_TENANCY}"
         oci_os_bucket_name = 'wdt-alias-test-files'
         oci_os_prefix = 'generatedOnline'
+
+
     }
     stages {
         stage ('Environment') {
@@ -52,6 +58,9 @@ pipeline {
             }
         }
         stage ('Build') {
+            when {
+                equals(actual: haveVersionsToBuild(), expected: true)
+            }
             tools {
                 maven 'maven-3.6.0'
                 jdk 'jdk8'
@@ -63,6 +72,9 @@ pipeline {
             }
         }
         stage ('Call Child Process') {
+            when {
+                equals(actual: haveVersionsToBuild(), expected: true)
+            }
             steps {
                 script {
                     versions_to_generate.each() {
