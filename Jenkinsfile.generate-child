@@ -16,7 +16,7 @@ pipeline {
     stages {
         stage ('Git Checkout') {
             steps {
-                checkout([$class: 'GitSCM', branches: [[name: "${parent_git_commit}"]],
+                checkout([$class: 'GitSCM', branches: [[name: "${params.parent_git_commit}"]],
                           doGenerateSubmoduleConfigurations: false,
                           extensions: [], submoduleCfg: [],
                           userRemoteConfigs: [[credentialsId: "${github_creds}", url: "${github_url}"]]])
@@ -24,7 +24,7 @@ pipeline {
         }
         stage ('Copy WDT') {
             steps {
-                copyArtifacts(projectName: "${parent_job_name}", filter: 'weblogic-deploy.zip', selector: specific("${parent_job_number}"))
+                copyArtifacts(projectName: "${params.parent_job_name}", filter: 'weblogic-deploy.zip', selector: specific("${params.parent_job_number}"))
             }
         }
         stage ('Install WDT') {
@@ -44,7 +44,7 @@ pipeline {
                 docker {
                     alwaysPull true
                     reuseNode true
-                    image "phx.ocir.io/weblogick8s/wdt/jenkins-alias-test-slave:${wls_version}"
+                    image "phx.ocir.io/weblogick8s/wdt/jenkins-alias-test-slave:${params.wls_version}"
                     args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
