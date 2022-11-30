@@ -18,6 +18,7 @@
 
     <properties>
         <mw_home>${env.ORACLE_HOME}</mw_home>
+        <wls_java_home>${env.JAVA_HOME}</wls_java_home>
         <test_home>${project.build.directory}/test-home</test_home>
         <domain_name>system_test_domain</domain_name>
         <online_domain_parent>${project.build.directory}/domains/online</online_domain_parent>
@@ -137,7 +138,7 @@
                         <configuration>
                             <executable>${project.basedir}/src/test/bin/createDomain.sh</executable>
                             <environmentVariables>
-                                <JAVA_HOME>${env.JAVA_HOME}</JAVA_HOME>
+                                <JAVA_HOME>${wls_java_home}</JAVA_HOME>
                                 <ORACLE_HOME>${mw_home}</ORACLE_HOME>
                                 <WLSDEPLOY_HOME>${project.build.directory}/weblogic-deploy</WLSDEPLOY_HOME>
                             </environmentVariables>
@@ -164,7 +165,7 @@
                         <configuration>
                             <executable>${project.basedir}/src/test/bin/createDomain.sh</executable>
                             <environmentVariables>
-                                <JAVA_HOME>${env.JAVA_HOME}</JAVA_HOME>
+                                <JAVA_HOME>${wls_java_home}</JAVA_HOME>
                                 <ORACLE_HOME>${mw_home}</ORACLE_HOME>
                                 <WLSDEPLOY_HOME>${project.build.directory}/weblogic-deploy</WLSDEPLOY_HOME>
                             </environmentVariables>
@@ -187,6 +188,7 @@
                         <configuration>
                             <executable>${project.basedir}/src/test/bin/startAdminServer.sh</executable>
                             <environmentVariables>
+                                <JAVA_HOME>${wls_java_home}</JAVA_HOME>
                                 <DOMAIN_HOME>${online_domain_home}</DOMAIN_HOME>
                             </environmentVariables>
                         </configuration>
@@ -209,7 +211,7 @@
                                 <successCode>1</successCode>
                             </successCodes>
                             <environmentVariables>
-                                <JAVA_HOME>${env.JAVA_HOME}</JAVA_HOME>
+                                <JAVA_HOME>${wls_java_home}</JAVA_HOME>
                                 <WLSDEPLOY_HOME>${project.build.directory}/weblogic-deploy</WLSDEPLOY_HOME>
                                 <WLSDEPLOY_LOG_PROPERTIES>${project.basedir}/src/test/resources/logging.properties</WLSDEPLOY_LOG_PROPERTIES>
                                 <TEST_HOME>${test_home}</TEST_HOME>
@@ -242,7 +244,7 @@
                                 <successCode>1</successCode>
                             </successCodes>
                             <environmentVariables>
-                                <JAVA_HOME>${env.JAVA_HOME}</JAVA_HOME>
+                                <JAVA_HOME>${wls_java_home}</JAVA_HOME>
                                 <WLSDEPLOY_HOME>${project.build.directory}/weblogic-deploy</WLSDEPLOY_HOME>
                                 <WLSDEPLOY_LOG_PROPERTIES>${project.basedir}/src/test/resources/logging.properties</WLSDEPLOY_LOG_PROPERTIES>
                                 <TEST_HOME>${test_home}</TEST_HOME>
@@ -275,7 +277,7 @@
                                 <successCode>1</successCode>
                             </successCodes>
                             <environmentVariables>
-                                <JAVA_HOME>${env.JAVA_HOME}</JAVA_HOME>
+                                <JAVA_HOME>${wls_java_home}</JAVA_HOME>
                                 <WLSDEPLOY_HOME>${project.build.directory}/weblogic-deploy</WLSDEPLOY_HOME>
                                 <WLSDEPLOY_LOG_PROPERTIES>${project.basedir}/src/test/resources/logging.properties</WLSDEPLOY_LOG_PROPERTIES>
                                 <TEST_HOME>${test_home}</TEST_HOME>
@@ -299,6 +301,7 @@
                         <configuration>
                             <executable>${project.basedir}/src/test/bin/stopAdminServer.sh</executable>
                             <environmentVariables>
+                                <JAVA_HOME>${wls_java_home}</JAVA_HOME>
                                 <DOMAIN_HOME>${online_domain_home}</DOMAIN_HOME>
                             </environmentVariables>
                             <arguments>
