@@ -37,7 +37,8 @@ i=0
 while [ $i -lt 60 ]; do
   echo "Checking admin server readiness (i = $i)"
   return_code=$(curl -sw '%{http_code}' "${READY_APP_URL}")
-  if [ "${return_code}" = "200" ]; then
+  # Ready App doesn't exist prior to 12.2.1 so treat a 404 as a ready indicator...
+  if [ "${return_code}" = "200" ] || [ "${return_code}" = "404" ]; then
     echo "Admin Server is ready"
     exit 0
   else
