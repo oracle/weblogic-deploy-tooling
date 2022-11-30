@@ -9,6 +9,12 @@ if [ -z "${DOMAIN_HOME}" ]; then
     exit 1
 fi
 
+if [ -z "${JAVA_HOME}" ]; then
+    echo "JAVA_HOME environment variable must be set" >&2
+    exit 1
+fi
+export JAVA_HOME
+
 scriptPath=$(dirname "$0")
 
 . "${scriptPath}/helpers.sh"
