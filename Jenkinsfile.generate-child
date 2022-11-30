@@ -62,7 +62,13 @@ pipeline {
                 }
                 sh '''
                     cd integration-tests/alias-test/generate
-                    mvn install -Dalias-test-skip-generate=false -Dskip-wdt-install=true
+
+                    // In 2 JDK images, JAVA_HOME is set to JDK8 in /u01/maven-jdk and JDK7 is in /u01/jdk.
+                    // In single JDK images, JAVA_HOME is set to /u01/jdk.  That means that the
+                    // -Dwls_java_home will point to JDK7 for early WLS versions where it is required.
+                    // For all newer versions, it points to the JAVA_HOME location so it is a no-op.
+                    //
+                    mvn install -Dalias-test-skip-generate=false -Dskip-wdt-install=true -Dwls_java_home=/u01/jdk
                 '''
             }
         }
