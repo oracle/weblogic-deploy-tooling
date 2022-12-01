@@ -1,0 +1,106 @@
+def versions_to_verify = []
+
+def computeVerifyVersions(String existingFiles) {
+    def fileList = existingFiles.readLines()
+    def versionList = []
+    for (file in fileList) {
+        def matcher = file =~ /generatedOnline-(\d+(\.\d+){3,5}).json/
+        def fileVersion = matcher[0][1]
+        println('fileVersion = ' + fileVersion)
+        versionList.append(fileVersion)
+    }
+    versions_to_verify = versionList
+    print('versions_to_verify = ' + versions_to_verify)
+}
+
+def haveVersionsToVerify() {
+    return !versions_to_verify.isEmpty()
+}
+
+def getComputedVersions() {
+    return versions_to_verify
+}
+
+pipeline {
+    agent any
+
+    environment {
+        // Temporary list until all versions are clean...
+        versions = [
+            '12.2.1.4.0',
+            '12.2.1.4.0.191220',
+            '12.2.1.4.0.200228',
+            '12.2.1.4.0.200624',
+            '12.2.1.4.0.201001',
+            '12.2.1.4.0.201209',
+            '12.2.1.4.0.210330',
+            '12.2.1.4.0.210629',
+            '12.2.1.4.0.210930',
+            '14.1.1.0.0'
+        ]
+        oci_cli_exe = '/usr/bin/oci'
+        oci_profile_name = 'WDTBUILD'
+        ocir_repo_name = 'wdt/jenkins-alias-test-slave'
+        ocir_compartment_id = 'ocid1.tenancy.oc1..aaaaaaaahmcbb5mp2h6toh4vj7ax526xtmihrneoumyat557rvlolsx63imq'
+
+        oci_os_namespace_name = "${env.WDT_ALIAS_TEST_TENANCY}"
+        oci_os_bucket_name = 'wdt-alias-test-files'
+        oci_os_prefix = 'generatedOnline'
+
+        downstream_job_name = 'wdt-alias-test-generate-child'
+    }
+    stages {
+        stage ('Environment') {
+            tools {
+                maven 'maven-3.6.0'
+                jdk 'jdk8'
+            }
+            steps {
+                sh 'env|sort'
+            }
+        }
+        stage ('Compute Versions') {
+            environment {
+                oci_files = sh(script: "${oci_cli_exe} os object list --profile ${oci_profile_name} --bucket-name ${oci_os_bucket_name} --namespace ${oci_os_namespace_name} --prefix ${oci_os_prefix} | jq -r '.data[].name'", returnStdout: true).trim()
+            }
+            steps {
+                computeVerifyVersions("${oci_files}")
+            }
+        }
+        stage ('Build') {
+            when {
+                equals(actual: haveVersionsToVerify(), expected: true)
+            }
+            tools {
+                maven 'maven-3.6.0'
+                jdk 'jdk8'
+            }
+            steps {
+                sh 'mvn clean install -DskipTests'
+                sh "cp ${WORKSPACE}/installer/target/weblogic-deploy.zip ${WORKSPACE}/"
+                archiveArtifacts 'weblogic-deploy.zip'
+            }
+        }
+        stage ('Call Child Process') {
+            when {
+                equals(actual: haveVersionsToVerify(), expected: true)
+            }
+            steps {
+                script {
+                    // def versions = getComputedVersions()
+                    def versions = ${versions}
+                    echo "computed versions = ${versions}"
+                    for (String version in versions) {
+                        echo "Calling ${downstream_job_name} for WebLogic Server version ${version}"
+                        build job: "${downstream_job_name}", parameters: [
+                            string(name: "parent_git_commit", value: "${GIT_COMMIT}"),
+                            string(name: "parent_job_name", value: "${JOB_NAME}"),
+                            string(name: "parent_job_number", value: "${BUILD_NUMBER}"),
+                            string(name: "wls_version", value: "${version}")
+                        ]
+                    }
+                }
+            }
+        }
+    }
+}
