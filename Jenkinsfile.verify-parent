@@ -1,4 +1,4 @@
-def versions_to_verify = ['12.2.1.4.0', '12.2.1.4.0.200228', '12.2.1.4.0.210629', '12.2.1.4.0.210930', '14.1.1.0.0']
+def versions_to_verify = []
 
 def computeVerifyVersions(String existingFiles) {
     def fileList = existingFiles.readLines()
@@ -42,7 +42,6 @@ pipeline {
                 sh 'env|sort'
             }
         }
-        /* Temporarily don't compute the versions until the tests are clean...
         stage ('Compute Versions') {
             environment {
                 oci_files = sh(script: "${oci_cli_exe} os object list --profile ${oci_profile_name} --bucket-name ${oci_os_bucket_name} --namespace ${oci_os_namespace_name} --prefix ${oci_os_prefix} | jq -r '.data[].name'", returnStdout: true).trim()
@@ -51,7 +50,6 @@ pipeline {
                 computeVerifyVersions("${oci_files}")
             }
         }
-        */
         stage ('Build') {
             tools {
                 maven 'maven-3.6.0'
