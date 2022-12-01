@@ -232,7 +232,7 @@ class Verifier(object):
                     if len(generated_dictionary[entry]) > 0:
                         key_list = generated_dictionary[entry].keys()
                         if len(key_list) > 0:
-                            if key_list[0] == ATTRIBUTES and len(key_list[0]) > 1:
+                            if key_list[0] == ATTRIBUTES and len(key_list) > 1:
                                 next_key = key_list[1]
                             elif key_list[0] != ATTRIBUTES:
                                 next_key = key_list[0]
