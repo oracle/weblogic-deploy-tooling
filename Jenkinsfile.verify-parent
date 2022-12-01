@@ -1,16 +1,4 @@
-// Temporary list until all versions are clean...
-def versions_to_verify = [
-    '12.2.1.4.0',
-    '12.2.1.4.0.191220',
-    '12.2.1.4.0.200228',
-    '12.2.1.4.0.200624',
-    '12.2.1.4.0.201001',
-    '12.2.1.4.0.201209',
-    '12.2.1.4.0.210330',
-    '12.2.1.4.0.210629',
-    '12.2.1.4.0.210930',
-    '14.1.1.0.0'
-]
+def versions_to_verify = ["12.2.1.4.0", "12.2.1.4.0.200228", "12.2.1.4.0.210330", "12.2.1.4.0.210629", "12.2.1.4.0.210930", "14.1.1.0.0"]
 
 def computeVerifyVersions(String existingFiles) {
     def fileList = existingFiles.readLines()
@@ -46,7 +34,7 @@ pipeline {
         oci_os_bucket_name = 'wdt-alias-test-files'
         oci_os_prefix = 'generatedOnline'
 
-        downstream_job_name = 'wdt-alias-test-generate-child'
+        downstream_job_name = 'wdt-alias-test-verify-child'
     }
     stages {
         stage ('Environment') {
@@ -88,8 +76,7 @@ pipeline {
             }
             steps {
                 script {
-                    // def versions = getComputedVersions()
-                    def versions = ${versions}
+                    def versions = getComputedVersions()
                     echo "computed versions = ${versions}"
                     for (String version in versions) {
                         echo "Calling ${downstream_job_name} for WebLogic Server version ${version}"
