@@ -85,7 +85,8 @@ class OfflineGenerator(GeneratorBase):
         _method_name = '__folder_hierarchy'
         self.__logger.entering(len(online_dictionary), mbean_path,
                                class_name=self.__class_name, method_name=_method_name)
-
+        if 'DatabaseLessLeasingBasis' in mbean_path:
+            mbean_path.replace('DatabaseLessLeasingBasis', '\(DatabaseLessLeasingBasis\)')
         mbean_instance = generator_wlst.get_mbean_proxy(mbean_path)
 
         mbean_dictionary[ATTRIBUTES] = self.__get_attributes(mbean_instance)
@@ -599,6 +600,8 @@ class OfflineGenerator(GeneratorBase):
     def __find_with_special_case(self, mbean_type, folder_type):
         if mbean_type == 'CoherenceClusterResource':
             return True, 'CoherenceResource'
+        if mbean_type == 'DatabaseLessLeasingBasis':
+            return True, '(DatabaseLessLeasingBasis)'
         return False, mbean_type
     
     def __find_with_case(self, mbean_type, folder_type):
