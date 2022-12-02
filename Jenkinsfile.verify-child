@@ -45,7 +45,7 @@ pipeline {
             steps {
                 sh '''
                     cd integration-tests/alias-test/verify
-                    mvn verify -Dalias-test-skipITs=false -Dskip-wdt-install=true -Dwls_version=${params.wls_version}
+                    mvn verify -DskipTests=true -Dalias-test-skipITs=false -Dskip-wdt-install=true -Dwls_version=${params.wls_version}
                 '''
             }
         }
