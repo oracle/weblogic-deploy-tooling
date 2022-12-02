@@ -131,7 +131,7 @@ if [ -f "${ORACLE_HOME}/oracle_common/common/bin/wlst.sh" ]; then
   WLST="${ORACLE_HOME}/oracle_common/common/bin/wlst.sh"
   WLST_EXT_CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar:${TEST_HOME}/resources"; export WLST_EXT_CLASSPATH
   # No need to export CLASSPATH in this case, just putting it here for printing below...
-  CLASSPATH=${WLST_EXT_CLASSPATH}
+  CLASSPATH="${WLST_EXT_CLASSPATH}"
 elif [ -f "${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh" ]; then
   WLST="${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh"
   CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar:${TEST_HOME}/resources"; export CLASSPATH
