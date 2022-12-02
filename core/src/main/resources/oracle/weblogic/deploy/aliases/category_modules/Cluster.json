@@ -207,7 +207,9 @@
         "JobSchedulerTableName":                     [ {"version": "[10,12.2.1)",   "wlst_mode": "both",    "wlst_name": "JobSchedulerTableName",                     "wlst_path": "WP001", "default_value": "weblogic_timers",            "wlst_type": "string",           "restart_required": "true" } ,
                                                        {"version": "[12.2.1,)",     "wlst_mode": "both",    "wlst_name": "JobSchedulerTableName",                     "wlst_path": "WP001", "default_value": "WEBLOGIC_TIMERS",            "wlst_type": "string",           "restart_required": "true" } ],
         "MaxSecondarySelectionAttempts":             [
+            {"version": "[12.2.1.4.0.220105,12.2.1.4.0.220929)", "wlst_mode": "online",  "wlst_name": "MaxSecondarySelectionAttempts", "wlst_path": "WP001", "default_value": 0, "wlst_type": "integer"  },
             {"version": "[14.1.1.0.0.220105,14.1.1.0.0.221010)", "wlst_mode": "online",  "wlst_name": "MaxSecondarySelectionAttempts", "wlst_path": "WP001", "default_value": 0, "wlst_type": "integer"  },
+            {"version": "[12.2.1.4.0.220929,14.1.1)",            "wlst_mode": "both",    "wlst_name": "MaxSecondarySelectionAttempts", "wlst_path": "WP001", "default_value": 0, "wlst_type": "integer"  },
             {"version": "[14.1.1.0.0.221010,)",                  "wlst_mode": "both",    "wlst_name": "MaxSecondarySelectionAttempts", "wlst_path": "WP001", "default_value": 0, "wlst_type": "integer"  }
         ],
         "MaxServerCountForHttpPing":                 [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "MaxServerCountForHttpPing",                 "wlst_path": "WP001", "default_value": 0,                            "wlst_type": "integer",          "get_method": "${LSA:GET}"    } ],
