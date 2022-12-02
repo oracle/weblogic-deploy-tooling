@@ -145,18 +145,21 @@ WLST=
 if [ -f "${ORACLE_HOME}/oracle_common/common/bin/wlst.sh" ]; then
   WLST="${ORACLE_HOME}/oracle_common/common/bin/wlst.sh"
   WLST_EXT_CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar:${TEST_HOME}/resources"; export WLST_EXT_CLASSPATH
+  # No need to export CLASSPATH in this case, just putting it here for printing below...
+  CLASSPATH="${WLST_EXT_CLASSPATH}"
 elif [ -f "${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh" ]; then
   WLST="${ORACLE_HOME}/wlserver_10.3/common/bin/wlst.sh"
+  CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar:${TEST_HOME}/resources"; export CLASSPATH
 elif [ -f "${ORACLE_HOME}/wlserver_12.1/common/bin/wlst.sh" ]; then
   WLST="${ORACLE_HOME}/wlserver_12.1/common/bin/wlst.sh"
+  CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar:${TEST_HOME}/resources"; export CLASSPATH
 elif [ -f "${ORACLE_HOME}/wlserver/common/bin/wlst.sh" ] && [ -f "${ORACLE_HOME}/wlserver/.product.properties" ]; then
   WLST="${ORACLE_HOME}/wlserver/common/bin/wlst.sh"
+  CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar:${TEST_HOME}/resources"; export CLASSPATH
 else
   echo "Unable to locate wlst.sh script in ORACLE_HOME ${ORACLE_HOME}" >&2
   exit 1
 fi
-
-CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar:${TEST_HOME}/resources"
 
 LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployLoggingConfig
 WLST_PROPERTIES=-Dcom.oracle.cie.script.throwException=true

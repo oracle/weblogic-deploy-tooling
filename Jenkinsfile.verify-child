@@ -1,0 +1,55 @@
+pipeline {
+    agent any
+    tools {
+        maven 'maven-3.6.0'
+        jdk 'jdk8'
+    }
+    parameters {
+        string(name: 'parent_git_commit', description: 'The git commit ID used by the main build')
+        string(name: 'parent_job_name', description: 'Name of the parent job', defaultValue: 'wdt-alias-test-generate')
+        string(name: 'parent_job_number', description: 'Jenkins BUILD_NUMBER from the parent job')
+        string(name: 'wls_version', description: 'The WebLogic Server version number to use')
+    }
+    environment {
+        github_url = 'https://github.com/oracle/weblogic-deploy-tooling'
+        github_creds = 'ecnj_github'
+        wls_version = "${params.wls_version}"
+        oci_profile = 'WDTBUILD'
+    }
+    stages {
+        stage ('Git Checkout') {
+            steps {
+                checkout([$class: 'GitSCM', branches: [[name: "${params.parent_git_commit}"]],
+                          doGenerateSubmoduleConfigurations: false,
+                          extensions: [], submoduleCfg: [],
+                          userRemoteConfigs: [[credentialsId: "${github_creds}", url: "${github_url}"]]])
+            }
+        }
+        stage ('Copy WDT') {
+            steps {
+                copyArtifacts(projectName: "${params.parent_job_name}", filter: '**/*.zip', selector: specific("${params.parent_job_number}"))
+                sh "ls -l ${WORKSPACE}"
+            }
+        }
+        stage ('Install WDT') {
+            steps {
+                sh '''
+                    rm -rf "${WORKSPACE}/integration-tests/alias-test/verify/target"
+                    mkdir -p "${WORKSPACE}/integration-tests/alias-test/verify/target"
+                    cd "${WORKSPACE}/integration-tests/alias-test/verify/target"
+                    unzip "${WORKSPACE}/weblogic-deploy.zip"
+                    cd "${WORKSPACE}"
+                    rm "${WORKSPACE}/weblogic-deploy.zip"
+                '''
+            }
+        }
+        stage ('Run Alias Test Verify') {
+            steps {
+                sh '''
+                    cd integration-tests/alias-test/verify
+                    mvn verify -DskipTests=true -Dalias-test-skipITs=false -Dskip-wdt-install=true -Dalias_test_oci_profile=${oci_profile} -Dwls_version=${wls_version}
+                '''
+            }
+        }
+    }
+}

@@ -21,6 +21,7 @@
         <alias-test-generated-online-file-name>generatedOnline-${wls_version}.json</alias-test-generated-online-file-name>
         <alias-test-generated-offline-file-name>generatedOffline-${wls_version}.json</alias-test-generated-offline-file-name>
         <skip-generated-file-download>${alias-test-skipITs}</skip-generated-file-download>
+        <skip-wdt-install>${alias-test-skipITs}</skip-wdt-install>
     </properties>
 
     <build>
@@ -62,9 +63,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <configuration>
-                    <skip>${alias-test-skipITs}</skip>
-                </configuration>
                 <executions>
                     <execution>
                         <id>install-wdt</id>
@@ -73,6 +71,7 @@
                             <goal>unpack</goal>
                         </goals>
                         <configuration>
+                            <skip>${skip-wdt-install}</skip>
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>com.oracle.weblogic.lifecycle</groupId>
@@ -92,6 +91,7 @@
                             <goal>copy</goal>
                         </goals>
                         <configuration>
+                            <skip>${alias-test-skipITs}</skip>
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>org.python</groupId>
