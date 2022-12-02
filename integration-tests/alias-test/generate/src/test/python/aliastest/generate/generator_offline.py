@@ -600,8 +600,8 @@ class OfflineGenerator(GeneratorBase):
     def __find_with_special_case(self, mbean_type, folder_type):
         if mbean_type == 'CoherenceClusterResource':
             return True, 'CoherenceResource'
-        # if mbean_type == 'DatabaseLessLeasingBasis':
-        #     return True, '(DatabaseLessLeasingBasis)'
+        if mbean_type == 'DatabaseLessLeasingBasis':
+            return True, '(DatabaseLessLeasingBasis)'
         return False, mbean_type
     
     def __find_with_case(self, mbean_type, folder_type):
