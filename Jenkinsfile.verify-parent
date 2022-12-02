@@ -2,7 +2,22 @@ def versions_to_verify = []
 
 def computeVerifyVersions(String existingFiles) {
     // def fileList = existingFiles.readLines()
-    def versionList = ['12.2.1.4.0', '12.2.1.4.0.210629', '12.2.1.4.0.210930', '14.1.1.0.0']
+    def versionList = [
+        '12.2.1.4.0',
+        '12.2.1.4.0.210629',
+        '12.2.1.4.0.210930',
+        '14.1.1.0.0',
+        '14.1.1.0.0.200624',
+        '14.1.1.0.0.200930',
+        '14.1.1.0.0.201208',
+        '14.1.1.0.0.210329',
+        '14.1.1.0.0.210701',
+        '14.1.1.0.0.210930',
+        '14.1.1.0.0.220105',
+        '14.1.1.0.0.220329',
+        '14.1.1.0.0.220727',
+        '14.1.1.0.0.221010'
+    ]
     // for (file in fileList) {
     //    def matcher = file =~ /generatedOnline-(\d+(\.\d+){3,5}).json/
     //    def fileVersion = matcher[0][1]

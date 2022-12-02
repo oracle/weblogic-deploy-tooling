@@ -320,7 +320,11 @@
             "folders": {},
             "attributes": {
                 "AcceptBacklog":                             [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "AcceptBacklog",                             "wlst_path": "WP001", "default_value": "${0:300}", "derived_default": "${:true}", "wlst_type": "integer"          } ],
-                "AllowListViolationAction":                  [ {"version": "[12.2.1.4.0.210930,14.1.1)", "wlst_mode": "online", "wlst_name": "AllowListViolationAction", "wlst_path": "WP001", "default_value": "ignore", "derived_default": "${:true}", "wlst_type": "string" } ],
+                "AllowListViolationAction":                  [
+                    {"version": "[12.2.1.4.0.210930,14.1.1)",            "wlst_mode": "online", "wlst_name": "AllowListViolationAction", "wlst_path": "WP001", "default_value": "ignore",             "derived_default": "${:true}", "wlst_type": "string" },
+                    {"version": "[14.1.1.0.0.210701,14.1.1.0.0.221010)", "wlst_mode": "online", "wlst_name": "AllowListViolationAction", "wlst_path": "WP001", "default_value": "ignore",             "derived_default": "${:true}", "wlst_type": "string" },
+                    {"version": "[14.1.1.0.0.221010,)",                  "wlst_mode": "both",   "wlst_name": "AllowListViolationAction", "wlst_path": "WP001", "default_value": "${__NULL__:ignore}", "derived_default": "${:true}", "wlst_type": "string" }
+                ],
                 "AllowUnencryptedNullCipher":                [ {"version": "[12.1.3,)", "wlst_mode": "both", "wlst_name": "AllowUnencryptedNullCipher",                "wlst_path": "WP001", "default_value": "false", "derived_default": "${:true}", "wlst_type": "boolean"          } ],
                 "ChannelIdentityCustomized":                 [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "ChannelIdentityCustomized",                 "wlst_path": "WP001", "default_value": "false",    "wlst_type": "boolean"          } ],
                 "ChannelWeight":                             [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "ChannelWeight",                             "wlst_path": "WP001", "default_value": 50,         "wlst_type": "integer"          } ],
@@ -452,7 +456,11 @@
                 "ClasspathServlet":                             [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "ClasspathServlet",                             "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugAbbreviation":                            [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "DebugAbbreviation",                            "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugAbbrevs":                                 [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "DebugAbbrevs",                                 "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "get_method": "${LSA:GET}"} ],
-                "DebugAllowList":                               [ {"version": "[12.2.1.4.0.210930,14.1.1)", "wlst_mode": "online", "wlst_name": "DebugAllowList",            "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
+                "DebugAllowList":                               [
+                    {"version": "[12.2.1.4.0.210930,14.1.1)",            "wlst_mode": "online", "wlst_name": "DebugAllowList",            "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"},
+                    {"version": "[14.1.1.0.0.210701,14.1.1.0.0.221010)", "wlst_mode": "online", "wlst_name": "DebugAllowList",            "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"},
+                    {"version": "[14.1.1.0.0.221010,)",                  "wlst_mode": "both",   "wlst_name": "DebugAllowList",            "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"}
+                ],
                 "DebugAppAnnotations":                          [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "DebugAppAnnotations",                          "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugAppClient":                               [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "DebugAppClient",                               "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "get_method": "${LSA:GET}"} ],
                 "DebugAppContainer":                            [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "DebugAppContainer",                            "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
@@ -494,6 +502,10 @@
                 "DebugConnection":                              [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "DebugConnection",                              "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugConnectorService":                        [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "DebugConnectorService",                        "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugConsensusLeasing":                        [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "DebugConsensusLeasing",                        "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
+                "DebugDeserializationTimeLimit":                [
+                    {"version": "[14.1.1.0.0.220329,14.1.1.0.0.221010)",  "wlst_mode": "online", "wlst_name": "DebugDeserializationTimeLimit",   "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean" },
+                    {"version": "[14.1.1.0.0.221010,)",                   "wlst_mode": "both",   "wlst_name": "DebugDeserializationTimeLimit",   "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean" }
+                ],
                 "DebugDGCEnrollment":                           [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "DebugDGCEnrollment",                           "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugDRSCalls":                                [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "DebugDRSCalls",                                "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugDRSHeartbeats":                           [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "DebugDRSHeartbeats",                           "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
@@ -1449,10 +1461,12 @@
         "CandidateMachine":                             [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "CandidateMachine${:s}",                        "wlst_path": "WP001", "default_value": "${__NULL__:[]}",      "wlst_type": "${delimited_string:jarray}", "get_method": "${LSA:GET}", "preferred_model_type": "delimited_string", "set_method": "${:MBEAN.set_machine_mbean}", "set_mbean_type": "${:weblogic.management.configuration.MachineMBean}" } ],
         "ClasspathServletDisabled":                     [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "ClasspathServletDisabled",                     "wlst_path": "WP001", "default_value": "false",               "wlst_type": "boolean"          } ],
         "ClasspathServletSecureModeEnabled":            [
-            {"version": "[12.2.1.3,)",                  "wlst_mode": "offline", "wlst_name": "ClasspathServletSecureModeEnabled", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean" },
-            {"version": "[12.2.1.3,12.2.1.4.0.210330)", "wlst_mode": "online",  "wlst_name": "ClasspathServletSecureModeEnabled", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean" },
-            {"version": "[12.2.1.4.0.210330,14.1.1)",   "wlst_mode": "online",  "wlst_name": "ClasspathServletSecureModeEnabled", "wlst_path": "WP001", "default_value": "true",  "wlst_type": "boolean" },
-            {"version": "[14.1.1,)",                    "wlst_mode": "online",  "wlst_name": "ClasspathServletSecureModeEnabled", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean" }
+            {"version": "[12.2.1.3,14.1.1.0.0.221010)",          "wlst_mode": "offline", "wlst_name": "ClasspathServletSecureModeEnabled", "wlst_path": "WP001", "default_value": "false",         "wlst_type": "boolean" },
+            {"version": "[12.2.1.3,12.2.1.4.0.210330)",          "wlst_mode": "online",  "wlst_name": "ClasspathServletSecureModeEnabled", "wlst_path": "WP001", "default_value": "false",         "wlst_type": "boolean" },
+            {"version": "[12.2.1.4.0.210330,14.1.1)",            "wlst_mode": "online",  "wlst_name": "ClasspathServletSecureModeEnabled", "wlst_path": "WP001", "default_value": "true",          "wlst_type": "boolean" },
+            {"version": "[14.1.1,14.1.1.0.0.210329)",            "wlst_mode": "online",  "wlst_name": "ClasspathServletSecureModeEnabled", "wlst_path": "WP001", "default_value": "false",         "wlst_type": "boolean" },
+            {"version": "[14.1.1.0.0.210329,14.1.1.0.0.221010)", "wlst_mode": "online",  "wlst_name": "ClasspathServletSecureModeEnabled", "wlst_path": "WP001", "default_value": "true",          "wlst_type": "boolean" },
+            {"version": "[14.1.1.0.0.221010,)",                  "wlst_mode": "both",    "wlst_name": "ClasspathServletSecureModeEnabled", "wlst_path": "WP001", "default_value": "true",          "wlst_type": "boolean" }
         ],
         "CleanupOrphanedSessionsEnabled":               [ {"version": "[12.2.1.4,)",     "wlst_mode": "both",    "wlst_name": "CleanupOrphanedSessionsEnabled",               "wlst_path": "WP001", "default_value": "false",               "wlst_type": "boolean"          } ],
         "ClientCertProxyEnabled":                       [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "ClientCertProxyEnabled",                       "wlst_path": "WP001", "default_value": "false",               "wlst_type": "boolean"          } ],
@@ -1594,6 +1608,10 @@
         "RetryIntervalBeforeMsiMode":                   [ {"version": "[12.2.1,)",       "wlst_mode": "both",    "wlst_name": "RetryIntervalBeforeM${si:SI}Mode",             "wlst_path": "WP001", "default_value": 5,                     "wlst_type": "integer"          } ],
         "ReverseDNSAllowed":                            [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "ReverseDNSAllowed",                            "wlst_path": "WP001", "default_value": "false",               "wlst_type": "boolean"          } ],
         "RjvmIdleTimeout":                              [ {"version": "[10,)",           "wlst_mode": "offline", "wlst_name": "RjvmIdleTimeout",                              "wlst_path": "WP001", "default_value": 0,                     "wlst_type": "integer"          } ],
+        "RmiDeserializationMaxTimeLimit":               [
+            {"version": "[14.1.1.0.0.220329,14.1.1.0.0.221010)", "wlst_mode": "online", "wlst_name": "RMIDeserializationMaxTimeLimit",       "wlst_path": "WP001", "default_value": 0,  "wlst_type": "long" },
+            {"version": "[14.1.1.0.0.221010,)",                  "wlst_mode": "both",   "wlst_name": "R${mi:MI}DeserializationMaxTimeLimit", "wlst_path": "WP001", "default_value": 0,  "wlst_type": "long" }
+        ],
         "ScatteredReadsEnabled":                        [ {"version": "[10.3.4,)",       "wlst_mode": "both",    "wlst_name": "ScatteredReadsEnabled",                        "wlst_path": "WP001", "default_value": "false", "derived_default": "${:true}", "wlst_type": "boolean",         "restart_required": "true" } ],
         "SelfTuningThreadPoolSizeMax":                  [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "SelfTuningThreadPoolSizeMax",                  "wlst_path": "WP001", "default_value": 400,                   "wlst_type": "integer",         "get_method": "${LSA:GET}" } ],
         "SelfTuningThreadPoolSizeMin":                  [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "SelfTuningThreadPoolSizeMin",                  "wlst_path": "WP001", "default_value": 1,                     "wlst_type": "integer",         "get_method": "${LSA:GET}" } ],
