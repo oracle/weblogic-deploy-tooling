@@ -136,6 +136,8 @@ class OfflineGenerator(GeneratorBase):
                     success, lsc_name, attributes = \
                         self.__generate_folder(mbean_instance, parent_mbean_type, mbean_type, mbean_helper)
                     if attributes is not None:
+                        if lsc_name == '(DatabaseLessLeasingBasis)':
+                            lsc_name = 'DatabaseLessLeasingBasis'
                         mbean_dictionary[lsc_name] = attributes
 
                 if success:
