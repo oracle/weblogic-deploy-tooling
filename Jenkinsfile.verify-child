@@ -13,6 +13,8 @@ pipeline {
     environment {
         github_url = 'https://github.com/oracle/weblogic-deploy-tooling'
         github_creds = 'ecnj_github'
+        wls_version = "${params.wls_version}"
+        oci_profile = 'WDTBUILD'
     }
     stages {
         stage ('Git Checkout') {
@@ -45,7 +47,7 @@ pipeline {
             steps {
                 sh '''
                     cd integration-tests/alias-test/verify
-                    mvn verify -DskipTests=true -Dalias-test-skipITs=false -Dskip-wdt-install=true -Dwls_version=${params.wls_version}
+                    mvn verify -DskipTests=true -Dalias-test-skipITs=false -Dskip-wdt-install=true -Dalias_test_oci_profile=${oci_profile} -Dwls_version=${wls_version}
                 '''
             }
         }
