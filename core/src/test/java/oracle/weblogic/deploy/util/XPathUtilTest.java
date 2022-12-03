@@ -13,10 +13,27 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class XPathUtilTest {
 
     @Test
-    void testPSUWithParen() {
+    void testKnownPSUExceptionWith8Digits() {
         XPathUtil util = new XPathUtil();
-        String tester = new String(".2145)");
-        String expected = new String("2145");
+        String tester = new String("WLS PATCH SET UPDATE 12.2.1.3.0(ID:20190522.070630)");
+        String expected = new String("190522");
+        String actual = util.extractPsu(tester);
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    void testPSUExceptionWith6Digits() {
+        XPathUtil util = new XPathUtil();
+        String tester = new String("WLS PATCH SET UPDATE 12.2.1.3.0(ID:191217.1425)");
+        String expected = new String("191217");
+        String actual = util.extractPsu(tester);
+        assertEquals(expected, actual);
+    }
+
+    void testPSUExceptionWithUnknownNumberOfDigits() {
+        XPathUtil util = new XPathUtil();
+        String tester = new String("WLS PATCH SET UPDATE 12.2.1.3.0(ID:12345.6789)");
+        String expected = null;
         String actual = util.extractPsu(tester);
         assertEquals(expected, actual);
     }
@@ -24,8 +41,8 @@ public class XPathUtilTest {
     @Test
     void testPSU() {
         XPathUtil util = new XPathUtil();
-        String tester = new String(".2145");
-        String expected = new String("2145");
+        String tester = new String("WLS PATCH SET UPDATE 12.2.1.4.220329");
+        String expected = new String("220329");
         String actual = util.extractPsu(tester);
         assertEquals(expected, actual);
     }
