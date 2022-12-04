@@ -80,7 +80,8 @@ ONLINE_TEST_ANOMALIES_MAP = {
 }
 
 ATTRIBUTES_TO_FILTER = {
-    '/': ['ConfigurationVersion', 'DomainVersion']
+    '/': ['ConfigurationVersion', 'DomainVersion'],
+    '/Library': ['ConfiguredApplicationIdentifier', 'MultiVersionApp']
 }
 
 

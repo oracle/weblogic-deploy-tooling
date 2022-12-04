@@ -28,8 +28,8 @@
                 "LoggingEnabled":       [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "LoggingEnabled",       "wlst_path": "WP001", "default_value": true,                                                   "wlst_type": "boolean"          } ],
                 "Notes":                [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "Notes",                "wlst_path": "WP001", "default_value": null,                                                   "wlst_type": "string"           } ],
                 "NumberOfFilesLimited": [
-                    {"version": "[10,12.2.1.4)",                "wlst_mode": "both", "wlst_name": "NumberOfFilesLimited", "wlst_path": "WP001", "default_value": true,            "wlst_type": "boolean"          },
-                    {"version": "[12.2.1.4,12.2.1.4.0.210629)", "wlst_mode": "both", "wlst_name": "NumberOfFilesLimited", "wlst_path": "WP001", "default_value": "${true:false}", "wlst_type": "boolean"          },
+                    {"version": "[10,12.2.1)",                  "wlst_mode": "both", "wlst_name": "NumberOfFilesLimited", "wlst_path": "WP001", "default_value": true,            "wlst_type": "boolean"          },
+                    {"version": "[12.2.1,12.2.1.4.0.210629)",   "wlst_mode": "both", "wlst_name": "NumberOfFilesLimited", "wlst_path": "WP001", "default_value": "${true:false}", "wlst_type": "boolean"          },
                     {"version": "[12.2.1.4.0.210629,14.1.1)",   "wlst_mode": "both", "wlst_name": "NumberOfFilesLimited", "wlst_path": "WP001", "default_value": "true",          "wlst_type": "boolean"          },
                     {"version": "[14.1.1,14.1.1.0.0.210701)",   "wlst_mode": "both", "wlst_name": "NumberOfFilesLimited", "wlst_path": "WP001", "default_value": "${true:false}", "wlst_type": "boolean"          },
                     {"version": "[14.1.1.0.0.210701,)",         "wlst_mode": "both", "wlst_name": "NumberOfFilesLimited", "wlst_path": "WP001", "default_value": "true",          "wlst_type": "boolean"          }
