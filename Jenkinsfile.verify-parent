@@ -24,7 +24,7 @@ def getComputedVersions() {
     return versions_to_verify
 }
 
-def addFailedEmailBody(String version, String jobName, String jobNumber, String jobUrl) {
+def addFailedEmailBody(String version, String jobName, int jobNumber, String jobUrl) {
     if (!build_failed_email_body.isEmpty()) {
         build_failed_email_body.add('')
     }
@@ -35,11 +35,19 @@ def addFailedEmailBody(String version, String jobName, String jobNumber, String 
 def processChildJobResult(version, jobBuild) {
     if (jobBuild.getResult() != 'SUCCESS') {
         failed_versions.add(version)
-        def buildJobName = jobBuild.buildVariables.JOB_NAME
-        def buildJobNumber = jobBuild.buildVariables.BUILD_NUMBER
-        def buildJobURL = jobBuild.buildVariables.BUILD_URL
+        def buildJobName = jobBuild.getDisplayName()
+        def buildJobNumber = jobBuild.getNumber()
+        def buildJobURL = jobBuild.getAbsoluteUrl()
         addFailedEmailBody(version, buildJobName, buildJobNumber, buildJobURL)
     }
+}
+
+def getNumberOfFailures() {
+    return failed_versions.size()
+}
+
+def getFailedEmailBody() {
+    return String.join("\n", build_failed_email_body)
 }
 
 pipeline {
@@ -99,16 +107,21 @@ pipeline {
                             string(name: "parent_job_number", value: "${BUILD_NUMBER}"),
                             string(name: "wls_version", value: "${version}")
                         ]
-                        echo "jobResponse Display Name = ${jobResponse.getDisplayName()}"
-                        echo "jobResponse Number = ${jobResponse.getNumber()}"
-                        echo "jobResponse URL = ${jobResponse.getAbsoluteUrl()}"
-                        def jobBuildVariables = jobResponse.getBuildVariables()
-                        for (String key in jobBuildVariables.keySet()) {
-                            echo "JobResponse build variable ${key} = ${jobBuildVariables.get(key)}"
-                        }
+                    }
+                    def failures = getNumberOfFailures()
+                    if (failures > 0) {
+                        error("${failures} version(s) failed verification")
                     }
                 }
             }
+        }
+    }
+    post {
+        failure {
+            echo "mail to address is ${WDT_BUILD_EMAIL}"
+            mail to: "${WDT_BUILD_EMAIL}", from: 'noreply@oracle.com',
+                 subject: "WDT: ${env.JOB_NAME} - Failed"
+                 body: "${getFailedEmailBody()}"
         }
     }
 }
