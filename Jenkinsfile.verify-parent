@@ -120,7 +120,7 @@ pipeline {
         failure {
             echo "mail to address is ${WDT_BUILD_EMAIL}"
             mail to: "${WDT_BUILD_EMAIL}", from: 'noreply@oracle.com',
-                 subject: "WDT: ${env.JOB_NAME} - Failed"
+                 subject: "WDT: ${env.JOB_NAME} - Failed",
                  body: "${getFailedEmailBody()}"
         }
     }
