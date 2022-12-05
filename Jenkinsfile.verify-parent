@@ -7,7 +7,7 @@ def computeVerifyVersions(String existingFiles) {
     for (file in fileList) {
         def matcher = file =~ /generatedOnline-(\d+(\.\d+){3,5}).json/
         def fileVersion = matcher[0][1]
-        if (exclusionList.contains(fileVersion) {
+        if (exclusionList.contains(fileVersion)) {
             println('Excluding version ' + fileVersion)
         } else {
             println('Adding version ' + fileVersion)
