@@ -38,7 +38,10 @@ def processChildJobResult(version, jobResponse) {
         def buildJobName = jobResponse.getDisplayName()
         def buildJobNumber = jobResponse.getNumber()
         def buildJobURL = jobResponse.getAbsoluteUrl()
+        print(version + ' failed verification')
         addFailedEmailBody(version, buildJobName, buildJobNumber, buildJobURL)
+    } else {
+        print(version + ' passed verification')
     }
 }
 
@@ -109,10 +112,12 @@ pipeline {
                         ]
                         processChildJobResult(version, jobResponse)
                     }
+                    /*
                     def failures = getNumberOfFailures()
                     if (failures > 0) {
                         error("${failures} version(s) failed verification")
                     }
+                    */
                 }
             }
         }
