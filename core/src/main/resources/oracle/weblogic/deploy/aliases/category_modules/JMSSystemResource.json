@@ -647,6 +647,11 @@
                                           "wlst_type": "Multicast",
                                           "online_bean": "weblogic.j2ee.descriptor.wl.MulticastParamsBean",
                                           "default_name_value": "${NO_NAME_0:%TEMPLATE%}",
+                                          "folder_params": [
+                                                {"version":  "[10,12.2.1)"},
+                                                {"version":  "[12.2.1,12.2.1.1)", "wlst_mode": "online" },
+                                                {"version":  "[12.2.1.1,)"}
+                                          ],
                                           "folders": {},
                                           "attributes": {
                                                 "MulticastAddress":    [ {"version": "[10,)",          "wlst_mode": "both", "wlst_name": "MulticastAddress",    "wlst_path": "WP001", "default_value": null,          "derived_default": "${:true}", "wlst_type": "string",  "get_method": "GET", "restart_required": "true" } ],
@@ -773,6 +778,11 @@
                                           "wlst_type": "Multicast",
                                           "online_bean": "weblogic.j2ee.descriptor.wl.MulticastParamsBean",
                                           "default_name_value": "${NO_NAME_0:%TOPIC%}",
+                                          "folder_params": [
+                                                {"version":  "[10,12.2.1)"},
+                                                {"version":  "[12.2.1,12.2.1.1)", "wlst_mode": "online" },
+                                                {"version":  "[12.2.1.1,)"}
+                                          ],
                                           "folders": {},
                                           "attributes": {
                                                 "MulticastAddress":    [ {"version": "[10,)",         "wlst_mode": "both", "wlst_name": "MulticastAddress",    "wlst_path": "WP001", "default_value": null,          "derived_default": "${:true}", "wlst_type": "string",  "get_method": "GET", "restart_required": "true"  } ],
@@ -1013,6 +1023,11 @@
                                           "wlst_type": "Multicast",
                                           "online_bean": "weblogic.j2ee.descriptor.wl.MulticastParamsBean",
                                           "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDTOPIC%}",
+                                          "folder_params": [
+                                                {"version":  "[10,12.2.1)"},
+                                                {"version":  "[12.2.1,12.2.1.1)", "wlst_mode": "online" },
+                                                {"version":  "[12.2.1.1,)"}
+                                          ],
                                           "folders": {},
                                           "attributes": {
                                                 "MulticastAddress":    [ {"version": "[10,)",            "wlst_mode": "both", "wlst_name": "MulticastAddress",    "wlst_path": "WP001", "default_value": null,            "derived_default": "${:true}", "wlst_type": "string",       "get_method": "GET", "restart_required": "true" } ],

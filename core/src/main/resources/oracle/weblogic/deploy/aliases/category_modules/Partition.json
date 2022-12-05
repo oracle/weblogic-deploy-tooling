@@ -476,6 +476,10 @@
             "online_bean": "weblogic.management.configuration.PartitionFileSystemMBean",
             "version": "[12.2.1,)",
             "default_name_value": "${NO_NAME_0:%PARTITION%}",
+            "folder_params": [
+                {"version":  "[12.2.1,12.2.1.1)", "wlst_mode": "online" },
+                {"version":  "[12.2.1.1,)"}
+            ],
             "folders": {},
             "attributes": {
                 "CreateOnDemand":  [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "CreateOnDemand", "wlst_path": "WP001", "default_value": "true",  "wlst_type": "boolean"} ],
