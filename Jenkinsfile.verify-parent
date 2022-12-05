@@ -99,7 +99,13 @@ pipeline {
                             string(name: "parent_job_number", value: "${BUILD_NUMBER}"),
                             string(name: "wls_version", value: "${version}")
                         ]
-                        echo "jobResponse = ${jobResponse}"
+                        echo "jobResponse Display Name = ${jobResponse.getDisplayName()}"
+                        echo "jobResponse Number = ${jobResponse.getNumber()}"
+                        echo "jobResponse URL = ${jobResponse.getAbsoluteUrl()}"
+                        def jobBuildVariables = jobResponse.getBuildVariables()
+                        for (String key in jobBuildVariables.keys()) {
+                            echo "JobResponse build variable ${key} = ${jobBuildVariables.get(key)}"
+                        }
                     }
                 }
             }
