@@ -1,4 +1,6 @@
 def versions_to_verify = []
+def failed_versions = []
+def build_failed_email_body = []
 
 def computeVerifyVersions(String existingFiles) {
     def fileList = existingFiles.readLines()
@@ -20,6 +22,24 @@ def computeVerifyVersions(String existingFiles) {
 
 def getComputedVersions() {
     return versions_to_verify
+}
+
+def addFailedEmailBody(String version, String jobName, String jobNumber, String jobUrl) {
+    if (!build_failed_email_body.isEmpty()) {
+        build_failed_email_body.add('')
+    }
+    build_failed_email_body.add(version + ' Verification failed: ' + jobName + " build: " + jobNumber)
+    build_failed_email_body.add('\tView the log at: ' + jobUrl)
+}
+
+def processChildJobResult(version, jobBuild) {
+    if (jobBuild.getResult() != 'SUCCESS') {
+        failed_versions.add(version)
+        def buildJobName = jobBuild.buildVariables.JOB_NAME
+        def buildJobNumber = jobBuild.buildVariables.BUILD_NUMBER
+        def buildJobURL = jobBuild.buildVariables.BUILD_URL
+        addFailedEmailBody(version, buildJobName, buildJobNumber, buildJobURL)
+    }
 }
 
 pipeline {
@@ -73,12 +93,13 @@ pipeline {
                     echo "computed versions = ${versions}"
                     for (String version in versions) {
                         echo "Calling ${downstream_job_name} for WebLogic Server version ${version}"
-                        build job: "${downstream_job_name}", parameters: [
+                        def jobResponse = build job: "${downstream_job_name}", propagate: false, parameters: [
                             string(name: "parent_git_commit", value: "${GIT_COMMIT}"),
                             string(name: "parent_job_name", value: "${JOB_NAME}"),
                             string(name: "parent_job_number", value: "${BUILD_NUMBER}"),
                             string(name: "wls_version", value: "${version}")
                         ]
+                        echo "jobResponse = ${jobResponse}"
                     }
                 }
             }
