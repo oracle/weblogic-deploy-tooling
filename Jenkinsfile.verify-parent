@@ -1,39 +1,19 @@
 def versions_to_verify = []
 
 def computeVerifyVersions(String existingFiles) {
-    // def fileList = existingFiles.readLines()
-    def versionList = [
-        '12.2.1.4.0',
-        '12.2.1.4.0.191220',
-        '12.2.1.4.0.200228',
-        '12.2.1.4.0.200624',
-        '12.2.1.4.0.201001',
-        '12.2.1.4.0.201209',
-        '12.2.1.4.0.210330',
-        '12.2.1.4.0.210629',
-        '12.2.1.4.0.210930',
-        '12.2.1.4.0.220105',
-        '12.2.1.4.0.220329',
-        '12.2.1.4.0.220602',
-        '12.2.1.4.0.220929',
-        '14.1.1.0.0',
-        '14.1.1.0.0.200624',
-        '14.1.1.0.0.200930',
-        '14.1.1.0.0.201208',
-        '14.1.1.0.0.210329',
-        '14.1.1.0.0.210701',
-        '14.1.1.0.0.210930',
-        '14.1.1.0.0.220105',
-        '14.1.1.0.0.220329',
-        '14.1.1.0.0.220727',
-        '14.1.1.0.0.221010'
-    ]
-    // for (file in fileList) {
-    //    def matcher = file =~ /generatedOnline-(\d+(\.\d+){3,5}).json/
-    //    def fileVersion = matcher[0][1]
-    //    println('fileVersion = ' + fileVersion)
-    //    versionList.add(fileVersion)
-    // }
+    def fileList = existingFiles.readLines()
+    def exclusionList = ['10.3.6.0', '12.1.1.0.0', '12.1.2.0.0', '12.1.3.0.0']
+    def versionList = []
+    for (file in fileList) {
+        def matcher = file =~ /generatedOnline-(\d+(\.\d+){3,5}).json/
+        def fileVersion = matcher[0][1]
+        if (exclusionList.contains(fileVersion) {
+            println('Excluding version ' + fileVersion)
+        } else {
+            println('Adding version ' + fileVersion)
+            versionList.add(fileVersion)
+        }
+    }
     versions_to_verify = versionList
     print('versions_to_verify = ' + versions_to_verify)
 }
