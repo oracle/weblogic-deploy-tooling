@@ -103,7 +103,7 @@ pipeline {
                         echo "jobResponse Number = ${jobResponse.getNumber()}"
                         echo "jobResponse URL = ${jobResponse.getAbsoluteUrl()}"
                         def jobBuildVariables = jobResponse.getBuildVariables()
-                        for (String key in jobBuildVariables.keys()) {
+                        for (String key in jobBuildVariables.keySet()) {
                             echo "JobResponse build variable ${key} = ${jobBuildVariables.get(key)}"
                         }
                     }
