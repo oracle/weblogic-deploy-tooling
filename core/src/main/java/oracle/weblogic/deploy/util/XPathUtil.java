@@ -149,12 +149,12 @@ public class XPathUtil {
                         break;
 
                     default:
-                        LOGGER.warning("WLSDPLY-01053", idGroup, idGroup.length(), matcher.group(0));
+                        LOGGER.warning("WLSDPLY-01052", idGroup, idGroup.length(), matcher.group(0));
                         break;
                 }
             }
         } else {
-            LOGGER.warning("WLSDPLY-01052", groupCount, matcher.group(0));
+            LOGGER.warning("WLSDPLY-01051", groupCount, matcher.group(0));
         }
 
         LOGGER.exiting(psu);
@@ -181,7 +181,7 @@ public class XPathUtil {
         if (groupCount == 2) {
             psu = matcher.group(2).substring(1);
         } else {
-            LOGGER.warning("WLSDPLY-01052", groupCount, matcher.group(0));
+            LOGGER.warning("WLSDPLY-01051", groupCount, matcher.group(0));
         }
 
         LOGGER.exiting(psu);
