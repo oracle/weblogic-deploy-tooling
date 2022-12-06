@@ -102,12 +102,10 @@ pipeline {
                             def buildJobNumber = jobResponse.getNumber()
                             def buildJobURL = jobResponse.getAbsoluteUrl()
 
-                            if (!failures.isEmpty()) {
-                                failures.add('')
-                            } else {
+                            if (failures.isEmpty()) {
                                 failures.add("Failed ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
-                                failures.add('')
                             }
+                            failures.add('')
                             failures.add('\t' + version + ' Verification failed: ' + buildJobName + " build: " + buildJobNumber)
                             failures.add('\t\tView the verification reports at: ' + buildJobURL)
                         } else {
