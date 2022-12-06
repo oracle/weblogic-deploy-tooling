@@ -28,6 +28,7 @@ from wlsdeploy.aliases.alias_constants import MODEL_NAME
 from wlsdeploy.aliases.alias_constants import NAME_VALUE
 from wlsdeploy.aliases.alias_constants import NONE_CHILD_FOLDERS_TYPE
 from wlsdeploy.aliases.alias_constants import NULL_VALUE_KEY
+from wlsdeploy.aliases.alias_constants import NULL_VALUE_KEY_FIELDS
 from wlsdeploy.aliases.alias_constants import ONLINE_BEAN
 from wlsdeploy.aliases.alias_constants import PATH_TOKEN
 from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
@@ -1494,7 +1495,7 @@ class AliasEntries(object):
             else:
                 result[key] = self._resolve_curly_braces(attr)
                 # resolve null key in curly brace values, such as "${__NULL__,Online}"
-                if key == DEFAULT_VALUE and result[key] == NULL_VALUE_KEY:
+                if key in NULL_VALUE_KEY_FIELDS and result[key] == NULL_VALUE_KEY:
                     result[key] = None
 
         for key in [GET_METHOD, SET_METHOD, GET_MBEAN_TYPE, SET_MBEAN_TYPE]:

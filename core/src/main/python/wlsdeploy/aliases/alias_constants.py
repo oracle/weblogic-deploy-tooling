@@ -26,6 +26,7 @@ ONLINE_BEAN = 'online_bean'
 PASSWORD_TOKEN = "--FIX ME--"
 PATH_TOKEN = 'path_token'
 PREFERRED_MODEL_TYPE = 'preferred_model_type'
+PRODUCTION_DEFAULT = 'production_default'
 RESTART_REQUIRED = 'restart_required'
 SET_MBEAN_TYPE = 'set_mbean_type'
 SET_METHOD = 'set_method'
@@ -73,6 +74,10 @@ RW = 'RW'           # Default Read WRITE
 
 # used when DEFAULT_VALUE has curly-brace value that resolves to null
 NULL_VALUE_KEY = '__NULL__'
+NULL_VALUE_KEY_FIELDS = [
+    DEFAULT_VALUE,
+    PRODUCTION_DEFAULT
+]
 
 # attribute wlst_type values
 BOOLEAN = 'boolean'

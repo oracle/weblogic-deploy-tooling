@@ -41,6 +41,7 @@ from wlsdeploy.aliases.alias_constants import NAME_VALUE
 from wlsdeploy.aliases.alias_constants import NONE
 from wlsdeploy.aliases.alias_constants import ONLINE_BEAN
 from wlsdeploy.aliases.alias_constants import PREFERRED_MODEL_TYPE
+from wlsdeploy.aliases.alias_constants import PRODUCTION_DEFAULT
 from wlsdeploy.aliases.alias_constants import RESTART_REQUIRED
 from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
@@ -88,7 +89,6 @@ class ListTestCase(unittest.TestCase):
         CHILD_FOLDERS_TYPE,
         CONTAINS,
         DEFAULT_NAME_VALUE,
-        DERIVED_DEFAULT,
         FLATTENED_FOLDER_DATA,
         FOLDER_ORDER,
         FOLDER_PARAMS,
@@ -117,6 +117,7 @@ class ListTestCase(unittest.TestCase):
         GET_METHOD,
         MERGE,
         PREFERRED_MODEL_TYPE,
+        PRODUCTION_DEFAULT,
         RESTART_REQUIRED,
         SET_MBEAN_TYPE,
         SET_METHOD,
@@ -607,6 +608,10 @@ class ListTestCase(unittest.TestCase):
         return []
 
     def _verify_attribute_derived_default_attribute_value(self, folder_name, attribute_name, alias_attribute_value):
+        return []
+
+    def _verify_attribute_production_default_attribute_value(self, folder_name, attribute_name, alias_attribute_value):
+        # nothing to verify - production_default can be any type or null
         return []
 
     def _verify_attribute_version_attribute_value(self, folder_name, attribute_name, alias_attribute_value):
