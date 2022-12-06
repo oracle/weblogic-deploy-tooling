@@ -50,6 +50,11 @@ pipeline {
                     mvn verify -DskipTests=true -Dalias-test-skipITs=false -Dskip-wdt-install=true -Dalias_test_oci_profile=${oci_profile} -Dwls_version=${wls_version}
                 '''
             }
+            post {
+                success {
+                    archiveArtifacts 'integration-tests/alias-test/verify/target/reportO*.txt'
+                }
+            }
         }
     }
 }

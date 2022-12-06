@@ -1,5 +1,4 @@
 def versions_to_verify = []
-def failed_versions = []
 def build_failed_email_body = []
 
 def computeVerifyVersions(String existingFiles) {
@@ -24,29 +23,12 @@ def getComputedVersions() {
     return versions_to_verify
 }
 
-def addFailedEmailBody(String version, String jobName, int jobNumber, String jobUrl) {
-    if (!build_failed_email_body.isEmpty()) {
-        build_failed_email_body.add('')
-    }
-    build_failed_email_body.add(version + ' Verification failed: ' + jobName + " build: " + jobNumber)
-    build_failed_email_body.add('\tView the log at: ' + jobUrl)
-}
-
-def processChildJobResult(version, jobResponse) {
-    if (jobResponse.getResult() != 'SUCCESS') {
-        failed_versions.add(version)
-        def buildJobName = jobResponse.getDisplayName()
-        def buildJobNumber = jobResponse.getNumber()
-        def buildJobURL = jobResponse.getAbsoluteUrl()
-        print(version + ' failed verification')
-        addFailedEmailBody(version, buildJobName, buildJobNumber, buildJobURL)
-    } else {
-        print(version + ' passed verification')
-    }
-}
-
 def getNumberOfFailures() {
     return failed_versions.size()
+}
+
+def setFailedEmailBody(failuresList) {
+    build_failed_email_body = failuresList
 }
 
 def getFailedEmailBody() {
@@ -102,6 +84,7 @@ pipeline {
                 script {
                     def versions = getComputedVersions()
                     echo "computed versions = ${versions}"
+                    def failures = []
                     for (String version in versions) {
                         echo "Calling ${downstream_job_name} for WebLogic Server version ${version}"
                         def jobResponse = build job: "${downstream_job_name}", propagate: false, parameters: [
@@ -110,14 +93,25 @@ pipeline {
                             string(name: "parent_job_number", value: "${BUILD_NUMBER}"),
                             string(name: "wls_version", value: "${version}")
                         ]
-                        processChildJobResult(version, jobResponse)
+                        if (jobResponse.getResult() != 'SUCCESS') {
+                            print(version + ' failed verification')
+                            def buildJobName = jobResponse.getDisplayName()
+                            def buildJobNumber = jobResponse.getNumber()
+                            def buildJobURL = jobResponse.getAbsoluteUrl()
+
+                            if (!failures.isEmpty()) {
+                                failures.add('')
+                            }
+                            failures.add(version + ' Verification failed: ' + buildJobName + " build: " + buildJobNumber)
+                            failures.add('\tView the verification reports at: ' + buildJobURL)
+                        } else {
+                            print(version + ' passed verification')
+                        }
                     }
-                    /*
-                    def failures = getNumberOfFailures()
-                    if (failures > 0) {
-                        error("${failures} version(s) failed verification")
+                    if (failures.length > 0) {
+                        setFailedEmailBody(failures)
+                        error("${failures.length} version(s) failed verification")
                     }
-                    */
                 }
             }
         }
