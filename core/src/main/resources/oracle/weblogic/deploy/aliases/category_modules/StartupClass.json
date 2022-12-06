@@ -8,7 +8,8 @@
     "folders": {},
     "attributes": {
         "Arguments":                [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "Arguments",                "wlst_path": "WP001", "default_value": null,                      "wlst_type": "string" } ],
-        "ClassName":                [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "ClassName",                "wlst_path": "WP001", "default_value": "${__NULL__:%STARTUPCLASS%}",  "derived_default": "${:true}", "wlst_type": "string" } ],
+        "ClassName":                [ {"version": "[10,12.2.1)",   "wlst_mode": "both",    "wlst_name": "ClassName",                "wlst_path": "WP001", "default_value": "${__NULL__:%STARTUPCLASS%}",   "wlst_type": "string" } ,
+                                      {"version": "[12.2.1,)",     "wlst_mode": "both",    "wlst_name": "ClassName",                "wlst_path": "WP001", "default_value": "${__NULL__:%STARTUPCLASS%}",  "derived_default": "${:true}", "wlst_type": "string" } ],
         "DeploymentOrder":          [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "DeploymentOrder",          "wlst_path": "WP001", "default_value": 1000,                      "wlst_type": "integer"                  } ],
         "FailureIsFatal":           [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "FailureIsFatal",           "wlst_path": "WP001", "default_value": "false",                   "wlst_type": "boolean"                  } ],
         "LoadAfterAppsRunning":     [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "LoadAfterAppsRunning",     "wlst_path": "WP001", "default_value": "false",                   "wlst_type": "boolean"                  } ],
