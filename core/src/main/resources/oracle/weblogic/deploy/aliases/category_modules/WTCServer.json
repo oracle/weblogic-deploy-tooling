@@ -152,7 +152,7 @@
       "folders": {},
       "attributes": {
         "AppPassword":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "AppPassword",                      "wlst_path": "WP001", "default_value": null,                  "wlst_type": "password",                       "get_method": "GET"} ],
-        "AppPasswordIv":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "AppPassword${Iv:IV}",              "wlst_path": "WP001", "default_value": null,                  "wlst_type": "password",                       "get_method": "GET"} ],
+        "AppPasswordIv":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "AppPassword${Iv:IV}",              "wlst_path": "WP001", "default_value": null,                  "wlst_type": "password",                       "get_method": "${LSA:GET}" } ],
         "FldTbl16Class":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "FldTbl16Class${:es}",              "wlst_path": "WP001", "default_value": "[]",                  "wlst_type": "${delimited_string:jarray}",     "get_method": "${LSA:GET}" } ],
         "FldTbl32Class":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "FldTbl32Class${:es}",              "wlst_path": "WP001", "default_value": "[]",                  "wlst_type": "${delimited_string:jarray}",     "get_method": "${LSA:GET}" } ],
         "MBEncodingMapFile":                 [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "MBEncodingMapFile",                "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string"                          } ],

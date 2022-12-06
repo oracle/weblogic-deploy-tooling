@@ -116,7 +116,7 @@
                 "JdbcPropertyOverride": {
                     "wlst_type": "${JdbcPropertyOverride:JDBCPropertyOverrides}",
                     "online_bean": "weblogic.management.configuration.JDBCPropertyOverrideMBean",
-                    "version": "[12.2.1,)",
+                    "version": "[12.2.1.3,)",
                     "child_folders_type": "multiple",
                     "folders": {},
                     "attributes": {
@@ -211,7 +211,10 @@
                     "attributes": {
                         "ConnectionURL":                      [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "ConnectionURL",                             "wlst_path": "WP001", "default_value": "No-Override",   "wlst_type": "string"  } ],
                         "InitialContextFactory":              [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "InitialContextFactory",                     "wlst_path": "WP001", "default_value": "No-Override",   "wlst_type": "string"  } ],
-                        "JndiPropertiesCredentialEncrypted":  [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "${Jndi:JNDI}PropertiesCredentialEncrypted", "wlst_path": "WP001", "default_value": null,            "wlst_type": "password",  "get_method": "GET"  } ],
+                        "JndiPropertiesCredentialEncrypted":  [
+                            {"version": "[12.2.1,12.2.1.1)", "wlst_mode": "both", "wlst_name": "${Jndi:JNDI}PropertiesCredentialEncrypted", "wlst_path": "WP001", "default_value": null,  "wlst_type": "password",  "get_method": "${LSA:GET}" },
+                            {"version": "[12.2.1.1,)",       "wlst_mode": "both", "wlst_name": "${Jndi:JNDI}PropertiesCredentialEncrypted", "wlst_path": "WP001", "default_value": null,  "wlst_type": "password",  "get_method": "GET"        }
+                        ],
                         "Notes":                              [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes",                                     "wlst_path": "WP001", "default_value": null,            "wlst_type": "string"  } ]
                     },
                     "wlst_attributes_path": "WP001",
@@ -252,9 +255,12 @@
             "attributes": {
                 "Notes":                    [ {"version": "[12.2.1,)",          "wlst_mode": "both",    "wlst_name": "Notes",                        "wlst_path": "WP001", "default_value": null,      "wlst_type": "string"           } ],
                 "Properties":               [ {"version": "[12.2.1,)",          "wlst_mode": "both",    "wlst_name": "Properties",                   "wlst_path": "WP001", "default_value": null,      "wlst_type": "properties",      "preferred_model_type": "dict", "wlst_read_type": "delimited_string[semicolon]", "get_method": "LSA" } ],
-                "SessionPasswordEncrypted": [ {"version": "[12.2.1,12.2.1.1)",  "wlst_mode": "offline", "wlst_name": "SessionPasswordEncrypted",     "wlst_path": "WP001", "default_value": null,      "wlst_type": "password",        "get_method": "LSA" } ,
-                                              {"version": "[12.2.1.3,)",        "wlst_mode": "offline", "wlst_name": "SessionPasswordEncrypted",     "wlst_path": "WP001", "default_value": null,      "wlst_type": "password",        "get_method": "GET" } ,
-                                              {"version": "[12.2.1.1,)",        "wlst_mode": "online",  "wlst_name": "SessionPasswordEncrypted",     "wlst_path": "WP001", "default_value": null,      "wlst_type": "password",        "get_method": "GET" } ],
+                "SessionPasswordEncrypted": [
+                    {"version": "[12.2.1,12.2.1.1)",  "wlst_mode": "offline", "wlst_name": "SessionPasswordEncrypted",     "wlst_path": "WP001", "default_value": null,      "wlst_type": "password",        "get_method": "LSA" },
+                    {"version": "[12.2.1.3,)",        "wlst_mode": "offline", "wlst_name": "SessionPasswordEncrypted",     "wlst_path": "WP001", "default_value": null,      "wlst_type": "password",        "get_method": "GET" },
+                    {"version": "[12.2.1,12.2.1.1)",  "wlst_mode": "online",  "wlst_name": "SessionPassword",              "wlst_path": "WP001", "default_value": null,      "wlst_type": "password",        "get_method": "LSA" },
+                    {"version": "[12.2.1.1,)",        "wlst_mode": "online",  "wlst_name": "SessionPasswordEncrypted",     "wlst_path": "WP001", "default_value": null,      "wlst_type": "password",        "get_method": "GET" }
+                ],
                 "SessionUsername":          [ {"version": "[12.2.1,)",          "wlst_mode": "both",    "wlst_name": "SessionUsername",              "wlst_path": "WP001", "default_value": null,      "wlst_type": "credential"       } ]
             },
             "wlst_attributes_path": "WP001",
@@ -319,7 +325,10 @@
                             "folders": { },
                             "attributes": {
                                 "Notes": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes", "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
-                                "Value": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Value", "wlst_path": "WP001", "default_value": 50,      "wlst_type": "integer"} ]
+                                "Value": [
+                                    {"version": "[12.2.1,12.2.1.3)", "wlst_mode": "both", "wlst_name": "Value", "wlst_path": "WP001", "default_value": "${0:50}", "wlst_type": "integer"},
+                                    {"version": "[12.2.1.3,)",       "wlst_mode": "both", "wlst_name": "Value", "wlst_path": "WP001", "default_value": 50,        "wlst_type": "integer"}
+                                ]
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
@@ -438,15 +447,15 @@
                 "RestartLoopProtection": {
                     "wlst_type": "RestartLoopProtection",
                     "online_bean": "weblogic.management.configuration.RestartLoopProtectionMBean",
-                    "version": "[12.2.1,)",
+                    "version": "[12.2.1.1,)",
                     "default_name_value": "${NO_NAME_0:%RESOURCEMANAGER%}",
                     "folders": { },
                     "attributes": {
-                        "MaxRestartAllowed":            [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "MaxRestartAllowed",            "wlst_path": "WP001", "default_value": 0,       "wlst_type": "long"    } ],
-                        "MaxRestartAllowedInterval":    [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "MaxRestartAllowedInterval",    "wlst_path": "WP001", "default_value": 0,       "wlst_type": "long"    } ],
-                        "Notes":                        [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes",                        "wlst_path": "WP001", "default_value": null,    "wlst_type": "string"  } ],
-                        "RestartDelay":                 [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "RestartDelay",                 "wlst_path": "WP001", "default_value": 0,       "wlst_type": "long"    } ],
-                        "RestartLoopProtectionEnabled": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "RestartLoopProtectionEnabled", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean" } ]
+                        "MaxRestartAllowed":            [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "MaxRestartAllowed",            "wlst_path": "WP001", "default_value": 0,       "wlst_type": "long"    } ],
+                        "MaxRestartAllowedInterval":    [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "MaxRestartAllowedInterval",    "wlst_path": "WP001", "default_value": 0,       "wlst_type": "long"    } ],
+                        "Notes":                        [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Notes",                        "wlst_path": "WP001", "default_value": null,    "wlst_type": "string"  } ],
+                        "RestartDelay":                 [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "RestartDelay",                 "wlst_path": "WP001", "default_value": 0,       "wlst_type": "long"    } ],
+                        "RestartLoopProtectionEnabled": [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "RestartLoopProtectionEnabled", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean" } ]
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
@@ -467,6 +476,10 @@
             "online_bean": "weblogic.management.configuration.PartitionFileSystemMBean",
             "version": "[12.2.1,)",
             "default_name_value": "${NO_NAME_0:%PARTITION%}",
+            "folder_params": [
+                {"version":  "[12.2.1,12.2.1.1)", "wlst_mode": "online" },
+                {"version":  "[12.2.1.1,)"}
+            ],
             "folders": {},
             "attributes": {
                 "CreateOnDemand":  [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "CreateOnDemand", "wlst_path": "WP001", "default_value": "true",  "wlst_type": "boolean"} ],
@@ -482,14 +495,14 @@
         "UserFileSystem": {
             "wlst_type": "UserFileSystem",
             "online_bean": "weblogic.management.configuration.PartitionUserFileSystemMBean",
-            "version": "[12.2.1,)",
+            "version": "[12.2.1.1,)",
             "default_name_value": "${NO_NAME_0:%PARTITION%}",
             "folders": {},
             "attributes": {
-                "CreateOnDemand": [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "CreateOnDemand", "wlst_path": "WP001", "default_value": "true",   "wlst_type": "boolean"} ],
-                "Notes":          [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Notes",          "wlst_path": "WP001", "default_value": null,     "wlst_type": "string" } ],
-                "Preserved":      [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Preserved",      "wlst_path": "WP001", "default_value": "true",   "wlst_type": "boolean"} ],
-                "Root":           [ {"version": "[12.2.1,)", "wlst_mode": "both", "wlst_name": "Root",           "wlst_path": "WP001", "default_value": null,     "derived_default": "${:true}", "wlst_type": "string" } ]
+                "CreateOnDemand": [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "CreateOnDemand", "wlst_path": "WP001", "default_value": "true",   "wlst_type": "boolean"} ],
+                "Notes":          [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Notes",          "wlst_path": "WP001", "default_value": null,     "wlst_type": "string" } ],
+                "Preserved":      [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Preserved",      "wlst_path": "WP001", "default_value": "true",   "wlst_type": "boolean"} ],
+                "Root":           [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Root",           "wlst_path": "WP001", "default_value": null,     "derived_default": "${:true}", "wlst_type": "string" } ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
@@ -573,9 +586,10 @@
         "BatchJobsDataSourceJndiName":           [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "BatchJobsDataSourceJndiName",             "wlst_path": "WP001", "default_value": null,              "wlst_type": "string"            } ],
         "BatchJobsExecutorServiceName":          [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "BatchJobsExecutorServiceName",            "wlst_path": "WP001", "default_value": null,              "wlst_type": "string"            } ],
         "DataSourceForJobScheduler":             [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "DataSourceForJobScheduler",               "wlst_path": "WP001", "default_value": null,              "wlst_type": "string",           "set_method": "${:MBEAN.set_data_source_mbean}", "set_mbean_type": "${:weblogic.management.configuration.JDBCSystemResourceMBean}" } ],
-        "DefaultTargets":                        [ {"version": "[12.2.1,12.2.1.1)", "wlst_mode": "offline", "wlst_name": "DefaultTargets",                          "wlst_path": "WP001", "default_value": null,              "wlst_type": "jarray",           "preferred_model_type": "delimited_string", "get_method": "GET",        "set_method": "MBEAN.set_mt_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean" },
-                                                   {"version": "[12.2.1.1,)",       "wlst_mode": "offline", "wlst_name": "DefaultTargets",                          "wlst_path": "WP001", "default_value": null,              "wlst_type": "delimited_string",                                             "get_method": "LSA",        "set_method": "MBEAN.set_mt_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean" },
-                                                   {"version": "[12.2.1,)",         "wlst_mode": "online",  "wlst_name": "DefaultTargets",                          "wlst_path": "WP001", "default_value": "[]",              "wlst_type": "jarray",           "preferred_model_type": "delimited_string", "get_method": "GET",        "set_method": "MBEAN.set_mt_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean" } ],
+        "DefaultTargets":                        [
+            {"version": "[12.2.1,12.2.1.1)", "wlst_mode": "offline", "wlst_name": "DefaultTargets",  "wlst_path": "WP001", "default_value": null, "wlst_type": "jarray",           "preferred_model_type": "delimited_string",  "get_method": "GET", "set_method": "MBEAN.set_mt_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean" },
+            {"version": "[12.2.1.1,)",       "wlst_mode": "offline", "wlst_name": "DefaultTargets",  "wlst_path": "WP001", "default_value": null, "wlst_type": "list",             "preferred_model_type": "delimited_string",  "get_method": "LSA", "wlst_read_type": "delimited_string" },
+            {"version": "[12.2.1,)",         "wlst_mode": "online",  "wlst_name": "DefaultTargets",  "wlst_path": "WP001", "default_value": "[]", "wlst_type": "jarray",           "preferred_model_type": "delimited_string",  "get_method": "GET", "set_method": "MBEAN.set_mt_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean" } ],
         "EagerTrackingOfResourceMetricsEnabled": [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "EagerTrackingOfResourceMetricsEnabled",   "wlst_path": "WP001", "default_value": "false",           "wlst_type": "boolean"           } ],
         "GracefulShutdownTimeout":               [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "GracefulShutdownTimeout",                 "wlst_path": "WP001", "default_value": 0,                 "wlst_type": "integer"           } ],
         "IgnoreSessionsDuringShutdown":          [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "IgnoreSessionsDuringShutdown",            "wlst_path": "WP001", "default_value": "false",           "wlst_type": "boolean"           } ],

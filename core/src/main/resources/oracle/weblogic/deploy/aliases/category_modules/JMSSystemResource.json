@@ -6,25 +6,6 @@
       "child_folders_type": "multiple",
       "short_name": "JMS",
       "folders": {
-            "SubDeployment": {
-                  "wlst_type": "SubDeployment${:s}",
-                  "online_bean": "weblogic.management.configuration.SubDeploymentMBean",
-                  "child_folders_type": "multiple",
-                  "folders": {},
-                  "attributes": {
-                        "CompatibilityName":  [ {"version": "[10,)",        "wlst_mode": "both",    "wlst_name": "CompatibilityName", "wlst_path": "WP001", "default_value": null,    "wlst_type": "string"           } ],
-                        "ModuleType":         [ {"version": "[10,)",        "wlst_mode": "both",    "wlst_name": "ModuleType",        "wlst_path": "WP001", "default_value": null,    "wlst_type": "string"           } ],
-                        "Notes":              [ {"version": "[10,)",        "wlst_mode": "both",    "wlst_name": "Notes",             "wlst_path": "WP001", "default_value": null,    "wlst_type": "string"           } ],
-                        "Target":             [ {"version": "[10,)",        "wlst_mode": "offline", "wlst_name": "Target",            "wlst_path": "WP001", "default_value": null,    "wlst_type": "delimited_string", "set_method": "MBEAN.set_target_jms_mbeans" },
-                                                {"version": "[10,)",        "wlst_mode": "online",  "wlst_name": "Targets",           "wlst_path": "WP002", "default_value": null,    "wlst_type": "jarray",          "get_method": "GET", "preferred_model_type": "delimited_string", "set_method": "MBEAN.set_target_jms_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ],
-                        "Untargeted":         [ {"version": "[12.2.1,)",    "wlst_mode": "both",    "wlst_name": "Untargeted",        "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"          } ]
-                  },
-                  "wlst_attributes_path": "WP001",
-                  "wlst_paths": {
-                        "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/SubDeployment${:s}/%SUBDEPLOYMENT%",
-                        "WP002": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/SubDeployment${:s}/%SUBDEPLOYMENT%/Targets"
-                  }
-            },
             "JmsResource": {
                   "wlst_type": "${Jms:JMS}Resource",
                   "online_bean": "weblogic.j2ee.descriptor.wl.JMSBean",
@@ -707,6 +688,11 @@
                                           "wlst_type": "Multicast",
                                           "online_bean": "weblogic.j2ee.descriptor.wl.MulticastParamsBean",
                                           "default_name_value": "${NO_NAME_0:%TEMPLATE%}",
+                                          "folder_params": [
+                                                {"version":  "[10,12.2.1)"},
+                                                {"version":  "[12.2.1,12.2.1.1)", "wlst_mode": "online" },
+                                                {"version":  "[12.2.1.1,)"}
+                                          ],
                                           "folders": {},
                                           "attributes": {
                                                 "MulticastAddress":    [ {"version": "[10,)",          "wlst_mode": "both", "wlst_name": "MulticastAddress",    "wlst_path": "WP001", "default_value": null,          "derived_default": "${:true}", "wlst_type": "string",  "get_method": "GET", "restart_required": "true" } ],
@@ -845,6 +831,11 @@
                                           "wlst_type": "Multicast",
                                           "online_bean": "weblogic.j2ee.descriptor.wl.MulticastParamsBean",
                                           "default_name_value": "${NO_NAME_0:%TOPIC%}",
+                                          "folder_params": [
+                                                {"version":  "[10,12.2.1)"},
+                                                {"version":  "[12.2.1,12.2.1.1)", "wlst_mode": "online" },
+                                                {"version":  "[12.2.1.1,)"}
+                                          ],
                                           "folders": {},
                                           "attributes": {
                                                 "MulticastAddress":    [ {"version": "[10,)",         "wlst_mode": "both", "wlst_name": "MulticastAddress",    "wlst_path": "WP001", "default_value": null,          "derived_default": "${:true}", "wlst_type": "string",  "get_method": "GET", "restart_required": "true"  } ],
@@ -1127,6 +1118,11 @@
                                           "wlst_type": "Multicast",
                                           "online_bean": "weblogic.j2ee.descriptor.wl.MulticastParamsBean",
                                           "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDTOPIC%}",
+                                          "folder_params": [
+                                                {"version":  "[10,12.2.1)"},
+                                                {"version":  "[12.2.1,12.2.1.1)", "wlst_mode": "online" },
+                                                {"version":  "[12.2.1.1,)"}
+                                          ],
                                           "folders": {},
                                           "attributes": {
                                                 "MulticastAddress":    [ {"version": "[10,)",            "wlst_mode": "both", "wlst_name": "MulticastAddress",    "wlst_path": "WP001", "default_value": null,            "derived_default": "${:true}", "wlst_type": "string",       "get_method": "GET", "restart_required": "true" } ],
@@ -1225,6 +1221,25 @@
                   "wlst_attributes_path": "WP001",
                   "wlst_paths": {
                         "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/${Jms:JMS}Resource/%JMSRESOURCE%"
+                  }
+            },
+            "SubDeployment": {
+                  "wlst_type": "SubDeployment${:s}",
+                  "online_bean": "weblogic.management.configuration.SubDeploymentMBean",
+                  "child_folders_type": "multiple",
+                  "folders": {},
+                  "attributes": {
+                        "CompatibilityName":  [ {"version": "[10,)",        "wlst_mode": "both",    "wlst_name": "CompatibilityName", "wlst_path": "WP001", "default_value": null,    "wlst_type": "string"           } ],
+                        "ModuleType":         [ {"version": "[10,)",        "wlst_mode": "both",    "wlst_name": "ModuleType",        "wlst_path": "WP001", "default_value": null,    "wlst_type": "string"           } ],
+                        "Notes":              [ {"version": "[10,)",        "wlst_mode": "both",    "wlst_name": "Notes",             "wlst_path": "WP001", "default_value": null,    "wlst_type": "string"           } ],
+                        "Target":             [ {"version": "[10,)",        "wlst_mode": "offline", "wlst_name": "Target",            "wlst_path": "WP001", "default_value": null,    "wlst_type": "delimited_string", "set_method": "MBEAN.set_target_jms_mbeans" },
+                              {"version": "[10,)",        "wlst_mode": "online",  "wlst_name": "Targets",           "wlst_path": "WP002", "default_value": null,    "wlst_type": "jarray",          "get_method": "GET", "preferred_model_type": "delimited_string", "set_method": "MBEAN.set_target_jms_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ],
+                        "Untargeted":         [ {"version": "[12.2.1,)",    "wlst_mode": "both",    "wlst_name": "Untargeted",        "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"          } ]
+                  },
+                  "wlst_attributes_path": "WP001",
+                  "wlst_paths": {
+                        "WP001": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/SubDeployment${:s}/%SUBDEPLOYMENT%",
+                        "WP002": "/JMSSystemResource${:s}/%JMSSYSTEMRESOURCE%/SubDeployment${:s}/%SUBDEPLOYMENT%/Targets"
                   }
             }
       },

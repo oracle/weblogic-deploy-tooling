@@ -34,9 +34,10 @@
                         "LogTimeInGMT":         [ {"version": "[12.2.1,)",           "wlst_mode": "both", "wlst_name": "LogTimeInGMT",         "wlst_path": "WP001", "default_value": false,                                   "wlst_type": "boolean" } ],
                         "LoggingEnabled":       [ {"version": "[12.2.1,)",           "wlst_mode": "both", "wlst_name": "LoggingEnabled",       "wlst_path": "WP001", "default_value": true,                                    "wlst_type": "boolean" } ],
                         "Notes":                [ {"version": "[12.2.1,)",           "wlst_mode": "both", "wlst_name": "Notes",                "wlst_path": "WP001", "default_value": null,                                    "wlst_type": "string"  } ],
-                        "NumberOfFilesLimited": [ {"version": "[12.2.1,12.2.1.4)",   "wlst_mode": "both", "wlst_name": "NumberOfFilesLimited", "wlst_path": "WP001", "default_value": true,                                    "wlst_type": "boolean" } ,
-                                                  {"version": "[12.2.1.4,12.2.1.4.0.210629)", "wlst_mode": "both", "wlst_name": "NumberOfFilesLimited", "wlst_path": "WP001", "default_value": "${true:false}",                "wlst_type": "boolean" } ,
-                                                  {"version": "[12.2.1.4.0.210629,)","wlst_mode": "both", "wlst_name": "NumberOfFilesLimited", "wlst_path": "WP001", "default_value": "true",                                  "wlst_type": "boolean" } ],
+                        "NumberOfFilesLimited": [
+                            {"version": "[12.2.1,12.2.1.4.0.210629)",   "wlst_mode": "both", "wlst_name": "NumberOfFilesLimited", "wlst_path": "WP001", "default_value": "${true:false}", "wlst_type": "boolean" },
+                            {"version": "[12.2.1.4.0.210629,)",         "wlst_mode": "both", "wlst_name": "NumberOfFilesLimited", "wlst_path": "WP001", "default_value": true,            "wlst_type": "boolean" }
+                        ],
                         "RotateLogOnStartup":   [ {"version": "[12.2.1,)",           "wlst_mode": "both", "wlst_name": "RotateLogOnStartup",   "wlst_path": "WP001", "default_value": "true",                                  "wlst_type": "boolean" } ],
                         "RotationTime":         [ {"version": "[12.2.1,)",           "wlst_mode": "both", "wlst_name": "RotationTime",         "wlst_path": "WP001", "default_value": "00:00",                                 "wlst_type": "string"  } ],
                         "RotationType":         [ {"version": "[12.2.1,)",           "wlst_mode": "both", "wlst_name": "RotationType",         "wlst_path": "WP001", "default_value": "${__NULL__:bySize}",                    "wlst_type": "string"  } ]
