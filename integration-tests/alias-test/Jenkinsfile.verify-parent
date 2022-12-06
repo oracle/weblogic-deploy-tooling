@@ -84,6 +84,7 @@ pipeline {
                 script {
                     def versions = getComputedVersions()
                     echo "computed versions = ${versions}"
+                    def failureCount = 0
                     def failures = []
                     for (String version in versions) {
                         echo "Calling ${downstream_job_name} for WebLogic Server version ${version}"
@@ -95,6 +96,8 @@ pipeline {
                         ]
                         if (jobResponse.getResult() != 'SUCCESS') {
                             print(version + ' failed verification')
+                            failureCount += 1
+
                             def buildJobName = jobResponse.getDisplayName()
                             def buildJobNumber = jobResponse.getNumber()
                             def buildJobURL = jobResponse.getAbsoluteUrl()
@@ -108,9 +111,9 @@ pipeline {
                             print(version + ' passed verification')
                         }
                     }
-                    if (failures.length > 0) {
+                    if (failureCount > 0) {
                         setFailedEmailBody(failures)
-                        error("${failures.length} version(s) failed verification")
+                        error("${failureCount} version(s) failed verification")
                     }
                 }
             }
