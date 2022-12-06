@@ -104,9 +104,12 @@ pipeline {
 
                             if (!failures.isEmpty()) {
                                 failures.add('')
+                            } else {
+                                failures.add("Failed ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)")
+                                failures.add('')
                             }
-                            failures.add(version + ' Verification failed: ' + buildJobName + " build: " + buildJobNumber)
-                            failures.add('\tView the verification reports at: ' + buildJobURL)
+                            failures.add('\t' + version + ' Verification failed: ' + buildJobName + " build: " + buildJobNumber)
+                            failures.add('\t\tView the verification reports at: ' + buildJobURL)
                         } else {
                             print(version + ' passed verification')
                         }
@@ -121,10 +124,9 @@ pipeline {
     }
     post {
         failure {
-            echo "mail to address is ${WDT_BUILD_EMAIL}"
-            emailext to: "${WDT_BUILD_EMAIL}", from: 'noreply@oracle.com',
-                 subject: "WDT: ${env.JOB_NAME} - Failed",
-                 body: "${getFailedEmailBody()}"
+            slackSend channel: '#wkt-build-failure-notifications',
+                      botUser: false, color: 'danger',
+                      message: "${getFailedEmailBody()}"
         }
     }
 }
