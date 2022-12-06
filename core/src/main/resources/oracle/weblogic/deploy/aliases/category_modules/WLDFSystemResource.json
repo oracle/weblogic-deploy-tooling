@@ -300,7 +300,10 @@
                                     "wlst_type": "Schedule",
                                     "online_bean": "weblogic.diagnostics.descriptor.WLDFScheduleBean",
                                     "default_name_value": "${NO_NAME_0:%WATCH%}",
-                                    "version": "[12.2.1,)",
+                                    "folder_params": [
+                                        {"version":  "[12.2.1,12.2.1.1)", "wlst_mode": "online" },
+                                        {"version":  "[12.2.1.1,)"}
+                                    ],
                                     "folders": {},
                                     "attributes": {
                                         "DayOfMonth": [ {"version": "[12.2.1,)",         "wlst_mode": "both", "wlst_name": "DayOfMonth", "wlst_path": "WP001", "default_value": "*",               "wlst_type": "string" } ],
