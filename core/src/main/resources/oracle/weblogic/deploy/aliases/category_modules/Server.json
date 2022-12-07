@@ -1276,7 +1276,7 @@
                         "Notes":                [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "Notes",                "wlst_path": "WP001", "default_value": null,                                   "wlst_type": "string"   } ],
                         "NumberOfFilesLimited": [
                             {"version": "[10,)",         "wlst_mode": "offline", "wlst_name": "NumberOfFilesLimited", "wlst_path": "WP001", "default_value": "true",  "wlst_type": "boolean"  },
-                            {"version": "[10,12.2.1,)",  "wlst_mode": "online",  "wlst_name": "NumberOfFilesLimited", "wlst_path": "WP001", "default_value": "true",  "wlst_type": "boolean"  }
+                            {"version": "[10)",          "wlst_mode": "online",  "wlst_name": "NumberOfFilesLimited", "wlst_path": "WP001", "default_value": "true",  "wlst_type": "boolean"  }
                         ],
                         "RotateLogOnStartup":   [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "RotateLogOnStartup",   "wlst_path": "WP001", "default_value": "true",                                 "wlst_type": "boolean"  } ],
                         "RotationTime":         [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "RotationTime",         "wlst_path": "WP001", "default_value": "00:00",                                "wlst_type": "string"   } ],
