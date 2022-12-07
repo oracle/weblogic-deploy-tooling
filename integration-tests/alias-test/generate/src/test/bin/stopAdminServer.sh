@@ -49,7 +49,7 @@ sleep 10
 i=0
 while [ $i -lt 60 ]; do
   echo "Checking admin server shutdown (i = $i)"
-  return_code=$(curl -sw '%{http_code}' "${READY_APP_URL}")
+  return_code=$(curl -sw '%{http_code}' -o /dev/null "${READY_APP_URL}")
   if [ "${return_code}" = "000" ]; then
     echo "Admin Server is shut down"
     exit 0

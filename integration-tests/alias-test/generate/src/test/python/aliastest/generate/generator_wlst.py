@@ -16,32 +16,30 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 
 CREDENTIAL_FIELD_NAME_MARKERS = ['Password', 'PassPhrase', 'Credential', 'Encrypted', 'Secret']
 CREDENTIAL_FIELD_EXCEPTIONS = [
-    'ClearTextCredentialAccessEnabled',
-    'CORSAllowedCredentials',
-    'CorsAllowedCredentials',
-    'CredentialGenerated',
-    'CredentialMappingDeploymentEnabled',
-    'CredentialMappingEnabled',
-    'CredentialPolicy',
-    'DebugSecurityPasswordPolicy',
-    'DefaultCredentialProviderSTSURI',
-    'DefaultCredentialProviderStsuri',
-    'DeployCredentialMappingIgnored',
-    'EnforceValidBasicAuthCredentials',
-    'KeyEncrypted',
-    'MaxPasswordLength',
-    'MinimumPasswordLength',
-    'MinPasswordLength',
-    'PasswordAlgorithm',
-    'PasswordDigestEnabled',
-    'PasswordStyle',
-    'PasswordStyleRetained',
-    'PlaintextPasswordsEnabled',
-    'SQLGetUsersPassword',
-    'SQLSetUserPassword',
-    'UseDatabaseCredentials',
-    'UsePasswordIndirection',
-    'WarnOnUsernamePasswords'
+    'ClearTextCredentialAccessEnabled'.lower(),
+    'CORSAllowedCredentials'.lower(),
+    'CredentialGenerated'.lower(),
+    'CredentialMappingDeploymentEnabled'.lower(),
+    'CredentialMappingEnabled'.lower(),
+    'CredentialPolicy'.lower(),
+    'DebugSecurityPasswordPolicy'.lower(),
+    'DefaultCredentialProviderSTSURI'.lower(),
+    'DeployCredentialMappingIgnored'.lower(),
+    'EnforceValidBasicAuthCredentials'.lower(),
+    'KeyEncrypted'.lower(),
+    'MaxPasswordLength'.lower(),
+    'MinimumPasswordLength'.lower(),
+    'MinPasswordLength'.lower(),
+    'PasswordAlgorithm'.lower(),
+    'PasswordDigestEnabled'.lower(),
+    'PasswordStyle'.lower(),
+    'PasswordStyleRetained'.lower(),
+    'PlaintextPasswordsEnabled'.lower(),
+    'SQLGetUsersPassword'.lower(),
+    'SQLSetUserPassword'.lower(),
+    'UseDatabaseCredentials'.lower(),
+    'UsePasswordIndirection'.lower(),
+    'WarnOnUsernamePasswords'.lower()
 ]
 
 PATH_ATTRIBUTE_NAME_ENDINGS = ['File', 'Directory', 'FileName', 'Home', 'DirectoryName', 'Path', 'Dir', 'Root']
@@ -625,7 +623,7 @@ def _load_global(global_name):
 
 def is_credential_field(attribute_name):
     for credential_marker in CREDENTIAL_FIELD_NAME_MARKERS:
-        if credential_marker in attribute_name and attribute_name not in CREDENTIAL_FIELD_EXCEPTIONS:
+        if credential_marker in attribute_name and attribute_name.lower() not in CREDENTIAL_FIELD_EXCEPTIONS:
             return True
 
     return False
