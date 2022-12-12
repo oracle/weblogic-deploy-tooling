@@ -46,6 +46,12 @@ IGNORE_METHODS_LIST = [
     'ProxyClass',
     'Registered'
 ]
+DERIVED_DEFAULT_DISMISS = [
+    '10.3.6.0',
+    '12.1.1.0',
+    '12.1.2.0',
+    '12.1.3.0'
+]
 LSA_DEFAULT = 'lsa_default'
 LSA_TYPE = 'lsa_wlst_type'
 READ_ONLY = generator_utils.READ_ONLY
@@ -77,6 +83,10 @@ class GeneratorBase(object):
 
         value = None
         # Currently, there is no concept of derived default in WLST offline.
+        # Early versions of WLST getMBI does not return derived default, so do not
+        # put the derived default value into the json file
+        if self._model_context.get_target_wls_version() in DERIVED_DEFAULT_DISMISS:
+            return
         if self._model_context.get_target_wlst_mode() == WlstModes.ONLINE:
             if cmo_helper is not None:
                 value = cmo_helper.derived_default_value()
