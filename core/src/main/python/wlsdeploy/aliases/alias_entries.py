@@ -106,6 +106,7 @@ class AliasEntries(object):
         'MigratableTarget',
         'NMProperties',
         "RestfulManagementServices",
+        'Security',
         'SecurityConfiguration',
         'Server',
         'ServerTemplate',

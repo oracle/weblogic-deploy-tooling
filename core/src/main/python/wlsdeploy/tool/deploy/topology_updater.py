@@ -10,6 +10,7 @@ from wlsdeploy.aliases.model_constants import CREATE_ONLY_DOMAIN_ATTRIBUTES
 from wlsdeploy.aliases.model_constants import FRONTEND_HOST
 from wlsdeploy.aliases.model_constants import MACHINE
 from wlsdeploy.aliases.model_constants import MIGRATABLE_TARGET
+from wlsdeploy.aliases.model_constants import SECURITY
 from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
@@ -92,6 +93,9 @@ class TopologyUpdater(Deployer):
 
         # create a list, then remove each element as it is processed
         folder_list = self.aliases.get_model_topology_top_level_folder_names()
+
+        # /Security cannot be updated on existing domain
+        folder_list.remove(SECURITY)
 
         self._security_provider_creator.create_security_configuration(location)
         folder_list.remove(SECURITY_CONFIGURATION)
