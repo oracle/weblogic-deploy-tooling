@@ -51,7 +51,7 @@ pipeline {
                 '''
             }
             post {
-                success {
+                always {
                     archiveArtifacts 'integration-tests/alias-test/verify/target/reportO*.txt'
                 }
             }
