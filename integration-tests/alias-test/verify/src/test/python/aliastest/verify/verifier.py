@@ -587,6 +587,12 @@ class Verifier(object):
                     #
                     self._add_warning(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND,
                                       attribute=generated_attribute, message=message)
+                elif location.get_folder_path().startswith('/Security/'):
+                    # We do not use Security folder attributes in aliases.
+                    # flag these as informational.
+                    #
+                    self._add_info(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND,
+                                      attribute=generated_attribute, message=message)
                 else:
                     self._add_error(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND,
                                     attribute=generated_attribute, message=message)
