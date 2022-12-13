@@ -123,7 +123,7 @@ class GeneratorBase(object):
                 get_attr_type = alias_constants.PASSWORD
             dictionary[GET_TYPE] = self.type_it(mbean_type, attribute_name, get_attr_type)
             dictionary[GET_DEFAULT] = self.convert_attribute(attribute_name, get_value, value_type=dictionary[GET_TYPE])
-        
+
             self.__logger.finer('Attribute {0} {1} is {2} and {3} is {4}', attribute_name, GET_TYPE,
                                 dictionary[GET_TYPE], GET_DEFAULT, dictionary[GET_DEFAULT],
                                 class_name=self.__class_name, method_name=_method_name)
@@ -230,7 +230,7 @@ class GeneratorBase(object):
         if get_value != FAIL:
             if method_helper is not None:
                 get_attr_type = method_helper.attribute_type()
-                
+
             elif get_value is not None:
                 if isinstance(get_value, PyInstance):
                     get_attr_type = get_value.getClass().getName()
@@ -257,7 +257,7 @@ class GeneratorBase(object):
                                  attribute_name,
                                  class_name=self.__class_name, method_name=_method_name)
             valid = False
-        
+
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=Boolean(valid))
         return valid
 
@@ -272,7 +272,7 @@ class GeneratorBase(object):
                                  attribute_name, mbean_type,
                                  class_name=self.__class_name, method_name=_method_name)
             valid = False
-        
+
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=Boolean(valid))
         return valid
 
@@ -318,7 +318,7 @@ class GeneratorBase(object):
             self.__logger.finest('MBean {0} attribute {1} is in the WDT ignore list', mbean_type, converted_name,
                                  class_name=self.__class_name, method_name=_method_name)
             valid = False
-        
+
         self.__logger.exiting(result=Boolean(valid), class_name=self.__class_name, method_name=_method_name)
         return valid
 
@@ -344,6 +344,8 @@ class GeneratorBase(object):
                 return_value = value.getKeyProperty('Name')
             else:
                 return_value = value.toString()
+        elif isinstance(value, JObjectName):
+            return_value = value.getKeyProperty('Name')
         elif isinstance(value, basestring):
             return_value = str(value)
         elif value_type == alias_constants.STRING:
