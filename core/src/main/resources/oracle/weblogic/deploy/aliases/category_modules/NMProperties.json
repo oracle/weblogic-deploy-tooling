@@ -4,6 +4,7 @@
     "wlst_type": "NMProperties",
     "wlst_mode": "offline",
     "short_name": "NMProps",
+    "version": "[12.1.2,)",
     "folders": {},
     "attributes": {
         "AuthenticationEnabled":               [ {"version": "[12.1.2,)",         "wlst_mode": "offline",    "wlst_name": "AuthenticationEnabled",                       "wlst_path": "WP001", "default_value": "true",                                             "wlst_type": "boolean",   "get_method": "LSA" } ],
