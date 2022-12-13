@@ -354,7 +354,8 @@ class Verifier(object):
                             self._process_security_provider(generated_dictionary, mbean_info_name, folder_map,
                                                             alias_name, location)
 
-                    elif not self._alias_helper.check_flattened_folder(location, alias_name):
+                    elif not self._alias_helper.check_flattened_folder(location, alias_name) and \
+                        location.get_folder_path() != '/Security':
                         # make this a message
                         _logger.fine('The alias folder name {0} at location {1} is not in the generated list {2}',
                                      alias_name, location.get_folder_path(), generated_dictionary.keys(),
@@ -578,15 +579,22 @@ class Verifier(object):
                     message = 'WLST name in aliases is %s' % expected_wlst_name
                     self._add_error(location, ERROR_ATTRIBUTE_INCORRECT_CASE,
                                     message=message, attribute=generated_attribute)
-                elif self._is_generated_attribute_readonly(location, generated_attribute, generated_attribute_info):
-                    self._add_error(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND_IS_READONLY,
-                                    attribute=generated_attribute, message=message)
+
                 elif location.get_folder_path().startswith('/SecurityConfiguration/Realm'):
                     # We are not fully implementing Security Providers and only intend to
                     # add attributes as customers need them so make these warnings.
                     #
                     self._add_warning(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND,
                                       attribute=generated_attribute, message=message)
+                elif location.get_folder_path() == '/Security':
+                    # We do not use Security folder attributes in aliases.
+                    # flag these as informational.
+                    #
+                    self._add_info(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND,
+                                      attribute=generated_attribute, message=message)
+                elif self._is_generated_attribute_readonly(location, generated_attribute, generated_attribute_info):
+                    self._add_error(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND_IS_READONLY,
+                                    attribute=generated_attribute, message=message)
                 else:
                     self._add_error(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND,
                                     attribute=generated_attribute, message=message)
