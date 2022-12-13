@@ -355,7 +355,7 @@ class Verifier(object):
                                                             alias_name, location)
 
                     elif not self._alias_helper.check_flattened_folder(location, alias_name) and \
-                        location.get_folder_path() != 'Securty':
+                        location.get_folder_path() != 'Security':
                         # make this a message
                         _logger.fine('The alias folder name {0} at location {1} is not in the generated list {2}',
                                      alias_name, location.get_folder_path(), generated_dictionary.keys(),
