@@ -49,8 +49,8 @@ IGNORE_METHODS_LIST = [
 DERIVED_DEFAULT_DISMISS = [
     '10.3.6.0',
     '12.1.1.0',
-    '12.1.2.0',
-    '12.1.3.0'
+    '12.1.2.0.0',
+    '12.1.3.0.0'
 ]
 LSA_DEFAULT = 'lsa_default'
 LSA_TYPE = 'lsa_wlst_type'
