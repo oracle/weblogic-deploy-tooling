@@ -16,35 +16,35 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 
 CREDENTIAL_FIELD_NAME_MARKERS = ['Password', 'PassPhrase', 'Credential', 'Encrypted', 'Secret']
 CREDENTIAL_FIELD_EXCEPTIONS = [
-    'ClearTextCredentialAccessEnabled',
-    'CORSAllowedCredentials',
-    'CorsAllowedCredentials',
-    'CredentialGenerated',
-    'CredentialMappingDeploymentEnabled',
-    'CredentialMappingEnabled',
-    'CredentialPolicy',
-    'DebugSecurityPasswordPolicy',
-    'DefaultCredentialProviderSTSURI',
-    'DefaultCredentialProviderStsuri',
-    'DeployCredentialMappingIgnored',
-    'EnforceValidBasicAuthCredentials',
-    'KeyEncrypted',
-    'MaxPasswordLength',
-    'MinimumPasswordLength',
-    'MinPasswordLength',
-    'PasswordAlgorithm',
-    'PasswordDigestEnabled',
-    'PasswordStyle',
-    'PasswordStyleRetained',
-    'PlaintextPasswordsEnabled',
-    'SQLGetUsersPassword',
-    'SQLSetUserPassword',
-    'UseDatabaseCredentials',
-    'UsePasswordIndirection',
-    'WarnOnUsernamePasswords'
+    'ClearTextCredentialAccessEnabled'.lower(),
+    'CORSAllowedCredentials'.lower(),
+    'CredentialGenerated'.lower(),
+    'CredentialMappingDeploymentEnabled'.lower(),
+    'CredentialMappingEnabled'.lower(),
+    'CredentialPolicy'.lower(),
+    'DebugSecurityPasswordPolicy'.lower(),
+    'DefaultCredentialProviderSTSURI'.lower(),
+    'DeployCredentialMappingIgnored'.lower(),
+    'EnforceValidBasicAuthCredentials'.lower(),
+    'KeyEncrypted'.lower(),
+    'MaxPasswordLength'.lower(),
+    'MinimumPasswordLength'.lower(),
+    'MinPasswordLength'.lower(),
+    'PasswordAlgorithm'.lower(),
+    'PasswordDigestEnabled'.lower(),
+    'PasswordStyle'.lower(),
+    'PasswordStyleRetained'.lower(),
+    'PlaintextPasswordsEnabled'.lower(),
+    'SQLGetUsersPassword'.lower(),
+    'SQLSetUserPassword'.lower(),
+    'UseDatabaseCredentials'.lower(),
+    'UsePasswordIndirection'.lower(),
+    'WarnOnUsernamePasswords'.lower()
 ]
 
-PATH_ATTRIBUTE_NAME_ENDINGS = ['File', 'Directory', 'FileName', 'Home', 'DirectoryName', 'Path', 'Dir', 'Root']
+# PrefixName and UriPrefix are not file system paths, but needs tokenizing for cases like /VirtualTarget-12153
+PATH_ATTRIBUTE_NAME_ENDINGS = ['File', 'Directory', 'FileName', 'Home', 'DirectoryName', 'Path', 'Dir', 'Root',
+                               'PrefixName', 'UriPrefix']
 PATH_ATTRIBUTE_NAME_EXCEPTIONS = [
     'AcceptContextPathInGetRealPath',
     'BasePath',
@@ -62,9 +62,13 @@ PATH_ATTRIBUTE_NAME_EXCEPTIONS = [
 ]
 
 PATH_SERVER_NAMES = ['AdminServer']
+SERVER_DIR_PATTERN = r'/Server[s]?(/|$)'
 SERVER_NAME_PATTERN = r'Server[s]?-\d{3,5}'
+SERVER_TEMPLATE_NAME_PATTERN = r'ServerTemplate[s]?-\d{3,5}'
+JMS_SERVER_NAME_PATTERN = r'JMSServer[s]?-\d{3,5}'
 PARTITION_NAME_PATTERN = r'Partition[s]?-\d{3,5}'
 RESOURCE_GROUP_TEMPLATE_PATTERN = r'ResourceGroupTemplate[s]?-\d{3,5}'
+VIRTUAL_TARGET_NAME_PATTERN = r'VirtualTarget[s]?-\d{3,5}'
 
 DOMAIN_HOME_TOKEN = '@@DOMAIN_HOME@@'
 WL_HOME_TOKEN = '@@WL_HOME@@'
@@ -603,10 +607,16 @@ def tokenize_path_value(model_context, attribute_name, attribute_value):
 
         for server_name in PATH_SERVER_NAMES:
             if server_name in result:
-                result = result.replace(server_name, '%SERVER%')
+                # only replace this case if under /Server[s] directory
+                if re.search(SERVER_DIR_PATTERN, current_path()):
+                    result = result.replace(server_name, '%SERVER%')
+        # check JMSServer[s] before Server[s]
+        result = re.sub(JMS_SERVER_NAME_PATTERN, '%JMSSERVER%', result)
         result = re.sub(SERVER_NAME_PATTERN, '%SERVER%', result)
+        result = re.sub(SERVER_TEMPLATE_NAME_PATTERN, '%SERVERTEMPLATE%', result)
         result = re.sub(PARTITION_NAME_PATTERN, '%PARTITION%', result)
         result = re.sub(RESOURCE_GROUP_TEMPLATE_PATTERN, '%RESOURCEGROUPTEMPLATE%', result)
+        result = re.sub(VIRTUAL_TARGET_NAME_PATTERN, '%VIRTUALTARGET%', result)
     else:
         __logger.warning('Attribute {0} value {1} is not a string', attribute_name, attribute_value,
                          class_name=__class_name, method_name=_method_name)
@@ -625,7 +635,7 @@ def _load_global(global_name):
 
 def is_credential_field(attribute_name):
     for credential_marker in CREDENTIAL_FIELD_NAME_MARKERS:
-        if credential_marker in attribute_name and attribute_name not in CREDENTIAL_FIELD_EXCEPTIONS:
+        if credential_marker in attribute_name and attribute_name.lower() not in CREDENTIAL_FIELD_EXCEPTIONS:
             return True
 
     return False

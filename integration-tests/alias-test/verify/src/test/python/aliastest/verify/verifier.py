@@ -7,6 +7,7 @@ import java.lang.Boolean as Boolean
 
 from oracle.weblogic.deploy.aliases import AliasException
 
+from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.logging.platform_logger import PlatformLogger
 import wlsdeploy.aliases.alias_constants as alias_constants
@@ -277,7 +278,9 @@ class Verifier(object):
                 _logger.finer('Found the generated mbean {0} in the alias folder map', entry,
                               class_name=CLASS_NAME, method_name=_method_name)
                 self._alias_helper.add_name_token_to_location(location, this_folder_map)
-                self._verify_attributes_at_location(attributes, location)
+                filtered_attributes = \
+                    verify_utils.filter_generated_attributes(location, attributes)
+                self._verify_attributes_at_location(filtered_attributes, location)
                 subfolder_map = self._alias_helper.get_subfolder_map(location)
                 if subfolder_map:
                     self._verify_aliases_at_location(this_dictionary, location, subfolder_map)
@@ -354,7 +357,8 @@ class Verifier(object):
                             self._process_security_provider(generated_dictionary, mbean_info_name, folder_map,
                                                             alias_name, location)
 
-                    elif not self._alias_helper.check_flattened_folder(location, alias_name):
+                    elif not self._alias_helper.check_flattened_folder(location, alias_name) and \
+                        location.get_folder_path() != '/Security':
                         # make this a message
                         _logger.fine('The alias folder name {0} at location {1} is not in the generated list {2}',
                                      alias_name, location.get_folder_path(), generated_dictionary.keys(),
@@ -578,15 +582,22 @@ class Verifier(object):
                     message = 'WLST name in aliases is %s' % expected_wlst_name
                     self._add_error(location, ERROR_ATTRIBUTE_INCORRECT_CASE,
                                     message=message, attribute=generated_attribute)
-                elif self._is_generated_attribute_readonly(location, generated_attribute, generated_attribute_info):
-                    self._add_error(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND_IS_READONLY,
-                                    attribute=generated_attribute, message=message)
+
                 elif location.get_folder_path().startswith('/SecurityConfiguration/Realm'):
                     # We are not fully implementing Security Providers and only intend to
                     # add attributes as customers need them so make these warnings.
                     #
                     self._add_warning(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND,
                                       attribute=generated_attribute, message=message)
+                elif location.get_folder_path() == '/Security':
+                    # We do not use Security folder attributes in aliases.
+                    # flag these as informational.
+                    #
+                    self._add_info(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND,
+                                      attribute=generated_attribute, message=message)
+                elif self._is_generated_attribute_readonly(location, generated_attribute, generated_attribute_info):
+                    self._add_error(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND_IS_READONLY,
+                                    attribute=generated_attribute, message=message)
                 else:
                     self._add_error(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND,
                                     attribute=generated_attribute, message=message)
@@ -785,6 +796,13 @@ class Verifier(object):
                                type(generated_default), generated_default,
                                class_name=CLASS_NAME, method_name=_method_name)
 
+                # get_model_attribute_name_and_value() will expect resolved tokens for comparison
+                model_name = self._alias_helper.get_model_attribute_name(location, generated_attribute)
+                path_token_attributes = self._alias_helper.get_model_uses_path_tokens_attribute_names(location)
+                generated_default_value = generated_default
+                if model_name in path_token_attributes:
+                    generated_default_value = alias_utils.replace_tokens_in_path(location, generated_default)
+
                 # This code is sort of non-intuitive because the method was written for a different
                 # purpose.  This get_model_attribute_name_and_value() function compared the value
                 # we pass in with the alias default (accounting for type conversion).  If the value
@@ -793,7 +811,7 @@ class Verifier(object):
                 #
                 model_name, model_value = \
                     self._alias_helper.get_model_attribute_name_and_value(location, generated_attribute,
-                                                                          generated_default)
+                                                                          generated_default_value)
 
                 _logger.finest('aliases returned model_name {0} and model_value ({1}) of "{2}"', model_name,
                                type(model_value), model_value, class_name=CLASS_NAME, method_name=_method_name)
@@ -824,16 +842,6 @@ class Verifier(object):
                     self._add_error(location, ERROR_DERIVED_DEFAULT_DOES_NOT_MATCH,
                                     message=message, attribute=generated_attribute)
                     match = False
-
-                if match and model_value is not None and not is_derived_default:
-                    # the alias code is not treating the strings or lists of strings as equal so test them here...
-                    if isinstance(generated_default, basestring) and isinstance(model_value, basestring):
-                        if str(generated_default) == str(model_value):
-                            model_value = None
-                    if model_value is not None:
-                        wlst_read_type = self._alias_helper.get_wlst_read_type(location, model_name)
-                        model_value = verify_utils.check_list_of_strings_equal(model_name, model_value,
-                                                                               generated_default, wlst_read_type)
 
             except TypeError, te:
                 self._add_error(location, ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE,

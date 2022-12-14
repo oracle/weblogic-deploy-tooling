@@ -648,8 +648,7 @@
                                           "online_bean": "weblogic.j2ee.descriptor.wl.MulticastParamsBean",
                                           "default_name_value": "${NO_NAME_0:%TEMPLATE%}",
                                           "folder_params": [
-                                                {"version":  "[10,12.2.1)"},
-                                                {"version":  "[12.2.1,12.2.1.1)", "wlst_mode": "online" },
+                                                {"version":  "[10,12.2.1.1)", "wlst_mode": "online" },
                                                 {"version":  "[12.2.1.1,)"}
                                           ],
                                           "folders": {},
@@ -779,8 +778,7 @@
                                           "online_bean": "weblogic.j2ee.descriptor.wl.MulticastParamsBean",
                                           "default_name_value": "${NO_NAME_0:%TOPIC%}",
                                           "folder_params": [
-                                                {"version":  "[10,12.2.1)"},
-                                                {"version":  "[12.2.1,12.2.1.1)", "wlst_mode": "online" },
+                                                {"version":  "[10,12.2.1.1)", "wlst_mode": "online" },
                                                 {"version":  "[12.2.1.1,)"}
                                           ],
                                           "folders": {},
@@ -1024,8 +1022,7 @@
                                           "online_bean": "weblogic.j2ee.descriptor.wl.MulticastParamsBean",
                                           "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDTOPIC%}",
                                           "folder_params": [
-                                                {"version":  "[10,12.2.1)"},
-                                                {"version":  "[12.2.1,12.2.1.1)", "wlst_mode": "online" },
+                                                {"version":  "[10,12.2.1.1)", "wlst_mode": "online" },
                                                 {"version":  "[12.2.1.1,)"}
                                           ],
                                           "folders": {},
