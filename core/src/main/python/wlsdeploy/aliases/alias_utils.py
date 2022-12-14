@@ -700,7 +700,7 @@ def convert_to_type(data_type, value, subtype=None, delimiter=None):
                         new_value = _create_mbean_array(new_value, subtype)
                 elif data_type == LIST:
                     # ensure that list elements are correctly typed to str or unicode
-                    new_value = _create_array(new_value, delimiter)
+                    new_value = _create_array(new_value, None)
                     new_value = list(new_value)
                 elif data_type in ALIAS_DELIMITED_TYPES:
                     #
