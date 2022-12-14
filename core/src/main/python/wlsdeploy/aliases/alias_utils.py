@@ -1121,7 +1121,7 @@ def _create_array(iterable, delimiter):
         for element in iterable:
             if isinstance(element, ObjectName):
                 myarray.append(element.getKeyProperty('Name'))
-            elif delimiter or isinstance(element, String):
+            elif delimiter or isinstance(element, String) or isinstance(element, basestring):
                 myarray.append(str_helper.to_string(element))
             else:
                 myarray.append(element)
