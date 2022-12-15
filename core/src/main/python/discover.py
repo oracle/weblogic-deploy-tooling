@@ -236,6 +236,8 @@ def __discover(model_context, aliases, credential_injector, helper, extra_tokens
     __connect_to_domain(model_context, helper)
     try:
         _add_domain_name(base_location, aliases, helper)
+        _establish_production_mode(aliases, helper)
+
         DomainInfoDiscoverer(model_context, model.get_model_domain_info(), base_location, wlst_mode=__wlst_mode,
                              aliases=aliases, credential_injector=credential_injector).discover()
         TopologyDiscoverer(model_context, model.get_model_topology(), base_location, wlst_mode=__wlst_mode,
@@ -273,6 +275,24 @@ def _add_domain_name(location, aliases, helper):
         __logger.info('WLSDPLY-06022', domain_name, class_name=_class_name, method_name=_method_name)
     else:
         de = exception_helper.create_discover_exception('WLSDPLY-WLSDPLY-06023')
+        __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+        raise de
+
+
+def _establish_production_mode(aliases, helper):
+    """
+    Determine if production mode is enabled for the domain, and set it in the aliases.
+    :param aliases: aliases instance for discover
+    :param helper: wlst_helper instance
+    :raises DiscoverException: if an error occurs during discovery
+    """
+    _method_name = '_establish_production_mode'
+    try:
+        helper.cd('/')
+        production_mode_enabled = helper.get(model_constants.PRODUCTION_MODE_ENABLED)
+        aliases.set_production_mode(production_mode_enabled)
+    except PyWLSTException, pe:
+        de = exception_helper.create_discover_exception('WLSDPLY-06036', pe.getLocalizedMessage())
         __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
         raise de
 

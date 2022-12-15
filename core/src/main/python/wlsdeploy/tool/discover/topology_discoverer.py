@@ -517,6 +517,7 @@ class TopologyDiscoverer(Discoverer):
                 location.add_name_token(name_token, vhost)
                 result[vhost] = OrderedDict()
                 self._populate_model_parameters(result[vhost], location)
+                self._discover_subfolders(result[vhost], location)
                 location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
@@ -646,7 +647,7 @@ class TopologyDiscoverer(Discoverer):
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
-    
+
     def _get_ws_securities(self):
         """
         Discover the Webservice Security configuration for the domain

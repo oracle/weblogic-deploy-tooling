@@ -31,6 +31,7 @@ from wlsdeploy.aliases.alias_constants import MODEL_NAME
 from wlsdeploy.aliases.alias_constants import PASSWORD
 from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases.alias_constants import PREFERRED_MODEL_TYPE
+from wlsdeploy.aliases.alias_constants import PRODUCTION_DEFAULT
 from wlsdeploy.aliases.alias_constants import PROPERTIES
 from wlsdeploy.aliases.alias_constants import RESTART_REQUIRED
 from wlsdeploy.aliases.alias_constants import RO
@@ -49,6 +50,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import string_utils
 from wlsdeploy.util import unicode_helper as str_helper
 
@@ -80,6 +82,13 @@ class Aliases(object):
             self._wls_version = wls_version
 
         self._alias_entries = AliasEntries(wlst_mode, self._wls_version)
+        self._production_mode_enabled = False
+
+    def set_production_mode(self, production_mode_enabled):
+        _method_name = 'set_production_mode'
+        if production_mode_enabled:
+            self._logger.info('WLSDPLY-19047', class_name=self._class_name, method_name=_method_name)
+        self._production_mode_enabled = production_mode_enabled
 
     ###########################################################################
     #              Model folder navigation-related methods                    #
@@ -674,7 +683,7 @@ class Aliases(object):
         except AliasException, ae:
             self._raise_exception(ae, _method_name, 'WLSDPLY-19046', location.get_current_model_folder(),
                                   location.get_folder_path(), ae.getLocalizedMessage())
-                                  
+
     ###########################################################################
     #                    Model folder-related methods                         #
     ###########################################################################
@@ -1044,7 +1053,7 @@ class Aliases(object):
                                                                     delimiter=delimiter)
 
                 model_attribute_name = attribute_info[MODEL_NAME]
-                default_value = attribute_info[DEFAULT_VALUE]
+                default_value = self._get_default_value_for_execution_mode(attribute_info)
 
                 #
                 # The logic below to compare the str() representation of the converted value and the default value
@@ -1259,7 +1268,7 @@ class Aliases(object):
             default_value = None
             attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute_name)
             if attribute_info is not None:
-                default_value = attribute_info[DEFAULT_VALUE]
+                default_value = self._get_default_value_for_execution_mode(attribute_info)
                 data_type, delimiter = \
                     alias_utils.compute_read_data_type_and_delimiter_from_attribute_info(
                         attribute_info, default_value)
@@ -1270,6 +1279,19 @@ class Aliases(object):
         except AliasException, ae:
             self._raise_exception(ae, _method_name, 'WLSDPLY-19032', model_attribute_name, location.get_folder_path(),
                                   ae.getLocalizedMessage())
+
+    def _get_default_value_for_execution_mode(self, attribute_info):
+        """
+        Get the default value corresponding to the domain execution mode.
+        For example, return production mode default if domain is in production mode.
+        :param attribute_info: alias information for an attribute
+        :return: the correct default value for the execution mode
+        """
+        if self._production_mode_enabled:
+            default_value = dictionary_utils.get_element(attribute_info, PRODUCTION_DEFAULT)
+            if default_value is not None:
+                return default_value
+        return dictionary_utils.get_element(attribute_info, DEFAULT_VALUE)
 
     def get_ignore_attribute_names(self):
         """
