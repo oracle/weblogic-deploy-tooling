@@ -25,6 +25,7 @@ from oracle.weblogic.deploy.aliases import VersionUtils
 
 from wlsdeploy.aliases.alias_constants import BOOLEAN
 from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
+from wlsdeploy.aliases.alias_constants import STRING
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -698,6 +699,8 @@ def convert_to_type(data_type, value, subtype=None, delimiter=None):
                     else:
                         new_value = _create_mbean_array(new_value, subtype)
                 elif data_type == LIST:
+                    # ensure that list elements are correctly typed to str or unicode
+                    new_value = _create_array(new_value, None)
                     new_value = list(new_value)
                 elif data_type in ALIAS_DELIMITED_TYPES:
                     #
@@ -859,6 +862,10 @@ def _convert_value_to_model_type(data_type, value, delimiter):
                 # convert any object elements to str, especially ObjectNames
                 converted = _create_array(converted, delimiter)
                 converted = list(converted)
+        elif data_type == STRING:
+            if converted:
+                # adjust result to str or unicode
+                converted = str_helper.to_string(converted)
         elif data_type in ALIAS_DELIMITED_TYPES:
             # Use the delimiter from the target type to join the elements of the list.
             # This can be different from the delimiter passed in, which was used to parse the WLST value.
@@ -1114,7 +1121,7 @@ def _create_array(iterable, delimiter):
         for element in iterable:
             if isinstance(element, ObjectName):
                 myarray.append(element.getKeyProperty('Name'))
-            elif delimiter or isinstance(element, String):
+            elif delimiter or isinstance(element, String) or isinstance(element, basestring):
                 myarray.append(str_helper.to_string(element))
             else:
                 myarray.append(element)

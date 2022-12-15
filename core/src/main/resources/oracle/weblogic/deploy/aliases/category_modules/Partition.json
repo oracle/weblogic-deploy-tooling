@@ -167,8 +167,7 @@
                             "attributes": {
                                 "Notes":                   [ {"version": "[12.2.1,)",         "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "default_value": null,                    "wlst_type": "string"     } ],
                                 "PasswordEncrypted":       [ {"version": "[12.2.1,)",         "wlst_mode": "both", "wlst_name": "PasswordEncrypted",       "wlst_path": "WP001", "default_value": null,                    "wlst_type": "password",  "get_method": "GET" } ],
-                                "RemoteJNDIName":          [ {"version": "[12.2.1,12.2.1.4)", "wlst_mode": "both", "wlst_name": "RemoteJNDIName",          "wlst_path": "WP001", "default_value": "No-Override",           "wlst_type": "string"     } ,
-                                                             {"version": "[12.2.1.4,)",       "wlst_mode": "both", "wlst_name": "RemoteJNDIName",          "wlst_path": "WP001", "default_value": null,                    "wlst_type": "string"     } ],
+                                "RemoteJNDIName":          [ {"version": "[12.2.1,)",         "wlst_mode": "both", "wlst_name": "RemoteJNDIName",          "wlst_path": "WP001", "default_value": "No-Override",           "wlst_type": "string"     } ],
                                 "Username":                [ {"version": "[12.2.1,)",         "wlst_mode": "both", "wlst_name": "Username",                "wlst_path": "WP001", "default_value": "No-Override",           "wlst_type": "credential" } ]
                             },
                             "wlst_attributes_path": "WP001",
@@ -184,8 +183,7 @@
                             "folders": {},
                             "attributes": {
                                 "Notes":                   [ {"version": "[12.2.1,)",         "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "default_value": null,                    "wlst_type": "string"  } ],
-                                "RemoteJNDIName":          [ {"version": "[12.2.1,12.2.1.4)", "wlst_mode": "both", "wlst_name": "RemoteJNDIName",          "wlst_path": "WP001", "default_value": "No-Override",           "wlst_type": "string"  } ,
-                                                             {"version": "[12.2.1.4,)",       "wlst_mode": "both", "wlst_name": "RemoteJNDIName",          "wlst_path": "WP001", "default_value": null,                    "wlst_type": "string"  } ]
+                                "RemoteJNDIName":          [ {"version": "[12.2.1,)",         "wlst_mode": "both", "wlst_name": "RemoteJNDIName",          "wlst_path": "WP001", "default_value": "No-Override",           "wlst_type": "string"  } ]
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
@@ -610,7 +608,7 @@
         "ResourceDeploymentPlanPath":            [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "ResourceDeploymentPlanPath",              "wlst_path": "WP001", "default_value": null,              "wlst_type": "string",           "uses_path_tokens": "true" } ],
         "ResourceManagerRef":                    [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "ResourceManagerRef",                      "wlst_path": "WP001", "default_value": null,              "wlst_type": "string",           "get_method": "LSA", "set_method": "MBEAN.set_resource_manager_mbean", "set_mbean_type": "weblogic.management.configuration.ResourceManagerMBean"} ],
         "StartupTimeout":                        [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "StartupTimeout",                          "wlst_path": "WP001", "default_value": 0,                 "wlst_type": "integer"           } ],
-        "UploadDirectoryName":                   [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "UploadDirectoryName",                     "wlst_path": "WP001", "default_value": null,              "wlst_type": "string",            "uses_path_tokens": "true" } ]
+        "UploadDirectoryName":                   [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "UploadDirectoryName",                     "wlst_path": "WP001", "default_value": "${__NULL__:@@DOMAIN_HOME@@/partitions/%PARTITION%/system/servers/AdminServer/upload/}", "wlst_type": "string", "uses_path_tokens": "true" } ]
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {

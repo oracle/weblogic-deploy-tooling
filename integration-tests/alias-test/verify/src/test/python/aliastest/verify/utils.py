@@ -81,7 +81,15 @@ ONLINE_TEST_ANOMALIES_MAP = {
 
 ATTRIBUTES_TO_FILTER = {
     '/': ['ConfigurationVersion', 'DomainVersion'],
-    '/Library': ['ConfiguredApplicationIdentifier', 'MultiVersionApp']
+    '/Library': ['ConfiguredApplicationIdentifier', 'MultiVersionApp'],
+    # PartitionId is assigned an arbitrary value on creation, but is not read-only or derived-default
+    '/Partition': ['PartitionId'],
+    # UploadDirectoryName has different values in /ResourceGroup and /Partition/ResourceGroup.
+    # Partition alias file "contains" ResourceGroup alias, so we can't have different values.
+    '/Partition/ResourceGroup': ['UploadDirectoryName'],
+    # The offline generator includes AdminServer as a target for VirtualTarget,
+    # but that doesn't occur with normal creation.
+    '/VirtualTarget': ['Target']
 }
 
 
