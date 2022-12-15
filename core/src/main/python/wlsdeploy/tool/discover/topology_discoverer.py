@@ -348,6 +348,15 @@ class TopologyDiscoverer(Discoverer):
             location.add_name_token(self._aliases.get_name_token(location), security_configuration)
             self._populate_model_parameters(result, location)
             self._massage_security_credential(result, location)
+            #Security Configuration has 2 subfolders, SecureMode and Realm
+            #Realm needs to be handled with special code, so discover SecureMode manually
+            location.append_location(model_constants.SECURE_MODE)
+            secure_mode = self._find_singleton_name_in_folder(location)
+            if secure_mode is not None:
+                location.add_name_token(self._aliases.get_name_token(location), secure_mode)
+                result[model_constants.SECURE_MODE] = OrderedDict()
+                self._populate_model_parameters(result[model_constants.SECURE_MODE], location)
+            location.pop_location()
             location.append_location(model_constants.REALM)
             result[model_constants.REALM] = OrderedDict()
             realms = self._find_names_in_folder(location)
