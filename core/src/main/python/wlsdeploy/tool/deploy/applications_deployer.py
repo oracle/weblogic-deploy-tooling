@@ -635,6 +635,11 @@ class ApplicationsDeployer(Deployer):
                                                         existing_lib_targets_set, model_targets_set)
                         continue
 
+                    # always update if remote
+                    if self.model_context.is_remote():
+                        update_library_list.append(versioned_name)
+                        continue
+
                     # user libraries
                     model_lib_hash = self.__get_hash(model_src_path)
                     existing_lib_hash = self.__get_file_hash(existing_src_path)
@@ -738,13 +743,20 @@ class ApplicationsDeployer(Deployer):
                     if model_src_path is None and src_path is not None:
                         model_src_path = src_path
 
+                    existing_app_targets = dictionary_utils.get_element(existing_app_ref, 'target')
+                    existing_app_targets_set = Set(existing_app_targets)
+
+                    # always update if remote
+                    if self.model_context.is_remote():
+                        self.__append_to_stop_and_undeploy_apps(versioned_name, stop_and_undeploy_app_list
+                                                                , existing_app_targets_set)
+                        continue
+
                     model_src_hash = self.__get_hash(model_src_path)
                     model_plan_hash = self.__get_hash(dictionary_utils.get_element(app_dict, PLAN_PATH))
 
                     existing_src_hash = self.__get_file_hash(src_path)
                     existing_plan_hash = self.__get_file_hash(plan_path)
-                    existing_app_targets = dictionary_utils.get_element(existing_app_ref, 'target')
-                    existing_app_targets_set = Set(existing_app_targets)
                     if model_src_hash == existing_src_hash:
                         if model_plan_hash == existing_plan_hash:
                             if self.__shouldCheckForTargetChange(src_path, model_src_path):
