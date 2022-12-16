@@ -183,7 +183,7 @@ class ArchiveHelper(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result
 
-    def extract_file(self, path, location=None):
+    def extract_file(self, path, location=None, strip_leading_path=True):
         """
         Extract the specified file from the archive into the specified directory, or into Domain Home.
         :param path: the path into the archive
@@ -200,7 +200,7 @@ class ArchiveHelper(object):
                 result = archive_file.extractFile(path, self.__domain_home)
             else:
                 extract_location = FileUtils.getCanonicalFile(File(location))
-                result = archive_file.extractFile(path, extract_location, True)
+                result = archive_file.extractFile(path, extract_location, strip_leading_path)
         except (IllegalArgumentException, WLSDeployArchiveIOException), e:
             ex = exception_helper.create_exception(self.__exception_type, "WLSDPLY-19303", path,
                                                    self.__archive_files_text, e.getLocalizedMessage(), error=e)

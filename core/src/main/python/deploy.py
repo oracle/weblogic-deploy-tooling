@@ -41,12 +41,12 @@ __wlst_helper = WlstHelper(ExceptionType.DEPLOY)
 __wlst_mode = WlstModes.OFFLINE
 
 __required_arguments = [
-    CommandLineArgUtil.ORACLE_HOME_SWITCH,
-    CommandLineArgUtil.DOMAIN_HOME_SWITCH
+    CommandLineArgUtil.ORACLE_HOME_SWITCH
 ]
 
 __optional_arguments = [
     # Used by shell script to locate WLST
+    CommandLineArgUtil.DOMAIN_HOME_SWITCH,
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
     CommandLineArgUtil.MODEL_FILE_SWITCH,
@@ -63,7 +63,8 @@ __optional_arguments = [
     CommandLineArgUtil.PASSPHRASE_ENV_SWITCH,
     CommandLineArgUtil.OUTPUT_DIR_SWITCH,
     CommandLineArgUtil.DISCARD_CURRENT_EDIT_SWITCH,
-    CommandLineArgUtil.CANCEL_CHANGES_IF_RESTART_REQ_SWITCH
+    CommandLineArgUtil.CANCEL_CHANGES_IF_RESTART_REQ_SWITCH,
+    CommandLineArgUtil.REMOTE_SWITCH
 ]
 
 

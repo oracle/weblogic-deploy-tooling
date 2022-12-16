@@ -179,6 +179,9 @@ class CommandLineArgUtil(object):
 
         args = self._check_trailing_arguments(args, trailing_arg_count)
         args_len = len(args)
+        is_remote = False
+        if '-remote' in args:
+            is_remote = True
 
         idx = 1
         while idx < args_len:
@@ -204,7 +207,10 @@ class CommandLineArgUtil(object):
                 elif tool_type == TOOL_TYPE_DISCOVER:
                     full_path = value
                 else:
-                    full_path = validate_domain_home_arg(value)
+                    if is_remote:
+                        full_path = value
+                    else:
+                        full_path = validate_domain_home_arg(value)
                 self._add_arg(key, full_path, True)
             elif self.is_domain_parent_key(key):
                 value, idx = self._get_arg_value(args, idx)

@@ -63,11 +63,19 @@ class ApplicationsDeployer(Deployer):
     """
 
     def __init__(self, model, model_context, aliases, wlst_mode=WlstModes.OFFLINE, base_location=LocationContext()):
+        _method_name = '__init__'
         Deployer.__init__(self, model, model_context, aliases, wlst_mode)
         self._class_name = 'ApplicationDeployer'
         self._base_location = base_location
         self._parent_dict, self._parent_name, self._parent_type = self.__get_parent_by_location(self._base_location)
         self.version_helper = ApplicationsVersionHelper(model_context, self.archive_helper)
+        try:
+            self.upload_temporary_dir = FileUtils.createTempDirectory("wdt-uploadtemp").getAbsolutePath()
+        except (IOException), e:
+            ex = exception_helper.create_deploy_exception('WLSDPLY-09340', e.getLocalizedMessage(), error=e)
+            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+
 
     def deploy(self):
         """
@@ -982,12 +990,19 @@ class ApplicationsDeployer(Deployer):
                     targets = dictionary_utils.get_element(lib_dict, TARGET)
                     stage_mode = dictionary_utils.get_element(lib_dict, STAGE_MODE)
                     options, sub_module_targets = _get_deploy_options(model_libs, lib_name, library_module='true',
-                                                                      application_version_helper=self.version_helper)
+                                                                      application_version_helper=self.version_helper,
+                                                                      is_remote=self.model_context.is_remote())
                     for uses_path_tokens_attribute_name in uses_path_tokens_attribute_names:
                         if uses_path_tokens_attribute_name in lib_dict:
                             path = lib_dict[uses_path_tokens_attribute_name]
                             if deployer_utils.is_path_into_archive(path):
-                                self.__extract_source_path_from_archive(path, LIBRARY, lib_name)
+                                self.__extract_source_path_from_archive(path, LIBRARY, lib_name,
+                                                                     is_remote=self.model_context.is_remote(),
+                                                                     upload_remote_directory=self.upload_temporary_dir)
+                                # if it is remote app deployment src path is the local absolute location and the
+                                # app archive will be uploaded to the admin server's upload directory
+                                if self.model_context.is_remote():
+                                    src_path = self.upload_temporary_dir + '/' + src_path
 
                     location.add_name_token(token_name, lib_name)
                     resource_group_template_name, resource_group_name, partition_name = \
@@ -1011,14 +1026,22 @@ class ApplicationsDeployer(Deployer):
                     stage_mode = dictionary_utils.get_element(app_dict, STAGE_MODE)
                     targets = dictionary_utils.get_element(app_dict, TARGET)
                     options, sub_module_targets  = _get_deploy_options(model_apps, app_name, library_module='false',
-                                                                       application_version_helper=self.version_helper)
+                                                                       application_version_helper=self.version_helper,
+                                                                       is_remote=self.model_context.is_remote())
 
                     # any attribute with 'uses_path_tokens' may be in the archive (such as SourcePath)
                     for uses_path_tokens_attribute_name in uses_path_tokens_attribute_names:
                         if uses_path_tokens_attribute_name in app_dict:
                             path = app_dict[uses_path_tokens_attribute_name]
                             if deployer_utils.is_path_into_archive(path):
-                                self.__extract_source_path_from_archive(path, APPLICATION, app_name)
+                                self.__extract_source_path_from_archive(path, APPLICATION, app_name,
+                                                                     is_remote=self.model_context.is_remote(),
+                                                                     upload_remote_directory=self.upload_temporary_dir)
+                                # if it is remote app deployment src path is the local absolute location and the
+                                # app archive will be uploaded to the admin server's upload directory
+                                if self.model_context.is_remote():
+                                    src_path = self.upload_temporary_dir + '/' + src_path
+
                     location.add_name_token(token_name, app_name)
                     resource_group_template_name, resource_group_name, partition_name = \
                         self.__get_mt_names_from_location(location)
@@ -1141,7 +1164,8 @@ class ApplicationsDeployer(Deployer):
         self.wlst_helper.deploy_application(application_name, *args, **kwargs)
         return application_name
 
-    def __extract_source_path_from_archive(self, source_path, model_type, model_name):
+    def __extract_source_path_from_archive(self, source_path, model_type, model_name, is_remote=False,
+                                           upload_remote_directory=None):
         """
         Extract contents from the archive set for the specified source path.
         The contents may be a single file, or a directory with exploded content.
@@ -1152,10 +1176,18 @@ class ApplicationsDeployer(Deployer):
         _method_name = '__extract_source_path_from_archive'
         # source path may be may be a single file (jar, war, etc.)
         if self.archive_helper.contains_file(source_path):
-            self.archive_helper.extract_file(source_path)
+            if is_remote:
+                self.archive_helper.extract_file(source_path, upload_remote_directory, False)
+            else:
+                self.archive_helper.extract_file(source_path)
 
         # source path may be exploded directory in archive
         elif self.archive_helper.contains_path(source_path):
+            # exploded format cannot be used for remote upload
+            if is_remote:
+                ex = exception_helper.create_deploy_exception('WLSDPLY-09341', model_name, source_path)
+                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
             self.archive_helper.extract_directory(source_path)
 
         else:
@@ -1248,7 +1280,7 @@ class ApplicationsDeployer(Deployer):
             self.__start_app(app)
 
 
-def _get_deploy_options(model_apps, app_name, library_module, application_version_helper):
+def _get_deploy_options(model_apps, app_name, library_module, application_version_helper, is_remote=False):
     """
     Get the deploy command options.
     :param model_apps: the apps dictionary
@@ -1277,6 +1309,9 @@ def _get_deploy_options(model_apps, app_name, library_module, application_versio
 
     if library_module == 'true':
         deploy_options['libraryModule'] = 'true'
+
+    if is_remote:
+        deploy_options['upload'] = 'true'
 
     if len(deploy_options) == 0:
         deploy_options = None
