@@ -158,9 +158,9 @@ class TopologyUpdater(Deployer):
         # can reference "other" servers
         self._topology_helper.create_placeholder_servers_in_cluster(self._topology)
 
-        self._process_section(self._topology, folder_list, SERVER, location, delete_now)
-
         self._process_section(self._topology, folder_list, MIGRATABLE_TARGET, location, delete_now)
+
+        self._process_section(self._topology, folder_list, SERVER, location, delete_now)
 
         # targets may have been inadvertently assigned when clusters were added
         return jdbc_names
