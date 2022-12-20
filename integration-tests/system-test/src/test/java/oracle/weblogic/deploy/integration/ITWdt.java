@@ -556,7 +556,7 @@ public class ITWdt extends BaseTest {
 
         Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
         Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.yaml");
-        cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
+        String cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
                 domainParentDir + FS + "restrictedJRFD1-discover17-18-19 -archive_file " + discoveredArchive +
                 " -model_file " + discoveredModelFile;
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
@@ -584,7 +584,7 @@ public class ITWdt extends BaseTest {
       Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.yaml");
       Path discoveredVariableFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.properties");
 
-      cmd = discoverDomainScript
+      String cmd = discoverDomainScript
           + " -oracle_home " + mwhome_12213
           + " -domain_home " + domainParentDir + FS + "restrictedJRFD1-discover17-18-19"
           + " -archive_file " + discoveredArchive
