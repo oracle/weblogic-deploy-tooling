@@ -525,7 +525,7 @@ public class ITWdt extends BaseTest {
             Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
             // verify model file
-            Path expectedModelFile = getTestOutputPath(testInfo).resolve("model").resolve("restrictedJRFD1.yaml");
+            Path expectedModelFile = getTestOutputPath(testInfo).resolve("model").resolve("restrictedJRFD1-discover17-18-19.yaml");
             verifyModelFile(expectedModelFile.toString());
             verifyFDiscoverDomainWithRequiredArgument(expectedModelFile.toString());
         }
