@@ -500,7 +500,7 @@ public class ITWdt extends BaseTest {
     void test17DiscoverDomainWithRequiredArgument(TestInfo testInfo) throws Exception {
         assumeTrue(new RestrictedJrfChecker(), "User specified skipping Restricted JRF tests");
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
-                domainParentDir + FS + "restrictedJRFD1-discover17-18=19 -model_file " +
+                domainParentDir + FS + "restrictedJRFD1-discover17-18-19 -model_file " +
                 getSampleModelFile("-constant") + " -archive_file " + getSampleArchiveFile() +
                 " -domain_type RestrictedJRF";
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
