@@ -39,6 +39,12 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
     private static final int DEFAULT_MEMORY_BUFFER_SIZE = 3000;
     private static final String DEFAULT_SIZE_PROPERTY_VALUE = Integer.toString(DEFAULT_MEMORY_BUFFER_SIZE);
 
+    // In 12.2.1.0.0, cd(), runCmd(), ls() errors percolate up into this handler.  Use these constants
+    // to filter out the errors so that they are not counted.
+    //
+    private static final String CIE_EXCEPTION_CLASS = "com.oracle.cie.domain.script.jython.CommandExceptionHandler";
+    private static final String CIE_EXCEPTION_METHOD = "handleException";
+
     private final int bufferSize;
     private WLSDeployContext context;
     private boolean suppressOutput = false;
@@ -304,6 +310,12 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
         @Override
         public synchronized void publish(LogRecord logRecord) {
             if (logRecord.getLevel().equals(getLevel())) {
+                if (getLevel() == Level.SEVERE && isCieErrorLog(logRecord)) {
+                    // Do not publish or count WLS 12.2.1.0 error logs from the CIE class
+                    // related to cd(), runCmd(), ls(), etc.
+                    //
+                    return;
+                }
                 ++totalRecords;
                 super.publish(logRecord);
             }
@@ -311,6 +323,15 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
 
         int getTotalRecords() {
             return totalRecords;
+        }
+
+        private boolean isCieErrorLog(LogRecord logRecord) {
+            if (logRecord.getLevel() == Level.SEVERE
+                && CIE_EXCEPTION_CLASS.equals(logRecord.getSourceClassName())
+                && CIE_EXCEPTION_METHOD.equals(logRecord.getSourceMethodName())) {
+                return true;
+            }
+            return false;
         }
     }
 }
