@@ -5,6 +5,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 Standard exit codes for command-line utilities.
 """
 
+
 class ExitCode(object):
     """
     Standard exit codes for command-line utilities.

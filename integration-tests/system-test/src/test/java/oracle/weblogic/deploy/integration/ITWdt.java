@@ -517,8 +517,8 @@ public class ITWdt extends BaseTest {
                 + " -archive_file " + discoveredArchive
                 + " -domain_type RestrictedJRF";
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-
-            verifyResult(result, "discoverDomain.sh completed successfully");
+            // SecurityConfiguration warning
+            assertEquals(1, result.exitValue(), "Unexpected return code");
 
             // unzip discoveredArchive.zip
             cmd = "unzip -o " + discoveredArchive + " -d " + getTestOutputPath(testInfo);
@@ -561,8 +561,8 @@ public class ITWdt extends BaseTest {
                 " -model_file " + discoveredModelFile;
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-
-            verifyResult(result, "discoverDomain.sh completed successfully");
+            // SecurityConfiguration warning
+            assertEquals(1, result.exitValue(), "Unexpected return code");
 
             // verify model file
             verifyModelFile(discoveredModelFile.toString());
@@ -593,7 +593,8 @@ public class ITWdt extends BaseTest {
 
       try (PrintWriter out = getTestMethodWriter(testInfo)) {
           CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-          verifyResult(result, "discoverDomain.sh completed successfully");
+          // SecurityConfiguration warning
+          assertEquals(1, result.exitValue(), "Unexpected return code");
 
           // verify model file and variable file
           verifyModelFile(discoveredModelFile.toString());
@@ -643,8 +644,8 @@ public class ITWdt extends BaseTest {
                 + " -domain_type JRF";
 
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-
-            verifyResult(result, "discoverDomain.sh completed successfully");
+            // SecurityConfiguration warning
+            assertEquals(1, result.exitValue(), "Unexpected return code");
 
             // verify model file
             verifyModelFile(discoveredModelFile.toString());
@@ -1034,8 +1035,8 @@ public class ITWdt extends BaseTest {
                     + " -target " + "wko";
 
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-
-            verifyResult(result, "prepareModel.sh completed successfully");
+            // ListenPort differences warning
+            assertEquals(1, result.exitValue(), "Unexpected return code");
 
             // verify model file
             String tempWkoModel = outputFiles + FS + "simple-topology-targetwko.yaml";
