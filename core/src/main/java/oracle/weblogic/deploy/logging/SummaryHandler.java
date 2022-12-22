@@ -13,6 +13,8 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.MemoryHandler;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import oracle.weblogic.deploy.util.StringUtils;
 import oracle.weblogic.deploy.util.WLSDeployContext;
@@ -33,17 +35,12 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
     private static final String CLASS = SummaryHandler.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.exit");
 
+    private static final Pattern MSG_ID_PATTERN = Pattern.compile("^WLSDPLY-\\d{5}$");
     private static final String LEVEL_PROPERTY = ".level";
     private static final String TARGET_PROPERTY = ".target";
     private static final String SIZE_PROPERTY = ".size";
     private static final int DEFAULT_MEMORY_BUFFER_SIZE = 3000;
     private static final String DEFAULT_SIZE_PROPERTY_VALUE = Integer.toString(DEFAULT_MEMORY_BUFFER_SIZE);
-
-    // In 12.2.1.0.0, cd(), runCmd(), ls() errors percolate up into this handler.  Use these constants
-    // to filter out the errors so that they are not counted.
-    //
-    private static final String CIE_EXCEPTION_CLASS = "com.oracle.cie.domain.script.jython.CommandExceptionHandler";
-    private static final String CIE_EXCEPTION_METHOD = "handleException";
 
     private final int bufferSize;
     private WLSDeployContext context;
@@ -269,7 +266,8 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
     }
 
     private class SummaryFormatter extends Formatter {
-        private final String msgFormat = "    %1$5d. %2$s: %3$s" + System.lineSeparator();
+        private final String MSG_WITH_ID_FORMAT = "    %1$5d. %2$s: %3$s" + System.lineSeparator();
+        private final String MSG_WITH_NO_ID_FORMAT = "    %1$5d. %2$s" + System.lineSeparator();
         private final String internal = System.lineSeparator() + "%s" + System.lineSeparator() + System.lineSeparator();
         private int sequence = 0;
         private final Level level;
@@ -280,15 +278,15 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
 
         @Override
         public synchronized String format(LogRecord logRecord) {
-            String message = "";
+            String message;
             String msgId = logRecord.getMessage();
-            if (msgId.indexOf('{') >= 0) {
-                msgId = null;
-            }
             String formatted = formatMessage(logRecord);
-            if (msgId != null && !msgId.equals(formatted)) {
-                // this has a msg id. don't post any that don't have msg id.
-                message = String.format(msgFormat, ++sequence, msgId, formatted);
+
+            Matcher matcher = MSG_ID_PATTERN.matcher(msgId);
+            if (matcher.matches()) {
+                message = String.format(MSG_WITH_ID_FORMAT, ++sequence, msgId, formatted);
+            } else {
+                message = String.format(MSG_WITH_NO_ID_FORMAT, ++sequence, formatted);
             }
             return message;
         }
@@ -310,9 +308,21 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
         @Override
         public synchronized void publish(LogRecord logRecord) {
             if (logRecord.getLevel().equals(getLevel())) {
-                if (getLevel() == Level.SEVERE && isCieErrorLog(logRecord)) {
-                    // Do not publish or count WLS 12.2.1.0 error logs from the CIE class
-                    // related to cd(), runCmd(), ls(), etc.
+                String msgId = logRecord.getMessage();
+                if (StringUtils.isEmpty(msgId)) {
+                    // Don't publish any log records with an empty message
+                    return;
+                }
+                Matcher matcher = MSG_ID_PATTERN.matcher(msgId);
+                if (!matcher.matches()) {
+                    // Don't publish any log records without a real i18n message ID.
+                    //
+                    // NOTE: We are relying on this mechanism to suppress WLS 12.2.1.0 error log messages
+                    //       from the com.oracle.cie.domain.script.jython.CommandExceptionHandler class'
+                    //       handleException() method related to cd(), runCmd(), ls(), etc.  If we remove
+                    //       this Message ID only restriction, we still need to prevent these CIE error
+                    //       messages in 12.2.1.0 from polluting the Summary Handler since this will cause
+                    //       the exit code of the tool to be 2 even though everything is working properly.
                     //
                     return;
                 }
@@ -323,15 +333,6 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
 
         int getTotalRecords() {
             return totalRecords;
-        }
-
-        private boolean isCieErrorLog(LogRecord logRecord) {
-            if (logRecord.getLevel() == Level.SEVERE
-                && CIE_EXCEPTION_CLASS.equals(logRecord.getSourceClassName())
-                && CIE_EXCEPTION_METHOD.equals(logRecord.getSourceMethodName())) {
-                return true;
-            }
-            return false;
         }
     }
 }
