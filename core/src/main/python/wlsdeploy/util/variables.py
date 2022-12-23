@@ -6,6 +6,7 @@ import os
 import re
 
 from java.lang import Boolean
+from java.lang import System
 from java.io import BufferedReader
 from java.io import File
 from java.io import FileOutputStream
@@ -276,13 +277,23 @@ def _substitute(text, variables, model_context, error_info, attribute_name=None)
         # check environment variables before @@FILE:/dir/@@ENV:name@@.txt@@
         matches = _environment_pattern.findall(text)
         for token, key in matches:
-            if str_helper.to_string(key) not in os.environ:
+            #
+            # On Windows, environment variables are not case sensitive.  On Windows 11 anyway,
+            # setting an environment variable using a name with lower-case letters will always
+            # result in an environment variable name in all upper-case.
+            #
+            env_var_name = str_helper.to_string(key)
+            is_windows = System.getProperty('os.name').startswith('Windows')
+            if is_windows and env_var_name not in os.environ and env_var_name.upper() in os.environ:
+                env_var_name = env_var_name.upper()
+
+            if env_var_name not in os.environ:
                 allow_unresolved = validation_config.allow_unresolved_environment_tokens()
                 _report_token_issue('WLSDPLY-01737', method_name, allow_unresolved, key)
                 _increment_error_count(error_info, allow_unresolved)
                 problem_found = True
                 continue
-            value = os.environ.get(str_helper.to_string(key))
+            value = os.environ.get(env_var_name)
             text = text.replace(token, value)
 
         # check secret variables before @@FILE:/dir/@@SECRET:name:key@@.txt@@
