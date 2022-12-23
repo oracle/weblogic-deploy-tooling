@@ -170,21 +170,34 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>create-test-home</id>
+                        <id>copy-lib</id>
                         <phase>process-test-resources</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/unit-tests/config</outputDirectory>
+                            <outputDirectory>${project.build.directory}/unit-tests/wdt-config</outputDirectory>
                             <overwrite>true</overwrite>
                             <resources>
                                 <resource>
-                                    <directory>${project.basedir}/../installer/main/lib</directory>
+                                    <directory>${project.basedir}/../installer/src/main/lib</directory>
                                     <filtering>false</filtering>
                                 </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-targets</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/unit-tests/wdt-config/targets</outputDirectory>
+                            <overwrite>true</overwrite>
+                            <resources>
                                 <resource>
-                                    <directory>resources/target</directory>
+                                    <directory>${project.basedir}/src/main/targetconfigs</directory>
                                 </resource>
                             </resources>
                         </configuration>
