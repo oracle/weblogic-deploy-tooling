@@ -134,6 +134,9 @@
                             <systemProperties>
                                 <unit-test-wlst-dir>${unit-test-wlst-dir}</unit-test-wlst-dir>
                             </systemProperties>
+                            <environmentVariables>
+                                <WDT_CUSTOM_CONFIG>${unit-test-config-dir}</WDT_CUSTOM_CONFIG>
+                            </environmentVariables>
                         </configuration>
                     </execution>
                 </executions>
@@ -155,6 +158,35 @@
                             <sources>
                                 <source>${project.build.directory}/generated-sources/weblogic-deploy</source>
                             </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <skip>${skipTests}</skip>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>create-test-home</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/unit-tests/config</outputDirectory>
+                            <overwrite>true</overwrite>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/../installer/main/lib</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                                <resource>
+                                    <directory>resources/targetconfigs</directory>
+                                </resource>
+                            </resources>
                         </configuration>
                     </execution>
                 </executions>
