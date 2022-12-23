@@ -47,6 +47,8 @@ public class ITWdt extends BaseTest {
 
     private static boolean test30DomainCreated = false;
 
+    private static boolean discover17DomainCreated = false;
+
     @BeforeAll
     public static void staticPrepare() throws Exception {
         logger.info("prepare for WDT testing ...");
@@ -497,23 +499,33 @@ public class ITWdt extends BaseTest {
     @Test
     void test17DiscoverDomainWithRequiredArgument(TestInfo testInfo) throws Exception {
         assumeTrue(new RestrictedJrfChecker(), "User specified skipping Restricted JRF tests");
+        String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
+                domainParentDir + FS + "restrictedJRFD1-discover17-18-19 -model_file " +
+                getSampleModelFile("-constant") + " -archive_file " + getSampleArchiveFile() +
+                " -domain_type RestrictedJRF";
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+            assertEquals(0, result.exitValue(), "Unexpected return code");
+            discover17DomainCreated = true;
+        }
+
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
-            String cmd = discoverDomainScript
+            cmd = discoverDomainScript
                 + " -oracle_home " + mwhome_12213
-                + " -domain_home " + domainParentDir + FS + "restrictedJRFD1"
+                + " -domain_home " + domainParentDir + FS + "restrictedJRFD1-discover17-18-19"
                 + " -archive_file " + discoveredArchive
                 + " -domain_type RestrictedJRF";
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-
-            verifyResult(result, "discoverDomain.sh completed successfully");
+            // SecurityConfiguration warning
+            assertEquals(1, result.exitValue(), "Unexpected return code");
 
             // unzip discoveredArchive.zip
             cmd = "unzip -o " + discoveredArchive + " -d " + getTestOutputPath(testInfo);
             Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
             // verify model file
-            Path expectedModelFile = getTestOutputPath(testInfo).resolve("model").resolve("restrictedJRFD1.yaml");
+            Path expectedModelFile = getTestOutputPath(testInfo).resolve("model").resolve("restrictedJRFD1-discover17-18-19.yaml");
             verifyModelFile(expectedModelFile.toString());
             verifyFDiscoverDomainWithRequiredArgument(expectedModelFile.toString());
         }
@@ -540,15 +552,17 @@ public class ITWdt extends BaseTest {
     @Test
     void test18DiscoverDomainWithModelFile(TestInfo testInfo) throws Exception {
         assumeTrue(new RestrictedJrfChecker(), "User specified skipping Restricted JRF tests");
+        assertTrue(discover17DomainCreated, "Domain not created cannot run test");
+
         Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
         Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.yaml");
         String cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
-                domainParentDir + FS + "restrictedJRFD1 -archive_file " + discoveredArchive +
+                domainParentDir + FS + "restrictedJRFD1-discover17-18-19 -archive_file " + discoveredArchive +
                 " -model_file " + discoveredModelFile;
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-
-            verifyResult(result, "discoverDomain.sh completed successfully");
+            // SecurityConfiguration warning
+            assertEquals(1, result.exitValue(), "Unexpected return code");
 
             // verify model file
             verifyModelFile(discoveredModelFile.toString());
@@ -565,20 +579,22 @@ public class ITWdt extends BaseTest {
     @Test
     void test19DiscoverDomainWithVariableFile(TestInfo testInfo) throws Exception {
       assumeTrue(new JrfChecker(), "User specified skipping JRF tests");
+      assertTrue(discover17DomainCreated, "Domain not created and cannot be discovered");
       Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
       Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.yaml");
       Path discoveredVariableFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.properties");
 
       String cmd = discoverDomainScript
           + " -oracle_home " + mwhome_12213
-          + " -domain_home " + domainParentDir + FS + "restrictedJRFD1"
+          + " -domain_home " + domainParentDir + FS + "restrictedJRFD1-discover17-18-19"
           + " -archive_file " + discoveredArchive
           + " -model_file " + discoveredModelFile
           + " -variable_file " + discoveredVariableFile;
 
       try (PrintWriter out = getTestMethodWriter(testInfo)) {
           CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-          verifyResult(result, "discoverDomain.sh completed successfully");
+          // SecurityConfiguration warning
+          assertEquals(1, result.exitValue(), "Unexpected return code");
 
           // verify model file and variable file
           verifyModelFile(discoveredModelFile.toString());
@@ -603,21 +619,33 @@ public class ITWdt extends BaseTest {
     @Test
     void test20DiscoverDomainJRFDomainType(TestInfo testInfo) throws Exception {
         assumeTrue(new JrfChecker(), "User specified skipping JRF tests");
-        assumeTrue(rcuDomainCreated, "test20DiscoverDomainJRFDomainType skipped because testDCreateJRFDomainRunRCU failed");
+        waitForDatabase();
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            Path source = Paths.get(getSampleModelFile("2"));
+            Path modelOut = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "2.yaml");
+            // create wdt model file to use in create, after substitution of DB host/ip
+            replaceStringInFile(source, modelOut, "%DB_HOST%", getDBContainerIP());
 
+            String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
+                    domainParentDir + FS + "jrfDomain1-discover20 -model_file " +
+                    modelOut + " -archive_file " + getSampleArchiveFile() + " -domain_type JRF -run_rcu";
+
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+            assertEquals(0, result.exitValue(), "Unexpected return code");
+        }
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
             Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredJRFD1.yaml");
             String cmd = discoverDomainScript
                 + " -oracle_home " + mwhome_12213
-                + " -domain_home " + domainParentDir + FS + "jrfDomain1"
+                + " -domain_home " + domainParentDir + FS + "jrfDomain1-discover20"
                 + " -archive_file " + discoveredArchive
                 + " -model_file " + discoveredModelFile
                 + " -domain_type JRF";
 
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-
-            verifyResult(result, "discoverDomain.sh completed successfully");
+            // SecurityConfiguration warning
+            assertEquals(1, result.exitValue(), "Unexpected return code");
 
             // verify model file
             verifyModelFile(discoveredModelFile.toString());
@@ -944,13 +972,22 @@ public class ITWdt extends BaseTest {
     @Tag("gate")
     @Test
     void test31DiscoverDomainWithModelFile(TestInfo testInfo) throws Exception {
-        assumeTrue(test30DomainCreated,
-            "test31DiscoverDomainWithModelFile skipped because test30OnlineUpdateApp domain creation failed");
+        String domainDir = "domain2-discover31";
+        String cmd = createDomainScript
+                + " -oracle_home " + mwhome_12213
+                + " -domain_home " + domainParentDir + FS + domainDir
+                + " -model_file " + getSampleModelFile("-onlinebase")
+                + " -archive_file " + getSampleArchiveFile();
+
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+            assertEquals(0, result.exitValue(), "Unexpected return code");
+        }
         Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
         Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredModel.yaml");
         Path discoveredVariableFile = getTestOutputPath(testInfo).resolve("discoveredVariable.properties");
-        String cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
-                domainParentDir + FS + "domain2 -archive_file " + discoveredArchive +
+        cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
+                domainParentDir + FS + "domain2-discover31 -archive_file " + discoveredArchive +
                 " -model_file " + discoveredModelFile + " -variable_file " + discoveredVariableFile;
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
@@ -998,8 +1035,8 @@ public class ITWdt extends BaseTest {
                     + " -target " + "wko";
 
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-
-            verifyResult(result, "prepareModel.sh completed successfully");
+            // ListenPort differences warning
+            assertEquals(1, result.exitValue(), "Unexpected return code");
 
             // verify model file
             String tempWkoModel = outputFiles + FS + "simple-topology-targetwko.yaml";

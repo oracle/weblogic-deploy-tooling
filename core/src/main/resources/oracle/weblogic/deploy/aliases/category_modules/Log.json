@@ -46,7 +46,9 @@
         "StdoutFilter":                                  [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "StdoutFilter",                                  "wlst_path": "WP001", "default_value": null,     "wlst_type": "string", "set_method": "MBEAN.set_log_filter_mbean", "set_mbean_type": "weblogic.management.configuration.LogFilterMBean" } ],
         "StdoutFormat":                                  [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "StdoutFormat",                                  "wlst_path": "WP001", "default_value": "${__NULL__:standard}", "wlst_type": "string", "restart_required": "true" } ],
         "StdoutLogStack":                                [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "StdoutLogStack",                                "wlst_path": "WP001", "default_value": "true",   "wlst_type": "boolean"} ],
-        "StdoutSeverity":                                [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "StdoutSeverity",                                "wlst_path": "WP001", "default_value": "${__NULL__:Notice}", "wlst_type": "string" } ]
+        "StdoutSeverity":                                [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "StdoutSeverity",                                "wlst_path": "WP001", "default_value": "${__NULL__:Notice}", "wlst_type": "string" } ],
+        "TriggerTruncationStackFrameDepthAfterTrigger":  [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "TriggerTruncationStackFrameDepthAfterTrigger",  "wlst_path": "WP001", "default_value": 5,        "wlst_type": "integer" } ],
+        "TriggerTruncationStackFrameTriggerDepth":       [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "TriggerTruncationStackFrameTriggerDepth",       "wlst_path": "WP001", "default_value": 500,      "wlst_type": "integer" } ]
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {
