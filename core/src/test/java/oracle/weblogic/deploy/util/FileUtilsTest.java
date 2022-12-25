@@ -4,21 +4,15 @@
  */
 package oracle.weblogic.deploy.util;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.nio.file.attribute.PosixFilePermission;
 import java.text.MessageFormat;
 import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FileUtilsTest {
@@ -123,58 +117,6 @@ public class FileUtilsTest {
         String appHash = FileUtils.computeHash(appFile.getAbsolutePath());
 
         assertEquals(appHash, archiveHash);
-    }
-
-    @Test
-    /* A wallet zip inside the archive must not contain an entry such as ../info.txt,
-       since this creates a file overwrite security vulnerability (zip slip).
-     */
-    void testZipVulnerability() throws Exception {
-        final String extractPath = UNIT_TEST_TARGET_DIR.getPath();
-
-        // an entry with a simple name or path works fine
-        File zipFile = buildWalletArchiveZip("info.txt");
-        WLSDeployArchive deployArchive = new WLSDeployArchive(zipFile.getPath());
-        FileUtils.extractZipFileContent(deployArchive, WALLET_PATH, extractPath);
-
-        // an entry with parent directory notation should throw an exception
-        zipFile = buildWalletArchiveZip("../info.txt");
-        final WLSDeployArchive deployArchive2 = new WLSDeployArchive(zipFile.getPath());
-        assertThrows(IllegalArgumentException.class,
-            new Executable() {
-                @Override
-                public void execute() throws Throwable {
-                    FileUtils.extractZipFileContent(deployArchive2, WALLET_PATH, extractPath);
-                }
-            },
-            "Exception not thrown for zip entry outside extract directory");
-    }
-
-    /* Build an archive zip containing a wallet zip.
-       The wallet contains a single entry with the name of the contentName argument.
-     */
-    private File buildWalletArchiveZip(String contentName) throws Exception {
-
-        // create the wallet zip content
-        ByteArrayOutputStream walletBytes = new ByteArrayOutputStream();
-        try (ZipOutputStream zipStream = new ZipOutputStream(walletBytes)) {
-            ZipEntry zipEntry = new ZipEntry(contentName);
-            zipStream.putNextEntry(zipEntry);
-            byte[] data = "info".getBytes();
-            zipStream.write(data, 0, data.length);
-            zipStream.closeEntry();
-        }
-
-        File archiveFile = new File(UNIT_TEST_TARGET_DIR, "archive.zip");
-
-        try (ZipOutputStream zipStream = new ZipOutputStream(new FileOutputStream(archiveFile))) {
-            ZipEntry zipEntry = new ZipEntry(WALLET_PATH);
-            zipStream.putNextEntry(zipEntry);
-            zipStream.write(walletBytes.toByteArray());
-            zipStream.closeEntry();
-        }
-
-        return archiveFile;
     }
 
     private void assertMatch(String name, String got, String expected) {
