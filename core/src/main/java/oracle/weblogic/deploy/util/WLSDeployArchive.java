@@ -13,7 +13,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
@@ -1682,7 +1681,6 @@ public class WLSDeployArchive {
                 unzipZippedArchiveFileEntry(firstZipEntry, fullExtractPath);
             } else {
                 for (String zipEntry : zipEntries) {
-                    checkForZipSlip(domainHome, zipEntry);
                     File extractToLocation = domainHome;
                     if (!StringUtils.isEmpty(deprecationKey)) {
                         extractToLocation = new File(domainHome, WLSDPLY_ARCHIVE_BINARY_DIR);
@@ -1729,7 +1727,7 @@ public class WLSDeployArchive {
                     throw ex;
                 }
 
-                try (FileOutputStream fos = new FileOutputStream(zipEntryFile)) {
+                try (FileOutputStream fos = new FileOutputStream(zipEntryFile, false)) {
                     byte[] buffer = new byte[4096];
                     int len = zis.read(buffer);
                     while (len > 0) {
@@ -1771,6 +1769,7 @@ public class WLSDeployArchive {
                 for (Map.Entry<String, InputStream> zipEntry : zipEntries.entrySet()) {
                     String entryName = zipEntry.getKey();
                     String targetFileName = entryName.replace(fromDirectoryName + ZIP_SEP, toDirectoryName + SEP);
+                    checkForZipSlip(extractToLocation, targetFileName);
                     targetFile = new File(extractToLocation, targetFileName);
                     File targetDirectory;
                     if (entryName.endsWith(ZIP_SEP)) {
@@ -1819,6 +1818,12 @@ public class WLSDeployArchive {
         final String METHOD = "extractFileFromZip";
 
         LOGGER.entering(CLASS, METHOD, itemToExtract, fromDir, toDir, extractToLocation);
+        String targetFileName = itemToExtract;
+        if (fromDir != null && toDir != null) {
+            targetFileName = itemToExtract.replace(fromDir + ZIP_SEP, toDir + SEP);
+        }
+        checkForZipSlip(extractToLocation, targetFileName);
+
         InputStream inputStream = getZipFile().getZipEntry(itemToExtract);
         if (inputStream == null) {
             WLSDeployArchiveIOException wdaioe =
@@ -1827,7 +1832,6 @@ public class WLSDeployArchive {
             throw wdaioe;
         }
 
-        String targetFileName = itemToExtract.replace(fromDir + ZIP_SEP, toDir + SEP);
         File targetFile = new File(extractToLocation, targetFileName);
         File targetDirectory = targetFile.getParentFile();
         if (!targetDirectory.exists() && !targetDirectory.mkdirs()) {

@@ -7,7 +7,10 @@ package oracle.weblogic.deploy.util;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 
+import oracle.weblogic.deploy.logging.PlatformLogger;
+import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -74,6 +77,9 @@ public class WLSDeployArchiveTest {
         if (appsArchiveFile.exists()) {
             appsArchiveFile.delete();
         }
+
+        PlatformLogger logger = WLSDeployLogFactory.getLogger("wlsdeploy.archive");
+        logger.setLevel(Level.OFF);
     }
 
     @Test
