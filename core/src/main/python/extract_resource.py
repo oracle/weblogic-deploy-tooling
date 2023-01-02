@@ -34,6 +34,7 @@ __wls_helper = WebLogicHelper(__logger)
 __wlst_mode = WlstModes.OFFLINE
 
 __required_arguments = [
+    CommandLineArgUtil.MODEL_FILE_SWITCH,
     CommandLineArgUtil.ORACLE_HOME_SWITCH
 ]
 
@@ -42,7 +43,6 @@ __optional_arguments = [
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
     CommandLineArgUtil.DOMAIN_HOME_SWITCH,
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
-    CommandLineArgUtil.MODEL_FILE_SWITCH,
     CommandLineArgUtil.TARGET_SWITCH,
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,
     CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
@@ -73,8 +73,7 @@ def __process_args(args):
 
     cla_helper.validate_optional_archive(_program_name, argument_map)
 
-    # determine if the model file was passed separately or requires extraction from the archive.
-    cla_helper.validate_model_present(_program_name, argument_map)
+    cla_helper.validate_required_model(_program_name, argument_map)
     cla_helper.validate_variable_file_exists(_program_name, argument_map)
     cla_helper.process_encryption_args(argument_map)
 

@@ -510,24 +510,21 @@ public class ITWdt extends BaseTest {
         }
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            Path discoveredModel = getTestOutputPath(testInfo).resolve("discoveredModel.yaml");
             Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
             cmd = discoverDomainScript
                 + " -oracle_home " + mwhome_12213
                 + " -domain_home " + domainParentDir + FS + "restrictedJRFD1-discover17-18-19"
+                + " -model_file " + discoveredModel
                 + " -archive_file " + discoveredArchive
                 + " -domain_type RestrictedJRF";
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             // SecurityConfiguration warning
             assertEquals(1, result.exitValue(), "Unexpected return code");
 
-            // unzip discoveredArchive.zip
-            cmd = "unzip -o " + discoveredArchive + " -d " + getTestOutputPath(testInfo);
-            Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-
             // verify model file
-            Path expectedModelFile = getTestOutputPath(testInfo).resolve("model").resolve("restrictedJRFD1-discover17-18-19.yaml");
-            verifyModelFile(expectedModelFile.toString());
-            verifyFDiscoverDomainWithRequiredArgument(expectedModelFile.toString());
+            verifyModelFile(discoveredModel.toString());
+            verifyFDiscoverDomainWithRequiredArgument(discoveredModel.toString());
         }
     }
 

@@ -17,6 +17,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.prepare.model_preparer import ModelPreparer
 from wlsdeploy.util import target_configuration_helper
 from wlsdeploy.util import tool_main
+from wlsdeploy.util import cla_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model_context import ModelContext
@@ -50,6 +51,7 @@ def __process_args(args):
     cla_util.set_allow_multiple_models(True)
     argument_map = cla_util.process_args(args)
 
+    cla_helper.validate_required_model(_program_name, argument_map)
     target_configuration_helper.process_target_arguments(argument_map)
 
     model_context = ModelContext(_program_name, argument_map)
