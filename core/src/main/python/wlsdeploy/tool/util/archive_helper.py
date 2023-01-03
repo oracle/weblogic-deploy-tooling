@@ -414,12 +414,8 @@ class ArchiveHelper(object):
 
         wallet_path = None
         for archive_file in self.__archive_files[::-1]:
-            atp_wallet_zipentry = archive_file.getATPWallet()
-            if atp_wallet_zipentry:
-                wallet_dir = File(self.__domain_home, 'atpwallet')
-                wallet_dir.mkdirs()
-                wallet_path = wallet_dir.getPath()
-                FileUtils.extractZipFileContent(archive_file, atp_wallet_zipentry, wallet_path)
+            wallet_path = archive_file.extractATPWallet(self.__domain_home)
+            if wallet_path is not None:
                 break
 
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=wallet_path)
@@ -436,12 +432,8 @@ class ArchiveHelper(object):
 
         wallet_path = None
         for archive_file in self.__archive_files[::-1]:
-            atp_wallet_zipentry = archive_file.getOPSSWallet()
-            if atp_wallet_zipentry:
-                wallet_dir = File(self.__domain_home, 'opsswallet')
-                wallet_dir.mkdirs()
-                wallet_path = wallet_dir.getPath()
-                FileUtils.extractZipFileContent(archive_file, atp_wallet_zipentry, wallet_path)
+            wallet_path = archive_file.extractOPSSWallet(self.__domain_home)
+            if wallet_path is not None:
                 break
 
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=wallet_path)
