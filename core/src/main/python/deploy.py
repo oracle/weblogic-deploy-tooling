@@ -84,7 +84,7 @@ def __process_args(args):
     cla_helper.validate_optional_archive(_program_name, argument_map)
     cla_helper.validate_model_present(_program_name, argument_map)
     cla_helper.validate_variable_file_exists(_program_name, argument_map)
-    cla_helper.validate_if_remote_options(_program_name, argument_map)
+    cla_helper.validate_if_domain_home_required(_program_name, argument_map)
 
     __wlst_mode = cla_helper.process_online_args(argument_map)
     cla_helper.process_encryption_args(argument_map)

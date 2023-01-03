@@ -145,7 +145,7 @@ def validate_variable_file_exists(program_name, argument_map):
         argument_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = ",".join(result_files)
 
 
-def validate_if_remote_options(program_name, argument_map):
+def validate_if_domain_home_required(program_name, argument_map):
     method_name = 'validate_if_remote_options'
     if CommandLineArgUtil.REMOTE_SWITCH not in argument_map and \
             CommandLineArgUtil.DOMAIN_HOME_SWITCH not in argument_map:
