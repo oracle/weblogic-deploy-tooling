@@ -41,12 +41,12 @@ __wlst_helper = WlstHelper(ExceptionType.DEPLOY)
 __wlst_mode = WlstModes.OFFLINE
 
 __required_arguments = [
-    CommandLineArgUtil.DOMAIN_HOME_SWITCH,
     CommandLineArgUtil.ORACLE_HOME_SWITCH
 ]
 
 __optional_arguments = [
     # Used by shell script to locate WLST
+    CommandLineArgUtil.DOMAIN_HOME_SWITCH,
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
     CommandLineArgUtil.MODEL_FILE_SWITCH,
@@ -75,10 +75,7 @@ def __process_args(args):
     :raises CLAException: if an error occurs while validating and processing the command-line arguments
     """
     global __wlst_mode
-
-    if '-remote' in sys.argv:
-        __required_arguments.remove(CommandLineArgUtil.DOMAIN_HOME_SWITCH)
-        __optional_arguments.append(CommandLineArgUtil.DOMAIN_HOME_SWITCH)
+    _method_name = '__process_args'
 
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     cla_util.set_allow_multiple_models(True)
@@ -87,6 +84,7 @@ def __process_args(args):
     cla_helper.validate_optional_archive(_program_name, argument_map)
     cla_helper.validate_model_present(_program_name, argument_map)
     cla_helper.validate_variable_file_exists(_program_name, argument_map)
+    cla_helper.validate_if_remote_options(_program_name, argument_map)
 
     __wlst_mode = cla_helper.process_online_args(argument_map)
     cla_helper.process_encryption_args(argument_map)
