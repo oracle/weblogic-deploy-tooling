@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The main module for the WLSDeploy tool to create empty domains.
@@ -55,6 +55,7 @@ __wlst_mode = WlstModes.OFFLINE
 __version = WebLogicHelper(__logger).get_actual_weblogic_version()
 
 __required_arguments = [
+    CommandLineArgUtil.MODEL_FILE_SWITCH,
     CommandLineArgUtil.ORACLE_HOME_SWITCH
 ]
 
@@ -64,7 +65,6 @@ __optional_arguments = [
     CommandLineArgUtil.DOMAIN_PARENT_SWITCH,
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
     CommandLineArgUtil.JAVA_HOME_SWITCH,
-    CommandLineArgUtil.MODEL_FILE_SWITCH,
     CommandLineArgUtil.RUN_RCU_SWITCH,
     CommandLineArgUtil.RCU_SYS_PASS_SWITCH,
     CommandLineArgUtil.RCU_DB_SWITCH,
@@ -98,7 +98,7 @@ def __process_args(args):
 
     # don't verify that the archive is valid until it is needed.
     # this requirement is specific to create, other tools will verify it.
-    cla_helper.validate_model_present(_program_name, argument_map)
+    cla_helper.validate_required_model(_program_name, argument_map)
     cla_helper.validate_variable_file_exists(_program_name, argument_map)
 
     #

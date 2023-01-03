@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
@@ -83,13 +83,9 @@ public class WLSDeployArchiveTest {
     }
 
     @Test
-    void testAddEnvModelWithDirectory() throws Exception {
+    void testAddMultipleAppsWithSameNameGivesUniqueNames() throws Exception {
         WLSDeployArchive archive = new WLSDeployArchive(APPS_ARCHIVE_FILE_NAME);
         assertNotNull(archive, "expected archive object to not be null");
-        File modelFile = new File(APPS_MODEL);
-        assertTrue(modelFile.exists(), "expected model file to exist");
-        assertFalse(modelFile.isDirectory(), "expected model not to be a directory");
-        archive.addModel(modelFile);
         String appName = archive.addApplication(APP1_TO_ADD);
         assertEquals(APP1_ENTRY_NAME1, appName, "unexpected app name: " + appName);
         appName = archive.addApplication(APP1_TO_ADD);
@@ -104,26 +100,6 @@ public class WLSDeployArchiveTest {
         assertEquals(APP2_ENTRY_NAME2, appName, "unexpected app name: " + appName);
         appName = archive.addApplication(APP2_TO_ADD);
         assertEquals(APP2_ENTRY_NAME3, appName, "unexpected app name: " + appName);
-        archive.close();
-    }
-
-    @Test
-    void testAddRemoveModelWithEmptyZip() throws Exception {
-        WLSDeployZipFileTest.copyFile(ZIP_FILE_EXISTING_EMPTY_FILE);
-        WLSDeployArchive archive = new WLSDeployArchive(EMPTY_MODEL_ZIP_TARGET_NAME);
-        assertNotNull(archive, "expected archive object to not be null");
-        File modelFile = new File(APPS_MODEL);
-        assertTrue(modelFile.exists(), "expected model file to exist");
-        assertFalse(modelFile.isDirectory(), "expected model file not to be a directory");
-        archive.addModel(modelFile);
-        File extractDir =
-            new File(WLSDeployZipFileTest.UNIT_TEST_TARGET_DIR + File.separator + "extracted").getCanonicalFile();
-        extractDir.mkdirs();
-        archive.extractModel(extractDir);
-        String modelFileName = modelFile.getName();
-        File extractedModelFile = new File(extractDir, "model/" + modelFileName);
-        assertTrue(extractedModelFile.exists(), "expected extracted model file to exist");
-        assertFalse(extractedModelFile.isDirectory(), "expected extracted model file not to be a directory");
         archive.close();
     }
 

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2019, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Utility CLS methods shared by multiple tools.
@@ -20,7 +20,6 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import filter_helper
-from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_utils
 from wlsdeploy.util import getcreds
@@ -66,54 +65,32 @@ def validate_optional_archive(program_name, optional_arg_map):
                 raise ex
 
 
-def validate_model_present(program_name, optional_arg_map):
+def validate_required_model(program_name, arg_map):
     """
-    Determine if the model file was passed separately or requires extraction from the archive.
-    If the model is in the archive, extract it to the temporary model location, and set that file as the
-    MODEL_FILE_SWITCH argument.
+    Determine if the required model file argument was provided and that the file exists.
     The MODEL_FILE_SWITCH value may be specified as multiple comma-separated models.
-    The ARCHIVE_FILE_SWITCH value may be specified as multiple comma-separated archives.
-    :param program_name: the name of the calling program, for logging
-    :param optional_arg_map: the optional arguments from the command line
-    :raises CLAException: if the specified model is not an existing file, or the model is not found in the archive,
-    or the model is not found from either argument
-    """
-    _method_name = 'validate_model_present'
-    global __tmp_model_dir
 
-    if CommandLineArgUtil.MODEL_FILE_SWITCH in optional_arg_map:
-        model_file_value = optional_arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH]
+    :param program_name: the name of the calling program, for logging
+    :param arg_map: the arguments from the command line
+    :raises CLAException: if the specified model is not an existing file
+    """
+    _method_name = 'validate_required_model'
+
+    if CommandLineArgUtil.MODEL_FILE_SWITCH in arg_map:
+        model_file_value = arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH]
         model_files = cla_utils.get_model_files(model_file_value)
 
         for model_file in model_files:
             try:
                 FileUtils.validateExistingFile(model_file)
             except IllegalArgumentException, iae:
-                ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
-                                                           'WLSDPLY-20006', program_name, model_file,
-                                                           iae.getLocalizedMessage(), error=iae)
+                ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-20006', program_name,
+                                                           model_file, iae.getLocalizedMessage(), error=iae)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
-
-    elif CommandLineArgUtil.ARCHIVE_FILE_SWITCH in optional_arg_map:
-        archive_file = optional_arg_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
-        archive_helper = ArchiveHelper(archive_file, None, __logger, exception_helper.ExceptionType.CLA)
-
-        if archive_helper.contains_model():
-            __tmp_model_dir, tmp_model_file = archive_helper.extract_model(program_name)
-            model_file_name = FileUtils.fixupFileSeparatorsForJython(tmp_model_file.getAbsolutePath())
-            optional_arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = model_file_name
-        else:
-            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
-                                                       'WLSDPLY-20026', program_name, archive_file,
-                                                       CommandLineArgUtil.MODEL_FILE_SWITCH)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
     else:
-        ex = exception_helper.create_cla_exception(ExitCode.USAGE_ERROR,
-                                                   'WLSDPLY-20015', program_name,
-                                                   CommandLineArgUtil.MODEL_FILE_SWITCH,
-                                                   CommandLineArgUtil.ARCHIVE_FILE_SWITCH)
+        ex = exception_helper.create_cla_exception(ExitCode.USAGE_ERROR, 'WLSDPLY-20015', program_name,
+                                                   CommandLineArgUtil.MODEL_FILE_SWITCH)
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
 

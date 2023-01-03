@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+ * Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
@@ -188,7 +188,7 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Determine whether or not the specified path string is a valid archive location.
+     * Determine if the specified path string is a valid archive location.
      *
      * @param path the path
      * @return true if the path is relative and starts with the expected directory name, false otherwise
@@ -228,106 +228,6 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Adds the model file into the archive.
-     *
-     * @param model the model file to add
-     * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
-     * @throws IllegalArgumentException    if the model is null, does not exist, or is not a file
-     */
-    public void addModel(File model) throws WLSDeployArchiveIOException {
-        final String METHOD = "addModel";
-
-        LOGGER.entering(CLASS, METHOD, model);
-        validateExistingFile(model, "model", getArchiveFileName(), METHOD);
-        getZipFile().removeZipEntries(ARCHIVE_MODEL_TARGET_DIR);
-        addItemToZip(ARCHIVE_MODEL_TARGET_DIR, model);
-        LOGGER.exiting(CLASS, METHOD);
-    }
-
-    /**
-     * Adds the model file into the archive using the specified model file name.
-     *
-     * @param model         the file containing the model
-     * @param modelFileName the file name to use
-     * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
-     * @throws IllegalArgumentException    if the model is null, does not exist, or is not a file
-     */
-    public void addModel(File model, String modelFileName) throws WLSDeployArchiveIOException {
-        final String METHOD = "addModel";
-
-        LOGGER.entering(CLASS, METHOD, model, modelFileName);
-        validateExistingFile(model, "model", getArchiveFileName(), METHOD);
-        getZipFile().removeZipEntries(ARCHIVE_MODEL_TARGET_DIR);
-        addItemToZip(ARCHIVE_MODEL_TARGET_DIR, model, modelFileName);
-        LOGGER.exiting(CLASS, METHOD);
-    }
-
-    /**
-     * Extracts the model, if any, from the existing archive.
-     *
-     * @param modelDirectory the directory where to place the extracted model
-     * @return the model file or null, if no model exists
-     * @throws WLSDeployArchiveIOException if an error occurs
-     * @throws IllegalArgumentException    if the modelDirectory is null, does not exist, or is not a directory
-     */
-    public File extractModel(File modelDirectory) throws WLSDeployArchiveIOException {
-        final String METHOD = "extractModel";
-
-        LOGGER.entering(CLASS, METHOD, modelDirectory);
-        validateExistingDirectory(modelDirectory, "modelDirectory", getArchiveFileName(), METHOD);
-
-        extractDirectoryFromZip(ARCHIVE_MODEL_TARGET_DIR, modelDirectory);
-
-        File modelFile = null;
-        File resultDirectory = new File(modelDirectory, ARCHIVE_MODEL_TARGET_DIR);
-        if (resultDirectory.exists()) {
-            try {
-                modelFile = FileUtils.getModelFile(resultDirectory);
-            } catch (IllegalArgumentException | IllegalStateException ex) {
-                WLSDeployArchiveIOException wsdioe =
-                    new WLSDeployArchiveIOException("WLSDPLY-01400", ex, resultDirectory.getAbsolutePath(),
-                        ex.getLocalizedMessage());
-                LOGGER.throwing(CLASS, METHOD, wsdioe);
-                throw wsdioe;
-            }
-        }
-        LOGGER.exiting(CLASS, METHOD, modelFile);
-        return modelFile;
-    }
-
-    /**
-     * Determines whether the archive contains a model file.
-     *
-     * @return true if the archive contains a model file, false otherwise
-     * @throws WLSDeployArchiveIOException if an error occurs while reading the archive
-     */
-    public boolean containsModel() throws WLSDeployArchiveIOException {
-        final String METHOD = "containsModel";
-
-        LOGGER.entering(CLASS, METHOD);
-        List<String> modelDirContents = getZipFile().listZipEntries(ARCHIVE_MODEL_TARGET_DIR + ZIP_SEP);
-        // Remove the top-level directory entry from the list, if it exists...
-        modelDirContents.remove(ARCHIVE_MODEL_TARGET_DIR + ZIP_SEP);
-
-        boolean result;
-        if (modelDirContents.isEmpty()) {
-            result = false;
-        } else {
-            try {
-                String modelEntryName = FileUtils.getModelFileName(modelDirContents, getZipFile().getFileName());
-                result = !StringUtils.isEmpty(modelEntryName);
-            } catch (IllegalArgumentException iae) {
-                WLSDeployArchiveIOException wsdioe =
-                    new WLSDeployArchiveIOException("WLSDPLY-01401", iae, iae.getLocalizedMessage());
-                LOGGER.throwing(CLASS, METHOD, wsdioe);
-                throw wsdioe;
-            }
-        }
-        LOGGER.exiting(CLASS, METHOD, result);
-        return result;
-    }
-
-    /**
      * Get the list of entries in the archive file.
      *
      * @return the list of entry path names
@@ -343,7 +243,7 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Determines whether or not the archive contains the specified file or directory.
+     * Determines whether the archive contains the specified file or directory.
      *
      * @param path the path into the archive file to test
      * @return true if the specified location was found int the archive, false otherwise
@@ -367,7 +267,7 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Determines whether or not the provided path is a directory in the archive file.
+     * Determines whether the provided path is a directory in the archive file.
      *
      * @param path the path into the archive file to test
      * @return true if the specified location was found in the archive file and is a directory
@@ -391,7 +291,7 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Determines whether or not the provided path is a directory or a file in a directory
+     * Determines whether the provided path is a directory or a file in a directory
      * in the archive file.
      *
      * @param path the path into the archive file to test
@@ -454,7 +354,7 @@ public class WLSDeployArchive {
      *
      * @param path                        the path into the archive file to extract
      * @param extractToLocation           the base directory to which to write the extracted file or directory
-     * @param stripLeadingPathDirectories whether or not to strip the leading directories
+     * @param stripLeadingPathDirectories whether to strip the leading directories
      *                                    when writing to the target location
      * @return the canonical extracted file name
      * @throws WLSDeployArchiveIOException if an error occurs reading the archive or writing the file

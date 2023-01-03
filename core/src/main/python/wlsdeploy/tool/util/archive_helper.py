@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -15,7 +15,6 @@ from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
-from wlsdeploy.util.exit_code import ExitCode
 
 
 class ArchiveHelper(object):
@@ -54,59 +53,6 @@ class ArchiveHelper(object):
                                                        e.getLocalizedMessage(), error=e)
                 self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
-
-    def contains_model(self):
-        """
-        Determine if an archive file contain a model file.  Search in reverse order
-        :return: True, if a model file was found, False otherwise
-        :raises: BundleAwareException of the appropriate type: if an error occurs
-        """
-        _method_name = 'contains_model'
-        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
-
-        result = False
-        for archive_file in self.__archive_files[::-1]:
-            try:
-                result = archive_file.containsModel()
-                if result:
-                    break
-            except WLSDeployArchiveIOException, e:
-                ex = exception_helper.create_exception(self.__exception_type, "WLSDPLY-19301",
-                                                       self.__archive_files_text, e.getLocalizedMessage(), error=e)
-                self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                raise ex
-
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
-        return result
-
-    def extract_model(self, program_name):
-        """
-        Extract the model from an archive.  Search in reverse order
-        :param program_name: the program name (for logging purposes)
-        :return: the temporary directory and the full path to the model file, or None if not found
-        :raises: BundleAwareException of the appropriate type: if an error occurs
-        """
-        _method_name = 'extract_model'
-        self.__logger.entering(program_name, class_name=self.__class_name, method_name=_method_name)
-
-        try:
-            tmp_model_dir = FileUtils.createTempDirectory(program_name)
-            tmp_model_file = None
-            for archive_file in self.__archive_files[::-1]:
-                tmp_model_file = archive_file.extractModel(tmp_model_dir)
-                if tmp_model_file:
-                    break
-
-        except (IllegalArgumentException, IllegalStateException, WLSDeployArchiveIOException), archex:
-            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
-                                                       'WLSDPLY-20010', program_name, self.__archive_files_text,
-                                                       archex.getLocalizedMessage(), error=archex)
-            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name,
-                              result=(tmp_model_dir, tmp_model_file))
-        return tmp_model_dir, tmp_model_file
 
     def contains_file(self, path):
         """
