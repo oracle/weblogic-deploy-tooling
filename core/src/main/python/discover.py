@@ -115,7 +115,7 @@ def __process_args(args):
 
 def __process_model_arg(argument_map):
     """
-    Verify that model file and/or archive file is in the argument map
+    Verify that specified model file's parent directory exists.
     :param argument_map: containing the CLA arguments
     """
     _method_name = '__process_model_arg'
