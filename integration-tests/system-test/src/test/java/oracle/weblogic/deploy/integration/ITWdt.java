@@ -45,7 +45,7 @@ public class ITWdt extends BaseTest {
 
     private static boolean rcuDomainCreated = false;
 
-    private static boolean test30DomainCreated = false;
+    private static boolean test11DomainCreated = false;
 
     private static boolean discover17DomainCreated = false;
 
@@ -318,6 +318,7 @@ public class ITWdt extends BaseTest {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result.exitValue(), "Unexpected return code");
             assertTrue(result.stdout().contains("createDomain.sh completed successfully"), "Create failed");
+            test11DomainCreated = true;
         }
     }
 
@@ -670,6 +671,7 @@ public class ITWdt extends BaseTest {
     @Tag("gate")
     @Test
     void test21UpdateDomain(TestInfo testInfo) throws Exception {
+        assumeTrue(test11DomainCreated, "Skipping test 21 because dependent domain was not created");
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             Path source = Paths.get(getSampleVariableFile());
             Path variableFile = getTestOutputPath(testInfo).resolve(SAMPLE_VARIABLE_FILE);
@@ -705,14 +707,15 @@ public class ITWdt extends BaseTest {
     @Order(22)
     @Tag("gate")
     @Test
-    void test22DeployAppWithoutModelfile(TestInfo testInfo) throws Exception {
+    void test22DeployAppWithoutModelFile(TestInfo testInfo) throws Exception {
+        assumeTrue(test11DomainCreated, "Skipping test 22 because dependent domain was not created");
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             String cmd = deployAppScript
                 + " -oracle_home " + mwhome_12213
                 + " -domain_home " + domainParentDir + FS + "domain2"
                 + " -archive_file " + getSampleArchiveFile();
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-            verifyErrorMsg(result, "deployApps failed to find a model file in archive");
+            verifyErrorMsg(result, "deployApps invoked with missing required argument: -model_file");
         }
     }
 
@@ -725,6 +728,7 @@ public class ITWdt extends BaseTest {
     @Tag("gate")
     @Test
     void test23DeployAppWithModelfile(TestInfo testInfo) throws Exception {
+        assumeTrue(test11DomainCreated, "Skipping test 23 because dependent domain was not created");
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             String cmd = deployAppScript
                 + " -oracle_home " + mwhome_12213
@@ -869,7 +873,7 @@ public class ITWdt extends BaseTest {
     @Tag("gate")
     @Test
     void test30OnlineUpdateApp(TestInfo testInfo) throws Exception {
-        String domainDir = "domain2";
+        String domainDir = "domain2-test30";
         String cmd = createDomainScript
             + " -oracle_home " + mwhome_12213
             + " -domain_home " + domainParentDir + FS + domainDir
@@ -880,7 +884,6 @@ public class ITWdt extends BaseTest {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result.exitValue(), "Unexpected return code");
             assertTrue(result.stdout().contains("createDomain.sh completed successfully"), "Create failed");
-            test30DomainCreated = true;
         }
 
         String domainHome = domainParentDir + FS + domainDir;
