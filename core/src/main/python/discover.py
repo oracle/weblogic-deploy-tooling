@@ -166,8 +166,7 @@ def __process_archive_filename_arg(argument_map):
                                                        ie.getLocalizedMessage(), error=ie)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
-    argument_map[CommandLineArgUtil.ARCHIVE_FILE] = archive_file
-
+        argument_map[CommandLineArgUtil.ARCHIVE_FILE] = archive_file
 
 
 def __process_variable_filename_arg(optional_arg_map):
@@ -356,16 +355,16 @@ def __clear_archive_file(model_context):
 
     archive_file = model_context.get_archive_file()
 
-    if archive_file is None:
-        de = exception_helper.create_discover_exception('WLSDPLY-06004', model_context.get_archive_file_name())
-        __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
-        raise de
-
     if not model_context.skip_archive() and not model_context.is_remote():
-        try:
-            archive_file.removeAllBinaries()
-        except WLSDeployArchiveIOException, wioe:
-            de = exception_helper.create_discover_exception('WLSDPLY-06005', wioe.getLocalizedMessage())
+        if archive_file is not None:
+            try:
+                archive_file.removeAllBinaries()
+            except WLSDeployArchiveIOException, wioe:
+                de = exception_helper.create_discover_exception('WLSDPLY-06005', wioe.getLocalizedMessage())
+                __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+                raise de
+        else:
+            de = exception_helper.create_discover_exception('WLSDPLY-06004', model_context.get_archive_file_name())
             __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
             raise de
 
@@ -381,7 +380,8 @@ def __close_archive(model_context):
 
     __logger.entering(_class_name=_class_name, method_name=_method_name)
     archive_file = model_context.get_archive_file()
-    archive_file.close()
+    if archive_file is not None:
+        archive_file.close()
     __logger.exiting(class_name=_class_name, method_name=_method_name)
 
 
