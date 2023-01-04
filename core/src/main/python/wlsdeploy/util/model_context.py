@@ -69,7 +69,6 @@ class ModelContext(object):
         self._archive_file_name = None
         self._archive_file = None
         self._model_file = None
-        self._previous_model_file = None
         self._variable_file_name = None
         self._run_rcu = False
         self._rcu_database = None
@@ -161,9 +160,6 @@ class ModelContext(object):
 
         if CommandLineArgUtil.WAIT_FOR_EDIT_LOCK_SWITCH in arg_map:
             self._wait_for_edit_lock = arg_map[CommandLineArgUtil.WAIT_FOR_EDIT_LOCK_SWITCH]
-
-        if CommandLineArgUtil.PREVIOUS_MODEL_FILE_SWITCH in arg_map:
-            self._previous_model_file = arg_map[CommandLineArgUtil.PREVIOUS_MODEL_FILE_SWITCH]
 
         if CommandLineArgUtil.ATTRIBUTES_ONLY_SWITCH in arg_map:
             self._attributes_only = arg_map[CommandLineArgUtil.ATTRIBUTES_ONLY_SWITCH]
@@ -293,8 +289,6 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH] = self._archive_file_name
         if self._model_file is not None:
             arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = self._model_file
-        if self._previous_model_file is not None:
-            arg_map[CommandLineArgUtil.PREVIOUS_MODEL_FILE_SWITCH] = self._previous_model_file
         if self._attributes_only is not None:
             arg_map[CommandLineArgUtil.ATTRIBUTES_ONLY_SWITCH] = self._attributes_only
         if self._folders_only is not None:
@@ -567,13 +561,6 @@ class ModelContext(object):
         :return: the model file
         """
         return self._model_file
-
-    def get_previous_model_file(self):
-        """
-        Get the previous model file.
-        :return: the previous model file
-        """
-        return self._previous_model_file
 
     def get_folders_only_control_option(self):
         """
