@@ -1,7 +1,7 @@
-"""
-Copyright (c) 2021, 2022, Oracle and/or its affiliates.
-Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
-"""
+# """
+# Copyright (c) 2021, 2022, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+# """
 import os
 import shutil
 
@@ -35,27 +35,22 @@ class PrepareTestCase(BaseTestCase):
         self.MODELS_DIR = os.path.join(self.TEST_CLASSES_DIR, 'prepare')
         self.PREPARE_OUTPUT_DIR = os.path.join(self.TEST_OUTPUT_DIR, 'prepare')
 
+        self.config_dir = None
+
     def setUp(self):
         BaseTestCase.setUp(self)
         self._establish_directory(self.PREPARE_OUTPUT_DIR)
 
-        config_dir = os.path.join(self.TEST_OUTPUT_DIR, 'config')
-        self._establish_directory(config_dir)
-
-        targets_dir = os.path.join(config_dir, 'targets')
+        # use WDT custom configuration to find target definition and injector config
+        self.config_dir = self._set_custom_config_dir('prepare')
+        targets_dir = os.path.join(self.config_dir, 'targets')
         target_dir = os.path.join(targets_dir, 'test-1')
         target_file = os.path.join(target_dir, 'target.json')
 
-        if not os.path.exists(target_file):
-            self._establish_directory(targets_dir)
-            self._establish_directory(target_dir)
-            source_target_file = os.path.join(self.MODELS_DIR, 'target-1.json')
-            shutil.copy(source_target_file, target_file)
-
-        self._establish_injector_config(config_dir)
-
-        # use WDT custom configuration to find target definition and injector config
-        self._set_custom_config_dir(config_dir)
+        self._establish_directory(targets_dir)
+        self._establish_directory(target_dir)
+        source_target_file = os.path.join(self.MODELS_DIR, 'target-1.json')
+        shutil.copy(source_target_file, target_file)
 
     def tearDown(self):
         BaseTestCase.tearDown(self)

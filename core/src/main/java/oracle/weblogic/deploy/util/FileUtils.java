@@ -14,7 +14,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFilePermission;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -24,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import javax.xml.bind.DatatypeConverter;
@@ -705,6 +708,33 @@ public final class FileUtils {
         }
     }
 
+
+    /**
+     * Copy the contents of the from Directory recursively to the targetted to Directory.
+     * @param fromDir Copy the contents of this directory
+     * @param toDir receives the contents of fromDir
+     */
+    public static void copyDirectory(String fromDir, Path toDir) {
+        String[] contents = new File(fromDir).getAbsoluteFile().list();
+        if (contents != null) {
+            for (String entry : contents) {
+                File check = new File(fromDir + File.separator + entry);
+                File makePath = new File(toDir.toString() + File.separatorChar + entry);
+                if (check.isDirectory()) {
+                    makePath.mkdir();
+                    /* now go look at the contents of this directory to copy */
+                    copyDirectory(check.toString(), makePath.toPath());
+                } else {
+                    try {
+                        Files.copy(check.toPath(), makePath.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    } catch (IOException ioe) {
+                        LOGGER.warning("WLSDPLY-01120", makePath, ioe.getLocalizedMessage());
+                    }
+                }
+            }
+        }
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Private helper methods                                                //
     ///////////////////////////////////////////////////////////////////////////
@@ -843,4 +873,5 @@ public final class FileUtils {
             Files.setPosixFilePermissions(Paths.get(path), getPermissions(octals));
         }
     }
+
 }

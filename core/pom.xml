@@ -135,7 +135,7 @@
                                 <unit-test-wlst-dir>${unit-test-wlst-dir}</unit-test-wlst-dir>
                             </systemProperties>
                             <environmentVariables>
-                                <WDT_CUSTOM_CONFIG>${unit-test-config-dir}</WDT_CUSTOM_CONFIG>
+                                <WDT_CUSTOM_CONFIG>${project.build.directory}/unit-tests/wdt-config</WDT_CUSTOM_CONFIG>
                             </environmentVariables>
                         </configuration>
                     </execution>
@@ -211,6 +211,14 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
             </plugin>
         </plugins>
     </build>

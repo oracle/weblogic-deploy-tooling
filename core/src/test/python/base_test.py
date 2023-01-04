@@ -6,7 +6,10 @@ import os
 import shutil
 import unittest
 
+from java.io import File
 from java.util.logging import Level
+
+from oracle.weblogic.deploy.util import FileUtils
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
@@ -22,7 +25,7 @@ class BaseTestCase(unittest.TestCase):
         self.TEST_CLASSES_DIR = os.path.abspath(os.getcwd() + '/../../test-classes')
         self.TEST_OUTPUT_DIR = os.path.abspath(os.getcwd() + '/../../unit-tests')
         self.log_levels = {}
-
+        self.original_config_dir = os.environ['WDT_CUSTOM_CONFIG']
         # config items may need to be copied from here
         self.INSTALLER_LIB_DIR = os.path.abspath(self.TEST_CLASSES_DIR + '/../../../installer/src/main/lib')
 
@@ -34,11 +37,16 @@ class BaseTestCase(unittest.TestCase):
         # nothing to do now, but subclasses should call
         pass
 
-    def _set_custom_config_dir(self, dir):
-        os.environ['WDT_CUSTOM_CONFIG'] = str(dir)
+    def _set_custom_config_dir(self, test_config_dir_name):
+        config_dir = os.path.abspath(os.path.join(self.TEST_OUTPUT_DIR, test_config_dir_name))
+        # copy self.original_config_dir contents to config_dir
+        FileUtils.copyDirectory(self.original_config_dir, File(config_dir).toPath())
+
+        os.environ['WDT_CUSTOM_CONFIG'] = str(config_dir)
+        return config_dir
 
     def _clear_custom_config_dir(self):
-        del os.environ['WDT_CUSTOM_CONFIG']
+        os.environ['WDT_CUSTOM_CONFIG'] = self.original_config_dir
 
     def _establish_directory(self, name):
         """
