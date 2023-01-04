@@ -4,7 +4,6 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The entry point for the deployApps tool.
 """
-import exceptions
 import os
 import sys
 
@@ -50,7 +49,6 @@ __optional_arguments = [
     # Used by shell script to locate WLST
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
-    CommandLineArgUtil.PREVIOUS_MODEL_FILE_SWITCH,
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,
     CommandLineArgUtil.ADMIN_URL_SWITCH,
     CommandLineArgUtil.ADMIN_USER_SWITCH,
