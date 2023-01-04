@@ -8,6 +8,17 @@
     <language>en-us</language>
     <lastBuildDate>Fri, 22 Feb 2019 15:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Release 2.4.2</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.2/</link>
+      <pubDate>Thu, 10 Nov 2022 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.2/</guid>
+      <description>Changes in Release 2.4.2  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes None
+Bug Fixes  #1241: Resolved Issue #1240 that was causing a NullPointerException with discoverDomain. #1252: Reworked the unicode handling to resolve customer issues with 14.1.1 when using non-ASCII characters.  Known Issues  Due to the changes made for WDT-663 in WDT 2.4.0, the resulting remotely discovered model contains extra fields that would not normally be there.</description>
+    </item>
+    
+    <item>
       <title>Release 2.4.1</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.1/</link>
       <pubDate>Thu, 03 Nov 2022 15:27:38 -0500</pubDate>

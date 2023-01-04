@@ -196,6 +196,13 @@
 	"content": "Developer Guide The Developer Guide provides information for developers who want to understand or contribute to the code.\n"
 },
 {
+	"uri": "https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.2/",
+	"title": "Release 2.4.2",
+	"tags": [],
+	"description": "",
+	"content": "Changes in Release 2.4.2  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes None\nBug Fixes  #1241: Resolved Issue #1240 that was causing a NullPointerException with discoverDomain. #1252: Reworked the unicode handling to resolve customer issues with 14.1.1 when using non-ASCII characters.  Known Issues  Due to the changes made for WDT-663 in WDT 2.4.0, the resulting remotely discovered model contains extra fields that would not normally be there. This is an area of ongoing work to clean up the online aliases to not depend on these extra remote calls to produce a clean model.  "
+},
+{
 	"uri": "https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.1/",
 	"title": "Release 2.4.1",
 	"tags": [],
