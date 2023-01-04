@@ -36,6 +36,7 @@ from wlsdeploy.aliases.alias_constants import PROPERTIES
 from wlsdeploy.aliases.alias_constants import RESTART_REQUIRED
 from wlsdeploy.aliases.alias_constants import RO
 from wlsdeploy.aliases.alias_constants import ROD
+from wlsdeploy.aliases.alias_constants import SECURE_DEFAULT
 from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
 from wlsdeploy.aliases.alias_constants import STRING
@@ -83,12 +84,19 @@ class Aliases(object):
 
         self._alias_entries = AliasEntries(wlst_mode, self._wls_version)
         self._production_mode_enabled = False
+        self._secure_mode_enabled = False
 
     def set_production_mode(self, production_mode_enabled):
         _method_name = 'set_production_mode'
         if production_mode_enabled:
             self._logger.info('WLSDPLY-19047', class_name=self._class_name, method_name=_method_name)
         self._production_mode_enabled = production_mode_enabled
+
+    def set_secure_mode(self, secure_mode_enabled):
+        _method_name = 'set_secure_mode'
+        if secure_mode_enabled:
+            self._logger.info('WLSDPLY-19048', class_name=self._class_name, method_name=_method_name)
+        self._secure_mode_enabled = secure_mode_enabled
 
     ###########################################################################
     #              Model folder navigation-related methods                    #
@@ -1287,6 +1295,10 @@ class Aliases(object):
         :param attribute_info: alias information for an attribute
         :return: the correct default value for the execution mode
         """
+        if self._secure_mode_enabled:
+            default_value = dictionary_utils.get_element(attribute_info, SECURE_DEFAULT)
+            if default_value is not None:
+                return default_value
         if self._production_mode_enabled:
             default_value = dictionary_utils.get_element(attribute_info, PRODUCTION_DEFAULT)
             if default_value is not None:
