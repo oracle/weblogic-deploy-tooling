@@ -1,5 +1,5 @@
 """
-Copyright (c) 2018, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2018, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the injectVariables tool.
@@ -32,11 +32,11 @@ __logger = PlatformLogger('wlsdeploy.tool.util')
 __wlst_mode = WlstModes.OFFLINE
 
 __required_arguments = [
+    CommandLineArgUtil.MODEL_FILE_SWITCH,
     CommandLineArgUtil.ORACLE_HOME_SWITCH
 ]
 
 __optional_arguments = [
-    CommandLineArgUtil.MODEL_FILE_SWITCH,
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
     CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH,
     CommandLineArgUtil.VARIABLE_KEYWORDS_FILE_SWITCH,
@@ -56,8 +56,7 @@ def __process_args(args):
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     argument_map = cla_util.process_args(args)
 
-    # determine if the model file was passed separately or requires extraction from the archive.
-    cla_helper.validate_model_present(_program_name, argument_map)
+    cla_helper.validate_required_model(_program_name, argument_map)
 
     return model_context_helper.create_context(_program_name, argument_map)
 
@@ -96,7 +95,7 @@ def __close_archive(model_context):
 
 def __persist_model(model, model_context):
     """
-    Save the model to the specified model file name or to the archive if the file name was not specified.
+    Save the model to the specified model file name.
     :param model: the model to save
     :param model_context: the model context
     :raises DiscoverException: if an error occurs while create a temporary file for the model
@@ -107,34 +106,9 @@ def __persist_model(model, model_context):
 
     __logger.entering(class_name=_class_name, method_name=_method_name)
 
-    add_to_archive = False
     model_file_name = model_context.get_model_file()
     model_file = FileUtils.getCanonicalFile(File(model_file_name))
-    if model_file_name is None:
-        add_to_archive = True
-    try:
-        model_translator.PythonToFile(model.get_model()).write_to_file(model_file.getAbsolutePath())
-    except TranslateException, ex:
-        # Jython 2.2.1 does not support finally so use this like a finally block...
-        if add_to_archive and not model_file.delete():
-            model_file.deleteOnExit()
-        raise ex
-
-    if add_to_archive:
-        try:
-            archive_file = model_context.get_archive_file()
-            archive_file.addModel(model_file, model_file_name)
-            if not model_file.delete():
-                model_file.deleteOnExit()
-        except (WLSDeployArchiveIOException, IllegalArgumentException), arch_ex:
-            ex = exception_helper.create_discover_exception('WLSDPLY-20023', _program_name,
-                                                            model_file.getAbsolutePath(), model_file_name,
-                                                            arch_ex.getLocalizedMessage(),
-                                                            error=arch_ex)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            if not model_file.delete():
-                model_file.deleteOnExit()
-            raise ex
+    model_translator.PythonToFile(model.get_model()).write_to_file(model_file.getAbsolutePath())
 
     __logger.exiting(class_name=_class_name, method_name=_method_name)
 
