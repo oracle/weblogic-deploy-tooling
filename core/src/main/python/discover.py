@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the discoverDomain tool.
@@ -68,12 +68,12 @@ _store_result_environment_variable = '__WLSDEPLOY_STORE_RESULT__'
 
 __required_arguments = [
     CommandLineArgUtil.ORACLE_HOME_SWITCH,
-    CommandLineArgUtil.DOMAIN_HOME_SWITCH
+    CommandLineArgUtil.DOMAIN_HOME_SWITCH,
+    CommandLineArgUtil.MODEL_FILE_SWITCH
 ]
 
 __optional_arguments = [
     # Used by shell script to locate WLST
-    CommandLineArgUtil.MODEL_FILE_SWITCH,
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
     CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH,
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
@@ -104,7 +104,7 @@ def __process_args(args):
 
     __wlst_mode = cla_helper.process_online_args(argument_map)
     target_configuration_helper.process_target_arguments(argument_map)
-    __process_model_archive_args(argument_map)
+    __process_model_arg(argument_map)
     __process_archive_filename_arg(argument_map)
     __process_variable_filename_arg(argument_map)
     __process_java_home(argument_map)
@@ -113,22 +113,20 @@ def __process_args(args):
     return model_context_helper.create_context(_program_name, argument_map)
 
 
-def __process_model_archive_args(argument_map):
+def __process_model_arg(argument_map):
     """
-    Verify that model file and/or archive file is in the argument map
+    Verify that specified model file's parent directory exists.
     :param argument_map: containing the CLA arguments
     """
-    _method_name = '__process_model_archive_args'
-    if CommandLineArgUtil.ARCHIVE_FILE_SWITCH not in argument_map:
-        if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH not in argument_map and \
-            CommandLineArgUtil.REMOTE_SWITCH not in argument_map:
-            ex = exception_helper.create_cla_exception(ExitCode.USAGE_ERROR, 'WLSDPLY-06028')
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-        if CommandLineArgUtil.MODEL_FILE_SWITCH not in argument_map:
-            ex = exception_helper.create_cla_exception(ExitCode.USAGE_ERROR, 'WLSDPLY-06029')
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
+    _method_name = '__process_model_arg'
+
+    model_file_name = argument_map[CommandLineArgUtil.MODEL_FILE_SWITCH]
+    model_dir_name = path_utils.get_parent_directory(model_file_name)
+    if os.path.exists(model_dir_name) is False:
+        ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
+                                                   'WLSDPLY-06037', model_file_name)
+        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
 
 
 def __process_archive_filename_arg(argument_map):
@@ -139,13 +137,19 @@ def __process_archive_filename_arg(argument_map):
     """
     _method_name = '__process_archive_filename_arg'
 
-    if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH in argument_map or CommandLineArgUtil.REMOTE_SWITCH in argument_map:
-        archive_file = WLSDeployArchive.noArchiveFile()
-        if CommandLineArgUtil.ARCHIVE_FILE_SWITCH in argument_map:
-            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
-                                                       'WLSDPLY-06033')
+    if CommandLineArgUtil.ARCHIVE_FILE_SWITCH not in argument_map:
+        archive_file = None
+        if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH not in argument_map and \
+                CommandLineArgUtil.REMOTE_SWITCH not in argument_map:
+            ex = exception_helper.create_cla_exception(ExitCode.USAGE_ERROR, 'WLSDPLY-06028')
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
+    elif CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH in argument_map or\
+            CommandLineArgUtil.REMOTE_SWITCH in argument_map:
+        ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
+                                                   'WLSDPLY-06033')
+        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
     else:
         archive_file_name = argument_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
         archive_dir_name = path_utils.get_parent_directory(archive_file_name)
@@ -162,8 +166,7 @@ def __process_archive_filename_arg(argument_map):
                                                        ie.getLocalizedMessage(), error=ie)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
-    argument_map[CommandLineArgUtil.ARCHIVE_FILE] = archive_file
-
+        argument_map[CommandLineArgUtil.ARCHIVE_FILE] = archive_file
 
 
 def __process_variable_filename_arg(optional_arg_map):
@@ -352,16 +355,16 @@ def __clear_archive_file(model_context):
 
     archive_file = model_context.get_archive_file()
 
-    if archive_file is None:
-        de = exception_helper.create_discover_exception('WLSDPLY-06004', model_context.get_archive_file_name())
-        __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
-        raise de
-
     if not model_context.skip_archive() and not model_context.is_remote():
-        try:
-            archive_file.removeAllBinaries()
-        except WLSDeployArchiveIOException, wioe:
-            de = exception_helper.create_discover_exception('WLSDPLY-06005', wioe.getLocalizedMessage())
+        if archive_file is not None:
+            try:
+                archive_file.removeAllBinaries()
+            except WLSDeployArchiveIOException, wioe:
+                de = exception_helper.create_discover_exception('WLSDPLY-06005', wioe.getLocalizedMessage())
+                __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+                raise de
+        else:
+            de = exception_helper.create_discover_exception('WLSDPLY-06004', model_context.get_archive_file_name())
             __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
             raise de
 
@@ -377,7 +380,8 @@ def __close_archive(model_context):
 
     __logger.entering(_class_name=_class_name, method_name=_method_name)
     archive_file = model_context.get_archive_file()
-    archive_file.close()
+    if archive_file is not None:
+        archive_file.close()
     __logger.exiting(class_name=_class_name, method_name=_method_name)
 
 
@@ -413,7 +417,7 @@ def __disconnect_domain(helper):
 
 def __persist_model(model, model_context):
     """
-    Save the model to the specified model file name or to the archive if the file name was not specified.
+    Save the model to the specified model file name.
     :param model: the model to save
     :param model_context: the model context
     :raises DiscoverException: if an error occurs while create a temporary file for the model
@@ -424,47 +428,9 @@ def __persist_model(model, model_context):
 
     __logger.entering(class_name=_class_name, method_name=_method_name)
 
-    add_to_archive = False
     model_file_name = model_context.get_model_file()
-    if model_file_name is None:
-        if model_context.skip_archive() or model_context.is_remote():
-            ex = exception_helper.create_discover_exception('WLSDPLY-06032')
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-        add_to_archive = True
-        try:
-            domain_name = model_context.get_domain_name()
-            model_file = File.createTempFile(domain_name, '.yaml').getCanonicalFile()
-            model_file_name = model_context.get_domain_name() + '.yaml'
-        except (IllegalArgumentException, IOException), ie:
-            ex = exception_helper.create_discover_exception('WLSDPLY-06008', ie.getLocalizedMessage(), error=ie)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-    else:
-        model_file = FileUtils.getCanonicalFile(File(model_file_name))
-
-    try:
-        model_translator.PythonToFile(model.get_model()).write_to_file(model_file.getAbsolutePath())
-    except TranslateException, ex:
-        # Jython 2.2.1 does not support finally so use this like a finally block...
-        if add_to_archive and not model_file.delete():
-            model_file.deleteOnExit()
-        raise ex
-
-    if add_to_archive:
-        try:
-            archive_file = model_context.get_archive_file()
-            archive_file.addModel(model_file, model_file_name)
-            if not model_file.delete():
-                model_file.deleteOnExit()
-        except (WLSDeployArchiveIOException, IllegalArgumentException), arch_ex:
-            ex = exception_helper.create_discover_exception('WLSDPLY-20023', model_file.getAbsolutePath(),
-                                                            model_file_name, arch_ex.getLocalizedMessage(),
-                                                            error=arch_ex)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            if not model_file.delete():
-                model_file.deleteOnExit()
-            raise ex
+    model_file = FileUtils.getCanonicalFile(File(model_file_name))
+    model_translator.PythonToFile(model.get_model()).write_to_file(model_file.getAbsolutePath())
 
     __logger.exiting(class_name=_class_name, method_name=_method_name)
 

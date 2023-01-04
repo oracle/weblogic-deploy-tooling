@@ -62,7 +62,6 @@ class CommandLineArgUtil(object):
     OPSS_WALLET_PASSPHRASE     = '-opss_wallet_passphrase'
     OPSS_WALLET_FILE_PASSPHRASE = '-opss_wallet_passphrase_file'
     OPSS_WALLET_ENV_PASSPHRASE  = '-opss_wallet_passphrase_env'
-    PREVIOUS_MODEL_FILE_SWITCH = '-prev_model_file'
     VARIABLE_FILE_SWITCH       = '-variable_file'
     RCU_DB_SWITCH              = '-rcu_db'
     RCU_DB_USER_SWITCH         = '-rcu_db_user'
@@ -261,10 +260,6 @@ class CommandLineArgUtil(object):
             elif self.is_model_file_key(key):
                 value, idx = self._get_arg_value(args, idx)
                 full_path = self._validate_model_file_arg(value)
-                self._add_arg(key, full_path, True)
-            elif self.is_previous_model_file_key(key):
-                value, idx = self._get_arg_value(args, idx)
-                full_path = self._validate_previous_model_file_arg(value)
                 self._add_arg(key, full_path, True)
             elif self.is_validate_method_key(key):
                 value, idx = self._get_arg_value(args, idx)
@@ -761,12 +756,6 @@ class CommandLineArgUtil(object):
                 raise ex
 
         return ",".join(result_model_files)
-
-    def get_previous_model_file_key(self):
-        return self.PREVIOUS_MODEL_FILE_SWITCH
-
-    def is_previous_model_file_key(self, key):
-        return self.PREVIOUS_MODEL_FILE_SWITCH == key
 
     def _validate_previous_model_file_arg(self, value):
         method_name = '_validate_previous_model_file_arg'

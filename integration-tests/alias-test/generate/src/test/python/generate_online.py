@@ -56,7 +56,7 @@ def main(args):
 
     generator_wlst.wlst_functions = globals()
     generate_args = generator_utils.get_generate_args_map(args)
-    online_model_context = generator_utils.get_model_context('generate_sc', WlstModes.ONLINE, generate_args)
+    online_model_context = generator_utils.get_model_context('generate_online', WlstModes.ONLINE, generate_args)
 
     admin_url = online_model_context.get_admin_url()
     admin_user = online_model_context.get_admin_user()

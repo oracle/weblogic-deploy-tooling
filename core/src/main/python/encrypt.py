@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The main module for the WLSDeploy tool to encrypt passwords.
@@ -24,6 +24,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.encrypt import encryption_utils
+from wlsdeploy.util import cla_helper
 from wlsdeploy.util import cla_utils
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import tool_main
@@ -66,7 +67,7 @@ def __process_args(args):
     cla_util.set_allow_multiple_models(True)
     argument_map = cla_util.process_args(args)
 
-    __validate_mode_args(argument_map)
+    __validate_mode_args(_program_name, argument_map)
     __process_passphrase_arg(argument_map)
 
     #
@@ -86,7 +87,7 @@ def __process_args(args):
     return model_context
 
 
-def __validate_mode_args(optional_arg_map):
+def __validate_mode_args(program_name, optional_arg_map):
     """
     Verify that either the model_file or the manual switch was specified.
     :param optional_arg_map: the optional arguments map
@@ -94,10 +95,15 @@ def __validate_mode_args(optional_arg_map):
     """
     _method_name = '__validate_mode_args'
 
-    if CommandLineArgUtil.MODEL_FILE_SWITCH not in optional_arg_map \
-            and CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH not in optional_arg_map:
-        ex = exception_helper.create_cla_exception(ExitCode.USAGE_ERROR,
-                                                   'WLSDPLY-04202', _program_name, CommandLineArgUtil.MODEL_FILE_SWITCH,
+    if CommandLineArgUtil.MODEL_FILE_SWITCH in optional_arg_map:
+        # manual encryption switch trumps everything else so don't bother
+        # validating that the model file exists if it is enabled...
+        #
+        if CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH not in optional_arg_map:
+            cla_helper.validate_required_model(program_name, optional_arg_map)
+    elif CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH not in optional_arg_map:
+        ex = exception_helper.create_cla_exception(ExitCode.USAGE_ERROR, 'WLSDPLY-04202', program_name,
+                                                   CommandLineArgUtil.MODEL_FILE_SWITCH,
                                                    CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH)
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
