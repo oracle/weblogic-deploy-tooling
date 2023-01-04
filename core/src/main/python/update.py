@@ -31,6 +31,8 @@ from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
+from wlsdeploy.tool.validate.validator import Validator
+from oracle.weblogic.deploy.validate import ValidateException
 
 
 wlst_helper.wlst_functions = globals()
@@ -43,12 +45,12 @@ __wlst_helper = WlstHelper(ExceptionType.DEPLOY)
 __wlst_mode = WlstModes.OFFLINE
 
 __required_arguments = [
-    CommandLineArgUtil.ORACLE_HOME_SWITCH,
-    CommandLineArgUtil.DOMAIN_HOME_SWITCH
+    CommandLineArgUtil.ORACLE_HOME_SWITCH
 ]
 
 __optional_arguments = [
     # Used by shell script to locate WLST
+    CommandLineArgUtil.DOMAIN_HOME_SWITCH,
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
     CommandLineArgUtil.MODEL_FILE_SWITCH,
@@ -67,6 +69,7 @@ __optional_arguments = [
     CommandLineArgUtil.OUTPUT_DIR_SWITCH,
     CommandLineArgUtil.UPDATE_RCU_SCHEMA_PASS_SWITCH,
     CommandLineArgUtil.DISCARD_CURRENT_EDIT_SWITCH,
+    CommandLineArgUtil.REMOTE_SWITCH,
     CommandLineArgUtil.WAIT_FOR_EDIT_LOCK_SWITCH
 ]
 
@@ -86,6 +89,7 @@ def __process_args(args):
     cla_helper.validate_optional_archive(_program_name, argument_map)
     cla_helper.validate_model_present(_program_name, argument_map)
     cla_helper.validate_variable_file_exists(_program_name, argument_map)
+    cla_helper.validate_if_domain_home_required(_program_name, argument_map)
 
     __wlst_mode = cla_helper.process_online_args(argument_map)
     cla_helper.process_encryption_args(argument_map)
@@ -129,6 +133,14 @@ def __update_online(model, model_context, aliases):
     edit_lock_exclusive = model_context.get_model_config().get_wlst_edit_lock_exclusive()
 
     __logger.info("WLSDPLY-09005", admin_url, timeout, method_name=_method_name, class_name=_class_name)
+
+    try:
+        if model_context.is_remote():
+            model_validator = Validator(model_context, aliases, logger=__logger, wlst_mode=WlstModes.ONLINE)
+            model_validator.validate_in_tool_mode(model, None,
+                                                    model_context.get_archive_file_name())
+    except ValidationException, ve:
+        raise ve
 
     try:
         __wlst_helper.connect(admin_user, admin_pwd, admin_url, timeout)

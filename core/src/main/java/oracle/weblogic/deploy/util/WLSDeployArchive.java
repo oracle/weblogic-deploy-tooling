@@ -418,6 +418,53 @@ public class WLSDeployArchive {
     }
 
     /**
+     * Determines whether or not the path is starts with the target
+     * in the archive file.
+     *
+     * @param path the path into the archive file to test
+     * @param target the starts with target path
+     * @return true if the specified path starts with target
+     * @throws WLSDeployArchiveIOException if an error occurs reading the archive file
+     * @throws IllegalArgumentException    if the path is null or empty
+     */
+    public boolean isPathStartsWithTarget(String path, String target) throws WLSDeployArchiveIOException {
+        final String METHOD = "isApplicationsPath";
+
+        LOGGER.entering(CLASS, METHOD, path);
+        validateNonEmptyString(path, "path", METHOD);
+
+        boolean result = false;
+        // Verify that the path is into the binary root directory so that we do not allow random content.
+        if (path.startsWith(target)) {
+            result = true;
+        }
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    /** Check whether the path should be used for remote update
+     *
+     * @param path
+     * @return true if the path should not be used for remote update
+     * @throws WLSDeployArchiveIOException
+     */
+    public boolean isRemoteUpdateDomainForbiddenPath(String path) throws WLSDeployArchiveIOException {
+        final String METHOD = "isRemoteUpdateDomainForbiddenPath";
+
+        LOGGER.entering(CLASS, METHOD, path);
+        validateNonEmptyString(path, "path", METHOD);
+
+        boolean result = false;
+        // Verify that the path is into the binary root directory so that we do not allow random content.
+        if (!path.startsWith(ARCHIVE_SHLIBS_TARGET_DIR) &&
+            !path.startsWith(ARCHIVE_APPS_TARGET_DIR)) {
+            result = true;
+        }
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    /**
      * Extract the specified file to the specified location (which is typically the domain home).  For example,
      * if the path is wlsdeploy/applications/myapp.ear and the extractToLocation is the domain home, the file
      * will be written to $DOMAIN_HOME/wlsdeploy/applications/myapp.ear.

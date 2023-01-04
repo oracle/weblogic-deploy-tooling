@@ -47,6 +47,7 @@ __required_arguments = [
 ]
 
 __optional_arguments = [
+    CommandLineArgUtil.REMOTE_SWITCH,
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,  # Used by shell script to locate WLST
     CommandLineArgUtil.MODEL_FILE_SWITCH,
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,

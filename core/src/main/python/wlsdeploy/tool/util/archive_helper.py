@@ -183,6 +183,31 @@ class ArchiveHelper(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result
 
+    def is_path_forbidden_for_remote_update(self, path):
+        """
+        Check that the provided path in the archive is forbidden for remote domain update
+        :param path: the path to test
+        :return: True, if the path is forbidden for remote update. False otherwise
+        :raises: BundleAwareException of the appropriate type: if an error occurs
+        """
+        _method_name = 'is_path_forbidden_for_remote_update'
+        self.__logger.entering(path, class_name=self.__class_name, method_name=_method_name)
+
+        result = False
+        for archive_file in self.__archive_files:
+            try:
+                result = archive_file.isRemoteUpdateDomainForbiddenPath(path)
+                if result:
+                    break
+            except (IllegalArgumentException, WLSDeployArchiveIOException), e:
+                ex = exception_helper.create_exception(self.__exception_type, "WLSDPLY-19309", path,
+                                                       self.__archive_files_text, e.getLocalizedMessage(), error=e)
+                self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
     def extract_file(self, path, location=None, strip_leading_path=True):
         """
         Extract the specified file from the archive into the specified directory, or into Domain Home.
