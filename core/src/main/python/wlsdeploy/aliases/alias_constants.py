@@ -68,9 +68,9 @@ NONE = 'NONE'
 MBEAN = 'MBEAN'
 
 # ACCESS values
-RO = 'RO'           # Read only
-ROD = 'ROD'         # Read only but discover
-RW = 'RW'           # Default Read WRITE
+IGNORED = 'IGNORED'  # Ignored
+RO = 'RO'            # Read-only (discovered but never written)
+RW = 'RW'            # Default Read-write
 
 # used when DEFAULT_VALUE has curly-brace value that resolves to null
 NULL_VALUE_KEY = '__NULL__'
