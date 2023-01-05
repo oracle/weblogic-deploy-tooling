@@ -130,8 +130,8 @@ class ListTestCase(unittest.TestCase):
         _known_child_folders_type_values.append(value.lower())
 
     _known_access_attribute_values = [
-        'RO',
-        'ROD'
+        'IGNORED',
+        'RO'
     ]
 
     _known_get_method_attribute_values = [

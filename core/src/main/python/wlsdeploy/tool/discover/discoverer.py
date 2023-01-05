@@ -225,7 +225,7 @@ class Discoverer(object):
     def _is_defined_attribute(self, location, wlst_name):
         attribute = False
         try:
-            if self._aliases.get_model_attribute_name(location, wlst_name, check_read_only=False):
+            if self._aliases.get_model_attribute_name(location, wlst_name, exclude_ignored=False):
                 attribute = True
         except DiscoverException:
             pass
