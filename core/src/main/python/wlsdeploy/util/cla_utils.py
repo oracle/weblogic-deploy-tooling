@@ -95,8 +95,6 @@ class CommandLineArgUtil(object):
     VARIABLE_INJECTOR_FILE_SWITCH   = '-variable_injector_file'
     VARIABLE_KEYWORDS_FILE_SWITCH   = '-variable_keywords_file'
     VARIABLE_PROPERTIES_FILE_SWITCH = '-variable_properties_file'
-    # extractDomainResource output file
-    DOMAIN_RESOURCE_FILE_SWITCH   = '-domain_resource_file'
     OUTPUT_DIR_SWITCH = "-output_dir"
     WAIT_FOR_EDIT_LOCK_SWITCH = "-wait_for_edit_lock"
     TARGET_SWITCH = '-target'
@@ -1021,9 +1019,6 @@ class CommandLineArgUtil(object):
             _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
         return variables.getAbsolutePath()
-
-    def is_domain_resource_file_key(self, key):
-        return self.DOMAIN_RESOURCE_FILE_SWITCH == key
 
     def _validate_domain_resource_file_arg(self, value):
         method_name = '_validate_domain_resource_file_arg'

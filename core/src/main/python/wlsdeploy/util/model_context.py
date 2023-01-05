@@ -91,7 +91,6 @@ class ModelContext(object):
         self._validation_method = None
         self._validate_configuration = None  # lazy load
         self._cancel_changes_if_restart_required = None
-        self._domain_resource_file = None
         self._output_dir = None
         self._target = None
         self._target_configuration = None  # lazy load
@@ -236,9 +235,6 @@ class ModelContext(object):
         if CommandLineArgUtil.TARGET_VERSION_SWITCH in arg_map:
             self._wl_version = arg_map[CommandLineArgUtil.TARGET_VERSION_SWITCH]
 
-        if CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH in arg_map:
-            self._domain_resource_file = arg_map[CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH]
-
         if CommandLineArgUtil.TRAILING_ARGS_SWITCH in arg_map:
             self._trailing_args = arg_map[CommandLineArgUtil.TRAILING_ARGS_SWITCH]
 
@@ -343,8 +339,6 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.VALIDATION_METHOD] = self._validation_method
         if self._wl_version is not None:
             arg_map[CommandLineArgUtil.TARGET_VERSION_SWITCH] = self._wl_version
-        if self._domain_resource_file is not None:
-            arg_map[CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH] = self._domain_resource_file
         if self._trailing_args is not None:
             arg_map[CommandLineArgUtil.TRAILING_ARGS_SWITCH] = self._trailing_args
         if self._target is not None:
@@ -441,13 +435,6 @@ class ModelContext(object):
         :return: the domain typedef
         """
         return self._domain_typedef
-
-    def get_domain_resource_file(self):
-        """
-        Get the domain resource file.
-        :return: the domain resource file
-        """
-        return self._domain_resource_file
 
     def get_admin_url(self):
         """
