@@ -35,7 +35,8 @@ __wlst_mode = WlstModes.OFFLINE
 
 __required_arguments = [
     CommandLineArgUtil.MODEL_FILE_SWITCH,
-    CommandLineArgUtil.ORACLE_HOME_SWITCH
+    CommandLineArgUtil.ORACLE_HOME_SWITCH,
+    CommandLineArgUtil.OUTPUT_DIR_SWITCH
 ]
 
 __optional_arguments = [
@@ -49,8 +50,6 @@ __optional_arguments = [
     CommandLineArgUtil.PASSPHRASE_SWITCH,
     CommandLineArgUtil.PASSPHRASE_FILE_SWITCH,
     CommandLineArgUtil.PASSPHRASE_ENV_SWITCH,
-    CommandLineArgUtil.OUTPUT_DIR_SWITCH,  # move to __required_arguments once DOMAIN_RESOURCE_FILE_SWITCH is removed
-    CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH  # deprecated, only this program uses it
 ]
 
 
@@ -79,18 +78,6 @@ def __process_args(args):
 
     # allow unresolved tokens and archive entries
     argument_map[CommandLineArgUtil.VALIDATION_METHOD] = validate_configuration.LAX_METHOD
-
-    # warn about deprecated -domain_resource_file argument.
-    # not needed once -domain_resource_file is removed and -output_dir moves to __required_arguments.
-    if CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH in argument_map:
-        __logger.warning('WLSDPLY-10040', CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH,
-                         CommandLineArgUtil.OUTPUT_DIR_SWITCH, class_name=_class_name, method_name=_method_name)
-    elif CommandLineArgUtil.OUTPUT_DIR_SWITCH not in argument_map:
-        ex = exception_helper.create_cla_exception(ExitCode.USAGE_ERROR, 'WLSDPLY-20005',
-                                                   _program_name, CommandLineArgUtil.OUTPUT_DIR_SWITCH,
-                                                   class_name=_class_name, method_name=_method_name)
-        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-        raise ex
 
     return model_context_helper.create_context(_program_name, argument_map)
 

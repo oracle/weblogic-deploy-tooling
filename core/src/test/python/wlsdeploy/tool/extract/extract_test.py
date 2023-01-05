@@ -130,11 +130,10 @@ class ExtractTest(BaseTestCase):
         model_dict = translator.parse()
         model = Model(model_dict)
 
-        resource_file = os.path.join(self.EXTRACT_OUTPUT_DIR, 'domain-resource-' + suffix + '.yaml')
         args_map = {
             '-domain_home': '/u01/domain',
             '-oracle_home': '/oracle',
-            '-domain_resource_file': resource_file,
+            '-output_dir': self.EXTRACT_OUTPUT_DIR,
             '-target': 'wko'
         }
         model_context = ModelContext('ExtractTest', args_map)
@@ -143,5 +142,6 @@ class ExtractTest(BaseTestCase):
         extractor = DomainResourceExtractor(model, model_context, aliases, self.__logger)
         extractor.extract()
 
+        resource_file = os.path.join(self.EXTRACT_OUTPUT_DIR, 'wko-domain.yaml')
         translator = FileToPython(resource_file, use_ordering=True)
         return translator.parse()
