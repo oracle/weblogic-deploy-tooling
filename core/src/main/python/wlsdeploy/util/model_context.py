@@ -417,6 +417,13 @@ class ModelContext(object):
         """
         return self._domain_name
 
+    def set_domain_name(self, domain_name):
+        """
+        Set the domain name when online
+        :param domain_name: the domain name
+        """
+        self._domain_name = domain_name
+
     def set_domain_home(self, domain_home):
         """
         This method is a hack to allow create to add the domain home after reading the domain name from the model.
