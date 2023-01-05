@@ -104,9 +104,8 @@ The content in the `kubernetes` section is not generated when a model is discove
 ### Parameter table for `extractResources`
 | Parameter | Definition | Default |
 | ---- | ---- | ---- |
-| `-archive_file` | The path to the archive file.  If the `-model_file` argument is not specified, the model file in this archive will be used.  This can also be specified as a comma-separated list of archive files.  The overlapping contents in each archive take precedence over previous archives in the list. |    |
+| `-archive_file` | The path to the archive file.  This can also be specified as a comma-separated list of archive files.  The overlapping contents in each archive take precedence over previous archives in the list. |    |
 | `-domain_home` | The domain home directory to be used in output files. This will override any value in the model. |    |
-| `-domain_resource_file` | The location of the extracted domain resource file. This is deprecated, use `-output_dir` to specify output location. |    |
 | `-model_file` | The location of the model file.  This can also be specified as a comma-separated list of model locations, where each successive model layers on top of the previous ones. |    |
 | `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set. |    |
 | `-output_dir` | The location for the target output files. |    |
