@@ -322,10 +322,6 @@ class CommandLineArgUtil(object):
                 value, idx = self._get_arg_value(args, idx)
                 full_path = self._validate_variable_properties_file_arg(value)
                 self._add_arg(key, full_path, True)
-            elif self.is_domain_resource_file_key(key):
-                value, idx = self._get_arg_value(args, idx)
-                full_path = self._validate_domain_resource_file_arg(value)
-                self._add_arg(key, full_path, True)
             elif self.is_boolean_switch(key):
                 self._add_arg(key, True)
             elif self.is_compare_model_output_dir_switch(key):
@@ -1016,18 +1012,6 @@ class CommandLineArgUtil(object):
         except JIllegalArgumentException, iae:
             ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                       'WLSDPLY-01620', value, iae.getLocalizedMessage(), error=iae)
-            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-            raise ex
-        return variables.getAbsolutePath()
-
-    def _validate_domain_resource_file_arg(self, value):
-        method_name = '_validate_domain_resource_file_arg'
-
-        try:
-            variables = JFileUtils.validateFileName(value)
-        except JIllegalArgumentException, iae:
-            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
-                                      'WLSDPLY-01637', value, iae.getLocalizedMessage(), error=iae)
             _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
         return variables.getAbsolutePath()
