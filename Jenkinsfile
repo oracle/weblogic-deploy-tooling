@@ -18,6 +18,7 @@ pipeline {
             }
             steps {
                 sh 'env|sort'
+                sh 'mvn -v'
             }
         }
         stage ('Build') {
