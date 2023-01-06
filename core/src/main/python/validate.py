@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The WLS Deploy tooling entry point for the validateModel tool.
@@ -67,6 +67,12 @@ def __process_args(args):
     """
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     cla_util.set_allow_multiple_models(True)
+
+    # Do not make model a required argument since we need to tailor the tool response
+    # if no model is specified based on the validation method argument.  As such, leave
+    # the argument marked as optional to allow it to pass through this function and deal
+    # with it in the __process_model_args() function instead.
+    #
     argument_map = cla_util.process_args(args)
 
     __process_model_args(argument_map)
@@ -85,7 +91,7 @@ def __process_model_args(argument_map):
     cla_helper.validate_optional_archive(_program_name, argument_map)
 
     try:
-        cla_helper.validate_model_present(_program_name, argument_map)
+        cla_helper.validate_required_model(_program_name, argument_map)
     except CLAException, ce:
         # in lax validation mode, if no model is found, log at INFO and exit
         method = dictionary_utils.get_element(argument_map, CommandLineArgUtil.VALIDATION_METHOD)

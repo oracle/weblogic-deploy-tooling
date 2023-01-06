@@ -90,36 +90,12 @@ def create_additional_output(model, model_context, aliases, credential_injector,
     template_hash = _build_template_hash(model, model_context, aliases, credential_injector, domain_home_override)
     for index, template_name in enumerate(template_names):
         source_file_name = _get_template_source_name(template_name, target_configuration)
-
-        # special processing for deprecated -domain_resource_file argument of extractDomainResource
-        extract_output_file = _get_extract_output_file(template_name, index, model_context)
-        if extract_output_file:
-            output_file = extract_output_file
-        else:
-            output_file = File(os.path.join(output_dir, template_name))
+        output_file = File(os.path.join(output_dir, template_name))
 
         _create_file(source_file_name, template_hash, output_file, exception_type)
 
         crd_helper = model_crd_helper.get_helper(model_context)
         crd_file_updater.update_from_model(output_file, model, crd_helper)
-
-
-# *** DELETE METHOD WHEN deprecated -domain_resource_file IS REMOVED ***
-def _get_extract_output_file(template_name, index, model_context):
-    """
-    Special processing for deprecated -domain_resource_file argument used by extractDomainResource.
-    Use the directory of -domain_resource_file for all templates,
-    and the name of -domain_resource_file for the first (usually only) template.
-    """
-    _method_name = '_get_extract_output_file'
-
-    resource_file = model_context.get_domain_resource_file()
-    if resource_file:
-        output_dir, output_name = os.path.split(resource_file)
-        if index > 0:
-            output_name = template_name
-        return File(os.path.join(output_dir, output_name))
-    return None
 
 
 def _create_file(template_name, template_hash, output_file, exception_type):

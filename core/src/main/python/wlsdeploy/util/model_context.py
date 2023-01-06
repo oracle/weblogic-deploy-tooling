@@ -69,7 +69,6 @@ class ModelContext(object):
         self._archive_file_name = None
         self._archive_file = None
         self._model_file = None
-        self._previous_model_file = None
         self._variable_file_name = None
         self._run_rcu = False
         self._rcu_database = None
@@ -92,7 +91,6 @@ class ModelContext(object):
         self._validation_method = None
         self._validate_configuration = None  # lazy load
         self._cancel_changes_if_restart_required = None
-        self._domain_resource_file = None
         self._output_dir = None
         self._target = None
         self._target_configuration = None  # lazy load
@@ -161,9 +159,6 @@ class ModelContext(object):
 
         if CommandLineArgUtil.WAIT_FOR_EDIT_LOCK_SWITCH in arg_map:
             self._wait_for_edit_lock = arg_map[CommandLineArgUtil.WAIT_FOR_EDIT_LOCK_SWITCH]
-
-        if CommandLineArgUtil.PREVIOUS_MODEL_FILE_SWITCH in arg_map:
-            self._previous_model_file = arg_map[CommandLineArgUtil.PREVIOUS_MODEL_FILE_SWITCH]
 
         if CommandLineArgUtil.ATTRIBUTES_ONLY_SWITCH in arg_map:
             self._attributes_only = arg_map[CommandLineArgUtil.ATTRIBUTES_ONLY_SWITCH]
@@ -240,9 +235,6 @@ class ModelContext(object):
         if CommandLineArgUtil.TARGET_VERSION_SWITCH in arg_map:
             self._wl_version = arg_map[CommandLineArgUtil.TARGET_VERSION_SWITCH]
 
-        if CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH in arg_map:
-            self._domain_resource_file = arg_map[CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH]
-
         if CommandLineArgUtil.TRAILING_ARGS_SWITCH in arg_map:
             self._trailing_args = arg_map[CommandLineArgUtil.TRAILING_ARGS_SWITCH]
 
@@ -293,8 +285,6 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH] = self._archive_file_name
         if self._model_file is not None:
             arg_map[CommandLineArgUtil.MODEL_FILE_SWITCH] = self._model_file
-        if self._previous_model_file is not None:
-            arg_map[CommandLineArgUtil.PREVIOUS_MODEL_FILE_SWITCH] = self._previous_model_file
         if self._attributes_only is not None:
             arg_map[CommandLineArgUtil.ATTRIBUTES_ONLY_SWITCH] = self._attributes_only
         if self._folders_only is not None:
@@ -349,8 +339,6 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.VALIDATION_METHOD] = self._validation_method
         if self._wl_version is not None:
             arg_map[CommandLineArgUtil.TARGET_VERSION_SWITCH] = self._wl_version
-        if self._domain_resource_file is not None:
-            arg_map[CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH] = self._domain_resource_file
         if self._trailing_args is not None:
             arg_map[CommandLineArgUtil.TRAILING_ARGS_SWITCH] = self._trailing_args
         if self._target is not None:
@@ -454,13 +442,6 @@ class ModelContext(object):
         :return: the domain typedef
         """
         return self._domain_typedef
-
-    def get_domain_resource_file(self):
-        """
-        Get the domain resource file.
-        :return: the domain resource file
-        """
-        return self._domain_resource_file
 
     def get_admin_url(self):
         """
@@ -574,13 +555,6 @@ class ModelContext(object):
         :return: the model file
         """
         return self._model_file
-
-    def get_previous_model_file(self):
-        """
-        Get the previous model file.
-        :return: the previous model file
-        """
-        return self._previous_model_file
 
     def get_folders_only_control_option(self):
         """

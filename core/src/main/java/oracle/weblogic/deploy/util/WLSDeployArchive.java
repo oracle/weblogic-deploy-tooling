@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+ * Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
@@ -33,20 +34,26 @@ public class WLSDeployArchive {
     public static final String WLSDPLY_ARCHIVE_BINARY_DIR = "wlsdeploy";
 
     /**
-     * Top-level archive subdirectory where the config
-     * will be extracted.
+     * Top-level archive subdirectory where the config will be extracted.
      */
     public static final String ARCHIVE_CONFIG_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/config";
 
-    /**
-     * Top-level archive subdirectory where the atp wallet is stored
-     */
-    public static final String ARCHIVE_ATP_WALLET_PATH = "atpwallet";
+    // Deprecated top-level archive subdirectory where the atp wallet is stored.
+    public static final String OLD_ARCHIVE_ATP_WALLET_PATH = "atpwallet";
+
+    // Deprecated top-level archive subdirectory where the opss wallet is stored.
+    public static final String OLD_ARCHIVE_OPSS_WALLET_PATH = "opsswallet";
 
     /**
-     * Top-level archive subdirectory where the opss wallet is stored
+     * Top-level archive subdirectory where the atp wallet is stored.
      */
-    public static final String ARCHIVE_OPSS_WALLET_PATH = "opsswallet";
+    public static final String ARCHIVE_ATP_WALLET_PATH = WLSDPLY_ARCHIVE_BINARY_DIR + "/atpwallet";
+
+    /**
+     * Top-level archive subdirectory where the opss wallet is stored.
+     */
+    public static final String ARCHIVE_OPSS_WALLET_PATH = WLSDPLY_ARCHIVE_BINARY_DIR + "/opsswallet";
+
     /**
      * Top-level archive subdirectory where the model is stored and the subdirectory to which it will be extracted.
      */
@@ -129,7 +136,8 @@ public class WLSDeployArchive {
      */
     public static final String ARCHIVE_JMS_FOREIGN_SERVER_DIR = ARCHIVE_JMS_DIR + "/foreignServer";
 
-    public enum ArchiveEntryType { SHARED_LIBRARIES, APPLICATIONS,
+    public enum ArchiveEntryType {
+        SHARED_LIBRARIES, APPLICATIONS,
         APPLICATION_PLAN,
         SHLIB_PLAN,
         DOMAIN_LIB,
@@ -180,18 +188,7 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Constructor to create an archive file instance for no generation of an archive file.
-     */
-    private WLSDeployArchive() {
-        final String METHOD = "<init>";
-        LOGGER.entering(CLASS, METHOD);
-        LOGGER.exiting(CLASS, METHOD);
-    }
-
-    public static WLSDeployArchive noArchiveFile() {return new WLSDeployArchive();}
-
-    /**
-     * Determine whether or not the specified path string is a valid archive location.
+     * Determine if the specified path string is a valid archive location.
      *
      * @param path the path
      * @return true if the path is relative and starts with the expected directory name, false otherwise
@@ -202,8 +199,9 @@ public class WLSDeployArchive {
         LOGGER.entering(CLASS, METHOD, path);
         boolean result = false;
         if (!StringUtils.isEmpty(path)) {
-            result = path.startsWith(WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP) || path
-                .startsWith(ARCHIVE_ATP_WALLET_PATH + ZIP_SEP) || path.startsWith(ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
+            result = path.startsWith(WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP)
+                || path.startsWith(OLD_ARCHIVE_ATP_WALLET_PATH + ZIP_SEP)
+                || path.startsWith(OLD_ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
         }
         LOGGER.exiting(CLASS, METHOD, result);
         return result;
@@ -230,106 +228,6 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Adds the model file into the archive.
-     *
-     * @param model the model file to add
-     * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
-     * @throws IllegalArgumentException    if the model is null, does not exist, or is not a file
-     */
-    public void addModel(File model) throws WLSDeployArchiveIOException {
-        final String METHOD = "addModel";
-
-        LOGGER.entering(CLASS, METHOD, model);
-        validateExistingFile(model, "model", getArchiveFileName(), METHOD);
-        getZipFile().removeZipEntries(ARCHIVE_MODEL_TARGET_DIR);
-        addItemToZip(ARCHIVE_MODEL_TARGET_DIR, model);
-        LOGGER.exiting(CLASS, METHOD);
-    }
-
-    /**
-     * Adds the model file into the archive using the specified model file name.
-     *
-     * @param model         the file containing the model
-     * @param modelFileName the file name to use
-     * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
-     * @throws IllegalArgumentException    if the model is null, does not exist, or is not a file
-     */
-    public void addModel(File model, String modelFileName) throws WLSDeployArchiveIOException {
-        final String METHOD = "addModel";
-
-        LOGGER.entering(CLASS, METHOD, model, modelFileName);
-        validateExistingFile(model, "model", getArchiveFileName(), METHOD);
-        getZipFile().removeZipEntries(ARCHIVE_MODEL_TARGET_DIR);
-        addItemToZip(ARCHIVE_MODEL_TARGET_DIR, model, modelFileName);
-        LOGGER.exiting(CLASS, METHOD);
-    }
-
-    /**
-     * Extracts the model, if any, from the existing archive.
-     *
-     * @param modelDirectory the directory where to place the extracted model
-     * @return the model file or null, if no model exists
-     * @throws WLSDeployArchiveIOException if an error occurs
-     * @throws IllegalArgumentException    if the modelDirectory is null, does not exist, or is not a directory
-     */
-    public File extractModel(File modelDirectory) throws WLSDeployArchiveIOException {
-        final String METHOD = "extractModel";
-
-        LOGGER.entering(CLASS, METHOD, modelDirectory);
-        validateExistingDirectory(modelDirectory, "modelDirectory", getArchiveFileName(), METHOD);
-
-        extractDirectoryFromZip(ARCHIVE_MODEL_TARGET_DIR, modelDirectory);
-
-        File modelFile = null;
-        File resultDirectory = new File(modelDirectory, ARCHIVE_MODEL_TARGET_DIR);
-        if (resultDirectory.exists()) {
-            try {
-                modelFile = FileUtils.getModelFile(resultDirectory);
-            } catch (IllegalArgumentException | IllegalStateException ex) {
-                WLSDeployArchiveIOException wsdioe =
-                    new WLSDeployArchiveIOException("WLSDPLY-01400", ex, resultDirectory.getAbsolutePath(),
-                        ex.getLocalizedMessage());
-                LOGGER.throwing(CLASS, METHOD, wsdioe);
-                throw wsdioe;
-            }
-        }
-        LOGGER.exiting(CLASS, METHOD, modelFile);
-        return modelFile;
-    }
-
-    /**
-     * Determines whether or not the archive contains a model file.
-     *
-     * @return true if the archive contains a model file, false otherwise
-     * @throws WLSDeployArchiveIOException if an error occurs while reading the archive
-     */
-    public boolean containsModel() throws WLSDeployArchiveIOException {
-        final String METHOD = "containsModel";
-
-        LOGGER.entering(CLASS, METHOD);
-        List<String> modelDirContents = getZipFile().listZipEntries(ARCHIVE_MODEL_TARGET_DIR + ZIP_SEP);
-        // Remove the top-level directory entry from the list, if it exists...
-        modelDirContents.remove(ARCHIVE_MODEL_TARGET_DIR + ZIP_SEP);
-
-        boolean result;
-        if (modelDirContents.isEmpty()) {
-            result = false;
-        } else {
-            try {
-                String modelEntryName = FileUtils.getModelFileName(modelDirContents, getZipFile().getFileName());
-                result = !StringUtils.isEmpty(modelEntryName);
-            } catch (IllegalArgumentException iae) {
-                WLSDeployArchiveIOException wsdioe =
-                    new WLSDeployArchiveIOException("WLSDPLY-01401", iae, iae.getLocalizedMessage());
-                LOGGER.throwing(CLASS, METHOD, wsdioe);
-                throw wsdioe;
-            }
-        }
-        LOGGER.exiting(CLASS, METHOD, result);
-        return result;
-    }
-
-    /**
      * Get the list of entries in the archive file.
      *
      * @return the list of entry path names
@@ -345,7 +243,7 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Determines whether or not the archive contains the specified file or directory.
+     * Determines whether the archive contains the specified file or directory.
      *
      * @param path the path into the archive file to test
      * @return true if the specified location was found int the archive, false otherwise
@@ -369,7 +267,7 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Determines whether or not the provided path is a directory in the archive file.
+     * Determines whether the provided path is a directory in the archive file.
      *
      * @param path the path into the archive file to test
      * @return true if the specified location was found in the archive file and is a directory
@@ -393,7 +291,7 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Determines whether or not the provided path is a directory or a file in a directory
+     * Determines whether the provided path is a directory or a file in a directory
      * in the archive file.
      *
      * @param path the path into the archive file to test
@@ -503,7 +401,7 @@ public class WLSDeployArchive {
      *
      * @param path                        the path into the archive file to extract
      * @param extractToLocation           the base directory to which to write the extracted file or directory
-     * @param stripLeadingPathDirectories whether or not to strip the leading directories
+     * @param stripLeadingPathDirectories whether to strip the leading directories
      *                                    when writing to the target location
      * @return the canonical extracted file name
      * @throws WLSDeployArchiveIOException if an error occurs reading the archive or writing the file
@@ -628,6 +526,7 @@ public class WLSDeployArchive {
 
     /**
      * Get the archive path for the application in a well-formed application directory
+     *
      * @param appPath name of the application path
      * @return archive path for use in the model
      */
@@ -672,7 +571,7 @@ public class WLSDeployArchive {
     }
 
     public String addApplicationFolder(String appName, String appPath)
-            throws WLSDeployArchiveIOException {
+        throws WLSDeployArchiveIOException {
         final String METHOD = "addApplicationFolder";
         LOGGER.entering(CLASS, METHOD, appName, appPath);
         File zipPath = new File(appPath);
@@ -686,7 +585,7 @@ public class WLSDeployArchive {
     }
 
     public String addApplicationPlanFolder(String appName, String planDir)
-            throws WLSDeployArchiveIOException {
+        throws WLSDeployArchiveIOException {
         final String METHOD = "addApplicationPathFolder";
         LOGGER.entering(CLASS, METHOD, appName, planDir);
         File zipPlan = new File(planDir);
@@ -715,43 +614,75 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Get the path of the ATP wallet in the archive.
+     * Extract the ATP wallet in the archive.
      *
-     * @return path of the ATP wallet
-     * @throws WLSDeployArchiveIOException if an error occurs reading the archive
+     * @param domainHome the domain home directory
+     * @return the full path to the directory containing the extracted wallet files or null, if no wallet was found.
+     * @throws WLSDeployArchiveIOException if an error occurs while reading or extracting the archive files.
      */
-    public String getATPWallet() throws WLSDeployArchiveIOException {
-        final String METHOD = "getATPWallet";
+    public String extractATPWallet(File domainHome) throws WLSDeployArchiveIOException {
+        final String METHOD = "extractATPWallet";
 
-        LOGGER.entering(CLASS, METHOD);
-        List<String> result = getZipFile().listZipEntries(ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
-        result.remove(ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
-        LOGGER.exiting(CLASS, METHOD, result);
-        if (result.isEmpty()) {
-            return null;
+        LOGGER.entering(CLASS, METHOD, domainHome);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        // Look in the updated location first
+        String extractPath = null;
+        List<String> zipEntries = getZipFile().listZipEntries(ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
+        zipEntries.remove(ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
+        if (!zipEntries.isEmpty()) {
+            extractPath = ARCHIVE_ATP_WALLET_PATH + ZIP_SEP;
+            extractWallet(domainHome, extractPath, zipEntries, null);
+            extractPath = new File(domainHome, extractPath).getAbsolutePath();
         } else {
-            return result.get(0);
+            // Look in the deprecated location.
+            zipEntries = getZipFile().listZipEntries(OLD_ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
+            zipEntries.remove(OLD_ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
+            if (!zipEntries.isEmpty()) {
+                extractPath = ARCHIVE_ATP_WALLET_PATH + ZIP_SEP;
+                extractWallet(domainHome, extractPath, zipEntries, "WLSDPLY-01427");
+                extractPath = new File(domainHome, extractPath).getAbsolutePath();
+            }
         }
+
+        LOGGER.exiting(CLASS, METHOD, extractPath);
+        return extractPath;
     }
 
     /**
-     * Get the path of the OPSS wallet in the archive.
+     * Extract the OPSS wallet from the archive.
      *
-     * @return path of the OPSS wallet
-     * @throws WLSDeployArchiveIOException if an error occurs reading the archive
+     * @param domainHome the domain home directory
+     * @return the full path to the directory containing the extracted wallet files or null, if no wallet was found.
+     * @throws WLSDeployArchiveIOException if an error occurs while reading or extracting the archive files.
      */
-    public String getOPSSWallet() throws WLSDeployArchiveIOException {
-        final String METHOD = "getOPSSWallet";
+    public String extractOPSSWallet(File domainHome) throws WLSDeployArchiveIOException {
+        final String METHOD = "extractOPSSWallet";
 
-        LOGGER.entering(CLASS, METHOD);
-        List<String> result = getZipFile().listZipEntries(ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
-        result.remove(ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
-        LOGGER.exiting(CLASS, METHOD, result);
-        if (result.isEmpty()) {
-            return null;
+        LOGGER.entering(CLASS, METHOD, domainHome);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        // Look in the updated location first
+        String extractPath = null;
+        List<String> zipEntries = getZipFile().listZipEntries(ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
+        zipEntries.remove(ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
+        if (!zipEntries.isEmpty()) {
+            extractPath = ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP;
+            extractWallet(domainHome, extractPath, zipEntries, null);
+            extractPath = new File(domainHome, extractPath).getAbsolutePath();
         } else {
-            return result.get(0);
+            // Look in the deprecated location.
+            zipEntries = getZipFile().listZipEntries(OLD_ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
+            zipEntries.remove(OLD_ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
+            if (!zipEntries.isEmpty()) {
+                extractPath = OLD_ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP;
+                extractWallet(domainHome, extractPath, zipEntries, "WLSDPLY-01433");
+                extractPath = new File(domainHome, extractPath).getAbsolutePath();
+            }
         }
+
+        LOGGER.exiting(CLASS, METHOD, extractPath);
+        return extractPath;
     }
 
     /**
@@ -783,6 +714,7 @@ public class WLSDeployArchive {
     /**
      * Get the best guess of the name of the shared library as if it is in the archive file.
      * This does not reconcile duplicate names and other items that require the archive file.
+     *
      * @param shlibPath file name to find the name for
      * @return name for model archive file name
      */
@@ -856,6 +788,7 @@ public class WLSDeployArchive {
     /**
      * Get the archive file name for the Domain library file. This does not reconcile duplicate names or other
      * items that require the archive file.
+     *
      * @param domainLibPath the file name to get the archive file name
      * @return model ready archive file name
      */
@@ -1001,6 +934,7 @@ public class WLSDeployArchive {
 
     /**
      * Get the archive path for the classpath library for use in the model.
+     *
      * @param libPath to get the archive path for
      * @return Archive path for the classpath library for use in the model
      */
@@ -1102,6 +1036,7 @@ public class WLSDeployArchive {
 
     /**
      * Get the archive path of the application deployment plan.
+     *
      * @param planFile The deployment plan file name
      * @return Archive path for use in the model
      */
@@ -1146,6 +1081,7 @@ public class WLSDeployArchive {
 
     /**
      * Get the Archive Path for the Shared Library Plan
+     *
      * @param planFile Shared Library Deployment Plan file name
      * @return Archive path for the plan file for use in the model
      */
@@ -1179,6 +1115,7 @@ public class WLSDeployArchive {
 
     /**
      * Get the archive path for the scriptfile name.
+     *
      * @param scriptFile the script file to get the path name
      * @return The name of the file in the archive for use in the model
      */
@@ -1208,7 +1145,8 @@ public class WLSDeployArchive {
 
     /**
      * Get the archive path for the servr identity key store file for use in the model
-     * @param serverName name of the server used to separate paths
+     *
+     * @param serverName   name of the server used to separate paths
      * @param keystoreFile the file to get the archive path name
      * @return Archive path name for the server key store file
      */
@@ -1272,7 +1210,7 @@ public class WLSDeployArchive {
      * Get the Coherence configuration file name in the archive to use in the model.
      *
      * @param clusterName The Coherence cluster name used to segregate the directories
-     * @param configFile the file name of the config file
+     * @param configFile  the file name of the config file
      * @return Archive name for use in the model
      */
     public String getCoherenceConfigArchivePath(String clusterName, String configFile) {
@@ -1303,8 +1241,9 @@ public class WLSDeployArchive {
 
     /**
      * Get the archive name for the foreign server binding file.
+     *
      * @param foreignServer The foreign server name used to segregate the directories
-     * @param configFile The file name to add
+     * @param configFile    The file name to add
      * @return The location of the file in the archive to use in the model
      */
     public String getForeignServerArchivePath(String foreignServer, String configFile) {
@@ -1315,7 +1254,7 @@ public class WLSDeployArchive {
      * Add a Foreign Server binding file to the archive
      *
      * @param foreignServer the Foreign Server name used to segregate the directories
-     * @param configFile  the file or directory to add
+     * @param configFile    the file or directory to add
      * @return the new location of the file to use in the model
      * @throws WLSDeployArchiveIOException if an error occurs while archiving the file
      * @throws IllegalArgumentException    if the file does not exist or the foreignServer is empty or null
@@ -1334,7 +1273,7 @@ public class WLSDeployArchive {
 
     public String getCoherenceURLArchivePath(String clusterName, URL urlForConfigFile) {
         return getURLArchiveName(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName, urlForConfigFile,
-                 true);
+            true);
     }
 
     /**
@@ -1354,7 +1293,7 @@ public class WLSDeployArchive {
         validateNonEmptyString(clusterName, "clusterName", METHOD);
         validateNonNullObject(urlForConfigFile, "urlForConfigFile", METHOD);
         String newName = addUrlToZip(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName, urlForConfigFile,
-                COHERENCE_CONFIG_FILE_EXTENSION, true);
+            COHERENCE_CONFIG_FILE_EXTENSION, true);
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
     }
@@ -1362,11 +1301,12 @@ public class WLSDeployArchive {
     /**
      * Get the name of the persistence directory as an archive path. This does not reconcile duplicates or other
      * items deeper in the zip file logic.
-     * @param clusterName name of cluster specific to path
+     *
+     * @param clusterName   name of cluster specific to path
      * @param directoryType type of persistence directory
      * @return Archive style path for directory
      */
-    public String getCoherencePersistArchivePath(String clusterName, String directoryType){
+    public String getCoherencePersistArchivePath(String clusterName, String directoryType) {
         return getArchiveName(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName, directoryType);
     }
 
@@ -1416,6 +1356,7 @@ public class WLSDeployArchive {
     /**
      * Get the archive path to Node Manager Identity Key Store file. This does not reconcile duplicate names or
      * other items that the archive file does when adding to the archive.
+     *
      * @param keystoreFile file name of the key store file
      * @return archive file path for the model
      */
@@ -1445,20 +1386,21 @@ public class WLSDeployArchive {
     /**
      * Return the manifest for the specified path in the archive, if present.
      * The path may refer to a packaged EAR/JAR/WAR, or an exploded entry.
+     *
      * @param sourcePath the path to be checked
      * @return the Manifest object, or null
      * @throws WLSDeployArchiveIOException if there is a problem reading the archive, or the manifest
      */
     public Manifest getManifest(String sourcePath) throws WLSDeployArchiveIOException {
         try {
-            if(containsFile(sourcePath)) {
+            if (containsFile(sourcePath)) {
                 // a jarred app or library in the archive.
-                try(ZipInputStream zipStream = new ZipInputStream(getZipFile().getZipEntry(sourcePath))) {
+                try (ZipInputStream zipStream = new ZipInputStream(getZipFile().getZipEntry(sourcePath))) {
                     // JarInputStream.getManifest() has problems if MANIFEST.MF is not the first entry,
                     // so use ZipInputStream and search for the specific entry.
                     ZipEntry zipEntry;
-                    while((zipEntry = zipStream.getNextEntry()) != null) {
-                        if(JarFile.MANIFEST_NAME.equals(zipEntry.getName())) {
+                    while ((zipEntry = zipStream.getNextEntry()) != null) {
+                        if (JarFile.MANIFEST_NAME.equals(zipEntry.getName())) {
                             Manifest manifest = new Manifest(zipStream);
                             zipStream.closeEntry();
                             return manifest;
@@ -1466,7 +1408,7 @@ public class WLSDeployArchive {
                         zipStream.closeEntry();
                     }
                 }
-            } else if(containsPath(sourcePath)) {
+            } else if (containsPath(sourcePath)) {
                 // an exploded app or library in the archive.
                 String manifestPath = sourcePath + "/" + JarFile.MANIFEST_NAME;
                 if (containsFile(manifestPath)) {
@@ -1475,9 +1417,9 @@ public class WLSDeployArchive {
                     }
                 }
             }
-        } catch(IOException e) {
+        } catch (IOException e) {
             WLSDeployArchiveIOException aioe = new WLSDeployArchiveIOException("WLSDPLY-01426", sourcePath,
-                    getArchiveFileName(), e.getLocalizedMessage());
+                getArchiveFileName(), e.getLocalizedMessage());
             LOGGER.throwing(aioe);
             throw aioe;
         }
@@ -1545,6 +1487,7 @@ public class WLSDeployArchive {
         }
         return newName;
     }
+
     protected String addItemToZip(String zipPathPrefix, File itemToAdd) throws WLSDeployArchiveIOException {
         return addItemToZip(zipPathPrefix, itemToAdd, true);
     }
@@ -1626,7 +1569,7 @@ public class WLSDeployArchive {
             newName = addSingleFileToZip(tmpFile, newName, METHOD);
         } catch (IOException ioe) {
             WLSDeployArchiveIOException aioe =
-                    new WLSDeployArchiveIOException("WLSDPLY-01410", ioe, url, ioe.getLocalizedMessage());
+                new WLSDeployArchiveIOException("WLSDPLY-01410", ioe, url, ioe.getLocalizedMessage());
             LOGGER.throwing(aioe);
             throw aioe;
         } catch (SecurityException se) {
@@ -1660,6 +1603,97 @@ public class WLSDeployArchive {
         return newName;
     }
 
+    protected void extractWallet(File domainHome, String extractPath, List<String> zipEntries, String deprecationKey)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "extractWallet";
+        LOGGER.entering(CLASS, METHOD, domainHome, extractPath, zipEntries, deprecationKey);
+
+        File fullExtractPath = new File(domainHome, extractPath);
+        if (zipEntries != null && !zipEntries.isEmpty()) {
+            String firstZipEntry = zipEntries.get(0);
+            if (!fullExtractPath.exists() && !fullExtractPath.mkdirs()) {
+                WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01430", firstZipEntry,
+                    getArchiveFileName(), fullExtractPath.getAbsolutePath());
+                LOGGER.throwing(CLASS, METHOD, ex);
+                throw ex;
+            }
+
+            // The archive file wallet directory can either contain a single zip file containing the wallet files
+            // or one or more wallet files.  Before starting to iterate, check for the single zip file case.
+            //
+            if (zipEntries.size() == 1 && firstZipEntry.toLowerCase().endsWith(".zip")) {
+                if (!StringUtils.isEmpty(deprecationKey)) {
+                    LOGGER.warning(deprecationKey, getArchiveFileName(), firstZipEntry, extractPath);
+                }
+                unzipZippedArchiveFileEntry(firstZipEntry, fullExtractPath);
+            } else {
+                for (String zipEntry : zipEntries) {
+                    File extractToLocation = domainHome;
+                    if (!StringUtils.isEmpty(deprecationKey)) {
+                        extractToLocation = new File(domainHome, WLSDPLY_ARCHIVE_BINARY_DIR);
+                        LOGGER.warning(deprecationKey, getArchiveFileName(), zipEntry, extractPath);
+                    }
+                    extractFileFromZip(zipEntry, extractToLocation);
+                }
+            }
+        }
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    protected void unzipZippedArchiveFileEntry(String zippedItemToExtract, File extractToLocation)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "unzipZippedArchiveFileEntry";
+        LOGGER.entering(CLASS, METHOD, zippedItemToExtract, extractToLocation);
+
+        File tempDir;
+        try {
+            tempDir = Files.createTempDirectory("tempzip").toFile();
+            tempDir.deleteOnExit();
+        } catch (IOException ioe) {
+            WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01428", ioe, zippedItemToExtract,
+                ioe.getLocalizedMessage());
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        String zippedEntryPath = extractFile(zippedItemToExtract, tempDir);
+
+        try (FileInputStream fis = new FileInputStream(zippedEntryPath);
+             ZipInputStream zis = new ZipInputStream(fis)) {
+
+            ZipEntry ze = zis.getNextEntry();
+            while (ze != null) {
+                String zipEntryFileName = ze.getName();
+                checkForZipSlip(extractToLocation, zipEntryFileName);
+
+                File zipEntryFile = new File(extractToLocation, ze.getName());
+                if (!zipEntryFile.getParentFile().exists() && !zipEntryFile.getParentFile().mkdirs()) {
+                    WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01429", zipEntryFileName,
+                        extractToLocation.getAbsolutePath());
+                    LOGGER.throwing(CLASS, METHOD, ex);
+                    throw ex;
+                }
+
+                try (FileOutputStream fos = new FileOutputStream(zipEntryFile, false)) {
+                    byte[] buffer = new byte[4096];
+                    int len = zis.read(buffer);
+                    while (len > 0) {
+                        fos.write(buffer, 0, len);
+                        len = zis.read(buffer);
+                    }
+                }
+                zis.closeEntry();
+                ze = zis.getNextEntry();
+            }
+        } catch (IOException ioe) {
+            WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01432", ioe, zippedEntryPath,
+                zippedItemToExtract, extractToLocation, ioe.getLocalizedMessage());
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
     protected void extractDirectoryFromZip(String directoryName, File extractToLocation)
         throws WLSDeployArchiveIOException {
         extractDirectoryFromZip(directoryName, directoryName, extractToLocation);
@@ -1682,6 +1716,7 @@ public class WLSDeployArchive {
                 for (Map.Entry<String, InputStream> zipEntry : zipEntries.entrySet()) {
                     String entryName = zipEntry.getKey();
                     String targetFileName = entryName.replace(fromDirectoryName + ZIP_SEP, toDirectoryName + SEP);
+                    checkForZipSlip(extractToLocation, targetFileName);
                     targetFile = new File(extractToLocation, targetFileName);
                     File targetDirectory;
                     if (entryName.endsWith(ZIP_SEP)) {
@@ -1730,6 +1765,12 @@ public class WLSDeployArchive {
         final String METHOD = "extractFileFromZip";
 
         LOGGER.entering(CLASS, METHOD, itemToExtract, fromDir, toDir, extractToLocation);
+        String targetFileName = itemToExtract;
+        if (fromDir != null && toDir != null) {
+            targetFileName = itemToExtract.replace(fromDir + ZIP_SEP, toDir + SEP);
+        }
+        checkForZipSlip(extractToLocation, targetFileName);
+
         InputStream inputStream = getZipFile().getZipEntry(itemToExtract);
         if (inputStream == null) {
             WLSDeployArchiveIOException wdaioe =
@@ -1738,12 +1779,16 @@ public class WLSDeployArchive {
             throw wdaioe;
         }
 
-        String targetFileName = itemToExtract.replace(fromDir + ZIP_SEP, toDir + SEP);
         File targetFile = new File(extractToLocation, targetFileName);
         File targetDirectory = targetFile.getParentFile();
         if (!targetDirectory.exists() && !targetDirectory.mkdirs()) {
             WLSDeployArchiveIOException wdaioe = new WLSDeployArchiveIOException("WLSDPLY-01414", getArchiveFileName(),
                 targetDirectory.getAbsolutePath());
+            try {
+                inputStream.close();
+            } catch (IOException ignore) {
+                // best effort
+            }
             LOGGER.throwing(CLASS, METHOD, wdaioe);
             throw wdaioe;
         }
@@ -1833,6 +1878,29 @@ public class WLSDeployArchive {
             }
         }
         return newName;
+    }
+
+    private String walkDownFolders(String zipPrefix, File zipPath) throws WLSDeployArchiveIOException {
+        String newSourceName = null;
+        if (zipPath != null) {
+            File[] fileList = zipPath.listFiles();
+            if (fileList != null) {
+                for (File item : fileList) {
+                    newSourceName = addItemToZip(zipPrefix, item);
+                }
+            }
+        }
+        return newSourceName;
+    }
+
+    private void checkForZipSlip(File extractLocation, String zipEntry) throws WLSDeployArchiveIOException {
+        String canonicalExtractLocation = FileUtils.getCanonicalPath(extractLocation);
+        String canonicalZipEntry = FileUtils.getCanonicalPath(new File(extractLocation, zipEntry));
+
+        if (!canonicalZipEntry.startsWith(canonicalExtractLocation)) {
+            throw new WLSDeployArchiveIOException("WLSDPLY-01431", getArchiveFileName(), zipEntry, canonicalZipEntry,
+                canonicalExtractLocation);
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -1931,18 +1999,4 @@ public class WLSDeployArchive {
         }
         return inputStream;
     }
-
-    private String walkDownFolders(String zipPrefix, File zipPath) throws WLSDeployArchiveIOException {
-        String newSourceName = null;
-        if (zipPath != null) {
-            File[] fileList = zipPath.listFiles();
-            if (fileList != null) {
-                for (File item : fileList) {
-                    newSourceName = addItemToZip(zipPrefix, item);
-                }
-            }
-        }
-        return newSourceName;
-    }
-
 }

@@ -12,9 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -198,8 +196,8 @@ public class XPathUtil {
             for (Path path : stream) {
                 patchFiles.add(path.toString());
             }
-        } catch (IOException ieo) {
-            LOGGER.info("Unable to locate the patch files at {0}", patchesHome);
+        } catch (IOException ioe) {
+            LOGGER.info("WLSDPLY-01053", ioe, patchesHome, ioe.getLocalizedMessage());
         }
         return patchFiles;
     }
@@ -219,7 +217,7 @@ public class XPathUtil {
             dbf.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
             dbf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
         } catch (ParserConfigurationException pce) {
-            LOGGER.warning("Unable to set feature in DocumentBuilderFactory : {0}");
+            LOGGER.warning("WLSDPLY-01054", pce, pce.getLocalizedMessage());
         }
 
         Document doc = null;
@@ -230,7 +228,7 @@ public class XPathUtil {
             doc = db.parse(new File(path));
 
         } catch (ParserConfigurationException | SAXException | IOException ioe) {
-            LOGGER.info("Unable to parse the xml file {0}", path);
+            LOGGER.info("WLSDPLY-01055", ioe, path, ioe.getLocalizedMessage());
         }
         return doc;
     }
@@ -246,7 +244,7 @@ public class XPathUtil {
         try {
             return (String) xpath.evaluate(expression, node, XPathConstants.STRING);
         } catch (XPathExpressionException xpe) {
-            LOGGER.info("Unable to apply the expression {0}", expression);
+            LOGGER.info("WLSDPLY-01056", xpe, expression, xpe.getLocalizedMessage());
         }
         return null;
     }

@@ -1,10 +1,9 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the deployApps tool.
 """
-import exceptions
 import os
 import sys
 
@@ -41,7 +40,8 @@ __wlst_helper = WlstHelper(ExceptionType.DEPLOY)
 __wlst_mode = WlstModes.OFFLINE
 
 __required_arguments = [
-    CommandLineArgUtil.ORACLE_HOME_SWITCH
+    CommandLineArgUtil.ORACLE_HOME_SWITCH,
+    CommandLineArgUtil.MODEL_FILE_SWITCH
 ]
 
 __optional_arguments = [
@@ -49,8 +49,6 @@ __optional_arguments = [
     CommandLineArgUtil.DOMAIN_HOME_SWITCH,
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
-    CommandLineArgUtil.MODEL_FILE_SWITCH,
-    CommandLineArgUtil.PREVIOUS_MODEL_FILE_SWITCH,
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,
     CommandLineArgUtil.ADMIN_URL_SWITCH,
     CommandLineArgUtil.ADMIN_USER_SWITCH,
@@ -82,7 +80,7 @@ def __process_args(args):
     argument_map = cla_util.process_args(args)
 
     cla_helper.validate_optional_archive(_program_name, argument_map)
-    cla_helper.validate_model_present(_program_name, argument_map)
+    cla_helper.validate_required_model(_program_name, argument_map)
     cla_helper.validate_variable_file_exists(_program_name, argument_map)
     cla_helper.validate_if_domain_home_required(_program_name, argument_map)
 

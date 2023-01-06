@@ -1,0 +1,54 @@
+def versions_to_generate = [ "14.1.2.0.0" ]
+
+pipeline {
+    agent any
+
+    environment {
+        downstream_job_name = 'wdt-alias-test-generate-child'
+    }
+    stages {
+        stage ('Environment') {
+            tools {
+                maven 'maven-3.6.0'
+                jdk 'jdk8'
+            }
+            steps {
+                sh 'env|sort'
+            }
+        }
+        stage ('Build WDT') {
+            tools {
+                maven 'maven-3.6.0'
+                jdk 'jdk8'
+            }
+            steps {
+                sh 'mvn clean install -DskipTests'
+                sh "cp ${WORKSPACE}/installer/target/weblogic-deploy.zip ${WORKSPACE}/"
+                archiveArtifacts 'weblogic-deploy.zip'
+            }
+        }
+        stage ('Generate File(s)') {
+            steps {
+                script {
+                    echo "computed versions = ${versions_to_generate}"
+                    for (String version in versions_to_generate) {
+                        echo "Calling ${downstream_job_name} for WebLogic Server version ${version}"
+                        build job: "${downstream_job_name}", parameters: [
+                            string(name: "parent_git_commit", value: "${GIT_COMMIT}"),
+                            string(name: "parent_job_name", value: "${JOB_NAME}"),
+                            string(name: "parent_job_number", value: "${BUILD_NUMBER}"),
+                            string(name: "wls_version", value: "${version}")
+                        ]
+                    }
+                }
+            }
+        }
+    }
+    post {
+        failure {
+            slackSend channel: '#wkt-build-failure-notifications',
+                      botUser: false, color: 'danger',
+                      message: "Build <${env.BUILD_URL}|${env.JOB_NAME}:${env.BUILD_NUMBER}> failed"
+        }
+    }
+}

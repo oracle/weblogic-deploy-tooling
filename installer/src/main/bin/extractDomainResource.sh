@@ -2,7 +2,7 @@
 # *****************************************************************************
 # extractDomainResource.sh
 #
-# Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+# Copyright (c) 2020, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -35,7 +35,6 @@ usage() {
   echo "          [-output_dir <output_dir>]"
   echo "          [-target <target>]"
   echo "          [-domain_resource_file <domain_resource_file>]"
-  echo "          [-archive_file <archive_file>]"
   echo "          [-model_file <model_file>]"
   echo "          [-variable_file <variable_file>]"
   echo ""
@@ -53,12 +52,6 @@ usage() {
   echo ""
   echo "        domain_resource_file - the location of the extracted domain resource file."
   echo "                               This is deprecated, use -output_dir to specify output location"
-  echo ""
-  echo "        archive_file    - the path to the archive file to use  If the -model_file"
-  echo "                          argument is not specified, the model file in this archive"
-  echo "                          will be used.  This can also be specified as a"
-  echo "                          comma-separated list of archive files.  The overlapping contents in"
-  echo "                          each archive take precedence over previous archives in the list."
   echo ""
   echo "        model_file      - the location of the model file to use.  This can also be specified as a"
   echo "                          comma-separated list of model locations, where each successive model layers"

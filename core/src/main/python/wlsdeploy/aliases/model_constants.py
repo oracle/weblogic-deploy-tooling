@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -263,6 +263,7 @@ SAML2_CREDENTIAL_MAPPER = 'SAML2CredentialMapper'
 SAML2_IDENTITY_ASSERTER = 'SAML2IdentityAsserter'
 SCRIPT_ACTION = 'ScriptAction'
 SECURE_MODE = 'SecureMode'
+SECURE_MODE_ENABLED = 'SecureModeEnabled'
 SECURITY = 'Security'
 SECURITY_CONFIGURATION = 'SecurityConfiguration'
 SECURITY_CONFIGURATION_CD_ENABLED = 'CrossDomainSecurityEnabled'

@@ -28,6 +28,7 @@
         "PartialClusterStabilityDelaySeconds":  [ {"version": "[12.2,12.2.1.1)", "wlst_mode": "both", "wlst_name": "PartialClusterStabilityDelaySeconds", "wlst_path": "WP001", "default_value": -1,       "wlst_type": "long"             },
                                                   {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "PartialClusterStabilityDelaySeconds", "wlst_path": "WP001", "default_value": 240,       "wlst_type": "long"             } ],
         "PrefixName":                           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "PrefixName",                          "wlst_path": "WP001", "default_value": null,      "wlst_type": "string",          "restart_required": "true" } ],
+        "RebalanceEnabled":                     [ {"version": "[14.1.2,)",   "wlst_mode": "both",    "wlst_name": "RebalanceEnabled",                    "wlst_path": "WP001", "default_value": false,     "wlst_type": "boolean"          } ],
         "ReconnectRetryIntervalMillis":         [ {"version": "[12.2,)",     "wlst_mode": "both",    "wlst_name": "ReconnectRetryIntervalMillis",        "wlst_path": "WP001", "default_value": 200,       "wlst_type": "integer",         "restart_required": "true" } ],
         "ReconnectRetryPeriodMillis":           [ {"version": "[12.2,)",     "wlst_mode": "both",    "wlst_name": "ReconnectRetryPeriodMillis",          "wlst_path": "WP001", "default_value": 1000,      "wlst_type": "integer",         "restart_required": "true" } ],
         "RestartInPlace":                       [ {"version": "[12.2,12.2.1.2)", "wlst_mode": "both", "wlst_name": "RestartInPlace",                     "wlst_path": "WP001", "default_value": "true",    "wlst_type": "boolean"          },
@@ -41,7 +42,7 @@
                                                   {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "WorkerCount",                         "wlst_path": "WP001", "default_value": 1,         "wlst_type": "integer",         "restart_required": "true" } ],
         "WorkerPreferredBatchSize":             [ {"version": "[10,12.1.2)", "wlst_mode": "online",  "wlst_name": "WorkerPreferredBatchSize",            "wlst_path": "WP001", "default_value": 10,        "wlst_type": "integer",         "restart_required": "true" },
                                                   {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "WorkerPreferredBatchSize",            "wlst_path": "WP001", "default_value": 10,        "wlst_type": "integer",         "restart_required": "true" } ],
-        "XAResourceName":                       [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "XAResourceName",                      "wlst_path": "WP001", "default_value": null,      "wlst_type": "string",          "access": "${:RO}" } ]
+        "XAResourceName":                       [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "XAResourceName",                      "wlst_path": "WP001", "default_value": null,      "wlst_type": "string",          "access": "${:IGNORED}" } ]
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {
