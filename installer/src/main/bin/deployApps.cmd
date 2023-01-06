@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem deployApps.cmd
 @rem
-@rem Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -72,8 +72,8 @@ ECHO.
 ECHO Usage: %SCRIPT_NAME% [-help] [-use_encryption]
 ECHO              [-oracle_home ^<oracle_home^>]
 ECHO              -domain_home ^<domain_home^>
+ECHO              -model_file ^<model_file^>
 ECHO              [-archive_file ^<archive_file^>]
-ECHO              [-model_file ^<model_file^>]
 ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-domain_type ^<domain_type^>]
 ECHO              [-passphrase_env ^<passphrase_env^>]
@@ -90,20 +90,18 @@ ECHO              ]
 ECHO.
 ECHO     where:
 ECHO         oracle_home     - the existing Oracle Home directory for the domain.
-ECHO                           This is required unless the ORACLE_HOME environment
+ECHO                           This argument is required unless the ORACLE_HOME environment
 ECHO                           variable is set.
 ECHO.
-ECHO         domain_home     - the domain home directory
-ECHO.
-ECHO         archive_file    - the path to the archive file to use.  If the -model_file
-ECHO                           argument is not specified, the model file in this archive
-ECHO                           will be used.  This can also be specified as a
-ECHO                           comma-separated list of archive files.  The overlapping contents in
-ECHO                           each archive take precedence over previous archives in the list.
+ECHO         domain_home     - the domain home directory.  This argument is required.
 ECHO.
 ECHO         model_file      - the location of the model file to use.  This can also be specified as a
 ECHO                           comma-separated list of model locations, where each successive model
-ECHO                           layers on top of the previous ones.
+ECHO                           layers on top of the previous ones.  This argument is required.
+ECHO.
+ECHO         archive_file    - the path to the archive file to use.  This can also be specified as a
+ECHO                           comma-separated list of archive files.  The overlapping contents in
+ECHO                           each archive take precedence over previous archives in the list.
 ECHO.
 ECHO         variable_file   - the location of the property file containing the values for variables used in
 ECHO                           the model. This can also be specified as a comma-separated list of property files,

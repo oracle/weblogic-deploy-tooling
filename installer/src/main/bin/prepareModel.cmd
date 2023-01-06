@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem prepareModel.cmd
 @rem
-@rem Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2020, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -66,12 +66,33 @@ if "%SHOW_USAGE%" == "false" (
 ECHO.
 ECHO Usage: %SCRIPT_NAME%
 ECHO           [-help]
-ECHO           [-oracle_home ^<oracle_home^> required unless the ORACLE_HOME environment variable is set]
-ECHO           -model_file ^<model file^>  model files
-ECHO           -target ^<target_name^>  name of target configuration, such as k8s
-ECHO           -output_dir ^<output_dir^>  write the outputs to the directory specified
-ECHO           [-variable_file ^<variable file^>  variable file used for macro substitution]
-ECHO           [-archive_file ^<archive file^>  archive file used for validation and filtering based on specified target]
+ECHO           [-oracle_home ^<oracle_home^>]
+ECHO           -model_file ^<model file^>
+ECHO           -target ^<target_name^>
+ECHO           -output_dir ^<output_dir^>
+ECHO           [-variable_file ^<variable file^>]
+ECHO           [-archive_file ^<archive file^>]
+ECHO.
+ECHO     where:
+ECHO         oracle_home     - the existing Oracle Home directory for the domain.
+ECHO                           This argument is required unless the ORACLE_HOME environment
+ECHO                           variable is set.
+ECHO.
+ECHO         model_file      - the location of the model file to use.  This can also be specified as a
+ECHO                           comma-separated list of model locations, where each successive model
+ECHO                           layers on top of the previous ones.  This argument is required.
+ECHO.
+ECHO         target          - the target output type. This argument is required.
+ECHO.
+ECHO         output_dir      - the location for the target output files.  This argument is required.
+ECHO.
+ECHO         variable_file   - the location of the property file containing the values for variables used in
+ECHO                           the model. This can also be specified as a comma-separated list of property files,
+ECHO                           where each successive set of properties layers on top of the previous ones.
+ECHO.
+ECHO         archive_file    - the path to the archive file to use.  This can also be specified as a
+ECHO                           comma-separated list of archive files.  The overlapping contents in
+ECHO                           each archive take precedence over previous archives in the list.
 ECHO.
 
 :exit_script

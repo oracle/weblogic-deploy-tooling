@@ -2,7 +2,7 @@
 # *****************************************************************************
 # discoverDomain.sh
 #
-# Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.  All rights reserved.
+# Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -35,9 +35,8 @@ usage() {
   echo "Usage: $1 [-help]"
   echo "          [-oracle_home <oracle_home>]"
   echo "          -domain_home <domain_home>"
-  echo "          [-archive_file <archive_file>]"
-  echo "          [-skip_archive]"
-  echo "          [-model_file <model_file>]"
+  echo "          -model_file <model_file>"
+  echo "          <-archive_file <archive_file> | -skip_archive | -remote>"
   echo "          [-variable_file <variable_file>]"
   echo "          [-domain_type <domain_type>]"
   echo "          [-admin_pass_env <admin_pass_env>]"
@@ -53,22 +52,21 @@ usage() {
   echo ""
   echo "    where:"
   echo "        oracle_home     - the existing Oracle Home directory for the domain."
-  echo "                          This is required unless the ORACLE_HOME environment"
+  echo "                          This argument is required unless the ORACLE_HOME environment"
   echo "                          variable is set."
   echo ""
-  echo "        domain_home     - the domain home directory"
+  echo "        domain_home     - the domain home directory.  This argument is required."
+  echo ""
+  echo "        model_file      - the location of the model file to use.  This argument is required."
   echo ""
   echo "        archive_file    - the path to the archive file to use"
   echo ""
   echo "        skip_archive    - Do not generate the archive file. The archive file command will be ignored"
   echo "                          The file references in the model will be the local domain file names"
   echo ""
-  echo "        remote          - Discover the remote domain. Do not generate an archive file. However, The file "
-  echo "                          references in the model are structured as if they are in an archive. A list of these files "
-  echo "                          will be generated."
-  echo ""
-  echo "        model_file      - the location of the model file to use; "
-  echo "                          the default is to get the model from the archive"
+  echo "        remote          - Discover the remote domain. Do not generate an archive file. "
+  echo "                          However, The file references in the model are structured as if they are"
+  echo "                          in an archive. A list of these files will be generated."
   echo ""
   echo "        variable_file   - the location of the variable file to write "
   echo "                          properties by the variable injector. If this "

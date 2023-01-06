@@ -2,7 +2,7 @@
 # *****************************************************************************
 # deployApps.sh
 #
-# Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+# Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -33,8 +33,8 @@ usage() {
   echo "Usage: $1 [-help] [-use_encryption]"
   echo "          [-oracle_home <oracle_home>]"
   echo "          -domain_home <domain_home>"
+  echo "          -model_file <model_file>"
   echo "          [-archive_file <archive_file>]"
-  echo "          [-model_file <model_file>]"
   echo "          [-variable_file <variable_file>]"
   echo "          [-domain_type <domain_type>]"
   echo "          [-passphrase_env <passphrase_env>]"
@@ -51,20 +51,18 @@ usage() {
   echo ""
   echo "    where:"
   echo "        oracle_home     - the existing Oracle Home directory for the domain."
-  echo "                          This is required unless the ORACLE_HOME environment"
+  echo "                          This argument is required unless the ORACLE_HOME environment"
   echo "                          variable is set."
   echo ""
-  echo "        domain_home     - the domain home directory"
-  echo ""
-  echo "        archive_file    - the path to the archive file to use  If the -model_file"
-  echo "                          argument is not specified, the model file in this archive"
-  echo "                          will be used.  This can also be specified as a"
-  echo "                          comma-separated list of archive files.  The overlapping contents in"
-  echo "                          each archive take precedence over previous archives in the list."
+  echo "        domain_home     - the domain home directory.  This argument is required."
   echo ""
   echo "        model_file      - the location of the model file to use.  This can also be specified as a"
   echo "                          comma-separated list of model locations, where each successive model layers"
-  echo "                          on top of the previous ones."
+  echo "                          on top of the previous ones.  This argument is required."
+  echo ""
+  echo "        archive_file    - the path to the archive file to use  This can also be specified as a"
+  echo "                          comma-separated list of archive files.  The overlapping contents in"
+  echo "                          each archive take precedence over previous archives in the list."
   echo ""
   echo "        variable_file   - the location of the property file containing the values for variables used in"
   echo "                          the model. This can also be specified as a comma-separated list of property files,"

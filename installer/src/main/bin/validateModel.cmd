@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem validateModel.cmd
 @rem
-@rem Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -74,7 +74,7 @@ if "%SHOW_USAGE%" == "false" (
 ECHO.
 ECHO Usage: %SCRIPT_NAME% [-help]
 ECHO              [-oracle_home ^<oracle_home^>]
-ECHO              [-model_file ^<model_file^>]
+ECHO              -model_file ^<model_file^>
 ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-archive_file ^<archive_file^>]
 ECHO              [-target ^<target^>]
@@ -85,21 +85,12 @@ ECHO              [-wlst_path ^<wlst_path^>]
 ECHO.
 ECHO     where:
 ECHO         oracle_home     - the existing Oracle Home directory for the domain.
-ECHO                           This is required unless the ORACLE_HOME environment
+ECHO                           This argument is required unless the ORACLE_HOME environment
 ECHO                           variable is set.
-ECHO.
-ECHO         context         - specify the context for printing out the model structure.
-ECHO                           By default, the specified folder attributes and subfolder
-ECHO                           names are printed.  Use one of the optional control
-ECHO                           switches to customize the behavior.  Note that the
-ECHO                           control switches are mutually exclusive.
 ECHO.
 ECHO         model_file      - the location of the model file to use.  This can also be specified as a
 ECHO                           comma-separated list of model locations, where each successive model
-ECHO                           layers on top of the previous ones.
-ECHO                           If not specified, the tool will look for the model in the archive.
-ECHO                           If the model is not found, validation will only
-ECHO                           validate the artifacts provided.
+ECHO                           layers on top of the previous ones.  This argument is required.
 ECHO.
 ECHO         variable_file   - the location of the property file containing
 ECHO                           the variable values for all variables used in the model.

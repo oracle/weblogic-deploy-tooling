@@ -37,7 +37,6 @@ __required_arguments = [
 ]
 
 __optional_arguments = [
-    CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
     CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH,
     CommandLineArgUtil.VARIABLE_KEYWORDS_FILE_SWITCH,
     CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH,
@@ -79,27 +78,11 @@ def __inject(model, model_context):
     return inserted, model
 
 
-def __close_archive(model_context):
-    """
-    Close the archive object
-    :param model_context: the model context
-    """
-    _method_name = '__close_archive'
-
-    __logger.entering(_class_name=_class_name, method_name=_method_name)
-    archive_file = model_context.get_archive_file()
-    if archive_file:
-        archive_file.close()
-    __logger.exiting(class_name=_class_name, method_name=_method_name)
-
-
 def __persist_model(model, model_context):
     """
     Save the model to the specified model file name.
     :param model: the model to save
     :param model_context: the model context
-    :raises DiscoverException: if an error occurs while create a temporary file for the model
-                               or while adding it to the archive
     :raises TranslateException: if an error occurs while serializing the model or writing it to disk
     """
     _method_name = '__persist_model'
@@ -145,7 +128,6 @@ def main(model_context):
                                 ex.getLocalizedMessage(), error=ex, class_name=_class_name, method_name=_method_name)
                 _exit_code = ExitCode.ERROR
 
-    __close_archive(model_context)
     __logger.exiting(class_name=_class_name, method_name=_method_name, result=_exit_code)
     return _exit_code
 

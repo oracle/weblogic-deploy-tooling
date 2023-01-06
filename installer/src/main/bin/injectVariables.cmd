@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem injectVariables.cmd
 @rem
-@rem Copyright (c) 2018, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2018, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -68,24 +68,17 @@ if "%SHOW_USAGE%" == "false" (
 ECHO.
 ECHO Usage: %SCRIPT_NAME% [-help]
 ECHO              [-oracle_home ^<oracle_home^>]
-ECHO              [-model_file ^<model_file^>]
-ECHO              [-archive_file ^<archive_file^>]
+ECHO              -model_file ^<model_file^>
 ECHO              [-variable_injector_file ^<variable_injector_file^>]
 ECHO              [-variable_properties_file ^<variable_properties_file^>]
 ECHO.
 ECHO     where:
 ECHO         oracle_home            - the existing Oracle Home directory with the correct version for the model.
-ECHO                                  This is required unless the ORACLE_HOME environment
+ECHO                                  This argument is required unless the ORACLE_HOME environment
 ECHO                                  variable is set.
 ECHO.
 ECHO         model_file             - the location of the model file in which variables will be injected.
-ECHO                                  If not specified, the tool will look for the model
-ECHO                                  in the archive file. Either the model_file or the archive_file argument
-ECHO                                  must be provided.
-ECHO.
-ECHO         archive_file           - the path to the archive file that contains a model in which the variables
-ECHO                                  will be injected. If the -model_file argument is used, this argument will be
-ECHO                                  ignored. The archive file must contain a valid model.
+ECHO                                  This argument is required.
 ECHO.
 ECHO         variable_injector_file - the location of the variable injector file which contains the variable
 ECHO                                  injector keywords for this model injection run. If this argument is not provided,

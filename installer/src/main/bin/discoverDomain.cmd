@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem discoverDomain.cmd
 @rem
-@rem Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -72,9 +72,8 @@ if "%SHOW_USAGE%" == "false" (
 ECHO.
 ECHO Usage: %SCRIPT_NAME% [-oracle_home ^<oracle_home^>]
 ECHO              -domain_home ^<domain_home^>
-ECHO              [-archive_file ^<archive_file^>]
-ECHO              [-skip_archive]
-ECHO              [-model_file ^<model_file^>]
+ECHO              -model_file ^<model_file^>
+ECHO              ^<-archive_file ^<archive_file^> ^| -skip_archive ^| -remote ^>
 ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-domain_type ^<domain_type^>]
 ECHO              [-admin_pass_env ^<admin_pass_env^>]
@@ -90,22 +89,21 @@ ECHO              ]
 ECHO.
 ECHO     where:
 ECHO         oracle_home    - the existing Oracle Home directory for the domain.
-ECHO                          This is required unless the ORACLE_HOME environment
+ECHO                          This argument is required unless the ORACLE_HOME environment
 ECHO                          variable is set.
 ECHO.
-ECHO         domain_home    - the domain home directory
+ECHO         domain_home    - the domain home directory.  This argument is required.
+ECHO.
+ECHO         model_file     - the location to write the model file.  This argument is required.
 ECHO.
 ECHO         archive_file   - the path to the archive file
 ECHO.
-ECHO         skip_archive   - do not generate an archive file. The archive_file option will be ignored. The file
-ECHO                          references in the model are the local file names.
+ECHO         skip_archive   - do not generate an archive file. The archive_file option will be ignored.
+ECHO                          The file references in the model are the local file names.
 ECHO.
-ECHO         remote         - Online only. Discover the remote domain. Do not generate an archive file. However, The file
-ECHO                          references in the model are structured as if they are in an archive. A list of these files
-ECHO                          will be generated.
-ECHO.
-ECHO         model_file     - the location to write the model file,
-ECHO                          the default is to write it inside the archive
+ECHO         remote         - Online only. Discover the remote domain. Do not generate an archive file.
+ECHO                          However, The file references in the model are structured as if they are
+ECHO                          in an archive. A list of these files will be generated.
 ECHO.
 ECHO         variable_file  - the location to write properties for attributes that
 ECHO                          have been replaced with tokens by the variable injector.

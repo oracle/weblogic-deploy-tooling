@@ -2,7 +2,7 @@
 # *****************************************************************************
 # validateModel.sh
 #
-# Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+# Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -31,7 +31,7 @@ usage() {
   echo ""
   echo "Usage: $1 [-help]"
   echo "          [-oracle_home <oracle_home>]"
-  echo "          [-model_file <model_file>]"
+  echo "          -model_file <model_file>"
   echo "          [-variable_file <variable_file>]"
   echo "          [-archive_file <archive_file>]"
   echo "          [-target <target>]"
@@ -41,14 +41,12 @@ usage() {
   echo ""
   echo "    where:"
   echo "        oracle_home     - the existing Oracle Home directory for the domain."
-  echo "                          This is required unless the ORACLE_HOME environment"
+  echo "                          This argument is required unless the ORACLE_HOME environment"
   echo "                          variable is set."
   echo ""
   echo "        model_file      - the location of the model file to use.  This can also be specified as a"
   echo "                          comma-separated list of model locations, where each successive model layers"
-  echo "                          on top of the previous ones.  If not specified, the tool will look for the"
-  echo "                          model in the archive.  If the model is not found, validation will only"
-  echo "                          validate the artifacts provided."
+  echo "                          on top of the previous ones.  This argument is required."
   echo ""
   echo "        variable_file   - the location of the property file containing"
   echo "                          the variable values for all variables used in the model."

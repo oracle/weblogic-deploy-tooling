@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem createDomain.cmd
 @rem
-@rem Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -73,11 +73,11 @@ if "%SHOW_USAGE%" == "false" (
 ECHO.
 ECHO Usage: %SCRIPT_NAME% [-help] [-use_encryption] [-run_rcu]
 ECHO              [-oracle_home ^<oracle_home^>]
-ECHO              [-domain_parent ^<domain_parent^> ^| -domain_home ^<domain_home^>]
-ECHO              -domain_type ^<domain_type^>
+ECHO              -model_file ^<model_file^>
+ECHO              ^<-domain_parent ^<domain_parent^> ^| -domain_home ^<domain_home^>^>
+ECHO              [-domain_type ^<domain_type^>]
 ECHO              [-java_home ^<java_home^>]
 ECHO              [-archive_file ^<archive_file^>]
-ECHO              [-model_file ^<model_file^>]
 ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-passphrase_env ^<passphrase_env^>]
 ECHO              [-passphrase_file ^<passphrase_file^>]
@@ -91,34 +91,35 @@ ECHO              ]
 ECHO.
 ECHO     where:
 ECHO         oracle_home     - the existing Oracle Home directory for the domain.
-ECHO                           This is required unless the ORACLE_HOME environment
+ECHO                           This argument is required unless the ORACLE_HOME environment
 ECHO                           variable is set.
+ECHO.
+ECHO         model_file      - the location of the model file to use.  This can also be specified as a
+ECHO                           comma-separated list of model locations, where each successive model
+ECHO                           layers on top of the previous ones.  This argument is required.
 ECHO.
 ECHO         domain_parent   - the parent directory where the domain should be created.
 ECHO                           The domain name from the model will be appended to this
-ECHO                           location to become the domain home.
+ECHO                           location to become the domain home.  This argument is required
+ECHO                           unless -domain_home is provided.
 ECHO.
 ECHO         domain_home     - the full directory where the domain should be created.
 ECHO                           This is used in cases where the domain name is different
-ECHO                           from the domain home directory name.
+ECHO                           from the domain home directory name.  This argument is required
+ECHO                           unless -domain_parent is provided.
 ECHO.
 ECHO         domain_type     - the type of domain (e.g., WLS, JRF).  This controls
 ECHO                           the domain templates and template resource targeting.
 ECHO                           Also used to locate wlst.cmd if -wlst_path not specified.
+ECHO                           If not specified, the default domain type is WLS.
 ECHO.
 ECHO         java_home       - the Java Home to use for the new domain.  If not
 ECHO                           specified, it defaults to the value of the JAVA_HOME
 ECHO                           environment variable.
 ECHO.
-ECHO         archive_file    - the path to the archive file to use.  If the -model_file
-ECHO                           argument is not specified, the model file in this archive
-ECHO                           will be used.  This can also be specified as a
+ECHO         archive_file    - the path to the archive file to use.  This can also be specified as a
 ECHO                           comma-separated list of archive files.  The overlapping contents in
 ECHO                           each archive take precedence over previous archives in the list.
-ECHO.
-ECHO         model_file      - the location of the model file to use.  This can also be specified as a
-ECHO                           comma-separated list of model locations, where each successive model
-ECHO                           layers on top of the previous ones.
 ECHO.
 ECHO         variable_file   - the location of the property file containing the values for variables used in
 ECHO                           the model. This can also be specified as a comma-separated list of property files,

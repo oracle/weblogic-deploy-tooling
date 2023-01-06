@@ -2,7 +2,7 @@
 # *****************************************************************************
 # injectVariables.sh
 #
-# Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+# Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -34,23 +34,18 @@ usage() {
   echo ""
   echo "Usage: $1 [-help]"
   echo "          [-oracle_home <oracle_home>]"
-  echo "          -model_file <model_file> | -archive_file <archive_file>"
+  echo "          -model_file <model_file>"
   echo "          [-variable_injector_file <variable_injector_file>]"
   echo "          [-variable_keywords_file <variable_keywords_file>]"
   echo "          [-variable_properties_file <variable_file>]"
   echo ""
   echo "    where:"
   echo "         oracle_home     - the existing Oracle Home directory for the domain."
-  echo "                           This is required unless the ORACLE_HOME environment"
+  echo "                           This argument is required unless the ORACLE_HOME environment"
   echo "                           variable is set."
   echo ""
   echo "         model_file      - the location of the model file in which variables will be injected."
-  echo "                           If not specified, the tool will look for the model"
-  echo "                           in the archive file. Either the model_file or the archive_file argument must be provided."
-  echo ""
-  echo "         archive_file    - the path to the archive file that contains a model in which the variables"
-  echo "                           will be injected. If the -model_file argument is used, this argument will be"
-  echo "                           ignored. The archive file must contain a valid model."
+  echo "                           This argument is required."
   echo ""
   echo "         variable_injector_file  - the location of the variable injector file which contains the variable"
   echo "                           injector keywords for this model injection run. If this argument is not provided,"
