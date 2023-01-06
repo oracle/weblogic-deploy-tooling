@@ -43,7 +43,6 @@ __optional_arguments = [
     # Used by shell script to locate WLST
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
     CommandLineArgUtil.DOMAIN_HOME_SWITCH,
-    CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
     CommandLineArgUtil.TARGET_SWITCH,
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,
     CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
@@ -70,13 +69,11 @@ def __process_args(args):
     cla_util.set_allow_multiple_models(True)
     argument_map = cla_util.process_args(args, TOOL_TYPE_EXTRACT)
 
-    cla_helper.validate_optional_archive(_program_name, argument_map)
-
     cla_helper.validate_required_model(_program_name, argument_map)
     cla_helper.validate_variable_file_exists(_program_name, argument_map)
     cla_helper.process_encryption_args(argument_map)
 
-    # allow unresolved tokens and archive entries
+    # allow unresolved tokens and entries
     argument_map[CommandLineArgUtil.VALIDATION_METHOD] = validate_configuration.LAX_METHOD
 
     return model_context_helper.create_context(_program_name, argument_map)
