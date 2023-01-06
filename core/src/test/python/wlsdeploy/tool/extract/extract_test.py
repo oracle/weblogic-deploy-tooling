@@ -25,23 +25,13 @@ class ExtractTest(BaseTestCase):
         BaseTestCase.__init__(self, *args)
         self.MODELS_DIR = os.path.join(self.TEST_CLASSES_DIR, 'extract')
         self.EXTRACT_OUTPUT_DIR = os.path.join(self.TEST_OUTPUT_DIR, 'extract')
-        self.TARGET_SOURCE_DIR = os.path.abspath(self.TEST_CLASSES_DIR + '/../../../core/src/main/targetconfigs')
+        self.config_dir = None
 
     def setUp(self):
         BaseTestCase.setUp(self)
         self._suspend_logs('wlsdeploy.extract')
         self._establish_directory(self.EXTRACT_OUTPUT_DIR)
-
-        config_dir = os.path.join(self.TEST_OUTPUT_DIR, 'config')
-        targets_dir = os.path.join(config_dir, 'targets')
-        self._establish_directory(config_dir)
-        self._establish_directory(targets_dir)
-
-        self._copy_target_file(targets_dir, 'wko', 'target.json')
-        self._copy_target_file(targets_dir, 'templates', 'wko-domain.yaml')
-
-        # use WDT custom configuration to find target definition
-        self._set_custom_config_dir(config_dir)
+        self.config_dir = self._set_custom_config_dir('extract-wdt-config')
 
     def tearDown(self):
         BaseTestCase.tearDown(self)
@@ -50,21 +40,13 @@ class ExtractTest(BaseTestCase):
         # clean up temporary WDT custom configuration environment variable
         self._clear_custom_config_dir()
 
-    def _copy_target_file(self, targets_dir, target_name, target_file_name):
-        target_dir = os.path.join(targets_dir, target_name)
-        target_file = os.path.join(target_dir, target_file_name)
-        if not os.path.exists(target_file):
-            self._establish_directory(target_dir)
-            source_file = os.path.join(self.TARGET_SOURCE_DIR, target_name, target_file_name)
-            shutil.copy(source_file, target_file)
-
     def testDefaultModel(self):
         """
         Test that default values and information from the model
         are incorporated into the resulting domain resource file.
         """
         # Configure the target to set cluster replicas
-        target_path = os.path.join(self.TEST_OUTPUT_DIR, 'config', 'targets', 'wko', 'target.json')
+        target_path = os.path.join(self.config_dir, 'targets', 'wko', 'target.json')
         config = JsonToPython(target_path).parse()
         config['set_cluster_replicas'] = True
         PythonToJson(config).write_to_json_file(target_path)

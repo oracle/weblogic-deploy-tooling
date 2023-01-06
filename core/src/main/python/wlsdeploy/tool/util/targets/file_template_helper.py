@@ -75,15 +75,19 @@ def create_file_from_file(file_path, template_hash, output_file, exception_type)
     """
     _method_name = 'create_file_from_file'
 
+    template_stream = None
     try:
-        template_stream = FileUtils.getFileAsStream(file_path)
+        try:
+            template_stream = FileUtils.getFileAsStream(file_path)
+            if template_stream is not None:
+                _create_file_from_stream(template_stream, template_hash, output_file)
+        except (IOException, IllegalArgumentException), ie:
+            ex = exception_helper.create_exception(exception_type, 'WLSDPLY-01666', file_path, ie)
+            __logger.throwing(ex, class_name=__class_name, method_name=_method_name)
+            raise ex
+    finally:
         if template_stream is not None:
-            _create_file_from_stream(template_stream, template_hash, output_file)
-    except (IOException, IllegalArgumentException), ie:
-        ex = exception_helper.create_exception(exception_type, 'WLSDPLY-01666', file_path, ie)
-        __logger.throwing(ex, class_name=__class_name, method_name=_method_name)
-        raise ex
-
+            template_stream.close()
 
 def _create_file_from_stream(template_stream, template_hash, output_file, write_access='w'):
     """
@@ -94,38 +98,45 @@ def _create_file_from_stream(template_stream, template_hash, output_file, write_
     :param output_file: the java.io.File to write
     :param write_access: write access for the resulting file
     """
-    template_reader = BufferedReader(InputStreamReader(template_stream))
-    file_writer = open(output_file.getPath(), write_access)
 
-    block_key = None
-    block_lines = []
+    template_reader = None
+    file_writer = None
+    try:
+        template_reader = BufferedReader(InputStreamReader(template_stream))
+        file_writer = open(output_file.getPath(), write_access)
 
-    line = ''
-    while line is not None:
-        line = template_reader.readLine()
-        if line is not None:
-            block_start_key = _get_block_start_key(line)
+        block_key = None
+        block_lines = []
 
-            # if inside a block, collect lines until end key is found, then process the block.
-            if block_key is not None:
-                block_end_key = _get_block_end_key(line)
-                if block_end_key == block_key:
-                    _process_block(block_key, block_lines, template_hash, file_writer)
-                    block_key = None
+        line = ''
+        while line is not None:
+            line = template_reader.readLine()
+            if line is not None:
+                block_start_key = _get_block_start_key(line)
+
+                # if inside a block, collect lines until end key is found, then process the block.
+                if block_key is not None:
+                    block_end_key = _get_block_end_key(line)
+                    if block_end_key == block_key:
+                        _process_block(block_key, block_lines, template_hash, file_writer)
+                        block_key = None
+                    else:
+                        block_lines.append(line)
+
+                # if this is a block start, begin collecting block lines
+                elif block_start_key is not None:
+                    block_key = block_start_key
+                    block_lines = []
+
+                # otherwise, substitute and write the line
                 else:
-                    block_lines.append(line)
-
-            # if this is a block start, begin collecting block lines
-            elif block_start_key is not None:
-                block_key = block_start_key
-                block_lines = []
-
-            # otherwise, substitute and write the line
-            else:
-                line = _substitute_line(line, template_hash)
-                file_writer.write(line + "\n")
-
-    file_writer.close()
+                    line = _substitute_line(line, template_hash)
+                    file_writer.write(line + "\n")
+    finally:
+        if template_reader is not None:
+            template_reader.close()
+        if file_writer is not None:
+            file_writer.close()
 
 
 def _process_block(block_key, template_lines, template_hash, file_writer):

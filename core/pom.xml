@@ -134,6 +134,9 @@
                             <systemProperties>
                                 <unit-test-wlst-dir>${unit-test-wlst-dir}</unit-test-wlst-dir>
                             </systemProperties>
+                            <environmentVariables>
+                                <WDT_CUSTOM_CONFIG>${project.build.directory}/unit-tests/wdt-config</WDT_CUSTOM_CONFIG>
+                            </environmentVariables>
                         </configuration>
                     </execution>
                 </executions>
@@ -155,6 +158,47 @@
                             <sources>
                                 <source>${project.build.directory}/generated-sources/weblogic-deploy</source>
                             </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-lib</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skipTests}</skip>
+                            <outputDirectory>${project.build.directory}/unit-tests/wdt-config</outputDirectory>
+                            <overwrite>true</overwrite>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/../installer/src/main/lib</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-targets</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skipTests}</skip>
+                            <outputDirectory>${project.build.directory}/unit-tests/wdt-config/targets</outputDirectory>
+                            <overwrite>true</overwrite>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/src/main/targetconfigs</directory>
+                                </resource>
+                            </resources>
                         </configuration>
                     </execution>
                 </executions>
