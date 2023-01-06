@@ -240,6 +240,7 @@ def __discover(model_context, aliases, credential_injector, helper, extra_tokens
     try:
         _add_domain_name(base_location, aliases, helper)
         _establish_production_mode(aliases, helper)
+        _establish_secure_mode(aliases, base_location, helper)
 
         DomainInfoDiscoverer(model_context, model.get_model_domain_info(), base_location, wlst_mode=__wlst_mode,
                              aliases=aliases, credential_injector=credential_injector).discover()
@@ -296,6 +297,37 @@ def _establish_production_mode(aliases, helper):
         aliases.set_production_mode(production_mode_enabled)
     except PyWLSTException, pe:
         de = exception_helper.create_discover_exception('WLSDPLY-06036', pe.getLocalizedMessage())
+        __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+        raise de
+
+
+def _establish_secure_mode(aliases, base_location, helper):
+    """
+    Determine if secure mode is enabled for the domain, and set it in the aliases.
+    :param aliases: aliases instance for discover
+    :param base_location: location of root directory in WLST
+    :param helper: wlst_helper instance
+    :raises DiscoverException: if an error occurs during discovery
+    """
+    _method_name = '_establish_secure_mode'
+    try:
+        secure_mode_location = LocationContext(base_location)
+        secure_mode_location.append_location(model_constants.SECURITY_CONFIGURATION)
+        security_config_path = aliases.get_wlst_list_path(secure_mode_location)
+        security_config_token = helper.get_singleton_name(security_config_path)
+        secure_mode_location.add_name_token(aliases.get_name_token(secure_mode_location), security_config_token)
+
+        secure_mode_location.append_location(model_constants.SECURE_MODE)
+        secure_mode_path = aliases.get_wlst_list_path(secure_mode_location)
+        secure_mode_token = helper.get_singleton_name(secure_mode_path)
+        if secure_mode_token is not None:
+            secure_mode_location.add_name_token(aliases.get_name_token(secure_mode_location), secure_mode_token)
+            helper.cd(aliases.get_wlst_attributes_path(secure_mode_location))
+            secure_mode_enabled = helper.get(model_constants.SECURE_MODE_ENABLED)
+            aliases.set_secure_mode(secure_mode_enabled)
+            helper.cd(aliases.get_wlst_attributes_path(base_location))
+    except PyWLSTException, pe:
+        de = exception_helper.create_discover_exception('WLSDPLY-06038', pe.getLocalizedMessage())
         __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
         raise de
 
