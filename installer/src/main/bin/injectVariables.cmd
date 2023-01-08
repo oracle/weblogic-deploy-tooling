@@ -70,25 +70,38 @@ ECHO Usage: %SCRIPT_NAME% [-help]
 ECHO              [-oracle_home ^<oracle_home^>]
 ECHO              -model_file ^<model_file^>
 ECHO              [-variable_injector_file ^<variable_injector_file^>]
-ECHO              [-variable_properties_file ^<variable_properties_file^>]
+ECHO              [-variable_keywords_file ^<variable_keywords_file^>]
+ECHO              [-variable_properties_file ^<variable_file^>]
 ECHO.
 ECHO     where:
-ECHO         oracle_home            - the existing Oracle Home directory with the correct version for the model.
-ECHO                                  This argument is required unless the ORACLE_HOME environment
-ECHO                                  variable is set.
+ECHO         oracle_home     - the existing Oracle Home directory for the domain.
+ECHO                           This argument is required unless the ORACLE_HOME
+ECHO                           environment variable is set.
 ECHO.
-ECHO         model_file             - the location of the model file in which variables will be injected.
-ECHO                                  This argument is required.
+ECHO         model_file      - the location of the model file in which variables will
+ECHO                           be injected.  This argument is required.
 ECHO.
-ECHO         variable_injector_file - the location of the variable injector file which contains the variable
-ECHO                                  injector keywords for this model injection run. If this argument is not provided,
-ECHO                                  the model_variable_injector.json file must exist in the lib directory in the
-ECHO                                  WLSDEPLOY_HOME location.
+ECHO         variable_injector_file - the location of the variable injector file
+ECHO                           which contains the variable injector keywords for this
+ECHO                           model injection run. If this argument is not provided,
+ECHO                           the model_variable_injector.json file must exist in
+ECHO                           the lib directory in the WLSDEPLOY_HOME location.
 ECHO.
-ECHO         variable_properties_file - the location of the property file in which to store any variable names injected
-ECHO                                    into the model. If this command line argument is not specified, the variable
-ECHO                                    will be located and named based on the model file or archive file name and
-ECHO                                    location. If the file exists, the file will be updated with new variable values.
+ECHO         variable_keywords_file - this argument overrides the INSTALLED version
+ECHO                           of the allowed variable keywords for the variable
+ECHO                           injector. This argument is for advanced usage only.
+ECHO                           The installed keywords file is located in the lib
+ECHO                           directory of WLSDEPLOY_HOME location.
+ECHO.
+ECHO         variable_file   - the location of the property file in which to store
+ECHO                           any variable names injected into the model. This
+ECHO                           argument overrides the value in the model injector
+ECHO                           file.  If the variable file is not listed in the
+ECHO                           model injector file, and this command-line argument
+ECHO                           is not used, the variable properties will be located
+ECHO                           and named based on the model file or archive file name
+ECHO                           and location.  If the variable file exists, new
+ECHO                           variable values will be appended to the file.
 ECHO.
 
 :exit_script

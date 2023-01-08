@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem encryptModel.cmd
 @rem
-@rem Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -90,11 +90,14 @@ ECHO         variable_file   - the location and name of the property file contai
 ECHO                           the variable values for all variables used in
 ECHO                           the model(s).
 ECHO.
-ECHO         passphrase_env  - An alternative to entering the encryption passphrase at a prompt. The value is a
-ECHO                           ENVIRONMENT VARIABLE name that WDT will use to retrieve the passphrase.
+ECHO         passphrase_env  - An alternative to entering the encryption passphrase
+ECHO                           at a prompt. The value is an ENVIRONMENT VARIABLE name
+ECHO                           that WDT will use to retrieve the passphrase.
 ECHO.
-ECHO         passphrase_file - An alternative to entering the encryption passphrase at a prompt. The value is a
-ECHO                           the name of a file with a string value which WDT will read to retrieve the passphrase.
+ECHO         passphrase_file - An alternative to entering the encryption passphrase
+ECHO                           at a prompt. The value is the name of a file with a
+ECHO                           string value which WDT will read to retrieve the
+ECHO                           passphrase.
 ECHO.
 ECHO     The -manual switch can be used to run the tool without a model and get
 ECHO     the encrypted value for a single password.

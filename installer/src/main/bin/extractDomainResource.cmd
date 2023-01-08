@@ -77,24 +77,28 @@ ECHO              [-target ^<target^>]
 ECHO              [-variable_file ^<variable_file^>]
 ECHO.
 ECHO     where:
-ECHO         oracle_home     - the existing Oracle Home directory for the domain.
-ECHO                           This argument is required unless the ORACLE_HOME environment
-ECHO                           variable is set.
+ECHO         oracle_home   - the existing Oracle Home directory for the domain.
+ECHO                         This argument is required unless the ORACLE_HOME
+ECHO                         environment variable is set.
 ECHO.
-ECHO         model_file      - the location of the model file to use.  This can also be specified as a
-ECHO                           comma-separated list of model locations, where each successive model
-ECHO                           layers on top of the previous ones.  This argument is required.
+ECHO         model_file    - the location of the model file to use.  This can also
+ECHO                         be specified as a comma-separated list of model
+ECHO                         locations, where each successive model layers on top
+ECHO                         of the previous ones.  This argument is required.
 ECHO.
-ECHO         output_dir      - the location for the target output files.  This argument is required.
+ECHO         output_dir    - the location for the target output files.  This argument
+ECHO                          is required.
 ECHO.
-ECHO         domain_home     - the domain home directory to be used in output files.
-ECHO                           This will override any value in the model.
+ECHO         domain_home   - the domain home directory to be used in output files.
+ECHO                         This will override any value in the model.
 ECHO.
-ECHO         target          - the target output type. The default is wko.
+ECHO         target        - the target output type. The default is wko.
 ECHO.
-ECHO         variable_file   - the location of the property file containing the values for variables used in
-ECHO                           the model. This can also be specified as a comma-separated list of property files,
-ECHO                           where each successive set of properties layers on top of the previous ones.
+ECHO         variable_file - the location of the property file containing the
+ECHO                         values for variables used in the model. This can also
+ECHO                         be specified as a comma-separated list of property
+ECHO                         files, where each successive set of properties layers
+ECHO                         on top of the previous ones.
 ECHO.
 ECHO    The -use_encryption switch tells the program that one or more of the
 ECHO    passwords in the model or variables files are encrypted.  The program will
