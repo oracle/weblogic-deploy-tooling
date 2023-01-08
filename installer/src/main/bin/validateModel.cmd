@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem validateModel.cmd
 @rem
-@rem Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -74,64 +74,58 @@ if "%SHOW_USAGE%" == "false" (
 ECHO.
 ECHO Usage: %SCRIPT_NAME% [-help]
 ECHO              [-oracle_home ^<oracle_home^>]
-ECHO              [-model_file ^<model_file^>]
+ECHO              -model_file ^<model_file^>
 ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-archive_file ^<archive_file^>]
 ECHO              [-target ^<target^>]
 ECHO              [-target_version ^<target_version^>]
 ECHO              [-target_mode ^<target_mode^>]
 ECHO              [-domain_type ^<domain_type^>]
-ECHO              [-wlst_path ^<wlst_path^>]
+ECHO              [-method ^<method^>]
 ECHO.
 ECHO     where:
 ECHO         oracle_home     - the existing Oracle Home directory for the domain.
-ECHO                           This is required unless the ORACLE_HOME environment
-ECHO                           variable is set.
+ECHO                           This argument is required unless the ORACLE_HOME
+ECHO                           environment variable is set.
 ECHO.
-ECHO         context         - specify the context for printing out the model structure.
-ECHO                           By default, the specified folder attributes and subfolder
-ECHO                           names are printed.  Use one of the optional control
-ECHO                           switches to customize the behavior.  Note that the
-ECHO                           control switches are mutually exclusive.
+ECHO         model_file      - the location of the model file to use.  This can also
+ECHO                           be specified as a comma-separated list of model
+ECHO                           locations, where each successive model layers on top
+ECHO                           of the previous ones.  This argument is required.
 ECHO.
-ECHO         model_file      - the location of the model file to use.  This can also be specified as a
-ECHO                           comma-separated list of model locations, where each successive model
-ECHO                           layers on top of the previous ones.
-ECHO                           If not specified, the tool will look for the model in the archive.
-ECHO                           If the model is not found, validation will only
-ECHO                           validate the artifacts provided.
-ECHO.
-ECHO         variable_file   - the location of the property file containing
-ECHO                           the variable values for all variables used in the model.
+ECHO         variable_file   - the location of the property file containing the
+ECHO                           variable values for all variables used in the model.
 ECHO                           If the variable file is not provided, validation will
 ECHO                           only validate the artifacts provided.
 ECHO.
-ECHO         archive_file    - the path to the archive file to use.  If the archive file is
-ECHO                           not provided, validation will only validate the
+ECHO         archive_file    - the path to the archive file to use.  If the archive
+ECHO                           file is not provided, validation will only validate the
 ECHO                           artifacts provided.  This can also be specified as a
-ECHO                           comma-separated list of archive files.  The overlapping contents in
-ECHO                           each archive take precedence over previous archives in the list.
+ECHO                           comma-separated list of archive files.  The overlapping
+ECHO                           contents in each archive take precedence over previous
+ECHO                           archives in the list.
 ECHO.
-ECHO         target          - target platform (wko, etc.).
-ECHO                           this determines the structure of the kubernetes section.
+ECHO         target          - target platform (wko, etc.).  This determines the
+ECHO                           structure of the kubernetes section.
 ECHO.
-ECHO         target_version  - the target version of WebLogic Server the tool
-ECHO                           should use to validate the model content.  This
-ECHO                           version number can be different than the version
-ECHO                           being used to run the tool.  If not specified, the
-ECHO                           tool will validate against the version being used
-ECHO                           to run the tool.
+ECHO         target_version - the target version of WebLogic Server the tool
+ECHO                          should use to validate the model content.  This
+ECHO                          version number can be different than the version
+ECHO                          being used to run the tool.  If not specified, the
+ECHO                          tool will validate against the version being used
+ECHO                          to run the tool.
 ECHO.
-ECHO         target_mode     - the target WLST mode that the tool should use to
-ECHO                           validate the model content.  The only valid values
-ECHO                           are online or offline.  If not specified, the tool
-ECHO                           defaults to WLST offline mode.
+ECHO         target_mode    - the target WLST mode that the tool should use to
+ECHO                          validate the model content.  The only valid values
+ECHO                          are online or offline.  If not specified, the tool
+ECHO                          defaults to WLST offline mode.
 ECHO.
-ECHO         domain_type     - the type of domain (e.g., WLS, JRF).
-ECHO                           Used to locate wlst.cmd if -wlst_path not specified
+ECHO         domain_type    - the type of domain (e.g., WLS, JRF).  If not specified,
+ECHO                          the default is WLS.
 ECHO.
-ECHO         wlst_path       - the Oracle Home subdirectory of the wlst.cmd
-ECHO                           script to use (e.g., ^<ORACLE_HOME^>\soa)
+ECHO         method         - the validation method to apply. Options: lax, strict.
+ECHO                          The lax method will skip validation of external model
+ECHO                          references like @@FILE@@.
 ECHO.
 
 :exit_script

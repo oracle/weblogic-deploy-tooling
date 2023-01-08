@@ -2,7 +2,7 @@
 # *****************************************************************************
 # prepareModel.sh
 #
-# Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
+# Copyright (c) 2020, 2023, Oracle Corporation and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -31,12 +31,38 @@
 usage() {
   echo ""
   echo "Usage: $1 [-help]"
-  echo "          [-oracle_home <oracle_home> required unless the ORACLE_HOME environment variable is set]"
-  echo "          -model_file <model list>  model files"
-  echo "          -target <target_name>  name of target configuration, such as k8s"
-  echo "          -output_dir <output_dir>  write the outputs to the directory specified"
-  echo "          [-variable_file <variable file>  variable file used for macro substitution]"
-  echo "          [-archive_file <archive file>  archive file used for validation and filtering based on specified target]"
+  echo "          [-oracle_home <oracle_home>]"
+  echo "          -model_file <model_file>"
+  echo "          -target <target_name>"
+  echo "          -output_dir <output_dir>"
+  echo "          [-variable_file <variable_file>]"
+  echo "          [-archive_file <archive_file>]"
+  echo ""
+  echo "    where:"
+  echo "        oracle_home   - the existing Oracle Home directory for the domain."
+  echo "                        This argument is required unless the ORACLE_HOME"
+  echo "                        environment variable is set."
+  echo ""
+  echo "        model_file    - the location of the model file to use.  This can also"
+  echo "                        be specified as a comma-separated list of model"
+  echo "                        locations, where each successive model layers on top"
+  echo "                        of the previous ones.  This argument is required."
+  echo ""
+  echo "        target        - the target output type. This argument is required."
+  echo ""
+  echo "        output_dir    - the location for the target output files.  This argument"
+  echo "                        is required."
+  echo ""
+  echo "        variable_file - the location of the property file containing the values"
+  echo "                        for variables used in the model.  This can also be"
+  echo "                        specified as a comma-separated list of property files,"
+  echo "                        where each successive set of properties layers on top"
+  echo "                        of the previous ones."
+  echo ""
+  echo "        archive_file  - the path to the archive file to use.  This can also be"
+  echo "                        specified as a comma-separated list of archive files."
+  echo "                        The overlapping contents in each archive take precedence"
+  echo "                        over previous archives in the list."
   echo ""
 }
 

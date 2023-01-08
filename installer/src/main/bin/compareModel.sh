@@ -2,7 +2,7 @@
 # *****************************************************************************
 # compareModel.sh
 #
-# Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+# Copyright (c) 2020, 2023, Oracle Corporation and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -31,13 +31,34 @@
 usage() {
   echo ""
   echo "Usage: $1 [-help]"
-  echo "          [-oracle_home <oracle_home> required unless the ORACLE_HOME environment variable is set]"
-  echo "          [-output_dir <output_dir> write the outputs to the directory specified]"
-  echo "          [                        diffed_model.json - json output of the differences between the models]"
-  echo "          [                        diffed_model.yaml - yaml output of the differences between the models]"
-  echo "          [                        compare_model_stdout - stdout of the tool compareModel ]"
-  echo "          [-variable_file <variable file>  variable file used for macro substitution]"
-  echo "          <new model> <old model>      Must be the last two arguments and must be same extensions (yaml or json)"
+  echo "          [-oracle_home <oracle_home>]"
+  echo "          [-output_dir <output_dir>]"
+  echo "          [-variable_file <variable file>]"
+  echo "          <new_model> <old_model>"
+  echo ""
+  echo "    where:"
+  echo ""
+  echo "        oracle_home     - the existing Oracle Home directory for the domain."
+  echo "                          This argument is required unless the ORACLE_HOME"
+  echo "                          environment variable is set."
+  echo ""
+  echo "        output_dir      - the directory to which the output files are written:"
+  echo "                            diffed_model.json - differences in JSON."
+  echo "                            diffed_model.yaml - differences in YAML."
+  echo "                            compare_model_stdout - compareModel tool stdout."
+  echo ""
+  echo "        variable_file   - the location of the property file containing the"
+  echo "                          values for variables used in the model. This can"
+  echo "                          also be specified as a comma-separated list of"
+  echo "                          property files, where each successive set of"
+  echo "                          properties layers on top of the previous ones."
+  echo ""
+  echo "        new_model       - the newer model to use for comparison."
+  echo ""
+  echo "        old_model       - the older model to use for comparison."
+  echo ""
+  echo "    NOTE: The model files being compared must be in the same format"
+  echo "          (i.e., JSON or YAML)."
   echo ""
 }
 

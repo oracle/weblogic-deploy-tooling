@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem modelHelp.cmd
 @rem
-@rem Copyright (c) 2020, 2022, Oracle and/or its affiliates.
+@rem Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -74,22 +74,14 @@ ECHO         [-attributes_only ^| -folders_only ^| -recursive ^| -interactive]
 ECHO         ^<model_path^>
 ECHO.
 ECHO     where:
-ECHO         oracle_home - an existing Oracle Home directory.
-ECHO                       This is required unless the ORACLE_HOME environment
-ECHO                       variable is set.
+ECHO         oracle_home - an existing Oracle Home directory.  This is required
+ECHO                       unless the ORACLE_HOME environment variable is set.
 ECHO.
 ECHO         target      - target platform (wko, etc.).
-ECHO                       this determines the structure of the kubernetes section.
+ECHO                       This determines the structure of the kubernetes section.
 ECHO.
 ECHO         model_path  - the path to the model element to be examined.
-ECHO                       the format is [^<section^>:][/^<folder^>]...
-ECHO.
-ECHO     model_path examples:
-ECHO         resources:/JDBCSystemResource/JdbcResource
-ECHO         /JDBCSystemResource/JdbcResource
-ECHO         resources:
-ECHO         resources
-ECHO         top  (this will list the top-level section names)
+ECHO                       The format is [^<section^>:][/^<folder^>]^*.
 ECHO.
 ECHO     By default, the tool will display the folders and attributes for the
 ECHO     specified model path.
@@ -106,6 +98,13 @@ ECHO     that path.
 ECHO.
 ECHO     The -interactive switch will cause the tool to enter an interactive
 ECHO     command line with the specified model path as your initial location.
+ECHO.
+ECHO     model_path examples:
+ECHO         resources:/JDBCSystemResource/JdbcResource
+ECHO         /JDBCSystemResource/JdbcResource
+ECHO         resources:
+ECHO         resources
+ECHO         top  (this will list the top-level section names)
 ECHO.
 
 :exit_script
