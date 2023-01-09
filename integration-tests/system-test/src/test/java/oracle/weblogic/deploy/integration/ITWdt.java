@@ -509,13 +509,13 @@ public class ITWdt extends BaseTest {
                 domainParentDir + FS + "restrictedJRFD1-discover17-18-19 -model_file " +
                 getSampleModelFile("-constant") + " -archive_file " + getSampleArchiveFile() +
                 " -domain_type RestrictedJRF";
-        try (PrintWriter out = getTestMethodWriter(testInfo, "createDomain")) {
+        try (PrintWriter out = getTestMethodWriter(testInfo, "CreateDomain")) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result.exitValue(), "Unexpected return code");
             discover17DomainCreated = true;
         }
 
-        try (PrintWriter out = getTestMethodWriter(testInfo, "discoverDomain")) {
+        try (PrintWriter out = getTestMethodWriter(testInfo, "DiscoverDomain")) {
             Path discoveredModel = getTestOutputPath(testInfo).resolve("discoveredModel.yaml");
             Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
             cmd = discoverDomainScript
@@ -623,7 +623,7 @@ public class ITWdt extends BaseTest {
     void test20DiscoverDomainJRFDomainType(TestInfo testInfo) throws Exception {
         assumeTrue(new JrfChecker(), "User specified skipping JRF tests");
         waitForDatabase();
-        try (PrintWriter out = getTestMethodWriter(testInfo, "createDomain")) {
+        try (PrintWriter out = getTestMethodWriter(testInfo, "CreateDomain")) {
             Path source = Paths.get(getSampleModelFile("2"));
             Path modelOut = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "2.yaml");
             // create wdt model file to use in create, after substitution of DB host/ip
@@ -636,7 +636,7 @@ public class ITWdt extends BaseTest {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result.exitValue(), "Unexpected return code");
         }
-        try (PrintWriter out = getTestMethodWriter(testInfo, "discoverDomain")) {
+        try (PrintWriter out = getTestMethodWriter(testInfo, "DiscoverDomain")) {
             Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
             Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredJRFD1.yaml");
             String cmd = discoverDomainScript
@@ -677,7 +677,7 @@ public class ITWdt extends BaseTest {
     @Test
     void test21UpdateDomain(TestInfo testInfo) throws Exception {
         assumeTrue(test11DomainCreated, "Skipping test 21 because dependent domain was not created");
-        try (PrintWriter out = getTestMethodWriter(testInfo, "updateDomain")) {
+        try (PrintWriter out = getTestMethodWriter(testInfo, "UpdateDomain")) {
             Path source = Paths.get(getSampleVariableFile());
             Path variableFile = getTestOutputPath(testInfo).resolve(SAMPLE_VARIABLE_FILE);
 
@@ -695,7 +695,7 @@ public class ITWdt extends BaseTest {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             verifyResult(result, "updateDomain.sh completed successfully");
         }
-        try (PrintWriter out = getTestMethodWriter(testInfo, "grepResults")) {
+        try (PrintWriter out = getTestMethodWriter(testInfo, "GrepResults")) {
             // Expecting grep return code of 0.  Grep will return 0 if found, and 1 if the requested text is not found.
             String cmd = "grep -q '<max-dynamic-cluster-size>4</max-dynamic-cluster-size>' " + domainParentDir + FS +
                 "domain2" + FS + "config" + FS + "config.xml";
@@ -848,7 +848,7 @@ public class ITWdt extends BaseTest {
     void test29EncryptModel(TestInfo testInfo) throws Exception {
         Path source = Paths.get(getSampleModelFile("-constant"));
         Path model = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "-constant.yaml");
-        try (PrintWriter out = getTestMethodWriter(testInfo, "encryptModel")) {
+        try (PrintWriter out = getTestMethodWriter(testInfo, "EncryptModel")) {
             Files.copy(source, model, StandardCopyOption.REPLACE_EXISTING);
 
             String cmd = encryptModelScript
@@ -857,7 +857,7 @@ public class ITWdt extends BaseTest {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             verifyResult(result, "encryptModel.sh completed successfully");
         }
-        try (PrintWriter out = getTestMethodWriter(testInfo, "createDomain")) {
+        try (PrintWriter out = getTestMethodWriter(testInfo, "CreateDomain")) {
             // create the domain using -use_encryption
             String cmd = createDomainScript
                 + " -oracle_home " + mwhome_12213
@@ -887,7 +887,7 @@ public class ITWdt extends BaseTest {
             + " -model_file " + getSampleModelFile("-onlinebase")
             + " -archive_file " + getSampleArchiveFile();
 
-        try (PrintWriter out = getTestMethodWriter(testInfo, "createDomain")) {
+        try (PrintWriter out = getTestMethodWriter(testInfo, "CreateDomain")) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result.exitValue(), "Unexpected return code");
             assertTrue(result.stdout().contains("createDomain.sh completed successfully"), "Create failed");
@@ -901,7 +901,7 @@ public class ITWdt extends BaseTest {
         Path source = Paths.get(getSampleModelFile("-untargetapp"));
         Path model = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "-onlineUpdate.yaml");
         if (isServerUp) {
-            try (PrintWriter out = getTestMethodWriter(testInfo, "updateDomain-1")) {
+            try (PrintWriter out = getTestMethodWriter(testInfo, "UpdateDomain-1")) {
                 // update wdt model file
                 Files.copy(source, model, StandardCopyOption.REPLACE_EXISTING);
 
@@ -918,7 +918,7 @@ public class ITWdt extends BaseTest {
                 assertTrue(result.stdout().contains("<remove_app_from_deployment> <WLSDPLY-09339>"),
                         "Update does not contains expected message WLSDPLY-09339");
             }
-            try (PrintWriter out = getTestMethodWriter(testInfo, "updateDomain-2")) {
+            try (PrintWriter out = getTestMethodWriter(testInfo, "UpdateDomain-2")) {
                 // Check result
                 source = Paths.get(getSampleModelFile("-targetapp"));
                 model = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "-onlineUpdate.yaml");
@@ -939,7 +939,7 @@ public class ITWdt extends BaseTest {
                 assertTrue(result.stdout().contains("<__start_app> <WLSDPLY-09313>"),
                         "Update does not contains expected message WLSDPLY-09313");
             }
-            try (PrintWriter out = getTestMethodWriter(testInfo, "updateDomain-online")) {
+            try (PrintWriter out = getTestMethodWriter(testInfo, "UpdateDomain-online")) {
                 source = Paths.get(getSampleModelFile("-targetapp"));
                 model = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "-onlineUpdate.yaml");
                 Files.copy(source, model, StandardCopyOption.REPLACE_EXISTING);
@@ -988,7 +988,7 @@ public class ITWdt extends BaseTest {
                 + " -model_file " + getSampleModelFile("-onlinebase")
                 + " -archive_file " + getSampleArchiveFile();
 
-        try (PrintWriter out = getTestMethodWriter(testInfo, "createDomain")) {
+        try (PrintWriter out = getTestMethodWriter(testInfo, "CreateDomain")) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result.exitValue(), "Unexpected return code");
         }
@@ -998,7 +998,7 @@ public class ITWdt extends BaseTest {
         cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
                 domainParentDir + FS + "domain2-discover31 -archive_file " + discoveredArchive +
                 " -model_file " + discoveredModelFile + " -variable_file " + discoveredVariableFile;
-        try (PrintWriter out = getTestMethodWriter(testInfo, "discoverDomain")) {
+        try (PrintWriter out = getTestMethodWriter(testInfo, "DiscoverDomain")) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
             verifyResult(result, "discoverDomain.sh completed successfully");
@@ -1007,7 +1007,7 @@ public class ITWdt extends BaseTest {
             verifyModelFile(discoveredModelFile.toString());
 
         }
-        try (PrintWriter out = getTestMethodWriter(testInfo, "createDomainFromDiscover")) {
+        try (PrintWriter out = getTestMethodWriter(testInfo, "CreateDomainFromDiscover")) {
             String domainHome = domainParentDir + FS + "createDomainFromDiscover";
             cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
                     domainHome + " -archive_file " + discoveredArchive +
@@ -1037,7 +1037,7 @@ public class ITWdt extends BaseTest {
     void test32PrepareModel(TestInfo testInfo) throws Exception {
 
         Path outputFiles = getTestOutputPath(testInfo);
-        try (PrintWriter out = getTestMethodWriter(testInfo, "prepareModel")) {
+        try (PrintWriter out = getTestMethodWriter(testInfo, "PrepareModel")) {
             String wkoModelFile = getSampleModelFile("-targetwko");
             String cmd = prepareModelScript
                     + " -oracle_home " + mwhome_12213
@@ -1049,7 +1049,7 @@ public class ITWdt extends BaseTest {
             // ListenPort differences warning
             assertEquals(1, result.exitValue(), "Unexpected return code");
         }
-        try (PrintWriter out = getTestMethodWriter(testInfo, "grepResults")) {
+        try (PrintWriter out = getTestMethodWriter(testInfo, "GrepResults")) {
             // verify model file
             String tempWkoModel = outputFiles + FS + "simple-topology-targetwko.yaml";
             String cmd = "grep  \"PasswordEncrypted: '@@SECRET\" " + tempWkoModel;
