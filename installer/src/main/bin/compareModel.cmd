@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem compareModel.cmd
 @rem
-@rem Copyright (c) 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2020, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -62,15 +62,34 @@ if "%SHOW_USAGE%" == "false" (
 )
 :usage
 ECHO.
-ECHO Usage: %SCRIPT_NAME%
-ECHO           [-help]
-ECHO           [-oracle_home ^<oracle_home^> required unless the ORACLE_HOME environment variable is set]
-ECHO           [-output_dir ^<output_dir^> write the outputs to the directory specified]
-ECHO           [                        diffed_model.json - json output of the differences between the models]
-ECHO           [                        diffed_model.yaml - yaml output of the differences between the models]
-ECHO           [                        compare_model_stdout - stdout of the tool compareModel ]
-ECHO           [-variable_file ^<variable file^>  variable file used for macro substitution]
-ECHO           ^<new model^> ^<old model^>      Must be the last two arguments and must be same extensions (yaml or json)
+ECHO Usage: %SCRIPT_NAME% [-help]
+ECHO           [-oracle_home ^<oracle_home^>]
+ECHO           [-output_dir ^<output_dir^>]
+ECHO           [-variable_file ^<variable file^>]
+ECHO           ^<new_model^> ^<old_model^>
+ECHO.
+ECHO     where:
+ECHO         oracle_home     - the existing Oracle Home directory for the domain.
+ECHO                           This argument is required unless the ORACLE_HOME
+ECHO                           environment variable is set.
+ECHO.
+ECHO        output_dir       - The directory to which the output files are written:
+ECHO                             diffed_model.json - differences in JSON.
+ECHO                             diffed_model.yaml - differences in YAML.
+ECHO                             compare_model_stdout - compareModel tool stdout.
+ECHO.
+ECHO         variable_file   - the location of the property file containing the
+ECHO                           values for variables used in the model. This can
+ECHO                           also be specified as a comma-separated list of
+ECHO                           property files, where each successive set of
+ECHO                           properties layers on top of the previous ones.
+ECHO.
+ECHO         new_model       - the newer model to use for comparison.
+ECHO.
+ECHO         old_model       - the older model to use for comparison.
+ECHO.
+ECHO    NOTE: The model files being compared must be in the same format
+ECHO          (i.e., JSON or YAML).
 ECHO.
 
 :exit_script

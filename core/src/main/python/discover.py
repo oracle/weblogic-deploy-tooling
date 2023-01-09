@@ -8,7 +8,6 @@ import os
 import sys
 
 from java.io import File
-from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import IllegalStateException
 from oracle.weblogic.deploy.aliases import AliasException
