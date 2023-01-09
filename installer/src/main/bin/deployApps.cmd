@@ -71,7 +71,7 @@ if "%SHOW_USAGE%" == "false" (
 ECHO.
 ECHO Usage: %SCRIPT_NAME% [-help] [-use_encryption]
 ECHO              [-oracle_home ^<oracle_home^>]
-ECHO              -domain_home ^<domain_home^>
+ECHO              [-domain_home ^<domain_home^>]
 ECHO              -model_file ^<model_file^>
 ECHO              [-archive_file ^<archive_file^>]
 ECHO              [-variable_file ^<variable_file^>]
@@ -86,6 +86,7 @@ ECHO              [-output_dir ^<output_dir^>]
 ECHO              [-admin_url ^<admin_url^>
 ECHO               -admin_user ^<admin_user^>
 ECHO               -admin_pass_env ^<admin_pass_env^> ^| -admin_pass_file ^<admin_pass_file^>
+ECHO               [-remote]
 ECHO              ]
 ECHO.
 ECHO     where:
@@ -94,7 +95,7 @@ ECHO                           This argument is required unless the ORACLE_HOME
 ECHO                           environment variable is set.
 ECHO.
 ECHO         domain_home     - the domain home directory.  This argument is
-ECHO                           required.
+ECHO                           required if -remote option is not specified.
 ECHO.
 ECHO         model_file      - the location of the model file to use.  This can also
 ECHO                           be specified as a comma-separated list of model
