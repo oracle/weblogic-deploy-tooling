@@ -98,63 +98,75 @@ class ApplicationsDeployer(Deployer):
         self.logger.entering(self._parent_name, self._parent_type,
                              class_name=self._class_name, method_name=_method_name)
         shared_libraries = dictionary_utils.get_dictionary_element(self._parent_dict, LIBRARY)
-        if len(shared_libraries) == 0:
-            self.logger.finer('WLSDPLY-09300', self._parent_type, self._parent_name,
-                              class_name=self._class_name, method_name=_method_name)
-            return
+        if len(shared_libraries) != 0:
+            root_path = self.aliases.get_wlst_subfolders_path(self._base_location)
+            shared_library_location = LocationContext(self._base_location).append_location(LIBRARY)
+            shared_library_token = self.aliases.get_name_token(shared_library_location)
 
-        root_path = self.aliases.get_wlst_subfolders_path(self._base_location)
-        shared_library_location = LocationContext(self._base_location).append_location(LIBRARY)
-        shared_library_token = self.aliases.get_name_token(shared_library_location)
+            for shared_library_name in shared_libraries:
+                existing_shared_libraries = deployer_utils.get_existing_object_list(shared_library_location, self.aliases)
 
-        for shared_library_name in shared_libraries:
-            existing_shared_libraries = deployer_utils.get_existing_object_list(shared_library_location, self.aliases)
-
-            if model_helper.is_delete_name(shared_library_name):
-                if self.__verify_delete_versioned_app(shared_library_name, existing_shared_libraries, type='lib'):
-                    location = LocationContext()
-                    location.append_location(model_constants.LIBRARY)
-                    existing_names = deployer_utils.get_existing_object_list(location, self.aliases)
-                    deployer_utils.delete_named_element(location, shared_library_name, existing_names, self.aliases)
-                continue
-            else:
-                self.logger.info('WLSDPLY-09608', LIBRARY, shared_library_name, self._parent_type, self._parent_name,
-                                 class_name=self._class_name, method_name=_method_name)
-
-            #
-            # In WLST offline mode, the shared library name must match the fully qualified name, including
-            # the spec and implementation versions from the deployment descriptor.  Since we want to allow
-            # users to not tie the model to a specific release when deploy shared libraries shipped with
-            # WebLogic, we have to go compute the required name and change the name in the model prior to
-            # making changes to the domain.
-            #
-            shared_library = \
-                copy.deepcopy(dictionary_utils.get_dictionary_element(shared_libraries, shared_library_name))
-            shlib_source_path = dictionary_utils.get_element(shared_library, SOURCE_PATH)
-            if string_utils.is_empty(shlib_source_path):
-                ex = exception_helper.create_deploy_exception('WLSDPLY-09302', LIBRARY, shared_library_name,
-                                                              SOURCE_PATH)
-                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                raise ex
-
-            if deployer_utils.is_path_into_archive(shlib_source_path):
-                if self.archive_helper is not None:
-                    self.__extract_source_path_from_archive(shlib_source_path, LIBRARY, shared_library_name)
+                if model_helper.is_delete_name(shared_library_name):
+                    self.__delete_versioned_library_or_application(existing_shared_libraries, shared_library_name, 'lib')
+                    continue
                 else:
-                    ex = exception_helper.create_deploy_exception('WLSDPLY-09303', LIBRARY, shared_library_name)
+                    self.logger.info('WLSDPLY-09608', LIBRARY, shared_library_name, self._parent_type, self._parent_name,
+                                     class_name=self._class_name, method_name=_method_name)
+
+                #
+                # In WLST offline mode, the shared library name must match the fully qualified name, including
+                # the spec and implementation versions from the deployment descriptor.  Since we want to allow
+                # users to not tie the model to a specific release when deploy shared libraries shipped with
+                # WebLogic, we have to go compute the required name and change the name in the model prior to
+                # making changes to the domain.
+                #
+                shared_library = \
+                    copy.deepcopy(dictionary_utils.get_dictionary_element(shared_libraries, shared_library_name))
+                shlib_source_path = dictionary_utils.get_element(shared_library, SOURCE_PATH)
+                if string_utils.is_empty(shlib_source_path):
+                    ex = exception_helper.create_deploy_exception('WLSDPLY-09302', LIBRARY, shared_library_name,
+                                                                  SOURCE_PATH)
                     self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                     raise ex
 
-            library_name = \
-                self.version_helper.get_library_versioned_name(shlib_source_path, shared_library_name)
-            quoted_library_name = self.wlst_helper.get_quoted_name_for_wlst(library_name)
-            shared_library_location.add_name_token(shared_library_token, quoted_library_name)
+                self.__extract_app_shlib_source_path(shared_library_name, shlib_source_path)
 
-            self.wlst_helper.cd(root_path)
-            deployer_utils.create_and_cd(shared_library_location, existing_shared_libraries, self.aliases)
-            self.set_attributes(shared_library_location, shared_library)
-            shared_library_location.remove_name_token(shared_library_token)
-        self.logger.exiting(class_name=self._class_name, method_name=_method_name)
+                library_name = \
+                    self.version_helper.get_library_versioned_name(shlib_source_path, shared_library_name)
+                quoted_library_name = self.wlst_helper.get_quoted_name_for_wlst(library_name)
+                shared_library_location.add_name_token(shared_library_token, quoted_library_name)
+
+                self.wlst_helper.cd(root_path)
+                deployer_utils.create_and_cd(shared_library_location, existing_shared_libraries, self.aliases)
+                self.set_attributes(shared_library_location, shared_library)
+                shared_library_location.remove_name_token(shared_library_token)
+            self.logger.exiting(class_name=self._class_name, method_name=_method_name)
+            return
+
+        self.logger.finer('WLSDPLY-09300', self._parent_type, self._parent_name,
+                          class_name=self._class_name, method_name=_method_name)
+
+    def __extract_app_shlib_source_path(self, app_library_name, source_path):
+        _method_name = '__extract_app_shlib_source_path'
+
+        if deployer_utils.is_path_into_archive(source_path):
+            if self.archive_helper is not None:
+                self.__extract_source_path_from_archive(source_path, LIBRARY, app_library_name)
+            else:
+                ex = exception_helper.create_deploy_exception('WLSDPLY-09303', LIBRARY, app_library_name)
+                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
+
+    def __delete_versioned_library_or_application(self, existing_applib_list, app_name, app_type):
+        if self.__verify_delete_versioned_app(app_name, existing_applib_list, type=app_type):
+            location = LocationContext()
+            if app_type == 'lib':
+                location.append_location(model_constants.LIBRARY)
+            else:
+                location.append_location(model_constants.APPLICATION)
+            existing_names = deployer_utils.get_existing_object_list(location, self.aliases)
+            deployer_utils.delete_named_element(location, app_name, existing_names, self.aliases)
+
 
     def __add_applications(self):
         """
@@ -166,71 +178,61 @@ class ApplicationsDeployer(Deployer):
                              class_name=self._class_name, method_name=_method_name)
 
         applications = dictionary_utils.get_dictionary_element(self._parent_dict, APPLICATION)
-        if len(applications) == 0:
-            self.logger.finer('WLSDPLY-09304', self._parent_type, self._parent_name,
-                              class_name=self._class_name, method_name=_method_name)
-            return
+        if len(applications) != 0:
+            root_path = self.aliases.get_wlst_subfolders_path(self._base_location)
+            application_location = LocationContext(self._base_location).append_location(APPLICATION)
+            application_token = self.aliases.get_name_token(application_location)
 
-        root_path = self.aliases.get_wlst_subfolders_path(self._base_location)
-        application_location = LocationContext(self._base_location).append_location(APPLICATION)
-        application_token = self.aliases.get_name_token(application_location)
+            for application_name in applications:
+                existing_applications = deployer_utils.get_existing_object_list(application_location, self.aliases)
 
-        for application_name in applications:
-            existing_applications = deployer_utils.get_existing_object_list(application_location, self.aliases)
-
-            if model_helper.is_delete_name(application_name):
-                if self.__verify_delete_versioned_app(application_name, existing_applications, type='app'):
-                    location = LocationContext()
-                    location.append_location(model_constants.APPLICATION)
-                    existing_names = deployer_utils.get_existing_object_list(location, self.aliases)
-                    deployer_utils.delete_named_element(location, application_name, existing_names, self.aliases)
-                continue
-            else:
-                self.logger.info('WLSDPLY-09301', APPLICATION, application_name, self._parent_type, self._parent_name,
-                                 class_name=self._class_name, method_name=_method_name)
-
-            application = \
-                copy.deepcopy(dictionary_utils.get_dictionary_element(applications, application_name))
-
-            app_source_path = dictionary_utils.get_element(application, SOURCE_PATH)
-            if string_utils.is_empty(app_source_path):
-                ex = exception_helper.create_deploy_exception('WLSDPLY-09302', APPLICATION, application_name,
-                                                              SOURCE_PATH)
-                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                raise ex
-
-            if deployer_utils.is_path_into_archive(app_source_path):
-                if self.archive_helper is not None:
-                    self.__extract_source_path_from_archive(app_source_path, APPLICATION, application_name)
+                if model_helper.is_delete_name(application_name):
+                    self.__delete_versioned_library_or_application(existing_applications, application_name, 'app')
+                    continue
                 else:
-                    ex = exception_helper.create_deploy_exception('WLSDPLY-09303', APPLICATION, application_name)
+                    self.logger.info('WLSDPLY-09301', APPLICATION, application_name, self._parent_type, self._parent_name,
+                                     class_name=self._class_name, method_name=_method_name)
+
+                application = \
+                    copy.deepcopy(dictionary_utils.get_dictionary_element(applications, application_name))
+
+                app_source_path = dictionary_utils.get_element(application, SOURCE_PATH)
+                if string_utils.is_empty(app_source_path):
+                    ex = exception_helper.create_deploy_exception('WLSDPLY-09302', APPLICATION, application_name,
+                                                                  SOURCE_PATH)
                     self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                     raise ex
 
-            module_type = dictionary_utils.get_element(application, MODULE_TYPE)
+                self.__extract_app_shlib_source_path(application_name, app_source_path)
 
-            application_name = \
-                self.version_helper.get_application_versioned_name(app_source_path, application_name,
-                                                                   module_type=module_type)
+                module_type = dictionary_utils.get_element(application, MODULE_TYPE)
 
-            quoted_application_name = self.wlst_helper.get_quoted_name_for_wlst(application_name)
+                application_name = \
+                    self.version_helper.get_application_versioned_name(app_source_path, application_name,
+                                                                       module_type=module_type)
 
-            application_location.add_name_token(application_token, quoted_application_name)
+                quoted_application_name = self.wlst_helper.get_quoted_name_for_wlst(application_name)
 
-            self.wlst_helper.cd(root_path)
-            deployer_utils.create_and_cd(application_location, existing_applications, self.aliases)
+                application_location.add_name_token(application_token, quoted_application_name)
 
-            self._set_attributes_and_add_subfolders(application_location, application)
+                self.wlst_helper.cd(root_path)
+                deployer_utils.create_and_cd(application_location, existing_applications, self.aliases)
 
-            application_location.remove_name_token(application_token)
-            self.__substitute_appmodule_token(app_source_path, module_type)
+                self._set_attributes_and_add_subfolders(application_location, application)
 
-            if app_source_path.startswith(WLSDeployArchive.ARCHIVE_STRUCT_APPS_TARGET_DIR):
-                plan_dir = dictionary_utils.get_element(application, PLAN_DIR)
-                plan_path = dictionary_utils.get_element(application, PLAN_PATH)
-                self._fix_plan_file(plan_dir, plan_path)
+                application_location.remove_name_token(application_token)
+                self.__substitute_appmodule_token(app_source_path, module_type)
 
-        self.logger.exiting(class_name=self._class_name, method_name=_method_name)
+                if app_source_path.startswith(WLSDeployArchive.ARCHIVE_STRUCT_APPS_TARGET_DIR):
+                    plan_dir = dictionary_utils.get_element(application, PLAN_DIR)
+                    plan_path = dictionary_utils.get_element(application, PLAN_PATH)
+                    self._fix_plan_file(plan_dir, plan_path)
+
+            self.logger.exiting(class_name=self._class_name, method_name=_method_name)
+            return
+
+        self.logger.finer('WLSDPLY-09304', self._parent_type, self._parent_name,
+                          class_name=self._class_name, method_name=_method_name)
 
     def __substitute_appmodule_token(self, path, module_type):
         # we need to substitute any token in the app module xml file
@@ -486,20 +488,24 @@ class ApplicationsDeployer(Deployer):
 
                 deployment_order = attributes_map['DeploymentOrder']
 
-                if self.model_context.is_remote():
-                    app_hash = None
-                    plan_hash = None
-                else:
-                    app_hash = self.__get_file_hash(absolute_sourcepath)
-                    if absolute_planpath is not None:
-                        plan_hash = self.__get_file_hash(absolute_planpath)
-                    else:
-                        plan_hash = None
+                app_hash, plan_hash = self.__set_app_and_plan_hash(absolute_planpath, absolute_sourcepath)
 
                 _update_ref_dictionary(ref_dictionary, app, absolute_sourcepath, app_hash, config_targets,
                                        absolute_plan_path=absolute_planpath, deploy_order=deployment_order,
                                        plan_hash=plan_hash)
         return ref_dictionary
+
+    def __set_app_and_plan_hash(self, absolute_planpath, absolute_sourcepath):
+        if self.model_context.is_remote():
+            app_hash = None
+            plan_hash = None
+        else:
+            app_hash = self.__get_file_hash(absolute_sourcepath)
+            if absolute_planpath is not None:
+                plan_hash = self.__get_file_hash(absolute_planpath)
+            else:
+                plan_hash = None
+        return app_hash, plan_hash
 
     def __get_library_references(self, base_location):
         _method_name = '__get_library_references'
@@ -527,53 +533,51 @@ class ApplicationsDeployer(Deployer):
             for lib in libs:
                 if lib in internal_skip_list:
                     continue
-                self.wlst_helper.domain_runtime()
-                self.wlst_helper.cd(library_runtime_path + lib)
-                runtime_attributes = self.wlst_helper.lsa()
-
-                lib_location = LocationContext(location).add_name_token(token_name, lib)
-                wlst_attributes_path = self.aliases.get_wlst_attributes_path(lib_location)
-                self.wlst_helper.server_config()
-                self.wlst_helper.cd(wlst_attributes_path)
-                config_attributes = self.wlst_helper.lsa()
-                config_targets = self.__get_config_targets()
-
-                # There are case in application where absolute source path is not set but sourepath is
-                # if source path is not absolute then we need to add the domain path
-
-                absolute_source_path = config_attributes[ABSOLUTE_SOURCE_PATH]
-                if absolute_source_path is None:
-                    absolute_source_path = config_attributes['SourcePath']
-
-                if absolute_source_path is not None and not os.path.isabs(absolute_source_path):
-                    absolute_source_path = self.model_context.get_domain_home() + '/' + absolute_source_path
-
-                deployment_order = config_attributes[DEPLOYMENT_ORDER]
-                if self.model_context.is_remote():
-                    lib_hash = None
-                else:
-                    lib_hash = self.__get_file_hash(absolute_source_path)
-
-                if string_utils.to_boolean(runtime_attributes['Referenced']) is True:
-                    referenced_path = library_runtime_path + lib + '/ReferencingRuntimes/'
-                    self.wlst_helper.domain_runtime()
-                    referenced_by = self.wlst_helper.get_existing_object_list(referenced_path)
-                    self.wlst_helper.cd(referenced_path)
-                    for app_ref in referenced_by:
-                        # TODO(rpatrick) - what if it is partitioned?
-                        ref_attrs = self.wlst_helper.lsa(app_ref)
-                        app_type = ref_attrs['Type']
-                        app_id = None
-                        if app_type == 'ApplicationRuntime' and 'ApplicationName' in ref_attrs:
-                            app_id = ref_attrs['ApplicationName']
-                        if app_type == 'WebAppComponentRuntime' and 'ApplicationIdentifier' in ref_attrs:
-                            app_id = ref_attrs['ApplicationIdentifier']
-
-                        _update_ref_dictionary(existing_libraries, lib, absolute_source_path, lib_hash, config_targets,
-                                               deploy_order=deployment_order, app_name=app_id)
-                else:
-                    _update_ref_dictionary(existing_libraries, lib, absolute_source_path, lib_hash, config_targets)
+                self.__get_library_reference_attributes(existing_libraries, lib, library_runtime_path, location,
+                                                        token_name)
         return existing_libraries
+
+    def __get_library_reference_attributes(self, existing_libraries, lib, library_runtime_path, location, token_name):
+        self.wlst_helper.domain_runtime()
+        self.wlst_helper.cd(library_runtime_path + lib)
+        runtime_attributes = self.wlst_helper.lsa()
+        lib_location = LocationContext(location).add_name_token(token_name, lib)
+        wlst_attributes_path = self.aliases.get_wlst_attributes_path(lib_location)
+        self.wlst_helper.server_config()
+        self.wlst_helper.cd(wlst_attributes_path)
+        config_attributes = self.wlst_helper.lsa()
+        config_targets = self.__get_config_targets()
+        # There are case in application where absolute source path is not set but sourepath is
+        # if source path is not absolute then we need to add the domain path
+        absolute_source_path = config_attributes[ABSOLUTE_SOURCE_PATH]
+        if absolute_source_path is None:
+            absolute_source_path = config_attributes['SourcePath']
+        if absolute_source_path is not None and not os.path.isabs(absolute_source_path):
+            absolute_source_path = self.model_context.get_domain_home() + '/' + absolute_source_path
+        deployment_order = config_attributes[DEPLOYMENT_ORDER]
+        if self.model_context.is_remote():
+            lib_hash = None
+        else:
+            lib_hash = self.__get_file_hash(absolute_source_path)
+        if string_utils.to_boolean(runtime_attributes['Referenced']) is True:
+            referenced_path = library_runtime_path + lib + '/ReferencingRuntimes/'
+            self.wlst_helper.domain_runtime()
+            referenced_by = self.wlst_helper.get_existing_object_list(referenced_path)
+            self.wlst_helper.cd(referenced_path)
+            for app_ref in referenced_by:
+                # TODO(rpatrick) - what if it is partitioned?
+                ref_attrs = self.wlst_helper.lsa(app_ref)
+                app_type = ref_attrs['Type']
+                app_id = None
+                if app_type == 'ApplicationRuntime' and 'ApplicationName' in ref_attrs:
+                    app_id = ref_attrs['ApplicationName']
+                if app_type == 'WebAppComponentRuntime' and 'ApplicationIdentifier' in ref_attrs:
+                    app_id = ref_attrs['ApplicationIdentifier']
+
+                _update_ref_dictionary(existing_libraries, lib, absolute_source_path, lib_hash, config_targets,
+                                       deploy_order=deployment_order, app_name=app_id)
+        else:
+            _update_ref_dictionary(existing_libraries, lib, absolute_source_path, lib_hash, config_targets)
 
     def __build_library_deploy_strategy(self, location, model_libs, existing_lib_refs, stop_app_list,
                                         update_library_list):
@@ -596,13 +600,7 @@ class ApplicationsDeployer(Deployer):
                         self.model_context.replace_tokens(LIBRARY, lib, param, lib_dict)
 
                 if model_helper.is_delete_name(lib):
-                    if self.__verify_delete_versioned_app(lib, existing_libs, 'lib'):
-                        lib_name = model_helper.get_delete_item_name(lib)
-                        if lib_name in existing_libs:
-                            model_libs.pop(lib)
-                            update_library_list.append(lib_name)
-                        else:
-                            model_libs.pop(lib)
+                    self.__update_delete_library_in_model(existing_libs, lib, model_libs, update_library_list)
                     continue
 
                 # determine the versioned name of the library from the library's MANIFEST
@@ -648,37 +646,54 @@ class ApplicationsDeployer(Deployer):
                         continue
 
                     # user libraries
-                    model_lib_hash = self.__get_hash(model_src_path)
-                    existing_lib_hash = self.__get_file_hash(existing_src_path)
-                    if model_lib_hash != existing_lib_hash:
-                        #
-                        # updated library and add referencing apps to the stop list
-                        #
-                        # The target needs to be set to the union to avoid changing
-                        # target in subsequent deploy affecting existing referencing apps.
-                        #
-                        union_targets_set = existing_lib_targets_set.union(model_targets_set)
-                        lib_dict['Target'] = ','.join(union_targets_set)
-                        # For update case, the sparse model may be just changing targets, therefore without sourcepath
-                        if lib_dict['SourcePath'] is None and existing_src_path is not None:
-                            lib_dict['SourcePath'] = existing_src_path
+                    self._update_library_build_strategy_based_on_hashes(existing_lib_targets_set, existing_src_path,
+                                                                        lib, lib_dict, model_libs, model_src_path,
+                                                                        model_targets_set, update_library_list,
+                                                                        versioned_name)
 
-                        if versioned_name not in update_library_list:
-                            update_library_list.append(versioned_name)
-                    else:
-                        # If the hashes match, assume that the library did not change so there is no need
-                        # to redeploy them ot the referencing applications unless the targets are different.
-                        if existing_lib_targets_set.issuperset(model_targets_set):
-                            self.__remove_lib_from_deployment(model_libs, lib)
-                        else:
-                            # Adjust the targets to only the new targets so that existing apps on
-                            # already targeted servers are not impacted.
-                            adjusted_set = model_targets_set.difference(existing_lib_targets_set)
-                            adjusted_targets = ','.join(adjusted_set)
-                            lib_dict['Target'] = adjusted_targets
-                            # For update case, the sparse model may be just changing targets, therefore without sourcepath
-                            if lib_dict['SourcePath'] is None and existing_src_path is not None:
-                                lib_dict['SourcePath'] = existing_src_path
+    def _update_library_build_strategy_based_on_hashes(self, existing_lib_targets_set, existing_src_path, lib, lib_dict,
+                                                       model_libs, model_src_path, model_targets_set,
+                                                       update_library_list, versioned_name):
+        model_lib_hash = self.__get_hash(model_src_path)
+        existing_lib_hash = self.__get_file_hash(existing_src_path)
+        if model_lib_hash != existing_lib_hash:
+            #
+            # updated library and add referencing apps to the stop list
+            #
+            # The target needs to be set to the union to avoid changing
+            # target in subsequent deploy affecting existing referencing apps.
+            #
+            union_targets_set = existing_lib_targets_set.union(model_targets_set)
+            lib_dict['Target'] = ','.join(union_targets_set)
+            # For update case, the sparse model may be just changing targets, therefore without sourcepath
+            if lib_dict['SourcePath'] is None and existing_src_path is not None:
+                lib_dict['SourcePath'] = existing_src_path
+
+            if versioned_name not in update_library_list:
+                update_library_list.append(versioned_name)
+        else:
+            # If the hashes match, assume that the library did not change so there is no need
+            # to redeploy them ot the referencing applications unless the targets are different.
+            if existing_lib_targets_set.issuperset(model_targets_set):
+                self.__remove_lib_from_deployment(model_libs, lib)
+            else:
+                # Adjust the targets to only the new targets so that existing apps on
+                # already targeted servers are not impacted.
+                adjusted_set = model_targets_set.difference(existing_lib_targets_set)
+                adjusted_targets = ','.join(adjusted_set)
+                lib_dict['Target'] = adjusted_targets
+                # For update case, the sparse model may be just changing targets, therefore without sourcepath
+                if lib_dict['SourcePath'] is None and existing_src_path is not None:
+                    lib_dict['SourcePath'] = existing_src_path
+
+    def __update_delete_library_in_model(self, existing_libs, lib, model_libs, update_library_list):
+        if self.__verify_delete_versioned_app(lib, existing_libs, 'lib'):
+            lib_name = model_helper.get_delete_item_name(lib)
+            if lib_name in existing_libs:
+                model_libs.pop(lib)
+                update_library_list.append(lib_name)
+            else:
+                model_libs.pop(lib)
 
     def __shouldCheckForTargetChange(self, src_path, model_src_path):
         # If the existing running app's source path (always absolute from runtime mbean) = the model's source path.
@@ -759,54 +774,68 @@ class ApplicationsDeployer(Deployer):
                                                                 , existing_app_targets_set)
                         continue
 
-                    model_src_hash = self.__get_hash(model_src_path)
-                    model_plan_hash = self.__get_hash(dictionary_utils.get_element(app_dict, PLAN_PATH))
+                    self.__update_app_build_strartegy_based_on_hashes(app, app_dict, existing_app_targets_set,
+                                                                      model_apps, model_src_path, plan_path, src_path,
+                                                                      stop_and_undeploy_app_list, versioned_name)
 
-                    existing_src_hash = self.__get_file_hash(src_path)
-                    existing_plan_hash = self.__get_file_hash(plan_path)
-                    if model_src_hash == existing_src_hash:
-                        if model_plan_hash == existing_plan_hash:
-                            if self.__shouldCheckForTargetChange(src_path, model_src_path):
-                                # If model hashes match existing hashes, the application did not change.
-                                # Unless targets were added, there's no need to redeploy.
-                                # If it is an absolute path, there is nothing to compare so assume redeploy
-                                model_targets = dictionary_utils.get_element(app_dict, TARGET)
-                                model_targets_list = alias_utils.create_list(model_targets, 'WLSDPLY-08000')
-                                model_targets_set = Set(model_targets_list)
+    def __update_app_build_strartegy_based_on_hashes(self, app, app_dict, existing_app_targets_set, model_apps,
+                                                     model_src_path, plan_path, src_path, stop_and_undeploy_app_list,
+                                                     versioned_name):
+        model_src_hash = self.__get_hash(model_src_path)
+        model_plan_hash = self.__get_hash(dictionary_utils.get_element(app_dict, PLAN_PATH))
+        existing_src_hash = self.__get_file_hash(src_path)
+        existing_plan_hash = self.__get_file_hash(plan_path)
+        if model_src_hash == existing_src_hash:
+            if model_plan_hash == existing_plan_hash:
+                if self.__shouldCheckForTargetChange(src_path, model_src_path):
+                    self._update_app_deploy_strategy_for_target_changes(app, app_dict,
+                                                                        existing_app_targets_set, model_apps,
+                                                                        src_path, stop_and_undeploy_app_list,
+                                                                        versioned_name)
+                else:
+                    # same hash but different path, so redeploy it
+                    self.__append_to_stop_and_undeploy_apps(versioned_name, stop_and_undeploy_app_list
+                                                            , existing_app_targets_set)
+            else:
+                # updated deployment plan
+                self.__append_to_stop_and_undeploy_apps(versioned_name, stop_and_undeploy_app_list
+                                                        , existing_app_targets_set)
+        else:
+            # updated app
+            self.__append_to_stop_and_undeploy_apps(versioned_name, stop_and_undeploy_app_list
+                                                    , existing_app_targets_set)
 
-                                if existing_app_targets_set == model_targets_set and len(existing_app_targets_set) > 0:
-                                    # redeploy the app if everything is the same
-                                    self.logger.info('WLSDPLY-09336', src_path,
-                                                     class_name=self._class_name, method_name=_method_name)
-                                    self.__append_to_stop_and_undeploy_apps(versioned_name, stop_and_undeploy_app_list
-                                                                            , existing_app_targets_set)
-                                elif len(existing_app_targets_set) == 0 and len(model_targets_set) == 0:
-                                    self.__remove_app_from_deployment(model_apps, app, "emptyset")
-                                elif existing_app_targets_set.issuperset(model_targets_set):
-                                    self.__remove_app_from_deployment(model_apps, app, "superset")
-                                else:
-                                    # Adjust the targets to only the new targets so that existing apps on
-                                    # already targeted servers are not impacted.
-                                    adjusted_set = model_targets_set.difference(existing_app_targets_set)
-                                    adjusted_targets = ','.join(adjusted_set)
-                                    app_dict['Target'] = adjusted_targets
+    def _update_app_deploy_strategy_for_target_changes(self, app, app_dict, existing_app_targets_set,
+                                                       model_apps, src_path, stop_and_undeploy_app_list, versioned_name):
 
-                                    # For update case, the sparse model may be just changing targets, therefore without sourcepath
+        _method_name = '_update_app_deploy_strategy_for_target_changes'
+        # If model hashes match existing hashes, the application did not change.
+        # Unless targets were added, there's no need to redeploy.
+        # If it is an absolute path, there is nothing to compare so assume redeploy
+        model_targets = dictionary_utils.get_element(app_dict, TARGET)
+        model_targets_list = alias_utils.create_list(model_targets, 'WLSDPLY-08000')
+        model_targets_set = Set(model_targets_list)
+        if existing_app_targets_set == model_targets_set and len(existing_app_targets_set) > 0:
+            # redeploy the app if everything is the same
+            self.logger.info('WLSDPLY-09336', src_path,
+                             class_name=self._class_name, method_name=_method_name)
+            self.__append_to_stop_and_undeploy_apps(versioned_name, stop_and_undeploy_app_list
+                                                    , existing_app_targets_set)
+        elif len(existing_app_targets_set) == 0 and len(model_targets_set) == 0:
+            self.__remove_app_from_deployment(model_apps, app, "emptyset")
+        elif existing_app_targets_set.issuperset(model_targets_set):
+            self.__remove_app_from_deployment(model_apps, app, "superset")
+        else:
+            # Adjust the targets to only the new targets so that existing apps on
+            # already targeted servers are not impacted.
+            adjusted_set = model_targets_set.difference(existing_app_targets_set)
+            adjusted_targets = ','.join(adjusted_set)
+            app_dict['Target'] = adjusted_targets
 
-                                    if app_dict['SourcePath'] is None and src_path is not None:
-                                        app_dict['SourcePath'] = src_path
-                            else:
-                                # same hash but different path, so redeploy it
-                                self.__append_to_stop_and_undeploy_apps(versioned_name, stop_and_undeploy_app_list
-                                                                        , existing_app_targets_set)
-                        else:
-                            # updated deployment plan
-                            self.__append_to_stop_and_undeploy_apps(versioned_name, stop_and_undeploy_app_list
-                                                                    , existing_app_targets_set)
-                    else:
-                        # updated app
-                        self.__append_to_stop_and_undeploy_apps(versioned_name, stop_and_undeploy_app_list
-                                                                , existing_app_targets_set)
+            # For update case, the sparse model may be just changing targets, therefore without sourcepath
+
+            if app_dict['SourcePath'] is None and src_path is not None:
+                app_dict['SourcePath'] = src_path
 
     def __remove_delete_targets(self, model_dict, existing_ref):
         """
@@ -1011,17 +1040,9 @@ class ApplicationsDeployer(Deployer):
                     options, sub_module_targets = _get_deploy_options(model_libs, lib_name, library_module='true',
                                                                       application_version_helper=self.version_helper,
                                                                       is_remote=self.model_context.is_remote())
-                    for uses_path_tokens_attribute_name in uses_path_tokens_attribute_names:
-                        if uses_path_tokens_attribute_name in lib_dict:
-                            path = lib_dict[uses_path_tokens_attribute_name]
-                            if deployer_utils.is_path_into_archive(path):
-                                self.__extract_source_path_from_archive(path, LIBRARY, lib_name,
-                                                                     is_remote=self.model_context.is_remote(),
-                                                                     upload_remote_directory=self.upload_temporary_dir)
-                                # if it is remote app deployment src path is the local absolute location and the
-                                # app archive will be uploaded to the admin server's upload directory
-                                if self.model_context.is_remote():
-                                    src_path = self.upload_temporary_dir + '/' + src_path
+
+                    src_path = self._get_source_path_fo_delooy_library(lib_dict, lib_name, src_path,
+                                                                       uses_path_tokens_attribute_names)
 
                     location.add_name_token(token_name, lib_name)
                     resource_group_template_name, resource_group_name, partition_name = \
@@ -1030,6 +1051,20 @@ class ApplicationsDeployer(Deployer):
                                              partition=partition_name, resource_group=resource_group_name,
                                              resource_group_template=resource_group_template_name, options=options)
                     location.remove_name_token(token_name)
+
+    def _get_source_path_fo_delooy_library(self, lib_dict, lib_name, src_path, uses_path_tokens_attribute_names):
+        for uses_path_tokens_attribute_name in uses_path_tokens_attribute_names:
+            if uses_path_tokens_attribute_name in lib_dict:
+                path = lib_dict[uses_path_tokens_attribute_name]
+                if deployer_utils.is_path_into_archive(path):
+                    self.__extract_source_path_from_archive(path, LIBRARY, lib_name,
+                                                            is_remote=self.model_context.is_remote(),
+                                                            upload_remote_directory=self.upload_temporary_dir)
+                    # if it is remote app deployment src path is the local absolute location and the
+                    # app archive will be uploaded to the admin server's upload directory
+                    if self.model_context.is_remote():
+                        src_path = self.upload_temporary_dir + '/' + src_path
+        return src_path
 
     def __deploy_model_applications(self, model_apps, app_location, deployed_applist):
         if model_apps is not None:
@@ -1049,17 +1084,8 @@ class ApplicationsDeployer(Deployer):
                                                                        is_remote=self.model_context.is_remote())
 
                     # any attribute with 'uses_path_tokens' may be in the archive (such as SourcePath)
-                    for uses_path_tokens_attribute_name in uses_path_tokens_attribute_names:
-                        if uses_path_tokens_attribute_name in app_dict:
-                            path = app_dict[uses_path_tokens_attribute_name]
-                            if deployer_utils.is_path_into_archive(path):
-                                self.__extract_source_path_from_archive(path, APPLICATION, app_name,
-                                                                     is_remote=self.model_context.is_remote(),
-                                                                     upload_remote_directory=self.upload_temporary_dir)
-                                # if it is remote app deployment src path is the local absolute location and the
-                                # app archive will be uploaded to the admin server's upload directory
-                                if self.model_context.is_remote():
-                                    src_path = self.upload_temporary_dir + '/' + src_path
+                    path, src_path = self._get_source_path_for_deploy_application(app_dict, app_name, src_path,
+                                                                                  uses_path_tokens_attribute_names)
 
                     location.add_name_token(token_name, app_name)
                     resource_group_template_name, resource_group_name, partition_name = \
@@ -1078,6 +1104,19 @@ class ApplicationsDeployer(Deployer):
                     deployed_applist.append(new_app_name)
                     self.__substitute_appmodule_token(path, module_type)
 
+    def _get_source_path_for_deploy_application(self, app_dict, app_name, src_path, uses_path_tokens_attribute_names):
+        for uses_path_tokens_attribute_name in uses_path_tokens_attribute_names:
+            if uses_path_tokens_attribute_name in app_dict:
+                path = app_dict[uses_path_tokens_attribute_name]
+                if deployer_utils.is_path_into_archive(path):
+                    self.__extract_source_path_from_archive(path, APPLICATION, app_name,
+                                                            is_remote=self.model_context.is_remote(),
+                                                            upload_remote_directory=self.upload_temporary_dir)
+                    # if it is remote app deployment src path is the local absolute location and the
+                    # app archive will be uploaded to the admin server's upload directory
+                    if self.model_context.is_remote():
+                        src_path = self.upload_temporary_dir + '/' + src_path
+        return path, src_path
 
     def __get_mt_names_from_location(self, app_location):
         dummy_location = LocationContext()
@@ -1337,6 +1376,14 @@ def _get_deploy_options(model_apps, app_name, library_module, application_versio
 
     module_type = dictionary_utils.get_element(app, MODULE_TYPE)
     sub_module_targets = ''
+    sub_module_targets = _set_sub_deployments_for_app_module(app, application_version_helper, module_type,
+                                                             sub_module_targets)
+
+
+    return deploy_options, sub_module_targets
+
+
+def _set_sub_deployments_for_app_module(app, application_version_helper, module_type, sub_module_targets):
     if application_version_helper.is_module_type_app_module(module_type):
         sub_deployments = dictionary_utils.get_element(app, SUB_DEPLOYMENT)
         if sub_deployments is not None:
@@ -1346,9 +1393,8 @@ def _get_deploy_options(model_apps, app_name, library_module, application_versio
                 name = sub_deployment
                 target = sub_deployments[name][TARGET]
                 sub_module_targets += '%s@%s' % (name, target)
+    return sub_module_targets
 
-
-    return deploy_options, sub_module_targets
 
 def _find_deployorder_list(apps_dict, ordered_list, order):
     """
