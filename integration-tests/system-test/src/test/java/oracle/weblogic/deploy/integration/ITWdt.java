@@ -935,7 +935,7 @@ public class ITWdt extends BaseTest {
 
                 assertEquals(0, result.exitValue(), "Unexpected return code for targeting app");
                 assertTrue(result.stdout().contains("<__deploy_app_online> <WLSDPLY-09316>"),
-                        "Update does not contains expected message WLSDPLY-09316");
+                    "Update does not contains expected message WLSDPLY-09316");
                 assertTrue(result.stdout().contains("<__start_app> <WLSDPLY-09313>"),
                     "Update does not contains expected message WLSDPLY-09313");
             }
