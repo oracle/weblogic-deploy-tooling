@@ -264,7 +264,7 @@ def _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin
         # 2. If it is plain old regular oracle db, do nothing
         # 3. If it deos not have tns_admin in the model, then the wallet must be in the archive
         if not has_tns_admin:
-            wallet_path = archive_helper.extract_atp_wallet()
+            wallet_path = archive_helper.extract_database_wallet()
             if wallet_path:
                 # update the model to add the tns_admin
                 model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
@@ -323,7 +323,7 @@ def main(model_context):
         # check if there is an atpwallet and extract in the domain dir
         # it is to support non JRF domain but user wants to use ATP database
         if has_atp and archive_helper:
-            archive_helper.extract_atp_wallet()
+            archive_helper.extract_database_wallet()
 
         creator = DomainCreator(model_dictionary, model_context, aliases)
         creator.create()
