@@ -486,11 +486,15 @@ class ApplicationsDeployer(Deployer):
 
                 deployment_order = attributes_map['DeploymentOrder']
 
-                app_hash = self.__get_file_hash(absolute_sourcepath)
-                if absolute_planpath is not None:
-                    plan_hash = self.__get_file_hash(absolute_planpath)
-                else:
+                if self.model_context.is_remote():
+                    app_hash = None
                     plan_hash = None
+                else:
+                    app_hash = self.__get_file_hash(absolute_sourcepath)
+                    if absolute_planpath is not None:
+                        plan_hash = self.__get_file_hash(absolute_planpath)
+                    else:
+                        plan_hash = None
 
                 _update_ref_dictionary(ref_dictionary, app, absolute_sourcepath, app_hash, config_targets,
                                        absolute_plan_path=absolute_planpath, deploy_order=deployment_order,
@@ -545,7 +549,10 @@ class ApplicationsDeployer(Deployer):
                     absolute_source_path = self.model_context.get_domain_home() + '/' + absolute_source_path
 
                 deployment_order = config_attributes[DEPLOYMENT_ORDER]
-                lib_hash = self.__get_file_hash(absolute_source_path)
+                if self.model_context.is_remote():
+                    lib_hash = None
+                else:
+                    lib_hash = self.__get_file_hash(absolute_source_path)
 
                 if string_utils.to_boolean(runtime_attributes['Referenced']) is True:
                     referenced_path = library_runtime_path + lib + '/ReferencingRuntimes/'
