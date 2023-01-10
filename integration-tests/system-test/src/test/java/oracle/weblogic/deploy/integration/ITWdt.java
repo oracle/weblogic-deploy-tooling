@@ -106,9 +106,9 @@ public class ITWdt extends BaseTest {
         Path outputPath = getTestOutputPath(testInfo);
         logger.info("Test log: " + outputPath);
         return new PrintWriter(
-                new BufferedWriter(new OutputStreamWriter(
-                        new FileOutputStream(outputPath.resolve(Paths.get(methodName +
-                                suffixName + ".out")).toString()))), true);
+            new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream(outputPath.resolve(Paths.get(methodName +
+                    suffixName + ".out")).toString()))), true);
     }
 
     /**
@@ -682,7 +682,7 @@ public class ITWdt extends BaseTest {
             Path variableFile = getTestOutputPath(testInfo).resolve(SAMPLE_VARIABLE_FILE);
 
             replaceStringInFile(source, variableFile, "CONFIGURED_MANAGED_SERVER_COUNT=2",
-                    "CONFIGURED_MANAGED_SERVER_COUNT=4");
+                "CONFIGURED_MANAGED_SERVER_COUNT=4");
 
             String cmd = updateDomainScript
                 + " -oracle_home " + mwhome_12213
@@ -916,7 +916,7 @@ public class ITWdt extends BaseTest {
 
                 assertEquals(0, result.exitValue(), "Unexpected return code for untargeting app");
                 assertTrue(result.stdout().contains("<remove_app_from_deployment> <WLSDPLY-09339>"),
-                        "Update does not contains expected message WLSDPLY-09339");
+                    "Update does not contains expected message WLSDPLY-09339");
             }
             try (PrintWriter out = getTestMethodWriter(testInfo, "UpdateDomain-2")) {
                 // Check result
@@ -937,7 +937,7 @@ public class ITWdt extends BaseTest {
                 assertTrue(result.stdout().contains("<__deploy_app_online> <WLSDPLY-09316>"),
                         "Update does not contains expected message WLSDPLY-09316");
                 assertTrue(result.stdout().contains("<__start_app> <WLSDPLY-09313>"),
-                        "Update does not contains expected message WLSDPLY-09313");
+                    "Update does not contains expected message WLSDPLY-09313");
             }
             try (PrintWriter out = getTestMethodWriter(testInfo, "UpdateDomain-online")) {
                 source = Paths.get(getSampleModelFile("-targetapp"));
