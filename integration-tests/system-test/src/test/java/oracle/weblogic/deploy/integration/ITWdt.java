@@ -1058,28 +1058,26 @@ public class ITWdt extends BaseTest {
     @Test
     void test33DiscoverSkipArchive(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
-                domainParentDir + FS + "restrictedJRFD1-discover17-18-19 -model_file " +
-                getSampleModelFile("-constant") + " -archive_file " + getSampleArchiveFile() +
-                " -domain_type RestrictedJRF";
-        try (PrintWriter out = getTestMethodWriter(testInfo, "CreateDomain")) {
+                domainParentDir + FS + "discoverDomainSkipArchive -model_file " +
+                getSampleModelFile("-constant") + " -archive_file " + getSampleArchiveFile();
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result.exitValue(), "Unexpected return code");
-            discover17DomainCreated = true;
         }
 
-        try (PrintWriter out = getTestMethodWriter(testInfo, "DiscoverDomain")) {
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
             Path discoveredModel = getTestOutputPath(testInfo).resolve("discoveredModel.yaml");
-            Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
             cmd = discoverDomainScript
-                    + " -oracle_home " + mwhome_12213
-                    + " -domain_home " + domainParentDir + FS + "restrictedJRFD1-discover17-18-19"
-                    + " -model_file " + discoveredModel
-                    + " -archive_file " + discoveredArchive;
+                + " -oracle_home " + mwhome_12213
+                + " -domain_home " + domainParentDir + FS + "restrictedJRFD1-discover17-18-19"
+                + " -model_file " + discoveredModel
+                + " -skip_archive " ;
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             // SecurityConfiguration warning
             assertEquals(1, result.exitValue(), "Unexpected return code");
         }
     }
+
     private boolean startAdminServer(String domainHome, Path outputFile) throws Exception {
         boolean isServerUp = false;
         String cmd = "nohup " + domainHome + "/bin/startWebLogic.sh > " + outputFile + " 2>&1 &";
