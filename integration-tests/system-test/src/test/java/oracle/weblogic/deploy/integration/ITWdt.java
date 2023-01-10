@@ -685,12 +685,12 @@ public class ITWdt extends BaseTest {
                     "CONFIGURED_MANAGED_SERVER_COUNT=4");
 
             String cmd = updateDomainScript
-                    + " -oracle_home " + mwhome_12213
-                    + " -domain_home " + domainParentDir + FS + "domain2"
-                    + " -model_file " + getSampleModelFile("1")
-                    + " -archive_file " + getSampleArchiveFile()
-                    + " -domain_type WLS"
-                    + " -variable_file " + variableFile;
+                + " -oracle_home " + mwhome_12213
+                + " -domain_home " + domainParentDir + FS + "domain2"
+                + " -model_file " + getSampleModelFile("1")
+                + " -archive_file " + getSampleArchiveFile()
+                + " -domain_type WLS"
+                + " -variable_file " + variableFile;
 
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             verifyResult(result, "updateDomain.sh completed successfully");
@@ -852,8 +852,8 @@ public class ITWdt extends BaseTest {
             Files.copy(source, model, StandardCopyOption.REPLACE_EXISTING);
 
             String cmd = encryptModelScript
-                    + " -oracle_home " + mwhome_12213
-                    + " -model_file " + model + " < " + getResourcePath().resolve("passphrase.txt");
+                + " -oracle_home " + mwhome_12213
+                + " -model_file " + model + " < " + getResourcePath().resolve("passphrase.txt");
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             verifyResult(result, "encryptModel.sh completed successfully");
         }
@@ -906,12 +906,12 @@ public class ITWdt extends BaseTest {
                 Files.copy(source, model, StandardCopyOption.REPLACE_EXISTING);
 
                 cmd = "echo welcome1 | "
-                        + updateDomainScript
-                        + " -oracle_home " + mwhome_12213
-                        + " -domain_home " + domainParentDir + FS + domainDir
-                        + " -model_file " + model
-                        + " -archive_file " + getSampleArchiveFile()
-                        + " -admin_url t3://localhost:7001 -admin_user weblogic";
+                    + updateDomainScript
+                    + " -oracle_home " + mwhome_12213
+                    + " -domain_home " + domainParentDir + FS + domainDir
+                    + " -model_file " + model
+                    + " -archive_file " + getSampleArchiveFile()
+                    + " -admin_url t3://localhost:7001 -admin_user weblogic";
                 CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
                 assertEquals(0, result.exitValue(), "Unexpected return code for untargeting app");
@@ -925,12 +925,12 @@ public class ITWdt extends BaseTest {
                 Files.copy(source, model, StandardCopyOption.REPLACE_EXISTING);
 
                 cmd = "echo welcome1 | "
-                        + updateDomainScript
-                        + " -oracle_home " + mwhome_12213
-                        + " -domain_home " + domainParentDir + FS + domainDir
-                        + " -model_file " + model
-                        + " -archive_file " + getSampleArchiveFile()
-                        + " -admin_url t3://localhost:7001 -admin_user weblogic";
+                    + updateDomainScript
+                    + " -oracle_home " + mwhome_12213
+                    + " -domain_home " + domainParentDir + FS + domainDir
+                    + " -model_file " + model
+                    + " -archive_file " + getSampleArchiveFile()
+                    + " -admin_url t3://localhost:7001 -admin_user weblogic";
                 CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
                 assertEquals(0, result.exitValue(), "Unexpected return code for targeting app");
