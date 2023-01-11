@@ -49,6 +49,8 @@ public class ITWdt extends BaseTest {
 
     private static boolean discover17DomainCreated = false;
 
+    private static boolean discover33DomainCreated = false;
+
     @BeforeAll
     public static void staticPrepare() throws Exception {
         logger.info("prepare for WDT testing ...");
@@ -1048,6 +1050,7 @@ public class ITWdt extends BaseTest {
             assertNotEquals(0, result3.exitValue(), "Machine section was not removed from model");
         }
     }
+
     /**
      * Test Discover Domain using the -skip_archive argument
      * @throws Exception - if any error occurs
@@ -1058,24 +1061,61 @@ public class ITWdt extends BaseTest {
     @Test
     void test33DiscoverSkipArchive(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
-                domainParentDir + FS + "discoverDomainSkipArchive -model_file " +
+                domainParentDir + FS + "discoverDomainSkipArchive-33-34 -model_file " +
                 getSampleModelFile("-constant") + " -archive_file " + getSampleArchiveFile();
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result.exitValue(), "Unexpected return code");
+            discover33DomainCreated = true;
         }
 
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             Path discoveredModel = getTestOutputPath(testInfo).resolve("discoveredModel.yaml");
             cmd = discoverDomainScript
                 + " -oracle_home " + mwhome_12213
-                + " -domain_home " + domainParentDir + FS + "restrictedJRFD1-discover17-18-19"
+                + " -domain_home " + domainParentDir + FS + "discoverDomainSkipArchive-33-34"
                 + " -model_file " + discoveredModel
                 + " -skip_archive " ;
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             // SecurityConfiguration warning
             assertEquals(1, result.exitValue(), "Unexpected return code");
         }
+    }
+
+    /**
+     * Test Discover Domain using the -run_remote argument
+     * @throws Exception - if any error occurs
+     */
+    @DisplayName("Test 34: remote discovery")
+    @Order(34)
+    @Tag("gate")
+    @Test
+    void test34DiscoverRemote(TestInfo testInfo) throws Exception {
+        assertTrue(discover33DomainCreated, "Dependent Domain creation failed in step test33DiscoverSkipArchive");
+        String domainHome = domainParentDir + FS + "discoverDomainSkipArchive-33-34";
+        Path adminServerOut = getTestOutputPath(testInfo).resolve("admin-server.out");
+        boolean isServerUp = startAdminServer(domainHome, adminServerOut);
+
+        if (isServerUp) {
+            try (PrintWriter out = getTestMethodWriter(testInfo)) {
+                Path discoveredModel = getTestOutputPath(testInfo).resolve("discoveredModel.yaml");
+                String cmd = discoverDomainScript
+                    + " -oracle_home " + mwhome_12213
+                    + " -domain_home " + domainHome
+                    + " -model_file " + discoveredModel
+                    + " -admin_user weblogic -admin_pass welcome1 -admin_url t3://localhost:7001"
+                    + " -remote";
+                CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+                // SecurityConfiguration warning
+                verifyResult(result, "Remote discovery created a model that references files or directories" +
+                    " on the remote machine");
+            }
+        } else {
+            // Best effort to clean up server
+            tryKillTheAdminServer(domainHome, "admin-server");
+            throw new Exception("test34DiscoverRemote failed - cannot bring up server");
+        }
+
     }
 
     private boolean startAdminServer(String domainHome, Path outputFile) throws Exception {
