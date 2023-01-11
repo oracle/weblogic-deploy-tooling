@@ -151,6 +151,46 @@ class ValidationTestCase(unittest.TestCase):
 
         self.assertNotEqual(return_code, Validator.ReturnCode.STOP)
 
+    def testYamlModelValidationWithRemoteOption(self):
+        """
+            Parse and validate a YAML model with '-remote' option, should fail with path error.
+        """
+
+        _model_file = self._resources_dir + '/simple-model2.yaml'
+        _archive_file = self._resources_dir + "/SingleAppDomain.zip"
+        _method_name = 'testYamlModelValidation'
+
+        mw_home = os.environ['MW_HOME']
+        args_map = {
+            '-oracle_home': mw_home,
+            '-model_file': _model_file,
+            '-archive_file': _archive_file,
+            '-remote' : ''
+        }
+
+        model_context = ModelContext('ValidationTestCase', args_map)
+        aliases = Aliases(model_context, wls_version=self._wls_version)
+
+        try:
+            model_dictionary = FileToPython(model_context.get_model_file()).parse()
+            model_validator = Validator(model_context, aliases, wlst_mode=WlstModes.ONLINE)
+            return_code = model_validator.validate_in_tool_mode(model_dictionary,
+                                                                model_context.get_variable_file(),
+                                                                model_context.get_archive_file_name())
+
+            self._logger.info('The Validator.validate_in_tool_mode() call returned {0}',
+                              Validator.ReturnCode.from_value(return_code),
+                              class_name=self._class_name, method_name=_method_name)
+        except TranslateException, te:
+            return_code = Validator.ReturnCode.STOP
+            self._logger.severe('WLSDPLY-20009',
+                                self._program_name,
+                                model_context.get_model_file(),
+                                te.getLocalizedMessage(), error=te,
+                                class_name=self._class_name, method_name=_method_name)
+
+        self.assertEqual(return_code, Validator.ReturnCode.STOP)
+
     def testWLSRolesValidation(self):
         """
         Run the validation portion of the WLSRoles helper and check for expected results.
