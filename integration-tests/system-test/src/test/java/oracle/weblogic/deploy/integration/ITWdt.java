@@ -1075,13 +1075,13 @@ public class ITWdt extends BaseTest {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
                 domainParentDir + FS + "discoverDomainSkipArchive-33-34 -model_file " +
                 getSampleModelFile("-constant") + " -archive_file " + getSampleArchiveFile();
-        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+        try (PrintWriter out = getTestMethodWriter(testInfo, "CreateDomain")) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result.exitValue(), "Unexpected return code");
             discover33DomainCreated = true;
         }
 
-        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+        try (PrintWriter out = getTestMethodWriter(testInfo, "DiscoverDomain")) {
             Path discoveredModel = getTestOutputPath(testInfo).resolve("discoveredModel.yaml");
             cmd = discoverDomainScript
                 + " -oracle_home " + mwhome_12213
@@ -1105,6 +1105,7 @@ public class ITWdt extends BaseTest {
     void test34DiscoverRemote(TestInfo testInfo) throws Exception {
         assertTrue(discover33DomainCreated, "Dependent Domain creation failed in step test33DiscoverSkipArchive");
         String domainHome = domainParentDir + FS + "discoverDomainSkipArchive-33-34";
+        setUpBootProperties(domainHome, "AdminServer", "weblogic", "welcome1");
         Path adminServerOut = getTestOutputPath(testInfo).resolve("admin-server.out");
         boolean isServerUp = startAdminServer(domainHome, adminServerOut);
 
