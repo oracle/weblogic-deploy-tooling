@@ -1,5 +1,5 @@
 """
-Copyright (c) 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Methods to update an output file with information from the kubernetes section of the model.
@@ -205,10 +205,6 @@ def _update_dictionary(output_dictionary, model_dictionary, schema_folder, schem
         property_folder = properties[key]
         element_type = schema_helper.get_type(property_folder)
 
-        # deprecated "named object list" format
-        value = _check_named_object_list(value, element_type, property_folder, schema_path, key, model_crd_folder)
-        # end deprecated
-
         value = _convert_value(value, element_type)
 
         if isinstance(value, dict):
@@ -295,38 +291,6 @@ def _convert_value(model_value, type_name):
         # the model values can be 'abc,123'.
         # target values must be a list object.
         return alias_utils.convert_to_type('list', model_value, delimiter=MODEL_LIST_DELIMITER)
-
-    return model_value
-
-
-# *** DELETE METHOD WHEN deprecated "named object list" IS REMOVED ***
-def _check_named_object_list(model_value, type_name, schema_folder, schema_path, key, model_crd_folder):
-    """
-    Convert specified model value to an object list if it uses deprecated "named object list" format.
-    :param model_value: the value to be checked
-    :param type_name: the schema type name of the value
-    :param schema_folder: the schema for the value being checked
-    :param schema_path: used for schema_helper key lookup
-    :param key: used for schema_helper key lookup
-    :param model_crd_folder: required for object list matching
-    :return: the converted value
-    """
-    if type_name == 'array' and isinstance(model_value, dict):
-        object_list = list()
-        next_schema_path = schema_helper.append_path(schema_path, key)
-        list_key = model_crd_folder.get_object_list_key(next_schema_path)
-        item_info = schema_helper.get_array_item_info(schema_folder)
-        properties = schema_helper.get_properties(item_info)
-
-        for model_key, model_object in model_value.items():
-            new_object = model_object.copy()
-
-            # see if the model name should become an attribute in the new object
-            if (list_key in properties.keys()) and (list_key not in new_object.keys()):
-                new_object[list_key] = model_key
-
-            object_list.append(new_object)
-        return object_list
 
     return model_value
 
