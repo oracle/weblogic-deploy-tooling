@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.lang import IllegalArgumentException
@@ -172,7 +172,7 @@ class CoherenceResourcesDiscoverer(Discoverer):
                                         class_name=_class_name, method_name=_method_name)
                         new_name = None
             else:
-                new_name = archive_file.getCoherenceConfigArchivePath(cluster_name, new_name)
+                new_name = WLSDeployArchive.getCoherenceConfigArchivePath(cluster_name, new_name)
                 self.add_to_remote_map(file_name_path, new_name,
                                    WLSDeployArchive.ArchiveEntryType.COHERENCE_CONFIG.name())
 
@@ -211,7 +211,7 @@ class CoherenceResourcesDiscoverer(Discoverer):
 
     def get_coherence_url(self, cluster_name, url, file_name, archive_file):
         if self._model_context.is_remote():
-            new_name = archive_file.getCoherenceURLArchivePath(cluster_name, url)
+            new_name = WLSDeployArchive.getCoherenceURLArchivePath(cluster_name, url)
             self.add_to_remote_map(file_name, new_name,
                            WLSDeployArchive.ArchiveEntryType.COHERENCE_CONFIG.name())
         elif not self._model_context.skip_archive():
@@ -229,7 +229,7 @@ class CoherenceResourcesDiscoverer(Discoverer):
         if not self._model_context.is_remote():
             file_name = self._convert_path(file_name)
         if self._model_context.is_remote():
-            new_name = archive_file.getCoherenceConfigArchivePath(file_name)
+            new_name = WLSDeployArchive.getCoherenceConfigArchivePath(file_name)
             self.add_to_remote_map(file_name, new_name,
                                WLSDeployArchive.ArchiveEntryType.COHERENCE_CONFIG.name())
         elif not self._model_context.skip_archive():
@@ -270,7 +270,7 @@ class CoherenceResourcesDiscoverer(Discoverer):
         if model_value is not None:
             archive_file = self._model_context.get_archive_file()
             if self._model_context.is_remote():
-                new_name = archive_file.getCoherencePersistArchivePath(cluster_name, dir_type)
+                new_name = WLSDeployArchive.getCoherencePersistArchivePath(cluster_name, dir_type)
                 self.add_to_remote_map(model_value, new_name,
                                       WLSDeployArchive.ArchiveEntryType.COHERENCE_PERSISTENCE_DIR.name())
             elif not self._model_context.skip_archive():
