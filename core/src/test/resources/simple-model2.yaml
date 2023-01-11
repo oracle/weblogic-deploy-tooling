@@ -8,7 +8,7 @@ domainInfo:
     AdminPassword: 'welcome1'
     ServerStartMode: 'prod'
     domainBin: [ 'wlsdeploy/domainBin/setUserOverrides.sh' ]
-    domainLibraries: [ 'wlsdeploy/Libraries/fake.jar' ]
+    domainLibraries: [ 'wlsdeploy/domainLibraries/fake.jar' ]
 
 
 topology:

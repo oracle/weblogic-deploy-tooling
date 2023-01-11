@@ -164,13 +164,12 @@ class ValidationTestCase(unittest.TestCase):
         args_map = {
             '-oracle_home': mw_home,
             '-model_file': _model_file,
-            '-archive_file': _archive_file,
-            '-remote' : ''
+            '-archive_file': _archive_file
         }
 
         model_context = ModelContext('ValidationTestCase', args_map)
         aliases = Aliases(model_context, wls_version=self._wls_version)
-
+        model_context._remote = True
         try:
             model_dictionary = FileToPython(model_context.get_model_file()).parse()
             model_validator = Validator(model_context, aliases, wlst_mode=WlstModes.ONLINE)
@@ -178,6 +177,13 @@ class ValidationTestCase(unittest.TestCase):
                                                                 model_context.get_variable_file(),
                                                                 model_context.get_archive_file_name())
 
+            summary_handler = WLSDeployLogEndHandler.getSummaryHandler()
+            self.assertNotEqual(summary_handler, None, "Summary Handler is None")
+            self.assertEqual(summary_handler.getMaximumMessageLevel(), Level.SEVERE, "No SEVERE messages found")
+            # 2 messages complaining about the path of these
+            # domainBin: [ 'wlsdeploy/domainBin/setUserOverrides.sh' ]
+            # domainLibraries: [ 'wlsdeploy/domainLibraries/fake.jar' ]
+            self.assertEqual(summary_handler.getMessageCount(Level.SEVERE), 2, "Number of SEVERE messages do not match")
             self._logger.info('The Validator.validate_in_tool_mode() call returned {0}',
                               Validator.ReturnCode.from_value(return_code),
                               class_name=self._class_name, method_name=_method_name)
