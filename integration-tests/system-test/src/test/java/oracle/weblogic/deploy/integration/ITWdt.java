@@ -1090,7 +1090,7 @@ public class ITWdt extends BaseTest {
                 + " -skip_archive " ;
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             // SecurityConfiguration warning
-            assertEquals(1, result.exitValue(), "Unexpected return code");
+            assertEquals(0, result.exitValue(), "Unexpected return code");
         }
     }
 
@@ -1103,9 +1103,9 @@ public class ITWdt extends BaseTest {
     @Tag("gate")
     @Test
     void test34DiscoverRemote(TestInfo testInfo) throws Exception {
-        assertTrue(discover33DomainCreated, "Dependent Domain creation failed in step test33DiscoverSkipArchive");
+        assertTrue(discover33DomainCreated, "step skipped because Domain creation failed in step test33DiscoverSkipArchive");
         String domainHome = domainParentDir + FS + "discoverDomainSkipArchive-33-34";
-        setUpBootProperties(domainHome, "AdminServer", "weblogic", "welcome1");
+        setUpBootProperties(domainHome, "admin-server", "weblogic", "welcome1");
         Path adminServerOut = getTestOutputPath(testInfo).resolve("admin-server.out");
         boolean isServerUp = startAdminServer(domainHome, adminServerOut);
 
