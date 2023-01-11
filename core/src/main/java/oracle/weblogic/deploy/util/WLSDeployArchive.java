@@ -13,6 +13,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
@@ -30,6 +31,11 @@ import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
  */
 public class WLSDeployArchive {
     private static final String CLASS = WLSDeployArchive.class.getName();
+
+    // Used by the unit tests so it requires package level scoping...
+    //
+    /* package */
+    static final String ZIP_SEP = "/";
 
     public static final String WLSDPLY_ARCHIVE_BINARY_DIR = "wlsdeploy";
 
@@ -58,12 +64,12 @@ public class WLSDeployArchive {
      * Top-level archive subdirectory where all database wallets are stored in subdirectories.
      */
     public static final String ARCHIVE_DB_WALLETS_DIR =
-        String.format("%s/%s/", WLSDPLY_ARCHIVE_BINARY_DIR, DB_WALLETS_DIR_NAME);
+        String.format("%s/%s", WLSDPLY_ARCHIVE_BINARY_DIR, DB_WALLETS_DIR_NAME);
 
     /**
      * Default, top-level archive subdirectory where the database wallet for the RCU database is stored.
      */
-    public static final String DEFAULT_RCU_WALLET_PATH = ARCHIVE_DB_WALLETS_DIR + DEFAULT_RCU_WALLET_NAME;
+    public static final String DEFAULT_RCU_WALLET_PATH = ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + DEFAULT_RCU_WALLET_NAME;
 
     /**
      * Top-level archive subdirectory where the atp wallet is stored.
@@ -158,7 +164,8 @@ public class WLSDeployArchive {
     public static final String ARCHIVE_JMS_FOREIGN_SERVER_DIR = ARCHIVE_JMS_DIR + "/foreignServer";
 
     public enum ArchiveEntryType {
-        SHARED_LIBRARIES, APPLICATIONS,
+        SHARED_LIBRARIES,
+        APPLICATIONS,
         APPLICATION_PLAN,
         SHLIB_PLAN,
         DOMAIN_LIB,
@@ -172,13 +179,10 @@ public class WLSDeployArchive {
         COHERENCE_CONFIG,
         COHERENCE_PERSISTENCE_DIR,
         FILE_STORE,
-        NODE_MANAGER_KEY_STORE
+        NODE_MANAGER_KEY_STORE,
+        DB_WALLET,
+        OPSS_WALLET
     }
-
-    // Used by the unit tests so it requires package level scoping...
-    //
-    /* package */
-    static final String ZIP_SEP = "/";
 
     private static final String SEP = File.separator;
     private static final int READ_BUFFER_SIZE = 4096;
@@ -239,6 +243,108 @@ public class WLSDeployArchive {
         return path.startsWith(ARCHIVE_CPLIB_TARGET_DIR);
     }
 
+    public static String getPathForType(ArchiveEntryType type) {
+        final String METHOD = "getPathForType";
+        LOGGER.entering(CLASS, METHOD, type);
+
+        String pathPrefix = null;
+        switch(type) {
+            case APPLICATIONS:
+                pathPrefix = ARCHIVE_APPS_TARGET_DIR + ZIP_SEP;
+                break;
+
+            case SHARED_LIBRARIES:
+                pathPrefix = ARCHIVE_SHLIBS_TARGET_DIR + ZIP_SEP;
+                break;
+
+            case DOMAIN_LIB:
+                pathPrefix = ARCHIVE_DOMLIB_TARGET_DIR + ZIP_SEP;
+                break;
+
+            case DOMAIN_BIN:
+                pathPrefix = ARCHIVE_DOM_BIN_TARGET_DIR + ZIP_SEP;
+                break;
+
+            case CLASSPATH_LIB:
+                pathPrefix = ARCHIVE_CPLIB_TARGET_DIR + ZIP_SEP;
+                break;
+
+            case SCRIPTS:
+                pathPrefix = ARCHIVE_SCRIPTS_DIR + ZIP_SEP;
+                break;
+
+            case SERVER_KEYSTORE:
+                pathPrefix = ARCHIVE_SERVER_TARGET_DIR + ZIP_SEP;
+                break;
+
+            case MIME_MAPPING:
+                pathPrefix = ARCHIVE_CONFIG_TARGET_DIR + ZIP_SEP;
+                break;
+
+            case COHERENCE:
+                pathPrefix = ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP;
+                break;
+
+            case JMS_FOREIGN_SERVER:
+                pathPrefix = ARCHIVE_JMS_FOREIGN_SERVER_DIR + ZIP_SEP;
+                break;
+
+            case FILE_STORE:
+                pathPrefix = ARCHIVE_FILE_STORE_TARGET_DIR + ZIP_SEP;
+                break;
+
+            case NODE_MANAGER_KEY_STORE:
+                pathPrefix = ARCHIVE_NODE_MANAGER_TARGET_DIR + ZIP_SEP;
+                break;
+
+            case DB_WALLET:
+                pathPrefix = ARCHIVE_DB_WALLETS_DIR + ZIP_SEP;
+                break;
+
+            case OPSS_WALLET:
+                pathPrefix = ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP;
+                break;
+
+            // FIXME - need to log if receiving an unknown type
+        }
+
+        LOGGER.exiting(CLASS, METHOD, pathPrefix);
+        return pathPrefix;
+    }
+
+    public static String getPathForType(ArchiveEntryType type, String name) {
+        final String METHOD = "getPathForType";
+        LOGGER.entering(CLASS, METHOD, type, name);
+
+        String pathPrefix = getPathForType(type);
+        if (!StringUtils.isEmpty(name)) {
+            boolean hasName = true;
+            boolean isAlwaysDirectory = false;
+            switch(type) {
+                case COHERENCE:
+                case JMS_FOREIGN_SERVER:
+                case FILE_STORE:
+                case DB_WALLET:
+                    isAlwaysDirectory = true;
+                    break;
+
+                case OPSS_WALLET:
+                    hasName = false;
+                    break;
+            }
+
+            if (pathPrefix != null && hasName) {
+                pathPrefix += name;
+                if (isAlwaysDirectory) {
+                    pathPrefix += ZIP_SEP;
+                }
+            }
+        }
+
+        LOGGER.exiting(CLASS, METHOD, pathPrefix);
+        return pathPrefix;
+    }
+
     /**
      * Get the current file name for the JCSLifecycleArchive file.
      *
@@ -259,6 +365,26 @@ public class WLSDeployArchive {
 
         LOGGER.entering(CLASS, METHOD);
         List<String> entries = getZipFile().listZipEntries();
+        LOGGER.exiting(CLASS, METHOD, entries);
+        return entries;
+    }
+
+    public List<String> getArchiveEntries(ArchiveEntryType type) throws WLSDeployArchiveIOException {
+        final String METHOD = "getArchiveEntries";
+
+        LOGGER.entering(CLASS, METHOD);
+        List<String> entries = getArchiveEntries(type, null);
+        LOGGER.exiting(CLASS, METHOD, entries);
+        return entries;
+    }
+
+    public List<String> getArchiveEntries(ArchiveEntryType type, String name) throws WLSDeployArchiveIOException {
+        final String METHOD = "getArchiveEntries";
+
+        LOGGER.entering(CLASS, METHOD);
+        String pathPrefix = getPathForType(type, name);
+        List<String> entries = getZipFile().listZipEntries(pathPrefix);
+
         LOGGER.exiting(CLASS, METHOD, entries);
         return entries;
     }
@@ -614,10 +740,11 @@ public class WLSDeployArchive {
             extractPath = extractRCUWallet(domainHome);
         } else {
             validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
-            List<String> zipEntries = getZipFile().listZipEntries(ARCHIVE_DB_WALLETS_DIR + walletName + ZIP_SEP);
-            zipEntries.remove(ARCHIVE_DB_WALLETS_DIR + walletName + ZIP_SEP);
+            List<String> zipEntries =
+                getZipFile().listZipEntries(ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + walletName + ZIP_SEP);
+            zipEntries.remove(ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + walletName + ZIP_SEP);
             if (!zipEntries.isEmpty()) {
-                extractPath = ARCHIVE_DB_WALLETS_DIR + walletName + ZIP_SEP;
+                extractPath = ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + walletName + ZIP_SEP;
                 extractWallet(domainHome, extractPath, zipEntries, null, null, null);
                 extractPath = new File(domainHome, extractPath).getAbsolutePath();
             }
