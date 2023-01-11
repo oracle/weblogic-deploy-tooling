@@ -1074,7 +1074,7 @@ public class ITWdt extends BaseTest {
     void test33DiscoverSkipArchive(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
                 domainParentDir + FS + "discoverDomainSkipArchive-33-34 -model_file " +
-                getSampleModelFile("-constant") + " -archive_file " + getSampleArchiveFile();
+                getSampleModelFile("-onlinebase") + " -archive_file " + getSampleArchiveFile();
         try (PrintWriter out = getTestMethodWriter(testInfo, "CreateDomain")) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result.exitValue(), "Unexpected return code");
