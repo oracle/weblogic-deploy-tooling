@@ -134,18 +134,19 @@ def __update_online(model, model_context, aliases):
     __logger.info("WLSDPLY-09005", admin_url, timeout, method_name=_method_name, class_name=_class_name)
 
     try:
+
         if model_context.is_remote():
             model_validator = Validator(model_context, aliases, logger=__logger, wlst_mode=WlstModes.ONLINE)
             model_validator.validate_in_tool_mode(model.get_model(), None,
-                                                    model_context.get_archive_file_name())
-    except ValidateException, ve:
-        raise ve
+                                                  model_context.get_archive_file_name())
 
-    try:
         __wlst_helper.connect(admin_user, admin_pwd, admin_url, timeout)
+
+        # -remote does not have domain home set, so get it from online wlst after connect
         if model_context.is_remote():
             model_context.set_domain_name(__wlst_helper.get_domain_name_online())
             model_context.set_domain_home(__wlst_helper.get_domain_home_online())
+
         deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions(skip_edit_session_check)
         __wlst_helper.edit()
         __logger.fine("WLSDPLY-09019", edit_lock_acquire_timeout, edit_lock_release_timeout, edit_lock_exclusive)
@@ -153,6 +154,8 @@ def __update_online(model, model_context, aliases):
                                  exclusive=edit_lock_exclusive)
         if model_context.is_discard_current_edit():
             deployer_utils.discard_current_edit()
+    except ValidateException, ve:
+        raise ve
     except BundleAwareException, ex:
         raise ex
 

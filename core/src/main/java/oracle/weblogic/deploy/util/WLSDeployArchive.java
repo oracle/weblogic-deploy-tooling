@@ -337,16 +337,15 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Determines whether or not the path is starts with the target
+     * Determines whether or not the path starts with the target pattern
      * in the archive file.
      *
      * @param path the path into the archive file to test
      * @param target the starts with target path
      * @return true if the specified path starts with target
-     * @throws WLSDeployArchiveIOException if an error occurs reading the archive file
      * @throws IllegalArgumentException    if the path is null or empty
      */
-    public boolean isPathStartsWithTarget(String path, String target) throws WLSDeployArchiveIOException {
+    public boolean isPathStartsWithTarget(String path, String target) throws IllegalArgumentException {
         final String METHOD = "isApplicationsPath";
 
         LOGGER.entering(CLASS, METHOD, path);
@@ -365,9 +364,9 @@ public class WLSDeployArchive {
      *
      * @param path
      * @return true if the path should not be used for remote update
-     * @throws WLSDeployArchiveIOException
+     * @throws IllegalArgumentException    if the path is null or empty
      */
-    public boolean isRemoteUpdateDomainForbiddenPath(String path) throws WLSDeployArchiveIOException {
+    public boolean isRemoteUpdateDomainForbiddenPath(String path)  throws IllegalArgumentException  {
         final String METHOD = "isRemoteUpdateDomainForbiddenPath";
 
         LOGGER.entering(CLASS, METHOD, path);

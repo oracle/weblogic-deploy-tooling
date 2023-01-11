@@ -145,7 +145,7 @@ class ArchiveHelper(object):
                 result = archive_file.isRemoteUpdateDomainForbiddenPath(path)
                 if result:
                     break
-            except (IllegalArgumentException, WLSDeployArchiveIOException), e:
+            except (IllegalArgumentException), e:
                 ex = exception_helper.create_exception(self.__exception_type, "WLSDPLY-19309", path,
                                                        self.__archive_files_text, e.getLocalizedMessage(), error=e)
                 self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)

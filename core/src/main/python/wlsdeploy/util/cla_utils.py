@@ -177,7 +177,7 @@ class CommandLineArgUtil(object):
         args = self._check_trailing_arguments(args, trailing_arg_count)
         args_len = len(args)
         is_remote = False
-        if '-remote' in args:
+        if CommandLineArgUtil.REMOTE_SWITCH in args:
             is_remote = True
 
         idx = 1
