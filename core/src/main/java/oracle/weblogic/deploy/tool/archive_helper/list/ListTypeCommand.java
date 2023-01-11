@@ -9,10 +9,9 @@ import oracle.weblogic.deploy.tool.archive_helper.ArchiveHelperException;
 import oracle.weblogic.deploy.tool.archive_helper.CommandResponse;
 import oracle.weblogic.deploy.util.ExitCode;
 import oracle.weblogic.deploy.util.StringUtils;
-import oracle.weblogic.deploy.util.WLSDeployArchive;
 import oracle.weblogic.deploy.util.WLSDeployArchiveIOException;
 
-import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.APPLICATIONS;
+import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.APPLICATION;
 
 public abstract class ListTypeCommand extends ListOptions implements Callable<CommandResponse> {
     private static final String CLASS = ListTypeCommand.class.getName();
@@ -29,9 +28,9 @@ public abstract class ListTypeCommand extends ListOptions implements Callable<Co
 
             List<String> archiveEntries;
             if (StringUtils.isEmpty(this.name)) {
-                archiveEntries = this.archive.getArchiveEntries(APPLICATIONS);
+                archiveEntries = this.archive.getArchiveEntries(APPLICATION);
             } else {
-                archiveEntries = this.archive.getArchiveEntries(APPLICATIONS, this.name);
+                archiveEntries = this.archive.getArchiveEntries(APPLICATION, this.name);
             }
             response = new CommandResponse(ExitCode.OK);
             response.addMessages(archiveEntries);

@@ -164,14 +164,14 @@ public class WLSDeployArchive {
     public static final String ARCHIVE_JMS_FOREIGN_SERVER_DIR = ARCHIVE_JMS_DIR + "/foreignServer";
 
     public enum ArchiveEntryType {
-        SHARED_LIBRARIES,
-        APPLICATIONS,
+        SHARED_LIBRARY,
+        APPLICATION,
         APPLICATION_PLAN,
         SHLIB_PLAN,
         DOMAIN_LIB,
         DOMAIN_BIN,
         CLASSPATH_LIB,
-        SCRIPTS,
+        SCRIPT,
         SERVER_KEYSTORE,
         MIME_MAPPING,
         COHERENCE,
@@ -249,11 +249,11 @@ public class WLSDeployArchive {
 
         String pathPrefix = null;
         switch(type) {
-            case APPLICATIONS:
+            case APPLICATION:
                 pathPrefix = ARCHIVE_APPS_TARGET_DIR + ZIP_SEP;
                 break;
 
-            case SHARED_LIBRARIES:
+            case SHARED_LIBRARY:
                 pathPrefix = ARCHIVE_SHLIBS_TARGET_DIR + ZIP_SEP;
                 break;
 
@@ -269,7 +269,7 @@ public class WLSDeployArchive {
                 pathPrefix = ARCHIVE_CPLIB_TARGET_DIR + ZIP_SEP;
                 break;
 
-            case SCRIPTS:
+            case SCRIPT:
                 pathPrefix = ARCHIVE_SCRIPTS_DIR + ZIP_SEP;
                 break;
 
@@ -343,6 +343,165 @@ public class WLSDeployArchive {
 
         LOGGER.exiting(CLASS, METHOD, pathPrefix);
         return pathPrefix;
+    }
+
+    /**
+     * Get archive path for the application name for use in the model.
+     *
+     * @param appPath name of the application
+     * @return archive path for use in the model
+     */
+    public static String getApplicationArchivePath(String appPath) {
+        return getArchiveName(ARCHIVE_APPS_TARGET_DIR, appPath);
+    }
+
+    /**
+     * Get the archive path for the domain/bin scripts
+     *
+     * @param domainBinPath domain/bin
+     * @return Archive path for domain/bin in the model
+     */
+    public static String getDomainBinScriptArchivePath(String domainBinPath) {
+        return getArchiveName(ARCHIVE_DOM_BIN_TARGET_DIR, domainBinPath);
+    }
+
+    /**
+     * Get the archive path for the application in a well-formed application directory
+     *
+     * @param appPath name of the application path
+     * @return archive path for use in the model
+     */
+    public static String getApplicationDirectoryArchivePath(String appName, String appPath) {
+        File zipAppPath = new File(appPath).getParentFile();
+        File zipAppFile = new File(appPath);
+        return ARCHIVE_STRUCT_APPS_TARGET_DIR + "/" + appName + "/" + zipAppPath.getName() + "/" + zipAppFile.getName();
+    }
+
+    /**
+     * Get the archive path for the classpath library for use in the model.
+     *
+     * @param libPath to get the archive path for
+     * @return Archive path for the classpath library for use in the model
+     */
+    public static String getClasspathArchivePath(String libPath) {
+        return getArchiveName(ARCHIVE_CPLIB_TARGET_DIR, libPath);
+    }
+
+    /**
+     * Get the archive path of the application deployment plan.
+     *
+     * @param planFile The deployment plan file name
+     * @return Archive path for use in the model
+     */
+    public static String getApplicationPlanArchivePath(String planFile) {
+        return getArchiveName(ARCHIVE_APPS_TARGET_DIR, planFile);
+    }
+
+    /**
+     * Get the archive path of a well formed plan directory in app directory,
+     *
+     * @param appName The application name of the app directory
+     * @param planDir The deployment plan file directory
+     * @return Archive path for use in the model
+     */
+    public static String getApplicationPlanDirArchivePath(String appName, String planDir) {
+        File zipPath = new File(planDir);
+        return ARCHIVE_STRUCT_APPS_TARGET_DIR + "/" + appName + "/" + zipPath.getName();
+    }
+
+    /**
+     * Get the Archive Path for the Shared Library Plan
+     *
+     * @param planFile Shared Library Deployment Plan file name
+     * @return Archive path for the plan file for use in the model
+     */
+    public static String getShlibPlanArchivePath(String planFile) {
+        return getArchiveName(ARCHIVE_SHLIBS_TARGET_DIR, planFile);
+    }
+
+    /**
+     * Get the archive path for the scriptfile name.
+     *
+     * @param scriptFile the script file to get the path name
+     * @return The name of the file in the archive for use in the model
+     */
+    public static String getScriptArchivePath(String scriptFile) {
+        return getArchiveName(ARCHIVE_SCRIPTS_DIR, scriptFile);
+    }
+
+    /**
+     * Get the archive path for the servr identity key store file for use in the model
+     *
+     * @param serverName   name of the server used to separate paths
+     * @param keystoreFile the file to get the archive path name
+     * @return Archive path name for the server key store file
+     */
+    public static String getServerKeyStoreArchivePath(String serverName, String keystoreFile) {
+        return getArchiveName(ARCHIVE_SERVER_TARGET_DIR + ZIP_SEP + serverName, keystoreFile);
+    }
+
+    /**
+     * Get the archive path name for the WebAppContainer mime mapping file.
+     *
+     * @param mimeMappingFile the path name of the file to use
+     * @return The archive path of the mimeMappingFile for the model
+     */
+    public static String getMimeMappingArchivePath(String mimeMappingFile) {
+        return getArchiveName(ARCHIVE_CONFIG_TARGET_DIR + ZIP_SEP, mimeMappingFile);
+    }
+
+    /**
+     * Get the Coherence configuration file name in the archive to use in the model.
+     *
+     * @param clusterName The Coherence cluster name used to segregate the directories
+     * @param configFile  the file name of the config file
+     * @return Archive name for use in the model
+     */
+    public static String getCoherenceConfigArchivePath(String clusterName, String configFile) {
+        return getArchiveName(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName, configFile);
+    }
+
+    /**
+     * Get the archive name for the foreign server binding file.
+     *
+     * @param foreignServer The foreign server name used to segregate the directories
+     * @param configFile    The file name to add
+     * @return The location of the file in the archive to use in the model
+     */
+    public static String getForeignServerArchivePath(String foreignServer, String configFile) {
+        return getArchiveName(ARCHIVE_JMS_FOREIGN_SERVER_DIR + ZIP_SEP + foreignServer, configFile);
+    }
+
+    public static String getCoherenceURLArchivePath(String clusterName, URL urlForConfigFile) {
+        return getURLArchiveName(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName, urlForConfigFile,
+            true);
+    }
+
+    public static String getFileStoreArchivePath(String fileStoreName) {
+        return getArchiveName(ARCHIVE_FILE_STORE_TARGET_DIR, fileStoreName);
+    }
+
+    /**
+     * Get the name of the persistence directory as an archive path. This does not reconcile duplicates or other
+     * items deeper in the zip file logic.
+     *
+     * @param clusterName   name of cluster specific to path
+     * @param directoryType type of persistence directory
+     * @return Archive style path for directory
+     */
+    public static String getCoherencePersistArchivePath(String clusterName, String directoryType) {
+        return getArchiveName(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName, directoryType);
+    }
+
+    /**
+     * Get the archive path to Node Manager Identity Key Store file. This does not reconcile duplicate names or
+     * other items that the archive file does when adding to the archive.
+     *
+     * @param keystoreFile file name of the key store file
+     * @return archive file path for the model
+     */
+    public static String getNodeManagerKeyStoreArchivePath(String keystoreFile) {
+        return getArchiveName(ARCHIVE_NODE_MANAGER_TARGET_DIR, keystoreFile);
     }
 
     /**
@@ -612,28 +771,6 @@ public class WLSDeployArchive {
         }
         LOGGER.exiting(CLASS, METHOD, result);
         return result;
-    }
-
-    /**
-     * Get archive path for the application name for use in the model.
-     *
-     * @param appPath name of the application
-     * @return archive path for use in the model
-     */
-    public String getApplicationArchivePath(String appPath) {
-        return getArchiveName(ARCHIVE_APPS_TARGET_DIR, appPath);
-    }
-
-    /**
-     * Get the archive path for the application in a well-formed application directory
-     *
-     * @param appPath name of the application path
-     * @return archive path for use in the model
-     */
-    public String getApplicationDirectoryArchivePath(String appName, String appPath) {
-        File zipAppPath = new File(appPath).getParentFile();
-        File zipAppFile = new File(appPath);
-        return ARCHIVE_STRUCT_APPS_TARGET_DIR + "/" + appName + "/" + zipAppPath.getName() + "/" + zipAppFile.getName();
     }
 
     /**
@@ -961,16 +1098,6 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Get the archive path for the domain/bin scripts
-     *
-     * @param domainBinPath domain/bin
-     * @return Archive path for domain/bin in the model
-     */
-    public String getDomainBinScriptArchivePath(String domainBinPath) {
-        return getArchiveName(ARCHIVE_DOM_BIN_TARGET_DIR, domainBinPath);
-    }
-
-    /**
      * Adds a $DOMAIN_HOME/bin script to the archive.  If a script with the same name already exists, this method
      * assumes that the new one also needs to be added so it changes the name to prevent conflicts by adding a
      * numeric value onto the file's basename (e.g., myscript(1).cmd, myscript(2).cmd).
@@ -1035,16 +1162,6 @@ public class WLSDeployArchive {
         LOGGER.entering(CLASS, METHOD);
         getZipFile().removeZipEntries(ARCHIVE_DOM_BIN_TARGET_DIR + ZIP_SEP);
         LOGGER.exiting(CLASS, METHOD);
-    }
-
-    /**
-     * Get the archive path for the classpath library for use in the model.
-     *
-     * @param libPath to get the archive path for
-     * @return Archive path for the classpath library for use in the model
-     */
-    public String getClasspathArchivePath(String libPath) {
-        return getArchiveName(ARCHIVE_CPLIB_TARGET_DIR, libPath);
     }
 
     /**
@@ -1140,28 +1257,6 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Get the archive path of the application deployment plan.
-     *
-     * @param planFile The deployment plan file name
-     * @return Archive path for use in the model
-     */
-    public String getApplicationPlanArchivePath(String planFile) {
-        return getArchiveName(ARCHIVE_APPS_TARGET_DIR, planFile);
-    }
-
-    /**
-     * Get the archive path of a well formed plan directory in app directory,
-     *
-     * @param appName The application name of the app directory
-     * @param planDir The deployment plan file directory
-     * @return Archive path for use in the model
-     */
-    public String getApplicationPlanDirArchivePath(String appName, String planDir) {
-        File zipPath = new File(planDir);
-        return ARCHIVE_STRUCT_APPS_TARGET_DIR + "/" + appName + "/" + zipPath.getName();
-    }
-
-    /**
      * Adds an application's deployment plan file to the archive.
      *
      * @param planFile      the deployment plan file name
@@ -1182,16 +1277,6 @@ public class WLSDeployArchive {
         String newName = addItemToZip(ARCHIVE_APPS_TARGET_DIR, filePath, preferredName);
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
-    }
-
-    /**
-     * Get the Archive Path for the Shared Library Plan
-     *
-     * @param planFile Shared Library Deployment Plan file name
-     * @return Archive path for the plan file for use in the model
-     */
-    public String getShlibPlanArchivePath(String planFile) {
-        return getArchiveName(ARCHIVE_SHLIBS_TARGET_DIR, planFile);
     }
 
     /**
@@ -1219,16 +1304,6 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Get the archive path for the scriptfile name.
-     *
-     * @param scriptFile the script file to get the path name
-     * @return The name of the file in the archive for use in the model
-     */
-    public String getScriptArchivePath(String scriptFile) {
-        return getArchiveName(ARCHIVE_SCRIPTS_DIR, scriptFile);
-    }
-
-    /**
      * Add a script file to the archive.
      *
      * @param scriptFile the script file to add
@@ -1246,17 +1321,6 @@ public class WLSDeployArchive {
         String newName = addItemToZip(ARCHIVE_SCRIPTS_DIR, filePath);
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
-    }
-
-    /**
-     * Get the archive path for the servr identity key store file for use in the model
-     *
-     * @param serverName   name of the server used to separate paths
-     * @param keystoreFile the file to get the archive path name
-     * @return Archive path name for the server key store file
-     */
-    public String getServerKeyStoreArchivePath(String serverName, String keystoreFile) {
-        return getArchiveName(ARCHIVE_SERVER_TARGET_DIR + ZIP_SEP + serverName, keystoreFile);
     }
 
     /**
@@ -1282,16 +1346,6 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Get the archive path name for the WebAppContainer mime mapping file.
-     *
-     * @param mimeMappingFile the path name of the file to use
-     * @return The archive path of the mimeMappingFile for the model
-     */
-    public String getMimeMappingArchivePath(String mimeMappingFile) {
-        return getArchiveName(ARCHIVE_CONFIG_TARGET_DIR + ZIP_SEP, mimeMappingFile);
-    }
-
-    /**
      * Add a WebAppContainer mime mapping file to the archive.
      *
      * @param mimeMappingFile the file to add
@@ -1309,17 +1363,6 @@ public class WLSDeployArchive {
         String newName = addItemToZip(ARCHIVE_CONFIG_TARGET_DIR + ZIP_SEP, filePath);
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
-    }
-
-    /**
-     * Get the Coherence configuration file name in the archive to use in the model.
-     *
-     * @param clusterName The Coherence cluster name used to segregate the directories
-     * @param configFile  the file name of the config file
-     * @return Archive name for use in the model
-     */
-    public String getCoherenceConfigArchivePath(String clusterName, String configFile) {
-        return getArchiveName(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName, configFile);
     }
 
     /**
@@ -1345,17 +1388,6 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Get the archive name for the foreign server binding file.
-     *
-     * @param foreignServer The foreign server name used to segregate the directories
-     * @param configFile    The file name to add
-     * @return The location of the file in the archive to use in the model
-     */
-    public String getForeignServerArchivePath(String foreignServer, String configFile) {
-        return getArchiveName(ARCHIVE_JMS_FOREIGN_SERVER_DIR + ZIP_SEP + foreignServer, configFile);
-    }
-
-    /**
      * Add a Foreign Server binding file to the archive
      *
      * @param foreignServer the Foreign Server name used to segregate the directories
@@ -1374,11 +1406,6 @@ public class WLSDeployArchive {
         String newName = addItemToZip(ARCHIVE_JMS_FOREIGN_SERVER_DIR + ZIP_SEP + foreignServer, filePath);
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
-    }
-
-    public String getCoherenceURLArchivePath(String clusterName, URL urlForConfigFile) {
-        return getURLArchiveName(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName, urlForConfigFile,
-            true);
     }
 
     /**
@@ -1404,18 +1431,6 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Get the name of the persistence directory as an archive path. This does not reconcile duplicates or other
-     * items deeper in the zip file logic.
-     *
-     * @param clusterName   name of cluster specific to path
-     * @param directoryType type of persistence directory
-     * @return Archive style path for directory
-     */
-    public String getCoherencePersistArchivePath(String clusterName, String directoryType) {
-        return getArchiveName(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName, directoryType);
-    }
-
-    /**
      * Add an empty directory to the archive file for the coherence cluster using the persistence directory type value.
      * The directory type is stored under the unique coherence cluster name.
      *
@@ -1438,10 +1453,6 @@ public class WLSDeployArchive {
         return newName;
     }
 
-    public String getFileStoreArchivePath(String fileStoreName) {
-        return getArchiveName(ARCHIVE_FILE_STORE_TARGET_DIR, fileStoreName);
-    }
-
     /**
      * Add an empty directory to the archive file using the File Store name.
      *
@@ -1456,17 +1467,6 @@ public class WLSDeployArchive {
         String newName = addEmptyDirectoryToZip(ARCHIVE_FILE_STORE_TARGET_DIR, fileStoreName);
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
-    }
-
-    /**
-     * Get the archive path to Node Manager Identity Key Store file. This does not reconcile duplicate names or
-     * other items that the archive file does when adding to the archive.
-     *
-     * @param keystoreFile file name of the key store file
-     * @return archive file path for the model
-     */
-    public String getNodeManagerKeyStoreArchivePath(String keystoreFile) {
-        return getArchiveName(ARCHIVE_NODE_MANAGER_TARGET_DIR, keystoreFile);
     }
 
     /**
@@ -1555,6 +1555,21 @@ public class WLSDeployArchive {
     // Protected Helper methods                                                              //
     ///////////////////////////////////////////////////////////////////////////////////////////
 
+    protected static String getArchiveName(String zipPathPrefix, String itemToAdd) {
+        return getArchiveName(zipPathPrefix, itemToAdd, true);
+    }
+
+    protected static String getArchiveName(String zipPathPrefix, String itemToAdd, boolean useFileNameInEntryPath) {
+        String newName = zipPathPrefix;
+        if (useFileNameInEntryPath) {
+            if (!newName.endsWith(ZIP_SEP)) {
+                newName += ZIP_SEP;
+            }
+            newName += new File(itemToAdd).getName();
+        }
+        return newName;
+    }
+
     protected WLSDeployZipFile getZipFile() {
         return zipFile;
     }
@@ -1575,21 +1590,6 @@ public class WLSDeployArchive {
         newName += directoryNameToAdd;
         newName = getZipFile().addZipDirectoryEntry(newName, true);
         LOGGER.exiting(CLASS, METHOD, newName);
-        return newName;
-    }
-
-    protected String getArchiveName(String zipPathPrefix, String itemToAdd) {
-        return getArchiveName(zipPathPrefix, itemToAdd, true);
-    }
-
-    protected String getArchiveName(String zipPathPrefix, String itemToAdd, boolean useFileNameInEntryPath) {
-        String newName = zipPathPrefix;
-        if (useFileNameInEntryPath) {
-            if (!newName.endsWith(ZIP_SEP)) {
-                newName += ZIP_SEP;
-            }
-            newName += new File(itemToAdd).getName();
-        }
         return newName;
     }
 
@@ -1632,7 +1632,7 @@ public class WLSDeployArchive {
         return newName;
     }
 
-    protected String getURLArchiveName(String zipPathPrefix, URL url, boolean useFileNameInEntryPath) {
+    protected static String getURLArchiveName(String zipPathPrefix, URL url, boolean useFileNameInEntryPath) {
         String newName = zipPathPrefix;
         String urlFileName = new File(url.getFile()).getName();
         if (useFileNameInEntryPath) {
