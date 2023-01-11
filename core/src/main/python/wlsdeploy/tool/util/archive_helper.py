@@ -349,23 +349,30 @@ class ArchiveHelper(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=all_entries)
         return all_entries
 
-    def extract_atp_wallet(self):
+    def extract_database_wallet(self, wallet_name=WLSDeployArchive.DEFAULT_RCU_WALLET_NAME):
         """
-        Extract the and unzip the ATP wallet, if present, and return the path to the wallet directory.
+        Extract the and unzip the named database wallet, if present, and return the path to
+        the wallet directory.
         :return: the path to the extracted wallet, or None if no wallet was found
         :raises: BundleAwareException of the appropriate type: if an error occurs
         """
-        _method_name = 'extract_atp_wallet'
+        _method_name = 'extract_database_wallet'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
-        wallet_path = None
+        resulting_wallet_path = None
         for archive_file in self.__archive_files[::-1]:
-            wallet_path = archive_file.extractATPWallet(self.__domain_home)
+            wallet_path = archive_file.extractDatabaseWallet(self.__domain_home, wallet_name)
+            # Allow iteration to continue through all archive files but
+            # make sure to store off the path for a wallet that was extracted.
+            #
             if wallet_path is not None:
-                break
+                # If multiple archives contain the same named wallet, they
+                # will all have the same path.
+                #
+                resulting_wallet_path = wallet_path
 
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=wallet_path)
-        return wallet_path
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=resulting_wallet_path)
+        return resulting_wallet_path
 
     def extract_opss_wallet(self):
         """
@@ -376,14 +383,20 @@ class ArchiveHelper(object):
         _method_name = 'extract_opss_wallet'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
-        wallet_path = None
+        resulting_wallet_path = None
         for archive_file in self.__archive_files[::-1]:
             wallet_path = archive_file.extractOPSSWallet(self.__domain_home)
+            # Allow iteration to continue through all archive files but
+            # make sure to store off the path for a wallet that was extracted.
+            #
             if wallet_path is not None:
-                break
+                # If multiple archives contain the same named wallet, they
+                # will all have the same path.
+                #
+                resulting_wallet_path = wallet_path
 
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=wallet_path)
-        return wallet_path
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=resulting_wallet_path)
+        return resulting_wallet_path
 
     def get_manifest(self, source_path):
         """

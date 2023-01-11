@@ -45,6 +45,27 @@ public class WLSDeployArchive {
     public static final String OLD_ARCHIVE_OPSS_WALLET_PATH = "opsswallet";
 
     /**
+     * The archive subdirectory name where all database wallets are stored.
+     */
+    public static final String DB_WALLETS_DIR_NAME = "dbWallets";
+
+    /**
+     * The archive subdirectory name used by default for the database wallet for the RCU database.
+     */
+    public static final String DEFAULT_RCU_WALLET_NAME = "rcu";
+
+    /**
+     * Top-level archive subdirectory where all database wallets are stored in subdirectories.
+     */
+    public static final String ARCHIVE_DB_WALLETS_DIR =
+        String.format("%s/%s/", WLSDPLY_ARCHIVE_BINARY_DIR, DB_WALLETS_DIR_NAME);
+
+    /**
+     * Default, top-level archive subdirectory where the database wallet for the RCU database is stored.
+     */
+    public static final String DEFAULT_RCU_WALLET_PATH = ARCHIVE_DB_WALLETS_DIR + DEFAULT_RCU_WALLET_NAME;
+
+    /**
      * Top-level archive subdirectory where the atp wallet is stored.
      */
     public static final String ARCHIVE_ATP_WALLET_PATH = WLSDPLY_ARCHIVE_BINARY_DIR + "/atpwallet";
@@ -651,6 +672,14 @@ public class WLSDeployArchive {
         return newName;
     }
 
+    /**
+     * Replace an existing application in the archive file.
+     *
+     * @param appPath  the path within the archive of the app to remove
+     * @param tempFile the file system location of the new app to replace the existing one
+     * @return the archive path of the new application
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
+     */
     public String replaceApplication(String appPath, String tempFile) throws WLSDeployArchiveIOException {
         final String METHOD = "replaceApplication";
         LOGGER.entering(CLASS, METHOD, appPath);
@@ -704,33 +733,29 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Extract the ATP wallet in the archive.
+     * Extract the named database wallet.
      *
      * @param domainHome the domain home directory
+     * @param walletName the name of the database wallet to extract (e.g., rcu)
      * @return the full path to the directory containing the extracted wallet files or null, if no wallet was found.
      * @throws WLSDeployArchiveIOException if an error occurs while reading or extracting the archive files.
      */
-    public String extractATPWallet(File domainHome) throws WLSDeployArchiveIOException {
-        final String METHOD = "extractATPWallet";
+    public String extractDatabaseWallet(File domainHome, String walletName) throws WLSDeployArchiveIOException {
+        final String METHOD = "extractDatabaseWallet";
 
-        LOGGER.entering(CLASS, METHOD, domainHome);
-        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+        LOGGER.entering(CLASS, METHOD, domainHome, walletName);
 
-        // Look in the updated location first
         String extractPath = null;
-        List<String> zipEntries = getZipFile().listZipEntries(ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
-        zipEntries.remove(ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
-        if (!zipEntries.isEmpty()) {
-            extractPath = ARCHIVE_ATP_WALLET_PATH + ZIP_SEP;
-            extractWallet(domainHome, extractPath, zipEntries, null);
-            extractPath = new File(domainHome, extractPath).getAbsolutePath();
+        if (DEFAULT_RCU_WALLET_NAME.equals(walletName)) {
+            // handle archive files with deprecated path, as needed
+            extractPath = extractRCUWallet(domainHome);
         } else {
-            // Look in the deprecated location.
-            zipEntries = getZipFile().listZipEntries(OLD_ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
-            zipEntries.remove(OLD_ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
+            validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+            List<String> zipEntries = getZipFile().listZipEntries(ARCHIVE_DB_WALLETS_DIR + walletName + ZIP_SEP);
+            zipEntries.remove(ARCHIVE_DB_WALLETS_DIR + walletName + ZIP_SEP);
             if (!zipEntries.isEmpty()) {
-                extractPath = ARCHIVE_ATP_WALLET_PATH + ZIP_SEP;
-                extractWallet(domainHome, extractPath, zipEntries, "WLSDPLY-01427");
+                extractPath = ARCHIVE_DB_WALLETS_DIR + walletName + ZIP_SEP;
+                extractWallet(domainHome, extractPath, zipEntries, null, null, null);
                 extractPath = new File(domainHome, extractPath).getAbsolutePath();
             }
         }
@@ -758,7 +783,7 @@ public class WLSDeployArchive {
         zipEntries.remove(ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
         if (!zipEntries.isEmpty()) {
             extractPath = ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP;
-            extractWallet(domainHome, extractPath, zipEntries, null);
+            extractWallet(domainHome, extractPath, zipEntries, null, null, null);
             extractPath = new File(domainHome, extractPath).getAbsolutePath();
         } else {
             // Look in the deprecated location.
@@ -766,7 +791,7 @@ public class WLSDeployArchive {
             zipEntries.remove(OLD_ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
             if (!zipEntries.isEmpty()) {
                 extractPath = OLD_ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP;
-                extractWallet(domainHome, extractPath, zipEntries, "WLSDPLY-01433");
+                extractWallet(domainHome, extractPath, zipEntries, "WLSDPLY-01433",null, null);
                 extractPath = new File(domainHome, extractPath).getAbsolutePath();
             }
         }
@@ -1556,8 +1581,8 @@ public class WLSDeployArchive {
         return newName;
     }
 
-    protected void extractWallet(File domainHome, String extractPath, List<String> zipEntries, String deprecationKey)
-        throws WLSDeployArchiveIOException {
+    protected void extractWallet(File domainHome, String extractPath, List<String> zipEntries, String deprecationKey,
+                                 String fromDir, String toDir) throws WLSDeployArchiveIOException {
         final String METHOD = "extractWallet";
         LOGGER.entering(CLASS, METHOD, domainHome, extractPath, zipEntries, deprecationKey);
 
@@ -1586,7 +1611,11 @@ public class WLSDeployArchive {
                         extractToLocation = new File(domainHome, WLSDPLY_ARCHIVE_BINARY_DIR);
                         LOGGER.warning(deprecationKey, getArchiveFileName(), zipEntry, extractPath);
                     }
-                    extractFileFromZip(zipEntry, extractToLocation);
+                    if (StringUtils.isEmpty(fromDir) && StringUtils.isEmpty(toDir)) {
+                        extractFileFromZip(zipEntry, extractToLocation);
+                    } else {
+                        extractFileFromZip(zipEntry, fromDir, toDir, extractToLocation);
+                    }
                 }
             }
         }
@@ -1763,6 +1792,36 @@ public class WLSDeployArchive {
             getZipFile().close();
         }
         LOGGER.exiting(CLASS, METHOD);
+    }
+
+    protected String extractRCUWallet(File domainHome) throws WLSDeployArchiveIOException {
+        final String METHOD = "extractRCUWallet";
+
+        LOGGER.entering(CLASS, METHOD, domainHome);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        // Look in the updated location first
+        String extractPath = null;
+        List<String> zipEntries = getZipFile().listZipEntries(DEFAULT_RCU_WALLET_PATH + ZIP_SEP);
+        zipEntries.remove(DEFAULT_RCU_WALLET_PATH + ZIP_SEP);
+        if (!zipEntries.isEmpty()) {
+            extractPath = DEFAULT_RCU_WALLET_PATH + ZIP_SEP;
+            extractWallet(domainHome, extractPath, zipEntries, null, null, null);
+            extractPath = new File(domainHome, extractPath).getAbsolutePath();
+        } else {
+            // Look in the deprecated location.
+            zipEntries = getZipFile().listZipEntries(OLD_ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
+            zipEntries.remove(OLD_ARCHIVE_ATP_WALLET_PATH + ZIP_SEP);
+            if (!zipEntries.isEmpty()) {
+                extractPath = DEFAULT_RCU_WALLET_PATH + ZIP_SEP;
+                extractWallet(domainHome, extractPath, zipEntries, "WLSDPLY-01427",
+                    OLD_ARCHIVE_ATP_WALLET_PATH, DB_WALLETS_DIR_NAME + ZIP_SEP + DEFAULT_RCU_WALLET_NAME);
+                extractPath = new File(domainHome, extractPath).getAbsolutePath();
+            }
+        }
+
+        LOGGER.exiting(CLASS, METHOD, extractPath);
+        return extractPath;
     }
 
     ///////////////////////////////////////////////////////////////////////////
