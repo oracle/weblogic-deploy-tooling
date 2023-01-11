@@ -1,5 +1,5 @@
 """
-Copyright (c) 2021, 2022, Oracle and/or its affiliates.
+Copyright (c) 2021, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -85,26 +85,6 @@ class ExtractTest(BaseTestCase):
         self._match_values("Secret count", len(secret_list), 2)
         self._match_values("Secret 0", secret_list[0], 'secret-1')
         self._match_values("Secret 1", secret_list[1], 'secret-2')
-
-    # deprecated
-    def testNamedObjectListModel(self):
-        """
-        Test that fields using the deprecated "named object list" in the kubernetes section of the model
-        are transferred to the resulting domain resource file
-        """
-        resource = self._extract_domain_resource('3')
-
-        # serverPod/env from the kubernetes section should be in the domain resource file
-        env_list = self._traverse(resource, 'spec', 'serverPod', 'env')
-        self._match_values("Env count", len(env_list), 2)
-        self._match_values("Env 0", env_list[0]['name'], 'JAVA_OPTIONS')
-        self._match_values("Env 1", env_list[1]['name'], 'USER_MEM_ARGS')
-
-        # clusters from kubernetes section should be in the domain resource file
-        cluster_list = self._traverse(resource, 'spec', 'clusters')
-        self._match_values("Cluster count", len(cluster_list), 2)
-        self._match_values("Cluster 0 clusterName", cluster_list[0]['clusterName'], 'CLUSTER_1')
-        self._match_values("Cluster 1 clusterName", cluster_list[1]['clusterName'], 'CLUSTER_2')
 
     def _extract_domain_resource(self, suffix):
         model_file = os.path.join(self.MODELS_DIR, 'model-' + suffix + '.yaml')
