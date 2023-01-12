@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.lang import IllegalArgumentException
@@ -207,7 +207,7 @@ class CommonResourcesDiscoverer(Discoverer):
             if not StringUtils.isEmpty(directory):
                 archive_file = self._model_context.get_archive_file()
                 if self._model_context.is_remote():
-                    new_name = archive_file.getFileStoreArchivePath(file_store_name)
+                    new_name = WLSDeployArchive.getFileStoreArchivePath(file_store_name)
                     self.add_to_remote_map(file_store_name, new_name,
                                            WLSDeployArchive.ArchiveEntryType.FILE_STORE.name())
                 elif not self._model_context.skip_archive():

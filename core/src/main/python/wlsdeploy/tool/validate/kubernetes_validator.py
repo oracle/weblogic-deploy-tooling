@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2022, Oracle and/or its affiliates.
+Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -132,16 +132,6 @@ class KubernetesValidator(object):
         :param model_path: the path of model elements (including array indices), used for logging
         """
         _method_name = '_validate_object_array'
-
-        # deprecated "named object list" format
-        if isinstance(model_value, dict):
-            self._logger.warning("WLSDPLY-05091", model_path, class_name=self._class_name, method_name=_method_name)
-            for name in model_value:
-                object_map = model_value[name]
-                next_model_path = model_path + "/" + name
-                self.validate_folder(object_map, property_map, schema_path, next_model_path)
-            return
-        # end deprecated
 
         if not isinstance(model_value, list):
             self._logger.severe("WLSDPLY-05040", model_path, class_name=self._class_name, method_name=_method_name)

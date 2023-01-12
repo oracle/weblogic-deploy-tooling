@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -119,9 +119,9 @@ class DeploymentsDiscoverer(Discoverer):
                 else:
                     new_source_name = None
                     if self._model_context.is_remote():
-                        new_source_name = archive_file.getSharedLibraryArchivePath(file_name_path)
+                        new_source_name = WLSDeployArchive.getSharedLibraryArchivePath(file_name_path)
                         self.add_to_remote_map(file_name_path, new_source_name,
-                                           WLSDeployArchive.ArchiveEntryType.SHARED_LIBRARIES.name())
+                                           WLSDeployArchive.ArchiveEntryType.SHARED_LIBRARY.name())
                     elif not self._model_context.skip_archive():
                         _logger.info('WLSDPLY-06384', library_name, file_name_path, class_name=_class_name,
                                      method_name=_method_name)
@@ -186,7 +186,7 @@ class DeploymentsDiscoverer(Discoverer):
             plan_file_name = self._resolve_deployment_plan_path(plan_dir, plan_path)
         new_plan_name = None
         if self._model_context.is_remote():
-            new_plan_name = archive_file.getShLibArchivePath(plan_path)
+            new_plan_name = WLSDeployArchive.getShLibArchivePath(plan_path)
             self.add_to_remote_map(plan_path, new_plan_name,
                                    WLSDeployArchive.ArchiveEntryType.SHLIB_PLAN.name())
         elif not self._model_context.skip_archive():
@@ -268,9 +268,9 @@ class DeploymentsDiscoverer(Discoverer):
                 else:
                     new_source_name = None
                     if self._model_context.is_remote():
-                        new_source_name = archive_file.getApplicationArchivePath(file_name_path)
+                        new_source_name = WLSDeployArchive.getApplicationArchivePath(file_name_path)
                         self.add_to_remote_map(file_name_path, new_source_name,
-                                               WLSDeployArchive.ArchiveEntryType.APPLICATIONS.name())
+                                               WLSDeployArchive.ArchiveEntryType.APPLICATION.name())
                     elif not self._model_context.skip_archive():
                         _logger.info('WLSDPLY-06394', application_name, file_name_path, class_name=_class_name,
                                      method_name=_method_name)
@@ -437,10 +437,10 @@ class DeploymentsDiscoverer(Discoverer):
         app_dir = application_dict[model_constants.SOURCE_PATH]
         archive_file = self._model_context.get_archive_file()
         if self._model_context.is_remote():
-            new_source_name = archive_file.getApplicationDirectoryArchivePath(application_name, app_dir)
+            new_source_name = WLSDeployArchive.getApplicationDirectoryArchivePath(application_name, app_dir)
 
             self.add_to_remote_map(app_dir, new_source_name,
-                                   WLSDeployArchive.ArchiveEntryType.APPLICATIONS.name())
+                                   WLSDeployArchive.ArchiveEntryType.APPLICATION.name())
         elif not self._model_context.skip_archive():
             if not os.path.abspath(app_dir):
                 app_dir = os.path.join(self._model_context.get_domain_home(), app_dir)
@@ -466,7 +466,7 @@ class DeploymentsDiscoverer(Discoverer):
         if not os.path.abspath(plan_dir):
             plan_dir = os.path.join(self._model_context.get_domain_home(), plan_dir)
         if self._model_context.is_remote():
-            new_source_name = archive_file.getApplicationPlanDirArchivePath(application_name, plan_dir)
+            new_source_name = WLSDeployArchive.getApplicationPlanDirArchivePath(application_name, plan_dir)
             self.add_to_remote_map(plan_dir, new_source_name,
                                    WLSDeployArchive.ArchiveEntryType.APPLICATION_PLAN.name())
         elif not self._model_context.skip_archive():
@@ -496,9 +496,9 @@ class DeploymentsDiscoverer(Discoverer):
         plan_file_name = self._resolve_deployment_plan_path(plan_dir, plan_path)
         if self._model_context.is_remote():
             if plan_file_name.endswith('plan'):
-                new_plan_name = archive_file.getApplicationPlanDirArchivePath(plan_file_name)
+                new_plan_name = WLSDeployArchive.getApplicationPlanDirArchivePath(plan_file_name)
             else:
-                new_plan_name = archive_file.getApplicationPlanArchivePath(plan_file_name)
+                new_plan_name = WLSDeployArchive.getApplicationPlanArchivePath(plan_file_name)
             self.add_to_remote_map(plan_path, new_plan_name,
                                    WLSDeployArchive.ArchiveEntryType.APPLICATION_PLAN.name())
         elif not self._model_context.skip_archive():

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.lang import IllegalArgumentException
@@ -788,7 +788,7 @@ class TopologyDiscoverer(Discoverer):
                 file_name_path = self._convert_path(classpath_name)
             new_source_name = None
             if self._model_context.is_remote():
-                new_source_name = archive_file.getClasspathArchivePath(file_name_path)
+                new_source_name = WLSDeployArchive.getClasspathArchivePath(file_name_path)
                 self.add_to_remote_map(file_name_path, new_source_name,
                                        WLSDeployArchive.ArchiveEntryType.CLASSPATH_LIB.name())
             elif not self._model_context.skip_archive():
@@ -851,7 +851,7 @@ class TopologyDiscoverer(Discoverer):
         _logger.finer('WLSDPLY-06623', file_path, server_name, class_name=_class_name, method_name=_method_name)
         new_name = None
         if self._model_context.is_remote():
-            new_name = archive_file.getServerKeyStoreArchivePath(server_name, file_path)
+            new_name = WLSDeployArchive.getServerKeyStoreArchivePath(server_name, file_path)
             self.add_to_remote_map(file_path, new_name,
                                    WLSDeployArchive.ArchiveEntryType.SERVER_KEYSTORE.name())
         elif not self._model_context.skip_archive():
@@ -879,7 +879,7 @@ class TopologyDiscoverer(Discoverer):
         _logger.finer('WLSDPLY-06636', file_path, class_name=_class_name, method_name=_method_name)
         new_name = None
         if self._model_context.is_remote():
-            new_name = archive_file.getNodeManagerKeyStoreArchivePath(file_path)
+            new_name = WLSDeployArchive.getNodeManagerKeyStoreArchivePath(file_path)
             self.add_to_remote_map(file_path, new_name,
                                    WLSDeployArchive.ArchiveEntryType.NODE_MANAGER_KEY_STORE.name())
 
