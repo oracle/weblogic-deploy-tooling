@@ -1377,8 +1377,8 @@ class WlstHelper(object):
                                                     _format_exception(e), error=e)
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
-        return name
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return name
 
 
     def get_domain_home_online(self):
@@ -1397,8 +1397,8 @@ class WlstHelper(object):
                                                     _format_exception(e), error=e)
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
-        return result
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return result
 
     def domain_runtime(self):
         """
