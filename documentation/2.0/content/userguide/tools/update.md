@@ -17,11 +17,12 @@ Running the Update Domain Tool in WLST offline mode is very similar to running t
 
 You can use online mode either on the admin server or from a remote machine.  If you are running from the admin server, you can specify domain home directory `-domain_home` location.
 
-If you are running from a remote machine, then you do not need to specify the domain home directory `-domain_home` option,  but there is a limitation:
+If you are running from a remote machine, then you do not need to specify the domain home directory `-domain_home` option,  but there is are limitations:
 
-- Any attribute in the model, except for application and library `SourcePath` and `PlanPath` that referenced path entries inside the archive file will result in an error, as the tool cannot remotely
+- Any attribute in the model that referenced a path into the archive file unless the path begins with `wlsdeploy/applications` or `wlsdeploy/sharedLibraries` will result in an error, as the tool cannot remotely
   create such directory or file.  For example, if you specify a `domainBin: [ wlsdeploy/domainBin/setUserOverrides.sh]` which references a file entry in the archive file `wlsdeploy/domainBin/setUserOverrides.sh`,
   the tool will fail with an error.
+- Exploded format application specified in the archive is not supported
 
 In WLST online mode, simply add the information on how to connect to the WebLogic Server Administration Server, for example:
 
