@@ -443,6 +443,11 @@ class ApplicationsDeployer(Deployer):
         return parent_dict[RESOURCE_GROUP][rg_name], rg_name
 
     def __get_existing_apps(self, base_location):
+        """
+        Getting the details of existing applications including hash values of the app and plan.
+        :param base_location: location context
+        :return: dictionary containing the details about the existing applications
+        """
         _method_name = '__get_existing_apps'
         self.logger.entering(str_helper.to_string(base_location),
                              class_name=self._class_name, method_name=_method_name)
@@ -488,14 +493,14 @@ class ApplicationsDeployer(Deployer):
 
                 deployment_order = attributes_map['DeploymentOrder']
 
-                app_hash, plan_hash = self.__set_app_and_plan_hash(absolute_planpath, absolute_sourcepath)
+                app_hash, plan_hash = self.__get_app_and_plan_hash(absolute_planpath, absolute_sourcepath)
 
                 _update_ref_dictionary(ref_dictionary, app, absolute_sourcepath, app_hash, config_targets,
                                        absolute_plan_path=absolute_planpath, deploy_order=deployment_order,
                                        plan_hash=plan_hash)
         return ref_dictionary
 
-    def __set_app_and_plan_hash(self, absolute_planpath, absolute_sourcepath):
+    def __get_app_and_plan_hash(self, absolute_planpath, absolute_sourcepath):
         if self.model_context.is_remote():
             app_hash = None
             plan_hash = None
@@ -508,6 +513,11 @@ class ApplicationsDeployer(Deployer):
         return app_hash, plan_hash
 
     def __get_library_references(self, base_location):
+        """
+        Getting shared library referenced
+        :param base_location: location context
+        :return: dictonary of the library referenced details.
+        """
         _method_name = '__get_library_references'
         self.logger.entering(str_helper.to_string(base_location),
                              class_name=self._class_name, method_name=_method_name)
@@ -645,7 +655,8 @@ class ApplicationsDeployer(Deployer):
                         update_library_list.append(versioned_name)
                         continue
 
-                    # user libraries
+                    # based on the hash value of the existing source path and the new one in the archive
+                    # setup how the library should be deployed or redeployed.
                     self._update_library_build_strategy_based_on_hashes(existing_lib_targets_set, existing_src_path,
                                                                         lib, lib_dict, model_libs, model_src_path,
                                                                         model_targets_set, update_library_list,
@@ -774,6 +785,8 @@ class ApplicationsDeployer(Deployer):
                                                                 , existing_app_targets_set)
                         continue
 
+                    # based on the hash value of existing app and the new one in the archive
+                    # set up how the app should be deployed or redeployed
                     self.__update_app_build_strartegy_based_on_hashes(app, app_dict, existing_app_targets_set,
                                                                       model_apps, model_src_path, plan_path, src_path,
                                                                       stop_and_undeploy_app_list, versioned_name)
