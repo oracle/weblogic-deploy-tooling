@@ -34,6 +34,7 @@ or if running from a remote machine
 
     $ weblogic-deploy\bin\deployApps.cmd -oracle_home c:\wls12213 -remote -archive_file DemoDomain.zip -model_file DemoDomain.yaml -variable_file DemoDomain.properties -admin_url t3://127.0.0.1:7001 -admin_user weblogic
 
+Note: For remote application deployment, exploded format in the archive is not supported.
 
 As usual, the tool will prompt for the password (it can also be supplied by piping it to standard input of the tool). To bypass the prompt, you can use one of two options. Store the password in an environment variable, and use the variable name with command-line option `-admin_pass_env`. Store the password in a file. Provide the file name with command-line option `-admin_pass_file`.
 
