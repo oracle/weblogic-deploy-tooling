@@ -10,33 +10,38 @@ import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 
 import oracle.weblogic.deploy.tool.archive_helper.CommandResponse;
-import oracle.weblogic.deploy.tool.archive_helper.HelpVersionProvider;
+import oracle.weblogic.deploy.tool.archive_helper.add.AddCommand;
 import oracle.weblogic.deploy.tool.archive_helper.list.ListCommand;
 import oracle.weblogic.deploy.util.ExitCode;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.IParameterExceptionHandler;
+import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.ParseResult;
 import picocli.CommandLine.UnmatchedArgumentException;
 
 @Command(
     name = "archiveHelper",
-    mixinStandardHelpOptions = true,
     description = "%nA tool to create and modify a WebLogic Deploy Tooling archive file.%n",
-    versionProvider = HelpVersionProvider.class,
-    sortOptions = false,
+    commandListHeading = "%nCommands:%n",
     subcommands = {
+        AddCommand.class,
         ListCommand.class
     },
-    requiredOptionMarker = '*',
-    usageHelpWidth = 80,
-    commandListHeading = "%nCommands:%n%nChoose from:%n"
+    sortOptions = false
 )
 public class ArchiveHelper {
+    public static final String LOGGER_NAME = "wlsdeploy.tool.archive-helper";
     private static final String CLASS = ArchiveHelper.class.getName();
-    private static final PlatformLogger LOGGER =
-        WLSDeployLogFactory.getLogger("wlsdeploy.tool.archive-helper");
+    private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
+
+    @Option(
+        names = { "-help" },
+        description = "Get help for the archiveHelper tool",
+        usageHelp = true
+    )
+    private static boolean helpRequested = false;
 
     @SuppressWarnings("java:S106")
     public static void main(String[] args) {

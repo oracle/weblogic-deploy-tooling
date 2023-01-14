@@ -13,26 +13,29 @@ import oracle.weblogic.deploy.util.ExitCode;
 import oracle.weblogic.deploy.util.FileUtils;
 import oracle.weblogic.deploy.util.StringUtils;
 import oracle.weblogic.deploy.util.WLSDeployArchive;
-import picocli.CommandLine;
+
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 import picocli.CommandLine.Unmatched;
+import picocli.CommandLine.Model.CommandSpec;
+
+import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 public abstract class CommonOptions {
     private static final String CLASS = CommonOptions.class.getName();
-    private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.tool.archive-helper");
+    private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
 
     @Unmatched
-    List<String> unmatchedOptions;
+    protected List<String> unmatchedOptions;
 
     @Spec
-    CommandLine.Model.CommandSpec spec;
+    protected CommandSpec spec;
 
     @Option(
         names = { "-archive_file" },
         paramLabel = "<archive_file>",
-        required = true,
-        description = "Path to the archive file to use."
+        description = "Path to the archive file to use.",
+        required = true
     )
     protected String archiveFilePath;
 
@@ -42,11 +45,11 @@ public abstract class CommonOptions {
         return archiveFilePath;
     }
 
-    protected void initializeOptions() throws ArchiveHelperException {
-        this.archive = createArchive();
+    protected void initializeOptions(boolean archiveFileMustAlreadyExist) throws ArchiveHelperException {
+        this.archive = createArchive(archiveFileMustAlreadyExist);
     }
 
-    private WLSDeployArchive createArchive() throws ArchiveHelperException {
+    private WLSDeployArchive createArchive(boolean fileMustExist) throws ArchiveHelperException {
         final String METHOD = "createArchive";
         LOGGER.entering(CLASS, METHOD);
 
@@ -58,19 +61,30 @@ public abstract class CommonOptions {
         }
 
         File fullArchiveFile = new File(fullArchiveFileName);
-        if (!fullArchiveFile.exists()) {
-            File fullArchiveParentDir = fullArchiveFile.getParentFile();
-            if (!fullArchiveParentDir.exists() && !fullArchiveParentDir.mkdirs()) {
-                ArchiveHelperException ex = new ArchiveHelperException(ExitCode.ARG_VALIDATION_ERROR, "WLSDPLY-30001",
-                    fullArchiveParentDir.getAbsolutePath());
-                LOGGER.throwing(CLASS, METHOD, ex);
-                throw ex;
-            }
-        } else if (!fullArchiveFile.isFile()) {
-            ArchiveHelperException ex = new ArchiveHelperException(ExitCode.ARG_VALIDATION_ERROR, "WLSDPLY-30002",
+        if (!fullArchiveFile.isFile()) {
+            ArchiveHelperException ex = new ArchiveHelperException(ExitCode.ARG_VALIDATION_ERROR, "WLSDPLY-30001",
                 fullArchiveFile.getAbsolutePath());
             LOGGER.throwing(CLASS, METHOD, ex);
             throw ex;
+        }
+
+        if (fileMustExist) {
+            if (!fullArchiveFile.exists()) {
+                ArchiveHelperException ex = new ArchiveHelperException(ExitCode.ARG_VALIDATION_ERROR, "WLSDPLY-30002",
+                    fullArchiveFile.getAbsolutePath());
+                LOGGER.throwing(CLASS, METHOD, ex);
+                throw ex;
+            }
+        } else {
+            if (!fullArchiveFile.exists()) {
+                File fullArchiveParentDir = fullArchiveFile.getParentFile();
+                if (!fullArchiveParentDir.exists() && !fullArchiveParentDir.mkdirs()) {
+                    ArchiveHelperException ex = new ArchiveHelperException(ExitCode.ARG_VALIDATION_ERROR,
+                        "WLSDPLY-30003", fullArchiveParentDir.getAbsolutePath());
+                    LOGGER.throwing(CLASS, METHOD, ex);
+                    throw ex;
+                }
+            }
         }
 
         return new WLSDeployArchive(fullArchiveFileName);

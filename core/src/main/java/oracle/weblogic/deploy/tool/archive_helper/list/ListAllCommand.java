@@ -11,24 +11,30 @@ import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 import oracle.weblogic.deploy.tool.archive_helper.ArchiveHelperException;
 import oracle.weblogic.deploy.tool.archive_helper.CommandResponse;
-
 import oracle.weblogic.deploy.tool.archive_helper.CommonOptions;
-import oracle.weblogic.deploy.tool.archive_helper.HelpVersionProvider;
 import oracle.weblogic.deploy.util.ExitCode;
 import oracle.weblogic.deploy.util.WLSDeployArchiveIOException;
+
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
+
+import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
     name = "all",
     description = "List all entries in the archive file",
-    mixinStandardHelpOptions = true,
-    versionProvider = HelpVersionProvider.class,
     sortOptions = false
 )
 public class ListAllCommand extends CommonOptions implements Callable<CommandResponse> {
     private static final String CLASS = ListAllCommand.class.getName();
-    private static final PlatformLogger LOGGER =
-        WLSDeployLogFactory.getLogger("wlsdeploy.tool.archive-helper");
+    private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
+
+    @Option(
+        names = { "-help" },
+        description = "Get help for the archiveHelper list all subcommand",
+        usageHelp = true
+    )
+    private boolean helpRequested = false;
 
     @Override
     public CommandResponse call() throws Exception {
@@ -37,7 +43,7 @@ public class ListAllCommand extends CommonOptions implements Callable<CommandRes
 
         CommandResponse response;
         try {
-            super.initializeOptions();
+            super.initializeOptions(true);
 
             List<String> archiveEntries = this.archive.getArchiveEntries();
             response = new CommandResponse(ExitCode.OK);
@@ -46,8 +52,8 @@ public class ListAllCommand extends CommonOptions implements Callable<CommandRes
             LOGGER.severe(ex.getLocalizedMessage(), ex);
             response = new CommandResponse(ex.getExitCode(), ex.getLocalizedMessage());
         } catch (WLSDeployArchiveIOException ex) {
-            LOGGER.severe("WLSDPLY-30003", ex, ex.getLocalizedMessage());
-            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30003", this.archiveFilePath,
+            LOGGER.severe("WLSDPLY-30004", ex, ex.getLocalizedMessage());
+            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30004", this.archiveFilePath,
                 ex.getLocalizedMessage());
         }
         return response;

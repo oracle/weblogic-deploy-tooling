@@ -13,7 +13,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarFile;
@@ -164,6 +163,7 @@ public class WLSDeployArchive {
     public static final String ARCHIVE_JMS_FOREIGN_SERVER_DIR = ARCHIVE_JMS_DIR + "/foreignServer";
 
     public enum ArchiveEntryType {
+        STRUCTURED_APPLICATION,
         SHARED_LIBRARY,
         APPLICATION,
         APPLICATION_PLAN,
@@ -181,7 +181,8 @@ public class WLSDeployArchive {
         FILE_STORE,
         NODE_MANAGER_KEY_STORE,
         DB_WALLET,
-        OPSS_WALLET
+        OPSS_WALLET,
+        CUSTOM
     }
 
     private static final String SEP = File.separator;
@@ -211,6 +212,10 @@ public class WLSDeployArchive {
         this.zipFile = new WLSDeployZipFile(f);
         LOGGER.exiting(CLASS, METHOD);
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                            public static utility methods                                  //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Determine if the specified path string is a valid archive location.
@@ -255,6 +260,10 @@ public class WLSDeployArchive {
 
             case SHARED_LIBRARY:
                 pathPrefix = ARCHIVE_SHLIBS_TARGET_DIR + ZIP_SEP;
+                break;
+
+            case STRUCTURED_APPLICATION:
+                pathPrefix = ARCHIVE_STRUCT_APPS_TARGET_DIR + ZIP_SEP;
                 break;
 
             case DOMAIN_LIB:
@@ -303,6 +312,10 @@ public class WLSDeployArchive {
 
             case OPSS_WALLET:
                 pathPrefix = ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP;
+                break;
+
+            case CUSTOM:
+                pathPrefix = ARCHIVE_CUSTOM_TARGET_DIR + ZIP_SEP;
                 break;
 
             // FIXME - need to log if receiving an unknown type
@@ -503,6 +516,10 @@ public class WLSDeployArchive {
     public static String getNodeManagerKeyStoreArchivePath(String keystoreFile) {
         return getArchiveName(ARCHIVE_NODE_MANAGER_TARGET_DIR, keystoreFile);
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                               public utility methods                                      //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Get the current file name for the JCSLifecycleArchive file.
@@ -773,6 +790,10 @@ public class WLSDeployArchive {
         return result;
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                  application methods                                      //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     /**
      * This method adds an application to the archive.  If an application with the same name already exists, this
      * method assumes that the new one also needs to be added so it changes the name to prevent conflicts by adding
@@ -790,7 +811,6 @@ public class WLSDeployArchive {
         LOGGER.entering(CLASS, METHOD, appPath);
 
         File filePath = new File(appPath);
-
         validateExistingFile(filePath, "appPath", getArchiveFileName(), METHOD, true);
 
         String newName = addItemToZip(ARCHIVE_APPS_TARGET_DIR, filePath);
@@ -801,44 +821,28 @@ public class WLSDeployArchive {
     /**
      * Replace an existing application in the archive file.
      *
-     * @param appPath  the path within the archive of the app to remove
-     * @param tempFile the file system location of the new app to replace the existing one
+     * @param appPath  the app name or the path within the archive of the app to replace
+     * @param sourceLocation the file system location of the new app to replace the existing one
      * @return the archive path of the new application
      * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
+     * @throws IllegalArgumentException    if the file or directory passed in does not exist
      */
-    public String replaceApplication(String appPath, String tempFile) throws WLSDeployArchiveIOException {
+    public String replaceApplication(String appPath, String sourceLocation) throws WLSDeployArchiveIOException {
         final String METHOD = "replaceApplication";
-        LOGGER.entering(CLASS, METHOD, appPath);
-        getZipFile().removeZipEntry(appPath);
-        String newName = addApplication(tempFile);
-        LOGGER.exiting(CLASS, METHOD, newName);
-        return newName;
-    }
+        LOGGER.entering(CLASS, METHOD, appPath, sourceLocation);
 
-    public String addApplicationFolder(String appName, String appPath)
-        throws WLSDeployArchiveIOException {
-        final String METHOD = "addApplicationFolder";
-        LOGGER.entering(CLASS, METHOD, appName, appPath);
-        File zipPath = new File(appPath);
-        if (zipPath.getParentFile() != null) {
-            zipPath = zipPath.getParentFile();
+        String archivePath;
+        if (appPath.startsWith(ARCHIVE_APPS_TARGET_DIR + ZIP_SEP)) {
+            archivePath = appPath;
+        } else {
+            archivePath = ARCHIVE_APPS_TARGET_DIR + ZIP_SEP + appPath;
         }
-        String firstPrefix = ARCHIVE_STRUCT_APPS_TARGET_DIR + "/" + appName + "/" + zipPath.getName();
-        String newName = walkDownFolders(firstPrefix, zipPath);
+
+        getZipFile().removeZipEntries(archivePath);
+        String newName = addApplication(sourceLocation);
+
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
-    }
-
-    public String addApplicationPlanFolder(String appName, String planDir)
-        throws WLSDeployArchiveIOException {
-        final String METHOD = "addApplicationPathFolder";
-        LOGGER.entering(CLASS, METHOD, appName, planDir);
-        File zipPlan = new File(planDir);
-        String zipPrefix = ARCHIVE_STRUCT_APPS_TARGET_DIR + "/" + appName + "/" + zipPlan.getName();
-        String newName = walkDownFolders(zipPrefix, zipPlan);
-
-        LOGGER.exiting(CLASS, METHOD, newName);
-        return zipPrefix;
     }
 
     /**
@@ -856,75 +860,6 @@ public class WLSDeployArchive {
         result.remove(ARCHIVE_APPS_TARGET_DIR + ZIP_SEP);
         LOGGER.exiting(CLASS, METHOD, result);
         return result;
-    }
-
-    /**
-     * Extract the named database wallet.
-     *
-     * @param domainHome the domain home directory
-     * @param walletName the name of the database wallet to extract (e.g., rcu)
-     * @return the full path to the directory containing the extracted wallet files or null, if no wallet was found.
-     * @throws WLSDeployArchiveIOException if an error occurs while reading or extracting the archive files.
-     */
-    public String extractDatabaseWallet(File domainHome, String walletName) throws WLSDeployArchiveIOException {
-        final String METHOD = "extractDatabaseWallet";
-
-        LOGGER.entering(CLASS, METHOD, domainHome, walletName);
-
-        String extractPath = null;
-        if (DEFAULT_RCU_WALLET_NAME.equals(walletName)) {
-            // handle archive files with deprecated path, as needed
-            extractPath = extractRCUWallet(domainHome);
-        } else {
-            validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
-            List<String> zipEntries =
-                getZipFile().listZipEntries(ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + walletName + ZIP_SEP);
-            zipEntries.remove(ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + walletName + ZIP_SEP);
-            if (!zipEntries.isEmpty()) {
-                extractPath = ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + walletName + ZIP_SEP;
-                extractWallet(domainHome, extractPath, zipEntries, null, null, null);
-                extractPath = new File(domainHome, extractPath).getAbsolutePath();
-            }
-        }
-
-        LOGGER.exiting(CLASS, METHOD, extractPath);
-        return extractPath;
-    }
-
-    /**
-     * Extract the OPSS wallet from the archive.
-     *
-     * @param domainHome the domain home directory
-     * @return the full path to the directory containing the extracted wallet files or null, if no wallet was found.
-     * @throws WLSDeployArchiveIOException if an error occurs while reading or extracting the archive files.
-     */
-    public String extractOPSSWallet(File domainHome) throws WLSDeployArchiveIOException {
-        final String METHOD = "extractOPSSWallet";
-
-        LOGGER.entering(CLASS, METHOD, domainHome);
-        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
-
-        // Look in the updated location first
-        String extractPath = null;
-        List<String> zipEntries = getZipFile().listZipEntries(ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
-        zipEntries.remove(ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
-        if (!zipEntries.isEmpty()) {
-            extractPath = ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP;
-            extractWallet(domainHome, extractPath, zipEntries, null, null, null);
-            extractPath = new File(domainHome, extractPath).getAbsolutePath();
-        } else {
-            // Look in the deprecated location.
-            zipEntries = getZipFile().listZipEntries(OLD_ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
-            zipEntries.remove(OLD_ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
-            if (!zipEntries.isEmpty()) {
-                extractPath = OLD_ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP;
-                extractWallet(domainHome, extractPath, zipEntries, "WLSDPLY-01433",null, null);
-                extractPath = new File(domainHome, extractPath).getAbsolutePath();
-            }
-        }
-
-        LOGGER.exiting(CLASS, METHOD, extractPath);
-        return extractPath;
     }
 
     /**
@@ -949,13 +884,107 @@ public class WLSDeployArchive {
             appPath = ARCHIVE_APPS_TARGET_DIR + ZIP_SEP + applicationPath;
         }
         extractFileFromZip(appPath, domainHome);
-        LOGGER.exiting(CLASS, METHOD);
 
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                            structured application methods                                 //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Add a structured application installation directory to the archive file.
+     *
+     * @param installRoot the path to the installation directory
+     * @return the archive path of the new structured application installation directory
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
+     * @throws IllegalArgumentException    if the directory passed or its app subdirectory does not exist
+     */
+    public String addStructuredApplication(String installRoot) throws WLSDeployArchiveIOException {
+        final String METHOD = "addApplicationFolder";
+        LOGGER.entering(CLASS, METHOD, installRoot);
+
+        File filePath = FileUtils.getCanonicalFile(installRoot);
+        File appDir = new File(filePath, "app");
+        validateExistingDirectory(filePath, "installRoot", getArchiveFileName(), METHOD);
+        validateExistingDirectory(appDir, "appDir", getArchiveFileName(), METHOD);
+
+        String newName = addItemToZip(ARCHIVE_STRUCT_APPS_TARGET_DIR, filePath);
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
     }
 
     /**
+     * Replace an existing structured application installation directory in the archive file.
+     *
+     * @param appPath           the app name or the path within the archive of the structured application
+     *                          installation directory to replace
+     * @param sourceInstallRoot the file system location of the new structured application installation directory
+     *                          to replace the existing one
+     * @return the archive path of the new structured application installation directory
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
+     * @throws IllegalArgumentException    if the directory passed or its app subdirectory does not exist
+     */
+    public String replaceStructuredApplication(String appPath, String sourceInstallRoot)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "replaceStructuredApplication";
+        LOGGER.entering(CLASS, METHOD, appPath, sourceInstallRoot);
+
+        String archivePath;
+        if (appPath.startsWith(ARCHIVE_STRUCT_APPS_TARGET_DIR + ZIP_SEP)) {
+            archivePath = appPath;
+        } else {
+            archivePath = ARCHIVE_STRUCT_APPS_TARGET_DIR + ZIP_SEP + appPath;
+        }
+        if (!archivePath.endsWith(ZIP_SEP)) {
+            archivePath += ZIP_SEP;
+        }
+
+        getZipFile().removeZipEntries(archivePath);
+        String newName = addStructuredApplication(sourceInstallRoot);
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    // TODO - Need to verify that discovery produces an archive that is consistent with the add/replace methods above.
+    //        Once verified, change method name to be consistent and add javadoc.
+    public String addApplicationFolder(String appName, String appPath)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "addApplicationFolder";
+        LOGGER.entering(CLASS, METHOD, appName, appPath);
+        File zipPath = new File(appPath);
+        if (zipPath.getParentFile() != null) {
+            zipPath = zipPath.getParentFile();
+        }
+        String firstPrefix = ARCHIVE_STRUCT_APPS_TARGET_DIR + ZIP_SEP + appName + ZIP_SEP + zipPath.getName();
+        String newName = walkDownFolders(firstPrefix, zipPath);
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    // TODO - Need to verify that discovery produces an archive that is consistent with the add/replace methods above.
+    //        Once verified, change method name to be consistent and add javadoc.
+    public String addApplicationPlanFolder(String appName, String planDir)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "addApplicationPathFolder";
+        LOGGER.entering(CLASS, METHOD, appName, planDir);
+        File zipPlan = new File(planDir);
+        String zipPrefix = ARCHIVE_STRUCT_APPS_TARGET_DIR + ZIP_SEP + appName + ZIP_SEP + zipPlan.getName();
+        String newName = walkDownFolders(zipPrefix, zipPlan);
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return zipPrefix;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                shared library methods                                     //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
      * Get the best guess of the name of the shared library as if it is in the archive file.
-     * This does not reconcile duplicate names and other items that require the archive file.
+     * This does not reconcile duplicate names and other items that require the archive file
+     * and is only used with discoverDomain -remote to give the user an archive path.
      *
      * @param shlibPath file name to find the name for
      * @return name for model archive file name
@@ -977,11 +1006,40 @@ public class WLSDeployArchive {
      */
     public String addSharedLibrary(String shlibPath) throws WLSDeployArchiveIOException {
         final String METHOD = "addSharedLibrary";
-        File filePath = new File(shlibPath);
         LOGGER.entering(CLASS, METHOD, shlibPath);
+
+        File filePath = FileUtils.getCanonicalFile(shlibPath);
         validateExistingFile(filePath, "shlibPath", getArchiveFileName(), METHOD, true);
 
         String newName = addItemToZip(ARCHIVE_SHLIBS_TARGET_DIR, filePath);
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    /**
+     * Replace an existing application in the archive file.
+     *
+     * @param shlibPath      the shared library name or the path within the archive to replace
+     * @param sourceLocation the file system location of the new shared library to replace the existing one
+     * @return the archive path of the new shared library
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
+     * @throws IllegalArgumentException    if the file or directory passed in does not exist
+     */
+    public String replaceSharedLibrary(String shlibPath, String sourceLocation) throws WLSDeployArchiveIOException {
+        final String METHOD = "replaceSharedLibrary";
+        LOGGER.entering(CLASS, METHOD, shlibPath, sourceLocation);
+
+        String archivePath;
+        if (shlibPath.startsWith(ARCHIVE_SHLIBS_TARGET_DIR + ZIP_SEP)) {
+            archivePath = shlibPath;
+        } else {
+            archivePath = ARCHIVE_SHLIBS_TARGET_DIR + ZIP_SEP + shlibPath;
+        }
+
+        getZipFile().removeZipEntries(archivePath);
+        String newName = addSharedLibrary(sourceLocation);
+
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
     }
@@ -1027,6 +1085,10 @@ public class WLSDeployArchive {
         LOGGER.exiting(CLASS, METHOD);
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                domain library methods                                     //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     /**
      * Get the archive file name for the Domain library file. This does not reconcile duplicate names or other
      * items that require the archive file.
@@ -1043,20 +1105,40 @@ public class WLSDeployArchive {
      * assumes that the new one also needs to be added so it changes the name to prevent conflicts by adding a
      * numeric value onto the file's basename (e.g., mylib(1).jar, mylib(2).jar).
      *
-     * @param domainLibPath - File name representing the actual path of the archive or directory in the local or remote
-     *                      file system
+     * @param domainLibPath - File name representing the actual path of the archive or directory in
+     *                        the local or remote file system
      * @return the relative path where the library will be unpacked by the unpackApplications() method
      * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
      * @throws IllegalArgumentException    if the file or directory passed in does not exist
      */
     public String addDomainLibLibrary(String domainLibPath) throws WLSDeployArchiveIOException {
         final String METHOD = "addDomainLibLibrary";
-
         LOGGER.entering(CLASS, METHOD, domainLibPath);
+
         File filePath = new File(domainLibPath);
         validateExistingFile(filePath, "domainLibPath", getArchiveFileName(), METHOD);
 
         String newName = addItemToZip(ARCHIVE_DOMLIB_TARGET_DIR, filePath);
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    public String replaceDomainLibLibrary(String domainLibPath, String sourceLocation)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "replaceDomainLibLibrary";
+        LOGGER.entering(CLASS, METHOD, domainLibPath, sourceLocation);
+
+        String archivePath;
+        if (domainLibPath.startsWith(ARCHIVE_DOMLIB_TARGET_DIR + ZIP_SEP)) {
+            archivePath = domainLibPath;
+        } else {
+            archivePath = ARCHIVE_DOMLIB_TARGET_DIR + ZIP_SEP + domainLibPath;
+        }
+
+        getZipFile().removeZipEntries(archivePath);
+        String newName = addDomainLibLibrary(sourceLocation);
+
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
     }
@@ -1096,6 +1178,10 @@ public class WLSDeployArchive {
         extractFileFromZip(archivePath, ARCHIVE_DOMLIB_TARGET_DIR, "", extractToLocation);
         LOGGER.exiting(CLASS, METHOD);
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                  domain bin methods                                       //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Adds a $DOMAIN_HOME/bin script to the archive.  If a script with the same name already exists, this method
@@ -1486,6 +1572,75 @@ public class WLSDeployArchive {
         String newName = addItemToZip(ARCHIVE_NODE_MANAGER_TARGET_DIR, filePath);
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
+    }
+
+    /**
+     * Extract the named database wallet.
+     *
+     * @param domainHome the domain home directory
+     * @param walletName the name of the database wallet to extract (e.g., rcu)
+     * @return the full path to the directory containing the extracted wallet files or null, if no wallet was found.
+     * @throws WLSDeployArchiveIOException if an error occurs while reading or extracting the archive files.
+     */
+    public String extractDatabaseWallet(File domainHome, String walletName) throws WLSDeployArchiveIOException {
+        final String METHOD = "extractDatabaseWallet";
+
+        LOGGER.entering(CLASS, METHOD, domainHome, walletName);
+
+        String extractPath = null;
+        if (DEFAULT_RCU_WALLET_NAME.equals(walletName)) {
+            // handle archive files with deprecated path, as needed
+            extractPath = extractRCUWallet(domainHome);
+        } else {
+            validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+            List<String> zipEntries =
+                getZipFile().listZipEntries(ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + walletName + ZIP_SEP);
+            zipEntries.remove(ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + walletName + ZIP_SEP);
+            if (!zipEntries.isEmpty()) {
+                extractPath = ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + walletName + ZIP_SEP;
+                extractWallet(domainHome, extractPath, zipEntries, null, null, null);
+                extractPath = new File(domainHome, extractPath).getAbsolutePath();
+            }
+        }
+
+        LOGGER.exiting(CLASS, METHOD, extractPath);
+        return extractPath;
+    }
+
+    /**
+     * Extract the OPSS wallet from the archive.
+     *
+     * @param domainHome the domain home directory
+     * @return the full path to the directory containing the extracted wallet files or null, if no wallet was found.
+     * @throws WLSDeployArchiveIOException if an error occurs while reading or extracting the archive files.
+     */
+    public String extractOPSSWallet(File domainHome) throws WLSDeployArchiveIOException {
+        final String METHOD = "extractOPSSWallet";
+
+        LOGGER.entering(CLASS, METHOD, domainHome);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        // Look in the updated location first
+        String extractPath = null;
+        List<String> zipEntries = getZipFile().listZipEntries(ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
+        zipEntries.remove(ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
+        if (!zipEntries.isEmpty()) {
+            extractPath = ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP;
+            extractWallet(domainHome, extractPath, zipEntries, null, null, null);
+            extractPath = new File(domainHome, extractPath).getAbsolutePath();
+        } else {
+            // Look in the deprecated location.
+            zipEntries = getZipFile().listZipEntries(OLD_ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
+            zipEntries.remove(OLD_ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP);
+            if (!zipEntries.isEmpty()) {
+                extractPath = OLD_ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP;
+                extractWallet(domainHome, extractPath, zipEntries, "WLSDPLY-01433",null, null);
+                extractPath = new File(domainHome, extractPath).getAbsolutePath();
+            }
+        }
+
+        LOGGER.exiting(CLASS, METHOD, extractPath);
+        return extractPath;
     }
 
     /**
@@ -2019,6 +2174,7 @@ public class WLSDeployArchive {
         return newName;
     }
 
+    // TODO - remove me and replace calls with addItemToZip() to get the correct behavior.
     private String walkDownFolders(String zipPrefix, File zipPath) throws WLSDeployArchiveIOException {
         String newSourceName = null;
         if (zipPath != null) {
