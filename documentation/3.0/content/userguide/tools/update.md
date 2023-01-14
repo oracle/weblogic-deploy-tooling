@@ -15,9 +15,22 @@ Running the Update Domain Tool in WLST offline mode is very similar to running t
 
     $ weblogic-deploy\bin\updateDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -domain_home domains\DemoDomain -archive_file DemoDomain.zip -model_file DemoDomain.yaml -variable_file DemoDomain.properties
 
+You can use online mode either on the admin server or from a remote machine.  If you are running from the admin server, you can specify domain home directory `-domain_home` location.
+
+If you are running from a remote machine, then you do not need to specify the domain home directory `-domain_home` option,  but there is are limitations:
+
+- Any attribute in the model that referenced a path into the archive file unless the path begins with `wlsdeploy/applications` or `wlsdeploy/sharedLibraries` will result in an error, as the tool cannot remotely
+  create such directory or file.  For example, if you specify a `domainBin: [ wlsdeploy/domainBin/setUserOverrides.sh]` which references a file entry in the archive file `wlsdeploy/domainBin/setUserOverrides.sh`,
+  the tool will fail with an error.
+- Exploded format application specified in the archive is not supported
+
 In WLST online mode, simply add the information on how to connect to the WebLogic Server Administration Server, for example:
 
     $ weblogic-deploy\bin\updateDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -domain_home domains\DemoDomain -archive_file DemoDomain.zip -model_file DemoDomain.yaml -variable_file DemoDomain.properties -admin_url t3://127.0.0.1:7001 -admin_user weblogic
+
+or from a remote machine
+
+    $ weblogic-deploy\bin\updateDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -remote -archive_file DemoDomain.zip -model_file DemoDomain.yaml -variable_file DemoDomain.properties -admin_url t3://127.0.0.1:7001 -admin_user weblogic
 
 As usual, the tool will prompt for the password (it can also be supplied by piping it to standard input of the tool). To bypass the prompt, you can use one of two options. Store the password in an environment variable, and use the variable name with command-line option `-admin_pass_env`. Store the password in a file. Provide the file name with command-line option `-admin_pass_file`.
 
@@ -74,3 +87,4 @@ The Update Domain Tool supports the use of multiple models, as described in [Usi
 | `-use_encryption`                     | One or more of the passwords in the model or variables file(s) are encrypted and must be decrypted. Java 8 or later required for this feature.                                                                                                                                                        |    |
 | `-variable_home`                      | The location of the property file containing the values for variables used in the model. This can also be specified as a comma-separated list of property files, where each successive set of properties layers on top of the previous ones.                                                          |    |
 | `-wait_for_edit_lock`                 | Skip checks for active edit sessions and pending changes before trying to acquire the WLST online edit lock to modify domain configuration.                                                                                                                                                           |    |
+| `-remote`                             | Update the domain from a remote machine.                                                                                                                                                                                                                                                              |    |
