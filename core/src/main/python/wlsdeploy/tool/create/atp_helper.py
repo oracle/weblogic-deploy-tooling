@@ -117,6 +117,7 @@ def cleanup_connect_string(connect_string):
     result = ''
     if connect_string.find("(ssl_server_cert_dn=") > 0:
         toks = connect_string.split('(description=')
+        # can have multiples
         pattern = "(.*)(ssl_server_cert_dn=)\s*(\".*\")(.*)"
         for token in toks:
             if token.find("(ssl_server_cert_dn=") > 0:
