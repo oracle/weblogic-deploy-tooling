@@ -103,33 +103,35 @@ def cleanup_connect_string(connect_string):
 
     Input:
         (description= (address=(protocol=tcps)(port=1522)(host=*******.oraclecloud.com))(connect_data=(service_name=someservice-in.oraclecloud.com))(security=(ssl_server_cert_dn= "CN=somewhere-in.oraclecloud.com,OU=Oracle BMCS US,O=Oracle Corporation,L=Redwood City,ST=California,C=US")) )
+       or
+        (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=*******.oraclecloud.com))(connect_data=(service_name=someservice-in.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
     Output Parts:
         1.      (description=(address=(protocol=tcps)(port=1522)(host=*******.oraclecloud.com))(connect_data=(service_name=someservice-in.oraclecloud.com))(security=(
         2.      ssl_server_cert_dn=
         3.      "CN=somewhere-in.oraclecloud.com,OU=Oracle BMCS US,O=Oracle Corporation,L=Redwood City,ST=California,C=US"
         4.      )))
     :param connect_string:
-    :return:
+    :return: fixed connection string without white spaces
     """
 
-    toks = connect_string.split('(description=')
-    pattern = "(.*)(ssl_server_cert_dn=)\s*(\".*\")(.*)"
     result = ''
-    for token in toks:
-        if token.find("(ssl_server_cert_dn=") > 0:
-            match = re.search(pattern, token)
-            if match:
-                part1 = match.group(1).replace(' ','')
-                part2 = match.group(2).replace(' ', '')
-                # We don't want to remove the spaces from serverDN part.
-                part3 = match.group(3)
-                part4 = match.group(4).replace(' ', '')
-                result += "(description=%s%s%s%s" % (part1, part2, part3, part4)
-        else:
-            result += token.replace(' ', '')
-
-    if result == '':
-        result = connect_string
+    if connect_string.find("(ssl_server_cert_dn=") > 0:
+        toks = connect_string.split('(description=')
+        pattern = "(.*)(ssl_server_cert_dn=)\s*(\".*\")(.*)"
+        for token in toks:
+            if token.find("(ssl_server_cert_dn=") > 0:
+                match = re.search(pattern, token)
+                if match:
+                    part1 = match.group(1).replace(' ','')
+                    part2 = match.group(2).replace(' ', '')
+                    # We don't want to remove the spaces from serverDN part.
+                    part3 = match.group(3)
+                    part4 = match.group(4).replace(' ', '')
+                    result += "(description=%s%s%s%s" % (part1, part2, part3, part4)
+            else:
+                result += token.replace(' ', '')
+    else:
+        result = connect_string.replace(' ','')
 
     return result
 
