@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2022, Oracle and/or its affiliates.
+Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.exception import exception_helper
@@ -32,9 +32,12 @@ DOMAIN_HOME_SOURCE_TYPE = "domain_home_source_type"
 # Determines if replica count is applied at the cluster level
 SET_CLUSTER_REPLICAS = "set_cluster_replicas"
 
+# Determines the target product key.
+PRODUCT_KEY = 'product_key'
+DEFAULT_PRODUCT_KEY = 'wko'
+
 # Determines the version of the target product.
 PRODUCT_VERSION = 'product_version'
-DEFAULT_PRODUCT_VERSION = 'v3'  # default for WKO and WKO in VZ
 
 # put secret tokens in the model, and build a script to create the secrets.
 SECRETS_METHOD = 'secrets'
@@ -224,6 +227,16 @@ class TargetConfiguration(object):
         result = dictionary_utils.get_element(self.config_dictionary, SET_CLUSTER_REPLICAS)
         return result or False
 
+    def get_product_key(self):
+        """
+        Return the key of the product being targeted, such as "wko" or "vz".
+        :return: the product key
+        """
+        result = dictionary_utils.get_element(self.config_dictionary, PRODUCT_KEY)
+        if result is not None:
+            return result
+        return DEFAULT_PRODUCT_KEY
+
     def get_product_version(self):
         """
         Return the version of the product being targeted, such as WKO or VZ.
@@ -232,7 +245,8 @@ class TargetConfiguration(object):
         result = dictionary_utils.get_element(self.config_dictionary, PRODUCT_VERSION)
         if result is not None:
             return result
-        return DEFAULT_PRODUCT_VERSION
+
+        return model_crd_helper.get_default_version(self.get_product_key())
 
     def validate_configuration(self, exit_code, target_configuration_file):
         validation_method = self.get_validation_method()
@@ -244,7 +258,7 @@ class TargetConfiguration(object):
                                         target_configuration_file)
 
         product_version = self.get_product_version()
-        valid_product_versions = model_crd_helper.get_valid_versions(model_crd_helper.WKO_PRODUCT_KEY)
+        valid_product_versions = model_crd_helper.get_valid_versions(self.get_product_key())
         self._validate_enumerated_field(PRODUCT_VERSION, product_version, valid_product_versions, exit_code,
                                         target_configuration_file)
 

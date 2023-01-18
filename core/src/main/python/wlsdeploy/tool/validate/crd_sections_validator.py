@@ -3,7 +3,6 @@ Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
-from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.targets import model_crd_helper
@@ -12,39 +11,41 @@ from wlsdeploy.util import dictionary_utils
 import wlsdeploy.util.unicode_helper as str_helper
 
 
-class KubernetesValidator(object):
+class CrdSectionsValidator(object):
     """
-    Class for validating the kubernetes section of a model file
+    Class for validating a CRD-based section of a model file.
+    This includes kubernetes and verrazzano sections.
     """
-    _class_name = 'KubernetesValidator'
+    _class_name = 'CrdSectionsValidator'
     _logger = PlatformLogger('wlsdeploy.validate')
 
     def __init__(self, model_context):
         self._model_context = model_context
         self._crd_helper = model_crd_helper.get_helper(model_context, ExceptionType.VALIDATE)
+        self._section_name = self._crd_helper.get_model_section()
 
     def validate_model(self, model_dict):
         """
-        Validate the kubernetes section of the specified model.
+        Validate the CRD-based section of the specified model.
         :param model_dict: A Python dictionary of the model to be validated
         :raises ValidationException: if problems occur during validation
         """
         _method_name = 'validate_model'
 
-        kubernetes_section = dictionary_utils.get_dictionary_element(model_dict, KUBERNETES)
-        if not kubernetes_section:
+        crd_section = dictionary_utils.get_dictionary_element(model_dict, self._section_name)
+        if not crd_section:
             return
 
-        model_path = KUBERNETES + ":"
+        model_path = self._section_name + ":"
 
         keyless_crd_folder = self._crd_helper.get_keyless_crd_folder()
         if keyless_crd_folder:
-            # this WKO version does not require kubernetes sub-folders, continue with that schema
+            # this WKO version does not require CRD sub-folders for this section, continue with the keyless schema
             schema = keyless_crd_folder.get_schema()
-            self.validate_folder(kubernetes_section, schema, None, model_path)
+            self.validate_folder(crd_section, schema, None, model_path)
         else:
-            # this WKO version requires kubernetes sub-folders, validate and process each folder
-            for key in kubernetes_section:
+            # this WKO version requires CRD sub-folders for this section, validate and process each folder
+            for key in crd_section:
                 crd_folder = self._crd_helper.get_crd_folder(key)
                 if not crd_folder:
                     valid_keys = self._crd_helper.get_crd_folder_keys()
@@ -53,7 +54,7 @@ class KubernetesValidator(object):
                                         class_name=self._class_name, method_name=_method_name)
                     continue
 
-                model_content = kubernetes_section[key]
+                model_content = crd_section[key]
                 model_path += '/' + key
                 schema = crd_folder.get_schema()
                 if crd_folder.is_array():

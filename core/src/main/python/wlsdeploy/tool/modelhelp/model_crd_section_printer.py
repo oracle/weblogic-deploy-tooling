@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2022, Oracle and/or its affiliates.
+Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.exception import exception_helper
@@ -12,15 +12,16 @@ import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.exit_code import ExitCode
 
 
-class ModelKubernetesPrinter(object):
+class ModelCrdSectionPrinter(object):
     """
     Class for printing kubernetes sections as model samples.
     """
-    _class_name = "ModelKubernetesPrinter"
+    _class_name = "ModelCrdSectionPrinter"
     _logger = PlatformLogger('wlsdeploy.modelhelp')
 
     def __init__(self, model_context):
         self._crd_helper = model_crd_helper.get_helper(model_context)
+        self._target = model_context.get_target()
 
     def print_model_sample(self, model_path_tokens, control_option):
         """
@@ -30,6 +31,10 @@ class ModelKubernetesPrinter(object):
         :raises CLAException: if a problem is encountered
         """
         section_name = model_path_tokens[0]
+        if section_name != self._crd_helper.get_model_section():
+            print("")
+            print(exception_helper.get_message('WLSDPLY-10113', section_name))
+            return
 
         if len(model_path_tokens) == 1:
             self._print_model_section_sample(section_name, control_option)

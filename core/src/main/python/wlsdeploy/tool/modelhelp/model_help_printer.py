@@ -1,16 +1,17 @@
 """
-Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import re
 
 from oracle.weblogic.deploy.exception import ExceptionHelper
 
+from wlsdeploy.aliases.model_constants import CRD_MODEL_SECTIONS
 from wlsdeploy.aliases.model_constants import KNOWN_TOPLEVEL_MODEL_SECTIONS
 from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
-from wlsdeploy.tool.modelhelp.model_kubernetes_printer import ModelKubernetesPrinter
+from wlsdeploy.tool.modelhelp.model_crd_section_printer import ModelCrdSectionPrinter
 from wlsdeploy.tool.modelhelp.model_sample_printer import ModelSamplePrinter
 from wlsdeploy.util import model
 import wlsdeploy.util.unicode_helper as str_helper
@@ -64,12 +65,12 @@ class ModelHelpPrinter(object):
         elif control_option == ControlOptions.FOLDERS_ONLY:
             print(_format_message('WLSDPLY-10103', model_path))
         elif control_option == ControlOptions.ATTRIBUTES_ONLY:
-            print( _format_message('WLSDPLY-10104', model_path))
+            print(_format_message('WLSDPLY-10104', model_path))
         else:
             print(_format_message('WLSDPLY-10105', model_path))
 
-        if model_path_tokens[0] == KUBERNETES:
-            sample_printer = ModelKubernetesPrinter(self._model_context)
+        if model_path_tokens[0] in CRD_MODEL_SECTIONS:
+            sample_printer = ModelCrdSectionPrinter(self._model_context)
             sample_printer.print_model_sample(model_path_tokens, control_option)
         else:
             sample_printer = ModelSamplePrinter(self._aliases, self._logger)

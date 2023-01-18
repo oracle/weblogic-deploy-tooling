@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -21,7 +21,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create import wlsroles_helper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.validate import validation_utils
-from wlsdeploy.tool.validate.kubernetes_validator import KubernetesValidator
+from wlsdeploy.tool.validate.crd_sections_validator import CrdSectionsValidator
 from wlsdeploy.tool.validate.validator_logger import ValidatorLogger
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model
@@ -262,7 +262,7 @@ class Validator(object):
                                       self._aliases.get_model_app_deployments_top_level_folder_names())
 
         if self._validate_crd_sections:
-            k8s_validator = KubernetesValidator(self._model_context)
+            k8s_validator = CrdSectionsValidator(self._model_context)
             k8s_validator.validate_model(model_dict)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)

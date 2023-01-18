@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2022, Oracle and/or its affiliates.
+Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -12,27 +12,30 @@ from wlsdeploy.tool.util.targets import model_crd_helper
 from wlsdeploy.tool.util.targets import schema_helper
 
 
-class KubernetesSchemaTest(unittest.TestCase):
-    _model_dir = '../../unit-tests/wko'
+class CrdSchemaTest(unittest.TestCase):
+    _model_dir = '../../unit-tests/crd-models'
 
-    def testKubernetesSchema(self):
-        self._testSchemas(model_crd_helper.WKO_VERSION_3)
+    def testWkoSchema(self):
+        self._testSchemas(model_crd_helper.WKO_PRODUCT_KEY, model_crd_helper.WKO_VERSION_3)
 
-    def testKubernetes4Schemas(self):
-        self._testSchemas(model_crd_helper.WKO_VERSION_4)
+    def testWko4Schemas(self):
+        self._testSchemas(model_crd_helper.WKO_PRODUCT_KEY, model_crd_helper.WKO_VERSION_4)
 
-    def _testSchemas(self, wko_version):
+    def testVerrazzanoSchemas(self):
+        self._testSchemas(model_crd_helper.VERRAZZANO_PRODUCT_KEY, model_crd_helper.VERRAZZANO_VERSION_1)
+
+    def _testSchemas(self, product_key, product_version):
         # create a model with every element.
         # verify that there are no unknown types or structures.
         try:
             if not os.path.exists(self._model_dir):
                 os.makedirs(self._model_dir)
-            file_path = self._model_dir + "/model-" + wko_version + ".yaml"
+            file_path = self._model_dir + "/" + product_key + "-" + product_version + ".yaml"
             self.out_file = open(file_path, "w")
 
-            self._write_line(KUBERNETES + ":  # " + wko_version)
+            this_crd_helper = model_crd_helper.get_product_helper(product_key, product_version)
+            self._write_line(this_crd_helper.get_model_section() + ":  # " + product_version)
 
-            this_crd_helper = model_crd_helper.get_product_helper(model_crd_helper.WKO_PRODUCT_KEY, wko_version)
             crd_folders = this_crd_helper.get_crd_folders()
             for crd_folder in crd_folders:
                 indent = "  "
