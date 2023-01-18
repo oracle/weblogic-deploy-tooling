@@ -12,7 +12,7 @@ from wlsdeploy.util import dictionary_utils
 
 DOMAIN_RESOURCE_SCHEMA_ROOT = "openAPIV3Schema"
 SCHEMA_RESOURCE_EXTENSION = '.json'
-SCHEMA_RESOURCE_PATH = 'oracle/weblogic/deploy/wko'
+SCHEMA_RESOURCE_PATH = 'oracle/weblogic/deploy/crds'
 
 SIMPLE_TYPES = [
     'integer',
