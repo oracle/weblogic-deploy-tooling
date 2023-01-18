@@ -18,26 +18,26 @@ import picocli.CommandLine.Option;
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
-    name = "structuredApplication",
-    description = "%nAdd structured application installation directory to the archive file:",
+    name = "applicationPlan",
+    description = "%nAdd application deployment plan to the archive file:",
     sortOptions = false
 )
-public class AddStructuredApplicationCommand extends AddTypeCommandBase {
-    private static final String CLASS = AddStructuredApplicationCommand.class.getName();
+public class AddApplicationPlanCommand extends AddTypeCommandBase {
+    private static final String CLASS = AddApplicationPlanCommand.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
-    private static final String TYPE = "structured application";
+    private static final String TYPE = "application deployment plan";
 
     @Option(
         names = {"-source"},
         paramLabel = "<path>",
-        description = "File system path to the structured application installation directory to add",
+        description = "File system path to the application deployment plan to add",
         required = true
     )
     private String sourcePath;
 
     @Option(
         names = { "-help" },
-        description = "Get help for the archiveHelper add structuredApplication subcommand",
+        description = "Get help for the archiveHelper add applicationPlan subcommand",
         usageHelp = true
     )
     private boolean helpRequested = false;
@@ -54,9 +54,9 @@ public class AddStructuredApplicationCommand extends AddTypeCommandBase {
 
             String resultName;
             if (this.overwrite) {
-                resultName = this.archive.replaceStructuredApplication(sourceFile.getName(), sourceFile.getPath());
+                resultName = this.archive.replaceApplicationDeploymentPlan(sourceFile.getName(), sourceFile.getPath());
             } else {
-                resultName = this.archive.addStructuredApplication(sourceFile.getPath());
+                resultName = this.archive.addApplicationDeploymentPlan(sourceFile.getPath(), sourceFile.getName());
             }
             response = new CommandResponse(ExitCode.OK, resultName);
         } catch (ArchiveHelperException ex) {

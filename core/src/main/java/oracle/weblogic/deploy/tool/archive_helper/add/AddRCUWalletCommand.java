@@ -16,28 +16,29 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
+import static oracle.weblogic.deploy.util.WLSDeployArchive.DEFAULT_RCU_WALLET_NAME;
 
 @Command(
-    name = "structuredApplication",
-    description = "%nAdd structured application installation directory to the archive file:",
+    name = "rcuWallet",
+    description = "%nAdd RCU database wallet to the archive file:",
     sortOptions = false
 )
-public class AddStructuredApplicationCommand extends AddTypeCommandBase {
-    private static final String CLASS = AddStructuredApplicationCommand.class.getName();
+public class AddRCUWalletCommand extends AddTypeCommandBase {
+    private static final String CLASS = AddRCUWalletCommand.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
-    private static final String TYPE = "structured application";
+    private static final String TYPE = "database wallet";
 
     @Option(
         names = {"-source"},
         paramLabel = "<path>",
-        description = "File system path to the structured application installation directory to add",
+        description = "File system path to the RCU database wallet to add",
         required = true
     )
     private String sourcePath;
 
     @Option(
         names = { "-help" },
-        description = "Get help for the archiveHelper add structuredApplication subcommand",
+        description = "Get help for the archiveHelper add rcuWallet subcommand",
         usageHelp = true
     )
     private boolean helpRequested = false;
@@ -54,20 +55,20 @@ public class AddStructuredApplicationCommand extends AddTypeCommandBase {
 
             String resultName;
             if (this.overwrite) {
-                resultName = this.archive.replaceStructuredApplication(sourceFile.getName(), sourceFile.getPath());
+                resultName = this.archive.replaceDatabaseWallet(DEFAULT_RCU_WALLET_NAME, sourceFile.getPath());
             } else {
-                resultName = this.archive.addStructuredApplication(sourceFile.getPath());
+                resultName = this.archive.addDatabaseWallet(DEFAULT_RCU_WALLET_NAME, sourceFile.getPath());
             }
             response = new CommandResponse(ExitCode.OK, resultName);
         } catch (ArchiveHelperException ex) {
-            LOGGER.severe("WLSDPLY-30010", ex, TYPE, this.sourcePath,
+            LOGGER.severe("WLSDPLY-30022", ex, TYPE, DEFAULT_RCU_WALLET_NAME, this.sourcePath,
                 this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30010", TYPE,
+            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30022", TYPE, DEFAULT_RCU_WALLET_NAME,
                 this.sourcePath, this.archiveFilePath, ex.getLocalizedMessage());
         } catch (WLSDeployArchiveIOException | IllegalArgumentException ex) {
-            LOGGER.severe("WLSDPLY-30011", ex, TYPE, this.sourcePath,
+            LOGGER.severe("WLSDPLY-30023", ex, TYPE, DEFAULT_RCU_WALLET_NAME, this.sourcePath,
                 this.overwrite, this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30011", TYPE,
+            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30023", TYPE, DEFAULT_RCU_WALLET_NAME,
                 this.sourcePath, this.overwrite, this.archiveFilePath, ex.getLocalizedMessage());
         }
 

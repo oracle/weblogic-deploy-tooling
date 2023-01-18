@@ -18,26 +18,33 @@ import picocli.CommandLine.Option;
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
-    name = "structuredApplication",
-    description = "%nAdd structured application installation directory to the archive file:",
+    name = "coherencePersistenceDir",
+    description = "%nAdd a Coherence persistence directory to the archive file:",
     sortOptions = false
 )
-public class AddStructuredApplicationCommand extends AddTypeCommandBase {
-    private static final String CLASS = AddStructuredApplicationCommand.class.getName();
+public class AddCoherencePersistenceDirCommand extends AddTypeCommandBase {
+    private static final String CLASS = AddCoherencePersistenceDirCommand.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
-    private static final String TYPE = "structured application";
 
     @Option(
-        names = {"-source"},
-        paramLabel = "<path>",
-        description = "File system path to the structured application installation directory to add",
+        names = {"-cluster_name"},
+        paramLabel = "<cluster-name>",
+        description = "Coherence cluster name to use",
         required = true
     )
-    private String sourcePath;
+    protected String clusterName;
+
+    @Option(
+        names = {"-type"},
+        paramLabel = "<directory-type>",
+        description = "The Coherence persistence directory type to add",
+        required = true
+    )
+    private String directoryType;
 
     @Option(
         names = { "-help" },
-        description = "Get help for the archiveHelper add structuredApplication subcommand",
+        description = "Get help for the archiveHelper add coherencePersistenceDir subcommand",
         usageHelp = true
     )
     private boolean helpRequested = false;
@@ -48,27 +55,26 @@ public class AddStructuredApplicationCommand extends AddTypeCommandBase {
         LOGGER.entering(CLASS, METHOD);
 
         CommandResponse response;
-        File sourceFile;
         try {
-            sourceFile = initializeOptions(this.sourcePath);
+            initializeOptions();
 
             String resultName;
             if (this.overwrite) {
-                resultName = this.archive.replaceStructuredApplication(sourceFile.getName(), sourceFile.getPath());
+                resultName = this.archive.replaceCoherencePersistenceDirectory(this.clusterName, this.directoryType);
             } else {
-                resultName = this.archive.addStructuredApplication(sourceFile.getPath());
+                resultName = this.archive.addCoherencePersistenceDirectory(this.clusterName, this.directoryType);
             }
             response = new CommandResponse(ExitCode.OK, resultName);
         } catch (ArchiveHelperException ex) {
-            LOGGER.severe("WLSDPLY-30010", ex, TYPE, this.sourcePath,
+            LOGGER.severe("WLSDPLY-30016", ex, this.directoryType, this.clusterName,
                 this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30010", TYPE,
-                this.sourcePath, this.archiveFilePath, ex.getLocalizedMessage());
+            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30016", this.directoryType,
+                this.clusterName, this.archiveFilePath, ex.getLocalizedMessage());
         } catch (WLSDeployArchiveIOException | IllegalArgumentException ex) {
-            LOGGER.severe("WLSDPLY-30011", ex, TYPE, this.sourcePath,
+            LOGGER.severe("WLSDPLY-30017", ex, this.directoryType, this.clusterName,
                 this.overwrite, this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30011", TYPE,
-                this.sourcePath, this.overwrite, this.archiveFilePath, ex.getLocalizedMessage());
+            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30017", this.directoryType,
+                this.clusterName, this.overwrite, this.archiveFilePath, ex.getLocalizedMessage());
         }
 
         LOGGER.exiting(CLASS, METHOD, response);

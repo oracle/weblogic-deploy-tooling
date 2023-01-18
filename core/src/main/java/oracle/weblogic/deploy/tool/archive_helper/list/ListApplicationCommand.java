@@ -16,7 +16,7 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.APPL
 
 @Command(
     name = "application",
-    description = "List application entries in the archive file",
+    description = "%nList application entries in the archive file:",
     sortOptions = false
 )
 public class ListApplicationCommand extends ListTypeCommandBase {

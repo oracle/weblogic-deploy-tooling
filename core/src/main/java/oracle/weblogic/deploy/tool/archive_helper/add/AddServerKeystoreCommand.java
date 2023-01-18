@@ -18,26 +18,33 @@ import picocli.CommandLine.Option;
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
-    name = "structuredApplication",
-    description = "%nAdd structured application installation directory to the archive file:",
+    name = "serverKeystore",
+    description = "%nAdd a server keystore to the archive file:",
     sortOptions = false
 )
-public class AddStructuredApplicationCommand extends AddTypeCommandBase {
-    private static final String CLASS = AddStructuredApplicationCommand.class.getName();
+public class AddServerKeystoreCommand extends AddTypeCommandBase {
+    private static final String CLASS = AddServerKeystoreCommand.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
-    private static final String TYPE = "structured application";
 
     @Option(
         names = {"-source"},
         paramLabel = "<path>",
-        description = "File system path to the structured application installation directory to add",
+        description = "File system path to the server keystore to add",
         required = true
     )
     private String sourcePath;
 
     @Option(
+        names = {"-server_name"},
+        paramLabel = "<server-name>",
+        description = "WebLogic Server domain's server name to use",
+        required = true
+    )
+    private String serverName;
+
+    @Option(
         names = { "-help" },
-        description = "Get help for the archiveHelper add structuredApplication subcommand",
+        description = "Get help for the archiveHelper add serverKeystore subcommand",
         usageHelp = true
     )
     private boolean helpRequested = false;
@@ -54,21 +61,22 @@ public class AddStructuredApplicationCommand extends AddTypeCommandBase {
 
             String resultName;
             if (this.overwrite) {
-                resultName = this.archive.replaceStructuredApplication(sourceFile.getName(), sourceFile.getPath());
+                resultName =
+                    this.archive.replaceServerKeyStoreFile(this.serverName, sourceFile.getName(), sourceFile.getPath());
             } else {
-                resultName = this.archive.addStructuredApplication(sourceFile.getPath());
+                resultName = this.archive.addServerKeyStoreFile(this.serverName, sourceFile.getPath());
             }
             response = new CommandResponse(ExitCode.OK, resultName);
         } catch (ArchiveHelperException ex) {
-            LOGGER.severe("WLSDPLY-30010", ex, TYPE, this.sourcePath,
+            LOGGER.severe("WLSDPLY-30012", ex, this.sourcePath, this.serverName,
                 this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30010", TYPE,
-                this.sourcePath, this.archiveFilePath, ex.getLocalizedMessage());
+            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30012", this.sourcePath,
+                this.serverName, this.archiveFilePath, ex.getLocalizedMessage());
         } catch (WLSDeployArchiveIOException | IllegalArgumentException ex) {
-            LOGGER.severe("WLSDPLY-30011", ex, TYPE, this.sourcePath,
+            LOGGER.severe("WLSDPLY-30013", ex, this.sourcePath, this.serverName,
                 this.overwrite, this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30011", TYPE,
-                this.sourcePath, this.overwrite, this.archiveFilePath, ex.getLocalizedMessage());
+            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30013", this.sourcePath,
+                this.serverName, this.overwrite, this.archiveFilePath, ex.getLocalizedMessage());
         }
 
         LOGGER.exiting(CLASS, METHOD, response);

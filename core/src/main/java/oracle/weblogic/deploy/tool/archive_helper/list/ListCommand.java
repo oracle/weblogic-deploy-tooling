@@ -9,7 +9,7 @@ import picocli.CommandLine.Option;
 
 @Command(
     name = "list",
-    description = "List contents of the archive file",
+    description = "%nList contents of the archive file:",
     commandListHeading = "%nSubcommands:%n%n",
     subcommands = {
         ListAllCommand.class,
@@ -21,7 +21,7 @@ import picocli.CommandLine.Option;
         ListDomainBinScriptCommand.class,
         ListDomainLibraryCommand.class,
         ListFileStoreCommand.class,
-        ListForeignServerCommand.class,
+        ListJMSForeignServerCommand.class,
         ListMIMEMappingCommand.class,
         ListNodeManagerKeystoreCommand.class,
         ListOPSSWalletCommand.class,

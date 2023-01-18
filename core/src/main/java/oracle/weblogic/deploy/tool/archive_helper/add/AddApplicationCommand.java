@@ -20,7 +20,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
     name = "application",
-    description = "Add application to the archive file",
+    description = "%nAdd application to the archive file:",
     sortOptions = false
 )
 public class AddApplicationCommand extends AddTypeCommandBase {
@@ -61,14 +61,14 @@ public class AddApplicationCommand extends AddTypeCommandBase {
             }
             response = new CommandResponse(ExitCode.OK, resultName);
         } catch (ArchiveHelperException ex) {
-            LOGGER.severe("WLSDPLY-30008", ex, TYPE, this.sourcePath,
+            LOGGER.severe("WLSDPLY-30010", ex, TYPE, this.sourcePath,
                 this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30008", TYPE,
+            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30010", TYPE,
                 this.sourcePath, this.archiveFilePath, ex.getLocalizedMessage());
         } catch (WLSDeployArchiveIOException | IllegalArgumentException ex) {
-            LOGGER.severe("WLSDPLY-30009", ex, TYPE, this.sourcePath,
+            LOGGER.severe("WLSDPLY-30011", ex, TYPE, this.sourcePath,
                 this.overwrite, this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30009", TYPE,
+            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30011", TYPE,
                 this.sourcePath, this.overwrite, this.archiveFilePath, ex.getLocalizedMessage());
         }
 

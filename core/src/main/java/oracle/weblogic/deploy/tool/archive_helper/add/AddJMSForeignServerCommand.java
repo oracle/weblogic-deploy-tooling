@@ -18,26 +18,33 @@ import picocli.CommandLine.Option;
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
-    name = "structuredApplication",
-    description = "%nAdd structured application installation directory to the archive file:",
+    name = "jmsForeignServer",
+    description = "%nAdd a JMS Foreign Server binding file to the archive file:",
     sortOptions = false
 )
-public class AddStructuredApplicationCommand extends AddTypeCommandBase {
-    private static final String CLASS = AddStructuredApplicationCommand.class.getName();
+public class AddJMSForeignServerCommand extends AddTypeCommandBase {
+    private static final String CLASS = AddJMSForeignServerCommand.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
-    private static final String TYPE = "structured application";
+
+    @Option(
+        names = { "-foreign_server_name" },
+        paramLabel = "<jms-foreign-server-name>",
+        description = "WebLogic JMS Foreign Server name",
+        required = true
+    )
+    protected String jmsForeignServerName;
 
     @Option(
         names = {"-source"},
         paramLabel = "<path>",
-        description = "File system path to the structured application installation directory to add",
+        description = "File system path to the JMS Foreign Server binding to add",
         required = true
     )
     private String sourcePath;
 
     @Option(
         names = { "-help" },
-        description = "Get help for the archiveHelper add structuredApplication subcommand",
+        description = "Get help for the archiveHelper add jmsForeignServer subcommand",
         usageHelp = true
     )
     private boolean helpRequested = false;
@@ -54,21 +61,22 @@ public class AddStructuredApplicationCommand extends AddTypeCommandBase {
 
             String resultName;
             if (this.overwrite) {
-                resultName = this.archive.replaceStructuredApplication(sourceFile.getName(), sourceFile.getPath());
+                resultName = this.archive.replaceForeignServerFile(this.jmsForeignServerName, sourceFile.getName(),
+                    sourceFile.getPath());
             } else {
-                resultName = this.archive.addStructuredApplication(sourceFile.getPath());
+                resultName = this.archive.addForeignServerFile(this.jmsForeignServerName, sourceFile.getPath());
             }
             response = new CommandResponse(ExitCode.OK, resultName);
         } catch (ArchiveHelperException ex) {
-            LOGGER.severe("WLSDPLY-30010", ex, TYPE, this.sourcePath,
+            LOGGER.severe("WLSDPLY-30018", ex, this.sourcePath, this.jmsForeignServerName,
                 this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30010", TYPE,
-                this.sourcePath, this.archiveFilePath, ex.getLocalizedMessage());
+            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30018", this.sourcePath,
+                this.jmsForeignServerName, this.archiveFilePath, ex.getLocalizedMessage());
         } catch (WLSDeployArchiveIOException | IllegalArgumentException ex) {
-            LOGGER.severe("WLSDPLY-30011", ex, TYPE, this.sourcePath,
+            LOGGER.severe("WLSDPLY-30019", ex, this.sourcePath, this.jmsForeignServerName,
                 this.overwrite, this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30011", TYPE,
-                this.sourcePath, this.overwrite, this.archiveFilePath, ex.getLocalizedMessage());
+            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30019", this.sourcePath,
+                this.jmsForeignServerName, this.overwrite, this.archiveFilePath, ex.getLocalizedMessage());
         }
 
         LOGGER.exiting(CLASS, METHOD, response);

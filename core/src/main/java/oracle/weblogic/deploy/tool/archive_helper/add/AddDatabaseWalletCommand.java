@@ -18,26 +18,34 @@ import picocli.CommandLine.Option;
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
-    name = "structuredApplication",
-    description = "%nAdd structured application installation directory to the archive file:",
+    name = "databaseWallet",
+    description = "%nAdd database wallet to the archive file:",
     sortOptions = false
 )
-public class AddStructuredApplicationCommand extends AddTypeCommandBase {
-    private static final String CLASS = AddStructuredApplicationCommand.class.getName();
+public class AddDatabaseWalletCommand extends AddTypeCommandBase {
+    private static final String CLASS = AddDatabaseWalletCommand.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
-    private static final String TYPE = "structured application";
+    private static final String TYPE = "database wallet";
+
+    @Option(
+        names = {"-wallet_name"},
+        paramLabel = "<wallet-name>",
+        description = "Name used to identity this database wallet in the archive",
+        required = true
+    )
+    private String walletName;
 
     @Option(
         names = {"-source"},
         paramLabel = "<path>",
-        description = "File system path to the structured application installation directory to add",
+        description = "File system path to the database wallet to add",
         required = true
     )
     private String sourcePath;
 
     @Option(
         names = { "-help" },
-        description = "Get help for the archiveHelper add structuredApplication subcommand",
+        description = "Get help for the archiveHelper add databaseWallet subcommand",
         usageHelp = true
     )
     private boolean helpRequested = false;
@@ -54,20 +62,20 @@ public class AddStructuredApplicationCommand extends AddTypeCommandBase {
 
             String resultName;
             if (this.overwrite) {
-                resultName = this.archive.replaceStructuredApplication(sourceFile.getName(), sourceFile.getPath());
+                resultName = this.archive.replaceDatabaseWallet(this.walletName, sourceFile.getPath());
             } else {
-                resultName = this.archive.addStructuredApplication(sourceFile.getPath());
+                resultName = this.archive.addDatabaseWallet(this.walletName, sourceFile.getPath());
             }
             response = new CommandResponse(ExitCode.OK, resultName);
         } catch (ArchiveHelperException ex) {
-            LOGGER.severe("WLSDPLY-30010", ex, TYPE, this.sourcePath,
+            LOGGER.severe("WLSDPLY-30022", ex, TYPE, this.walletName, this.sourcePath,
                 this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30010", TYPE,
+            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30022", TYPE, this.walletName,
                 this.sourcePath, this.archiveFilePath, ex.getLocalizedMessage());
         } catch (WLSDeployArchiveIOException | IllegalArgumentException ex) {
-            LOGGER.severe("WLSDPLY-30011", ex, TYPE, this.sourcePath,
+            LOGGER.severe("WLSDPLY-30023", ex, TYPE, this.walletName, this.sourcePath,
                 this.overwrite, this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30011", TYPE,
+            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30023", TYPE, this.walletName,
                 this.sourcePath, this.overwrite, this.archiveFilePath, ex.getLocalizedMessage());
         }
 

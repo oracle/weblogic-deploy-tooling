@@ -14,7 +14,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.COHERENCE;
 @Command(
     name = "coherence",
-    description = "List Coherence entries in the archive file",
+    description = "%nList Coherence entries in the archive file:",
     sortOptions = false
 )
 public class ListCoherenceCommand extends ListTypeCommandBase {
@@ -22,11 +22,11 @@ public class ListCoherenceCommand extends ListTypeCommandBase {
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
 
     @Option(
-        names = { "-name" },
-        paramLabel = "<name>",
+        names = { "-cluster_name" },
+        paramLabel = "<cluster-name>",
         description = "Name of the Coherence cluster to list"
     )
-    private String name;
+    private String clusterName;
 
     @Option(
         names = { "-help" },
@@ -40,7 +40,7 @@ public class ListCoherenceCommand extends ListTypeCommandBase {
         final String METHOD = "call";
         LOGGER.entering(CLASS, METHOD);
 
-        CommandResponse response = listType(COHERENCE, "Coherence cluster", name);
+        CommandResponse response = listType(COHERENCE, "Coherence cluster", this.clusterName);
 
         LOGGER.exiting(CLASS, METHOD, response);
         return response;

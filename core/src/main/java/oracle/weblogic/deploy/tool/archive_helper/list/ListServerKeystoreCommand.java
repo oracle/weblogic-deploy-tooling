@@ -15,7 +15,7 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.SERV
 
 @Command(
     name = "serverKeystore",
-    description = "List server keystore entries in the archive file",
+    description = "%nList server keystore entries in the archive file:",
     sortOptions = false
 )
 public class ListServerKeystoreCommand extends ListTypeCommandBase {
@@ -23,8 +23,16 @@ public class ListServerKeystoreCommand extends ListTypeCommandBase {
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
 
     @Option(
+        names = {"-server_name"},
+        paramLabel = "<server-name>",
+        description = "WebLogic Server domain's server name to use",
+        required = true
+    )
+    private String serverName;
+
+    @Option(
         names = { "-name" },
-        paramLabel = "<name>",
+        paramLabel = "<server-name>",
         description = "Name of the server for which to list the keystore"
     )
     private String name;
@@ -41,7 +49,7 @@ public class ListServerKeystoreCommand extends ListTypeCommandBase {
         final String METHOD = "call";
         LOGGER.entering(CLASS, METHOD);
 
-        CommandResponse response = listType(SERVER_KEYSTORE, "server keystore", name);
+        CommandResponse response = listType(SERVER_KEYSTORE, "server keystore", this.serverName, this.name);
 
         LOGGER.exiting(CLASS, METHOD, response);
         return response;

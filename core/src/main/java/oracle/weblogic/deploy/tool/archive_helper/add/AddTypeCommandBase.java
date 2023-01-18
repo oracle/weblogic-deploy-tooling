@@ -42,7 +42,7 @@ public abstract class AddTypeCommandBase extends AddOptions implements Callable<
         File result = FileUtils.getCanonicalFile(path);
         if (!result.exists()) {
             ArchiveHelperException ex =
-                new ArchiveHelperException(ExitCode.ARG_VALIDATION_ERROR, "WLSDPLY-30007", path);
+                new ArchiveHelperException(ExitCode.ARG_VALIDATION_ERROR, "WLSDPLY-30009", path);
             LOGGER.throwing(CLASS, METHOD, ex);
             throw ex;
         }

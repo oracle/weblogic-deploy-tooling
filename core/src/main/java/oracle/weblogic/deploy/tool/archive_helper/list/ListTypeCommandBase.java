@@ -54,4 +54,42 @@ public abstract class ListTypeCommandBase extends CommonOptions implements Calla
         LOGGER.exiting(CLASS, METHOD, response);
         return response;
     }
+
+    protected CommandResponse listType(ArchiveEntryType type, String typeName, String segregationName, String name) {
+        final String METHOD = "listType";
+        LOGGER.entering(CLASS, METHOD, type, typeName, segregationName, name);
+
+        boolean hasName = !StringUtils.isEmpty(name);
+        CommandResponse response;
+        try {
+            initializeOptions(true);
+
+            List<String> archiveEntries;
+            if (hasName) {
+                archiveEntries = this.archive.getSegregatedArchiveEntries(type, segregationName, name);
+            } else {
+                archiveEntries = this.archive.getSegregatedArchiveEntries(type, segregationName);
+            }
+            response = new CommandResponse(ExitCode.OK);
+            response.addMessages(archiveEntries);
+        } catch (ArchiveHelperException ex) {
+            LOGGER.severe(ex.getLocalizedMessage(), ex);
+            response = new CommandResponse(ex.getExitCode(), ex.getLocalizedMessage());
+        } catch (WLSDeployArchiveIOException ex) {
+            if (hasName) {
+                LOGGER.severe("WLSDPLY-30007", ex, typeName,segregationName, name, archiveFilePath,
+                    ex.getLocalizedMessage());
+                response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30007", type, segregationName, name,
+                    this.archiveFilePath, ex.getLocalizedMessage());
+            } else {
+                LOGGER.severe("WLSDPLY-30008", ex, typeName, segregationName, this.archiveFilePath,
+                    ex.getLocalizedMessage());
+                response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30008", type, segregationName,
+                    this.archiveFilePath, ex.getLocalizedMessage());
+            }
+        }
+
+        LOGGER.exiting(CLASS, METHOD, response);
+        return response;
+    }
 }

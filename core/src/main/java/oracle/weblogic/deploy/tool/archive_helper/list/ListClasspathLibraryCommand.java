@@ -15,7 +15,7 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.CLAS
 
 @Command(
     name = "classpathLibrary",
-    description = "List classpath library entries in the archive file",
+    description = "%nList classpath library entries in the archive file:",
     sortOptions = false
 )
 public class ListClasspathLibraryCommand extends ListTypeCommandBase {

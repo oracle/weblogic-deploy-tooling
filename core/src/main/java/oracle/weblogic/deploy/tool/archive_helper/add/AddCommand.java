@@ -9,11 +9,28 @@ import picocli.CommandLine.Option;
 
 @Command(
     name = "add",
-    description = "add items to the archive file",
+    description = "%nAdd items to the archive file:",
     commandListHeading = "%nSubcommands:%n%n",
     subcommands = {
         AddApplicationCommand.class,
+        AddApplicationPlanCommand.class,
+        AddClasspathLibraryCommand.class,
+        AddCoherenceConfigCommand.class,
+        AddCoherencePersistenceDirCommand.class,
+        AddCustomCommand.class,
+        AddDatabaseWalletCommand.class,
+        AddDomainBinScriptCommand.class,
+        AddDomainLibraryCommand.class,
+        AddFileStoreCommand.class,
+        AddJMSForeignServerCommand.class,
+        AddMIMEMappingCommand.class,
+        AddNodeManagerKeystoreCommand.class,
+        AddOPSSWalletCommand.class,
+        AddRCUWalletCommand.class,
+        AddScriptCommand.class,
+        AddServerKeystoreCommand.class,
         AddSharedLibraryCommand.class,
+        AddSharedLibraryPlanCommand.class,
         AddStructuredApplicationCommand.class,
     },
     sortOptions = false
@@ -21,7 +38,7 @@ import picocli.CommandLine.Option;
 public class AddCommand {
     @Option(
         names = { "-help" },
-        description = "Get help for the archiveHelper list command",
+        description = "Get help for the archiveHelper add command",
         usageHelp = true
     )
     private boolean helpRequested = false;

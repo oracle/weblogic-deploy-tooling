@@ -16,7 +16,7 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.DB_W
 
 @Command(
     name = "rcuWallet",
-    description = "List RCU database wallet entries in the archive file",
+    description = "%nList RCU database wallet entries in the archive file:",
     sortOptions = false
 )
 public class ListRCUWalletCommand extends ListTypeCommandBase {

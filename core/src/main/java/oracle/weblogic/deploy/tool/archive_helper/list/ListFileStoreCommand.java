@@ -15,7 +15,7 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.FILE
 
 @Command(
     name = "fileStore",
-    description = "List file store entries in the archive file",
+    description = "%nList file store entries in the archive file:",
     sortOptions = false
 )
 public class ListFileStoreCommand extends ListTypeCommandBase {

@@ -14,13 +14,21 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.JMS_FOREIGN_SERVER;
 
 @Command(
-    name = "foreignServer",
-    description = "List JMS foreign server binding entries in the archive file",
+    name = "jmsForeignServer",
+    description = "%nList JMS foreign server binding entries in the archive file:",
     sortOptions = false
 )
-public class ListForeignServerCommand extends ListTypeCommandBase {
-    private static final String CLASS = ListForeignServerCommand.class.getName();
+public class ListJMSForeignServerCommand extends ListTypeCommandBase {
+    private static final String CLASS = ListJMSForeignServerCommand.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
+
+    @Option(
+        names = { "-foreign_server_name" },
+        paramLabel = "<jms-foreign-server-name>",
+        description = "WebLogic JMS Foreign Server name",
+        required = true
+    )
+    private String jmsForeignServerName;
 
     @Option(
         names = { "-name" },
@@ -31,7 +39,7 @@ public class ListForeignServerCommand extends ListTypeCommandBase {
 
     @Option(
         names = { "-help" },
-        description = "Get help for the archiveHelper list foreignServer subcommand",
+        description = "Get help for the archiveHelper list jmsForeignServer subcommand",
         usageHelp = true
     )
     private boolean helpRequested = false;
@@ -41,7 +49,8 @@ public class ListForeignServerCommand extends ListTypeCommandBase {
         final String METHOD = "call";
         LOGGER.entering(CLASS, METHOD);
 
-        CommandResponse response = listType(JMS_FOREIGN_SERVER, "JMS foreign server binding", name);
+        CommandResponse response = listType(JMS_FOREIGN_SERVER, "JMS foreign server binding",
+            this.jmsForeignServerName, this.name);
 
         LOGGER.exiting(CLASS, METHOD, response);
         return response;
