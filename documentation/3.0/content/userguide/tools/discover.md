@@ -27,11 +27,19 @@ A command-line example containing the variable file name:
 
     $ weblogic-deploy\bin\discoverDomain.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DiscoveredDemoDomain.zip -model_file DiscoveredDemoDomain.json -variable_file DiscoverDemoDomain.properties
 
+You can use online mode either on the admin server or from a remote machine.  If you are running from the admin server, you can specify domain home directory `-domain_home` location.
+
+If you are running from a remote machine, then you do not need to specify the domain home directory `-domain_home` option
+
 To discover the domain using online WLST, simply include the admin user name and admin URL on the command line. The tool will prompt for a password to be entered into STDIN. To bypass the prompt, you can use one of two options. Store the password in an environment variable, and use the variable name with command-line option `-admin_pass_env`. Store the password value in a file. Provide the file name with command-line option `-admin_pass_file`.
 
-An example of running in online WLST mode:
+An example of running in online WLST mode from the admin server:
 
     $ weblogic-deploy/bin/discoverDomain.sh -oracle_home /u01/oracle -domain_home /u01/oracle/domains/DemoDomain -archive_file ./DiscoveredDemoDomain.zip -model_file ./DiscoveredDemoDomain.yaml -admin_user weblogic -admin_url t3://localhost:7001
+
+An example of running in online WLST mode from a remote machine:
+
+    $ weblogic-deploy/bin/discoverDomain.sh -oracle_home /u01/oracle -remote -model_file ./DiscoveredDemoDomain.yaml -admin_user weblogic -admin_url t3://localhost:7001
 
 Note that the command must run on the same system where the domain binaries are located in order to successfully gather the corresponding binaries into the archive file.
 
@@ -93,4 +101,4 @@ Please provide the `STDOUT` and `STDERR` log streams in the GitHub Issue. If the
 | `-output_dir` | Output directory required for `-target`. |    |
 | `-skip_archive` | Do not generate an archive file. The `-archive_file` option will be ignored. |    |
 | `-target` | Targeting platform - `k8s`, `wko`, `vz`. |    |
-| `-variable_file` | The location to write properties for attributes that have been replaced with tokens by the variable injector. If this is included, all credentials will automatically be replaced by tokens and the property written to this file. |    |
+| `-remote` | Update the domain from a remote machine.                                                                                                                                                                                                                                                              |    |
