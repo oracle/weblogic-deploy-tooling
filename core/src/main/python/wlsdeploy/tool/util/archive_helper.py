@@ -129,7 +129,34 @@ class ArchiveHelper(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result
 
-    def extract_file(self, path, location=None):
+    def is_path_forbidden_for_remote_update(self, path):
+        """
+        Check that the provided path in the archive is forbidden for remote domain update
+        :param path: the path to test
+        :return: True, if the path is forbidden for remote update. False otherwise
+        :raises: BundleAwareException of the appropriate type: if an error occurs
+        """
+        _method_name = 'is_path_forbidden_for_remote_update'
+        self.__logger.entering(path, class_name=self.__class_name, method_name=_method_name)
+
+        result = False
+        for archive_file in self.__archive_files:
+            try:
+                if archive_file.containsFileOrPath(path):
+                    if (not path.startswith(WLSDeployArchive.ARCHIVE_SHLIBS_TARGET_DIR) and
+                            not path.startswith(WLSDeployArchive.ARCHIVE_APPS_TARGET_DIR)):
+                        result = True
+                        break
+            except (IllegalArgumentException), e:
+                ex = exception_helper.create_exception(self.__exception_type, "WLSDPLY-19309", path,
+                                                       self.__archive_files_text, e.getLocalizedMessage(), error=e)
+                self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
+    def extract_file(self, path, location=None, strip_leading_path=True):
         """
         Extract the specified file from the archive into the specified directory, or into Domain Home.
         :param path: the path into the archive
@@ -146,7 +173,7 @@ class ArchiveHelper(object):
                 result = archive_file.extractFile(path, self.__domain_home)
             else:
                 extract_location = FileUtils.getCanonicalFile(File(location))
-                result = archive_file.extractFile(path, extract_location, True)
+                result = archive_file.extractFile(path, extract_location, strip_leading_path)
         except (IllegalArgumentException, WLSDeployArchiveIOException), e:
             ex = exception_helper.create_exception(self.__exception_type, "WLSDPLY-19303", path,
                                                    self.__archive_files_text, e.getLocalizedMessage(), error=e)

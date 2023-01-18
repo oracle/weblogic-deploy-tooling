@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -405,6 +405,13 @@ class ModelContext(object):
         """
         return self._domain_name
 
+    def set_domain_name(self, domain_name):
+        """
+        Set the domain name when online
+        :param domain_name: the domain name
+        """
+        self._domain_name = domain_name
+
     def set_domain_home(self, domain_home):
         """
         This method is a hack to allow create to add the domain home after reading the domain name from the model.
@@ -414,6 +421,11 @@ class ModelContext(object):
         if self._domain_home is None and domain_home is not None and len(domain_home) > 0:
             self._domain_home = domain_home
             self._domain_name = os.path.basename(self._domain_home)
+
+    def set_domain_home_name_if_remote(self, domain_home, domain_name):
+        if self.is_remote():
+            self.set_domain_home(domain_home)
+            self.set_domain_name(domain_name)
 
     def get_domain_parent_dir(self):
         """
