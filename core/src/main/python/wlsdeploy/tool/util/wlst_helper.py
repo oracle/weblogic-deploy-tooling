@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2019, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -1360,6 +1360,45 @@ class WlstHelper(object):
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def get_domain_name_online(self):
+        """
+        Get the domain name online.
+        :raises Exception for the specified tool type: if a WLST error occurs
+        """
+        _method_name = 'get_domain_name_online'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        try:
+            self.server_config()
+            self.cd('/')
+            name = self.get('Name')
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00065',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return name
+
+
+    def get_domain_home_online(self):
+        """
+        Get the domain name online.
+        :raises Exception for the specified tool type: if a WLST error occurs
+        """
+        _method_name = 'get_domain_home_online'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        try:
+            self.server_config()
+            self.cd('/')
+            result = self.get('RootDirectory')
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00065',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return result
 
     def domain_runtime(self):
         """

@@ -129,7 +129,7 @@ class DomainInfoDiscoverer(Discoverer):
                     _logger.finer('WLSDPLY-06423', domain_bin, class_name=_class_name, method_name=_method_name)
                     for entry in file_list:
                         if self._model_context.is_remote():
-                            new_source_name = archive_file.getDomainBinScriptArchivePath(entry)
+                            new_source_name = WLSDeployArchive.getDomainBinScriptArchivePath(entry)
                             self.add_to_remote_map(entry, new_source_name,
                                                    WLSDeployArchive.ArchiveEntryType.DOMAIN_BIN.name())
                         else:

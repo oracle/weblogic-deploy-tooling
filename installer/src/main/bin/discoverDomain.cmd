@@ -71,7 +71,7 @@ if "%SHOW_USAGE%" == "false" (
 :usage
 ECHO.
 ECHO Usage: %SCRIPT_NAME% [-oracle_home ^<oracle_home^>]
-ECHO              -domain_home ^<domain_home^>
+ECHO              [-domain_home ^<domain_home^>]
 ECHO              -model_file ^<model_file^>
 ECHO              ^<-archive_file ^<archive_file^> ^| -skip_archive ^| -remote ^>
 ECHO              [-variable_file ^<variable_file^>]
@@ -91,7 +91,8 @@ ECHO         oracle_home     - the existing Oracle Home directory for the domain
 ECHO                           This argument is required unless the ORACLE_HOME
 ECHO                           environment variable is set.
 ECHO.
-ECHO         domain_home     - the domain home directory.  This argument is required.
+ECHO         domain_home     - the domain home directory.  This argument is
+ECHO                           required if -remote option is not specified.
 ECHO.
 ECHO         model_file      - the location to write the model file.  This argument
 ECHO                           is required.

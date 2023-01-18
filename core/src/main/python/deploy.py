@@ -41,12 +41,12 @@ __wlst_mode = WlstModes.OFFLINE
 
 __required_arguments = [
     CommandLineArgUtil.ORACLE_HOME_SWITCH,
-    CommandLineArgUtil.DOMAIN_HOME_SWITCH,
     CommandLineArgUtil.MODEL_FILE_SWITCH
 ]
 
 __optional_arguments = [
     # Used by shell script to locate WLST
+    CommandLineArgUtil.DOMAIN_HOME_SWITCH,
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,
@@ -61,7 +61,8 @@ __optional_arguments = [
     CommandLineArgUtil.PASSPHRASE_ENV_SWITCH,
     CommandLineArgUtil.OUTPUT_DIR_SWITCH,
     CommandLineArgUtil.DISCARD_CURRENT_EDIT_SWITCH,
-    CommandLineArgUtil.CANCEL_CHANGES_IF_RESTART_REQ_SWITCH
+    CommandLineArgUtil.CANCEL_CHANGES_IF_RESTART_REQ_SWITCH,
+    CommandLineArgUtil.REMOTE_SWITCH
 ]
 
 
@@ -72,6 +73,7 @@ def __process_args(args):
     :raises CLAException: if an error occurs while validating and processing the command-line arguments
     """
     global __wlst_mode
+    _method_name = '__process_args'
 
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
     cla_util.set_allow_multiple_models(True)
@@ -80,6 +82,7 @@ def __process_args(args):
     cla_helper.validate_optional_archive(_program_name, argument_map)
     cla_helper.validate_required_model(_program_name, argument_map)
     cla_helper.validate_variable_file_exists(_program_name, argument_map)
+    cla_helper.validate_if_domain_home_required(_program_name, argument_map)
 
     __wlst_mode = cla_helper.process_online_args(argument_map)
     cla_helper.process_encryption_args(argument_map)
@@ -124,6 +127,10 @@ def __deploy_online(model, model_context, aliases):
     __logger.info("WLSDPLY-09005", admin_url, timeout, method_name=_method_name, class_name=_class_name)
 
     __wlst_helper.connect(admin_user, admin_pwd, admin_url, timeout)
+
+    model_context.set_domain_home_name_if_remote(__wlst_helper.get_domain_home_online(),
+                                                 __wlst_helper.get_domain_name_online())
+
     deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions(skip_edit_session_check)
     __wlst_helper.edit()
     __logger.fine("WLSDPLY-09019", edit_lock_acquire_timeout, edit_lock_release_timeout, edit_lock_exclusive)
