@@ -495,30 +495,7 @@ public class WLSDeployArchive {
         return result;
     }
 
-    /**
-     * Determines whether or not the path starts with the target pattern
-     * in the archive file.
-     *
-     * @param path the path into the archive file to test
-     * @param target the starts with target path
-     * @return true if the specified path starts with target
-     * @throws IllegalArgumentException    if the path is null or empty
-     */
-    public boolean isPathStartsWithTarget(String path, String target) throws IllegalArgumentException {
-        final String METHOD = "isApplicationsPath";
 
-        LOGGER.entering(CLASS, METHOD, path);
-        validateNonEmptyString(path, "path", METHOD);
-
-        boolean result = false;
-        // Verify that the path is into the binary root directory so that we do not allow random content.
-        if (path.startsWith(target)) {
-            result = true;
-        }
-        LOGGER.exiting(CLASS, METHOD, result);
-        return result;
-    }
-    
     /**
      * Extract the specified file to the specified location (which is typically the domain home).  For example,
      * if the path is wlsdeploy/applications/myapp.ear and the extractToLocation is the domain home, the file
