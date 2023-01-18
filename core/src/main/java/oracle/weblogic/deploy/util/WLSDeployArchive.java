@@ -518,29 +518,7 @@ public class WLSDeployArchive {
         LOGGER.exiting(CLASS, METHOD, result);
         return result;
     }
-
-    /** Check whether the path should be used for remote update
-     *
-     * @param path
-     * @return true if the path should not be used for remote update
-     * @throws IllegalArgumentException    if the path is null or empty
-     */
-    public boolean isRemoteUpdateDomainForbiddenPath(String path)  throws IllegalArgumentException  {
-        final String METHOD = "isRemoteUpdateDomainForbiddenPath";
-
-        LOGGER.entering(CLASS, METHOD, path);
-        validateNonEmptyString(path, "path", METHOD);
-
-        boolean result = false;
-        // Verify that the path is into the binary root directory so that we do not allow random content.
-        if (!path.startsWith(ARCHIVE_SHLIBS_TARGET_DIR) &&
-            !path.startsWith(ARCHIVE_APPS_TARGET_DIR)) {
-            result = true;
-        }
-        LOGGER.exiting(CLASS, METHOD, result);
-        return result;
-    }
-
+    
     /**
      * Extract the specified file to the specified location (which is typically the domain home).  For example,
      * if the path is wlsdeploy/applications/myapp.ear and the extractToLocation is the domain home, the file

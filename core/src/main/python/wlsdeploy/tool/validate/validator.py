@@ -843,8 +843,7 @@ class Validator(object):
                 # check to see if it is a path into the archive
                 # and the path is not applications/libraries then flag as error
 
-                if self._model_context.is_remote() and archive_has_file and \
-                    self._archive_helper.is_path_forbidden_for_remote_update(path):
+                if self._model_context.is_remote() and self._archive_helper.is_path_forbidden_for_remote_update(path):
                     log_method('WLSDPLY-19313', attribute_name, model_folder_path, path,
                                    class_name=_class_name, method_name=_method_name)
 

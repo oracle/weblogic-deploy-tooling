@@ -127,6 +127,10 @@ def __deploy_online(model, model_context, aliases):
     __logger.info("WLSDPLY-09005", admin_url, timeout, method_name=_method_name, class_name=_class_name)
 
     __wlst_helper.connect(admin_user, admin_pwd, admin_url, timeout)
+
+    model_context.set_domain_home_name_if_remote(__wlst_helper.get_domain_home_online(),
+                                                 __wlst_helper.get_domain_name_online())
+
     deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions(skip_edit_session_check)
     __wlst_helper.edit()
     __logger.fine("WLSDPLY-09019", edit_lock_acquire_timeout, edit_lock_release_timeout, edit_lock_exclusive)

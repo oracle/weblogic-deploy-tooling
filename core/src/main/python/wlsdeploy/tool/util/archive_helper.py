@@ -142,9 +142,11 @@ class ArchiveHelper(object):
         result = False
         for archive_file in self.__archive_files:
             try:
-                result = archive_file.isRemoteUpdateDomainForbiddenPath(path)
-                if result:
-                    break
+                if archive_file.containsFileOrPath(path):
+                    if (not path.startswith(WLSDeployArchive.ARCHIVE_SHLIBS_TARGET_DIR) and
+                            not path.startswith(WLSDeployArchive.ARCHIVE_APPS_TARGET_DIR)):
+                        result = True
+                        break
             except (IllegalArgumentException), e:
                 ex = exception_helper.create_exception(self.__exception_type, "WLSDPLY-19309", path,
                                                        self.__archive_files_text, e.getLocalizedMessage(), error=e)

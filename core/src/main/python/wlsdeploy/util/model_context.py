@@ -422,6 +422,11 @@ class ModelContext(object):
             self._domain_home = domain_home
             self._domain_name = os.path.basename(self._domain_home)
 
+    def set_domain_home_name_if_remote(self, domain_home, domain_name):
+        if self.is_remote():
+            self.set_domain_home(domain_home)
+            self.set_domain_name(domain_name)
+
     def get_domain_parent_dir(self):
         """
         Get the domain parent directory

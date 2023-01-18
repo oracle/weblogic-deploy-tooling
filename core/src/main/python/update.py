@@ -143,9 +143,8 @@ def __update_online(model, model_context, aliases):
         __wlst_helper.connect(admin_user, admin_pwd, admin_url, timeout)
 
         # -remote does not have domain home set, so get it from online wlst after connect
-        if model_context.is_remote():
-            model_context.set_domain_name(__wlst_helper.get_domain_name_online())
-            model_context.set_domain_home(__wlst_helper.get_domain_home_online())
+        model_context.set_domain_home_name_if_remote(__wlst_helper.get_domain_home_online(),
+                                                     __wlst_helper.get_domain_name_online())
 
         deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions(skip_edit_session_check)
         __wlst_helper.edit()
