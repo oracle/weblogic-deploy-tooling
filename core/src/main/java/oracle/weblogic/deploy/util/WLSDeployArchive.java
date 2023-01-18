@@ -494,7 +494,7 @@ public class WLSDeployArchive {
         LOGGER.exiting(CLASS, METHOD, result);
         return result;
     }
-    
+
     /**
      * Extract the specified file to the specified location (which is typically the domain home).  For example,
      * if the path is wlsdeploy/applications/myapp.ear and the extractToLocation is the domain home, the file
