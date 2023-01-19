@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
+    "copyright": "Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "Log",
     "online_bean": "weblogic.management.configuration.LogMBean",
@@ -47,8 +47,18 @@
         "StdoutFormat":                                  [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "StdoutFormat",                                  "wlst_path": "WP001", "default_value": "${__NULL__:standard}", "wlst_type": "string", "restart_required": "true" } ],
         "StdoutLogStack":                                [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "StdoutLogStack",                                "wlst_path": "WP001", "default_value": "true",   "wlst_type": "boolean"} ],
         "StdoutSeverity":                                [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "StdoutSeverity",                                "wlst_path": "WP001", "default_value": "${__NULL__:Notice}", "wlst_type": "string" } ],
-        "TriggerTruncationStackFrameDepthAfterTrigger":  [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "TriggerTruncationStackFrameDepthAfterTrigger",  "wlst_path": "WP001", "default_value": 5,        "wlst_type": "integer" } ],
-        "TriggerTruncationStackFrameTriggerDepth":       [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "TriggerTruncationStackFrameTriggerDepth",       "wlst_path": "WP001", "default_value": 500,      "wlst_type": "integer" } ]
+        "TriggerTruncationStackFrameDepthAfterTrigger":  [
+            {"version": "[12.2.1.3.0.221210,12.2.1.4)",  "wlst_mode": "online",    "wlst_name": "TriggerTruncationStackFrameDepthAfterTrigger",  "wlst_path": "WP001", "default_value": 5,        "wlst_type": "integer" } ,
+            {"version": "[12.2.1.4.0.221210,14.1.1)",    "wlst_mode": "online",    "wlst_name": "TriggerTruncationStackFrameDepthAfterTrigger",  "wlst_path": "WP001", "default_value": 5,        "wlst_type": "integer" } ,
+            {"version": "[14.1.1.0.0.221213,14.1.2)",    "wlst_mode": "online",    "wlst_name": "TriggerTruncationStackFrameDepthAfterTrigger",  "wlst_path": "WP001", "default_value": 5,        "wlst_type": "integer" } ,
+            {"version": "[14.1.2,)",                     "wlst_mode": "both",      "wlst_name": "TriggerTruncationStackFrameDepthAfterTrigger",  "wlst_path": "WP001", "default_value": 5,        "wlst_type": "integer" }
+        ],
+        "TriggerTruncationStackFrameTriggerDepth":       [
+            {"version": "[12.2.1.3.0.221210,12.2.1.4)", "wlst_mode": "online",    "wlst_name": "TriggerTruncationStackFrameTriggerDepth",       "wlst_path": "WP001", "default_value": 500,      "wlst_type": "integer" } ,
+            {"version": "[12.2.1.4.0.221210,14.1.1)",   "wlst_mode": "online",    "wlst_name": "TriggerTruncationStackFrameTriggerDepth",       "wlst_path": "WP001", "default_value": 500,      "wlst_type": "integer" } ,
+            {"version": "[14.1.1.0.0.221213,14.1.2)",   "wlst_mode": "online",    "wlst_name": "TriggerTruncationStackFrameTriggerDepth",       "wlst_path": "WP001", "default_value": 500,      "wlst_type": "integer" } ,
+            {"version": "[14.1.2,)",                    "wlst_mode": "both",      "wlst_name": "TriggerTruncationStackFrameTriggerDepth",       "wlst_path": "WP001", "default_value": 500,      "wlst_type": "integer" }
+        ]
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {
