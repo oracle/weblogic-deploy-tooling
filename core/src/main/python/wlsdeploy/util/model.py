@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 This module serves as a wrapper for the model dictionary.
@@ -11,6 +11,7 @@ import pprint
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
 from wlsdeploy.aliases.model_constants import KNOWN_TOPLEVEL_MODEL_SECTIONS
 from wlsdeploy.aliases.model_constants import KUBERNETES
+from wlsdeploy.aliases.model_constants import VERRAZZANO
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -29,6 +30,7 @@ class Model(object):
         self._deployments = OrderedDict()
         self._domain_info = OrderedDict()
         self._kubernetes = OrderedDict()
+        self._verrazzano = OrderedDict()
 
         if model_dictionary is not None:
             if 'topology' in model_dictionary:
@@ -45,6 +47,9 @@ class Model(object):
 
             if KUBERNETES in model_dictionary:
                 self._kubernetes = model_dictionary[KUBERNETES]
+
+            if VERRAZZANO in model_dictionary:
+                self._verrazzano = model_dictionary[VERRAZZANO]
 
     def get_model_resources(self):
         """
@@ -95,6 +100,10 @@ class Model(object):
             model['resources'] = self._resources
         if len(self._deployments) > 0:
             model['appDeployments'] = self._deployments
+        if len(self._kubernetes) > 0:
+            model[KUBERNETES] = self._kubernetes
+        if len(self._verrazzano) > 0:
+            model[VERRAZZANO] = self._verrazzano
         return model
 
     def log_model(self, level, message, method_name, class_name='Model'):

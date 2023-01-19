@@ -103,12 +103,17 @@ def get_product_helper(product_key, product_version, exception_type=ExceptionTyp
 
         application_schema = schema_helper.get_schema(VZ_1_APPLICATION_SCHEMA_NAME, exception_type)
         application_folder = ModelCrdFolder("application", application_schema, False)
+        application_folder.add_object_list_key('spec/components', 'componentName')
         helper.add_crd_folder(application_folder)
 
         weblogic_schema_name = VZ_1_WEBLOGIC_SCHEMA_NAME
         weblogic_schema = schema_helper.get_schema(weblogic_schema_name, exception_type)
         _update_weblogic_schema(weblogic_schema, weblogic_schema_name, exception_type)
         weblogic_folder = ModelCrdFolder("weblogic", weblogic_schema, False)
+        weblogic_folder.add_object_list_key('spec/workload/spec/clusters', 'spec/clusterName')
+        weblogic_folder.add_object_list_key('spec/workload/spec/template/spec/adminServer/adminService/channels',
+                                            'channelName')
+        weblogic_folder.add_object_list_key('spec/workload/spec/template/spec/managedServers', 'serverName')
         helper.add_crd_folder(weblogic_folder)
 
         configmap_schema = schema_helper.get_schema(VZ_1_CONFIGMAP_SCHEMA_NAME, exception_type)
