@@ -33,16 +33,6 @@
                         "LogMilliSeconds":      [ {"version": "[12.2.1,)",           "wlst_mode": "offline", "wlst_name": "LogMilliSeconds",   "wlst_path": "WP001", "default_value": false,                                   "wlst_type": "boolean" } ],
                         "LogTimeInGMT":         [ {"version": "[12.2.1,)",           "wlst_mode": "both", "wlst_name": "LogTimeInGMT",         "wlst_path": "WP001", "default_value": false,                                   "wlst_type": "boolean" } ],
                         "LoggingEnabled":       [ {"version": "[12.2.1,)",           "wlst_mode": "both", "wlst_name": "LoggingEnabled",       "wlst_path": "WP001", "default_value": true,                                    "wlst_type": "boolean" } ],
-                        "MaxSingleHeaderSize":  [
-                            {"version": "[12.2.1.3.0.221210,12.2.1.4)",   "wlst_mode": "both",    "wlst_name": "MaxSingleHeaderSize",       "wlst_path": "WP001", "default_value": "-1",                                 "wlst_type": "integer"  } ,
-                            {"version": "[12.2.1.4.0.221210,14.1.1)",     "wlst_mode": "both",    "wlst_name": "MaxSingleHeaderSize",       "wlst_path": "WP001", "default_value": "-1",                                 "wlst_type": "integer"  } ,
-                            {"version": "[14.1.1.0.221213,)",             "wlst_mode": "both",    "wlst_name": "MaxSingleHeaderSize",       "wlst_path": "WP001", "default_value": "-1",                                 "wlst_type": "integer"  }
-                        ],
-                        "MaxTotalHeadersSize":  [
-                            {"version": "[12.2.1.3.0.221210,12.2.1.4)",   "wlst_mode": "both",    "wlst_name": "MaxTotalHeadersSize",       "wlst_path": "WP001", "default_value": "131072",                                 "wlst_type": "integer"  } ,
-                            {"version": "[12.2.1.4.0.221210,14.1.1)",     "wlst_mode": "both",    "wlst_name": "MaxTotalHeadersSize",       "wlst_path": "WP001", "default_value": "131072",                                 "wlst_type": "integer"  } ,
-                            {"version": "[14.1.1.0.221213,)",             "wlst_mode": "both",    "wlst_name": "MaxTotalHeadersSize",       "wlst_path": "WP001", "default_value": "131072",                                 "wlst_type": "integer"  }
-                        ],
                         "Notes":                [ {"version": "[12.2.1,)",           "wlst_mode": "both", "wlst_name": "Notes",                "wlst_path": "WP001", "default_value": null,                                    "wlst_type": "string"  } ],
                         "NumberOfFilesLimited": [
                             {"version": "[12.2.1,12.2.1.4.0.210629)",   "wlst_mode": "both", "wlst_name": "NumberOfFilesLimited", "wlst_path": "WP001", "default_value": "${true:false}", "production_default": "${__NULL__:true}", "wlst_type": "boolean" },
