@@ -1328,8 +1328,18 @@
                 "MaxPostTimeSecs":                     [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "MaxPostTimeSecs",                     "wlst_path": "WP001", "default_value": -1,       "wlst_type": "integer"          } ],
                 "MaxRequestParameterCount":            [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "MaxRequestParameterCount",            "wlst_path": "WP001", "default_value": 10000,    "wlst_type": "integer",         "get_method": "GET" } ],
                 "MaxRequestParamterCount":             [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "MaxRequestParamterCount",             "wlst_path": "WP001", "default_value": 10000,    "wlst_type": "integer",         "get_method": "GET" } ],
-                "MaxSingleHeaderSize":                 [ {"version": "[14.1.2,)",   "wlst_mode": "online",  "wlst_name": "MaxSingleHeaderSize",                 "wlst_path": "WP001", "default_value": -1,       "wlst_type": "integer"          } ],
-                "MaxTotalHeadersSize":                 [ {"version": "[14.1.2,)",   "wlst_mode": "online",  "wlst_name": "MaxTotalHeadersSize",                 "wlst_path": "WP001", "default_value": 131072,   "wlst_type": "integer"          } ],
+                "MaxSingleHeaderSize":                 [
+                    {"version": "[12.2.1.3.0.221210,12.2.1.4)",   "wlst_mode": "online",  "wlst_name": "MaxSingleHeaderSize",                 "wlst_path": "WP001", "default_value": -1,       "wlst_type": "integer"          } ,
+                    {"version": "[12.2.1.4.0.221210,14.1.1)",     "wlst_mode": "online",  "wlst_name": "MaxSingleHeaderSize",                 "wlst_path": "WP001", "default_value": -1,       "wlst_type": "integer"          } ,
+                    {"version": "[14.1.1.0.221213,14.1.2)",       "wlst_mode": "online",  "wlst_name": "MaxSingleHeaderSize",                 "wlst_path": "WP001", "default_value": -1,       "wlst_type": "integer"          } ,
+                    {"version": "[14.1.2,)",                      "wlst_mode": "online",  "wlst_name": "MaxSingleHeaderSize",                 "wlst_path": "WP001", "default_value": -1,       "wlst_type": "integer"          }
+                ],
+                "MaxTotalHeadersSize":                 [
+                    {"version": "[12.2.1.3.0.221210,12.2.1.4)",   "wlst_mode": "online",  "wlst_name": "MaxTotalHeadersSize",                 "wlst_path": "WP001", "default_value": 131072,   "wlst_type": "integer"          } ,
+                    {"version": "[12.2.1.4.0.221210,14.1.1)",     "wlst_mode": "online",  "wlst_name": "MaxTotalHeadersSize",                 "wlst_path": "WP001", "default_value": 131072,   "wlst_type": "integer"          } ,
+                    {"version": "[14.1.1.0.221213,14.1.2)",       "wlst_mode": "online",  "wlst_name": "MaxTotalHeadersSize",                 "wlst_path": "WP001", "default_value": 131072,   "wlst_type": "integer"          } ,
+                    {"version": "[14.1.2,)",                      "wlst_mode": "online",  "wlst_name": "MaxTotalHeadersSize",                 "wlst_path": "WP001", "default_value": 131072,   "wlst_type": "integer"          }
+                ],
                 "Notes":                               [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "Notes",                               "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"           } ],
                 "OverloadResponseCode":                [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "OverloadResponseCode",                "wlst_path": "WP001", "default_value": 503,      "wlst_type": "integer"          } ],
                 "PostTimeoutSecs":                     [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "PostTimeoutSecs",                     "wlst_path": "WP001", "default_value": 30,       "wlst_type": "integer"          } ],
