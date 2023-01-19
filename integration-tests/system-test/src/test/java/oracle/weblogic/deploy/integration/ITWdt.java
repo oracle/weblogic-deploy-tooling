@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import oracle.weblogic.deploy.integration.annotations.IntegrationTest;
 import oracle.weblogic.deploy.integration.annotations.TestingLogger;
@@ -964,6 +966,34 @@ public class ITWdt extends BaseTest {
                     "Update does not contains expected message WLSDPLY-09316");
                 assertTrue(result.stdout().contains("<__start_app> <WLSDPLY-09313>"),
                     "Update does not contains expected message WLSDPLY-09313");
+
+                cmd = "echo welcome1 | "
+                    + updateDomainScript
+                    + " -oracle_home " + mwhome_12213
+                    + " -domain_home " + domainParentDir + FS + domainDir
+                    + " -model_file " + model
+                    + " -remote"
+                    + " -archive_file " + getUpdatedSampleArchiveFile()
+                    + " -admin_url t3://localhost:7001 -admin_user weblogic";
+                result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+                assertEquals(0, result.exitValue(), "Unexpected return code for remote updating domain with new archive");
+
+                Path sourcePyfile = Paths.get(getResourcePath() + FS + SAMPLE_MODEL_FILE_PREFIX + "-chk-srcpath.py");
+                Path testPyFile = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "-chk-srcpath.py");
+                Files.copy(sourcePyfile, testPyFile, StandardCopyOption.REPLACE_EXISTING);
+                cmd = mwhome_12213 + "/oracle_common/common/bin/wlst.sh " + testPyFile + " " + domainParentDir + FS +
+                    domainDir;
+                result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+                assertEquals(0, result.exitValue(), "Unexpected return code for running wlst to find app sourcepath");
+                Pattern pattern = Pattern.compile("SRCPATH=(.*)");
+                Matcher matcher = pattern.matcher(result.stdout());
+                String srcPath = "Unknown";
+                if (matcher.find()) {
+                    srcPath = matcher.group(1);
+                }
+                assertTrue(srcPath.equals("servers/admin-server/upload/simple-app/app/simple-app.war"),
+                    "App SourcePath returned " + srcPath + " does not match the expected value");
 
                 stopAdminServer(domainHome);
             }

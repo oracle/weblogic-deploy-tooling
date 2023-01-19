@@ -838,6 +838,15 @@ class Validator(object):
                 if not archive_has_file:
                     log_method('WLSDPLY-05024', attribute_name, model_folder_path, path,
                                self._archive_file_name, class_name=_class_name, method_name=_method_name)
+
+                # If this is validating for remote use
+                # check to see if it is a path into the archive
+                # and the path is not applications/libraries then flag as error
+
+                if self._model_context.is_remote() and self._archive_helper.is_path_forbidden_for_remote_update(path):
+                    log_method('WLSDPLY-19313', attribute_name, model_folder_path, path,
+                                   class_name=_class_name, method_name=_method_name)
+
             elif not self._model_context.is_remote() and not self._model_context.skip_archive():
                 log_method('WLSDPLY-05025', attribute_name, model_folder_path, path,
                            class_name=_class_name, method_name=_method_name)

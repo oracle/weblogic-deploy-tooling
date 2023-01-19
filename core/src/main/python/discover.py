@@ -67,12 +67,12 @@ _store_result_environment_variable = '__WLSDEPLOY_STORE_RESULT__'
 
 __required_arguments = [
     CommandLineArgUtil.ORACLE_HOME_SWITCH,
-    CommandLineArgUtil.DOMAIN_HOME_SWITCH,
     CommandLineArgUtil.MODEL_FILE_SWITCH
 ]
 
 __optional_arguments = [
     # Used by shell script to locate WLST
+    CommandLineArgUtil.DOMAIN_HOME_SWITCH,
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
     CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH,
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
@@ -102,6 +102,7 @@ def __process_args(args):
     argument_map = cla_util.process_args(args, TOOL_TYPE_DISCOVER)
 
     __wlst_mode = cla_helper.process_online_args(argument_map)
+    cla_helper.validate_if_domain_home_required(_program_name, argument_map)
     target_configuration_helper.process_target_arguments(argument_map)
     __process_model_arg(argument_map)
     __process_archive_filename_arg(argument_map)
@@ -356,6 +357,10 @@ def __connect_to_domain(model_context, helper):
         try:
             helper.connect(model_context.get_admin_user(), model_context.get_admin_password(),
                            model_context.get_admin_url(), model_context.get_model_config().get_connect_timeout())
+
+            model_context.set_domain_home_name_if_remote(helper.get_domain_home_online(),
+                                                         helper.get_domain_name_online())
+
         except PyWLSTException, wlst_ex:
             ex = exception_helper.create_discover_exception('WLSDPLY-06001', model_context.get_admin_url(),
                                                             model_context.get_admin_user(),

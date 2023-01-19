@@ -31,6 +31,7 @@ from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model_translator import FileToPython
+from wlsdeploy.exception.exception_helper import create_cla_exception
 
 
 __logger = PlatformLogger('wlsdeploy.util')
@@ -119,6 +120,16 @@ def validate_variable_file_exists(program_name, argument_map):
                 raise ex
 
         argument_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = ",".join(result_files)
+
+
+def validate_if_domain_home_required(program_name, argument_map):
+    method_name = 'validate_if_remote_options'
+    if CommandLineArgUtil.REMOTE_SWITCH not in argument_map and \
+            CommandLineArgUtil.DOMAIN_HOME_SWITCH not in argument_map:
+        ex = create_cla_exception(ExitCode.USAGE_ERROR, 'WLSDPLY-20005',
+                                  program_name, CommandLineArgUtil.DOMAIN_HOME_SWITCH)
+        __logger.throwing(ex, class_name=_class_name, method_name=method_name)
+        raise ex
 
 
 def process_encryption_args(optional_arg_map):

@@ -31,6 +31,8 @@ from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
+from wlsdeploy.tool.validate.validator import Validator
+from oracle.weblogic.deploy.validate import ValidateException
 
 
 wlst_helper.wlst_functions = globals()
@@ -44,12 +46,12 @@ __wlst_mode = WlstModes.OFFLINE
 
 __required_arguments = [
     CommandLineArgUtil.ORACLE_HOME_SWITCH,
-    CommandLineArgUtil.DOMAIN_HOME_SWITCH,
     CommandLineArgUtil.MODEL_FILE_SWITCH
 ]
 
 __optional_arguments = [
     # Used by shell script to locate WLST
+    CommandLineArgUtil.DOMAIN_HOME_SWITCH,
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,
@@ -66,6 +68,7 @@ __optional_arguments = [
     CommandLineArgUtil.OUTPUT_DIR_SWITCH,
     CommandLineArgUtil.UPDATE_RCU_SCHEMA_PASS_SWITCH,
     CommandLineArgUtil.DISCARD_CURRENT_EDIT_SWITCH,
+    CommandLineArgUtil.REMOTE_SWITCH,
     CommandLineArgUtil.WAIT_FOR_EDIT_LOCK_SWITCH
 ]
 
@@ -85,6 +88,7 @@ def __process_args(args):
     cla_helper.validate_optional_archive(_program_name, argument_map)
     cla_helper.validate_required_model(_program_name, argument_map)
     cla_helper.validate_variable_file_exists(_program_name, argument_map)
+    cla_helper.validate_if_domain_home_required(_program_name, argument_map)
 
     __wlst_mode = cla_helper.process_online_args(argument_map)
     cla_helper.process_encryption_args(argument_map)
@@ -130,7 +134,18 @@ def __update_online(model, model_context, aliases):
     __logger.info("WLSDPLY-09005", admin_url, timeout, method_name=_method_name, class_name=_class_name)
 
     try:
+
+        if model_context.is_remote():
+            model_validator = Validator(model_context, aliases, logger=__logger, wlst_mode=WlstModes.ONLINE)
+            model_validator.validate_in_tool_mode(model.get_model(), None,
+                                                  model_context.get_archive_file_name())
+
         __wlst_helper.connect(admin_user, admin_pwd, admin_url, timeout)
+
+        # -remote does not have domain home set, so get it from online wlst after connect
+        model_context.set_domain_home_name_if_remote(__wlst_helper.get_domain_home_online(),
+                                                     __wlst_helper.get_domain_name_online())
+
         deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions(skip_edit_session_check)
         __wlst_helper.edit()
         __logger.fine("WLSDPLY-09019", edit_lock_acquire_timeout, edit_lock_release_timeout, edit_lock_exclusive)
@@ -138,6 +153,8 @@ def __update_online(model, model_context, aliases):
                                  exclusive=edit_lock_exclusive)
         if model_context.is_discard_current_edit():
             deployer_utils.discard_current_edit()
+    except ValidateException, ve:
+        raise ve
     except BundleAwareException, ex:
         raise ex
 

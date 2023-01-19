@@ -1,0 +1,105 @@
+# Copyright (c) 2023, Oracle Corporation and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+domainInfo:
+    # The DOMAIN_TYPE field is for reference only.  The actual type of domain created is controlled by
+    # the -domain_type parameter passed to the createDomain shell script.
+    AdminUserName: 'weblogic'
+    AdminPassword: 'welcome1'
+    ServerStartMode: 'prod'
+    domainBin: [ 'wlsdeploy/domainBin/setUserOverrides.sh' ]
+    domainLibraries: [ 'wlsdeploy/domainLibraries/fake.jar' ]
+
+
+topology:
+    Name: simple_domain
+    Cluster:
+        mycluster:
+            MulticastTTL: -1
+    Server:
+        AdminServer:
+            ListenAddress: 127.0.0.1
+            ListenPort: 7001
+        s1:
+            ListenAddress: 127.0.0.1
+            ListenPort: 8001
+            Cluster: mycluster
+        s2:
+            ListenAddress: 127.0.0.1
+            ListenPort: 8101
+            Cluster: mycluster
+resources:
+    JDBCSystemResource:
+        Generic1:
+            # This is just a test sample to validate lists of value processing
+            Target:
+                - mycluster
+                - AdminServer
+            JdbcResource:
+                JDBCDataSourceParams:
+                    JNDIName: [ jdbc/generic1, jdbc/special1 ]
+                    GlobalTransactionsProtocol: TwoPhaseCommit
+                JDBCDriverParams:
+                    DriverName: oracle.jdbc.xa.client.OracleXADataSource
+                    URL: 'jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=slc05til.us.oracle.com)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=orcl.us.oracle.com)))'
+                    PasswordEncrypted: welcome1
+                    Properties:
+                        user:
+                            Value: jshum
+                        oracle.net.CONNECT_TIMEOUT:
+                            Value: '5000'
+                        oracle.jdbc.ReadTimeout:
+                            Value: '30000'
+                        oracle.net.ssl_version:
+                            # this float should convert to string
+                            Value: 1.2
+                JDBCConnectionPoolParams:
+                    InitialCapacity: 3
+                    MaxCapacity: 15
+                    TestTableName: SQL ISVALID
+                    TestConnectionsOnReserve: true
+        Generic2:
+            Target: mycluster
+            JdbcResource:
+                JDBCDataSourceParams:
+                    JNDIName: [
+                        jdbc/generic2,
+                        jdbc/special2
+                    ]
+                    GlobalTransactionsProtocol: TwoPhaseCommit
+                JDBCDriverParams:
+                    DriverName: oracle.jdbc.xa.client.OracleXADataSource
+                    URL : 'jdbc:oracle:thin:@//den00chv.us.oracle.com:1521/PDBORCL'
+                    PasswordEncrypted: welcome1
+                    Properties:
+                        user:
+                            Value: jshum
+                        oracle.net.CONNECT_TIMEOUT:
+                            Value: '5000'
+                        oracle.jdbc.ReadTimeout:
+                            Value: '30000'
+                        oracle.net.ssl_version:
+                            # this float string should convert to string
+                            Value: '1.2'
+                JDBCConnectionPoolParams:
+                    InitialCapacity: 3
+                    MaxCapacity: 15                         # This is a comment
+                    TestTableName: SQL ISVALID              # This is a comment
+                    TestConnectionsOnReserve: true          # This is a comment
+
+# This is a comment
+appDeployments:
+    Application:
+        # Quote needed because of hyphen in string
+        'get-listen-address-app':
+            SourcePath: 'wlsdeploy/applications/get-listen-address-app.war'
+            Target: mycluster
+            ModuleType: war
+            StagingMode: nostage
+            PlanStagingMode: nostage
+        simpleear :
+            SourcePath: wlsdeploy/applications/simpleear.ear
+            Target: mycluster
+            ModuleType: ear
+            StagingMode: nostage
+            PlanStagingMode : nostage
