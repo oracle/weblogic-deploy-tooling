@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -24,6 +24,7 @@ from wlsdeploy.aliases.model_constants import SYSTEM_COMPONENT
 from wlsdeploy.aliases.model_constants import MIME_MAPPING_FILE
 from wlsdeploy.aliases.model_constants import COHERENCE_RESOURCE
 from wlsdeploy.aliases.model_constants import COHERENCE_CUSTOM_CLUSTER_CONFIGURATION
+from wlsdeploy.aliases.model_constants import COHERENCE_USE_CUSTOM_CLUSTER_CONFIG
 from oracle.weblogic.deploy.util.WLSDeployArchive import ARCHIVE_COHERENCE_TARGET_DIR
 
 from wlsdeploy.aliases.wlst_modes import WlstModes
@@ -187,25 +188,41 @@ class CommonResourcesDeployer(Deployer):
         try:
             domain_home = self.model_context.get_domain_home()
             for coherence_cluster in coherence_clusters:
+                cluster = coherence_clusters[coherence_cluster]
+                use_custom_config = dictionary_utils.get_dictionary_element(cluster,
+                                                                            COHERENCE_USE_CUSTOM_CLUSTER_CONFIG)
+
+                if use_custom_config:
+                    self._copy_custom_config_file_to_destination(cluster, coherence_cluster, domain_home)
+                else:
+                    continue
+
+        except Exception, e:
+            ex = exception_helper.create_deploy_exception('WLSDPLY-09406', e)
+            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+
+    def _copy_custom_config_file_to_destination(self, cluster, coherence_cluster, domain_home):
+        coh_resource = dictionary_utils.get_dictionary_element(cluster, COHERENCE_RESOURCE)
+        if coh_resource:
+            custom_path = dictionary_utils.get_dictionary_element(coh_resource,
+                                                           COHERENCE_CUSTOM_CLUSTER_CONFIGURATION)
+
+            if custom_path is not None:
                 coh_cluster_config_path = os.path.join(domain_home, 'config', 'coherence', coherence_cluster)
                 if not os.path.exists(coh_cluster_config_path):
                     os.mkdir(coh_cluster_config_path)
-                path = coherence_clusters[coherence_cluster][COHERENCE_RESOURCE][COHERENCE_CUSTOM_CLUSTER_CONFIGURATION]
-                if path.startswith(ARCHIVE_COHERENCE_TARGET_DIR):
+                if custom_path.startswith(ARCHIVE_COHERENCE_TARGET_DIR):
                     # this is the extracted path from the archive
-                    config_filepath = os.path.join(domain_home, path)
+                    config_filepath = os.path.join(domain_home, custom_path)
                 else:
                     # absolute path
-                    config_filepath = path
+                    config_filepath = custom_path
 
                 if os.path.exists(config_filepath):
                     shutil.copy(config_filepath, coh_cluster_config_path)
-                    if path.startswith(ARCHIVE_COHERENCE_TARGET_DIR):
+                    if custom_path.startswith(ARCHIVE_COHERENCE_TARGET_DIR):
                         os.remove(config_filepath)
-        except Exception, e:
-            ex = exception_helper.create_deploy_exception('WLSDPLY-09406', e.getLocalizedMessage())
-            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-            raise ex
 
     def add_webapp_container(self, parent_dict, location):
         """
