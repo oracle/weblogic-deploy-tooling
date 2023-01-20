@@ -293,6 +293,8 @@ public class WLSDeployArchive {
                 break;
 
             case COHERENCE:
+            case COHERENCE_CONFIG:
+            case COHERENCE_PERSISTENCE_DIR:
                 pathPrefix = ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP;
                 break;
 
@@ -320,7 +322,9 @@ public class WLSDeployArchive {
                 pathPrefix = ARCHIVE_CUSTOM_TARGET_DIR + ZIP_SEP;
                 break;
 
-            // FIXME - need to log if receiving an unknown type
+            default:
+                LOGGER.warning("WLSDPLY-01438", type.name());
+                break;
         }
 
         LOGGER.exiting(CLASS, METHOD, pathPrefix);
@@ -342,25 +346,12 @@ public class WLSDeployArchive {
         return pathPrefix;
     }
 
-    public static String getPathForSegregationType(ArchiveEntryType type, String segregationName, String name) {
-        final String METHOD = "getPathForSegregationType";
-        LOGGER.entering(CLASS, METHOD, type, segregationName, name);
-
-        String pathPrefix = getPathForSegregationType(type, segregationName);
-        if (!StringUtils.isEmpty(pathPrefix) && !StringUtils.isEmpty(name)) {
-            pathPrefix += name;
-        }
-
-        LOGGER.exiting(CLASS, METHOD, pathPrefix);
-        return pathPrefix;
-    }
-
-        /**
-         * Get archive path for the application name for use in the model.
-         *
-         * @param appPath name of the application
-         * @return archive path for use in the model
-         */
+    /**
+      * Get archive path for the application name for use in the model.
+      *
+      * @param appPath name of the application
+      * @return archive path for use in the model
+      */
     public static String getApplicationArchivePath(String appPath) {
         return getArchiveName(ARCHIVE_APPS_TARGET_DIR, appPath);
     }
@@ -977,6 +968,68 @@ public class WLSDeployArchive {
         LOGGER.exiting(CLASS, METHOD);
     }
 
+    /**
+     * Remove the named application from the archive file.  If this is the only application
+     * in the archive file, the application directory entry will also be removed, if present.
+     *
+     * @param appPath The application name (e.g., foo.ear) or the archive path
+     *                to it (e.g., wlsdeploy/applications/foo.ear)
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the app is not present or an IOException occurred while
+     *                                      reading the archive or writing the file
+     * @throws IllegalArgumentException     if the appPath is null or empty
+     */
+    public int  removeApplication(String appPath) throws WLSDeployArchiveIOException {
+        return removeApplication(appPath, false);
+    }
+
+    /**
+     * Remove the named application from the archive file.  If this is the only application
+     * in the archive file, the application directory entry will also be removed, if present.
+     *
+     * @param appPath The application name (e.g., foo.ear) or the archive path
+     *                to it (e.g., wlsdeploy/applications/foo.ear)
+     * @param silent  If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the app is not present (and silent = false) or an IOException
+     *                                      occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the appPath is null or empty
+     */
+    public int removeApplication(String appPath, boolean silent) throws WLSDeployArchiveIOException {
+        final String METHOD = "removeApplication";
+        LOGGER.entering(CLASS, METHOD, appPath, silent);
+
+        validateNonEmptyString(appPath, "appPath", METHOD);
+
+        String archivePath;
+        String appName;
+        if (appPath.startsWith(ARCHIVE_APPS_TARGET_DIR + ZIP_SEP)) {
+            archivePath = appPath;
+            appName = getNameFromPath(archivePath, ARCHIVE_APPS_TARGET_DIR.length() + 2);
+        } else {
+            archivePath = ARCHIVE_APPS_TARGET_DIR + ZIP_SEP + appPath;
+            appName = appPath;
+        }
+
+        List<String> zipEntries = getArchiveEntries(ArchiveEntryType.APPLICATION, appName);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex =
+                new WLSDeployArchiveIOException("WLSDPLY-01440", appName, getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyTypeDir(ArchiveEntryType.APPLICATION, ARCHIVE_APPS_TARGET_DIR + ZIP_SEP);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //                               application plan methods                                    //
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1035,6 +1088,8 @@ public class WLSDeployArchive {
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
     }
+
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //                            structured application methods                                 //
@@ -3141,6 +3196,39 @@ public class WLSDeployArchive {
         if (endIndex != -1) {
             result = walletFileName.substring(0, endIndex);
         }
+        return result;
+    }
+
+    private String getNameFromPath(String path, int startIndex) throws WLSDeployArchiveIOException {
+        final String METHOD = "getNameFromPath";
+        LOGGER.entering(CLASS, METHOD, path, startIndex);
+
+        String result;
+        if (!StringUtils.isEmpty(path) && path.length() >= startIndex) {
+            result = path.substring(startIndex);
+        } else {
+            WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01439", startIndex, path);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    private int removeEmptyTypeDir(ArchiveEntryType type, String prefixPath) throws WLSDeployArchiveIOException {
+        final String METHOD = "removeEmptyTypeDir";
+        LOGGER.entering(CLASS, METHOD, type.name(), prefixPath);
+
+        List<String> zipEntries = getArchiveEntries(type);
+
+        int result = 0;
+        if (zipEntries.size() == 1 && prefixPath.equals(zipEntries.get(0))) {
+            getZipFile().removeZipEntry(zipEntries.get(0));
+            result = 1;
+        }
+
+        LOGGER.exiting(CLASS, METHOD, result);
         return result;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.tool;
@@ -11,7 +11,6 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -23,6 +22,37 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.APPLICATIONS_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.CLASSPATH_LIBS_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.CLASSPATH_LIB_BAR_JAR_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.COHERENCE_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.COHERENCE_MYCLUSTER2_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.COHERENCE_MYCLUSTER_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.CUSTOM_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.CUSTOM_FOO_PROPERTIES_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.CUSTOM_MYDIR_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.DATABASE_WALLET_RCU_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.DATABASE_WALLET_WALLET1_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.DOMAIN_BIN_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.DOMAIN_BIN_SET_USER_OVERRIDES_SH_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.DOMAIN_LIB_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.DOMAIN_LIB_FOO_JAR_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.FILE_STORES_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.FILE_STORES_FS2_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.MIME_MAPPINGS_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.MIME_MAPPING_PROPERTIES_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.MY_APP_WAR_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.MY_OTHER_APP_DIR_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.NODE_MANAGER_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.NODE_MANAGER_TRUST_JKS_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.OPSS_WALLET_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_FANCY_SCRIPT_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVERS_ADMIN_SERVER_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVERS_ADMIN_SERVER_TRUST_JKS_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.STRUCTURED_APPS_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.STRUCTURED_APP_WEBAPP_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.STRUCTURED_APP_WEBAPP1_CONTENTS;
 import static oracle.weblogic.deploy.util.WLSDeployArchive.DEFAULT_RCU_WALLET_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -38,159 +68,29 @@ public class ArchiveHelperListTest {
         new File(UNIT_TEST_TARGET_DIR, "archive-helper-test.zip").toPath();
     private static final String ARCHIVE_HELPER_VALUE = ARCHIVE_HELPER_TARGET_ZIP.toFile().getAbsolutePath();
 
-    private static final String[] LIST_APP_FILE_EXPECTED = new String[] {"wlsdeploy/applications/my-app.war"};
+    private static final String[] LIST_APP_FILE_EXPECTED = MY_APP_WAR_CONTENTS;
+    private static final String[] LIST_APP_DIR_EXPECTED = MY_OTHER_APP_DIR_CONTENTS;
+    private static final String[] LIST_APPS_EXPECTED = APPLICATIONS_CONTENT;
 
-    private static final String[] LIST_APP_DIR_EXPECTED = new String[] {
-        "wlsdeploy/applications/my-other-app/",
-        "wlsdeploy/applications/my-other-app/META-INF/",
-        "wlsdeploy/applications/my-other-app/META-INF/maven/",
-        "wlsdeploy/applications/my-other-app/META-INF/maven/oracle.jcs.lifecycle/",
-        "wlsdeploy/applications/my-other-app/META-INF/maven/oracle.jcs.lifecycle/get-listen-address-app/",
-        "wlsdeploy/applications/my-other-app/META-INF/maven/oracle.jcs.lifecycle/get-listen-address-app/pom.properties",
-        "wlsdeploy/applications/my-other-app/META-INF/maven/oracle.jcs.lifecycle/get-listen-address-app/pom.xml",
-        "wlsdeploy/applications/my-other-app/META-INF/MANIFEST.MF",
-        "wlsdeploy/applications/my-other-app/WEB-INF/",
-        "wlsdeploy/applications/my-other-app/WEB-INF/classes/",
-        "wlsdeploy/applications/my-other-app/WEB-INF/classes/com/",
-        "wlsdeploy/applications/my-other-app/WEB-INF/classes/com/oracle/",
-        "wlsdeploy/applications/my-other-app/WEB-INF/classes/com/oracle/platform/",
-        "wlsdeploy/applications/my-other-app/WEB-INF/classes/com/oracle/platform/GetListenAddressServlet.class",
-        "wlsdeploy/applications/my-other-app/WEB-INF/classes/com/oracle/platform/ListenAddressAndPort.class",
-        "wlsdeploy/applications/my-other-app/WEB-INF/web.xml",
-        "wlsdeploy/applications/my-other-app/WEB-INF/weblogic.xml"
-    };
+    private static final String[] LIST_CP_LIBS_EXPECTED = CLASSPATH_LIBS_CONTENT;
 
-    private static final String[] LIST_CP_LIBS_EXPECTED = new String[] {
-        "wlsdeploy/classpathLibraries/",
-        "wlsdeploy/classpathLibraries/bar.jar"
-    };
+    private static final String[] LIST_COH_MYCLUSTER_EXPECTED = COHERENCE_MYCLUSTER_CONTENTS;
+    private static final String[] LIST_COH_MYCLUSTER2_EXPECTED = COHERENCE_MYCLUSTER2_CONTENTS;
+    private static final String[] LIST_COH_EXPECTED = COHERENCE_CONTENT;
 
-    private static final String[] LIST_COH_MYCLUSTER_EXPECTED = new String[] {
-        "wlsdeploy/coherence/mycluster/",
-        "wlsdeploy/coherence/mycluster/active/",
-        "wlsdeploy/coherence/mycluster/snapshot/",
-        "wlsdeploy/coherence/mycluster/trash/",
-        "wlsdeploy/coherence/mycluster/cache-config.xml"
-    };
+    private static final String[] LIST_MIME_MAPPINGS_EXPECTED = MIME_MAPPINGS_CONTENT;
+    private static final String[] LIST_MIME_MAPPINGS_PROPERTIES_EXPECTED = MIME_MAPPING_PROPERTIES_CONTENTS;
 
-    private static final String[] LIST_COH_MYCLUSTER2_EXPECTED = new String[] {
-        "wlsdeploy/coherence/mycluster2/",
-        "wlsdeploy/coherence/mycluster2/snapshot/",
-        "wlsdeploy/coherence/mycluster2/cache-config.xml"
-    };
+    private static final String[] LIST_CUSTOM_MYDIR_EXPECTED = CUSTOM_MYDIR_CONTENTS;
+    private static final String[] LIST_CUSTOM_EXPECTED = CUSTOM_CONTENT;
 
-    private static final String[] LIST_MIME_MAPPINGS_EXPECTED = new String[] {
-        "wlsdeploy/config/",
-        "wlsdeploy/config/mimemappings.properties"
-    };
+    private static final String[] LIST_RCU_WALLET_EXPECTED = DATABASE_WALLET_RCU_CONTENTS;
+    private static final String[] LIST_WALLET1_EXPECTED = DATABASE_WALLET_WALLET1_CONTENTS;
 
-    private static final String[] LIST_MIME_MAPPINGS_PROPERTIES_EXPECTED = new String[] {
-        "wlsdeploy/config/mimemappings.properties"
-    };
+    private static final String[] LIST_STRUCTURED_APP_WEBAPP_EXPECTED = STRUCTURED_APP_WEBAPP_CONTENTS;
+    private static final String[] LIST_STRUCTURED_APP_WEBAPP1_EXPECTED = STRUCTURED_APP_WEBAPP1_CONTENTS;
+    private static final String[] LIST_STRUCTURED_APPS_EXPECTED = STRUCTURED_APPS_CONTENT;
 
-    private static final String[] LIST_CUSTOM_MYDIR_EXPECTED = new String[] {
-        "wlsdeploy/custom/mydir/",
-        "wlsdeploy/custom/mydir/bar.properties"
-    };
-
-    private static final String[] LIST_CUSTOM_EXPECTED = new String[] {
-        "wlsdeploy/custom/",
-        "wlsdeploy/custom/mydir/",
-        "wlsdeploy/custom/mydir/bar.properties",
-        "wlsdeploy/custom/foo.properties"
-    };
-
-    private static final String[] LIST_RCU_WALLET_EXPECTED = new String[] {
-        "wlsdeploy/dbWallets/rcu/",
-        "wlsdeploy/dbWallets/rcu/cwallet.sso",
-        "wlsdeploy/dbWallets/rcu/ewallet.p12",
-        "wlsdeploy/dbWallets/rcu/ewallet.pem",
-        "wlsdeploy/dbWallets/rcu/keystore.jks",
-        "wlsdeploy/dbWallets/rcu/ojdbc.properties",
-        "wlsdeploy/dbWallets/rcu/README",
-        "wlsdeploy/dbWallets/rcu/sqlnet.ora",
-        "wlsdeploy/dbWallets/rcu/tnsnames.ora",
-        "wlsdeploy/dbWallets/rcu/truststore.jks"
-    };
-
-    private static final String[] LIST_WALLET1_EXPECTED = new String[] {
-        "wlsdeploy/dbWallets/wallet1/",
-        "wlsdeploy/dbWallets/wallet1/atpwallet.zip"
-    };
-
-    private static final String[] LIST_STRUCTURED_APP_WEBAPP_EXPECTED = new String[] {
-        "wlsdeploy/structuredApplications/webapp/",
-        "wlsdeploy/structuredApplications/webapp/app/",
-        "wlsdeploy/structuredApplications/webapp/app/META-INF/",
-        "wlsdeploy/structuredApplications/webapp/app/META-INF/MANIFEST.MF",
-        "wlsdeploy/structuredApplications/webapp/app/WEB-INF/",
-        "wlsdeploy/structuredApplications/webapp/app/WEB-INF/classes/",
-        "wlsdeploy/structuredApplications/webapp/app/WEB-INF/classes/com/",
-        "wlsdeploy/structuredApplications/webapp/app/WEB-INF/classes/com/oracle/",
-        "wlsdeploy/structuredApplications/webapp/app/WEB-INF/classes/com/oracle/weblogic/",
-        "wlsdeploy/structuredApplications/webapp/app/WEB-INF/classes/com/oracle/weblogic/example/",
-        "wlsdeploy/structuredApplications/webapp/app/WEB-INF/classes/com/oracle/weblogic/example/HelloServlet.class",
-        "wlsdeploy/structuredApplications/webapp/app/WEB-INF/classes/hello.properties",
-        "wlsdeploy/structuredApplications/webapp/app/WEB-INF/web.xml",
-        "wlsdeploy/structuredApplications/webapp/plan/",
-        "wlsdeploy/structuredApplications/webapp/plan/AppFileOverrides/",
-        "wlsdeploy/structuredApplications/webapp/plan/AppFileOverrides/hello.properties",
-        "wlsdeploy/structuredApplications/webapp/plan/WEB-INF/",
-        "wlsdeploy/structuredApplications/webapp/plan/WEB-INF/weblogic.xml",
-        "wlsdeploy/structuredApplications/webapp/plan/plan.xml"
-    };
-
-    private static final String[] LIST_STRUCTURED_APP_WEBAPP1_EXPECTED = new String[] {
-        "wlsdeploy/structuredApplications/webapp1/",
-        "wlsdeploy/structuredApplications/webapp1/app/",
-        "wlsdeploy/structuredApplications/webapp1/app/webapp.war",
-        "wlsdeploy/structuredApplications/webapp1/plan1/",
-        "wlsdeploy/structuredApplications/webapp1/plan1/AppFileOverrides/",
-        "wlsdeploy/structuredApplications/webapp1/plan1/AppFileOverrides/hello.properties",
-        "wlsdeploy/structuredApplications/webapp1/plan1/WEB-INF/",
-        "wlsdeploy/structuredApplications/webapp1/plan1/WEB-INF/weblogic.xml",
-        "wlsdeploy/structuredApplications/webapp1/plan1/plan.xml",
-        "wlsdeploy/structuredApplications/webapp1/plan2/",
-        "wlsdeploy/structuredApplications/webapp1/plan2/AppFileOverrides/",
-        "wlsdeploy/structuredApplications/webapp1/plan2/AppFileOverrides/hello.properties",
-        "wlsdeploy/structuredApplications/webapp1/plan2/WEB-INF/",
-        "wlsdeploy/structuredApplications/webapp1/plan2/WEB-INF/weblogic.xml",
-        "wlsdeploy/structuredApplications/webapp1/plan2/plan.xml"
-    };
-
-    private static final String[] LIST_APPS_EXPECTED;
-    private static final String[] LIST_COH_EXPECTED;
-
-    private static final String[] LIST_STRUCTURED_APPS_EXPECTED;
-
-    static {
-        String[] files = new String[] {
-            "wlsdeploy/applications/",
-            "wlsdeploy/applications/my-app.war",
-            "wlsdeploy/applications/my-app.xml",
-            "wlsdeploy/applications/my-other-app.war"
-        };
-        LIST_APPS_EXPECTED = new String[LIST_APP_DIR_EXPECTED.length + files.length];
-
-        System.arraycopy(files, 0, LIST_APPS_EXPECTED, 0, files.length);
-        System.arraycopy(LIST_APP_DIR_EXPECTED, 0, LIST_APPS_EXPECTED,
-            files.length, LIST_APP_DIR_EXPECTED.length);
-
-        LIST_COH_EXPECTED = new String[LIST_COH_MYCLUSTER_EXPECTED.length + LIST_COH_MYCLUSTER2_EXPECTED.length + 1];
-        LIST_COH_EXPECTED[0] = "wlsdeploy/coherence/";
-        System.arraycopy(LIST_COH_MYCLUSTER_EXPECTED, 0, LIST_COH_EXPECTED,1,
-            LIST_COH_MYCLUSTER_EXPECTED.length);
-        System.arraycopy(LIST_COH_MYCLUSTER2_EXPECTED, 0, LIST_COH_EXPECTED,
-            LIST_COH_MYCLUSTER_EXPECTED.length + 1, LIST_COH_MYCLUSTER2_EXPECTED.length);
-
-        LIST_STRUCTURED_APPS_EXPECTED = new String[LIST_STRUCTURED_APP_WEBAPP_EXPECTED.length +
-            LIST_STRUCTURED_APP_WEBAPP1_EXPECTED.length + 1];
-        LIST_STRUCTURED_APPS_EXPECTED[0] = "wlsdeploy/structuredApplications/";
-        System.arraycopy(LIST_STRUCTURED_APP_WEBAPP_EXPECTED, 0, LIST_STRUCTURED_APPS_EXPECTED, 1,
-            LIST_STRUCTURED_APP_WEBAPP_EXPECTED.length);
-        System.arraycopy(LIST_STRUCTURED_APP_WEBAPP1_EXPECTED, 0, LIST_STRUCTURED_APPS_EXPECTED,
-            LIST_STRUCTURED_APP_WEBAPP_EXPECTED.length + 1, LIST_STRUCTURED_APP_WEBAPP1_EXPECTED.length);
-    }
 
     @BeforeAll
     static void initialize() throws Exception {
@@ -410,7 +310,7 @@ public class ArchiveHelperListTest {
             "-name",
             "bar.jar"
         };
-        List<String> expectedPaths = Collections.singletonList("wlsdeploy/classpathLibraries/bar.jar");
+        List<String> expectedPaths = Arrays.asList(CLASSPATH_LIB_BAR_JAR_CONTENTS);
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);
@@ -636,7 +536,7 @@ public class ArchiveHelperListTest {
             "-name",
             "foo.properties"
         };
-        List<String> expectedPaths = Collections.singletonList("wlsdeploy/custom/foo.properties");
+        List<String> expectedPaths = Arrays.asList(CUSTOM_FOO_PROPERTIES_CONTENTS);
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);
@@ -748,7 +648,7 @@ public class ArchiveHelperListTest {
             "-archive_file",
             ARCHIVE_HELPER_VALUE
         };
-        List<String> expectedPaths = Arrays.asList("wlsdeploy/domainBin/", "wlsdeploy/domainBin/setUserOverrides.sh");
+        List<String> expectedPaths = Arrays.asList(DOMAIN_BIN_CONTENT);
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);
@@ -777,7 +677,7 @@ public class ArchiveHelperListTest {
             "-name",
             "setUserOverrides.sh"
         };
-        List<String> expectedPaths = Collections.singletonList("wlsdeploy/domainBin/setUserOverrides.sh");
+        List<String> expectedPaths = Arrays.asList(DOMAIN_BIN_SET_USER_OVERRIDES_SH_CONTENTS);
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);
@@ -804,7 +704,7 @@ public class ArchiveHelperListTest {
             "-archive_file",
             ARCHIVE_HELPER_VALUE
         };
-        List<String> expectedPaths = Arrays.asList("wlsdeploy/domainLibraries/", "wlsdeploy/domainLibraries/foo.jar");
+        List<String> expectedPaths = Arrays.asList(DOMAIN_LIB_CONTENT);
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);
@@ -833,7 +733,7 @@ public class ArchiveHelperListTest {
             "-name",
             "foo.jar"
         };
-        List<String> expectedPaths = Collections.singletonList("wlsdeploy/domainLibraries/foo.jar");
+        List<String> expectedPaths = Arrays.asList(DOMAIN_LIB_FOO_JAR_CONTENTS);
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);
@@ -860,11 +760,7 @@ public class ArchiveHelperListTest {
             "-archive_file",
             ARCHIVE_HELPER_VALUE
         };
-        List<String> expectedPaths = Arrays.asList(
-            "wlsdeploy/nodeManager/",
-            "wlsdeploy/nodeManager/nmIdentity.jks",
-            "wlsdeploy/nodeManager/nmTrust.jks"
-        );
+        List<String> expectedPaths = Arrays.asList(NODE_MANAGER_CONTENT);
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);
@@ -893,7 +789,7 @@ public class ArchiveHelperListTest {
             "-name",
             "nmTrust.jks"
         };
-        List<String> expectedPaths = Collections.singletonList("wlsdeploy/nodeManager/nmTrust.jks");
+        List<String> expectedPaths = Arrays.asList(NODE_MANAGER_TRUST_JKS_CONTENTS);
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);
@@ -920,10 +816,7 @@ public class ArchiveHelperListTest {
             "-archive_file",
             ARCHIVE_HELPER_VALUE
         };
-        List<String> expectedPaths = Arrays.asList(
-            "wlsdeploy/opsswallet/",
-            "wlsdeploy/opsswallet/opss-wallet.zip"
-        );
+        List<String> expectedPaths = Arrays.asList(OPSS_WALLET_CONTENT);
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);
@@ -950,10 +843,7 @@ public class ArchiveHelperListTest {
             "-archive_file",
             ARCHIVE_HELPER_VALUE
         };
-        List<String> expectedPaths = Arrays.asList(
-            "wlsdeploy/scripts/",
-            "wlsdeploy/scripts/my_fancy_script.sh"
-        );
+        List<String> expectedPaths = Arrays.asList(SCRIPTS_CONTENT);
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);
@@ -982,7 +872,7 @@ public class ArchiveHelperListTest {
             "-name",
             "my_fancy_script.sh"
         };
-        List<String> expectedPaths = Collections.singletonList("wlsdeploy/scripts/my_fancy_script.sh");
+        List<String> expectedPaths = Arrays.asList(SCRIPTS_FANCY_SCRIPT_CONTENTS);
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);
@@ -1011,11 +901,7 @@ public class ArchiveHelperListTest {
             "-server_name",
             "AdminServer"
         };
-        List<String> expectedPaths = Arrays.asList(
-            "wlsdeploy/servers/AdminServer/",
-            "wlsdeploy/servers/AdminServer/identity.jks",
-            "wlsdeploy/servers/AdminServer/trust.jks"
-        );
+        List<String> expectedPaths = Arrays.asList(SERVERS_ADMIN_SERVER_CONTENTS);
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);
@@ -1046,7 +932,7 @@ public class ArchiveHelperListTest {
             "-name",
             "trust.jks"
         };
-        List<String> expectedPaths = Collections.singletonList("wlsdeploy/servers/AdminServer/trust.jks");
+        List<String> expectedPaths = Arrays.asList(SERVERS_ADMIN_SERVER_TRUST_JKS_CONTENTS);
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);
@@ -1073,12 +959,7 @@ public class ArchiveHelperListTest {
             "-archive_file",
             ARCHIVE_HELPER_VALUE
         };
-        List<String> expectedPaths = Arrays.asList(
-            "wlsdeploy/stores/",
-            "wlsdeploy/stores/fs1/",
-            "wlsdeploy/stores/fs2/",
-            "wlsdeploy/stores/fs3/"
-        );
+        List<String> expectedPaths = Arrays.asList(FILE_STORES_CONTENT);
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);
@@ -1107,7 +988,7 @@ public class ArchiveHelperListTest {
             "-name",
             "fs2"
         };
-        List<String> expectedPaths = Collections.singletonList("wlsdeploy/stores/fs2/");
+        List<String> expectedPaths = Arrays.asList(FILE_STORES_FS2_CONTENTS);
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);
