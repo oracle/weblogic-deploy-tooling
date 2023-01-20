@@ -674,10 +674,16 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if an error occurs
         """
+        if value is not None:
+            if value.startswith(ARCHIVE_COHERENCE_TARGET_DIR + os.sep):
+                # change from /wlsdeploy/coherence/<Cluster>/<filename> -->  coherence/<Cluster>/<filename>
+                value = value[len(WLSDPLY_ARCHIVE_BINARY_DIR + os.sep):]
+            else:
+                # The file will be copied to the $DOMAIN/config/coherence/<CLUSTER>
+                # changing the attribute value to the pattern coherence/<CLUSTER>/<filename>
+                cluster_name = location.get_name_for_token('COHERENCECLUSTER')
+                value = 'coherence/%s/%s' % (cluster_name, os.path.basename(value))
 
-        if value.startswith(ARCHIVE_COHERENCE_TARGET_DIR + os.sep):
-            # plus 1 for the file separator
-            value = value[len(WLSDPLY_ARCHIVE_BINARY_DIR + os.sep):]
         self.set_attribute(location, key, value, wlst_merge_value=wlst_value)
 
     #
