@@ -114,7 +114,24 @@ class CrdSchemaTest(unittest.TestCase):
                 subfolder = sub_folders[property_name]
                 in_array = property_name in object_array_keys
                 child_indent = this_indent + "  "
-                self._write_folder(subfolder, in_array, next_path, child_indent)
+
+                # if this folder has multiple options (oneOf), print each with comments
+                subfolder_options = [subfolder]
+                one_of_options = schema_helper.get_one_of_options(subfolder)
+                if one_of_options:
+                    subfolder_options = one_of_options
+
+                for index, subfolder_option in enumerate(subfolder_options):
+                    if one_of_options:
+                        self._write_line('')
+                        self._write_line(child_indent + "# option " + str(index + 1))
+
+                    # comment out options after the first
+                    subfolder_indent = child_indent
+                    if index > 0:
+                        subfolder_indent = subfolder_indent + "# "
+
+                    self._write_folder(subfolder_option, in_array, next_path, subfolder_indent)
 
     def _write_line(self, text):
         self.out_file.write(text + "\n")
