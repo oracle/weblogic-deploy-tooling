@@ -1,7 +1,8 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+import os
 from javax.management import ObjectName
 from org.python.modules import jarray
 
@@ -78,7 +79,8 @@ from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import model_helper
 import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
-
+from oracle.weblogic.deploy.util.WLSDeployArchive import ARCHIVE_COHERENCE_TARGET_DIR
+from oracle.weblogic.deploy.util.WLSDeployArchive import WLSDPLY_ARCHIVE_BINARY_DIR
 
 class AttributeSetter(object):
     """
@@ -662,6 +664,28 @@ class AttributeSetter(object):
             self.__weblogic_helper.encrypt(str_helper.to_string(value), self.__model_context.get_domain_home())
         self.set_attribute(location, key, encrypted_value, wlst_merge_value=wlst_value)
 
+    def set_coherence_cluster_custom_config_file(self, location, key, value, wlst_value):
+        """
+        Set the coherence cluster custom config file attribute correctly.  If the path starts with archive entry
+        location, then it should be set to coherence/<CLUSTER NAME>/<file name>
+        :param location: location
+        :param key: this should be CustomClusterConfigurationFileName
+        :param value: path of the config file
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if an error occurs
+        """
+        if value is not None:
+            if value.startswith(ARCHIVE_COHERENCE_TARGET_DIR + os.sep):
+                # change from /wlsdeploy/coherence/<Cluster>/<filename> -->  coherence/<Cluster>/<filename>
+                value = value[len(WLSDPLY_ARCHIVE_BINARY_DIR + os.sep):]
+            else:
+                # The file will be copied to the $DOMAIN/config/coherence/<CLUSTER>
+                # changing the attribute value to the pattern coherence/<CLUSTER>/<filename>
+                cluster_name = location.get_name_for_token('COHERENCECLUSTER')
+                value = 'coherence/%s/%s' % (cluster_name, os.path.basename(value))
+
+        self.set_attribute(location, key, value, wlst_merge_value=wlst_value)
+
     #
     # public set_attribute convenience methods
     #
@@ -1048,3 +1072,4 @@ class AttributeSetter(object):
                 result.append(item)
 
         return result
+
