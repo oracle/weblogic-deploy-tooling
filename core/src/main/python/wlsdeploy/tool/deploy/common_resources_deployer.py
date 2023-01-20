@@ -22,10 +22,14 @@ from wlsdeploy.aliases.model_constants import WTC_SERVER
 from wlsdeploy.aliases.model_constants import SINGLETON_SERVICE
 from wlsdeploy.aliases.model_constants import SYSTEM_COMPONENT
 from wlsdeploy.aliases.model_constants import MIME_MAPPING_FILE
+from wlsdeploy.aliases.model_constants import COHERENCE_RESOURCE
+from wlsdeploy.aliases.model_constants import COHERENCE_CUSTOM_CLUSTER_CONFIGURATION
+
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.tool.deploy.deployer import Deployer
 from wlsdeploy.util import dictionary_utils
-
+from wlsdeploy.exception import exception_helper
+import os, shutil
 
 class CommonResourcesDeployer(Deployer):
     """
@@ -169,8 +173,30 @@ class CommonResourcesDeployer(Deployer):
         :param parent_dict: the dictionary possibly containing coherence cluster elements
         :param location: the location to deploy the elements
         """
-        file_stores = dictionary_utils.get_dictionary_element(parent_dict, COHERENCE_CLUSTER_SYSTEM_RESOURCE)
-        self._add_named_elements(COHERENCE_CLUSTER_SYSTEM_RESOURCE, file_stores, location)
+        coherence_clusters = dictionary_utils.get_dictionary_element(parent_dict, COHERENCE_CLUSTER_SYSTEM_RESOURCE)
+        self._add_named_elements(COHERENCE_CLUSTER_SYSTEM_RESOURCE, coherence_clusters, location)
+
+        self._make_coh_cluster_custom_config_available(coherence_clusters)
+
+    def _make_coh_cluster_custom_config_available(self, coherence_clusters):
+        # The coherence cluster custom configuration file must be within the config/coherence/<cluster>
+        #
+        _method_name = '_make_coh_cluster_custom_config_available'
+        try:
+            domain_home = self.model_context.get_domain_home()
+            for coherence_cluster in coherence_clusters:
+                new_path = os.path.join(domain_home, 'config', 'coherence', coherence_cluster)
+                if not os.path.exists(new_path):
+                    os.mkdir(new_path)
+                extracted_config_filepath = os.path.join(domain_home,
+                    coherence_clusters[coherence_cluster][COHERENCE_RESOURCE][COHERENCE_CUSTOM_CLUSTER_CONFIGURATION])
+                if os.path.exists(extracted_config_filepath):
+                    shutil.copy(extracted_config_filepath, new_path)
+                    os.remove(extracted_config_filepath)
+        except Exception, e:
+            ex = exception_helper.create_deploy_exception('WLSDPLY-09406', e.getLocalizedMessage())
+            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
 
     def add_webapp_container(self, parent_dict, location):
         """
