@@ -19,7 +19,8 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
     name = "mimeMapping",
-    description = "%nAdd MIME mapping file to the archive file:",
+    header = "Add MIME mapping file to the archive file.",
+    description = "%nCommand-line options:",
     sortOptions = false
 )
 public class AddMIMEMappingCommand extends AddTypeCommandBase {

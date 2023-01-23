@@ -14,7 +14,8 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.COHERENCE;
 @Command(
     name = "coherence",
-    description = "%nList Coherence entries in the archive file:",
+    header = "List Coherence entries in the archive file.",
+    description = "%nCommand-line options:",
     sortOptions = false
 )
 public class ListCoherenceCommand extends ListTypeCommandBase {

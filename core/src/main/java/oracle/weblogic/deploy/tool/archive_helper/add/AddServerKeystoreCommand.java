@@ -19,7 +19,8 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
     name = "serverKeystore",
-    description = "%nAdd a server keystore to the archive file:",
+    header = "Add a server keystore to the archive file.",
+    description = "%nCommand-line options:",
     sortOptions = false
 )
 public class AddServerKeystoreCommand extends AddTypeCommandBase {

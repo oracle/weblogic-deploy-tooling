@@ -15,7 +15,8 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.OPSS
 
 @Command(
     name = "opssWallet",
-    description = "%nList OPSS wallet entries in the archive file:",
+    header = "List OPSS wallet entries in the archive file.",
+    description = "%nCommand-line options:",
     sortOptions = false
 )
 public class ListOPSSWalletCommand extends ListTypeCommandBase {

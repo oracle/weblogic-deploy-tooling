@@ -2,9 +2,7 @@
  * Copyright (c) 2023, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
-package oracle.weblogic.deploy.tool.archive_helper.add;
-
-import java.io.File;
+package oracle.weblogic.deploy.tool.archive_helper.remove;
 
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
@@ -19,26 +17,25 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
     name = "domainLibrary",
-    header = "Add domain library to the archive file.",
+    header = "Remove domain library from the archive file.",
     description = "%nCommand-line options:",
     sortOptions = false
 )
-public class AddDomainLibraryCommand extends AddTypeCommandBase {
-    private static final String CLASS = AddDomainLibraryCommand.class.getName();
+public class RemoveDomainLibraryCommand extends RemoveTypeCommandBase {
+    private static final String CLASS = RemoveDomainLibraryCommand.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
     private static final String TYPE = "domain library";
 
     @Option(
-        names = {"-source"},
-        paramLabel = "<path>",
-        description = "File system path to the domain library to add",
+        names = {"-name"},
+        description = "Name of the domain library to be removed from the archive file",
         required = true
     )
-    private String sourcePath;
+    private String name;
 
     @Option(
         names = { "-help" },
-        description = "Get help for the archiveHelper add domainLibrary subcommand",
+        description = "Get help for the archiveHelper remove domainLibrary subcommand",
         usageHelp = true
     )
     private boolean helpRequested = false;
@@ -49,27 +46,26 @@ public class AddDomainLibraryCommand extends AddTypeCommandBase {
         LOGGER.entering(CLASS, METHOD);
 
         CommandResponse response;
-        File sourceFile;
         try {
-            sourceFile = initializeOptions(this.sourcePath);
+            initializeOptions();
 
-            String resultName;
-            if (this.overwrite) {
-                resultName = this.archive.replaceDomainLibLibrary(sourceFile.getName(), sourceFile.getPath());
+            int entriesRemoved;
+            if (this.force) {
+                entriesRemoved = this.archive.removeDomainLibrary(name, true);
             } else {
-                resultName = this.archive.addDomainLibLibrary(sourceFile.getPath());
+                entriesRemoved = this.archive.removeDomainLibrary(name);
             }
-            response = new CommandResponse(ExitCode.OK, resultName);
+            response = new CommandResponse(ExitCode.OK, "WLSDPLY-30026", TYPE, this.name,
+                entriesRemoved, this.archiveFilePath);
         } catch (ArchiveHelperException ex) {
-            LOGGER.severe("WLSDPLY-30010", ex, TYPE, this.sourcePath,
+            LOGGER.severe("WLSDPLY-30027", ex, TYPE, this.name, this.archiveFilePath, ex.getLocalizedMessage());
+            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30027", ex, TYPE, this.name,
                 this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30010", TYPE,
-                this.sourcePath, this.archiveFilePath, ex.getLocalizedMessage());
         } catch (WLSDeployArchiveIOException | IllegalArgumentException ex) {
-            LOGGER.severe("WLSDPLY-30011", ex, TYPE, this.sourcePath,
-                this.overwrite, this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30011", TYPE,
-                this.sourcePath, this.overwrite, this.archiveFilePath, ex.getLocalizedMessage());
+            LOGGER.severe("WLSDPLY-30028", ex, TYPE, this.name, this.force,
+                this.archiveFilePath, ex.getLocalizedMessage());
+            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30028", ex, TYPE, this.name, this.force,
+                this.archiveFilePath, ex.getLocalizedMessage());
         }
 
         LOGGER.exiting(CLASS, METHOD, response);

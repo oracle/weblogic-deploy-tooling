@@ -32,10 +32,7 @@ import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 public class WLSDeployArchive {
     private static final String CLASS = WLSDeployArchive.class.getName();
 
-    // Used by the unit tests so it requires package level scoping...
-    //
-    /* package */
-    static final String ZIP_SEP = "/";
+    public static final String ZIP_SEP = "/";
 
     public static final String WLSDPLY_ARCHIVE_BINARY_DIR = "wlsdeploy";
 
@@ -257,10 +254,12 @@ public class WLSDeployArchive {
         String pathPrefix = null;
         switch(type) {
             case APPLICATION:
+            case APPLICATION_PLAN:
                 pathPrefix = ARCHIVE_APPS_TARGET_DIR + ZIP_SEP;
                 break;
 
             case SHARED_LIBRARY:
+            case SHLIB_PLAN:
                 pathPrefix = ARCHIVE_SHLIBS_TARGET_DIR + ZIP_SEP;
                 break;
 
@@ -969,8 +968,8 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Remove the named application from the archive file.  If this is the only application
-     * in the archive file, the application directory entry will also be removed, if present.
+     * Remove the named application from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
      *
      * @param appPath The application name (e.g., foo.ear) or the archive path
      *                to it (e.g., wlsdeploy/applications/foo.ear)
@@ -979,13 +978,13 @@ public class WLSDeployArchive {
      *                                      reading the archive or writing the file
      * @throws IllegalArgumentException     if the appPath is null or empty
      */
-    public int  removeApplication(String appPath) throws WLSDeployArchiveIOException {
+    public int removeApplication(String appPath) throws WLSDeployArchiveIOException {
         return removeApplication(appPath, false);
     }
 
     /**
-     * Remove the named application from the archive file.  If this is the only application
-     * in the archive file, the application directory entry will also be removed, if present.
+     * Remove the named application from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
      *
      * @param appPath The application name (e.g., foo.ear) or the archive path
      *                to it (e.g., wlsdeploy/applications/foo.ear)
@@ -1089,7 +1088,67 @@ public class WLSDeployArchive {
         return newName;
     }
 
+    /**
+     * Remove the named application deployment plan from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param planPath The application deployment plan name (e.g., foo.xml) or the archive path
+     *                 to it (e.g., wlsdeploy/applications/foo.xml)
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the app deployment plan is not present or an IOException occurred while
+     *                                      reading the archive or writing the file
+     * @throws IllegalArgumentException     if the planPath is null or empty
+     */
+    public int removeApplicationDeploymentPlan(String planPath) throws WLSDeployArchiveIOException {
+        return removeApplicationDeploymentPlan(planPath, false);
+    }
 
+    /**
+     * Remove the named application deployment plan from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param planPath The application deployment plan name (e.g., foo.xml) or the archive path
+     *                 to it (e.g., wlsdeploy/applications/foo.xml)
+     * @param silent   If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the app deployment plan is not present (and silent = false) or
+     *                                      an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the appPath is null or empty
+     */
+    public int removeApplicationDeploymentPlan(String planPath, boolean silent) throws WLSDeployArchiveIOException {
+        final String METHOD = "removeApplicationDeploymentPlan";
+        LOGGER.entering(CLASS, METHOD, planPath, silent);
+
+        validateNonEmptyString(planPath, "planPath", METHOD);
+
+        String archivePath;
+        String planName;
+        if (planPath.startsWith(ARCHIVE_APPS_TARGET_DIR + ZIP_SEP)) {
+            archivePath = planPath;
+            planName = getNameFromPath(archivePath, ARCHIVE_APPS_TARGET_DIR.length() + 2);
+        } else {
+            archivePath = ARCHIVE_APPS_TARGET_DIR + ZIP_SEP + planPath;
+            planName = planPath;
+        }
+
+        List<String> zipEntries = getArchiveEntries(ArchiveEntryType.APPLICATION_PLAN, planName);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex =
+                new WLSDeployArchiveIOException("WLSDPLY-01441", planName, getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyTypeDir(ArchiveEntryType.APPLICATION_PLAN, ARCHIVE_APPS_TARGET_DIR + ZIP_SEP);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //                            structured application methods                                 //
@@ -1178,6 +1237,69 @@ public class WLSDeployArchive {
 
         LOGGER.exiting(CLASS, METHOD, newName);
         return zipPrefix;
+    }
+
+    /**
+     * Remove the named structured application from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param appPath The structured application name (e.g., foo) or the archive path
+     *                to it (e.g., wlsdeploy/structuredApplications/foo)
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the structured app is not present or an IOException occurred while
+     *                                      reading the archive or writing the file
+     * @throws IllegalArgumentException     if the appPath is null or empty
+     */
+    public int removeStructuredApplication(String appPath) throws WLSDeployArchiveIOException {
+        return removeStructuredApplication(appPath, false);
+    }
+
+    /**
+     * Remove the named structured application from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param appPath The structured application name (e.g., foo) or the archive path
+     *                to it (e.g., wlsdeploy/structuredApplications/foo)
+     * @param silent  If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the structured app is not present (and silent = false) or an IOException
+     *                                      occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the appPath is null or empty
+     */
+    public int removeStructuredApplication(String appPath, boolean silent) throws WLSDeployArchiveIOException {
+        final String METHOD = "removeStructuredApplication";
+        LOGGER.entering(CLASS, METHOD, appPath, silent);
+
+        validateNonEmptyString(appPath, "appPath", METHOD);
+
+        String archivePath;
+        String appName;
+        if (appPath.startsWith(ARCHIVE_STRUCT_APPS_TARGET_DIR + ZIP_SEP)) {
+            archivePath = appPath;
+            appName = getNameFromPath(archivePath, ARCHIVE_STRUCT_APPS_TARGET_DIR.length() + 2);
+        } else {
+            archivePath = ARCHIVE_STRUCT_APPS_TARGET_DIR + ZIP_SEP + appPath;
+            appName = appPath;
+        }
+
+        List<String> zipEntries = getArchiveEntries(ArchiveEntryType.STRUCTURED_APPLICATION, appName);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex =
+                new WLSDeployArchiveIOException("WLSDPLY-01442", appName, getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyTypeDir(ArchiveEntryType.STRUCTURED_APPLICATION,
+            ARCHIVE_STRUCT_APPS_TARGET_DIR + ZIP_SEP);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1288,6 +1410,68 @@ public class WLSDeployArchive {
         LOGGER.exiting(CLASS, METHOD);
     }
 
+    /**
+     * Remove the named shared library from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param libPath The shared library name (e.g., foo.war) or the archive path
+     *                to it (e.g., wlsdeploy/sharedLibraries/foo.war)
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the shared library is not present or an IOException occurred while
+     *                                      reading the archive or writing the file
+     * @throws IllegalArgumentException     if the libPath is null or empty
+     */
+    public int removeSharedLibrary(String libPath) throws WLSDeployArchiveIOException {
+        return removeSharedLibrary(libPath, false);
+    }
+
+    /**
+     * Remove the named shared library from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param libPath The shared library name (e.g., foo.war) or the archive path
+     *                to it (e.g., wlsdeploy/sharedLibraries/foo.war)
+     * @param silent  If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the shared library is not present (and silent = false) or an IOException
+     *                                      occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the libPath is null or empty
+     */
+    public int removeSharedLibrary(String libPath, boolean silent) throws WLSDeployArchiveIOException {
+        final String METHOD = "removeSharedLibrary";
+        LOGGER.entering(CLASS, METHOD, libPath, silent);
+
+        validateNonEmptyString(libPath, "libPath", METHOD);
+
+        String archivePath;
+        String appName;
+        if (libPath.startsWith(ARCHIVE_SHLIBS_TARGET_DIR + ZIP_SEP)) {
+            archivePath = libPath;
+            appName = getNameFromPath(archivePath, ARCHIVE_SHLIBS_TARGET_DIR.length() + 2);
+        } else {
+            archivePath = ARCHIVE_SHLIBS_TARGET_DIR + ZIP_SEP + libPath;
+            appName = libPath;
+        }
+
+        List<String> zipEntries = getArchiveEntries(ArchiveEntryType.SHARED_LIBRARY, appName);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex =
+                new WLSDeployArchiveIOException("WLSDPLY-01443", appName, getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyTypeDir(ArchiveEntryType.SHARED_LIBRARY,ARCHIVE_SHLIBS_TARGET_DIR + ZIP_SEP);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //                              shared library plan methods                                  //
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1346,6 +1530,68 @@ public class WLSDeployArchive {
 
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
+    }
+
+    /**
+     * Remove the named shared library deployment plan from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param planPath The shared library deployment plan name (e.g., foo.xml) or the archive path
+     *                 to it (e.g., wlsdeploy/sharedLibraries/foo.xml)
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the shared library deployment plan is not present or
+     *                                      an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the planPath is null or empty
+     */
+    public int removeSharedLibraryDeploymentPlan(String planPath) throws WLSDeployArchiveIOException {
+        return removeSharedLibraryDeploymentPlan(planPath, false);
+    }
+
+    /**
+     * Remove the named shared library deployment plan from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param planPath The shared library deployment plan name (e.g., foo.xml) or the archive path
+     *                 to it (e.g., wlsdeploy/sharedLibraries/foo.xml)
+     * @param silent  If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the shared library deployment plan is not present (and silent = false) or
+     *                                      an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the planPath is null or empty
+     */
+    public int removeSharedLibraryDeploymentPlan(String planPath, boolean silent) throws WLSDeployArchiveIOException {
+        final String METHOD = "removeSharedLibraryDeploymentPlan";
+        LOGGER.entering(CLASS, METHOD, planPath, silent);
+
+        validateNonEmptyString(planPath, "planPath", METHOD);
+
+        String archivePath;
+        String appName;
+        if (planPath.startsWith(ARCHIVE_SHLIBS_TARGET_DIR + ZIP_SEP)) {
+            archivePath = planPath;
+            appName = getNameFromPath(archivePath, ARCHIVE_SHLIBS_TARGET_DIR.length() + 2);
+        } else {
+            archivePath = ARCHIVE_SHLIBS_TARGET_DIR + ZIP_SEP + planPath;
+            appName = planPath;
+        }
+
+        List<String> zipEntries = getArchiveEntries(ArchiveEntryType.SHLIB_PLAN, appName);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex =
+                new WLSDeployArchiveIOException("WLSDPLY-01444", appName, getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyTypeDir(ArchiveEntryType.SHLIB_PLAN,ARCHIVE_SHLIBS_TARGET_DIR + ZIP_SEP);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1451,6 +1697,68 @@ public class WLSDeployArchive {
         LOGGER.exiting(CLASS, METHOD);
     }
 
+    /**
+     * Remove the named domain library from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param libPath The domain library name (e.g., foo.jar) or the archive path
+     *                to it (e.g., wlsdeploy/domainLibraries/foo.jar)
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the domain library is not present or an IOException occurred while
+     *                                      reading the archive or writing the file
+     * @throws IllegalArgumentException     if the libPath is null or empty
+     */
+    public int removeDomainLibrary(String libPath) throws WLSDeployArchiveIOException {
+        return removeDomainLibrary(libPath, false);
+    }
+
+    /**
+     * Remove the named domain library from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param libPath The domain library name (e.g., foo.jar) or the archive path
+     *                to it (e.g., wlsdeploy/domainLibraries/foo.jar)
+     * @param silent  If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the domain library is not present (and silent = false) or an IOException
+     *                                      occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the libPath is null or empty
+     */
+    public int removeDomainLibrary(String libPath, boolean silent) throws WLSDeployArchiveIOException {
+        final String METHOD = "removeDomainLibrary";
+        LOGGER.entering(CLASS, METHOD, libPath, silent);
+
+        validateNonEmptyString(libPath, "libPath", METHOD);
+
+        String archivePath;
+        String appName;
+        if (libPath.startsWith(ARCHIVE_DOMLIB_TARGET_DIR + ZIP_SEP)) {
+            archivePath = libPath;
+            appName = getNameFromPath(archivePath, ARCHIVE_DOMLIB_TARGET_DIR.length() + 2);
+        } else {
+            archivePath = ARCHIVE_DOMLIB_TARGET_DIR + ZIP_SEP + libPath;
+            appName = libPath;
+        }
+
+        List<String> zipEntries = getArchiveEntries(ArchiveEntryType.DOMAIN_LIB, appName);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex =
+                new WLSDeployArchiveIOException("WLSDPLY-01445", appName, getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyTypeDir(ArchiveEntryType.DOMAIN_LIB,ARCHIVE_DOMLIB_TARGET_DIR + ZIP_SEP);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //                                 classpath lib methods                                     //
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1538,6 +1846,68 @@ public class WLSDeployArchive {
 
         extractDirectoryFromZip(ARCHIVE_CPLIB_TARGET_DIR, domainHome);
         LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
+     * Remove the named classpath library from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param libPath The classpath library name (e.g., foo.jar) or the archive path
+     *                to it (e.g., wlsdeploy/classpathLibraries/foo.jar)
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the classpath library is not present or an IOException occurred while
+     *                                      reading the archive or writing the file
+     * @throws IllegalArgumentException     if the libPath is null or empty
+     */
+    public int removeClasspathLibrary(String libPath) throws WLSDeployArchiveIOException {
+        return removeClasspathLibrary(libPath, false);
+    }
+
+    /**
+     * Remove the named classpath library from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param libPath The classpath library name (e.g., foo.jar) or the archive path
+     *                to it (e.g., wlsdeploy/classpathLibraries/foo.jar)
+     * @param silent  If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the classpath library is not present (and silent = false) or
+     *                                      an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the libPath is null or empty
+     */
+    public int removeClasspathLibrary(String libPath, boolean silent) throws WLSDeployArchiveIOException {
+        final String METHOD = "removeClasspathLibrary";
+        LOGGER.entering(CLASS, METHOD, libPath, silent);
+
+        validateNonEmptyString(libPath, "libPath", METHOD);
+
+        String archivePath;
+        String appName;
+        if (libPath.startsWith(ARCHIVE_CPLIB_TARGET_DIR + ZIP_SEP)) {
+            archivePath = libPath;
+            appName = getNameFromPath(archivePath, ARCHIVE_CPLIB_TARGET_DIR.length() + 2);
+        } else {
+            archivePath = ARCHIVE_CPLIB_TARGET_DIR + ZIP_SEP + libPath;
+            appName = libPath;
+        }
+
+        List<String> zipEntries = getArchiveEntries(ArchiveEntryType.CLASSPATH_LIB, appName);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex =
+                new WLSDeployArchiveIOException("WLSDPLY-01446", appName, getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyTypeDir(ArchiveEntryType.CLASSPATH_LIB,ARCHIVE_CPLIB_TARGET_DIR + ZIP_SEP);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1639,6 +2009,68 @@ public class WLSDeployArchive {
         LOGGER.exiting(CLASS, METHOD);
     }
 
+    /**
+     * Remove the named $DOMAIN_HOME/bin script from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param scriptPath The $DOMAIN_HOME/bin script name (e.g., foo.sh) or the archive path
+     *                   to it (e.g., wlsdeploy/domainBin/foo.sh)
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the $DOMAIN_HOME/bin script is not present or an IOException
+     *                                      occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the scriptPath is null or empty
+     */
+    public int removeDomainBinScript(String scriptPath) throws WLSDeployArchiveIOException {
+        return removeDomainBinScript(scriptPath, false);
+    }
+
+    /**
+     * Remove the named $DOMAIN_HOME/bin script from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param scriptPath The $DOMAIN_HOME/bin script name (e.g., foo.sh) or the archive path
+     *                   to it (e.g., wlsdeploy/domainBin/foo.sh)
+     * @param silent  If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the $DOMAIN_HOME/bin script is not present (and silent = false) or
+     *                                      an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the scriptPath is null or empty
+     */
+    public int removeDomainBinScript(String scriptPath, boolean silent) throws WLSDeployArchiveIOException {
+        final String METHOD = "removeDomainBinScript";
+        LOGGER.entering(CLASS, METHOD, scriptPath, silent);
+
+        validateNonEmptyString(scriptPath, "scriptPath", METHOD);
+
+        String archivePath;
+        String appName;
+        if (scriptPath.startsWith(ARCHIVE_DOM_BIN_TARGET_DIR + ZIP_SEP)) {
+            archivePath = scriptPath;
+            appName = getNameFromPath(archivePath, ARCHIVE_DOM_BIN_TARGET_DIR.length() + 2);
+        } else {
+            archivePath = ARCHIVE_DOM_BIN_TARGET_DIR + ZIP_SEP + scriptPath;
+            appName = scriptPath;
+        }
+
+        List<String> zipEntries = getArchiveEntries(ArchiveEntryType.DOMAIN_BIN, appName);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex =
+                new WLSDeployArchiveIOException("WLSDPLY-01447", appName, getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyTypeDir(ArchiveEntryType.DOMAIN_BIN,ARCHIVE_DOM_BIN_TARGET_DIR + ZIP_SEP);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //                                    custom methods                                         //
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1647,18 +2079,19 @@ public class WLSDeployArchive {
      * Add a custom file or directory to the archive.
      *
      * @param customEntryPath the file system path to the custom file/directory to add
+     * @param relativePath    the relative archive path name to prepend to the file or directory being added, if any
      * @return the relative path where the custom file/directory is stored within the archive
      * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
      * @throws IllegalArgumentException    if the file or directory passed in does not exist
      */
-    public String addCustomEntry(String customEntryPath) throws WLSDeployArchiveIOException {
+    public String addCustomEntry(String customEntryPath, String relativePath) throws WLSDeployArchiveIOException {
         final String METHOD = "addCustomEntry";
-        LOGGER.entering(CLASS, METHOD, customEntryPath);
+        LOGGER.entering(CLASS, METHOD, customEntryPath, relativePath);
 
         File filePath = new File(customEntryPath);
         validateExistingFile(filePath, "customEntryPath", getArchiveFileName(), METHOD, true);
 
-        String newName = addItemToZip(ARCHIVE_CUSTOM_TARGET_DIR, filePath);
+        String newName = addItemToZip(getCustomArchivePath(relativePath), filePath);
 
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
@@ -1685,7 +2118,7 @@ public class WLSDeployArchive {
         }
 
         getZipFile().removeZipEntries(archivePath);
-        String newName = addCustomEntry(sourceLocation);
+        String newName = addCustomEntry(sourceLocation, getCustomArchivePathForReplace(customEntryPath));
 
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
@@ -1725,6 +2158,75 @@ public class WLSDeployArchive {
         extractDirectoryFromZip(ARCHIVE_CUSTOM_TARGET_DIR, domainHome);
 
         LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
+     * Remove the named custom file/directory from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param entryPath The custom file/directory name (e.g., mydir/foo.properties) or the archive path
+     *                  to it (e.g., wlsdeploy/custom/mydir/foo.properties)
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the custom file/directory is not present or an IOException
+     *                                      occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the entryPath is null or empty
+     */
+    public int removeCustomEntry(String entryPath) throws WLSDeployArchiveIOException {
+        return removeCustomEntry(entryPath, false);
+    }
+
+    /**
+     * Remove the named custom file/directory from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param entryPath The custom file/directory name (e.g., mydir/foo.properties) or the archive path
+     *                  to it (e.g., wlsdeploy/custom/mydir/foo.properties)
+     * @param silent    If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the custom file/directory is not present (and silent = false) or
+     *                                      an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the entryPath is null or empty
+     */
+    @SuppressWarnings("java:S2259")
+    public int removeCustomEntry(String entryPath, boolean silent) throws WLSDeployArchiveIOException {
+        final String METHOD = "removeCustomEntry";
+        LOGGER.entering(CLASS, METHOD, entryPath, silent);
+
+        validateNonEmptyString(entryPath, "entryPath", METHOD);
+
+        String archivePath;
+        String appName;
+        if (entryPath.startsWith(ARCHIVE_CUSTOM_TARGET_DIR + ZIP_SEP)) {
+            archivePath = entryPath;
+            appName = getNameFromPath(archivePath, ARCHIVE_CUSTOM_TARGET_DIR.length() + 2);
+        } else {
+            archivePath = ARCHIVE_CUSTOM_TARGET_DIR + ZIP_SEP + entryPath;
+            appName = entryPath;
+        }
+
+        List<String> zipEntries = getArchiveEntries(ArchiveEntryType.CUSTOM, appName);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex =
+                new WLSDeployArchiveIOException("WLSDPLY-01448", appName, getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = 0;
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+            result++;
+        }
+
+        String parentDir = getCustomArchivePathParentDir(appName);
+        if (!StringUtils.isEmpty(parentDir)) {
+            // Suppressing Sonar false positive...
+            result += removeEmptyDirs(parentDir);
+        }
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1777,6 +2279,68 @@ public class WLSDeployArchive {
 
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
+    }
+
+    /**
+     * Remove the named script from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param scriptPath The script name (e.g., foo.sh) or the archive path
+     *                   to it (e.g., wlsdeploy/scripts/foo.sh)
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the script is not present or an IOException
+     *                                      occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the scriptPath is null or empty
+     */
+    public int removeScript(String scriptPath) throws WLSDeployArchiveIOException {
+        return removeScript(scriptPath, false);
+    }
+
+    /**
+     * Remove the named script from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param scriptPath The script name (e.g., foo.sh) or the archive path
+     *                   to it (e.g., wlsdeploy/scripts/foo.sh)
+     * @param silent  If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the script is not present (and silent = false) or
+     *                                      an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the scriptPath is null or empty
+     */
+    public int removeScript(String scriptPath, boolean silent) throws WLSDeployArchiveIOException {
+        final String METHOD = "removeScript";
+        LOGGER.entering(CLASS, METHOD, scriptPath, silent);
+
+        validateNonEmptyString(scriptPath, "scriptPath", METHOD);
+
+        String archivePath;
+        String appName;
+        if (scriptPath.startsWith(ARCHIVE_SCRIPTS_DIR + ZIP_SEP)) {
+            archivePath = scriptPath;
+            appName = getNameFromPath(archivePath, ARCHIVE_SCRIPTS_DIR.length() + 2);
+        } else {
+            archivePath = ARCHIVE_SCRIPTS_DIR + ZIP_SEP + scriptPath;
+            appName = scriptPath;
+        }
+
+        List<String> zipEntries = getArchiveEntries(ArchiveEntryType.SCRIPT, appName);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex =
+                new WLSDeployArchiveIOException("WLSDPLY-01449", appName, getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyTypeDir(ArchiveEntryType.SCRIPT,ARCHIVE_SCRIPTS_DIR + ZIP_SEP);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1853,6 +2417,64 @@ public class WLSDeployArchive {
         return newName;
     }
 
+    /**
+     * Remove the named server's keystore file from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param serverName    the name of the server used to segregate the keystore
+     * @param keystoreName  the name of the keystore file
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the server's keystore file is not present or an IOException
+     *                                      occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the serverName or keystoreName is null or empty
+     */
+    public int removeServerKeystore(String serverName, String keystoreName) throws WLSDeployArchiveIOException {
+        return removeServerKeystore(serverName, keystoreName, false);
+    }
+
+    /**
+     * Remove the named server's keystore file from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param serverName    the name of the server used to segregate the keystore
+     * @param keystoreName  the name of the keystore file
+     * @param silent  If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the server's keystore file is not present (and silent = false) or
+     *                                      an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the serverName or keystoreName is null or empty
+     */
+    public int removeServerKeystore(String serverName, String keystoreName, boolean silent)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "removeServerKeystore";
+        LOGGER.entering(CLASS, METHOD, serverName, keystoreName, silent);
+
+        validateNonEmptyString(serverName, "serverName", METHOD);
+        validateNonEmptyString(keystoreName, "keystoreName", METHOD);
+
+        String parentDir = ARCHIVE_SERVER_TARGET_DIR + ZIP_SEP + serverName;
+        String archivePath = parentDir + ZIP_SEP + keystoreName;
+
+        List<String> zipEntries =
+            getSegregatedArchiveEntries(ArchiveEntryType.SERVER_KEYSTORE, serverName, keystoreName);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01450", serverName, keystoreName,
+                getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyDirs(parentDir);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //                           node manager keystore methods                                   //
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1906,6 +2528,68 @@ public class WLSDeployArchive {
         return newName;
     }
 
+    /**
+     * Remove the named server's keystore file from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param keystoreName  the name of the keystore file
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the server's keystore file is not present or an IOException
+     *                                      occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the serverName or keystoreName is null or empty
+     */
+    public int removeNodeManagerKeystore(String keystoreName) throws WLSDeployArchiveIOException {
+        return removeNodeManagerKeystore(keystoreName, false);
+    }
+
+    /**
+     * Remove the named server's keystore file from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param keystorePath  the name of the keystore file
+     * @param silent  If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the server's keystore file is not present (and silent = false) or
+     *                                      an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the serverName or keystorePath is null or empty
+     */
+    public int removeNodeManagerKeystore(String keystorePath, boolean silent)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "removeNodeManagerKeystore";
+        LOGGER.entering(CLASS, METHOD, keystorePath, silent);
+
+        validateNonEmptyString(keystorePath, "keystorePath", METHOD);
+
+        String archivePath;
+        String keystoreName;
+        if (keystorePath.startsWith(ARCHIVE_NODE_MANAGER_TARGET_DIR + ZIP_SEP)) {
+            archivePath = keystorePath;
+            keystoreName = getNameFromPath(keystorePath, ARCHIVE_NODE_MANAGER_TARGET_DIR.length() + 2);
+        } else {
+            archivePath = ARCHIVE_NODE_MANAGER_TARGET_DIR + ZIP_SEP + keystorePath;
+            keystoreName = keystorePath;
+        }
+
+        List<String> zipEntries = getArchiveEntries(ArchiveEntryType.NODE_MANAGER_KEY_STORE, keystoreName);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01451", keystorePath,
+                getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyTypeDir(ArchiveEntryType.NODE_MANAGER_KEY_STORE,
+            ARCHIVE_NODE_MANAGER_TARGET_DIR + ZIP_SEP);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //                           MIME mapping keystore methods                                   //
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -1957,6 +2641,68 @@ public class WLSDeployArchive {
 
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
+    }
+
+    /**
+     * Remove the named MIME mapping file from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param mimeMappingPath  the name of the MIME mapping file
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the MIME mapping file is not present or an IOException
+     *                                      occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the mimeMappingPath is null or empty
+     */
+    public int removeMimeMappingFile(String mimeMappingPath) throws WLSDeployArchiveIOException {
+        return removeMimeMappingFile(mimeMappingPath, false);
+    }
+
+    /**
+     * Remove the named MIME mapping file from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param mimeMappingPath  the name of the MIME mapping file
+     * @param silent           If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the MIME mapping file is not present (and silent = false) or
+     *                                      an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the mimeMappingPath is null or empty
+     */
+    public int removeMimeMappingFile(String mimeMappingPath, boolean silent)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "removeMimeMappingFile";
+        LOGGER.entering(CLASS, METHOD, mimeMappingPath, silent);
+
+        validateNonEmptyString(mimeMappingPath, "mimeMappingPath", METHOD);
+
+        String archivePath;
+        String keystoreName;
+        if (mimeMappingPath.startsWith(ARCHIVE_CONFIG_TARGET_DIR + ZIP_SEP)) {
+            archivePath = mimeMappingPath;
+            keystoreName = getNameFromPath(mimeMappingPath, ARCHIVE_CONFIG_TARGET_DIR.length() + 2);
+        } else {
+            archivePath = ARCHIVE_CONFIG_TARGET_DIR + ZIP_SEP + mimeMappingPath;
+            keystoreName = mimeMappingPath;
+        }
+
+        List<String> zipEntries = getArchiveEntries(ArchiveEntryType.MIME_MAPPING, keystoreName);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01452", mimeMappingPath,
+                getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyTypeDir(ArchiveEntryType.MIME_MAPPING,
+            ARCHIVE_CONFIG_TARGET_DIR + ZIP_SEP);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -2056,6 +2802,63 @@ public class WLSDeployArchive {
         return newName;
     }
 
+    /**
+     * Remove the named Coherence config file from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param clusterName     the name of the Coherence cluster used for segregating the config files
+     * @param configFileName  the name of the Coherence config file
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the config file is not present or an IOException
+     *                                      occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the clusterName or configFileName is null or empty
+     */
+    public int removeCoherenceConfigFile(String clusterName, String configFileName) throws WLSDeployArchiveIOException {
+        return removeCoherenceConfigFile(clusterName, configFileName, false);
+    }
+
+    /**
+     * Remove the named Coherence config file from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param clusterName     the name of the Coherence cluster used for segregating the config files
+     * @param configFileName  the name of the Coherence config file
+     * @param silent          If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the config file is not present (and silent = false) or
+     *                                      an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the clusterName or configFileName is null or empty
+     */
+    public int removeCoherenceConfigFile(String clusterName, String configFileName, boolean silent)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "removeCoherenceConfigFile";
+        LOGGER.entering(CLASS, METHOD, clusterName, configFileName, silent);
+
+        validateNonEmptyString(clusterName, "clusterName", METHOD);
+        validateNonEmptyString(configFileName, "configFileName", METHOD);
+
+        String parentDir = ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName;
+        String archivePath = parentDir + ZIP_SEP + configFileName;
+
+        List<String> zipEntries =
+            getSegregatedArchiveEntries(ArchiveEntryType.COHERENCE_CONFIG, clusterName, configFileName);
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01453", clusterName,
+                configFileName, getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyDirs(parentDir);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //                    Coherence persistence directory file methods                           //
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -2109,6 +2912,65 @@ public class WLSDeployArchive {
 
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
+    }
+
+    /**
+     * Remove the named Coherence persistence directory from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param clusterName           the name of the Coherence cluster used for segregating the persistence directories
+     * @param persistenceDirectory  the name of the Coherence persistence directory
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the Coherence persistence directory is not present or an IOException
+     *                                      occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the clusterName or persistenceDirectory is null or empty
+     */
+    public int removeCoherencePersistenceDirectory(String clusterName, String persistenceDirectory)
+        throws WLSDeployArchiveIOException {
+        return removeCoherencePersistenceDirectory(clusterName, persistenceDirectory, false);
+    }
+
+    /**
+     * Remove the named Coherence persistence directory from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param clusterName           the name of the Coherence cluster used for segregating the config files
+     * @param persistenceDirectory  the name of the Coherence persistence directory
+     * @param silent                If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the Coherence persistence directory is not present (and silent = false)
+     *                                      or an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the clusterName or persistenceDirectory is null or empty
+     */
+    public int removeCoherencePersistenceDirectory(String clusterName, String persistenceDirectory, boolean silent)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "removeCoherencePersistenceDirectory";
+        LOGGER.entering(CLASS, METHOD, clusterName, persistenceDirectory, silent);
+
+        validateNonEmptyString(clusterName, "clusterName", METHOD);
+        validateNonEmptyString(persistenceDirectory, "persistenceDirectory", METHOD);
+
+        String parentDir = ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName;
+        String archivePath = parentDir + ZIP_SEP + persistenceDirectory;
+
+        List<String> zipEntries =
+            getSegregatedArchiveEntries(ArchiveEntryType.COHERENCE, clusterName, persistenceDirectory);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01454", clusterName,
+                persistenceDirectory, getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyDirs(parentDir);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -2182,6 +3044,64 @@ public class WLSDeployArchive {
         return newName;
     }
 
+    /**
+     * Remove the named JMS Foreign Server bindings file from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param foreignServer     the name of the JMS Foreign Server used for segregating the bindings files
+     * @param bindingsFileName  the name of the JMS Foreign Server bindings file
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the bindings file is not present or an IOException
+     *                                      occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the foreignServer or bindingsFileName is null or empty
+     */
+    public int removeForeignServerFile(String foreignServer, String bindingsFileName)
+        throws WLSDeployArchiveIOException {
+        return removeForeignServerFile(foreignServer, bindingsFileName, false);
+    }
+
+    /**
+     * Remove the named JMS Foreign Server bindings file from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param foreignServer     the name of the JMS Foreign Server used for segregating the bindings files
+     * @param bindingsFileName  the name of the JMS Foreign Server bindings file
+     * @param silent            If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the bindings file is not present (and silent = false) or
+     *                                      an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the foreignServer or bindingsFileName is null or empty
+     */
+    public int removeForeignServerFile(String foreignServer, String bindingsFileName, boolean silent)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "removeForeignServerFile";
+        LOGGER.entering(CLASS, METHOD, foreignServer, bindingsFileName, silent);
+
+        validateNonEmptyString(foreignServer, "foreignServer", METHOD);
+        validateNonEmptyString(bindingsFileName, "bindingsFileName", METHOD);
+
+        String parentDir = ARCHIVE_JMS_FOREIGN_SERVER_DIR + ZIP_SEP + foreignServer;
+        String archivePath = parentDir + ZIP_SEP + bindingsFileName;
+
+        List<String> zipEntries =
+            getSegregatedArchiveEntries(ArchiveEntryType.JMS_FOREIGN_SERVER, foreignServer, bindingsFileName);
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01455", foreignServer,
+                bindingsFileName, getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyDirs(parentDir);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //                                    file store methods                                     //
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -2236,6 +3156,60 @@ public class WLSDeployArchive {
 
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
+    }
+
+    /**
+     * Remove the named File Store directory from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param fileStoreName the name of the File Store directory
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the File Store directory is not present or an IOException
+     *                                      occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the fileStoreName is null or empty
+     */
+    public int removeFileStoreDirectory(String fileStoreName)
+        throws WLSDeployArchiveIOException {
+        return removeFileStoreDirectory(fileStoreName, false);
+    }
+
+    /**
+     * Remove the named File Store directory from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param fileStoreName the name of the File Store directory
+     * @param silent        If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the File Store directory is not present (and silent = false)
+     *                                      or an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the fileStoreName is null or empty
+     */
+    public int removeFileStoreDirectory(String fileStoreName, boolean silent)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "removeFileStoreDirectory";
+        LOGGER.entering(CLASS, METHOD, fileStoreName, silent);
+
+        validateNonEmptyString(fileStoreName, "fileStoreName", METHOD);
+
+        String archivePath = ARCHIVE_FILE_STORE_TARGET_DIR + ZIP_SEP + fileStoreName;
+
+        List<String> zipEntries = getArchiveEntries(ArchiveEntryType.FILE_STORE, fileStoreName);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01456", fileStoreName,
+                getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyTypeDir(ArchiveEntryType.FILE_STORE, ARCHIVE_FILE_STORE_TARGET_DIR + ZIP_SEP);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -2346,6 +3320,60 @@ public class WLSDeployArchive {
         return extractPath;
     }
 
+    /**
+     * Remove the named database wallet from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param walletName the name of the database wallet to remove
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the database wallet is not present or an IOException
+     *                                      occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the walletName is null or empty
+     */
+    public int removeDatabaseWallet(String walletName)
+        throws WLSDeployArchiveIOException {
+        return removeDatabaseWallet(walletName, false);
+    }
+
+    /**
+     * Remove the named database wallet from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param walletName    the name of the database wallet to remove
+     * @param silent        If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the database wallet is not present (and silent = false)
+     *                                      or an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the walletName is null or empty
+     */
+    public int removeDatabaseWallet(String walletName, boolean silent)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "removeDatabaseWallet";
+        LOGGER.entering(CLASS, METHOD, walletName, silent);
+
+        validateNonEmptyString(walletName, "walletName", METHOD);
+
+        String archivePath = ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + walletName;
+
+        List<String> zipEntries = getArchiveEntries(ArchiveEntryType.DB_WALLET, walletName);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01457", walletName,
+                getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyTypeDir(ArchiveEntryType.DB_WALLET, ARCHIVE_DB_WALLETS_DIR + ZIP_SEP);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //                                   OPSS wallet methods                                     //
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -2424,6 +3452,52 @@ public class WLSDeployArchive {
 
         LOGGER.exiting(CLASS, METHOD, extractPath);
         return extractPath;
+    }
+
+    /**
+     * Remove the OPSS wallet from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the OPSS wallet is not present or an IOException
+     *                                      occurred while reading the archive or writing the file
+     */
+    public int removeOPSSWallet()
+        throws WLSDeployArchiveIOException {
+        return removeOPSSWallet(false);
+    }
+
+    /**
+     * Remove the OPSS wallet from the archive file.
+     *
+     * @param silent        If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the OPSS wallet is not present (and silent = false)
+     *                                      or an IOException occurred while reading the archive or writing the file
+     */
+    public int removeOPSSWallet(boolean silent)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "removeOPSSWallet";
+        LOGGER.entering(CLASS, METHOD, silent);
+
+        String archivePath = ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP;
+
+        List<String> zipEntries = getArchiveEntries(ArchiveEntryType.OPSS_WALLET);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01458",
+                getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////
@@ -3210,6 +4284,100 @@ public class WLSDeployArchive {
             WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01439", startIndex, path);
             LOGGER.throwing(CLASS, METHOD, ex);
             throw ex;
+        }
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    private String getCustomArchivePath(String relativePath) {
+        final String METHOD = "getCustomArchivePath";
+        LOGGER.entering(CLASS, METHOD, relativePath);
+
+        String archivePath = ARCHIVE_CUSTOM_TARGET_DIR;
+        if (!StringUtils.isEmpty(relativePath)) {
+            if (!relativePath.startsWith(ZIP_SEP)) {
+                archivePath += ZIP_SEP;
+            }
+            archivePath += relativePath;
+        }
+
+        LOGGER.exiting(CLASS, METHOD, archivePath);
+        return archivePath;
+    }
+
+    private String getCustomArchivePathForReplace(String replacementPath) {
+        final String METHOD = "getCustomArchivePathForReplace";
+        LOGGER.entering(CLASS, METHOD, replacementPath);
+
+        String archivePath = replacementPath;
+        if (replacementPath.startsWith(ARCHIVE_CUSTOM_TARGET_DIR + ZIP_SEP)) {
+            archivePath = replacementPath.substring(ARCHIVE_CUSTOM_TARGET_DIR.length() + 2);
+        } else if (replacementPath.startsWith(ZIP_SEP)) {
+            archivePath = replacementPath.substring(1);
+        }
+
+        if (archivePath.endsWith(ZIP_SEP)) {
+            archivePath = archivePath.substring(0, archivePath.length() - 1);
+        }
+
+        int lastZipSep = archivePath.lastIndexOf(ZIP_SEP);
+        if (lastZipSep != -1) {
+            archivePath = archivePath.substring(0, lastZipSep);
+        } else {
+            archivePath = null;
+        }
+
+        LOGGER.exiting(CLASS, METHOD, archivePath);
+        return archivePath;
+    }
+
+    private String getCustomArchivePathParentDir(String removePath) {
+        final String METHOD = "getCustomArchivePathParentDir";
+        LOGGER.entering(CLASS, METHOD, removePath);
+
+        String archivePath = removePath;
+        if (!removePath.startsWith(ARCHIVE_CUSTOM_TARGET_DIR + ZIP_SEP)) {
+            archivePath = ARCHIVE_CUSTOM_TARGET_DIR + ZIP_SEP + removePath;
+        }
+
+        if (archivePath.endsWith(ZIP_SEP)) {
+            archivePath = archivePath.substring(0, archivePath.length() - 1);
+        }
+
+        int lastZipSep = archivePath.lastIndexOf(ZIP_SEP);
+        if (lastZipSep != -1) {
+            archivePath = archivePath.substring(0, lastZipSep);
+        } else {
+            archivePath = null;
+        }
+
+        LOGGER.exiting(CLASS, METHOD, archivePath);
+        return archivePath;
+
+    }
+
+    private int removeEmptyDirs(String parentDir) throws WLSDeployArchiveIOException {
+        final String METHOD = "removeEmptyDirs";
+        LOGGER.entering(CLASS, METHOD, parentDir);
+
+        String archivePath = parentDir;
+        if (!archivePath.endsWith(ZIP_SEP)) {
+            archivePath += ZIP_SEP;
+        }
+
+        List<String> zipEntries = getZipFile().listZipEntries(archivePath);
+
+        int result = 0;
+        if (zipEntries.size() == 1 && archivePath.equals(zipEntries.get(0))) {
+            getZipFile().removeZipEntry(zipEntries.get(0));
+            result++;
+
+            int lastZipSep = archivePath.substring(0, archivePath.length() - 1).lastIndexOf(ZIP_SEP);
+            if (lastZipSep != -1) {
+                String newParentDir = archivePath.substring(0, lastZipSep);
+                result += removeEmptyDirs(newParentDir);
+            }
         }
 
         LOGGER.exiting(CLASS, METHOD, result);

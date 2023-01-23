@@ -20,7 +20,10 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
     name = "application",
-    description = "%nAdd application to the archive file:",
+    header = "Add application to the archive file.",
+    description = "%nCommand-line options:",
+    footer = "%nNote: If using an Application Installation Directory, " +
+        "please see the archiveHelper add structuredApplication command.%n",
     sortOptions = false
 )
 public class AddApplicationCommand extends AddTypeCommandBase {

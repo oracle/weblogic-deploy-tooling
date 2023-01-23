@@ -15,7 +15,8 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.SCRI
 
 @Command(
     name = "script",
-    description = "%nList script entries in the archive file:",
+    header = "List script entries in the archive file.",
+    description = "%nCommand-line options:",
     sortOptions = false
 )
 public class ListScriptCommand extends ListTypeCommandBase {

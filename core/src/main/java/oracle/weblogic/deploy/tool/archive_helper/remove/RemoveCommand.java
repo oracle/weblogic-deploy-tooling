@@ -9,9 +9,30 @@ import picocli.CommandLine.Option;
 
 @Command(
     name = "remove",
-    description = "%nRemove items to the archive file:",
-    commandListHeading = "%nSubcommands:%n%n",
+    header = "Remove items to the archive file.",
+    description = "%nCommand-line options:",
+    commandListHeading = "%nSubcommands:%n",
     subcommands = {
+        RemoveApplicationCommand.class,
+        RemoveApplicationPlanCommand.class,
+        RemoveClasspathLibraryCommand.class,
+        RemoveCoherenceConfigCommand.class,
+        RemoveCoherencePersistenceDirCommand.class,
+        RemoveCustomCommand.class,
+        RemoveDatabaseWalletCommand.class,
+        RemoveDomainBinScriptCommand.class,
+        RemoveDomainLibraryCommand.class,
+        RemoveFileStoreCommand.class,
+        RemoveJMSForeignServerCommand.class,
+        RemoveMIMEMappingCommand.class,
+        RemoveNodeManagerKeystoreCommand.class,
+        RemoveOPSSWalletCommand.class,
+        RemoveRCUWalletCommand.class,
+        RemoveScriptCommand.class,
+        RemoveServerKeystoreCommand.class,
+        RemoveSharedLibraryCommand.class,
+        RemoveSharedLibraryPlanCommand.class,
+        RemoveStructuredApplicationCommand.class
     },
     sortOptions = false
 )

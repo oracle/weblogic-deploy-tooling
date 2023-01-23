@@ -15,7 +15,8 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.DOMA
 
 @Command(
     name = "domainBinScript",
-    description = "%nList domain bin script entries in the archive file:",
+    header = "List domain bin script entries in the archive file.",
+    description = "%nCommand-line options:",
     sortOptions = false
 )
 public class ListDomainBinScriptCommand extends ListTypeCommandBase {

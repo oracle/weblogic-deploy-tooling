@@ -5,6 +5,7 @@
 package oracle.weblogic.deploy.tool.archive_helper;
 
 import java.io.PrintWriter;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -14,8 +15,8 @@ public class CommandResponse {
         ResourceBundle.getBundle("oracle.weblogic.deploy.messages.wlsdeploy_rb");
 
     private int status;
-    private List<String> messages = new ArrayList<>();
-    private List<Object[]> messageParamsList = new ArrayList<>();
+    private final List<String> messages = new ArrayList<>();
+    private final List<Object[]> messageParamsList = new ArrayList<>();
 
     public CommandResponse(int status) {
         this.status = status;
@@ -41,7 +42,7 @@ public class CommandResponse {
         for (int index = 0; index < this.messages.size(); index++) {
             String message = this.messages.get(index);
             if (RESOURCE_BUNDLE.containsKey(message)) {
-                message = String.format(message, this.messageParamsList.get(index));
+                message = MessageFormat.format(RESOURCE_BUNDLE.getString(message), this.messageParamsList.get(index));
             }
             formattedMessages[index] = message;
         }

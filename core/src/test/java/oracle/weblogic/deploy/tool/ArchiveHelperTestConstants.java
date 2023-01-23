@@ -58,11 +58,23 @@ public class ArchiveHelperTestConstants {
         "wlsdeploy/coherence/mycluster/cache-config.xml"
     };
 
-    static final String[] COHERENCE_MYCLUSTER_PERSISTENT_DIR_CONTENTS = new String[] {
-        "wlsdeploy/coherence/mycluster/active/",
-        "wlsdeploy/coherence/mycluster/snapshot/",
+    static final String[] COHERENCE_MYCLUSTER_PERSISTENT_DIR_ACTIVE_CONTENTS = new String[] {
+        "wlsdeploy/coherence/mycluster/active/"
+    };
+
+    static final String[] COHERENCE_MYCLUSTER_PERSISTENT_DIR_SNAPSHOT_CONTENTS = new String[] {
+        "wlsdeploy/coherence/mycluster/snapshot/"
+    };
+
+    static final String[] COHERENCE_MYCLUSTER_PERSISTENT_DIR_TRASH_CONTENTS = new String[] {
         "wlsdeploy/coherence/mycluster/trash/"
     };
+
+    static final String[] COHERENCE_MYCLUSTER_PERSISTENT_DIR_CONTENTS = mergeStringArrays(
+        COHERENCE_MYCLUSTER_PERSISTENT_DIR_ACTIVE_CONTENTS,
+        COHERENCE_MYCLUSTER_PERSISTENT_DIR_SNAPSHOT_CONTENTS,
+        COHERENCE_MYCLUSTER_PERSISTENT_DIR_TRASH_CONTENTS
+    );
 
     static final String[] COHERENCE_MYCLUSTER_CONTENTS = mergeStringArrays(
         new String[] { "wlsdeploy/coherence/mycluster/" },
@@ -160,6 +172,33 @@ public class ArchiveHelperTestConstants {
         DOMAIN_LIB_FOO_JAR_CONTENTS
     );
 
+    static final String[] FOREIGN_SERVERS_FS1_JNDI_PROPERTIES_CONTENTS = new String[] {
+        "wlsdeploy/jms/foreignServer/fs1/jndi.properties"
+    };
+
+    static final String[] FOREIGN_SERVERS_FS1_CONTENTS = mergeStringArrays(
+        new String[] { "wlsdeploy/jms/foreignServer/fs1/" },
+        FOREIGN_SERVERS_FS1_JNDI_PROPERTIES_CONTENTS
+    );
+
+    static final String[] FOREIGN_SERVERS_FS2_JNDI_PROPERTIES_CONTENTS = new String[] {
+        "wlsdeploy/jms/foreignServer/fs2/jndi.properties"
+    };
+
+    static final String[] FOREIGN_SERVERS_FS2_CONTENTS = mergeStringArrays(
+        new String[] { "wlsdeploy/jms/foreignServer/fs2/" },
+        FOREIGN_SERVERS_FS2_JNDI_PROPERTIES_CONTENTS
+    );
+
+    static final String[] FOREIGN_SERVERS_CONTENT = mergeStringArrays(
+        new String[] {
+            "wlsdeploy/jms/",
+            "wlsdeploy/jms/foreignServer/"
+        },
+        FOREIGN_SERVERS_FS1_CONTENTS,
+        FOREIGN_SERVERS_FS2_CONTENTS
+    );
+
     static final String[] NODE_MANAGER_IDENTITY_JKS_CONTENTS = new String[] {
         "wlsdeploy/nodeManager/nmIdentity.jks"
     };
@@ -205,6 +244,41 @@ public class ArchiveHelperTestConstants {
     static final String[] SERVERS_CONTENT = mergeStringArrays(
         new String[] { "wlsdeploy/servers/" },
         SERVERS_ADMIN_SERVER_CONTENTS
+    );
+
+    static final String[] SHARED_LIBS_MY_OTHER_LIB_CONTENTS = new String[] {
+        "wlsdeploy/sharedLibraries/my-other-lib/",
+        "wlsdeploy/sharedLibraries/my-other-lib/META-INF/",
+        "wlsdeploy/sharedLibraries/my-other-lib/META-INF/maven/",
+        "wlsdeploy/sharedLibraries/my-other-lib/META-INF/maven/oracle.jcs.lifecycle/",
+        "wlsdeploy/sharedLibraries/my-other-lib/META-INF/maven/oracle.jcs.lifecycle/get-listen-address-app/",
+        "wlsdeploy/sharedLibraries/my-other-lib/META-INF/maven/oracle.jcs.lifecycle/get-listen-address-app/pom.properties",
+        "wlsdeploy/sharedLibraries/my-other-lib/META-INF/maven/oracle.jcs.lifecycle/get-listen-address-app/pom.xml",
+        "wlsdeploy/sharedLibraries/my-other-lib/META-INF/MANIFEST.MF",
+        "wlsdeploy/sharedLibraries/my-other-lib/WEB-INF/",
+        "wlsdeploy/sharedLibraries/my-other-lib/WEB-INF/classes/",
+        "wlsdeploy/sharedLibraries/my-other-lib/WEB-INF/classes/com/",
+        "wlsdeploy/sharedLibraries/my-other-lib/WEB-INF/classes/com/oracle/",
+        "wlsdeploy/sharedLibraries/my-other-lib/WEB-INF/classes/com/oracle/platform/",
+        "wlsdeploy/sharedLibraries/my-other-lib/WEB-INF/classes/com/oracle/platform/GetListenAddressServlet.class",
+        "wlsdeploy/sharedLibraries/my-other-lib/WEB-INF/classes/com/oracle/platform/ListenAddressAndPort.class",
+        "wlsdeploy/sharedLibraries/my-other-lib/WEB-INF/web.xml",
+        "wlsdeploy/sharedLibraries/my-other-lib/WEB-INF/weblogic.xml"
+    };
+
+    static final String[] SHARED_LIBS_MY_LIB_WAR_CONTENTS = new String[] {
+        "wlsdeploy/sharedLibraries/my-lib.war"
+    };
+
+    static final String[] SHARED_LIBS_MY_LIB_XML_CONTENTS = new String[] {
+        "wlsdeploy/sharedLibraries/my-lib.xml"
+    };
+
+    static final String[] SHARED_LIBS_CONTENT = mergeStringArrays(
+        new String[] { "wlsdeploy/sharedLibraries/" },
+        SHARED_LIBS_MY_OTHER_LIB_CONTENTS,
+        SHARED_LIBS_MY_LIB_WAR_CONTENTS,
+        SHARED_LIBS_MY_LIB_XML_CONTENTS
     );
 
     static final String[] FILE_STORES_FS1_CONTENTS = new String[] {
@@ -270,6 +344,25 @@ public class ArchiveHelperTestConstants {
         new String[] { "wlsdeploy/structuredApplications/" },
         STRUCTURED_APP_WEBAPP_CONTENTS,
         STRUCTURED_APP_WEBAPP1_CONTENTS
+    );
+
+    static final String[] ALL_CONTENT = mergeStringArrays(
+        APPLICATIONS_CONTENT,
+        CLASSPATH_LIBS_CONTENT,
+        COHERENCE_CONTENT,
+        CUSTOM_CONTENT,
+        DATABASE_WALLETS_CONTENT,
+        DOMAIN_BIN_CONTENT,
+        DOMAIN_LIB_CONTENT,
+        FILE_STORES_CONTENT,
+        FOREIGN_SERVERS_CONTENT,
+        MIME_MAPPINGS_CONTENT,
+        NODE_MANAGER_CONTENT,
+        OPSS_WALLET_CONTENT,
+        SCRIPTS_CONTENT,
+        SERVERS_CONTENT,
+        SHARED_LIBS_CONTENT,
+        STRUCTURED_APPS_CONTENT
     );
 
     static String[] mergeStringArrays(String[]... arrays) {

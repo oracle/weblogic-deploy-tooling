@@ -15,7 +15,8 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.MIME
 
 @Command(
     name = "mimeMapping",
-    description = "%nList MIME mapping entries in the archive file:",
+    header = "List MIME mapping entries in the archive file.",
+    description = "%nCommand-line options:",
     sortOptions = false
 )
 public class ListMIMEMappingCommand extends ListTypeCommandBase {

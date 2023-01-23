@@ -15,7 +15,8 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.NODE
 
 @Command(
     name = "nodeManagerKeystore",
-    description = "%nList node manager keystore entries in the archive file:",
+    header = "List node manager keystore entries in the archive file.",
+    description = "%nCommand-line options:",
     sortOptions = false
 )
 public class ListNodeManagerKeystoreCommand extends ListTypeCommandBase {

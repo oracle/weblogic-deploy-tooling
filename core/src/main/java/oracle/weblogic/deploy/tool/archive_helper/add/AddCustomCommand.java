@@ -11,15 +11,18 @@ import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 import oracle.weblogic.deploy.tool.archive_helper.ArchiveHelperException;
 import oracle.weblogic.deploy.tool.archive_helper.CommandResponse;
 import oracle.weblogic.deploy.util.ExitCode;
+import oracle.weblogic.deploy.util.StringUtils;
 import oracle.weblogic.deploy.util.WLSDeployArchiveIOException;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
+import static oracle.weblogic.deploy.util.WLSDeployArchive.ZIP_SEP;
 
 @Command(
     name = "custom",
-    description = "%nAdd custom file/directory to the archive file:",
+    header = "Add custom file/directory to the archive file.",
+    description = "%nCommand-line options:",
     sortOptions = false
 )
 public class AddCustomCommand extends AddTypeCommandBase {
@@ -29,11 +32,18 @@ public class AddCustomCommand extends AddTypeCommandBase {
 
     @Option(
         names = {"-source"},
-        paramLabel = "<path>",
+        paramLabel = "<file-path>",
         description = "File system path to the custom file or directory to add",
         required = true
     )
     private String sourcePath;
+
+    @Option(
+        names = {"-path"},
+        paramLabel = "<archive-path>",
+        description = "Relative archive path from custom to the parent directory to use to add the file or directory, if any"
+    )
+    private String archivePath = null;
 
     @Option(
         names = { "-help" },
@@ -54,9 +64,17 @@ public class AddCustomCommand extends AddTypeCommandBase {
 
             String resultName;
             if (this.overwrite) {
-                resultName = this.archive.replaceCustomEntry(sourceFile.getName(), sourceFile.getPath());
+                String archiveReplacementPath = "";
+                if (!StringUtils.isEmpty(archivePath)) {
+                    archiveReplacementPath = this.archivePath;
+                    if (!archiveReplacementPath.endsWith(ZIP_SEP)) {
+                        archiveReplacementPath += ZIP_SEP;
+                    }
+                }
+                archiveReplacementPath += sourceFile.getName();
+                resultName = this.archive.replaceCustomEntry(archiveReplacementPath, sourceFile.getPath());
             } else {
-                resultName = this.archive.addCustomEntry(sourceFile.getPath());
+                resultName = this.archive.addCustomEntry(sourceFile.getPath(), this.archivePath);
             }
             response = new CommandResponse(ExitCode.OK, resultName);
         } catch (ArchiveHelperException ex) {

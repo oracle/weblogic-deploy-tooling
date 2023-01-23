@@ -16,7 +16,8 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.SHAR
 
 @Command(
     name = "sharedLibrary",
-    description = "%nList shared library entries in the archive file:",
+    header = "List shared library entries in the archive file.",
+    description = "%nCommand-line options:",
     sortOptions = false
 )
 public class ListSharedLibraryCommand extends ListTypeCommandBase {

@@ -19,7 +19,8 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
     name = "sharedLibrary",
-    description = "%nAdd shared library to the archive file:",
+    header = "Add shared library to the archive file.",
+    description = "%nCommand-line options:",
     sortOptions = false
 )
 public class AddSharedLibraryCommand extends AddTypeCommandBase {

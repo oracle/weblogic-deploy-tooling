@@ -19,7 +19,8 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
     name = "structuredApplication",
-    description = "%nAdd structured application installation directory to the archive file:",
+    header = "Add structured application installation directory to the archive file.",
+    description = "%nCommand-line options:",
     sortOptions = false
 )
 public class AddStructuredApplicationCommand extends AddTypeCommandBase {

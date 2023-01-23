@@ -4,11 +4,8 @@
  */
 package oracle.weblogic.deploy.tool.archive_helper.remove;
 
-import java.util.List;
-
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
-
 import oracle.weblogic.deploy.tool.archive_helper.ArchiveHelperException;
 import oracle.weblogic.deploy.tool.archive_helper.CommandResponse;
 import oracle.weblogic.deploy.util.ExitCode;
@@ -19,28 +16,33 @@ import picocli.CommandLine.Option;
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
-    name = "application",
-    header = "Remove application from the archive file.",
+    name = "serverKeystore",
+    header = "Remove server keystore from the archive file.",
     description = "%nCommand-line options:",
-    footer = "%nNote: If using an Application Installation Directory, " +
-        "please see the archiveHelper remove structuredApplication command.%n",
     sortOptions = false
 )
-public class RemoveApplicationCommand extends RemoveTypeCommandBase {
-    private static final String CLASS = RemoveApplicationCommand.class.getName();
+public class RemoveServerKeystoreCommand extends RemoveTypeCommandBase {
+    private static final String CLASS = RemoveServerKeystoreCommand.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
-    private static final String TYPE = "application";
+    private static final String TYPE = "server keystore";
+
+    @Option(
+        names = {"-server_name"},
+        description = "Name of the server used to segregate the keystores in the archive file",
+        required = true
+    )
+    private String serverName;
 
     @Option(
         names = {"-name"},
-        description = "Name of the application to be removed from the archive file",
+        description = "Name of the server keystore to be removed from the archive file",
         required = true
     )
     private String name;
 
     @Option(
         names = { "-help" },
-        description = "Get help for the archiveHelper remove application subcommand",
+        description = "Get help for the archiveHelper remove serverKeystore subcommand",
         usageHelp = true
     )
     private boolean helpRequested = false;
@@ -56,21 +58,22 @@ public class RemoveApplicationCommand extends RemoveTypeCommandBase {
 
             int entriesRemoved;
             if (this.force) {
-                entriesRemoved = this.archive.removeApplication(name, true);
+                entriesRemoved = this.archive.removeServerKeystore(this.serverName, this.name, true);
             } else {
-                entriesRemoved = this.archive.removeApplication(name);
+                entriesRemoved = this.archive.removeServerKeystore(this.serverName, this.name);
             }
-            response = new CommandResponse(ExitCode.OK, "WLSDPLY-30026", TYPE, this.name,
+            response = new CommandResponse(ExitCode.OK, "WLSDPLY-30029", TYPE, this.serverName, this.name,
                 entriesRemoved, this.archiveFilePath);
         } catch (ArchiveHelperException ex) {
-            LOGGER.severe("WLSDPLY-30027", ex, TYPE, this.name, this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30027", ex, TYPE, this.name,
-                this.archiveFilePath, ex.getLocalizedMessage());
+            LOGGER.severe("WLSDPLY-30030", ex, this.serverName, this.name, this.archiveFilePath,
+                ex.getLocalizedMessage());
+            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30030", ex, this.serverName,
+                this.name, this.archiveFilePath, ex.getLocalizedMessage());
         } catch (WLSDeployArchiveIOException | IllegalArgumentException ex) {
-            LOGGER.severe("WLSDPLY-30028", ex, TYPE, this.name, this.force,
+            LOGGER.severe("WLSDPLY-30031", ex, this.serverName, this.name, this.force,
                 this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30028", ex, TYPE, this.name, this.force,
-                this.archiveFilePath, ex.getLocalizedMessage());
+            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30031", ex, this.serverName, this.name,
+                this.force, this.archiveFilePath, ex.getLocalizedMessage());
         }
 
         LOGGER.exiting(CLASS, METHOD, response);

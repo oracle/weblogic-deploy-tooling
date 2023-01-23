@@ -15,7 +15,8 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.JMS_
 
 @Command(
     name = "jmsForeignServer",
-    description = "%nList JMS foreign server binding entries in the archive file:",
+    header = "List JMS foreign server binding entries in the archive file.",
+    description = "%nCommand-line options:",
     sortOptions = false
 )
 public class ListJMSForeignServerCommand extends ListTypeCommandBase {

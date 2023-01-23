@@ -19,7 +19,8 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
     name = "opssWallet",
-    description = "%nAdd OPSS wallet to the archive file:",
+    header = "Add OPSS wallet to the archive file.",
+    description = "%nCommand-line options:",
     sortOptions = false
 )
 public class AddOPSSWalletCommand extends AddTypeCommandBase {

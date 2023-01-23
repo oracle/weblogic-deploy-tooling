@@ -15,7 +15,8 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.SERV
 
 @Command(
     name = "serverKeystore",
-    description = "%nList server keystore entries in the archive file:",
+    header = "List server keystore entries in the archive file.",
+    description = "%nCommand-line options:",
     sortOptions = false
 )
 public class ListServerKeystoreCommand extends ListTypeCommandBase {
@@ -32,8 +33,8 @@ public class ListServerKeystoreCommand extends ListTypeCommandBase {
 
     @Option(
         names = { "-name" },
-        paramLabel = "<server-name>",
-        description = "Name of the server for which to list the keystore"
+        paramLabel = "<name>",
+        description = "Name of the keystore to list"
     )
     private String name;
 

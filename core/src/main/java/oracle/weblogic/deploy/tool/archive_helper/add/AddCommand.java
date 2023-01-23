@@ -9,8 +9,9 @@ import picocli.CommandLine.Option;
 
 @Command(
     name = "add",
-    description = "%nAdd items to the archive file:",
-    commandListHeading = "%nSubcommands:%n%n",
+    header = "Add items to the archive file.",
+    description = "%nCommand-line options:",
+    commandListHeading = "%nSubcommands:%n",
     subcommands = {
         AddApplicationCommand.class,
         AddApplicationPlanCommand.class,

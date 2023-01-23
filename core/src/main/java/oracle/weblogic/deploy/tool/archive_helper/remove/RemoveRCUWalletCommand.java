@@ -4,11 +4,8 @@
  */
 package oracle.weblogic.deploy.tool.archive_helper.remove;
 
-import java.util.List;
-
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
-
 import oracle.weblogic.deploy.tool.archive_helper.ArchiveHelperException;
 import oracle.weblogic.deploy.tool.archive_helper.CommandResponse;
 import oracle.weblogic.deploy.util.ExitCode;
@@ -17,30 +14,22 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
+import static oracle.weblogic.deploy.util.WLSDeployArchive.DEFAULT_RCU_WALLET_NAME;
 
 @Command(
-    name = "application",
-    header = "Remove application from the archive file.",
+    name = "rcuWallet",
+    header = "Remove RCU wallet from the archive file.",
     description = "%nCommand-line options:",
-    footer = "%nNote: If using an Application Installation Directory, " +
-        "please see the archiveHelper remove structuredApplication command.%n",
     sortOptions = false
 )
-public class RemoveApplicationCommand extends RemoveTypeCommandBase {
-    private static final String CLASS = RemoveApplicationCommand.class.getName();
+public class RemoveRCUWalletCommand extends RemoveTypeCommandBase {
+    private static final String CLASS = RemoveRCUWalletCommand.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
-    private static final String TYPE = "application";
-
-    @Option(
-        names = {"-name"},
-        description = "Name of the application to be removed from the archive file",
-        required = true
-    )
-    private String name;
+    private static final String TYPE = "database wallet";
 
     @Option(
         names = { "-help" },
-        description = "Get help for the archiveHelper remove application subcommand",
+        description = "Get help for the archiveHelper remove databaseWallet subcommand",
         usageHelp = true
     )
     private boolean helpRequested = false;
@@ -56,21 +45,22 @@ public class RemoveApplicationCommand extends RemoveTypeCommandBase {
 
             int entriesRemoved;
             if (this.force) {
-                entriesRemoved = this.archive.removeApplication(name, true);
+                entriesRemoved = this.archive.removeDatabaseWallet(DEFAULT_RCU_WALLET_NAME, true);
             } else {
-                entriesRemoved = this.archive.removeApplication(name);
+                entriesRemoved = this.archive.removeDatabaseWallet(DEFAULT_RCU_WALLET_NAME);
             }
-            response = new CommandResponse(ExitCode.OK, "WLSDPLY-30026", TYPE, this.name,
+            response = new CommandResponse(ExitCode.OK, "WLSDPLY-30026", TYPE, DEFAULT_RCU_WALLET_NAME,
                 entriesRemoved, this.archiveFilePath);
         } catch (ArchiveHelperException ex) {
-            LOGGER.severe("WLSDPLY-30027", ex, TYPE, this.name, this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30027", ex, TYPE, this.name,
-                this.archiveFilePath, ex.getLocalizedMessage());
+            LOGGER.severe("WLSDPLY-30027", ex, TYPE, DEFAULT_RCU_WALLET_NAME, this.archiveFilePath,
+                ex.getLocalizedMessage());
+            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30027", ex, TYPE,
+                DEFAULT_RCU_WALLET_NAME, this.archiveFilePath, ex.getLocalizedMessage());
         } catch (WLSDeployArchiveIOException | IllegalArgumentException ex) {
-            LOGGER.severe("WLSDPLY-30028", ex, TYPE, this.name, this.force,
+            LOGGER.severe("WLSDPLY-30028", ex, TYPE, DEFAULT_RCU_WALLET_NAME, this.force,
                 this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30028", ex, TYPE, this.name, this.force,
-                this.archiveFilePath, ex.getLocalizedMessage());
+            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30028", ex, TYPE, DEFAULT_RCU_WALLET_NAME,
+                this.force, this.archiveFilePath, ex.getLocalizedMessage());
         }
 
         LOGGER.exiting(CLASS, METHOD, response);

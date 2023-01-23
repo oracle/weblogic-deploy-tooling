@@ -19,7 +19,8 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
     name = "nodeManagerKeystore",
-    description = "%nAdd node manager keystore to the archive file:",
+    header = "Add node manager keystore to the archive file.",
+    description = "%nCommand-line options:",
     sortOptions = false
 )
 public class AddNodeManagerKeystoreCommand extends AddTypeCommandBase {

@@ -19,7 +19,8 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
     name = "domainBinScript",
-    description = "%nAdd domain bin script to the archive file:",
+    header = "Add domain bin script to the archive file.",
+    description = "%nCommand-line options:",
     sortOptions = false
 )
 public class AddDomainBinScriptCommand extends AddTypeCommandBase {

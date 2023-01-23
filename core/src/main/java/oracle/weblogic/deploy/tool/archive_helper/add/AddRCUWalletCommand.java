@@ -20,7 +20,8 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.DEFAULT_RCU_WALLET_NA
 
 @Command(
     name = "rcuWallet",
-    description = "%nAdd RCU database wallet to the archive file:",
+    header = "Add RCU database wallet to the archive file.",
+    description = "%nCommand-line options:",
     sortOptions = false
 )
 public class AddRCUWalletCommand extends AddTypeCommandBase {

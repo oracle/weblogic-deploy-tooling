@@ -15,7 +15,8 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.DOMA
 
 @Command(
     name = "domainLibrary",
-    description = "%nList domain library entries in the archive file:",
+    header = "List domain library entries in the archive file.",
+    description = "%nCommand-line options:",
     sortOptions = false
 )
 public class ListDomainLibraryCommand extends ListTypeCommandBase {

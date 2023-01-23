@@ -20,8 +20,12 @@ import oracle.weblogic.deploy.util.ExitCode;
 import oracle.weblogic.deploy.util.WLSDeployZipFileTest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.ALL_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.APPLICATIONS_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.CLASSPATH_LIBS_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.CLASSPATH_LIB_BAR_JAR_CONTENTS;
@@ -50,6 +54,9 @@ import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_CON
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_FANCY_SCRIPT_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVERS_ADMIN_SERVER_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVERS_ADMIN_SERVER_TRUST_JKS_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS_MY_LIB_WAR_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS_MY_OTHER_LIB_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.STRUCTURED_APPS_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.STRUCTURED_APP_WEBAPP_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.STRUCTURED_APP_WEBAPP1_CONTENTS;
@@ -67,6 +74,8 @@ public class ArchiveHelperListTest {
     private static final Path ARCHIVE_HELPER_TARGET_ZIP =
         new File(UNIT_TEST_TARGET_DIR, "archive-helper-test.zip").toPath();
     private static final String ARCHIVE_HELPER_VALUE = ARCHIVE_HELPER_TARGET_ZIP.toFile().getAbsolutePath();
+
+    private static final String[] LIST_ALL_EXPECTED = ALL_CONTENT;
 
     private static final String[] LIST_APP_FILE_EXPECTED = MY_APP_WAR_CONTENTS;
     private static final String[] LIST_APP_DIR_EXPECTED = MY_OTHER_APP_DIR_CONTENTS;
@@ -87,6 +96,11 @@ public class ArchiveHelperListTest {
     private static final String[] LIST_RCU_WALLET_EXPECTED = DATABASE_WALLET_RCU_CONTENTS;
     private static final String[] LIST_WALLET1_EXPECTED = DATABASE_WALLET_WALLET1_CONTENTS;
 
+    private static final String[] LIST_SHLIB_FILE_EXPECTED = SHARED_LIBS_MY_LIB_WAR_CONTENTS;
+    private static final String[] LIST_SHLIB_DIR_EXPECTED = SHARED_LIBS_MY_OTHER_LIB_CONTENTS;
+    private static final String[] LIST_SHLIB_EXPECTED = SHARED_LIBS_CONTENT;
+
+
     private static final String[] LIST_STRUCTURED_APP_WEBAPP_EXPECTED = STRUCTURED_APP_WEBAPP_CONTENTS;
     private static final String[] LIST_STRUCTURED_APP_WEBAPP1_EXPECTED = STRUCTURED_APP_WEBAPP1_CONTENTS;
     private static final String[] LIST_STRUCTURED_APPS_EXPECTED = STRUCTURED_APPS_CONTENT;
@@ -103,13 +117,33 @@ public class ArchiveHelperListTest {
         logger.setLevel(Level.OFF);
     }
 
-    @Test
-    void testListAppsNoArchive_Fails() {
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "all",
+        "application",
+        "classpathLibrary",
+        "coherence",
+        "custom",
+        "databaseWallet",
+        "domainBinScript",
+        "domainLibrary",
+        "fileStore",
+        "jmsForeignServer",
+        "mimMapping",
+        "nodeManagerKeystore",
+        "opssWallet",
+        "rcuWallet",
+        "script",
+        "serverKeystore",
+        "sharedLibrary",
+        "structuredApplication"
+    })
+    void testListAppsNoArchive_Fails(String subcommand) {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
             "list",
-            "application"
+            subcommand
         };
 
         int actual = -1;
@@ -122,16 +156,62 @@ public class ArchiveHelperListTest {
             "expected command to exit with exit code " + ExitCode.USAGE_ERROR);
     }
 
-    @Test
-    void testListAppsBadArchive_Fails() {
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "all",
+        "application",
+        "classpathLibrary",
+        "coherence",
+        "custom",
+        "databaseWallet",
+        "domainBinScript",
+        "domainLibrary",
+        "fileStore",
+        "jmsForeignServer",
+        "mimeMapping",
+        "nodeManagerKeystore",
+        "opssWallet",
+        "rcuWallet",
+        "script",
+        "serverKeystore",
+        "sharedLibrary",
+        "structuredApplication"
+    })
+    void testListAppsBadArchive_Fails(String subcommand) {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
-        String[] args = new String[] {
-            "list",
-            "application",
-            "-archive_file",
-            "foo.zip"
-        };
+        String[] args;
+        switch(subcommand) {
+            case "jmsForeignServer":
+                args = new String[] {
+                    "list",
+                    subcommand,
+                    "-foreign_server_name",
+                    "foo",
+                    "-archive_file",
+                    "foo.zip"
+                };
+                break;
+
+            case "serverKeystore":
+                args = new String[] {
+                    "list",
+                    subcommand,
+                    "-server_name",
+                    "foo",
+                    "-archive_file",
+                    "foo.zip"
+                };
+                break;
+
+            default:
+                args = new String[] {
+                    "list",
+                    subcommand,
+                    "-archive_file",
+                    "foo.zip"
+                };
+        }
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);
@@ -141,6 +221,29 @@ public class ArchiveHelperListTest {
 
         assertEquals(ExitCode.ARG_VALIDATION_ERROR, actual,
             "expected command to exit with exit code " + ExitCode.ARG_VALIDATION_ERROR);
+    }
+
+    @Test
+    void testListAll_ReturnedExceptedNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+            "list",
+            "all",
+            "-archive_file",
+            ARCHIVE_HELPER_VALUE
+        };
+        List<String> expectedPaths = Arrays.asList(LIST_ALL_EXPECTED);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertListsHaveSameElements(expectedPaths, outputLines, "all");
     }
 
     @Test
@@ -155,7 +258,7 @@ public class ArchiveHelperListTest {
             "-name",
             "my-app.war"
         };
-        String expectedPath = LIST_APP_FILE_EXPECTED[0];
+        List<String> expectedPaths = Arrays.asList(LIST_APP_FILE_EXPECTED);
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);
@@ -165,8 +268,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(1, outputLines.length, "expected list applications -name my-app.war to return 1 entry");
-        assertEquals(expectedPath, outputLines[0],"expected " + expectedPath);
+        assertListsHaveSameElements(expectedPaths, outputLines, "application -name my-app.war");
     }
 
     @Test
@@ -191,11 +293,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list applications -name my-other-app to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "application -name my-other-app");
     }
 
     @Test
@@ -218,15 +316,11 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list applications to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "application");
     }
 
     @Test
-    void testListSharedLibraries_ReturnsNoNames() {
+    void testListSharedLibraries_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -235,16 +329,67 @@ public class ArchiveHelperListTest {
             "-archive_file",
             ARCHIVE_HELPER_VALUE
         };
+        List<String> expectedPaths = Arrays.asList(LIST_SHLIB_EXPECTED);
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);
              PrintWriter err = new PrintWriter(errStringWriter)) {
             actual = ArchiveHelper.executeCommand(out, err, args);
         }
-        String outputLines = outStringWriter.getBuffer().toString().trim();
+        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals("", outputLines, "expected list sharedLibrary to return nothing");
+        assertListsHaveSameElements(expectedPaths, outputLines, "sharedLibrary");
+    }
+
+    @Test
+    void testListSharedLibraryFile_ReturnsExpectedNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+            "list",
+            "sharedLibrary",
+            "-archive_file",
+            ARCHIVE_HELPER_VALUE,
+            "-name",
+            "my-lib.war"
+        };
+        List<String> expectedPaths = Arrays.asList(SHARED_LIBS_MY_LIB_WAR_CONTENTS);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertListsHaveSameElements(expectedPaths, outputLines, "sharedLibrary -name my-lib.war");
+    }
+
+    @Test
+    void testListSharedLibraryDir_ReturnsExpectedNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+            "list",
+            "sharedLibrary",
+            "-archive_file",
+            ARCHIVE_HELPER_VALUE,
+            "-name",
+            "my-other-lib"
+        };
+        List<String> expectedPaths = Arrays.asList(SHARED_LIBS_MY_OTHER_LIB_CONTENTS);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertListsHaveSameElements(expectedPaths, outputLines, "sharedLibrary -name my-other-lib");
     }
 
     @Test
@@ -291,11 +436,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list classpathLibrary to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "classpathLibrary");
     }
 
     @Test
@@ -320,11 +461,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list classpathLibrary to return " + expectedPaths.size() + " entry");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "classpathLibrary -name bar.jar");
     }
 
     @Test
@@ -349,11 +486,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list coherence -cluster_name mycluster to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "coherence -cluster_name mycluster");
     }
 
     @Test
@@ -378,11 +511,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list coherence -cluster_name mycluster2 to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "coherence -cluster_name mycluster2");
     }
 
     @Test
@@ -405,11 +534,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list coherence to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "coherence");
     }
 
     @Test
@@ -432,11 +557,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list mimeMapping to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "mimeMapping");
     }
 
     @Test
@@ -461,11 +582,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list mimeMapping to return " + expectedPaths.size() + " entry");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "mimeMapping -name mimemappings.properties");
     }
 
     @Test
@@ -488,11 +605,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list custom to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "custom");
     }
 
     @Test
@@ -517,11 +630,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list custom to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "custom -name mydir");
     }
 
     @Test
@@ -546,11 +655,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list custom to return " + expectedPaths.size() + " entry");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "custom -name foo.properties");
     }
 
     @Test
@@ -575,11 +680,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length, "expected list databaseWallet -name " +
-            DEFAULT_RCU_WALLET_NAME + " to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "databaseWallet -name " + DEFAULT_RCU_WALLET_NAME);
     }
 
     @Test
@@ -602,11 +703,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list rcuWallet to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "rcuWallet");
     }
 
     @Test
@@ -631,11 +728,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list databaseWallet -name wallet1 to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "databaseWallet -name wallet1");
     }
 
     @Test
@@ -658,11 +751,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list domainBinScript to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "domainBinScript");
     }
 
     @Test
@@ -687,11 +776,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list domainBinScript -name setUserOverrides.sh to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "domainBinScript -name setUserOverrides.sh");
     }
 
     @Test
@@ -714,11 +799,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list domainLibrary to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "domainLibrary");
     }
 
     @Test
@@ -743,11 +824,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list domainLibrary -name foo.jar to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "domainLibrary -name foo.jar");
     }
 
     @Test
@@ -770,11 +847,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list nodeManagerKeystore to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "nodeManagerKeystore");
     }
 
     @Test
@@ -799,11 +872,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list nodeManagerKeystore -name nmTrust.jks to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "nodeManagerKeystore -name nmTrust.jks");
     }
 
     @Test
@@ -826,11 +895,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list opssWallet to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "opssWallet");
     }
 
     @Test
@@ -853,11 +918,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list script to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "script");
     }
 
     @Test
@@ -882,11 +943,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list script -name my_fancy_script.sh to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "script -name my_fancy_script.sh");
     }
 
     @Test
@@ -911,11 +968,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list serverKeystore to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "serverKeystore");
     }
 
     @Test
@@ -942,11 +995,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list serverKeystore -name trust.jks to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "serverKeystore -name trust.jks");
     }
 
     @Test
@@ -969,11 +1018,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list fileStore to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "fileStore");
     }
 
     @Test
@@ -998,11 +1043,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list fileStore -name fs2 to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "fileStore -name fs2");
     }
 
     @Test
@@ -1027,11 +1068,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list structuredApplication -name webapp to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "structuredApplication -name webapp");
     }
 
     @Test
@@ -1056,11 +1093,7 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list structuredApplication -name webapp1 to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
-        }
+        assertListsHaveSameElements(expectedPaths, outputLines, "structuredApplication -name webapp1");
     }
 
     @Test
@@ -1083,10 +1116,15 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals(expectedPaths.size(), outputLines.length,
-            "expected list structuredApplication to return " + expectedPaths.size() + " entries");
-        for (String actualLine : outputLines) {
-            assertTrue(expectedPaths.contains(actualLine), actualLine + " not in expected output");
+        assertListsHaveSameElements(expectedPaths, outputLines, "structuredApplication");
+    }
+
+    private static void assertListsHaveSameElements(List<String> expectedEntries, String[] actualLines, String command) {
+        assertEquals(expectedEntries.size(), actualLines.length, "expected list " + command + " to return " +
+            expectedEntries.size() + " entries");
+        for (String actualLine : actualLines) {
+            assertTrue(expectedEntries.contains(actualLine), actualLine + " not in expected output");
         }
+
     }
 }

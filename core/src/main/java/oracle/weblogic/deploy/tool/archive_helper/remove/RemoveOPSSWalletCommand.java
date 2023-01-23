@@ -2,9 +2,7 @@
  * Copyright (c) 2023, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
-package oracle.weblogic.deploy.tool.archive_helper.add;
-
-import java.io.File;
+package oracle.weblogic.deploy.tool.archive_helper.remove;
 
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
@@ -16,28 +14,22 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
+import static oracle.weblogic.deploy.util.WLSDeployArchive.DEFAULT_RCU_WALLET_NAME;
 
 @Command(
-    name = "fileStore",
-    header = "Add empty file store directory to the archive file.",
+    name = "opssWallet",
+    header = "Remove OPSS wallet from the archive file.",
     description = "%nCommand-line options:",
     sortOptions = false
 )
-public class AddFileStoreCommand extends AddTypeCommandBase {
-    private static final String CLASS = AddFileStoreCommand.class.getName();
+public class RemoveOPSSWalletCommand extends RemoveTypeCommandBase {
+    private static final String CLASS = RemoveOPSSWalletCommand.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
-
-    @Option(
-        names = { "-name" },
-        paramLabel = "<file-store-name>",
-        description = "File store name",
-        required = true
-    )
-    protected String fileStoreName;
+    private static final String TYPE = "OPSS wallet";
 
     @Option(
         names = { "-help" },
-        description = "Get help for the archiveHelper add fileStore subcommand",
+        description = "Get help for the archiveHelper remove opssWallet subcommand",
         usageHelp = true
     )
     private boolean helpRequested = false;
@@ -51,22 +43,22 @@ public class AddFileStoreCommand extends AddTypeCommandBase {
         try {
             initializeOptions();
 
-            String resultName;
-            if (this.overwrite) {
-                resultName = this.archive.replaceFileStoreDirectory(this.fileStoreName);
+            int entriesRemoved;
+            if (this.force) {
+                entriesRemoved = this.archive.removeOPSSWallet(true);
             } else {
-                resultName = this.archive.addFileStoreDirectory(this.fileStoreName);
+                entriesRemoved = this.archive.removeOPSSWallet();
             }
-            response = new CommandResponse(ExitCode.OK, resultName);
+            response = new CommandResponse(ExitCode.OK, "WLSDPLY-30040", TYPE,
+                entriesRemoved, this.archiveFilePath);
         } catch (ArchiveHelperException ex) {
-            LOGGER.severe("WLSDPLY-30020", ex, this.fileStoreName, this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30020", this.fileStoreName,
+            LOGGER.severe("WLSDPLY-30041", ex, TYPE, this.archiveFilePath, ex.getLocalizedMessage());
+            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30041", ex, TYPE,
                 this.archiveFilePath, ex.getLocalizedMessage());
         } catch (WLSDeployArchiveIOException | IllegalArgumentException ex) {
-            LOGGER.severe("WLSDPLY-30021", ex, this.fileStoreName, this.overwrite,
-                this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30021", this.fileStoreName,
-                this.overwrite, this.archiveFilePath, ex.getLocalizedMessage());
+            LOGGER.severe("WLSDPLY-30042", ex, TYPE, this.force, this.archiveFilePath, ex.getLocalizedMessage());
+            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30042", ex, TYPE,
+                this.force, this.archiveFilePath, ex.getLocalizedMessage());
         }
 
         LOGGER.exiting(CLASS, METHOD, response);
