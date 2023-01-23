@@ -18,7 +18,7 @@ import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.exit_code import ExitCode
 
 _class_name = "ModelHelpPrinter"
-MODEL_PATH_PATTERN = re.compile(r'(^[a-zA-Z]+:?)?(/[a-zA-Z0-9^/]+)?$')
+MODEL_PATH_PATTERN = re.compile(r'(^[a-zA-Z]+:?)?(/[a-zA-Z0-9#^/]+)?$')
 
 
 class ModelHelpPrinter(object):

@@ -9,6 +9,7 @@ from wlsdeploy.tool.util.targets import schema_helper
 from wlsdeploy.tool.modelhelp import model_help_utils
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
 import wlsdeploy.util.unicode_helper as str_helper
+from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.exit_code import ExitCode
 
 
@@ -127,24 +128,48 @@ class ModelCrdSectionPrinter(object):
 
         current_folder = schema
         for token in model_path_tokens[token_index:]:
+            lookup_token = token
+            option_key = None
+
+            # check for a folder with multiple options, such as (verrazzano/.../trait#MetricsTrait)
+            if '#' in token:
+                parts = token.split('#', 1)
+                lookup_token = parts[0]
+                option_key = parts[1]
+
             properties = _get_properties(current_folder)
 
             valid_subfolder_keys = _get_folder_names(properties)
-            if token not in valid_subfolder_keys:
+            if lookup_token not in valid_subfolder_keys:
                 ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
-                                                           "WLSDPLY-10111", model_path, token,
+                                                           "WLSDPLY-10111", model_path, lookup_token,
                                                            ', '.join(valid_subfolder_keys))
                 self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
 
-            current_folder = properties[token]
+            current_folder = properties[lookup_token]
 
-            _print_indent(token + ":", indent, in_object_array)
+            # find matching option if folder has multiple options, such as (verrazzano/.../trait#MetricsTrait)
+            token_suffix = ''
+            folder_options = schema_helper.get_one_of_options(current_folder)
+            if folder_options and option_key is not None:
+                token_suffix = '  # ' + option_key
+                current_folder = self._find_folder_option(folder_options, option_key, model_path + '/' + lookup_token)
+
+            _print_indent(lookup_token + ":" + token_suffix, indent, in_object_array)
             indent += 1
 
             # apply to the next folder in the path
             in_object_array = schema_helper.is_object_array(current_folder)
             model_path = model_path + "/" + token
+
+        # finished writing the parent folders
+
+        # if this is a folder with multiple options, list the options and return
+        folder_options = schema_helper.get_one_of_options(current_folder)
+        if folder_options:
+            print_folder_options(folder_options, model_path, indent)
+            return
 
         # list the attributes and folders, as specified
 
@@ -252,6 +277,33 @@ class ModelCrdSectionPrinter(object):
 
         return in_object_array
 
+    def _find_folder_option(self, folder_options, option_key, model_path):
+        """
+        Return the folder option that matches the specified index key.
+        Try matching "kind" field of each option, then try lookup by numeric index.
+        Throw an exception if no matching option is found.
+        :param folder_options: the options to be examined
+        :param option_key: the key to check against
+        :param model_path: used for error logging
+        :return: the matching option
+        """
+        _method_name = '_find_folder_option'
+
+        for folder_option in folder_options:
+            key = _get_kind_value(folder_option)
+            if key == option_key:
+                return folder_option
+
+        if option_key.isdecimal():
+            index = int(option_key)
+            if (index > -1) and (index < len(folder_options)):
+                return folder_options[index]
+
+        ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, "WLSDPLY-10115",
+                                                   model_path, '#' + option_key)
+        self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+        raise ex
+
 
 def _get_properties(schema_folder):
     # in array elements, the properties are under "items"
@@ -275,6 +327,35 @@ def _get_folder_names(schema_properties):
             if schema_helper.is_object_type(property_map):
                 folder_names.append(key)
     return folder_names
+
+
+def print_folder_options(folder_options, model_path, indent_level):
+    """
+    Print messages for a folder that has multiple content options.
+    :param folder_options: the options to be printed
+    :param model_path: the model path to be included in the output
+    :param indent_level: the level to indent by, before printing output
+    :return: the matching option, or None
+    """
+    _print_indent("# " + exception_helper.get_message('WLSDPLY-10114', len(folder_options)), indent_level)
+    for index, one_of_option in enumerate(folder_options):
+        key = _get_kind_value(one_of_option) or index
+        print("")
+        _print_indent("# see " + model_path + "#" + str(key), indent_level)
+
+
+def _get_kind_value(folder_option):
+    """
+    Return the "kind" value of the specified folder option.
+    If the option doesn't have a kind value, return None.
+    :param folder_option: the folder option to be examined
+    :return: the value of the "kind" field, or None
+    """
+    properties = schema_helper.get_properties(folder_option)
+    kind = dictionary_utils.get_dictionary_element(properties, "kind")
+    enum = dictionary_utils.get_dictionary_element(kind, "enum")
+    if enum and len(enum):
+        return enum[0]
 
 
 def _print_indent(msg, level=1, first_in_list_object=False):
