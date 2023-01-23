@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.",
+    "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "CoherenceClusterSystemResource${:s}",
     "online_bean": "weblogic.management.configuration.CoherenceClusterSystemResourceMBean",
@@ -260,7 +260,7 @@
             },
             "attributes": {
                 "CustomClusterConfigurationFileLastUpdatedTimestamp": [ {"version": "[12.1.2,)", "wlst_mode": "both", "wlst_name": "CustomClusterConfigurationFileLastUpdatedTimestamp", "wlst_path": "WP001", "default_value": 0,      "wlst_type": "long",   "access": "${:IGNORED}" } ],
-                "CustomClusterConfigurationFileName":                 [ {"version": "[12.1.2,)", "wlst_mode": "both", "wlst_name": "CustomClusterConfigurationFileName",                 "wlst_path": "WP001", "default_value": null,   "wlst_type": "string", "access": "${:IGNORED}", "uses_path_tokens": "true" } ],
+                "CustomClusterConfigurationFileName":                 [ {"version": "[12.1.2,)", "wlst_mode": "both", "wlst_name": "CustomClusterConfigurationFileName",                 "wlst_path": "WP001", "default_value": null,   "wlst_type": "string", "access": "${:IGNORED}", "set_method": "MBEAN.set_coherence_cluster_custom_config_file", "uses_path_tokens": "true" } ],
                 "Version":                                            [ {"version": "[12.1.2,)", "wlst_mode": "both", "wlst_name": "Version",                                            "wlst_path": "WP001", "default_value": null,   "wlst_type": "string"} ]
             },
             "wlst_attributes_path": "WP001",
