@@ -3,7 +3,7 @@ title: "Connect to a Database"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 3
-description: "Creates a domain and populates the domain with all the resources and applications specified in the model."
+description: "Create a connection to access your database."
 ---
 
 ### Specifying RCU connection information in the model
