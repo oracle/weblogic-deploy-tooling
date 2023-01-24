@@ -1,10 +1,18 @@
+---
+title: "Connect to a Database"
+date: 2019-02-23T17:19:24-05:00
+draft: false
+weight: 3
+description: "Create a connection to access your database."
+---
+
 ### Specifying RCU connection information in the model
 
-When creating a JRF domain, you can provide all the RCU connection information in a section `RCUDbInfo` under the `domainInfo` section in the model.  
-It provides you with more flexibility over the basic command-line arguments of 
+When creating a JRF domain, you can provide all the RCU connection information in a section `RCUDbInfo` under the `domainInfo` section in the model.
+It provides you with more flexibility over the basic command-line arguments of
 `-rcu_db` and `-rcu_prefix`.  Use this when the connection string is more complex and requires extra options.
 
-### Background on JRF domain RCU tables 
+### Background on JRF domain RCU tables
 
 A JRF domain creates several data sources from the JRF domain template.
 
@@ -156,7 +164,7 @@ domainInfo:
         rcu_admin_password : <database admin password is required only when you specify -run_rcu flag, will be prompted
          if not specified>
         rcu_db_conn_string : dbhost:1521/pdborcl
-```        
+```
 
 ### Specify variables for RCU
 
@@ -166,7 +174,7 @@ RCU `-variables` option of the repository creation utility can now be included i
 domainInfo:
     RCUDbInfo:
         rcu_variables : xxxx
-```    
+```
 
 ### Specify extended XML files for RCU
 
@@ -189,9 +197,9 @@ In the following examples of the JRF data source sparse model, you can use it to
 
 #### Default template data source
 
-This is a sparse model for JRF data sources with the RCU prefix `FMW1`.  
-You will need to update at least the `URL`, `PasswordEncrypted`, and the `user` property value.  When you specify the value of `URL`, it 
-must be a valid `JDBC URL` format, which is different from the `rcu_db_conn_string` which does not require the `jdbc:oracle:thin:...` part. 
+This is a sparse model for JRF data sources with the RCU prefix `FMW1`.
+You will need to update at least the `URL`, `PasswordEncrypted`, and the `user` property value.  When you specify the value of `URL`, it
+must be a valid `JDBC URL` format, which is different from the `rcu_db_conn_string` which does not require the `jdbc:oracle:thin:...` part.
 
 ```yaml
 resources:
@@ -313,7 +321,7 @@ resources:
 
 #### Oracle Active Grid Link Data Source (AGL)
 
-For setting the data source to access Oracle Active Grid Link database, besides updating the `URL`, `PasswordEncrypted`, and the `user` property value; 
+For setting the data source to access Oracle Active Grid Link database, besides updating the `URL`, `PasswordEncrypted`, and the `user` property value;
 you can specify additional `JDBCOracleParams` under `JdbcResource` of each data source.  For example,
 
 ```yaml
@@ -325,7 +333,7 @@ you can specify additional `JDBCOracleParams` under `JdbcResource` of each data 
                 ....
 ```
 
-For the complete list of fields, run the WDT command, 
+For the complete list of fields, run the WDT command,
 
 ```shell
 modelHelp.sh -oracle_home <oracle home> resources:/JDBCSystemResource/JdbcResource/JDBCOracleParams
@@ -349,7 +357,7 @@ For example (note: details replaced by `....` for easier reading):
                 JDBCDriverParams:
                     URL: jdbc:oracle:thin://@somewhere:1521/db-node1
                     PasswordEncrypted:  'actualpassword`
-           .... 
+           ....
        'opss-data-source-1':
            ....
                JDBCDataSourceParams:
@@ -391,4 +399,3 @@ For the complete list of fields, run the WDT command,
 ```shell
 modelHelp.sh -oracle_home <oracle home> resources:/JDBCSystemResource/JdbcResource/JDBCOracleParams
 ```
-
