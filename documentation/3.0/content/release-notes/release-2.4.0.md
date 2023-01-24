@@ -1,7 +1,7 @@
 +++
 title = "Release 2.4.0"
 date = 2022-11-02T15:27:38-05:00
-weight = 5
+weight = 3
 pre = "<b> </b>"
 +++
 
@@ -34,5 +34,3 @@ pre = "<b> </b>"
 #### Known Issues
 - Due to the changes made for WDT-663, the resulting remotely discovered model contains extra fields that would not normally be there.
   This is an area of ongoing work to clean up the online aliases to not depend on these extra remote calls to produce a clean model.
-
-
