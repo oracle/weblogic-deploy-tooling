@@ -80,12 +80,21 @@ class CrdFileUpdaterTest(BaseTestCase):
         self._match_values("Document count", len(documents), 3)
 
         # application document
+
         application_resource = documents[0]
         # two existing components, one added, one merged
         component_list = self._traverse(application_resource, 'spec', 'components')
         self._match_values("Application component count", len(component_list), 3)
 
+        trait_list = self._traverse(component_list[0], 'traits')
+        self._match_values("Application trait count", len(trait_list), 3)
+
+        scraper_text = '/my-model-scraper'
+        scraper = self._traverse(trait_list[0], 'trait', 'spec', 'scraper')
+        self._match_values("Configmap JDBC URL contains " + scraper_text, scraper_text in scraper, True)
+
         # weblogic document
+
         weblogic_resource = documents[1]
         domain_resource = self._traverse(weblogic_resource, 'spec', 'workload', 'spec', 'template')
 
@@ -104,6 +113,7 @@ class CrdFileUpdaterTest(BaseTestCase):
         self._match_values("Third cluster replicas", cluster_resource[2]['spec']['replicas'], 1103)
 
         # configmap document
+
         configmap_resource = documents[2]
         data_map = self._traverse(configmap_resource, 'spec', 'workload', 'data')
         self._match_values("Data count", len(data_map), 2)

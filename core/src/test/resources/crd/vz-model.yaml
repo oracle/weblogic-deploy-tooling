@@ -6,6 +6,17 @@ verrazzano:
     spec:
       components:
         - componentName: demodomain-domain  # should merge with existing component
+          traits:
+            - trait:  # should merge with template trait
+                apiVersion: oam.verrazzano.io/v1alpha1
+                kind: MetricsTrait
+                spec:
+                  scraper: verrazzano-system/my-model-scraper
+            - trait:  # should add to template traits
+                apiVersion: oam.verrazzano.io/v1alpha1
+                kind: LoggingTrait
+                spec:
+                  imagePullPolicy: NEVER
         - componentName: demodomain-from-model  # should add this component
 
   weblogic:

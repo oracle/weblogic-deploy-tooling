@@ -97,9 +97,13 @@ class ExtractTest(BaseTestCase):
         application_resource = documents[0]
 
         # a model application component was added to 2 from the template
-        cluster_list = self._traverse(application_resource, 'spec', 'components')
-        self._match_values("Component count", len(cluster_list), 3)
-        self._match_values("Component 2 name", cluster_list[2]['componentName'], 'base-domain-from-model')
+        component_list = self._traverse(application_resource, 'spec', 'components')
+        self._match_values("Application component count", len(component_list), 3)
+        self._match_values("Application component 2 name", component_list[2]['componentName'],
+                           'base-domain-from-model')
+
+        trait_list = self._traverse(component_list[0], 'traits')
+        self._match_values("Application trait count", len(trait_list), 3)
 
         configmap_resource = documents[2]
 

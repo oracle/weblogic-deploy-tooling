@@ -82,24 +82,10 @@ class CrdSectionsValidator(object):
         folder_options = schema_helper.get_one_of_options(schema_folder)
         if folder_options:
             # if folder has multiple content options, try each option until validate is successful
-            valid_option_found = False
-            self._try_validate = True
-            for index, folder_option in enumerate(folder_options):
-                self._logger.fine("WLSDPLY-05041", index, model_path,
-                                  class_name=self._class_name, method_name=_method_name)
-                self._invalid_count = 0
-                schema_properties = schema_helper.get_properties(folder_option)
-                self.validate_folder_properties(model_folder, schema_properties, schema_path, model_path)
-                if not self._invalid_count:
-                    self._logger.fine("WLSDPLY-05042", index, model_path,
-                                      class_name=self._class_name, method_name=_method_name)
-                    valid_option_found = True
-                    break
-            self._try_validate = False
-            if not valid_option_found:
+            folder_option = self.find_folder_option(model_folder, folder_options, schema_path, model_path)
+            if not folder_option:
                 self._log_invalid("WLSDPLY-05043", model_path, len(folder_options),
                                   class_name=self._class_name, method_name=_method_name)
-
         else:
             # if folder has one set of properties, validate against those
             schema_properties = schema_helper.get_properties(schema_folder)
@@ -160,6 +146,36 @@ class CrdSectionsValidator(object):
                 self._log_invalid("WLSDPLY-05026", key, len(schema_properties), model_path,
                                   '%s' % ', '.join(schema_properties), class_name=self._class_name,
                                   method_name=_method_name)
+
+    def find_folder_option(self, model_folder, folder_options, schema_path, model_path):
+        """
+        Find a folder option that corresponds to the specified model folder contents.
+        Try validating with each folder option until successful.
+        :param model_folder: the model folder to match
+        :param folder_options: a list of folder options from the schema
+        :param schema_path: the path of schema elements (no array indices), used for supported check
+        :param model_path: the path of model elements (including array indices), used for logging
+        :return: the matching folder option, or None
+        """
+        _method_name = 'find_folder_option'
+
+        # try validating against each option until successful
+        result = None
+        self._try_validate = True
+        for index, folder_option in enumerate(folder_options):
+            self._logger.fine("WLSDPLY-05041", index, model_path,
+                              class_name=self._class_name, method_name=_method_name)
+            self._invalid_count = 0
+            schema_properties = schema_helper.get_properties(folder_option)
+            self.validate_folder_properties(model_folder, schema_properties, schema_path, model_path)
+            if not self._invalid_count:
+                self._logger.fine("WLSDPLY-05042", index, model_path,
+                                  class_name=self._class_name, method_name=_method_name)
+                result = folder_option
+                break
+
+        self._try_validate = False
+        return result
 
     def _validate_object_array(self, model_value, property_map, schema_path, model_path):
         """

@@ -9,17 +9,18 @@ from oracle.weblogic.deploy.util import PyRealBoolean
 from oracle.weblogic.deploy.yaml import YamlException
 
 from wlsdeploy.aliases import alias_utils
-from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.targets import schema_helper
+from wlsdeploy.tool.validate.crd_sections_validator import CrdSectionsValidator
 from wlsdeploy.util import dictionary_utils
 import wlsdeploy.util.unicode_helper as str_helper
+from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
 from wlsdeploy.yaml.yaml_translator import YamlToPython
 
-__class_name = 'output_file_helper'
+__class_name = 'crd_file_updater'
 __logger = PlatformLogger('wlsdeploy.tool.util')
 
 KIND = 'kind'
@@ -233,7 +234,19 @@ def _update_dictionary(output_dictionary, model_dictionary, schema_folder, schem
             output_dictionary[key] = value
         return
 
-    properties = schema_helper.get_properties(schema_folder)
+    # if this folder has multiple content options, choose the matching one
+    folder_options = schema_helper.get_one_of_options(schema_folder)
+    if folder_options:
+        model_context = ModelContext(__class_name, {})
+        validator = CrdSectionsValidator(model_context)
+        folder_option = validator.find_folder_option(model_dictionary, folder_options, schema_path, schema_path)
+        if not folder_option:
+            __logger.warning("WLSDPLY-05043", schema_path, len(folder_options),
+                             class_name=__class_name, method_name=_method_name)
+            return
+        properties = schema_helper.get_properties(folder_option)
+    else:
+        properties = schema_helper.get_properties(schema_folder)
 
     for key, value in model_dictionary.items():
         property_folder = properties[key]
