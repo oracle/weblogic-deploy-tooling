@@ -3,7 +3,6 @@ Copyright (c) 2021, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
-import shutil
 
 from base_test import BaseTestCase
 from wlsdeploy.aliases.aliases import Aliases
@@ -15,6 +14,7 @@ from wlsdeploy.tool.extract.domain_resource_extractor import DomainResourceExtra
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
+from wlsdeploy.yaml.yaml_translator import YamlToPython
 
 
 class ExtractTest(BaseTestCase):
@@ -51,7 +51,8 @@ class ExtractTest(BaseTestCase):
         config['set_cluster_replicas'] = True
         PythonToJson(config).write_to_json_file(target_path)
 
-        resource = self._extract_domain_resource('1')
+        documents = self._extract_resource_documents('1', 'wko', 'wko-domain.yaml')
+        resource = documents[0]
 
         # clusters from topology should be in the domain resource file
         cluster_list = self._traverse(resource, 'spec', 'clusters')
@@ -72,7 +73,8 @@ class ExtractTest(BaseTestCase):
         Test that fields from the kubernetes section of the model
         are transferred to the resulting domain resource file
         """
-        resource = self._extract_domain_resource('2')
+        documents = self._extract_resource_documents('2', 'wko', 'wko-domain.yaml')
+        resource = documents[0]
 
         # clusters from kubernetes section should be in the domain resource file
         cluster_list = self._traverse(resource, 'spec', 'clusters')
@@ -86,7 +88,32 @@ class ExtractTest(BaseTestCase):
         self._match_values("Secret 0", secret_list[0], 'secret-1')
         self._match_values("Secret 1", secret_list[1], 'secret-2')
 
-    def _extract_domain_resource(self, suffix):
+    def testVerrazzanoModel(self):
+        """
+        Test that fields from the verrazzano section of the model
+        are transferred to the resulting domain resource file
+        """
+        documents = self._extract_resource_documents('3', 'vz', 'vz-application.yaml')
+        application_resource = documents[0]
+
+        # a model application component was added to 2 from the template
+        cluster_list = self._traverse(application_resource, 'spec', 'components')
+        self._match_values("Component count", len(cluster_list), 3)
+        self._match_values("Component 2 name", cluster_list[2]['componentName'], 'base-domain-from-model')
+
+        configmap_resource = documents[2]
+
+        # one entry was added to config map
+        data_map = self._traverse(configmap_resource, 'spec', 'workload', 'data')
+        self._match_values("Configmap data count", len(data_map), 2)
+
+        # the DB entry was update with a new URL
+        db_key = 'wdt_jdbc.yaml'
+        db_host_text = '@modelhost:1521'
+        self._match_values("Configmap data has key " + db_key, db_key in data_map, True)
+        self._match_values("Configmap JDBC URL contains " + db_host_text, db_host_text in data_map[db_key], True)
+
+    def _extract_resource_documents(self, suffix, target_name, output_file_name):
         model_file = os.path.join(self.MODELS_DIR, 'model-' + suffix + '.yaml')
         translator = FileToPython(model_file, use_ordering=True)
         model_dict = translator.parse()
@@ -96,7 +123,7 @@ class ExtractTest(BaseTestCase):
             '-domain_home': '/u01/domain',
             '-oracle_home': '/oracle',
             '-output_dir': self.EXTRACT_OUTPUT_DIR,
-            '-target': 'wko'
+            '-target': target_name
         }
         model_context = ModelContext('ExtractTest', args_map)
         aliases = Aliases(model_context, WlstModes.OFFLINE, self.wls_version)
@@ -104,6 +131,6 @@ class ExtractTest(BaseTestCase):
         extractor = DomainResourceExtractor(model, model_context, aliases, self.__logger)
         extractor.extract()
 
-        resource_file = os.path.join(self.EXTRACT_OUTPUT_DIR, 'wko-domain.yaml')
-        translator = FileToPython(resource_file, use_ordering=True)
-        return translator.parse()
+        resource_file = os.path.join(self.EXTRACT_OUTPUT_DIR, output_file_name)
+        reader = YamlToPython(resource_file, True)
+        return reader.parse_documents()
