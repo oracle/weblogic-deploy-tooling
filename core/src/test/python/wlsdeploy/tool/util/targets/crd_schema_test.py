@@ -7,9 +7,9 @@ import unittest
 
 from oracle.weblogic.deploy.util import PyOrderedDict
 
-from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.tool.util.targets import model_crd_helper
 from wlsdeploy.tool.util.targets import schema_helper
+import wlsdeploy.util.unicode_helper as str_helper
 
 
 class CrdSchemaTest(unittest.TestCase):
@@ -46,7 +46,7 @@ class CrdSchemaTest(unittest.TestCase):
 
             self.out_file.close()
         except Exception, e:
-            self.fail(str(e))
+            self.fail(str_helper.to_string(e))
 
     def _write_folder(self, folder, in_array, path, indent):
         # for an object in an array, the first field is prefixed with a hyphen
@@ -96,12 +96,12 @@ class CrdSchemaTest(unittest.TestCase):
                 enum_values = schema_helper.get_enum_values(property_map)
                 if enum_values:
                     value = "'" + enum_values[0] + "'  # " + ', '.join(enum_values)
-                self._write_line(this_indent + str(property_name) + ": " + value)
+                self._write_line(this_indent + str_helper.to_string(property_name) + ": " + value)
                 this_indent = plain_indent
 
             else:
-                self.fail('Unknown property type ' + str(property_type) + ' for ' + str(path) + ' '
-                          + str(property_name))
+                self.fail('Unknown property type ' + str_helper.to_string(property_type)
+                          + ' for ' + str_helper.to_string(path) + ' ' + str_helper.to_string(property_name))
 
         # process sub-folders after attributes for clarity
         for property_name in sub_folders:
@@ -124,7 +124,7 @@ class CrdSchemaTest(unittest.TestCase):
                 for index, subfolder_option in enumerate(subfolder_options):
                     if one_of_options:
                         self._write_line('')
-                        self._write_line(child_indent + "# option " + str(index + 1))
+                        self._write_line(child_indent + "# option " + str_helper.to_string(index + 1))
 
                     # comment out options after the first
                     subfolder_indent = child_indent

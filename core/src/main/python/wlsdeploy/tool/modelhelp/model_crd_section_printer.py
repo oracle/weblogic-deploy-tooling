@@ -341,7 +341,7 @@ def print_folder_options(folder_options, model_path, indent_level):
     for index, one_of_option in enumerate(folder_options):
         key = _get_kind_value(one_of_option) or index
         print("")
-        _print_indent("# see " + model_path + "#" + str(key), indent_level)
+        _print_indent("# see " + model_path + "#" + str_helper.to_string(key), indent_level)
 
 
 def _get_kind_value(folder_option):
