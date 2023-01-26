@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.aliases import alias_utils
@@ -14,6 +14,7 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_DB_CONN
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
@@ -96,7 +97,7 @@ class RcuDbInfo(object):
         return self.aliases.decrypt_password(password)
 
     def get_keystore(self):
-        return self._get_dictionary_element_value(DRIVER_PARAMS_kEYSTORE_PROPERTY)
+        return self._get_dictionary_element_value(DRIVER_PARAMS_KEYSTORE_PROPERTY)
 
     def get_keystore_type(self):
         return self._get_dictionary_element_value(DRIVER_PARAMS_KEYSTORETYPE_PROPERTY)
