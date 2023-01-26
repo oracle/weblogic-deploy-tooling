@@ -81,7 +81,7 @@ class CrdSectionsValidator(object):
 
         folder_options = schema_helper.get_one_of_options(schema_folder)
         if folder_options:
-            # if folder has multiple content options, try each option until validate is successful
+            # if schema folder has multiple content options, find one matching the model folder content
             folder_option = self.find_folder_option(model_folder, folder_options, schema_path, model_path)
             if not folder_option:
                 self._log_invalid("WLSDPLY-05043", model_path, len(folder_options),
@@ -149,7 +149,7 @@ class CrdSectionsValidator(object):
 
     def find_folder_option(self, model_folder, folder_options, schema_path, model_path):
         """
-        Find a folder option that corresponds to the specified model folder contents.
+        Find a schema folder option that corresponds to the specified model folder contents.
         Try validating with each folder option until successful.
         :param model_folder: the model folder to match
         :param folder_options: a list of folder options from the schema

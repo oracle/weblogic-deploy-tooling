@@ -61,7 +61,7 @@ class ModelCrdHelper:
         self._crd_folder_map = {}
         self._model_section = None
 
-    # get CRD information for model folders directly under kubernetes,
+    # get CRD information for model folders directly under the section name
     def get_crd_folders(self):
         return self._crd_folders
 
