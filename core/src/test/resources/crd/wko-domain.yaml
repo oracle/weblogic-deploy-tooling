@@ -1,4 +1,4 @@
-# Copyright (c) 2022, Oracle and/or its affiliates.
+# Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 apiVersion: weblogic.oracle/v8
@@ -7,6 +7,12 @@ metadata:
     name: demodomain
 spec:
     domainHome: --FIX ME--
+
+    adminServer:
+        adminService:
+            channels:
+                - channelName: channel-1
+                  nodePort: 1001
 
     # a list of objects
     clusters:
@@ -20,6 +26,10 @@ spec:
         secrets:
             - secret-one
             - secret-two
+
+    managedServers:
+      - serverName: server-1
+        restartVersion: restart-1
 
     serverPod:
         # a list of objects

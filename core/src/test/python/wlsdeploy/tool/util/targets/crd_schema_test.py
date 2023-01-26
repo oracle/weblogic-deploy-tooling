@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2022, Oracle and/or its affiliates.
+Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -7,32 +7,35 @@ import unittest
 
 from oracle.weblogic.deploy.util import PyOrderedDict
 
-from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.tool.util.targets import model_crd_helper
 from wlsdeploy.tool.util.targets import schema_helper
+import wlsdeploy.util.unicode_helper as str_helper
 
 
-class KubernetesSchemaTest(unittest.TestCase):
-    _model_dir = '../../unit-tests/wko'
+class CrdSchemaTest(unittest.TestCase):
+    _model_dir = '../../unit-tests/crd-models'
 
-    def testKubernetesSchema(self):
-        self._testSchemas(model_crd_helper.WKO_VERSION_3)
+    def testWkoSchema(self):
+        self._testSchemas(model_crd_helper.WKO_PRODUCT_KEY, model_crd_helper.WKO_VERSION_3)
 
-    def testKubernetes4Schemas(self):
-        self._testSchemas(model_crd_helper.WKO_VERSION_4)
+    def testWko4Schemas(self):
+        self._testSchemas(model_crd_helper.WKO_PRODUCT_KEY, model_crd_helper.WKO_VERSION_4)
 
-    def _testSchemas(self, wko_version):
+    def testVerrazzanoSchemas(self):
+        self._testSchemas(model_crd_helper.VERRAZZANO_PRODUCT_KEY, model_crd_helper.VERRAZZANO_VERSION_1)
+
+    def _testSchemas(self, product_key, product_version):
         # create a model with every element.
         # verify that there are no unknown types or structures.
         try:
             if not os.path.exists(self._model_dir):
                 os.makedirs(self._model_dir)
-            file_path = self._model_dir + "/model-" + wko_version + ".yaml"
+            file_path = self._model_dir + "/" + product_key + "-" + product_version + ".yaml"
             self.out_file = open(file_path, "w")
 
-            self._write_line(KUBERNETES + ":  # " + wko_version)
+            this_crd_helper = model_crd_helper.get_product_helper(product_key, product_version)
+            self._write_line(this_crd_helper.get_model_section() + ":  # " + product_version)
 
-            this_crd_helper = model_crd_helper.get_product_helper(model_crd_helper.WKO_PRODUCT_KEY, wko_version)
             crd_folders = this_crd_helper.get_crd_folders()
             for crd_folder in crd_folders:
                 indent = "  "
@@ -43,7 +46,7 @@ class KubernetesSchemaTest(unittest.TestCase):
 
             self.out_file.close()
         except Exception, e:
-            self.fail(str(e))
+            self.fail(str_helper.to_string(e))
 
     def _write_folder(self, folder, in_array, path, indent):
         # for an object in an array, the first field is prefixed with a hyphen
@@ -93,12 +96,12 @@ class KubernetesSchemaTest(unittest.TestCase):
                 enum_values = schema_helper.get_enum_values(property_map)
                 if enum_values:
                     value = "'" + enum_values[0] + "'  # " + ', '.join(enum_values)
-                self._write_line(this_indent + str(property_name) + ": " + value)
+                self._write_line(this_indent + str_helper.to_string(property_name) + ": " + value)
                 this_indent = plain_indent
 
             else:
-                self.fail('Unknown property type ' + str(property_type) + ' for ' + str(path) + ' '
-                          + str(property_name))
+                self.fail('Unknown property type ' + str_helper.to_string(property_type)
+                          + ' for ' + str_helper.to_string(path) + ' ' + str_helper.to_string(property_name))
 
         # process sub-folders after attributes for clarity
         for property_name in sub_folders:
@@ -111,7 +114,24 @@ class KubernetesSchemaTest(unittest.TestCase):
                 subfolder = sub_folders[property_name]
                 in_array = property_name in object_array_keys
                 child_indent = this_indent + "  "
-                self._write_folder(subfolder, in_array, next_path, child_indent)
+
+                # if this folder has multiple options (oneOf), print each with comments
+                subfolder_options = [subfolder]
+                one_of_options = schema_helper.get_one_of_options(subfolder)
+                if one_of_options:
+                    subfolder_options = one_of_options
+
+                for index, subfolder_option in enumerate(subfolder_options):
+                    if one_of_options:
+                        self._write_line('')
+                        self._write_line(child_indent + "# option " + str_helper.to_string(index + 1))
+
+                    # comment out options after the first
+                    subfolder_indent = child_indent
+                    if index > 0:
+                        subfolder_indent = subfolder_indent + "# "
+
+                    self._write_folder(subfolder_option, in_array, next_path, subfolder_indent)
 
     def _write_line(self, text):
         self.out_file.write(text + "\n")

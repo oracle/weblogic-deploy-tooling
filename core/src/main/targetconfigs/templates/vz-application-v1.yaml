@@ -1,4 +1,4 @@
-# Copyright (c) 2022, Oracle and/or its affiliates.
+# Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 apiVersion: core.oam.dev/v1alpha2
@@ -88,23 +88,7 @@ spec:
           clusters:
 {{/hasClusters}}
 {{#clusters}}
-            - clusterName: {{{clusterName}}}
-              serverPod:
-                affinity:
-                  podAntiAffinity:
-                    preferredDuringSchedulingIgnoredDuringExecution:
-                      - weight: 100
-                        podAffinityTerm:
-                          labelSelector:
-                            matchExpressions:
-                              - key: "weblogic.clusterName"
-                                operator: In
-                                values:
-                                  - $(CLUSTER_NAME)
-                          topologyKey: "kubernetes.io/hostname"
-{{#setClusterReplicas}}
-              replicas: {{{replicas}}}
-{{/setClusterReplicas}}
+            - name: {{{clusterName}}}
 {{/clusters}}
 
           serverPod:
@@ -124,6 +108,29 @@ spec:
               - mountPath: /shared
                 name: weblogic-domain-storage-volume
 {{/usePersistentVolume}}
+{{#hasClusters}}
+
+      clusters:
+{{/hasClusters}}
+{{#clusters}}
+        - clusterName: {{{clusterName}}}
+          serverPod:
+            affinity:
+              podAntiAffinity:
+                preferredDuringSchedulingIgnoredDuringExecution:
+                  - weight: 100
+                    podAffinityTerm:
+                      labelSelector:
+                        matchExpressions:
+                          - key: "weblogic.clusterName"
+                            operator: In
+                            values:
+                              - $(CLUSTER_NAME)
+                      topologyKey: "kubernetes.io/hostname"
+{{#setClusterReplicas}}
+          replicas: {{{replicas}}}
+{{/setClusterReplicas}}
+{{/clusters}}
 ---
 apiVersion: core.oam.dev/v1alpha2
 kind: Component
