@@ -170,8 +170,6 @@ public class RCURunner {
             String key = connectionProperty.toString();
             sslArgs.append(key);
             sslArgs.append('=');
-//            PyDictionary valueObject = (PyDictionary) connectionProperties.get(new PyString(key));
-//            sslArgs.append(valueObject.get(new PyString("Value")));
             sslArgs.append(get(connectionProperties, key));
         }
         return sslArgs;
@@ -205,43 +203,10 @@ public class RCURunner {
                                             PyDictionary rcuProperties,
                                             PyDictionary sslConnectionProperties) throws CreateException {
 
-        // Wallet directory
-        String tnsAdmin = get(rcuProperties, "oracle.net.tns_admin");
 
         RCURunner runner = new RCURunner(domainType, oracleHome, javaHome, rcuDb, rcuPrefix, rcuSchemas, rcuVariables);
 
         StringBuilder sslArgs = getSSLArgsStringBuilder(sslConnectionProperties);
-
-
-//        String trustStorePassword = get(rcuProperties, "javax.net.ssl.trustStorePassword");
-//        String trustStore = get(rcuProperties, "javax.net.ssl.keyStore");
-//        String trustStoreType = get(rcuProperties, "javax.net.ssl.keyStoreType");
-//        String keyStorePassword = get(rcuProperties, "javax.net.ssl.keyStorePassword");
-//        String keyStore = get(rcuProperties, "javax.net.ssl.keyStore");
-//        String keyStoreType = get(rcuProperties, "javax.net.ssl.keyStoreType");
-//        String matchType = get(rcuProperties, "oracle.net.ssl_server_dn_match");
-//        if (matchType == null || matchType.equals("None"))  {
-//            matchType = Boolean.FALSE.toString();
-//        }
-//
-//        StringBuilder sslArgs = new StringBuilder();
-//        sslArgs.append("oracle.net.tns_admin=");
-//        sslArgs.append(tnsAdmin);
-//
-//        sslArgs.append(",javax.net.ssl.trustStore=");
-//        sslArgs.append(tnsAdmin + "/" + trustStore);
-//        sslArgs.append(",javax.net.ssl.trustStoreType=" + trustStoreType);
-//        // If wallet type is SSO, no password present
-//        if (trustStorePassword != null && !trustStorePassword.equals("None")) {
-//            sslArgs.append(",javax.net.ssl.trustStorePassword="+ trustStorePassword);
-//        }
-//        sslArgs.append(",javax.net.ssl.keyStore=");
-//        sslArgs.append(tnsAdmin + "/" + keyStore);
-//        sslArgs.append(",javax.net.ssl.keyStoreType=" + keyStoreType);
-//        if (keyStorePassword != null && !keyStorePassword.equals("None")) {
-//            sslArgs.append(",javax.net.ssl.keyStorePassword="+ keyStorePassword);
-//        }
-//        sslArgs.append(",oracle.net.ssl_server_dn_match="+ matchType);
 
         runner.sslDB = true;
         runner.sSlArgs = sslArgs.toString();
