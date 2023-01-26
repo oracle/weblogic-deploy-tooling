@@ -53,6 +53,8 @@ def set_ssl_properties(xml_doc, atp_creds_path, keystore_password, truststore_pa
 
 
 def fix_store_type_and_default_value(keystore, keystore_type, truststore, truststore_type):
+    # historical reason atp does not need these inputs by default and it uses JKS
+    # set the default and return it
     if truststore is None:
         truststore = "truststore.jks"
     if keystore is None:
