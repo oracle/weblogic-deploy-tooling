@@ -4,7 +4,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 
 """
-import re
+import re, os
 from java.lang import String
 from xml.dom.minidom import parse
 from wlsdeploy.exception import exception_helper
@@ -28,12 +28,19 @@ def set_ssl_properties(xml_doc, atp_creds_path, truststore, truststore_type, tru
     for prop in props:
         if prop.getAttribute('name') == 'props.db.1':
             set_property(dom_tree, prop, 'javax.net.ssl.trustStoreType', truststore_type)
-            set_property(dom_tree, prop, 'javax.net.ssl.trustStore', atp_creds_path + '/' + truststore)
+            if not os.path.isabs(truststore):
+                set_property(dom_tree, prop, 'javax.net.ssl.trustStore', atp_creds_path + '/' + truststore)
+            else:
+                set_property(dom_tree, prop, 'javax.net.ssl.trustStore', truststore)
+
             set_property(dom_tree, prop, 'oracle.net.tns_admin', atp_creds_path)
             if truststore_password is not None:
                 set_property(dom_tree, prop, 'javax.net.ssl.trustStorePassword', truststore_password)
             if keystore is not None:
-                set_property(dom_tree, prop, 'javax.net.ssl.keyStore', atp_creds_path + '/' + keystore)
+                if not os.path.isabs(keystore):
+                    set_property(dom_tree, prop, 'javax.net.ssl.keyStore', atp_creds_path + '/' + keystore)
+                else:
+                    set_property(dom_tree, prop, 'javax.net.ssl.keyStore', keystore)
             if keystore_type is not None:
                 set_property(dom_tree, prop, 'javax.net.ssl.keyStoreType', keystore_type)
             if keystore_password is not None:

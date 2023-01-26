@@ -2,7 +2,7 @@
 Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-import re
+import re, os
 from xml.dom.minidom import parse
 from wlsdeploy.exception import exception_helper
 
@@ -11,7 +11,8 @@ import wlsdeploy.util.unicode_helper as str_helper
 
 _logger = PlatformLogger('wlsdeploy.create')
 
-def set_ssl_properties(xml_doc, atp_creds_path, keystore_password, truststore_password):
+def set_ssl_properties(xml_doc, atp_creds_path, keystore_password, truststore_password, keystore, keystore_type,
+                       truststore, truststore_type):
     '''
     Add SSL config properties to the specified XML document.
     :param xml_doc:                 The XML document
@@ -22,21 +23,46 @@ def set_ssl_properties(xml_doc, atp_creds_path, keystore_password, truststore_pa
     collection = dom_tree.documentElement
     props = collection.getElementsByTagName("propertySet")
 
+    keystore, keystore_type, truststore, truststore_type = fix_store_type_and_default_value(keystore, keystore_type,
+                                                                                            truststore, truststore_type)
+
     for prop in props:
         if prop.getAttribute('name') == 'props.db.1':
             set_property(dom_tree, prop, 'oracle.net.ssl_server_dn_match', 'true')
             set_property(dom_tree, prop, 'oracle.net.ssl_version', '1.2')
             set_property(dom_tree, prop, 'oracle.net.tns_admin', atp_creds_path)
-            set_property(dom_tree, prop, 'javax.net.ssl.trustStoreType', 'JKS')
-            set_property(dom_tree, prop, 'javax.net.ssl.trustStore', atp_creds_path + '/truststore.jks')
-            set_property(dom_tree, prop, 'javax.net.ssl.keyStoreType', 'JKS')
-            set_property(dom_tree, prop, 'javax.net.ssl.keyStore', atp_creds_path + '/keystore.jks')
-            set_property(dom_tree, prop, 'javax.net.ssl.keyStorePassword', keystore_password)
-            set_property(dom_tree, prop, 'javax.net.ssl.trustStorePassword', truststore_password)
+            set_property(dom_tree, prop, 'javax.net.ssl.trustStoreType', truststore_type)
+            set_property(dom_tree, prop, 'javax.net.ssl.keyStoreType', keystore_type)
+            if not os.path.isabs(keystore):
+                set_property(dom_tree, prop, 'javax.net.ssl.keyStore', atp_creds_path + keystore)
+            else:
+                set_property(dom_tree, prop, 'javax.net.ssl.keyStore', keystore)
+            if not os.path.isabs(truststore):
+                set_property(dom_tree, prop, 'javax.net.ssl.trustStore', atp_creds_path + truststore)
+            else:
+                set_property(dom_tree, prop, 'javax.net.ssl.trustStore', truststore)
+
+            if keystore_password is not None:
+                set_property(dom_tree, prop, 'javax.net.ssl.keyStorePassword', keystore_password)
+            if truststore_password is not None:
+                set_property(dom_tree, prop, 'javax.net.ssl.trustStorePassword', truststore_password)
             # Persist the changes in the xml file
             file_handle = open(xml_doc, "w")
             dom_tree.writexml(file_handle)
             file_handle.close()
+
+
+def fix_store_type_and_default_value(keystore, keystore_type, truststore, truststore_type):
+    if truststore is None:
+        truststore = "truststore.jks"
+    if keystore is None:
+        keystore = "keystore.jks"
+    if truststore_type is None:
+        truststore_type = "JKS"
+    if keystore_type is None:
+        keystore_type = "JKS"
+    return keystore, keystore_type, truststore, truststore_type
+
 
 def set_property(dom_tree, prop, name, value):
     '''
@@ -58,11 +84,17 @@ def fix_jps_config(rcu_db_info, model_context):
     tns_admin = rcu_db_info.get_tns_admin()
     keystore_password = rcu_db_info.get_keystore_password()
     truststore_password = rcu_db_info.get_truststore_password()
+    keystore_type = rcu_db_info.get_keystore_type()
+    truststore_type = rcu_db_info.get_truststore_type()
+    keystore = rcu_db_info.get_keystore()
+    truststore = rcu_db_info.get_truststore()
 
     jps_config = model_context.get_domain_home() + '/config/fmwconfig/jps-config.xml'
     jps_config_jse = model_context.get_domain_home() + '/config/fmwconfig/jps-config-jse.xml'
-    set_ssl_properties(jps_config, tns_admin, keystore_password, truststore_password)
-    set_ssl_properties(jps_config_jse, tns_admin, keystore_password, truststore_password)
+    set_ssl_properties(jps_config, tns_admin, keystore_password, truststore_password, keystore, keystore_type,
+                       truststore, truststore_type)
+    set_ssl_properties(jps_config_jse, tns_admin, keystore_password, truststore_password, keystore, keystore_type,
+                       truststore, truststore_type)
 
 
 def get_atp_connect_string(tnsnames_ora_path, tns_sid_name):
