@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2022, Oracle and/or its affiliates.
+Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from oracle.weblogic.deploy.util import FileUtils
@@ -12,7 +12,7 @@ from wlsdeploy.util import dictionary_utils
 
 DOMAIN_RESOURCE_SCHEMA_ROOT = "openAPIV3Schema"
 SCHEMA_RESOURCE_EXTENSION = '.json'
-SCHEMA_RESOURCE_PATH = 'oracle/weblogic/deploy/wko'
+SCHEMA_RESOURCE_PATH = 'oracle/weblogic/deploy/crds'
 
 SIMPLE_TYPES = [
     'integer',
@@ -157,6 +157,10 @@ def get_type(schema_map):
 
 def get_enum_values(schema_map):
     return dictionary_utils.get_element(schema_map, 'enum')
+
+
+def get_one_of_options(schema_map):
+    return dictionary_utils.get_dictionary_element(schema_map, 'oneOf')
 
 
 def is_unsupported_folder(path):

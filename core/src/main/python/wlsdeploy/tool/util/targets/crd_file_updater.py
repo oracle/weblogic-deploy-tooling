@@ -9,17 +9,18 @@ from oracle.weblogic.deploy.util import PyRealBoolean
 from oracle.weblogic.deploy.yaml import YamlException
 
 from wlsdeploy.aliases import alias_utils
-from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.targets import schema_helper
+from wlsdeploy.tool.validate.crd_sections_validator import CrdSectionsValidator
 from wlsdeploy.util import dictionary_utils
 import wlsdeploy.util.unicode_helper as str_helper
+from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
 from wlsdeploy.yaml.yaml_translator import YamlToPython
 
-__class_name = 'output_file_helper'
+__class_name = 'crd_file_updater'
 __logger = PlatformLogger('wlsdeploy.tool.util')
 
 KIND = 'kind'
@@ -34,9 +35,11 @@ IMAGE_PULL_SECRETS = 'imagePullSecrets'
 REPLICAS = 'replicas'
 
 # specific to Verrazzano
-COMPONENT_KIND = 'Component'
+CONFIG_MAP_WORKLOAD_KIND = 'ConfigMap'
+OAM_COMPONENT_KIND = 'Component'
 TEMPLATE = 'template'
 VERRAZZANO_WEBLOGIC_WORKLOAD_KIND = 'VerrazzanoWebLogicWorkload'
+VERRAZZANO_APPLICATION_KIND = 'ApplicationConfiguration'
 WORKLOAD = 'workload'
 
 
@@ -49,12 +52,13 @@ def update_from_model(crd_file, model, crd_helper):
     """
     _method_name = 'update_from_model'
 
-    kubernetes_content = model.get_model_kubernetes()
+    model_section = crd_helper.get_model_section()
+    model_crd_content = dictionary_utils.get_dictionary_element(model.get_model(), model_section)
 
     # failures will be logged as severe, but not cause tool failure.
     # this will allow the unaltered output file to be examined for problems.
 
-    __logger.info('WLSDPLY-01675', crd_file, KUBERNETES, class_name=__class_name, method_name=_method_name)
+    __logger.info('WLSDPLY-01675', crd_file, model_section, class_name=__class_name, method_name=_method_name)
 
     try:
         reader = YamlToPython(crd_file.getPath(), True)
@@ -64,7 +68,7 @@ def update_from_model(crd_file, model, crd_helper):
                         method_name=_method_name)
         return
 
-    _update_documents(documents, kubernetes_content, crd_helper, crd_file.getPath())
+    _update_documents(documents, model_crd_content, crd_helper, crd_file.getPath())
 
     try:
         writer = PythonToYaml(documents)
@@ -103,17 +107,13 @@ def _update_documents(crd_documents, model_content, crd_helper, output_file_path
                 _add_cluster_comments(crd_document)
                 found = True
 
-            # is this a Verrazzano WebLogic workload document?
-            elif kind == COMPONENT_KIND:
-                spec = dictionary_utils.get_dictionary_element(crd_document, SPEC)
-                workload = dictionary_utils.get_dictionary_element(spec, WORKLOAD)
-                component_kind = dictionary_utils.get_element(workload, KIND)
-                if component_kind == VERRAZZANO_WEBLOGIC_WORKLOAD_KIND:
-                    component_spec = _get_or_create_dictionary(workload, SPEC)
-                    component_template = _get_or_create_dictionary(component_spec, TEMPLATE)
-                    _update_crd_domain(component_template, model_content, crd_helper, output_file_path)
-                    _add_domain_comments(component_template)
-                    found = True
+            elif kind == OAM_COMPONENT_KIND:
+                _update_crd_component(crd_document, model_content, crd_helper, output_file_path)
+                found = True
+
+            elif kind == VERRAZZANO_APPLICATION_KIND:
+                _update_crd(crd_document, model_content, 'application', crd_helper, output_file_path)
+                found = True
 
     if not found:
         __logger.warning('WLSDPLY-01676', output_file_path, class_name=__class_name, method_name=_method_name)
@@ -134,12 +134,7 @@ def _update_crd_domain(crd_dictionary, model_dictionary, crd_helper, output_file
         _update_dictionary(crd_dictionary, model_dictionary, schema, None, keyless_crd_folder, output_file_path)
     else:
         # this WKO version uses CRD sub-folders, use the domain folder
-        folder_key = 'domain'
-        domain_crd_folder = crd_helper.get_crd_folder(folder_key)
-        model_content = dictionary_utils.get_element(model_dictionary, folder_key)
-        if model_content:
-            schema = domain_crd_folder.get_schema()
-            _update_dictionary(crd_dictionary, model_content, schema, None, domain_crd_folder, output_file_path)
+        _update_crd(crd_dictionary, model_dictionary, 'domain', crd_helper, output_file_path)
 
 
 def _update_crd_cluster(crd_dictionary, model_dictionary, crd_helper, output_file_path):
@@ -161,6 +156,46 @@ def _update_crd_cluster(crd_dictionary, model_dictionary, crd_helper, output_fil
             cluster_crd_folder = crd_helper.get_crd_folder(folder_key)
             schema = cluster_crd_folder.get_schema()
             _update_dictionary(crd_dictionary, model_cluster, schema, None, cluster_crd_folder, output_file_path)
+
+
+def _update_crd_component(crd_dictionary, model_dictionary, crd_helper, output_file_path):
+    """
+    Update the CRD component dictionary from the model.
+    :param crd_dictionary: the CRD dictionary to be updated
+    :param model_dictionary: the model content to use for update
+    :param crd_helper: used to get CRD folder information
+    :param output_file_path: used for logging
+    """
+    _method_name = '_update_crd_component'
+
+    spec_folder = dictionary_utils.get_dictionary_element(crd_dictionary, SPEC)
+    workload_folder = dictionary_utils.get_dictionary_element(spec_folder, WORKLOAD)
+    workload_kind = dictionary_utils.get_element(workload_folder, KIND)
+
+    if workload_kind == VERRAZZANO_WEBLOGIC_WORKLOAD_KIND:
+        _update_crd(crd_dictionary, model_dictionary, 'weblogic', crd_helper, output_file_path)
+        _add_weblogic_workload_comments(crd_dictionary)
+
+    elif workload_kind == CONFIG_MAP_WORKLOAD_KIND:
+        _update_crd(crd_dictionary, model_dictionary, 'configmap', crd_helper, output_file_path)
+
+
+def _update_crd(crd_dictionary, model_dictionary, folder_key, crd_helper, output_file_path):
+    """
+    Update the CRD dictionary for folder_key from the model.
+    :param crd_dictionary: the CRD dictionary to be updated
+    :param model_dictionary: the model content to use for update
+    :param folder_key: the model key for the CRD section subfolder
+    :param crd_helper: used to get CRD folder information
+    :param output_file_path: used for logging
+    """
+    _method_name = '_update_crd'
+
+    domain_crd_folder = crd_helper.get_crd_folder(folder_key)
+    model_content = dictionary_utils.get_element(model_dictionary, folder_key)
+    if model_content:
+        schema = domain_crd_folder.get_schema()
+        _update_dictionary(crd_dictionary, model_content, schema, None, domain_crd_folder, output_file_path)
 
 
 def _find_model_cluster(crd_name, model_clusters):
@@ -199,7 +234,19 @@ def _update_dictionary(output_dictionary, model_dictionary, schema_folder, schem
             output_dictionary[key] = value
         return
 
-    properties = schema_helper.get_properties(schema_folder)
+    # if this folder has multiple content options, choose the matching one
+    folder_options = schema_helper.get_one_of_options(schema_folder)
+    if folder_options:
+        model_context = ModelContext(__class_name, {})
+        validator = CrdSectionsValidator(model_context)
+        folder_option = validator.find_folder_option(model_dictionary, folder_options, schema_path, schema_path)
+        if not folder_option:
+            __logger.warning("WLSDPLY-05043", schema_path, len(folder_options),
+                             class_name=__class_name, method_name=_method_name)
+            return
+        properties = schema_helper.get_properties(folder_option)
+    else:
+        properties = schema_helper.get_properties(schema_folder)
 
     for key, value in model_dictionary.items():
         property_folder = properties[key]
@@ -265,13 +312,30 @@ def _find_object_match(item, match_list, schema_path, model_crd_folder):
     :return: a matching dictionary object
     """
     key = model_crd_folder.get_object_list_key(schema_path)
-    item_key = item[key]
+    item_key = _get_key_value(item, key)
     if item_key:
         for match_item in match_list:
             if isinstance(match_item, dict):
-                if item_key == match_item[key]:
+                if item_key == _get_key_value(match_item, key):
                     return match_item
     return None
+
+
+def _get_key_value(item, key):
+    """
+    Return the value for the specified key in the specified item object.
+    The key may be nested, such as spec/clusterName.
+    :param item: the item to be examined
+    :param key: the key to be evaluated
+    :return: the value if found, otherwise None
+    """
+    key_parts = key.split('/')
+    key_folders = key_parts[:-1]
+    match_key = key_parts[-1]
+    match_folder = item
+    for key_folder in key_folders:
+        match_folder = dictionary_utils.get_dictionary_element(match_folder, key_folder)
+    return dictionary_utils.get_element(match_folder, match_key)
 
 
 def _convert_value(model_value, type_name):
@@ -322,11 +386,36 @@ def _add_cluster_comments(wko_dictionary):
     :param wko_dictionary: the WKO dictionary containing metadata, spec, etc.
     """
     spec = dictionary_utils.get_dictionary_element(wko_dictionary, SPEC)
-    cluster_keys = spec.keys()
+    _add_cluster_spec_comments(spec)
+
+
+def _add_cluster_spec_comments(spec_dictionary):
+    """
+    Add relevant comments to a cluster spec dictionary to provide additional information.
+    :param spec_dictionary: the spec dictionary containing cluster attributes
+    """
+    cluster_keys = spec_dictionary.keys()
     if CLUSTER_NAME in cluster_keys and REPLICAS not in cluster_keys:
-        last_key = spec.keys()[-1]
+        last_key = spec_dictionary.keys()[-1]
         message = exception_helper.get_message('WLSDPLY-01680')
-        spec.addComment(last_key, REPLICAS + ': 99  # ' + message)
+        spec_dictionary.addComment(last_key, REPLICAS + ': 99  # ' + message)
+
+
+def _add_weblogic_workload_comments(vz_dictionary):
+    """
+    Add relevant comments to the Verrazzano WebLogic workload CRD dictionary for additional information.
+    :param vz_dictionary: the Verrazzano dictionary
+    """
+    spec_folder = dictionary_utils.get_dictionary_element(vz_dictionary, SPEC)
+    workload_folder = dictionary_utils.get_dictionary_element(spec_folder, WORKLOAD)
+    workload_spec_folder = dictionary_utils.get_dictionary_element(workload_folder, SPEC)
+
+    template_folder = dictionary_utils.get_dictionary_element(workload_spec_folder, TEMPLATE)
+    _add_domain_comments(template_folder)
+
+    clusters_folder = dictionary_utils.get_dictionary_element(workload_spec_folder, CLUSTERS)
+    for cluster_spec in clusters_folder:
+        _add_cluster_spec_comments(cluster_spec)
 
 
 def _get_or_create_dictionary(dictionary, key):
