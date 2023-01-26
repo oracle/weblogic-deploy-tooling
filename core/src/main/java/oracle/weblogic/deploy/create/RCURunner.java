@@ -71,7 +71,7 @@ public class RCURunner {
     private boolean atpDB = false;
     private boolean sslDB = false;
  
-    private String sSlArgs = null;
+    private String sslArgs = null;
     private String atpAdminUser = null;
     private String rcuAdminUser = DB_USER;
     private String atpDefaultTablespace = null;
@@ -151,7 +151,7 @@ public class RCURunner {
         addExtraSSLPropertyFromMap(runnerMap, sslConnectionProperties, sslArgs, "javax.net.ssl.trustStorePassword");
 
         runner.atpDB = true; // "ATP".equals(databaseType);  // or scan if there are any 'ssl' in properties ?
-        runner.sSlArgs = sslArgs.toString();
+        runner.sslArgs = sslArgs.toString();
 
         runner.atpAdminUser = get(runnerMap, "atp.admin.user");
         runner.atpDefaultTablespace = get(runnerMap, "atp.default.tablespace");
@@ -209,7 +209,7 @@ public class RCURunner {
         StringBuilder sslArgs = getSSLArgsStringBuilder(sslConnectionProperties);
 
         runner.sslDB = true;
-        runner.sSlArgs = sslArgs.toString();
+        runner.sslArgs = sslArgs.toString();
         return runner;
     }
 
@@ -350,11 +350,11 @@ public class RCURunner {
             arguments.add(SERVER_DN_SWITCH);
             arguments.add("CN=ignored");
             arguments.add(SSLARGS);
-            arguments.add(sSlArgs);
+            arguments.add(sslArgs);
         } else if (sslDB) {
             arguments.add(USE_SSL_SWITCH);
             arguments.add(SSLARGS);
-            arguments.add(sSlArgs);
+            arguments.add(sslArgs);
             arguments.add(DB_ROLE_SWITCH);
             arguments.add(DB_ROLE);
             arguments.add(DB_USER_SWITCH);

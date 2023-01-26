@@ -297,9 +297,7 @@ class DomainCreator(Creator):
                                               truststore_type)
 
             # hard coding for now, may need to expose it if ATP access changed later
-
-            if not ssl_conn_properties.has_key(DRIVER_PARAMS_NET_FAN_ENABLED):
-                ssl_conn_properties[DRIVER_PARAMS_NET_FAN_ENABLED] = 'false'
+            ssl_conn_properties[DRIVER_PARAMS_NET_FAN_ENABLED] = 'false'
             ssl_conn_properties[DRIVER_PARAMS_NET_SSL_VERSION] = '1.2'
             ssl_conn_properties[DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY] = 'false'
 
