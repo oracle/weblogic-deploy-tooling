@@ -61,14 +61,14 @@ public abstract class CommonOptions {
         }
 
         File fullArchiveFile = new File(fullArchiveFileName);
-        if (!fullArchiveFile.isFile()) {
-            ArchiveHelperException ex = new ArchiveHelperException(ExitCode.ARG_VALIDATION_ERROR, "WLSDPLY-30001",
-                fullArchiveFile.getAbsolutePath());
-            LOGGER.throwing(CLASS, METHOD, ex);
-            throw ex;
-        }
-
         if (fileMustExist) {
+            if (!fullArchiveFile.isFile()) {
+                ArchiveHelperException ex = new ArchiveHelperException(ExitCode.ARG_VALIDATION_ERROR, "WLSDPLY-30001",
+                    fullArchiveFile.getAbsolutePath());
+                LOGGER.throwing(CLASS, METHOD, ex);
+                throw ex;
+            }
+
             if (!fullArchiveFile.exists()) {
                 ArchiveHelperException ex = new ArchiveHelperException(ExitCode.ARG_VALIDATION_ERROR, "WLSDPLY-30002",
                     fullArchiveFile.getAbsolutePath());

@@ -42,7 +42,7 @@ public class ListCustomCommand extends ListTypeCommandBase {
         final String METHOD = "call";
         LOGGER.entering(CLASS, METHOD);
 
-        CommandResponse response = listType(CUSTOM, "custom directory", name);
+        CommandResponse response = listType(CUSTOM, "custom file or directory", name);
 
         LOGGER.exiting(CLASS, METHOD, response);
         return response;

@@ -31,6 +31,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.APPLICATIONS_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.CLASSPATH_LIBS_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.CLASSPATH_LIB_BAR_DIR_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.CLASSPATH_LIB_BAR_JAR_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.COHERENCE_MYCLUSTER_CONFIG_FILE_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.COHERENCE_MYCLUSTER_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.COHERENCE_MYCLUSTER_PERSISTENT_DIR_ACTIVE_CONTENTS;
@@ -385,8 +387,29 @@ public class ArchiveHelperRemoveTest {
             actual = ArchiveHelper.executeCommand(out, err, args);
         }
         assertEquals(ExitCode.OK, actual,"expected command to exit with exit code " + ExitCode.OK);
-        // Removing the only jar so the test will also remove wlsdeploy/classpathLibraries/
-        assertArchiveInExpectedState(LIST_CLASSPATH_LIBRARIES, CLASSPATH_LIBS_CONTENT, CLASSPATH_LIBS_CONTENT);
+        assertArchiveInExpectedState(LIST_CLASSPATH_LIBRARIES, CLASSPATH_LIBS_CONTENT, CLASSPATH_LIB_BAR_JAR_CONTENTS);
+    }
+
+    @Test
+    void testRemoveExistingClasspathLibDir_ReturnsExpectedResults() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+            "remove",
+            "classpathLibrary",
+            "-archive_file",
+            ARCHIVE_HELPER_VALUE,
+            "-name",
+            "bar"
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        assertEquals(ExitCode.OK, actual,"expected command to exit with exit code " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_CLASSPATH_LIBRARIES, CLASSPATH_LIBS_CONTENT, CLASSPATH_LIB_BAR_DIR_CONTENTS);
     }
 
     @Test
@@ -923,7 +946,7 @@ public class ArchiveHelperRemoveTest {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
-    //                                    domain library                                         //
+    //                                $DOMAIN_HOME/lib library                                   //
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test

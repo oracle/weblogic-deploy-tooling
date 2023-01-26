@@ -11,8 +11,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
-import static oracle.weblogic.deploy.util.WLSDeployArchive.DEFAULT_RCU_WALLET_NAME;
-import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.DB_WALLET;
+import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.RCU_WALLET;
 
 @Command(
     name = "rcuWallet",
@@ -36,7 +35,7 @@ public class ListRCUWalletCommand extends ListTypeCommandBase {
         final String METHOD = "call";
         LOGGER.entering(CLASS, METHOD);
 
-        CommandResponse response = listType(DB_WALLET, "database wallet", DEFAULT_RCU_WALLET_NAME);
+        CommandResponse response = listType(RCU_WALLET, "RCU database wallet", null);
 
         LOGGER.exiting(CLASS, METHOD, response);
         return response;

@@ -67,12 +67,12 @@ public class RemoveCoherenceConfigCommand extends RemoveTypeCommandBase {
         } catch (ArchiveHelperException ex) {
             LOGGER.severe("WLSDPLY-30033", ex, this.clusterName, this.name, this.archiveFilePath,
                 ex.getLocalizedMessage());
-            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30033", ex, this.clusterName,
+            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30033", this.clusterName,
                 this.name, this.archiveFilePath, ex.getLocalizedMessage());
         } catch (WLSDeployArchiveIOException | IllegalArgumentException ex) {
             LOGGER.severe("WLSDPLY-30034", ex, this.clusterName, this.name, this.force,
                 this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30034", ex, this.clusterName, this.name,
+            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30034", this.clusterName, this.name,
                 this.force, this.archiveFilePath, ex.getLocalizedMessage());
         }
 

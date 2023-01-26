@@ -59,12 +59,12 @@ public class RemoveClasspathLibraryCommand extends RemoveTypeCommandBase {
                 entriesRemoved, this.archiveFilePath);
         } catch (ArchiveHelperException ex) {
             LOGGER.severe("WLSDPLY-30027", ex, TYPE, this.name, this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30027", ex, TYPE, this.name,
+            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30027", TYPE, this.name,
                 this.archiveFilePath, ex.getLocalizedMessage());
         } catch (WLSDeployArchiveIOException | IllegalArgumentException ex) {
             LOGGER.severe("WLSDPLY-30028", ex, TYPE, this.name, this.force,
                 this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30028", ex, TYPE, this.name, this.force,
+            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30028", TYPE, this.name, this.force,
                 this.archiveFilePath, ex.getLocalizedMessage());
         }
 

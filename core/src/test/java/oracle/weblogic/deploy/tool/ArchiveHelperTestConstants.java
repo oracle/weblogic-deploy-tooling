@@ -9,8 +9,16 @@ public class ArchiveHelperTestConstants {
         "wlsdeploy/applications/my-app.war"
     };
 
+    static final String[] MY_APP_WAR_DUP_CONTENTS = new String[] {
+        "wlsdeploy/applications/my-app(1).war"
+    };
+
     static final String[] MY_APP_DEPLOYMENT_PLAN_CONTENTS = new String[] {
         "wlsdeploy/applications/my-app.xml"
+    };
+
+    static final String[] MY_APP_DEPLOYMENT_PLAN_DUP_CONTENTS = new String[] {
+        "wlsdeploy/applications/my-app(1).xml"
     };
 
     static final String[] MY_OTHER_APP_WAR_CONTENTS = new String[] {
@@ -37,6 +45,26 @@ public class ArchiveHelperTestConstants {
         "wlsdeploy/applications/my-other-app/WEB-INF/weblogic.xml"
     };
 
+    static final String[] MY_OTHER_APP_DIR_DUP_CONTENTS = new String[] {
+        "wlsdeploy/applications/my-other-app(1)/",
+        "wlsdeploy/applications/my-other-app(1)/META-INF/",
+        "wlsdeploy/applications/my-other-app(1)/META-INF/maven/",
+        "wlsdeploy/applications/my-other-app(1)/META-INF/maven/oracle.jcs.lifecycle/",
+        "wlsdeploy/applications/my-other-app(1)/META-INF/maven/oracle.jcs.lifecycle/get-listen-address-app/",
+        "wlsdeploy/applications/my-other-app(1)/META-INF/maven/oracle.jcs.lifecycle/get-listen-address-app/pom.properties",
+        "wlsdeploy/applications/my-other-app(1)/META-INF/maven/oracle.jcs.lifecycle/get-listen-address-app/pom.xml",
+        "wlsdeploy/applications/my-other-app(1)/META-INF/MANIFEST.MF",
+        "wlsdeploy/applications/my-other-app(1)/WEB-INF/",
+        "wlsdeploy/applications/my-other-app(1)/WEB-INF/classes/",
+        "wlsdeploy/applications/my-other-app(1)/WEB-INF/classes/com/",
+        "wlsdeploy/applications/my-other-app(1)/WEB-INF/classes/com/oracle/",
+        "wlsdeploy/applications/my-other-app(1)/WEB-INF/classes/com/oracle/platform/",
+        "wlsdeploy/applications/my-other-app(1)/WEB-INF/classes/com/oracle/platform/GetListenAddressServlet.class",
+        "wlsdeploy/applications/my-other-app(1)/WEB-INF/classes/com/oracle/platform/ListenAddressAndPort.class",
+        "wlsdeploy/applications/my-other-app(1)/WEB-INF/web.xml",
+        "wlsdeploy/applications/my-other-app(1)/WEB-INF/weblogic.xml"
+    };
+
     static final String[] APPLICATIONS_CONTENT = mergeStringArrays(
         new String[] { "wlsdeploy/applications/" },
         MY_OTHER_APP_DIR_CONTENTS,
@@ -45,21 +73,44 @@ public class ArchiveHelperTestConstants {
         MY_OTHER_APP_WAR_CONTENTS
     );
 
+    static final String[] CLASSPATH_LIB_BAR_DIR_CONTENTS = new String[] {
+        "wlsdeploy/classpathLibraries/bar/",
+        "wlsdeploy/classpathLibraries/bar/Foo.class"
+    };
+
+    static final String[] CLASSPATH_LIB_BAR_DIR_DUP_CONTENTS = new String[] {
+        "wlsdeploy/classpathLibraries/bar(1)/",
+        "wlsdeploy/classpathLibraries/bar(1)/Foo.class"
+    };
+
     static final String[] CLASSPATH_LIB_BAR_JAR_CONTENTS = new String[] {
         "wlsdeploy/classpathLibraries/bar.jar"
     };
 
-    static final String[] CLASSPATH_LIBS_CONTENT = new String[] {
-        "wlsdeploy/classpathLibraries/",
-        "wlsdeploy/classpathLibraries/bar.jar"
+    static final String[] CLASSPATH_LIB_BAR_JAR_DUP_CONTENTS = new String[] {
+        "wlsdeploy/classpathLibraries/bar(1).jar"
     };
+
+    static final String[] CLASSPATH_LIBS_CONTENT = mergeStringArrays(
+        new String[] { "wlsdeploy/classpathLibraries/" },
+        CLASSPATH_LIB_BAR_DIR_CONTENTS,
+        CLASSPATH_LIB_BAR_JAR_CONTENTS
+    );
 
     static final String[] COHERENCE_MYCLUSTER_CONFIG_FILE_CONTENTS = new String[] {
         "wlsdeploy/coherence/mycluster/cache-config.xml"
     };
 
+    static final String[] COHERENCE_MYCLUSTER_CONFIG_FILE_DUP_CONTENTS = new String[] {
+        "wlsdeploy/coherence/mycluster/cache-config(1).xml"
+    };
+
     static final String[] COHERENCE_MYCLUSTER_PERSISTENT_DIR_ACTIVE_CONTENTS = new String[] {
         "wlsdeploy/coherence/mycluster/active/"
+    };
+
+    static final String[] COHERENCE_MYCLUSTER_PERSISTENT_DIR_ACTIVE_DUP_CONTENTS = new String[] {
+        "wlsdeploy/coherence/mycluster/active(1)/"
     };
 
     static final String[] COHERENCE_MYCLUSTER_PERSISTENT_DIR_SNAPSHOT_CONTENTS = new String[] {
@@ -106,6 +157,10 @@ public class ArchiveHelperTestConstants {
         "wlsdeploy/config/mimemappings.properties"
     };
 
+    static final String[] MIME_MAPPING_PROPERTIES_DUP_CONTENTS = new String[] {
+        "wlsdeploy/config/mimemappings(1).properties"
+    };
+
     static final String[] MIME_MAPPINGS_CONTENT = new String[] {
         "wlsdeploy/config/",
         "wlsdeploy/config/mimemappings.properties"
@@ -120,8 +175,17 @@ public class ArchiveHelperTestConstants {
         CUSTOM_MYDIR_BAR_PROPERTIES_CONTENTS
     );
 
+    static final String[] CUSTOM_MYDIR_DUP_CONTENTS = new String[] {
+        "wlsdeploy/custom/mydir(1)/",
+        "wlsdeploy/custom/mydir(1)/bar.properties"
+    };
+
     static final String[] CUSTOM_FOO_PROPERTIES_CONTENTS = {
         "wlsdeploy/custom/foo.properties"
+    };
+
+    static final String[] CUSTOM_FOO_PROPERTIES_DUP_CONTENTS = {
+        "wlsdeploy/custom/foo(1).properties"
     };
 
     static final String[] CUSTOM_CONTENT = mergeStringArrays(
@@ -148,6 +212,11 @@ public class ArchiveHelperTestConstants {
         "wlsdeploy/dbWallets/wallet1/atpwallet.zip"
     };
 
+    static final String[] DATABASE_WALLET_WALLET1_DUP_CONTENTS = new String[] {
+        "wlsdeploy/dbWallets/wallet1(1)/",
+        "wlsdeploy/dbWallets/wallet1(1)/atpwallet.zip"
+    };
+
     static final String[] DATABASE_WALLETS_CONTENT = mergeStringArrays(
         new String[] { "wlsdeploy/dbWallets/" },
         DATABASE_WALLET_RCU_CONTENTS,
@@ -156,6 +225,10 @@ public class ArchiveHelperTestConstants {
 
     static final String[] DOMAIN_BIN_SET_USER_OVERRIDES_SH_CONTENTS = new String[] {
         "wlsdeploy/domainBin/setUserOverrides.sh"
+    };
+
+    static final String[] DOMAIN_BIN_SET_USER_OVERRIDES_SH_DUP_CONTENTS = new String[] {
+        "wlsdeploy/domainBin/setUserOverrides(1).sh"
     };
 
     static final String[] DOMAIN_BIN_CONTENT = mergeStringArrays(
@@ -167,6 +240,10 @@ public class ArchiveHelperTestConstants {
         "wlsdeploy/domainLibraries/foo.jar"
     };
 
+    static final String[] DOMAIN_LIB_FOO_JAR_DUP_CONTENTS = new String[] {
+        "wlsdeploy/domainLibraries/foo(1).jar"
+    };
+
     static final String[] DOMAIN_LIB_CONTENT = mergeStringArrays(
         new String[] { "wlsdeploy/domainLibraries/" },
         DOMAIN_LIB_FOO_JAR_CONTENTS
@@ -174,6 +251,10 @@ public class ArchiveHelperTestConstants {
 
     static final String[] FOREIGN_SERVERS_FS1_JNDI_PROPERTIES_CONTENTS = new String[] {
         "wlsdeploy/jms/foreignServer/fs1/jndi.properties"
+    };
+
+    static final String[] FOREIGN_SERVERS_FS1_JNDI_PROPERTIES_DUP_CONTENTS = new String[] {
+        "wlsdeploy/jms/foreignServer/fs1/jndi(1).properties"
     };
 
     static final String[] FOREIGN_SERVERS_FS1_CONTENTS = mergeStringArrays(
@@ -203,6 +284,10 @@ public class ArchiveHelperTestConstants {
         "wlsdeploy/nodeManager/nmIdentity.jks"
     };
 
+    static final String[] NODE_MANAGER_IDENTITY_JKS_DUP_CONTENTS = new String[] {
+        "wlsdeploy/nodeManager/nmIdentity(1).jks"
+    };
+
     static final String[] NODE_MANAGER_TRUST_JKS_CONTENTS = new String[] {
         "wlsdeploy/nodeManager/nmTrust.jks"
     };
@@ -222,6 +307,10 @@ public class ArchiveHelperTestConstants {
         "wlsdeploy/scripts/my_fancy_script.sh"
     };
 
+    static final String[] SCRIPTS_FANCY_SCRIPT_DUP_CONTENTS = new String[] {
+        "wlsdeploy/scripts/my_fancy_script(1).sh"
+    };
+
     static final String[] SCRIPTS_CONTENT = mergeStringArrays(
         new String[] { "wlsdeploy/scripts/" },
         SCRIPTS_FANCY_SCRIPT_CONTENTS
@@ -229,6 +318,10 @@ public class ArchiveHelperTestConstants {
 
     static final String[] SERVERS_ADMIN_SERVER_IDENTITY_JKS_CONTENTS = new String[] {
         "wlsdeploy/servers/AdminServer/identity.jks"
+    };
+
+    static final String[] SERVERS_ADMIN_SERVER_IDENTITY_JKS_DUP_CONTENTS = new String[] {
+        "wlsdeploy/servers/AdminServer/identity(1).jks"
     };
 
     static final String[] SERVERS_ADMIN_SERVER_TRUST_JKS_CONTENTS = new String[] {
@@ -266,12 +359,40 @@ public class ArchiveHelperTestConstants {
         "wlsdeploy/sharedLibraries/my-other-lib/WEB-INF/weblogic.xml"
     };
 
+    static final String[] SHARED_LIBS_MY_OTHER_LIB_DUP_CONTENTS = new String[] {
+        "wlsdeploy/sharedLibraries/my-other-lib(1)/",
+        "wlsdeploy/sharedLibraries/my-other-lib(1)/META-INF/",
+        "wlsdeploy/sharedLibraries/my-other-lib(1)/META-INF/maven/",
+        "wlsdeploy/sharedLibraries/my-other-lib(1)/META-INF/maven/oracle.jcs.lifecycle/",
+        "wlsdeploy/sharedLibraries/my-other-lib(1)/META-INF/maven/oracle.jcs.lifecycle/get-listen-address-app/",
+        "wlsdeploy/sharedLibraries/my-other-lib(1)/META-INF/maven/oracle.jcs.lifecycle/get-listen-address-app/pom.properties",
+        "wlsdeploy/sharedLibraries/my-other-lib(1)/META-INF/maven/oracle.jcs.lifecycle/get-listen-address-app/pom.xml",
+        "wlsdeploy/sharedLibraries/my-other-lib(1)/META-INF/MANIFEST.MF",
+        "wlsdeploy/sharedLibraries/my-other-lib(1)/WEB-INF/",
+        "wlsdeploy/sharedLibraries/my-other-lib(1)/WEB-INF/classes/",
+        "wlsdeploy/sharedLibraries/my-other-lib(1)/WEB-INF/classes/com/",
+        "wlsdeploy/sharedLibraries/my-other-lib(1)/WEB-INF/classes/com/oracle/",
+        "wlsdeploy/sharedLibraries/my-other-lib(1)/WEB-INF/classes/com/oracle/platform/",
+        "wlsdeploy/sharedLibraries/my-other-lib(1)/WEB-INF/classes/com/oracle/platform/GetListenAddressServlet.class",
+        "wlsdeploy/sharedLibraries/my-other-lib(1)/WEB-INF/classes/com/oracle/platform/ListenAddressAndPort.class",
+        "wlsdeploy/sharedLibraries/my-other-lib(1)/WEB-INF/web.xml",
+        "wlsdeploy/sharedLibraries/my-other-lib(1)/WEB-INF/weblogic.xml"
+    };
+
     static final String[] SHARED_LIBS_MY_LIB_WAR_CONTENTS = new String[] {
         "wlsdeploy/sharedLibraries/my-lib.war"
     };
 
+    static final String[] SHARED_LIBS_MY_LIB_WAR_DUP_CONTENTS = new String[] {
+        "wlsdeploy/sharedLibraries/my-lib(1).war"
+    };
+
     static final String[] SHARED_LIBS_MY_LIB_XML_CONTENTS = new String[] {
         "wlsdeploy/sharedLibraries/my-lib.xml"
+    };
+
+    static final String[] SHARED_LIBS_MY_LIB_XML_DUP_CONTENTS = new String[] {
+        "wlsdeploy/sharedLibraries/my-lib(1).xml"
     };
 
     static final String[] SHARED_LIBS_CONTENT = mergeStringArrays(
@@ -283,6 +404,10 @@ public class ArchiveHelperTestConstants {
 
     static final String[] FILE_STORES_FS1_CONTENTS = new String[] {
         "wlsdeploy/stores/fs1/"
+    };
+
+    static final String[] FILE_STORES_FS1_DUP_CONTENTS = new String[] {
+        "wlsdeploy/stores/fs1(1)/"
     };
 
     static final String[] FILE_STORES_FS2_CONTENTS = new String[] {
@@ -320,6 +445,28 @@ public class ArchiveHelperTestConstants {
         "wlsdeploy/structuredApplications/webapp/plan/WEB-INF/",
         "wlsdeploy/structuredApplications/webapp/plan/WEB-INF/weblogic.xml",
         "wlsdeploy/structuredApplications/webapp/plan/plan.xml"
+    };
+
+    static final String[] STRUCTURED_APP_WEBAPP_DUP_CONTENTS = new String[] {
+        "wlsdeploy/structuredApplications/webapp(1)/",
+        "wlsdeploy/structuredApplications/webapp(1)/app/",
+        "wlsdeploy/structuredApplications/webapp(1)/app/META-INF/",
+        "wlsdeploy/structuredApplications/webapp(1)/app/META-INF/MANIFEST.MF",
+        "wlsdeploy/structuredApplications/webapp(1)/app/WEB-INF/",
+        "wlsdeploy/structuredApplications/webapp(1)/app/WEB-INF/classes/",
+        "wlsdeploy/structuredApplications/webapp(1)/app/WEB-INF/classes/com/",
+        "wlsdeploy/structuredApplications/webapp(1)/app/WEB-INF/classes/com/oracle/",
+        "wlsdeploy/structuredApplications/webapp(1)/app/WEB-INF/classes/com/oracle/weblogic/",
+        "wlsdeploy/structuredApplications/webapp(1)/app/WEB-INF/classes/com/oracle/weblogic/example/",
+        "wlsdeploy/structuredApplications/webapp(1)/app/WEB-INF/classes/com/oracle/weblogic/example/HelloServlet.class",
+        "wlsdeploy/structuredApplications/webapp(1)/app/WEB-INF/classes/hello.properties",
+        "wlsdeploy/structuredApplications/webapp(1)/app/WEB-INF/web.xml",
+        "wlsdeploy/structuredApplications/webapp(1)/plan/",
+        "wlsdeploy/structuredApplications/webapp(1)/plan/AppFileOverrides/",
+        "wlsdeploy/structuredApplications/webapp(1)/plan/AppFileOverrides/hello.properties",
+        "wlsdeploy/structuredApplications/webapp(1)/plan/WEB-INF/",
+        "wlsdeploy/structuredApplications/webapp(1)/plan/WEB-INF/weblogic.xml",
+        "wlsdeploy/structuredApplications/webapp(1)/plan/plan.xml"
     };
 
     static final String[] STRUCTURED_APP_WEBAPP1_CONTENTS = new String[] {

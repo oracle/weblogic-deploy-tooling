@@ -67,12 +67,12 @@ public class RemoveServerKeystoreCommand extends RemoveTypeCommandBase {
         } catch (ArchiveHelperException ex) {
             LOGGER.severe("WLSDPLY-30030", ex, this.serverName, this.name, this.archiveFilePath,
                 ex.getLocalizedMessage());
-            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30030", ex, this.serverName,
+            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30030", this.serverName,
                 this.name, this.archiveFilePath, ex.getLocalizedMessage());
         } catch (WLSDeployArchiveIOException | IllegalArgumentException ex) {
             LOGGER.severe("WLSDPLY-30031", ex, this.serverName, this.name, this.force,
                 this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30031", ex, this.serverName, this.name,
+            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30031", this.serverName, this.name,
                 this.force, this.archiveFilePath, ex.getLocalizedMessage());
         }
 

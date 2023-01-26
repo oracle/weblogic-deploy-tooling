@@ -16,7 +16,6 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
-import static oracle.weblogic.deploy.util.WLSDeployArchive.DEFAULT_RCU_WALLET_NAME;
 
 @Command(
     name = "rcuWallet",
@@ -56,20 +55,19 @@ public class AddRCUWalletCommand extends AddTypeCommandBase {
 
             String resultName;
             if (this.overwrite) {
-                resultName = this.archive.replaceDatabaseWallet(DEFAULT_RCU_WALLET_NAME, sourceFile.getPath());
+                resultName = this.archive.replaceRCUDatabaseWallet(sourceFile.getPath());
             } else {
-                resultName = this.archive.addDatabaseWallet(DEFAULT_RCU_WALLET_NAME, sourceFile.getPath());
+                resultName = this.archive.addRCUDatabaseWallet(sourceFile.getPath());
             }
             response = new CommandResponse(ExitCode.OK, resultName);
         } catch (ArchiveHelperException ex) {
-            LOGGER.severe("WLSDPLY-30022", ex, TYPE, DEFAULT_RCU_WALLET_NAME, this.sourcePath,
-                this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30022", TYPE, DEFAULT_RCU_WALLET_NAME,
+            LOGGER.severe("WLSDPLY-30058", ex, this.sourcePath, this.archiveFilePath, ex.getLocalizedMessage());
+            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30058",
                 this.sourcePath, this.archiveFilePath, ex.getLocalizedMessage());
         } catch (WLSDeployArchiveIOException | IllegalArgumentException ex) {
-            LOGGER.severe("WLSDPLY-30023", ex, TYPE, DEFAULT_RCU_WALLET_NAME, this.sourcePath,
+            LOGGER.severe("WLSDPLY-30059", ex, this.sourcePath,
                 this.overwrite, this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30023", TYPE, DEFAULT_RCU_WALLET_NAME,
+            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30059",
                 this.sourcePath, this.overwrite, this.archiveFilePath, ex.getLocalizedMessage());
         }
 

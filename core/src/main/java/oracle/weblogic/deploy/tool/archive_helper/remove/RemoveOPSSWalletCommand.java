@@ -14,7 +14,6 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
-import static oracle.weblogic.deploy.util.WLSDeployArchive.DEFAULT_RCU_WALLET_NAME;
 
 @Command(
     name = "opssWallet",
@@ -53,11 +52,11 @@ public class RemoveOPSSWalletCommand extends RemoveTypeCommandBase {
                 entriesRemoved, this.archiveFilePath);
         } catch (ArchiveHelperException ex) {
             LOGGER.severe("WLSDPLY-30041", ex, TYPE, this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30041", ex, TYPE,
+            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30041", TYPE,
                 this.archiveFilePath, ex.getLocalizedMessage());
         } catch (WLSDeployArchiveIOException | IllegalArgumentException ex) {
             LOGGER.severe("WLSDPLY-30042", ex, TYPE, this.force, this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30042", ex, TYPE,
+            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30042", TYPE,
                 this.force, this.archiveFilePath, ex.getLocalizedMessage());
         }
 

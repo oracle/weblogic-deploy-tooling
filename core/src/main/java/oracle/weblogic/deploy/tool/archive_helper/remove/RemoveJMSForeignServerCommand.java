@@ -67,12 +67,12 @@ public class RemoveJMSForeignServerCommand extends RemoveTypeCommandBase {
         } catch (ArchiveHelperException ex) {
             LOGGER.severe("WLSDPLY-30038", ex, this.foreignServerName, this.name, this.archiveFilePath,
                 ex.getLocalizedMessage());
-            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30038", ex, this.foreignServerName,
+            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30038", this.foreignServerName,
                 this.name, this.archiveFilePath, ex.getLocalizedMessage());
         } catch (WLSDeployArchiveIOException | IllegalArgumentException ex) {
             LOGGER.severe("WLSDPLY-30039", ex, this.foreignServerName, this.name, this.force,
                 this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30039", ex, this.foreignServerName,
+            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30039", this.foreignServerName,
                 this.name, this.force, this.archiveFilePath, ex.getLocalizedMessage());
         }
 

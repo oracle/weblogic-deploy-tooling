@@ -174,6 +174,7 @@ public class WLSDeployArchive {
         FILE_STORE,
         NODE_MANAGER_KEY_STORE,
         DB_WALLET,
+        RCU_WALLET,
         OPSS_WALLET,
         CUSTOM
     }
@@ -311,6 +312,10 @@ public class WLSDeployArchive {
 
             case DB_WALLET:
                 pathPrefix = ARCHIVE_DB_WALLETS_DIR + ZIP_SEP;
+                break;
+
+            case RCU_WALLET:
+                pathPrefix = DEFAULT_RCU_WALLET_PATH + ZIP_SEP;
                 break;
 
             case OPSS_WALLET:
@@ -850,6 +855,24 @@ public class WLSDeployArchive {
     }
 
     /**
+     * Extract the entire contents of the archive file to the domain home.
+     *
+     * @param domainHome  the existing domain home directory
+     * @throws WLSDeployArchiveIOException if an error occurs reading the archive or writing the files.
+     * @throws IllegalArgumentException    if the domainHome directory does not exist
+     */
+    public void extractAll(File domainHome) throws WLSDeployArchiveIOException {
+        final String METHOD = "extractAll";
+        LOGGER.entering(CLASS, METHOD, domainHome);
+
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        extractDirectoryFromZip(WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP, domainHome);
+
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
      * This method removes all binaries from the archive.  This method is intended to
      * be invoked by discovery to remove binaries from a previous run that might
      * exist in the archive to make it possible for discovery to be truly idempotent.
@@ -942,27 +965,31 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Extract the specified application from the archive to the domain home directory.
+     * Extract the named application from the archive to the domain home directory.
      *
-     * @param applicationPath the application path into the archive file
-     * @param domainHome      the domain home directory
+     * @param appPath     the application path into the archive file
+     * @param domainHome  the domain home directory
      * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
-     * @throws IllegalArgumentException    if the file or directory passed in does not exist
-     *                                     or the application path is empty
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or the appPath is empty
      */
-    public void extractApplication(String applicationPath, File domainHome) throws WLSDeployArchiveIOException {
+    public void extractApplication(String appPath, File domainHome) throws WLSDeployArchiveIOException {
         final String METHOD = "extractApplication";
+        LOGGER.entering(CLASS, METHOD, appPath);
 
-        LOGGER.entering(CLASS, METHOD, applicationPath);
-        validateNonEmptyString(applicationPath, "applicationPath", METHOD);
+        validateNonEmptyString(appPath, "appPath", METHOD);
         validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
 
-        String appPath = applicationPath;
-        if (!applicationPath.startsWith(ARCHIVE_STRUCT_APPS_TARGET_DIR) &&
-            !applicationPath.startsWith(ARCHIVE_APPS_TARGET_DIR)) {
-            appPath = ARCHIVE_APPS_TARGET_DIR + ZIP_SEP + applicationPath;
+        String archivePath = appPath;
+        if (!appPath.startsWith(ARCHIVE_APPS_TARGET_DIR)) {
+            archivePath = ARCHIVE_APPS_TARGET_DIR + ZIP_SEP + appPath;
         }
-        extractFileFromZip(appPath, domainHome);
+
+        archivePath = fixupPathForDirectories(archivePath);
+        if (archivePath.endsWith(ZIP_SEP)) {
+            extractDirectoryFromZip(archivePath, domainHome);
+        } else {
+            extractFileFromZip(archivePath, domainHome);
+        }
 
         LOGGER.exiting(CLASS, METHOD);
     }
@@ -1089,6 +1116,32 @@ public class WLSDeployArchive {
     }
 
     /**
+     * Extracts the named application deployment plan from the archive into the domain home directory,
+     * preserving the archive directory structure.
+     *
+     * @param planPath    the name of the application deployment plan file in the archive.
+     * @param domainHome  the existing domain home directory
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or the planPath is empty
+     */
+    public void extractApplicationPlan(String planPath, File domainHome) throws WLSDeployArchiveIOException {
+        final String METHOD = "extractApplicationPlan";
+        LOGGER.entering(CLASS, METHOD, planPath);
+
+        validateNonEmptyString(planPath, "planPath", METHOD);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        String archivePath = planPath;
+        if (!planPath.startsWith(ARCHIVE_APPS_TARGET_DIR)) {
+            archivePath = ARCHIVE_APPS_TARGET_DIR + ZIP_SEP + planPath;
+        }
+
+        extractFileFromZip(archivePath, domainHome);
+
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
      * Remove the named application deployment plan from the archive file.  If this is the only entry
      * in the archive file directory, the directory entry will also be removed, if present.
      *
@@ -1207,6 +1260,35 @@ public class WLSDeployArchive {
 
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
+    }
+
+    /**
+     * Extracts the named structured application installation directory from the archive into the domain home directory,
+     * preserving the archive directory structure.
+     *
+     * @param appPath     the name of the application installation directory in the archive.
+     * @param domainHome  the existing domain home directory
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or the appPath is empty
+     */
+    public void extractStructuredApplication(String appPath, File domainHome) throws WLSDeployArchiveIOException {
+        final String METHOD = "extractApplicationPlan";
+        LOGGER.entering(CLASS, METHOD, appPath);
+
+        validateNonEmptyString(appPath, "appPath", METHOD);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        String archivePath = appPath;
+        if (!appPath.startsWith(ARCHIVE_STRUCT_APPS_TARGET_DIR)) {
+            archivePath = ARCHIVE_STRUCT_APPS_TARGET_DIR + ZIP_SEP + appPath;
+        }
+        if (!archivePath.endsWith(ZIP_SEP)) {
+            archivePath += ZIP_SEP;
+        }
+
+        extractDirectoryFromZip(archivePath, domainHome);
+
+        LOGGER.exiting(CLASS, METHOD);
     }
 
     // TODO - Need to verify that discovery produces an archive that is consistent with the add/replace methods above.
@@ -1387,26 +1469,33 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Extract the specified shared library from the archive to the domain home directory.
+     * Extracts the named shared library from the archive into the domain home directory,
+     * preserving the archive directory structure.
      *
-     * @param sharedLibraryPath the shared library path into the archive file
-     * @param domainHome        the domain home directory
+     * @param libPath     the name of the shared library file/directory in the archive
+     * @param domainHome  the existing domain home directory
      * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
-     * @throws IllegalArgumentException    if the file or directory passed in does not exist
-     *                                     or the application path is empty
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or the libPath is empty
      */
-    public void extractSharedLibrary(String sharedLibraryPath, File domainHome) throws WLSDeployArchiveIOException {
+    public void extractSharedLibrary(String libPath, File domainHome) throws WLSDeployArchiveIOException {
         final String METHOD = "extractSharedLibrary";
+        LOGGER.entering(CLASS, METHOD, libPath);
 
-        LOGGER.entering(CLASS, METHOD, sharedLibraryPath);
-        validateNonEmptyString(sharedLibraryPath, "sharedLibraryPath", METHOD);
+        validateNonEmptyString(libPath, "libPath", METHOD);
         validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
 
-        String libPath = sharedLibraryPath;
-        if (!sharedLibraryPath.startsWith(ARCHIVE_SHLIBS_TARGET_DIR)) {
-            libPath = ARCHIVE_SHLIBS_TARGET_DIR + ZIP_SEP + sharedLibraryPath;
+        String archivePath = libPath;
+        if (!libPath.startsWith(ARCHIVE_SHLIBS_TARGET_DIR)) {
+            archivePath = ARCHIVE_SHLIBS_TARGET_DIR + ZIP_SEP + libPath;
         }
-        extractFileFromZip(libPath, domainHome);
+
+        archivePath = fixupPathForDirectories(archivePath);
+        if (archivePath.endsWith(ZIP_SEP)) {
+            extractDirectoryFromZip(archivePath, domainHome);
+        } else {
+            extractFileFromZip(archivePath, domainHome);
+        }
+
         LOGGER.exiting(CLASS, METHOD);
     }
 
@@ -1530,6 +1619,32 @@ public class WLSDeployArchive {
 
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
+    }
+
+    /**
+     * Extracts the named shared library deployment plan from the archive into the domain home directory,
+     * preserving the archive directory structure.
+     *
+     * @param planPath    the name of the shared library deployment plan file in the archive.
+     * @param domainHome  the existing domain home directory
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or the planPath is empty
+     */
+    public void extractSharedLibraryPlan(String planPath, File domainHome) throws WLSDeployArchiveIOException {
+        final String METHOD = "extractSharedLibraryPlan";
+        LOGGER.entering(CLASS, METHOD, planPath);
+
+        validateNonEmptyString(planPath, "planPath", METHOD);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        String archivePath = planPath;
+        if (!planPath.startsWith(ARCHIVE_SHLIBS_TARGET_DIR)) {
+            archivePath = ARCHIVE_SHLIBS_TARGET_DIR + ZIP_SEP + planPath;
+        }
+
+        extractFileFromZip(archivePath, domainHome);
+
+        LOGGER.exiting(CLASS, METHOD);
     }
 
     /**
@@ -1681,19 +1796,48 @@ public class WLSDeployArchive {
     /**
      * Extract the specified domain library to the specified location (e.g., $DOMAIN_HOME/lib).
      *
-     * @param archivePath       the path of the library within the archive
-     * @param extractToLocation the location to write the file
-     * @throws WLSDeployArchiveIOException if an IOException occurred while extracting or writing the file
-     * @throws IllegalArgumentException    if the file or directory passed in does not exist
+     * @param libPath           the name of the $DOMAIN_HOME/lib library within the archive
+     * @param extractToLocation the existing directory location to write the file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the extractToLocation directory does not exist or the libPath is empty
      */
-    public void extractDomainLibLibrary(String archivePath, File extractToLocation) throws WLSDeployArchiveIOException {
+    public void extractDomainLibLibrary(String libPath, File extractToLocation) throws WLSDeployArchiveIOException {
         final String METHOD = "extractDomainLibLibrary";
+        LOGGER.entering(CLASS, METHOD, libPath, extractToLocation);
 
-        LOGGER.entering(CLASS, METHOD, archivePath, extractToLocation);
-        validateNonEmptyString(archivePath, "archivePath", METHOD);
-        validateExistingDirectory(extractToLocation, "extractToLocation", getArchiveFileName(), METHOD);
+        extractDomainLibLibrary(libPath, extractToLocation, false);
 
-        extractFileFromZip(archivePath, ARCHIVE_DOMLIB_TARGET_DIR, "", extractToLocation);
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
+     * Extract the named $DOMAIN_HOME/lib library to the domain home location.
+     *
+     * @param libPath                         the name of the $DOMAIN_HOME/lib library within the archive
+     * @param domainHome                      the existing directory location to write the file
+     * @param preserveIntermediateDirectories if true, file is extracted with intermediate directory structure
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or the libPath is empty
+     */
+    public void extractDomainLibLibrary(String libPath, File domainHome, boolean preserveIntermediateDirectories)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "extractDomainLibLibrary";
+        LOGGER.entering(CLASS, METHOD, libPath, domainHome, preserveIntermediateDirectories);
+
+        validateNonEmptyString(libPath, "libPath", METHOD);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        if (preserveIntermediateDirectories) {
+            String archivePath = libPath;
+            if (!libPath.startsWith(ARCHIVE_DOMLIB_TARGET_DIR + ZIP_SEP)) {
+                archivePath = ARCHIVE_DOMLIB_TARGET_DIR + ZIP_SEP + libPath;
+            }
+
+            extractFileFromZip(archivePath, domainHome);
+        } else {
+            extractFileFromZip(libPath, ARCHIVE_DOMLIB_TARGET_DIR, "", domainHome);
+        }
+
         LOGGER.exiting(CLASS, METHOD);
     }
 
@@ -1708,8 +1852,8 @@ public class WLSDeployArchive {
      *                                      reading the archive or writing the file
      * @throws IllegalArgumentException     if the libPath is null or empty
      */
-    public int removeDomainLibrary(String libPath) throws WLSDeployArchiveIOException {
-        return removeDomainLibrary(libPath, false);
+    public int removeDomainLibLibrary(String libPath) throws WLSDeployArchiveIOException {
+        return removeDomainLibLibrary(libPath, false);
     }
 
     /**
@@ -1724,7 +1868,7 @@ public class WLSDeployArchive {
      *                                      occurred while reading the archive or writing the file
      * @throws IllegalArgumentException     if the libPath is null or empty
      */
-    public int removeDomainLibrary(String libPath, boolean silent) throws WLSDeployArchiveIOException {
+    public int removeDomainLibLibrary(String libPath, boolean silent) throws WLSDeployArchiveIOException {
         final String METHOD = "removeDomainLibrary";
         LOGGER.entering(CLASS, METHOD, libPath, silent);
 
@@ -1840,11 +1984,43 @@ public class WLSDeployArchive {
      */
     public void extractClasspathLibraries(File domainHome) throws WLSDeployArchiveIOException {
         final String METHOD = "extractClasspathLibraries";
-
         LOGGER.entering(CLASS, METHOD, domainHome);
+
         validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
 
         extractDirectoryFromZip(ARCHIVE_CPLIB_TARGET_DIR, domainHome);
+
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
+     * Extract the named classpath library from the archive into the domain home directory,
+     * preserving the archive directory structure.
+     *
+     * @param libPath     the name of the classpath library file/directory in the archive.
+     * @param domainHome  the existing domain home directory
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or the libPath is empty
+     */
+    public void extractClasspathLibrary(String libPath, File domainHome) throws WLSDeployArchiveIOException {
+        final String METHOD = "extractClasspathLibrary";
+        LOGGER.entering(CLASS, METHOD, libPath, domainHome);
+
+        validateNonEmptyString(libPath, "libPath", METHOD);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        String archivePath = libPath;
+        if (!libPath.startsWith(ARCHIVE_CPLIB_TARGET_DIR + ZIP_SEP)) {
+            archivePath = ARCHIVE_CPLIB_TARGET_DIR + ZIP_SEP + libPath;
+        }
+        archivePath = fixupPathForDirectories(archivePath);
+
+        if (archivePath.endsWith(ZIP_SEP)) {
+            extractDirectoryFromZip(archivePath, domainHome);
+        } else {
+            extractFileFromZip(archivePath, domainHome);
+        }
+
         LOGGER.exiting(CLASS, METHOD);
     }
 
@@ -1985,19 +2161,48 @@ public class WLSDeployArchive {
     /**
      * Extract the specified domain bin user script to the specified location (e.g., $DOMAIN_HOME/bin).
      *
-     * @param archivePath       the path of the script within the archive
-     * @param extractToLocation the location to write the file
-     * @throws WLSDeployArchiveIOException if an IOException occurred while extracting or writing the file
-     * @throws IllegalArgumentException    if the file or directory passed in does not exist
+     * @param scriptPath                      the name of the $DOMAIN_HOME/bin script within the archive
+     * @param extractToLocation               the existing directory location to write the file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the extractToLocation directory does not exist or the scriptPath is empty
      */
-    public void extractDomainBinScript(String archivePath, File extractToLocation) throws WLSDeployArchiveIOException {
+    public void extractDomainBinScript(String scriptPath, File extractToLocation) throws WLSDeployArchiveIOException {
         final String METHOD = "extractDomainBinScript";
+        LOGGER.entering(CLASS, METHOD, scriptPath, extractToLocation);
 
-        LOGGER.entering(CLASS, METHOD, archivePath, extractToLocation);
-        validateNonEmptyString(archivePath, "archivePath", METHOD);
-        validateExistingDirectory(extractToLocation, "extractToLocation", getArchiveFileName(), METHOD);
+        extractDomainBinScript(scriptPath, extractToLocation, false);
 
-        extractFileFromZip(archivePath, ARCHIVE_DOM_BIN_TARGET_DIR, "", extractToLocation);
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
+     * Extract the named $DOMAIN_HOME/bin script to the domain home location.
+     *
+     * @param scriptPath                      the name of the $DOMAIN_HOME/bin script within the archive
+     * @param domainHome                      the existing directory location to write the file
+     * @param preserveIntermediateDirectories if true, file is extracted with intermediate directory structure
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or the scriptPath is empty
+     */
+    public void extractDomainBinScript(String scriptPath, File domainHome, boolean preserveIntermediateDirectories)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "extractDomainBinScript";
+        LOGGER.entering(CLASS, METHOD, scriptPath, domainHome, preserveIntermediateDirectories);
+
+        validateNonEmptyString(scriptPath, "scriptPath", METHOD);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        if (preserveIntermediateDirectories) {
+            String archivePath = scriptPath;
+            if (!scriptPath.startsWith(ARCHIVE_DOM_BIN_TARGET_DIR + ZIP_SEP)) {
+                archivePath = ARCHIVE_DOM_BIN_TARGET_DIR + ZIP_SEP + scriptPath;
+            }
+
+            extractFileFromZip(archivePath, domainHome);
+        } else {
+            extractFileFromZip(scriptPath, ARCHIVE_DOM_BIN_TARGET_DIR, "", domainHome);
+        }
+
         LOGGER.exiting(CLASS, METHOD);
     }
 
@@ -2161,6 +2366,37 @@ public class WLSDeployArchive {
     }
 
     /**
+     * Extract the named custom file/directory from the archive into the domain home directory,
+     * preserving the archive directory structure.
+     *
+     * @param entryPath   the name of the custom file/directory in the archive.
+     * @param domainHome  the existing domain home directory
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or the entryPath is empty
+     */
+    public void extractCustomEntry(String entryPath, File domainHome) throws WLSDeployArchiveIOException {
+        final String METHOD = "extractCustomEntry";
+        LOGGER.entering(CLASS, METHOD, entryPath, domainHome);
+
+        validateNonEmptyString(entryPath, "entryPath", METHOD);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        String archivePath = entryPath;
+        if (!entryPath.startsWith(ARCHIVE_CUSTOM_TARGET_DIR + ZIP_SEP)) {
+            archivePath = ARCHIVE_CUSTOM_TARGET_DIR + ZIP_SEP + entryPath;
+        }
+        archivePath = fixupPathForDirectories(archivePath);
+
+        if (archivePath.endsWith(ZIP_SEP)) {
+            extractDirectoryFromZip(archivePath, domainHome);
+        } else {
+            extractFileFromZip(archivePath, domainHome);
+        }
+
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
      * Remove the named custom file/directory from the archive file.  If this is the only entry
      * in the archive file directory, the directory entry will also be removed, if present.
      *
@@ -2279,6 +2515,32 @@ public class WLSDeployArchive {
 
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
+    }
+
+    /**
+     * Extract the named script to the domain home location.
+     *
+     * @param scriptPath                      the name of the script within the archive
+     * @param domainHome                      the existing directory location to write the file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or the scriptPath is empty
+     */
+    public void extractScript(String scriptPath, File domainHome)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "extractScript";
+        LOGGER.entering(CLASS, METHOD, scriptPath, domainHome);
+
+        validateNonEmptyString(scriptPath, "scriptPath", METHOD);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        String archivePath = scriptPath;
+        if (!scriptPath.startsWith(ARCHIVE_SCRIPTS_DIR + ZIP_SEP)) {
+            archivePath = ARCHIVE_SCRIPTS_DIR + ZIP_SEP + scriptPath;
+        }
+
+        extractFileFromZip(archivePath, domainHome);
+
+        LOGGER.exiting(CLASS, METHOD);
     }
 
     /**
@@ -2418,6 +2680,39 @@ public class WLSDeployArchive {
     }
 
     /**
+     * Extract the named server's keystore file to the domain home location.
+     *
+     * @param serverName                   the name of the server used to segregate the keystore
+     * @param keystoreName                 the name of the keystore file
+     * @param domainHome                   the existing directory location to write the file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or
+     *                                     the serverName or keystoreName is empty
+     */
+    public void extractServerKeystore(String serverName, String keystoreName, File domainHome)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "extractServerKeystore";
+        LOGGER.entering(CLASS, METHOD, serverName, keystoreName, domainHome);
+
+        validateNonEmptyString(serverName, "serverName", METHOD);
+        validateNonEmptyString(keystoreName, "keystoreName", METHOD);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        String archivePath;
+        if (keystoreName.startsWith(ARCHIVE_SERVER_TARGET_DIR + ZIP_SEP)) {
+            archivePath = keystoreName;
+        } else if (keystoreName.startsWith(serverName + ZIP_SEP)) {
+            archivePath = ARCHIVE_SERVER_TARGET_DIR + ZIP_SEP + keystoreName;
+        } else {
+            archivePath = ARCHIVE_SERVER_TARGET_DIR + ZIP_SEP + serverName + ZIP_SEP + keystoreName;
+        }
+
+        extractFileFromZip(archivePath, domainHome);
+
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
      * Remove the named server's keystore file from the archive file.  If this is the only entry
      * in the archive file directory, the directory entry will also be removed, if present.
      *
@@ -2529,29 +2824,55 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Remove the named server's keystore file from the archive file.  If this is the only entry
+     * Extract the named node manager keystore file to the domain home location.
+     *
+     * @param keystoreName                 the name of the keystore file
+     * @param domainHome                   the existing directory location to write the file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or the keystoreName is empty
+     */
+    public void extractNodeManagerKeystore(String keystoreName, File domainHome)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "extractNodeManagerKeystore";
+        LOGGER.entering(CLASS, METHOD, keystoreName, domainHome);
+
+        validateNonEmptyString(keystoreName, "keystoreName", METHOD);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        String archivePath = keystoreName;
+        if (!keystoreName.startsWith(ARCHIVE_NODE_MANAGER_TARGET_DIR + ZIP_SEP)) {
+            archivePath = ARCHIVE_NODE_MANAGER_TARGET_DIR + ZIP_SEP + keystoreName;
+        }
+
+        extractFileFromZip(archivePath, domainHome);
+
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
+     * Remove the named node manager's keystore file from the archive file.  If this is the only entry
      * in the archive file directory, the directory entry will also be removed, if present.
      *
      * @param keystoreName  the name of the keystore file
      * @return the number of zip entries removed from the archive
      * @throws WLSDeployArchiveIOException  if the server's keystore file is not present or an IOException
      *                                      occurred while reading the archive or writing the file
-     * @throws IllegalArgumentException     if the serverName or keystoreName is null or empty
+     * @throws IllegalArgumentException     if the keystoreName is null or empty
      */
     public int removeNodeManagerKeystore(String keystoreName) throws WLSDeployArchiveIOException {
         return removeNodeManagerKeystore(keystoreName, false);
     }
 
     /**
-     * Remove the named server's keystore file from the archive file.  If this is the only entry
+     * Remove the named node manager's keystore file from the archive file.  If this is the only entry
      * in the archive file directory, the directory entry will also be removed, if present.
      *
      * @param keystorePath  the name of the keystore file
-     * @param silent  If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @param silent        If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
      * @return the number of zip entries removed from the archive
      * @throws WLSDeployArchiveIOException  if the server's keystore file is not present (and silent = false) or
      *                                      an IOException occurred while reading the archive or writing the file
-     * @throws IllegalArgumentException     if the serverName or keystorePath is null or empty
+     * @throws IllegalArgumentException     if the keystorePath is null or empty
      */
     public int removeNodeManagerKeystore(String keystorePath, boolean silent)
         throws WLSDeployArchiveIOException {
@@ -2641,6 +2962,32 @@ public class WLSDeployArchive {
 
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
+    }
+
+    /**
+     * Extract the named MIME mapping file to the domain home location.
+     *
+     * @param mappingPath                  the name of the MIME mapping file
+     * @param domainHome                   the existing directory location to write the file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or the mappingPath is empty
+     */
+    public void extractMimeMappingFile(String mappingPath, File domainHome)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "extractMimeMappingFile";
+        LOGGER.entering(CLASS, METHOD, mappingPath, domainHome);
+
+        validateNonEmptyString(mappingPath, "mappingPath", METHOD);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        String archivePath = mappingPath;
+        if (!mappingPath.startsWith(ARCHIVE_CONFIG_TARGET_DIR + ZIP_SEP)) {
+            archivePath = ARCHIVE_CONFIG_TARGET_DIR + ZIP_SEP + mappingPath;
+        }
+
+        extractFileFromZip(archivePath, domainHome);
+
+        LOGGER.exiting(CLASS, METHOD);
     }
 
     /**
@@ -2803,6 +3150,39 @@ public class WLSDeployArchive {
     }
 
     /**
+     * Extract the named Coherence cluster's config file to the domain home location.
+     *
+     * @param clusterName                  the name of the server used to segregate the keystore
+     * @param configPath                   the name of the keystore file
+     * @param domainHome                   the existing directory location to write the file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or
+     *                                     the clusterName or configPath is empty
+     */
+    public void extractCoherenceConfigFile(String clusterName, String configPath, File domainHome)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "extractCoherenceConfigFile";
+        LOGGER.entering(CLASS, METHOD, clusterName, configPath, domainHome);
+
+        validateNonEmptyString(clusterName, "clusterName", METHOD);
+        validateNonEmptyString(configPath, "configPath", METHOD);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        String archivePath;
+        if (configPath.startsWith(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP)) {
+            archivePath = configPath;
+        } else if (configPath.startsWith(clusterName + ZIP_SEP)) {
+            archivePath = ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + configPath;
+        } else {
+            archivePath = ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName + ZIP_SEP + configPath;
+        }
+
+        extractFileFromZip(archivePath, domainHome);
+
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
      * Remove the named Coherence config file from the archive file.  If this is the only entry
      * in the archive file directory, the directory entry will also be removed, if present.
      *
@@ -2915,6 +3295,43 @@ public class WLSDeployArchive {
     }
 
     /**
+     * Extract the named Coherence cluster's persistence directory to the domain home location.
+     *
+     * @param clusterName                  the name of the Coherence cluster used to segregate the keystore
+     * @param directoryType                the name of the persistence directory
+     * @param domainHome                   the existing directory location to write the file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or
+     *                                     the clusterName or directoryType is empty
+     */
+    public void extractCoherencePersistenceDirectory(String clusterName, String directoryType, File domainHome)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "extractCoherencePersistenceDirectory";
+        LOGGER.entering(CLASS, METHOD, clusterName, directoryType, domainHome);
+
+        validateNonEmptyString(clusterName, "clusterName", METHOD);
+        validateNonEmptyString(directoryType, "directoryType", METHOD);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        String archivePath;
+        if (directoryType.startsWith(ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP)) {
+            archivePath = directoryType;
+        } else if (directoryType.startsWith(clusterName + ZIP_SEP)) {
+            archivePath = ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + directoryType;
+        } else {
+            archivePath = ARCHIVE_COHERENCE_TARGET_DIR + ZIP_SEP + clusterName + ZIP_SEP + directoryType;
+        }
+
+        if (!archivePath.endsWith(ZIP_SEP)) {
+            archivePath += ZIP_SEP;
+        }
+
+        extractDirectoryFromZip(archivePath, domainHome);
+
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
      * Remove the named Coherence persistence directory from the archive file.  If this is the only entry
      * in the archive file directory, the directory entry will also be removed, if present.
      *
@@ -2980,21 +3397,23 @@ public class WLSDeployArchive {
     /**
      * Add a Foreign Server binding file to the archive.
      *
-     * @param foreignServer the Foreign Server name used to segregate the directories
-     * @param configFile    the file or directory to add
+     * @param foreignServerName  the Foreign Server name used to segregate the directories
+     * @param bindingPath        the file or directory to add
      * @return the new location of the file to use in the model
      * @throws WLSDeployArchiveIOException if an error occurs while archiving the file
-     * @throws IllegalArgumentException    if the file does not exist or the foreignServer is empty or null
+     * @throws IllegalArgumentException    if the file does not exist or the foreignServerName is empty or null
      */
-    public String addForeignServerFile(String foreignServer, String configFile) throws WLSDeployArchiveIOException {
+    public String addForeignServerFile(String foreignServerName, String bindingPath)
+        throws WLSDeployArchiveIOException {
         final String METHOD = "addForeignServerFile";
-        LOGGER.entering(CLASS, METHOD, foreignServer, configFile);
+        LOGGER.entering(CLASS, METHOD, foreignServerName, bindingPath);
 
-        File filePath = new File(configFile);
-        validateNonEmptyString(foreignServer, "foreignServerName", METHOD);
-        validateExistingFile(filePath, "configFile", getArchiveFileName(), METHOD, true);
+        validateNonEmptyString(foreignServerName, "foreignServerName", METHOD);
+        File filePath = new File(bindingPath);
+        validateExistingFile(filePath, "bindingPath", getArchiveFileName(), METHOD);
 
-        String newName = addItemToZip(ARCHIVE_JMS_FOREIGN_SERVER_DIR + ZIP_SEP + foreignServer, filePath);
+        String newName =
+            addItemToZip(ARCHIVE_JMS_FOREIGN_SERVER_DIR + ZIP_SEP + foreignServerName, filePath);
 
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
@@ -3004,33 +3423,35 @@ public class WLSDeployArchive {
      * Replace a Foreign Server binding file in the archive.
      *
      * @param foreignServerName the Foreign Server name used to segregate the directories
-     * @param configPath        the Foreign Server binding file name or an archive path
+     * @param bindingPath       the Foreign Server binding file name or an archive path
      * @param sourceLocation the file system location of the new Foreign Server binding file to replace the existing one
      * @return the archive path of the new Foreign Server binding file
      * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
-     * @throws IllegalArgumentException    if the file or directory passed in does not exist
+     * @throws IllegalArgumentException    if the file passed in does not exist or the bindingPath is empty
      */
-    public String replaceForeignServerFile(String foreignServerName, String configPath, String sourceLocation)
+    public String replaceForeignServerFile(String foreignServerName, String bindingPath, String sourceLocation)
         throws WLSDeployArchiveIOException {
         final String METHOD = "replaceForeignServerFile";
-        LOGGER.entering(CLASS, METHOD, foreignServerName, configPath, sourceLocation);
+        LOGGER.entering(CLASS, METHOD, foreignServerName, bindingPath, sourceLocation);
+
+        validateNonEmptyString(bindingPath, "bindingPath", METHOD);
 
         String archivePath = null;
         String computedForeignServerName = foreignServerName;
-        if (configPath.startsWith(ARCHIVE_JMS_FOREIGN_SERVER_DIR + ZIP_SEP)) {
-            archivePath = configPath;
-            computedForeignServerName = getSegregationNameFromSegregatedArchivePath(foreignServerName, configPath);
+        if (bindingPath.startsWith(ARCHIVE_JMS_FOREIGN_SERVER_DIR + ZIP_SEP)) {
+            archivePath = bindingPath;
+            computedForeignServerName = getSegregationNameFromSegregatedArchivePath(foreignServerName, bindingPath);
         } else if (!StringUtils.isEmpty(foreignServerName)) {
-            if (configPath.startsWith(foreignServerName + ZIP_SEP)) {
-                archivePath = ARCHIVE_JMS_FOREIGN_SERVER_DIR + ZIP_SEP + configPath;
+            if (bindingPath.startsWith(foreignServerName + ZIP_SEP)) {
+                archivePath = ARCHIVE_JMS_FOREIGN_SERVER_DIR + ZIP_SEP + bindingPath;
             } else {
-                archivePath = ARCHIVE_JMS_FOREIGN_SERVER_DIR + ZIP_SEP + foreignServerName + ZIP_SEP + configPath;
+                archivePath = ARCHIVE_JMS_FOREIGN_SERVER_DIR + ZIP_SEP + foreignServerName + ZIP_SEP + bindingPath;
             }
         }
 
         if (StringUtils.isEmpty(computedForeignServerName)) {
             WLSDeployArchiveIOException ex =
-                new WLSDeployArchiveIOException("WLSDPLY-01436", configPath, sourceLocation);
+                new WLSDeployArchiveIOException("WLSDPLY-01436", bindingPath, sourceLocation);
             LOGGER.throwing(CLASS, METHOD, ex);
             throw ex;
         }
@@ -3038,10 +3459,43 @@ public class WLSDeployArchive {
         // If we get here, archivePath should never be null!
         //
         getZipFile().removeZipEntry(archivePath);
-        String newName = addCoherenceConfigFile(computedForeignServerName, sourceLocation);
+        String newName = addForeignServerFile(computedForeignServerName, sourceLocation);
 
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
+    }
+
+    /**
+     * Extract the named Foreign Server binding file to the domain home location.
+     *
+     * @param foreignServerName            the name of the JMS Foreign Server used to segregate the bindings
+     * @param bindingPath                  the name of the binding file
+     * @param domainHome                   the existing directory location to write the file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or
+     *                                     the foreignServerName or bindingPath is empty
+     */
+    public void extractForeignServerFile(String foreignServerName, String bindingPath, File domainHome)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "extractForeignServerFile";
+        LOGGER.entering(CLASS, METHOD, foreignServerName, bindingPath, domainHome);
+
+        validateNonEmptyString(foreignServerName, "foreignServerName", METHOD);
+        validateNonEmptyString(bindingPath, "bindingPath", METHOD);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        String archivePath;
+        if (bindingPath.startsWith(ARCHIVE_JMS_FOREIGN_SERVER_DIR + ZIP_SEP)) {
+            archivePath = bindingPath;
+        } else if (bindingPath.startsWith(foreignServerName + ZIP_SEP)) {
+            archivePath = ARCHIVE_JMS_FOREIGN_SERVER_DIR + ZIP_SEP + bindingPath;
+        } else {
+            archivePath = ARCHIVE_JMS_FOREIGN_SERVER_DIR + ZIP_SEP + foreignServerName + ZIP_SEP + bindingPath;
+        }
+
+        extractFileFromZip(archivePath, domainHome);
+
+        LOGGER.exiting(CLASS, METHOD);
     }
 
     /**
@@ -3159,6 +3613,36 @@ public class WLSDeployArchive {
     }
 
     /**
+     * Extract the named File Store directory to the domain home location.
+     *
+     * @param fileStorePath                the name of the File Store directory
+     * @param domainHome                   the existing domain home directory location to write the file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or the fileStorePath is empty
+     */
+    public void extractFileStoreDirectory(String fileStorePath, File domainHome)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "extractFileStoreDirectory";
+        LOGGER.entering(CLASS, METHOD, fileStorePath, domainHome);
+
+        validateNonEmptyString(fileStorePath, "fileStorePath", METHOD);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        String archivePath = fileStorePath;
+        if (!fileStorePath.startsWith(ARCHIVE_FILE_STORE_TARGET_DIR + ZIP_SEP)) {
+            archivePath = ARCHIVE_FILE_STORE_TARGET_DIR + ZIP_SEP + fileStorePath;
+        }
+
+        if (!archivePath.endsWith(ZIP_SEP)) {
+            archivePath += ZIP_SEP;
+        }
+
+        extractDirectoryFromZip(archivePath, domainHome);
+
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
      * Remove the named File Store directory from the archive file.  If this is the only entry
      * in the archive file directory, the directory entry will also be removed, if present.
      *
@@ -3229,21 +3713,26 @@ public class WLSDeployArchive {
         final String METHOD = "addDatabaseWallet";
         LOGGER.entering(CLASS, METHOD, walletName, sourceLocation);
 
-        File sourceFile = FileUtils.getCanonicalFile(sourceLocation);
-        validateNonEmptyString(walletName, "walletName", METHOD);
-        validateExistingFile(sourceFile, "sourceLocation", getArchiveFileName(), METHOD, true);
+        boolean verifyNotExists = DEFAULT_RCU_WALLET_NAME.equals(walletName);
+        String newName = addDatabaseWallet(walletName, sourceLocation, verifyNotExists);
 
-        String newName;
-        if (sourceFile.isDirectory()) {
-            newName = addItemToZip(ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + walletName, sourceFile, false);
-        } else {
-            newName = addItemToZip(ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + walletName, sourceFile);
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
 
-            // When adding a file (e.g., zip file), the wallet name returned should always point
-            // to the wallet directory containing the file.
-            //
-            newName = getDatabaseWalletArchivePathFromAddedFile(ARCHIVE_DB_WALLETS_DIR, newName);
-        }
+    /**
+     * Add the RCU database wallet to the archive.
+     *
+     * @param sourceLocation the file system location for the wallet file (zip file or single file) or directory
+     * @return the archive path to the wallet directory
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
+     * @throws IllegalArgumentException    if the wallet file/directory does not exist
+     */
+    public String addRCUDatabaseWallet(String sourceLocation) throws WLSDeployArchiveIOException {
+        final String METHOD = "addRCUDatabaseWallet";
+        LOGGER.entering(CLASS, METHOD, sourceLocation);
+
+        String newName = addDatabaseWallet(DEFAULT_RCU_WALLET_NAME, sourceLocation, true);
 
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
@@ -3259,7 +3748,7 @@ public class WLSDeployArchive {
      * @throws IllegalArgumentException    if the wallet name if empty or the wallet file/directory does not exist
      */
     public String replaceDatabaseWallet(String walletPath, String sourceLocation) throws WLSDeployArchiveIOException {
-        final String METHOD = "addDatabaseWallet";
+        final String METHOD = "replaceDatabaseWallet";
         LOGGER.entering(CLASS, METHOD, walletPath, sourceLocation);
 
         validateNonEmptyString(walletPath, "walletPath", METHOD);
@@ -3278,24 +3767,43 @@ public class WLSDeployArchive {
         }
 
         getZipFile().removeZipEntries(archivePath);
-        String newName = addDatabaseWallet(computedWalletName, sourceLocation);
+        String newName = addDatabaseWallet(computedWalletName, sourceLocation, false);
 
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
     }
 
     /**
-     * Extract the named database wallet.
+     * Replace the RCU database wallet in the archive.
      *
-     * @param domainHome the domain home directory
+     * @param sourceLocation the file system location of the database wallet file/directory to replace the existing one
+     * @return the archive path to the wallet directory
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
+     * @throws IllegalArgumentException    if the wallet file/directory does not exist
+     */
+    public String replaceRCUDatabaseWallet(String sourceLocation) throws WLSDeployArchiveIOException {
+        final String METHOD = "replaceRCUDatabaseWallet";
+        LOGGER.entering(CLASS, METHOD, sourceLocation);
+
+        String newName = replaceDatabaseWallet(DEFAULT_RCU_WALLET_NAME, sourceLocation);
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    /**
+     * Extract the named database wallet.  If the named database wallet is stored as a zip inside the archive,
+     * this method will unzip that zip file so the result is always an expanded directory.
+     *
+     * @param domainHome the existing domain home directory
      * @param walletName the name of the database wallet to extract (e.g., rcu)
-     * @return the full path to the directory containing the extracted wallet files or null, if no wallet was found.
-     * @throws WLSDeployArchiveIOException if an error occurs while reading or extracting the archive files.
+     * @return the full path to the directory containing the extracted wallet files or null, if no wallet was found
+     * @throws WLSDeployArchiveIOException if an error occurs while reading or extracting the archive files
      * @throws IllegalArgumentException    if the wallet name if empty or the domain home directory does not exist
+     * @see WLSDeployArchive#extractDatabaseWalletForArchiveHelper(String, File) 
      */
     public String extractDatabaseWallet(File domainHome, String walletName) throws WLSDeployArchiveIOException {
         final String METHOD = "extractDatabaseWallet";
-
         LOGGER.entering(CLASS, METHOD, domainHome, walletName);
 
         validateNonEmptyString(walletName, "walletName", METHOD);
@@ -3321,6 +3829,75 @@ public class WLSDeployArchive {
     }
 
     /**
+     * Extract the RCU database wallet.  If the RCU database wallet is stored as a zip inside the archive,
+     * this method will unzip that zip file so the result is always an expanded directory.
+     *
+     * @param domainHome the existing domain home directory
+     * @return the full path to the directory containing the extracted wallet files or null, if no wallet was found
+     * @throws WLSDeployArchiveIOException if an error occurs while reading or extracting the archive files
+     * @throws IllegalArgumentException    if the domain home directory does not exist
+     * @see WLSDeployArchive#extractRCUDatabaseWalletForArchiveHelper(File)
+     */
+    public String extractRCUDatabaseWallet(File domainHome) throws WLSDeployArchiveIOException {
+        final String METHOD = "extractRCUDatabaseWallet";
+        LOGGER.entering(CLASS, METHOD, domainHome);
+
+        String extractPath = extractDatabaseWallet(domainHome, DEFAULT_RCU_WALLET_NAME);
+
+        LOGGER.exiting(CLASS, METHOD, extractPath);
+        return extractPath;
+    }
+
+    /**
+     * Extract the named database wallet.  Unlike extractDatabaseWallet(), this method will not
+     * unzip the wallet if it is a zip file stored in the archive.  It also does not have any
+     * handling of the old archive location for the rcu wallet.
+     *
+     * @param walletPath   the name of the database wallet to extract (e.g., rcu)
+     * @param domainHome   the existing domain home directory
+     * @throws WLSDeployArchiveIOException  if an error occurs while reading or extracting the archive files
+     * @throws IllegalArgumentException     if the wallet name if empty or the domain home directory does not exist
+     * @see WLSDeployArchive#extractDatabaseWallet(File, String) 
+     */
+    public void extractDatabaseWalletForArchiveHelper(String walletPath, File domainHome)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "extractDatabaseWalletForArchiveHelper";
+        LOGGER.entering(CLASS, METHOD, walletPath, domainHome);
+
+        validateNonEmptyString(walletPath, "walletPath", METHOD);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        String archivePath = walletPath;
+        if (!walletPath.startsWith(ARCHIVE_DB_WALLETS_DIR + ZIP_SEP)) {
+            archivePath = ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + archivePath;
+        }
+
+        extractDirectoryFromZip(archivePath, domainHome);
+
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
+     * Extract the RCU database wallet.  Unlike extractRCUDatabaseWallet(), this method will not
+     * unzip the wallet if it is a zip file stored in the archive.  It also does not have any
+     * handling of the old archive location for the rcu wallet.
+     *
+     * @param domainHome   the existing domain home directory
+     * @throws WLSDeployArchiveIOException  if an error occurs while reading or extracting the archive files
+     * @throws IllegalArgumentException     if the domain home directory does not exist
+     * @see WLSDeployArchive#extractRCUDatabaseWallet(File)
+     */
+    public void extractRCUDatabaseWalletForArchiveHelper(File domainHome)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "extractRCUDatabaseWalletForArchiveHelper";
+        LOGGER.entering(CLASS, METHOD, domainHome);
+
+        extractDatabaseWalletForArchiveHelper(DEFAULT_RCU_WALLET_NAME, domainHome);
+
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
      * Remove the named database wallet from the archive file.  If this is the only entry
      * in the archive file directory, the directory entry will also be removed, if present.
      *
@@ -3330,9 +3907,20 @@ public class WLSDeployArchive {
      *                                      occurred while reading the archive or writing the file
      * @throws IllegalArgumentException     if the walletName is null or empty
      */
-    public int removeDatabaseWallet(String walletName)
-        throws WLSDeployArchiveIOException {
+    public int removeDatabaseWallet(String walletName) throws WLSDeployArchiveIOException {
         return removeDatabaseWallet(walletName, false);
+    }
+
+    /**
+     * Remove the RCU database wallet from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the RCU database wallet is not present or an IOException
+     *                                      occurred while reading the archive or writing the file
+     */
+    public int removeRCUDatabaseWallet() throws WLSDeployArchiveIOException {
+        return removeDatabaseWallet(DEFAULT_RCU_WALLET_NAME);
     }
 
     /**
@@ -3374,6 +3962,26 @@ public class WLSDeployArchive {
         return result;
     }
 
+    /**
+     * Remove the RCU database wallet from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param silent        If false, a WLSDeployArchiveIOException is thrown is the RCU wallet does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the RCU database wallet is not present (and silent = false)
+     *                                      or an IOException occurred while reading the archive or writing the file
+     */
+    public int removeRCUDatabaseWallet(boolean silent)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "removeRCUDatabaseWallet";
+        LOGGER.entering(CLASS, METHOD, silent);
+
+        int result = removeDatabaseWallet(DEFAULT_RCU_WALLET_NAME, silent);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //                                   OPSS wallet methods                                     //
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -3405,7 +4013,7 @@ public class WLSDeployArchive {
      * @throws IllegalArgumentException    if the provided source location file/directory does not exist
      */
     public String replaceOPSSWallet(String sourceLocation) throws WLSDeployArchiveIOException {
-        final String METHOD = "addOPSSWallet";
+        final String METHOD = "replaceOPSSWallet";
         LOGGER.entering(CLASS, METHOD, sourceLocation);
 
         File sourceFile = FileUtils.getCanonicalFile(sourceLocation);
@@ -3419,11 +4027,14 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Extract the OPSS wallet from the archive.
+     * Extract the OPSS wallet from the archive.  If the OPSS wallet is stored as a zip inside the archive,
+     * this method will unzip that zip file so the result is always an expanded directory.
      *
      * @param domainHome the domain home directory
      * @return the full path to the directory containing the extracted wallet files or null, if no wallet was found.
-     * @throws WLSDeployArchiveIOException if an error occurs while reading or extracting the archive files.
+     * @throws WLSDeployArchiveIOException  if an error occurs while reading or extracting the archive files
+     * @throws IllegalArgumentException     if the domain home directory does not exist
+     * @see WLSDeployArchive#extractOPSSWalletForArchiveHelper(File)
      */
     public String extractOPSSWallet(File domainHome) throws WLSDeployArchiveIOException {
         final String METHOD = "extractOPSSWallet";
@@ -3452,6 +4063,29 @@ public class WLSDeployArchive {
 
         LOGGER.exiting(CLASS, METHOD, extractPath);
         return extractPath;
+    }
+
+    /**
+     * Extract the OPSS wallet.  Unlike extractOPSSWallet(), this method will not
+     * unzip the wallet if it is a zip file stored in the archive.  It also does not have any
+     * handling of the old archive location for the OPSS wallet.
+     *
+     * @param domainHome   the existing domain home directory
+     * @throws WLSDeployArchiveIOException  if an error occurs while reading or extracting the archive files
+     * @throws IllegalArgumentException     if the domain home directory does not exist
+     * @see WLSDeployArchive#extractOPSSWallet(File)
+     */
+    public void extractOPSSWalletForArchiveHelper(File domainHome)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "extractDatabaseWalletForArchiveHelper";
+        LOGGER.entering(CLASS, METHOD, domainHome);
+
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        String archivePath = ARCHIVE_OPSS_WALLET_PATH + ZIP_SEP;
+        extractDirectoryFromZip(archivePath, domainHome);
+
+        LOGGER.exiting(CLASS, METHOD);
     }
 
     /**
@@ -3833,6 +4467,44 @@ public class WLSDeployArchive {
         LOGGER.exiting(CLASS, METHOD);
     }
 
+    protected String addDatabaseWallet(String walletName, String sourceLocation, boolean verifyNotExists)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "addDatabaseWallet";
+        LOGGER.entering(CLASS, METHOD, walletName, sourceLocation, verifyNotExists);
+
+        File sourceFile = FileUtils.getCanonicalFile(sourceLocation);
+        validateNonEmptyString(walletName, "walletName", METHOD);
+        validateExistingFile(sourceFile, "sourceLocation", getArchiveFileName(), METHOD, true);
+
+        // Because there is only one RCU wallet per domain, we have to make sure that
+        // there is no existing RCU wallet in the archive prior to adding one.
+        //
+        if (verifyNotExists) {
+            List<String> rcuWalletEntries = getArchiveEntries(ArchiveEntryType.RCU_WALLET);
+            if (!rcuWalletEntries.isEmpty()) {
+                WLSDeployArchiveIOException ex =
+                    new WLSDeployArchiveIOException("WLSDPLY-01459", getArchiveFileName(), rcuWalletEntries.size());
+                LOGGER.throwing(CLASS, METHOD, ex);
+                throw ex;
+            }
+        }
+
+        String newName;
+        if (sourceFile.isDirectory()) {
+            newName = addItemToZip(ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + walletName, sourceFile, false);
+        } else {
+            newName = addItemToZip(ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + walletName, sourceFile);
+
+            // When adding a file (e.g., zip file), the wallet name returned should always point
+            // to the wallet directory containing the file.
+            //
+            newName = getDatabaseWalletArchivePathFromAddedFile(ARCHIVE_DB_WALLETS_DIR, newName);
+        }
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
     protected String addOPSSWallet(String sourceLocation, boolean verifyNotExists) throws WLSDeployArchiveIOException {
         final String METHOD = "addOPSSWallet";
         LOGGER.entering(CLASS, METHOD, sourceLocation, verifyNotExists);
@@ -3899,6 +4571,7 @@ public class WLSDeployArchive {
                     } else {
                         targetDirectory = targetFile.getParentFile();
                     }
+
                     if (!targetDirectory.exists() && !targetDirectory.mkdirs()) {
                         WLSDeployArchiveIOException wdaioe =
                             new WLSDeployArchiveIOException("WLSDPLY-01414", getArchiveFileName(),
@@ -3917,6 +4590,11 @@ public class WLSDeployArchive {
                         outputStream.close();
                     }
                 }
+            } else {
+                WLSDeployArchiveIOException ex =
+                    new WLSDeployArchiveIOException("WLSDPLY-01416", getArchiveFileName(), dirName);
+                LOGGER.throwing(CLASS, METHOD, ex);
+                throw ex;
             }
         } catch (IOException ioe) {
             WLSDeployArchiveIOException wdaioe =
@@ -4394,6 +5072,26 @@ public class WLSDeployArchive {
         if (zipEntries.size() == 1 && prefixPath.equals(zipEntries.get(0))) {
             getZipFile().removeZipEntry(zipEntries.get(0));
             result = 1;
+        }
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    // The archiveHelper does not require that users specify a trailing / on directory names.
+    // As such, we have to figure out if the path is a directory and requires appending a
+    // trailing / to make the extraction code work properly with directories.
+    //
+    private String fixupPathForDirectories(String path) throws WLSDeployArchiveIOException {
+        final String METHOD = "fixupPathForDirectories";
+        LOGGER.entering(CLASS, METHOD, path);
+
+        String result = path;
+        if (!path.endsWith(ZIP_SEP)) {
+            List<String> zipEntries = getZipFile().listZipEntries(path + ZIP_SEP);
+            if (zipEntries.contains(path + ZIP_SEP)) {
+                result = path + ZIP_SEP;
+            }
         }
 
         LOGGER.exiting(CLASS, METHOD, result);

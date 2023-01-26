@@ -17,18 +17,18 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
     name = "domainLibrary",
-    header = "Remove domain library from the archive file.",
+    header = "Remove $DOMAIN_HOME/lib library from the archive file.",
     description = "%nCommand-line options:",
     sortOptions = false
 )
 public class RemoveDomainLibraryCommand extends RemoveTypeCommandBase {
     private static final String CLASS = RemoveDomainLibraryCommand.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
-    private static final String TYPE = "domain library";
+    private static final String TYPE = "$DOMAIN_HOME/lib library";
 
     @Option(
         names = {"-name"},
-        description = "Name of the domain library to be removed from the archive file",
+        description = "Name of the $DOMAIN_HOME/lib library to be removed from the archive file",
         required = true
     )
     private String name;
@@ -51,20 +51,20 @@ public class RemoveDomainLibraryCommand extends RemoveTypeCommandBase {
 
             int entriesRemoved;
             if (this.force) {
-                entriesRemoved = this.archive.removeDomainLibrary(name, true);
+                entriesRemoved = this.archive.removeDomainLibLibrary(name, true);
             } else {
-                entriesRemoved = this.archive.removeDomainLibrary(name);
+                entriesRemoved = this.archive.removeDomainLibLibrary(name);
             }
             response = new CommandResponse(ExitCode.OK, "WLSDPLY-30026", TYPE, this.name,
                 entriesRemoved, this.archiveFilePath);
         } catch (ArchiveHelperException ex) {
             LOGGER.severe("WLSDPLY-30027", ex, TYPE, this.name, this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30027", ex, TYPE, this.name,
+            response = new CommandResponse(ex.getExitCode(), "WLSDPLY-30027", TYPE, this.name,
                 this.archiveFilePath, ex.getLocalizedMessage());
         } catch (WLSDeployArchiveIOException | IllegalArgumentException ex) {
             LOGGER.severe("WLSDPLY-30028", ex, TYPE, this.name, this.force,
                 this.archiveFilePath, ex.getLocalizedMessage());
-            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30028", ex, TYPE, this.name, this.force,
+            response = new CommandResponse(ExitCode.ERROR, "WLSDPLY-30028", TYPE, this.name, this.force,
                 this.archiveFilePath, ex.getLocalizedMessage());
         }
 

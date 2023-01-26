@@ -19,19 +19,19 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
     name = "domainLibrary",
-    header = "Add domain library to the archive file.",
+    header = "Add $DOMAIN_HOME/lib library to the archive file.",
     description = "%nCommand-line options:",
     sortOptions = false
 )
 public class AddDomainLibraryCommand extends AddTypeCommandBase {
     private static final String CLASS = AddDomainLibraryCommand.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
-    private static final String TYPE = "domain library";
+    private static final String TYPE = "$DOMAIN_HOME/lib library";
 
     @Option(
         names = {"-source"},
         paramLabel = "<path>",
-        description = "File system path to the domain library to add",
+        description = "File system path to the $DOMAIN_HOME/lib library to add",
         required = true
     )
     private String sourcePath;

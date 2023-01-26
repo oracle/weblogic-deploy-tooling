@@ -19,19 +19,19 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
     name = "domainBinScript",
-    header = "Add domain bin script to the archive file.",
+    header = "Add $DOMAIN_HOME/bin script to the archive file.",
     description = "%nCommand-line options:",
     sortOptions = false
 )
 public class AddDomainBinScriptCommand extends AddTypeCommandBase {
     private static final String CLASS = AddDomainBinScriptCommand.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
-    private static final String TYPE = "domain bin script";
+    private static final String TYPE = "$DOMAIN_HOME/bin script";
 
     @Option(
         names = {"-source"},
         paramLabel = "<path>",
-        description = "File system path to the domain bin script to add",
+        description = "File system path to the $DOMAIN_HOME/bin script to add",
         required = true
     )
     private String sourcePath;

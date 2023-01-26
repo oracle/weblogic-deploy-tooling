@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -39,6 +40,7 @@ public class WLSDeployZipFile {
     private static final String CLOSE_PAREN = ")";
     private static final char ZIP_SEP_CHAR = '/';
     private static final String ZIP_SEP = "/";
+    private static final Pattern RENAME_QUALIFIER_REGEX = Pattern.compile("^[(]([1-9]\\d*)[)]$");
     private static final int READ_BUFFER_SIZE = 4096;
 
     private static final int MAX_DIGITS = Integer.toString(Integer.MAX_VALUE).length() - 1;
@@ -325,7 +327,7 @@ public class WLSDeployZipFile {
      *
      * @param entryName   the name of the entry to add
      * @param inputStream the InputStream that will be used to read the entry when it is saved
-     * @param rename      whether or not to rename the entry if it conflicts with an existing entry
+     * @param rename      whether to rename the entry if it conflicts with an existing entry
      * @return the entry name used to store the entry or null if the add failed due to an entry name conflict
      * @throws WLSDeployArchiveIOException if an IOException occurred while adding the entry
      */
@@ -387,7 +389,7 @@ public class WLSDeployZipFile {
      * Add the provided directory entry to the unsaved changes list, optionally renaming it to prevent conflicts.
      *
      * @param entryName the entry name to add
-     * @param rename whether or not to rename the entry to prevent conflicts
+     * @param rename whether to rename the entry to prevent conflicts
      * @return the name of the added entry
      * @throws WLSDeployArchiveIOException if an IOException occurred while adding the entry
      */
@@ -398,16 +400,16 @@ public class WLSDeployZipFile {
         closeOpenZipFile();
 
         String newEntryName = entryName;
-        if (!entryName.endsWith("/")) {
-            newEntryName = entryName + "/";
+        if (!entryName.endsWith(ZIP_SEP)) {
+            newEntryName = entryName + ZIP_SEP;
         }
 
         if (rename && isRenameNecessary(newEntryName)) {
             LOGGER.finer("WLSDPLY-01507", entryName);
-            newEntryName = getNextUniqueEntryName(entryName);
+            newEntryName = getNextUniqueDirectoryName(entryName);
             LOGGER.finer("WLSDPLY-01508", entryName, newEntryName);
-            if (!newEntryName.endsWith("/")) {
-                newEntryName += "/";
+            if (!newEntryName.endsWith(ZIP_SEP)) {
+                newEntryName += ZIP_SEP;
             }
         }
 
@@ -484,7 +486,7 @@ public class WLSDeployZipFile {
         }
         if (isRenameNecessary(newEntryName)) {
             LOGGER.finer("WLSDPLY-01507", entryName);
-            newEntryName = getNextUniqueEntryName(newEntryName);
+            newEntryName = getNextUniqueDirectoryName(newEntryName);
             LOGGER.finer("WLSDPLY-01508", entryName, newEntryName);
         }
 
@@ -880,14 +882,105 @@ public class WLSDeployZipFile {
 
         boolean renameNeeded = false;
         Map<String, ZipEntry> zipEntryMap = getZipFileEntries(getFile());
+        // This is tricky.  If the entry is a file, then looking at the containment is sufficient.
+        // However, if it is a directory, the raw directory entry may or may not be in the zip.
+        // We need to look at each entry to see if any entries start with the entry name.
+        //
         if (zipEntryMap.containsKey(entryName)) {
             LOGGER.finest("WLSDPLY-01534", entryName);
             renameNeeded = true;
+        } else if (entryName.endsWith(ZIP_SEP)) {
+            for (String key : zipEntryMap.keySet()) {
+                if (key.startsWith(entryName)) {
+                    LOGGER.finest("WLSDPLY-01534", entryName);
+                    renameNeeded = true;
+                    break;
+                }
+            }
         }
         LOGGER.exiting(renameNeeded);
         return renameNeeded;
     }
 
+    private String getNextUniqueDirectoryName(String directoryEntryName) throws WLSDeployArchiveIOException {
+        final String METHOD = "getNextUniqueDirectoryName";
+        LOGGER.entering(CLASS, METHOD, directoryEntryName);
+
+        String entryNameBase = directoryEntryName;
+        if (directoryEntryName.endsWith(ZIP_SEP)) {
+            entryNameBase = directoryEntryName.substring(0, directoryEntryName.length() - 1);
+        }
+        LOGGER.finer("WLSDPLY-01542", directoryEntryName, entryNameBase);
+        Map<String, ZipEntry> zipEntriesMap = getZipFileEntries(getFile());
+
+        int highestNumberFound = -1;
+        for (String zipEntryKey : zipEntriesMap.keySet()) {
+            String nextNumberString = directoryEntryReallyMatches(zipEntryKey, entryNameBase);
+
+            if (!StringUtils.isEmpty(nextNumberString)) {
+                int number;
+                try {
+                    number = Integer.parseInt(nextNumberString);
+                } catch (NumberFormatException ex) {
+                    WLSDeployArchiveIOException ex1 = new WLSDeployArchiveIOException("WLSDPLY-01543",
+                        nextNumberString, ex, ex.getLocalizedMessage());
+                    LOGGER.throwing(CLASS, METHOD, ex1);
+                    throw ex1;
+                }
+                if (number > highestNumberFound) {
+                    highestNumberFound = number;
+                }
+            }
+        }
+
+        String result = entryNameBase;
+        if (highestNumberFound != -1) {
+            int number = highestNumberFound + 1;
+            result += OPEN_PAREN + number + CLOSE_PAREN;
+        }
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    // This method is kind of hacky in that it combines two purposes for efficiency purposes.
+    // First, we need to make sure that the entry really matches the directoryBaseName.  Using an example
+    // base name of wlsdeploy/applications/foo, entry should match only for the following cases:
+    //
+    //     - wlsdeploy/applications/foo/*
+    //     - wlsdeploy/applications/foo(####)/*
+    //
+    // We must not match the following cases:
+    //
+    //     - wlsdeploy/applications/foo
+    //     - wlsdeploy/applications/foobar/*
+    //     - wlsdeploy/applications/foo(####)*
+    //     - wlsdeploy/applications/foo(####)*/*
+    //
+    // Second, it returns the renaming number found in the entry if there was a match or null
+    // if no match was found.
+    //
+    private String directoryEntryReallyMatches(String entry, String directoryBaseName) {
+        final String METHOD = "directoryEntryReallyMatches";
+        LOGGER.entering(CLASS, METHOD, entry, directoryBaseName);
+
+        String reallyMatches = null;
+        if (entry.startsWith(directoryBaseName) && entry.length() > directoryBaseName.length()) {
+            String entryRemainder = entry.substring(directoryBaseName.length());
+            if (entryRemainder.startsWith(ZIP_SEP)) {
+                reallyMatches = "0";
+            } else if (entryRemainder.startsWith("(") && entryRemainder.contains(ZIP_SEP)) {
+                entryRemainder = entryRemainder.substring(0, entryRemainder.indexOf(ZIP_SEP));
+                Matcher matcher = RENAME_QUALIFIER_REGEX.matcher(entryRemainder);
+                if (matcher.matches()) {
+                    reallyMatches = matcher.group(1);
+                }
+            }
+        }
+
+        LOGGER.exiting(CLASS, METHOD, reallyMatches);
+        return reallyMatches;
+    }
 
     private String getNextUniqueEntryName(String entryName) throws WLSDeployArchiveIOException {
         final String METHOD = "getNextUniqueEntryName";

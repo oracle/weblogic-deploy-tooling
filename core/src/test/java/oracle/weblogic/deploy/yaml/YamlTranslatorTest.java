@@ -494,7 +494,6 @@ public class YamlTranslatorTest {
             String text = "abc:\n  xyz: - aa-bb\n";
             InputStream stream = new ByteArrayInputStream(text.getBytes(UTF_8));
             YamlStreamTranslator translator = new YamlStreamTranslator("String", stream);
-            System.out.println("translator = " + translator.toString());
             translator.parse();
             fail("Test must raise YamlException when model has a lexical error");
 

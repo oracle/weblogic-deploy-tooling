@@ -11,9 +11,11 @@ import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 
 import oracle.weblogic.deploy.tool.archive_helper.CommandResponse;
 import oracle.weblogic.deploy.tool.archive_helper.add.AddCommand;
+import oracle.weblogic.deploy.tool.archive_helper.extract.ExtractCommand;
 import oracle.weblogic.deploy.tool.archive_helper.list.ListCommand;
 import oracle.weblogic.deploy.tool.archive_helper.remove.RemoveCommand;
 import oracle.weblogic.deploy.util.ExitCode;
+
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.IParameterExceptionHandler;
@@ -28,6 +30,7 @@ import picocli.CommandLine.UnmatchedArgumentException;
     commandListHeading = "%nCommands:%n",
     subcommands = {
         AddCommand.class,
+        ExtractCommand.class,
         ListCommand.class,
         RemoveCommand.class
     },

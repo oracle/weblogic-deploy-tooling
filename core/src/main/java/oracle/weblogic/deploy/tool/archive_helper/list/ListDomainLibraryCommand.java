@@ -15,7 +15,7 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.DOMA
 
 @Command(
     name = "domainLibrary",
-    header = "List domain library entries in the archive file.",
+    header = "List $DOMAIN_HOME/lib library entries in the archive file.",
     description = "%nCommand-line options:",
     sortOptions = false
 )
@@ -26,7 +26,7 @@ public class ListDomainLibraryCommand extends ListTypeCommandBase {
     @Option(
         names = { "-name" },
         paramLabel = "<name>",
-        description = "Name of the domain library to list"
+        description = "Name of the $DOMAIN_HOME/lib library to list"
     )
     private String name;
 
@@ -42,7 +42,7 @@ public class ListDomainLibraryCommand extends ListTypeCommandBase {
         final String METHOD = "call";
         LOGGER.entering(CLASS, METHOD);
 
-        CommandResponse response = listType(DOMAIN_LIB, "domain library", name);
+        CommandResponse response = listType(DOMAIN_LIB, "$DOMAIN_HOME/lib library", name);
 
         LOGGER.exiting(CLASS, METHOD, response);
         return response;

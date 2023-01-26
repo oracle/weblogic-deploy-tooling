@@ -117,6 +117,10 @@ public class ArchiveHelperListTest {
         logger.setLevel(Level.OFF);
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                     parameterized                                         //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     @ParameterizedTest
     @ValueSource(strings = {
         "all",
@@ -138,7 +142,7 @@ public class ArchiveHelperListTest {
         "sharedLibrary",
         "structuredApplication"
     })
-    void testListAppsNoArchive_Fails(String subcommand) {
+    void testListNoArchive_Fails(String subcommand) {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -177,7 +181,7 @@ public class ArchiveHelperListTest {
         "sharedLibrary",
         "structuredApplication"
     })
-    void testListAppsBadArchive_Fails(String subcommand) {
+    void testListBadArchive_Fails(String subcommand) {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args;
@@ -223,6 +227,10 @@ public class ArchiveHelperListTest {
             "expected command to exit with exit code " + ExitCode.ARG_VALIDATION_ERROR);
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                         all                                               //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     @Test
     void testListAll_ReturnedExceptedNames() {
         StringWriter outStringWriter = new StringWriter();
@@ -245,6 +253,10 @@ public class ArchiveHelperListTest {
         assertEquals(0, actual, "expected command to exit with exit code 0");
         assertListsHaveSameElements(expectedPaths, outputLines, "all");
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                     application                                           //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
     void testListAppFile_ReturnsExpectedName() {
@@ -319,102 +331,9 @@ public class ArchiveHelperListTest {
         assertListsHaveSameElements(expectedPaths, outputLines, "application");
     }
 
-    @Test
-    void testListSharedLibraries_ReturnsExpectedNames() {
-        StringWriter outStringWriter = new StringWriter();
-        StringWriter errStringWriter = new StringWriter();
-        String[] args = new String[] {
-            "list",
-            "sharedLibrary",
-            "-archive_file",
-            ARCHIVE_HELPER_VALUE
-        };
-        List<String> expectedPaths = Arrays.asList(LIST_SHLIB_EXPECTED);
-
-        int actual = -1;
-        try (PrintWriter out = new PrintWriter(outStringWriter);
-             PrintWriter err = new PrintWriter(errStringWriter)) {
-            actual = ArchiveHelper.executeCommand(out, err, args);
-        }
-        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
-
-        assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertListsHaveSameElements(expectedPaths, outputLines, "sharedLibrary");
-    }
-
-    @Test
-    void testListSharedLibraryFile_ReturnsExpectedNames() {
-        StringWriter outStringWriter = new StringWriter();
-        StringWriter errStringWriter = new StringWriter();
-        String[] args = new String[] {
-            "list",
-            "sharedLibrary",
-            "-archive_file",
-            ARCHIVE_HELPER_VALUE,
-            "-name",
-            "my-lib.war"
-        };
-        List<String> expectedPaths = Arrays.asList(SHARED_LIBS_MY_LIB_WAR_CONTENTS);
-
-        int actual = -1;
-        try (PrintWriter out = new PrintWriter(outStringWriter);
-             PrintWriter err = new PrintWriter(errStringWriter)) {
-            actual = ArchiveHelper.executeCommand(out, err, args);
-        }
-        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
-
-        assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertListsHaveSameElements(expectedPaths, outputLines, "sharedLibrary -name my-lib.war");
-    }
-
-    @Test
-    void testListSharedLibraryDir_ReturnsExpectedNames() {
-        StringWriter outStringWriter = new StringWriter();
-        StringWriter errStringWriter = new StringWriter();
-        String[] args = new String[] {
-            "list",
-            "sharedLibrary",
-            "-archive_file",
-            ARCHIVE_HELPER_VALUE,
-            "-name",
-            "my-other-lib"
-        };
-        List<String> expectedPaths = Arrays.asList(SHARED_LIBS_MY_OTHER_LIB_CONTENTS);
-
-        int actual = -1;
-        try (PrintWriter out = new PrintWriter(outStringWriter);
-             PrintWriter err = new PrintWriter(errStringWriter)) {
-            actual = ArchiveHelper.executeCommand(out, err, args);
-        }
-        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
-
-        assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertListsHaveSameElements(expectedPaths, outputLines, "sharedLibrary -name my-other-lib");
-    }
-
-    @Test
-    void testListSharedLibraryUnknownFile_ReturnsNoNames() {
-        StringWriter outStringWriter = new StringWriter();
-        StringWriter errStringWriter = new StringWriter();
-        String[] args = new String[] {
-            "list",
-            "sharedLibrary",
-            "-archive_file",
-            ARCHIVE_HELPER_VALUE,
-            "-name",
-            "foo.jar"
-        };
-
-        int actual = -1;
-        try (PrintWriter out = new PrintWriter(outStringWriter);
-             PrintWriter err = new PrintWriter(errStringWriter)) {
-            actual = ArchiveHelper.executeCommand(out, err, args);
-        }
-        String outputLines = outStringWriter.getBuffer().toString().trim();
-
-        assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertEquals("", outputLines, "expected list sharedLibrary -name foo.jar to return nothing");
-    }
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                   classpath library                                       //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
     void testListClasspathLibs_ReturnsExceptedNames() {
@@ -463,6 +382,10 @@ public class ArchiveHelperListTest {
         assertEquals(0, actual, "expected command to exit with exit code 0");
         assertListsHaveSameElements(expectedPaths, outputLines, "classpathLibrary -name bar.jar");
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                       Coherence                                           //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
     void testListCohMyCluster_ReturnedExpectedNames() {
@@ -537,53 +460,9 @@ public class ArchiveHelperListTest {
         assertListsHaveSameElements(expectedPaths, outputLines, "coherence");
     }
 
-    @Test
-    void testListMime_ReturnedExceptedNames() {
-        StringWriter outStringWriter = new StringWriter();
-        StringWriter errStringWriter = new StringWriter();
-        String[] args = new String[]{
-            "list",
-            "mimeMapping",
-            "-archive_file",
-            ARCHIVE_HELPER_VALUE
-        };
-        List<String> expectedPaths = Arrays.asList(LIST_MIME_MAPPINGS_EXPECTED);
-
-        int actual = -1;
-        try (PrintWriter out = new PrintWriter(outStringWriter);
-             PrintWriter err = new PrintWriter(errStringWriter)) {
-            actual = ArchiveHelper.executeCommand(out, err, args);
-        }
-        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
-
-        assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertListsHaveSameElements(expectedPaths, outputLines, "mimeMapping");
-    }
-
-    @Test
-    void testListMimeMappingProperties_ReturnedExceptedNames() {
-        StringWriter outStringWriter = new StringWriter();
-        StringWriter errStringWriter = new StringWriter();
-        String[] args = new String[]{
-            "list",
-            "mimeMapping",
-            "-archive_file",
-            ARCHIVE_HELPER_VALUE,
-            "-name",
-            "mimemappings.properties"
-        };
-        List<String> expectedPaths = Arrays.asList(LIST_MIME_MAPPINGS_PROPERTIES_EXPECTED);
-
-        int actual = -1;
-        try (PrintWriter out = new PrintWriter(outStringWriter);
-             PrintWriter err = new PrintWriter(errStringWriter)) {
-            actual = ArchiveHelper.executeCommand(out, err, args);
-        }
-        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
-
-        assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertListsHaveSameElements(expectedPaths, outputLines, "mimeMapping -name mimemappings.properties");
-    }
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                         custom                                            //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
     void testListCustom_ReturnsExceptedNames() {
@@ -658,6 +537,10 @@ public class ArchiveHelperListTest {
         assertListsHaveSameElements(expectedPaths, outputLines, "custom -name foo.properties");
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                     database wallet                                       //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     @Test
     void testListDbWalletRCU_ReturnsExceptedNames() {
         StringWriter outStringWriter = new StringWriter();
@@ -684,29 +567,6 @@ public class ArchiveHelperListTest {
     }
 
     @Test
-    void testListRCUWallet_ReturnsExceptedNames() {
-        StringWriter outStringWriter = new StringWriter();
-        StringWriter errStringWriter = new StringWriter();
-        String[] args = new String[]{
-            "list",
-            "rcuWallet",
-            "-archive_file",
-            ARCHIVE_HELPER_VALUE
-        };
-        List<String> expectedPaths = Arrays.asList(LIST_RCU_WALLET_EXPECTED);
-
-        int actual = -1;
-        try (PrintWriter out = new PrintWriter(outStringWriter);
-             PrintWriter err = new PrintWriter(errStringWriter)) {
-            actual = ArchiveHelper.executeCommand(out, err, args);
-        }
-        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
-
-        assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertListsHaveSameElements(expectedPaths, outputLines, "rcuWallet");
-    }
-
-    @Test
     void testListWallet1Dir_ReturnsExceptedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
@@ -730,6 +590,10 @@ public class ArchiveHelperListTest {
         assertEquals(0, actual, "expected command to exit with exit code 0");
         assertListsHaveSameElements(expectedPaths, outputLines, "databaseWallet -name wallet1");
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                $DOMAIN_HOME/bin script                                    //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
     void testListDomainBin_ReturnsExceptedNames() {
@@ -779,6 +643,10 @@ public class ArchiveHelperListTest {
         assertListsHaveSameElements(expectedPaths, outputLines, "domainBinScript -name setUserOverrides.sh");
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                $DOMAIN_HOME/lib library                                   //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     @Test
     void testListDomainLib_ReturnsExceptedNames() {
         StringWriter outStringWriter = new StringWriter();
@@ -826,6 +694,115 @@ public class ArchiveHelperListTest {
         assertEquals(0, actual, "expected command to exit with exit code 0");
         assertListsHaveSameElements(expectedPaths, outputLines, "domainLibrary -name foo.jar");
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                       file store                                          //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    void testListFileStore_ReturnsExceptedNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[]{
+            "list",
+            "fileStore",
+            "-archive_file",
+            ARCHIVE_HELPER_VALUE
+        };
+        List<String> expectedPaths = Arrays.asList(FILE_STORES_CONTENT);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertListsHaveSameElements(expectedPaths, outputLines, "fileStore");
+    }
+
+    @Test
+    void testListFileStoreDir_ReturnsExceptedNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[]{
+            "list",
+            "fileStore",
+            "-archive_file",
+            ARCHIVE_HELPER_VALUE,
+            "-name",
+            "fs2"
+        };
+        List<String> expectedPaths = Arrays.asList(FILE_STORES_FS2_CONTENTS);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertListsHaveSameElements(expectedPaths, outputLines, "fileStore -name fs2");
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                     MIME mappings                                         //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    void testListMime_ReturnedExceptedNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[]{
+            "list",
+            "mimeMapping",
+            "-archive_file",
+            ARCHIVE_HELPER_VALUE
+        };
+        List<String> expectedPaths = Arrays.asList(LIST_MIME_MAPPINGS_EXPECTED);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertListsHaveSameElements(expectedPaths, outputLines, "mimeMapping");
+    }
+
+    @Test
+    void testListMimeMappingProperties_ReturnedExceptedNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[]{
+            "list",
+            "mimeMapping",
+            "-archive_file",
+            ARCHIVE_HELPER_VALUE,
+            "-name",
+            "mimemappings.properties"
+        };
+        List<String> expectedPaths = Arrays.asList(LIST_MIME_MAPPINGS_PROPERTIES_EXPECTED);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertListsHaveSameElements(expectedPaths, outputLines, "mimeMapping -name mimemappings.properties");
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                 node manager keystore                                     //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
     void testListNodeManager_ReturnsExceptedNames() {
@@ -875,6 +852,10 @@ public class ArchiveHelperListTest {
         assertListsHaveSameElements(expectedPaths, outputLines, "nodeManagerKeystore -name nmTrust.jks");
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                      OPSS wallet                                          //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     @Test
     void testListOPSSWallet_ReturnsExceptedNames() {
         StringWriter outStringWriter = new StringWriter();
@@ -897,6 +878,37 @@ public class ArchiveHelperListTest {
         assertEquals(0, actual, "expected command to exit with exit code 0");
         assertListsHaveSameElements(expectedPaths, outputLines, "opssWallet");
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                        RCU wallet                                         //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    void testListRCUWallet_ReturnsExceptedNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[]{
+            "list",
+            "rcuWallet",
+            "-archive_file",
+            ARCHIVE_HELPER_VALUE
+        };
+        List<String> expectedPaths = Arrays.asList(LIST_RCU_WALLET_EXPECTED);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertListsHaveSameElements(expectedPaths, outputLines, "rcuWallet");
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                         script                                            //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
     void testListScripts_ReturnsExceptedNames() {
@@ -945,6 +957,10 @@ public class ArchiveHelperListTest {
         assertEquals(0, actual, "expected command to exit with exit code 0");
         assertListsHaveSameElements(expectedPaths, outputLines, "script -name my_fancy_script.sh");
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                    server keystore                                        //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
     void testListServerKeystore_ReturnsExceptedNames() {
@@ -998,17 +1014,21 @@ public class ArchiveHelperListTest {
         assertListsHaveSameElements(expectedPaths, outputLines, "serverKeystore -name trust.jks");
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                     shared library                                         //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     @Test
-    void testListFileStore_ReturnsExceptedNames() {
+    void testListSharedLibraries_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
-        String[] args = new String[]{
+        String[] args = new String[] {
             "list",
-            "fileStore",
+            "sharedLibrary",
             "-archive_file",
             ARCHIVE_HELPER_VALUE
         };
-        List<String> expectedPaths = Arrays.asList(FILE_STORES_CONTENT);
+        List<String> expectedPaths = Arrays.asList(LIST_SHLIB_EXPECTED);
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);
@@ -1018,22 +1038,22 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertListsHaveSameElements(expectedPaths, outputLines, "fileStore");
+        assertListsHaveSameElements(expectedPaths, outputLines, "sharedLibrary");
     }
 
     @Test
-    void testListFileStoreDir_ReturnsExceptedNames() {
+    void testListSharedLibraryFile_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
-        String[] args = new String[]{
+        String[] args = new String[] {
             "list",
-            "fileStore",
+            "sharedLibrary",
             "-archive_file",
             ARCHIVE_HELPER_VALUE,
             "-name",
-            "fs2"
+            "my-lib.war"
         };
-        List<String> expectedPaths = Arrays.asList(FILE_STORES_FS2_CONTENTS);
+        List<String> expectedPaths = Arrays.asList(LIST_SHLIB_FILE_EXPECTED);
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);
@@ -1043,8 +1063,61 @@ public class ArchiveHelperListTest {
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
-        assertListsHaveSameElements(expectedPaths, outputLines, "fileStore -name fs2");
+        assertListsHaveSameElements(expectedPaths, outputLines, "sharedLibrary -name my-lib.war");
     }
+
+    @Test
+    void testListSharedLibraryDir_ReturnsExpectedNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+            "list",
+            "sharedLibrary",
+            "-archive_file",
+            ARCHIVE_HELPER_VALUE,
+            "-name",
+            "my-other-lib"
+        };
+        List<String> expectedPaths = Arrays.asList(LIST_SHLIB_DIR_EXPECTED);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertListsHaveSameElements(expectedPaths, outputLines, "sharedLibrary -name my-other-lib");
+    }
+
+    @Test
+    void testListSharedLibraryUnknownFile_ReturnsNoNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+            "list",
+            "sharedLibrary",
+            "-archive_file",
+            ARCHIVE_HELPER_VALUE,
+            "-name",
+            "foo.jar"
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String outputLines = outStringWriter.getBuffer().toString().trim();
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertEquals("", outputLines, "expected list sharedLibrary -name foo.jar to return nothing");
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                structured application                                     //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
     void testListStructuredAppWebapp_ReturnedExpectedNames() {
@@ -1119,12 +1192,15 @@ public class ArchiveHelperListTest {
         assertListsHaveSameElements(expectedPaths, outputLines, "structuredApplication");
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                private helper methods                                     //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
     private static void assertListsHaveSameElements(List<String> expectedEntries, String[] actualLines, String command) {
         assertEquals(expectedEntries.size(), actualLines.length, "expected list " + command + " to return " +
             expectedEntries.size() + " entries");
         for (String actualLine : actualLines) {
             assertTrue(expectedEntries.contains(actualLine), actualLine + " not in expected output");
         }
-
     }
 }

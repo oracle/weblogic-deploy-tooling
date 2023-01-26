@@ -15,7 +15,7 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.DOMA
 
 @Command(
     name = "domainBinScript",
-    header = "List domain bin script entries in the archive file.",
+    header = "List $DOMAIN_HOME/bin script entries in the archive file.",
     description = "%nCommand-line options:",
     sortOptions = false
 )
@@ -26,7 +26,7 @@ public class ListDomainBinScriptCommand extends ListTypeCommandBase {
     @Option(
         names = { "-name" },
         paramLabel = "<name>",
-        description = "Name of the domain bin script to list"
+        description = "Name of the $DOMAIN_HOME/bin script to list"
     )
     private String name;
 
@@ -42,7 +42,7 @@ public class ListDomainBinScriptCommand extends ListTypeCommandBase {
         final String METHOD = "call";
         LOGGER.entering(CLASS, METHOD);
 
-        CommandResponse response = listType(DOMAIN_BIN, "domain bin script", name);
+        CommandResponse response = listType(DOMAIN_BIN, "$DOMAIN_HOME/bin script", name);
 
         LOGGER.exiting(CLASS, METHOD, response);
         return response;
