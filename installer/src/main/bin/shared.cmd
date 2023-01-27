@@ -107,7 +107,7 @@ GOTO :ENDFUNCTIONS
     IF %JVM_SUPPORTED% NEQ 1 (
       EXIT /B 2
     ) ELSE (
-      IF "%QUIET_ARG%"!="quiet" (
+      IF NOT "%QUIET_ARG%"=="quiet" (
         ECHO JDK version is %JVM_FULL_VERSION%, setting JAVA_VENDOR to Sun...
       )
       IF "%JAVA_VENDOR%"=="" SET JAVA_VENDOR=Sun
