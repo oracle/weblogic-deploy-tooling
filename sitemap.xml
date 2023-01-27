@@ -86,6 +86,12 @@
     <loc>https://oracle.github.io/weblogic-deploy-tooling/developer/</loc>
     <lastmod>2019-02-22T15:27:54-05:00</lastmod>
   </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.4/</loc>
+    <lastmod>2023-01-20T15:27:38-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.3/</loc>
+    <lastmod>2023-01-13T15:27:38-05:00</lastmod>
+  </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.2/</loc>
     <lastmod>2022-11-10T15:27:38-05:00</lastmod>
   </url><url>
@@ -147,7 +153,7 @@
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/</loc>
-    <lastmod>2022-11-10T15:27:38-05:00</lastmod>
+    <lastmod>2023-01-20T15:27:38-05:00</lastmod>
     <priority>0</priority>
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/rcuinfo/</loc>

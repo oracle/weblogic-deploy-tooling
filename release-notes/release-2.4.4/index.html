@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Hugo 0.82.0" />
-    <meta name="description" content="A domain model with a typical configuration for a WebLogic Tuxedo Connector.">
+    <meta name="description" content="">
 
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Modeling a WTC configuration :: WebLogic Deploy Tooling</title>
+    <title>Release 2.4.4 :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1674851400" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/samples/wtc-model/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-2.4.4/">
     <nav id="sidebar" class="">
 
 
@@ -656,7 +656,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/samples/" title="Samples" class="dd-item
-        parent
+        
         
         
         ">
@@ -724,7 +724,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/samples/wtc-model/" title="Modeling a WTC configuration" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/samples/wtc-model/" title="Modeling a WTC configuration" class="dd-item ">
         <a href="/weblogic-deploy-tooling/samples/wtc-model/">
         Modeling a WTC configuration
         
@@ -1102,7 +1102,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
-        
+        parent
         
         
         ">
@@ -1128,7 +1128,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-2.4.4/" title="Release 2.4.4" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-2.4.4/" title="Release 2.4.4" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-2.4.4/">
         <b> </b>Release 2.4.4
         
@@ -1283,7 +1283,7 @@
             
           
           
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/samples/'>Samples</a> > Modeling a WTC configuration
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release 2.4.4
           
         
           
@@ -1296,7 +1296,15 @@
                 
                     <div class="progress">
     <div class="wrapper">
-<nav id="TableOfContents"></nav>
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#changes-in-release-244">Changes in Release 2.4.4</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
     </div>
 </div>
 
@@ -1312,94 +1320,34 @@
           
             <h1>
               
-              Modeling a WTC configuration
+              Release 2.4.4
             </h1>
           
 
         
 
 
-<p>This sample shows the WDT model for configuring WebLogic Tuxedo Connector (WTC) for both importing services from Tuxedo and exporting EJB methods to Tuxedo as services.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"> <span style="color:#f92672">resources</span>:
-   <span style="color:#75715e"># A logical WLS server name for the WLS configuration found on the console under interoperability</span>
-   <span style="color:#f92672">WTCServer</span>:
-     <span style="color:#f92672">myWTCServer</span>:
-       <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">admin</span>
-       <span style="color:#75715e"># Exported EJB services to be consumed by Tuxedo services.</span>
-       <span style="color:#f92672">WTCExport</span>:
-         <span style="color:#f92672">WTCExportedService-1</span>:
-           <span style="color:#75715e"># The remote name of this service.</span>
-           <span style="color:#f92672">ResourceName</span>: <span style="color:#ae81ff">QaWls2Conv2</span>
-           <span style="color:#75715e"># The name used to identify an exported service</span>
-           <span style="color:#f92672">RemoteName</span>: <span style="color:#ae81ff">QaWls2Conv2</span>
-           <span style="color:#f92672">EJBName</span>: <span style="color:#ae81ff">tuxedo.services.QaTux2wlsConvHome</span>
-           <span style="color:#75715e"># The name of the local access point that exports this service.</span>
-           <span style="color:#f92672">LocalAccessPoint</span>: <span style="color:#ae81ff">LocalAccessPoint2</span>
-         <span style="color:#f92672">WTCExportedService-2</span>:
-           <span style="color:#f92672">ResourceName</span>: <span style="color:#ae81ff">QaWls1Conv2</span>
-           <span style="color:#f92672">RemoteName</span>: <span style="color:#ae81ff">QaWls1Conv2</span>
-           <span style="color:#f92672">EJBName</span>: <span style="color:#ae81ff">tuxedo.services.QaTux2wlsConvHome</span>
-           <span style="color:#f92672">LocalAccessPoint</span>: <span style="color:#ae81ff">LocalAccessPoint</span>
-         <span style="color:#f92672">WTCExportedService-3</span>:
-           <span style="color:#f92672">ResourceName</span>: <span style="color:#ae81ff">QaWlsConvSvc</span>
-           <span style="color:#f92672">RemoteName</span>: <span style="color:#ae81ff">QaWlsConvSvc</span>
-           <span style="color:#f92672">EJBName</span>: <span style="color:#ae81ff">tuxedo.services.QaTux2wlsConvHome</span>
-           <span style="color:#f92672">LocalAccessPoint</span>: <span style="color:#ae81ff">LocalAccessPoint</span>
-       <span style="color:#75715e"># Imported Tuxedo services to be consumed by WLS services.</span>
-       <span style="color:#f92672">WTCImport</span>:
-         <span style="color:#f92672">WTCImportedService-1</span>:
-           <span style="color:#75715e"># The name used to identify this imported service.</span>
-           <span style="color:#f92672">ResourceName</span>: <span style="color:#ae81ff">CONVSVC</span>
-           <span style="color:#75715e"># The remote name of this service.</span>
-           <span style="color:#f92672">RemoteName</span>: <span style="color:#ae81ff">CONVSVC</span>
-           <span style="color:#75715e"># The comma-separated failover list that identifies the remote domain access points through which resources are imported.</span>
-           <span style="color:#f92672">RemoteAccessPointList</span>: <span style="color:#ae81ff">RemoteAccessPoint</span>
-           <span style="color:#75715e"># The name of the local access point that offers this service. Matches the Tuxedo domain</span>
-           <span style="color:#f92672">LocalAccessPoint</span>: <span style="color:#ae81ff">LocalAccessPoint</span>
-         <span style="color:#f92672">WTCImportedService-2</span>:
-           <span style="color:#f92672">ResourceName</span>: <span style="color:#ae81ff">QaTux1Conv2</span>
-           <span style="color:#f92672">RemoteName</span>: <span style="color:#ae81ff">QaTux1Conv2</span>
-           <span style="color:#f92672">RemoteAccessPointList</span>: <span style="color:#ae81ff">RemoteAccessPoint</span>
-           <span style="color:#f92672">LocalAccessPoint</span>: <span style="color:#ae81ff">LocalAccessPoint</span>
-         <span style="color:#f92672">WTCImportedService-3</span>:
-           <span style="color:#f92672">ResourceName</span>: <span style="color:#ae81ff">QaTux1Conv3</span>
-           <span style="color:#f92672">RemoteName</span>: <span style="color:#ae81ff">QaTux1Conv3</span>
-           <span style="color:#f92672">RemoteAccessPointList</span>: <span style="color:#ae81ff">RemoteAccessPoint</span>
-           <span style="color:#f92672">LocalAccessPoint</span>: <span style="color:#ae81ff">LocalAccessPoint</span>
-       <span style="color:#75715e"># Local access points so that Tuxedo services can act as a client to WLS services.</span>
-       <span style="color:#f92672">WTCLocalTuxDom</span>:
-         <span style="color:#f92672">LocalAccessPoint</span>:
-           <span style="color:#75715e"># The local listen address on the WLS side</span>
-           <span style="color:#f92672">NWAddr</span>: <span style="color:#ae81ff">//access-host:2510</span>
-           <span style="color:#75715e"># A logical and unique name to identify this local Tuxedo access point</span>
-           <span style="color:#f92672">AccessPoint</span>: <span style="color:#ae81ff">LocalAccessPoint</span>
-           <span style="color:#75715e"># The connection principal name used to identify this local Tuxedo access point when attempting to establish a session connection with remote Tuxedo access points.</span>
-           <span style="color:#f92672">AccessPointId</span>: <span style="color:#ae81ff">mydomain1</span>
-         <span style="color:#f92672">LocalAccessPoint2</span>:
-           <span style="color:#f92672">NWAddr</span>: <span style="color:#ae81ff">//access-host:2520</span>
-           <span style="color:#f92672">AccessPoint</span>: <span style="color:#ae81ff">LocalAccessPoint2</span>
-           <span style="color:#f92672">AccessPointId</span>: <span style="color:#ae81ff">mydomain2</span>
-       <span style="color:#75715e"># Remote access points so that WLS can act as a client to Tuxedo services</span>
-       <span style="color:#f92672">WTCRemoteTuxDom</span>:
-         <span style="color:#f92672">RemoteAccessPoint</span>:
-           <span style="color:#75715e"># The local domain name from which this remote Tuxedo domain is reached.</span>
-           <span style="color:#f92672">LocalAccessPoint</span>: <span style="color:#ae81ff">LocalAccessPoint</span>
-           <span style="color:#75715e"># The remote listen address of the Tuxedo domain gateway.</span>
-           <span style="color:#f92672">NWAddr</span>: <span style="color:#ae81ff">//access-host:2500</span>
-           <span style="color:#75715e"># A logical and unique name used to identify this Tuxedo remote access point</span>
-           <span style="color:#f92672">AccessPoint</span>: <span style="color:#ae81ff">RemoteAccessPoint</span>
-           <span style="color:#75715e"># The connection principal name used to identify this remote domain access point when attempting to establish a session connection to local Tuxedo access points</span>
-          <span style="color:#75715e"># This ID needs to be configured as a user in the WLS security realm.</span>
-          <span style="color:#f92672">AccessPointId</span>: <span style="color:#ae81ff">domain1</span>
-         <span style="color:#f92672">RemoteAccessPoint2</span>:
-           <span style="color:#f92672">LocalAccessPoint</span>: <span style="color:#ae81ff">LocalAccessPoint2</span>
-           <span style="color:#f92672">NWAddr</span>: <span style="color:#ae81ff">//access-host:2500</span>
-           <span style="color:#f92672">AccessPoint</span>: <span style="color:#ae81ff">RemoteAccessPoint2</span>
-           <span style="color:#f92672">AccessPointId</span>: <span style="color:#ae81ff">domain1</span>
+<h3 id="changes-in-release-244">Changes in Release 2.4.4</h3>
+<ul>
+<li><a href="#major-new-features">Major New Features</a></li>
+<li><a href="#other-changes">Other Changes</a></li>
+<li><a href="#bug-fixes">Bugs Fixes</a></li>
+<li><a href="#known-issues">Known Issues</a></li>
+</ul>
+<h4 id="major-new-features">Major New Features</h4>
+<p>None</p>
+<h4 id="other-changes">Other Changes</h4>
+<p>None</p>
+<h4 id="bug-fixes">Bug Fixes</h4>
+<ul>
+<li>#1361: Resolved issue where the custom Coherence configuration file was not placed in the WebLogic Server domain&rsquo;s expected location.</li>
+</ul>
+<h4 id="known-issues">Known Issues</h4>
+<ul>
+<li>Due to the changes made for WDT-663 in WDT 2.4.0, the resulting remotely discovered model contains extra fields that would not normally be there.
+This is an area of ongoing work to clean up the online aliases to not depend on these extra remote calls to produce a clean model.</li>
+</ul>
 
-</code></pre></div><p>In this configuration, the WTC uses EJB and communicates with remote and local access points. To see other WTC configuration options, use the model help as shown in the following.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#e6db74">${</span>WDT_HOME<span style="color:#e6db74">}</span>/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/WTCServer
-</code></pre></div>
 
 <footer class="footline">
 	
@@ -1825,7 +1773,6 @@
             
                 
                     
-                    
                 
                 
 
@@ -1839,8 +1786,21 @@
             
                 
                     
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
                         
-                        
+            
+            
+                
                     
                 
                 
@@ -1873,26 +1833,6 @@
             
             
                 
-                    
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
                     
                 
                 
@@ -2153,6 +2093,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -2165,6 +2106,7 @@
             
             
                 
+                    
                     
                 
                 
@@ -2181,6 +2123,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2253,10 +2198,10 @@
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/samples/cluster-model/" title="Modeling a configured cluster"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/samples/jdbc-model/" title="Modeling a JDBC data source" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-2.4.3/" title="Release 2.4.3" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

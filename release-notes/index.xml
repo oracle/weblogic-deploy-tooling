@@ -8,6 +8,28 @@
     <language>en-us</language>
     <lastBuildDate>Fri, 22 Feb 2019 15:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Release 2.4.4</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.4/</link>
+      <pubDate>Fri, 20 Jan 2023 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.4/</guid>
+      <description>Changes in Release 2.4.4  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes None
+Bug Fixes  #1361: Resolved issue where the custom Coherence configuration file was not placed in the WebLogic Server domain&amp;rsquo;s expected location.  Known Issues  Due to the changes made for WDT-663 in WDT 2.4.0, the resulting remotely discovered model contains extra fields that would not normally be there.</description>
+    </item>
+    
+    <item>
+      <title>Release 2.4.3</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.3/</link>
+      <pubDate>Fri, 13 Jan 2023 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.3/</guid>
+      <description>Changes in Release 2.4.3  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes None
+Bug Fixes  #1356: Resolved Issue where the new ATP Database URL format was causing connections to fail.  Known Issues  Due to the changes made for WDT-663 in WDT 2.4.0, the resulting remotely discovered model contains extra fields that would not normally be there. This is an area of ongoing work to clean up the online aliases to not depend on these extra remote calls to produce a clean model.</description>
+    </item>
+    
+    <item>
       <title>Release 2.4.2</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.2/</link>
       <pubDate>Thu, 10 Nov 2022 15:27:38 -0500</pubDate>

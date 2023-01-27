@@ -6,7 +6,7 @@
     <description>Recent content on WebLogic Deploy Tooling</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 10 Nov 2022 15:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 20 Jan 2023 15:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Create Domain Tool</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/create/</link>
@@ -225,6 +225,28 @@ resources: SelfTuning: Capacity: capacity40: Target: cluster-1 Count: 40 MaxThre
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/tool_prop/</guid>
       <description>You can configure or tune WebLogic Deploy Tooling tools using the tool property file. This property file is installed as &amp;lt;weblogic-deploy&amp;gt;/lib/tool.properties. You may change the value of any of the properties in this file to tune the WDT tool. Another option is to configure the tool properties in a Custom Configuration directory. Create the tool.properties file in the $WDT_CUSTOM_CONFIG directory.
 If a property is removed from the file, or a property value is incorrectly formatted, a WARNING message is logged and an internal default value used instead of the missing or bad value.</description>
+    </item>
+    
+    <item>
+      <title>Release 2.4.4</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.4/</link>
+      <pubDate>Fri, 20 Jan 2023 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.4/</guid>
+      <description>Changes in Release 2.4.4  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes None
+Bug Fixes  #1361: Resolved issue where the custom Coherence configuration file was not placed in the WebLogic Server domain&amp;rsquo;s expected location.  Known Issues  Due to the changes made for WDT-663 in WDT 2.4.0, the resulting remotely discovered model contains extra fields that would not normally be there.</description>
+    </item>
+    
+    <item>
+      <title>Release 2.4.3</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.3/</link>
+      <pubDate>Fri, 13 Jan 2023 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.3/</guid>
+      <description>Changes in Release 2.4.3  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes None
+Bug Fixes  #1356: Resolved Issue where the new ATP Database URL format was causing connections to fail.  Known Issues  Due to the changes made for WDT-663 in WDT 2.4.0, the resulting remotely discovered model contains extra fields that would not normally be there. This is an area of ongoing work to clean up the online aliases to not depend on these extra remote calls to produce a clean model.</description>
     </item>
     
     <item>
