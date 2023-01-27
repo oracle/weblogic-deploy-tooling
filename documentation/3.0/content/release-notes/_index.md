@@ -43,6 +43,7 @@ pre = "<b> </b>"
 - #1348: Added database wallet support for multiple wallets. Other database wallets can be added, as needed. (WDT-710)
 - #1351: Removed support for the deprecated "named object list" format from the `kubernetes` section of the model. (WDT-688)
 - #1366: Refactored ATP and SSL database support to be more unified in their modeling approach.
+- #1369: Added a special log level for deprecation messages so that the can show up in the tools' summary reports without causing a non-zero exit status. (WDT-721)
 - Cleaned up the aliases and put tests in place to ensure that they align properly with the various WebLogic Server
   releases and PSUs.
 
