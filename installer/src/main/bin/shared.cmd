@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem shared.cmd
 @rem
-@rem Copyright (c) 2020, 2022, Oracle and/or its affiliates.
+@rem Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -377,6 +377,11 @@ GOTO :EOF
     IF "%RETURN_CODE%" == "103" (
       ECHO.
       ECHO %SCRIPT_NAME% completed successfully but the domain requires a restart for the changes to take effect ^(exit code = %RETURN_CODE%^)
+      EXIT /B %RETURN_CODE%
+    )
+    IF "%RETURN_CODE%" == "101" (
+      ECHO.
+      ECHO %SCRIPT_NAME% completed successfully but with deprecation messages ^(exit code = %RETURN_CODE%^)
       EXIT /B %RETURN_CODE%
     )
     IF "%RETURN_CODE%" == "100" (

@@ -59,6 +59,7 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
 
         this.bufferSize = getMemoryBufferSize(CLASS + SIZE_PROPERTY);
 
+        addLevelHandler(DeprecationLevel.DEPRECATION);
         addLevelHandler(Level.WARNING);
         addLevelHandler(Level.SEVERE);
     }

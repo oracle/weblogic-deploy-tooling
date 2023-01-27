@@ -45,6 +45,8 @@ WLST_EDIT_LOCK_EXCLUSIVE_PROP = 'wlst.edit.lock.exclusive'
 WLST_EDIT_LOCK_EXCLUSIVE_DEFAULT = 'false'
 YAML_FILE_MAX_CODE_POINTS_PROP = 'yaml.max.file.size'
 YAML_FILE_MAX_CODE_POINTS_DEFAULT = '0'
+USE_DEPRECATION_EXIT_CODE_PROP="use.deprecation.exit.code"
+USE_DEPRECATION_EXIT_CODE_DEFAULT="false"
 
 # System Property overrides for WLST timeout properties
 SYS_PROP_PREFIX = 'wdt.config.'
@@ -155,6 +157,13 @@ class ModelConfiguration(object):
         :return: the string 'true' or 'false' (default)
         """
         return self._get_from_dict_as_long(YAML_FILE_MAX_CODE_POINTS_PROP, YAML_FILE_MAX_CODE_POINTS_DEFAULT)
+
+    def get_use_deprecation_exit_code(self):
+        """
+        Returns the value to determine whether deprecation messages should trigger the use of a non-zero exit code
+        :return: the string 'true' or 'false' (default)
+        """
+        return self._get_from_dict(USE_DEPRECATION_EXIT_CODE_PROP, USE_DEPRECATION_EXIT_CODE_DEFAULT)
 
     def _get_from_dict(self, name, default_value=None):
         _method_name = '_get_from_dict'

@@ -4410,7 +4410,7 @@ public class WLSDeployArchive {
                     File extractToLocation = domainHome;
                     if (!StringUtils.isEmpty(deprecationKey)) {
                         extractToLocation = new File(domainHome, WLSDPLY_ARCHIVE_BINARY_DIR);
-                        LOGGER.warning(deprecationKey, getArchiveFileName(), zipEntry, extractPath);
+                        LOGGER.deprecation(deprecationKey, getArchiveFileName(), zipEntry, extractPath);
                     }
                     if (StringUtils.isEmpty(fromDir) && StringUtils.isEmpty(toDir)) {
                         extractFileFromZip(zipEntry, extractToLocation);
