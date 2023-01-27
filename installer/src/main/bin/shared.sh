@@ -64,7 +64,9 @@ javaSetup() {
       echo "You are using an unsupported JDK version ${JVM_FULL_VERSION}" >&2
       exit 2
     else
-      echo "JDK version is ${JVM_FULL_VERSION}"
+      if [ "$2" != "quiet" ]; then
+        echo "JDK version is ${JVM_FULL_VERSION}"
+      fi
     fi
 }
 
@@ -169,6 +171,14 @@ variableSetup() {
     if [ -z "${WLSDEPLOY_LOG_DIRECTORY}" ]; then
         WLSDEPLOY_LOG_DIRECTORY="${WLSDEPLOY_HOME}/logs"; export WLSDEPLOY_LOG_DIRECTORY
     fi
+}
+
+javaOnlySetup() {
+  javaSetup "$1" "$2"
+
+  variableSetup
+
+  CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar"; export CLASSPATH
 }
 
 runWlst() {

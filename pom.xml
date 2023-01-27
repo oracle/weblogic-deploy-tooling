@@ -46,6 +46,7 @@
         <skipTests>false</skipTests>
         <antlr.version>4.9.3</antlr.version>
         <snakeyaml.version>1.33</snakeyaml.version>
+        <picocli.version>4.7.0</picocli.version>
 
         <sonar.organization>oracle</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -106,6 +107,16 @@
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>2.11.0</version>
+            </dependency>
+            <dependency>
+                <groupId>info.picocli</groupId>
+                <artifactId>picocli</artifactId>
+                <version>${picocli.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-params</artifactId>
+                <version>5.9.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
