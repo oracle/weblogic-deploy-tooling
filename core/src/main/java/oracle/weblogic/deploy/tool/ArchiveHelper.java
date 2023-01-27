@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 
+import oracle.weblogic.deploy.tool.archive_helper.ArchiveHelperVersionProvider;
 import oracle.weblogic.deploy.tool.archive_helper.CommandResponse;
 import oracle.weblogic.deploy.tool.archive_helper.add.AddCommand;
 import oracle.weblogic.deploy.tool.archive_helper.extract.ExtractCommand;
@@ -34,7 +35,8 @@ import picocli.CommandLine.UnmatchedArgumentException;
         ListCommand.class,
         RemoveCommand.class
     },
-    sortOptions = false
+    sortOptions = false,
+    versionProvider = ArchiveHelperVersionProvider.class
 )
 public class ArchiveHelper {
     public static final String LOGGER_NAME = "wlsdeploy.tool.archive-helper";
@@ -47,6 +49,13 @@ public class ArchiveHelper {
         usageHelp = true
     )
     private static boolean helpRequested = false;
+
+    @Option(
+        names = { "-version" },
+        description = "Get the WebLogic Deploy Tooling version",
+        versionHelp = true
+    )
+    private static boolean versionRequested = false;
 
     @SuppressWarnings("java:S106")
     public static void main(String[] args) {
