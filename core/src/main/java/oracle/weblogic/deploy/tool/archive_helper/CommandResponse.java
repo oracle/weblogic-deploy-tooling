@@ -61,7 +61,6 @@ public class CommandResponse {
         }
     }
 
-    @SuppressWarnings("java:S106")
     public void printMessages(PrintWriter out, PrintWriter err) {
         PrintWriter location = out;
         if (status != 0) {

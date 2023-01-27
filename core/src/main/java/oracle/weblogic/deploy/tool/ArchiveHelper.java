@@ -75,7 +75,6 @@ public class ArchiveHelper {
             .setToggleBooleanFlags(false)
             .setUnmatchedArgumentsAllowed(false)
             .setTrimQuotes(true)
-            //.setColorScheme(CommandLine.Help.defaultColorScheme(CommandLine.Help.Ansi.AUTO))
             .setParameterExceptionHandler(new ArgParsingExceptionHandler())
             .setOut(out)
             .setErr(err);
