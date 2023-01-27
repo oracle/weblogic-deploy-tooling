@@ -11,15 +11,13 @@ import oracle.weblogic.deploy.tool.archive_helper.CommandResponse;
 import oracle.weblogic.deploy.util.ExitCode;
 import oracle.weblogic.deploy.util.WLSDeployArchiveIOException;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
     name = "opssWallet",
     header = "Extract OPSS database wallet from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ExtractOPSSWalletCommand extends ExtractTypeCommandBase {
     private static final String CLASS = ExtractOPSSWalletCommand.class.getName();
@@ -27,13 +25,6 @@ public class ExtractOPSSWalletCommand extends ExtractTypeCommandBase {
     private static final String SUBCOMMAND = "opssWallet";
     private static final String WALLET_TYPE = "OPSS";
     private static final String ERROR_KEY = "WLSDPLY-30055";
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper extract opssWallet subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
 
     @Override

@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "databaseWallet",
     header = "Remove database wallet from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class RemoveDatabaseWalletCommand extends RemoveTypeCommandBase {
     private static final String CLASS = RemoveDatabaseWalletCommand.class.getName();
@@ -32,13 +31,6 @@ public class RemoveDatabaseWalletCommand extends RemoveTypeCommandBase {
         required = true
     )
     private String name;
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper remove databaseWallet subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
     @Override
     public CommandResponse call() throws Exception {

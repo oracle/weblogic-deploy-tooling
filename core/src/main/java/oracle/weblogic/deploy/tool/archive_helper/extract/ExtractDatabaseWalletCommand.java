@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "databaseWallet",
     header = "Extract database wallet from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ExtractDatabaseWalletCommand extends ExtractTypeCommandBase {
     private static final String CLASS = ExtractDatabaseWalletCommand.class.getName();
@@ -33,13 +32,6 @@ public class ExtractDatabaseWalletCommand extends ExtractTypeCommandBase {
         required = true
     )
     private String name;
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper extract databaseWallet subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
 
     @Override

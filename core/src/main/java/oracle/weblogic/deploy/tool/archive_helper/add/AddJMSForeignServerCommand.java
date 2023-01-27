@@ -20,8 +20,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "jmsForeignServer",
     header = "Add a JMS Foreign Server binding file to the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class AddJMSForeignServerCommand extends AddTypeCommandBase {
     private static final String CLASS = AddJMSForeignServerCommand.class.getName();
@@ -42,13 +41,6 @@ public class AddJMSForeignServerCommand extends AddTypeCommandBase {
         required = true
     )
     private String sourcePath;
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper add jmsForeignServer subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
     @Override
     public CommandResponse call() throws Exception {

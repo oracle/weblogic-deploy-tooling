@@ -16,8 +16,7 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.MIME
 @Command(
     name = "mimeMapping",
     header = "List MIME mapping entries in the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ListMIMEMappingCommand extends ListTypeCommandBase {
     private static final String CLASS = ListMIMEMappingCommand.class.getName();
@@ -29,13 +28,6 @@ public class ListMIMEMappingCommand extends ListTypeCommandBase {
         description = "Name of the MIME mapping file to list"
     )
     private String name;
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper list mimeMapping subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
     @Override
     public CommandResponse call() throws Exception {

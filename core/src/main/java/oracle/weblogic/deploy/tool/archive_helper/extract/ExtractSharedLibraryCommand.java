@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "sharedLibrary",
     header = "Extract shared library from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ExtractSharedLibraryCommand extends ExtractTypeCommandBase {
     private static final String CLASS = ExtractSharedLibraryCommand.class.getName();
@@ -33,13 +32,6 @@ public class ExtractSharedLibraryCommand extends ExtractTypeCommandBase {
         required = true
     )
     private String name;
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper extract sharedLibrary subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
 
     @Override

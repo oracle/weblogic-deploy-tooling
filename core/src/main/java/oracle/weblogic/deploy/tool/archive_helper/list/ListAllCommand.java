@@ -14,28 +14,18 @@ import oracle.weblogic.deploy.tool.archive_helper.CommandResponse;
 import oracle.weblogic.deploy.tool.archive_helper.CommonOptions;
 import oracle.weblogic.deploy.util.ExitCode;
 import oracle.weblogic.deploy.util.WLSDeployArchiveIOException;
-
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
     name = "all",
     header = "List all entries in the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ListAllCommand extends CommonOptions implements Callable<CommandResponse> {
     private static final String CLASS = ListAllCommand.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper list all subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
     @Override
     public CommandResponse call() throws Exception {

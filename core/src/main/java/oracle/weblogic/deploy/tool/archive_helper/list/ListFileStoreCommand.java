@@ -16,8 +16,7 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.FILE
 @Command(
     name = "fileStore",
     header = "List file store entries in the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ListFileStoreCommand extends ListTypeCommandBase {
     private static final String CLASS = ListFileStoreCommand.class.getName();
@@ -29,13 +28,6 @@ public class ListFileStoreCommand extends ListTypeCommandBase {
         description = "Name of the file store to list"
     )
     private String name;
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper list fileStore subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
     @Override
     public CommandResponse call() throws Exception {

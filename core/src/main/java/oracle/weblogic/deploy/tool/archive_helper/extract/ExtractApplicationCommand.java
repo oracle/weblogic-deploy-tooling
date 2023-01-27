@@ -21,8 +21,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
     header = "Extract application from the archive file.",
     description = "%nCommand-line options:",
     footer = "%nNote: If using an Application Installation Directory, " +
-        "please see the archiveHelper extract structuredApplication command.%n",
-    sortOptions = false
+        "please see the archiveHelper extract structuredApplication command.%n"
 )
 public class ExtractApplicationCommand extends ExtractTypeCommandBase {
     private static final String CLASS = ExtractApplicationCommand.class.getName();
@@ -36,13 +35,6 @@ public class ExtractApplicationCommand extends ExtractTypeCommandBase {
         required = true
     )
     private String name;
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper extract application subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
 
     @Override

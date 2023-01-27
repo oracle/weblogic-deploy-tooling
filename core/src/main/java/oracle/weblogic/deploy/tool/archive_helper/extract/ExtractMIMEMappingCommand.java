@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "mimeMapping",
     header = "Extract MIME mapping file from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ExtractMIMEMappingCommand extends ExtractTypeCommandBase {
     private static final String CLASS = ExtractMIMEMappingCommand.class.getName();
@@ -33,13 +32,6 @@ public class ExtractMIMEMappingCommand extends ExtractTypeCommandBase {
         required = true
     )
     private String name;
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper extract mimeMapping subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
 
     @Override

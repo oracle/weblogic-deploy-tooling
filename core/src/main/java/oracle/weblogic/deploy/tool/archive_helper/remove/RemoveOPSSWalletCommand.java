@@ -11,27 +11,18 @@ import oracle.weblogic.deploy.tool.archive_helper.CommandResponse;
 import oracle.weblogic.deploy.util.ExitCode;
 import oracle.weblogic.deploy.util.WLSDeployArchiveIOException;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
     name = "opssWallet",
     header = "Remove OPSS wallet from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class RemoveOPSSWalletCommand extends RemoveTypeCommandBase {
     private static final String CLASS = RemoveOPSSWalletCommand.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
     private static final String TYPE = "OPSS wallet";
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper remove opssWallet subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
     @Override
     public CommandResponse call() throws Exception {

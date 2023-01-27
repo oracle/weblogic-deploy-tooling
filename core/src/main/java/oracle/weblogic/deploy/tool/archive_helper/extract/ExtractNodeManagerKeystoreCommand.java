@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "nodeManagerKeystore",
     header = "Extract node manager keystore from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ExtractNodeManagerKeystoreCommand extends ExtractTypeCommandBase {
     private static final String CLASS = ExtractNodeManagerKeystoreCommand.class.getName();
@@ -33,13 +32,6 @@ public class ExtractNodeManagerKeystoreCommand extends ExtractTypeCommandBase {
         required = true
     )
     private String name;
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper extract nodeManagerKeystore subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
 
     @Override

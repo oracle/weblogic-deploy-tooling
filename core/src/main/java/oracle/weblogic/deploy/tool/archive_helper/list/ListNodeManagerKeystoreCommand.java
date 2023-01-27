@@ -16,8 +16,7 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.NODE
 @Command(
     name = "nodeManagerKeystore",
     header = "List node manager keystore entries in the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ListNodeManagerKeystoreCommand extends ListTypeCommandBase {
     private static final String CLASS = ListNodeManagerKeystoreCommand.class.getName();
@@ -29,13 +28,6 @@ public class ListNodeManagerKeystoreCommand extends ListTypeCommandBase {
         description = "Name of the node manager keystore file to list"
     )
     private String name;
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper list nodeManagerKeystore subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
     @Override
     public CommandResponse call() throws Exception {

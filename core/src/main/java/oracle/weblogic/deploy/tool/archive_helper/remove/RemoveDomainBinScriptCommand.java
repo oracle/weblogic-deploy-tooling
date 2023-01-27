@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "domainBinScript",
     header = "Remove $DOMAIN_HOME/bin script from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class RemoveDomainBinScriptCommand extends RemoveTypeCommandBase {
     private static final String CLASS = RemoveDomainBinScriptCommand.class.getName();
@@ -32,13 +31,6 @@ public class RemoveDomainBinScriptCommand extends RemoveTypeCommandBase {
         required = true
     )
     private String name;
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper remove domainBinScript subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
     @Override
     public CommandResponse call() throws Exception {

@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "applicationPlan",
     header = "Remove application deployment plan from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class RemoveApplicationPlanCommand extends RemoveTypeCommandBase {
     private static final String CLASS = RemoveApplicationPlanCommand.class.getName();
@@ -32,13 +31,6 @@ public class RemoveApplicationPlanCommand extends RemoveTypeCommandBase {
         required = true
     )
     private String name;
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper remove applicationPlan subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
     @Override
     public CommandResponse call() throws Exception {

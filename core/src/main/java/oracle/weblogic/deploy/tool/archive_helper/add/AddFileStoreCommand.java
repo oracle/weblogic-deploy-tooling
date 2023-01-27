@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "fileStore",
     header = "Add empty file store directory to the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class AddFileStoreCommand extends AddTypeCommandBase {
     private static final String CLASS = AddFileStoreCommand.class.getName();
@@ -32,13 +31,6 @@ public class AddFileStoreCommand extends AddTypeCommandBase {
         required = true
     )
     protected String fileStoreName;
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper add fileStore subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
     @Override
     public CommandResponse call() throws Exception {

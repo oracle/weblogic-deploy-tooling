@@ -33,8 +33,7 @@ import picocli.CommandLine.Option;
         RemoveSharedLibraryCommand.class,
         RemoveSharedLibraryPlanCommand.class,
         RemoveStructuredApplicationCommand.class
-    },
-    sortOptions = false
+    }
 )
 public class RemoveCommand {
     @Option(

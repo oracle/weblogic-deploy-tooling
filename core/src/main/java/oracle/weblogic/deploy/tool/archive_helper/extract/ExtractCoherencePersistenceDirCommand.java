@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "coherencePersistenceDir",
     header = "Extract Coherence persistence directory from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ExtractCoherencePersistenceDirCommand extends ExtractTypeCommandBase {
     private static final String CLASS = ExtractCoherencePersistenceDirCommand.class.getName();
@@ -40,13 +39,6 @@ public class ExtractCoherencePersistenceDirCommand extends ExtractTypeCommandBas
         required = true
     )
     private String name;
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper extract coherencePersistenceDir subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
 
     @Override

@@ -20,8 +20,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "domainBinScript",
     header = "Add $DOMAIN_HOME/bin script to the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class AddDomainBinScriptCommand extends AddTypeCommandBase {
     private static final String CLASS = AddDomainBinScriptCommand.class.getName();
@@ -35,13 +34,6 @@ public class AddDomainBinScriptCommand extends AddTypeCommandBase {
         required = true
     )
     private String sourcePath;
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper add domainBinScript subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
     @Override
     public CommandResponse call() throws Exception {

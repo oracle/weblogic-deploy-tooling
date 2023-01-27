@@ -11,27 +11,18 @@ import oracle.weblogic.deploy.tool.archive_helper.CommandResponse;
 import oracle.weblogic.deploy.util.ExitCode;
 import oracle.weblogic.deploy.util.WLSDeployArchiveIOException;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
 @Command(
     name = "all",
     header = "Extract the contents of the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ExtractAllCommand extends ExtractTypeCommandBase {
     private static final String CLASS = ExtractAllCommand.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
     private static final String ERROR_KEY = "WLSDPLY-30057";
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper extract all subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
 
     @Override

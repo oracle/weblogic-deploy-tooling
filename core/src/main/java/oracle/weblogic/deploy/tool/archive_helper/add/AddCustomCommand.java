@@ -22,8 +22,7 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ZIP_SEP;
 @Command(
     name = "custom",
     header = "Add custom file/directory to the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class AddCustomCommand extends AddTypeCommandBase {
     private static final String CLASS = AddCustomCommand.class.getName();
@@ -44,13 +43,6 @@ public class AddCustomCommand extends AddTypeCommandBase {
         description = "Relative archive path from custom to the parent directory to use to add the file or directory, if any"
     )
     private String archivePath = null;
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper add custom subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
     @Override
     public CommandResponse call() throws Exception {

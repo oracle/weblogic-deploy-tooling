@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "serverKeystore",
     header = "Extract server keystore from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ExtractServerKeystoreCommand extends ExtractTypeCommandBase {
     private static final String CLASS = ExtractServerKeystoreCommand.class.getName();
@@ -40,13 +39,6 @@ public class ExtractServerKeystoreCommand extends ExtractTypeCommandBase {
         required = true
     )
     private String name;
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper extract serverKeystore subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
 
     @Override

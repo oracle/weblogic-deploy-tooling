@@ -19,8 +19,7 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.APPL
     header = "List application entries in the archive file.",
     description = "%nCommand-line options:",
     footer = "%nNote: If using an Application Installation Directory, " +
-        "please see the archiveHelper list structuredApplication command.%n",
-    sortOptions = false
+        "please see the archiveHelper list structuredApplication command.%n"
 )
 public class ListApplicationCommand extends ListTypeCommandBase {
     private static final String CLASS = ListApplicationCommand.class.getName();
@@ -32,13 +31,6 @@ public class ListApplicationCommand extends ListTypeCommandBase {
         description = "Name of the application to list"
     )
     private String name;
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper list application subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
     @Override
     public CommandResponse call() throws Exception {

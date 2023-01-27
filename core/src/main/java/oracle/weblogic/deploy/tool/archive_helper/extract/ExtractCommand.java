@@ -34,8 +34,7 @@ import picocli.CommandLine.Option;
         ExtractSharedLibraryCommand.class,
         ExtractSharedLibraryPlanCommand.class,
         ExtractStructuredApplicationCommand.class
-    },
-    sortOptions = false
+    }
 )
 public class ExtractCommand {
     @Option(

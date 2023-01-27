@@ -16,8 +16,7 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.STRU
 @Command(
     name = "structuredApplication",
     header = "List structured application entries in the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ListStructuredApplicationCommand extends ListTypeCommandBase {
     private static final String CLASS = ListStructuredApplicationCommand.class.getName();
@@ -29,13 +28,6 @@ public class ListStructuredApplicationCommand extends ListTypeCommandBase {
         description = "Name of the structured application to list"
     )
     private String name;
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper list structuredApplication subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
     @Override
     public CommandResponse call() throws Exception {

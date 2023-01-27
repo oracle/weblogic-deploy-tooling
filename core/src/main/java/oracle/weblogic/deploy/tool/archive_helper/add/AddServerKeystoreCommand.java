@@ -20,8 +20,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "serverKeystore",
     header = "Add a server keystore to the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class AddServerKeystoreCommand extends AddTypeCommandBase {
     private static final String CLASS = AddServerKeystoreCommand.class.getName();
@@ -42,13 +41,6 @@ public class AddServerKeystoreCommand extends AddTypeCommandBase {
         required = true
     )
     private String serverName;
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper add serverKeystore subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
     @Override
     public CommandResponse call() throws Exception {

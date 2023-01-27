@@ -24,8 +24,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
     header = "Add application to the archive file.",
     description = "%nCommand-line options:",
     footer = "%nNote: If using an Application Installation Directory, " +
-        "please see the archiveHelper add structuredApplication command.%n",
-    sortOptions = false
+        "please see the archiveHelper add structuredApplication command.%n"
 )
 public class AddApplicationCommand extends AddTypeCommandBase {
     private static final String CLASS = AddApplicationCommand.class.getName();
@@ -39,13 +38,6 @@ public class AddApplicationCommand extends AddTypeCommandBase {
         required = true
     )
     private String sourcePath;
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper add application subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
     @Override
     public CommandResponse call() throws Exception {

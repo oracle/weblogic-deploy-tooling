@@ -16,8 +16,7 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.CUST
 @Command(
     name = "custom",
     header = "List custom directory entries in the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ListCustomCommand extends ListTypeCommandBase {
     private static final String CLASS = ListCustomCommand.class.getName();
@@ -29,13 +28,6 @@ public class ListCustomCommand extends ListTypeCommandBase {
         description = "Name of the custom directory entry to list"
     )
     private String name;
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper list custom subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
     @Override
     public CommandResponse call() throws Exception {
