@@ -11,6 +11,8 @@ import java.util.logging.Level as JLevel
 import java.util.logging.Logger as JLogger
 import java.util.logging.LogRecord as JLogRecord
 
+import oracle.weblogic.deploy.logging.DeprecationLevel as DeprecationLevel
+
 import wlsdeploy.exception.exception_helper as exception_helper
 import wlsdeploy.util.unicode_helper as str_helper
 
@@ -55,6 +57,9 @@ class PlatformLogger(object):
         :return: True if config-level logging is enabled, False otherwise
         """
         return self.logger.isLoggable(JLevel.CONFIG)
+
+    def is_deprecation_enabled(self):
+        return self.logger.isLoggable(DeprecationLevel.DEPRECATION)
 
     def is_severe_enabled(self):
         """
@@ -118,6 +123,14 @@ class PlatformLogger(object):
         error = kwargs.pop('error', None)
         record = self._get_log_record(JLevel.CONFIG, clazz, method, message, error, *args)
         self.logger.log(record)
+
+    def deprecation(self, message, *args, **kwargs):
+        method = kwargs.pop('method_name', None)
+        clazz = kwargs.pop('class_name', None)
+        error = kwargs.pop('error', None)
+        record = self._get_log_record(DeprecationLevel.DEPRECATION, clazz, method, message, error, *args)
+        self.logger.log(record)
+
 
     def log(self, level, message, *args, **kwargs):
         """

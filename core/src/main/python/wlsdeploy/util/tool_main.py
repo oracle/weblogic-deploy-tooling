@@ -9,6 +9,7 @@ import traceback
 from java.lang import Exception as JException
 from java.util.logging import Level as JLevel
 
+from oracle.weblogic.deploy.logging import DeprecationLevel
 from oracle.weblogic.deploy.logging import WLSDeployLoggingConfig
 from oracle.weblogic.deploy.logging import WLSDeployLogEndHandler
 from oracle.weblogic.deploy.util import CLAException
@@ -75,14 +76,16 @@ def __exit_tool(model_context, exit_code):
     """
     program = None
     version = None
+    use_deprecation_exit_code = None
     tool_mode = JWLSTMode.OFFLINE
     if model_context:
         program = model_context.get_program_name()
         version = model_context.get_target_wls_version()
+        use_deprecation_exit_code = model_context.get_model_config().get_use_deprecation_exit_code()
         if model_context.get_target_wlst_mode() == WlstModes.ONLINE:
             tool_mode = JWLSTMode.ONLINE
 
-    exit_code = __get_summary_handler_exit_code(exit_code)
+    exit_code = __get_summary_handler_exit_code(exit_code, use_deprecation_exit_code)
 
     WLSDeployExit.exit(WLSDeployContext(program, version, tool_mode), exit_code)
 
@@ -115,13 +118,14 @@ def __handle_unexpected_exception(ex, model_context, class_name, method_name, lo
                     class_name=class_name, method_name=method_name, error=ex)
 
 
-def __get_summary_handler_exit_code(program_exit_code):
+def __get_summary_handler_exit_code(program_exit_code, use_deprecation_exit_code):
     """
     Private method for use only within this module.
 
     Helper method to get the proper tool exit code based on the exit code from the tool and the number
     of errors and warnings from the summary log handler.
     :param program_exit_code: the exit code from the tool
+    :param use_deprecation_exit_code: whether to use the non-zero exit code for deprecations
     :return: the exit code to use
     """
     if program_exit_code != ExitCode.OK:
@@ -134,4 +138,8 @@ def __get_summary_handler_exit_code(program_exit_code):
             exit_code = ExitCode.ERROR
         elif summary_handler.getMessageCount(JLevel.WARNING) > 0:
             exit_code = ExitCode.WARNING
+        elif use_deprecation_exit_code == 'true' and \
+            summary_handler.getMessageCount(DeprecationLevel.DEPRECATION) > 0:
+            exit_code = ExitCode.DEPRECATION
+
     return exit_code

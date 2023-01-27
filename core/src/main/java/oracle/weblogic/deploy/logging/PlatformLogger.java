@@ -66,6 +66,13 @@ public class PlatformLogger {
             logger.logp(Level.CONFIG, details.clazz, details.method, msg, params);
         }
     }
+    
+    public void deprecation(String msg, Object... params) {
+        if (isDeprecationEnabled()) {
+            CallerDetails details = inferCaller();
+            logger.logp(DeprecationLevel.DEPRECATION, details.clazz, details.method, msg, params);
+        }
+    }
 
     /**
      * Logs a method entry. The calling class and method names will be inferred.
@@ -303,16 +310,25 @@ public class PlatformLogger {
     /**
      * Checks if a message at CONFIG level would actually be logged.
      *
-     * @return whether or not the CONFIG level is enabled
+     * @return whether the CONFIG level is enabled
      */
     public boolean isConfigEnabled() {
         return logger.isLoggable(Level.CONFIG);
     }
 
     /**
+     * Checks if a message at DEPRECATION level would actually be logged.
+     *
+     * @return whether the DEPRECATION level is enabled
+     */
+    public boolean isDeprecationEnabled() {
+        return logger.isLoggable(DeprecationLevel.DEPRECATION);
+    }
+    
+    /**
      * Checks if a message at FINE level would actually be logged.
      *
-     * @return whether or not the FINE level is enabled
+     * @return whether the FINE level is enabled
      */
     public boolean isFineEnabled() {
         return logger.isLoggable(Level.FINE);
@@ -321,7 +337,7 @@ public class PlatformLogger {
     /**
      * Checks if a message at FINER level would actually be logged.
      *
-     * @return whether or not the FINER level is enabled
+     * @return whether the FINER level is enabled
      */
     public boolean isFinerEnabled() {
         return logger.isLoggable(Level.FINER);
@@ -330,7 +346,7 @@ public class PlatformLogger {
     /**
      * Checks if a message at FINEST level would actually be logged.
      *
-     * @return whether or not the FINEST level is enabled
+     * @return whether the FINEST level is enabled
      */
     public boolean isFinestEnabled() {
         return logger.isLoggable(Level.FINEST);
@@ -339,7 +355,7 @@ public class PlatformLogger {
     /**
      * Checks if a message at INFO level would actually be logged.
      *
-     * @return whether or not the INFO level is enabled
+     * @return whether the INFO level is enabled
      */
     @SuppressWarnings("unused")
     public boolean isInfoEnabled() {
@@ -350,7 +366,7 @@ public class PlatformLogger {
      * Checks if a message at the provided level would actually be logged.
      *
      * @param level the logging level to check
-     * @return whether or not the specified logging level is enabled
+     * @return whether the specified logging level is enabled
      */
     public boolean isLoggable(Level level) {
         return logger.isLoggable(level);
@@ -359,7 +375,7 @@ public class PlatformLogger {
     /**
      * Checks if a message at SEVERE level would actually be logged.
      *
-     * @return whether or not the SEVERE level is enabled
+     * @return whether the SEVERE level is enabled
      */
     public boolean isSevereEnabled() {
         return logger.isLoggable(Level.SEVERE);
@@ -368,7 +384,7 @@ public class PlatformLogger {
     /**
      * Checks if a message at WARNING level would actually be logged.
      *
-     * @return whether or not the WARNING level is enabled
+     * @return whether the WARNING level is enabled
      */
     @SuppressWarnings("unused")
     public boolean isWarningEnabled() {

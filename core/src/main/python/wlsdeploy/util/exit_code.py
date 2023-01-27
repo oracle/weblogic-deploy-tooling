@@ -20,5 +20,6 @@ class ExitCode(object):
     USAGE_ERROR                = JExitCode.USAGE_ERROR
 
     HELP                       = JExitCode.HELP
+    DEPRECATION                = JExitCode.DEPRECATION
     RESTART_REQUIRED           = JExitCode.RESTART_REQUIRED
     CANCEL_CHANGES_IF_RESTART  = JExitCode.CANCEL_CHANGES_IF_RESTART

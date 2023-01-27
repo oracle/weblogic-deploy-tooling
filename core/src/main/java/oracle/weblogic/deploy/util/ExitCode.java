@@ -11,6 +11,7 @@ public class ExitCode {
     public static final int ARG_VALIDATION_ERROR = 98;
     public static final int USAGE_ERROR = 99;
     public static final int HELP = 100;
+    public static final int DEPRECATION = 101;
     public static final int RESTART_REQUIRED = 103;
     public static final int CANCEL_CHANGES_IF_RESTART = 104;
 
