@@ -29,13 +29,6 @@ public class ListCoherenceCommand extends ListTypeCommandBase {
     )
     private String clusterName;
 
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper list coherence subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
-
     @Override
     public CommandResponse call() throws Exception {
         final String METHOD = "call";

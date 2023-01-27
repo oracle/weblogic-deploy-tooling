@@ -41,13 +41,6 @@ public class AddCoherencePersistenceDirCommand extends AddTypeCommandBase {
     )
     private String directoryType;
 
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper add coherencePersistenceDir subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
-
     @Override
     public CommandResponse call() throws Exception {
         final String METHOD = "call";

@@ -40,13 +40,6 @@ public class RemoveCoherenceConfigCommand extends RemoveTypeCommandBase {
     )
     private String name;
 
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper remove coherenceConfig subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
-
     @Override
     public CommandResponse call() throws Exception {
         final String METHOD = "call";

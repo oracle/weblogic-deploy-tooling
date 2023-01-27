@@ -28,6 +28,15 @@ public abstract class CommonOptions {
     @Unmatched
     protected List<String> unmatchedOptions;
 
+    @Option(
+          names = { "-help" },
+          description = "Get help for the ${ROOT-COMMAND-NAME} ${PARENT-COMMAND-NAME} ${COMMAND-NAME} command",
+          usageHelp = true,
+          defaultValue = "false"
+    )
+    @SuppressWarnings("unused")
+    private boolean helpRequested;
+
     @Spec
     protected CommandSpec spec;
 

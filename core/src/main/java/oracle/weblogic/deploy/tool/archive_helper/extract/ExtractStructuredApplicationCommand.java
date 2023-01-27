@@ -34,13 +34,6 @@ public class ExtractStructuredApplicationCommand extends ExtractTypeCommandBase 
     )
     private String name;
 
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper extract structuredApplication subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
-
 
     @Override
     public CommandResponse call() throws Exception {

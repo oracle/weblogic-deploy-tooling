@@ -45,13 +45,6 @@ public class AddCustomCommand extends AddTypeCommandBase {
     )
     private String archivePath = null;
 
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper add custom subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
-
     @Override
     public CommandResponse call() throws Exception {
         final String METHOD = "call";

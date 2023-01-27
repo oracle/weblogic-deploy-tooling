@@ -43,13 +43,6 @@ public class AddServerKeystoreCommand extends AddTypeCommandBase {
     )
     private String serverName;
 
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper add serverKeystore subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
-
     @Override
     public CommandResponse call() throws Exception {
         final String METHOD = "call";

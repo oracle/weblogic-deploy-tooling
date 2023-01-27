@@ -36,13 +36,6 @@ public class AddNodeManagerKeystoreCommand extends AddTypeCommandBase {
     )
     private String sourcePath;
 
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper add nodeManagerKeystore subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
-
     @Override
     public CommandResponse call() throws Exception {
         final String METHOD = "call";

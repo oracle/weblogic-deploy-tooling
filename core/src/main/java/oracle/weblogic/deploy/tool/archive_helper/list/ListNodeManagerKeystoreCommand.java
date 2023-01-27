@@ -30,13 +30,6 @@ public class ListNodeManagerKeystoreCommand extends ListTypeCommandBase {
     )
     private String name;
 
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper list nodeManagerKeystore subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
-
     @Override
     public CommandResponse call() throws Exception {
         final String METHOD = "call";

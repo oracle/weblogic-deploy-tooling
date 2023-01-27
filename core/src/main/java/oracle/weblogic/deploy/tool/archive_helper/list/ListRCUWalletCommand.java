@@ -8,7 +8,6 @@ import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 import oracle.weblogic.deploy.tool.archive_helper.CommandResponse;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
 
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.RCU_WALLET;
@@ -22,13 +21,6 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.RCU_
 public class ListRCUWalletCommand extends ListTypeCommandBase {
     private static final String CLASS = ListRCUWalletCommand.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
-
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper list rcuWallet subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
 
     @Override
     public CommandResponse call() throws Exception {

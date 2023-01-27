@@ -33,13 +33,6 @@ public class RemoveStructuredApplicationCommand extends RemoveTypeCommandBase {
     )
     private String name;
 
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper remove structuredApplication subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
-
     @Override
     public CommandResponse call() throws Exception {
         final String METHOD = "call";

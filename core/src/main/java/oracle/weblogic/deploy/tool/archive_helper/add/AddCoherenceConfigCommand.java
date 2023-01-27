@@ -43,13 +43,6 @@ public class AddCoherenceConfigCommand extends AddTypeCommandBase {
     )
     protected String clusterName;
 
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper add coherenceConfig subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
-
     @Override
     public CommandResponse call() throws Exception {
         final String METHOD = "call";

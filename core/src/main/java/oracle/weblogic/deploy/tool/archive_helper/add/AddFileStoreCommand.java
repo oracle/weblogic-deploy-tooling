@@ -33,13 +33,6 @@ public class AddFileStoreCommand extends AddTypeCommandBase {
     )
     protected String fileStoreName;
 
-    @Option(
-        names = { "-help" },
-        description = "Get help for the archiveHelper add fileStore subcommand",
-        usageHelp = true
-    )
-    private boolean helpRequested = false;
-
     @Override
     public CommandResponse call() throws Exception {
         final String METHOD = "call";
