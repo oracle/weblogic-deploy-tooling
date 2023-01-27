@@ -40,7 +40,7 @@ public class WLSDeployZipFile {
     private static final String CLOSE_PAREN = ")";
     private static final char ZIP_SEP_CHAR = '/';
     private static final String ZIP_SEP = "/";
-    private static final Pattern RENAME_QUALIFIER_REGEX = Pattern.compile("^[(]([1-9]\\d*)[)]$");
+    private static final Pattern RENAME_QUALIFIER_REGEX = Pattern.compile("^\\(([1-9]\\d*)\\)$");
     private static final int READ_BUFFER_SIZE = 4096;
 
     private static final int MAX_DIGITS = Integer.toString(Integer.MAX_VALUE).length() - 1;

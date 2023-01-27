@@ -26,7 +26,6 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 public class AddRCUWalletCommand extends AddTypeCommandBase {
     private static final String CLASS = AddRCUWalletCommand.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
-    private static final String TYPE = "database wallet";
 
     @Option(
         names = {"-source"},

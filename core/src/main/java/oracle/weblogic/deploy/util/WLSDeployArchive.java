@@ -4165,28 +4165,34 @@ public class WLSDeployArchive {
         final String METHOD = "getFileType";
         LOGGER.entering(CLASS, METHOD, type);
 
-        FileOrDirectoryType result = FileOrDirectoryType.EITHER;
+        FileOrDirectoryType result;
         switch(type) {
             case COHERENCE:
             case COHERENCE_PERSISTENCE_DIR:
             case DB_WALLET:
             case FILE_STORE:
             case OPSS_WALLET:
+            case RCU_WALLET:
             case STRUCTURED_APPLICATION:
                 result = FileOrDirectoryType.DIRECTORY_ONLY;
                 break;
 
+            case APPLICATION_PLAN:
             case COHERENCE_CONFIG:
             case DOMAIN_BIN:
+            case DOMAIN_LIB:
             case JMS_FOREIGN_SERVER:
             case MIME_MAPPING:
             case NODE_MANAGER_KEY_STORE:
             case SCRIPT:
             case SERVER_KEYSTORE:
+            case SHLIB_PLAN:
                 result = FileOrDirectoryType.FILE_ONLY;
                 break;
 
-            // FIXME - need to log if receiving an unknown type
+            default:
+                result = FileOrDirectoryType.EITHER;
+                break;
         }
 
         LOGGER.exiting(CLASS, METHOD, result);
@@ -4197,7 +4203,7 @@ public class WLSDeployArchive {
         final String METHOD = "isSegregatedType";
         LOGGER.entering(CLASS, METHOD, type);
 
-        boolean result = false;
+        boolean result;
         switch(type) {
             case COHERENCE:
             case COHERENCE_CONFIG:
@@ -4206,6 +4212,10 @@ public class WLSDeployArchive {
             case JMS_FOREIGN_SERVER:
             case SERVER_KEYSTORE:
                 result = true;
+                break;
+
+            default:
+                result = false;
                 break;
         }
 

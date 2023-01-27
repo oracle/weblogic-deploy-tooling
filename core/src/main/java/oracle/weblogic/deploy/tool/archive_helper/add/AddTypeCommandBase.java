@@ -20,10 +20,6 @@ public abstract class AddTypeCommandBase extends AddOptions implements Callable<
     private static final String CLASS = AddTypeCommandBase.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger(LOGGER_NAME);
 
-    protected void initializeOptions() throws ArchiveHelperException {
-        super.initializeOptions();
-    }
-
     protected File initializeOptions(String sourcePath) throws ArchiveHelperException {
         final String METHOD = "initializeOptions";
         LOGGER.entering(CLASS, METHOD, sourcePath);

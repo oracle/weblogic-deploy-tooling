@@ -4,8 +4,6 @@
  */
 package oracle.weblogic.deploy.tool.archive_helper.remove;
 
-import java.util.List;
-
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 

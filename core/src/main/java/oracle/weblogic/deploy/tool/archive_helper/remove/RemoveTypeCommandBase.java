@@ -10,8 +10,4 @@ import oracle.weblogic.deploy.tool.archive_helper.ArchiveHelperException;
 import oracle.weblogic.deploy.tool.archive_helper.CommandResponse;
 
 public abstract class RemoveTypeCommandBase extends RemoveOptions implements Callable<CommandResponse> {
-
-    protected void initializeOptions() throws ArchiveHelperException {
-        super.initializeOptions();
-    }
 }

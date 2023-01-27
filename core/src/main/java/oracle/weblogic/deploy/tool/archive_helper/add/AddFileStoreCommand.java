@@ -4,8 +4,6 @@
  */
 package oracle.weblogic.deploy.tool.archive_helper.add;
 
-import java.io.File;
-
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 import oracle.weblogic.deploy.tool.archive_helper.ArchiveHelperException;
