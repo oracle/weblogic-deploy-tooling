@@ -19,8 +19,7 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.APPL
     header = "List application entries in the archive file.",
     description = "%nCommand-line options:",
     footer = "%nNote: If using an Application Installation Directory, " +
-        "please see the archiveHelper list structuredApplication command.%n",
-    sortOptions = false
+        "please see the archiveHelper list structuredApplication command.%n"
 )
 public class ListApplicationCommand extends ListTypeCommandBase {
     private static final String CLASS = ListApplicationCommand.class.getName();

@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "coherenceConfig",
     header = "Extract Coherence config file from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ExtractCoherenceConfigCommand extends ExtractTypeCommandBase {
     private static final String CLASS = ExtractCoherenceConfigCommand.class.getName();

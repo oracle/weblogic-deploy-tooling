@@ -31,8 +31,7 @@ import picocli.CommandLine.Option;
         ListServerKeystoreCommand.class,
         ListSharedLibraryCommand.class,
         ListStructuredApplicationCommand.class
-    },
-    sortOptions = false
+    }
 )
 public class ListCommand {
     @Option(

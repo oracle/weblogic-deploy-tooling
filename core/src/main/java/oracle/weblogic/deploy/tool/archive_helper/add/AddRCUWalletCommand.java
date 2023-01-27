@@ -20,8 +20,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "rcuWallet",
     header = "Add RCU database wallet to the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class AddRCUWalletCommand extends AddTypeCommandBase {
     private static final String CLASS = AddRCUWalletCommand.class.getName();

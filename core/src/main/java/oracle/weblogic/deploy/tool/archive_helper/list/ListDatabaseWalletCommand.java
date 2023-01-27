@@ -16,8 +16,7 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.DB_W
 @Command(
     name = "databaseWallet",
     header = "List database wallet entries in the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ListDatabaseWalletCommand extends ListTypeCommandBase {
     private static final String CLASS = ListDatabaseWalletCommand.class.getName();

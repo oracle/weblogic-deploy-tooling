@@ -35,7 +35,6 @@ import picocli.CommandLine.UnmatchedArgumentException;
         ListCommand.class,
         RemoveCommand.class
     },
-    sortOptions = false,
     versionProvider = ArchiveHelperVersionProvider.class
 )
 public class ArchiveHelper {

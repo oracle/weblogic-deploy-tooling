@@ -16,8 +16,7 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.STRU
 @Command(
     name = "structuredApplication",
     header = "List structured application entries in the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ListStructuredApplicationCommand extends ListTypeCommandBase {
     private static final String CLASS = ListStructuredApplicationCommand.class.getName();

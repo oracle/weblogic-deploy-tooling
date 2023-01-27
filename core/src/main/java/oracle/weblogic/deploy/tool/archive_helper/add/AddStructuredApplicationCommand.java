@@ -20,8 +20,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "structuredApplication",
     header = "Add structured application installation directory to the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class AddStructuredApplicationCommand extends AddTypeCommandBase {
     private static final String CLASS = AddStructuredApplicationCommand.class.getName();

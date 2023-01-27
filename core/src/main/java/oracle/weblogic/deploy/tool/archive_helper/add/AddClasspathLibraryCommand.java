@@ -20,8 +20,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "classpathLibrary",
     header = "Add classpath library to the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class AddClasspathLibraryCommand extends AddTypeCommandBase {
     private static final String CLASS = AddClasspathLibraryCommand.class.getName();

@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "coherenceConfig",
     header = "Remove Coherence config file from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class RemoveCoherenceConfigCommand extends RemoveTypeCommandBase {
     private static final String CLASS = RemoveCoherenceConfigCommand.class.getName();

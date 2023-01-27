@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "domainLibrary",
     header = "Extract $DOMAIN_HOME/lib library from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ExtractDomainLibraryCommand extends ExtractTypeCommandBase {
     private static final String CLASS = ExtractDomainLibraryCommand.class.getName();

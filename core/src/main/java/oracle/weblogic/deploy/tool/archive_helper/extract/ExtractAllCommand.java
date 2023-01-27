@@ -17,8 +17,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "all",
     header = "Extract the contents of the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ExtractAllCommand extends ExtractTypeCommandBase {
     private static final String CLASS = ExtractAllCommand.class.getName();

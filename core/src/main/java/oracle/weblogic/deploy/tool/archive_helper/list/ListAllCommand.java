@@ -21,8 +21,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "all",
     header = "List all entries in the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ListAllCommand extends CommonOptions implements Callable<CommandResponse> {
     private static final String CLASS = ListAllCommand.class.getName();

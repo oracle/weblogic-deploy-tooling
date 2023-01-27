@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "jmsForeignServer",
     header = "Extract JMS Foreign Server binding file from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ExtractJMSForeignServerCommand extends ExtractTypeCommandBase {
     private static final String CLASS = ExtractJMSForeignServerCommand.class.getName();

@@ -20,8 +20,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "coherenceConfig",
     header = "Add a Coherence config file to the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class AddCoherenceConfigCommand extends AddTypeCommandBase {
     private static final String CLASS = AddCoherenceConfigCommand.class.getName();

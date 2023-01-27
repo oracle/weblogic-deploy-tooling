@@ -20,8 +20,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "script",
     header = "Add script to the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class AddScriptCommand extends AddTypeCommandBase {
     private static final String CLASS = AddScriptCommand.class.getName();

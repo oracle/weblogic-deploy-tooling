@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "nodeManagerKeystore",
     header = "Remove node manager keystore from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class RemoveNodeManagerKeystoreCommand extends RemoveTypeCommandBase {
     private static final String CLASS = RemoveNodeManagerKeystoreCommand.class.getName();

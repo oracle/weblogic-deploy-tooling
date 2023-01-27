@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "fileStore",
     header = "Extract File Store directory from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ExtractFileStoreCommand extends ExtractTypeCommandBase {
     private static final String CLASS = ExtractFileStoreCommand.class.getName();

@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "domainBinScript",
     header = "Extract $DOMAIN_HOME/bin script from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ExtractDomainBinScriptCommand extends ExtractTypeCommandBase {
     private static final String CLASS = ExtractDomainBinScriptCommand.class.getName();

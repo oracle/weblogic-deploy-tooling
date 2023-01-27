@@ -33,8 +33,7 @@ import picocli.CommandLine.Option;
         AddSharedLibraryCommand.class,
         AddSharedLibraryPlanCommand.class,
         AddStructuredApplicationCommand.class,
-    },
-    sortOptions = false
+    }
 )
 public class AddCommand {
     @Option(

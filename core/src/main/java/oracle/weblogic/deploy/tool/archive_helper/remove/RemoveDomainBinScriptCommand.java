@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "domainBinScript",
     header = "Remove $DOMAIN_HOME/bin script from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class RemoveDomainBinScriptCommand extends RemoveTypeCommandBase {
     private static final String CLASS = RemoveDomainBinScriptCommand.class.getName();

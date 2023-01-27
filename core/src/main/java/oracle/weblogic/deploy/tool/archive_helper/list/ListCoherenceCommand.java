@@ -15,8 +15,7 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.COHE
 @Command(
     name = "coherence",
     header = "List Coherence entries in the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ListCoherenceCommand extends ListTypeCommandBase {
     private static final String CLASS = ListCoherenceCommand.class.getName();

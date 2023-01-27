@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "custom",
     header = "Remove custom file/directory from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class RemoveCustomCommand extends RemoveTypeCommandBase {
     private static final String CLASS = RemoveCustomCommand.class.getName();

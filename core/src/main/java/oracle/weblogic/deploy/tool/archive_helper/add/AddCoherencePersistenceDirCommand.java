@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "coherencePersistenceDir",
     header = "Add a Coherence persistence directory to the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class AddCoherencePersistenceDirCommand extends AddTypeCommandBase {
     private static final String CLASS = AddCoherencePersistenceDirCommand.class.getName();

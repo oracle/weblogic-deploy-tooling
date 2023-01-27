@@ -22,8 +22,7 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ZIP_SEP;
 @Command(
     name = "custom",
     header = "Add custom file/directory to the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class AddCustomCommand extends AddTypeCommandBase {
     private static final String CLASS = AddCustomCommand.class.getName();

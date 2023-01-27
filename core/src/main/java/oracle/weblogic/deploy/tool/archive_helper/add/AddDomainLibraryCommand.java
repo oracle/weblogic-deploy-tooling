@@ -20,8 +20,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "domainLibrary",
     header = "Add $DOMAIN_HOME/lib library to the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class AddDomainLibraryCommand extends AddTypeCommandBase {
     private static final String CLASS = AddDomainLibraryCommand.class.getName();

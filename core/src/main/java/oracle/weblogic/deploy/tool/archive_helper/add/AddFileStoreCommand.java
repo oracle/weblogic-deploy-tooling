@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "fileStore",
     header = "Add empty file store directory to the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class AddFileStoreCommand extends AddTypeCommandBase {
     private static final String CLASS = AddFileStoreCommand.class.getName();

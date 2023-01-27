@@ -16,8 +16,7 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.CUST
 @Command(
     name = "custom",
     header = "List custom directory entries in the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ListCustomCommand extends ListTypeCommandBase {
     private static final String CLASS = ListCustomCommand.class.getName();

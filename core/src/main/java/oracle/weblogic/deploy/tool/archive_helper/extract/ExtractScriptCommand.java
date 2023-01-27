@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "script",
     header = "Extract script from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ExtractScriptCommand extends ExtractTypeCommandBase {
     private static final String CLASS = ExtractScriptCommand.class.getName();

@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "classpathLibrary",
     header = "Extract classpath library from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ExtractClasspathLibraryCommand extends ExtractTypeCommandBase {
     private static final String CLASS = ExtractClasspathLibraryCommand.class.getName();

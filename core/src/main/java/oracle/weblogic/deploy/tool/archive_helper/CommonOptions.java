@@ -13,11 +13,8 @@ import oracle.weblogic.deploy.util.ExitCode;
 import oracle.weblogic.deploy.util.FileUtils;
 import oracle.weblogic.deploy.util.StringUtils;
 import oracle.weblogic.deploy.util.WLSDeployArchive;
-
 import picocli.CommandLine.Option;
-import picocli.CommandLine.Spec;
 import picocli.CommandLine.Unmatched;
-import picocli.CommandLine.Model.CommandSpec;
 
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 
@@ -30,15 +27,12 @@ public abstract class CommonOptions {
 
     @Option(
           names = { "-help" },
-          description = "Get help for the ${ROOT-COMMAND-NAME} ${PARENT-COMMAND-NAME} ${COMMAND-NAME} command",
+          description = "Get help for the ${COMMAND-FULL-NAME} command",
           usageHelp = true,
           defaultValue = "false"
     )
     @SuppressWarnings("unused")
     private boolean helpRequested;
-
-    @Spec
-    protected CommandSpec spec;
 
     @Option(
         names = { "-archive_file" },

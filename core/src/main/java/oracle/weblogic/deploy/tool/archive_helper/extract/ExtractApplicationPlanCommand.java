@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "applicationPlan",
     header = "Extract application deployment plan from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ExtractApplicationPlanCommand extends ExtractTypeCommandBase {
     private static final String CLASS = ExtractApplicationPlanCommand.class.getName();

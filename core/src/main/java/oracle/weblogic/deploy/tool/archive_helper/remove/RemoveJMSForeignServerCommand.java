@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "jmsForeignServer",
     header = "Remove JMS Foreign Server bindings file from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class RemoveJMSForeignServerCommand extends RemoveTypeCommandBase {
     private static final String CLASS = RemoveJMSForeignServerCommand.class.getName();

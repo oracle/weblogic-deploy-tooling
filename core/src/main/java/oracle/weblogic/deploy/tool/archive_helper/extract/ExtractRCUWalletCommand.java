@@ -17,8 +17,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "rcuWallet",
     header = "Extract RCU database wallet from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ExtractRCUWalletCommand extends ExtractTypeCommandBase {
     private static final String CLASS = ExtractRCUWalletCommand.class.getName();

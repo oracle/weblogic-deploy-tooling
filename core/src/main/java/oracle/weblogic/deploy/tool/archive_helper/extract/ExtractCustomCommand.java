@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "custom",
     header = "Extract custom file/directory from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ExtractCustomCommand extends ExtractTypeCommandBase {
     private static final String CLASS = ExtractCustomCommand.class.getName();

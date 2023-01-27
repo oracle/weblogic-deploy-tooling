@@ -16,8 +16,7 @@ import static oracle.weblogic.deploy.util.WLSDeployArchive.ArchiveEntryType.CLAS
 @Command(
     name = "classpathLibrary",
     header = "List classpath library entries in the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class ListClasspathLibraryCommand extends ListTypeCommandBase {
     private static final String CLASS = ListClasspathLibraryCommand.class.getName();

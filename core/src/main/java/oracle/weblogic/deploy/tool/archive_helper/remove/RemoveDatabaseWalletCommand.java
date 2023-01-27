@@ -18,8 +18,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "databaseWallet",
     header = "Remove database wallet from the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class RemoveDatabaseWalletCommand extends RemoveTypeCommandBase {
     private static final String CLASS = RemoveDatabaseWalletCommand.class.getName();

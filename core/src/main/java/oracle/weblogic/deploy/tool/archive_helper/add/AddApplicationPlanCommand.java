@@ -20,8 +20,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
 @Command(
     name = "applicationPlan",
     header = "Add application deployment plan to the archive file.",
-    description = "%nCommand-line options:",
-    sortOptions = false
+    description = "%nCommand-line options:"
 )
 public class AddApplicationPlanCommand extends AddTypeCommandBase {
     private static final String CLASS = AddApplicationPlanCommand.class.getName();
