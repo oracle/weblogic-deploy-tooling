@@ -21,6 +21,7 @@ GOTO :ENDFUNCTIONS
     @rem JDK with the specified level or higher (and that it isn't OpenJDK).
 
     SET MIN_JDK_VERSION=%1
+    SET QUIET_ARG=%2
 
     IF NOT DEFINED JAVA_HOME (
       ECHO Please set the JAVA_HOME environment variable to point to a Java 8 installation >&2
@@ -106,7 +107,9 @@ GOTO :ENDFUNCTIONS
     IF %JVM_SUPPORTED% NEQ 1 (
       EXIT /B 2
     ) ELSE (
-      ECHO JDK version is %JVM_FULL_VERSION%, setting JAVA_VENDOR to Sun...
+      IF "%QUIET_ARG%"!="quiet" (
+        ECHO JDK version is %JVM_FULL_VERSION%, setting JAVA_VENDOR to Sun...
+      )
       IF "%JAVA_VENDOR%"=="" SET JAVA_VENDOR=Sun
     )
 GOTO :EOF
@@ -205,6 +208,14 @@ GOTO :EOF
     IF NOT DEFINED WLSDEPLOY_LOG_DIRECTORY (
       SET WLSDEPLOY_LOG_DIRECTORY=%WLSDEPLOY_HOME%\logs
     )
+GOTO :EOF
+
+:javaOnlySetup
+  CALL :javaSetup %1 %2
+
+  CALL :variableSetup
+
+  SET "CLASSPATH=%WLSDEPLOY_HOME%/lib/weblogic-deploy-core.jar"
 GOTO :EOF
 
 :runWlst
