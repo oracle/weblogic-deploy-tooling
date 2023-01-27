@@ -1,11 +1,11 @@
 +++
-title = "Release 2.4.2"
-date = 2022-11-10T15:27:38-05:00
-weight = 98
+title = "Release 2.4.4"
+date = 2023-01-20T15:27:38-05:00
+weight = 96
 pre = "<b> </b>"
 +++
 
-### Changes in Release 2.4.2
+### Changes in Release 2.4.4
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -19,8 +19,7 @@ None
 None
 
 #### Bug Fixes
-- #1241: Resolved Issue #1240 that was causing a NullPointerException with discoverDomain.
-- #1252: Reworked the unicode handling to resolve customer issues with 14.1.1 when using non-ASCII characters.
+- #1361: Resolved issue where the custom Coherence configuration file was not placed in the WebLogic Server domain's expected location.
 
 #### Known Issues
 - Due to the changes made for WDT-663 in WDT 2.4.0, the resulting remotely discovered model contains extra fields that would not normally be there.

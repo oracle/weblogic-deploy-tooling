@@ -1,7 +1,7 @@
 +++
 title = "Release 2.4.0"
 date = 2022-11-02T15:27:38-05:00
-weight = 3
+weight = 100
 pre = "<b> </b>"
 +++
 
