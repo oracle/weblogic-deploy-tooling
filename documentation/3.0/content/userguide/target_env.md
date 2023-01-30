@@ -118,7 +118,9 @@ The script performs a check to determine if any generated secret names are more 
 
 ### Merging content from the WDT model
 
-When a Kubernetes resource file is created using a target environment, content from the `kubernetes` section of the WDT model will be merged into the resulting output, if that section is present. For example, if the `-target wko` option is used, you can define this section in the model:
+When a Kubernetes custom resource definition (CRD) file is created for a target environment, content from the corresponding section of the WDT model will be merged into the resulting output, if that section is present.
+
+For example, when the `-target wko` option is used, content from the `kubernetes` section of the WDT model will be merged into the resulting CRD, if that section is present. For example, you can define this section in the model:
 ```yaml
 kubernetes:
   spec:
@@ -146,6 +148,45 @@ kubernetes:
   - spec:
       clusterName: other-cluster
       replicas: 6
+```
+
+When creating a CRD for Verrazzano, content from the `verrazzano` section of the WDT model will be merged into the resulting output, similar to the previous examples. Each of the three subsections in the `verrazzano` section will be merged with the corresponding document in the CRD. This example shows the `verrazzano` section of the WDT model with its three subsections:
+```yaml
+verrazzano:
+  application:
+    spec:
+      components:
+        - componentName: mydomain-mycomponent
+          traits:
+            - trait:
+                apiVersion: oam.verrazzano.io/v1alpha1
+                kind: LoggingTrait
+                spec:
+                  imagePullPolicy: NEVER
+  weblogic:
+    spec:
+      workload:
+        spec:
+          template:
+            spec:
+              domainHome: /u01/mydomain
+              clusters:
+                - name: cluster2
+          clusters:
+            - spec:
+                clusterName: cluster2
+                replicas: 1102
+  configmap:
+    spec:
+      workload:
+        data:
+          wdt_jdbc.yaml: |
+            resources:
+              JDBCSystemResource:
+                myDs:
+                  JdbcResource:
+                    JDBCDriverParams:
+                      URL: "jdbc:oracle:thin:@myhost:1521/pdborcl"
 ```
 
 ### Target environment configuration files
