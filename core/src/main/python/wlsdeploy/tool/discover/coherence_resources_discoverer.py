@@ -157,28 +157,39 @@ class CoherenceResourcesDiscoverer(Discoverer):
         temp.append_location(model_constants.COHERENCE_CLUSTER_SYSTEM_RESOURCE)
         cluster_name = location.get_name_for_token(self._aliases.get_name_token(temp))
         _logger.entering(cluster_name, model_name, model_value, class_name=_class_name, method_name=_method_name)
-        new_name = model_value
+        custom_config_path_into_archive = model_value
         if model_value is not None:
             archive_file = self._model_context.get_archive_file()
-            file_name_path = model_value
+            config_path_in_model = model_value
+            # We need to fix this before further processing.
+            # coherence convention is coherence/<cluster>/<filename> (if created through console), but if the
+            # path is set to config/coherence/<cluster>/<filename> seems to work also,  so prepend
+            # with "config/" to make sure the addCoherenceConfigFile working properly when checking for the
+            # actual file path
+            if config_path_in_model.startswith("coherence/"):
+                config_path_in_model = "config/" + config_path_in_model
             if not self._model_context.is_remote():
-                file_name_path = self._convert_path(model_value)
+                #  Get the actual full path
+                config_path_in_model = self._convert_path(config_path_in_model)
                 if not self._model_context.skip_archive():
                     try:
-                        new_name = archive_file.addCoherenceConfigFile(cluster_name, new_name)
-                        _logger.finer('WLSDPLY-06315', file_name_path, class_name=_class_name, method_name=_method_name)
+                        custom_config_path_into_archive = archive_file.addCoherenceConfigFile(cluster_name,
+                                                                                           config_path_in_model)
+                        _logger.finer('WLSDPLY-06315', config_path_in_model, class_name=_class_name,
+                                      method_name=_method_name)
                     except (IllegalArgumentException, WLSDeployArchiveIOException), wioe:
-                        _logger.warning('WLSDPLY-06316', cluster_name, file_name_path, wioe.getLocalizedMessage(),
-                                        class_name=_class_name, method_name=_method_name)
-                        new_name = None
+                        _logger.warning('WLSDPLY-06316', cluster_name, config_path_in_model,
+                                        wioe.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
+                        custom_config_path_into_archive = None
             else:
-                new_name = WLSDeployArchive.getCoherenceConfigArchivePath(cluster_name, new_name)
-                self.add_to_remote_map(file_name_path, new_name,
+                custom_config_path_into_archive = WLSDeployArchive.getCoherenceConfigArchivePath(cluster_name,
+                                                                                    custom_config_path_into_archive)
+                self.add_to_remote_map(config_path_in_model, custom_config_path_into_archive,
                                    WLSDeployArchive.ArchiveEntryType.COHERENCE_CONFIG.name())
 
 
-        _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
-        return new_name
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=custom_config_path_into_archive)
+        return custom_config_path_into_archive
 
     def _add_cache_config(self, model_name, model_value, location):
         """
