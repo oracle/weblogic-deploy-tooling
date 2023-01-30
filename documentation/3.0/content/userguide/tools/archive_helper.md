@@ -19,7 +19,7 @@ Use the Archive Helper Tool `-help` option to display its commands. Each command
 | `list` | List contents of the archive file. |
 | `remove` | Remove items to the archive file. |
 
-For each command, use the -help option for usage information about its subcommands.
+For each command, use the `-help` option for usage information about its subcommands.
 
 For example, to display the subcommands of the `archiveHelper` `add` command:
 ```yaml
