@@ -7,7 +7,7 @@ description: "Helps you create and modify archive files."
 ---
 
 
-With the Archive Helper Tool you can display the contents of an archive file, and add, update, extract, and remove files, as needed.
+With the Archive Helper Tool, you can display the contents of an archive file, add, update, extract, and remove files, as needed.
 
 Use the Archive Helper Tool `-help` option to display its commands. Each command takes a subcommand, which may require one or more command-line options.
 
