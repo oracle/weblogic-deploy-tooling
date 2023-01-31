@@ -371,18 +371,6 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Get the archive path for the application in a well-formed application directory
-     *
-     * @param appPath name of the application path
-     * @return archive path for use in the model
-     */
-    public static String getApplicationDirectoryArchivePath(String appName, String appPath) {
-        File zipAppPath = new File(appPath).getParentFile();
-        File zipAppFile = new File(appPath);
-        return ARCHIVE_STRUCT_APPS_TARGET_DIR + "/" + appName + "/" + zipAppPath.getName() + "/" + zipAppFile.getName();
-    }
-
-    /**
      * Get the archive path for the classpath library for use in the model.
      *
      * @param libPath to get the archive path for
@@ -403,15 +391,57 @@ public class WLSDeployArchive {
     }
 
     /**
-     * Get the archive path of a well-formed plan directory in app directory,
+     * Convert the provided structured application's application installation directory into the
+     * proper archive path.
      *
-     * @param appName The application name of the app directory
-     * @param planDir The deployment plan file directory
-     * @return Archive path for use in the model
+     * @param installRoot the full path to the structured application install directory on the file system
+     * @return the converted application installation directory or null if there is no parent directory
      */
-    public static String getApplicationPlanDirArchivePath(String appName, String planDir) {
-        File zipPath = new File(planDir);
-        return ARCHIVE_STRUCT_APPS_TARGET_DIR + "/" + appName + "/" + zipPath.getName();
+    public static String getStructuredApplicationArchivePath(String installRoot) {
+        final String METHOD = "getStructuredApplicationArchivePath";
+        LOGGER.entering(CLASS, METHOD, installRoot);
+
+        String installRootDir = FileUtils.getCanonicalPath(installRoot);
+        String installParentDir = new File(installRootDir).getParent();
+        String result = null;
+        if (!StringUtils.isEmpty(installParentDir)) {
+            result = installRootDir.replace(installParentDir, ARCHIVE_STRUCT_APPS_TARGET_DIR);
+        }
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    /**
+     * Convert the provided fileName into the proper archive path based on the application
+     * installation directory of the structured application.
+     *
+     * @param originalInstallRoot the full path to the structured application install directory on the file system
+     * @param newInstallRoot      the path to the structured application install directory in the archive file
+     * @param fileName            the file name to convert
+     * @return the converted file name if the fileName starts with the installRoot; if not, the original file name
+     */
+    public static String getStructuredApplicationArchivePath(String originalInstallRoot, String newInstallRoot,
+                                                             String fileName) {
+        final String METHOD = "getStructuredApplicationArchivePath";
+        LOGGER.entering(CLASS, METHOD, originalInstallRoot, newInstallRoot, fileName);
+
+        String result = fileName;
+        File file = new File(fileName);
+        if (file.isAbsolute() && fileName.startsWith(originalInstallRoot) && !StringUtils.isEmpty(newInstallRoot)) {
+            String originalRoot = originalInstallRoot;
+            if (originalInstallRoot.endsWith(File.separator) || originalInstallRoot.endsWith(ZIP_SEP)) {
+                originalRoot = originalInstallRoot.substring(0, originalInstallRoot.length() - 1);
+            }
+            String newRoot = newInstallRoot;
+            if (newInstallRoot.endsWith(File.separator) || newInstallRoot.endsWith(ZIP_SEP)) {
+                newRoot = newInstallRoot.substring(0, newInstallRoot.length() - 1);
+            }
+            result = fileName.replace(originalRoot, newRoot);
+        }
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
     }
 
     /**
@@ -1216,13 +1246,11 @@ public class WLSDeployArchive {
      * @throws IllegalArgumentException    if the directory passed or its app subdirectory does not exist
      */
     public String addStructuredApplication(String installRoot) throws WLSDeployArchiveIOException {
-        final String METHOD = "addApplicationFolder";
+        final String METHOD = "addStructuredApplication";
         LOGGER.entering(CLASS, METHOD, installRoot);
 
         File filePath = FileUtils.getCanonicalFile(installRoot);
-        File appDir = new File(filePath, "app");
         validateExistingDirectory(filePath, "installRoot", getArchiveFileName(), METHOD);
-        validateExistingDirectory(appDir, "appDir", getArchiveFileName(), METHOD);
 
         String newName = addItemToZip(ARCHIVE_STRUCT_APPS_TARGET_DIR, filePath);
         LOGGER.exiting(CLASS, METHOD, newName);
@@ -1289,36 +1317,6 @@ public class WLSDeployArchive {
         extractDirectoryFromZip(archivePath, domainHome);
 
         LOGGER.exiting(CLASS, METHOD);
-    }
-
-    // TODO - Need to verify that discovery produces an archive that is consistent with the add/replace methods above.
-    //        Once verified, change method name to be consistent and add javadoc.
-    public String addApplicationFolder(String appName, String appPath)
-        throws WLSDeployArchiveIOException {
-        final String METHOD = "addApplicationFolder";
-        LOGGER.entering(CLASS, METHOD, appName, appPath);
-        File zipPath = new File(appPath);
-        if (zipPath.getParentFile() != null) {
-            zipPath = zipPath.getParentFile();
-        }
-        String firstPrefix = ARCHIVE_STRUCT_APPS_TARGET_DIR + ZIP_SEP + appName + ZIP_SEP + zipPath.getName();
-        String newName = walkDownFolders(firstPrefix, zipPath);
-        LOGGER.exiting(CLASS, METHOD, newName);
-        return newName;
-    }
-
-    // TODO - Need to verify that discovery produces an archive that is consistent with the add/replace methods above.
-    //        Once verified, change method name to be consistent and add javadoc.
-    public String addApplicationPlanFolder(String appName, String planDir)
-        throws WLSDeployArchiveIOException {
-        final String METHOD = "addApplicationPathFolder";
-        LOGGER.entering(CLASS, METHOD, appName, planDir);
-        File zipPlan = new File(planDir);
-        String zipPrefix = ARCHIVE_STRUCT_APPS_TARGET_DIR + ZIP_SEP + appName + ZIP_SEP + zipPlan.getName();
-        String newName = walkDownFolders(zipPrefix, zipPlan);
-
-        LOGGER.exiting(CLASS, METHOD, newName);
-        return zipPrefix;
     }
 
     /**
@@ -4783,20 +4781,6 @@ public class WLSDeployArchive {
             result = false;
         }
         return result;
-    }
-
-    // TODO - remove me and replace calls with addItemToZip() to get the correct behavior.
-    private String walkDownFolders(String zipPrefix, File zipPath) throws WLSDeployArchiveIOException {
-        String newSourceName = null;
-        if (zipPath != null) {
-            File[] fileList = zipPath.listFiles();
-            if (fileList != null) {
-                for (File item : fileList) {
-                    newSourceName = addItemToZip(zipPrefix, item);
-                }
-            }
-        }
-        return newSourceName;
     }
 
     private void checkForZipSlip(File extractLocation, String zipEntry) throws WLSDeployArchiveIOException {
