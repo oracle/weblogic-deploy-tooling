@@ -44,6 +44,7 @@ pre = "<b> </b>"
 - #1351: Removed support for the deprecated "named object list" format from the `kubernetes` section of the model. (WDT-688)
 - #1366: Refactored ATP and SSL database support to be more unified in their modeling approach.
 - #1369: Added a special log level for deprecation messages so that the can show up in the tools' summary reports without causing a non-zero exit status. (WDT-721)
+- #1375: Revamped structured application discovery to capture the entire structure application directory. (WDT-715)
 - Cleaned up the aliases and put tests in place to ensure that they align properly with the various WebLogic Server
   releases and PSUs.
 
@@ -55,7 +56,8 @@ pre = "<b> </b>"
 - #1330: Fixed a Windows issue with environment variable substitution where environment variable references in the model that were not all upper-case were not working properly.
 - #1335: Removed unused and undocumented `-prev_model_file` argument `deployApps` and `updateDomain` tools. (WDT-707)
 - #1344: Removed `-archive_file` argument from the `extractDomainResource` tool since the model can no longer be stored in the archive file. (WDT-708)
-- #1367: Corrected the behavior of the archive class to rename directories when an existing directory of the same name already exists. 
+- #1367: Corrected the behavior of the archive class to rename directories when an existing directory of the same name already exists.
   This makes the behavior for files and directories consistent. (WDT-722)
+- #1374: Corrected a problem discovering a domain with a Coherence cluster with a custom configuration file.
 
 #### Known Issues
