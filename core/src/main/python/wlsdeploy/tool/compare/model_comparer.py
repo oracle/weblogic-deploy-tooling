@@ -1,10 +1,9 @@
 """
-Copyright (c) 2021, 2022, Oracle and/or its affiliates.
+Copyright (c) 2021, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.util import Properties
 
-from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.util import PyOrderedDict
 
 from wlsdeploy.aliases import alias_utils
@@ -12,12 +11,13 @@ from wlsdeploy.aliases.alias_constants import ALIAS_LIST_TYPES
 from wlsdeploy.aliases.alias_constants import PROPERTIES
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import APPLICATION
-from wlsdeploy.aliases.model_constants import KUBERNETES
+from wlsdeploy.aliases.model_constants import CRD_MODEL_SECTIONS
 from wlsdeploy.aliases.model_constants import LIBRARY
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model_helper
 import wlsdeploy.util.unicode_helper as str_helper
+
 
 class ModelComparer(object):
     """
@@ -308,18 +308,8 @@ class ModelComparer(object):
         if current_value != past_value:
             if type(current_value) == list:
                 current_list = list(current_value)
-                previous_list = list(past_value)
-
-                change_list = list(previous_list)
-                for item in current_list:
-                    if item in previous_list:
-                        change_list.remove(item)
-                    else:
-                        change_list.append(item)
-                for item in previous_list:
-                    if item not in current_list:
-                        change_list.remove(item)
-                        change_list.append(model_helper.get_delete_name(item))
+                past_list = list(past_value)
+                self._compare_lists(current_list, past_list, key, change_folder)
 
             elif isinstance(current_value, Properties):
                 self._compare_properties(current_value, past_value, key, change_folder)
@@ -339,26 +329,18 @@ class ModelComparer(object):
         """
         if current_value != past_value:
             attribute_type = self._aliases.get_model_attribute_type(location, key)
-            if attribute_type in ALIAS_LIST_TYPES:
+            if self._is_jvm_args_key(key, location):
+                current_text = self._get_jvm_args_text(current_value)
+                previous_text = self._get_jvm_args_text(past_value)
+                if current_text != previous_text:
+                    comment = key + ": '" + str_helper.to_string(previous_text) + "'"
+                    change_folder.addComment(key, comment)
+                    change_folder[key] = current_text
+
+            elif attribute_type in ALIAS_LIST_TYPES:
                 current_list = alias_utils.create_list(current_value, 'WLSDPLY-08001')
                 previous_list = alias_utils.create_list(past_value, 'WLSDPLY-08000')
-
-                change_list = list(previous_list)
-                for item in current_list:
-                    if item in previous_list:
-                        change_list.remove(item)
-                    else:
-                        change_list.append(item)
-                for item in previous_list:
-                    if item not in current_list:
-                        change_list.remove(item)
-                        change_list.append(model_helper.get_delete_name(item))
-
-                current_text = ','.join(current_list)
-                previous_text = ','.join(previous_list)
-                comment = key + ": '" + previous_text + "' -> '" + current_text + "'"
-                change_folder.addComment(key, comment)
-                change_folder[key] = ','.join(change_list)
+                self._compare_lists(current_list, previous_list, key, change_folder)
 
             elif attribute_type == PROPERTIES:
                 self._compare_properties(current_value, past_value, key, change_folder)
@@ -396,6 +378,32 @@ class ModelComparer(object):
         if property_dict:
             change_folder[key] = property_dict
 
+    def _compare_lists(self, current_list, past_list, key, change_folder):
+        """
+        Compare values of a list attribute from the current and past folders.
+        The change value and any comments will be added to the change folder.
+        :param current_list: the value from the current model
+        :param past_list: the value from the past model
+        :param key: the key of the attribute
+        :param change_folder: the folder in the change model to be updated
+        """
+        change_list = list(past_list)
+        for item in current_list:
+            if item in past_list:
+                change_list.remove(item)
+            else:
+                change_list.append(item)
+        for item in past_list:
+            if item not in current_list:
+                change_list.remove(item)
+                change_list.append(model_helper.get_delete_name(item))
+
+        current_text = ','.join(current_list)
+        previous_text = ','.join(past_list)
+        comment = key + ": '" + previous_text + "' -> '" + current_text + "'"
+        change_folder.addComment(key, comment)
+        change_folder[key] = ','.join(change_list)
+
     def _check_key(self, key, location):
         """
         Determine if the specified key and location will be compared.
@@ -405,10 +413,34 @@ class ModelComparer(object):
         """
         _method_name = '_check_key'
 
-        if (location is None) and (key == KUBERNETES):
-            self._logger.info('WLSDPLY-05713', KUBERNETES, class_name=self._class_name, method_name=_method_name)
+        if (location is None) and (key in CRD_MODEL_SECTIONS):
+            self._logger.info('WLSDPLY-05713', key, class_name=self._class_name, method_name=_method_name)
             return False
         return True
+
+    def _is_jvm_args_key(self, key, location):
+        """
+        Determine if the specified attribute requires special JVM argument processing.
+        :param key: the key to be checked
+        :param location: the location to be checked
+        :return: True if the attribute requires special processing, False otherwise
+        """
+        set_method_info = self._aliases.get_model_mbean_set_method_attribute_names_and_types(location)
+        return key in set_method_info and set_method_info[key]['set_method'] == 'set_jvm_args'
+
+    def _get_jvm_args_text(self, value):
+        """
+        Return the normalized text for the specified JVM arguments value.
+        These attributes have special handling for create and deploy,
+        so list delimiter comparison will not cover all the cases.
+        :param value: the value to be converted, may be a list, string, or None
+        :return: the normalized text value
+        """
+        if isinstance(value, basestring):
+            value = value.split()
+        if isinstance(value, list):
+            return ' '.join(value)
+        return value
 
     def _finalize_folder(self, current_folder, past_folder, change_folder, location):
         """

@@ -1,4 +1,4 @@
-# Copyright (c) 2020, 2022, Oracle and/or its affiliates.
+# Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 # ------------
@@ -326,14 +326,6 @@ def main(model_context):
     except CompareException, ce:
         _exit_code = ExitCode.ERROR
         __logger.severe('WLSDPLY-05704', ce.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
-    except PyWLSTException, pe:
-        _exit_code = ExitCode.ERROR
-        __logger.severe('WLSDPLY-05704', pe.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
-    except:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        _exit_code = ExitCode.ERROR
-        ee_string = traceback.format_exception(exc_type, exc_obj, exc_tb)
-        __logger.severe('WLSDPLY-05704', ee_string)
 
     __logger.exiting(class_name=_class_name, method_name=_method_name, result=_exit_code)
     return _exit_code
