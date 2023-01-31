@@ -1,4 +1,4 @@
-# Copyright (c) 2020, 2022, Oracle and/or its affiliates.
+# Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 # ------------
@@ -14,23 +14,22 @@
 import os
 import sets
 import sys
-import traceback
 
 import java.io.File as JFile
 import java.io.FileOutputStream as JFileOutputStream
 import java.io.IOException as JIOException
 import java.io.PrintWriter as JPrintWriter
 from java.lang import System
+
 from oracle.weblogic.deploy.compare import CompareException
 from oracle.weblogic.deploy.exception import ExceptionHelper
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import FileUtils
-from oracle.weblogic.deploy.util import PyWLSTException
+from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.validate import ValidateException
 from oracle.weblogic.deploy.yaml import YamlException
 
-import oracle.weblogic.deploy.util.TranslateException as TranslateException
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
@@ -326,14 +325,6 @@ def main(model_context):
     except CompareException, ce:
         _exit_code = ExitCode.ERROR
         __logger.severe('WLSDPLY-05704', ce.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
-    except PyWLSTException, pe:
-        _exit_code = ExitCode.ERROR
-        __logger.severe('WLSDPLY-05704', pe.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
-    except:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        _exit_code = ExitCode.ERROR
-        ee_string = traceback.format_exception(exc_type, exc_obj, exc_tb)
-        __logger.severe('WLSDPLY-05704', ee_string)
 
     __logger.exiting(class_name=_class_name, method_name=_method_name, result=_exit_code)
     return _exit_code
