@@ -109,7 +109,7 @@
                             "folders": { },
                             "attributes": {
                                 "EncryptedValueEncrypted":  [ {"version": "[12.1.3,)", "wlst_mode": "both",    "wlst_name": "EncryptedValueEncrypted",   "wlst_path": "WP001", "default_value": null,     "wlst_type": "password", "get_method": "GET"} ],
-                                "Value":                    [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "Value",                     "wlst_path": "WP001", "default_value": "",       "wlst_type": "string"    } ],
+                                "Value":                    [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "Value",                     "wlst_path": "WP001", "default_value": "",       "wlst_type": "string",  "uses_path_tokens": "true" } ],
                                 "SysPropValue":             [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "SysPropValue",              "wlst_path": "WP001", "default_value": "",       "wlst_type": "string"    } ]
                             },
                             "wlst_attributes_path": "WP001",

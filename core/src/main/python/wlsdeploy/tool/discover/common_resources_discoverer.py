@@ -2,6 +2,7 @@
 Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+import os.path
 from java.lang import IllegalArgumentException
 
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
@@ -91,6 +92,7 @@ class CommonResourcesDiscoverer(Discoverer):
         location = LocationContext(self._base_location)
         location.append_location(model_top_folder_name)
         datasources = self._find_names_in_folder(location)
+        collected_wallet = {}
         if datasources is not None:
             _logger.info('WLSDPLY-06340', len(datasources), class_name=_class_name, method_name=_method_name)
             typedef = self._model_context.get_domain_typedef()
@@ -112,10 +114,44 @@ class CommonResourcesDiscoverer(Discoverer):
                         resource_result = result[datasource][model_second_folder]
                         self._populate_model_parameters(resource_result, location)
                         self._discover_subfolders(resource_result, location)
+                        self._collect_jdbc_driver_wallet(datasource, collected_wallet,
+                                  result[datasource][model_constants.JDBC_RESOURCE][model_constants.JDBC_DRIVER_PARAMS])
                         location.remove_name_token(name_token)
                         location.pop_location()
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result
+
+    def _collect_jdbc_driver_wallet(self, datasource, collected_wallet, driver_params):
+        if model_constants.JDBC_DRIVER_PARAMS_PROPERTIES in driver_params:
+            properties = driver_params[model_constants.JDBC_DRIVER_PARAMS_PROPERTIES]
+            for connection_property in ["javax.net.ssl.keyStore",
+                                        "javax.net.ssl.trustStore",
+                                        "oracle.net.tns_admin" ]:
+                if connection_property in properties:
+                    property_value = properties[connection_property]['Value']
+                    if property_value:
+                        if os.path.exists(property_value):
+                            fixed_path = self._add_wallet_directory_to_archive(datasource, collected_wallet,
+                                                                               property_value)
+                            # update the property value with the updated path into the archive
+                            if os.path.isdir(property_value):
+                                properties[connection_property]['Value'] = fixed_path
+                            else:
+                                properties[connection_property]['Value'] = fixed_path + os.path.basename(property_value)
+
+    def _add_wallet_directory_to_archive(self, datasource, collected_wallet, property_value):
+        if self._model_context.skip_archive() or self._model_context.is_remote():
+            return property_value
+        if os.path.isdir(property_value):
+            path = os.path.abspath(property_value)
+        else:
+            path  = os.path.dirname(os.path.abspath(property_value))
+        archive_file = self._model_context.get_archive_file()
+        if not path in collected_wallet:
+            ds = datasource.replace(' ','').replace('(', '').replace(')','')
+            path_into_archive = archive_file.addDatabaseWallet(datasource, path)
+            collected_wallet[path] = { 'wallet_name' : ds, 'path_into_archive': path_into_archive}
+        return collected_wallet[path]['path_into_archive']
 
     def get_foreign_jndi_providers(self):
         """
