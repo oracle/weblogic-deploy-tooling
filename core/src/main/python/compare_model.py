@@ -14,23 +14,22 @@
 import os
 import sets
 import sys
-import traceback
 
 import java.io.File as JFile
 import java.io.FileOutputStream as JFileOutputStream
 import java.io.IOException as JIOException
 import java.io.PrintWriter as JPrintWriter
 from java.lang import System
+
 from oracle.weblogic.deploy.compare import CompareException
 from oracle.weblogic.deploy.exception import ExceptionHelper
 from oracle.weblogic.deploy.util import CLAException
 from oracle.weblogic.deploy.util import FileUtils
-from oracle.weblogic.deploy.util import PyWLSTException
+from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import VariableException
 from oracle.weblogic.deploy.validate import ValidateException
 from oracle.weblogic.deploy.yaml import YamlException
 
-import oracle.weblogic.deploy.util.TranslateException as TranslateException
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
