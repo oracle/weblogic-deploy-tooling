@@ -19,6 +19,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -637,6 +638,40 @@ public final class FileUtils {
         }
     }
 
+    /**
+     * Set OS file permissions given an Octal permission set.
+     * Needed due to Jython 2.2 did not offer an os.chmod function.
+     * @param path file name to be changed
+     * @param octals octal number set like OS chmod permissions
+     * @throws IOException if permissions update fails
+     */
+    public static void chmod(String path, int octals) throws IOException {
+        if(!WINDOWS) {
+            Files.setPosixFilePermissions(Paths.get(path), getPermissions(octals));
+        }
+    }
+
+    public static String getCommonRootDirectory(File firstDir, File secondDir) {
+        if (firstDir == null || secondDir == null) {
+            return null;
+        }
+
+        String[] firstDirComponents = getFileComponents(firstDir);
+        String[] secondDirComponents = getFileComponents(secondDir);
+        int maxLength = Math.min(firstDirComponents.length, secondDirComponents.length);
+
+        List<String> resultComponents = new ArrayList<>();
+        for (int i = 0; i < maxLength; i++) {
+            if (firstDirComponents[i].equals(secondDirComponents[i])) {
+                resultComponents.add(firstDirComponents[i]);
+            } else {
+                break;
+            }
+        }
+        File result = getFileFromComponents(resultComponents.toArray(new String[0]));
+        return result != null ? getCanonicalPath(result) : null;
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Private helper methods                                                //
     ///////////////////////////////////////////////////////////////////////////
@@ -724,7 +759,6 @@ public final class FileUtils {
         }
     }
 
-
     /**
      * Convert an octal number into Posix File Permissions.
      * @param octals 3 octal digits representing posix file permissions rwxrwxrwx
@@ -763,16 +797,37 @@ public final class FileUtils {
         return result;
     }
 
-    /**
-     * Set OS file permissions given an Octal permission set.
-     * Needed due to Jython 2.2 did not offer a os.chmod function.
-     * @param path file name to be changed
-     * @param octals octal number set like OS chmod permissions
-     * @throws IOException if permissions update fails
-     */
-    public static void chmod(String path, int octals) throws IOException {
-        if(!WINDOWS) {
-            Files.setPosixFilePermissions(Paths.get(path), getPermissions(octals));
+    private static String[] getFileComponents(File file) {
+        String[] result;
+        if (file != null) {
+            File canonicalFile = getCanonicalFile(file);
+            List<String> names = new ArrayList<>();
+            while(true) {
+                File parent = canonicalFile.getParentFile();
+                if (parent == null) {
+                    names.add(canonicalFile.getPath());
+                    break;
+                } else {
+                    names.add(canonicalFile.getName());
+                    canonicalFile = parent;
+                }
+            }
+            Collections.reverse(names);
+            result = names.toArray(new String[0]);
+        } else {
+            result = new String[0];
         }
+        return result;
+    }
+
+    private static File getFileFromComponents(String[] components) {
+        File result = null;
+        if (components != null && components.length > 0) {
+            result = new File(components[0]);
+            for (int i = 1; i < components.length; i++) {
+                result = new File(result, components[i]);
+            }
+        }
+        return result;
     }
 }

@@ -1000,10 +1000,11 @@ class Aliases(object):
             self._raise_exception(ae, _method_name, 'WLSDPLY-19040', model_name, location.get_folder_path(),
                                   ae.getLocalizedMessage())
 
-    def get_model_uses_path_tokens_attribute_names(self, location):
+    def get_model_uses_path_tokens_attribute_names(self, location, only_readable=False):
         """
         Get the list of attribute names that "use path tokens" (i.e., ones whose values are file system paths).
         :param location: the location
+        :param only_readable: If true, filter out all attributes that cannot be read (i.e., IGNORED)
         :return: a list of the model attribute names
         :raises: Tool type exception: if an error occurs
         """
@@ -1020,7 +1021,8 @@ class Aliases(object):
 
             for key, value in module_folder[ATTRIBUTES].iteritems():
                 if USES_PATH_TOKENS in value and alias_utils.convert_boolean(value[USES_PATH_TOKENS]):
-                    model_attribute_names.append(key)
+                    if not (only_readable and ACCESS in value and value[ACCESS] == IGNORED):
+                        model_attribute_names.append(key)
 
             return model_attribute_names
         except AliasException, ae:
