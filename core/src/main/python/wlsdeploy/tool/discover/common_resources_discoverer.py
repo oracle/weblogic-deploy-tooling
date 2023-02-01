@@ -161,7 +161,7 @@ class CommonResourcesDiscoverer(Discoverer):
         wallet_name = datasource.replace(' ','').replace('(', '').replace(')','')
 
         # keep track of the wallet name and from where it is collected
-        #  { 'onprem_wallet_parentpath' : { 'wallet_name': <name>, 'path_into_archive': <wallet path into archive>,
+        #  { <onprem_wallet_parentpath> : { 'wallet_name': <name>, 'path_into_archive': <wallet path into archive>,
         #      },
         #     .... }
         #
@@ -183,8 +183,10 @@ class CommonResourcesDiscoverer(Discoverer):
             if not archive_file.isPathIntoArchive(os.path.join(
                                     collected_wallet_dictionary[onprem_wallet_parent_path]['path_into_archive'],
                                     os.path.basename(property_value))):
-                # only case is it is not flat directory if the particular file has not been collected
-                fixed_path = archive_file.addDatabaseWallet(wallet_name, os.path.abspath(property_value))
+                # only case is it is not flat directory if the particular file has not been collected before, add
+                # it to the previous wallet
+                fixed_path = archive_file.addDatabaseWallet(collected_wallet_dictionary[onprem_wallet_parent_path]['wallet_name'],
+                                                            os.path.abspath(property_value))
             else:
                 # already in archive just figure out the path
                 if (os.path.isdir(property_value)):
@@ -192,7 +194,6 @@ class CommonResourcesDiscoverer(Discoverer):
                 else:
                     fixed_path = os.path.join(collected_wallet_dictionary[onprem_wallet_parent_path]['path_into_archive'],
                                           os.path.basename(property_value))
-
 
         return fixed_path
 
