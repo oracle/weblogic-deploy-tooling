@@ -122,36 +122,92 @@ class CommonResourcesDiscoverer(Discoverer):
         return model_top_folder_name, result
 
     def _collect_jdbc_driver_wallet(self, datasource, collected_wallet, driver_params):
+        _method_name = '_collect_jdbc_driver_wallet'
         if model_constants.JDBC_DRIVER_PARAMS_PROPERTIES in driver_params:
             properties = driver_params[model_constants.JDBC_DRIVER_PARAMS_PROPERTIES]
-            for connection_property in ["javax.net.ssl.keyStore",
-                                        "javax.net.ssl.trustStore",
-                                        "oracle.net.tns_admin" ]:
+            for connection_property in [model_constants.DRIVER_PARAMS_KEYSTORE_PROPERTY,
+                                        model_constants.DRIVER_PARAMS_TRUSTSTORE_PROPERTY,
+                                        model_constants.DRIVER_PARAMS_NET_TNS_ADMIN]:
                 if connection_property in properties:
                     property_value = properties[connection_property]['Value']
-                    if property_value:
-                        if os.path.exists(property_value):
-                            fixed_path = self._add_wallet_directory_to_archive(datasource, collected_wallet,
-                                                                               property_value)
-                            # update the property value with the updated path into the archive
-                            if os.path.isdir(property_value):
-                                properties[connection_property]['Value'] = fixed_path
-                            else:
-                                properties[connection_property]['Value'] = fixed_path + os.path.basename(property_value)
+                    if property_value and os.path.exists(property_value):
+                        fixed_path = self._add_wallet_directory_to_archive(datasource, collected_wallet,
+                                                                           property_value)
+                        _logger.info('WLSDPLY-06367', connection_property, fixed_path,
+                                     class_name=_class_name, method_name=_method_name)
+                        properties[connection_property]['Value'] = fixed_path
 
-    def _add_wallet_directory_to_archive(self, datasource, collected_wallet, property_value):
+
+    def _add_wallet_directory_to_archive(self, datasource, collected_wallet_dictionary, property_value):
+        _method_name = '_add_wallet_directory_to_archive'
         if self._model_context.skip_archive() or self._model_context.is_remote():
             return property_value
         if os.path.isdir(property_value):
-            path = os.path.abspath(property_value)
+            onprem_wallet_parent_path = os.path.abspath(property_value)
         else:
-            path  = os.path.dirname(os.path.abspath(property_value))
+            onprem_wallet_parent_path = os.path.dirname(os.path.abspath(property_value))
+
+        # error if wallet parent path is at oracle home
+        if self._model_context.get_oracle_home() == onprem_wallet_parent_path:
+            _logger.severe('WLSDPLY-06368', property_value, self._model_context.get_oracle_home())
+            de = exception_helper.create_discover_exception('WLSDPLY-06368', property_value,
+                                                self._model_context.get_oracle_home())
+            _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+            raise de
+
+        onprem_wallet_dir_is_not_flat = self._is_on_prem_wallet_dir_flat(onprem_wallet_parent_path, property_value)
         archive_file = self._model_context.get_archive_file()
-        if not path in collected_wallet:
-            ds = datasource.replace(' ','').replace('(', '').replace(')','')
-            path_into_archive = archive_file.addDatabaseWallet(datasource, path)
-            collected_wallet[path] = { 'wallet_name' : ds, 'path_into_archive': path_into_archive}
-        return collected_wallet[path]['path_into_archive']
+        # fix up name just in case
+        wallet_name = datasource.replace(' ','').replace('(', '').replace(')','')
+
+        # keep track of the wallet name and from where it is collected
+        #  { 'onprem_wallet_parentpath' : { 'wallet_name': <name>, 'path_into_archive': <wallet path into archive>,
+        #      },
+        #     .... }
+        #
+
+        if not onprem_wallet_parent_path in collected_wallet_dictionary:
+            if onprem_wallet_dir_is_not_flat:
+                fixed_path = archive_file.addDatabaseWallet(wallet_name, os.path.abspath(property_value))
+                path_into_archive = os.path.dirname(fixed_path)
+            else:
+                fixed_path = archive_file.addDatabaseWallet(wallet_name, onprem_wallet_parent_path)
+                path_into_archive = fixed_path
+                fixed_path = os.path.join(fixed_path, os.path.basename(property_value))
+
+            collected_wallet_dictionary[onprem_wallet_parent_path] = \
+                {'wallet_name' : wallet_name, 'path_into_archive': path_into_archive}
+        else:
+            # if the directory has already been visited before
+            # check for the wallet to see if the file has already been collected on prem and add only the file
+            if not archive_file.isPathIntoArchive(os.path.join(
+                                    collected_wallet_dictionary[onprem_wallet_parent_path]['path_into_archive'],
+                                    os.path.basename(property_value))):
+                # only case is it is not flat directory if the particular file has not been collected
+                fixed_path = archive_file.addDatabaseWallet(wallet_name, os.path.abspath(property_value))
+            else:
+                # already in archive just figure out the path
+                if (os.path.isdir(property_value)):
+                    fixed_path = collected_wallet_dictionary[onprem_wallet_parent_path]['path_into_archive']
+                else:
+                    fixed_path = os.path.join(collected_wallet_dictionary[onprem_wallet_parent_path]['path_into_archive'],
+                                          os.path.basename(property_value))
+
+
+        return fixed_path
+
+    def _is_on_prem_wallet_dir_flat(self, onprem_wallet_parent_path, property_value):
+        # info if wallet parent is not flat and only collect the particular file and not the entire directory
+        dir_list = os.listdir(onprem_wallet_parent_path)
+        onprem_wallet_dir_is_not_flat = False
+        for item in dir_list:
+            if os.path.isdir(os.path.join(onprem_wallet_parent_path, item)):
+                onprem_wallet_dir_is_not_flat = True
+                break
+        # put out info for user only particular file is collected and not the entire wallet directory
+        if onprem_wallet_dir_is_not_flat:
+            _logger.info('WLSDPLY-06369', property_value)
+        return onprem_wallet_dir_is_not_flat
 
     def get_foreign_jndi_providers(self):
         """
