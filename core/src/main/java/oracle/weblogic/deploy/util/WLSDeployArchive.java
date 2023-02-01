@@ -4502,11 +4502,6 @@ public class WLSDeployArchive {
             newName = addItemToZip(ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + walletName, sourceFile, false);
         } else {
             newName = addItemToZip(ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + walletName, sourceFile);
-
-            // When adding a file (e.g., zip file), the wallet name returned should always point
-            // to the wallet directory containing the file.
-            //
-            newName = getDatabaseWalletArchivePathFromAddedFile(ARCHIVE_DB_WALLETS_DIR, newName);
         }
 
         LOGGER.exiting(CLASS, METHOD, newName);
@@ -4927,20 +4922,6 @@ public class WLSDeployArchive {
             if (comps.length > 2) {
                 result = comps[2];
             }
-        }
-        return result;
-    }
-
-    private String getDatabaseWalletArchivePathFromAddedFile(String walletParentPath, String walletFileName) {
-        String result = null;
-
-        int fromIndex = walletParentPath.length();
-        if (!walletParentPath.endsWith(ZIP_SEP)) {
-            fromIndex++;
-        }
-        int endIndex = walletParentPath.indexOf(ZIP_SEP, fromIndex);
-        if (endIndex != -1) {
-            result = walletFileName.substring(0, endIndex);
         }
         return result;
     }
