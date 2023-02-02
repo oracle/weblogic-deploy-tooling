@@ -1286,6 +1286,30 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
+    void testAddNewDatabaseWalletFile_ReturnsExpectedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[]{
+            "add",
+            "databaseWallet",
+            "-archive_file",
+            NEW_ARCHIVE_VALUE,
+            "-wallet_name",
+            "wallet1",
+            "-source",
+            getSourcePath(ArchiveEntryType.DB_WALLET, "wallet1/atpwallet.zip")
+        };
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to exit with exit code " + ExitCode.OK);
+        assertEquals("wlsdeploy/dbWallets/wallet1/atpwallet.zip", outStringWriter.toString().trim());
+    }
+
+    @Test
     void testAddDatabaseWalletDirOverwrite_ReturnsExceptedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
@@ -1319,6 +1343,41 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
+    void testAddNewDatabaseWalletFileOverwrite_ReturnsExpectedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[]{
+            "add",
+            "databaseWallet",
+            "-archive_file",
+            NEW_ARCHIVE_VALUE,
+            "-wallet_name",
+            "wallet1",
+            "-source",
+            getSourcePath(ArchiveEntryType.DB_WALLET, "wallet1/atpwallet.zip")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to exit with exit code " + ExitCode.OK);
+
+        outStringWriter = new StringWriter();
+        errStringWriter = new StringWriter();
+        String[] overwriteArgs = getOverwriteArgs(args);
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, overwriteArgs);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to exit with exit code " + ExitCode.OK);
+        assertEquals("wlsdeploy/dbWallets/wallet1/atpwallet.zip", outStringWriter.toString().trim());
+    }
+
+    @Test
     void testAddDatabaseWalletDirTwice_ReturnsExceptedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
@@ -1349,6 +1408,40 @@ public class ArchiveHelperAddTest {
         assertEquals(ExitCode.OK, actual, "expected command to exit with exit code " + ExitCode.OK);
         assertArchiveInExpectedState(LIST_DATABASE_WALLETS, EMPTY_ARRAY, DATABASE_WALLET_WALLET1_CONTENTS,
             DATABASE_WALLET_WALLET1_DUP_CONTENTS);
+    }
+
+    @Test
+    void testAddDatabaseWalletFileTwice_ReturnsExceptedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+            "add",
+            "databaseWallet",
+            "-archive_file",
+            NEW_ARCHIVE_VALUE,
+            "-wallet_name",
+            "wallet1",
+            "-source",
+            getSourcePath(ArchiveEntryType.DB_WALLET, "wallet1/atpwallet.zip")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to exit with exit code " + ExitCode.OK);
+
+        outStringWriter = new StringWriter();
+        errStringWriter = new StringWriter();
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to exit with exit code " + ExitCode.OK);
+        assertEquals("wlsdeploy/dbWallets/wallet1/atpwallet(1).zip", outStringWriter.toString().trim());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
