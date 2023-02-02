@@ -5,6 +5,20 @@
 # This will test that fields from the verrazzano section of the model
 # are transferred to the resulting domain resource file
 
+topology:
+  Cluster:
+    mycluster:
+      DynamicServers:
+        ServerTemplate: template1
+  Server:
+    m1:
+      # no ListenPort, use default
+    m2:
+      ListenPort: 9005
+  ServerTemplate:
+    template1:
+      ListenPort: 9008
+
 resources:
   # template will create a configmap entry for this JDBC resource
   JDBCSystemResource:
@@ -12,6 +26,19 @@ resources:
       JdbcResource:
         JDBCDriverParams:
           URL: 'jdbc:oracle:thin:@dbhost:1521/pdborcl'
+
+appDeployments:
+  # these apps will go into application IngressTrait rules
+  Application:
+    oneApp:
+      SourcePath: wlsdeploy/apps/oneApp.ear
+      Target: mycluster,m1
+    twoApp :
+      SourcePath: wlsdeploy/apps/twoApp.ear
+      Target: m2,mycluster
+    threeApp :
+      SourcePath: wlsdeploy/apps/threeApp.ear
+      Target: m2,m1
 
 verrazzano:
     application:
@@ -24,6 +51,18 @@ verrazzano:
                             kind: MetricsTrait
                             spec:
                                 scraper: verrazzano-system/my-model-scraper
+                      - trait:  # should merge with template trait
+                            kind: IngressTrait
+                            spec:
+                                rules:
+                                  # assign specific paths to this destination
+                                  - destination:
+                                      host: base-domain-m1
+                                    paths:
+                                      - path: '/simple-ear-path'
+                                        pathType: Prefix
+                                      - path: '/simple-ear3-path'
+                                        pathType: Prefix
                       - trait:  # should add to template traits
                             apiVersion: oam.verrazzano.io/v1alpha1
                             kind: LoggingTrait
