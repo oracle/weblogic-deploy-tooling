@@ -322,8 +322,11 @@ def main(model_context):
         has_atp, has_ssl = validate_rcu_args_and_model(model_context, model_dictionary, archive_helper, aliases)
         # check if there is an atpwallet and extract in the domain dir
         # it is to support non JRF domain but user wants to use ATP database
-        if has_atp and archive_helper:
-            archive_helper.extract_database_wallet()
+        # if (has_atp or has_ssl) and archive_helper:
+        #     archive_helper.extract_database_wallet()
+
+        if archive_helper:
+            archive_helper.extract_all_database_wallets()
 
         creator = DomainCreator(model_dictionary, model_context, aliases)
         creator.create()

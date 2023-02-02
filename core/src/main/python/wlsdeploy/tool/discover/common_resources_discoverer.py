@@ -129,19 +129,25 @@ class CommonResourcesDiscoverer(Discoverer):
                                         model_constants.DRIVER_PARAMS_TRUSTSTORE_PROPERTY,
                                         model_constants.DRIVER_PARAMS_NET_TNS_ADMIN]:
                 if connection_property in properties:
-                    property_value = properties[connection_property]['Value']
-                    if property_value and os.path.exists(property_value):
-                        fixed_path = self._add_wallet_directory_to_archive(datasource, collected_wallet,
-                                                                           property_value)
-                        _logger.info('WLSDPLY-06367', connection_property, fixed_path,
-                                     class_name=_class_name, method_name=_method_name)
-                        properties[connection_property]['Value'] = fixed_path
+                    qualified_property_value = properties[connection_property]['Value']
+                    if qualified_property_value:
+                        if qualified_property_value.startswith(WLSDeployArchive.WLSDPLY_ARCHIVE_BINARY_DIR
+                                                     + WLSDeployArchive.ZIP_SEP):
+                            qualified_property_value = os.path.join(self._model_context.get_domain_home()
+                                                                    ,qualified_property_value)
+                        if os.path.exists(qualified_property_value):
+                            fixed_path = self._add_wallet_directory_to_archive(datasource, collected_wallet,
+                                                                               qualified_property_value)
+                            _logger.info('WLSDPLY-06367', connection_property, fixed_path,
+                                         class_name=_class_name, method_name=_method_name)
+                            properties[connection_property]['Value'] = fixed_path
 
 
     def _add_wallet_directory_to_archive(self, datasource, collected_wallet_dictionary, property_value):
         _method_name = '_add_wallet_directory_to_archive'
         if self._model_context.skip_archive() or self._model_context.is_remote():
             return property_value
+
         if os.path.isdir(property_value):
             onprem_wallet_parent_path = os.path.abspath(property_value)
         else:
@@ -151,7 +157,7 @@ class CommonResourcesDiscoverer(Discoverer):
         if self._model_context.get_oracle_home() == onprem_wallet_parent_path:
             _logger.severe('WLSDPLY-06368', property_value, self._model_context.get_oracle_home())
             de = exception_helper.create_discover_exception('WLSDPLY-06368', property_value,
-                                                self._model_context.get_oracle_home())
+                                                            self._model_context.get_oracle_home())
             _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
             raise de
 
@@ -193,7 +199,7 @@ class CommonResourcesDiscoverer(Discoverer):
                     fixed_path = collected_wallet_dictionary[onprem_wallet_parent_path]['path_into_archive']
                 else:
                     fixed_path = os.path.join(collected_wallet_dictionary[onprem_wallet_parent_path]['path_into_archive'],
-                                          os.path.basename(property_value))
+                                              os.path.basename(property_value))
 
         return fixed_path
 
