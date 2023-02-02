@@ -320,10 +320,6 @@ def main(model_context):
             archive_helper = ArchiveHelper(archive_file_name, domain_path, __logger, ExceptionType.CREATE)
 
         has_atp, has_ssl = validate_rcu_args_and_model(model_context, model_dictionary, archive_helper, aliases)
-        # check if there is an atpwallet and extract in the domain dir
-        # it is to support non JRF domain but user wants to use ATP database
-        # if (has_atp or has_ssl) and archive_helper:
-        #     archive_helper.extract_database_wallet()
 
         if archive_helper:
             archive_helper.extract_all_database_wallets()

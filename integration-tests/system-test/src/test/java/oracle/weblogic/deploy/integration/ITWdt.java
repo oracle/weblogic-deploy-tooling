@@ -1162,10 +1162,10 @@ public class ITWdt extends BaseTest {
     }
 
     /**
-     * test discoverDomain.sh that model can create a working domain
+     * test create and discover domain with jdbc wallet.
      * @throws Exception - if any error occurs
      */
-    @DisplayName("Test 35: Discover domain and then create a new domain from the model")
+    @DisplayName("Test 35: test create and discover domain with jdbc wallet")
     @Order(35)
     @Tag("gate")
     @Test
