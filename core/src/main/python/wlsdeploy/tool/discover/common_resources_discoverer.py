@@ -141,7 +141,14 @@ class CommonResourcesDiscoverer(Discoverer):
                             _logger.info('WLSDPLY-06367', connection_property, fixed_path,
                                          class_name=_class_name, method_name=_method_name)
                             properties[connection_property]['Value'] = fixed_path
-
+                        else:
+                            _logger.severe('WLSDPLY-06370', datasource, connection_property,
+                                           properties[connection_property]['Value'])
+                            de = exception_helper.create_discover_exception('WLSDPLY-06370', datasource,
+                                                                            connection_property,
+                                                                            properties[connection_property]['Value'])
+                            _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+                            raise de
 
     def _add_wallet_directory_to_archive(self, datasource, collected_wallet_dictionary, property_value):
         _method_name = '_add_wallet_directory_to_archive'
