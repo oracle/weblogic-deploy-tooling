@@ -1394,7 +1394,7 @@ public class WLSDeployArchive {
      * @param shlibPath file name to find the name for
      * @return name for model archive file name
      */
-    public String getSharedLibraryArchivePath(String shlibPath) {
+    public static String getSharedLibraryArchivePath(String shlibPath) {
         return getArchiveName(ARCHIVE_SHLIBS_TARGET_DIR, shlibPath);
     }
 
@@ -1718,7 +1718,7 @@ public class WLSDeployArchive {
      * @param domainLibPath the file name to get the archive file name
      * @return model ready archive file name
      */
-    public String getDomainLibArchiveName(String domainLibPath) {
+    public static String getDomainLibArchiveName(String domainLibPath) {
         return getArchiveName(ARCHIVE_DOMLIB_TARGET_DIR, domainLibPath);
     }
 
@@ -3716,6 +3716,16 @@ public class WLSDeployArchive {
 
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
+    }
+
+    /**
+     * Return the database wallet path of a file.
+     * @param walletName database wallet name
+     * @param fileLocation a file in the wallet
+     * @return path to the particular file in the database wallet
+     */
+    public static String getDatabaseWalletArchivePath(String walletName, String fileLocation) {
+        return getArchiveName(ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + walletName, fileLocation);
     }
 
     /**
