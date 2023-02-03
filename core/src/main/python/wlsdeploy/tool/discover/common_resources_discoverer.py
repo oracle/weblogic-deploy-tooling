@@ -123,6 +123,9 @@ class CommonResourcesDiscoverer(Discoverer):
 
     def _collect_jdbc_driver_wallet(self, datasource, collected_wallet, driver_params):
         _method_name = '_collect_jdbc_driver_wallet'
+        if self._model_context.is_remote():
+            _logger.info("WLSDPLY-06371")
+            return
         if model_constants.JDBC_DRIVER_PARAMS_PROPERTIES in driver_params:
             properties = driver_params[model_constants.JDBC_DRIVER_PARAMS_PROPERTIES]
             for connection_property in [model_constants.DRIVER_PARAMS_KEYSTORE_PROPERTY,
