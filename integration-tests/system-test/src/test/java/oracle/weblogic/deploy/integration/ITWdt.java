@@ -1219,7 +1219,7 @@ public class ITWdt extends BaseTest {
         checkContents.add("topology:");
         checkContents.add("    Name: domain2");
         checkContents.add("    AdminServerName: admin-server");
-        checkContents.add("    DomainVersion: 12.2.1.4.0");
+        checkContents.add("    DomainVersion: 12.2.1.3.0");
         checkContents.add("    ProductionModeEnabled: true");
         checkContents.add("    NMProperties:");
         checkContents.add("        JavaHome: /usr/java/jdk1.8.0_361");
