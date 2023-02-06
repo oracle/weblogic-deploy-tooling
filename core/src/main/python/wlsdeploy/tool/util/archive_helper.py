@@ -402,18 +402,19 @@ class ArchiveHelper(object):
         return resulting_wallet_path
 
     def extract_all_database_wallets(self):
-        archive_entries = self.get_archive_entries()
-        wallet_names = sets.Set()
-        for entry in archive_entries:
-            if entry.startswith(WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR):
-                if os.path.isdir(entry):
-                    name = wallet_names.add(os.path.basename(entry))
-                else:
-                    name = os.path.basename(os.path.dirname(entry))
 
-                wallet_names.add(name)
-        for wallet_name in wallet_names:
-            self.extract_database_wallet(wallet_name)
+        for archive_file in self.__archive_files:
+            archive_entries = archive_file.getArchiveEntries()
+            wallet_names = sets.Set()
+            for entry in archive_entries:
+                if entry.startswith(WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR):
+                    if os.path.isdir(entry):
+                        wallet_names.add(os.path.basename(entry))
+                    else:
+                        name = os.path.basename(os.path.dirname(entry))
+                        wallet_names.add(name)
+            for wallet_name in wallet_names:
+                self.extract_database_wallet(wallet_name)
 
     def extract_opss_wallet(self):
         """
