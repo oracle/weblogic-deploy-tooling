@@ -1222,7 +1222,7 @@ public class ITWdt extends BaseTest {
         checkContents.add("    DomainVersion: 12.2.1.4.0");
         checkContents.add("    ProductionModeEnabled: true");
         checkContents.add("    NMProperties:");
-        checkContents.add("        JavaHome: /home/johnny/jdk1.8.0_201");
+        checkContents.add("        JavaHome: /usr/java/jdk1.8.0_361");
         checkContents.add("    Server:");
         checkContents.add("        admin-server: {}");
         checkContents.add("    SecurityConfiguration:");
