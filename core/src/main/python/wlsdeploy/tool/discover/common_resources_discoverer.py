@@ -172,7 +172,7 @@ class CommonResourcesDiscoverer(Discoverer):
         #      },
         #     .... }
         #
-        if not onprem_wallet_parent_path in collected_wallet_dictionary:
+        if onprem_wallet_parent_path not in collected_wallet_dictionary:
             if onprem_wallet_dir_is_not_flat:
                 # collect the specific file
                 fixed_path = archive_file.addDatabaseWallet(wallet_name, os.path.abspath(property_value))
@@ -190,7 +190,7 @@ class CommonResourcesDiscoverer(Discoverer):
             check_path = os.path.join(
                 collected_wallet_dictionary[onprem_wallet_parent_path]['path_into_archive'],
                 os.path.basename(property_value))
-            if not check_path in archive_file.getArchiveEntries() and os.path.isfile(property_value):
+            if check_path not in archive_file.getArchiveEntries() and os.path.isfile(property_value):
                 # only case is it is not flat directory if the particular file has not been collected before, add
                 # it to the previous wallet
                 fixed_path = archive_file.addDatabaseWallet(collected_wallet_dictionary[onprem_wallet_parent_path]['wallet_name'],
