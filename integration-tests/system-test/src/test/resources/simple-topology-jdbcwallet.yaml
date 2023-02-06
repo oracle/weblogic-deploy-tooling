@@ -17,9 +17,6 @@ resources:
                 DatasourceType: GENERIC
                 JDBCConnectionPoolParams:
                     TestTableName: SQL ISVALID
-                    InitialCapacity: 0
-                    MinCapacity: 0
-                    MaxCapacity: 1
                 JDBCDataSourceParams:
                     GlobalTransactionsProtocol: OnePhaseCommit
                     JNDIName: testds
