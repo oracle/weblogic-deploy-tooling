@@ -80,7 +80,10 @@ public class XPathUtil {
      */
     public String getPSU() {
         // find the names in the directory first
-        if (!(new File(patchesHome)).exists()) {
+        if (StringUtils.isEmpty(oracleHome)) {
+            LOGGER.fine("Cannot detect PSU version since Oracle Home is empty");
+            return null;
+        } else if (!(new File(patchesHome)).exists()) {
             LOGGER.fine("No PSU, patches directory not found at {0}", patchesHome);
             return null;
         }
