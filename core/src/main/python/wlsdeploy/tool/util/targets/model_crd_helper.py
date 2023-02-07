@@ -105,6 +105,7 @@ def get_product_helper(product_key, product_version, exception_type=ExceptionTyp
         application_folder = ModelCrdFolder("application", application_schema, False)
         application_folder.add_object_list_key('spec/components', 'componentName')
         application_folder.add_object_list_key('spec/components/traits', 'trait/kind')
+        application_folder.add_object_list_key('spec/components/traits/trait/spec/rules', 'destination/host')
         helper.add_crd_folder(application_folder)
 
         weblogic_schema_name = VZ_1_WEBLOGIC_SCHEMA_NAME

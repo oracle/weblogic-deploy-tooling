@@ -1,0 +1,40 @@
+domainInfo:
+  AdminUserName: weblogic
+  AdminPassword: welcome1
+  ServerStartMode: prod
+topology:
+  Name: domain2
+  AdminServerName: admin-server
+  ProductionModeEnabled: true
+  Server:
+    admin-server:
+      ListenPort: 7001
+resources:
+    JDBCSystemResource:
+        testds:
+            Target: admin-server
+            JdbcResource:
+                DatasourceType: GENERIC
+                JDBCConnectionPoolParams:
+                    TestTableName: SQL ISVALID
+                JDBCDataSourceParams:
+                    GlobalTransactionsProtocol: OnePhaseCommit
+                    JNDIName: testds
+                JDBCDriverParams:
+                    URL: jdbc:oracle:thin:@//localhost:1522/orclpdb1.localdomain
+                    PasswordEncrypted: welcome1
+                    DriverName: oracle.jdbc.OracleDriver
+                    Properties:
+                        user:
+                            Value: NY_IAU_APPEND
+                        javax.net.ssl.trustStore:
+                            Value: wlsdeploy/dbWallets/acmeWallet/cwallet.sso
+                        javax.net.ssl.trustStoreType:
+                            Value: SSO
+                        javax.net.ssl.keyStore:
+                            Value: wlsdeploy/dbWallets/acmeWallet/cwallet.sso
+                        javax.net.ssl.keyStoreType:
+                            Value: SSO
+                        oracle.net.tns_admin:
+                            Value: wlsdeploy/dbWallets/acmeWallet
+

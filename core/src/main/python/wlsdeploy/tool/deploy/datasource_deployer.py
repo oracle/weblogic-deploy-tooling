@@ -18,6 +18,8 @@ class DatasourceDeployer(Deployer):
 
     def __init__(self, model, model_context, aliases, wlst_mode=WlstModes.OFFLINE):
         Deployer.__init__(self, model, model_context, aliases, wlst_mode)
+        if not model_context.is_remote() and self.archive_helper:
+            self.archive_helper.extract_all_database_wallets()
 
     def add_data_sources(self, parent_dict, location):
         """

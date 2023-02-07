@@ -23,14 +23,16 @@ spec:
             kind: IngressTrait
             spec:
               rules:
-{{#hasApplications}}
-                - paths:
-{{/hasApplications}}
+{{#hostApplications}}
+                - destination:
+                    host: {{{host}}}
+                    port: {{{port}}}
+                  paths:
 {{#applications}}
-                    # application {{{applicationName}}}
                     - path: "{{{applicationPrefix}}}"
                       pathType: Prefix
 {{/applications}}
+{{/hostApplications}}
     - componentName: {{{domainPrefix}}}-configmap
 ---
 apiVersion: core.oam.dev/v1alpha2

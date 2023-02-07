@@ -42,7 +42,7 @@ class ModelContext(object):
 
     DB_USER_DEFAULT = 'SYS'
 
-    def __init__(self, program_name, arg_map):
+    def __init__(self, program_name, arg_map=None):
         """
         Create a new model context instance.
         Tools should use model_context_helper.create_context(), to ensure that the typedef is initialized correctly.
@@ -112,11 +112,25 @@ class ModelContext(object):
         if self._wlst_mode is None:
             self._wlst_mode = WlstModes.OFFLINE
 
-        self.__copy_from_args(arg_map)
+        # This if test is for the tool_main's creation of the exit_context, which is
+        # used for argument parsing in case an error is raised.  The issue is that
+        # __copy_from_args tries to determine the PSU version but since the Oracle Home
+        # is not available, the PSU detection logic and erroneously logs that there is
+        # no PSU when there is (and that gets logged about 70 lines down in the log file).
+        #
+        if arg_map is not None:
+            self.__copy_from_args(arg_map)
 
     def __copy_from_args(self, arg_map):
         _method_name = '__copy_from_args'
-        if CommandLineArgUtil.ORACLE_HOME_SWITCH in arg_map:
+
+        # No need to try to get the PSU if the -oracle_home is empty...
+        #
+        # This is yet another special case where something during the loading of
+        # the typedef file creates a sparse model_context object with the -oracle_home
+        # set to an empty string.
+        #
+        if CommandLineArgUtil.ORACLE_HOME_SWITCH in arg_map and len(arg_map[CommandLineArgUtil.ORACLE_HOME_SWITCH]) > 0:
             self._oracle_home = arg_map[CommandLineArgUtil.ORACLE_HOME_SWITCH]
             psu = XPathUtil(self._oracle_home).getPSU()
             if psu is not None:
