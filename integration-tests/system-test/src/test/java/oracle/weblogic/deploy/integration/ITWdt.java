@@ -1161,6 +1161,104 @@ public class ITWdt extends BaseTest {
 
     }
 
+    /**
+     * test create and discover domain with jdbc wallet.
+     * @throws Exception - if any error occurs
+     */
+    @DisplayName("Test 35: test create and discover domain with jdbc wallet")
+    @Order(35)
+    @Tag("gate")
+    @Test
+    void test35DiscoverDomainWithJDBCWallet(TestInfo testInfo) throws Exception {
+        String domainDir = "domain2-discover35";
+        Path genJDBCArchive = getTestOutputPath(testInfo).resolve("gen-wallet-archive.zip");
+        String cmd = archiveHelperScript
+            + " add databaseWallet "
+            + " -source " + getSampleKeyStoreFile()
+            + " -wallet_name acmeWallet "
+            + " -archive_file " + genJDBCArchive;
+
+        try (PrintWriter out = getTestMethodWriter(testInfo, "archiveHelper")) {
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+            assertEquals(0, result.exitValue(), "Unexpected return code");
+        }
+
+        cmd = createDomainScript
+            + " -oracle_home " + mwhome_12213
+            + " -domain_home " + domainParentDir + FS + domainDir
+            + " -model_file " + getSampleModelFile("-jdbcwallet")
+            + " -archive_file " + genJDBCArchive;
+
+        try (PrintWriter out = getTestMethodWriter(testInfo, "CreateDomain")) {
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+            assertEquals(0, result.exitValue(), "Unexpected return code");
+        }
+
+        Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
+        Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredModel.yaml");
+        Path discoveredVariableFile = getTestOutputPath(testInfo).resolve("discoveredVariable.properties");
+        cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
+            domainParentDir + FS + domainDir +  " -archive_file " + discoveredArchive +
+            " -model_file " + discoveredModelFile + " -variable_file " + discoveredVariableFile;
+        try (PrintWriter out = getTestMethodWriter(testInfo, "DiscoverDomain")) {
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+            verifyResult(result, "discoverDomain.sh completed successfully");
+
+            verifyDiscoveredJDBCWalletModelFile(discoveredModelFile.toString());
+
+        }
+    }
+
+    private void verifyDiscoveredJDBCWalletModelFile(String expectedModelFile) throws Exception {
+        List<String> checkContents = new ArrayList<>();
+
+        checkContents.add("domainInfo:");
+        checkContents.add("    AdminUserName: '@@PROP:AdminUserName@@'");
+        checkContents.add("    AdminPassword: '@@PROP:AdminPassword@@'");
+        checkContents.add("topology:");
+        checkContents.add("    Name: domain2");
+        checkContents.add("    AdminServerName: admin-server");
+        checkContents.add("    DomainVersion: 12.2.1.3.0");
+        checkContents.add("    ProductionModeEnabled: true");
+        checkContents.add("    NMProperties:");
+        checkContents.add("        JavaHome: /usr/java/jdk1.8.0_361");
+        checkContents.add("    Server:");
+        checkContents.add("        admin-server: {}");
+        checkContents.add("    SecurityConfiguration:");
+        checkContents.add("        NodeManagerUsername: '@@PROP:SecurityConfig.NodeManagerUsername@@'");
+        checkContents.add("resources:");
+        checkContents.add("    JDBCSystemResource:");
+        checkContents.add("        testds:");
+        checkContents.add("            Target: admin-server");
+        checkContents.add("            JdbcResource:");
+        checkContents.add("                DatasourceType: GENERIC");
+        checkContents.add("                JDBCConnectionPoolParams:");
+        checkContents.add("                    TestTableName: SQL ISVALID");
+        checkContents.add("                JDBCDataSourceParams:");
+        checkContents.add("                    GlobalTransactionsProtocol: OnePhaseCommit");
+        checkContents.add("                    JNDIName: testds");
+        checkContents.add("                JDBCDriverParams:");
+        checkContents.add("                    URL: jdbc:oracle:thin:@//localhost:1522/orclpdb1.localdomain");
+        checkContents.add("                    PasswordEncrypted: '@@PROP:JDBC.testds.PasswordEncrypted@@'");
+        checkContents.add("                    DriverName: oracle.jdbc.OracleDriver");
+        checkContents.add("                    Properties:");
+        checkContents.add("                        user:");
+        checkContents.add("                            Value: '@@PROP:JDBC.testds.user.Value@@'");
+        checkContents.add("                        javax.net.ssl.trustStore:");
+        checkContents.add("                            Value: wlsdeploy/dbWallets/testds/cwallet.sso");
+        checkContents.add("                        javax.net.ssl.trustStoreType:");
+        checkContents.add("                            Value: SSO");
+        checkContents.add("                        javax.net.ssl.keyStore:");
+        checkContents.add("                            Value: wlsdeploy/dbWallets/testds/cwallet.sso");
+        checkContents.add("                        javax.net.ssl.keyStoreType:");
+        checkContents.add("                            Value: SSO");
+        checkContents.add("                        oracle.net.tns_admin:");
+        checkContents.add("                            Value: wlsdeploy/dbWallets/testds/");
+
+        verifyModelFileContents(expectedModelFile, checkContents);
+    }
+
     private boolean startAdminServer(String domainHome, Path outputFile) throws Exception {
         boolean isServerUp = false;
         String cmd = "nohup " + domainHome + "/bin/startWebLogic.sh > " + outputFile + " 2>&1 &";

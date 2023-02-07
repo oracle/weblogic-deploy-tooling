@@ -1,4 +1,4 @@
-// Copyright 2019, 2021, Oracle Corporation and/or its affiliates.
+// Copyright 2019, 2023, Oracle Corporation and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 
 package oracle.weblogic.deploy.integration;
@@ -33,6 +33,7 @@ public class BaseTest {
     protected static final String FS = File.separator;
     private static final String SAMPLE_ARCHIVE_FILE = "archive.zip";
     private static final String UPDATED_SAMPLE_ARCHIVE_FILE = "archive2.zip";
+    private static final String WALLET_SAMPLE_ARCHIVE_FILE = "archive-jdbc.zip";
     private static final String WDT_ZIPFILE = "weblogic-deploy.zip";
     private static final String WDT_HOME_DIR = "weblogic-deploy";
     protected static final String SAMPLE_MODEL_FILE_PREFIX = "simple-topology";
@@ -49,6 +50,7 @@ public class BaseTest {
     protected static String validateModelScript = "";
     protected static String domainParentDir = "";
     protected static String prepareModelScript = "";
+    protected static String archiveHelperScript = "";
     protected static final String ORACLE_DB_IMG = "phx.ocir.io/weblogick8s/database/enterprise";
     protected static final String ORACLE_DB_IMG_TAG = "12.2.0.1-slim";
     private static final String DB_CONTAINER_NAME = generateDatabaseContainerName();
@@ -90,6 +92,7 @@ public class BaseTest {
         validateModelScript = getWDTScriptsHome() + FS + "validateModel.sh";
         compareModelScript = getWDTScriptsHome() + FS + "compareModel.sh";
         prepareModelScript = getWDTScriptsHome() + FS + "prepareModel.sh";
+        archiveHelperScript = getWDTScriptsHome() + FS + "archiveHelper.sh";
 
         domainParentDir = "." + FS + "target" + FS + "domains";
     }
@@ -208,12 +211,20 @@ public class BaseTest {
         return getTargetDir() + FS + SAMPLE_ARCHIVE_FILE;
     }
 
+    protected static String getSampleArchiveFileWithWallet() {
+        return getTargetDir() + FS + WALLET_SAMPLE_ARCHIVE_FILE;
+    }
+
     protected static String getUpdatedSampleArchiveFile() {
         return getTargetDir() + FS + UPDATED_SAMPLE_ARCHIVE_FILE;
     }
 
     protected static String getSampleModelFile(String suffix) {
         return getResourcePath() + FS + SAMPLE_MODEL_FILE_PREFIX + suffix + ".yaml";
+    }
+
+    protected static String getSampleKeyStoreFile() {
+        return getResourcePath() + FS + "cwallet.sso";
     }
 
     protected static Path getInstallerTargetDir() {
