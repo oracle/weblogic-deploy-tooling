@@ -4,6 +4,8 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 Methods to update an output file with information from the kubernetes section of the model.
 """
+import re
+
 from oracle.weblogic.deploy.util import PyOrderedDict
 from oracle.weblogic.deploy.util import PyRealBoolean
 from oracle.weblogic.deploy.yaml import YamlException
@@ -41,6 +43,19 @@ TEMPLATE = 'template'
 VERRAZZANO_WEBLOGIC_WORKLOAD_KIND = 'VerrazzanoWebLogicWorkload'
 VERRAZZANO_APPLICATION_KIND = 'ApplicationConfiguration'
 WORKLOAD = 'workload'
+
+# specific to Verrazzano application document
+COMPONENTS = "components"
+DESTINATION = "destination"
+INGRESS_TRAIT = "IngressTrait"
+PATH = "path"
+PATH_TYPE = "pathType"
+PATHS = "paths"
+RULES = "rules"
+TRAIT = "trait"
+TRAITS = "traits"
+
+PATH_SAMPLE_PATTERN = '^\\(path for.*\\)$'
 
 
 def update_from_model(crd_file, model, crd_helper):
@@ -112,7 +127,7 @@ def _update_documents(crd_documents, model_content, crd_helper, output_file_path
                 found = True
 
             elif kind == VERRAZZANO_APPLICATION_KIND:
-                _update_crd(crd_document, model_content, 'application', crd_helper, output_file_path)
+                _update_crd_application(crd_document, model_content, crd_helper, output_file_path)
                 found = True
 
     if not found:
@@ -156,6 +171,20 @@ def _update_crd_cluster(crd_dictionary, model_dictionary, crd_helper, output_fil
             cluster_crd_folder = crd_helper.get_crd_folder(folder_key)
             schema = cluster_crd_folder.get_schema()
             _update_dictionary(crd_dictionary, model_cluster, schema, None, cluster_crd_folder, output_file_path)
+
+
+def _update_crd_application(crd_dictionary, model_dictionary, crd_helper, output_file_path):
+    """
+    Update the CRD application dictionary from the model.
+    :param crd_dictionary: the CRD dictionary to be updated
+    :param model_dictionary: the model content to use for update
+    :param crd_helper: used to get CRD folder information
+    :param output_file_path: used for logging
+    """
+    _method_name = '_update_crd_application'
+
+    _update_crd(crd_dictionary, model_dictionary, 'application', crd_helper, output_file_path)
+    _add_application_comments(crd_dictionary)
 
 
 def _update_crd_component(crd_dictionary, model_dictionary, crd_helper, output_file_path):
@@ -416,6 +445,69 @@ def _add_weblogic_workload_comments(vz_dictionary):
     clusters_folder = dictionary_utils.get_dictionary_element(workload_spec_folder, CLUSTERS)
     for cluster_spec in clusters_folder:
         _add_cluster_spec_comments(cluster_spec)
+
+
+def _add_application_comments(vz_dictionary):
+    """
+    Add relevant comments to the Verrazzano application CRD dictionary for additional information.
+    :param vz_dictionary: the Verrazzano dictionary
+    """
+    spec_folder = dictionary_utils.get_dictionary_element(vz_dictionary, SPEC)
+    components = dictionary_utils.get_dictionary_element(spec_folder, COMPONENTS)
+    for component in components:
+        traits = _get_list_element(component, TRAITS)
+        for trait in traits:
+            trait_dictionary = dictionary_utils.get_dictionary_element(trait, TRAIT)
+            trait_kind = dictionary_utils.get_element(trait_dictionary, KIND)
+            if trait_kind == INGRESS_TRAIT:
+                _add_ingress_trait_comments(trait_dictionary)
+
+
+def _add_ingress_trait_comments(trait_dictionary):
+    """
+    Add relevant comments to the IngressTrait CRD dictionary for additional information.
+    Convert sample rule paths to comments if none were added from WDT model.
+    Remove sample rule paths if any paths were added from WDT model.
+    :param trait_dictionary: the IngressTrait dictionary
+    """
+    trait_spec = dictionary_utils.get_dictionary_element(trait_dictionary, SPEC)
+    rules = _get_list_element(trait_spec, RULES)
+    for rule in rules:
+        sample_paths = []
+        has_defined_paths = False
+        paths = _get_list_element(rule, PATHS)
+        for path in paths:
+            path_path = dictionary_utils.get_dictionary_element(path, PATH)
+            is_sample_path = re.search(PATH_SAMPLE_PATTERN, str_helper.to_string(path_path))
+            if is_sample_path:
+                sample_paths.append(path)
+            else:
+                has_defined_paths = True
+
+        if has_defined_paths:
+            for sample_path in sample_paths:
+                paths.remove(sample_path)
+        else:
+            rule.addComment(DESTINATION, PATHS + ':')
+            for sample_path in sample_paths:
+                rule.addComment(DESTINATION, '  - ' + PATH + ': ' + str_helper.to_string(sample_path[PATH]))
+                rule.addComment(DESTINATION, '    ' + PATH_TYPE + ': ' + str_helper.to_string(sample_path[PATH_TYPE]))
+            del rule[PATHS]
+
+
+def _get_list_element(dictionary, element_name):
+    """
+    Retrieve the value for the provided element name from the dictionary.
+    Return empty list if name is not in the dictionary.
+    :param dictionary: to find the element name
+    :param element_name: for which to retrieve the value
+    :return: value from the dictionary or empty list
+    """
+    if element_name in dictionary:
+        result = dictionary[element_name]
+    else:
+        result = []
+    return result
 
 
 def _get_or_create_dictionary(dictionary, key):

@@ -105,6 +105,19 @@ class ExtractTest(BaseTestCase):
         trait_list = self._traverse(component_list[0], 'traits')
         self._match_values("Application trait count", len(trait_list), 3)
 
+        ingress_trait = self._traverse(trait_list[1], 'trait')
+        rule_list = self._traverse(ingress_trait, 'spec', 'rules')
+        self._match_values("Ingress trait rule count", len(rule_list), 3)
+
+        # m1 has paths added from the verrazzano section
+        m1_rule = rule_list[0]
+        m1_path_list = self._traverse(m1_rule, 'paths')
+        self._match_values("Server 1 rule path count", len(m1_path_list), 2)
+
+        # m2 has no rules, only sample comments
+        m2_rule = rule_list[1]
+        self._match_values("Server 2 has no paths", 'paths' in m2_rule, False)
+
         configmap_resource = documents[2]
 
         # one entry was added to config map
