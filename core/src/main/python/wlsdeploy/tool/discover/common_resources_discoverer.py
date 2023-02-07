@@ -122,39 +122,39 @@ class CommonResourcesDiscoverer(Discoverer):
         return model_top_folder_name, result
 
     def _collect_jdbc_driver_wallet(self, datasource, collected_wallet, driver_params):
-        _method_name = '_collect_jdbc_driver_wallet'
-        if self._model_context.skip_archive():
-            return
-        if model_constants.JDBC_DRIVER_PARAMS_PROPERTIES in driver_params:
+        if not self._model_context.skip_archive() and model_constants.JDBC_DRIVER_PARAMS_PROPERTIES in driver_params:
             properties = driver_params[model_constants.JDBC_DRIVER_PARAMS_PROPERTIES]
-            for connection_property in [model_constants.DRIVER_PARAMS_KEYSTORE_PROPERTY,
-                                        model_constants.DRIVER_PARAMS_TRUSTSTORE_PROPERTY,
-                                        model_constants.DRIVER_PARAMS_NET_TNS_ADMIN]:
-                if connection_property in properties:
-                    qualified_property_value = properties[connection_property]['Value']
-                    if qualified_property_value:
-                        if qualified_property_value.startswith(WLSDeployArchive.WLSDPLY_ARCHIVE_BINARY_DIR
-                                                     + WLSDeployArchive.ZIP_SEP):
-                            qualified_property_value = os.path.join(self._model_context.get_domain_home()
-                                                                    ,qualified_property_value)
-                        if os.path.exists(qualified_property_value):
-                            fixed_path = self._add_wallet_directory_to_archive(datasource, collected_wallet,
-                                                                               qualified_property_value)
-                            _logger.info('WLSDPLY-06367', connection_property, fixed_path,
-                                         class_name=_class_name, method_name=_method_name)
-                            properties[connection_property]['Value'] = fixed_path
-                        else:
-                            _logger.severe('WLSDPLY-06370', datasource, connection_property,
-                                           properties[connection_property]['Value'])
-                            de = exception_helper.create_discover_exception('WLSDPLY-06370', datasource,
-                                                                            connection_property,
-                                                                            properties[connection_property]['Value'])
-                            _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
-                            raise de
+            self._update_wallet_property_and_collect_files(collected_wallet, datasource, properties)
+
+    def _update_wallet_property_and_collect_files(self, collected_wallet, datasource, properties):
+        _method_name = '_update_wallet_property_and_collect_files'
+        for connection_property in [model_constants.DRIVER_PARAMS_KEYSTORE_PROPERTY,
+                                    model_constants.DRIVER_PARAMS_TRUSTSTORE_PROPERTY,
+                                    model_constants.DRIVER_PARAMS_NET_TNS_ADMIN]:
+            if connection_property in properties:
+                qualified_property_value = properties[connection_property]['Value']
+                if qualified_property_value:
+                    if qualified_property_value.startswith(WLSDeployArchive.WLSDPLY_ARCHIVE_BINARY_DIR
+                                                           + WLSDeployArchive.ZIP_SEP):
+                        qualified_property_value = os.path.join(self._model_context.get_domain_home()
+                                                                , qualified_property_value)
+                    if os.path.exists(qualified_property_value):
+                        fixed_path = self._add_wallet_directory_to_archive(datasource, collected_wallet,
+                                                                           qualified_property_value)
+                        _logger.info('WLSDPLY-06367', connection_property, fixed_path,
+                                     class_name=_class_name, method_name=_method_name)
+                        properties[connection_property]['Value'] = fixed_path
+                    else:
+                        _logger.severe('WLSDPLY-06370', datasource, connection_property,
+                                       properties[connection_property]['Value'])
+                        de = exception_helper.create_discover_exception('WLSDPLY-06370', datasource,
+                                                                        connection_property,
+                                                                        properties[connection_property][
+                                                                            'Value'])
+                        _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+                        raise de
 
     def _add_wallet_directory_to_archive(self, datasource, collected_wallet_dictionary, property_value):
-        _method_name = '_add_wallet_directory_to_archive'
-
         # error if wallet parent path is at oracle home
         onprem_wallet_parent_path, wallet_name = self._get_wallet_name_and_path(datasource, property_value)
 
@@ -341,7 +341,6 @@ class CommonResourcesDiscoverer(Discoverer):
                         file_store_dictionary[model_constants.DIRECTORY] = new_source_name
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
-        return
 
     def get_jdbc_stores(self):
         """
