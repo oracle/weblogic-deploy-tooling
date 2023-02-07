@@ -17,6 +17,7 @@ from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyOrderedDict
 from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import TranslateException
+from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 from oracle.weblogic.deploy.validate import ValidateException
@@ -26,6 +27,7 @@ sys.path.insert(0, os.path.dirname(os.path.realpath(sys.argv[0])))
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
@@ -464,9 +466,18 @@ def __persist_model(model, model_context):
 
     __logger.entering(class_name=_class_name, method_name=_method_name)
 
+    # add model comments to dictionary extracted from the Model object
+    model_dict = model.get_model()
+    message_1 = exception_helper.get_message('WLSDPLY-06039', WebLogicDeployToolingVersion.getVersion(), _program_name)
+    model_dict.addComment(DOMAIN_INFO, message_1)
+    message_2 = exception_helper.get_message('WLSDPLY-06040', WlstModes.values()[__wlst_mode],
+                                             model_context.get_target_wls_version())
+    model_dict.addComment(DOMAIN_INFO, message_2)
+    model_dict.addComment(DOMAIN_INFO, '')
+
     model_file_name = model_context.get_model_file()
     model_file = FileUtils.getCanonicalFile(File(model_file_name))
-    model_translator.PythonToFile(model.get_model()).write_to_file(model_file.getAbsolutePath())
+    model_translator.PythonToFile(model_dict).write_to_file(model_file.getAbsolutePath())
 
     __logger.exiting(class_name=_class_name, method_name=_method_name)
 
