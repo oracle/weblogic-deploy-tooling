@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -317,15 +317,12 @@ class Deployer(object):
     def _check_location(self, location):
         """
         Verify that the specified location in valid for the current WLS version.
-        A warning is logged if the location is not valid.
+        Validation has already logged a WARNING or INFO message if the location was not valid.
         :param location: the location to be checked
         :return: True if the location is valid, False otherwise
         """
         _method_name = '_check_location'
         if self.aliases.get_wlst_mbean_type(location) is None:
-            the_type = self.get_location_type(location)
-            self.logger.warning('WLSDPLY-09203', the_type, self.wls_helper.get_weblogic_version(),
-                                class_name=self._class_name, method_name=_method_name)
             return False
         return True
 

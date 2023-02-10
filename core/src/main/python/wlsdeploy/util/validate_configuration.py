@@ -1,5 +1,5 @@
 """
-Copyright (c) 2022, Oracle and/or its affiliates.
+Copyright (c) 2022, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -30,7 +30,7 @@ class ValidateConfiguration(object):
         self._allow_unresolved_file_tokens = False
         self._allow_unresolved_secret_tokens = False
         self._allow_unresolved_variable_tokens = False
-        self._allow_version_invalid_attributes = False
+        self._allow_version_invalid_attributes = True  # Jira WDT-724
 
         if key == LAX_METHOD:
             # almost no checks on archive, tokens, etc.
