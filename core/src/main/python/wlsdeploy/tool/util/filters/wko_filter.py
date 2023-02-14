@@ -1,4 +1,4 @@
-# Copyright (c) 2021, 2022, Oracle and/or its affiliates.
+# Copyright (c) 2021, 2023, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 # ------------
@@ -31,6 +31,7 @@ from wlsdeploy.aliases.model_constants import RESOURCE_MANAGEMENT
 from wlsdeploy.aliases.model_constants import RESOURCE_MANAGER
 from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
 from wlsdeploy.aliases.model_constants import SERVER
+from wlsdeploy.aliases.model_constants import SERVER_NAME_PREFIX
 from wlsdeploy.aliases.model_constants import SERVER_START
 from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.aliases.model_constants import TOPOLOGY
@@ -44,6 +45,8 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.filters.model_traverse import ModelTraverse
 from wlsdeploy.util import dictionary_utils
 import wlsdeploy.util.unicode_helper as str_helper
+
+FIX_PREFIX_TEMPLATE = '-- FIX PREFIX %s --'
 
 _class_name = 'wko_filter'
 _logger = PlatformLogger('wlsdeploy.tool.util')
@@ -61,6 +64,7 @@ def filter_model(model, model_context):
     filter_resources(model, model_context)
     filter_online_attributes(model, model_context)
     check_clustered_server_ports(model, model_context)
+    check_dynamic_cluster_prefixes(model, model_context)
 
 
 def filter_model_for_wko(model, model_context):
@@ -143,6 +147,39 @@ def check_clustered_server_ports(model, _model_context):
                 server_port_map[server_cluster] = {"firstServer": server_name, "serverPort": server_port_text}
 
 
+def check_dynamic_cluster_prefixes(model, _model_context):
+    """
+    All Dynamic Clusters must have a DynamicServers section with the ServerNamePrefix field explicitly declared.
+    Ensure each cluster uses a unique value for this field.
+    :param model: the model to be updated
+    :param _model_context: unused, passed by filter_helper if called independently
+    :return:
+    """
+    _method_name = 'check_dynamic_cluster_prefixes'
+
+    server_name_prefixes = []
+    topology_folder = dictionary_utils.get_dictionary_element(model, TOPOLOGY)
+    clusters_folder = dictionary_utils.get_dictionary_element(topology_folder, CLUSTER)
+    for cluster_name, cluster_fields in clusters_folder.items():
+        dynamic_folder = dictionary_utils.get_element(cluster_fields, DYNAMIC_SERVERS)
+        if dynamic_folder:
+            server_name_prefix = dictionary_utils.get_element(dynamic_folder, SERVER_NAME_PREFIX)
+
+            if not server_name_prefix:
+                _logger.warning('WLSDPLY-20204', cluster_name, SERVER_NAME_PREFIX, class_name=_class_name,
+                                method_name=_method_name)
+                server_name_prefix = _get_unused_prefix(server_name_prefixes)
+                dynamic_folder[SERVER_NAME_PREFIX] = server_name_prefix
+
+            elif server_name_prefix in server_name_prefixes:
+                _logger.warning('WLSDPLY-20205', SERVER_NAME_PREFIX, server_name_prefix, class_name=_class_name,
+                                method_name=_method_name)
+                server_name_prefix = _get_unused_prefix(server_name_prefixes)
+                dynamic_folder[SERVER_NAME_PREFIX] = server_name_prefix
+
+            server_name_prefixes.append(server_name_prefix)
+
+
 def filter_topology(model, _model_context):
     """
     Remove elements from the topology section of the model that are not relevant in a Kubernetes environment.
@@ -199,6 +236,18 @@ def filter_resources(model, _model_context):
                        RESOURCE_MANAGEMENT, RESOURCE_MANAGER, VIRTUAL_HOST]:
         if delete_key in resources:
             del resources[delete_key]
+
+
+def _get_unused_prefix(used_prefixes):
+    """
+    Find a recognizable, unused prefix that can be used in the filtered model.
+    :param used_prefixes: prefixes that have already been used in the model
+    :return: an unused prefix
+    """
+    i = 1
+    while FIX_PREFIX_TEMPLATE % i in used_prefixes:
+        i += 1
+    return FIX_PREFIX_TEMPLATE % i
 
 
 class OnlineAttributeFilter(ModelTraverse):
