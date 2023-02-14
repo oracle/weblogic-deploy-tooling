@@ -7,7 +7,9 @@
 # WDT filters to prepare a model for use a target environment, using the createDomain or prepareModel tools.
 # These operations can be invoked as a single call, or independently of each other.
 from oracle.weblogic.deploy.util import PyRealBoolean
+from oracle.weblogic.deploy.util import PyOrderedDict
 from wlsdeploy.aliases import alias_utils
+from wlsdeploy.aliases.model_constants import ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import AUTO_MIGRATION_ENABLED
 from wlsdeploy.aliases.model_constants import CALCULATED_LISTEN_PORTS
 from wlsdeploy.aliases.model_constants import CANDIDATE_MACHINE
@@ -15,6 +17,7 @@ from wlsdeploy.aliases.model_constants import CANDIDATE_MACHINES_FOR_MIGRATABLE_
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import CLUSTER_MESSAGING_MODE
 from wlsdeploy.aliases.model_constants import DATABASE_LESS_LEASING_BASIS
+from wlsdeploy.aliases.model_constants import DEFAULT_ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
 from wlsdeploy.aliases.model_constants import LISTEN_PORT
 from wlsdeploy.aliases.model_constants import MACHINE
@@ -75,6 +78,17 @@ def filter_model_for_wko(model, model_context):
     :param model_context: used by nested filters
     """
     filter_model(model, model_context)
+
+
+def filter_model_for_wko3(model, model_context):
+    """
+    Perform filtering operations on the specified model to prepare for WKO deployment.
+    Currently matches the general k8s target filtering.
+    :param model: the model to be filtered
+    :param model_context: used by nested filters
+    """
+    filter_model(model, model_context)
+    check_admin_server_defined(model, model_context)
 
 
 def filter_model_for_vz(model, model_context):
@@ -178,6 +192,38 @@ def check_dynamic_cluster_prefixes(model, _model_context):
                 dynamic_folder[SERVER_NAME_PREFIX] = server_name_prefix
 
             server_name_prefixes.append(server_name_prefix)
+
+
+def check_admin_server_defined(model, _model_context):
+    """
+    Ensure that the AdminServerName attribute is set, and that the server is defined.
+    This is required by WKO 3.0, and not by 4.0 and later.
+    :param model: the model to be filtered
+    :param _model_context: unused, passed by filter_helper if called independently
+    """
+    _method_name = 'check_admin_server_defined'
+
+    topology_folder = dictionary_utils.get_element(model, TOPOLOGY)
+    if topology_folder is None:
+        # for cases with multiple models, avoid adding topology and admin server for
+        # models with only resources, applications, etc.
+        return
+
+    admin_server_name = dictionary_utils.get_element(topology_folder, ADMIN_SERVER_NAME)
+    if not admin_server_name:
+        admin_server_name = DEFAULT_ADMIN_SERVER_NAME
+        _logger.info('WLSDPLY-20206', ADMIN_SERVER_NAME, admin_server_name, class_name=_class_name,
+                     method_name=_method_name)
+        topology_folder[ADMIN_SERVER_NAME] = admin_server_name
+
+    servers_folder = dictionary_utils.get_element(topology_folder, SERVER)
+    if servers_folder is None:
+        servers_folder = PyOrderedDict()
+        topology_folder[SERVER] = servers_folder
+
+    if admin_server_name not in servers_folder:
+        _logger.info('WLSDPLY-20207', SERVER, admin_server_name, class_name=_class_name, method_name=_method_name)
+        servers_folder[admin_server_name] = PyOrderedDict()
 
 
 def filter_topology(model, _model_context):

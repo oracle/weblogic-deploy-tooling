@@ -1,7 +1,7 @@
 {
   "model_filters" : {
         "discover": [
-          { "id": "wko_filter" }
+          { "id": "wko3_filter" }
         ]
   },
   "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},
