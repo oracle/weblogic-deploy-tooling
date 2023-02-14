@@ -524,10 +524,7 @@ class DeploymentsDiscoverer(Discoverer):
             del application_dict[model_constants.PLAN_DIR]
         plan_file_name = self._resolve_deployment_plan_path(plan_dir, plan_path)
         if self._model_context.is_remote():
-            if plan_file_name.endswith('plan'):
-                new_plan_name = WLSDeployArchive.getApplicationPlanDirArchivePath(plan_file_name)
-            else:
-                new_plan_name = WLSDeployArchive.getApplicationPlanArchivePath(plan_file_name)
+            new_plan_name = WLSDeployArchive.getApplicationPlanArchivePath(plan_file_name)
             self.add_to_remote_map(plan_path, new_plan_name,
                                    WLSDeployArchive.ArchiveEntryType.APPLICATION_PLAN.name())
         elif not self._model_context.skip_archive():
