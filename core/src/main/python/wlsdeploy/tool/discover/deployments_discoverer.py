@@ -174,6 +174,8 @@ class DeploymentsDiscoverer(Discoverer):
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
     def get_shlib_plan(self, plan_path, library_dict, library_source_name, archive_file):
+        _method_name = 'get_shlib_plan'
+
         plan_file_name = plan_path
         if not self._model_context.is_remote():
             plan_path = self._convert_path(plan_path)
@@ -194,11 +196,11 @@ class DeploymentsDiscoverer(Discoverer):
                                                                               library_source_name,
                                                                               plan_file_name))
             except IllegalArgumentException, iae:
-                _logger.warning('WLSDPLY-06385', library_name, plan_file_name,
+                _logger.warning('WLSDPLY-06385', library_source_name, plan_file_name,
                                 iae.getLocalizedMessage(), class_name=_class_name,
                                 method_name=_method_name)
             except WLSDeployArchiveIOException, wioe:
-                de = exception_helper.create_discover_exception('WLSDPLY-06387', library_name,
+                de = exception_helper.create_discover_exception('WLSDPLY-06387', library_source_name,
                                                                 plan_file_name,
                                                                 wioe.getLocalizedMessage())
                 _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
@@ -524,10 +526,7 @@ class DeploymentsDiscoverer(Discoverer):
             del application_dict[model_constants.PLAN_DIR]
         plan_file_name = self._resolve_deployment_plan_path(plan_dir, plan_path)
         if self._model_context.is_remote():
-            if plan_file_name.endswith('plan'):
-                new_plan_name = WLSDeployArchive.getApplicationPlanDirArchivePath(plan_file_name)
-            else:
-                new_plan_name = WLSDeployArchive.getApplicationPlanArchivePath(plan_file_name)
+            new_plan_name = WLSDeployArchive.getApplicationPlanArchivePath(plan_file_name)
             self.add_to_remote_map(plan_path, new_plan_name,
                                    WLSDeployArchive.ArchiveEntryType.APPLICATION_PLAN.name())
         elif not self._model_context.skip_archive():

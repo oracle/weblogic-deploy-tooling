@@ -69,59 +69,68 @@ class TopologyDiscoverer(Discoverer):
 
         _logger.info('WLSDPLY-06600', class_name=_class_name, method_name=_method_name)
 
-        self.discover_domain_parameters()
+        current_tree = None
+        if self._wlst_mode == WlstModes.ONLINE:
+            current_tree = self._wlst_helper.current_tree()
+            self._wlst_helper.edit()
 
-        model_top_folder_name, clusters = self.get_clusters()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, clusters)
+        try:
+            self.discover_domain_parameters()
 
-        model_top_folder_name, servers = self.get_servers()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, servers)
+            model_top_folder_name, clusters = self.get_clusters()
+            discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, clusters)
 
-        model_top_folder_name, migratable_targets = self.get_migratable_targets()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, migratable_targets)
+            model_top_folder_name, servers = self.get_servers()
+            discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, servers)
 
-        model_top_folder_name, templates = self.get_server_templates()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, templates)
+            model_top_folder_name, migratable_targets = self.get_migratable_targets()
+            discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, migratable_targets)
 
-        model_top_folder_name, unix_machines = self.get_unix_machines()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, unix_machines)
+            model_top_folder_name, templates = self.get_server_templates()
+            discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, templates)
 
-        model_top_folder_name, machines = self.get_machines(unix_machines)
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, machines)
+            model_top_folder_name, unix_machines = self.get_unix_machines()
+            discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, unix_machines)
 
-        # make sure this is after discovery of machines / node managers as we will do some massaging
-        model_top_folder_name, security_configuration = self.discover_security_configuration()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, security_configuration)
+            model_top_folder_name, machines = self.get_machines(unix_machines)
+            discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, machines)
 
-        model_top_folder_name, embedded_ldap_configuration = self.get_embedded_ldap_configuration()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, embedded_ldap_configuration)
+            # make sure this is after discovery of machines / node managers as we will do some massaging
+            model_top_folder_name, security_configuration = self.discover_security_configuration()
+            discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, security_configuration)
 
-        model_folder_name, folder_result = self._get_log_filters()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+            model_top_folder_name, embedded_ldap_configuration = self.get_embedded_ldap_configuration()
+            discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, embedded_ldap_configuration)
 
-        model_folder_name, folder_result = self._get_reliable_delivery_policies()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+            model_folder_name, folder_result = self._get_log_filters()
+            discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
 
-        model_folder_name, folder_result = self._get_virtual_hosts()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+            model_folder_name, folder_result = self._get_reliable_delivery_policies()
+            discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
 
-        model_folder_name, folder_result = self._get_xml_entity_caches()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+            model_folder_name, folder_result = self._get_virtual_hosts()
+            discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
 
-        model_folder_name, folder_result = self._get_xml_registries()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+            model_folder_name, folder_result = self._get_xml_entity_caches()
+            discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
 
-        model_folder_name, folder_result = self.get_managed_executor_template()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+            model_folder_name, folder_result = self._get_xml_registries()
+            discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
 
-        model_folder_name, folder_result = self.get_managed_thread_factory_template()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+            model_folder_name, folder_result = self.get_managed_executor_template()
+            discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
 
-        model_folder_name, folder_result = self.get_managed_scheduled_executor_service()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+            model_folder_name, folder_result = self.get_managed_thread_factory_template()
+            discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
 
-        model_folder_name, folder_result = self._get_ws_securities()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+            model_folder_name, folder_result = self.get_managed_scheduled_executor_service()
+            discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+
+            model_folder_name, folder_result = self._get_ws_securities()
+            discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+        finally:
+            if current_tree is not None:
+                current_tree()
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary
@@ -354,8 +363,10 @@ class TopologyDiscoverer(Discoverer):
             secure_mode = self._find_singleton_name_in_folder(location)
             if secure_mode is not None:
                 location.add_name_token(self._aliases.get_name_token(location), secure_mode)
-                result[model_constants.SECURE_MODE] = OrderedDict()
-                self._populate_model_parameters(result[model_constants.SECURE_MODE], location)
+                secure_mode = OrderedDict()
+                self._populate_model_parameters(secure_mode, location)
+                if len(secure_mode) > 0:
+                    result[model_constants.SECURE_MODE] = secure_mode
             location.pop_location()
             location.append_location(model_constants.REALM)
             result[model_constants.REALM] = OrderedDict()
