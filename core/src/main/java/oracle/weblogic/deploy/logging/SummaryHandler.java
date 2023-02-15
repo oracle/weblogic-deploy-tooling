@@ -252,8 +252,7 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
         if (todoHandler == null || todoHandler.getTotalRecords() == 0) {
             return;
         }
-        // Format the report to tell the user what they need to do...
-        // Add heading
+        handler.publish(getLogRecord("WLSDPLY-06031"));
         todoHandler.push();
     }
 
