@@ -1346,7 +1346,7 @@ class WlstHelper(object):
 
     def current_tree(self):
         """
-        Change to the serverConfig MBean tree.
+        Get the current MBean tree.
         :raises Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'current_tree'
