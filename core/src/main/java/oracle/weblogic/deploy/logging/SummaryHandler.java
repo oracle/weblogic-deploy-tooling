@@ -239,11 +239,9 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
                     if (levelHandler.getTotalRecords() >= 0) {
                         fmt.format("  %1$s : %2$,4d", levelHandler.getLevel().getName(), levelHandler.getTotalRecords());
                     }
-                } else if (handlerLevel == DeprecationLevel.DEPRECATION ||
-                    handlerLevel == NotificationLevel.NOTIFICATION) {
-                    if (levelHandler.getTotalRecords() > 0) {
+                } else if ((handlerLevel == DeprecationLevel.DEPRECATION ||
+                    handlerLevel == NotificationLevel.NOTIFICATION) && levelHandler.getTotalRecords() > 0) {
                         fmt.format("  %1$s : %2$,4d", levelHandler.getLevel().getName(), levelHandler.getTotalRecords());
-                    }
                 }
             }
         }
