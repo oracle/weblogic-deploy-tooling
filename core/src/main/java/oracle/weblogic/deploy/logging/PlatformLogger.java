@@ -66,7 +66,40 @@ public class PlatformLogger {
             logger.logp(Level.CONFIG, details.clazz, details.method, msg, params);
         }
     }
-    
+
+    /**
+     * Logs a message which requires parameters at the TODO level.
+     *
+     * @param msg the message
+     * @param params the objects to use to fill in the message
+     */
+    @SuppressWarnings("java:S1135")
+    public void todo(String msg, Object... params) {
+        if (isToDoEnabled()) {
+            CallerDetails details = inferCaller();
+            logger.logp(ToDoLevel.TODO, details.clazz, details.method, msg, params);
+        }
+    }
+
+    /**
+     * Logs a message which requires parameters at the NOTIFICATION level.
+     *
+     * @param msg the message
+     * @param params the objects to use to fill in the message
+     */
+    public void notification(String msg, Object... params) {
+        if (isNotificationEnabled()) {
+            CallerDetails details = inferCaller();
+            logger.logp(NotificationLevel.NOTIFICATION, details.clazz, details.method, msg, params);
+        }
+    }
+
+    /**
+     * Logs a message which requires parameters at the DEPRECATION level.
+     *
+     * @param msg the message
+     * @param params the objects to use to fill in the message
+     */
     public void deprecation(String msg, Object... params) {
         if (isDeprecationEnabled()) {
             CallerDetails details = inferCaller();
@@ -314,6 +347,25 @@ public class PlatformLogger {
      */
     public boolean isConfigEnabled() {
         return logger.isLoggable(Level.CONFIG);
+    }
+
+    /**
+     * Checks if a message at TODO level would actually be logged.
+     *
+     * @return whether the TODO level is enabled
+     */
+    @SuppressWarnings("java:S1135")
+    public boolean isToDoEnabled() {
+        return logger.isLoggable(ToDoLevel.TODO);
+    }
+
+    /**
+     * Checks if a message at NOTIFICATION level would actually be logged.
+     *
+     * @return whether the NOTIFICATION level is enabled
+     */
+    public boolean isNotificationEnabled() {
+        return logger.isLoggable(NotificationLevel.NOTIFICATION);
     }
 
     /**

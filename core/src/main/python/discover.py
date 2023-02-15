@@ -539,48 +539,33 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
     return model
 
 
-def __remote_report(model_context):
+def __generate_remote_report_json(model_context):
     _method_name = '__remote_report'
 
-    if not model_context.is_remote():
+    if not model_context.is_remote() or not os.environ.has_key(_store_result_environment_variable):
         return
-
-    remote_map = discoverer.remote_dict
 
     # write JSON output if the __WLSDEPLOY_STORE_RESULT__ environment variable is set.
     # write to the file before the stdout so any logging messages come first.
-    if os.environ.has_key(_store_result_environment_variable):
-        store_path = os.environ.get(_store_result_environment_variable)
-        __logger.info('WLSDPLY-06034', store_path, class_name=_class_name, method_name=_method_name)
-        missing_archive_entries = []
-        for key in remote_map:
-            archive_map = remote_map[key]
-            missing_archive_entries.append({
-                'sourceFile': key,
-                'path': archive_map[discoverer.REMOTE_ARCHIVE_PATH],
-                'type': archive_map[discoverer.REMOTE_TYPE]
-            })
-        result_root = PyOrderedDict()
-        result_root['missingArchiveEntries'] = missing_archive_entries
-        try:
-            json_translator.PythonToJson(result_root).write_to_json_file(store_path)
-        except JsonException, ex:
-            __logger.warning('WLSDPLY-06035', _store_result_environment_variable, ex.getLocalizedMessage(),
-                             class_name=_class_name, method_name=_method_name)
+    remote_map = discoverer.remote_dict
 
-    # write to stdout
-    print('')
-    if len(remote_map) == 0:
-        message = exception_helper.get_message('WLSDPLY-06030')
-    else:
-        message = exception_helper.get_message('WLSDPLY-06031')
-    print(message)
-    print('')
+    store_path = os.environ.get(_store_result_environment_variable)
+    __logger.info('WLSDPLY-06034', store_path, class_name=_class_name, method_name=_method_name)
+    missing_archive_entries = []
     for key in remote_map:
-        other_map = remote_map[key]
-        wls_archive = other_map[discoverer.REMOTE_ARCHIVE_PATH]
-        print(key, ' ', wls_archive)
-    print('')
+        archive_map = remote_map[key]
+        missing_archive_entries.append({
+            'sourceFile': key,
+            'path': archive_map[discoverer.REMOTE_ARCHIVE_PATH],
+            'type': archive_map[discoverer.REMOTE_TYPE]
+        })
+    result_root = PyOrderedDict()
+    result_root['missingArchiveEntries'] = missing_archive_entries
+    try:
+        json_translator.PythonToJson(result_root).write_to_json_file(store_path)
+    except JsonException, ex:
+        __logger.warning('WLSDPLY-06035', _store_result_environment_variable, ex.getLocalizedMessage(),
+                         class_name=_class_name, method_name=_method_name)
 
 
 def main(model_context):
@@ -623,7 +608,7 @@ def main(model_context):
 
             model = __check_and_customize_model(model, model_context, aliases, credential_injector, extra_tokens)
 
-            __remote_report(model_context)
+            __generate_remote_report_json(model_context)
         except DiscoverException, ex:
             __logger.severe('WLSDPLY-06011', _program_name, model_context.get_domain_name(),
                             model_context.get_domain_home(), ex.getLocalizedMessage(),

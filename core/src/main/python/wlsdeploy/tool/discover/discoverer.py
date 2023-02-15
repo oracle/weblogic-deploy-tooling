@@ -75,6 +75,11 @@ class Discoverer(object):
         remote_dict[local_name][REMOTE_TYPE] = file_type
         remote_dict[local_name][REMOTE_ARCHIVE_PATH] = archive_name
 
+        if file_type == 'FILE_STORE' or file_type == 'COHERENCE_PERSISTENCE_DIR':
+            _logger.todo('WLSDPLY-06042', file_type, archive_name)
+        else:
+            _logger.todo('WLSDPLY-06041', file_type, local_name, archive_name)
+
     def discover_domain_mbean(self, model_top_folder_name):
         """
         Discover the domain specific MBean and its configuration attributes.
