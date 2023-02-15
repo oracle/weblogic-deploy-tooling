@@ -363,8 +363,10 @@ class TopologyDiscoverer(Discoverer):
             secure_mode = self._find_singleton_name_in_folder(location)
             if secure_mode is not None:
                 location.add_name_token(self._aliases.get_name_token(location), secure_mode)
-                result[model_constants.SECURE_MODE] = OrderedDict()
-                self._populate_model_parameters(result[model_constants.SECURE_MODE], location)
+                secure_mode = OrderedDict()
+                self._populate_model_parameters(secure_mode, location)
+                if len(secure_mode) > 0:
+                    result[model_constants.SECURE_MODE] = secure_mode
             location.pop_location()
             location.append_location(model_constants.REALM)
             result[model_constants.REALM] = OrderedDict()
