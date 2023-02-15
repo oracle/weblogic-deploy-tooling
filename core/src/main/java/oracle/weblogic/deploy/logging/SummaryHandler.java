@@ -5,6 +5,7 @@
 package oracle.weblogic.deploy.logging;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Formatter;
@@ -59,6 +60,8 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
 
         this.bufferSize = getMemoryBufferSize(CLASS + SIZE_PROPERTY);
 
+        addLevelHandler(ToDoLevel.TODO);
+        addLevelHandler(NotificationLevel.NOTIFICATION);
         addLevelHandler(DeprecationLevel.DEPRECATION);
         addLevelHandler(Level.WARNING);
         addLevelHandler(Level.SEVERE);
@@ -130,10 +133,16 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
         LOGGER.entering(modelContext, CLASS, METHOD);
         this.context = modelContext;
         summaryHead(outputTargetHandler);
+        LevelHandler todoHandler = null;
         for (LevelHandler handler : handlers) {
-            handler.push();
+            if (handler.getLevel() != ToDoLevel.TODO) {
+                handler.push();
+            } else {
+                todoHandler = handler;
+            }
         }
         summaryTail(outputTargetHandler);
+        summaryToDo(outputTargetHandler, todoHandler);
         LOGGER.exiting(CLASS, METHOD);
     }
 
@@ -220,13 +229,34 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
     private void summaryTail(Handler handler) {
         StringBuilder buffer = new StringBuilder();
         try (java.util.Formatter fmt = new java.util.Formatter(buffer)) {
-            for (LevelHandler levelHandler : handlers) {
-                if (levelHandler.getTotalRecords() >= 0) {
-                    fmt.format("    %1$s : %2$,5d", levelHandler.getLevel().getName(), levelHandler.getTotalRecords());
+            List<LevelHandler> priorityOrderHandlers = new ArrayList<>(handlers);
+            Collections.reverse(priorityOrderHandlers);
+
+            for (LevelHandler levelHandler : priorityOrderHandlers) {
+                Level handlerLevel = levelHandler.getLevel();
+
+                if (handlerLevel == Level.WARNING || handlerLevel == Level.SEVERE) {
+                    if (levelHandler.getTotalRecords() >= 0) {
+                        fmt.format("  %1$s : %2$,4d", levelHandler.getLevel().getName(), levelHandler.getTotalRecords());
+                    }
+                } else if (handlerLevel == DeprecationLevel.DEPRECATION ||
+                    handlerLevel == NotificationLevel.NOTIFICATION) {
+                    if (levelHandler.getTotalRecords() > 0) {
+                        fmt.format("  %1$s : %2$,4d", levelHandler.getLevel().getName(), levelHandler.getTotalRecords());
+                    }
                 }
             }
         }
         handler.publish(getLogRecord("WLSDPLY-21002", buffer));
+    }
+
+    private void summaryToDo(Handler handler, LevelHandler todoHandler) {
+        if (todoHandler == null || todoHandler.getTotalRecords() == 0) {
+            return;
+        }
+        // Format the report to tell the user what they need to do...
+        // Add heading
+        todoHandler.push();
     }
 
     private int getMemoryBufferSize(String sizePropertyName) {
