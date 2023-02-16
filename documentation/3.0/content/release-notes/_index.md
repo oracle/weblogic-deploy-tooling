@@ -55,6 +55,7 @@ pre = "<b> </b>"
 - #1386: Changed attribute not valid in the current WebLogic version warnings with to log `INFO` level messages instead. (WDT-724)
 - #1389: Added additional model and WebLogic Kubernetes Operator/Verrazzano target validation around dynamic cluster to catch modeling issues prior to domain creation. (WDT-726)
 - #1391: Revamped tool summary report and remote report generated when using remote discovery. (WDT-637)
+- #1395: Added unclustered servers to the WKTUI integration output of `prepareModel` (WDT-730)
 
 #### Bug Fixes
 - #1261, #1266: Corrected a `discoverDomain` error message when a keystore was missing. (WDT-685)
@@ -74,4 +75,14 @@ pre = "<b> </b>"
 - #1394: Fixing alias entries to prevent some `INFO` messages with errors related to alias entries during online discovery.
 
 #### Known Issues
-None
+1. When running `discoverDomain` with the `-remote` flag, there are several MBeans that are not being properly handled that
+   will result in `INFO` level messages that look similar to the example shown below.  These errors seem to happen only when the MBean is
+   non-existent so the resulting model should still be accurate.  These issues are expected to be fixed in a future release.
+
+```
+####<Feb 16, 2023 1:40:00 PM> <INFO> <Discoverer> <_add_to_dictionary> <WLSDPLY-06106> <Unable to add ServerFailureTrigger
+from location /Clusters/mycluster/OverloadProtection/mycluster to the model : Failed to convert the wlst attribute name and
+value for the model at location (model_folders = ['Cluster', 'OverloadProtection'],  'name_tokens' = {'DOMAIN': 'tododomain',
+'CLUSTER': 'mycluster','OVERLOADPROTECTION': 'mycluster'}) : The wlst attribute ServerFailureTrigger is not defined for the
+model folder /Cluster/OverloadProtection>
+```
