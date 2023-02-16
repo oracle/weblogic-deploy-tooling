@@ -12,20 +12,20 @@
     <title>Release Notes :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1674851400" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1676581799" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1674851400"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1676581799"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1674851400"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1674851400"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1676581799"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1676581799"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1674851400"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1676581799"></script>
 
     
   </div>
@@ -468,6 +468,27 @@
 
             
           
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/archive_helper/" title="Archive Helper Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/archive_helper/">
+        Archive Helper Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
         
         </ul>
       
@@ -489,6 +510,27 @@
       <li data-nav-id="/weblogic-deploy-tooling/userguide/target_env/" title="Target environments" class="dd-item ">
         <a href="/weblogic-deploy-tooling/userguide/target_env/">
         Target environments
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/database/connect-db/" title="Connect to a Database" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/database/connect-db/">
+        Connect to a Database
         
         </a>
     </li>
@@ -634,6 +676,27 @@
         </ul>
       
     </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/limitations/limitations/" title="Limitations" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/limitations/limitations/">
+        Limitations
+        
+        </a>
+    </li>
+     
   
  
 
@@ -1292,9 +1355,9 @@
     <div class="wrapper">
 <nav id="TableOfContents">
   <ul>
-    <li><a href="#known-issues-for-weblogic-deploy-tooling">Known issues for WebLogic Deploy Tooling</a>
+    <li>
       <ul>
-        <li></li>
+        <li><a href="#changes-in-release-300">Changes in Release 3.0.0</a></li>
       </ul>
     </li>
   </ul>
@@ -1322,76 +1385,133 @@
 
 
 
-	<p>Review the following release notes for recent changes to WebLogic Deploy Tooling and known issues.</p>
+	<h3 id="changes-in-release-300">Changes in Release 3.0.0</h3>
+<ul>
+<li><a href="#major-new-features">Major New Features</a></li>
+<li><a href="#other-changes">Other Changes</a></li>
+<li><a href="#bug-fixes">Bugs Fixes</a></li>
+<li><a href="#known-issues">Known Issues</a></li>
+</ul>
+<h4 id="major-new-features">Major New Features</h4>
+<ul>
+<li>#1355: Added <code>-remote</code> option to the <code>deployApps</code> tool that supports deploying applications and shared libraries from a remote machine. (Issue #1312)</li>
+<li>#1355: Added <code>-remote</code> option to the <code>updateDomain</code> tool that allows configuration changes not requiring archive file changes
+(except for applications and shared libraries) to be made from a remote machine. (Issue #1167)</li>
+<li>#1365: Added new <code>verrazzano</code> section of the model that can be used to augment/override the YAML files generated by the Verrazzano-related <code>-target</code> options. (WDT-688)</li>
+<li>#1367: New <code>archiveHelper</code> tool for helping to create and update the archive file from the command line. (WDT-711)</li>
+<li>Cleaned up the aliases to clean up online discovery and put tests in place to ensure that they align properly with the
+various WebLogic Server releases and PSUs.  The resulting model from online discovery is now much closer to the one generated by offline discovery.</li>
+</ul>
+<h4 id="other-changes">Other Changes</h4>
 <ul>
 <li>
-<p>WebLogic Deploy Tooling now incorporates the SnakeYAML parser for reading and writing model files.
-This may require some changes to existing models in order to be parsed correctly.</p>
+<p>#1255: Renamed model attributes to align with the offline naming strategy:</p>
 <ul>
-<li>Model elements that use <a href="/weblogic-deploy-tooling/concepts/model/#declaring-named-mbeans-to-delete">delete notation</a> need to be escaped in single or double quotation marks.</li>
+<li>SystemComponent <code>MWHome</code> model attribute renamed to <code>MwHome</code>.</li>
+<li>WebserviceSecurity <code>DefaultCredentialProviderSTSURI</code> model attribute renamed to <code>DefaultCredentialProviderStsuri</code>.</li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
-    <span style="color:#f92672">Server</span>:
-        <span style="color:#f92672">&#39;!ms1&#39;</span>:
-        <span style="color:#f92672">ms2</span>:
-</code></pre></div><ul>
-<li>Model elements under the same parent should be indented to the exact same level. The previous YAML parser did not enforce this restriction,
-but it is standard for YAML. In this example, each cluster is indented four spaces.</li>
-</ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
-    <span style="color:#f92672">Cluster</span>:
-        <span style="color:#f92672">cluster1</span>:
-            <span style="color:#f92672">ClientCertProxyEnabled</span>: <span style="color:#66d9ef">True</span>
-        <span style="color:#f92672">cluster2</span>:
-            <span style="color:#f92672">WeblogicPluginEnabled</span>: <span style="color:#66d9ef">true</span>
-</code></pre></div></li>
+</li>
 <li>
-<p>Object lists in the <code>kubernetes</code> section of the model now should be specified in a hyphenated list format,
-similar to how they appear in the domain resource file produced for <a href="https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/domain-resource/">WebLogic Kubernetes Operator</a>.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">    <span style="color:#f92672">clusters</span>:
-    - <span style="color:#f92672">clusterName</span>: <span style="color:#e6db74">&#39;cluster1&#39;</span>
-      <span style="color:#f92672">allowReplicasBelowMinDynClusterSize</span>: <span style="color:#66d9ef">true</span>
-    - <span style="color:#f92672">clusterName</span>: <span style="color:#e6db74">&#39;cluster2&#39;</span>
-      <span style="color:#f92672">allowReplicasBelowMinDynClusterSize</span>: <span style="color:#66d9ef">true</span>
-</code></pre></div><ul>
-<li>The &ldquo;named object list&rdquo; format is deprecated now, and will cause warning messages to be displayed.</li>
+<p>#1299: Renamed model attributes to align with the offline naming strategy:</p>
+<ul>
+<li>SecurityConfiguration <code>IdentityAssertionCacheTTL</code> model attribute renamed to <code>IdentityAssertionCacheTtl</code>.</li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">    <span style="color:#f92672">clusters</span>:
-      <span style="color:#f92672">&#39;cluster1&#39;</span>:
-        <span style="color:#f92672">allowReplicasBelowMinDynClusterSize</span>: <span style="color:#66d9ef">true</span>
-      <span style="color:#f92672">&#39;cluster2&#39;</span>:
-        <span style="color:#f92672">allowReplicasBelowMinDynClusterSize</span>: <span style="color:#66d9ef">true</span>
-</code></pre></div></li>
+</li>
 <li>
-<p>The deprecated argument <code>-model_sample</code> has been removed from the Model Help Tool.
-The Model Help Tool has used model sample format by default since release 1.9.2.</p>
+<p>#1310: Resolved issue that was causing the PSU version of several 12.2.1.3 PSUs to be incorrect.</p>
+</li>
+<li>
+<p>#1314, #1342: Added knowledge to the aliases to understand how default values change when using <code>production mode</code> and <code>secure production mode</code>. (WDT-678)</p>
+</li>
+<li>
+<p>#1328: Changed tool exit code handling to exit with exit code 1 if warnings exist and exit code 2 if errors exist in the summary report. (WDT-692)</p>
+</li>
+<li>
+<p>#1331: Deprecated the old archive locations of the OPSS wallet and ATP wallet in the archive file.  The old locations will be
+honored but will result in one or more deprecation messages. (WDT-687)</p>
+</li>
+<li>
+<p>#1334: Removed support for storing the model files in the archive. (WDT-643)</p>
+</li>
+<li>
+<p>#1341: Remove deprecated <code>-domain_resource_file</code> argument from the <code>extractDomainResource</code> tool. (WDT-706)</p>
+</li>
+<li>
+<p>#1348: Renamed the old ATP wallet to <code>rcu</code> wallet. (WDT-709)</p>
+</li>
+<li>
+<p>#1348: Added support for adding wallets either as a ZIP file or an exploded directory with one or more files.  When the wallet is
+added as a ZIP file, the <code>createDomain</code> and <code>updateDomain</code> tools will expand the ZIP into the domain home, just as before.</p>
+</li>
+<li>
+<p>#1348: Added database wallet support for multiple wallets. Other database wallets can be added, as needed. (WDT-710)</p>
+</li>
+<li>
+<p>#1351: Removed support for the deprecated &ldquo;named object list&rdquo; format from the <code>kubernetes</code> section of the model. (WDT-688)</p>
+</li>
+<li>
+<p>#1366: Refactored ATP and SSL database support to be more unified in their modeling approach.</p>
+</li>
+<li>
+<p>#1369: Added a special log level for deprecation messages so that they can show up in the tools' summary reports without causing a non-zero exit status. (WDT-721)</p>
+</li>
+<li>
+<p>#1375: Revamped application installation directory discovery to capture the entire application installation directory. (WDT-715)</p>
+</li>
+<li>
+<p>#1379: Added the ability for discovery to collect the JDBC wallet file(s) in the archive.</p>
+</li>
+<li>
+<p>#1380: Updated the approach for generating the Verrazzano custom resource related to the Ingress Trait routing rules to add
+a destination host/port and allow the user to add Paths via the new <code>verrazzano</code> section of the model. (WDT-696)</p>
+</li>
+<li>
+<p>#1383: Removed the <code>DomainVersion</code> domain-level attribute from discovered models and replaced it with a comment describing the
+WDT and WebLogic Server version numbers used to discover the model and which WLST mode was used for discovery. (WDT-698)</p>
+</li>
+<li>
+<p>#1386: Changed attribute not valid in the current WebLogic version warnings to log <code>INFO</code> level messages instead. (WDT-724)</p>
+</li>
+<li>
+<p>#1389: Added additional model and WebLogic Kubernetes Operator/Verrazzano target validation around dynamic clusters to catch modeling issues prior to domain creation. (WDT-726)</p>
+</li>
+<li>
+<p>#1391: Revamped tool summary report and remote report generated when using remote discovery. (WDT-637)</p>
+</li>
+<li>
+<p>#1395: Added unclustered servers to the WKTUI integration output of <code>prepareModel</code> (WDT-730)</p>
 </li>
 </ul>
-<h2 id="known-issues-for-weblogic-deploy-tooling">Known issues for WebLogic Deploy Tooling</h2>
-<p>The following list contains known issues. Each issue may contain a workaround or an associated issue number.</p>
-<h4 id="discover-domain-tool-severe-messages">Discover Domain Tool <code>SEVERE</code> messages</h4>
-<p><strong>ISSUE</strong>:
-The <code>discoverDomain</code> STDOUT contains many SEVERE messages about <code>cd()</code> and <code>ls()</code> when it is run against a 12.2.1.0 domain. The Discover Domain Tool navigates through the domain MBeans using WLST to determine which MBeans are present in a domain. When it tests an MBean that is not present, an error message is logged by WLST. There is no 12.2.1.0 PSU available to address this WLST problem. It is resolved in 12.2.1.1.</p>
-<p><strong>ACTION</strong>:
-Ignore the following messages logged during discovery of a 12.2.1.0 domain.</p>
-<pre><code>&lt;Jan 14, 2019 1:14:21 PM&gt; &lt;SEVERE&gt; &lt;CommandExceptionHandler&gt; &lt;handleException&gt; &lt;&gt; &lt;Error: cd() failed.&gt;
-&lt;Jan 14, 2019 1:14:21 PM&gt; &lt;SEVERE&gt; &lt;CommandExceptionHandler&gt; &lt;handleException&gt; &lt;&gt; &lt;Error: ls() failed.&gt;
-</code></pre><h4 id="create-domain-tool-with-11g-jrf-domains">Create Domain Tool with 11g JRF domains</h4>
-<p><strong>ISSUE</strong>:
-The Create Domain Tool cannot initialize RCU for 11g JRF domains. The tool will issue error messages in the log and terminate the create process.</p>
-<p><strong>ACTION</strong>:
-Run the WLS <code>rcu</code> command before executing <code>createDomain</code> for JRF domains</p>
-<h4 id="credential-in-security-configuration">Credential in security configuration</h4>
-<p><strong>ISSUE</strong>: For WLS versions prior to 14.1.1, there is a problem setting the <code>CredentialEncrypted</code> attribute in the <code>topology/SecurityConfiguration</code> folder. The value is not encrypted properly in the configuration and the domain will fail to start with the error:</p>
-<pre><code>java.lang.IllegalArgumentException: In production mode, it's not allowed to set a clear text value to the property: CredentialEncrypted of SecurityConfigurationMBean
-</code></pre><p><strong>ACTION</strong>: Contact Oracle Support to obtain the patch for bug number 30874677 for your WebLogic Server version before running the tool.</p>
-<h4 id="assigning-security-groups-to-users">Assigning security groups to users</h4>
-<p><strong>ISSUE</strong>: For WLS versions prior to 14.1.1, there is a problem setting the <code>GroupMemberOf</code> attribute in the <code>topology/Security/User</code> folder. The value is not persisted correctly, and the assignment will not be present when the domain is started.</p>
-<p><strong>ACTION</strong>: Contact Oracle Support to obtain the patch for bug number 30319071 for your WebLogic Server version before running the tool.</p>
-<h4 id="problems-setting-rotatelogonstartup-attribute">Problems setting <code>RotateLogOnStartup</code> attribute</h4>
-<p><strong>ISSUE</strong>: For existing WLS versions, there is a problem setting the <code>RotateLogOnStartup</code> attribute in various log file folders. The value is not persisted correctly, and the assignment will not be present when the domain is started.</p>
-<p><strong>ACTION</strong>: Contact Oracle Support to obtain the patch for bug number 29547985 for your WebLogic Server version before running the tool.</p>
-
+<h4 id="bug-fixes">Bug Fixes</h4>
+<ul>
+<li>#1261, #1266: Corrected a <code>discoverDomain</code> error message when a keystore was missing. (WDT-685)</li>
+<li>#1324: Resolved an issue causing secure mode not to be discovered. (WDT-694)</li>
+<li>#1327: Resolved an issue where WLST errors in WLS 12.2.1.0.0 were showing up in the tools' summary reports. (WDT-691)</li>
+<li>#1329: Changed the tools summary log handler to not accept any messages that did not originate in WDT proper. (WDT-701)</li>
+<li>#1330: Fixed a Windows issue with environment variable substitution where environment variable references in the model that were not all uppercase were not working properly.</li>
+<li>#1335: Removed unused and undocumented <code>-prev_model_file</code> argument from the <code>deployApps</code> and <code>updateDomain</code> tools. (WDT-707)</li>
+<li>#1344: Removed <code>-archive_file</code> argument from the <code>extractDomainResource</code> tool since the model can no longer be stored in the archive file. (WDT-708)</li>
+<li>#1367: Corrected the behavior of the archive class to rename directories when an existing directory of the same name already exists.
+This makes the behavior for files and directories consistent. (WDT-722)</li>
+<li>#1374: Corrected a problem discovering a domain using a Coherence cluster with a custom configuration file.</li>
+<li>#1376: Corrected an issue with <code>compareModel</code> pertaining to comparisons of the JVM arguments and whitespace (Issue #1370)</li>
+<li>#1382: Removed misleading log entries during startup that displayed the WebLogic Server version with no PSU information (WDT-727)</li>
+<li>#1392: Fixed an issue with online discovery of domains with dynamic clusters where the dynamic servers were erroneously being added as configured servers.</li>
+<li>#1393: Fixed an issue causing an empty <code>SecureMode</code> folder to show up in an online discovered model. (WDT-731)</li>
+<li>#1394: Fixed alias entries to prevent some <code>INFO</code> messages with errors related to alias entries during online discovery.</li>
+</ul>
+<h4 id="known-issues">Known Issues</h4>
+<ol>
+<li>When running <code>discoverDomain</code> with the <code>-remote</code> flag, there are several MBeans that are not being properly handled that
+will result in <code>INFO</code> level messages that look similar to the example shown below.  These errors seem to happen only when the MBean is
+non-existent so the resulting model should still be accurate.  These issues are expected to be fixed in a future release.</li>
+</ol>
+<pre><code>####&lt;Feb 16, 2023 1:40:00 PM&gt; &lt;INFO&gt; &lt;Discoverer&gt; &lt;_add_to_dictionary&gt; &lt;WLSDPLY-06106&gt; &lt;Unable to add ServerFailureTrigger
+from location /Clusters/mycluster/OverloadProtection/mycluster to the model : Failed to convert the wlst attribute name and
+value for the model at location (model_folders = ['Cluster', 'OverloadProtection'],  'name_tokens' = {'DOMAIN': 'tododomain',
+'CLUSTER': 'mycluster','OVERLOADPROTECTION': 'mycluster'}) : The wlst attribute ServerFailureTrigger is not defined for the
+model folder /Cluster/OverloadProtection&gt;
+</code></pre>
 
 
 
@@ -1697,9 +1817,6 @@ Run the WLS <code>rcu</code> command before executing <code>createDomain</code> 
             
         
                     
-            
-        
-                    
                         
             
             
@@ -1715,48 +1832,6 @@ Run the WLS <code>rcu</code> command before executing <code>createDomain</code> 
                     
             
         
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
                     
             
         
@@ -1806,8 +1881,101 @@ Run the WLS <code>rcu</code> command before executing <code>createDomain</code> 
                     
 
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
                     
             
         
@@ -2257,19 +2425,19 @@ Run the WLS <code>rcu</code> command before executing <code>createDomain</code> 
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1674851401"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1674851401"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1674851401"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1674851401"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1674851401"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1674851401"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1676581799"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1674851401"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1674851401"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1674851401"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1676581799"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1674851401"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1676581799"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

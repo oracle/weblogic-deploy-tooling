@@ -13,7 +13,7 @@
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/concepts/model/</guid>
-      <description>Contents  Overview Top-level sections Simple example Model names Model tokens Model semantics Declaring named MBeans to delete Using multiple models  Overview The metadata model (or model, for short) is a version-independent description of a WebLogic Server domain configuration. The tools are designed to support a sparse model so that the model need only describe what is required for the specific operation without describing other artifacts. For example, to deploy an application that depends on a JDBC data source into an existing domain that may contain other applications or data sources, the model needs to describe only the application and the data source in question.</description>
+      <description>Contents  Overview Top-level sections Simple example Model names Model tokens Model semantics Declaring named MBeans to delete Using multiple models Upgrading from WDT 1.x to WDT 2.x YAML files  Overview The metadata model (or model, for short) is a version-independent description of a WebLogic Server domain configuration. The tools are designed to support a sparse model so that the model need only describe what is required for the specific operation without describing other artifacts.</description>
     </item>
     
     <item>

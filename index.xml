@@ -45,7 +45,7 @@ You can download binary distributions of the weblogic-deploy.zip installer from 
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/concepts/model/</guid>
-      <description>Contents  Overview Top-level sections Simple example Model names Model tokens Model semantics Declaring named MBeans to delete Using multiple models  Overview The metadata model (or model, for short) is a version-independent description of a WebLogic Server domain configuration. The tools are designed to support a sparse model so that the model need only describe what is required for the specific operation without describing other artifacts. For example, to deploy an application that depends on a JDBC data source into an existing domain that may contain other applications or data sources, the model needs to describe only the application and the data source in question.</description>
+      <description>Contents  Overview Top-level sections Simple example Model names Model tokens Model semantics Declaring named MBeans to delete Using multiple models Upgrading from WDT 1.x to WDT 2.x YAML files  Overview The metadata model (or model, for short) is a version-independent description of a WebLogic Server domain configuration. The tools are designed to support a sparse model so that the model need only describe what is required for the specific operation without describing other artifacts.</description>
     </item>
     
     <item>
@@ -148,6 +148,16 @@ The model&amp;rsquo;s folder and attribute names usually match the names of the 
     </item>
     
     <item>
+      <title>Connect to a Database</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/database/connect-db/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/database/connect-db/</guid>
+      <description>Specifying RCU connection information in the model When creating a JRF domain, you can provide all the RCU connection information in a section RCUDbInfo under the domainInfo section in the model. It provides you with more flexibility over the basic command-line arguments of -rcu_db and -rcu_prefix. Use this when the connection string is more complex and requires extra options.
+Background on JRF domain RCU tables A JRF domain creates several data sources from the JRF domain template.</description>
+    </item>
+    
+    <item>
       <title>Custom configuration</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/custom_config/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
@@ -208,6 +218,16 @@ The WLST directory can be specified in one of two ways:
     </item>
     
     <item>
+      <title>Limitations</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/</guid>
+      <description>The following sections describe known limitations for WebLogic Deploy Tooling. Each issue may contain a workaround or an associated issue number.
+Discover Domain Tool SEVERE messages ISSUE: The discoverDomain STDOUT contains many SEVERE messages about cd() and ls() when it is run against a 12.2.1.0 domain. The Discover Domain Tool navigates through the domain MBeans using WLST to determine which MBeans are present in a domain. When it tests an MBean that is not present, an error message is logged by WLST.</description>
+    </item>
+    
+    <item>
       <title>Modeling a Work Manager</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/samples/workmanager-model/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
@@ -225,58 +245,6 @@ resources: SelfTuning: Capacity: capacity40: Target: cluster-1 Count: 40 MaxThre
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/tool_prop/</guid>
       <description>You can configure or tune WebLogic Deploy Tooling tools using the tool property file. This property file is installed as &amp;lt;weblogic-deploy&amp;gt;/lib/tool.properties. You may change the value of any of the properties in this file to tune the WDT tool. Another option is to configure the tool properties in a Custom Configuration directory. Create the tool.properties file in the $WDT_CUSTOM_CONFIG directory.
 If a property is removed from the file, or a property value is incorrectly formatted, a WARNING message is logged and an internal default value used instead of the missing or bad value.</description>
-    </item>
-    
-    <item>
-      <title>Release 2.4.4</title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.4/</link>
-      <pubDate>Fri, 20 Jan 2023 15:27:38 -0500</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.4/</guid>
-      <description>Changes in Release 2.4.4  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
-Other Changes None
-Bug Fixes  #1361: Resolved issue where the custom Coherence configuration file was not placed in the WebLogic Server domain&amp;rsquo;s expected location.  Known Issues  Due to the changes made for WDT-663 in WDT 2.4.0, the resulting remotely discovered model contains extra fields that would not normally be there.</description>
-    </item>
-    
-    <item>
-      <title>Release 2.4.3</title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.3/</link>
-      <pubDate>Fri, 13 Jan 2023 15:27:38 -0500</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.3/</guid>
-      <description>Changes in Release 2.4.3  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
-Other Changes None
-Bug Fixes  #1356: Resolved Issue where the new ATP Database URL format was causing connections to fail.  Known Issues  Due to the changes made for WDT-663 in WDT 2.4.0, the resulting remotely discovered model contains extra fields that would not normally be there. This is an area of ongoing work to clean up the online aliases to not depend on these extra remote calls to produce a clean model.</description>
-    </item>
-    
-    <item>
-      <title>Release 2.4.2</title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.2/</link>
-      <pubDate>Thu, 10 Nov 2022 15:27:38 -0500</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.2/</guid>
-      <description>Changes in Release 2.4.2  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
-Other Changes None
-Bug Fixes  #1241: Resolved Issue #1240 that was causing a NullPointerException with discoverDomain. #1252: Reworked the unicode handling to resolve customer issues with 14.1.1 when using non-ASCII characters.  Known Issues  Due to the changes made for WDT-663 in WDT 2.4.0, the resulting remotely discovered model contains extra fields that would not normally be there.</description>
-    </item>
-    
-    <item>
-      <title>Release 2.4.1</title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.1/</link>
-      <pubDate>Thu, 03 Nov 2022 15:27:38 -0500</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.1/</guid>
-      <description>Changes in Release 2.4.1  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features  None  Other Changes None
-Bug Fixes  #1237: Resolved an issue where the tools supporting the -target parameter were doing target-related work even if the parameter was not specified.  Known Issues  Due to the changes made for WDT-663 in WDT 2.4.0, the resulting remotely discovered model contains extra fields that would not normally be there.</description>
-    </item>
-    
-    <item>
-      <title>Release 2.4.0</title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.0/</link>
-      <pubDate>Wed, 02 Nov 2022 15:27:38 -0500</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.0/</guid>
-      <description>Changes in Release 2.4.0  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features  None  Other Changes  #1193 - Added support for changing the RCU Data Source type during JRF domain creation (WDT-636). #1210 - Improved the speed of remote discovery by bypassing remote calls to determine if a field was set (WDT-663). #1218 - Added -target support for WebLogic Kubernetes Operator 4.0 to generate the domain and cluster schema resources.</description>
     </item>
     
     <item>
@@ -441,14 +409,66 @@ The Model Help Tool is new in WebLogic Deploy Tooling 1.8. The -model_sample arg
     </item>
     
     <item>
-      <title></title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/rcuinfo/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <title>Archive Helper Tool</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/archive_helper/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/rcuinfo/</guid>
-      <description>Specifying RCU connection information in the model When creating a JRF domain, you can provide all the RCU connection information in a section RCUDbInfo under the domainInfo section in the model.
-It provides you with more flexibility over the basic command-line arguments of -rcu_db and -rcu_prefix. Use this when the connection string is more complex and requires extra options.
-Background on JRF domain RCU tables A JRF domain creates several data sources from the JRF domain template.</description>
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/archive_helper/</guid>
+      <description>With the Archive Helper Tool, you can display the contents of an archive file, add, update, extract, and remove files, as needed.
+Use the Archive Helper Tool -help option to display its commands. Each command takes a subcommand, which may require one or more command-line options.
+archiveHelper commands    Command Description     add Add items to the archive file.   extract Extract items from the archive file.</description>
+    </item>
+    
+    <item>
+      <title>Release 2.4.4</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.4/</link>
+      <pubDate>Fri, 20 Jan 2023 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.4/</guid>
+      <description>Changes in Release 2.4.4  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes None
+Bug Fixes  #1361: Resolved issue where the custom Coherence configuration file was not placed in the WebLogic Server domain&amp;rsquo;s expected location.  Known Issues  Due to the changes made for WDT-663 in WDT 2.4.0, the resulting remotely discovered model contains extra fields that would not normally be there.</description>
+    </item>
+    
+    <item>
+      <title>Release 2.4.3</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.3/</link>
+      <pubDate>Fri, 13 Jan 2023 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.3/</guid>
+      <description>Changes in Release 2.4.3  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes None
+Bug Fixes  #1356: Resolved Issue where the new ATP Database URL format was causing connections to fail.  Known Issues  Due to the changes made for WDT-663 in WDT 2.4.0, the resulting remotely discovered model contains extra fields that would not normally be there. This is an area of ongoing work to clean up the online aliases to not depend on these extra remote calls to produce a clean model.</description>
+    </item>
+    
+    <item>
+      <title>Release 2.4.2</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.2/</link>
+      <pubDate>Thu, 10 Nov 2022 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.2/</guid>
+      <description>Changes in Release 2.4.2  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes None
+Bug Fixes  #1241: Resolved Issue #1240 that was causing a NullPointerException with discoverDomain. #1252: Reworked the unicode handling to resolve customer issues with 14.1.1 when using non-ASCII characters.  Known Issues  Due to the changes made for WDT-663 in WDT 2.4.0, the resulting remotely discovered model contains extra fields that would not normally be there.</description>
+    </item>
+    
+    <item>
+      <title>Release 2.4.1</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.1/</link>
+      <pubDate>Thu, 03 Nov 2022 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.1/</guid>
+      <description>Changes in Release 2.4.1  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features  None  Other Changes None
+Bug Fixes  #1237: Resolved an issue where the tools supporting the -target parameter were doing target-related work even if the parameter was not specified.  Known Issues  Due to the changes made for WDT-663 in WDT 2.4.0, the resulting remotely discovered model contains extra fields that would not normally be there.</description>
+    </item>
+    
+    <item>
+      <title>Release 2.4.0</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.0/</link>
+      <pubDate>Wed, 02 Nov 2022 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.0/</guid>
+      <description>Changes in Release 2.4.0  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features  None  Other Changes  #1193 - Added support for changing the RCU Data Source type during JRF domain creation (WDT-636). #1210 - Improved the speed of remote discovery by bypassing remote calls to determine if a field was set (WDT-663). #1218 - Added -target support for WebLogic Kubernetes Operator 4.0 to generate the domain and cluster schema resources.</description>
     </item>
     
   </channel>

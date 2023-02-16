@@ -12,20 +12,20 @@
     <title>Deploy Applications Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1674851400" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1676581799" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1674851400"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1676581799"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1674851400"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1674851400"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1676581799"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1676581799"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1674851400"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1676581799"></script>
 
     
   </div>
@@ -468,6 +468,27 @@
 
             
           
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/archive_helper/" title="Archive Helper Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/archive_helper/">
+        Archive Helper Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
         
         </ul>
       
@@ -489,6 +510,27 @@
       <li data-nav-id="/weblogic-deploy-tooling/userguide/target_env/" title="Target environments" class="dd-item ">
         <a href="/weblogic-deploy-tooling/userguide/target_env/">
         Target environments
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/database/connect-db/" title="Connect to a Database" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/database/connect-db/">
+        Connect to a Database
         
         </a>
     </li>
@@ -634,6 +676,27 @@
         </ul>
       
     </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/limitations/limitations/" title="Limitations" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/limitations/limitations/">
+        Limitations
+        
+        </a>
+    </li>
+     
   
  
 
@@ -1346,9 +1409,22 @@
 <p>Running the Deploy Applications Tool in WLST offline mode is very similar to running the Create Domain Tool; simply provide the domain location and archive file, and separate model and variable files, if needed.  For example:</p>
 <pre><code>$ weblogic-deploy\bin\deployApps.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DemoDomain.zip -model_file DemoDomain.yaml -variable_file DemoDomain.properties
 </code></pre>
+<p>You can use online mode either on the admin server or from a remote machine.  If you are running from the admin server, you can specify domain home directory <code>-domain_home</code> location.</p>
+<p>If you are running from a remote machine with <code>-remote</code> option, then you do not need to specify the domain home directory <code>-domain_home</code> option.</p>
 <p>To run the tool in online mode, add the <code>-admin_url</code> and <code>-admin_user</code> arguments with the necessary values to connect to the WebLogic Server Administration Server. For example:</p>
 <pre><code>$ weblogic-deploy\bin\deployApps.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DemoDomain.zip -model_file DemoDomain.yaml -variable_file DemoDomain.properties -admin_url t3://127.0.0.1:7001 -admin_user weblogic
 </code></pre>
+<p>or if running from a remote machine</p>
+<pre><code>$ weblogic-deploy\bin\deployApps.cmd -oracle_home c:\wls12213 -remote -archive_file DemoDomain.zip -model_file DemoDomain.yaml -variable_file DemoDomain.properties -admin_url t3://127.0.0.1:7001 -admin_user weblogic
+</code></pre>
+<p>If you are running from a remote machine, then you do not need to specify the domain home directory <code>-domain_home</code> option,  but there are limitations:</p>
+<ul>
+<li>Any attribute in the model that referenced a path into the archive file unless the path begins with <code>wlsdeploy/applications</code> or <code>wlsdeploy/sharedLibraries</code> will result in an error, as the tool cannot remotely
+create such directory or file.  For example, if you specify a <code>domainBin: [ wlsdeploy/domainBin/setUserOverrides.sh]</code> which references a file entry in the archive file <code>wlsdeploy/domainBin/setUserOverrides.sh</code>,
+the tool will fail with an error.</li>
+<li>Exploded format application specified in the archive is not supported</li>
+<li></li>
+</ul>
 <p>As usual, the tool will prompt for the password (it can also be supplied by piping it to standard input of the tool). To bypass the prompt, you can use one of two options. Store the password in an environment variable, and use the variable name with command-line option <code>-admin_pass_env</code>. Store the password in a file. Provide the file name with command-line option <code>-admin_pass_file</code>.</p>
 <p>When running the tool in WLST online mode, the deploy operation may require server restarts or a domain restart to pick up the changes.  The deploy operation can also encounter situations where it cannot complete its operation until the domain is restarted.  To communicate these conditions to scripts that may be calling the Deploy Applications Tool, the shell scripts have three special, non-zero exit codes to communicate these states:</p>
 <ul>
@@ -1452,6 +1528,11 @@
 <tr>
 <td><code>-wait_for_edit_lock</code></td>
 <td>Skip checks for active edit sessions and pending changes before trying to acquire the WLST online edit lock to modify domain configuration.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-remote</code></td>
+<td>Deploy main from a remote machine.</td>
 <td></td>
 </tr>
 </tbody>
@@ -1771,9 +1852,6 @@
             
         
                     
-            
-        
-                    
                         
             
             
@@ -1789,48 +1867,6 @@
                     
             
         
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
                     
             
         
@@ -1880,8 +1916,101 @@
                     
 
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
                     
             
         
@@ -2327,19 +2456,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1674851400"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1674851400"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1674851400"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1674851400"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1674851400"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1674851400"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1676581799"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1674851400"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1674851400"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1674851400"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1676581799"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1674851400"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1676581799"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

@@ -28,5 +28,25 @@ You can download binary distributions of the weblogic-deploy.zip installer from 
  Using model tokens for some attributes in the model. For more details, see Model tokens.</description>
     </item>
     
+    <item>
+      <title>Connect to a Database</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/database/connect-db/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/database/connect-db/</guid>
+      <description>Specifying RCU connection information in the model When creating a JRF domain, you can provide all the RCU connection information in a section RCUDbInfo under the domainInfo section in the model. It provides you with more flexibility over the basic command-line arguments of -rcu_db and -rcu_prefix. Use this when the connection string is more complex and requires extra options.
+Background on JRF domain RCU tables A JRF domain creates several data sources from the JRF domain template.</description>
+    </item>
+    
+    <item>
+      <title>Limitations</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/</guid>
+      <description>The following sections describe known limitations for WebLogic Deploy Tooling. Each issue may contain a workaround or an associated issue number.
+Discover Domain Tool SEVERE messages ISSUE: The discoverDomain STDOUT contains many SEVERE messages about cd() and ls() when it is run against a 12.2.1.0 domain. The Discover Domain Tool navigates through the domain MBeans using WLST to determine which MBeans are present in a domain. When it tests an MBean that is not present, an error message is logged by WLST.</description>
+    </item>
+    
   </channel>
 </rss>

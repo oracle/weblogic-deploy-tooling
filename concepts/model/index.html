@@ -12,20 +12,20 @@
     <title>Metadata Model :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1674851400" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1674851400" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1676581799" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1674851400"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1676581799"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1674851400"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1674851400"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1676581799"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1676581799"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1674851400"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1676581799"></script>
 
     
   </div>
@@ -468,6 +468,27 @@
 
             
           
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/archive_helper/" title="Archive Helper Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/archive_helper/">
+        Archive Helper Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
         
         </ul>
       
@@ -489,6 +510,27 @@
       <li data-nav-id="/weblogic-deploy-tooling/userguide/target_env/" title="Target environments" class="dd-item ">
         <a href="/weblogic-deploy-tooling/userguide/target_env/">
         Target environments
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/database/connect-db/" title="Connect to a Database" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/database/connect-db/">
+        Connect to a Database
         
         </a>
     </li>
@@ -634,6 +676,27 @@
         </ul>
       
     </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/limitations/limitations/" title="Limitations" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/limitations/limitations/">
+        Limitations
+        
+        </a>
+    </li>
+     
   
  
 
@@ -1308,6 +1371,7 @@
         <li><a href="#model-semantics">Model semantics</a></li>
         <li><a href="#declaring-named-mbeans-to-delete">Declaring named MBeans to delete</a></li>
         <li><a href="#using-multiple-models">Using multiple models</a></li>
+        <li><a href="#upgrading-from-wdt-1x-to-wdt-2x-yaml-files">Upgrading from WDT 1.x to WDT 2.x YAML files</a></li>
       </ul>
     </li>
   </ul>
@@ -1344,6 +1408,7 @@
 <li><a href="#model-semantics">Model semantics</a></li>
 <li><a href="#declaring-named-mbeans-to-delete">Declaring named MBeans to delete</a></li>
 <li><a href="#using-multiple-models">Using multiple models</a></li>
+<li><a href="#upgrading-from-wdt-1x-to-wdt-2x-yaml-files">Upgrading from WDT 1.x to WDT 2.x YAML files</a></li>
 </ul>
 <h3 id="overview">Overview</h3>
 <p>The metadata model (or model, for short) is a version-independent description of a WebLogic Server domain configuration.  The tools are designed to support a sparse model so that the model need only describe what is required for the specific operation without describing other artifacts.  For example, to deploy an application that depends on a JDBC data source into an existing domain that may contain other applications or data sources, the model needs to describe only the application and the data source in question.  If the data source was previously created, the <code>deployApps</code> tool will not try to recreate it but may update part of that data source&rsquo;s configuration if the model description is different than the existing values.  If the application was previously deployed, the <code>deployApps</code> tool will compare the binaries to determine if the application needs to be redeployed or not.</p>
@@ -1524,7 +1589,7 @@
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">  <span style="color:#f92672">JMSSystemResource</span>:
       <span style="color:#f92672">BPMJMSModule</span>:
           <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">soa_cluster,&#39;!AdminServer&#39;</span>
-              
+
 </code></pre></div><p>In this example, the BPMJMSModule has the AdminServer target removed from the target list.</p>
 <h3 id="using-multiple-models">Using multiple models</h3>
 <p>The Create Domain, Update Domain, Deploy Applications, and Validate Model Tools allow the specification of multiple models on the command line. For example:</p>
@@ -1594,7 +1659,50 @@ For example, if Model 1 looks like:</p>
         <span style="color:#f92672">m1</span>:
             <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">7000</span>
             <span style="color:#f92672">Notes</span>: <span style="color:#ae81ff">Server 1</span>
-</code></pre></div>
+</code></pre></div><h3 id="upgrading-from-wdt-1x-to-wdt-2x-yaml-files">Upgrading from WDT 1.x to WDT 2.x YAML files</h3>
+<p>Beginning in 2.0, WebLogic Deploy Tooling now incorporates the SnakeYAML parser for reading and writing model files.
+This may require some changes to existing models in order to be parsed correctly.</p>
+<ul>
+<li>Model elements that use <a href="/weblogic-deploy-tooling/concepts/model/#declaring-named-mbeans-to-delete">delete notation</a> need to be escaped in single or double quotation marks.</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
+    <span style="color:#f92672">Server</span>:
+        <span style="color:#f92672">&#39;!ms1&#39;</span>:
+        <span style="color:#f92672">ms2</span>:
+</code></pre></div><ul>
+<li>Model elements under the same parent should be indented to the exact same level. The previous YAML parser did not enforce this restriction,
+but it is standard for YAML. In this example, each cluster is indented four spaces.</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
+    <span style="color:#f92672">Cluster</span>:
+        <span style="color:#f92672">cluster1</span>:
+            <span style="color:#f92672">ClientCertProxyEnabled</span>: <span style="color:#66d9ef">True</span>
+        <span style="color:#f92672">cluster2</span>:
+            <span style="color:#f92672">WeblogicPluginEnabled</span>: <span style="color:#66d9ef">true</span>
+</code></pre></div><ul>
+<li>
+<p>Object lists in the <code>kubernetes</code> section of the model now should be specified in a hyphenated list format,
+similar to how they appear in the domain resource file produced for <a href="https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/domain-resource/">WebLogic Kubernetes Operator</a>.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">    <span style="color:#f92672">clusters</span>:
+    - <span style="color:#f92672">clusterName</span>: <span style="color:#e6db74">&#39;cluster1&#39;</span>
+      <span style="color:#f92672">allowReplicasBelowMinDynClusterSize</span>: <span style="color:#66d9ef">true</span>
+    - <span style="color:#f92672">clusterName</span>: <span style="color:#e6db74">&#39;cluster2&#39;</span>
+      <span style="color:#f92672">allowReplicasBelowMinDynClusterSize</span>: <span style="color:#66d9ef">true</span>
+</code></pre></div><ul>
+<li>The &ldquo;named object list&rdquo; format is deprecated now, and will cause warning messages to be displayed.</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">    <span style="color:#f92672">clusters</span>:
+      <span style="color:#f92672">&#39;cluster1&#39;</span>:
+        <span style="color:#f92672">allowReplicasBelowMinDynClusterSize</span>: <span style="color:#66d9ef">true</span>
+      <span style="color:#f92672">&#39;cluster2&#39;</span>:
+        <span style="color:#f92672">allowReplicasBelowMinDynClusterSize</span>: <span style="color:#66d9ef">true</span>
+</code></pre></div></li>
+<li>
+<p>The deprecated argument <code>-model_sample</code> has been removed from the Model Help Tool.
+The Model Help Tool has used model sample format, by default, since release 1.9.2.</p>
+</li>
+</ul>
+
 
 <footer class="footline">
 	
@@ -1899,9 +2007,6 @@ For example, if Model 1 looks like:</p>
             
         
                     
-            
-        
-                    
                         
             
             
@@ -1917,48 +2022,6 @@ For example, if Model 1 looks like:</p>
                     
             
         
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
                     
             
         
@@ -2008,8 +2071,101 @@ For example, if Model 1 looks like:</p>
                     
 
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
                     
             
         
@@ -2455,19 +2611,19 @@ For example, if Model 1 looks like:</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1674851400"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1674851400"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1674851400"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1674851400"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1674851400"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1674851400"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1676581799"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1674851400"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1674851400"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1674851400"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1676581799"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1674851400"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1676581799"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

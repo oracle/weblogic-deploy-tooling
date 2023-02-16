@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Hugo 0.82.0" />
-    <meta name="description" content="">
+    <meta name="description" content="Helps you create and modify archive files.">
 
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Tags :: WebLogic Deploy Tooling</title>
+    <title>Archive Helper Tool :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1676581799" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/tags/">
+  <body class="" data-url="/weblogic-deploy-tooling/userguide/tools/archive_helper/">
     <nav id="sidebar" class="">
 
 
@@ -170,7 +170,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/" title="User Guide" class="dd-item
-        
+        parent
         
         
         ">
@@ -220,7 +220,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/" title="WDT Tools" class="dd-item
-        
+        parent
         
         
         ">
@@ -477,7 +477,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/archive_helper/" title="Archive Helper Tool" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/archive_helper/" title="Archive Helper Tool" class="dd-item active">
         <a href="/weblogic-deploy-tooling/userguide/tools/archive_helper/">
         Archive Helper Tool
         
@@ -1342,7 +1342,19 @@
             
           
           
-            <a href='/weblogic-deploy-tooling/'></a> > Tags
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/userguide/'>User Guide</a> > <a href='/weblogic-deploy-tooling/userguide/tools/'>WDT Tools</a> > Archive Helper Tool
+          
+        
+          
+        
           
         
           
@@ -1353,7 +1365,16 @@
                 
                     <div class="progress">
     <div class="wrapper">
-
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#archivehelper-commands"><code>archiveHelper</code> commands</a></li>
+        <li><a href="#usage-scenarios">Usage scenarios</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
     </div>
 </div>
 
@@ -1369,24 +1390,108 @@
           
             <h1>
               
-                tag ::
-              
-              Tags
+              Archive Helper Tool
             </h1>
           
 
         
 
 
+<p>With the Archive Helper Tool, you can display the contents of an archive file, add, update, extract, and remove files, as needed.</p>
+<p>Use the Archive Helper Tool <code>-help</code> option to display its commands. Each command takes a subcommand, which may require one or more command-line options.</p>
+<h3 id="archivehelper-commands"><code>archiveHelper</code> commands</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>add</code></td>
+<td>Add items to the archive file.</td>
+</tr>
+<tr>
+<td><code>extract</code></td>
+<td>Extract items from the archive file.</td>
+</tr>
+<tr>
+<td><code>list</code></td>
+<td>List contents of the archive file.</td>
+</tr>
+<tr>
+<td><code>remove</code></td>
+<td>Remove items to the archive file.</td>
+</tr>
+</tbody>
+</table>
+<p>For each command, use the <code>-help</code> option for usage information about its subcommands.</p>
+<p>For example, to display the subcommands of the <code>archiveHelper</code> <code>add</code> command:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ae81ff">$ &lt;wls-deploy-home&gt;/bin/archiveHelper.sh add -help</span>
+</code></pre></div><p>This will result in the following output:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ae81ff">Add items to the archive file.</span>
+<span style="color:#f92672">Usage</span>: <span style="color:#ae81ff">archiveHelper add [-help] [COMMAND]</span>
 
+<span style="color:#f92672">Command-line options</span>:
+      -<span style="color:#ae81ff">help   Get help for the archiveHelper add command</span>
 
+<span style="color:#f92672">Subcommands</span>:
+  <span style="color:#ae81ff">application              Add application to the archive file.</span>
+  <span style="color:#ae81ff">applicationPlan          Add application deployment plan to the archive file.</span>
+  <span style="color:#ae81ff">classpathLibrary         Add classpath library to the archive file.</span>
+  <span style="color:#ae81ff">coherenceConfig          Add a Coherence config file to the archive file.</span>
+  <span style="color:#ae81ff">coherencePersistenceDir  Add a Coherence persistence directory to the archive</span>
+                             <span style="color:#ae81ff">file.</span>
+  <span style="color:#ae81ff">custom                   Add custom file/directory to the archive file.</span>
+  <span style="color:#ae81ff">databaseWallet           Add database wallet to the archive file.</span>
+  <span style="color:#ae81ff">domainBinScript          Add $DOMAIN_HOME/bin script to the archive file.</span>
+  <span style="color:#ae81ff">domainLibrary            Add $DOMAIN_HOME/lib library to the archive file.</span>
+  <span style="color:#ae81ff">fileStore                Add empty file store directory to the archive file.</span>
+  <span style="color:#ae81ff">jmsForeignServer         Add a JMS Foreign Server binding file to the archive</span>
+                             <span style="color:#ae81ff">file.</span>
+  <span style="color:#ae81ff">mimeMapping              Add MIME mapping file to the archive file.</span>
+  <span style="color:#ae81ff">nodeManagerKeystore      Add node manager keystore to the archive file.</span>
+  <span style="color:#ae81ff">opssWallet               Add OPSS wallet to the archive file.</span>
+  <span style="color:#ae81ff">rcuWallet                Add RCU database wallet to the archive file.</span>
+  <span style="color:#ae81ff">script                   Add script to the archive file.</span>
+  <span style="color:#ae81ff">serverKeystore           Add a server keystore to the archive file.</span>
+  <span style="color:#ae81ff">sharedLibrary            Add shared library to the archive file.</span>
+  <span style="color:#ae81ff">sharedLibraryPlan        Add shared library deployment plan to the archive</span>
+                             <span style="color:#ae81ff">file.</span>
+  <span style="color:#ae81ff">structuredApplication    Add structured application installation directory to</span>
+                             <span style="color:#ae81ff">the archive file.</span>
+</code></pre></div><p>To display the command-line options for the <code>archiveHelper</code> <code>add application</code> subcommand:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ae81ff">$ &lt;wls-deploy-home&gt;/bin/archiveHelper.sh add application -help</span>
+</code></pre></div><p>This will result in the following output:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ae81ff">Add application to the archive file.</span>
+<span style="color:#f92672">Usage</span>: <span style="color:#ae81ff">archiveHelper add application [-help] [-overwrite]</span>
+                                     -<span style="color:#ae81ff">archive_file=&lt;archive_file&gt; -source=&lt;path&gt;</span>
 
+<span style="color:#f92672">Command-line options</span>:
+      -<span style="color:#ae81ff">archive_file=&lt;archive_file&gt;</span>
+                       <span style="color:#ae81ff">Path to the archive file to use.</span>
+      -<span style="color:#ae81ff">overwrite       Overwrite the existing entry in the archive file, if any</span>
+      -<span style="color:#ae81ff">source=&lt;path&gt;   File system path to the application to add</span>
+      -<span style="color:#ae81ff">help            Get help for the archiveHelper add application subcommand</span>
+
+<span style="color:#f92672">Note</span>: <span style="color:#ae81ff">If using an Application Installation Directory, please see the</span>
+<span style="color:#ae81ff">archiveHelper add structuredApplication command.</span>
+</code></pre></div><h3 id="usage-scenarios">Usage scenarios</h3>
 <ul>
-	
+<li>
+<p><code>list application</code>: List the applications in the archive file.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ae81ff">$ &lt;wls-deploy-home&gt;/bin/archiveHelper.sh list application -archive_file=C:\temp\archive-helper-test.zip</span>
+</code></pre></div></li>
+<li>
+<p><code>add application</code>: Update an existing application in the archive.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ae81ff">$ &lt;wls-deploy-home&gt;/bin/archiveHelper.sh add application -archive_file=C:\temp\archive-helper-test.zip -source=C:\temp\my-app.war -overwrite</span>
+</code></pre></div><p><strong>NOTE</strong>: Without the <code>-overwrite</code> option, the application gets added to the archive with a numerical suffix.</p>
+</li>
 </ul>
 
 
-<footer class=" footline" >
+<footer class="footline">
 	
 </footer>
 
@@ -1472,6 +1577,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1486,6 +1592,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -1503,6 +1612,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -1516,21 +1626,8 @@
             
                 
                     
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
                         
-            
-            
-                
+                        
                     
                 
                 
@@ -1703,6 +1800,23 @@
             
         
                     
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -1710,6 +1824,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2278,8 +2395,10 @@
 	 
 	 
 		
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/userguide/tools/model_help/" title="Model Help Tool"> <i class="fa fa-chevron-left"></i></a>
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/concepts/" title="Concepts" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/target_env/" title="Target environments" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -2311,3 +2430,4 @@
 
   </body>
 </html>
+

@@ -115,5 +115,16 @@ The Model Help Tool is new in WebLogic Deploy Tooling 1.8. The -model_sample arg
  Here is a simple example using the Model Help Tool:</description>
     </item>
     
+    <item>
+      <title>Archive Helper Tool</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/archive_helper/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/archive_helper/</guid>
+      <description>With the Archive Helper Tool, you can display the contents of an archive file, add, update, extract, and remove files, as needed.
+Use the Archive Helper Tool -help option to display its commands. Each command takes a subcommand, which may require one or more command-line options.
+archiveHelper commands    Command Description     add Add items to the archive file.   extract Extract items from the archive file.</description>
+    </item>
+    
   </channel>
 </rss>

@@ -53,6 +53,9 @@
     <loc>https://oracle.github.io/weblogic-deploy-tooling/developer/alias-definitions/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/database/connect-db/</loc>
+    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
+  </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/custom_config/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
@@ -77,6 +80,9 @@
     <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/discover/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/</loc>
+    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
+  </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/samples/workmanager-model/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
@@ -86,21 +92,6 @@
     <loc>https://oracle.github.io/weblogic-deploy-tooling/developer/</loc>
     <lastmod>2019-02-22T15:27:54-05:00</lastmod>
   </url><url>
-    <loc>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.4/</loc>
-    <lastmod>2023-01-20T15:27:38-05:00</lastmod>
-  </url><url>
-    <loc>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.3/</loc>
-    <lastmod>2023-01-13T15:27:38-05:00</lastmod>
-  </url><url>
-    <loc>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.2/</loc>
-    <lastmod>2022-11-10T15:27:38-05:00</lastmod>
-  </url><url>
-    <loc>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.1/</loc>
-    <lastmod>2022-11-03T15:27:38-05:00</lastmod>
-  </url><url>
-    <loc>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.0/</loc>
-    <lastmod>2022-11-02T15:27:38-05:00</lastmod>
-  </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/encrypt/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
@@ -109,9 +100,6 @@
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/developer/releaseprocess/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
-  </url><url>
-    <loc>https://oracle.github.io/weblogic-deploy-tooling/release-notes/</loc>
-    <lastmod>2019-02-22T15:27:38-05:00</lastmod>
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/developer/contribute/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
@@ -152,11 +140,29 @@
     <loc>https://oracle.github.io/weblogic-deploy-tooling/samples/wko-model/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/archive_helper/</loc>
+    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/release-notes/</loc>
+    <lastmod>2019-02-22T15:27:38-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.4/</loc>
+    <lastmod>2023-01-20T15:27:38-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.3/</loc>
+    <lastmod>2023-01-13T15:27:38-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.2/</loc>
+    <lastmod>2022-11-10T15:27:38-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.1/</loc>
+    <lastmod>2022-11-03T15:27:38-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-2.4.0/</loc>
+    <lastmod>2022-11-02T15:27:38-05:00</lastmod>
+  </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/</loc>
     <lastmod>2023-01-20T15:27:38-05:00</lastmod>
-    <priority>0</priority>
-  </url><url>
-    <loc>https://oracle.github.io/weblogic-deploy-tooling/rcuinfo/</loc>
     <priority>0</priority>
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/categories/</loc>
