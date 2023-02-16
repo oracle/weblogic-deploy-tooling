@@ -28,7 +28,7 @@ The value of the optional `-domain_home` argument will be applied in the templat
 
 The user is expected to fill in the image and secrets information identified by `--FIX ME--` in the resource output.
 
-For more advanced configurations, including pre-populating the `--FIX ME--` values, the user can populate the `kubernetes` section of the WDT model, and those values will appear in the resulting resource files. This model section overrides and adds some values to the result.
+For more advanced configurations, including pre-populating the `--FIX ME--` values, the user can populate the related section of the WDT model, and those values will appear in the resulting custom resource definition (CRD) resource files. In this example the `kubernetes` section of the model overrides and adds some values to the CRD generated for WebLogic Kubernetes Operator.
 ```yaml
 kubernetes:
     metadata:
@@ -53,7 +53,7 @@ kubernetes:
                 -   name: JAVA_OPTIONS
                     value: '-Dmydir=/home/me'
 ```
-This example uses `@@PROP:mySecret@@` to pull the value for `webLogicCredentialsSecret` from the variables file specified on the command line. This can be done with any of the values in the `kubernetes` section of the model. More details about using model variables can be found [here]({{< relref "/concepts/model#simple-example" >}}).
+This example uses `@@PROP:mySecret@@` to pull the value for `webLogicCredentialsSecret` from the variables file specified on the command line. This can be done with any of the values in the CRD sections of the model. More details about using model variables can be found [here]({{< relref "/concepts/model#simple-example" >}}).
 
 Using the `wko` target with this example, the resulting domain resource file would contain:
 ```yaml
@@ -94,19 +94,25 @@ If the WDT model has a value of `Never` for `spec/imagePullPolicy`, the `imagePu
 
 A full list of sections and variables supported by the WebLogic Kubernetes Operator is available [here](https://github.com/oracle/weblogic-kubernetes-operator/blob/main/documentation/domains/Domain.md). The Extract Domain Resource Tool supports a subset of these sections, including `metadata`, `serverPod`, and `spec`.
 
-The [Model Help Tool]({{< relref "/userguide/tools/model_help.md" >}}) can be used to determine the folders and attributes that can be used in the `kubernetes` section of the model. For example, this command will list the folders and attributes in the `spec` folder:
+The `verrazzano` section of the WDT model can be used to update the CRDs generated for Verrazzano targets, such as `vz` and `vz-dii`. More information about this model section can be found [here]({{< relref "/userguide/target_env.md" >}}).
+
+The [Model Help Tool]({{< relref "/userguide/tools/model_help.md" >}}) can be used to determine the folders and attributes that can be used in the CRD sections of the model. For example, this command will list the folders and attributes in the `spec` folder in the `kubernetes` section:
 ```yaml
 <wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle kubernetes:/spec
 ```
 
-The content in the `kubernetes` section is not generated when a model is discovered by the Discover Domain Tool.  
+This command will list the folders and attributes in the `application/spec` folder in the `verrazzano` section:
+```yaml
+<wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle -target vz verrazzano:/application/spec
+```
 
-### Parameter table for `extractResources`
+The content for the CRD sections is not generated when a model is discovered by the Discover Domain Tool.  
+
+### Parameter table for `extractDomainResource`
 | Parameter | Definition | Default |
 | ---- | ---- | ---- |
-| `-archive_file` | The path to the archive file.  If the `-model_file` argument is not specified, the model file in this archive will be used.  This can also be specified as a comma-separated list of archive files.  The overlapping contents in each archive take precedence over previous archives in the list. |    |
+| `-archive_file` | The path to the archive file.  This can also be specified as a comma-separated list of archive files.  The overlapping contents in each archive take precedence over previous archives in the list. |    |
 | `-domain_home` | The domain home directory to be used in output files. This will override any value in the model. |    |
-| `-domain_resource_file` | The location of the extracted domain resource file. This is deprecated, use `-output_dir` to specify output location. |    |
 | `-model_file` | The location of the model file.  This can also be specified as a comma-separated list of model locations, where each successive model layers on top of the previous ones. |    |
 | `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set. |    |
 | `-output_dir` | The location for the target output files. |    |

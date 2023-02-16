@@ -24,14 +24,14 @@ Attributes and sub-folders for resources:/JDBCSystemResource
 resources:
     JDBCSystemResource:
         'JDBC-1':
-            CompatibilityName:       # string
-            DeploymentOrder:         # integer
-            DeploymentPrincipalName: # string
-            DescriptorFileName:      # string
-            ModuleType:              # string
-            Notes:                   # string
-            SourcePath:              # string
-            Target:                  # delimited_string
+            CompatibilityName:       # string            +
+            DeploymentOrder:         # integer           (default=100) +
+            DeploymentPrincipalName: # string            +
+            DescriptorFileName:      # string            +
+            ModuleType:              # string            +
+            Notes:                   # string            +
+            SourcePath:              # string            +
+            Target:                  # delimited_string  +
 
             JdbcResource:
                 # see /JDBCSystemResource/JdbcResource
@@ -39,8 +39,13 @@ resources:
             SubDeployment:
                 'SubDeployment-1':
                     # see /JDBCSystemResource/SubDeployment
+
+
+This bean defines a system-level JDBC resource.  It links a separate
+descriptor that specifies the definition.
 ```
 This output shows the eight attributes and two sub-folders available for the `JDBCSystemResource` folder in the `resources` section of the model. Each attribute includes a comment describing the type of the value to be added.
+A plus sign (`+`) on an attribute indicates that appending the attribute to the model path will yield more information about the attribute.
 
 Folders that support multiple instances, such as `JDBCSystemResource` in this example, are shown with a derived name, such as `'JDBC-1'`.
 
@@ -88,6 +93,43 @@ If the section is not provided for a folder, then it will be derived and include
 /JDBCSystemResource/JdbcResource
 ```
 
+#### Per attribute help
+To show help for a particular attribute in a folder, simply add it to the model path.
+
+For example:
+```yaml
+$ modelHelp.sh topology:/Server/Log/StdoutSeverity
+```
+The output is:
+```yaml
+Attributes and sub-folders for topology:/Server/Log/StdoutSeverity
+
+topology:
+    Server:
+        'Server-1':
+            Log:
+                StdoutSeverity: # string
+
+Default=Notice
+Legal values:
+   'Trace'
+   'Debug'
+   'Info'
+   'Warning'
+   'Error'
+   'Notice'
+   'Critical'
+   'Alert'
+   'Emergency'
+   'Off'
+
+
+The minimum severity of log messages going to the standard out.
+Messages with a lower severity than the specified value will
+not be published to standard out.
+```
+
+
 #### Output options
 There are several command-line options that you can use to control the output text for the model path. Use only one of these options at a time. If no output options are specified, then the attributes and immediate sub-folders for the specified path are listed.
 
@@ -127,6 +169,42 @@ resources:
                 'SubDeployment-1':
 ```
 
+#### Interactive option
+To access an interactive command line for exploring model paths using a directory style syntax, use `modelHelp.sh -interactive <starting_model_path>`.
+
+For example:
+```yaml
+$ modelHelp.sh -interactive top
+```
+The output is:
+```yaml
+In interactive mode! Type 'help' for help.
+[top] --> help
+
+Commands:
+
+  ls                      - list contents of current location
+  top, cd, cd /, cd top   - go to "top"
+  cd x[/[...]]            - relative change (go to child location x...)
+  cd section[:/[...]]     - absolute change (go to exact section and location)
+  cd /folder[/...]        - find section that contains the folder and go there
+  cd ..                   - go up
+  history                 - history of visited locations
+  exit                    - exit
+
+Sections:
+
+  domainInfo, topology, resources, appDeployments, kubernetes
+
+Examples:
+
+  cd topology
+  cd topology:/Server/Log/StdoutSeverity
+  cd /Server/Log/StdoutSeverity
+
+[top] -->   
+```
+
 ### Parameter table for `model_help`
 | Parameter | Definition | Default |
 | ---- | ---- | ---- |
@@ -135,3 +213,4 @@ resources:
 | `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set. |    |
 | `-recursive` | List only the folders for the specified model path, and recursively include the folders below that path. |    |
 | `<model_path>` | The path to the model element to be examined. The format is `[^<section^>:][/^<folder^>]...` |    |
+| `-interactive <starting_model_path>` | Interactive mode. |   |

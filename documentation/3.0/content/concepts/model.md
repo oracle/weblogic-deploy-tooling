@@ -15,6 +15,7 @@ weight: 1
 - [Model semantics](#model-semantics)
 - [Declaring named MBeans to delete](#declaring-named-mbeans-to-delete)
 - [Using multiple models](#using-multiple-models)
+- [Upgrading from WDT 1.x to WDT 2.x YAML files](#upgrading-from-wdt-1x-to-wdt-2x-yaml-files)
 
 ### Overview
 
@@ -264,7 +265,7 @@ In addition to deleting named mbeans, you can remove items from a list. Most pra
   JMSSystemResource:
       BPMJMSModule:
           Target: soa_cluster,'!AdminServer'
-              
+
 ```
 In this example, the BPMJMSModule has the AdminServer target removed from the target list.
 
@@ -360,3 +361,53 @@ topology:
             ListenPort: 7000
             Notes: Server 1
 ```
+
+### Upgrading from WDT 1.x to WDT 2.x YAML files
+
+Beginning in 2.0, WebLogic Deploy Tooling now incorporates the SnakeYAML parser for reading and writing model files.
+This may require some changes to existing models in order to be parsed correctly.
+   - Model elements that use [delete notation]({{< relref "/concepts/model#declaring-named-mbeans-to-delete" >}}) need to be escaped in single or double quotation marks.
+   ```yaml
+   topology:
+       Server:
+           '!ms1':
+           ms2:
+   ```
+
+
+   - Model elements under the same parent should be indented to the exact same level. The previous YAML parser did not enforce this restriction,
+   but it is standard for YAML. In this example, each cluster is indented four spaces.
+   ```yaml
+   topology:
+       Cluster:
+           cluster1:
+               ClientCertProxyEnabled: True
+           cluster2:
+               WeblogicPluginEnabled: true
+   ```
+
+
+
+- Object lists in the `kubernetes` section of the model now should be specified in a hyphenated list format,
+similar to how they appear in the domain resource file produced for [WebLogic Kubernetes Operator](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/domain-resource/).
+
+   ```yaml
+       clusters:
+       - clusterName: 'cluster1'
+         allowReplicasBelowMinDynClusterSize: true
+       - clusterName: 'cluster2'
+         allowReplicasBelowMinDynClusterSize: true
+   ```
+
+   - The "named object list" format is deprecated now, and will cause warning messages to be displayed.
+   ```yaml
+       clusters:
+         'cluster1':
+           allowReplicasBelowMinDynClusterSize: true
+         'cluster2':
+           allowReplicasBelowMinDynClusterSize: true
+   ```
+
+
+- The deprecated argument `-model_sample` has been removed from the Model Help Tool.
+The Model Help Tool has used model sample format, by default, since release 1.9.2.
