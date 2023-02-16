@@ -45,7 +45,7 @@ pre = "<b> </b>"
 - #1348: Added database wallet support for multiple wallets. Other database wallets can be added, as needed. (WDT-710)
 - #1351: Removed support for the deprecated "named object list" format from the `kubernetes` section of the model. (WDT-688)
 - #1366: Refactored ATP and SSL database support to be more unified in their modeling approach.
-- #1369: Added a special log level for deprecation messages so that the can show up in the tools' summary reports without causing a non-zero exit status. (WDT-721)
+- #1369: Added a special log level for deprecation messages so that they can show up in the tools' summary reports without causing a non-zero exit status. (WDT-721)
 - #1375: Revamped application installation directory discovery to capture the entire application installation directory. (WDT-715)
 - #1379: Added the ability for discovery to collect the JDBC wallet file(s) in the archive.
 - #1380: Updated the approach for generating the Verrazzano custom resource related to the Ingress Trait routing rules to add
