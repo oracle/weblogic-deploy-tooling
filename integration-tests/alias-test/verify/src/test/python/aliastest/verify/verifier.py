@@ -443,7 +443,13 @@ class Verifier(object):
 
             for unprocessed in unprocessed_alias_list:
                 if unprocessed in self._alias_helper.get_ignore_attribute_names():
+                    _logger.finest('Attribute {0} in alias attribute ignore list', unprocessed,
+                                   class_name=CLASS_NAME, method_name=_method_name)
                     self._add_info(location, INFO_ATTRIBUTE_IN_IGNORE_LIST, attribute=unprocessed)
+                elif verify_utils.is_alias_attribute_in_ignore_list(self._model_context, location, unprocessed):
+                    _logger.fine('Attribute {0} at location {1} being ignored because it was in the ignore list',
+                                 unprocessed, location.get_folder_path(), class_name=CLASS_NAME,
+                                 method_name=_method_name)
                 else:
                     message = ''
                     if verify_utils.is_clear_text_password(unprocessed):
