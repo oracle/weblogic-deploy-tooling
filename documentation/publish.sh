@@ -40,7 +40,7 @@ else
 fi
 
 echo "Building documentation for current version and for selected archived versions..."
-hugo -s 2.0 -d "${outdir}" -b https://oracle.github.io/weblogic-deploy-tooling
+hugo -s 3.0 -d "${outdir}" -b https://oracle.github.io/weblogic-deploy-tooling
 
 echo "Successfully generated documentation in ${outdir}..."
 
