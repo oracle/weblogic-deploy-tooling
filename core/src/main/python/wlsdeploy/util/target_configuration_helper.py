@@ -1,4 +1,4 @@
-# Copyright (c) 2020, 2022, Oracle and/or its affiliates.
+# Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 # Shared methods for using target environments (-target abc).
@@ -11,8 +11,11 @@ from oracle.weblogic.deploy.json import JsonException
 from oracle.weblogic.deploy.util import FileUtils
 
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
+from wlsdeploy.aliases.model_constants import ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
 from wlsdeploy.aliases.model_constants import CLUSTER
+from wlsdeploy.aliases.model_constants import DEFAULT_ADMIN_SERVER_NAME
+from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -225,7 +228,8 @@ def generate_results_json(model_context, token_dictionary, model_dictionary, exc
     result = {
         'domainUID': domain_uid,
         'secrets': _build_json_secrets_result(model_context, token_dictionary, model_dictionary),
-        'clusters': _build_json_cluster_result(model_dictionary)
+        'clusters': _build_json_cluster_result(model_dictionary),
+        'servers': _build_json_server_result(model_dictionary)
     }
     json_object = PythonToJson(result)
 
@@ -267,6 +271,30 @@ def _build_json_cluster_result(model_dictionary):
         cluster_data = {'serverCount': server_count}
         clusters_map[cluster_name] = cluster_data
     return clusters_map
+
+
+def _build_json_server_result(model_dictionary):
+    """
+    Build a map containing servers that are not assigned to clusters.
+    :param model_dictionary: the model to be searched
+    :return: the map of servers
+    """
+    servers_map = {}
+    topology = dictionary_utils.get_dictionary_element(model_dictionary, TOPOLOGY)
+    servers = dictionary_utils.get_dictionary_element(topology, SERVER)
+    for server_name, server_values in servers.items():
+        assigned_cluster = dictionary_utils.get_element(server_values, CLUSTER)
+        if not assigned_cluster:
+            server_data = {}
+            servers_map[server_name] = server_data
+
+    # admin server may not be specified in the Server section of the model
+    admin_server = dictionary_utils.get_element(topology, ADMIN_SERVER_NAME, DEFAULT_ADMIN_SERVER_NAME)
+    if admin_server not in servers_map:
+        server_data = {}
+        servers_map[admin_server] = server_data
+
+    return servers_map
 
 
 def format_as_secret_token(secret_id, target_config):
