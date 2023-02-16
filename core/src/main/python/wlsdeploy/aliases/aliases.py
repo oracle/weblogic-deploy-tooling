@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.lang import String
@@ -22,6 +22,7 @@ from wlsdeploy.aliases.alias_constants import FLATTENED_FOLDER_DATA
 from wlsdeploy.aliases.alias_constants import FOLDERS
 from wlsdeploy.aliases.alias_constants import GET
 from wlsdeploy.aliases.alias_constants import GET_METHOD
+from wlsdeploy.aliases.alias_constants import IGNORED
 from wlsdeploy.aliases.alias_constants import JARRAY
 from wlsdeploy.aliases.alias_constants import LIST
 from wlsdeploy.aliases.alias_constants import LSA
@@ -35,7 +36,7 @@ from wlsdeploy.aliases.alias_constants import PRODUCTION_DEFAULT
 from wlsdeploy.aliases.alias_constants import PROPERTIES
 from wlsdeploy.aliases.alias_constants import RESTART_REQUIRED
 from wlsdeploy.aliases.alias_constants import RO
-from wlsdeploy.aliases.alias_constants import ROD
+from wlsdeploy.aliases.alias_constants import SECURE_DEFAULT
 from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
 from wlsdeploy.aliases.alias_constants import STRING
@@ -83,12 +84,19 @@ class Aliases(object):
 
         self._alias_entries = AliasEntries(wlst_mode, self._wls_version)
         self._production_mode_enabled = False
+        self._secure_mode_enabled = False
 
     def set_production_mode(self, production_mode_enabled):
         _method_name = 'set_production_mode'
         if production_mode_enabled:
             self._logger.info('WLSDPLY-19047', class_name=self._class_name, method_name=_method_name)
         self._production_mode_enabled = production_mode_enabled
+
+    def set_secure_mode(self, secure_mode_enabled):
+        _method_name = 'set_secure_mode'
+        if secure_mode_enabled:
+            self._logger.info('WLSDPLY-19048', class_name=self._class_name, method_name=_method_name)
+        self._secure_mode_enabled = secure_mode_enabled
 
     ###########################################################################
     #              Model folder navigation-related methods                    #
@@ -509,7 +517,7 @@ class Aliases(object):
 
             attribute_info = module_folder[ATTRIBUTES][model_attribute_name]
 
-            if attribute_info and not self.__is_wlst_attribute_read_only(location, attribute_info):
+            if attribute_info and not self.__is_wlst_attribute_read_only_or_ignored(location, attribute_info):
                 wlst_attribute_name = attribute_info[WLST_NAME]
                 uses_path_tokens = USES_PATH_TOKENS in attribute_info and \
                     string_utils.to_boolean(attribute_info[USES_PATH_TOKENS])
@@ -614,7 +622,7 @@ class Aliases(object):
                 self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute_name)
 
             if alias_attr_dict is not None and (not check_read_only or not
-                                                self.__is_wlst_attribute_read_only(location, alias_attr_dict)):
+                                                self.__is_wlst_attribute_read_only_or_ignored(location, alias_attr_dict)):
                 if WLST_NAME in alias_attr_dict:
                     wlst_attribute_name = alias_attr_dict[WLST_NAME]
                 else:
@@ -656,14 +664,14 @@ class Aliases(object):
             self._raise_exception(ae, _method_name, 'WLSDPLY-19020', location.get_current_model_folder(),
                                   location.get_folder_path(), ae.getLocalizedMessage())
 
-    def get_wlst_access_rod_attribute_names(self, location):
+    def get_wlst_access_ro_attribute_names(self, location):
         """
-        Get the list of attribute names that have their ACCESS type set to ROD (readonly but discover)
+        Get the list of attribute names that have their ACCESS type set to RO (readonly)
         :param location: the location
         :return: list[string]: the list of attribute names
         :raises: Tool type exception: if an error occurs due to a bad location or bad alias data
         """
-        _method_name = 'get_wlst_access_rod_attribute_names'
+        _method_name = 'get_wlst_access_ro_attribute_names'
 
         try:
             wlst_attribute_names = []
@@ -676,7 +684,7 @@ class Aliases(object):
                 raise ex
 
             for key, value in module_folder[ATTRIBUTES].iteritems():
-                if ACCESS in value and value[ACCESS] == ROD:
+                if ACCESS in value and value[ACCESS] == RO:
                     wlst_attribute_names.append(value[WLST_NAME])
 
             return wlst_attribute_names
@@ -992,10 +1000,11 @@ class Aliases(object):
             self._raise_exception(ae, _method_name, 'WLSDPLY-19040', model_name, location.get_folder_path(),
                                   ae.getLocalizedMessage())
 
-    def get_model_uses_path_tokens_attribute_names(self, location):
+    def get_model_uses_path_tokens_attribute_names(self, location, only_readable=False):
         """
         Get the list of attribute names that "use path tokens" (i.e., ones whose values are file system paths).
         :param location: the location
+        :param only_readable: If true, filter out all attributes that cannot be read (i.e., IGNORED)
         :return: a list of the model attribute names
         :raises: Tool type exception: if an error occurs
         """
@@ -1012,7 +1021,8 @@ class Aliases(object):
 
             for key, value in module_folder[ATTRIBUTES].iteritems():
                 if USES_PATH_TOKENS in value and alias_utils.convert_boolean(value[USES_PATH_TOKENS]):
-                    model_attribute_names.append(key)
+                    if not (only_readable and ACCESS in value and value[ACCESS] == IGNORED):
+                        model_attribute_names.append(key)
 
             return model_attribute_names
         except AliasException, ae:
@@ -1041,7 +1051,7 @@ class Aliases(object):
             model_attribute_value = None
 
             attribute_info = self._alias_entries.get_alias_attribute_entry_by_wlst_name(location, wlst_attribute_name)
-            if attribute_info is not None and not self.__is_model_attribute_read_only(location, attribute_info):
+            if attribute_info is not None and not self.__is_model_attribute_ignored(location, attribute_info):
                 data_type, preferred_type, delimiter = \
                     alias_utils.compute_read_data_type_for_wlst_and_delimiter_from_attribute_info(attribute_info,
                                                                                                   wlst_attribute_value)
@@ -1112,14 +1122,14 @@ class Aliases(object):
             self._raise_exception(ae, _method_name, 'WLSDPLY-19028', str_helper.to_string(location),
                                   ae.getLocalizedMessage())
 
-    def get_model_attribute_name(self, location, wlst_attribute_name, check_read_only=True):
+    def get_model_attribute_name(self, location, wlst_attribute_name, exclude_ignored=True):
         """
         Returns the model attribute name for the specified WLST attribute name and value. If the model attribute name
         is not valid for the version or the attribute is marked as read-only, return None
 
         :param location: the location
         :param wlst_attribute_name: the WLST attribute name
-        :param check_read_only: Defaults to True. If False, return the WLST attribute name even if read only
+        :param exclude_ignored: Defaults to True. If False, return the WLST attribute name even if ignored
         :return: matching model attribute name
         :raises: Tool type exception: if an error occurs
         """
@@ -1132,7 +1142,7 @@ class Aliases(object):
 
             attribute_info = self._alias_entries.get_alias_attribute_entry_by_wlst_name(location, wlst_attribute_name)
             if attribute_info is not None and \
-                    (not check_read_only or not self.__is_model_attribute_read_only(location, attribute_info)):
+                    (not exclude_ignored or not self.__is_model_attribute_ignored(location, attribute_info)):
                 model_attribute_name = attribute_info[MODEL_NAME]
 
             self._logger.exiting(class_name=self._class_name, method_name=_method_name,
@@ -1287,6 +1297,10 @@ class Aliases(object):
         :param attribute_info: alias information for an attribute
         :return: the correct default value for the execution mode
         """
+        if self._secure_mode_enabled:
+            default_value = dictionary_utils.get_element(attribute_info, SECURE_DEFAULT)
+            if default_value is not None:
+                return default_value
         if self._production_mode_enabled:
             default_value = dictionary_utils.get_element(attribute_info, PRODUCTION_DEFAULT)
             if default_value is not None:
@@ -1451,16 +1465,16 @@ class Aliases(object):
     #
     ####################################################################################
 
-    def __is_model_attribute_read_only(self, location, attribute_info):
+    def __is_model_attribute_ignored(self, location, attribute_info):
         """
-        Is the model attribute read-only?
+        Is the model attribute ignored?
         :param location: the location
         :param attribute_info: the attribute tuple
-        :return: True if the attribute is read-only, False otherwise
+        :return: True if the attribute is ignored, False otherwise
         """
-        _method_name = '__is_model_attribute_read_only'
+        _method_name = '__is_model_attribute_ignored'
         rtnval = False
-        if ACCESS in attribute_info and attribute_info[ACCESS] == RO:
+        if ACCESS in attribute_info and attribute_info[ACCESS] == IGNORED:
             self._logger.finer('WLSDPLY-08409', attribute_info[MODEL_NAME], location.get_folder_path(),
                                WlstModes.from_value(self._wlst_mode),
                                class_name=self._class_name, method_name=_method_name)
@@ -1468,16 +1482,16 @@ class Aliases(object):
 
         return rtnval
 
-    def __is_wlst_attribute_read_only(self, location, attribute_info):
+    def __is_wlst_attribute_read_only_or_ignored(self, location, attribute_info):
         """
-        Is the wlst attribute read-only?
+        Is the wlst attribute ignored or read-only?
         :param location: the location
         :param attribute_info: the attribute tuple
-        :return: True if the attribute is read-only, False otherwise
+        :return: True if the attribute is ignored or read-only, False otherwise
         """
-        _method_name = '__is_wlst_attribute_read_only'
+        _method_name = '__is_wlst_attribute_read_only_or_ignored'
         rtnval = False
-        if ACCESS in attribute_info and attribute_info[ACCESS] in (RO, ROD):
+        if ACCESS in attribute_info and attribute_info[ACCESS] in (IGNORED, RO):
             self._logger.finer('WLSDPLY-08411', attribute_info[MODEL_NAME], location.get_folder_path(),
                                WlstModes.from_value(self._wlst_mode),
                                class_name=self._class_name, method_name=_method_name)

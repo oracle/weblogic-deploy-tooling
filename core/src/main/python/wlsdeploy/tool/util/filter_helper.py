@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle and/or its affiliates.
+Copyright (c) 2017, 2023 Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import imp
@@ -23,6 +23,7 @@ __id_filter_map = {
     'k8s_filter': wko_filter.filter_model,
     'vz_filter': wko_filter.filter_model_for_vz,
     'wko_filter': wko_filter.filter_model_for_wko,
+    'wko3_filter': wko_filter.filter_model_for_wko3,
 
     # individual filters for custom target environments
     'online_attributes_filter': wko_filter.filter_online_attributes,

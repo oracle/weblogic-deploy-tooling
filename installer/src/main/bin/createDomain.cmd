@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem createDomain.cmd
 @rem
-@rem Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -73,11 +73,11 @@ if "%SHOW_USAGE%" == "false" (
 ECHO.
 ECHO Usage: %SCRIPT_NAME% [-help] [-use_encryption] [-run_rcu]
 ECHO              [-oracle_home ^<oracle_home^>]
-ECHO              [-domain_parent ^<domain_parent^> ^| -domain_home ^<domain_home^>]
-ECHO              -domain_type ^<domain_type^>
+ECHO              -model_file ^<model_file^>
+ECHO              ^<-domain_parent ^<domain_parent^> ^| -domain_home ^<domain_home^>^>
+ECHO              [-domain_type ^<domain_type^>]
 ECHO              [-java_home ^<java_home^>]
 ECHO              [-archive_file ^<archive_file^>]
-ECHO              [-model_file ^<model_file^>]
 ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-passphrase_env ^<passphrase_env^>]
 ECHO              [-passphrase_file ^<passphrase_file^>]
@@ -91,50 +91,65 @@ ECHO              ]
 ECHO.
 ECHO     where:
 ECHO         oracle_home     - the existing Oracle Home directory for the domain.
-ECHO                           This is required unless the ORACLE_HOME environment
-ECHO                           variable is set.
+ECHO                           This argument is required unless the ORACLE_HOME
+ECHO                           environment variable is set.
 ECHO.
-ECHO         domain_parent   - the parent directory where the domain should be created.
-ECHO                           The domain name from the model will be appended to this
-ECHO                           location to become the domain home.
+ECHO         model_file      - the location of the model file to use.  This can also
+ECHO                           be specified as a comma-separated list of model
+ECHO                           locations, where each successive model layers on top
+ECHO                           of the previous ones.  This argument is required.
+ECHO.
+ECHO         domain_parent   - the parent directory where the domain should be
+ECHO                           created. The domain name from the model will be
+ECHO                           appended to this location to become the domain home.
+ECHO                           This argument is required unless -domain_home is
+ECHO                           provided.
 ECHO.
 ECHO         domain_home     - the full directory where the domain should be created.
-ECHO                           This is used in cases where the domain name is different
-ECHO                           from the domain home directory name.
+ECHO                           This is used in cases where the domain name is
+ECHO                           different from the domain home directory name.  This
+ECHO                           argument is required unless -domain_parent is
+ECHO                           provided.
 ECHO.
 ECHO         domain_type     - the type of domain (e.g., WLS, JRF).  This controls
 ECHO                           the domain templates and template resource targeting.
-ECHO                           Also used to locate wlst.cmd if -wlst_path not specified.
+ECHO                           Also used to locate wlst.cmd if -wlst_path not
+ECHO                           specified. If not specified, the default domain type
+ECHO                           is WLS.
 ECHO.
 ECHO         java_home       - the Java Home to use for the new domain.  If not
 ECHO                           specified, it defaults to the value of the JAVA_HOME
 ECHO                           environment variable.
 ECHO.
-ECHO         archive_file    - the path to the archive file to use.  If the -model_file
-ECHO                           argument is not specified, the model file in this archive
-ECHO                           will be used.  This can also be specified as a
-ECHO                           comma-separated list of archive files.  The overlapping contents in
-ECHO                           each archive take precedence over previous archives in the list.
+ECHO         archive_file    - the path to the archive file to use.  This can also
+ECHO                           be specified as a comma-separated list of archive
+ECHO                           files.  The overlapping contents in each archive take
+ECHO                           precedence over previous archives in the list.
 ECHO.
-ECHO         model_file      - the location of the model file to use.  This can also be specified as a
-ECHO                           comma-separated list of model locations, where each successive model
-ECHO                           layers on top of the previous ones.
+ECHO         variable_file   - the location of the property file containing the
+ECHO                           values for variables used in the model. This can also
+ECHO                           be specified as a comma-separated list of property
+ECHO                           files, where each successive set of properties layers
+ECHO                           on top of the previous ones.
 ECHO.
-ECHO         variable_file   - the location of the property file containing the values for variables used in
-ECHO                           the model. This can also be specified as a comma-separated list of property files,
-ECHO                           where each successive set of properties layers on top of the previous ones.
+ECHO         passphrase_env  - An alternative to entering the encryption passphrase
+ECHO                           at a prompt. The value is an ENVIRONMENT VARIABLE name
+ECHO                           that WDT will use to retrieve the passphrase.
 ECHO.
-ECHO         passphrase_env  - An alternative to entering the encryption passphrase at a prompt. The value is an
-ECHO                           ENVIRONMENT VARIABLE name that WDT will use to retrieve the passphrase.
+ECHO         passphrase_file - An alternative to entering the encryption passphrase
+ECHO                           at a prompt. The value is the name of a file with a
+ECHO                           string value which WDT will read to retrieve the
+ECHO                           passphrase.
 ECHO.
-ECHO         passphrase_file - An alternative to entering the encryption passphrase at a prompt. The value is a
-ECHO                           the name of a file with a string value which WDT will read to retrieve the passphrase.
+ECHO         opss_wallet_passphrase_env  - An alternative to entering the OPSS
+ECHO                           wallet passphrase at a prompt. The value is an
+ECHO                           ENVIRONMENT VARIABLE name that WDT will use to
+ECHO                           retrieve the passphrase.
 ECHO.
-ECHO         opss_wallet_passphrase_env  - An alternative to entering the OPSS wallet passphrase at a prompt. The value is a
-ECHO                           ENVIRONMENT VARIABLE name that WDT will use to retrieve the passphrase.
-ECHO.
-ECHO         opss_wallet_passphrase_file - An alternative to entering the OPSS wallet passphrase at a prompt. The value is a
-ECHO                           the name of a file with a string value which WDT will read to retrieve the passphrase.
+ECHO         opss_wallet_passphrase_file - An alternative to entering the OPSS
+ECHO                           wallet passphrase at a prompt. The value is the name
+ECHO                           of a file with a string value which WDT will read to
+ECHO                           retrieve the passphrase.
 ECHO.
 ECHO         wlst_path       - the Oracle Home subdirectory of the wlst.cmd
 ECHO                           script to use (e.g., ^<ORACLE_HOME^>\soa).
@@ -146,7 +161,8 @@ ECHO         rcu_prefix      - the RCU prefix to use (if the domain type require
 ECHO                           RCU).
 ECHO.
 ECHO         rcu_db_user    - the RCU dbUser to use (if the domain type requires
-ECHO                           RCU.  Default SYS if not specified).  This user must have SYSDBA privilege
+ECHO                          RCU.  Default SYS if not specified).  This user must
+ECHO                          have SYSDBA privilege.
 ECHO.
 ECHO    The -use_encryption switch tells the program that one or more of the
 ECHO    passwords in the model or variables files are encrypted.  The program will

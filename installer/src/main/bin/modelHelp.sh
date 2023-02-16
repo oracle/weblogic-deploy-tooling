@@ -2,7 +2,7 @@
 # *****************************************************************************
 # modelHelp.sh
 #
-# Copyright (c) 2020, 2022, Oracle and/or its affiliates.
+# Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -39,22 +39,14 @@ usage() {
   echo "          <model_path>"
   echo ""
   echo "    where:"
-  echo "        oracle_home - an existing Oracle Home directory."
-  echo "                      This is required unless the ORACLE_HOME environment"
-  echo "                      variable is set."
+  echo "        oracle_home - an existing Oracle Home directory.  This is required"
+  echo "                      unless the ORACLE_HOME environment variable is set."
   echo ""
   echo "        target      - target platform (wko, etc.)."
   echo "                      this determines the structure of the kubernetes section."
   echo ""
   echo "        model_path  - the path to the model element to be examined."
-  echo "                      the format is [<section>:][/<folder>]..."
-  echo ""
-  echo "    model_path examples:"
-  echo "        resources:/JDBCSystemResource/JdbcResource"
-  echo "        /JDBCSystemResource/JdbcResource"
-  echo "        resources:"
-  echo "        resources"
-  echo "        top  (this will list the top-level section names)"
+  echo "                      The format is [<section>:][/<folder>]*"
   echo ""
   echo "    By default, the tool will display the folders and attributes for the"
   echo "    specified model path."
@@ -71,6 +63,13 @@ usage() {
   echo ""
   echo "    The -interactive switch will cause the tool to enter an interactive"
   echo "    mode with the specified model path as your initial location."
+  echo ""
+  echo "    model_path examples:"
+  echo "        resources:/JDBCSystemResource/JdbcResource"
+  echo "        /JDBCSystemResource/JdbcResource"
+  echo "        resources:"
+  echo "        resources"
+  echo "        top  (this will list the top-level section names)"
   echo ""
 }
 

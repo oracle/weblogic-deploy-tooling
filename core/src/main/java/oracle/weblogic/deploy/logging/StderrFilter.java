@@ -18,7 +18,9 @@ public class StderrFilter implements Filter {
     public boolean isLoggable(LogRecord logRecord) {
         boolean stdErr = false;
         int level = logRecord.getLevel() == null ? 0 : logRecord.getLevel().intValue();
-        if (level == Level.WARNING.intValue() || level == Level.SEVERE.intValue()) {
+        if (level == DeprecationLevel.DEPRECATION.intValue() ||
+            level == Level.WARNING.intValue() ||
+            level == Level.SEVERE.intValue()) {
             stdErr = true;
         }
         return stdErr;

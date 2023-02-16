@@ -13,16 +13,17 @@ pipeline {
     stages {
         stage ('Environment') {
             tools {
-                maven 'maven-3.6.0'
+                maven 'maven-3.8.7'
                 jdk 'jdk8'
             }
             steps {
                 sh 'env|sort'
+                sh 'mvn -v'
             }
         }
         stage ('Build') {
             tools {
-                maven 'maven-3.6.0'
+                maven 'maven-3.8.7'
                 jdk 'jdk8'
             }
             steps {
@@ -77,7 +78,7 @@ pipeline {
                 }
             }
             tools {
-                maven 'maven-3.6.0'
+                maven 'maven-3.8.7'
                 jdk 'jdk11'
             }
             steps {

@@ -1,0 +1,98 @@
+# Copyright (c) 2023, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+apiVersion: weblogic.oracle/v8
+kind: ApplicationConfiguration
+metadata:
+    name: demodomain
+    namespace: demodomain
+spec:
+    components:
+        - componentName: demodomain-domain
+          traits:
+              - trait:
+                  apiVersion: oam.verrazzano.io/v1alpha1
+                  kind: MetricsTrait
+                  spec:
+                      scraper: verrazzano-system/vmi-system-prometheus-0
+              - trait:
+                  apiVersion: oam.verrazzano.io/v1alpha1
+                  kind: IngressTrait
+                  spec:
+                      rules:
+                          - paths:
+                              - path: "myApp"
+                                pathType: Prefix
+        - componentName: demodomain-configmap
+---
+apiVersion: core.oam.dev/v1alpha2
+kind: Component
+metadata:
+    name: demodomain-domain
+    namespace: demodomain
+spec:
+    workload:
+        apiVersion: oam.verrazzano.io/v1alpha1
+        kind: VerrazzanoWebLogicWorkload
+        spec:
+            template:
+                metadata:
+                    name: demodomain-domain
+                    namespace: demodomain
+                spec:
+                    domainHome: --FIX ME--
+
+                    adminServer:
+                        adminService:
+                            channels:
+                                - channelName: channel-1
+                                  nodePort: 1001
+
+                    clusters:
+                        - name: cluster1
+                        - name: cluster2
+
+                    configuration:
+                        secrets:
+                            - secret-one
+                            - secret-two
+
+                    managedServers:
+                        - serverName: server-1
+                          restartVersion: restart-1
+
+                    serverPod:
+                        env:
+                            - name: JAVA_OPTIONS
+                              value: "-Dweblogic.StdoutDebugEnabled=false"
+                            - name: USER_MEM_ARGS
+                              value: "-Djava.security.egd=file:/dev/./urandom -Xms64m -Xmx256m "
+            clusters:
+                - spec:
+                      clusterName: cluster1
+                      replicas: 1001
+                - spec:
+                      clusterName: cluster2
+                      replicas: 1002
+---
+apiVersion: core.oam.dev/v1alpha2
+kind: Component
+metadata:
+    name: demodomain-configmap
+    namespace: demodomain
+spec:
+    workload:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+            name: demodomain-configmap
+            namespace: demodomain
+        data:
+            wdt_jdbc.yaml: |
+              resources:
+                JDBCSystemResource:
+                  myDs:
+                    JdbcResource:
+                      JDBCDriverParams:
+                        # This is the URL of the database used by the WebLogic Server application
+                        URL: http://mydb

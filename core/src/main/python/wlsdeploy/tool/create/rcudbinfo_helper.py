@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.aliases import alias_utils
@@ -14,6 +14,7 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_DB_CONN
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
@@ -96,7 +97,7 @@ class RcuDbInfo(object):
         return self.aliases.decrypt_password(password)
 
     def get_keystore(self):
-        return self._get_dictionary_element_value(DRIVER_PARAMS_kEYSTORE_PROPERTY)
+        return self._get_dictionary_element_value(DRIVER_PARAMS_KEYSTORE_PROPERTY)
 
     def get_keystore_type(self):
         return self._get_dictionary_element_value(DRIVER_PARAMS_KEYSTORETYPE_PROPERTY)
@@ -126,8 +127,8 @@ class RcuDbInfo(object):
         _method_name = 'get_atp_default_tablespace'
         result = self._get_dictionary_element_value(ATP_DEFAULT_TABLESPACE)
         if result is not None:
-            self._logger.warning('WLSDPLY-22000', ATP_DEFAULT_TABLESPACE, RCU_DEFAULT_TBLSPACE,
-                              class_name=_class_name, method_name=_method_name)
+            self._logger.deprecation('WLSDPLY-22000', ATP_DEFAULT_TABLESPACE, RCU_DEFAULT_TBLSPACE,
+                                     class_name=_class_name, method_name=_method_name)
             return result
         elif self.get_rcu_default_tablespace() is not None:
             return self.get_rcu_default_tablespace()
@@ -138,8 +139,8 @@ class RcuDbInfo(object):
         _method_name = 'get_atp_temp_tablespace'
         result = self._get_dictionary_element_value(ATP_TEMPORARY_TABLESPACE)
         if result is not None:
-            self._logger.warning('WLSDPLY-22000', ATP_TEMPORARY_TABLESPACE, RCU_TEMP_TBLSPACE,
-                              class_name=_class_name, method_name=_method_name)
+            self._logger.deprecation('WLSDPLY-22000', ATP_TEMPORARY_TABLESPACE, RCU_TEMP_TBLSPACE,
+                                     class_name=_class_name, method_name=_method_name)
             return result
         elif self.get_rcu_temp_tablespace() is not None:
             return self.get_rcu_temp_tablespace()
@@ -150,8 +151,8 @@ class RcuDbInfo(object):
         _method_name = 'get_atp_admin_user'
         result = self._get_dictionary_element_value(ATP_ADMIN_USER)
         if result is not None:
-            self._logger.warning('WLSDPLY-22000', ATP_ADMIN_USER, RCU_DB_USER,
-                              class_name=_class_name, method_name=_method_name)
+            self._logger.deprecation('WLSDPLY-22000', ATP_ADMIN_USER, RCU_DB_USER,
+                                     class_name=_class_name, method_name=_method_name)
             return result
         elif self.get_rcu_db_user() is not None:
             return self.get_rcu_db_user()
@@ -219,8 +220,8 @@ class RcuDbInfo(object):
         _method_name = 'is_use_atp'
         result = self._get_dictionary_element_value(USE_ATP)
         if result is not None:
-            self._logger.warning('WLSDPLY-22000', USE_ATP, DATABASE_TYPE,
-                              class_name=_class_name, method_name=_method_name)
+            self._logger.deprecation('WLSDPLY-22000', USE_ATP, DATABASE_TYPE,
+                                     class_name=_class_name, method_name=_method_name)
             model_value = self.rcu_properties_map[USE_ATP]
             value = alias_utils.convert_to_type('boolean', model_value)
             return value == 'true'
@@ -235,8 +236,8 @@ class RcuDbInfo(object):
         _method_name = 'is_use_ssl'
         result = self._get_dictionary_element_value(USE_SSL)
         if result is not None:
-            self._logger.warning('WLSDPLY-22000', USE_ATP, DATABASE_TYPE,
-                              class_name=_class_name, method_name=_method_name)
+            self._logger.deprecation('WLSDPLY-22000', USE_ATP, DATABASE_TYPE,
+                                     class_name=_class_name, method_name=_method_name)
             model_value = self.rcu_properties_map[USE_SSL]
             value = alias_utils.convert_to_type('boolean', model_value)
             return value == 'true'

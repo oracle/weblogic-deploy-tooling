@@ -8,7 +8,6 @@ import os
 import sys
 
 from java.io import File
-from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import IllegalStateException
 from oracle.weblogic.deploy.aliases import AliasException
@@ -18,6 +17,7 @@ from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyOrderedDict
 from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import TranslateException
+from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 from oracle.weblogic.deploy.validate import ValidateException
@@ -27,6 +27,7 @@ sys.path.insert(0, os.path.dirname(os.path.realpath(sys.argv[0])))
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
@@ -68,12 +69,12 @@ _store_result_environment_variable = '__WLSDEPLOY_STORE_RESULT__'
 
 __required_arguments = [
     CommandLineArgUtil.ORACLE_HOME_SWITCH,
-    CommandLineArgUtil.DOMAIN_HOME_SWITCH,
     CommandLineArgUtil.MODEL_FILE_SWITCH
 ]
 
 __optional_arguments = [
     # Used by shell script to locate WLST
+    CommandLineArgUtil.DOMAIN_HOME_SWITCH,
     CommandLineArgUtil.ARCHIVE_FILE_SWITCH,
     CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH,
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
@@ -103,6 +104,7 @@ def __process_args(args):
     argument_map = cla_util.process_args(args, TOOL_TYPE_DISCOVER)
 
     __wlst_mode = cla_helper.process_online_args(argument_map)
+    cla_helper.validate_if_domain_home_required(_program_name, argument_map)
     target_configuration_helper.process_target_arguments(argument_map)
     __process_model_arg(argument_map)
     __process_archive_filename_arg(argument_map)
@@ -240,6 +242,7 @@ def __discover(model_context, aliases, credential_injector, helper, extra_tokens
     try:
         _add_domain_name(base_location, aliases, helper)
         _establish_production_mode(aliases, helper)
+        _establish_secure_mode(aliases, base_location, helper)
 
         DomainInfoDiscoverer(model_context, model.get_model_domain_info(), base_location, wlst_mode=__wlst_mode,
                              aliases=aliases, credential_injector=credential_injector).discover()
@@ -300,6 +303,37 @@ def _establish_production_mode(aliases, helper):
         raise de
 
 
+def _establish_secure_mode(aliases, base_location, helper):
+    """
+    Determine if secure mode is enabled for the domain, and set it in the aliases.
+    :param aliases: aliases instance for discover
+    :param base_location: location of root directory in WLST
+    :param helper: wlst_helper instance
+    :raises DiscoverException: if an error occurs during discovery
+    """
+    _method_name = '_establish_secure_mode'
+    try:
+        secure_mode_location = LocationContext(base_location)
+        secure_mode_location.append_location(model_constants.SECURITY_CONFIGURATION)
+        security_config_path = aliases.get_wlst_list_path(secure_mode_location)
+        security_config_token = helper.get_singleton_name(security_config_path)
+        secure_mode_location.add_name_token(aliases.get_name_token(secure_mode_location), security_config_token)
+
+        secure_mode_location.append_location(model_constants.SECURE_MODE)
+        secure_mode_path = aliases.get_wlst_list_path(secure_mode_location)
+        secure_mode_token = helper.get_singleton_name(secure_mode_path)
+        if secure_mode_token is not None:
+            secure_mode_location.add_name_token(aliases.get_name_token(secure_mode_location), secure_mode_token)
+            helper.cd(aliases.get_wlst_attributes_path(secure_mode_location))
+            secure_mode_enabled = helper.get(model_constants.SECURE_MODE_ENABLED)
+            aliases.set_secure_mode(secure_mode_enabled)
+            helper.cd(aliases.get_wlst_attributes_path(base_location))
+    except PyWLSTException, pe:
+        de = exception_helper.create_discover_exception('WLSDPLY-06038', pe.getLocalizedMessage())
+        __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+        raise de
+
+
 def __discover_multi_tenant(model, model_context, base_location, aliases, injector):
     """
     Discover the multi-tenant-related parts of the domain, if they exist.
@@ -325,6 +359,10 @@ def __connect_to_domain(model_context, helper):
         try:
             helper.connect(model_context.get_admin_user(), model_context.get_admin_password(),
                            model_context.get_admin_url(), model_context.get_model_config().get_connect_timeout())
+
+            model_context.set_domain_home_name_if_remote(helper.get_domain_home_online(),
+                                                         helper.get_domain_name_online())
+
         except PyWLSTException, wlst_ex:
             ex = exception_helper.create_discover_exception('WLSDPLY-06001', model_context.get_admin_url(),
                                                             model_context.get_admin_user(),
@@ -428,9 +466,18 @@ def __persist_model(model, model_context):
 
     __logger.entering(class_name=_class_name, method_name=_method_name)
 
+    # add model comments to dictionary extracted from the Model object
+    model_dict = model.get_model()
+    message_1 = exception_helper.get_message('WLSDPLY-06039', WebLogicDeployToolingVersion.getVersion(), _program_name)
+    model_dict.addComment(DOMAIN_INFO, message_1)
+    message_2 = exception_helper.get_message('WLSDPLY-06040', WlstModes.values()[__wlst_mode],
+                                             model_context.get_target_wls_version())
+    model_dict.addComment(DOMAIN_INFO, message_2)
+    model_dict.addComment(DOMAIN_INFO, '')
+
     model_file_name = model_context.get_model_file()
     model_file = FileUtils.getCanonicalFile(File(model_file_name))
-    model_translator.PythonToFile(model.get_model()).write_to_file(model_file.getAbsolutePath())
+    model_translator.PythonToFile(model_dict).write_to_file(model_file.getAbsolutePath())
 
     __logger.exiting(class_name=_class_name, method_name=_method_name)
 
@@ -492,48 +539,33 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
     return model
 
 
-def __remote_report(model_context):
+def __generate_remote_report_json(model_context):
     _method_name = '__remote_report'
 
-    if not model_context.is_remote():
+    if not model_context.is_remote() or not os.environ.has_key(_store_result_environment_variable):
         return
-
-    remote_map = discoverer.remote_dict
 
     # write JSON output if the __WLSDEPLOY_STORE_RESULT__ environment variable is set.
     # write to the file before the stdout so any logging messages come first.
-    if os.environ.has_key(_store_result_environment_variable):
-        store_path = os.environ.get(_store_result_environment_variable)
-        __logger.info('WLSDPLY-06034', store_path, class_name=_class_name, method_name=_method_name)
-        missing_archive_entries = []
-        for key in remote_map:
-            archive_map = remote_map[key]
-            missing_archive_entries.append({
-                'sourceFile': key,
-                'path': archive_map[discoverer.REMOTE_ARCHIVE_PATH],
-                'type': archive_map[discoverer.REMOTE_TYPE]
-            })
-        result_root = PyOrderedDict()
-        result_root['missingArchiveEntries'] = missing_archive_entries
-        try:
-            json_translator.PythonToJson(result_root).write_to_json_file(store_path)
-        except JsonException, ex:
-            __logger.warning('WLSDPLY-06035', _store_result_environment_variable, ex.getLocalizedMessage(),
-                             class_name=_class_name, method_name=_method_name)
+    remote_map = discoverer.remote_dict
 
-    # write to stdout
-    print('')
-    if len(remote_map) == 0:
-        message = exception_helper.get_message('WLSDPLY-06030')
-    else:
-        message = exception_helper.get_message('WLSDPLY-06031')
-    print(message)
-    print('')
+    store_path = os.environ.get(_store_result_environment_variable)
+    __logger.info('WLSDPLY-06034', store_path, class_name=_class_name, method_name=_method_name)
+    missing_archive_entries = []
     for key in remote_map:
-        other_map = remote_map[key]
-        wls_archive = other_map[discoverer.REMOTE_ARCHIVE_PATH]
-        print(key, ' ', wls_archive)
-    print('')
+        archive_map = remote_map[key]
+        missing_archive_entries.append({
+            'sourceFile': key,
+            'path': archive_map[discoverer.REMOTE_ARCHIVE_PATH],
+            'type': archive_map[discoverer.REMOTE_TYPE]
+        })
+    result_root = PyOrderedDict()
+    result_root['missingArchiveEntries'] = missing_archive_entries
+    try:
+        json_translator.PythonToJson(result_root).write_to_json_file(store_path)
+    except JsonException, ex:
+        __logger.warning('WLSDPLY-06035', _store_result_environment_variable, ex.getLocalizedMessage(),
+                         class_name=_class_name, method_name=_method_name)
 
 
 def main(model_context):
@@ -576,7 +608,7 @@ def main(model_context):
 
             model = __check_and_customize_model(model, model_context, aliases, credential_injector, extra_tokens)
 
-            __remote_report(model_context)
+            __generate_remote_report_json(model_context)
         except DiscoverException, ex:
             __logger.severe('WLSDPLY-06011', _program_name, model_context.get_domain_name(),
                             model_context.get_domain_home(), ex.getLocalizedMessage(),

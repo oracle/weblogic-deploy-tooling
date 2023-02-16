@@ -14,7 +14,7 @@
                                                  {"version": "[10,)",       "wlst_mode": "online",  "wlst_name": "ConstrainedCandidateServers",        "wlst_path": "WP001", "default_value": null,                          "wlst_type": "jarray",           "preferred_model_type": "delimited_string", "get_method": "GET", "set_method": "MBEAN.set_server_mbeans", "set_mbean_type": "weblogic.management.configuration.ServerMBean"} ],
         "HostingServer":                       [
             {"version": "[10,12.2.1.4)", "wlst_mode": "offline",  "wlst_name": "HostingServer",  "wlst_path": "WP001", "default_value": null, "wlst_type": "string" },
-            {"version": "[10,)",         "wlst_mode": "online",   "wlst_name": "HostingServer",  "wlst_path": "WP001", "default_value": null, "wlst_type": "string", "access": "RO" }
+            {"version": "[10,)",         "wlst_mode": "online",   "wlst_name": "HostingServer",  "wlst_path": "WP001", "default_value": null, "wlst_type": "string", "access": "IGNORED" }
         ],
         "MillisToSleepBetweenAttempts":        [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "MillisToSleepBetweenAttempts",       "wlst_path": "WP001", "default_value": 300000,                        "wlst_type": "long"       } ],
         "UserPreferredServer":                 [ {"version": "[10,)",       "wlst_mode": "offline", "wlst_name": "UserPreferredServer",                "wlst_path": "WP001", "default_value": null,                          "wlst_type": "string", "get_method": "LSA" } ,

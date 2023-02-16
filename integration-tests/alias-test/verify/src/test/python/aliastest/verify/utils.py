@@ -21,7 +21,7 @@ from aliastest.verify import constants
 from aliastest.verify.verify_context import VerifyModelContext
 
 __logger = PlatformLogger('test.aliases')
-CLASS_NAME = 'generate/utils'
+CLASS_NAME = 'verify/utils'
 
 OFFLINE_ALIAS_FOLDER_IGNORE_MAP = {
     '/': ['ODLConfiguration', 'OHS', 'RCUDbInfo', 'Security', 'UnixMachine', 'WLSRoles',
@@ -31,6 +31,19 @@ OFFLINE_ALIAS_FOLDER_IGNORE_MAP = {
 
 ONLINE_ALIAS_FOLDER_IGNORE_MAP = {
     '/ResourceGroupTemplate': ['SystemComponents']
+}
+
+ONLINE_ALIAS_ATTRIBUTE_IGNORE_MAP = {
+    '/Server/ServerDebug': [
+        'DebugJAXPOutputStream',
+        'DebugXMLRegistryOutputStream',
+        'DebugXMLEntityCacheOutputStream'
+    ],
+    '/ServerTemplate/ServerDebug': [
+        'DebugJAXPOutputStream',
+        'DebugXMLRegistryOutputStream',
+        'DebugXMLEntityCacheOutputStream'
+    ]
 }
 
 OFFLINE_TEST_ANOMALIES_MAP = {
@@ -281,6 +294,18 @@ def is_alias_folder_in_ignore_list(model_context, location, alias_name):
         return True
     return False
 
+
+def is_alias_attribute_in_ignore_list(model_context, location, alias_name):
+    _method_name = 'is_alias_attribute_in_ignore_list'
+    if model_context.get_target_wlst_mode() == WlstModes.ONLINE:
+        ignore_map = ONLINE_ALIAS_ATTRIBUTE_IGNORE_MAP
+        path = location.get_folder_path()
+
+        if path in ignore_map and alias_name in ignore_map[path]:
+            __logger.finer('{0}:{1} found in ignore list', path, alias_name,
+                           class_name=CLASS_NAME, method_name=_method_name)
+            return True
+    return False
 
 def is_attribute_value_test_anomaly(model_context, location, attribute_name, attribute_value):
     if model_context.get_target_wlst_mode() == WlstModes.OFFLINE:

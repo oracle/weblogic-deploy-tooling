@@ -19,7 +19,6 @@ import oracle.weblogic.deploy.util.ScriptRunner;
 import oracle.weblogic.deploy.util.ScriptRunnerException;
 import oracle.weblogic.deploy.util.StringUtils;
 
-import org.python.core.PyClass;
 import org.python.core.PyDictionary;
 import org.python.core.PyString;
 
@@ -72,7 +71,7 @@ public class RCURunner {
     private boolean atpDB = false;
     private boolean sslDB = false;
  
-    private String atpSSlArgs = null;
+    private String sslArgs = null;
     private String atpAdminUser = null;
     private String rcuAdminUser = DB_USER;
     private String atpDefaultTablespace = null;
@@ -136,42 +135,44 @@ public class RCURunner {
      * @param javaHome   the JAVA_HOME location
      * @param rcuSchemas the list of RCU schemas to create (this list should not include STB)
      * @param rcuVariables a comma separated list of key=value variables
-     * @param connectionProperties dictionary of ATP specific arguments
+     * @param sslConnectionProperties dictionary of ATP specific arguments
      * @throws CreateException if a parameter validation error occurs
      */
     public static RCURunner createAtpRunner(String domainType, String oracleHome, String javaHome, String rcuDb,
                                             List<String> rcuSchemas, String rcuPrefix, String rcuVariables,
                                             String databaseType, PyDictionary runnerMap,
-                                            PyDictionary connectionProperties) throws CreateException {
+                                            PyDictionary sslConnectionProperties) throws CreateException {
 
         RCURunner runner = new RCURunner(domainType, oracleHome, javaHome, rcuDb, rcuPrefix, rcuSchemas, rcuVariables);
 
-        StringBuilder sslArgs = new StringBuilder();
+        StringBuilder sslArgs = getSSLArgsStringBuilder(sslConnectionProperties);
 
-        for (Object connectionProperty: connectionProperties.keys()) {
-            if (sslArgs.length() != 0) {
-                sslArgs.append(',');
-            }
-            sslArgs.append(connectionProperty.toString());
-            sslArgs.append('=');
-            PyDictionary valueObject = (PyDictionary)connectionProperties
-                .get(new PyString(connectionProperty.toString()));
-            sslArgs.append(valueObject.get(new PyString("Value")));
-        }
-
-
-        addExtraSSLPropertyFromMap(runnerMap, connectionProperties, sslArgs, "javax.net.ssl.keyStorePassword");
-        addExtraSSLPropertyFromMap(runnerMap, connectionProperties, sslArgs, "javax.net.ssl.trustStorePassword");
-
+        addExtraSSLPropertyFromMap(runnerMap, sslConnectionProperties, sslArgs, "javax.net.ssl.keyStorePassword");
+        addExtraSSLPropertyFromMap(runnerMap, sslConnectionProperties, sslArgs, "javax.net.ssl.trustStorePassword");
 
         runner.atpDB = true; // "ATP".equals(databaseType);  // or scan if there are any 'ssl' in properties ?
-        runner.atpSSlArgs = sslArgs.toString();
+        runner.sslArgs = sslArgs.toString();
 
         runner.atpAdminUser = get(runnerMap, "atp.admin.user");
         runner.atpDefaultTablespace = get(runnerMap, "atp.default.tablespace");
         runner.atpTemporaryTablespace = get(runnerMap, "atp.temp.tablespace");
 
         return runner;
+    }
+
+    private static StringBuilder getSSLArgsStringBuilder(PyDictionary connectionProperties) {
+        StringBuilder sslArgs = new StringBuilder();
+
+        for (Object connectionProperty: connectionProperties.keys()) {
+            if (sslArgs.length() != 0) {
+                sslArgs.append(',');
+            }
+            String key = connectionProperty.toString();
+            sslArgs.append(key);
+            sslArgs.append('=');
+            sslArgs.append(get(connectionProperties, key));
+        }
+        return sslArgs;
     }
 
     private static void addExtraSSLPropertyFromMap(PyDictionary runnerMap, PyDictionary connectionProperties,
@@ -199,44 +200,16 @@ public class RCURunner {
      */
     public static RCURunner createSslRunner(String domainType, String oracleHome, String javaHome, String rcuDb,
                                             String rcuPrefix, List<String> rcuSchemas, String rcuVariables,
-                                            PyDictionary rcuProperties) throws CreateException {
+                                            PyDictionary rcuProperties,
+                                            PyDictionary sslConnectionProperties) throws CreateException {
 
-        String tnsAdmin = get(rcuProperties, "oracle.net.tns_admin");
 
         RCURunner runner = new RCURunner(domainType, oracleHome, javaHome, rcuDb, rcuPrefix, rcuSchemas, rcuVariables);
-        String trustStorePassword = get(rcuProperties, "javax.net.ssl.trustStorePassword");
-        String trustStore = get(rcuProperties, "javax.net.ssl.keyStore");
-        String trustStoreType = get(rcuProperties, "javax.net.ssl.keyStoreType");
-        String keyStorePassword = get(rcuProperties, "javax.net.ssl.keyStorePassword");
-        String keyStore = get(rcuProperties, "javax.net.ssl.keyStore");
-        String keyStoreType = get(rcuProperties, "javax.net.ssl.keyStoreType");
-        String matchType = get(rcuProperties, "oracle.net.ssl_server_dn_match");
-        if (matchType == null || matchType.equals("None"))  {
-            matchType = Boolean.FALSE.toString();
-        }
 
-
-        StringBuilder sslArgs = new StringBuilder();
-        sslArgs.append("oracle.net.tns_admin=");
-        sslArgs.append(tnsAdmin);
-
-        sslArgs.append(",javax.net.ssl.trustStore=");
-        sslArgs.append(tnsAdmin + "/" + trustStore);
-        sslArgs.append(",javax.net.ssl.trustStoreType=" + trustStoreType);
-        // If wallet type is SSO, no password present
-        if (trustStorePassword != null && !trustStorePassword.equals("None")) {
-            sslArgs.append(",javax.net.ssl.trustStorePassword="+ trustStorePassword);
-        }
-        sslArgs.append(",javax.net.ssl.keyStore=");
-        sslArgs.append(tnsAdmin + "/" + keyStore);
-        sslArgs.append(",javax.net.ssl.keyStoreType=" + keyStoreType);
-        if (keyStorePassword != null && !keyStorePassword.equals("None")) {
-            sslArgs.append(",javax.net.ssl.keyStorePassword="+ keyStorePassword);
-        }
-        sslArgs.append(",oracle.net.ssl_server_dn_match="+ matchType);
+        StringBuilder sslArgs = getSSLArgsStringBuilder(sslConnectionProperties);
 
         runner.sslDB = true;
-        runner.atpSSlArgs = sslArgs.toString();
+        runner.sslArgs = sslArgs.toString();
         return runner;
     }
 
@@ -377,11 +350,11 @@ public class RCURunner {
             arguments.add(SERVER_DN_SWITCH);
             arguments.add("CN=ignored");
             arguments.add(SSLARGS);
-            arguments.add(atpSSlArgs);
+            arguments.add(sslArgs);
         } else if (sslDB) {
             arguments.add(USE_SSL_SWITCH);
             arguments.add(SSLARGS);
-            arguments.add(atpSSlArgs);
+            arguments.add(sslArgs);
             arguments.add(DB_ROLE_SWITCH);
             arguments.add(DB_ROLE);
             arguments.add(DB_USER_SWITCH);

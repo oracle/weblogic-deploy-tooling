@@ -17,7 +17,9 @@ public class StdoutFilter implements Filter {
     public boolean isLoggable(LogRecord logRecord) {
         boolean stdOut = true;
         int level = logRecord.getLevel() == null ? 0 : logRecord.getLevel().intValue();
-        if (level == Level.WARNING.intValue() || level == Level.SEVERE.intValue()) {
+        if (level == DeprecationLevel.DEPRECATION.intValue() ||
+            level == Level.WARNING.intValue() ||
+            level == Level.SEVERE.intValue()) {
             stdOut = false;
         }
         return stdOut;

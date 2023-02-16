@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.lang import IllegalArgumentException
@@ -409,7 +409,7 @@ class JmsResourcesDiscoverer(Discoverer):
                     file_name = self._convert_path(file_name)
                     _logger.finer('WLSDPLY-06495', server_name, file_name, class_name=_class_name, method_name=_method_name)
                 if self._model_context.is_remote():
-                    new_name = archive_file.getForeignServerArchivePath(server_name, file_name)
+                    new_name = WLSDeployArchive.getForeignServerArchivePath(server_name, file_name)
                     self.add_to_remote_map(file_name, new_name,
                                            WLSDeployArchive.ArchiveEntryType.JMS_FOREIGN_SERVER.name())
                 elif not self._model_context.skip_archive():

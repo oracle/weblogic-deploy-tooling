@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -43,6 +43,7 @@ from wlsdeploy.aliases.alias_constants import ONLINE_BEAN
 from wlsdeploy.aliases.alias_constants import PREFERRED_MODEL_TYPE
 from wlsdeploy.aliases.alias_constants import PRODUCTION_DEFAULT
 from wlsdeploy.aliases.alias_constants import RESTART_REQUIRED
+from wlsdeploy.aliases.alias_constants import SECURE_DEFAULT
 from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
 from wlsdeploy.aliases.alias_constants import SHORT_NAME
@@ -119,6 +120,7 @@ class ListTestCase(unittest.TestCase):
         PREFERRED_MODEL_TYPE,
         PRODUCTION_DEFAULT,
         RESTART_REQUIRED,
+        SECURE_DEFAULT,
         SET_MBEAN_TYPE,
         SET_METHOD,
         USES_PATH_TOKENS,
@@ -130,8 +132,8 @@ class ListTestCase(unittest.TestCase):
         _known_child_folders_type_values.append(value.lower())
 
     _known_access_attribute_values = [
-        'RO',
-        'ROD'
+        'IGNORED',
+        'RO'
     ]
 
     _known_get_method_attribute_values = [
@@ -612,6 +614,10 @@ class ListTestCase(unittest.TestCase):
 
     def _verify_attribute_production_default_attribute_value(self, folder_name, attribute_name, alias_attribute_value):
         # nothing to verify - production_default can be any type or null
+        return []
+
+    def _verify_attribute_secure_default_attribute_value(self, folder_name, attribute_name, alias_attribute_value):
+        # nothing to verify - secure_default can be any type or null
         return []
 
     def _verify_attribute_version_attribute_value(self, folder_name, attribute_name, alias_attribute_value):

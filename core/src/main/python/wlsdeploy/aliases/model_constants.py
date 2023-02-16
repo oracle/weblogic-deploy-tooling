@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -72,6 +72,7 @@ COHERENCE_SERVICE = 'CoherenceService'
 COHERENCE_SNAPSHOT_DIRECTORY = 'SnapshotDirectory'
 COHERENCE_SOCKET_ADDRESS = 'CoherenceSocketAddress'
 COHERENCE_TRASH_DIRECTORY = 'TrashDirectory'
+COHERENCE_USE_CUSTOM_CLUSTER_CONFIG = 'UsingCustomClusterConfigurationFile'
 COHERENCE_WELL_KNOWN_ADDRESSES = 'CoherenceClusterWellKnownAddresses'
 COHERENCE_WELL_KNOWN_ADDRESS = 'CoherenceClusterWellKnownAddress'
 CONFIGURATION_PROPERTY = 'ConfigurationProperty'
@@ -263,6 +264,7 @@ SAML2_CREDENTIAL_MAPPER = 'SAML2CredentialMapper'
 SAML2_IDENTITY_ASSERTER = 'SAML2IdentityAsserter'
 SCRIPT_ACTION = 'ScriptAction'
 SECURE_MODE = 'SecureMode'
+SECURE_MODE_ENABLED = 'SecureModeEnabled'
 SECURITY = 'Security'
 SECURITY_CONFIGURATION = 'SecurityConfiguration'
 SECURITY_CONFIGURATION_CD_ENABLED = 'CrossDomainSecurityEnabled'
@@ -311,6 +313,7 @@ USER = 'User'
 USER_ATTRIBUTES = 'UserAttribute'
 USE_SAMPLE_DATABASE = 'UseSampleDatabase'
 USE_SSL = "useSSL"
+VERRAZZANO = "verrazzano"
 VIRTUAL_HOST = 'VirtualHost'
 VIRTUAL_TARGET = 'VirtualTarget'
 VIRTUAL_USER_AUTHENTICATOR = 'VirtualUserAuthenticator'
@@ -426,7 +429,14 @@ KNOWN_TOPLEVEL_MODEL_SECTIONS = [
     TOPOLOGY,
     RESOURCES,
     APP_DEPLOYMENTS,
-    KUBERNETES
+    KUBERNETES,
+    VERRAZZANO
+]
+
+# the contents of these sections are based on CRD schemas
+CRD_MODEL_SECTIONS = [
+    KUBERNETES,
+    VERRAZZANO
 ]
 
 # these domain attributes have special processing in create,

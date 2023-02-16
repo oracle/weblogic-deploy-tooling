@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem extractDomainResource.cmd
 @rem
-@rem Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2020, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -70,42 +70,35 @@ if "%SHOW_USAGE%" == "false" (
 ECHO.
 ECHO Usage: %SCRIPT_NAME% [-help] [-use_encryption]
 ECHO              [-oracle_home ^<oracle_home^>]
+ECHO              -model_file ^<model_file^>
+ECHO              -output_dir ^<output_dir^>
 ECHO              [-domain_home ^<domain_home^>]
-ECHO              [-output_dir ^<output_dir^>]
 ECHO              [-target ^<target^>]
-ECHO              [-domain_resource_file ^<domain_resource_file^>]
-ECHO              [-archive_file ^<archive_file^>]
-ECHO              [-model_file ^<model_file^>]
 ECHO              [-variable_file ^<variable_file^>]
 ECHO.
 ECHO     where:
-ECHO         oracle_home     - the existing Oracle Home directory for the domain.
-ECHO                           This is required unless the ORACLE_HOME environment
-ECHO                           variable is set.
+ECHO         oracle_home   - the existing Oracle Home directory for the domain.
+ECHO                         This argument is required unless the ORACLE_HOME
+ECHO                         environment variable is set.
 ECHO.
-ECHO         domain_home     - the domain home directory to be used in output files.
-ECHO                           This will override any value in the model.
+ECHO         model_file    - the location of the model file to use.  This can also
+ECHO                         be specified as a comma-separated list of model
+ECHO                         locations, where each successive model layers on top
+ECHO                         of the previous ones.  This argument is required.
 ECHO.
-ECHO         output_dir      - the location for the target output files.
+ECHO         output_dir    - the location for the target output files.  This argument
+ECHO                          is required.
 ECHO.
-ECHO         target          - the target output type. The default is wko.
+ECHO         domain_home   - the domain home directory to be used in output files.
+ECHO                         This will override any value in the model.
 ECHO.
-ECHO         domain_resource_file - the location of the extracted domain resource file.
-ECHO                                This is deprecated, use -output_dir to specify output location
+ECHO         target        - the target output type. The default is wko.
 ECHO.
-ECHO         archive_file    - the path to the archive file to use.  If the -model_file
-ECHO                           argument is not specified, the model file in this archive
-ECHO                           will be used.  This can also be specified as a
-ECHO                           comma-separated list of archive files.  The overlapping contents in
-ECHO                           each archive take precedence over previous archives in the list.
-ECHO.
-ECHO         model_file      - the location of the model file to use.  This can also be specified as a
-ECHO                           comma-separated list of model locations, where each successive model
-ECHO                           layers on top of the previous ones.
-ECHO.
-ECHO         variable_file   - the location of the property file containing the values for variables used in
-ECHO                           the model. This can also be specified as a comma-separated list of property files,
-ECHO                           where each successive set of properties layers on top of the previous ones.
+ECHO         variable_file - the location of the property file containing the
+ECHO                         values for variables used in the model. This can also
+ECHO                         be specified as a comma-separated list of property
+ECHO                         files, where each successive set of properties layers
+ECHO                         on top of the previous ones.
 ECHO.
 ECHO    The -use_encryption switch tells the program that one or more of the
 ECHO    passwords in the model or variables files are encrypted.  The program will

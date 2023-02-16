@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem discoverDomain.cmd
 @rem
-@rem Copyright (c) 2017, 2021, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -71,14 +71,11 @@ if "%SHOW_USAGE%" == "false" (
 :usage
 ECHO.
 ECHO Usage: %SCRIPT_NAME% [-oracle_home ^<oracle_home^>]
-ECHO              -domain_home ^<domain_home^>
-ECHO              [-archive_file ^<archive_file^>]
-ECHO              [-skip_archive]
-ECHO              [-model_file ^<model_file^>]
+ECHO              [-domain_home ^<domain_home^>]
+ECHO              -model_file ^<model_file^>
+ECHO              ^<-archive_file ^<archive_file^> ^| -skip_archive ^| -remote ^>
 ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-domain_type ^<domain_type^>]
-ECHO              [-admin_pass_env ^<admin_pass_env^>]
-ECHO              [-admin_pass_file ^<admin_pass_file^>]
 ECHO              [-wlst_path ^<wlst_path^>]
 ECHO              [-java_home ^<java_home^>]
 ECHO              [-target ^<target^>
@@ -86,55 +83,67 @@ ECHO               -output_dir ^<output_dir^>
 ECHO              ]
 ECHO              [-admin_url ^<admin_url^>
 ECHO               -admin_user ^<admin_user^>
+ECHO               -admin_pass_env ^<admin_pass_env^> ^| -admin_pass_file ^<admin_pass_file^>
 ECHO              ]
 ECHO.
 ECHO     where:
-ECHO         oracle_home    - the existing Oracle Home directory for the domain.
-ECHO                          This is required unless the ORACLE_HOME environment
-ECHO                          variable is set.
+ECHO         oracle_home     - the existing Oracle Home directory for the domain.
+ECHO                           This argument is required unless the ORACLE_HOME
+ECHO                           environment variable is set.
 ECHO.
-ECHO         domain_home    - the domain home directory
+ECHO         domain_home     - the domain home directory.  This argument is
+ECHO                           required if -remote option is not specified.
 ECHO.
-ECHO         archive_file   - the path to the archive file
+ECHO         model_file      - the location to write the model file.  This argument
+ECHO                           is required.
 ECHO.
-ECHO         skip_archive   - do not generate an archive file. The archive_file option will be ignored. The file
-ECHO                          references in the model are the local file names.
+ECHO         archive_file    - the path to the archive file to use.
 ECHO.
-ECHO         remote         - Online only. Discover the remote domain. Do not generate an archive file. However, The file
-ECHO                          references in the model are structured as if they are in an archive. A list of these files
-ECHO                          will be generated.
+ECHO         variable_file   - the location of the variable file to write properties
+ECHO                           with the variable injector. If this argument is used,
+ECHO                           by default all the credentials in the discovered model
+ECHO                           will be replaced by a token and a property written to
+ECHO                           this file.
 ECHO.
-ECHO         model_file     - the location to write the model file,
-ECHO                          the default is to write it inside the archive
+ECHO         domain_type     - the type of domain (e.g., WLS, JRF).
+ECHO                           used to locate wlst.cmd if -wlst_path not specified.
 ECHO.
-ECHO         variable_file  - the location to write properties for attributes that
-ECHO                          have been replaced with tokens by the variable injector.
-ECHO                          If this is included, all credentials will automatically
-ECHO                          be replaced by tokens and the property written to this file.
+ECHO         wlst_path       - the Oracle Home subdirectory of the wlst.cmd
+ECHO                           script to use (e.g., ^<ORACLE_HOME^>\soa).
 ECHO.
-ECHO         domain_type    - the type of domain (e.g., WLS, JRF).
-ECHO                          used to locate wlst.cmd if -wlst_path not specified
+ECHO         java_home       - overrides the JAVA_HOME value when discovering domain
+ECHO                           values to be replaced with the java home global token.
 ECHO.
-ECHO         wlst_path      - the Oracle Home subdirectory of the wlst.cmd
-ECHO                          script to use (e.g., ^<ORACLE_HOME^>\soa)
+ECHO         target          - targeting platform (k8s, etc.).
 ECHO.
-ECHO         java_home      - overrides the JAVA_HOME value when discovering
-ECHO                          domain values to be replaced with the java home global token
+ECHO         output_dir      - output directory for -target ^<target^>.
 ECHO.
-ECHO         target         - targeting platform (k8s, etc.)
+ECHO         admin_url       - the admin server URL (used for online discovery).
 ECHO.
-ECHO         output_dir     - output directory for -target ^<target^>
+ECHO         admin_user      - the admin username (used for online discovery).
 ECHO.
+ECHO         admin_pass_env  - An alternative to entering the admin password at a
+ECHO                           prompt. The value is an ENVIRONMENT VARIABLE name
+ECHO                           that WDT will use to retrieve the password.
 ECHO.
-ECHO         admin_pass_env  - An alternative to entering the admin password at a prompt. The value is a ENVIRONMENT
-ECHO                           VARIABLE name that WDT will use to retrieve the password.
+ECHO         admin_pass_file - An alternative to entering the admin password at a
+ECHO                           prompt. The value is the name of a file with a
+ECHO                           string value which WDT will read to retrieve the
+ECHO                           password.
 ECHO.
-ECHO         admin_pass_file - An alternative to entering the admin password at a prompt. The value is a the name of a
-ECHO                           file that contains a password string that the tool will read to retrieve the password.
+ECHO    The -skip_archive argument suppresses the generation of the archive file.
+ECHO    If present, the -archive_file argument will be ignored and the file
+ECHO    references in the model will be the names from the discovered domain's
+ECHO    local file system.
 ECHO.
-ECHO         admin_url      - the admin server URL (used for online discovery)
-ECHO.
-ECHO         admin_user     - the admin username (used for online discovery)
+ECHO    The -remote argument, which only works in online mode, tells WDT to discover
+ECHO    the domain from a remote server.  Since there is no access to the remote
+ECHO    server's file system, no archive file will be generated.  However, the file
+ECHO    references in the model will contain the values pointing into the archive
+ECHO    file (which the user must construct separately).  With this option, the
+ECHO    -domain_home value should be the remote server's domain home path.  This
+ECHO    allows discover domain to tokenize any file system references containing
+ECHO    the domain home path.
 ECHO.
 
 :exit_script

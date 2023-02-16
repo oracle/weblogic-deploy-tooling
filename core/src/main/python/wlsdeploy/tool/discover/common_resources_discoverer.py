@@ -1,7 +1,8 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+import os.path
 from java.lang import IllegalArgumentException
 
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
@@ -91,6 +92,7 @@ class CommonResourcesDiscoverer(Discoverer):
         location = LocationContext(self._base_location)
         location.append_location(model_top_folder_name)
         datasources = self._find_names_in_folder(location)
+        collected_wallet = {}
         if datasources is not None:
             _logger.info('WLSDPLY-06340', len(datasources), class_name=_class_name, method_name=_method_name)
             typedef = self._model_context.get_domain_typedef()
@@ -112,10 +114,125 @@ class CommonResourcesDiscoverer(Discoverer):
                         resource_result = result[datasource][model_second_folder]
                         self._populate_model_parameters(resource_result, location)
                         self._discover_subfolders(resource_result, location)
+                        self._collect_jdbc_driver_wallet(datasource, collected_wallet,
+                                  result[datasource][model_constants.JDBC_RESOURCE][model_constants.JDBC_DRIVER_PARAMS])
                         location.remove_name_token(name_token)
                         location.pop_location()
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result
+
+    def _collect_jdbc_driver_wallet(self, datasource, collected_wallet, driver_params):
+        if not self._model_context.skip_archive() and model_constants.JDBC_DRIVER_PARAMS_PROPERTIES in driver_params:
+            properties = driver_params[model_constants.JDBC_DRIVER_PARAMS_PROPERTIES]
+            self._update_wallet_property_and_collect_files(collected_wallet, datasource, properties)
+
+    def _update_wallet_property_and_collect_files(self, collected_wallet, datasource, properties):
+        _method_name = '_update_wallet_property_and_collect_files'
+        for connection_property in [model_constants.DRIVER_PARAMS_KEYSTORE_PROPERTY,
+                                    model_constants.DRIVER_PARAMS_TRUSTSTORE_PROPERTY,
+                                    model_constants.DRIVER_PARAMS_NET_TNS_ADMIN]:
+            if connection_property in properties:
+                qualified_property_value = properties[connection_property]['Value']
+                if qualified_property_value:
+                    if qualified_property_value.startswith(WLSDeployArchive.WLSDPLY_ARCHIVE_BINARY_DIR
+                                                           + WLSDeployArchive.ZIP_SEP):
+                        qualified_property_value = os.path.join(self._model_context.get_domain_home()
+                                                                , qualified_property_value)
+                    if os.path.exists(qualified_property_value):
+                        fixed_path = self._add_wallet_directory_to_archive(datasource, collected_wallet,
+                                                                           qualified_property_value)
+                        _logger.info('WLSDPLY-06367', connection_property, fixed_path,
+                                     class_name=_class_name, method_name=_method_name)
+                        properties[connection_property]['Value'] = fixed_path
+                    else:
+                        _logger.severe('WLSDPLY-06370', datasource, connection_property,
+                                       properties[connection_property]['Value'])
+                        de = exception_helper.create_discover_exception('WLSDPLY-06370', datasource,
+                                                                        connection_property,
+                                                                        properties[connection_property][
+                                                                            'Value'])
+                        _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+                        raise de
+
+    def _add_wallet_directory_to_archive(self, datasource, collected_wallet_dictionary, property_value):
+        # error if wallet parent path is at oracle home
+        onprem_wallet_parent_path, wallet_name = self._get_wallet_name_and_path(datasource, property_value)
+
+        if self._model_context.is_remote():
+            fixed_path = WLSDeployArchive.getDatabaseWalletArchivePath(wallet_name, property_value)
+            self.add_to_remote_map(property_value, fixed_path,
+                                   WLSDeployArchive.ArchiveEntryType.DB_WALLET.name())
+            return fixed_path
+
+        onprem_wallet_dir_is_not_flat = self._is_on_prem_wallet_dir_flat(onprem_wallet_parent_path, property_value)
+        archive_file = self._model_context.get_archive_file()
+
+        # keep track of the wallet name and from where it is collected
+        #  { <onprem_wallet_parentpath> : { 'wallet_name': <name>, 'path_into_archive': <wallet path into archive>,
+        #      },
+        #     .... }
+        #
+        if onprem_wallet_parent_path not in collected_wallet_dictionary:
+            if onprem_wallet_dir_is_not_flat:
+                # collect the specific file
+                fixed_path = archive_file.addDatabaseWallet(wallet_name, os.path.abspath(property_value))
+                path_into_archive = os.path.dirname(fixed_path)
+            else:
+                fixed_path = archive_file.addDatabaseWallet(wallet_name, onprem_wallet_parent_path)
+                path_into_archive = fixed_path
+                fixed_path = os.path.join(fixed_path, os.path.basename(property_value))
+
+            collected_wallet_dictionary[onprem_wallet_parent_path] = \
+                {'wallet_name' : wallet_name, 'path_into_archive': path_into_archive}
+        else:
+            # if the directory has already been visited before
+            # check for the wallet to see if the file has already been collected on prem and add only the file
+            check_path = os.path.join(
+                collected_wallet_dictionary[onprem_wallet_parent_path]['path_into_archive'],
+                os.path.basename(property_value))
+            if check_path not in archive_file.getArchiveEntries() and os.path.isfile(property_value):
+                # only case is it is not flat directory if the particular file has not been collected before, add
+                # it to the previous wallet
+                fixed_path = archive_file.addDatabaseWallet(collected_wallet_dictionary[onprem_wallet_parent_path]['wallet_name'],
+                                                        os.path.abspath(property_value))
+            else:
+                # already in archive just figure out the path
+                if (os.path.isdir(property_value)):
+                    fixed_path = collected_wallet_dictionary[onprem_wallet_parent_path]['path_into_archive']
+                else:
+                    fixed_path = os.path.join(collected_wallet_dictionary[onprem_wallet_parent_path]['path_into_archive'],
+                                              os.path.basename(property_value))
+
+        return fixed_path
+
+    def _get_wallet_name_and_path(self, datasource, property_value):
+        _method_name = '_get_wallet_name_and_path'
+        # fix up name just in case
+        wallet_name = datasource.replace(' ', '').replace('(', '').replace(')', '')
+        if os.path.isdir(property_value):
+            onprem_wallet_parent_path = os.path.abspath(property_value)
+        else:
+            onprem_wallet_parent_path = os.path.dirname(os.path.abspath(property_value))
+        if self._model_context.get_oracle_home() == onprem_wallet_parent_path:
+            _logger.severe('WLSDPLY-06368', property_value, self._model_context.get_oracle_home())
+            de = exception_helper.create_discover_exception('WLSDPLY-06368', property_value,
+                                                            self._model_context.get_oracle_home())
+            _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+            raise de
+        return onprem_wallet_parent_path, wallet_name
+
+    def _is_on_prem_wallet_dir_flat(self, onprem_wallet_parent_path, property_value):
+        # info if wallet parent is not flat and only collect the particular file and not the entire directory
+        dir_list = os.listdir(onprem_wallet_parent_path)
+        onprem_wallet_dir_is_not_flat = False
+        for item in dir_list:
+            if os.path.isdir(os.path.join(onprem_wallet_parent_path, item)):
+                onprem_wallet_dir_is_not_flat = True
+                break
+        # put out info for user only particular file is collected and not the entire wallet directory
+        if onprem_wallet_dir_is_not_flat:
+            _logger.info('WLSDPLY-06369', property_value)
+        return onprem_wallet_dir_is_not_flat
 
     def get_foreign_jndi_providers(self):
         """
@@ -207,7 +324,7 @@ class CommonResourcesDiscoverer(Discoverer):
             if not StringUtils.isEmpty(directory):
                 archive_file = self._model_context.get_archive_file()
                 if self._model_context.is_remote():
-                    new_name = archive_file.getFileStoreArchivePath(file_store_name)
+                    new_name = WLSDeployArchive.getFileStoreArchivePath(file_store_name)
                     self.add_to_remote_map(file_store_name, new_name,
                                            WLSDeployArchive.ArchiveEntryType.FILE_STORE.name())
                 elif not self._model_context.skip_archive():
@@ -224,7 +341,6 @@ class CommonResourcesDiscoverer(Discoverer):
                         file_store_dictionary[model_constants.DIRECTORY] = new_source_name
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
-        return
 
     def get_jdbc_stores(self):
         """

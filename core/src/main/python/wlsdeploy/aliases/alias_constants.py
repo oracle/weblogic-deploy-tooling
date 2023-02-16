@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 These constants are internal to the aliases module and should not be used, as they are not part of the public API.
@@ -28,6 +28,7 @@ PATH_TOKEN = 'path_token'
 PREFERRED_MODEL_TYPE = 'preferred_model_type'
 PRODUCTION_DEFAULT = 'production_default'
 RESTART_REQUIRED = 'restart_required'
+SECURE_DEFAULT = 'secure_default'
 SET_MBEAN_TYPE = 'set_mbean_type'
 SET_METHOD = 'set_method'
 SHORT_NAME = 'short_name'
@@ -68,15 +69,16 @@ NONE = 'NONE'
 MBEAN = 'MBEAN'
 
 # ACCESS values
-RO = 'RO'           # Read only
-ROD = 'ROD'         # Read only but discover
-RW = 'RW'           # Default Read WRITE
+IGNORED = 'IGNORED'  # Ignored
+RO = 'RO'            # Read-only (discovered but never written)
+RW = 'RW'            # Default Read-write
 
 # used when DEFAULT_VALUE has curly-brace value that resolves to null
 NULL_VALUE_KEY = '__NULL__'
 NULL_VALUE_KEY_FIELDS = [
     DEFAULT_VALUE,
-    PRODUCTION_DEFAULT
+    PRODUCTION_DEFAULT,
+    SECURE_DEFAULT
 ]
 
 # attribute wlst_type values

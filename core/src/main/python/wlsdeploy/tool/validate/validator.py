@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -21,7 +21,8 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create import wlsroles_helper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.validate import validation_utils
-from wlsdeploy.tool.validate.kubernetes_validator import KubernetesValidator
+from wlsdeploy.tool.validate.content_validator import ContentValidator
+from wlsdeploy.tool.validate.crd_sections_validator import CrdSectionsValidator
 from wlsdeploy.tool.validate.validator_logger import ValidatorLogger
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model
@@ -262,8 +263,11 @@ class Validator(object):
                                       self._aliases.get_model_app_deployments_top_level_folder_names())
 
         if self._validate_crd_sections:
-            k8s_validator = KubernetesValidator(self._model_context)
+            k8s_validator = CrdSectionsValidator(self._model_context)
             k8s_validator.validate_model(model_dict)
+
+        content_validator = ContentValidator(self._model_context)
+        content_validator.validate_model(model_dict)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
 
@@ -838,6 +842,15 @@ class Validator(object):
                 if not archive_has_file:
                     log_method('WLSDPLY-05024', attribute_name, model_folder_path, path,
                                self._archive_file_name, class_name=_class_name, method_name=_method_name)
+
+                # If this is validating for remote use
+                # check to see if it is a path into the archive
+                # and the path is not applications/libraries then flag as error
+
+                if self._model_context.is_remote() and self._archive_helper.is_path_forbidden_for_remote_update(path):
+                    log_method('WLSDPLY-19313', attribute_name, model_folder_path, path,
+                                   class_name=_class_name, method_name=_method_name)
+
             elif not self._model_context.is_remote() and not self._model_context.skip_archive():
                 log_method('WLSDPLY-05025', attribute_name, model_folder_path, path,
                            class_name=_class_name, method_name=_method_name)

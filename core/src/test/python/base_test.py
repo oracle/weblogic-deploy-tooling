@@ -1,5 +1,5 @@
 """
-Copyright (c) 2021, Oracle and/or its affiliates.
+Copyright (c) 2021, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -23,6 +23,7 @@ class BaseTestCase(unittest.TestCase):
         self.TEST_OUTPUT_DIR = os.path.abspath(os.getcwd() + '/../../unit-tests')
         self.log_levels = {}
 
+        self.original_config_dir = os.environ['WDT_CUSTOM_CONFIG']
         # config items may need to be copied from here
         self.INSTALLER_LIB_DIR = os.path.abspath(self.TEST_CLASSES_DIR + '/../../../installer/src/main/lib')
 
@@ -34,11 +35,18 @@ class BaseTestCase(unittest.TestCase):
         # nothing to do now, but subclasses should call
         pass
 
-    def _set_custom_config_dir(self, dir):
-        os.environ['WDT_CUSTOM_CONFIG'] = str(dir)
+    def _set_custom_config_dir(self, test_config_dir_name):
+        config_dir = os.path.abspath(os.path.join(self.TEST_OUTPUT_DIR, test_config_dir_name))
+        # copy self.original_config_dir contents to config_dir
+        if os.path.isdir(config_dir):
+            shutil.rmtree(config_dir)
+        shutil.copytree(self.original_config_dir, config_dir)
+
+        os.environ['WDT_CUSTOM_CONFIG'] = str(config_dir)
+        return config_dir
 
     def _clear_custom_config_dir(self):
-        del os.environ['WDT_CUSTOM_CONFIG']
+        os.environ['WDT_CUSTOM_CONFIG'] = self.original_config_dir
 
     def _establish_directory(self, name):
         """

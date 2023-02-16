@@ -1,0 +1,78 @@
+# Copyright (c) 2023, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+verrazzano:
+  application:
+    spec:
+      components:
+        - componentName: demodomain-domain  # should merge with existing component
+          traits:
+            - trait:  # should merge with template trait
+                apiVersion: oam.verrazzano.io/v1alpha1
+                kind: MetricsTrait
+                spec:
+                  scraper: verrazzano-system/my-model-scraper
+            - trait:  # should add to template traits
+                apiVersion: oam.verrazzano.io/v1alpha1
+                kind: LoggingTrait
+                spec:
+                  imagePullPolicy: NEVER
+        - componentName: demodomain-from-model  # should add this component
+
+  weblogic:
+    spec:
+      workload:
+        spec:
+          template:
+            spec:
+              # simple override
+              domainHome: modelHome
+
+              adminServer:
+                adminService:
+                  # merge should occur based on channelName
+                  channels:
+                    - channelName: channel-1  # should merge with existing
+                      nodePort: 1101
+                    - channelName: channel-2  # should be added
+                      nodePort: 1102
+
+              clusters:
+                - name: cluster1  # should merge with existing
+                - name: cluster3  # should be added
+
+              configuration:
+                secrets:
+                  - secret-one  # should merge with existing
+                  - secret-three  # should be added
+
+              # merge should occur based on serverName
+              managedServers:
+                - serverName: server-1  # should merge with existing
+                  restartVersion: restart-1-model
+                - serverName: server-2  # should be added
+                  restartVersion: restart-2-model
+
+              serverPod:
+                env:
+                  # should merge JAVA_OPTIONS and add FROM_MODEL, based on default key "name"
+                  - name: JAVA_OPTIONS
+                    value: '-DfromModel'
+                  - name: FROM_MODEL
+                    value: '-DfromModel'
+
+          # merge should occur based on spec/clusterName
+          clusters:
+            - spec:
+                clusterName: cluster1  # should merge with existing
+                replicas: 1101
+            - spec:
+                clusterName: cluster3  # should be added
+                replicas: 1103
+
+  configmap:
+    spec:
+      workload:
+        data:
+          wdt_jdbc.yaml: fromModel  # should merge with existing
+          test.yaml: alsoModel  # should be added

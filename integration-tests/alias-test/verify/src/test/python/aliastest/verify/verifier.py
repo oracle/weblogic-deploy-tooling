@@ -443,7 +443,13 @@ class Verifier(object):
 
             for unprocessed in unprocessed_alias_list:
                 if unprocessed in self._alias_helper.get_ignore_attribute_names():
+                    _logger.finest('Attribute {0} in alias attribute ignore list', unprocessed,
+                                   class_name=CLASS_NAME, method_name=_method_name)
                     self._add_info(location, INFO_ATTRIBUTE_IN_IGNORE_LIST, attribute=unprocessed)
+                elif verify_utils.is_alias_attribute_in_ignore_list(self._model_context, location, unprocessed):
+                    _logger.fine('Attribute {0} at location {1} being ignored because it was in the ignore list',
+                                 unprocessed, location.get_folder_path(), class_name=CLASS_NAME,
+                                 method_name=_method_name)
                 else:
                     message = ''
                     if verify_utils.is_clear_text_password(unprocessed):
@@ -564,7 +570,7 @@ class Verifier(object):
             model_attribute = self._alias_helper.get_model_attribute_name(location, generated_attribute)
             # if value returned check to see if access type is ROD. If so change model_attribute to None
             if model_attribute is not None:
-                wlst_attributes = self._alias_helper.get_wlst_access_rod_attribute_names(location)
+                wlst_attributes = self._alias_helper.get_wlst_access_ro_attribute_names(location)
                 if wlst_attributes is not None and generated_attribute in wlst_attributes:
                     rod = True
         except AliasException, ae:

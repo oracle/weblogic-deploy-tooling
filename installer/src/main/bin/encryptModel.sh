@@ -2,7 +2,7 @@
 # *****************************************************************************
 # encryptModel.sh
 #
-# Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+# Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -56,11 +56,14 @@ usage() {
   echo "                          the variable values for all variables used in"
   echo "                          the model(s)."
   echo ""
-  echo "        passphrase_env  - An alternative to entering the encryption passphrase at a prompt. The value "
-  echo "                          ENVIRONMENT VARIABLE name that WDT will use to retrieve the passphrase. "
+  echo "        passphrase_env  - An alternative to entering the encryption passphrase"
+  echo "                          at a prompt. The value is an ENVIRONMENT VARIABLE name"
+  echo "                          that WDT will use to retrieve the passphrase."
   echo ""
-  echo "        passphrase_file - An alternative to entering the encryption passphrase at a prompt. The value is a "
-  echo "                          the name of a file with a string value which WDT will read to retrieve the password "
+  echo "        passphrase_file - An alternative to entering the encryption passphrase"
+  echo "                          at a prompt. The value is the name of a file with a"
+  echo "                          string value which WDT will read to retrieve the"
+  echo "                          passphrase."
   echo ""
   echo "    The -manual switch can be used to run the tool without a model and get"
   echo "    the encrypted value for a single password."

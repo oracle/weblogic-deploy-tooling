@@ -5,19 +5,21 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 Standard exit codes for command-line utilities.
 """
 
+from oracle.weblogic.deploy.util import ExitCode as JExitCode
 
 class ExitCode(object):
     """
     Standard exit codes for command-line utilities.
     """
 
-    OK                         = 0
-    WARNING                    = 1
-    ERROR                      = 2
+    OK                         = JExitCode.OK
+    WARNING                    = JExitCode.WARNING
+    ERROR                      = JExitCode.ERROR
 
-    ARG_VALIDATION_ERROR       = 98
-    USAGE_ERROR                = 99
+    ARG_VALIDATION_ERROR       = JExitCode.ARG_VALIDATION_ERROR
+    USAGE_ERROR                = JExitCode.USAGE_ERROR
 
-    HELP                       = 100
-    RESTART_REQUIRED           = 103
-    CANCEL_CHANGES_IF_RESTART  = 104
+    HELP                       = JExitCode.HELP
+    DEPRECATION                = JExitCode.DEPRECATION
+    RESTART_REQUIRED           = JExitCode.RESTART_REQUIRED
+    CANCEL_CHANGES_IF_RESTART  = JExitCode.CANCEL_CHANGES_IF_RESTART

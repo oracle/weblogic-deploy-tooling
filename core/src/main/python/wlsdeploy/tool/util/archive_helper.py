@@ -2,7 +2,7 @@
 Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-import os
+import os, sets
 import shutil
 
 from java.io import File
@@ -129,7 +129,34 @@ class ArchiveHelper(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result
 
-    def extract_file(self, path, location=None):
+    def is_path_forbidden_for_remote_update(self, path):
+        """
+        Check that the provided path in the archive is forbidden for remote domain update
+        :param path: the path to test
+        :return: True, if the path is forbidden for remote update. False otherwise
+        :raises: BundleAwareException of the appropriate type: if an error occurs
+        """
+        _method_name = 'is_path_forbidden_for_remote_update'
+        self.__logger.entering(path, class_name=self.__class_name, method_name=_method_name)
+
+        result = False
+        for archive_file in self.__archive_files:
+            try:
+                if archive_file.containsFileOrPath(path):
+                    if (not path.startswith(WLSDeployArchive.ARCHIVE_SHLIBS_TARGET_DIR) and
+                            not path.startswith(WLSDeployArchive.ARCHIVE_APPS_TARGET_DIR)):
+                        result = True
+                        break
+            except (IllegalArgumentException), e:
+                ex = exception_helper.create_exception(self.__exception_type, "WLSDPLY-19309", path,
+                                                       self.__archive_files_text, e.getLocalizedMessage(), error=e)
+                self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
+    def extract_file(self, path, location=None, strip_leading_path=True):
         """
         Extract the specified file from the archive into the specified directory, or into Domain Home.
         :param path: the path into the archive
@@ -146,7 +173,7 @@ class ArchiveHelper(object):
                 result = archive_file.extractFile(path, self.__domain_home)
             else:
                 extract_location = FileUtils.getCanonicalFile(File(location))
-                result = archive_file.extractFile(path, extract_location, True)
+                result = archive_file.extractFile(path, extract_location, strip_leading_path)
         except (IllegalArgumentException, WLSDeployArchiveIOException), e:
             ex = exception_helper.create_exception(self.__exception_type, "WLSDPLY-19303", path,
                                                    self.__archive_files_text, e.getLocalizedMessage(), error=e)
@@ -349,23 +376,45 @@ class ArchiveHelper(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=all_entries)
         return all_entries
 
-    def extract_atp_wallet(self):
+    def extract_database_wallet(self, wallet_name=WLSDeployArchive.DEFAULT_RCU_WALLET_NAME):
         """
-        Extract the and unzip the ATP wallet, if present, and return the path to the wallet directory.
+        Extract the and unzip the named database wallet, if present, and return the path to
+        the wallet directory.
         :return: the path to the extracted wallet, or None if no wallet was found
         :raises: BundleAwareException of the appropriate type: if an error occurs
         """
-        _method_name = 'extract_atp_wallet'
+        _method_name = 'extract_database_wallet'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
-        wallet_path = None
+        resulting_wallet_path = None
         for archive_file in self.__archive_files[::-1]:
-            wallet_path = archive_file.extractATPWallet(self.__domain_home)
+            wallet_path = archive_file.extractDatabaseWallet(self.__domain_home, wallet_name)
+            # Allow iteration to continue through all archive files but
+            # make sure to store off the path for a wallet that was extracted.
+            #
             if wallet_path is not None:
-                break
+                # If multiple archives contain the same named wallet, they
+                # will all have the same path.
+                #
+                resulting_wallet_path = wallet_path
 
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=wallet_path)
-        return wallet_path
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=resulting_wallet_path)
+        return resulting_wallet_path
+
+    def extract_all_database_wallets(self):
+
+        for archive_file in self.__archive_files:
+            archive_entries = archive_file.getArchiveEntries()
+            wallet_names = sets.Set()
+            for entry in archive_entries:
+                if entry.startswith(WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR):
+                    if os.path.isdir(entry):
+                        wallet_names.add(os.path.basename(entry))
+                    else:
+                        name = os.path.basename(os.path.dirname(entry))
+                        wallet_names.add(name)
+            for wallet_name in wallet_names:
+                self.extract_database_wallet(wallet_name)
 
     def extract_opss_wallet(self):
         """
@@ -376,14 +425,20 @@ class ArchiveHelper(object):
         _method_name = 'extract_opss_wallet'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
-        wallet_path = None
+        resulting_wallet_path = None
         for archive_file in self.__archive_files[::-1]:
             wallet_path = archive_file.extractOPSSWallet(self.__domain_home)
+            # Allow iteration to continue through all archive files but
+            # make sure to store off the path for a wallet that was extracted.
+            #
             if wallet_path is not None:
-                break
+                # If multiple archives contain the same named wallet, they
+                # will all have the same path.
+                #
+                resulting_wallet_path = wallet_path
 
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=wallet_path)
-        return wallet_path
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=resulting_wallet_path)
+        return resulting_wallet_path
 
     def get_manifest(self, source_path):
         """

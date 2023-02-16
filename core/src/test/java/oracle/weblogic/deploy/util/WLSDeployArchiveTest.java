@@ -14,7 +14,8 @@ import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import static oracle.weblogic.deploy.util.WLSDeployArchive.ARCHIVE_ATP_WALLET_PATH;
+import static oracle.weblogic.deploy.util.WLSDeployArchive.DEFAULT_RCU_WALLET_PATH;
+import static oracle.weblogic.deploy.util.WLSDeployArchive.DEFAULT_RCU_WALLET_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -47,25 +48,25 @@ public class WLSDeployArchiveTest {
     private static final String BINARIES_MODEL_ZIP_TARGET_NAME = WLSDeployZipFileTest.UNIT_TEST_TARGET_DIR +
         '/' + ZIP_FILE_EXISTING_BINARIES_FILE;
 
-    private static final String ATP_EMPTY_ARCHIVE = "src/test/resources/atp-empty-archive.zip";
-    private static final String ATP_EXPANDED_ARCHIVE = "src/test/resources/atp-expanded-archive.zip";
-    private static final String ATP_ZIPPED_ARCHIVE = "src/test/resources/atp-zipped-archive.zip";
+    private static final String RCU_EMPTY_WALLET_ARCHIVE = "src/test/resources/rcu-empty-wallet-archive.zip";
+    private static final String RCU_EXPANDED_WALLET_ARCHIVE = "src/test/resources/rcu-expanded-wallet-archive.zip";
+    private static final String RCU_ZIPPED_WALLET_ARCHIVE = "src/test/resources/rcu-zipped-wallet-archive.zip";
 
     private static final String ATP_DEPRECATED_EMPTY_ARCHIVE = "src/test/resources/atp-deprecated-empty-archive.zip";
     private static final String ATP_DEPRECATED_EXPANDED_ARCHIVE =
         "src/test/resources/atp-deprecated-expanded-archive.zip";
     private static final String ATP_DEPRECATED_ZIPPED_ARCHIVE = "src/test/resources/atp-deprecated-zipped-archive.zip";
 
-    private static final List<String> ATP_EXPECTED_CONTENT = Arrays.asList(
-        ARCHIVE_ATP_WALLET_PATH + "/cwallet.sso",
-        ARCHIVE_ATP_WALLET_PATH + "/ewallet.p12",
-        ARCHIVE_ATP_WALLET_PATH + "/ewallet.pem",
-        ARCHIVE_ATP_WALLET_PATH + "/keystore.jks",
-        ARCHIVE_ATP_WALLET_PATH + "/ojdbc.properties",
-        ARCHIVE_ATP_WALLET_PATH + "/README",
-        ARCHIVE_ATP_WALLET_PATH + "/sqlnet.ora",
-        ARCHIVE_ATP_WALLET_PATH + "/tnsnames.ora",
-        ARCHIVE_ATP_WALLET_PATH + "/truststore.jks"
+    private static final List<String> DB_WALLET_EXPECTED_CONTENT = Arrays.asList(
+        DEFAULT_RCU_WALLET_PATH + "/cwallet.sso",
+        DEFAULT_RCU_WALLET_PATH + "/ewallet.p12",
+        DEFAULT_RCU_WALLET_PATH + "/ewallet.pem",
+        DEFAULT_RCU_WALLET_PATH + "/keystore.jks",
+        DEFAULT_RCU_WALLET_PATH + "/ojdbc.properties",
+        DEFAULT_RCU_WALLET_PATH + "/README",
+        DEFAULT_RCU_WALLET_PATH + "/sqlnet.ora",
+        DEFAULT_RCU_WALLET_PATH + "/tnsnames.ora",
+        DEFAULT_RCU_WALLET_PATH + "/truststore.jks"
     );
 
     @BeforeAll
@@ -147,59 +148,59 @@ public class WLSDeployArchiveTest {
     }
 
     @Test
-    void testATPZippedWalletExtract() throws Exception {
-        WLSDeployArchive archive = new WLSDeployArchive(ATP_ZIPPED_ARCHIVE);
-        File domainHome = new File("target/unit-tests/atp-zipped");
+    void testDatabaseZippedWalletExtract() throws Exception {
+        WLSDeployArchive archive = new WLSDeployArchive(RCU_ZIPPED_WALLET_ARCHIVE);
+        File domainHome = new File("target/unit-tests/rcu-zipped");
         if (!domainHome.exists() && !domainHome.mkdirs()) {
             fail("Failed to create test domain home directory " + domainHome.getAbsolutePath());
         }
 
-        String path = archive.extractATPWallet(domainHome);
+        String path = archive.extractDatabaseWallet(domainHome, DEFAULT_RCU_WALLET_NAME);
 
-        File atpWalletDir = new File(domainHome, ARCHIVE_ATP_WALLET_PATH).getCanonicalFile();
-        assertEquals(atpWalletDir.getAbsolutePath(), path, "expected extractATPWallet to return correct path");
-        assertTrue(atpWalletDir.exists(), "expected " + ARCHIVE_ATP_WALLET_PATH + " directory to exist");
-        assertTrue(atpWalletDir.isDirectory(), "expected " + ARCHIVE_ATP_WALLET_PATH + " to be a directory");
+        File rcuWalletDir = new File(domainHome, DEFAULT_RCU_WALLET_PATH).getCanonicalFile();
+        assertEquals(rcuWalletDir.getAbsolutePath(), path, "expected extractDatabaseWallet to return correct path");
+        assertTrue(rcuWalletDir.exists(), "expected " + DEFAULT_RCU_WALLET_NAME + " directory to exist");
+        assertTrue(rcuWalletDir.isDirectory(), "expected " + DEFAULT_RCU_WALLET_NAME + " to be a directory");
 
-        for (String atpExpectedFile : ATP_EXPECTED_CONTENT) {
-            File walletFile = new File(domainHome, atpExpectedFile);
-            assertTrue(walletFile.exists(), "expected " + atpExpectedFile + " to exist");
+        for (String walletExpectedFile : DB_WALLET_EXPECTED_CONTENT) {
+            File walletFile = new File(domainHome, walletExpectedFile);
+            assertTrue(walletFile.exists(), "expected " + walletExpectedFile + " to exist");
         }
     }
 
     @Test
-    void testATPExpandedWalletExtract() throws Exception {
-        WLSDeployArchive archive = new WLSDeployArchive(ATP_EXPANDED_ARCHIVE);
-        File domainHome = new File("target/unit-tests/atp-unzipped");
+    void testDatabaseExpandedWalletExtract() throws Exception {
+        WLSDeployArchive archive = new WLSDeployArchive(RCU_EXPANDED_WALLET_ARCHIVE);
+        File domainHome = new File("target/unit-tests/rcu-unzipped");
         if (!domainHome.exists() && !domainHome.mkdirs()) {
             fail("Failed to create test domain home directory " + domainHome.getAbsolutePath());
         }
 
-        String path = archive.extractATPWallet(domainHome);
+        String path = archive.extractDatabaseWallet(domainHome, DEFAULT_RCU_WALLET_NAME);
 
-        File atpWalletDir = new File(domainHome, ARCHIVE_ATP_WALLET_PATH).getCanonicalFile();
-        assertEquals(atpWalletDir.getAbsolutePath(), path, "expected extractATPWallet to return correct path");
-        assertTrue(atpWalletDir.exists(), "expected " + ARCHIVE_ATP_WALLET_PATH + " directory to exist");
-        assertTrue(atpWalletDir.isDirectory(), "expected " + ARCHIVE_ATP_WALLET_PATH + " to be a directory");
+        File rcuWalletDir = new File(domainHome, DEFAULT_RCU_WALLET_PATH).getCanonicalFile();
+        assertEquals(rcuWalletDir.getAbsolutePath(), path, "expected extractATPWallet to return correct path");
+        assertTrue(rcuWalletDir.exists(), "expected " + DEFAULT_RCU_WALLET_PATH + " directory to exist");
+        assertTrue(rcuWalletDir.isDirectory(), "expected " + DEFAULT_RCU_WALLET_PATH + " to be a directory");
 
-        for (String atpExpectedFile : ATP_EXPECTED_CONTENT) {
-            File walletFile = new File(domainHome, atpExpectedFile);
-            assertTrue(walletFile.exists(), "expected " + atpExpectedFile + " to exist");
+        for (String walletExpectedFile : DB_WALLET_EXPECTED_CONTENT) {
+            File walletFile = new File(domainHome, walletExpectedFile);
+            assertTrue(walletFile.exists(), "expected " + walletExpectedFile + " to exist");
         }
     }
 
     @Test
-    void testATPEmptyWalletExtract() throws Exception {
-        WLSDeployArchive archive = new WLSDeployArchive(ATP_EMPTY_ARCHIVE);
-        File domainHome = new File("target/unit-tests/atp-empty");
+    void testDatabaseEmptyWalletExtract() throws Exception {
+        WLSDeployArchive archive = new WLSDeployArchive(RCU_EMPTY_WALLET_ARCHIVE);
+        File domainHome = new File("target/unit-tests/rcu-empty");
         if (!domainHome.exists() && !domainHome.mkdirs()) {
             fail("Failed to create test domain home directory " + domainHome.getAbsolutePath());
         }
 
-        String path = archive.extractATPWallet(domainHome);
-        assertNull(path, "expected extractATPWallet to return null");
-        File atpWalletDir = new File(domainHome, ARCHIVE_ATP_WALLET_PATH).getCanonicalFile();
-        assertFalse(atpWalletDir.exists(), "expected " + ARCHIVE_ATP_WALLET_PATH + " directory to not exist");
+        String path = archive.extractDatabaseWallet(domainHome, DEFAULT_RCU_WALLET_NAME);
+        assertNull(path, "expected extractDatabaseWallet to return null");
+        File rcuWalletDir = new File(domainHome, DEFAULT_RCU_WALLET_PATH).getCanonicalFile();
+        assertFalse(rcuWalletDir.exists(), "expected " + DEFAULT_RCU_WALLET_PATH + " directory to not exist");
     }
 
     @Test
@@ -210,16 +211,16 @@ public class WLSDeployArchiveTest {
             fail("Failed to create test domain home directory " + domainHome.getAbsolutePath());
         }
 
-        String path = archive.extractATPWallet(domainHome);
+        String path = archive.extractDatabaseWallet(domainHome, DEFAULT_RCU_WALLET_NAME);
 
-        File atpWalletDir = new File(domainHome, ARCHIVE_ATP_WALLET_PATH).getCanonicalFile();
-        assertEquals(atpWalletDir.getAbsolutePath(), path, "expected extractATPWallet to return correct path");
-        assertTrue(atpWalletDir.exists(), "expected " + ARCHIVE_ATP_WALLET_PATH + " directory to exist");
-        assertTrue(atpWalletDir.isDirectory(), "expected " + ARCHIVE_ATP_WALLET_PATH + " to be a directory");
+        File rcuWalletDir = new File(domainHome, DEFAULT_RCU_WALLET_PATH).getCanonicalFile();
+        assertEquals(rcuWalletDir.getAbsolutePath(), path, "expected extractDatabaseWallet to return correct path");
+        assertTrue(rcuWalletDir.exists(), "expected " + DEFAULT_RCU_WALLET_PATH + " directory to exist");
+        assertTrue(rcuWalletDir.isDirectory(), "expected " + DEFAULT_RCU_WALLET_PATH + " to be a directory");
 
-        for (String atpExpectedFile : ATP_EXPECTED_CONTENT) {
-            File walletFile = new File(domainHome, atpExpectedFile);
-            assertTrue(walletFile.exists(), "expected " + atpExpectedFile + " to exist");
+        for (String walletExpectedFile : DB_WALLET_EXPECTED_CONTENT) {
+            File walletFile = new File(domainHome, walletExpectedFile);
+            assertTrue(walletFile.exists(), "expected " + walletExpectedFile + " to exist");
         }
     }
 
@@ -231,16 +232,16 @@ public class WLSDeployArchiveTest {
             fail("Failed to create test domain home directory " + domainHome.getAbsolutePath());
         }
 
-        String path = archive.extractATPWallet(domainHome);
+        String path = archive.extractDatabaseWallet(domainHome, DEFAULT_RCU_WALLET_NAME);
 
-        File atpWalletDir = new File(domainHome, ARCHIVE_ATP_WALLET_PATH).getCanonicalFile();
-        assertEquals(atpWalletDir.getAbsolutePath(), path, "expected extractATPWallet to return correct path");
-        assertTrue(atpWalletDir.exists(), "expected " + ARCHIVE_ATP_WALLET_PATH + " directory to exist");
-        assertTrue(atpWalletDir.isDirectory(), "expected " + ARCHIVE_ATP_WALLET_PATH + " to be a directory");
+        File rcuWalletDir = new File(domainHome, DEFAULT_RCU_WALLET_PATH).getCanonicalFile();
+        assertEquals(rcuWalletDir.getAbsolutePath(), path, "expected extractDatabaseWallet to return correct path");
+        assertTrue(rcuWalletDir.exists(), "expected " + DEFAULT_RCU_WALLET_PATH + " directory to exist");
+        assertTrue(rcuWalletDir.isDirectory(), "expected " + DEFAULT_RCU_WALLET_PATH + " to be a directory");
 
-        for (String atpExpectedFile : ATP_EXPECTED_CONTENT) {
-            File walletFile = new File(domainHome, atpExpectedFile);
-            assertTrue(walletFile.exists(), "expected " + atpExpectedFile + " to exist");
+        for (String walletExpectedFile : DB_WALLET_EXPECTED_CONTENT) {
+            File walletFile = new File(domainHome, walletExpectedFile);
+            assertTrue(walletFile.exists(), "expected " + walletExpectedFile + " to exist");
         }
     }
 
@@ -252,9 +253,9 @@ public class WLSDeployArchiveTest {
             fail("Failed to create test domain home directory " + domainHome.getAbsolutePath());
         }
 
-        String path = archive.extractATPWallet(domainHome);
-        assertNull(path, "expected extractATPWallet to return null");
-        File atpWalletDir = new File(domainHome, ARCHIVE_ATP_WALLET_PATH).getCanonicalFile();
-        assertFalse(atpWalletDir.exists(), "expected " + ARCHIVE_ATP_WALLET_PATH + " directory to not exist");
+        String path = archive.extractDatabaseWallet(domainHome, DEFAULT_RCU_WALLET_NAME);
+        assertNull(path, "expected extractDatabaseWallet to return null");
+        File atpWalletDir = new File(domainHome, DEFAULT_RCU_WALLET_PATH).getCanonicalFile();
+        assertFalse(atpWalletDir.exists(), "expected " + DEFAULT_RCU_WALLET_PATH + " directory to not exist");
     }
 }

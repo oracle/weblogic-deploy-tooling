@@ -1,0 +1,161 @@
+# Copyright (c) 2022, 2023, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+apiVersion: core.oam.dev/v1alpha2
+kind: ApplicationConfiguration
+metadata:
+  name: {{{domainPrefix}}}-appconf
+  namespace: {{{namespace}}}
+  annotations:
+    version: v1.0.0
+    description: "{{{domainName}}} application configuration"
+spec:
+  components:
+    - componentName: {{{domainPrefix}}}-domain
+      traits:
+        - trait:
+            apiVersion: oam.verrazzano.io/v1alpha1
+            kind: MetricsTrait
+            spec:
+              scraper: verrazzano-system/vmi-system-prometheus-0
+        - trait:
+            apiVersion: oam.verrazzano.io/v1alpha1
+            kind: IngressTrait
+            spec:
+              rules:
+{{#hostApplications}}
+                - destination:
+                    host: {{{host}}}
+                    port: {{{port}}}
+                  paths:
+{{#applications}}
+                    - path: "{{{applicationPrefix}}}"
+                      pathType: Prefix
+{{/applications}}
+{{/hostApplications}}
+    - componentName: {{{domainPrefix}}}-configmap
+---
+apiVersion: core.oam.dev/v1alpha2
+kind: Component
+metadata:
+  name: {{{domainPrefix}}}-domain
+  namespace: {{{namespace}}}
+spec:
+  workload:
+    apiVersion: oam.verrazzano.io/v1alpha1
+    kind: VerrazzanoWebLogicWorkload
+    spec:
+      template:
+        metadata:
+          name: {{{domainPrefix}}}-domain
+          namespace: {{{namespace}}}
+        spec:
+          domainUID: {{{domainUid}}}
+
+          # WebLogic Image Tool provides domainHome, domainHomeSourceType, and imageName
+          domainHome: '{{{domainHome}}}'
+          domainHomeSourceType: {{{domainHomeSourceType}}}
+          image: '{{{imageName}}}'
+
+          imagePullSecrets:
+            - name: {{{domainPrefix}}}-registry-credentials
+          includeServerOutInPodLog: true
+          webLogicCredentialsSecret:
+            name: {{{webLogicCredentialsSecret}}}
+          configuration:
+            introspectorJobActiveDeadlineSeconds: 900
+{{#hasModel}}
+            model:
+              configMap: {{{domainPrefix}}}-configmap
+              domainType: {{{domainType}}}
+
+              # WebLogic Image Tool provides modelHome
+              modelHome: '{{{modelHome}}}'
+{{#runtimeEncryptionSecret}}
+
+              # encryption for the WDT model and the SystemSerializedIni.data file.
+              # used only for model-in-image deployment, can be removed for other types.
+              runtimeEncryptionSecret: {{{runtimeEncryptionSecret}}}
+{{/runtimeEncryptionSecret}}
+{{/hasModel}}
+{{#hasAdditionalSecrets}}
+
+            secrets:
+{{/hasAdditionalSecrets}}
+{{#additionalSecrets}}
+              - {{{additionalSecretName}}}
+{{/additionalSecrets}}
+{{#hasClusters}}
+
+          clusters:
+{{/hasClusters}}
+{{#clusters}}
+            - name: {{{clusterName}}}
+{{/clusters}}
+
+          serverPod:
+            env:
+              - name: JAVA_OPTIONS
+                value: "-Dweblogic.StdoutDebugEnabled=false"
+              - name: USER_MEM_ARGS
+                value: "-Djava.security.egd=file:/dev/./urandom -Xms64m -Xmx256m "
+{{#usePersistentVolume}}
+
+            # volume information for persistent volume
+            volumes:
+              - name: weblogic-domain-storage-volume
+                persistentVolumeClaim:
+                  claimName: '--FIX ME--'
+            volumeMounts:
+              - mountPath: /shared
+                name: weblogic-domain-storage-volume
+{{/usePersistentVolume}}
+{{#hasClusters}}
+
+      clusters:
+{{/hasClusters}}
+{{#clusters}}
+        - clusterName: {{{clusterName}}}
+          serverPod:
+            affinity:
+              podAntiAffinity:
+                preferredDuringSchedulingIgnoredDuringExecution:
+                  - weight: 100
+                    podAffinityTerm:
+                      labelSelector:
+                        matchExpressions:
+                          - key: "weblogic.clusterName"
+                            operator: In
+                            values:
+                              - $(CLUSTER_NAME)
+                      topologyKey: "kubernetes.io/hostname"
+{{#setClusterReplicas}}
+          replicas: {{{replicas}}}
+{{/setClusterReplicas}}
+{{/clusters}}
+---
+apiVersion: core.oam.dev/v1alpha2
+kind: Component
+metadata:
+  name: {{{domainPrefix}}}-configmap
+  namespace: {{{namespace}}}
+spec:
+  workload:
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: {{{domainPrefix}}}-configmap
+      namespace: {{{namespace}}}
+    data:
+{{#hasDatasources}}
+      wdt_jdbc.yaml: |
+        resources:
+          JDBCSystemResource:
+{{/hasDatasources}}
+{{#datasources}}
+            '{{{datasourceName}}}':
+              JdbcResource:
+                JDBCDriverParams:
+                  # This is the URL of the database used by the WebLogic Server application
+                  URL: "{{{url}}}"
+{{/datasources}}

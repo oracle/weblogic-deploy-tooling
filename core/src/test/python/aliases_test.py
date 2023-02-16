@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from org.python.modules import jarray
@@ -1347,13 +1347,13 @@ class AliasesTestCase(unittest.TestCase):
         self.assertEquals(wlst_value_expected, wlst_value)
 
     def testReadOnlyDiscoverAttribute(self):
-        location = LocationContext()
-        location.add_name_token(self.online_aliases.get_name_token(location), 'my-domain')
+        location = LocationContext().append_location(FOLDERS.APPLICATION)
+        location.add_name_token(self.online_aliases.get_name_token(location), 'my-app')
         model_attribute, model_value = \
-            self.online_aliases.get_model_attribute_name_and_value(location, FOLDERS.DOMAIN_VERSION, '12.2.1.3.0')
-        self.assertEquals('12.2.1.3.0', model_value)
+            self.online_aliases.get_model_attribute_name_and_value(location, FOLDERS.STAGE_MODE, 'mymode')
+        self.assertEquals('mymode', model_value)
         wlst_attribute, wlst_value = \
-            self.online_aliases.get_wlst_attribute_name_and_value(location, FOLDERS.DOMAIN_VERSION, '12.2.1.3.0')
+            self.online_aliases.get_wlst_attribute_name_and_value(location, FOLDERS.STAGE_MODE, 'mymode')
         self.assertEquals(None, wlst_value)
 
     def testFolderOrder(self):

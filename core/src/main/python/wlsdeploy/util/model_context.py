@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -42,7 +42,7 @@ class ModelContext(object):
 
     DB_USER_DEFAULT = 'SYS'
 
-    def __init__(self, program_name, arg_map):
+    def __init__(self, program_name, arg_map=None):
         """
         Create a new model context instance.
         Tools should use model_context_helper.create_context(), to ensure that the typedef is initialized correctly.
@@ -91,7 +91,6 @@ class ModelContext(object):
         self._validation_method = None
         self._validate_configuration = None  # lazy load
         self._cancel_changes_if_restart_required = None
-        self._domain_resource_file = None
         self._output_dir = None
         self._target = None
         self._target_configuration = None  # lazy load
@@ -113,11 +112,25 @@ class ModelContext(object):
         if self._wlst_mode is None:
             self._wlst_mode = WlstModes.OFFLINE
 
-        self.__copy_from_args(arg_map)
+        # This if test is for the tool_main's creation of the exit_context, which is
+        # used for argument parsing in case an error is raised.  The issue is that
+        # __copy_from_args tries to determine the PSU version but since the Oracle Home
+        # is not available, the PSU detection logic and erroneously logs that there is
+        # no PSU when there is (and that gets logged about 70 lines down in the log file).
+        #
+        if arg_map is not None:
+            self.__copy_from_args(arg_map)
 
     def __copy_from_args(self, arg_map):
         _method_name = '__copy_from_args'
-        if CommandLineArgUtil.ORACLE_HOME_SWITCH in arg_map:
+
+        # No need to try to get the PSU if the -oracle_home is empty...
+        #
+        # This is yet another special case where something during the loading of
+        # the typedef file creates a sparse model_context object with the -oracle_home
+        # set to an empty string.
+        #
+        if CommandLineArgUtil.ORACLE_HOME_SWITCH in arg_map and len(arg_map[CommandLineArgUtil.ORACLE_HOME_SWITCH]) > 0:
             self._oracle_home = arg_map[CommandLineArgUtil.ORACLE_HOME_SWITCH]
             psu = XPathUtil(self._oracle_home).getPSU()
             if psu is not None:
@@ -236,9 +249,6 @@ class ModelContext(object):
         if CommandLineArgUtil.TARGET_VERSION_SWITCH in arg_map:
             self._wl_version = arg_map[CommandLineArgUtil.TARGET_VERSION_SWITCH]
 
-        if CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH in arg_map:
-            self._domain_resource_file = arg_map[CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH]
-
         if CommandLineArgUtil.TRAILING_ARGS_SWITCH in arg_map:
             self._trailing_args = arg_map[CommandLineArgUtil.TRAILING_ARGS_SWITCH]
 
@@ -343,8 +353,6 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.VALIDATION_METHOD] = self._validation_method
         if self._wl_version is not None:
             arg_map[CommandLineArgUtil.TARGET_VERSION_SWITCH] = self._wl_version
-        if self._domain_resource_file is not None:
-            arg_map[CommandLineArgUtil.DOMAIN_RESOURCE_FILE_SWITCH] = self._domain_resource_file
         if self._trailing_args is not None:
             arg_map[CommandLineArgUtil.TRAILING_ARGS_SWITCH] = self._trailing_args
         if self._target is not None:
@@ -411,6 +419,13 @@ class ModelContext(object):
         """
         return self._domain_name
 
+    def set_domain_name(self, domain_name):
+        """
+        Set the domain name when online
+        :param domain_name: the domain name
+        """
+        self._domain_name = domain_name
+
     def set_domain_home(self, domain_home):
         """
         This method is a hack to allow create to add the domain home after reading the domain name from the model.
@@ -420,6 +435,11 @@ class ModelContext(object):
         if self._domain_home is None and domain_home is not None and len(domain_home) > 0:
             self._domain_home = domain_home
             self._domain_name = os.path.basename(self._domain_home)
+
+    def set_domain_home_name_if_remote(self, domain_home, domain_name):
+        if self.is_remote():
+            self.set_domain_home(domain_home)
+            self.set_domain_name(domain_name)
 
     def get_domain_parent_dir(self):
         """
@@ -441,13 +461,6 @@ class ModelContext(object):
         :return: the domain typedef
         """
         return self._domain_typedef
-
-    def get_domain_resource_file(self):
-        """
-        Get the domain resource file.
-        :return: the domain resource file
-        """
-        return self._domain_resource_file
 
     def get_admin_url(self):
         """

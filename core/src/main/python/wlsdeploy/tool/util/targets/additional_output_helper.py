@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2022, Oracle and/or its affiliates.
+Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Methods for creating Kubernetes resource configuration files for Verrazzano.
@@ -8,12 +8,18 @@ import os.path
 
 from java.io import File
 
+from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import CLUSTER
+from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
 from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
+from wlsdeploy.aliases.model_constants import LISTEN_PORT
+from wlsdeploy.aliases.model_constants import SERVER
+from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
+from wlsdeploy.aliases.model_constants import TARGET
 from wlsdeploy.aliases.model_constants import URL
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import k8s_helper
@@ -52,13 +58,20 @@ HAS_ADDITIONAL_SECRETS = 'hasAdditionalSecrets'
 HAS_APPLICATIONS = 'hasApplications'
 HAS_CLUSTERS = 'hasClusters'
 HAS_DATASOURCES = 'hasDatasources'
+HAS_HOST_APPLICATIONS = 'hasHostApplications'
 HAS_MODEL = 'hasModel'
+HOST_APPLICATION_APPLICATIONS = 'applications'
+HOST_APPLICATION_HOST = 'host'
+HOST_APPLICATION_PORT = 'port'
+HOST_APPLICATIONS = 'hostApplications'
 NAMESPACE = 'namespace'
 REPLICAS = 'replicas'
 RUNTIME_ENCRYPTION_SECRET = "runtimeEncryptionSecret"
 SET_CLUSTER_REPLICAS = "setClusterReplicas"
 USE_PERSISTENT_VOLUME = "usePersistentVolume"
 WEBLOGIC_CREDENTIALS_SECRET = 'webLogicCredentialsSecret'
+
+DEFAULT_LISTEN_PORT = 7001
 
 
 def create_additional_output(model, model_context, aliases, credential_injector, exception_type,
@@ -90,36 +103,12 @@ def create_additional_output(model, model_context, aliases, credential_injector,
     template_hash = _build_template_hash(model, model_context, aliases, credential_injector, domain_home_override)
     for index, template_name in enumerate(template_names):
         source_file_name = _get_template_source_name(template_name, target_configuration)
-
-        # special processing for deprecated -domain_resource_file argument of extractDomainResource
-        extract_output_file = _get_extract_output_file(template_name, index, model_context)
-        if extract_output_file:
-            output_file = extract_output_file
-        else:
-            output_file = File(os.path.join(output_dir, template_name))
+        output_file = File(os.path.join(output_dir, template_name))
 
         _create_file(source_file_name, template_hash, output_file, exception_type)
 
         crd_helper = model_crd_helper.get_helper(model_context)
         crd_file_updater.update_from_model(output_file, model, crd_helper)
-
-
-# *** DELETE METHOD WHEN deprecated -domain_resource_file IS REMOVED ***
-def _get_extract_output_file(template_name, index, model_context):
-    """
-    Special processing for deprecated -domain_resource_file argument used by extractDomainResource.
-    Use the directory of -domain_resource_file for all templates,
-    and the name of -domain_resource_file for the first (usually only) template.
-    """
-    _method_name = '_get_extract_output_file'
-
-    resource_file = model_context.get_domain_resource_file()
-    if resource_file:
-        output_dir, output_name = os.path.split(resource_file)
-        if index > 0:
-            output_name = template_name
-        return File(os.path.join(output_dir, output_name))
-    return None
 
 
 def _create_file(template_name, template_hash, output_file, exception_type):
@@ -279,6 +268,54 @@ def _build_template_hash(model, model_context, aliases, credential_injector, dom
     template_hash[APPLICATIONS] = apps
     template_hash[HAS_APPLICATIONS] = len(apps) != 0
 
+    # host applications - applications organized by host, for Verrazzano IngressTrait
+
+    app_map = {}
+    applications = dictionary_utils.get_dictionary_element(model.get_model_app_deployments(), APPLICATION)
+    for app_name in applications:
+        app_hash = dict()
+        app_hash[APPLICATION_NAME] = app_name
+        # this text is matched in crd_file_updater, be careful if changing
+        app_hash[APPLICATION_PREFIX] = '(path for ' + app_name + ')'
+
+        app_folder = dictionary_utils.get_dictionary_element(applications, app_name)
+        targets_value = dictionary_utils.get_dictionary_element(app_folder, TARGET)
+        targets = alias_utils.create_list(targets_value, 'WLSDPLY-01682')
+        for target in targets:
+            if target not in app_map:
+                app_map[target] = []
+            app_map[target].append(app_hash)
+
+    host_apps = []
+    target_keys = app_map.keys()
+    target_keys.sort()
+    for target_key in target_keys:
+        listen_port = DEFAULT_LISTEN_PORT
+        target_cluster = _find_cluster(model, target_key)
+        if target_cluster is not None:
+            full_host_name = k8s_helper.get_dns_name(domain_uid + '-cluster-' + target_key)
+            dynamic_servers = dictionary_utils.get_dictionary_element(target_cluster, DYNAMIC_SERVERS)
+            template_name = dictionary_utils.get_element(dynamic_servers, SERVER_TEMPLATE)
+            if template_name:
+                server_template = _find_server_template(model, template_name)
+                if server_template:
+                    listen_port = server_template[LISTEN_PORT] or listen_port
+        else:
+            full_host_name = k8s_helper.get_dns_name(domain_uid + '-' + target_key)
+            target_server = _find_server(model, target_key)
+            if target_server is not None:
+                listen_port = target_server[LISTEN_PORT] or listen_port
+
+        host_app = {
+            HOST_APPLICATION_HOST: full_host_name,
+            HOST_APPLICATION_PORT: str_helper.to_string(listen_port),
+            HOST_APPLICATION_APPLICATIONS: app_map[target_key]
+        }
+        host_apps.append(host_app)
+
+    template_hash[HOST_APPLICATIONS] = host_apps
+    template_hash[HAS_HOST_APPLICATIONS] = len(host_apps) != 0
+
     # additional secrets - exclude admin
 
     additional_secrets = []
@@ -304,3 +341,27 @@ def _build_template_hash(model, model_context, aliases, credential_injector, dom
     template_hash[HAS_ADDITIONAL_SECRETS] = len(additional_secrets) != 0
 
     return template_hash
+
+
+def _find_cluster(model, name):
+    cluster_map = dictionary_utils.get_dictionary_element(model.get_model_topology(), CLUSTER)
+    for cluster_name in cluster_map:
+        if name == cluster_name:
+            return cluster_map[cluster_name]
+    return None
+
+
+def _find_server(model, name):
+    server_map = dictionary_utils.get_dictionary_element(model.get_model_topology(), SERVER)
+    for server_name in server_map:
+        if name == server_name:
+            return server_map[server_name]
+    return None
+
+
+def _find_server_template(model, name):
+    template_map = dictionary_utils.get_dictionary_element(model.get_model_topology(), SERVER_TEMPLATE)
+    for template_name in template_map:
+        if name == template_name:
+            return template_map[template_name]
+    return None

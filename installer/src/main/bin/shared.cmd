@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem shared.cmd
 @rem
-@rem Copyright (c) 2020, 2022, Oracle and/or its affiliates.
+@rem Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -21,6 +21,7 @@ GOTO :ENDFUNCTIONS
     @rem JDK with the specified level or higher (and that it isn't OpenJDK).
 
     SET MIN_JDK_VERSION=%1
+    SET QUIET_ARG=%2
 
     IF NOT DEFINED JAVA_HOME (
       ECHO Please set the JAVA_HOME environment variable to point to a Java 8 installation >&2
@@ -106,7 +107,9 @@ GOTO :ENDFUNCTIONS
     IF %JVM_SUPPORTED% NEQ 1 (
       EXIT /B 2
     ) ELSE (
-      ECHO JDK version is %JVM_FULL_VERSION%, setting JAVA_VENDOR to Sun...
+      IF NOT "%QUIET_ARG%"=="quiet" (
+        ECHO JDK version is %JVM_FULL_VERSION%, setting JAVA_VENDOR to Sun...
+      )
       IF "%JAVA_VENDOR%"=="" SET JAVA_VENDOR=Sun
     )
 GOTO :EOF
@@ -205,6 +208,14 @@ GOTO :EOF
     IF NOT DEFINED WLSDEPLOY_LOG_DIRECTORY (
       SET WLSDEPLOY_LOG_DIRECTORY=%WLSDEPLOY_HOME%\logs
     )
+GOTO :EOF
+
+:javaOnlySetup
+  CALL :javaSetup %1 %2
+
+  CALL :variableSetup
+
+  SET "CLASSPATH=%WLSDEPLOY_HOME%/lib/weblogic-deploy-core.jar"
 GOTO :EOF
 
 :runWlst
@@ -366,6 +377,11 @@ GOTO :EOF
     IF "%RETURN_CODE%" == "103" (
       ECHO.
       ECHO %SCRIPT_NAME% completed successfully but the domain requires a restart for the changes to take effect ^(exit code = %RETURN_CODE%^)
+      EXIT /B %RETURN_CODE%
+    )
+    IF "%RETURN_CODE%" == "101" (
+      ECHO.
+      ECHO %SCRIPT_NAME% completed successfully but with deprecation messages ^(exit code = %RETURN_CODE%^)
       EXIT /B %RETURN_CODE%
     )
     IF "%RETURN_CODE%" == "100" (

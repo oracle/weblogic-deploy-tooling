@@ -1,4 +1,4 @@
-# Copyright (c) 2021, 2022, Oracle and/or its affiliates.
+# Copyright (c) 2021, 2023, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 import os
@@ -163,16 +163,11 @@ class ModelPreparer:
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
 
-    def fix_property_secrets(self):
+    def fix_property_secrets(self, original_variables):
         # Just in case the credential cache has @@PROP in the model's attribute value,
         # we use the original variable file to resolve it,
         # so that the generated json/script files have the resolved property value(s) instead of the @@PROP token.
         # it's possible that the variable file is not specified, or does not exist yet.
-
-        original_variables = {}
-        variable_file = self.model_context.get_variable_file()
-        if variable_file is not None and os.path.exists(variable_file):
-            original_variables = variables.load_variables(variable_file)
 
         credential_caches = self.credential_injector.get_variable_cache()
         for key in credential_caches:
@@ -359,14 +354,20 @@ class ModelPreparer:
             self._clean_variable_files(merged_model_dictionary)
             self._clean_archive_files()
 
-            # use a merged, substituted, filtered model to get domain name and create additional target output.
-            full_model_dictionary = cla_helper.load_model(_program_name, self.model_context, self._aliases,
-                                                          "discover", WlstModes.OFFLINE)
+            # resolve variables in the model AFTER the clean and filter has been done,
+            # but before generating output files.
+
+            variable_map = {}
+            variable_file = self.model_context.get_variable_file()
+            if variable_file is not None and os.path.exists(variable_file):
+                variable_map = variables.load_variables(variable_file)
+
+            variables.substitute(merged_model_dictionary, variable_map, self.model_context)
 
             # correct any secret values that point to @@PROP values
-            self.fix_property_secrets()
+            self.fix_property_secrets(variable_map)
 
-            target_configuration_helper.generate_all_output_files(Model(full_model_dictionary), self._aliases,
+            target_configuration_helper.generate_all_output_files(Model(merged_model_dictionary), self._aliases,
                                                                   self.credential_injector, self.model_context,
                                                                   ExceptionType.PREPARE)
 

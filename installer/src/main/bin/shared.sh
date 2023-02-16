@@ -2,7 +2,7 @@
 # *****************************************************************************
 # shared.sh
 #
-# Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
+# Copyright (c) 2020, 2023, Oracle Corporation and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -64,7 +64,9 @@ javaSetup() {
       echo "You are using an unsupported JDK version ${JVM_FULL_VERSION}" >&2
       exit 2
     else
-      echo "JDK version is ${JVM_FULL_VERSION}"
+      if [ "$2" != "quiet" ]; then
+        echo "JDK version is ${JVM_FULL_VERSION}"
+      fi
     fi
 }
 
@@ -169,6 +171,14 @@ variableSetup() {
     if [ -z "${WLSDEPLOY_LOG_DIRECTORY}" ]; then
         WLSDEPLOY_LOG_DIRECTORY="${WLSDEPLOY_HOME}/logs"; export WLSDEPLOY_LOG_DIRECTORY
     fi
+}
+
+javaOnlySetup() {
+  javaSetup "$1" "$2"
+
+  variableSetup
+
+  CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar"; export CLASSPATH
 }
 
 runWlst() {
@@ -336,6 +346,9 @@ checkExitCode() {
     elif [ $returnCode -eq 103 ]; then
       echo ""
       echo "$scriptName completed successfully but the domain requires a restart for the changes to take effect (exit code = ${RETURN_CODE})"
+    elif [ $returnCode -eq 101 ]; then
+      echo ""
+      echo "$scriptName completed successfully but with deprecation messages (exit code = $returnCode)" >&2
     elif [ $returnCode -eq 100 ]; then
       usage `basename $0`
     elif [ $returnCode -eq 99 ]; then
