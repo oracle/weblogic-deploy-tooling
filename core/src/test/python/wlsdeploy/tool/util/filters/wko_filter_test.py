@@ -1,16 +1,18 @@
 """
-Copyright (c) 2021, 2022, Oracle and/or its affiliates.
+Copyright (c) 2021, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
 
 from base_test import BaseTestCase
 from wlsdeploy.aliases import alias_utils
+from wlsdeploy.aliases.model_constants import ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import APP_DEPLOYMENTS
 from wlsdeploy.aliases.model_constants import AUTHENTICATION_PROVIDER
 from wlsdeploy.aliases.model_constants import CALCULATED_LISTEN_PORTS
 from wlsdeploy.aliases.model_constants import CLUSTER
+from wlsdeploy.aliases.model_constants import DEFAULT_ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import DEFAULT_AUTHENTICATOR
 from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
 from wlsdeploy.aliases.model_constants import MACHINE
@@ -20,12 +22,14 @@ from wlsdeploy.aliases.model_constants import RESOURCES
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
 from wlsdeploy.aliases.model_constants import SERVER
+from wlsdeploy.aliases.model_constants import SERVER_NAME_PREFIX
 from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.model_constants import VIRTUAL_TARGET
 from wlsdeploy.tool.util.filters import wko_filter
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
+from wlsdeploy.util.model_translator import PythonToFile
 
 
 class WkoFilterTestCase(BaseTestCase):
@@ -37,12 +41,60 @@ class WkoFilterTestCase(BaseTestCase):
 
     def __init__(self, *args):
         BaseTestCase.__init__(self, *args)
-        self.MODELS_DIR = os.path.join(self.TEST_CLASSES_DIR, 'prepare')
-        self.PREPARE_OUTPUT_DIR = os.path.join(self.TEST_OUTPUT_DIR, 'prepare')
+        self.MODELS_DIR = os.path.join(self.TEST_CLASSES_DIR, 'filter')
+        self.FILTER_OUTPUT_DIR = os.path.join(self.TEST_OUTPUT_DIR, 'filter')
 
     def setUp(self):
         BaseTestCase.setUp(self)
-        self._establish_directory(self.PREPARE_OUTPUT_DIR)
+        self._establish_directory(self.FILTER_OUTPUT_DIR)
+
+    def test_dynamic_cluster_filter(self):
+        model_file = os.path.join(self.MODELS_DIR, 'wko-filter-2.yaml')
+        translator = FileToPython(model_file, use_ordering=True)
+        model = translator.parse()
+
+        # Apply the filter
+        self._suspend_logs('wlsdeploy.tool.util')
+        model_context = ModelContext(self._program_name, {})
+        wko_filter.filter_model(model, model_context)
+        self._restore_logs()
+
+        # Write the result for test debugging
+        target_file = os.path.join(self.FILTER_OUTPUT_DIR, 'wko-filter-2.yaml')
+        translator = PythonToFile(model)
+        translator.write_to_file(target_file)
+
+        clusters = self._traverse(model, TOPOLOGY, CLUSTER)
+
+        # cluster 1 should have a placeholder server name prefix assigned
+        self._match('-- FIX PREFIX 1 --', clusters, 'dynamicCluster', DYNAMIC_SERVERS, SERVER_NAME_PREFIX)
+
+        # cluster 3 should have server name prefix replaced with a placeholder
+        self._match('-- FIX PREFIX 2 --', clusters, 'dynamicCluster3', DYNAMIC_SERVERS, SERVER_NAME_PREFIX)
+
+    def test_wko3_filter(self):
+        model_file = os.path.join(self.MODELS_DIR, 'wko-filter-3.yaml')
+        translator = FileToPython(model_file, use_ordering=True)
+        model = translator.parse()
+
+        # Apply the filter
+        self._suspend_logs('wlsdeploy.tool.util')
+        model_context = ModelContext(self._program_name, {})
+        wko_filter.filter_model_for_wko3(model, model_context)
+        self._restore_logs()
+
+        # Write the result for test debugging
+        target_file = os.path.join(self.FILTER_OUTPUT_DIR, 'wko-filter-3.yaml')
+        translator = PythonToFile(model)
+        translator.write_to_file(target_file)
+
+        # AdminServerName should have been assigned to the default
+        self._match(DEFAULT_ADMIN_SERVER_NAME, model, TOPOLOGY, ADMIN_SERVER_NAME)
+
+        # AdminServer should have been added
+        servers = self._traverse(model, TOPOLOGY, SERVER)
+        self.assertEqual(True, DEFAULT_ADMIN_SERVER_NAME in servers,
+                         DEFAULT_ADMIN_SERVER_NAME + " should be in " + SERVER)
 
     def testFilter(self):
         """

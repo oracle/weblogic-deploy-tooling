@@ -1,4 +1,4 @@
-# Copyright (c) 2021, 2022, Oracle and/or its affiliates.
+# Copyright (c) 2021, 2023, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 # ------------
@@ -7,7 +7,9 @@
 # WDT filters to prepare a model for use a target environment, using the createDomain or prepareModel tools.
 # These operations can be invoked as a single call, or independently of each other.
 from oracle.weblogic.deploy.util import PyRealBoolean
+from oracle.weblogic.deploy.util import PyOrderedDict
 from wlsdeploy.aliases import alias_utils
+from wlsdeploy.aliases.model_constants import ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import AUTO_MIGRATION_ENABLED
 from wlsdeploy.aliases.model_constants import CALCULATED_LISTEN_PORTS
 from wlsdeploy.aliases.model_constants import CANDIDATE_MACHINE
@@ -15,6 +17,7 @@ from wlsdeploy.aliases.model_constants import CANDIDATE_MACHINES_FOR_MIGRATABLE_
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import CLUSTER_MESSAGING_MODE
 from wlsdeploy.aliases.model_constants import DATABASE_LESS_LEASING_BASIS
+from wlsdeploy.aliases.model_constants import DEFAULT_ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
 from wlsdeploy.aliases.model_constants import LISTEN_PORT
 from wlsdeploy.aliases.model_constants import MACHINE
@@ -31,6 +34,7 @@ from wlsdeploy.aliases.model_constants import RESOURCE_MANAGEMENT
 from wlsdeploy.aliases.model_constants import RESOURCE_MANAGER
 from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
 from wlsdeploy.aliases.model_constants import SERVER
+from wlsdeploy.aliases.model_constants import SERVER_NAME_PREFIX
 from wlsdeploy.aliases.model_constants import SERVER_START
 from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.aliases.model_constants import TOPOLOGY
@@ -44,6 +48,8 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.filters.model_traverse import ModelTraverse
 from wlsdeploy.util import dictionary_utils
 import wlsdeploy.util.unicode_helper as str_helper
+
+FIX_PREFIX_TEMPLATE = '-- FIX PREFIX %s --'
 
 _class_name = 'wko_filter'
 _logger = PlatformLogger('wlsdeploy.tool.util')
@@ -61,6 +67,7 @@ def filter_model(model, model_context):
     filter_resources(model, model_context)
     filter_online_attributes(model, model_context)
     check_clustered_server_ports(model, model_context)
+    check_dynamic_cluster_prefixes(model, model_context)
 
 
 def filter_model_for_wko(model, model_context):
@@ -71,6 +78,17 @@ def filter_model_for_wko(model, model_context):
     :param model_context: used by nested filters
     """
     filter_model(model, model_context)
+
+
+def filter_model_for_wko3(model, model_context):
+    """
+    Perform filtering operations on the specified model to prepare for WKO deployment.
+    Currently matches the general k8s target filtering.
+    :param model: the model to be filtered
+    :param model_context: used by nested filters
+    """
+    filter_model(model, model_context)
+    check_admin_server_defined(model, model_context)
 
 
 def filter_model_for_vz(model, model_context):
@@ -143,6 +161,71 @@ def check_clustered_server_ports(model, _model_context):
                 server_port_map[server_cluster] = {"firstServer": server_name, "serverPort": server_port_text}
 
 
+def check_dynamic_cluster_prefixes(model, _model_context):
+    """
+    All Dynamic Clusters must have a DynamicServers section with the ServerNamePrefix field explicitly declared.
+    Ensure each cluster uses a unique value for this field.
+    :param model: the model to be updated
+    :param _model_context: unused, passed by filter_helper if called independently
+    :return:
+    """
+    _method_name = 'check_dynamic_cluster_prefixes'
+
+    server_name_prefixes = []
+    topology_folder = dictionary_utils.get_dictionary_element(model, TOPOLOGY)
+    clusters_folder = dictionary_utils.get_dictionary_element(topology_folder, CLUSTER)
+    for cluster_name, cluster_fields in clusters_folder.items():
+        dynamic_folder = dictionary_utils.get_element(cluster_fields, DYNAMIC_SERVERS)
+        if dynamic_folder:
+            server_name_prefix = dictionary_utils.get_element(dynamic_folder, SERVER_NAME_PREFIX)
+
+            if not server_name_prefix:
+                _logger.warning('WLSDPLY-20204', cluster_name, SERVER_NAME_PREFIX, class_name=_class_name,
+                                method_name=_method_name)
+                server_name_prefix = _get_unused_prefix(server_name_prefixes)
+                dynamic_folder[SERVER_NAME_PREFIX] = server_name_prefix
+
+            elif server_name_prefix in server_name_prefixes:
+                _logger.warning('WLSDPLY-20205', SERVER_NAME_PREFIX, server_name_prefix, class_name=_class_name,
+                                method_name=_method_name)
+                server_name_prefix = _get_unused_prefix(server_name_prefixes)
+                dynamic_folder[SERVER_NAME_PREFIX] = server_name_prefix
+
+            server_name_prefixes.append(server_name_prefix)
+
+
+def check_admin_server_defined(model, _model_context):
+    """
+    Ensure that the AdminServerName attribute is set, and that the server is defined.
+    This is required by WKO 3.0, and not by 4.0 and later.
+    :param model: the model to be filtered
+    :param _model_context: unused, passed by filter_helper if called independently
+    """
+    _method_name = 'check_admin_server_defined'
+
+    topology_folder = dictionary_utils.get_element(model, TOPOLOGY)
+    if topology_folder is None:
+        # for cases with multiple models, avoid adding topology and admin server for
+        # models with only resources, applications, etc.
+        return
+
+    admin_server_name = dictionary_utils.get_element(topology_folder, ADMIN_SERVER_NAME)
+    if not admin_server_name:
+        admin_server_name = DEFAULT_ADMIN_SERVER_NAME
+        _logger.info('WLSDPLY-20206', ADMIN_SERVER_NAME, admin_server_name, class_name=_class_name,
+                     method_name=_method_name)
+        topology_folder[ADMIN_SERVER_NAME] = admin_server_name
+
+    servers_folder = dictionary_utils.get_element(topology_folder, SERVER)
+    if servers_folder is None:
+        servers_folder = PyOrderedDict()
+        topology_folder[SERVER] = servers_folder
+
+    if admin_server_name not in servers_folder:
+        _logger.info('WLSDPLY-20207', SERVER, admin_server_name, class_name=_class_name, method_name=_method_name)
+        servers_folder[admin_server_name] = PyOrderedDict()
+
+
 def filter_topology(model, _model_context):
     """
     Remove elements from the topology section of the model that are not relevant in a Kubernetes environment.
@@ -199,6 +282,18 @@ def filter_resources(model, _model_context):
                        RESOURCE_MANAGEMENT, RESOURCE_MANAGER, VIRTUAL_HOST]:
         if delete_key in resources:
             del resources[delete_key]
+
+
+def _get_unused_prefix(used_prefixes):
+    """
+    Find a recognizable, unused prefix that can be used in the filtered model.
+    :param used_prefixes: prefixes that have already been used in the model
+    :return: an unused prefix
+    """
+    i = 1
+    while FIX_PREFIX_TEMPLATE % i in used_prefixes:
+        i += 1
+    return FIX_PREFIX_TEMPLATE % i
 
 
 class OnlineAttributeFilter(ModelTraverse):

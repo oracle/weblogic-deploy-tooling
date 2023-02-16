@@ -1,0 +1,28 @@
+# Copyright (c) 2023, Oracle and/or its affiliates.
+# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+# This model is altered by wko_filter to be suitable for deployment with WebLogic Kubernetes Operator.
+# This will test the filtering performed for dynamic cluster elements.
+# see wko_filter_test.py
+
+domainInfo:
+    AdminUserName: weblogic
+    AdminPassword: 'welcome1'
+topology:
+    Name: DemoDomain
+    Cluster:
+        dynamicCluster:
+            DynamicServers:
+                DynamicClusterSize: 3
+                # warn that ServerNamePrefix not specified
+        dynamicCluster2:
+            DynamicServers:
+                DynamicClusterSize: 3
+                ServerNamePrefix: myServer
+        dynamicCluster3:
+            DynamicServers:
+                DynamicClusterSize: 3
+                # warn that ServerNamePrefix matches dynamicCluster2
+                ServerNamePrefix: myServer
+    ServerTemplate:
+        'template-1':
