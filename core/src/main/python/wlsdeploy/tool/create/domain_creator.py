@@ -31,6 +31,7 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORETYPE_PROPERT
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTOREPWD_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_SSL_VERSION
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_SSL_VERSION_VALUE
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_FAN_ENABLED
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE
@@ -303,7 +304,7 @@ class DomainCreator(Creator):
 
             # hard coding for now, may need to expose it if ATP access changed later
             ssl_conn_properties[DRIVER_PARAMS_NET_FAN_ENABLED] = 'false'
-            ssl_conn_properties[DRIVER_PARAMS_NET_SSL_VERSION] = '1.2'
+            ssl_conn_properties[DRIVER_PARAMS_NET_SSL_VERSION] = DRIVER_PARAMS_NET_SSL_VERSION_VALUE
             ssl_conn_properties[DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY] = 'false'
 
             # reset these to pick up any defaults from rcu_db_info
@@ -1333,7 +1334,8 @@ class DomainCreator(Creator):
         if truststore_pwd:
             self.__set_connection_property_info(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd,
                  properties_set, encrypted=True)
-        self.__set_connection_property_info(location, DRIVER_PARAMS_NET_SSL_VERSION, '1.2', properties_set)
+        self.__set_connection_property_info(location, DRIVER_PARAMS_NET_SSL_VERSION,
+                                            DRIVER_PARAMS_NET_SSL_VERSION_VALUE , properties_set)
         self.__set_connection_property_info(location, DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY, 'true', properties_set)
         self.__set_connection_property_info(location, DRIVER_PARAMS_NET_TNS_ADMIN, tns_admin, properties_set)
         self.__set_connection_property_info(location, DRIVER_PARAMS_NET_FAN_ENABLED, 'false', properties_set)
