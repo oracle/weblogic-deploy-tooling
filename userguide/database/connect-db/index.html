@@ -12,20 +12,20 @@
     <title>Connect to a Database :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1676581799" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1676581799" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1676581799" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1676581799" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1676581799" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1676581799" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1676581799" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1676581799" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1676581799" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1676581799" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1676646268" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1676646268" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1676646268" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1676646268" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1676646268" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1676646268" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1676646268" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1676646268" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1676646268" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1676646268" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1676646268"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1676581799"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1676581799"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1676646268"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1676646268"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1676581799"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1676646268"></script>
 
     
   </div>
@@ -1573,11 +1573,11 @@ yyyy = (DESCRIPTION ...)
 </code></pre></div><h3 id="specify-extended-xml-files-for-rcu">Specify extended XML files for RCU</h3>
 <p>When creating a domain using WDT and the <code>-run_rcu</code> option, you can specify your extended XML files in the <code>RCUDbInfo</code> section.</p>
 <p>This correlates to the <code>createRepository</code> and <code>dropRepository</code> command-line arguments <code>RCU -compInfoXMLLocation &lt;file path&gt; -storageXMLLocation &lt;file path&gt;</code>.</p>
-<p>Include your XML files in your archive file using the location <code>wlsdeploy/rcu/config</code>. Then include this relative location in the <code>RCUDbInfo</code> section of the model.</p>
+<p>Include your XML files in your archive file using the location <code>wlsdeploy/custom/rcu/config</code>. Then include this relative location in the <code>RCUDbInfo</code> section of the model.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
     <span style="color:#f92672">RCUDbInfo</span>:
-        <span style="color:#f92672">compInfoXMLLocation</span>: <span style="color:#ae81ff">wlsdeploy/rcu/config/MyComponentInfo.xml</span>
-        <span style="color:#f92672">storageXMLLocation</span>: <span style="color:#ae81ff">wlsdeploy/rcu/config/MyStorage.xml</span>
+        <span style="color:#f92672">compInfoXMLLocation</span>: <span style="color:#ae81ff">wlsdeploy/custom/rcu/config/MyComponentInfo.xml</span>
+        <span style="color:#f92672">storageXMLLocation</span>: <span style="color:#ae81ff">wlsdeploy/custom/rcu/config/MyStorage.xml</span>
 </code></pre></div><h3 id="advanced-jrf-database-use-cases">Advanced JRF database use cases</h3>
 <p>In the following examples of the JRF data source sparse model, you can use it to further customize the JRF domain template data sources.</p>
 <h4 id="default-template-data-source">Default template data source</h4>
@@ -2670,19 +2670,19 @@ contains multiple physical data sources.   In order to create a spare model, for
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1676581799"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1676581799"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1676581799"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1676581799"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1676581799"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1676646268"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1676646268"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1676646268"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1676646268"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1676646268"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1676646268"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1676581799"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1676581799"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1676581799"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1676646268"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1676646268"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1676646268"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1676581799"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1676646268"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
