@@ -273,9 +273,9 @@ class DomainCreator(Creator):
         rcu_sys_pass = rcu_db_info.get_preferred_sys_pass()
         rcu_schema_pass = rcu_db_info.get_preferred_schema_pass()
 
-        databaseType = rcu_db_info.get_database_type()
-        if databaseType is not None and databaseType not in ['SSL', 'ATP', 'ORACLE']:
-            ex = exception_helper.create_create_exception('WLSDPLY-12573', databaseType)
+        database_type = rcu_db_info.get_database_type()
+        if database_type is not None and database_type not in ['SSL', 'ATP', 'ORACLE']:
+            ex = exception_helper.create_create_exception('WLSDPLY-12573', database_type)
             raise ex
 
         if rcu_db_info.is_use_atp():
