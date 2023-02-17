@@ -1220,10 +1220,10 @@ class DomainCreator(Creator):
         for ds_name in ds_names:
 
             # Set the driver params
-            self.__set_datasource_url(ds_name, fmw_database)
+            actual_url = self.__set_datasource_url(ds_name, fmw_database)
             self.__set_datasource_password(ds_name, rcu_schema_pwd)
             actual_schema = self.__reset_datasource_template_userid(ds_name, rcu_prefix)
-
+            pset = None
             if is_atp_ds:
                 pset = self.__set_atp_standard_conn_properties(ds_name, tns_admin, truststore, truststore_pwd, truststore_type,
                                                         keystore_pwd, keystore_type, keystore)
@@ -1231,7 +1231,7 @@ class DomainCreator(Creator):
                 pset = self.__set_ssl_standard_conn_properties(ds_name, tns_admin, truststore, truststore_pwd, truststore_type,
                                 keystore_pwd, keystore_type, keystore)
 
-            self.logger.fine('WLSDPLY_12575', ds_name, fmw_database, actual_schema, pset,
+            self.logger.info('WLSDPLY_12575', ds_name, actual_url, actual_schema, pset,
                              class_name=self.__class_name, method_name=_method_name)
 
     def __reset_datasource_template_userid(self, datasource_name, rcu_prefix):
@@ -1268,6 +1268,7 @@ class DomainCreator(Creator):
         wlst_name, wlst_value = \
             self.aliases.get_wlst_attribute_name_and_value(location, URL, url)
         self.wlst_helper.set_if_needed(wlst_name, wlst_value)
+        return wlst_value
 
     def __get_store_path(self, tns_admin, store):
         result = store
