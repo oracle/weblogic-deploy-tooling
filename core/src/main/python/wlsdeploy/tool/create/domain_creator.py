@@ -272,6 +272,11 @@ class DomainCreator(Creator):
         rcu_sys_pass = rcu_db_info.get_preferred_sys_pass()
         rcu_schema_pass = rcu_db_info.get_preferred_schema_pass()
 
+        databaseType = rcu_db_info.get_database_type()
+        if databaseType is not None and databaseType not in ['SSL', 'ATP']:
+            ex = exception_helper.create_create_exception('WLSDPLY-12573', databaseType)
+            raise ex
+
         if rcu_db_info.is_use_atp():
             # ATP database, build runner map from RCUDbInfo in the model.
 
@@ -337,6 +342,11 @@ class DomainCreator(Creator):
         else:
             # Non-ATP database, use DB config from the command line or RCUDbInfo in the model.
             rcu_db = rcu_db_info.get_preferred_db()
+
+            if rcu_db is None:
+                ex = exception_helper.create_create_exception('WLSDPLY-12572')
+                raise ex
+
             rcu_db_user = rcu_db_info.get_preferred_db_user()
 
             runner = RCURunner.createRunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas,
@@ -363,6 +373,19 @@ class DomainCreator(Creator):
                                                                                        truststore)
         ssl_conn_properties[DRIVER_PARAMS_KEYSTORE_PROPERTY] = self.__get_store_path(rcu_db_info.get_tns_admin(),
                                                                                      keystore)
+
+        if not os.path.exists(ssl_conn_properties[DRIVER_PARAMS_KEYSTORE_PROPERTY]):
+            ex = exception_helper.create_create_exception('WLSDPLY-12574',
+                                                          ssl_conn_properties[DRIVER_PARAMS_KEYSTORE_PROPERTY],
+                                                          DRIVER_PARAMS_KEYSTORE_PROPERTY)
+            raise ex
+
+        if not os.path.exists(ssl_conn_properties[DRIVER_PARAMS_TRUSTSTORE_PROPERTY]):
+            ex = exception_helper.create_create_exception('WLSDPLY-12574',
+                                                          ssl_conn_properties[DRIVER_PARAMS_TRUSTSTORE_PROPERTY],
+                                                          DRIVER_PARAMS_TRUSTSTORE_PROPERTY)
+            raise ex
+
 
     def __fail_mt_1221_domain_creation(self):
         """
