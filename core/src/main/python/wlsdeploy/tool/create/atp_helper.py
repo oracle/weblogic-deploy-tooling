@@ -8,6 +8,7 @@ from wlsdeploy.exception import exception_helper
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
 import wlsdeploy.util.unicode_helper as str_helper
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_SSL_VERSION_VALUE
 
 _logger = PlatformLogger('wlsdeploy.create')
 
@@ -29,7 +30,7 @@ def set_ssl_properties(xml_doc, atp_creds_path, keystore_password, truststore_pa
     for prop in props:
         if prop.getAttribute('name') == 'props.db.1':
             set_property(dom_tree, prop, 'oracle.net.ssl_server_dn_match', 'true')
-            set_property(dom_tree, prop, 'oracle.net.ssl_version', '1.2')
+            set_property(dom_tree, prop, 'oracle.net.ssl_version', DRIVER_PARAMS_NET_SSL_VERSION_VALUE)
             set_property(dom_tree, prop, 'oracle.net.tns_admin', atp_creds_path)
             set_property(dom_tree, prop, 'javax.net.ssl.trustStoreType', truststore_type)
             set_property(dom_tree, prop, 'javax.net.ssl.keyStoreType', keystore_type)
