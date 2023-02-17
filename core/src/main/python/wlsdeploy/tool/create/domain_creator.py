@@ -997,6 +997,10 @@ class DomainCreator(Creator):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
+    def __set_connection_property_info(self, root_location, property_name, property_value, info_bucket, encrypted=False):
+        p = self.__set_connection_property(root_location, property_name, property_value, encrypted)
+        info_bucket.append(p)
+
     def __set_connection_property(self, root_location, property_name, property_value, encrypted=False):
         create_path = self.aliases.get_wlst_create_path(root_location)
 
@@ -1027,6 +1031,7 @@ class DomainCreator(Creator):
         self.wlst_helper.set(wlst_name, wlst_value)
 
         root_location.remove_name_token(property_name)
+        return {property_name: property_value}
 
     def __validate_and_get_atp_rcudbinfo(self, rcu_db_info, check_admin_pwd=False):
         """
@@ -1217,14 +1222,17 @@ class DomainCreator(Creator):
             # Set the driver params
             self.__set_datasource_url(ds_name, fmw_database)
             self.__set_datasource_password(ds_name, rcu_schema_pwd)
-            self.__reset_datasource_template_userid(ds_name, rcu_prefix)
+            actual_schema = self.__reset_datasource_template_userid(ds_name, rcu_prefix)
 
             if is_atp_ds:
-                self.__set_atp_standard_conn_properties(ds_name, tns_admin, truststore, truststore_pwd, truststore_type,
+                pset = self.__set_atp_standard_conn_properties(ds_name, tns_admin, truststore, truststore_pwd, truststore_type,
                                                         keystore_pwd, keystore_type, keystore)
             elif is_ssl_ds:
-                self.__set_ssl_standard_conn_properties(ds_name, tns_admin, truststore, truststore_pwd, truststore_type,
+                pset = self.__set_ssl_standard_conn_properties(ds_name, tns_admin, truststore, truststore_pwd, truststore_type,
                                 keystore_pwd, keystore_type, keystore)
+
+            self.logger.fine('WLSDPLY_12575', ds_name, fmw_database, actual_schema, pset,
+                             class_name=self.__class_name, method_name=_method_name)
 
     def __reset_datasource_template_userid(self, datasource_name, rcu_prefix):
         location = deployer_utils.get_jdbc_driver_params_location(datasource_name, self.aliases)
@@ -1242,6 +1250,7 @@ class DomainCreator(Creator):
             self.aliases.get_wlst_attribute_name_and_value(location, DRIVER_PARAMS_PROPERTY_VALUE,
                                                            schema_user)
         self.wlst_helper.set_if_needed(wlst_name, wlst_value)
+        return wlst_value
 
     def __set_datasource_password(self, datasource_name, rcu_schema_pwd):
         location = deployer_utils.get_jdbc_driver_params_location(datasource_name, self.aliases)
@@ -1270,29 +1279,33 @@ class DomainCreator(Creator):
     def __set_ssl_standard_conn_properties(self, datasource_name, tns_admin, truststore, truststore_pwd,
                                            truststore_type, keystore_pwd, keystore_type, keystore):
         location = deployer_utils.get_jdbc_driver_params_properties_location(datasource_name, self.aliases)
+        properties_set = []
 
         # Should always have trust store
-        self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTORE_PROPERTY,
-                                       self.__get_store_path(tns_admin, truststore))
+        self.__set_connection_property_info(location, DRIVER_PARAMS_TRUSTSTORE_PROPERTY,
+                                       self.__get_store_path(tns_admin, truststore), properties_set)
 
-        self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY,
-                                       truststore_type)
+        self.__set_connection_property_info(location, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY,
+                                       truststore_type, properties_set)
 
         # if not sso type then user must provide pwd
         if truststore_pwd is not None and truststore_pwd != 'None':
-            self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd,
-                                           encrypted=True)
+            self.__set_connection_property_info(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd,
+                                                properties_set, encrypted=True)
 
         if keystore_pwd is not None and keystore_pwd != 'None':
-            self.__set_connection_property(location, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_pwd, encrypted=True)
+            self.__set_connection_property_info(location, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_pwd,
+                                                properties_set, encrypted=True)
 
         # if it is 2 ways SSL
         if keystore is not None and keystore != 'None':
-            self.__set_connection_property(location, DRIVER_PARAMS_KEYSTORE_PROPERTY,
-                                           self.__get_store_path(tns_admin, keystore))
+            self.__set_connection_property_info(location, DRIVER_PARAMS_KEYSTORE_PROPERTY,
+                                           self.__get_store_path(tns_admin, keystore), properties_set)
 
         if keystore_type is not None and keystore_type != 'None':
-            self.__set_connection_property(location, DRIVER_PARAMS_KEYSTORETYPE_PROPERTY, keystore_type)
+            self.__set_connection_property_info(location, DRIVER_PARAMS_KEYSTORETYPE_PROPERTY, keystore_type,
+                                                properties_set)
+        return properties_set
 
     def __set_atp_standard_conn_properties(self, datasource_name, tns_admin, truststore, truststore_pwd,
                                            truststore_type, keystore_pwd, keystore_type, keystore):
@@ -1300,22 +1313,28 @@ class DomainCreator(Creator):
         keystore, keystore_type, truststore, truststore_type = atp_helper.fix_store_type_and_default_value(keystore,
                                                                     keystore_type, truststore, truststore_type)
 
+        properties_set = []
+        self.__set_connection_property_info(location, DRIVER_PARAMS_KEYSTORE_PROPERTY, self.__get_store_path(tns_admin,
+                                        keystore), properties_set)
 
-        self.__set_connection_property(location, DRIVER_PARAMS_KEYSTORE_PROPERTY, self.__get_store_path(tns_admin,
-                                        keystore))
-        self.__set_connection_property(location, DRIVER_PARAMS_KEYSTORETYPE_PROPERTY, keystore_type)
+        self.__set_connection_property_info(location, DRIVER_PARAMS_KEYSTORETYPE_PROPERTY, keystore_type, properties_set)
+
         if keystore_pwd:
-            self.__set_connection_property(location, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_pwd, encrypted=True)
-        self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTORE_PROPERTY, self.__get_store_path(tns_admin,
-                                       truststore))
-        self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY, truststore_type)
+            self.__set_connection_property_info(location, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_pwd,
+                 properties_set, encrypted=True)
+        self.__set_connection_property_info(location, DRIVER_PARAMS_TRUSTSTORE_PROPERTY, self.__get_store_path(tns_admin,
+                                       truststore), properties_set)
+        self.__set_connection_property_info(location, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY, truststore_type,
+                                            properties_set)
         if truststore_pwd:
-            self.__set_connection_property(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd,
-                                           encrypted=True)
-        self.__set_connection_property(location, DRIVER_PARAMS_NET_SSL_VERSION, '1.2')
-        self.__set_connection_property(location, DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY, 'true')
-        self.__set_connection_property(location, DRIVER_PARAMS_NET_TNS_ADMIN, tns_admin)
-        self.__set_connection_property(location, DRIVER_PARAMS_NET_FAN_ENABLED, 'false')
+            self.__set_connection_property_info(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd,
+                 properties_set, encrypted=True)
+        self.__set_connection_property_info(location, DRIVER_PARAMS_NET_SSL_VERSION, '1.2', properties_set)
+        self.__set_connection_property_info(location, DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY, 'true', properties_set)
+        self.__set_connection_property_info(location, DRIVER_PARAMS_NET_TNS_ADMIN, tns_admin, properties_set)
+        self.__set_connection_property_info(location, DRIVER_PARAMS_NET_FAN_ENABLED, 'false', properties_set)
+
+        return properties_set
 
     def __set_app_dir(self):
         """
