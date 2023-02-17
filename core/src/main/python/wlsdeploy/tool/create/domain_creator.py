@@ -1031,7 +1031,10 @@ class DomainCreator(Creator):
         self.wlst_helper.set(wlst_name, wlst_value)
 
         root_location.remove_name_token(property_name)
-        return {property_name: property_value}
+        if encrypted:
+            return {property_name: '******'}
+        else:
+            return {property_name: property_value}
 
     def __validate_and_get_atp_rcudbinfo(self, rcu_db_info, check_admin_pwd=False):
         """
