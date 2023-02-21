@@ -35,6 +35,7 @@ from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.util import wlst_helper
+from wlsdeploy.tool.validate.content_validator import ContentValidator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import tool_main
@@ -312,6 +313,10 @@ def main(model_context):
         aliases = Aliases(model_context, wlst_mode=__wlst_mode, exception_type=ExceptionType.CREATE)
         model_dictionary = cla_helper.load_model(_program_name, model_context, aliases, "create", __wlst_mode,
                                                  validate_crd_sections=False)
+
+        # check for any content problems in the merged, substituted model
+        content_validator = ContentValidator(model_context)
+        content_validator.validate_model(model_dictionary)
 
         archive_helper = None
         archive_file_name = model_context.get_archive_file_name()

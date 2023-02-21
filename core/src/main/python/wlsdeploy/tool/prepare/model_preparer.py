@@ -23,6 +23,7 @@ from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.credential_injector import CredentialInjector
 from wlsdeploy.tool.util.variable_injector import VARIABLE_FILE_UPDATE
 from wlsdeploy.tool.util.variable_injector import VariableInjector
+from wlsdeploy.tool.validate.content_validator import ContentValidator
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import model
@@ -366,6 +367,10 @@ class ModelPreparer:
 
             # correct any secret values that point to @@PROP values
             self.fix_property_secrets(variable_map)
+
+            # check for any content problems in the merged, substituted model
+            content_validator = ContentValidator(self.model_context)
+            content_validator.validate_model(merged_model_dictionary)
 
             target_configuration_helper.generate_all_output_files(Model(merged_model_dictionary), self._aliases,
                                                                   self.credential_injector, self.model_context,
