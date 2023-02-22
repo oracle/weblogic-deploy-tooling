@@ -27,6 +27,7 @@ from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.model_constants import VIRTUAL_TARGET
 from wlsdeploy.tool.util.filters import wko_filter
+from wlsdeploy.tool.util.filters import wko_final_filter
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.model_translator import PythonToFile
@@ -48,7 +49,7 @@ class WkoFilterTestCase(BaseTestCase):
         BaseTestCase.setUp(self)
         self._establish_directory(self.FILTER_OUTPUT_DIR)
 
-    def test_dynamic_cluster_filter(self):
+    def test_dynamic_cluster_final_filter(self):
         model_file = os.path.join(self.MODELS_DIR, 'wko-filter-2.yaml')
         translator = FileToPython(model_file, use_ordering=True)
         model = translator.parse()
@@ -56,7 +57,7 @@ class WkoFilterTestCase(BaseTestCase):
         # Apply the filter
         self._suspend_logs('wlsdeploy.tool.util')
         model_context = ModelContext(self._program_name, {})
-        wko_filter.filter_model(model, model_context)
+        wko_final_filter.filter_final_model(model, model, model_context)
         self._restore_logs()
 
         # Write the result for test debugging
@@ -66,13 +67,10 @@ class WkoFilterTestCase(BaseTestCase):
 
         clusters = self._traverse(model, TOPOLOGY, CLUSTER)
 
-        # cluster 1 should have a placeholder server name prefix assigned
-        self._match('-- FIX PREFIX 1 --', clusters, 'dynamicCluster', DYNAMIC_SERVERS, SERVER_NAME_PREFIX)
+        # cluster 1 should have a default server name prefix assigned
+        self._match('dynamicCluster-', clusters, 'dynamicCluster', DYNAMIC_SERVERS, SERVER_NAME_PREFIX)
 
-        # cluster 3 should have server name prefix replaced with a placeholder
-        self._match('-- FIX PREFIX 2 --', clusters, 'dynamicCluster3', DYNAMIC_SERVERS, SERVER_NAME_PREFIX)
-
-    def test_wko3_filter(self):
+    def test_wko3_final_filter(self):
         model_file = os.path.join(self.MODELS_DIR, 'wko-filter-3.yaml')
         translator = FileToPython(model_file, use_ordering=True)
         model = translator.parse()
@@ -80,7 +78,7 @@ class WkoFilterTestCase(BaseTestCase):
         # Apply the filter
         self._suspend_logs('wlsdeploy.tool.util')
         model_context = ModelContext(self._program_name, {})
-        wko_filter.filter_model_for_wko3(model, model_context)
+        wko_final_filter.filter_final_model_for_wko3(model, model, model_context)
         self._restore_logs()
 
         # Write the result for test debugging
