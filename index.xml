@@ -420,7 +420,7 @@ archiveHelper commands    Command Description     add Add items to the archive f
     </item>
     
     <item>
-      <title>Release Notes</title>
+      <title>Release 3.0.0</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.0.0/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
       
