@@ -21,7 +21,7 @@ None
 
 #### Bug Fixes
 - #1396: Added additional validation to the `RCUDbInfo` section.
-- #1388: Corrected a bug introduced in 3.0.0 that broke validation of sparse models with dynamic clusters.
+- #1398: Corrected a bug introduced in 3.0.0 that broke validation of sparse models with dynamic clusters.
 
 #### Known Issues
 1. When running `discoverDomain` with the `-remote` flag, there are several MBeans that are not being properly handled that
