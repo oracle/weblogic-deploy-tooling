@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Logging :: WebLogic Deploy Tooling</title>
+    <title>Release Notes :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1677162861" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/userguide/tools-config/logging/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-3.0.0/">
     <nav id="sidebar" class="">
 
 
@@ -170,7 +170,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/" title="User Guide" class="dd-item
-        parent
+        
         
         
         ">
@@ -550,7 +550,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/" title="Tools configuration" class="dd-item
-        parent
+        
         
         
         ">
@@ -639,7 +639,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/logging/" title="Logging" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/logging/" title="Logging" class="dd-item ">
         <a href="/weblogic-deploy-tooling/userguide/tools-config/logging/">
         Logging
         
@@ -1165,7 +1165,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
-        
+        parent
         
         
         ">
@@ -1191,7 +1191,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.0.0/" title="Release Notes" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.0.0/" title="Release Notes" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-3.0.0/">
         <b> </b>Release Notes
         
@@ -1367,13 +1367,7 @@
             
           
           
-            
-            
-          
-          
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/userguide/'>User Guide</a> > <a href='/weblogic-deploy-tooling/userguide/tools-config/'>Tools configuration</a> > Logging
-          
-        
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release Notes
           
         
           
@@ -1390,7 +1384,7 @@
   <ul>
     <li>
       <ul>
-        <li></li>
+        <li><a href="#changes-in-release-300">Changes in Release 3.0.0</a></li>
       </ul>
     </li>
   </ul>
@@ -1410,136 +1404,140 @@
           
             <h1>
               
-              Logging
+              Release Notes
             </h1>
           
 
         
 
 
-<p>The WebLogic Deploy Tooling has a built-in logging framework based on <code>java.util.logging</code>.  Its logging configuration
-is specified in <code>$WDT_HOME/etc/logging.properties</code>.  By default, the logging framework writes to both the console and
-a log file.</p>
-<h4 id="log-file">Log file</h4>
-<p>By default, WDT tools write their log files to the <code>$WDT_HOME/logs</code> directory and the log file name reflects the name of the tool.
-For example, if you run the <code>validateModel</code> tool then the log file will be <code>$WDT_HOME/logs/validateModel.log</code>.  These
-log files are overwritten each time you run a particular tool so the file contains only the logs from the last tool
-invocation.</p>
-<p>If the <code>$WDT_HOME/logs</code> directory is not writable by the user running the tool, the logging framework will search for
-a location to write the logs.  The user must have write permission on the directory in order for it to be selected.
-The search order is as follows:</p>
+<h3 id="changes-in-release-300">Changes in Release 3.0.0</h3>
 <ul>
-<li>Check the <code>WLSDEPLOY_LOG_DIRECTORY</code> environment variable.</li>
-<li>Check the current working directory (as defined by the <code>user.dir</code> Java system property) and create a <code>logs</code> subdirectory.</li>
-<li>Check the temp directory (as defined by the <code>java.io.tmpdir</code> Java system property) and create a <code>wdt-logs</code> subdirectory.</li>
+<li><a href="#major-new-features">Major New Features</a></li>
+<li><a href="#other-changes">Other Changes</a></li>
+<li><a href="#bug-fixes">Bugs Fixes</a></li>
+<li><a href="#known-issues">Known Issues</a></li>
 </ul>
-<p>If none of these locations are writable, the logging framework prints an error message to <code>stderr</code> and exits.</p>
-<h4 id="console-output">Console output</h4>
-<p>WDT tools output logging information to <code>stdout</code> and <code>stderr</code>, as appropriate.  By default, only <code>INFO</code> level messages
-are sent to <code>stdout</code>.  All <code>WARNING</code> and <code>SEVERE</code> messages are set to <code>stderr</code>.  In addition to regular log messages
-generated as the tool runs, the tools will produce a summary at the end of tool execution that gives the user an
-overview of the tool execution status.  For example, the <code>validateModel</code> tool execution with no warnings or errors will
-produce output that looks similar to this:</p>
-<pre><code>Issue Log for validateModel version 2.0.0 running WebLogic version 12.2.1.4.0.210930 offline mode:
-
-Total:       WARNING :     0    SEVERE :     0
-</code></pre><h4 id="logging-levels">Logging levels</h4>
-<p>As mentioned previously, WDT&rsquo;s logging framework is based on <code>java.util.logging</code> so all logging levels defined in
-the <code>java.utiul.logging.Level</code> class apply to WDT loggers.  For a quick review of those levels, see the
-<a href="https://docs.oracle.com/javase/8/docs/api/java/util/logging/Level.html">javadoc</a>.</p>
-<p>WDT uses hierarchical loggers that align with the purpose of the code being executed.  The root logger is named <code>wlsdeploy</code>.
-Many loggers exist underneath the root logger; for example, <code>wlsdeploy.create</code>, <code>wlsdeploy.discover</code>, and <code>wlsdeploy.util</code>.
-By default, the WDT <code>logging.properties</code> file sets the logging level of the root and several important loggers.  If the
-level for a particular logger is not set, that logger will use the level of its parent logger.  This delegation to the
-parent logger is recursive up the hierarchy until it finds a level to use.</p>
-<p>In WDT, the log file will collect log entries from all loggers based on the logger&rsquo;s <code>level</code> while the console output
-is limited to <code>INFO</code> and above only.  Log entries written to the console will not display any exception stack traces
-associated with a log entry.  To see those, you must look at the log file.  The WDT logging framework supports using the
-<code>wlsdeploy.debugToStdout</code> Java system property to allow debug log messages (those logged at the <code>FINE</code> level or below)
-to appear in <code>stdout</code> as long as the loggers to which the messages are logged are not filtering those log levels.  For
-example, doing the following will cause debug output to be written to the console:</p>
-<pre><code>export WLSDEPLOY_PROPERTIES=-Dwlsdeploy.debugToStdout=true
-weblogic-deploy/bin/prepareModel.sh ...
-</code></pre><h4 id="log-handlers">Log handlers</h4>
-<p>WDT uses several log handlers to handle logging output of data to various sources.</p>
-<table>
-<thead>
-<tr>
-<th>Log Handler</th>
-<th>Output Destination</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>java.util.logging.FileHandler</code></td>
-<td>WDT tool log file</td>
-<td>The standard <code>java.util.logging</code> file handler.</td>
-</tr>
-<tr>
-<td><code>oracle.weblogic.deploy.logging.StdoutHandler</code></td>
-<td><code>stdout</code></td>
-<td>WDT handler that writes <code>INFO</code> level messages to the console.</td>
-</tr>
-<tr>
-<td><code>oracle.weblogic.deploy.logging.StderrHandler</code></td>
-<td><code>stderr</code></td>
-<td>WDT handler that writes <code>WARNING</code> and <code>SEVERE</code> level messages to the console.</td>
-</tr>
-<tr>
-<td><code>oracle.weblogic.deploy.tooling.SummaryHandler</code></td>
-<td><code>stdout</code></td>
-<td>WDT handler that writes the tool&rsquo;s execution summary information to the console.</td>
-</tr>
-</tbody>
-</table>
-<p>By default, all four handlers are used and configured appropriately.  The logging framework intentionally limits the
-configurability of these handlers.  Only the following <code>logging.properties</code> file settings are allowed.</p>
-<table>
-<thead>
-<tr>
-<th>Property</th>
-<th>Value(s) Allowed</th>
-<th>Behavior When Set</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>handlers</code></td>
-<td>comma-separated list of handlers</td>
-<td>The list of handlers to use (removing a handler from the list is the same as setting its <code>level</code> property to <code>OFF</code>).</td>
-</tr>
-<tr>
-<td><code>java.util.logging.FileHandler.level</code></td>
-<td><code>OFF</code></td>
-<td>No logging output will be saved in the log file.</td>
-</tr>
-<tr>
-<td><code>oracle.weblogic.deploy.logging.StdoutHandler.level</code></td>
-<td><code>OFF</code></td>
-<td>No <code>INFO</code> level logging output will be written to the console.</td>
-</tr>
-<tr>
-<td><code>oracle.weblogic.deploy.logging.StderrHandler.level</code></td>
-<td><code>OFF</code></td>
-<td>No <code>WARNING</code> or <code>ERROR</code> level logging output will be written to the console.</td>
-</tr>
-<tr>
-<td><code>oracle.weblogic.deploy.logging.SummaryHandler.level</code></td>
-<td><code>OFF</code></td>
-<td>No tool execution summary output will be written to the console.</td>
-</tr>
-<tr>
-<td><code>oracle.weblogic.deploy.logging.SummaryHandler.size</code></td>
-<td>Any number</td>
-<td>Limits the number of memory-buffered <code>WARNING</code> and <code>ERROR</code> log records (default is 3000).</td>
-</tr>
-</tbody>
-</table>
-<p>Use the <code>WLSDEPLOY_LOG_HANDLERS</code> environment variable as an alternative to specifying the list of handlers in the
-<code>logging.properties</code> file&rsquo;s <code>handlers</code> property.</p>
-<p>Any attempts to set other configuration for these log handlers will simply be discarded by the WDT logging framework at startup.</p>
-
+<h4 id="major-new-features">Major New Features</h4>
+<ul>
+<li>#1355: Added <code>-remote</code> option to the <code>deployApps</code> tool that supports deploying applications and shared libraries from a remote machine. (Issue #1312)</li>
+<li>#1355: Added <code>-remote</code> option to the <code>updateDomain</code> tool that allows configuration changes not requiring archive file changes
+(except for applications and shared libraries) to be made from a remote machine. (Issue #1167)</li>
+<li>#1365: Added new <code>verrazzano</code> section of the model that can be used to augment/override the YAML files generated by the Verrazzano-related <code>-target</code> options. (WDT-688)</li>
+<li>#1367: New <code>archiveHelper</code> tool for helping to create and update the archive file from the command line. (WDT-711)</li>
+<li>Cleaned up the aliases to clean up online discovery and put tests in place to ensure that they align properly with the
+various WebLogic Server releases and PSUs.  The resulting model from online discovery is now much closer to the one generated by offline discovery.</li>
+</ul>
+<h4 id="other-changes">Other Changes</h4>
+<ul>
+<li>
+<p>#1255: Renamed model attributes to align with the offline naming strategy:</p>
+<ul>
+<li>SystemComponent <code>MWHome</code> model attribute renamed to <code>MwHome</code>.</li>
+<li>WebserviceSecurity <code>DefaultCredentialProviderSTSURI</code> model attribute renamed to <code>DefaultCredentialProviderStsuri</code>.</li>
+</ul>
+</li>
+<li>
+<p>#1299: Renamed model attributes to align with the offline naming strategy:</p>
+<ul>
+<li>SecurityConfiguration <code>IdentityAssertionCacheTTL</code> model attribute renamed to <code>IdentityAssertionCacheTtl</code>.</li>
+</ul>
+</li>
+<li>
+<p>#1310: Resolved issue that was causing the PSU version of several 12.2.1.3 PSUs to be incorrect.</p>
+</li>
+<li>
+<p>#1314, #1342: Added knowledge to the aliases to understand how default values change when using <code>production mode</code> and <code>secure production mode</code>. (WDT-678)</p>
+</li>
+<li>
+<p>#1328: Changed tool exit code handling to exit with exit code 1 if warnings exist and exit code 2 if errors exist in the summary report. (WDT-692)</p>
+</li>
+<li>
+<p>#1331: Deprecated the old archive locations of the OPSS wallet and ATP wallet in the archive file.  The old locations will be
+honored but will result in one or more deprecation messages. (WDT-687)</p>
+</li>
+<li>
+<p>#1334: Removed support for storing the model files in the archive. (WDT-643)</p>
+</li>
+<li>
+<p>#1341: Remove deprecated <code>-domain_resource_file</code> argument from the <code>extractDomainResource</code> tool. (WDT-706)</p>
+</li>
+<li>
+<p>#1348: Renamed the old ATP wallet to <code>rcu</code> wallet. (WDT-709)</p>
+</li>
+<li>
+<p>#1348: Added support for adding wallets either as a ZIP file or an exploded directory with one or more files.  When the wallet is
+added as a ZIP file, the <code>createDomain</code> and <code>updateDomain</code> tools will expand the ZIP into the domain home, just as before.</p>
+</li>
+<li>
+<p>#1348: Added database wallet support for multiple wallets. Other database wallets can be added, as needed. (WDT-710)</p>
+</li>
+<li>
+<p>#1351: Removed support for the deprecated &ldquo;named object list&rdquo; format from the <code>kubernetes</code> section of the model. (WDT-688)</p>
+</li>
+<li>
+<p>#1366: Refactored ATP and SSL database support to be more unified in their modeling approach.</p>
+</li>
+<li>
+<p>#1369: Added a special log level for deprecation messages so that they can show up in the tools' summary reports without causing a non-zero exit status. (WDT-721)</p>
+</li>
+<li>
+<p>#1375: Revamped application installation directory discovery to capture the entire application installation directory. (WDT-715)</p>
+</li>
+<li>
+<p>#1379: Added the ability for discovery to collect the JDBC wallet file(s) in the archive.</p>
+</li>
+<li>
+<p>#1380: Updated the approach for generating the Verrazzano custom resource related to the Ingress Trait routing rules to add
+a destination host/port and allow the user to add Paths via the new <code>verrazzano</code> section of the model. (WDT-696)</p>
+</li>
+<li>
+<p>#1383: Removed the <code>DomainVersion</code> domain-level attribute from discovered models and replaced it with a comment describing the
+WDT and WebLogic Server version numbers used to discover the model and which WLST mode was used for discovery. (WDT-698)</p>
+</li>
+<li>
+<p>#1386: Changed attribute not valid in the current WebLogic version warnings to log <code>INFO</code> level messages instead. (WDT-724)</p>
+</li>
+<li>
+<p>#1389: Added additional model and WebLogic Kubernetes Operator/Verrazzano target validation around dynamic clusters to catch modeling issues prior to domain creation. (WDT-726)</p>
+</li>
+<li>
+<p>#1391: Revamped tool summary report and remote report generated when using remote discovery. (WDT-637)</p>
+</li>
+<li>
+<p>#1395: Added unclustered servers to the WKTUI integration output of <code>prepareModel</code> (WDT-730)</p>
+</li>
+</ul>
+<h4 id="bug-fixes">Bug Fixes</h4>
+<ul>
+<li>#1261, #1266: Corrected a <code>discoverDomain</code> error message when a keystore was missing. (WDT-685)</li>
+<li>#1324: Resolved an issue causing secure mode not to be discovered. (WDT-694)</li>
+<li>#1327: Resolved an issue where WLST errors in WLS 12.2.1.0.0 were showing up in the tools' summary reports. (WDT-691)</li>
+<li>#1329: Changed the tools summary log handler to not accept any messages that did not originate in WDT proper. (WDT-701)</li>
+<li>#1330: Fixed a Windows issue with environment variable substitution where environment variable references in the model that were not all uppercase were not working properly.</li>
+<li>#1335: Removed unused and undocumented <code>-prev_model_file</code> argument from the <code>deployApps</code> and <code>updateDomain</code> tools. (WDT-707)</li>
+<li>#1344: Removed <code>-archive_file</code> argument from the <code>extractDomainResource</code> tool since the model can no longer be stored in the archive file. (WDT-708)</li>
+<li>#1367: Corrected the behavior of the archive class to rename directories when an existing directory of the same name already exists.
+This makes the behavior for files and directories consistent. (WDT-722)</li>
+<li>#1374: Corrected a problem discovering a domain using a Coherence cluster with a custom configuration file.</li>
+<li>#1376: Corrected an issue with <code>compareModel</code> pertaining to comparisons of the JVM arguments and whitespace (Issue #1370)</li>
+<li>#1382: Removed misleading log entries during startup that displayed the WebLogic Server version with no PSU information (WDT-727)</li>
+<li>#1392: Fixed an issue with online discovery of domains with dynamic clusters where the dynamic servers were erroneously being added as configured servers.</li>
+<li>#1393: Fixed an issue causing an empty <code>SecureMode</code> folder to show up in an online discovered model. (WDT-731)</li>
+<li>#1394: Fixed alias entries to prevent some <code>INFO</code> messages with errors related to alias entries during online discovery.</li>
+</ul>
+<h4 id="known-issues">Known Issues</h4>
+<ol>
+<li>When running <code>discoverDomain</code> with the <code>-remote</code> flag, there are several MBeans that are not being properly handled that
+will result in <code>INFO</code> level messages that look similar to the example shown below.  These errors seem to happen only when the MBean is
+non-existent so the resulting model should still be accurate.  These issues are expected to be fixed in a future release.</li>
+</ol>
+<pre><code>####&lt;Feb 16, 2023 1:40:00 PM&gt; &lt;INFO&gt; &lt;Discoverer&gt; &lt;_add_to_dictionary&gt; &lt;WLSDPLY-06106&gt; &lt;Unable to add ServerFailureTrigger
+from location /Clusters/mycluster/OverloadProtection/mycluster to the model : Failed to convert the wlst attribute name and
+value for the model at location (model_folders = ['Cluster', 'OverloadProtection'],  'name_tokens' = {'DOMAIN': 'tododomain',
+'CLUSTER': 'mycluster','OVERLOADPROTECTION': 'mycluster'}) : The wlst attribute ServerFailureTrigger is not defined for the
+model folder /Cluster/OverloadProtection&gt;
+</code></pre>
 
 <footer class="footline">
 	
@@ -1627,7 +1625,6 @@ configurability of these handlers.  Only the following <code>logging.properties<
             
                 
                     
-                    
                 
                 
 
@@ -1642,9 +1639,6 @@ configurability of these handlers.  Only the following <code>logging.properties<
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -1902,7 +1896,6 @@ configurability of these handlers.  Only the following <code>logging.properties<
             
                 
                     
-                    
                 
                 
 
@@ -1915,9 +1908,6 @@ configurability of these handlers.  Only the following <code>logging.properties<
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -1967,7 +1957,6 @@ configurability of these handlers.  Only the following <code>logging.properties<
             
                 
                     
-                    
                 
                 
 
@@ -1983,9 +1972,6 @@ configurability of these handlers.  Only the following <code>logging.properties<
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2345,6 +2331,7 @@ configurability of these handlers.  Only the following <code>logging.properties<
             
                 
                     
+                    
                 
                 
 
@@ -2357,6 +2344,7 @@ configurability of these handlers.  Only the following <code>logging.properties<
             
             
                 
+                    
                     
                 
                 
@@ -2373,6 +2361,9 @@ configurability of these handlers.  Only the following <code>logging.properties<
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2461,10 +2452,10 @@ configurability of these handlers.  Only the following <code>logging.properties<
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/userguide/tools-config/custom_config/" title="Custom configuration"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/tools-config/tool_prop/" title="Tool property file" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-2.4.4/" title="Release 2.4.4" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
