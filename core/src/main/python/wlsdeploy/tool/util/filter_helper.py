@@ -8,6 +8,7 @@ import sys
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.filters import wko_filter
+from wlsdeploy.tool.util.filters import wko_final_filter
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import path_utils
 from wlsdeploy.util.model_translator import FileToPython
@@ -23,13 +24,21 @@ __id_filter_map = {
     'k8s_filter': wko_filter.filter_model,
     'vz_filter': wko_filter.filter_model_for_vz,
     'wko_filter': wko_filter.filter_model_for_wko,
-    'wko3_filter': wko_filter.filter_model_for_wko3,
 
     # individual filters for custom target environments
     'online_attributes_filter': wko_filter.filter_online_attributes,
     'resources_filter': wko_filter.filter_resources,
     'topology_filter': wko_filter.filter_topology,
     'server_ports_filter': wko_filter.check_clustered_server_ports
+}
+
+# final filters run against the merged, substituted model.
+__final_filter_map = {
+    # groups that execute multiple filters
+    'k8s_final_filter': wko_final_filter.filter_final_model,
+    'vz_final_filter': wko_final_filter.filter_final_model_for_vz,
+    'wko_final_filter': wko_final_filter.filter_final_model_for_wko,
+    'wko3_final_filter': wko_final_filter.filter_final_model_for_wko3,
 }
 
 
@@ -83,6 +92,39 @@ def apply_filters(model, tool_type, model_context):
     except Exception, ex:
         __logger.severe('WLSDPLY-20018', str_helper.to_string(ex), error=ex,
                         class_name=__class_name, method_name=_method_name)
+
+    return filter_applied
+
+
+def apply_final_filters(model, update_model, model_context):
+    """
+    Apply any final filters configured to the specified model.
+    :param model: the model to be filtered
+    :param update_model: the model to be updated with any changes
+    :param model_context: used to find target filters
+    :return: True if any filter was applied, False otherwise
+    :raises: BundleAwareException of the specified type: if an error occurs
+    """
+    _method_name = 'apply_final_filters'
+
+    filter_applied = False
+
+    try:
+        final_filters = model_context.get_target_configuration().get_final_model_filters()
+        for final_filter in final_filters:
+            filter_id = dictionary_utils.get_element(final_filter, 'id')
+            filter_method = dictionary_utils.get_element(__final_filter_map, filter_id)
+            if filter_method is None:
+                __logger.severe('WLSDPLY-20037', str_helper.to_string(filter_id), class_name=__class_name,
+                                method_name=_method_name)
+                return False
+            else:
+                filter_method(model, update_model, model_context)
+                return True
+
+    except Exception, ex:
+        __logger.severe('WLSDPLY-20038', str_helper.to_string(ex), error=ex, class_name=__class_name,
+                        method_name=_method_name)
 
     return filter_applied
 

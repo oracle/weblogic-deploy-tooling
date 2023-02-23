@@ -134,6 +134,16 @@ class TargetConfiguration(object):
         """
         return dictionary_utils.get_dictionary_element(self.config_dictionary, 'model_filters')
 
+    def get_final_model_filters(self):
+        """
+        Return a list of final model filters for this target environment.
+        :return: the list of final model filters
+        """
+        result = dictionary_utils.get_element(self.config_dictionary, 'final_filters')
+        if result is None:
+            result = []
+        return result
+
     def get_variable_injectors(self):
         """
         Return a dictionary of variable injectors for this target environment.

@@ -4,7 +4,10 @@
           { "name": "k8s_prep", "path": "@@TARGET_CONFIG_DIR@@/k8s_operator_filter.py" },
           { "id": "k8s_filter" }
         ]
-      },
+  },
+  "final_filters" : [
+    { "id": "k8s_final_filter" }
+  ],
   "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},
   "validation_method" : "lax",
   "credentials_method" : "secrets",

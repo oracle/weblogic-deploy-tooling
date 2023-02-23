@@ -498,6 +498,8 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
     if filter_helper.apply_filters(model.get_model(), "discover", model_context):
         __logger.info('WLSDPLY-06014', _class_name=_class_name, method_name=_method_name)
 
+    filter_helper.apply_final_filters(model.get_model(), model.get_model(), model_context)
+
     # target config always present in model context, default config if not declared
     target_configuration = model_context.get_target_configuration()
 

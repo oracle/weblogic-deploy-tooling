@@ -1,9 +1,12 @@
 {
   "model_filters" : {
         "discover": [
-          { "id": "wko3_filter" }
+          { "id": "wko_filter" }
         ]
   },
+  "final_filters" : [
+    { "id": "wko3_final_filter" }
+  ],
   "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},
   "validation_method" : "lax",
   "domain_home_source_type" : "pv",

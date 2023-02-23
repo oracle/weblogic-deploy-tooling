@@ -23,6 +23,7 @@ from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.credential_injector import CredentialInjector
 from wlsdeploy.tool.util.variable_injector import VARIABLE_FILE_UPDATE
 from wlsdeploy.tool.util.variable_injector import VariableInjector
+from wlsdeploy.tool.validate.content_validator import ContentValidator
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import model
@@ -271,6 +272,21 @@ class ModelPreparer:
         if self.model_context.get_target_configuration().exclude_domain_bin_contents():
             archive_helper.remove_domain_scripts()
 
+    def _apply_final_filters(self, model_dictionary):
+        """
+        Apply final filters to the merged model dictionary,
+        and apply any updates to the last model in the command-line list.
+        """
+        model_file_list = self.model_files.split(',')
+        last_file = model_file_list[-1]
+        update_file = os.path.join(self.output_dir, os.path.basename(last_file))
+
+        update_model_dict = FileToPython(update_file, True).parse()
+        filter_helper.apply_final_filters(model_dictionary, update_model_dict, self.model_context)
+
+        pty = PythonToYaml(update_model_dict)
+        pty.write_to_yaml_file(update_file)
+
     def prepare_models(self):
         """
         Replace password attributes in each model file with secret tokens, and write each model.
@@ -366,6 +382,13 @@ class ModelPreparer:
 
             # correct any secret values that point to @@PROP values
             self.fix_property_secrets(variable_map)
+
+            # apply final filter changes for the merged model to the last source model
+            self._apply_final_filters(merged_model_dictionary)
+
+            # check for any content problems in the merged, substituted model
+            content_validator = ContentValidator(self.model_context)
+            content_validator.validate_model(merged_model_dictionary)
 
             target_configuration_helper.generate_all_output_files(Model(merged_model_dictionary), self._aliases,
                                                                   self.credential_injector, self.model_context,

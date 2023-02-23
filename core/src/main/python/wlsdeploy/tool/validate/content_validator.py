@@ -14,10 +14,9 @@ class ContentValidator(object):
     """
     Class for validating consistency and compatibility of model folders and attributes.
     These checks are done after alias folder and attribute checks.
-    The model may be a partial model from a multiple-model configuration.
+    These checks should be performed against a complete, merged model.
 
     Dynamic clusters is currently the only validation.
-    Other non-alias validations might fit here (RcuDbInfo?).
     """
     _class_name = 'ContentValidator'
     _logger = PlatformLogger('wlsdeploy.validate')
