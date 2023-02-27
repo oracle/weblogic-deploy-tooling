@@ -45,7 +45,7 @@
         <weblogic-deploy-installer-name>weblogic-deploy</weblogic-deploy-installer-name>
         <skipTests>false</skipTests>
         <antlr.version>4.9.3</antlr.version>
-        <snakeyaml.version>1.33</snakeyaml.version>
+        <snakeyaml.version>2.0</snakeyaml.version>
         <picocli.version>4.7.1</picocli.version>
 
         <sonar.organization>oracle</sonar.organization>
