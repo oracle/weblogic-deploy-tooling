@@ -8,6 +8,9 @@ import java.util.logging.Level;
 
 public class NotificationLevel extends Level {
     public static final Level NOTIFICATION = new NotificationLevel("NOTIFICATION", 840);
+
+    private static final long serialVersionUID = 1L;
+
     protected NotificationLevel(String name, int value) {
         super(name, value);
     }

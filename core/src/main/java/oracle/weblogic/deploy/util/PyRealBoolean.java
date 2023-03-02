@@ -14,6 +14,8 @@ import org.python.core.PyString;
  * boolean values to be distinguished from other types.
  */
 public class PyRealBoolean extends PyObject {
+    private static final long serialVersionUID = 1L;
+
     private final boolean isTrue;
 
     public PyRealBoolean(boolean isTrue) {
