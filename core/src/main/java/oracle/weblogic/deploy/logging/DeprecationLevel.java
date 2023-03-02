@@ -9,6 +9,8 @@ import java.util.logging.Level;
 public class DeprecationLevel extends Level {
     public static final Level DEPRECATION = new DeprecationLevel("DEPRECATION", 850);
 
+    private static final long serialVersionUID = 1L;
+
     protected DeprecationLevel(String name, int value) {
         super(name, value);
     }

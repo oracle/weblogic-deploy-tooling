@@ -9,6 +9,8 @@ import java.util.logging.Level;
 public class ToDoLevel extends Level {
     public static final Level TODO = new ToDoLevel("TODO", 820);
 
+    private static final long serialVersionUID = 1L;
+
     protected ToDoLevel(String name, int value) {
         super(name, value);
     }

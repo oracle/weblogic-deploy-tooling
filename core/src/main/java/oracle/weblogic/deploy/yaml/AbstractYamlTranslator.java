@@ -29,6 +29,7 @@ import org.python.core.PyUnicode;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 /**
  * This class does the heavy-lifting of walking the parse tree and performing the conversion into a Python dictionary.
@@ -83,7 +84,7 @@ public abstract class AbstractYamlTranslator {
         // so build a java.util.List and construct PyList(javaList).
         List<PyObject> result = new ArrayList<>();
         if (inputStream != null) {
-            Yaml parser = new Yaml(this.getDefaultLoaderOptions());
+            Yaml parser = new Yaml(new SafeConstructor(this.getDefaultLoaderOptions()));
 
             try {
                 Iterable<Object> docsIterable = parser.loadAll(inputStream);
