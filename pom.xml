@@ -266,7 +266,7 @@
                         <configuration>
                             <rules>
                                 <requireJavaVersion>
-                                    <version>1.8.0</version>
+                                    <version>17</version>
                                     <message>You must use JDK 8 to build the project since the encryption utilities unit test requires JDK 8 due to the encryption algorithms used</message>
                                 </requireJavaVersion>
                             </rules>
