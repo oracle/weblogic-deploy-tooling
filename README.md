@@ -2,7 +2,7 @@
 
 WebLogic Deploy Tooling (WDT) makes it easy to stand up WebLogic environments and perform
 domain lifecycle operations in a repeatable fashion based on a metadata model that
-can be treated as source and evolve as the project evolves.
+can be treated as source and evolve as the project evolves and contributions are incorporated.
 
 Many organizations use WebLogic Server, with or without other Oracle Fusion Middleware components,
 to run their enterprise applications. And, as more and more of these organizations move toward Continuous Delivery
