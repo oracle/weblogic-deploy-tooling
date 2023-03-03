@@ -267,7 +267,7 @@
                             <rules>
                                 <requireJavaVersion>
                                     <version>17</version>
-                                    <message>You must use JDK 8 to build the project since the encryption utilities unit test requires JDK 8 due to the encryption algorithms used</message>
+                                    <message>Jenkins is still buggy and insecure</message>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
