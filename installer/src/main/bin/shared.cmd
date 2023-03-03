@@ -20,22 +20,22 @@ GOTO :ENDFUNCTIONS
     @rem Make sure that the JAVA_HOME environment variable is set to point to a
     @rem JDK with the specified level or higher (and that it isn't OpenJDK).
 
-    SET MIN_JDK_VERSION=%1
-    SET QUIET_ARG=%2
+    SET "MIN_JDK_VERSION=%1"
+    SET "QUIET_ARG=%2"
 
     IF NOT DEFINED JAVA_HOME (
       ECHO Please set the JAVA_HOME environment variable to point to a Java 8 installation >&2
       EXIT /B 2
-    ) ELSE (
-      IF NOT EXIST "%JAVA_HOME%" (
-        ECHO Your JAVA_HOME environment variable to points to a non-existent directory: %JAVA_HOME% >&2
-        EXIT /B 2
-      )
     )
     FOR %%i IN ("%JAVA_HOME%") DO SET JAVA_HOME=%%~fsi
     IF %JAVA_HOME:~-1%==\ SET JAVA_HOME=%JAVA_HOME:~0,-1%
 
-    IF EXIST %JAVA_HOME%\bin\java.exe (
+    IF NOT EXIST "%JAVA_HOME%" (
+      ECHO Your JAVA_HOME environment variable to points to a non-existent directory: %JAVA_HOME% >&2
+      EXIT /B 2
+    )
+
+    IF EXIST "%JAVA_HOME%\bin\java.exe" (
       FOR %%i IN ("%JAVA_HOME%\bin\java.exe") DO SET JAVA_EXE=%%~fsi
     ) ELSE (
       ECHO Java executable does not exist at %JAVA_HOME%\bin\java.exe >&2
@@ -140,7 +140,7 @@ GOTO :EOF
     )
 
     IF "%firstArg%" == "-oracle_home" (
-      SET ORACLE_HOME_ARG=%2
+      SET "ORACLE_HOME_ARG=%2"
       SHIFT
       GOTO arg_continue
     )
@@ -151,7 +151,7 @@ GOTO :EOF
     )
 
     IF "%firstArg%" == "-wlst_path" (
-      SET WLST_PATH_DIR=%2
+      SET "WLST_PATH_DIR=%2"
       SHIFT
       GOTO arg_continue
     )
@@ -164,14 +164,14 @@ GOTO :EOF
     )
 
     IF NOT "%ORACLE_HOME_ARG%" == "" (
-      SET ORACLE_HOME=%ORACLE_HOME_ARG%
+      SET "ORACLE_HOME=%ORACLE_HOME_ARG%"
     ) ELSE (
       @REM if -oracle_home argument was not found, but ORACLE_HOME was set in environment,
       @REM add the -oracle_home argument with the environment value.
       @REM put it at the beginning to protect trailing arguments.
 
       IF NOT "%ORACLE_HOME%" == "" (
-        SET SCRIPT_ARGS= -oracle_home %ORACLE_HOME% %SCRIPT_ARGS%
+        SET "SCRIPT_ARGS= -oracle_home %ORACLE_HOME% %SCRIPT_ARGS%"
       )
     )
 
@@ -188,7 +188,7 @@ GOTO :EOF
     @REM set the WLSDEPLOY_HOME variable. if it was already set, verify that it is valid
 
     IF NOT DEFINED WLSDEPLOY_HOME (
-      SET WLSDEPLOY_HOME=%SCRIPT_PATH%\..
+      SET "WLSDEPLOY_HOME=%SCRIPT_PATH%\.."
     ) ELSE (
       IF NOT EXIST "%WLSDEPLOY_HOME%" (
         ECHO Specified WLSDEPLOY_HOME of "%WLSDEPLOY_HOME%" does not exist >&2
@@ -203,10 +203,10 @@ GOTO :EOF
     SET LOG_CONFIG_CLASS=oracle.weblogic.deploy.logging.WLSDeployLoggingConfig
 
     IF NOT DEFINED WLSDEPLOY_LOG_PROPERTIES (
-      SET WLSDEPLOY_LOG_PROPERTIES=%WLSDEPLOY_HOME%\etc\logging.properties
+      SET "WLSDEPLOY_LOG_PROPERTIES=%WLSDEPLOY_HOME%\etc\logging.properties"
     )
     IF NOT DEFINED WLSDEPLOY_LOG_DIRECTORY (
-      SET WLSDEPLOY_LOG_DIRECTORY=%WLSDEPLOY_HOME%\logs
+      SET "WLSDEPLOY_LOG_DIRECTORY=%WLSDEPLOY_HOME%\logs"
     )
 GOTO :EOF
 
@@ -220,7 +220,7 @@ GOTO :EOF
 
 :runWlst
     @REM run a WLST script.
-    SET WLST_SCRIPT=%1
+    SET "WLST_SCRIPT=%1"
 
     CALL :variableSetup
     if %ERRORLEVEL% NEQ 0 (
@@ -243,7 +243,7 @@ GOTO :EOF
         ECHO WLST executable !WLST! not found under -wlst_path directory %WLST_PATH_DIR% >&2
         EXIT /B 98
       )
-      SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+      SET "CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar"
       IF DEFINED WLST_EXT_CLASSPATH (
         SET "WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar;%WLST_EXT_CLASSPATH%"
       ) ELSE (
@@ -253,11 +253,15 @@ GOTO :EOF
     )
 
     @rem if WLST_PATH_DIR was not set, find the WLST executable in one of the known ORACLE_HOME locations.
+    IF DEFINED ORACLE_HOME (
+        FOR %%i IN ("%ORACLE_HOME%") DO SET ORACLE_HOME=%%~fsi
+        IF %ORACLE_HOME:~-1%==\ SET ORACLE_HOME=%ORACLE_HOME:~0,-1%
+    )
 
     SET WLST=
     IF EXIST "%ORACLE_HOME%\oracle_common\common\bin\wlst.cmd" (
-        SET WLST=%ORACLE_HOME%\oracle_common\common\bin\wlst.cmd
-        SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+        SET "WLST=%ORACLE_HOME%\oracle_common\common\bin\wlst.cmd"
+        SET "CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar"
         IF DEFINED WLST_EXT_CLASSPATH (
           SET "WLST_EXT_CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar;%WLST_EXT_CLASSPATH%"
         ) ELSE (
@@ -266,20 +270,20 @@ GOTO :EOF
         GOTO found_wlst
     )
     IF EXIST "%ORACLE_HOME%\wlserver_10.3\common\bin\wlst.cmd" (
-        SET WLST=%ORACLE_HOME%\wlserver_10.3\common\bin\wlst.cmd
-        SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+        SET "WLST=%ORACLE_HOME%\wlserver_10.3\common\bin\wlst.cmd"
+        SET "CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar"
         GOTO found_wlst
     )
     IF EXIST "%ORACLE_HOME%\wlserver_12.1\common\bin\wlst.cmd" (
-        SET WLST=%ORACLE_HOME%\wlserver_12.1\common\bin\wlst.cmd
-        SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+        SET "WLST=%ORACLE_HOME%\wlserver_12.1\common\bin\wlst.cmd"
+        SET "CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar"
         GOTO found_wlst
     )
     IF EXIST "%ORACLE_HOME%\wlserver\common\bin\wlst.cmd" (
         IF EXIST "%ORACLE_HOME%\wlserver\.product.properties" (
             @rem WLS 12.1.2 or WLS 12.1.3
-            SET WLST=%ORACLE_HOME%\wlserver\common\bin\wlst.cmd
-            SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
+            SET "WLST=%ORACLE_HOME%\wlserver\common\bin\wlst.cmd"
+            SET "CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar"
         )
         GOTO found_wlst
     )
@@ -301,7 +305,7 @@ GOTO :EOF
     ECHO CLASSPATH = %CLASSPATH%
     ECHO WLST_PROPERTIES = %WLST_PROPERTIES%
 
-    SET PY_SCRIPTS_PATH=%WLSDEPLOY_HOME%\lib\python
+    SET "PY_SCRIPTS_PATH=%WLSDEPLOY_HOME%\lib\python"
 
     ECHO %WLST% %PY_SCRIPTS_PATH%\%WLST_SCRIPT% %SCRIPT_ARGS%
 
@@ -313,18 +317,24 @@ GOTO :EOF
 
 :runJython
     @REM run a jython script, without WLST.
-    SET JYTHON_SCRIPT=%1
+    SET "JYTHON_SCRIPT=%1"
 
     @REM set up Oracle directory, logger, classpath
+    IF DEFINED ORACLE_HOME (
+        FOR %%i IN ("%ORACLE_HOME%") DO SET ORACLE_HOME=%%~fsi
+        IF %ORACLE_HOME:~-1%==\ SET ORACLE_HOME=%ORACLE_HOME:~0,-1%
+    )
 
     SET ORACLE_SERVER_DIR=
     IF EXIST "%ORACLE_HOME%\wlserver_10.3" (
-        SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver_10.3
+        SET "ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver_10.3"
     ) ELSE IF EXIST "%ORACLE_HOME%\wlserver_12.1" (
-        SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver_12.1
+        SET "ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver_12.1"
     ) ELSE (
-        SET ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver
+        SET "ORACLE_SERVER_DIR=%ORACLE_HOME%\wlserver"
     )
+    FOR %%i IN ("%ORACLE_SERVER_DIR%") DO SET ORACLE_SERVER_DIR=%%~fsi
+    IF %ORACLE_SERVER_DIR:~-1%==\ SET ORACLE_SERVER_DIR=%ORACLE_SERVER_DIR:~0,-1%
 
     CALL :variableSetup
     if %ERRORLEVEL% NEQ 0 (
@@ -337,8 +347,8 @@ GOTO :EOF
     SET "JAVA_PROPERTIES=%JAVA_PROPERTIES% -Dpython.console="
     SET "JAVA_PROPERTIES=%JAVA_PROPERTIES% %WLSDEPLOY_PROPERTIES%"
 
-    SET CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar
-    SET CLASSPATH=%CLASSPATH%;%ORACLE_SERVER_DIR%\server\lib\weblogic.jar
+    SET "CLASSPATH=%WLSDEPLOY_HOME%\lib\weblogic-deploy-core.jar"
+    SET "CLASSPATH=%CLASSPATH%;%ORACLE_SERVER_DIR%\server\lib\weblogic.jar"
 
     @REM print the configuration, and run the script
 
@@ -346,7 +356,7 @@ GOTO :EOF
     ECHO CLASSPATH = %CLASSPATH%
     ECHO JAVA_PROPERTIES = %JAVA_PROPERTIES%
 
-    SET PY_SCRIPTS_PATH=%WLSDEPLOY_HOME%\lib\python
+    SET "PY_SCRIPTS_PATH=%WLSDEPLOY_HOME%\lib\python"
 
     ECHO ^
     %JAVA_HOME%/bin/java -cp %CLASSPATH% ^
@@ -354,7 +364,7 @@ GOTO :EOF
         org.python.util.jython ^
         "%PY_SCRIPTS_PATH%\%JYTHON_SCRIPT%" %SCRIPT_ARGS%
 
-    %JAVA_HOME%/bin/java -cp %CLASSPATH% ^
+    %JAVA_HOME%/bin/java -cp "%CLASSPATH%" ^
         %JAVA_PROPERTIES% ^
         org.python.util.jython ^
         "%PY_SCRIPTS_PATH%\%JYTHON_SCRIPT%" %SCRIPT_ARGS%
