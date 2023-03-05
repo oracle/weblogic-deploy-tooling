@@ -420,6 +420,17 @@ archiveHelper commands    Command Description     add Add items to the archive f
     </item>
     
     <item>
+      <title>Release 3.0.1</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.0.1/</link>
+      <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.0.1/</guid>
+      <description>Changes in Release 3.0.1  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes None
+Bug Fixes  #1396: Added additional validation to the RCUDbInfo section. #1398: Corrected a bug introduced in 3.0.0 that broke validation of sparse models with dynamic clusters.  Known Issues  When running discoverDomain with the -remote flag, there are several MBeans that are not being properly handled that will result in INFO level messages that look similar to the example shown below.</description>
+    </item>
+    
+    <item>
       <title>Release 3.0.0</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.0.0/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
