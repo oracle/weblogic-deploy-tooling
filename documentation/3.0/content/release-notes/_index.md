@@ -22,6 +22,7 @@ None
 #### Bug Fixes
 - #1405: Corrected some issues with the Windows shell scripts where they were not properly handling paths with spaces.
 - #1409: Corrected a bug where a wallet deprecation message was still being logged as a warning.
+- #1411: Corrected a bug where wallet extraction handling with multiple archive files was happening in the wrong order.
 
 #### Known Issues
 1. When running `discoverDomain` with the `-remote` flag, there are several MBeans that are not being properly handled that
