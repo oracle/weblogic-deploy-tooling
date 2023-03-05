@@ -13,9 +13,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -3697,6 +3700,40 @@ public class WLSDeployArchive {
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //                                 database wallet methods                                   //
     ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Get the list of database wallet names from the archive.
+     *
+     * @return the list of wallet names
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive
+     */
+    public List<String> getDatabaseWalletNames() throws WLSDeployArchiveIOException {
+        final String METHOD = "getDatabaseWalletNames";
+        LOGGER.entering(CLASS, METHOD);
+
+        // This is ugly because of the deprecated atpwallet location.
+        Set<String> results = new HashSet<>();
+        List<String> zipEntries = getZipFile().listZipEntries();
+        int prefixLength = ARCHIVE_DB_WALLETS_DIR.length() + 1;
+        for (String zipEntry : zipEntries) {
+            if (zipEntry.startsWith(OLD_ARCHIVE_ATP_WALLET_PATH)) {
+                LOGGER.finer("Adding deprecated atpwallet as {0}",DEFAULT_RCU_WALLET_NAME);
+                results.add(DEFAULT_RCU_WALLET_NAME);
+            } else if (zipEntry.startsWith(ARCHIVE_DB_WALLETS_DIR)) {
+                // skip over the wlsdeploy/dbWallets/ entry
+                if (zipEntry.length() <= prefixLength) {
+                    continue;
+                }
+
+                int walletNameDirectorySeparatorIndex = zipEntry.indexOf(ZIP_SEP, prefixLength);
+                String walletName = zipEntry.substring(prefixLength, walletNameDirectorySeparatorIndex);
+                LOGGER.finer("Adding wallet {0}", walletName);
+                results.add(walletName);
+            }
+        }
+        LOGGER.exiting(CLASS, METHOD, results);
+        return new ArrayList<>(results);
+    }
 
     /**
      * Add a database wallet to the archive.
