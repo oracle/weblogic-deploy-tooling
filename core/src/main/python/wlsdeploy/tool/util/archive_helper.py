@@ -397,7 +397,7 @@ class ArchiveHelper(object):
                 # will all have the same path.
                 #
                 resulting_wallet_path = wallet_path
-
+                break
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=resulting_wallet_path)
         return resulting_wallet_path
 
