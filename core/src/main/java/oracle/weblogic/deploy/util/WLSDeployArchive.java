@@ -4410,7 +4410,7 @@ public class WLSDeployArchive {
             //
             if (zipEntries.size() == 1 && firstZipEntry.toLowerCase().endsWith(".zip")) {
                 if (!StringUtils.isEmpty(deprecationKey)) {
-                    LOGGER.warning(deprecationKey, getArchiveFileName(), firstZipEntry, extractPath);
+                    LOGGER.deprecation(deprecationKey, getArchiveFileName(), firstZipEntry, extractPath);
                 }
                 unzipZippedArchiveFileEntry(firstZipEntry, fullExtractPath);
             } else {
