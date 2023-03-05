@@ -3726,11 +3726,19 @@ public class WLSDeployArchive {
                 }
 
                 int walletNameDirectorySeparatorIndex = zipEntry.indexOf(ZIP_SEP, prefixLength);
+                if (walletNameDirectorySeparatorIndex == -1) {
+                    WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01460",
+                        getArchiveFileName(), zipEntry);
+                    LOGGER.throwing(CLASS, METHOD, ex);
+                    throw ex;
+                }
                 String walletName = zipEntry.substring(prefixLength, walletNameDirectorySeparatorIndex);
+
                 LOGGER.finer("Adding wallet {0}", walletName);
                 results.add(walletName);
             }
         }
+        
         LOGGER.exiting(CLASS, METHOD, results);
         return new ArrayList<>(results);
     }
