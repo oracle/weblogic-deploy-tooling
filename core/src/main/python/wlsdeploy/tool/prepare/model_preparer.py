@@ -164,11 +164,16 @@ class ModelPreparer:
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
 
-    def fix_property_secrets(self, original_variables):
+    def fix_property_secrets(self):
         # Just in case the credential cache has @@PROP in the model's attribute value,
         # we use the original variable file to resolve it,
         # so that the generated json/script files have the resolved property value(s) instead of the @@PROP token.
         # it's possible that the variable file is not specified, or does not exist yet.
+
+        original_variables = {}
+        variable_file = self.model_context.get_variable_file()
+        if variable_file is not None and os.path.exists(variable_file):
+            original_variables = variables.load_variables(variable_file)
 
         credential_caches = self.credential_injector.get_variable_cache()
         for key in credential_caches:
@@ -373,15 +378,20 @@ class ModelPreparer:
             # resolve variables in the model AFTER the clean and filter has been done,
             # but before generating output files.
 
-            variable_map = {}
-            variable_file = self.model_context.get_variable_file()
-            if variable_file is not None and os.path.exists(variable_file):
-                variable_map = variables.load_variables(variable_file)
+            result_variable_map = {}
+            source_variable_file = self.model_context.get_variable_file()
+            if source_variable_file:
+                result_variable_file = os.path.join(self.output_dir, os.path.basename(source_variable_file))
+            else:
+                result_variable_file = variables.get_default_variable_file_name(self.model_context)
 
-            variables.substitute(merged_model_dictionary, variable_map, self.model_context)
+            if os.path.exists(result_variable_file):
+                result_variable_map = variables.load_variables(result_variable_file)
+
+            variables.substitute(merged_model_dictionary, result_variable_map, self.model_context)
 
             # correct any secret values that point to @@PROP values
-            self.fix_property_secrets(variable_map)
+            self.fix_property_secrets()
 
             # apply final filter changes for the merged model to the last source model
             self._apply_final_filters(merged_model_dictionary)
