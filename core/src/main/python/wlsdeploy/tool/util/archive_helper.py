@@ -384,14 +384,17 @@ class ArchiveHelper(object):
         :raises: BundleAwareException of the appropriate type: if an error occurs
         """
         _method_name = 'extract_database_wallet'
-        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        self.__logger.entering(wallet_name, class_name=self.__class_name, method_name=_method_name)
 
         resulting_wallet_path = None
-        for archive_file in self.__archive_files[::-1]:
+        for archive_file in self.__archive_files:
             wallet_path = archive_file.extractDatabaseWallet(self.__domain_home, wallet_name)
             # Allow iteration to continue through all archive files but
             # make sure to store off the path for a wallet that was extracted.
             #
+            self.__logger.finer('extract wallet {0} from archive file {1} returned wallet path {2}',
+                                wallet_name, archive_file.getArchiveFileName(), wallet_path,
+                                class_name=self.__class_name, method_name=_method_name)
             if wallet_path is not None:
                 # If multiple archives contain the same named wallet, they
                 # will all have the same path.
@@ -402,19 +405,25 @@ class ArchiveHelper(object):
         return resulting_wallet_path
 
     def extract_all_database_wallets(self):
+        _method_name = 'extract_all_database_wallets'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
+        # extract_database_wallet() loops through the archive files so just collect
+        # the list of wallet names from the archive files and then loop through that list.
+
+        wallet_names = sets.Set()
         for archive_file in self.__archive_files:
-            archive_entries = archive_file.getArchiveEntries()
-            wallet_names = sets.Set()
-            for entry in archive_entries:
-                if entry.startswith(WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR):
-                    if os.path.isdir(entry):
-                        wallet_names.add(os.path.basename(entry))
-                    else:
-                        name = os.path.basename(os.path.dirname(entry))
-                        wallet_names.add(name)
-            for wallet_name in wallet_names:
-                self.extract_database_wallet(wallet_name)
+            self.__logger.finer('processing archive_file {0}', archive_file.getArchiveFileName(),
+                                class_name=self.__class_name, method_name=_method_name)
+            archive_wallet_names = archive_file.getDatabaseWalletNames()
+            wallet_names.update(archive_wallet_names)
+
+        for wallet_name in wallet_names:
+            self.__logger.finer('extracting database wallet {0}', wallet_name,
+                                class_name=self.__class_name, method_name=_method_name)
+            self.extract_database_wallet(wallet_name)
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def extract_opss_wallet(self):
         """
@@ -426,7 +435,7 @@ class ArchiveHelper(object):
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
         resulting_wallet_path = None
-        for archive_file in self.__archive_files[::-1]:
+        for archive_file in self.__archive_files:
             wallet_path = archive_file.extractOPSSWallet(self.__domain_home)
             # Allow iteration to continue through all archive files but
             # make sure to store off the path for a wallet that was extracted.

@@ -1,12 +1,12 @@
 +++
-title = "Release Notes"
+title = "Release 3.0.1"
 date = 2019-02-22T15:27:38-05:00
-weight = 93
+weight = 94
 pre = "<b> </b>"
 +++
 
 
-### Changes in Release 3.0.2
+### Changes in Release 3.0.1
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -20,9 +20,8 @@ None
 None
 
 #### Bug Fixes
-- #1405: Corrected some issues with the Windows shell scripts where they were not properly handling paths with spaces.
-- #1409: Corrected a bug where a wallet deprecation message was still being logged as a warning.
-- #1411: Corrected a bug where wallet extraction handling with multiple archive files was happening in the wrong order.
+- #1396: Added additional validation to the `RCUDbInfo` section.
+- #1398: Corrected a bug introduced in 3.0.0 that broke validation of sparse models with dynamic clusters.
 
 #### Known Issues
 1. When running `discoverDomain` with the `-remote` flag, there are several MBeans that are not being properly handled that

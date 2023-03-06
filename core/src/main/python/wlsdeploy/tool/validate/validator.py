@@ -21,7 +21,6 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create import wlsroles_helper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.validate import validation_utils
-from wlsdeploy.tool.validate.content_validator import ContentValidator
 from wlsdeploy.tool.validate.crd_sections_validator import CrdSectionsValidator
 from wlsdeploy.tool.validate.validator_logger import ValidatorLogger
 from wlsdeploy.util import dictionary_utils
@@ -265,9 +264,6 @@ class Validator(object):
         if self._validate_crd_sections:
             k8s_validator = CrdSectionsValidator(self._model_context)
             k8s_validator.validate_model(model_dict)
-
-        content_validator = ContentValidator(self._model_context)
-        content_validator.validate_model(model_dict)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
 

@@ -5,6 +5,9 @@
             { "id": "vz_filter" }
         ]
     },
+    "final_filters" : [
+        { "id": "vz_final_filter" }
+    ],
     "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},
     "validation_method" : "lax",
     "product_key": "vz",

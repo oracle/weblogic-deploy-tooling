@@ -11,6 +11,8 @@ import java.util.LinkedHashMap;
  * and has a mapping of element keys to a list of comments.
  */
 public class OrderedMap extends LinkedHashMap<String, Object> {
+    private static final long serialVersionUID = 1L;
+
     private transient CommentMap commentMap = new CommentMap();
 
     public OrderedMap() {

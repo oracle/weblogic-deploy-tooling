@@ -11,6 +11,7 @@ import oracle.weblogic.deploy.exception.ExceptionHelper;
  * JsonException is the exception used by the JSON parser and translation package.
  */
 public class JsonException extends BundleAwareException {
+    private static final long serialVersionUID = 1L;
 
     /**
      * Constructs a default exception.
