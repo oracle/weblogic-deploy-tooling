@@ -374,14 +374,14 @@ class ModelPreparer:
             # but before generating output files.
 
             variable_map = {}
-            variable_file = self.model_context.get_variable_file()
-            if variable_file:
-                output_file = os.path.join(self.output_dir, os.path.basename(variable_file))
+            source_variable_file = self.model_context.get_variable_file()
+            if source_variable_file:
+                result_variable_file = os.path.join(self.output_dir, os.path.basename(source_variable_file))
             else:
-                output_file = variables.get_default_variable_file_name(self.model_context)
+                result_variable_file = variables.get_default_variable_file_name(self.model_context)
 
-            if os.path.exists(output_file):
-                variable_map = variables.load_variables(output_file)
+            if os.path.exists(result_variable_file):
+                variable_map = variables.load_variables(result_variable_file)
 
             variables.substitute(merged_model_dictionary, variable_map, self.model_context)
 
