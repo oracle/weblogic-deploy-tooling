@@ -122,7 +122,9 @@ class CommonResourcesDiscoverer(Discoverer):
         return model_top_folder_name, result
 
     def _collect_jdbc_driver_wallet(self, datasource, collected_wallet, driver_params):
-        if not self._model_context.skip_archive() and model_constants.JDBC_DRIVER_PARAMS_PROPERTIES in driver_params:
+        if not self._model_context.skip_archive() and \
+                (isinstance(driver_params, dict) or isinstance(driver_params, OrderedDict)) and \
+                model_constants.JDBC_DRIVER_PARAMS_PROPERTIES in driver_params:
             properties = driver_params[model_constants.JDBC_DRIVER_PARAMS_PROPERTIES]
             self._update_wallet_property_and_collect_files(collected_wallet, datasource, properties)
 
