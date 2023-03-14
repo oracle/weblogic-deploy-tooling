@@ -11,6 +11,7 @@ from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 
 from wlsdeploy.aliases import model_constants
+from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
@@ -21,7 +22,6 @@ from wlsdeploy.tool.discover.coherence_resources_discoverer import CoherenceReso
 from wlsdeploy.tool.discover.discoverer import Discoverer
 from wlsdeploy.tool.discover.jms_resources_discoverer import JmsResourcesDiscoverer
 from wlsdeploy.util import dictionary_utils
-import wlsdeploy.util.unicode_helper as str_helper
 
 _class_name = 'CommonResourcesDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
@@ -553,28 +553,17 @@ class CommonResourcesDiscoverer(Discoverer):
         return model_top_folder_name, result
 
 
-def _fix_passwords_in_mail_session_properties(dictionary):
+def _fix_passwords_in_mail_session_properties(mail_session_dict):
     """
     Look for password properties in the mail session properties string, and replace the password with a fix me token.
-    :param dictionary: containing the discovered mail session attributes
+    :param mail_session_dict: containing the discovered mail session attributes
     """
-    match_pattern = "mail\.\w*\.?password"
-    replacement = '--FIX ME--'
-    if model_constants.MAIL_SESSION_PROPERTIES in dictionary:
-        new_properties = ''
-        string_properties = dictionary[model_constants.MAIL_SESSION_PROPERTIES]
-        if string_properties:
-            properties = string_properties
-            if isinstance(string_properties, basestring):
-                properties = StringUtils.formatPropertiesFromString(string_properties)
-            new_properties = OrderedDict()
-            iterator = properties.stringPropertyNames().iterator()
-            while iterator.hasNext():
-                key = iterator.next()
-                new_key = str_helper.to_string(key).strip()
-                value = str_helper.to_string(properties.getProperty(key))
-                tokenized = value.startswith('@@')
-                if StringUtils.matches(match_pattern, new_key) and not tokenized:
-                    value = replacement
-                new_properties[new_key] = value
-        dictionary[model_constants.MAIL_SESSION_PROPERTIES] = new_properties
+    match_pattern = r'mail\.\w*\.?password'
+    if model_constants.MAIL_SESSION_PROPERTIES in mail_session_dict:
+        # alias framework has converted properties to a dictionary by this point
+        properties_dict = mail_session_dict[model_constants.MAIL_SESSION_PROPERTIES]
+        for property_name in properties_dict:
+            property_value = properties_dict[property_name]
+            is_tokenized = property_value.startswith('@@')
+            if StringUtils.matches(match_pattern, property_name) and not is_tokenized:
+                properties_dict[property_name] = PASSWORD_TOKEN
