@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import random
@@ -34,15 +34,36 @@ ONLINE_ALIAS_FOLDER_IGNORE_MAP = {
 }
 
 ONLINE_ALIAS_ATTRIBUTE_IGNORE_MAP = {
+    '/Cluster/OverloadProtection': [
+        'ServerFailureTrigger'  # appears in attribute list until folder MBean is created
+    ],
+    '/Server': [
+        'JTAMigratableTarget'  # appears in attribute list until folder MBean is created
+    ],
+    '/Server/OverloadProtection': [
+        'ServerFailureTrigger'  # appears in attribute list until folder MBean is created
+    ],
     '/Server/ServerDebug': [
         'DebugJAXPOutputStream',
         'DebugXMLRegistryOutputStream',
         'DebugXMLEntityCacheOutputStream'
     ],
+    '/Server/ServerDiagnosticConfig': [
+        'WLDFBuiltinSystemResourceDescriptorBean'
+    ],
+    '/ServerTemplate': [
+        'JTAMigratableTarget'  # appears in attribute list until folder MBean is created
+    ],
+    '/ServerTemplate/OverloadProtection': [
+        'ServerFailureTrigger'  # appears in attribute list until folder MBean is created
+    ],
     '/ServerTemplate/ServerDebug': [
         'DebugJAXPOutputStream',
         'DebugXMLRegistryOutputStream',
         'DebugXMLEntityCacheOutputStream'
+    ],
+    '/ServerTemplate/ServerDiagnosticConfig': [
+        'WLDFBuiltinSystemResourceDescriptorBean'
     ]
 }
 
