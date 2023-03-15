@@ -24,6 +24,7 @@ from wlsdeploy.aliases.alias_constants import ACCESS
 from wlsdeploy.aliases.alias_constants import ALIAS_DATA_TYPES
 from wlsdeploy.aliases.alias_constants import ATTRIBUTES
 from wlsdeploy.aliases.alias_constants import CHILD_FOLDERS_TYPE
+from wlsdeploy.aliases.alias_constants import COMMENT
 from wlsdeploy.aliases.alias_constants import CONTAINS
 from wlsdeploy.aliases.alias_constants import DEFAULT_NAME_VALUE
 from wlsdeploy.aliases.alias_constants import DEFAULT_VALUE
@@ -113,6 +114,7 @@ class ListTestCase(unittest.TestCase):
 
     _optional_attribute_keys = [
         ACCESS,
+        COMMENT,
         DERIVED_DEFAULT,
         GET_MBEAN_TYPE,
         GET_METHOD,
@@ -514,6 +516,14 @@ class ListTestCase(unittest.TestCase):
         else:
             result.extend(self._verify_constrained_values(folder_name, attribute_name, ACCESS, alias_attribute_value,
                                                           self._known_access_attribute_values, True))
+        return result
+
+    def _verify_attribute_comment_attribute_value(self, folder_name, attribute_name, alias_attribute_value):
+        result = []
+        if type(alias_attribute_value) is not str:
+            message = self._get_invalid_attribute_string_type_message(folder_name, attribute_name,
+                                                                      COMMENT, alias_attribute_value)
+            result.append(message)
         return result
 
     def _verify_attribute_get_mbean_type_attribute_value(self, folder_name, attribute_name, alias_attribute_value):

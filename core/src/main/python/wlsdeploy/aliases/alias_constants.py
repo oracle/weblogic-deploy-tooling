@@ -9,6 +9,7 @@ from wlsdeploy.util.enum import Enum
 ACCESS = 'access'
 ATTRIBUTES = 'attributes'
 CHILD_FOLDERS_TYPE = 'child_folders_type'
+COMMENT = 'comment'
 CONTAINS = 'contains'
 DEFAULT_NAME_VALUE = 'default_name_value'
 DEFAULT_VALUE = 'default_value'
