@@ -1245,7 +1245,12 @@ class ApplicationsDeployer(Deployer):
         :param model_name: the element name (my-app, etc.), used for logging
         """
         _method_name = '__extract_source_path_from_archive'
-        # source path may be may be a single file (jar, war, etc.)
+
+        # model may have trailing slash on exploded source path
+        if source_path.endswith('/'):
+            source_path = source_path[:-1]
+
+        # source path may be a single file (jar, war, etc.)
         if self.archive_helper.contains_file(source_path):
             if is_remote:
                 self.archive_helper.extract_file(source_path, upload_remote_directory, False)
@@ -1307,7 +1312,7 @@ class ApplicationsDeployer(Deployer):
         plan_file_name = 'plan.xml'
         if plan_path is not None and len(str_helper.to_string(plan_path)) > 0:
             plan_file_name = plan_path
-        
+
         plan_file = os.path.join(self.model_context.get_domain_home(), plan_dir, plan_file_name)
         dbf = DocumentBuilderFactory.newInstance()
         db = dbf.newDocumentBuilder()
