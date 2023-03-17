@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Release 2.4.2 :: WebLogic Deploy Tooling</title>
+    <title>Release Notes 3.0.2 :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1679020919" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-2.4.2/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-3.0.2/">
     <nav id="sidebar" class="">
 
 
@@ -1191,7 +1191,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.0.2/" title="Release Notes 3.0.2" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.0.2/" title="Release Notes 3.0.2" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-3.0.2/">
         <b> </b>Release Notes 3.0.2
         
@@ -1296,7 +1296,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-2.4.2/" title="Release 2.4.2" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-2.4.2/" title="Release 2.4.2" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-2.4.2/">
         <b> </b>Release 2.4.2
         
@@ -1409,7 +1409,7 @@
             
           
           
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release 2.4.2
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release Notes 3.0.2
           
         
           
@@ -1426,7 +1426,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#changes-in-release-242">Changes in Release 2.4.2</a></li>
+        <li><a href="#changes-in-release-302">Changes in Release 3.0.2</a></li>
       </ul>
     </li>
   </ul>
@@ -1446,14 +1446,14 @@
           
             <h1>
               
-              Release 2.4.2
+              Release Notes 3.0.2
             </h1>
           
 
         
 
 
-<h3 id="changes-in-release-242">Changes in Release 2.4.2</h3>
+<h3 id="changes-in-release-302">Changes in Release 3.0.2</h3>
 <ul>
 <li><a href="#major-new-features">Major New Features</a></li>
 <li><a href="#other-changes">Other Changes</a></li>
@@ -1466,15 +1466,22 @@
 <p>None</p>
 <h4 id="bug-fixes">Bug Fixes</h4>
 <ul>
-<li>#1241: Resolved Issue #1240 that was causing a NullPointerException with discoverDomain.</li>
-<li>#1252: Reworked the unicode handling to resolve customer issues with 14.1.1 when using non-ASCII characters.</li>
+<li>#1405: Corrected some issues with the Windows shell scripts where they were not properly handling paths with spaces.</li>
+<li>#1409: Corrected a bug where a wallet deprecation message was still being logged as a warning.</li>
+<li>#1411: Corrected a bug where wallet extraction handling with multiple archive files was happening in the wrong order.</li>
 </ul>
 <h4 id="known-issues">Known Issues</h4>
-<ul>
-<li>Due to the changes made for WDT-663 in WDT 2.4.0, the resulting remotely discovered model contains extra fields that would not normally be there.
-This is an area of ongoing work to clean up the online aliases to not depend on these extra remote calls to produce a clean model.</li>
-</ul>
-
+<ol>
+<li>When running <code>discoverDomain</code> with the <code>-remote</code> flag, there are several MBeans that are not being properly handled that
+will result in <code>INFO</code> level messages that look similar to the example shown below.  These errors seem to happen only when the MBean is
+non-existent so the resulting model should still be accurate.  These issues are expected to be fixed in a future release.</li>
+</ol>
+<pre><code>####&lt;Feb 16, 2023 1:40:00 PM&gt; &lt;INFO&gt; &lt;Discoverer&gt; &lt;_add_to_dictionary&gt; &lt;WLSDPLY-06106&gt; &lt;Unable to add ServerFailureTrigger
+from location /Clusters/mycluster/OverloadProtection/mycluster to the model : Failed to convert the wlst attribute name and
+value for the model at location (model_folders = ['Cluster', 'OverloadProtection'],  'name_tokens' = {'DOMAIN': 'tododomain',
+'CLUSTER': 'mycluster','OVERLOADPROTECTION': 'mycluster'}) : The wlst attribute ServerFailureTrigger is not defined for the
+model folder /Cluster/OverloadProtection&gt;
+</code></pre>
 
 <footer class="footline">
 	
@@ -2282,6 +2289,23 @@ This is an area of ongoing work to clean up the online aliases to not depend on 
             
                 
                     
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
                         
                         
                     
@@ -2364,26 +2388,6 @@ This is an area of ongoing work to clean up the online aliases to not depend on 
             
             
                 
-                    
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
                     
                 
                 
@@ -2424,10 +2428,10 @@ This is an area of ongoing work to clean up the online aliases to not depend on 
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/release-2.4.3/" title="Release 2.4.3"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-2.4.1/" title="Release 2.4.1" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-3.0.1/" title="Release 3.0.1" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

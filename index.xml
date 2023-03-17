@@ -420,6 +420,17 @@ archiveHelper commands    Command Description     add Add items to the archive f
     </item>
     
     <item>
+      <title>Release Notes 3.0.2</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.0.2/</link>
+      <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.0.2/</guid>
+      <description>Changes in Release 3.0.2  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes None
+Bug Fixes  #1405: Corrected some issues with the Windows shell scripts where they were not properly handling paths with spaces. #1409: Corrected a bug where a wallet deprecation message was still being logged as a warning. #1411: Corrected a bug where wallet extraction handling with multiple archive files was happening in the wrong order.</description>
+    </item>
+    
+    <item>
       <title>Release 3.0.1</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.0.1/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>

@@ -12,20 +12,20 @@
     <title>Release Notes :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1678038478" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1678038478" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1678038478" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1678038478" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1678038478" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1678038478" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1678038478" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1678038478" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1678038478" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1678038478" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1679020919" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1679020919" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1679020919" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1679020919" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1679020919" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1679020919" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1679020919" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1679020919" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1679020919" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1679020919" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1678038478"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1679020919"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1678038478"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1678038478"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1679020919"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1679020919"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1678038478"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1679020919"></script>
 
     
   </div>
@@ -1191,6 +1191,27 @@
  
   
     
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.0.2/" title="Release Notes 3.0.2" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-3.0.2/">
+        <b> </b>Release Notes 3.0.2
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
       <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.0.1/" title="Release 3.0.1" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-3.0.1/">
         <b> </b>Release 3.0.1
@@ -1399,7 +1420,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#changes-in-release-302">Changes in Release 3.0.2</a></li>
+        <li><a href="#changes-in-release-303">Changes in Release 3.0.3</a></li>
       </ul>
     </li>
   </ul>
@@ -1427,7 +1448,7 @@
 
 
 
-	<h3 id="changes-in-release-302">Changes in Release 3.0.2</h3>
+	<h3 id="changes-in-release-303">Changes in Release 3.0.3</h3>
 <ul>
 <li><a href="#major-new-features">Major New Features</a></li>
 <li><a href="#other-changes">Other Changes</a></li>
@@ -1440,22 +1461,15 @@
 <p>None</p>
 <h4 id="bug-fixes">Bug Fixes</h4>
 <ul>
-<li>#1405: Corrected some issues with the Windows shell scripts where they were not properly handling paths with spaces.</li>
-<li>#1409: Corrected a bug where a wallet deprecation message was still being logged as a warning.</li>
-<li>#1411: Corrected a bug where wallet extraction handling with multiple archive files was happening in the wrong order.</li>
+<li>#1412: Fixed a bug in the Prepare Model integration with WKTUI.</li>
+<li>#1413: Fixed a number of internationalization message-related issues.</li>
+<li>#1414: Fixed a bug with wallet collection during discovery of a Proxy data source.</li>
+<li>#1416: Fixed a bug in the handling of main session properties with credentials that was causing a Jython AttributeError (Issue #1415).</li>
+<li>#1419: Fixed open issue from previous releases regarding wlst attribute not defined errors in online remote discovery.</li>
+<li>#1420: Fixed a bug where a trailing slash on an application <code>SourcePath</code> would cause a empty ZIP file error.</li>
 </ul>
 <h4 id="known-issues">Known Issues</h4>
-<ol>
-<li>When running <code>discoverDomain</code> with the <code>-remote</code> flag, there are several MBeans that are not being properly handled that
-will result in <code>INFO</code> level messages that look similar to the example shown below.  These errors seem to happen only when the MBean is
-non-existent so the resulting model should still be accurate.  These issues are expected to be fixed in a future release.</li>
-</ol>
-<pre><code>####&lt;Feb 16, 2023 1:40:00 PM&gt; &lt;INFO&gt; &lt;Discoverer&gt; &lt;_add_to_dictionary&gt; &lt;WLSDPLY-06106&gt; &lt;Unable to add ServerFailureTrigger
-from location /Clusters/mycluster/OverloadProtection/mycluster to the model : Failed to convert the wlst attribute name and
-value for the model at location (model_folders = ['Cluster', 'OverloadProtection'],  'name_tokens' = {'DOMAIN': 'tododomain',
-'CLUSTER': 'mycluster','OVERLOADPROTECTION': 'mycluster'}) : The wlst attribute ServerFailureTrigger is not defined for the
-model folder /Cluster/OverloadProtection&gt;
-</code></pre>
+
 
 
 
@@ -2376,6 +2390,22 @@ model folder /Cluster/OverloadProtection&gt;
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -2391,7 +2421,7 @@ model folder /Cluster/OverloadProtection&gt;
 			<a class="nav nav-prev" href="/weblogic-deploy-tooling/developer/contribute/" title="Contribute to WDT"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-3.0.1/" title="Release 3.0.1" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-3.0.2/" title="Release Notes 3.0.2" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -2401,19 +2431,19 @@ model folder /Cluster/OverloadProtection&gt;
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1678038478"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1678038478"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1678038478"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1678038478"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1678038478"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1678038478"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1679020919"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1679020919"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1679020919"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1679020919"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1679020919"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1679020919"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1678038478"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1678038478"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1678038478"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1679020919"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1679020919"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1679020919"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1678038478"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1679020919"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
