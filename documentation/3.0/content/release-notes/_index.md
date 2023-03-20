@@ -1,12 +1,12 @@
 +++
 title = "Release Notes"
 date = 2019-02-22T15:27:38-05:00
-weight = 93
+weight = 92
 pre = "<b> </b>"
 +++
 
 
-### Changes in Release 3.0.2
+### Changes in Release 3.0.3
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -20,19 +20,11 @@ None
 None
 
 #### Bug Fixes
-- #1405: Corrected some issues with the Windows shell scripts where they were not properly handling paths with spaces.
-- #1409: Corrected a bug where a wallet deprecation message was still being logged as a warning.
-- #1411: Corrected a bug where wallet extraction handling with multiple archive files was happening in the wrong order.
+- #1412: Fixed a bug in the Prepare Model integration with WKTUI.
+- #1413: Fixed a number of internationalization message-related issues.
+- #1414: Fixed a bug with wallet collection during discovery of a Proxy data source.
+- #1416: Fixed a bug in the handling of mail session properties with credentials that was causing a Jython AttributeError (Issue #1415).
+- #1419: Fixed open issue from previous releases regarding wlst attribute not defined errors in online remote discovery. 
+- #1420: Fixed a bug where a trailing slash on an application `SourcePath` would cause a empty ZIP file error.
 
 #### Known Issues
-1. When running `discoverDomain` with the `-remote` flag, there are several MBeans that are not being properly handled that
-   will result in `INFO` level messages that look similar to the example shown below.  These errors seem to happen only when the MBean is
-   non-existent so the resulting model should still be accurate.  These issues are expected to be fixed in a future release.
-
-```
-####<Feb 16, 2023 1:40:00 PM> <INFO> <Discoverer> <_add_to_dictionary> <WLSDPLY-06106> <Unable to add ServerFailureTrigger
-from location /Clusters/mycluster/OverloadProtection/mycluster to the model : Failed to convert the wlst attribute name and
-value for the model at location (model_folders = ['Cluster', 'OverloadProtection'],  'name_tokens' = {'DOMAIN': 'tododomain',
-'CLUSTER': 'mycluster','OVERLOADPROTECTION': 'mycluster'}) : The wlst attribute ServerFailureTrigger is not defined for the
-model folder /Cluster/OverloadProtection>
-```
