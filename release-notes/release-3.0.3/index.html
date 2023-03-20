@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Archive File :: WebLogic Deploy Tooling</title>
+    <title>Release Notes 3.0.3 :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1679351433" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/concepts/archive/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-3.0.3/">
     <nav id="sidebar" class="">
 
 
@@ -94,7 +94,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/concepts/" title="Concepts" class="dd-item
-        parent
+        
         
         
         ">
@@ -141,7 +141,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/concepts/archive/" title="Archive File" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/concepts/archive/" title="Archive File" class="dd-item ">
         <a href="/weblogic-deploy-tooling/concepts/archive/">
         Archive File
         
@@ -1165,7 +1165,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
-        
+        parent
         
         
         ">
@@ -1191,7 +1191,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.0.3/" title="Release Notes 3.0.3" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.0.3/" title="Release Notes 3.0.3" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-3.0.3/">
         <b> </b>Release Notes 3.0.3
         
@@ -1430,7 +1430,7 @@
             
           
           
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/concepts/'>Concepts</a> > Archive File
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release Notes 3.0.3
           
         
           
@@ -1447,9 +1447,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#contents">Contents</a></li>
-        <li><a href="#archive-structure">Archive structure</a></li>
-        <li><a href="#using-multiple-archive-files">Using multiple archive files</a></li>
+        <li><a href="#changes-in-release-303">Changes in Release 3.0.3</a></li>
       </ul>
     </li>
   </ul>
@@ -1469,79 +1467,34 @@
           
             <h1>
               
-              Archive File
+              Release Notes 3.0.3
             </h1>
           
 
         
 
 
-<p>The archive file is used to deploy binaries and other file resources to the target domain. The archive is a ZIP file with a specific directory structure.  Any file resources referenced in the model that are not already on the target system must be stored in the correct location in the archive, and the model must reflect the path into the archive. The model itself can also be stored inside the archive, if desired.</p>
-<p>Note that file resources that already exist on the target system need not be included in the archive, provided that the model specifies the correct location on the target system.</p>
-<h3 id="contents">Contents</h3>
+<h3 id="changes-in-release-303">Changes in Release 3.0.3</h3>
 <ul>
-<li><a href="#example">Example</a></li>
-<li><a href="#archive-structure">Archive structure</a></li>
-<li><a href="#using-multiple-archive-files">Using multiple archive files</a></li>
+<li><a href="#major-new-features">Major New Features</a></li>
+<li><a href="#other-changes">Other Changes</a></li>
+<li><a href="#bug-fixes">Bugs Fixes</a></li>
+<li><a href="#known-issues">Known Issues</a></li>
 </ul>
-<h4 id="example">Example</h4>
-<p>This example shows an application with a <code>SourcePath</code> value referencing an EAR file resource contained in the archive.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">appDeployments</span>:
-    <span style="color:#f92672">Application</span>:
-        <span style="color:#f92672">simpleear </span>:
-            <span style="color:#f92672">SourcePath</span>: <span style="color:#ae81ff">wlsdeploy/applications/simpleear.ear</span>
-            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">my-cluster</span>
-            <span style="color:#f92672">ModuleType</span>: <span style="color:#ae81ff">ear</span>
-</code></pre></div><p>The example above shows the attribute <code>SourcePath</code> of the <code>simpleear</code> application with a value of <code>wlsdeploy/applications/simpleear.ear</code>.  The prefix <code>wlsdeploy/</code> indicates that the resource is located in the archive file in the specified location, and will be deployed to that directory in the domain, in this case <code>&lt;domain-home&gt;/wlsdeploy/applications/simpleear.ear</code>.</p>
-<h3 id="archive-structure">Archive structure</h3>
-<p>These are the paths within the archive that are used for different types of resources. Users can create further directory structures underneath these locations to organize the files and directories as they see fit.</p>
-<h4 id="atpwallet"><code>atpwallet</code></h4>
-<p>The directory where a wallet can be stored for use with Oracle Autonomous Transaction Processing Cloud Database. The file resource name is not specified in the model, and is assumed to be a single ZIP file in the archive at this location.</p>
-<h4 id="model"><code>model</code></h4>
-<p>The directory where the model is optionally located. Only one model file, either in YAML or JSON, is allowed, and it must have the appropriate YAML or JSON file extension.</p>
-<h4 id="opsswallet"><code>opsswallet</code></h4>
-<p>The directory where a wallet can be stored for use with Oracle Platform Security Services. The file resource name is not specified in the model, and is assumed to be a single ZIP file in the archive at this location.</p>
-<h4 id="wlsdeployapplications"><code>wlsdeploy/applications</code></h4>
-<p>The root directory under which applications are stored. Applications can be stored in the archive as EAR or WAR files, or expanded under this folder.</p>
-
-<div class="notices note" ><p>Expanded application directories are supported after WebLogic Deploy Tooling release 1.6.2.</p>
-</div>
-
-<p>A sample expanded WAR application might have these entries:</p>
-<pre><code>wlsdeploy/applications/myApp/index.jsp
-wlsdeploy/applications/myApp/META-INF/MANIFEST.MF
-wlsdeploy/applications/myApp/WEB-INF/classes/MyClass.class
-wlsdeploy/applications/myApp/WEB-INF/web.xml
-wlsdeploy/applications/myApp/WEB-INF/weblogic.xml
-</code></pre><h4 id="wlsdeployclasspathlibraries"><code>wlsdeploy/classpathLibraries</code></h4>
-<p>The root directory under which JARs/directories used for server classpaths are stored. Every file resource under this directory is extracted, even those not referenced in the model.</p>
-<h4 id="wlsdeploycoherence"><code>wlsdeploy/coherence</code></h4>
-<p>The root directory under which empty directories must exist for Coherence persistent stores.</p>
-<h4 id="wlsdeploycustom"><code>wlsdeploy/custom</code></h4>
-<p>This is the root directory where your custom files can be stored and extracted from the archive. These files are not collected by the Discover Domain Tool.
-Every file resource under this directory is extracted during <code>createDomain</code> and <code>updateDomain</code>.</p>
-<h4 id="wlsdeploydomainbin"><code>wlsdeploy/domainBin</code></h4>
-<p>The root directory under which <code>$DOMAIN_HOME/bin</code> scripts are stored. Only scripts referenced in the <code>domainInfo/domainBin</code> section of the model are extracted.</p>
-<h4 id="wlsdeploydomainlibraries"><code>wlsdeploy/domainLibraries</code></h4>
-<p>The root directory under which <code>$DOMAIN_HOME/lib</code> libraries are stored. Only libraries referenced in the <code>domainInfo/domainLibraries</code> section of the model are extracted.</p>
-<h4 id="wlsdeploynodemanager"><code>wlsdeploy/nodeManager</code></h4>
-<p>The root directory under which Node Manager file resources, such as keystore files, are stored.</p>
-<h4 id="wlsdeployscripts"><code>wlsdeploy/scripts</code></h4>
-<p>The root directory under which scripts are stored. These can include JDBC create scripts, and WLDF action scripts.</p>
-<h4 id="wlsdeployservers"><code>wlsdeploy/servers</code></h4>
-<p>The root directory under which server files, such as keystore files, are stored. These are organized by server name, such as <code>wlsdeploy/server/my-server/mykey.jks</code>.</p>
-<h4 id="wlsdeploysharedlibraries"><code>wlsdeploy/sharedLibraries</code></h4>
-<p>The root directory under which shared libraries are stored. These are stored as JAR files within the archive.</p>
-<h4 id="wlsdeploystores"><code>wlsdeploy/stores</code></h4>
-<p>The root directory under which empty directories must exist for <code>FileStore</code> elements in the model.</p>
-<h3 id="using-multiple-archive-files">Using multiple archive files</h3>
-<p>The Create Domain, Update Domain, Deploy Applications, and Validate Model Tools allow the specification of multiple archive files on the command line. For example:</p>
-<pre><code>$ weblogic-deploy\bin\createDomain.cmd -archive_file one.zip,two.zip,three.zip ...
-</code></pre>
-<p>File resources can be present in any of these archives. Resources in each archive will supersede resources found in previous archives.</p>
-<p>When the model references a resource that is present in multiple archives, the latest in the list takes precedence. For example, if the model references <code>wlsdeploy/applications/myapp.ear</code>, and that resource is present in archives <code>one.zip</code> and <code>two.zip</code>, the resource in <code>two.zip</code> will be used.</p>
-<p>A similar rule applies for resources that have an assumed location, but are not specifically called out in the model. For example, if archive <code>two.zip</code> has a wallet in location <code>atpwallet/wallet2.zip</code>, and <code>three.zip</code> has a wallet in location <code>atpwallet/wallet3.zip</code>, the wallet <code>atpwallet/wallet3.zip</code> will be used.</p>
-<p>Resources that are extracted without being referenced directly are extracted from the archives in the order specified in the <code>archive_file</code> argument. For example, if <code>one.zip</code> and <code>two.zip</code> have resources under <code>wlsdeploy/classpathLibraries</code>, the resources in <code>one.zip</code> will be extracted to <code>&lt;domain-home&gt;/wlsdeploy/classpathLibraries</code>, then the resources of <code>two.zip</code> will be extracted to the same location, overwriting any overlapping files.</p>
+<h4 id="major-new-features">Major New Features</h4>
+<p>None</p>
+<h4 id="other-changes">Other Changes</h4>
+<p>None</p>
+<h4 id="bug-fixes">Bug Fixes</h4>
+<ul>
+<li>#1412: Fixed a bug in the Prepare Model integration with WKTUI.</li>
+<li>#1413: Fixed a number of internationalization message-related issues.</li>
+<li>#1414: Fixed a bug with wallet collection during discovery of a Proxy data source.</li>
+<li>#1416: Fixed a bug in the handling of mail session properties with credentials that was causing a Jython AttributeError (Issue #1415).</li>
+<li>#1419: Fixed open issue from previous releases regarding wlst attribute not defined errors in online remote discovery.</li>
+<li>#1420: Fixed a bug where a trailing slash on an application <code>SourcePath</code> would cause a empty ZIP file error.</li>
+</ul>
+<h4 id="known-issues">Known Issues</h4>
 
 
 <footer class="footline">
@@ -1579,6 +1532,8 @@ Every file resource under this directory is extracted during <code>createDomain<
             
                 
                     
+                        
+                        
                     
                 
                 
@@ -1592,26 +1547,6 @@ Every file resource under this directory is extracted during <code>createDomain<
             
             
                 
-                    
-                        
-                        
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
                     
                 
                 
@@ -1624,6 +1559,22 @@ Every file resource under this directory is extracted during <code>createDomain<
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -1631,9 +1582,6 @@ Every file resource under this directory is extracted during <code>createDomain<
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2341,6 +2289,7 @@ Every file resource under this directory is extracted during <code>createDomain<
             
                 
                     
+                    
                 
                 
 
@@ -2353,6 +2302,7 @@ Every file resource under this directory is extracted during <code>createDomain<
             
             
                 
+                    
                     
                 
                 
@@ -2369,6 +2319,9 @@ Every file resource under this directory is extracted during <code>createDomain<
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2505,10 +2458,10 @@ Every file resource under this directory is extracted during <code>createDomain<
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/concepts/model/" title="Metadata Model"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/" title="User Guide" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-3.0.2/" title="Release Notes 3.0.2" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

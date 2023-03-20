@@ -8,6 +8,17 @@
     <language>en-us</language>
     <lastBuildDate>Fri, 22 Feb 2019 15:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Release Notes 3.0.3</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.0.3/</link>
+      <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.0.3/</guid>
+      <description>Changes in Release 3.0.3  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes None
+Bug Fixes  #1412: Fixed a bug in the Prepare Model integration with WKTUI. #1413: Fixed a number of internationalization message-related issues. #1414: Fixed a bug with wallet collection during discovery of a Proxy data source. #1416: Fixed a bug in the handling of mail session properties with credentials that was causing a Jython AttributeError (Issue #1415).</description>
+    </item>
+    
+    <item>
       <title>Release Notes 3.0.2</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.0.2/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
