@@ -1,12 +1,12 @@
 +++
 title = "Release Notes"
 date = 2019-02-22T15:27:38-05:00
-weight = 92
+weight = 91
 pre = "<b> </b>"
 +++
 
 
-### Changes in Release 3.0.3
+### Changes in Release 3.0.4
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -20,11 +20,7 @@ None
 None
 
 #### Bug Fixes
-- #1412: Fixed a bug in the Prepare Model integration with WKTUI.
-- #1413: Fixed a number of internationalization message-related issues.
-- #1414: Fixed a bug with wallet collection during discovery of a Proxy data source.
-- #1416: Fixed a bug in the handling of mail session properties with credentials that was causing a Jython AttributeError (Issue #1415).
-- #1419: Fixed open issue from previous releases regarding wlst attribute not defined errors in online remote discovery. 
-- #1420: Fixed a bug where a trailing slash on an application `SourcePath` would cause a empty ZIP file error.
+- #1422: Fixed a bug in online discovery of the `Cluster` attribute of `ServerTemplate`.
+- #1425: Fixed a bug for online remote discovery causing SSL cipher suites to show up in 14.1.1 even when it was set to the default value.
 
 #### Known Issues
