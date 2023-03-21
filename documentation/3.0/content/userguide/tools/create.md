@@ -70,6 +70,7 @@ topology:
 | `-java_home` | The Java home to use for the new domain. If not specified, it defaults to the value of the `JAVA_HOME` environment variable. |    |
 | `-model_file` | The location of the model file.  This can also be specified as a comma-separated list of model locations, where each successive model layers on top of the previous ones. |    |
 | `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set.|    |
+| `-opss_wallet` | The location of the Oracle wallet containing the domain's encryption key required to reconnect to an existing set of RCU schemas. |    |
 | `-opss_wallet_passphrase_env` | An alternative to entering the OPSS wallet passphrase at a prompt. The value is an environment variable name that WDT will use to retrieve the passphrase. |    |
 | `-opss_wallet_passphrase_file` | An alternative to entering the OPSS wallet passphrase at a prompt. The value is the name of a file with a string value which WDT will read to retrieve the passphrase.
 | `-passphrase_env` | An alternative to entering the encryption passphrase at a prompt. The value is an environment variable name that WDT will use to retrieve the passphrase. |    |
