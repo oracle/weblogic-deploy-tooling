@@ -81,6 +81,7 @@ ECHO              [-archive_file ^<archive_file^>]
 ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-passphrase_env ^<passphrase_env^>]
 ECHO              [-passphrase_file ^<passphrase_file^>]
+ECHO              [-opss_wallet] ^<opss_wallet_file^>]
 ECHO              [-opss_wallet_passphrase_env ^<opss_wallet_passphrase_env^>]
 ECHO              [-opss_wallet_passphrase_file ^<opss_wallet_passphrase_file^>]
 ECHO              [-wlst_path ^<wlst_path^>]
@@ -140,6 +141,10 @@ ECHO         passphrase_file - An alternative to entering the encryption passphr
 ECHO                           at a prompt. The value is the name of a file with a
 ECHO                           string value which WDT will read to retrieve the
 ECHO                           passphrase.
+ECHO.
+ECHO         opss_wallet_file - The path to the Oracle wallet containing the domain
+ECHO                            encryption key to use to reconnect the new domain to
+ECHO                            the existing RCU schemas.
 ECHO.
 ECHO         opss_wallet_passphrase_env  - An alternative to entering the OPSS
 ECHO                           wallet passphrase at a prompt. The value is an
