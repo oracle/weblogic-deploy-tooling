@@ -12,20 +12,20 @@
     <title>Connect to a Database :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1679351433" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1679351433" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1679351433" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1679351433" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1679351433" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1679351433" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1679351433" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1679351433" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1679351433" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1679351433" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1679434962" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1679434962" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1679434962" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1679434962" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1679434962" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1679434962" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1679434962" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1679434962" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1679434962" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1679434962" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1679351433"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1679434962"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1679351433"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1679351433"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1679434962"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1679434962"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1679351433"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1679434962"></script>
 
     
   </div>
@@ -1449,6 +1449,7 @@
       <ul>
         <li><a href="#specifying-rcu-connection-information-in-the-model">Specifying RCU connection information in the model</a></li>
         <li><a href="#background-on-jrf-domain-rcu-tables">Background on JRF domain RCU tables</a></li>
+        <li><a href="#creating-a-new-domain-to-connect-to-an-existing-rcu-schema">Creating a new domain to connect to an existing RCU schema</a></li>
         <li><a href="#access-a-database-using-a-wallet">Access a database using a wallet</a></li>
         <li><a href="#access-a-database-without-using-a-wallet-non-wallet-based-access">Access a database without using a wallet (non wallet-based access)</a></li>
         <li><a href="#specify-variables-for-rcu">Specify variables for RCU</a></li>
@@ -1538,6 +1539,29 @@ It provides you with more flexibility over the basic command-line arguments of
 WDT will use the information you provided in the command line or in the <code>RCUDbinfo</code> section to override the default values from the template so that it can connect to the database you specified.</p>
 <p>For some advanced use cases, such as using an Oracle Active GridLink data source or Multi Data Sources, you can provide a sparse model of the data sources in a separate model file
 during domain creation.  See <a href="#advanced-jrf-database-use-cases">Advance use cases</a>.</p>
+<h3 id="creating-a-new-domain-to-connect-to-an-existing-rcu-schema">Creating a new domain to connect to an existing RCU schema</h3>
+<p>If you ever find a situation where your JRF domain home directory is corrupted or lost, it is possible to create a new
+domain home directory using the existing RCU schemas provided that you have previously exported the domain&rsquo;s encryption
+key into an Oracle wallet.  To export the encryption key into a wallet, use the OPSS WLST offline <a href="https://docs.oracle.com/en/middleware/fusion-middleware/platform-security/12.2.1.4/idmcr/security_wlst.html#GUID-3EF2815D-45B9-46EE-A4D7-34A6841195DB">exportEncryptionKey</a>
+function.</p>
+<p>When you want to recreate the JRF domain home, you have two options:</p>
+<ol>
+<li>
+<p>Use the Create Domain tool&rsquo;s <code>-opss_wallet &lt;path-to-wallet-file&gt;</code> argument and one of the following arguments to pass
+the wallet passphrase:</p>
+<ul>
+<li><code>-opss_wallet_passphrase_env &lt;environment-variable-name&gt;</code> - Simply pass the name of the environment variable to read
+to get the wallet passphrase.</li>
+<li><code>-opss_wallet_passphrase_file &lt;path-to-file&gt;</code> - Simply pass the file name for the file containing the wallet passphrase.</li>
+</ul>
+</li>
+<li>
+<p>Add the OPSS wallet to the archive file in the prescribed location (i.e., <code>wlsdeploy/opsswallet/</code>) using the Archive
+Helper tool&rsquo;s <code>add opssWallet</code> command and then provide the passphrase in the <code>domainInfo</code> section&rsquo;s <code>OPSSSecrets</code> field.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
+    <span style="color:#f92672">OPSSSecrets</span>: <span style="color:#ae81ff">MySecureOPSSWalletPassphrase</span>
+</code></pre></div></li>
+</ol>
 <h3 id="access-a-database-using-a-wallet">Access a database using a wallet</h3>
 <p>When accessing a database, such as ATP or SSL, using a wallet, you need to obtain the wallet from your DBA and information about the database:</p>
 <ul>
@@ -2818,19 +2842,19 @@ contains multiple physical data sources.   In order to create a spare model, for
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1679351433"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1679351433"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1679351433"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1679351433"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1679351433"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1679351433"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1679434962"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1679434962"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1679434962"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1679434962"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1679434962"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1679434962"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1679351433"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1679351433"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1679351433"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1679434962"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1679434962"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1679434962"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1679351433"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1679434962"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
