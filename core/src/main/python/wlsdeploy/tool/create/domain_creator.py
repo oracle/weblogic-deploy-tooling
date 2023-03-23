@@ -80,6 +80,7 @@ from wlsdeploy.aliases.model_constants import XML_REGISTRY
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.create import atp_helper
+from wlsdeploy.tool.create import opss_helper
 from wlsdeploy.tool.create import ssl_helper
 from wlsdeploy.tool.create import rcudbinfo_helper
 from wlsdeploy.tool.create.creator import Creator
@@ -334,7 +335,7 @@ class DomainCreator(Creator):
                                               truststore_type)
 
             ssl_conn_properties["oracle.net.ssl_server_dn_match"] = 'false'
-            
+
             fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
             runner = RCURunner.createSslRunner(domain_type, oracle_home, java_home, fmw_database, rcu_prefix, rcu_schemas,
                                                rcu_db_info.get_rcu_variables(), rcu_runner_map, ssl_conn_properties)
@@ -640,6 +641,9 @@ class DomainCreator(Creator):
         self.topology_helper.clear_jdbc_placeholder_targeting(jdbc_names)
 
         self.__apply_base_domain_config(topology_folder_list, delete=True)
+
+        # apply OPSS configuration before the first domain write
+        opss_helper.create_credentials(self.model.get_model(), self.model_context, self.aliases, self.wlst_helper)
 
         self.logger.info('WLSDPLY-12205', self._domain_name, domain_home,
                          class_name=self.__class_name, method_name=_method_name)
@@ -1137,7 +1141,7 @@ class DomainCreator(Creator):
                                                               "'rcu_admin_password']")
                 raise ex
 
-        return tns_admin, rcu_database, truststore_pwd, truststore_type, truststore, keystore_pwd, keystore_type, keystore   
+        return tns_admin, rcu_database, truststore_pwd, truststore_type, truststore, keystore_pwd, keystore_type, keystore
 
     def __configure_fmw_infra_database(self):
         """

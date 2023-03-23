@@ -59,6 +59,7 @@ from wlsdeploy.aliases.model_constants import JOLT_CONNECTION_POOL
 from wlsdeploy.aliases.model_constants import JPA
 from wlsdeploy.aliases.model_constants import ODL_CONFIGURATION
 from wlsdeploy.aliases.model_constants import OHS
+from wlsdeploy.aliases.model_constants import OPSS_INITIALIZATION
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RESOURCE_MANAGER
 from wlsdeploy.aliases.model_constants import RESOURCES
@@ -157,6 +158,7 @@ class AliasEntries(object):
     ]
 
     __domain_info_top_level_folders = [
+        OPSS_INITIALIZATION,
         RCU_DB_INFO,
         WLS_ROLES,
         WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
