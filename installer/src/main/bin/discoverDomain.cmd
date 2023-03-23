@@ -114,7 +114,7 @@ ECHO.
 ECHO         java_home       - overrides the JAVA_HOME value when discovering domain
 ECHO                           values to be replaced with the java home global token.
 ECHO.
-ECHO         target          - targeting platform (k8s, etc.).
+ECHO         target          - the target output type. The default is wko.
 ECHO.
 ECHO         output_dir      - output directory for -target ^<target^>.
 ECHO.
