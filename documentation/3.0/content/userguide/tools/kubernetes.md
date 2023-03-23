@@ -116,5 +116,5 @@ The content for the CRD sections is not generated when a model is discovered by 
 | `-model_file` | The location of the model file.  This can also be specified as a comma-separated list of model locations, where each successive model layers on top of the previous ones. |    |
 | `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set. |    |
 | `-output_dir` | The location for the target output files. |    |
-| `-target` | The target output type. The default is `wko`. |    |
+| `-target` | The target output type. The default is `wko`. For more information about target types, see [Target Environments]({{< relref "userguide/target_env" >}}). |    |
 | `-variable_file` | The location of the property file containing the values for variables used in the model. This can also be specified as a comma-separated list of property files, where each successive set of properties layers on top of the previous ones. |    |
