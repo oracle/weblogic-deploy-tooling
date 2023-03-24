@@ -2,6 +2,7 @@
     "copyright": "Copyright (c) 2023, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "OPSSInitialization",
+    "short_name": "OPSS",
     "folders": {
         "Credential": {
             "wlst_type": "Credential",
@@ -10,6 +11,7 @@
                 "TargetKey": {
                     "wlst_type": "TargetKey",
                     "child_folders_type": "multiple",
+                    "short_name": "Key",
                     "folders": {},
                     "attributes": {
                         "Username": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Username", "wlst_path": "WP001", "default_value": null, "wlst_type": "credential" } ],
@@ -17,7 +19,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/NO_FOLDER/%OPSSINITIALIZATION%/NO_FOLDER/%CREDENTIAL%/TargetKey"
+                        "WP001": "/NO_FOLDER/%OPSSINITIALIZATION%/NO_FOLDER/%CREDENTIAL%/NO_FOLDER/%TARGETKEY%"
                     }
                 }
             },
