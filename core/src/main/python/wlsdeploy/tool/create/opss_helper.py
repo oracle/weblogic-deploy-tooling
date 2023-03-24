@@ -38,7 +38,7 @@ class OPSSHelper(object):
         opss_initialization = dictionary_utils.get_dictionary_element(domain_info, OPSS_INITIALIZATION)
         credentials = dictionary_utils.get_dictionary_element(opss_initialization, CREDENTIAL)
         for store_key, store_folder in credentials.iteritems():
-            self._logger.info('WLSDPLY-05713', store_key, class_name=self._class_name, method_name=_method_name)
+            self._logger.info('WLSDPLY-12350', store_key, class_name=self._class_name, method_name=_method_name)
             keys = dictionary_utils.get_dictionary_element(store_folder, TARGET_KEY)
             for key, key_folder in keys.iteritems():
                 wlst_path = '/Credential/TargetStore/' + store_key + '/TargetKey/' + key
