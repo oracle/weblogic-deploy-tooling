@@ -302,33 +302,53 @@ def _get_domain_path(model_context, model):
         return domain_parent + os.sep + DEFAULT_WLS_DOMAIN_NAME
 
 
-def _precheck_rcu_connectivity(domain_typename, fmw_database, rcu_prefix, rcu_schema_pwd, db_conn_props):
+def _precheck_rcu_connectivity(model_context, creator, rcu_db_info):
+
     _method_name = '_precheck_rcu_connectivity'
-    try:
-        props = Properties()
-        if db_conn_props is not None:
-            for item in db_conn_props:
-                for key in item.keys():
-                    props.put(key, item[key])
+    domain_typename = model_context.get_domain_typedef().get_domain_type()
 
-        __logger.info('WLSDPLY_12575', 'test datasource', fmw_database, rcu_prefix + "_STB", props,
-                       class_name=_class_name, method_name=_method_name)
+    if model_context.get_domain_typedef().required_rcu() and not model_context.is_run_rcu() and 'STB' in \
+            model_context.get_domain_typedef().get_rcu_schemas():
+        # how to create rcu_db_info ?
+        db_conn_props = None
+        fmw_database, is_atp_ds, is_ssl_ds, keystore, keystore_pwd, keystore_type, rcu_prefix, rcu_schema_pwd, \
+            tns_admin, truststore, truststore_pwd, \
+            truststore_type = creator.get_rcu_basic_connection_info(rcu_db_info)
 
-        props.put('user', rcu_prefix + "_STB")
-        props.put('password', rcu_schema_pwd)
+        if is_atp_ds:
+            db_conn_props = creator.get_atp_standard_conn_properties(tns_admin, truststore, truststore_pwd,
+                                                                     truststore_type, keystore_pwd, keystore_type,
+                                                                     keystore)
+        elif is_ssl_ds:
+            db_conn_props = creator.get_ssl_standard_conn_properties(tns_admin, truststore, truststore_pwd,
+                                                                     truststore_type, keystore_pwd, keystore_type,
+                                                                     keystore)
 
-        DriverManager.getConnection(fmw_database, props)
+        try:
+            props = Properties()
+            if db_conn_props is not None:
+                for item in db_conn_props:
+                    for key in item.keys():
+                        props.put(key, item[key])
 
-    except (exceptions.Exception, JException), e:
-        __logger.severe('WLSDPLY-12505', domain_typename, e.getClass().getName(), e.getLocalizedMessage())
-        ex = exception_helper.create_create_exception('WLSDPLY-12505', domain_typename, e.getClass().getName(),
-                                                      e.getLocalizedMessage(), error=e)
-        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-        raise ex
-    except ee:
-        ex = exception_helper.create_create_exception('WLSDPLY-12506', domain_typename, ee)
-        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-        raise ex
+            __logger.info('WLSDPLY_12575', 'test datasource', fmw_database, rcu_prefix + "_STB", props,
+                           class_name=_class_name, method_name=_method_name)
+
+            props.put('user', rcu_prefix + "_STB")
+            props.put('password', rcu_schema_pwd)
+
+            DriverManager.getConnection(fmw_database, props)
+
+        except (exceptions.Exception, JException), e:
+            __logger.severe('WLSDPLY-12505', domain_typename, e.getClass().getName(), e.getLocalizedMessage())
+            ex = exception_helper.create_create_exception('WLSDPLY-12505', domain_typename, e.getClass().getName(),
+                                                          e.getLocalizedMessage(), error=e)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
+        except ee:
+            ex = exception_helper.create_create_exception('WLSDPLY-12506', domain_typename, ee)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
 
 def main(model_context):
     """
@@ -383,25 +403,8 @@ def main(model_context):
             rcu_db_info = RcuDbInfo(model_context, aliases, None)
 
         # JRF domain pre-check connectivity
-        if model_context.get_domain_typedef().required_rcu() and not model_context.is_run_rcu() and 'STB' in \
-                         model_context.get_domain_typedef().get_rcu_schemas():
-            # how to create rcu_db_info ?
-            db_conn_props = None
-            fmw_database, is_atp_ds, is_ssl_ds, keystore, keystore_pwd, keystore_type, rcu_prefix, rcu_schema_pwd, \
-                tns_admin, truststore, truststore_pwd, \
-                truststore_type = creator.get_rcu_basic_connection_info(rcu_db_info)
 
-            if has_atp:
-                db_conn_props = creator.get_atp_standard_conn_properties(tns_admin, truststore, truststore_pwd,
-                                                                         truststore_type, keystore_pwd, keystore_type,
-                                                                         keystore)
-            elif has_ssl:
-                db_conn_props = creator.get_ssl_standard_conn_properties(tns_admin, truststore, truststore_pwd,
-                                                                         truststore_type, keystore_pwd, keystore_type,
-                                                                         keystore)
-
-            _precheck_rcu_connectivity(model_context.get_domain_typedef().get_domain_type(),
-                                       fmw_database, rcu_prefix, rcu_schema_pwd, db_conn_props)
+        _precheck_rcu_connectivity(model_context, creator, rcu_db_info)
 
         creator.create()
 
