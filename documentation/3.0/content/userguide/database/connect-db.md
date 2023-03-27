@@ -31,6 +31,30 @@ WDT will use the information you provided in the command line or in the `RCUDbin
 For some advanced use cases, such as using an Oracle Active GridLink data source or Multi Data Sources, you can provide a sparse model of the data sources in a separate model file
 during domain creation.  See [Advance use cases](#advanced-jrf-database-use-cases).
 
+### Creating a new domain to connect to an existing RCU schema
+
+If you ever find a situation where your JRF domain home directory is corrupted or lost, it is possible to create a new
+domain home directory using the existing RCU schemas provided that you have previously exported the domain's encryption
+key into an Oracle wallet.  To export the encryption key into a wallet, use the OPSS WLST offline [exportEncryptionKey](https://docs.oracle.com/en/middleware/fusion-middleware/platform-security/12.2.1.4/idmcr/security_wlst.html#GUID-3EF2815D-45B9-46EE-A4D7-34A6841195DB)
+function.
+
+When you want to recreate the JRF domain home, you have two options:
+
+1. Use the Create Domain tool's `-opss_wallet <path-to-wallet-file>` argument and one of the following arguments to pass
+  the wallet passphrase:
+
+   - `-opss_wallet_passphrase_env <environment-variable-name>` - Simply pass the name of the environment variable to read
+     to get the wallet passphrase.
+   - `-opss_wallet_passphrase_file <path-to-file>` - Simply pass the file name for the file containing the wallet passphrase.
+
+2. Add the OPSS wallet to the archive file in the prescribed location (i.e., `wlsdeploy/opsswallet/`) using the Archive
+   Helper tool's `add opssWallet` command and then provide the passphrase in the `domainInfo` section's `OPSSSecrets` field.
+
+    ```yaml
+    domainInfo:
+        OPSSSecrets: MySecureOPSSWalletPassphrase
+    ```
+
 ### Access a database using a wallet
 
 When accessing a database, such as ATP or SSL, using a wallet, you need to obtain the wallet from your DBA and information about the database:

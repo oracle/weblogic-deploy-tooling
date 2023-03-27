@@ -8,7 +8,7 @@
 
     <groupId>com.oracle.weblogic.lifecycle</groupId>
     <artifactId>weblogic-deploy</artifactId>
-    <version>3.0.4-SNAPSHOT</version>
+    <version>3.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Oracle WebLogic Server Deploy Tooling</name>
@@ -173,7 +173,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.3.0</version>
+                    <version>3.3.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

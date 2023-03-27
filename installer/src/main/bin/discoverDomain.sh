@@ -77,7 +77,7 @@ usage() {
   echo "        java_home       - overrides the JAVA_HOME value when discovering domain"
   echo "                          values to be replaced with the java home global token."
   echo ""
-  echo "        target          - targeting platform (k8s, etc.)."
+  echo "        target          - the target output type. The default is wko."
   echo ""
   echo "        output_dir      - output directory for -target <target>."
   echo ""
