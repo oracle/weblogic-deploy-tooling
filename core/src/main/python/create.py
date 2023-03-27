@@ -6,11 +6,16 @@ The main module for the WLSDeploy tool to create empty domains.
 """
 import os
 import sys
+import exceptions
 
+from java.lang import Exception as JException
 from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import String
 from java.lang import System
+import java.sql.DriverManager as DriverManager
+import java.util.Properties as Properties
+
 from oracle.weblogic.deploy.create import CreateException
 from oracle.weblogic.deploy.deploy import DeployException
 from oracle.weblogic.deploy.util import FileUtils
@@ -37,6 +42,7 @@ from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.util import wlst_helper
 from wlsdeploy.tool.validate.content_validator import ContentValidator
 from wlsdeploy.util import cla_helper
+from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import tool_main
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -296,6 +302,34 @@ def _get_domain_path(model_context, model):
         return domain_parent + os.sep + DEFAULT_WLS_DOMAIN_NAME
 
 
+def _precheck_rcu_connectivity(domain_typename, fmw_database, rcu_prefix, rcu_schema_pwd, db_conn_props):
+    _method_name = '_precheck_rcu_connectivity'
+    try:
+        props = Properties()
+        if db_conn_props is not None:
+            for item in db_conn_props:
+                for key in item.keys():
+                    props.put(key, item[key])
+
+        __logger.info('WLSDPLY_12575', 'test datasource', fmw_database, rcu_prefix + "_STB", props,
+                       class_name=_class_name, method_name=_method_name)
+
+        props.put('user', rcu_prefix + "_STB")
+        props.put('password', rcu_schema_pwd)
+
+        DriverManager.getConnection(fmw_database, props)
+
+    except (exceptions.Exception, JException), e:
+        __logger.severe('WLSDPLY-12505', domain_typename, e.getClass().getName(), e.getLocalizedMessage())
+        ex = exception_helper.create_create_exception('WLSDPLY-12505', domain_typename, e.getClass().getName(),
+                                                      e.getLocalizedMessage(), error=e)
+        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
+    except ee:
+        ex = exception_helper.create_create_exception('WLSDPLY-12506', domain_typename, ee)
+        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
+
 def main(model_context):
     """
     The entry point for the createDomain tool.
@@ -337,16 +371,46 @@ def main(model_context):
             archive_helper.extract_all_database_wallets()
 
         creator = DomainCreator(model_dictionary, model_context, aliases)
+
+        if dictionary_utils.get_dictionary_element(model_dictionary, model_constants.DOMAIN_INFO) is not None and \
+           dictionary_utils.get_dictionary_element(model_dictionary[model_constants.DOMAIN_INFO],
+                                                    model_constants.RCU_DB_INFO) is not None:
+            rcu_properties_map = dictionary_utils.get_dictionary_element(model_dictionary[model_constants.DOMAIN_INFO]
+                                                                         ,model_constants.RCU_DB_INFO)
+            rcu_db_info = RcuDbInfo(model_context, aliases, rcu_properties_map)
+        else:
+            # create empty rcu_db_info for cli case
+            rcu_db_info = RcuDbInfo(model_context, aliases, None)
+
+        # JRF domain pre-check connectivity
+        if model_context.get_domain_typedef().required_rcu() and not model_context.is_run_rcu() and 'STB' in \
+                         model_context.get_domain_typedef().get_rcu_schemas():
+            # how to create rcu_db_info ?
+            db_conn_props = None
+            fmw_database, is_atp_ds, is_ssl_ds, keystore, keystore_pwd, keystore_type, rcu_prefix, rcu_schema_pwd, \
+                tns_admin, truststore, truststore_pwd, \
+                truststore_type = creator.get_rcu_basic_connection_info(rcu_db_info)
+
+            if has_atp:
+                db_conn_props = creator.get_atp_standard_conn_properties(tns_admin, truststore, truststore_pwd,
+                                                                         truststore_type, keystore_pwd, keystore_type,
+                                                                         keystore)
+            elif has_ssl:
+                db_conn_props = creator.get_ssl_standard_conn_properties(tns_admin, truststore, truststore_pwd,
+                                                                         truststore_type, keystore_pwd, keystore_type,
+                                                                         keystore)
+
+            _precheck_rcu_connectivity(model_context.get_domain_typedef().get_domain_type(),
+                                       fmw_database, rcu_prefix, rcu_schema_pwd, db_conn_props)
+
         creator.create()
 
-        if has_atp:
-            rcu_properties_map = model_dictionary[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO]
-            rcu_db_info = RcuDbInfo(model_context, aliases, rcu_properties_map)
-            atp_helper.fix_jps_config(rcu_db_info, model_context)
-        elif has_ssl:
-            rcu_properties_map = model_dictionary[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO]
-            rcu_db_info = RcuDbInfo(model_context, aliases, rcu_properties_map)
-            ssl_helper.fix_jps_config(rcu_db_info, model_context)
+        if model_context.get_domain_typedef().required_rcu():
+            if has_atp:
+                atp_helper.fix_jps_config(rcu_db_info, model_context)
+            elif has_ssl:
+                ssl_helper.fix_jps_config(rcu_db_info, model_context)
+
     except WLSDeployArchiveIOException, ex:
         _exit_code = ExitCode.ERROR
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
