@@ -335,7 +335,7 @@ class DomainTypedef(object):
 
         if not self._paths_resolved:
             if self._model_context is None:
-                ex = exception_helper.create_create_exception('WLSDPLY-12302')
+                ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-12302')
                 self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
 
@@ -343,8 +343,9 @@ class DomainTypedef(object):
                 self._domain_typedef['baseTemplate'] = \
                     self._model_context.replace_token_string(self._domain_typedef['baseTemplate'])
             else:
-                ex = exception_helper.create_create_exception('WLSDPLY-12303', self._domain_type,
-                                                              self._domain_typedef_filename, self._version_typedef_name)
+                ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-12303',
+                                                           self._domain_type, self._domain_typedef_filename,
+                                                           self._version_typedef_name)
                 self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
 
@@ -386,13 +387,13 @@ class DomainTypedef(object):
         _method_name = '__get_version_typedef'
 
         if 'versions' not in self._domain_typedefs_dict:
-            ex = exception_helper.create_create_exception('WLSDPLY-12304', self._domain_type,
-                                                          self._domain_typedef_filename)
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-12304',
+                                                       self._domain_type, self._domain_typedef_filename)
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         elif 'definitions' not in self._domain_typedefs_dict:
-            ex = exception_helper.create_create_exception('WLSDPLY-12305', self._domain_type,
-                                                          self._domain_typedef_filename)
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-12305',
+                                                       self._domain_type, self._domain_typedef_filename)
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
@@ -401,8 +402,9 @@ class DomainTypedef(object):
         if self._version_typedef_name in self._domain_typedefs_dict['definitions']:
             result = self._domain_typedefs_dict['definitions'][self._version_typedef_name]
         else:
-            ex = exception_helper.create_create_exception('WLSDPLY-12306', self._domain_type,
-                                                          self._domain_typedef_filename, self._version_typedef_name)
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-12306',
+                                                       self._domain_type, self._domain_typedef_filename,
+                                                       self._version_typedef_name)
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         return result
@@ -418,8 +420,8 @@ class DomainTypedef(object):
 
         self._logger.entering(versions_dict, class_name=self.__class_name, method_name=_method_name)
         if len(versions_dict) == 0:
-            ex = exception_helper.create_create_exception('WLSDPLY-12307', self._domain_type,
-                                                          self._domain_typedef_filename)
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-12307',
+                                                       self._domain_type, self._domain_typedef_filename)
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
@@ -441,12 +443,14 @@ class DomainTypedef(object):
                     new_version = self.wls_helper.get_next_higher_order_version_number(new_version)
 
             if result is None:
-                ex = exception_helper.create_create_exception('WLSDPLY-12309', self._domain_type,
-                                                              self._domain_typedef_filename, wls_version)
+                ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-12309',
+                                                           self._domain_type, self._domain_typedef_filename,
+                                                           wls_version)
                 self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
         if result == NOT_SUPPORTED:
-            ex = exception_helper.create_create_exception('WLSDPLY-12313', self._domain_type, wls_version)
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-12313',
+                                                       self._domain_type, wls_version)
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         self._logger.exiting(self.__class_name, _method_name, result)
@@ -494,7 +498,7 @@ class DomainTypedef(object):
 
         if 'topologyProfile' not in self._domain_typedefs_dict:
             return None
-        topology_profile = self._domain_typedefs_dict['topologyProfile'];
+        topology_profile = self._domain_typedefs_dict['topologyProfile']
 
         # there are no valid topology profiles for versions 12.1.x and below
         if not self.wls_helper.is_topology_profile_supported():
@@ -504,7 +508,7 @@ class DomainTypedef(object):
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
-        # if specified, toppology profile must be one of the known types
+        # if specified, topology profile must be one of the known types
         if topology_profile not in TopologyProfile:
             ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-12315', topology_profile, self._domain_typedef_filename)
