@@ -22,6 +22,7 @@ from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.deploy.topology_updater import TopologyUpdater
 from wlsdeploy.tool.util import model_context_helper
+from wlsdeploy.tool.util import results_file
 from wlsdeploy.tool.util import wlst_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.util.rcu_helper import RCUHelper
@@ -108,6 +109,8 @@ def __update(model, model_context, aliases):
         ret_code = __update_online(model, model_context, aliases)
     else:
         ret_code = __update_offline(model, model_context, aliases)
+
+    results_file.check_and_write(model_context, ExceptionType.DEPLOY)
 
     return ret_code
 

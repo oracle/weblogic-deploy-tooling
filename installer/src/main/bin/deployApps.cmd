@@ -128,11 +128,10 @@ ECHO.
 ECHO         wlst_path       - the Oracle Home subdirectory of the wlst.cmd
 ECHO                           script to use (e.g., ^<ORACLE_HOME^>\soa)
 ECHO.
-ECHO         output_dir      - if present, write restart information to this
-ECHO                           directory as restart.file, or, if
-ECHO                           cancel_changes_if_restart_required is used,
-ECHO                           write non dynamic changes information to
-ECHO                           non_dynamic_changes.file.
+ECHO         output_dir      - if specified, files containing restart information
+ECHO                           are written to this directory, including
+ECHO                           restart.file, non_dynamic_changes.file, and
+ECHO                           results.json.
 ECHO.
 ECHO         admin_url       - the admin server URL (used for online deploy)
 ECHO.

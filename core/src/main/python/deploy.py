@@ -23,6 +23,7 @@ from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util import wlst_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import cla_helper
+from wlsdeploy.tool.util import results_file
 from wlsdeploy.util import tool_main
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
@@ -102,6 +103,9 @@ def __deploy(model, model_context, aliases):
         ret_code = __deploy_online(model, model_context, aliases)
     else:
         ret_code = __deploy_offline(model, model_context, aliases)
+
+    results_file.check_and_write(model_context, ExceptionType.DEPLOY)
+
     return ret_code
 
 

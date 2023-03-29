@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -48,6 +48,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging import platform_logger
+from wlsdeploy.tool.util import results_file
 from wlsdeploy.tool.util.string_output_stream import StringOutputStream
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import dictionary_utils
@@ -503,16 +504,20 @@ def list_restarts(model_context, exit_code):
             line = '%s:%s:%s:%s' % (entry[0], entry[1], entry[2], entry[3])
             _logger.finer('WLSDPLY-09208', line, class_name=_class_name, method_name=_method_name)
             pw.println(line)
+
+            results_file.add_restart_entry(entry[0], entry[1], entry[2], entry[3])
         pw.close()
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
 
 
-def list_non_dynamic_changes(model_context, non_dynamic_changes_string):
+def list_non_dynamic_changes(unactivated_changes, non_dynamic_changes_string, model_context):
     """
     If output dir is present in the model context, write the restart data to the output dir as non_dynamic_changes.file.
-    :param model_context: Current context with the run parameters.
-    :param non_dynamic_changes_string: java.lang.String of changes that were non dynamic
+    Add unactivated changes that are not dynamic to the results file.
+    :param unactivated_changes: a list of unactivated changes for WLST
+    :param non_dynamic_changes_string: java.lang.String of changes that were non-dynamic
+    :param model_context: used to get the output directory
     """
     _method_name = 'list_non_dynamic_changes'
     _logger.entering(class_name=_class_name, method_name=_method_name)
@@ -522,6 +527,14 @@ def list_non_dynamic_changes(model_context, non_dynamic_changes_string):
         pw = FileUtils.getPrintWriter(file_name)
         pw.println(non_dynamic_changes_string)
         pw.close()
+
+    for change in unactivated_changes:
+        if change.isRestartRequired() and not change.getAffectedBean():
+            bean_name = str(change.getBean())
+            attribute_name = change.getAttributeName()
+            results_file.add_non_dynamic_change(bean_name, attribute_name)
+
+    results_file.add_non_dynamic_changes_text(str_helper.to_string(non_dynamic_changes_string))
 
 
 def get_list_of_restarts():
@@ -589,17 +602,22 @@ def online_check_save_activate(model_context):
         restart_required = _wlst_helper.is_restart_required()
         is_restartreq_output = sostream.get_string()
         _wlst_helper.silence()
+
+        # get unactivated changes before cancel or save
+        config_manager = _wlst_helper.get_config_manager()
+        unactivated_changes = config_manager.getUnactivatedChanges()
+
         if model_context.is_cancel_changes_if_restart_required() and restart_required:
             _wlst_helper.cancel_edit()
             _logger.warning('WLSDPLY-09018', is_restartreq_output)
             exit_code = ExitCode.CANCEL_CHANGES_IF_RESTART
-            list_non_dynamic_changes(model_context, is_restartreq_output)
+            list_non_dynamic_changes(unactivated_changes, is_restartreq_output, model_context)
         else:
             _wlst_helper.save()
             _wlst_helper.activate(model_context.get_model_config().get_activate_timeout())
             if restart_required:
                 exit_code = ExitCode.RESTART_REQUIRED
-                list_non_dynamic_changes(model_context, is_restartreq_output)
+                list_non_dynamic_changes(unactivated_changes, is_restartreq_output, model_context)
                 exit_code = list_restarts(model_context, exit_code)
 
     except BundleAwareException, ex:
