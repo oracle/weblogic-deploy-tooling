@@ -42,7 +42,6 @@ from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.util import wlst_helper
 from wlsdeploy.tool.validate.content_validator import ContentValidator
 from wlsdeploy.util import cla_helper
-from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import tool_main
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -51,6 +50,7 @@ from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.tool.create import atp_helper
 from wlsdeploy.tool.create import ssl_helper
+import wlsdeploy.tool.create.rcudbinfo_helper as rcudbinfo_helper
 
 wlst_helper.wlst_functions = globals()
 
@@ -392,18 +392,9 @@ def main(model_context):
 
         creator = DomainCreator(model_dictionary, model_context, aliases)
 
-        if dictionary_utils.get_dictionary_element(model_dictionary, model_constants.DOMAIN_INFO) is not None and \
-           dictionary_utils.get_dictionary_element(model_dictionary[model_constants.DOMAIN_INFO],
-                                                    model_constants.RCU_DB_INFO) is not None:
-            rcu_properties_map = dictionary_utils.get_dictionary_element(model_dictionary[model_constants.DOMAIN_INFO]
-                                                                         ,model_constants.RCU_DB_INFO)
-            rcu_db_info = RcuDbInfo(model_context, aliases, rcu_properties_map)
-        else:
-            # create empty rcu_db_info for cli case
-            rcu_db_info = RcuDbInfo(model_context, aliases, None)
+        rcu_db_info = rcudbinfo_helper.create(model_dictionary, model_context, aliases)
 
         # JRF domain pre-check connectivity
-
         _precheck_rcu_connectivity(model_context, creator, rcu_db_info)
 
         creator.create()
