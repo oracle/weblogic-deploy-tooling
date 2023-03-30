@@ -875,7 +875,7 @@ class DomainCreator(Creator):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
-    def __create_machines(self, location):
+    def __create_machines(self, location, delete_now=True):
         """
         Create the /Machine and /UnixMachine folder objects, if any.
         :param location: the location to use
@@ -888,9 +888,10 @@ class DomainCreator(Creator):
         unix_machine_nodes = dictionary_utils.get_dictionary_element(self._topology, UNIX_MACHINE)
 
         if len(machine_nodes) > 0:
-            self._create_named_mbeans(MACHINE, machine_nodes, location, log_created=True)
+            self._create_named_mbeans(MACHINE, machine_nodes, location, log_created=True, delete_now=delete_now)
         if len(unix_machine_nodes) > 0:
-            self._create_named_mbeans(UNIX_MACHINE, unix_machine_nodes, location, log_created=True)
+            self._create_named_mbeans(UNIX_MACHINE, unix_machine_nodes, location, log_created=True,
+                                      delete_now=delete_now)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
 
@@ -907,7 +908,7 @@ class DomainCreator(Creator):
         location.add_name_token(domain_name_token, self._domain_name)
         self.logger.entering(str_helper.to_string(location), class_name=self.__class_name, method_name=_method_name)
 
-        self.__create_machines(location)
+        self.__create_machines(location, delete_now=delete_now)
         #
         # In order for source domain provisioning to work with dynamic clusters, we have to provision
         # the ServerTemplates.  There is a cyclical dependency between Server Template and Clusters so we
