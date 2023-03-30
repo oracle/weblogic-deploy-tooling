@@ -24,7 +24,7 @@ __logger = PlatformLogger('test.aliases')
 CLASS_NAME = 'verify/utils'
 
 OFFLINE_ALIAS_FOLDER_IGNORE_MAP = {
-    '/': ['ODLConfiguration', 'OHS', 'RCUDbInfo', 'Security', 'UnixMachine', 'WLSRoles',
+    '/': ['ODLConfiguration', 'OHS', 'OPSSInitialization', 'RCUDbInfo', 'Security', 'UnixMachine', 'WLSRoles',
           'WLSUserPasswordCredentialMappings'],
     '/ResourceGroupTemplate': ['OHS', 'SystemComponent']
 }
