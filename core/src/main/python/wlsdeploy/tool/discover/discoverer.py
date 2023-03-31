@@ -515,9 +515,6 @@ class Discoverer(object):
                 _logger.finer('WLSDPLY-06113', name, self._aliases.get_model_folder_path(location),
                               class_name=_class_name, method_name=_method_name)
                 subfolder_result[name] = OrderedDict()
-                # Products like SOA use subdeployment names with slashes in them
-                if '/' in name:
-                    name = '(%s)' % name
                 location.add_name_token(name_token, name)
                 subfolder_path = self._aliases.get_wlst_attributes_path(location)
                 if self.wlst_cd(subfolder_path, location):

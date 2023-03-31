@@ -428,6 +428,8 @@ def replace_tokens_in_path(location, path):
     new_path = path
     if name_tokens:
         for key, value in name_tokens.iteritems():
+            if '/' in value:
+                value = '(%s)' % value
             new_path = new_path.replace('%s%s%s' % ('%', key, '%'), value)
 
     missing_name_token = get_missing_name_tokens(new_path)
