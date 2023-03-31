@@ -85,6 +85,7 @@ class Aliases(object):
         self._alias_entries = AliasEntries(wlst_mode, self._wls_version)
         self._production_mode_enabled = False
         self._secure_mode_enabled = False
+        alias_utils._wlst_mode = wlst_mode
 
     def set_production_mode(self, production_mode_enabled):
         _method_name = 'set_production_mode'

@@ -27,6 +27,7 @@ from wlsdeploy.aliases.alias_constants import BOOLEAN
 from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
 from wlsdeploy.aliases.alias_constants import STRING
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
+from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
@@ -61,6 +62,12 @@ _class_name = 'alias_utils'
 _logger = PlatformLogger('wlsdeploy.aliases')
 _windows_path_regex = re.compile(r'^[a-zA-Z]:[\\/].*')
 
+# WARNING: DO NOT USE OUTSIDE OF THIS FILE!
+#
+# This variable gets set when the Aliases object is created so it will not be accurate
+# unless/until the Aliases constructor completes successfully.
+#
+_wlst_mode = WlstModes.OFFLINE
 
 def merge_model_and_existing_lists(model_list, existing_list, location_path="(unknown)", attribute_name="(unknown)"):
     """
@@ -428,7 +435,7 @@ def replace_tokens_in_path(location, path):
     new_path = path
     if name_tokens:
         for key, value in name_tokens.iteritems():
-            if '/' in value:
+            if '/' in value and _wlst_mode == WlstModes.OFFLINE:
                 value = '(%s)' % value
             new_path = new_path.replace('%s%s%s' % ('%', key, '%'), value)
 
