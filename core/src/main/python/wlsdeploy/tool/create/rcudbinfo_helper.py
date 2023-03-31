@@ -30,6 +30,7 @@ from wlsdeploy.aliases.model_constants import DATABASE_TYPE
 from wlsdeploy.aliases.model_constants import RCU_DEFAULT_TBLSPACE
 from wlsdeploy.aliases.model_constants import RCU_TEMP_TBLSPACE
 from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util import string_utils
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
@@ -90,11 +91,17 @@ class RcuDbInfo(object):
             return None
 
     def get_rcu_prefix(self):
-        return self._get_dictionary_element_value(RCU_PREFIX)
+        rcu_prefix = self.model_context.get_rcu_prefix()
+        if string_utils.is_empty(rcu_prefix):
+            rcu_prefix = self._get_dictionary_element_value(RCU_PREFIX)
+        return rcu_prefix
 
     def get_rcu_schema_password(self):
-        password = self._get_dictionary_element_value(RCU_SCHEMA_PASSWORD)
-        return self.aliases.decrypt_password(password)
+        rcu_schema_pass = self.model_context.get_rcu_schema_pass()
+        if string_utils.is_empty(rcu_schema_pass):
+            password = self._get_dictionary_element_value(RCU_SCHEMA_PASSWORD)
+            rcu_schema_pass = self.aliases.decrypt_password(password)
+        return rcu_schema_pass
 
     def get_keystore(self):
         return self._get_dictionary_element_value(DRIVER_PARAMS_KEYSTORE_PROPERTY)
@@ -117,11 +124,17 @@ class RcuDbInfo(object):
         return self.aliases.decrypt_password(password)
 
     def get_admin_password(self):
-        password = self._get_dictionary_element_value(RCU_ADMIN_PASSWORD)
-        return self.aliases.decrypt_password(password)
+        rcu_admin_pass = self.model_context.get_rcu_sys_pass()
+        if string_utils.is_empty(rcu_admin_pass):
+            password = self._get_dictionary_element_value(RCU_ADMIN_PASSWORD)
+            rcu_admin_pass = self.aliases.decrypt_password(password)
+        return rcu_admin_pass
 
     def get_rcu_regular_db_conn(self):
-        return self._get_dictionary_element_value(RCU_DB_CONN)
+        rcu_db_conn = self.model_context.get_rcu_database()
+        if string_utils.is_empty(rcu_db_conn):
+            rcu_db_conn = self._get_dictionary_element_value(RCU_DB_CONN)
+        return rcu_db_conn
 
     def get_atp_default_tablespace(self):
         _method_name = 'get_atp_default_tablespace'
@@ -160,11 +173,15 @@ class RcuDbInfo(object):
             return 'admin'
 
     def get_rcu_db_user(self):
+        cli_admin_user = self.model_context.get_rcu_db_user()
+        if cli_admin_user != ModelContext.DB_USER_DEFAULT:
+            return cli_admin_user
+
         result = self._get_dictionary_element_value(RCU_DB_USER)
         if result is not None:
             return result
         else:
-            return ModelContext.DB_USER_DEFAULT
+            return cli_admin_user
 
     def get_comp_info_location(self):
         result = self._get_dictionary_element_value(RCU_COMP_INFO)
@@ -197,14 +214,8 @@ class RcuDbInfo(object):
     def has_ssldbinfo(self):
         return self.is_use_ssl()
 
-    def is_multidatasource(self):
-        if self.get_multidatasource_urls() is not None and self.get_database_type() != 'AGL':
-            return True
-        else:
-            return False
-
     def is_regular_db(self):
-        result = self._get_dictionary_element_value(RCU_DB_CONN)
+        result = self.get_rcu_regular_db_conn()
         if result is not None:
             if self.get_database_type() == 'ORACLE' and  not (self.is_use_atp() or self.is_use_ssl()):
                 return True
@@ -242,56 +253,6 @@ class RcuDbInfo(object):
             value = alias_utils.convert_to_type('boolean', model_value)
             return value == 'true'
         return self.get_database_type() == 'SSL'
-        
-    def get_preferred_db(self):
-        """
-        Return the regular db connect string from command line or model.
-        :return: the db connect string
-        """
-        cli_value = self.model_context.get_rcu_database()
-        if cli_value is not None:
-            return cli_value
-        return self.get_rcu_regular_db_conn()
-
-    def get_preferred_db_user(self):
-        """
-        Return the db user from command line or model.
-        :return: the db user
-        """
-        cli_value = self.model_context.get_rcu_db_user()
-        if cli_value != ModelContext.DB_USER_DEFAULT:
-            return cli_value
-        return self.get_rcu_db_user()
-
-    def get_preferred_prefix(self):
-        """
-        Return the prefix from command line or model.
-        :return: the prefix
-        """
-        cli_value = self.model_context.get_rcu_prefix()
-        if cli_value is not None:
-            return cli_value
-        return self.get_rcu_prefix()
-
-    def get_preferred_schema_pass(self):
-        """
-        Return the schema password from command line or model.
-        :return: the schema password
-        """
-        cli_value = self.model_context.get_rcu_schema_pass()
-        if cli_value is not None:
-            return cli_value
-        return self.get_rcu_schema_password()
-
-    def get_preferred_sys_pass(self):
-        """
-        Return the system password from command line or model.
-        :return: the system password
-        """
-        cli_value = self.model_context.get_rcu_sys_pass()
-        if cli_value is not None:
-            return cli_value
-        return self.get_admin_password()
 
 
 def create(model_dictionary, model_context, aliases):
