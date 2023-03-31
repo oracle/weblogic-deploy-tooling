@@ -104,6 +104,7 @@ class ApplicationsDeployer(Deployer):
             shared_library_token = self.aliases.get_name_token(shared_library_location)
 
             for shared_library_name in shared_libraries:
+                self.wlst_helper.cd(root_path)  # avoid cd to pwd that may contain slashed names
                 existing_shared_libraries = deployer_utils.get_existing_object_list(shared_library_location, self.aliases)
 
                 if model_helper.is_delete_name(shared_library_name):
@@ -133,8 +134,8 @@ class ApplicationsDeployer(Deployer):
 
                 library_name = \
                     self.version_helper.get_library_versioned_name(shlib_source_path, shared_library_name)
-                quoted_library_name = self.wlst_helper.get_quoted_name_for_wlst(library_name)
-                shared_library_location.add_name_token(shared_library_token, quoted_library_name)
+                # names are quoted/escaped later, when paths are resolved
+                shared_library_location.add_name_token(shared_library_token, library_name)
 
                 self.wlst_helper.cd(root_path)
                 deployer_utils.create_and_cd(shared_library_location, existing_shared_libraries, self.aliases)
@@ -184,6 +185,7 @@ class ApplicationsDeployer(Deployer):
             application_token = self.aliases.get_name_token(application_location)
 
             for application_name in applications:
+                self.wlst_helper.cd(root_path)  # avoid cd to pwd that may contain slashed names
                 existing_applications = deployer_utils.get_existing_object_list(application_location, self.aliases)
 
                 if model_helper.is_delete_name(application_name):
@@ -211,9 +213,8 @@ class ApplicationsDeployer(Deployer):
                     self.version_helper.get_application_versioned_name(app_source_path, application_name,
                                                                        module_type=module_type)
 
-                quoted_application_name = self.wlst_helper.get_quoted_name_for_wlst(application_name)
-
-                application_location.add_name_token(application_token, quoted_application_name)
+                # names are quoted/escaped later, when paths are resolved
+                application_location.add_name_token(application_token, application_name)
 
                 self.wlst_helper.cd(root_path)
                 deployer_utils.create_and_cd(application_location, existing_applications, self.aliases)
