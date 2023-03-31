@@ -289,6 +289,17 @@ Contributing to the WebLogic Deploy repository Pull requests can be made under T
     </item>
     
     <item>
+      <title>Modeling Oracle Platform Security Services</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/samples/opss-model/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/opss-model/</guid>
+      <description>The OPSSInitialization section of the WDT model can be used to initialize credentials needed by upper-stack Fusion Middleware products. These credentials can only be applied at domain creation time.
+Initializing Oracle Identity Governance This example shows how to configure OPSS credentials for use by Oracle Identity Governance.
+domainInfo: AdminUserName: &amp;#39;@@PROP:adminUser@@&amp;#39; AdminPassword: &amp;#39;@@PROP:adminPass@@&amp;#39; OPSSInitialization: Credential: oim: TargetKey: keystore: Username: keystore Password: &amp;#39;@@PROP:keystorePass@@&amp;#39; OIMSchemaPassword: # database schema prefix + _OIM Username: PREFIX_OIM # database schema password Password: &amp;#39;@@PROP:dbSchemaPass@@&amp;#39; sysadmin: Username: xelsysadm Password: &amp;#39;@@PROP:sysAdminPass@@&amp;#39; WeblogicAdminKey: # match to WLS admin credentials Username: &amp;#39;@@PROP:adminUser@@&amp;#39; Password: &amp;#39;@@PROP:adminPass@@&amp;#39; Initializing Oracle Data Integrator This example shows how to configure OPSS credentials for use by Oracle Data Integrator.</description>
+    </item>
+    
+    <item>
       <title>Modeling WebLogic users, groups, and roles</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/samples/usersgroups-model/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
