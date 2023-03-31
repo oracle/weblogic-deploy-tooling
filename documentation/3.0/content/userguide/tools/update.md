@@ -59,6 +59,67 @@ When running the tool in WLST online mode, the update operation may require serv
   WebLogic Server to handle automating undeploy and deploy of an application that uses shared library when the library is 
   updated in-place.  
 
+### Using output files
+
+If the `-output_dir` command-line argument is specified, the tool will generate output files that provide information about servers and resources that need to be restarted. These files are only applicable for online deployments.
+
+The file `restart.file` contains a list of servers and resources that need to be restarted. Here is an example:
+```text
+:AdminServer:Generic1:JDBCSystemResource
+:AdminServer::
+```
+
+The file `non_dynamic_changes.file` contains text describing the attributes that will require a restart in order for new values to be applied. Here is an example:
+```text
+Server re-start is REQUIRED for the set of changes in progress.
+
+The following non-dynamic attribute(s) have been changed on MBeans 
+that require server re-start:
+MBean Changed : com.bea:Name=AdminServer,Type=Log,Server=AdminServer
+Attributes changed : RedirectStderrToServerLogEnabled, RedirectStdoutToServerLogEnabled
+
+MBean Changed : com.bea:Name=MailSession-0,Type=MailSession
+Attributes changed : SessionPasswordEncrypted
+```
+
+The file `results.json` contains information about servers and resources need to be restarted, and attribute values that require a restart in order for new values to be applied.
+```json
+{
+    "nonDynamicChanges" : {
+        "com.bea:Name=MailSession-0,Type=MailSession" : [
+            "SessionPasswordEncrypted"
+        ],
+        "com.bea:Name=AdminServer,Type=Log,Server=AdminServer" : [
+            "RedirectStderrToServerLogEnabled",
+            "RedirectStdoutToServerLogEnabled"
+        ]
+    },
+    "nonDynamicChangesText" : [
+        "",
+        "Server re-start is REQUIRED for the set of changes in progress.",
+        "",
+        "The following non-dynamic attribute(s) have been changed on MBeans",
+        "that require server re-start:",
+        "MBean Changed : com.bea:Name=AdminServer,Type=Log,Server=AdminServer",
+        "Attributes changed : RedirectStderrToServerLogEnabled, RedirectStdoutToServerLogEnabled",
+        "",
+        "MBean Changed : com.bea:Name=MailSession-0,Type=MailSession",
+        "Attributes changed : SessionPasswordEncrypted",
+        ""
+    ],
+    "restarts" : [
+        {
+            "server" : "AdminServer",
+            "resourceName" : "Generic1",
+            "resourceType" : "JDBCSystemResource"
+        },
+        {
+            "server" : "AdminServer"
+        }
+    ]
+}
+```
+
 ### Using an encrypted model
 
 If the model or variables file contains passwords encrypted with the WDT Encryption tool, decrypt the passwords during create with the `-use_encryption` flag on the command line to tell the Update Domain Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, `stdin`) to allow the tool to run without any user input. You can bypass the stdin prompt with two other options. Store the passphrase in an environment variable, and use the environment variable name with command-line option `-passphrase_env`. Another option is to create a file containing the passphrase value. Pass this filename with the command-line option `-passphrase_file`.
