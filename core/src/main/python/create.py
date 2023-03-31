@@ -193,7 +193,7 @@ def __process_rcu_args(optional_arg_map, domain_type, domain_typedef):
                                                                    error=ioe)
                         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                         raise ex
-                    optional_arg_map[CommandLineArgUtil.RCU_SYS_PASS_SWITCH] = str(password)
+                    optional_arg_map[CommandLineArgUtil.RCU_SYS_PASS_SWITCH] = str(String(password))
                 if CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH not in optional_arg_map:
                     try:
                         password = getcreds.getpass('WLSDPLY-12405')
@@ -203,7 +203,7 @@ def __process_rcu_args(optional_arg_map, domain_type, domain_typedef):
                                                                    error=ioe)
                         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                         raise ex
-                    optional_arg_map[CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH] = str(password)
+                    optional_arg_map[CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH] = str(String(password))
             else:
                 ex = exception_helper.create_cla_exception(ExitCode.USAGE_ERROR,
                                                            'WLSDPLY-12407', _program_name,
@@ -232,7 +232,7 @@ def __process_opss_args(optional_arg_map):
                                                        'WLSDPLY-20028', ioe.getLocalizedMessage(), error=ioe)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
-        optional_arg_map[CommandLineArgUtil.OPSS_WALLET_PASSPHRASE] = str(passphrase)
+        optional_arg_map[CommandLineArgUtil.OPSS_WALLET_PASSPHRASE] = str(String(passphrase))
 
 
 def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
