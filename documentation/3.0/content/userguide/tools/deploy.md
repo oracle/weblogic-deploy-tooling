@@ -48,6 +48,14 @@ When running the tool in WLST online mode, the deploy operation may require serv
 - `103` - The entire domain needs to be restarted.
 - `104` - The domain changes have been canceled because the changes in the model requires a domain restart and `-cancel_changes_if_restart_required` is specified.
 
+
+### Using output files
+
+If the `-output_dir` command-line argument is specified, the tool will generate output files that provide information about servers and resources that need to be restarted. These files are only applicable for online deployments.
+
+For more information about these files, see [Using output files]({{< relref "/userguide/tools/update#using-output-files" >}}) for the Update Domain Tool.
+
+
 ### Using an encrypted model
 
 If the model or variables file contains passwords encrypted with the WDT Encryption tool, decrypt the passwords during create with the `-use_encryption` flag on the command line to tell the Deploy Applications Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, `stdin`) to allow the tool to run without any user input. You can bypass the stdin prompt with two other options. Store the passphrase in an environment variable, and use the environment variable name with command-line option `-passphrase_env`. Another option is to create a file containing the passphrase value. Pass this filename using the command-line option `-passphrase_file`.
