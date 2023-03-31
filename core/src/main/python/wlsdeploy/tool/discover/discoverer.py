@@ -454,7 +454,12 @@ class Discoverer(object):
                 location.add_name_token(name_token, name)
                 massaged = self._inspect_artificial_folder_name(name, location)
                 location.add_name_token(name_token, massaged)
-                artificial = self._get_artificial_type(location)
+                # circumventing problems if the trust identity asserter schematype jar
+                # is not in the oracle home. Force it to have the correct name.
+                if name == 'Trust Service Identity Asserter':
+                    artificial = 'TrustServiceIdentityAsserter'
+                else:
+                    artificial = self._get_artificial_type(location)
                 if artificial is None:
                     if self._aliases.is_custom_folder_allowed(location):
                         _logger.fine('WLSDPLY-06148', model_subfolder_type, massaged, location.get_folder_path(),

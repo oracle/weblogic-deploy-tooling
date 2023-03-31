@@ -530,7 +530,7 @@ public class ITWdt extends BaseTest {
                 + " -domain_type RestrictedJRF";
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             // SecurityConfiguration warning
-            assertEquals(1, result.exitValue(), "Unexpected return code");
+            assertEquals(0, result.exitValue(), "Unexpected return code");
 
             // verify model file
             verifyModelFile(discoveredModel.toString());
@@ -569,7 +569,7 @@ public class ITWdt extends BaseTest {
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             // SecurityConfiguration warning
-            assertEquals(1, result.exitValue(), "Unexpected return code");
+            assertEquals(0, result.exitValue(), "Unexpected return code");
 
             // verify model file
             verifyModelFile(discoveredModelFile.toString());
@@ -601,7 +601,7 @@ public class ITWdt extends BaseTest {
       try (PrintWriter out = getTestMethodWriter(testInfo)) {
           CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
           // SecurityConfiguration warning
-          assertEquals(1, result.exitValue(), "Unexpected return code");
+          assertEquals(0, result.exitValue(), "Unexpected return code");
 
           // verify model file and variable file
           verifyModelFile(discoveredModelFile.toString());
@@ -652,7 +652,7 @@ public class ITWdt extends BaseTest {
 
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             // SecurityConfiguration warning
-            assertEquals(1, result.exitValue(), "Unexpected return code");
+            assertEquals(0, result.exitValue(), "Unexpected return code");
 
             // verify model file
             verifyModelFile(discoveredModelFile.toString());
