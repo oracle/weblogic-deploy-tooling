@@ -276,22 +276,27 @@ class CommandLineArgUtil(object):
                 value, idx = self._get_arg_value(args, idx)
                 self._validate_rcu_database_arg(value)
                 self._add_arg(key, value)
+                _logger.deprecation('WLSDPLY-31000')
             elif self.is_rcu_dbuser_key(key):
                 value, idx = self._get_arg_value(args, idx)
                 self._validate_rcu_dbuser_arg(value)
                 self._add_arg(key, value)
+                _logger.deprecation('WLSDPLY-31001')
             elif self.is_rcu_prefix_key(key):
                 value, idx = self._get_arg_value(args, idx)
                 self._validate_rcu_prefix_arg(value)
                 self._add_arg(key, value)
+                _logger.deprecation('WLSDPLY-31002')
             elif self.is_rcu_sys_pass_key(key):
                 value, idx = self._get_arg_value(args, idx)
                 self._validate_rcu_sys_pass_arg(value)
                 self._add_arg(key, value)
+                _logger.deprecation('WLSDPLY-31003')
             elif self.is_rcu_schema_pass_key(key):
                 value, idx = self._get_arg_value(args, idx)
                 self._validate_rcu_schema_pass_arg(value)
                 self._add_arg(key, value)
+                _logger.deprecation('WLSDPLY-31004')
             elif self.is_passphrase_switch(key):
                 value, idx = self._get_arg_value(args, idx)
                 self._validate_passphrase_arg(value)

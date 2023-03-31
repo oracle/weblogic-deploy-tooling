@@ -270,9 +270,9 @@ class DomainCreator(Creator):
         rcu_db_info = rcudbinfo_helper.create(self.model.get_model(), self.model_context, self.aliases)
 
         # get these values from the command-line or RCUDbInfo in the model
-        rcu_prefix = rcu_db_info.get_preferred_prefix()
-        rcu_sys_pass = rcu_db_info.get_preferred_sys_pass()
-        rcu_schema_pass = rcu_db_info.get_preferred_schema_pass()
+        rcu_prefix = rcu_db_info.get_rcu_prefix()
+        rcu_sys_pass = rcu_db_info.get_admin_password()
+        rcu_schema_pass = rcu_db_info.get_rcu_schema_password()
 
         database_type = rcu_db_info.get_database_type()
         if database_type is not None and database_type not in ['SSL', 'ATP', 'ORACLE']:
@@ -328,7 +328,7 @@ class DomainCreator(Creator):
             truststore, keystore_pwd, keystore_type, keystore  = self.__validate_and_get_ssl_rcudbinfo(rcu_db_info)
 
             rcu_runner_map = dict()
-            rcu_db_user = rcu_db_info.get_preferred_db_user()
+            rcu_db_user = rcu_db_info.get_rcu_db_user()
             ssl_conn_properties = dict()
 
             self._set_rcu_ssl_args_properties(ssl_conn_properties, rcu_db_info, keystore, keystore_type, truststore,
@@ -343,13 +343,13 @@ class DomainCreator(Creator):
             runner.setRCUAdminUser(rcu_db_user)
         else:
             # Non-ATP database, use DB config from the command line or RCUDbInfo in the model.
-            rcu_db = rcu_db_info.get_preferred_db()
+            rcu_db = rcu_db_info.get_rcu_regular_db_conn()
 
             if rcu_db is None:
                 ex = exception_helper.create_create_exception('WLSDPLY-12572')
                 raise ex
 
-            rcu_db_user = rcu_db_info.get_preferred_db_user()
+            rcu_db_user = rcu_db_info.get_rcu_db_user()
 
             runner = RCURunner.createRunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas,
                                             rcu_db_info.get_rcu_variables())
@@ -1050,7 +1050,7 @@ class DomainCreator(Creator):
         _method_name = '__validate_and_get_atp_rcudbinfo'
 
         tns_admin = rcu_db_info.get_tns_admin()
-        rcu_database = rcu_db_info.get_preferred_db()
+        rcu_database = rcu_db_info.get_rcu_regular_db_conn()
 
         if rcu_database is None:
             if tns_admin is None or not os.path.exists(tns_admin + os.sep + "tnsnames.ora"):
@@ -1109,7 +1109,7 @@ class DomainCreator(Creator):
         tns_admin = rcu_db_info.get_tns_admin()
         truststore = rcu_db_info.get_truststore()
 
-        rcu_database = rcu_db_info.get_preferred_db()
+        rcu_database = rcu_db_info.get_rcu_regular_db_conn()
         # If user specify connect string, no need to fetch from tnsnames.ora
 
         if rcu_database is None:
@@ -1547,8 +1547,8 @@ class DomainCreator(Creator):
         truststore_pwd = None
         truststore_type = None
 
-        rcu_prefix = rcu_db_info.get_preferred_prefix()
-        rcu_schema_pwd = rcu_db_info.get_preferred_schema_pass()
+        rcu_prefix = rcu_db_info.get_rcu_prefix()
+        rcu_schema_pwd = rcu_db_info.get_rcu_schema_password()
         if rcu_prefix is None:
             ex = exception_helper.create_create_exception('WLSDPLY-12413', 'rcu_prefix',
                                                           "['rcu_prefix','rcu_schema_password']")
@@ -1573,7 +1573,7 @@ class DomainCreator(Creator):
             tns_admin, rcu_database, truststore_pwd, truststore_type, \
                 truststore, keystore_pwd, keystore_type, keystore = self.__validate_and_get_ssl_rcudbinfo(rcu_db_info)
         else:
-            rcu_database = rcu_db_info.get_preferred_db()
+            rcu_database = rcu_db_info.get_rcu_regular_db_conn()
         if rcu_database is None:
             ex = exception_helper.create_create_exception('WLSDPLY-12564')
             raise ex
