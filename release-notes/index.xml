@@ -8,6 +8,17 @@
     <language>en-us</language>
     <lastBuildDate>Fri, 22 Feb 2019 15:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Release 3.0.4</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.0.4/</link>
+      <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.0.4/</guid>
+      <description>Changes in Release 3.0.4  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes None
+Bug Fixes  #1422: Fixed a bug in online discovery of the Cluster attribute of ServerTemplate. #1425: Fixed a bug for online remote discovery causing SSL cipher suites to show up in 14.1.1 even when it was set to the default value.  Known Issues </description>
+    </item>
+    
+    <item>
       <title>Release Notes 3.0.3</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.0.3/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
