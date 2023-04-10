@@ -46,7 +46,7 @@
         <skipTests>false</skipTests>
         <antlr.version>4.9.3</antlr.version>
         <snakeyaml.version>2.0</snakeyaml.version>
-        <picocli.version>4.7.1</picocli.version>
+        <picocli.version>4.7.2</picocli.version>
 
         <sonar.organization>oracle</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
