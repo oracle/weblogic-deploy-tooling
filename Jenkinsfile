@@ -4,12 +4,12 @@ pipeline {
     environment {
         alias_test_job_name = 'wdt-alias-test-verify'
     }
-
+    /*
     triggers {
         // timer trigger for "nightly build" on main branch
-        // cron( env.BRANCH_NAME.equals('main') ? 'H H(0-3) * * 1-5' : '')
+        cron( env.BRANCH_NAME.equals('main') ? 'H H(0-3) * * 1-5' : '')
     }
-
+    */
     stages {
         stage ('Environment') {
             tools {
