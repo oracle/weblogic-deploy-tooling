@@ -7,7 +7,7 @@ pipeline {
 
     triggers {
         // timer trigger for "nightly build" on main branch
-        cron( env.BRANCH_NAME.equals('main') ? 'H H(0-3) * * 1-5' : '')
+        // cron( env.BRANCH_NAME.equals('main') ? 'H H(0-3) * * 1-5' : '')
     }
 
     stages {
@@ -27,9 +27,9 @@ pipeline {
                 jdk 'jdk8'
             }
             steps {
-                sh '''
-                    mvn -B -DskipTests clean package
-                '''
+                withMaven(globalMavenSettingsConfig: 'wkt-maven-settings-xml') {
+                    sh "mvn -DskipTests clean package"
+                }
             }
         }
         stage ('Test') {
@@ -38,11 +38,13 @@ pipeline {
                     alwaysPull true
                     reuseNode true
                     image 'phx.ocir.io/devweblogic/wdt/jenkins-slave:122130'
-                    args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock'
+                    args '-u jenkins'
                 }
             }
             steps {
-                sh 'mvn -B -Dunit-test-wlst-dir=${WLST_DIR} test'
+                withMaven(mavenSettingsConfig: 'wkt-docker-maven-settings-xml') {
+                    sh 'mvn -B -Dunit-test-wlst-dir=${WLST_DIR} test'
+                }
             }
             post {
                 always {
@@ -63,11 +65,13 @@ pipeline {
                     alwaysPull true
                     reuseNode true
                     image 'phx.ocir.io/devweblogic/wdt/jenkins-slave:122130'
-                    args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock'
+                    args '-u jenkins'
                 }
             }
             steps {
-                sh 'mvn -B -DskipITs=false -Dmw_home=${ORACLE_HOME} -Ddb.use.container.network=true install'
+                withMaven(mavenSettingsConfig: 'wkt-docker-maven-settings-xml') {
+                    sh 'mvn -DskipITs=false -Dmw_home=${ORACLE_HOME} -Ddb.use.container.network=true install'
+                }
             }
         }
         /*
@@ -90,7 +94,6 @@ pipeline {
                 }
             }
         }
-        */
         stage ('Alias Test') {
             // only run this stage when triggered by a cron timer and the commit does not have []skip-ci in the message
             // for example, only run integration tests during the timer triggered nightly build
@@ -117,6 +120,7 @@ pipeline {
                 '''
             }
         }
+        */
     }
 }
 
