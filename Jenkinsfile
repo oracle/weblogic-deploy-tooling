@@ -37,7 +37,7 @@ pipeline {
                 docker {
                     alwaysPull true
                     reuseNode true
-                    image 'phx.ocir.io/weblogick8s/wdt/jenkins-slave:122130'
+                    image 'phx.ocir.io/devweblogic/wdt/jenkins-slave:122130'
                     args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
@@ -62,7 +62,7 @@ pipeline {
                 docker {
                     alwaysPull true
                     reuseNode true
-                    image 'phx.ocir.io/weblogick8s/wdt/jenkins-slave:122130'
+                    image 'phx.ocir.io/devweblogic/wdt/jenkins-slave:122130'
                     args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
@@ -70,6 +70,7 @@ pipeline {
                 sh 'mvn -B -DskipITs=false -Dmw_home=${ORACLE_HOME} -Ddb.use.container.network=true install'
             }
         }
+        /*
         stage ('Analyze') {
             when {
                 anyOf {
@@ -89,6 +90,7 @@ pipeline {
                 }
             }
         }
+        */
         stage ('Alias Test') {
             // only run this stage when triggered by a cron timer and the commit does not have []skip-ci in the message
             // for example, only run integration tests during the timer triggered nightly build
@@ -111,7 +113,7 @@ pipeline {
             }
             steps {
                 sh '''
-                    oci os object put --namespace=weblogick8s --bucket-name=wko-system-test-files --config-file=/dev/null --auth=instance_principal --force --file=installer/target/weblogic-deploy.zip --name=weblogic-deploy-main.zip
+                    oci os object put --namespace=devweblogic --bucket-name=wko-system-test-files --config-file=/dev/null --auth=instance_principal --force --file=installer/target/weblogic-deploy.zip --name=weblogic-deploy-main.zip
                 '''
             }
         }
