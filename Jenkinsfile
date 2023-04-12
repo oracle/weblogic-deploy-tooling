@@ -42,9 +42,7 @@ pipeline {
                 }
             }
             steps {
-                withMaven(mavenSettingsConfig: 'wkt-docker-maven-settings-xml') {
-                    sh 'mvn -B -Dunit-test-wlst-dir=${WLST_DIR} test'
-                }
+                sh 'mvn -Dunit-test-wlst-dir=${WLST_DIR} test'
             }
             post {
                 always {
@@ -69,9 +67,7 @@ pipeline {
                 }
             }
             steps {
-                withMaven(mavenSettingsConfig: 'wkt-docker-maven-settings-xml') {
-                    sh 'mvn -DskipITs=false -Dmw_home=${ORACLE_HOME} -Ddb.use.container.network=true install'
-                }
+                sh 'mvn -DskipITs=false -Dmw_home=${ORACLE_HOME} -Ddb.use.container.network=true install'
             }
         }
         /*
