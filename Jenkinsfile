@@ -38,11 +38,13 @@ pipeline {
                     alwaysPull true
                     reuseNode true
                     image 'phx.ocir.io/devweblogic/wdt/jenkins-slave:122130'
-                    args '-u jenkins'
+                    args '-u opc -v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
             steps {
-                sh 'mvn -Dunit-test-wlst-dir=${WLST_DIR} test'
+                withMaven(globalMavenSettingsConfig: 'wkt-maven-settings-xml') {
+                    sh 'mvn -Dunit-test-wlst-dir=${WLST_DIR} test'
+                }
             }
             post {
                 always {
@@ -63,7 +65,7 @@ pipeline {
                     alwaysPull true
                     reuseNode true
                     image 'phx.ocir.io/devweblogic/wdt/jenkins-slave:122130'
-                    args '-u jenkins'
+                    args '-u opc -v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
             steps {
