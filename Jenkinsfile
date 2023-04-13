@@ -42,9 +42,7 @@ pipeline {
                 }
             }
             steps {
-                withMaven(globalMavenSettingsConfig: 'wkt-maven-settings-xml') {
-                    sh 'mvn -Dunit-test-wlst-dir=${WLST_DIR} test'
-                }
+                sh 'mvn -Dunit-test-wlst-dir=${WLST_DIR} test'
             }
             post {
                 always {
