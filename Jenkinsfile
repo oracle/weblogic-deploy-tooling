@@ -27,7 +27,7 @@ pipeline {
                 jdk 'jdk8'
             }
             steps {
-                withMaven(globalMavenSettingsConfig: 'wkt-maven-settings-xml') {
+                withMaven(globalMavenSettingsConfig: 'wkt-maven-settings-xml', publisherStrategy: 'EXPLICIT') {
                     sh "mvn -DskipTests clean package"
                 }
             }
