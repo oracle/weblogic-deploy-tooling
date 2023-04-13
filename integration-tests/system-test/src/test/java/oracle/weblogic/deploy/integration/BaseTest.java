@@ -51,8 +51,8 @@ public class BaseTest {
     protected static String domainParentDir = "";
     protected static String prepareModelScript = "";
     protected static String archiveHelperScript = "";
-    protected static final String ORACLE_DB_IMG = "phx.ocir.io/weblogick8s/database/enterprise";
-    protected static final String ORACLE_DB_IMG_TAG = "12.2.0.1-slim";
+    protected static final String ORACLE_DB_IMG = System.getProperty("db.container.repo");
+    protected static final String ORACLE_DB_IMG_TAG = System.getProperty("db.container.tag");
     private static final String DB_CONTAINER_NAME = generateDatabaseContainerName();
 
     private static boolean skipJrfTests() {

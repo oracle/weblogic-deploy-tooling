@@ -18,6 +18,8 @@
 
     <properties>
         <mw_home>${env.ORACLE_HOME}</mw_home>
+        <db.container.repo>phx.ocir.io/devweblogic/database/enterprise</db.container.repo>
+        <db.container.tag>12.2.0.1-slim</db.container.tag>
         <db.use.container.network>false</db.use.container.network>
     </properties>
 
@@ -142,6 +144,14 @@
                         <property>
                             <name>MW_HOME</name>
                             <value>${mw_home}</value>
+                        </property>
+                        <property>
+                            <name>db.container.repo</name>
+                            <value>${db.container.repo}</value>
+                        </property>
+                        <property>
+                            <name>db.container.tag</name>
+                            <value>${db.container.tag}</value>
                         </property>
                         <property>
                             <name>db.use.container.network</name>

@@ -45,7 +45,7 @@ pipeline {
                 docker {
                     alwaysPull true
                     reuseNode true
-                    image "phx.ocir.io/weblogick8s/wdt/jenkins-alias-test-slave:${params.wls_version}"
+                    image "phx.ocir.io/devweblogic/wdt/jenkins-alias-test-slave:${params.wls_version}"
                     args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
