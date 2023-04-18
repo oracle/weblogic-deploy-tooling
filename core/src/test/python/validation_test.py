@@ -2,45 +2,42 @@
 Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-import unittest
 import os
-from java.util.logging import Level
+import shutil
+import unittest
 
+from java.util.logging import Level
 from oracle.weblogic.deploy.logging import SummaryHandler
 from oracle.weblogic.deploy.logging import WLSDeployLogEndHandler
+from oracle.weblogic.deploy.util import TranslateException
 
-from wlsdeploy.aliases.aliases import Aliases
-from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
-from wlsdeploy.util.model_translator import FileToPython
-from wlsdeploy.util.model_context import ModelContext
-
-from wlsdeploy.tool.validate.validator import Validator
-from wlsdeploy.tool.validate import validation_utils
-from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.aliases import alias_constants
-
+from base_test import BaseTestCase
 from validate import __perform_model_file_validation
-
-import oracle.weblogic.deploy.util.TranslateException as TranslateException
-import oracle.weblogic.deploy.validate.ValidateException as ValidateException
-
+from wlsdeploy.aliases import alias_constants
+from wlsdeploy.aliases.aliases import Aliases
+from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create import wlsroles_helper
+from wlsdeploy.tool.validate import validation_utils
+from wlsdeploy.tool.validate.validator import Validator
+from wlsdeploy.util.model_context import ModelContext
+from wlsdeploy.util.model_translator import FileToPython
+from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
-class ValidationTestCase(unittest.TestCase):
+class ValidationTestCase(BaseTestCase):
     _program_name = 'validation_test'
     _class_name = 'ValidationTestCase'
-    _resources_dir = '..' + os.sep + '..' + os.sep + 'test-classes'
-    # Model persistence file
-    _wlsdeply_store_model = os.path.abspath(os.getcwd()) + os.sep + _resources_dir + os.sep + 'validate-mii-model.json'
-    # _variable_file = _resources_dir + "/test_sub_variable_file.properties"
-    # _model_file = _resources_dir + '/test_empty.json'
-    # _variable_file = _resources_dir + "/test_invalid_variable_file.properties"
-    # _archive_file = _resources_dir + "/test_jms_archive.zip"
     _wls_version = '12.2.1.3'
 
+    def __init__(self, *args):
+        BaseTestCase.__init__(self, *args)
+        self.RESOURCES_DIR = os.path.join(self.TEST_CLASSES_DIR, 'validation')
+        self.OUTPUT_DIR = os.path.join(self.TEST_OUTPUT_DIR, 'validation')
+        self.STORE_MODEL = os.path.join(self.OUTPUT_DIR, 'validate-mii-model.json')
+
     def setUp(self):
+        BaseTestCase.setUp(self)
         self.name = 'ValidationTestCase'
         self._logger = PlatformLogger('wlsdeploy.validate')
         self.wls_helper = WebLogicHelper(self._logger)
@@ -49,30 +46,35 @@ class ValidationTestCase(unittest.TestCase):
         self._summary_handler = SummaryHandler()
         self._logger.logger.addHandler(self._summary_handler)
 
-        # Define custom configuration path for WDT
-        os.environ['WDT_CUSTOM_CONFIG'] = self._resources_dir
-        # Indicate that WDT should persist model file
-        os.environ['__WLSDEPLOY_STORE_MODEL__'] = self._wlsdeply_store_model
+        # Indicate that WDT should persist model file, including test filter
+        self._establish_directory(self.OUTPUT_DIR)
+        os.environ['__WLSDEPLOY_STORE_MODEL__'] = self.STORE_MODEL
+
+        # Define custom configuration path for WDT, with custom filter files
+        self.config_dir = self._set_custom_config_dir('validation-wdt-config')
+        source_filters_file = os.path.join(self.RESOURCES_DIR, 'model_filters.json')
+        shutil.copy(source_filters_file, self.config_dir)
 
     def tearDown(self):
+        BaseTestCase.tearDown(self)
         # remove summary handler for next test suite
         self._logger.logger.removeHandler(self._summary_handler)
         WLSDeployLogEndHandler.clearHandlers()
 
-        # Clean up temporary WDT custom configuration environment variables
-        # and model persistence files
-        del os.environ['WDT_CUSTOM_CONFIG']
+        # Clean up model persistence file
         del os.environ['__WLSDEPLOY_STORE_MODEL__']
-        self.deleteFile(self._wlsdeply_store_model)
+
+        # clean up temporary WDT custom configuration environment variable
+        self._clear_custom_config_dir()
 
     def testModelValidation(self):
         _method_name = 'testModelValidation'
 
         # The model file refers to two File Stores that are not in the archive so validation should fail.
 
-        _model_file = self._resources_dir + '/variablestest.yaml'
-        _variable_file = self._resources_dir + '/variablestest.properties'
-        _archive_file = self._resources_dir + '/variablestest.zip'
+        _model_file = self.RESOURCES_DIR + '/variablestest.yaml'
+        _variable_file = self.RESOURCES_DIR + '/variablestest.properties'
+        _archive_file = self.RESOURCES_DIR + '/variablestest.zip'
 
         mw_home = os.environ['MW_HOME']
         args_map = {
@@ -118,8 +120,8 @@ class ValidationTestCase(unittest.TestCase):
             Parse and validate a YAML model with '-' list type and attributes with negative values.
         """
 
-        _model_file = self._resources_dir + '/simple-model.yaml'
-        _archive_file = self._resources_dir + "/SingleAppDomain.zip"
+        _model_file = self.TEST_CLASSES_DIR + '/simple-model.yaml'
+        _archive_file = self.TEST_CLASSES_DIR + "/SingleAppDomain.zip"
         _method_name = 'testYamlModelValidation'
 
         mw_home = os.environ['MW_HOME']
@@ -156,8 +158,8 @@ class ValidationTestCase(unittest.TestCase):
             Parse and validate a YAML model with '-remote' option, should fail with path error.
         """
 
-        _model_file = self._resources_dir + '/simple-model2.yaml'
-        _archive_file = self._resources_dir + "/SingleAppDomain.zip"
+        _model_file = self.TEST_CLASSES_DIR + '/simple-model2.yaml'
+        _archive_file = self.TEST_CLASSES_DIR + "/SingleAppDomain.zip"
         _method_name = 'testYamlModelValidation'
 
         mw_home = os.environ['MW_HOME']
@@ -232,8 +234,8 @@ class ValidationTestCase(unittest.TestCase):
         """
 
         # Setup model context arguments
-        _model_file = self._resources_dir + '/simple-model.yaml'
-        _archive_file = self._resources_dir + "/SingleAppDomain.zip"
+        _model_file = self.TEST_CLASSES_DIR + '/simple-model.yaml'
+        _archive_file = self.TEST_CLASSES_DIR + "/SingleAppDomain.zip"
         _method_name = 'testFilterInvokedOnModelValidation'
 
         mw_home = os.environ['MW_HOME']
@@ -246,24 +248,16 @@ class ValidationTestCase(unittest.TestCase):
 
         model_context = ModelContext('validate', args_map)
 
-        try:
-          # Invoke model validation
-          __perform_model_file_validation(_model_file, model_context)
+        # Invoke model validation
+        __perform_model_file_validation(_model_file, model_context)
 
-          # read persisted model file and convert to python dictionary
-          model_dictionary = FileToPython(self._wlsdeply_store_model, True)._parse_json()
-        except ValidateException, ve:
-          self._logger.severe('WLSDPLY-20000', self._program_name, ve.getLocalizedMessage(), error=ve,
-                        class_name=self._class_name, method_name=_method_name)
+        # read persisted model file and convert to python dictionary
+        model_dictionary = FileToPython(self.STORE_MODEL, True)._parse_json()
 
         # assert the validate filter made modifications and was persisted
-        self.assertEquals('gumby1234', model_dictionary['domainInfo']['AdminPassword'], "Expected validate filter to have changed AdminPassword to 'gumby1234'")
+        self.assertEquals('gumby1234', model_dictionary['domainInfo']['AdminPassword'],
+                          "Expected validate filter to have changed AdminPassword to 'gumby1234'")
 
-    def deleteFile(self, path):
-      try:
-        os.remove(path)
-      except OSError:
-        pass
 
 if __name__ == '__main__':
     unittest.main()

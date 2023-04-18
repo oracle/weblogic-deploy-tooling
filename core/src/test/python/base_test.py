@@ -19,13 +19,14 @@ class BaseTestCase(unittest.TestCase):
 
     def __init__(self, *args):
         unittest.TestCase.__init__(self, *args)
-        self.TEST_CLASSES_DIR = os.path.abspath(os.getcwd() + '/../../test-classes')
-        self.TEST_OUTPUT_DIR = os.path.abspath(os.getcwd() + '/../../unit-tests')
+        self.TEST_CLASSES_DIR = os.path.abspath(os.path.join(os.getcwd(), '../../test-classes'))
+        self.TEST_OUTPUT_DIR = os.path.abspath(os.path.join(os.getcwd(), '../../unit-tests'))
+        self.TEST_CONFIG_DIR = os.path.join(self.TEST_OUTPUT_DIR, 'wdt-config')
         self.log_levels = {}
 
-        self.original_config_dir = os.environ['WDT_CUSTOM_CONFIG']
+        self.original_config_dir = os.environ.get('WDT_CUSTOM_CONFIG', self.TEST_CONFIG_DIR)
         # config items may need to be copied from here
-        self.INSTALLER_LIB_DIR = os.path.abspath(self.TEST_CLASSES_DIR + '/../../../installer/src/main/lib')
+        self.INSTALLER_LIB_DIR = os.path.abspath(os.path.join(self.TEST_CLASSES_DIR, '../../../installer/src/main/lib'))
 
     def setUp(self):
         # subclasses should call this

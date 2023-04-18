@@ -35,11 +35,8 @@ pipeline {
 
     environment {
         oci_cli_exe = '/usr/bin/oci'
-        oci_profile_name = 'WDTBUILD'
-        ocir_repo_name = 'wdt/jenkins-alias-test-slave'
-        ocir_compartment_id = 'ocid1.tenancy.oc1..aaaaaaaahmcbb5mp2h6toh4vj7ax526xtmihrneoumyat557rvlolsx63imq'
 
-        oci_os_namespace_name = "${env.WDT_ALIAS_TEST_TENANCY}"
+        oci_os_namespace_name = "${env.WKT_TENANCY}"
         oci_os_bucket_name = 'wdt-alias-test-files'
         oci_os_prefix = 'generatedOnline'
 
@@ -48,7 +45,7 @@ pipeline {
     stages {
         stage ('Environment') {
             tools {
-                maven 'maven-3.6.0'
+                maven 'maven-3.8.7'
                 jdk 'jdk8'
             }
             steps {
@@ -57,7 +54,7 @@ pipeline {
         }
         stage ('Compute Versions') {
             environment {
-                oci_files = sh(script: "${oci_cli_exe} os object list --profile ${oci_profile_name} --bucket-name ${oci_os_bucket_name} --namespace ${oci_os_namespace_name} --prefix ${oci_os_prefix} | jq -r '.data[].name'", returnStdout: true).trim()
+                oci_files = sh(script: "${oci_cli_exe} os object list --config-file /dev/null --auth instance_principal --bucket-name ${oci_os_bucket_name} --namespace ${oci_os_namespace_name} --prefix ${oci_os_prefix} | jq -r '.data[].name'", returnStdout: true).trim()
             }
             steps {
                 computeVerifyVersions("${oci_files}")
@@ -65,11 +62,13 @@ pipeline {
         }
         stage ('Build') {
             tools {
-                maven 'maven-3.6.0'
+                maven 'maven-3.8.7'
                 jdk 'jdk8'
             }
             steps {
-                sh 'mvn clean install -DskipTests'
+                withMaven(globalMavenSettingsConfig: 'wkt-maven-settings-xml', publisherStrategy: 'EXPLICIT') {
+                    sh 'mvn -B clean install -DskipTests'
+                }
                 sh "cp ${WORKSPACE}/installer/target/weblogic-deploy.zip ${WORKSPACE}/"
                 archiveArtifacts 'weblogic-deploy.zip'
             }

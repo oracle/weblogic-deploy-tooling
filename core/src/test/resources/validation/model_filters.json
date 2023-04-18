@@ -8,6 +8,6 @@
     "update": [
     ],
     "validate": [
-      { "name": "validate_filter", "path": "../../test-classes/wdt_validate_filter.py" }
+      { "name": "validate_filter", "path": "../../test-classes/validation/wdt_validate_filter.py" }
     ]
   }

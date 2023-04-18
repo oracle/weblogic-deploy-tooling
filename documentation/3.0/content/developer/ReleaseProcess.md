@@ -41,17 +41,14 @@ This document describes the process that should be followed to create a WebLogic
 The best practice is to write the release notes that will be published to GitHub prior to starting the steps below.
 
 1. Set (and export) the environment variable `WLST_DIR` to `<WLS-install-dir>/oracle_common/common/bin`, replacing `<WLS-install-dir>` with the full path to the WLS 12.2.1.x installation directory.
-2. In the `weblogic-deploy-tooling` project directory, create a file called `release.properties` with content similar to the example shown below.  Note that the example is configured to cut the 1.9.11 release.
+2. In the `weblogic-deploy-tooling` project directory, run the `mvn -B release:prepare release:perform` command.
 
-```properties
-tag=release-1.9.11
-releaseVersion=1.9.11
-developmentVersion=1.9.12-SNAPSHOT
-```
+   - If the next development version is changing the major or minor version, override the default `developmentVersion` 
+     property on the command line.  For example, `mvn -B -DdevelopmentVersion=3.2.0-SNAPSHOT release:prepare release:perform`.
+   - If your SSH private key has a passphrase, watch the build closely because it will prompt for your passphrase multiple times.  Failure to enter it in a timely manner may result in a failure.
 
-3. In the `weblogic-deploy-tooling` project directory, run the `mvn -B release:prepare release:perform` command.  If your SSH private key has a passphrase, watch the build closely because it will prompt for your passphrase multiple times.  Failure to enter it in a timely manner may result in a failure.
-4. If the build fails, run the `mvn -B release:rollback` command to undo it and start over from Step 2., after correcting the issue.
-5. After the software has been released, move on to the GitHub Release Process.
+3. If the build fails, run the `mvn -B release:rollback` command to undo it and start over from Step 2., after correcting the issue.
+4. After the software has been released, move on to the GitHub Release Process.
 
 ### GitHub release process
 Note that this process relies on the WDT installers being in your local Maven repository.  As such, it is critical for the same user to run these steps on the same machine as the steps from the previous section!

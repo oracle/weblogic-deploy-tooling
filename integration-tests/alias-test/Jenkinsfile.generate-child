@@ -7,11 +7,14 @@ pipeline {
         string(name: 'wls_version', description: 'The WebLogic Server version number to use')
     }
     environment {
-        oci_config_file_creds = 'd27ac861-e952-459b-8479-6c5a2f23655d'
-        oci_signing_key_creds = '2db98e3d-8b85-4b53-9c70-73979397e6ad'
-        jenkins_home_directory = '/home/jenkins'
-        github_url = 'https://github.com/oracle/weblogic-deploy-tooling'
-        github_creds = 'ecnj_github'
+        oci_config_file_creds = 'wkt-oci-config-file'
+        oci_signing_key_creds = 'wkt-oci-signing-key'
+        jenkins_user = sh(returnStdout: true, script: "id -nu").trim()
+        jenkins_uid = sh(returnStdout: true, script: "id -u").trim()
+        jenkins_gid = sh(returnStdout: true, script: "id -g").trim()
+        jenkins_home_directory = sh(returnStdout: true, script: "getent passwd ${jenkins_user} | cut -d: -f6").trim()
+        git_url = "$ORACLE_GITLAB_URL/weblogic-deploy-tooling"
+        git_creds = 'wkt-orahub-creds'
     }
     stages {
         stage ('Git Checkout') {
@@ -19,7 +22,7 @@ pipeline {
                 checkout([$class: 'GitSCM', branches: [[name: "${params.parent_git_commit}"]],
                           doGenerateSubmoduleConfigurations: false,
                           extensions: [], submoduleCfg: [],
-                          userRemoteConfigs: [[credentialsId: "${github_creds}", url: "${github_url}"]]])
+                          userRemoteConfigs: [[credentialsId: "${git_creds}", url: "${git_url}"]]])
             }
         }
         stage ('Copy WDT') {
@@ -46,30 +49,24 @@ pipeline {
                     alwaysPull true
                     reuseNode true
                     image "phx.ocir.io/devweblogic/wdt/jenkins-alias-test-slave:${params.wls_version}"
-                    args '-u jenkins -v /var/run/docker.sock:/var/run/docker.sock'
+                    args "-u ${jenkins_uid}:${jenkins_gid} --group-add  -v /var/run/docker.sock:/var/run/docker.sock"
                 }
             }
             steps {
                 withCredentials([file(credentialsId: "${oci_config_file_creds}", variable: 'OCI_CONFIG_FILE'),
                                  file(credentialsId: "${oci_signing_key_creds}", variable: 'OCI_SIGNING_KEY')]) {
-                    sh "cp \"\$OCI_CONFIG_FILE\" ${jenkins_home_directory}/.oci/"
-
-                    // WARNING: The OCI config file has the path to the signing key hard-coded to
-                    //          /home/jenkins/.oci/oci-signing-key.pem so any attempts to move it
-                    //          will require updating the Jenkins Secret File for the config file.
-                    //
-                    sh "cp \"\$OCI_SIGNING_KEY\" ${jenkins_home_directory}/.oci/"
+                    sh "mkdir -p ${jenkins_home_directory}/.oci"
+                    sh "sed -e \"__jenkins_home_directory__:${jenkins_home_directory}:g\" \"\$OCI_CONFIG_FILE\" > ${jenkins_home_directory}/.oci/config"
+                    sh "cp \"\$OCI_SIGNING_KEY\" ${jenkins_home_directory}/.oci/oci-signing-key.pem"
                 }
-                sh '''
-                    cd integration-tests/alias-test/generate
-
-                    # In 2 JDK images, JAVA_HOME is set to JDK8 in /u01/maven-jdk and JDK7 is in /u01/jdk.
-                    # In single JDK images, JAVA_HOME is set to /u01/jdk.  That means that the
-                    # -Dwls_java_home will point to JDK7 for early WLS versions where it is required.
-                    # For all newer versions, it points to the JAVA_HOME location so it is a no-op.
-                    #
-                    mvn install -Dalias-test-skip-generate=false -Dskip-wdt-install=true -Dwls_java_home=/u01/jdk
-                '''
+                withMaven(globalMavenSettingsConfig: 'wkt-maven-settings-xml', publisherStrategy: 'EXPLICIT') {
+                    // In 2 JDK images, JAVA_HOME is set to JDK8 in /u01/maven-jdk and JDK7 is in /u01/jdk.
+                    // In single JDK images, JAVA_HOME is set to /u01/jdk.  That means that the
+                    // -Dwls_java_home will point to JDK7 for early WLS versions where it is required.
+                    // For all newer versions, it points to the JAVA_HOME location so it is a no-op.
+                    //
+                    sh 'pushd integration-tests/alias-test/generate && mvn -B install -Dalias-test-skip-generate=false -Dskip-wdt-install=true -Dwls_java_home=/u01/jdk && popd'
+                }
             }
         }
     }
