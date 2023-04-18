@@ -18,7 +18,7 @@
 
     <properties>
         <mw_home>${env.ORACLE_HOME}</mw_home>
-        <alias_test_tenancy>${env.WDT_ALIAS_TEST_TENANCY}</alias_test_tenancy>
+        <alias_test_tenancy>${env.WKT_TENANCY}</alias_test_tenancy>
         <alias_test_oci_profile>DEFAULT</alias_test_oci_profile>
     </properties>
 
