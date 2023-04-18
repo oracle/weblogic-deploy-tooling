@@ -9,6 +9,8 @@ pipeline {
     environment {
         oci_config_file_creds = 'wkt-oci-config-file'
         oci_signing_key_creds = 'wkt-oci-signing-key'
+        oci_profile = 'DEFAULT'
+
         jenkins_user = sh(returnStdout: true, script: "id -nu").trim()
         jenkins_uid = sh(returnStdout: true, script: "id -u").trim()
         jenkins_group = sh(returnStdout: true, script: "id -ng").trim()
@@ -66,7 +68,7 @@ pipeline {
                     // -Dwls_java_home will point to JDK7 for early WLS versions where it is required.
                     // For all newer versions, it points to the JAVA_HOME location so it is a no-op.
                     //
-                    sh 'pushd integration-tests/alias-test/generate && mvn -B install -Dalias-test-skip-generate=false -Dskip-wdt-install=true -Dwls_java_home=/u01/jdk && popd'
+                    sh 'pushd integration-tests/alias-test/generate && mvn -B install -Dalias-test-skip-generate=false -Dskip-wdt-install=true  -Dalias_test_oci_profile=${oci_profile} -Dwls_java_home=/u01/jdk && popd'
                 }
             }
         }

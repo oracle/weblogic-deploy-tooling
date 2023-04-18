@@ -45,8 +45,15 @@
                                 <requireProperty>
                                     <property>alias_test_tenancy</property>
                                     <message>
-                                        You must specify the alias_test_tenancy property that determines the
-                                        namespaceName used to upload the generated files.
+                                        You must specify the alias_test_tenancy property that determines the namespace used to upload the generated files.
+                                    </message>
+                                    <regex>^[a-zA-Z0-9_]+.*$</regex>
+                                    <regexMessage>The alias_test_tenancy must start with an alphanumeric character</regexMessage>
+                                </requireProperty>
+                                <requireProperty>
+                                    <property>alias_test_oci_profile</property>
+                                    <message>
+                                        You must specify the alias_test_oci_profile property that determines the profile in your $HOME/.oci/config file to use to upload the generated files.
                                     </message>
                                     <regex>^[a-zA-Z0-9_]+.*$</regex>
                                     <regexMessage>The alias_test_tenancy must start with an alphanumeric character</regexMessage>
