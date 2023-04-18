@@ -11,6 +11,7 @@ pipeline {
         oci_signing_key_creds = 'wkt-oci-signing-key'
         jenkins_user = sh(returnStdout: true, script: "id -nu").trim()
         jenkins_uid = sh(returnStdout: true, script: "id -u").trim()
+        jenkins_group = sh(returnStdout: true, script: "id -ng").trim()
         jenkins_gid = sh(returnStdout: true, script: "id -g").trim()
         jenkins_home_directory = sh(returnStdout: true, script: "getent passwd ${jenkins_user} | cut -d: -f6").trim()
         git_url = "$ORACLE_GITLAB_URL/weblogic-deploy-tooling"
@@ -49,7 +50,7 @@ pipeline {
                     alwaysPull true
                     reuseNode true
                     image "phx.ocir.io/devweblogic/wdt/jenkins-alias-test-slave:${params.wls_version}"
-                    args "-u ${jenkins_uid}:${jenkins_gid} --group-add  -v /var/run/docker.sock:/var/run/docker.sock"
+                    args "-u ${jenkins_uid}:${jenkins_gid} --group-add docker --group-add oracle --group-add ${jenkins_group} -v /var/run/docker.sock:/var/run/docker.sock"
                 }
             }
             steps {
