@@ -50,7 +50,7 @@ pipeline {
                     alwaysPull true
                     reuseNode true
                     image "phx.ocir.io/devweblogic/wdt/jenkins-alias-test-slave:${params.wls_version}"
-                    args "-u ${jenkins_uid}:${jenkins_gid} --group-add docker --group-add oracle --group-add ${jenkins_group} -v /var/run/docker.sock:/var/run/docker.sock"
+                    args "-u ${jenkins_uid}:${jenkins_gid} --group-add=docker --group-add=oracle --group-add=${jenkins_group} -v /var/run/docker.sock:/var/run/docker.sock"
                 }
             }
             steps {
