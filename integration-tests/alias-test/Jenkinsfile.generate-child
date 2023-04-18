@@ -50,14 +50,14 @@ pipeline {
                     alwaysPull true
                     reuseNode true
                     image "phx.ocir.io/devweblogic/wdt/jenkins-alias-test-slave:${params.wls_version}"
-                    args "-u ${jenkins_uid}:${jenkins_gid} --group-add=docker --group-add=oracle --group-add=${jenkins_group} -v /var/run/docker.sock:/var/run/docker.sock"
+                    args "--group-add=oracle --group-add=${jenkins_group} -v /var/run/docker.sock:/var/run/docker.sock"
                 }
             }
             steps {
                 withCredentials([file(credentialsId: "${oci_config_file_creds}", variable: 'OCI_CONFIG_FILE'),
                                  file(credentialsId: "${oci_signing_key_creds}", variable: 'OCI_SIGNING_KEY')]) {
                     sh "mkdir -p ${jenkins_home_directory}/.oci"
-                    sh "sed -e \"__jenkins_home_directory__:${jenkins_home_directory}:g\" \"\$OCI_CONFIG_FILE\" > ${jenkins_home_directory}/.oci/config"
+                    sh "sed -e \"s:__jenkins_home_directory__:${jenkins_home_directory}:g\" \"\$OCI_CONFIG_FILE\" > ${jenkins_home_directory}/.oci/config"
                     sh "cp \"\$OCI_SIGNING_KEY\" ${jenkins_home_directory}/.oci/oci-signing-key.pem"
                 }
                 withMaven(globalMavenSettingsConfig: 'wkt-maven-settings-xml', publisherStrategy: 'EXPLICIT') {
