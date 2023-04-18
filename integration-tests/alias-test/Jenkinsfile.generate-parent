@@ -33,7 +33,7 @@ pipeline {
     environment {
         oci_cli_exe = '/usr/bin/oci'
         ocir_repo_name = 'wdt/jenkins-alias-test-slave'
-        ocir_compartment_id = "${env.WKT_INFRA_COMPARTMENT_ID}'
+        ocir_compartment_id = "${env.WKT_INFRA_COMPARTMENT_ID}"
 
         oci_os_namespace_name = "${env.WKT_TENANCY}"
         oci_os_bucket_name = 'wdt-alias-test-files'
