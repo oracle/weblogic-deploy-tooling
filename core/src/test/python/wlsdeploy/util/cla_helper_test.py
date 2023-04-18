@@ -1,10 +1,11 @@
 """
-Copyright (c) 2019, 2021, Oracle and/or its affiliates.
+Copyright (c) 2019, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
 """
 import os
-import unittest
+import shutil
 
+from base_test import BaseTestCase
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception.expection_types import ExceptionType
@@ -12,25 +13,26 @@ from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util import cla_helper
 
 
-class ClaHelperTest(unittest.TestCase):
+class ClaHelperTest(BaseTestCase):
 
-    _resources_dir = '../../test-classes'
-    # Model persistence file
-    _wlsdeply_store_model = os.path.abspath(os.getcwd()) + '/' + _resources_dir + '/validate-mii-model.json'
-    properties_file = '../../test-classes/test.properties'
+    def __init__(self, *args):
+        BaseTestCase.__init__(self, *args)
+        self.RESOURCES_DIR = os.path.join(self.TEST_CLASSES_DIR, 'validation')
+        self.OUTPUT_DIR = os.path.join(self.TEST_OUTPUT_DIR, 'clahelper')
 
     def setUp(self):
-        # Define custom configuration path for WDT
-        os.environ['WDT_CUSTOM_CONFIG'] = self._resources_dir
-        # Indicate that WDT should persist model file
-        os.environ['__WLSDEPLOY_STORE_MODEL__'] = self._wlsdeply_store_model
+        BaseTestCase.setUp(self)
+
+        # Define custom configuration path for WDT, with custom filter files
+        self.config_dir = self._set_custom_config_dir('clahelper-wdt-config')
+        source_filters_file = os.path.join(self.RESOURCES_DIR, 'model_filters.json')
+        shutil.copy(source_filters_file, self.config_dir)
 
     def tearDown(self):
-        # Clean up temporary WDT custom configuration environment variables
-        # and model persistence files
-        del os.environ['WDT_CUSTOM_CONFIG']
-        del os.environ['__WLSDEPLOY_STORE_MODEL__']
-        deleteFile(self._wlsdeply_store_model)
+        BaseTestCase.tearDown(self)
+
+        # clean up temporary WDT custom configuration environment variable
+        self._clear_custom_config_dir()
 
     # merging should combine elements with the same name (m1), add any elements only in the second model (m3),
     # and leave existing elements (m2) in place.
@@ -164,8 +166,8 @@ class ClaHelperTest(unittest.TestCase):
         Verify filter was run and changes are persisted to model file
         """
         # Setup model context arguments
-        _model_file = self._resources_dir + '/simple-model.yaml'
-        _archive_file = self._resources_dir + "/SingleAppDomain.zip"
+        _model_file = self.TEST_CLASSES_DIR + '/simple-model.yaml'
+        _archive_file = self.TEST_CLASSES_DIR + "/SingleAppDomain.zip"
         _method_name = 'testPersistModelAfterFilter'
 
         mw_home = os.environ['MW_HOME']
@@ -184,9 +186,10 @@ class ClaHelperTest(unittest.TestCase):
         model_dictionary = cla_helper.load_model('validateModel', model_context, aliases, "validate", WlstModes.OFFLINE)
 
         # assert the validate filter made modifications and was persisted
-        self.assertEquals('gumby1234', model_dictionary['domainInfo']['AdminPassword'], "Expected validate filter to have changed AdminPassword to 'gumby1234'")
+        self.assertEquals('gumby1234', model_dictionary['domainInfo']['AdminPassword'],
+                          "Expected validate filter to have changed AdminPassword to 'gumby1234'")
 
-        # check that a single server exists in the result, and its attributes were merged correctly
+    # check that a single server exists in the result, and its attributes were merged correctly
     def _check_merged_server(self, dictionary, key):
         server = self._check_single_server(dictionary, key)
         self.assertEquals(9001, server['ListenPort'], "m1 should have listen port 9001")
@@ -240,9 +243,3 @@ def _build_variable_map():
         "server1a": "m1",
         "server1b": "m1"
     }
-
-def deleteFile(path):
-    try:
-        os.remove(path)
-    except OSError:
-        pass

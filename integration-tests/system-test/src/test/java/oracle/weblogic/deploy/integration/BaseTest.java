@@ -129,6 +129,12 @@ public class BaseTest {
         }
     }
 
+    protected static void verifyDockerWorks() throws Exception {
+        String cmd = "docker version";
+        CommandResult result = Runner.run(cmd);
+        assertEquals(0, result.exitValue(), "Docker version command failed: " + result.stdout());
+    }
+
     protected static void pullOracleDBDockerImage() throws Exception {
         if (!SKIP_JRF_TESTS) {
             logger.info("Pulling Oracle DB image from OCIR ...");

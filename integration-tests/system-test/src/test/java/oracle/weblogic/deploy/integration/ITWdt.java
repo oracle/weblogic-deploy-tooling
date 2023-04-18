@@ -65,6 +65,9 @@ public class ITWdt extends BaseTest {
         setup();
 
         if (!SKIP_JRF_TESTS) {
+            // verify that Docker works inside the container...
+            verifyDockerWorks();
+
             // pull Oracle DB image for FMW RCU testing
             pullOracleDBDockerImage();
             // create a db container for RCU

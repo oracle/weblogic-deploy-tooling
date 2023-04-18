@@ -2,12 +2,13 @@
 Copyright (c) 2018, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-import unittest
-
 import os
+import shutil
+import unittest
 
 import wlsdeploy.tool.util.variable_injector as variable_injector
 import wlsdeploy.util.variables as variables
+from base_test import BaseTestCase
 from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
@@ -15,21 +16,27 @@ from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
 from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
-from wlsdeploy.util.path_utils import CUSTOM_CONFIG_VARIABLE
 
 
-class VariableFileHelperTest(unittest.TestCase):
-    _resources_dir = '../../test-classes'
-    _variable_file = _resources_dir + '/variable.injector.test.properties'
-    _model_file = _resources_dir + '/variable_insertion.yaml'
+class VariableFileHelperTest(BaseTestCase):
+
+    def __init__(self, *args):
+        BaseTestCase.__init__(self, *args)
+        self.RESOURCES_DIR = os.path.join(self.TEST_CLASSES_DIR, 'injector')
+        self.CONFIG_RESOURCES_DIR = os.path.join(self.RESOURCES_DIR, 'config')
+        self._model_file = os.path.join(self.RESOURCES_DIR, 'variable_insertion.yaml')
+        self.OUTPUT_DIR = os.path.join(self.TEST_OUTPUT_DIR, 'injector')
+        self._variable_file = os.path.join(self.OUTPUT_DIR + 'variable.injector.test.properties')
 
     def setUp(self):
+        BaseTestCase.setUp(self)
         self.name = 'VariableFileHelperTest'
         self._model = FileToPython(self._model_file).parse()
         self._model_context = ModelContext(self.name, {})
         self._helper = VariableInjector(self.name, self._model, self._model_context, '12.2.1.3')
 
     def testSingleVariableReplacement(self):
+        BaseTestCase.tearDown(self)
         replacement_dict = dict()
         replacement_dict['Machine.NodeManager.ListenAddress'] = dict()
         expected = dict()
@@ -256,12 +263,23 @@ class VariableFileHelperTest(unittest.TestCase):
         expected[short_name + '.machine1.PasswordEncrypted'] = '--FIX ME--'
         expected[short_name + '.machine1.UserName'] = 'admin'
 
+        self._establish_directory(self.OUTPUT_DIR)
         self._model_context._variable_properties_file = self._variable_file
-        os.environ[CUSTOM_CONFIG_VARIABLE] = os.path.join(self._resources_dir, 'injector-config')
+
+        # Define custom configuration path for WDT, with custom injector files
+        config_dir = self._set_custom_config_dir('injector-wdt-config')
+        injector_config_file = os.path.join(self.CONFIG_RESOURCES_DIR, 'model_variable_injector.json')
+        shutil.copy(injector_config_file, config_dir)
+        keywords_file = os.path.join(self.CONFIG_RESOURCES_DIR, 'variable_keywords.json')
+        shutil.copy(keywords_file, config_dir)
+        injectors_target_dir = os.path.join(config_dir, 'injectors')
+        shutil.rmtree(injectors_target_dir)
+        injectors_dir = os.path.join(self.CONFIG_RESOURCES_DIR, 'injectors')
+        shutil.copytree(injectors_dir, injectors_target_dir)
 
         inserted, model, variable_file_name = self._helper.inject_variables_keyword_file()
 
-        os.environ[CUSTOM_CONFIG_VARIABLE] = None
+        self._clear_custom_config_dir()
 
         self.assertEqual(self._variable_file, variable_file_name)
         self.assertEqual(True, inserted)

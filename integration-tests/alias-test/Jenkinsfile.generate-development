@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage ('Environment') {
             tools {
-                maven 'maven-3.6.0'
+                maven 'maven-3.8.7'
                 jdk 'jdk8'
             }
             steps {
@@ -18,11 +18,13 @@ pipeline {
         }
         stage ('Build WDT') {
             tools {
-                maven 'maven-3.6.0'
+                maven 'maven-3.8.7'
                 jdk 'jdk8'
             }
             steps {
-                sh 'mvn clean install -DskipTests'
+                withMaven(globalMavenSettingsConfig: 'wkt-maven-settings-xml', publisherStrategy: 'EXPLICIT') {
+                    sh 'mvn -B clean install -DskipTests'
+                }
                 sh "cp ${WORKSPACE}/installer/target/weblogic-deploy.zip ${WORKSPACE}/"
                 archiveArtifacts 'weblogic-deploy.zip'
             }

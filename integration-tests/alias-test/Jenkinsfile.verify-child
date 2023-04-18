@@ -1,7 +1,7 @@
 pipeline {
     agent any
     tools {
-        maven 'maven-3.6.0'
+        maven 'maven-3.8.7'
         jdk 'jdk8'
     }
     parameters {
@@ -11,10 +11,16 @@ pipeline {
         string(name: 'wls_version', description: 'The WebLogic Server version number to use')
     }
     environment {
-        github_url = 'https://github.com/oracle/weblogic-deploy-tooling'
-        github_creds = 'ecnj_github'
+        jenkins_user = sh(returnStdout: true, script: "id -nu").trim()
+        jenkins_home_directory = sh(returnStdout: true, script: "getent passwd ${jenkins_user} | cut -d: -f6").trim()
+
+        git_url = "$ORACLE_GITLAB_URL/weblogic-deploy-tooling"
+        git_creds = 'wkt-orahub-creds'
+
         wls_version = "${params.wls_version}"
-        oci_profile = 'WDTBUILD'
+        oci_profile = 'DEFAULT'
+        oci_config_file_creds = 'wkt-oci-config-file'
+        oci_signing_key_creds = 'wkt-oci-signing-key'
     }
     stages {
         stage ('Git Checkout') {
@@ -22,7 +28,7 @@ pipeline {
                 checkout([$class: 'GitSCM', branches: [[name: "${params.parent_git_commit}"]],
                           doGenerateSubmoduleConfigurations: false,
                           extensions: [], submoduleCfg: [],
-                          userRemoteConfigs: [[credentialsId: "${github_creds}", url: "${github_url}"]]])
+                          userRemoteConfigs: [[credentialsId: "${git_creds}", url: "${git_url}"]]])
             }
         }
         stage ('Copy WDT') {
@@ -45,13 +51,20 @@ pipeline {
         }
         stage ('Run Alias Test Verify') {
             steps {
-                sh '''
-                    cd integration-tests/alias-test/verify
-                    mvn verify -DskipTests=true -Dalias-test-skipITs=false -Dskip-wdt-install=true -Dalias_test_oci_profile=${oci_profile} -Dwls_version=${wls_version}
-                '''
+                withCredentials([file(credentialsId: "${oci_config_file_creds}", variable: 'OCI_CONFIG_FILE'),
+                                 file(credentialsId: "${oci_signing_key_creds}", variable: 'OCI_SIGNING_KEY')]) {
+                    sh "mkdir -p ${jenkins_home_directory}/.oci"
+                    sh "sed -e \"__jenkins_home_directory__:${jenkins_home_directory}:g\" \"\$OCI_CONFIG_FILE\" > ${jenkins_home_directory}/.oci/config"
+                    sh "cp \"\$OCI_SIGNING_KEY\" ${jenkins_home_directory}/.oci/oci-signing-key.pem"
+                }
+                withMaven(globalMavenSettingsConfig: 'wkt-maven-settings-xml', publisherStrategy: 'EXPLICIT') {
+                    sh "pushd integration-tests/alias-test/verify && mvn -B verify -DskipTests=true -Dalias-test-skipITs=false -Dskip-wdt-install=true -Dalias_test_oci_profile=${oci_profile} -Dwls_version=${wls_version} && popd"
+                }
             }
             post {
                 always {
+                    sh "rm -f ${jenkins_home_directory}/.oci/config"
+                    sh "rm -f ${jenkins_home_directory}/.oci/oci-signing-key.pem"
                     archiveArtifacts 'integration-tests/alias-test/verify/target/reportO*.txt'
                 }
             }
