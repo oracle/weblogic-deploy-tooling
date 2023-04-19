@@ -321,15 +321,19 @@
                 "StdoutSeverity":                                [ {"version": "[12.1.2,)",           "wlst_mode": "both",     "wlst_name": "StdoutSeverity",                                "wlst_path": "WP001", "default_value": "${__NULL__:Notice}", "wlst_type": "string" } ],
                 "TriggerTruncationStackFrameDepthAfterTrigger":  [
                     {"version": "[12.2.1.3.0.221210,12.2.1.4)",     "wlst_mode": "online",     "wlst_name": "TriggerTruncationStackFrameDepthAfterTrigger",  "wlst_path": "WP001", "default_value": 5,        "wlst_type": "integer" } ,
+                    {"version": "[12.2.1.3.0.230402,12.2.1.4)",     "wlst_mode": "offline",    "wlst_name": "TriggerTruncationStackFrameDepthAfterTrigger",  "wlst_path": "WP001", "default_value": 5,        "wlst_type": "integer" } ,
                     {"version": "[12.2.1.4.0.221210,14.1.1)",       "wlst_mode": "online",     "wlst_name": "TriggerTruncationStackFrameDepthAfterTrigger",  "wlst_path": "WP001", "default_value": 5,        "wlst_type": "integer" } ,
-                    {"version": "[14.1.1.0.0.221213,14.1.2)",       "wlst_mode": "online",     "wlst_name": "TriggerTruncationStackFrameDepthAfterTrigger",  "wlst_path": "WP001", "default_value": 5,        "wlst_type": "integer" } ,
-                    {"version": "[14.1.2,)",                        "wlst_mode": "both",       "wlst_name": "TriggerTruncationStackFrameDepthAfterTrigger",  "wlst_path": "WP001", "default_value": 5,        "wlst_type": "integer" }
+                    {"version": "[12.2.1.4.0.230328,14.1.1)",       "wlst_mode": "offline",    "wlst_name": "TriggerTruncationStackFrameDepthAfterTrigger",  "wlst_path": "WP001", "default_value": 5,        "wlst_type": "integer" } ,
+                    {"version": "[14.1.1.0.0.221213,)",             "wlst_mode": "online",     "wlst_name": "TriggerTruncationStackFrameDepthAfterTrigger",  "wlst_path": "WP001", "default_value": 5,        "wlst_type": "integer" } ,
+                    {"version": "[14.1.1.0.0.230328,)",             "wlst_mode": "offline",    "wlst_name": "TriggerTruncationStackFrameDepthAfterTrigger",  "wlst_path": "WP001", "default_value": 5,        "wlst_type": "integer" }
                 ],
                 "TriggerTruncationStackFrameTriggerDepth":       [
                     {"version": "[12.2.1.3.0.221210,12.2.1.4)",     "wlst_mode": "online",     "wlst_name": "TriggerTruncationStackFrameTriggerDepth",       "wlst_path": "WP001", "default_value": 500,      "wlst_type": "integer" } ,
+                    {"version": "[12.2.1.3.0.230402,12.2.1.4)",     "wlst_mode": "offline",    "wlst_name": "TriggerTruncationStackFrameTriggerDepth",       "wlst_path": "WP001", "default_value": 500,      "wlst_type": "integer" } ,
                     {"version": "[12.2.1.4.0.221210,14.1.1)",       "wlst_mode": "online",     "wlst_name": "TriggerTruncationStackFrameTriggerDepth",       "wlst_path": "WP001", "default_value": 500,      "wlst_type": "integer" } ,
-                    {"version": "[14.1.1.0.0.221213,14.1.2)",       "wlst_mode": "online",     "wlst_name": "TriggerTruncationStackFrameTriggerDepth",       "wlst_path": "WP001", "default_value": 500,      "wlst_type": "integer" } ,
-                    {"version": "[14.1.2,)",                        "wlst_mode": "both",       "wlst_name": "TriggerTruncationStackFrameTriggerDepth",       "wlst_path": "WP001", "default_value": 500,      "wlst_type": "integer" }
+                    {"version": "[12.2.1.4.0.230328,14.1.1)",       "wlst_mode": "offline",    "wlst_name": "TriggerTruncationStackFrameTriggerDepth",       "wlst_path": "WP001", "default_value": 500,      "wlst_type": "integer" } ,
+                    {"version": "[14.1.1.0.0.221213,)",             "wlst_mode": "online",     "wlst_name": "TriggerTruncationStackFrameTriggerDepth",       "wlst_path": "WP001", "default_value": 500,      "wlst_type": "integer" } ,
+                    {"version": "[14.1.1.0.0.230328,)",             "wlst_mode": "offline",    "wlst_name": "TriggerTruncationStackFrameTriggerDepth",       "wlst_path": "WP001", "default_value": 500,      "wlst_type": "integer" }
                 ]
             },
             "wlst_attributes_path": "WP001",
@@ -1113,6 +1117,7 @@
                 "ServiceProviderEnabled":                                [ {"version": "[12.2.1,)",    "wlst_mode": "both", "wlst_name": "ServiceProviderEnabled",                              "wlst_path": "WP001", "default_value": "false",             "wlst_type": "boolean"         } ],
                 "ServiceProviderPostBindingEnabled":                     [ {"version": "[12.2.1,)",    "wlst_mode": "both", "wlst_name": "ServiceProviderP${ost:OST}BindingEnabled",            "wlst_path": "WP001", "default_value": "true",              "wlst_type": "boolean"         } ],
                 "ServiceProviderPreferredBinding":                       [ {"version": "[12.2.1,)",    "wlst_mode": "both", "wlst_name": "ServiceProviderPreferredBinding",                     "wlst_path": "WP001", "default_value": "${__NULL__:None}",  "wlst_type": "string"          } ],
+                "ServiceProviderSingleLogoutEnabled":                    [ {"version": "[14.1.2,)",    "wlst_mode": "both", "wlst_name": "ServiceProviderSingleLogoutEnabled",                  "wlst_path": "WP001", "default_value": "true",              "wlst_type": "boolean"         } ],
                 "SignAuthnRequests":                                     [ {"version": "[12.2.1,)",    "wlst_mode": "both", "wlst_name": "SignAuthnRequests",                                   "wlst_path": "WP001", "default_value": "false",             "wlst_type": "boolean"         } ],
                 "SsoSigningKeyAlias":                                    [ {"version": "[12.2.1,)",    "wlst_mode": "both", "wlst_name": "S${so:SO}SigningKeyAlias",                            "wlst_path": "WP001", "default_value": null,                "wlst_type": "string"          } ],
                 "SsoSigningKeyPassPhraseEncrypted":                      [
@@ -1330,13 +1335,19 @@
                 "MaxRequestParamterCount":             [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "MaxRequestParamterCount",             "wlst_path": "WP001", "default_value": 10000,    "wlst_type": "integer",         "get_method": "GET" } ],
                 "MaxSingleHeaderSize":                 [
                     {"version": "[12.2.1.3.0.221210,12.2.1.4)",   "wlst_mode": "online",  "wlst_name": "MaxSingleHeaderSize",                 "wlst_path": "WP001", "default_value": -1,       "wlst_type": "integer"          } ,
+                    {"version": "[12.2.1.3.0.230402,12.2.1.4)",   "wlst_mode": "offline", "wlst_name": "MaxSingleHeaderSize",                 "wlst_path": "WP001", "default_value": -1,       "wlst_type": "integer"          } ,
                     {"version": "[12.2.1.4.0.221210,14.1.1)",     "wlst_mode": "online",  "wlst_name": "MaxSingleHeaderSize",                 "wlst_path": "WP001", "default_value": -1,       "wlst_type": "integer"          } ,
-                    {"version": "[14.1.1.0.0.221213,)",           "wlst_mode": "online",  "wlst_name": "MaxSingleHeaderSize",                 "wlst_path": "WP001", "default_value": -1,       "wlst_type": "integer"          }
+                    {"version": "[12.2.1.4.0.230328,14.1.1)",     "wlst_mode": "offline", "wlst_name": "MaxSingleHeaderSize",                 "wlst_path": "WP001", "default_value": -1,       "wlst_type": "integer"          } ,
+                    {"version": "[14.1.1.0.0.221213,)",           "wlst_mode": "online",  "wlst_name": "MaxSingleHeaderSize",                 "wlst_path": "WP001", "default_value": -1,       "wlst_type": "integer"          },
+                    {"version": "[14.1.1.0.0.230328,)",           "wlst_mode": "offline", "wlst_name": "MaxSingleHeaderSize",                 "wlst_path": "WP001", "default_value": -1,       "wlst_type": "integer"          }
                 ],
                 "MaxTotalHeadersSize":                 [
                     {"version": "[12.2.1.3.0.221210,12.2.1.4)",   "wlst_mode": "online",  "wlst_name": "MaxTotalHeadersSize",                 "wlst_path": "WP001", "default_value": 131072,   "wlst_type": "integer"          } ,
+                    {"version": "[12.2.1.3.0.230402,12.2.1.4)",   "wlst_mode": "offline", "wlst_name": "MaxTotalHeadersSize",                 "wlst_path": "WP001", "default_value": 131072,   "wlst_type": "integer"          } ,
                     {"version": "[12.2.1.4.0.221210,14.1.1)",     "wlst_mode": "online",  "wlst_name": "MaxTotalHeadersSize",                 "wlst_path": "WP001", "default_value": 131072,   "wlst_type": "integer"          } ,
-                    {"version": "[14.1.1.0.0.221213,)",           "wlst_mode": "online",  "wlst_name": "MaxTotalHeadersSize",                 "wlst_path": "WP001", "default_value": 131072,   "wlst_type": "integer"          }
+                    {"version": "[12.2.1.4.0.230328,14.1.1)",     "wlst_mode": "offline", "wlst_name": "MaxTotalHeadersSize",                 "wlst_path": "WP001", "default_value": 131072,   "wlst_type": "integer"          } ,
+                    {"version": "[14.1.1.0.0.221213,)",           "wlst_mode": "online",  "wlst_name": "MaxTotalHeadersSize",                 "wlst_path": "WP001", "default_value": 131072,   "wlst_type": "integer"          },
+                    {"version": "[14.1.1.0.0.230328,)",           "wlst_mode": "offline", "wlst_name": "MaxTotalHeadersSize",                 "wlst_path": "WP001", "default_value": 131072,   "wlst_type": "integer"          }
                 ],
                 "Notes":                               [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "Notes",                               "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"           } ],
                 "OverloadResponseCode":                [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "OverloadResponseCode",                "wlst_path": "WP001", "default_value": 503,      "wlst_type": "integer"          } ],

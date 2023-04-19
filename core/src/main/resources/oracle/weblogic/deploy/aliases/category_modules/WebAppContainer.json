@@ -62,13 +62,19 @@
         "MaxRequestParameterCount":            [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "MaxRequestParameterCount",           "wlst_path": "WP001", "default_value": 10000,                               "wlst_type": "integer",          "get_method": "GET" } ],
         "MaxSingleHeaderSize":  [
             {"version": "[12.2.1.3.0.221210,12.2.1.4)",   "wlst_mode": "online",    "wlst_name": "MaxSingleHeaderSize",       "wlst_path": "WP001", "default_value": "-1",                                 "wlst_type": "integer"  } ,
+            {"version": "[12.2.1.3.0.230402,12.2.1.4)",   "wlst_mode": "offline",   "wlst_name": "MaxSingleHeaderSize",       "wlst_path": "WP001", "default_value": "-1",                                 "wlst_type": "integer"  } ,
             {"version": "[12.2.1.4.0.221210,14.1.1)",     "wlst_mode": "online",    "wlst_name": "MaxSingleHeaderSize",       "wlst_path": "WP001", "default_value": "-1",                                 "wlst_type": "integer"  } ,
-            {"version": "[14.1.1.0.0.221213,)",           "wlst_mode": "online",    "wlst_name": "MaxSingleHeaderSize",       "wlst_path": "WP001", "default_value": "-1",                                 "wlst_type": "integer"  }
+            {"version": "[12.2.1.4.0.230328,14.1.1)",     "wlst_mode": "offline",   "wlst_name": "MaxSingleHeaderSize",       "wlst_path": "WP001", "default_value": "-1",                                 "wlst_type": "integer"  } ,
+            {"version": "[14.1.1.0.0.221213,)",           "wlst_mode": "online",    "wlst_name": "MaxSingleHeaderSize",       "wlst_path": "WP001", "default_value": "-1",                                 "wlst_type": "integer"  },
+            {"version": "[14.1.1.0.0.230328,)",           "wlst_mode": "offline",   "wlst_name": "MaxSingleHeaderSize",       "wlst_path": "WP001", "default_value": "-1",                                 "wlst_type": "integer"  }
         ],
         "MaxTotalHeadersSize":  [
             {"version": "[12.2.1.3.0.221210,12.2.1.4)",   "wlst_mode": "online",    "wlst_name": "MaxTotalHeadersSize",       "wlst_path": "WP001", "default_value": "131072",                                 "wlst_type": "integer"  } ,
+            {"version": "[12.2.1.3.0.230402,12.2.1.4)",   "wlst_mode": "offline",   "wlst_name": "MaxTotalHeadersSize",       "wlst_path": "WP001", "default_value": "131072",                                 "wlst_type": "integer"  } ,
             {"version": "[12.2.1.4.0.221210,14.1.1)",     "wlst_mode": "online",    "wlst_name": "MaxTotalHeadersSize",       "wlst_path": "WP001", "default_value": "131072",                                 "wlst_type": "integer"  } ,
-            {"version": "[14.1.1.0.0.221213,)",           "wlst_mode": "online",    "wlst_name": "MaxTotalHeadersSize",       "wlst_path": "WP001", "default_value": "131072",                                 "wlst_type": "integer"  }
+            {"version": "[12.2.1.4.0.230328,14.1.1)",     "wlst_mode": "offline",   "wlst_name": "MaxTotalHeadersSize",       "wlst_path": "WP001", "default_value": "131072",                                 "wlst_type": "integer"  } ,
+            {"version": "[14.1.1.0.0.221213,)",           "wlst_mode": "online",    "wlst_name": "MaxTotalHeadersSize",       "wlst_path": "WP001", "default_value": "131072",                                 "wlst_type": "integer"  },
+            {"version": "[14.1.1.0.0.230328,)",           "wlst_mode": "offline",   "wlst_name": "MaxTotalHeadersSize",       "wlst_path": "WP001", "default_value": "131072",                                 "wlst_type": "integer"  }
         ],
         "MimeMappingFile":                     [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "MimeMappingFile",                    "wlst_path": "WP001", "default_value": "./config/mimemappings.properties",  "wlst_type": "string",           "uses_path_tokens": "true" } ],
         "Notes":                               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "default_value": null,                                "wlst_type": "string"            } ],
@@ -76,6 +82,11 @@
         "OverloadProtectionEnabled":           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "OverloadProtectionEnabled",          "wlst_path": "WP001", "default_value": false,                               "wlst_type": "boolean"           } ],
         "P3PHeaderValue":                      [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "P3PHeaderValue",                     "wlst_path": "WP001", "default_value": null,                                "wlst_type": "string"            } ],
         "PostTimeoutSecs":                     [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "PostTimeoutSecs",                    "wlst_path": "WP001", "default_value": 30,                                  "wlst_type": "integer"           } ],
+        "RejectMaliciousPathParameters":       [
+            {"version": "[12.2.1.4.0.230328,14.1.1)", "wlst_mode": "online",  "wlst_name": "RejectMaliciousPathParameters", "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean" },
+            {"version": "[14.1.1.0.0.230328,14.1.2)", "wlst_mode": "online",  "wlst_name": "RejectMaliciousPathParameters", "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean" },
+            {"version": "[14.1.2,)",                  "wlst_mode": "both",    "wlst_name": "RejectMaliciousPathParameters", "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean" }
+        ],
         "ReloginEnabled":                      [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ReloginEnabled",                     "wlst_path": "WP001", "default_value": false,                               "wlst_type": "boolean"           } ],
         "RetainOriginalURL":                   [ {"version": "[10,12.1.3)", "wlst_mode": "both",    "wlst_name": "RetainOriginalU${rl:RL}",            "wlst_path": "WP001", "default_value": false,                               "wlst_type": "boolean"           } ,
                                                  {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "RetainOriginalURL",                  "wlst_path": "WP001", "default_value": false,                               "wlst_type": "boolean"           } ],
