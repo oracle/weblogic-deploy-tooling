@@ -78,6 +78,18 @@ pipeline {
                 sh 'mvn -B -DskipITs=false -Dmw_home=${ORACLE_HOME} -Ddb.use.container.network=true install'
             }
         }
+        stage ('Sync') {
+            when {
+                branch 'main'
+                anyOf {
+                    triggeredBy 'SCMTrigger'
+                    tag 'release-*'
+                }
+            }
+            steps {
+                build job: "wkt-sync", parameters: [ choice(name: 'REPOSITORY', value: 'weblogic-deploy-tooling') ]
+            }
+        }
         stage ('Alias Test') {
             // only run this stage when triggered by a cron timer and the commit does not have []skip-ci in the message
             // for example, only run integration tests during the timer triggered nightly build
