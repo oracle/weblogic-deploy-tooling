@@ -2,7 +2,7 @@
 # Copyright (c) 2021, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
-# This script uses Hugo to generate the site for the project documentation and for archived versions.
+# This script uses Hugo to generate the site for the project documentation for archived versions.
 set -o errexit
 set -o pipefail
 

@@ -82,7 +82,7 @@ pipeline {
             when {
                 branch 'main'
                 anyOf {
-                    triggeredBy 'SCMTrigger'
+                    not { triggeredBy 'TimerTrigger' }
                     tag 'release-*'
                 }
             }
