@@ -87,7 +87,7 @@ pipeline {
                 }
             }
             steps {
-                build job: "wkt-sync", parameters: [ choice(name: 'REPOSITORY', value: 'weblogic-deploy-tooling') ]
+                build job: "wkt-sync", parameters: [ string(name: 'REPOSITORY', value: 'weblogic-deploy-tooling') ]
             }
         }
         stage ('Alias Test') {
