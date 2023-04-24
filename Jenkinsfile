@@ -112,9 +112,9 @@ pipeline {
             }
             steps {
                 sh '''
-                    oci os object put --namespace=${wdt_tenancy} --bucket-name=wko-system-test-files \
-                        --config-file=/dev/null --auth=instance_principal --force \
-                        --file=installer/target/weblogic-deploy.zip --name=weblogic-deploy-main.zip
+                    oci os object put --namespace=${wdt_tenancy} --bucket-name=wko-system-test-files --force \
+                        --auth=instance_principal --file=installer/target/weblogic-deploy.zip \
+                        --name=weblogic-deploy-main.zip
                 '''
             }
         }
