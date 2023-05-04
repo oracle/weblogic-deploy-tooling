@@ -9,6 +9,7 @@ import sys
 
 from oracle.weblogic.deploy.deploy import DeployException
 from oracle.weblogic.deploy.exception import BundleAwareException
+from oracle.weblogic.deploy.validate import ValidateException
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(sys.argv[0])))
 
@@ -17,7 +18,6 @@ from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.create.domain_typedef import UPDATE_DOMAIN
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.deploy.topology_updater import TopologyUpdater
@@ -33,12 +33,11 @@ from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.tool.validate.validator import Validator
-from oracle.weblogic.deploy.validate import ValidateException
 
 
 wlst_helper.wlst_functions = globals()
 
-_program_name = UPDATE_DOMAIN
+_program_name = 'updateDomain'
 _class_name = 'update'
 __logger = PlatformLogger('wlsdeploy.update')
 __wls_helper = WebLogicHelper(__logger)

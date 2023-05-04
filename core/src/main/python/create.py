@@ -35,7 +35,6 @@ from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
 from wlsdeploy.tool.create.domain_creator import DomainCreator
-from wlsdeploy.tool.create.domain_typedef import CREATE_DOMAIN
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
@@ -54,7 +53,7 @@ import wlsdeploy.tool.create.rcudbinfo_helper as rcudbinfo_helper
 
 wlst_helper.wlst_functions = globals()
 
-_program_name = CREATE_DOMAIN
+_program_name = 'createDomain'
 
 _class_name = 'create'
 __logger = PlatformLogger('wlsdeploy.create')

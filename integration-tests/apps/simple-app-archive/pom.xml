@@ -17,6 +17,7 @@
     </parent>
 
     <build>
+        <finalName>archive</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -55,7 +56,6 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <finalName>archive</finalName>
                             <descriptors>
                                 <descriptor>src/assembly/zip.xml</descriptor>
                             </descriptors>

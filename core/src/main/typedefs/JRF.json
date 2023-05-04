@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "name": "JRF",
     "description": "JRF type domain definitions",
@@ -90,8 +90,8 @@
             "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "WLS" ]
         }
     },
-    "system-elements": {
-        "apps": [
+    "discover-filters": {
+        "/Application": [
             "^coherence-transaction-rar$",
             "^DMS Application.*",
             "^em$",
@@ -101,10 +101,10 @@
             "^wsil-wls.*",
             "^wsm-pm$"
         ],
-        "coherence-clusters": [
+        "/CoherenceClusterSystemResource": [
             "^defaultCoherenceCluster$"
         ],
-        "datasources": [
+        "/JDBCSystemResource": [
             ".*LocalSvcTblDataSource$",
             ".*mds-owsm$",
             ".*opss-audit-DBDS$",
@@ -113,17 +113,17 @@
             ".*opss-ds$",
             ".*WLSSchemaDataSource$"
         ],
-        "file-stores": [
+        "/FileStore": [
             "^JRFWSAsyncFileStore$",
             "^mds-owsm$"
         ],
-        "jms": [
+        "/JMSSystemResource": [
             "^JRFWSAsyncJmsModule$"
         ],
-        "jms-servers": [
+        "/JMSServer": [
             "^JRFWSAsyncJmsServer$"
         ],
-        "shared-libraries": [
+        "/Library": [
             "^adf\\.oracle\\.businesseditor.*",
             "^adf\\.oracle\\.domain.*",
             "^adf\\.oracle\\.domain\\.webapp.*",
@@ -175,11 +175,11 @@
             "^owasp\\.esapi.*",
             "^UIX.*"
         ],
-        "shutdown-classes": [
+        "/ShutdownClass": [
             "^DMSShutdown$",
             "^JOC-Shutdown$"
         ],
-        "startup-classes": [
+        "/StartupClass": [
             "^JMX Framework Startup Class$",
             "^JOC-Startup$",
             "^JPS Startup Class$",
@@ -191,7 +191,7 @@
             "^DMS-Startup$",
             "^AWT Application Context Startup Class$"
         ],
-        "wldf": [
+        "/WLDFSystemResource": [
             "^Module-FMWDFW$"
         ]
     }

@@ -149,14 +149,19 @@ class TopologyDiscoverer(Discoverer):
         clusters = self._find_names_in_folder(location)
         if clusters is not None:
             _logger.info('WLSDPLY-06601', len(clusters), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for cluster in clusters:
-                _logger.info('WLSDPLY-06602', cluster, class_name=_class_name, method_name=_method_name)
-                location.add_name_token(name_token, cluster)
-                result[cluster] = OrderedDict()
-                self._populate_model_parameters(result[cluster], location)
-                self._discover_subfolders(result[cluster], location)
-                location.remove_name_token(name_token)
+                if typedef.is_filtered(location, cluster):
+                    _logger.info('WLSDPLY-06657', typedef.get_domain_type(), cluster, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06602', cluster, class_name=_class_name, method_name=_method_name)
+                    location.add_name_token(name_token, cluster)
+                    result[cluster] = OrderedDict()
+                    self._populate_model_parameters(result[cluster], location)
+                    self._discover_subfolders(result[cluster], location)
+                    location.remove_name_token(name_token)
             location.pop_location()
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
@@ -176,15 +181,20 @@ class TopologyDiscoverer(Discoverer):
         servers = self._find_names_in_folder(location)
         if servers is not None:
             _logger.info('WLSDPLY-06603', len(servers), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for server in servers:
-                location.add_name_token(name_token, server)
-                if not self._dynamic_server(server, location):
-                    _logger.info('WLSDPLY-06604', server, class_name=_class_name, method_name=_method_name)
-                    result[server] = OrderedDict()
-                    self._populate_model_parameters(result[server], location)
-                    self._discover_subfolders(result[server], location)
-                location.remove_name_token(name_token)
+                if typedef.is_filtered(location, server):
+                    _logger.info('WLSDPLY-06658', typedef.get_domain_type(), server, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    location.add_name_token(name_token, server)
+                    if not self._dynamic_server(server, location):
+                        _logger.info('WLSDPLY-06604', server, class_name=_class_name, method_name=_method_name)
+                        result[server] = OrderedDict()
+                        self._populate_model_parameters(result[server], location)
+                        self._discover_subfolders(result[server], location)
+                    location.remove_name_token(name_token)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result
 
@@ -202,14 +212,19 @@ class TopologyDiscoverer(Discoverer):
         templates = self._find_names_in_folder(location)
         if templates is not None:
             _logger.info('WLSDPLY-06605', len(templates), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for template in templates:
-                _logger.info('WLSDPLY-06606', template, class_name=_class_name, method_name=_method_name)
-                location.add_name_token(name_token, template)
-                result[template] = OrderedDict()
-                self._populate_model_parameters(result[template], location)
-                self._discover_subfolders(result[template], location)
-                location.remove_name_token(name_token)
+                if typedef.is_filtered(location, template):
+                    _logger.info('WLSDPLY-06659', typedef.get_domain_type(), template, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06606', template, class_name=_class_name, method_name=_method_name)
+                    location.add_name_token(name_token, template)
+                    result[template] = OrderedDict()
+                    self._populate_model_parameters(result[template], location)
+                    self._discover_subfolders(result[template], location)
+                    location.remove_name_token(name_token)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result
 
@@ -227,15 +242,20 @@ class TopologyDiscoverer(Discoverer):
         targets = self._find_names_in_folder(location)
         if targets is not None:
             _logger.info('WLSDPLY-06607', len(targets), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for target in targets:
-                if not self._dynamic_target(target, location):
-                    _logger.info('WLSDPLY-06608', target, class_name=_class_name, method_name=_method_name)
-                    location.add_name_token(name_token, target)
-                    result[target] = OrderedDict()
-                    self._populate_model_parameters(result[target], location)
-                    self._discover_subfolders(result[target], location)
-                    location.remove_name_token(name_token)
+                if typedef.is_filtered(location, target):
+                    _logger.info('WLSDPLY-06659', typedef.get_domain_type(), target, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    if not self._dynamic_target(target, location):
+                        _logger.info('WLSDPLY-06608', target, class_name=_class_name, method_name=_method_name)
+                        location.add_name_token(name_token, target)
+                        result[target] = OrderedDict()
+                        self._populate_model_parameters(result[target], location)
+                        self._discover_subfolders(result[target], location)
+                        location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return model_top_folder_name, result
@@ -254,20 +274,25 @@ class TopologyDiscoverer(Discoverer):
         machines = self._find_names_in_folder(location)
         if machines is not None:
             _logger.info('WLSDPLY-06609', len(machines), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for machine in machines:
-                location.add_name_token(name_token, machine)
-                wlst_path = self._aliases.get_wlst_attributes_path(location)
-                self.wlst_cd(wlst_path, location)
-                wlst_lsa_params = self._get_attributes_for_current_location(location)
-                if not UNIX_MACHINE_ATTRIBUTE in wlst_lsa_params:
+                if typedef.is_filtered(location, machine):
+                    _logger.info('WLSDPLY-06660', typedef.get_domain_type(), machine, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    location.add_name_token(name_token, machine)
+                    wlst_path = self._aliases.get_wlst_attributes_path(location)
+                    self.wlst_cd(wlst_path, location)
+                    wlst_lsa_params = self._get_attributes_for_current_location(location)
+                    if UNIX_MACHINE_ATTRIBUTE not in wlst_lsa_params:
+                        location.remove_name_token(name_token)
+                        continue
+                    _logger.info('WLSDPLY-06610', machine, class_name=_class_name, method_name=_method_name)
+                    result[machine] = OrderedDict()
+                    self._populate_model_parameters(result[machine], location)
+                    self._discover_subfolders(result[machine], location)
                     location.remove_name_token(name_token)
-                    continue
-                _logger.info('WLSDPLY-06610', machine, class_name=_class_name, method_name=_method_name)
-                result[machine] = OrderedDict()
-                self._populate_model_parameters(result[machine], location)
-                self._discover_subfolders(result[machine], location)
-                location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result
@@ -294,14 +319,19 @@ class TopologyDiscoverer(Discoverer):
             for unix_machine in unix_machines:
                 if unix_machine in machines:
                     machines.remove(unix_machine)
+            typedef = self._model_context.get_domain_typedef()
             _logger.info('WLSDPLY-06611', len(machines), class_name=_class_name, method_name=_method_name)
             for machine in machines:
-                _logger.info('WLSDPLY-06612', machine, class_name=_class_name, method_name=_method_name)
-                location.add_name_token(name_token, machine)
-                result[machine] = OrderedDict()
-                self._populate_model_parameters(result[machine], location)
-                self._discover_subfolders(result[machine], location)
-                location.remove_name_token(name_token)
+                if typedef.is_filtered(location, machine):
+                    _logger.info('WLSDPLY-06661', typedef.get_domain_type(), machine, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06612', machine, class_name=_class_name, method_name=_method_name)
+                    location.add_name_token(name_token, machine)
+                    result[machine] = OrderedDict()
+                    self._populate_model_parameters(result[machine], location)
+                    self._discover_subfolders(result[machine], location)
+                    location.remove_name_token(name_token)
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return model_top_folder_name, result
 
@@ -472,13 +502,18 @@ class TopologyDiscoverer(Discoverer):
         filters = self._find_names_in_folder(location)
         if filters is not None:
             _logger.info('WLSDPLY-06628', len(filters), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for logfilter in filters:
-                _logger.info('WLSDPLY-06629', logfilter, class_name=_class_name, method_name=_method_name)
-                location.add_name_token(name_token, logfilter)
-                result[logfilter] = OrderedDict()
-                self._populate_model_parameters(result[logfilter], location)
-                location.remove_name_token(name_token)
+                if typedef.is_filtered(location, logfilter):
+                    _logger.info('WLSDPLY-06662', typedef.get_domain_type(), logfilter, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06629', logfilter, class_name=_class_name, method_name=_method_name)
+                    location.add_name_token(name_token, logfilter)
+                    result[logfilter] = OrderedDict()
+                    self._populate_model_parameters(result[logfilter], location)
+                    location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
@@ -497,13 +532,18 @@ class TopologyDiscoverer(Discoverer):
         policies = self._find_names_in_folder(location)
         if policies is not None:
             _logger.info('WLSDPLY-06630', len(policies), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for policy in policies:
-                _logger.info('WLSDPLY-06631', policy, class_name=_class_name, method_name=_method_name)
-                location.add_name_token(name_token, policy)
-                result[policy] = OrderedDict()
-                self._populate_model_parameters(result[policy], location)
-                location.remove_name_token(name_token)
+                if typedef.is_filtered(location, policy):
+                    _logger.info('WLSDPLY-06663', typedef.get_domain_type(), policy, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06631', policy, class_name=_class_name, method_name=_method_name)
+                    location.add_name_token(name_token, policy)
+                    result[policy] = OrderedDict()
+                    self._populate_model_parameters(result[policy], location)
+                    location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
@@ -522,14 +562,19 @@ class TopologyDiscoverer(Discoverer):
         vhosts = self._find_names_in_folder(location)
         if vhosts is not None:
             _logger.info('WLSDPLY-06647', len(vhosts), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for vhost in vhosts:
-                _logger.info('WLSDPLY-06648', vhost, class_name=_class_name, method_name=_method_name)
-                location.add_name_token(name_token, vhost)
-                result[vhost] = OrderedDict()
-                self._populate_model_parameters(result[vhost], location)
-                self._discover_subfolders(result[vhost], location)
-                location.remove_name_token(name_token)
+                if typedef.is_filtered(location, vhost):
+                    _logger.info('WLSDPLY-06664', typedef.get_domain_type(), vhost, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06648', vhost, class_name=_class_name, method_name=_method_name)
+                    location.add_name_token(name_token, vhost)
+                    result[vhost] = OrderedDict()
+                    self._populate_model_parameters(result[vhost], location)
+                    self._discover_subfolders(result[vhost], location)
+                    location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
@@ -548,13 +593,18 @@ class TopologyDiscoverer(Discoverer):
         caches = self._find_names_in_folder(location)
         if caches is not None:
             _logger.info('WLSDPLY-06632', len(caches), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for cache in caches:
-                _logger.info('WLSDPLY-06633', cache, class_name=_class_name, method_name=_method_name)
-                location.add_name_token(name_token, cache)
-                result[cache] = OrderedDict()
-                self._populate_model_parameters(result[cache], location)
-                location.remove_name_token(name_token)
+                if typedef.is_filtered(location, cache):
+                    _logger.info('WLSDPLY-06665', typedef.get_domain_type(), cache, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06633', cache, class_name=_class_name, method_name=_method_name)
+                    location.add_name_token(name_token, cache)
+                    result[cache] = OrderedDict()
+                    self._populate_model_parameters(result[cache], location)
+                    location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
@@ -573,13 +623,18 @@ class TopologyDiscoverer(Discoverer):
         registries = self._find_names_in_folder(location)
         if registries is not None:
             _logger.info('WLSDPLY-06634', len(registries), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for registry in registries:
-                _logger.info('WLSDPLY-06635', registry, class_name=_class_name, method_name=_method_name)
-                location.add_name_token(name_token, registry)
-                result[registry] = OrderedDict()
-                self._populate_model_parameters(result[registry], location)
-                location.remove_name_token(name_token)
+                if typedef.is_filtered(location, registry):
+                    _logger.info('WLSDPLY-06666', typedef.get_domain_type(), registry, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06635', registry, class_name=_class_name, method_name=_method_name)
+                    location.add_name_token(name_token, registry)
+                    result[registry] = OrderedDict()
+                    self._populate_model_parameters(result[registry], location)
+                    location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
@@ -598,13 +653,18 @@ class TopologyDiscoverer(Discoverer):
         templates = self._find_names_in_folder(location)
         if templates is not None:
             _logger.info('WLSDPLY-06651', len(templates), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for template in templates:
-                _logger.info('WLSDPLY-06652', template, class_name=_class_name, method_name=_method_name)
-                location.add_name_token(name_token, template)
-                result[template] = OrderedDict()
-                self._populate_model_parameters(result[template], location)
-                location.remove_name_token(name_token)
+                if typedef.is_filtered(location, template):
+                    _logger.info('WLSDPLY-06667', typedef.get_domain_type(), template, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06652', template, class_name=_class_name, method_name=_method_name)
+                    location.add_name_token(name_token, template)
+                    result[template] = OrderedDict()
+                    self._populate_model_parameters(result[template], location)
+                    location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
@@ -624,13 +684,18 @@ class TopologyDiscoverer(Discoverer):
         services = self._find_names_in_folder(location)
         if services is not None:
             _logger.info('WLSDPLY-06653', len(services), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for service in services:
-                _logger.info('WLSDPLY-06654', service, class_name=_class_name, method_name=_method_name)
-                location.add_name_token(name_token, service)
-                result[service] = OrderedDict()
-                self._populate_model_parameters(result[service], location)
-                location.remove_name_token(name_token)
+                if typedef.is_filtered(location, service):
+                    _logger.info('WLSDPLY-06668', typedef.get_domain_type(), service, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06654', service, class_name=_class_name, method_name=_method_name)
+                    location.add_name_token(name_token, service)
+                    result[service] = OrderedDict()
+                    self._populate_model_parameters(result[service], location)
+                    location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
@@ -648,13 +713,18 @@ class TopologyDiscoverer(Discoverer):
         factories = self._find_names_in_folder(location)
         if factories is not None:
             _logger.info('WLSDPLY-06655', len(factories), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for factory in factories:
-                _logger.info('WLSDPLY-06656', factory, class_name=_class_name, method_name=_method_name)
-                location.add_name_token(name_token, factory)
-                result[factory] = OrderedDict()
-                self._populate_model_parameters(result[factory], location)
-                location.remove_name_token(name_token)
+                if typedef.is_filtered(location, factory):
+                    _logger.info('WLSDPLY-06669', typedef.get_domain_type(), factory, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06656', factory, class_name=_class_name, method_name=_method_name)
+                    location.add_name_token(name_token, factory)
+                    result[factory] = OrderedDict()
+                    self._populate_model_parameters(result[factory], location)
+                    location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
@@ -673,14 +743,19 @@ class TopologyDiscoverer(Discoverer):
         wssecurities = self._find_names_in_folder(location)
         if wssecurities is not None:
             _logger.info('WLSDPLY-06649', len(wssecurities), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for wssecurity in wssecurities:
-                _logger.info('WLSDPLY-06650', wssecurity, class_name=_class_name, method_name=_method_name)
-                location.add_name_token(name_token, wssecurity)
-                result[wssecurity] = OrderedDict()
-                self._populate_model_parameters(result[wssecurity], location)
-                self._discover_subfolders(result[wssecurity], location)
-                location.remove_name_token(name_token)
+                if typedef.is_filtered(location, wssecurity):
+                    _logger.info('WLSDPLY-06670', typedef.get_domain_type(), wssecurity, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06650', wssecurity, class_name=_class_name, method_name=_method_name)
+                    location.add_name_token(name_token, wssecurity)
+                    result[wssecurity] = OrderedDict()
+                    self._populate_model_parameters(result[wssecurity], location)
+                    self._discover_subfolders(result[wssecurity], location)
+                    location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result

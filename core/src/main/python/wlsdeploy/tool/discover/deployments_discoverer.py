@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -81,7 +81,7 @@ class DeploymentsDiscoverer(Discoverer):
             typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for library in libraries:
-                if typedef.is_system_shared_library(library):
+                if typedef.is_filtered(location, library):
                     _logger.info('WLSDPLY-06401', typedef.get_domain_type(), library, class_name=_class_name,
                                  method_name=_method_name)
                 else:
@@ -226,7 +226,7 @@ class DeploymentsDiscoverer(Discoverer):
             typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for application in applications:
-                if typedef.is_system_app(application):
+                if typedef.is_filtered(location, application):
                     _logger.info('WLSDPLY-06400', typedef.get_domain_type(), application, class_name=_class_name,
                                  method_name=_method_name)
                 else:

@@ -75,7 +75,7 @@ class CoherenceResourcesDiscoverer(Discoverer):
             typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for coherence_cluster in coherence_clusters:
-                if typedef.is_system_coherence_cluster(coherence_cluster):
+                if typedef.is_filtered(location, coherence_cluster):
                     _logger.info('WLSDPLY-06322', typedef.get_domain_type(), coherence_cluster, class_name=_class_name,
                                  method_name=_method_name)
                 else:
