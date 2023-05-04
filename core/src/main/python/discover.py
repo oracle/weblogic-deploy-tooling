@@ -500,9 +500,6 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
 
     filter_helper.apply_final_filters(model.get_model(), model.get_model(), model_context)
 
-    # target config always present in model context, default config if not declared
-    target_configuration = model_context.get_target_configuration()
-
     credential_cache = None
     if credential_injector is not None:
         # filter variables or secrets that are no longer in the model

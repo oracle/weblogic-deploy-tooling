@@ -72,7 +72,7 @@ class JmsResourcesDiscoverer(Discoverer):
             typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for jms_server in jms_servers:
-                if typedef.is_system_jms_server(jms_server):
+                if typedef.is_filtered(location, jms_server):
                     _logger.info('WLSDPLY-06490', typedef.get_domain_type(), jms_server, class_name=_class_name,
                                  method_name=_method_name)
                 else:
@@ -177,7 +177,7 @@ class JmsResourcesDiscoverer(Discoverer):
             typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for jms_resource in jms_resources:
-                if typedef.is_system_jms(jms_resource):
+                if typedef.is_filtered(location, jms_resource):
                     _logger.info('WLSDPLY-06491', typedef.get_domain_type(), jms_resource, class_name=_class_name,
                                  method_name=_method_name)
                 else:

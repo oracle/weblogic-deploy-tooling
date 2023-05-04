@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "name": "RestrictedJRF",
     "description": "Restricted JRF type domain definitions",
@@ -29,8 +29,8 @@
             "rcuSchemas": [ ]
         }
     },
-    "system-elements": {
-        "apps": [
+    "discover-filters": {
+        "/Application": [
             "^coherence-transaction-rar$",
             "^DMS Application.*",
             "^em$",
@@ -39,10 +39,10 @@
             "^wsil-wls$",
             "^wsm-pm$"
         ],
-        "coherence-clusters": [
+        "/CoherenceClusterSystemResource": [
             "^defaultCoherenceCluster$"
         ],
-        "shared-libraries": [
+        "/Library": [
             "^adf\\.oracle\\.businesseditor.*",
             "^adf\\.oracle\\.domain.*",
             "^adf\\.oracle\\.domain\\.webapp.*",
@@ -94,10 +94,10 @@
             "^owasp\\.esapi.*",
             "^UIX.*"
         ],
-        "shutdown-classes": [
+        "/ShutdownClass": [
             "^DMSShutdown$"
         ],
-        "startup-classes": [
+        "/StartupClass": [
             "^WSM Startup Class$",
             "^Web Services Startup Class$",
             "^JRF Startup Class$",
@@ -105,7 +105,7 @@
             "^DMS-Startup$",
             "^AWT Application Context Startup Class$"
         ],
-        "wldf": [
+        "/WLDFSystemResource": [
             "^Module-FMWDFW$"
         ]
     }

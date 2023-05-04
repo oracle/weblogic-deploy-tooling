@@ -516,16 +516,21 @@ class Discoverer(object):
         subfolder_result = OrderedDict()
         names = self._find_names_in_folder(location)
         if names is not None:
+            typedef = self._model_context.get_domain_typedef()
             for name in names:
-                _logger.finer('WLSDPLY-06113', name, self._aliases.get_model_folder_path(location),
-                              class_name=_class_name, method_name=_method_name)
-                subfolder_result[name] = OrderedDict()
-                location.add_name_token(name_token, name)
-                subfolder_path = self._aliases.get_wlst_attributes_path(location)
-                if self.wlst_cd(subfolder_path, location):
-                    self._populate_model_parameters(subfolder_result[name], location)
-                    self._discover_subfolders(subfolder_result[name], location)
-                location.remove_name_token(name_token)
+                if typedef.is_filtered(location, name):
+                    _logger.info('WLSDPLY-06159', typedef.get_domain_type(), location.get_current_model_folder(), name,
+                                 class_name=_class_name, method_name=_method_name)
+                else:
+                    _logger.finer('WLSDPLY-06113', name, self._aliases.get_model_folder_path(location),
+                                  class_name=_class_name, method_name=_method_name)
+                    subfolder_result[name] = OrderedDict()
+                    location.add_name_token(name_token, name)
+                    subfolder_path = self._aliases.get_wlst_attributes_path(location)
+                    if self.wlst_cd(subfolder_path, location):
+                        self._populate_model_parameters(subfolder_result[name], location)
+                        self._discover_subfolders(subfolder_result[name], location)
+                    location.remove_name_token(name_token)
         _logger.finest('WLSDPLY-06114', str_helper.to_string(location),
                        class_name=_class_name, method_name=_method_name)
         _logger.exiting(class_name=_class_name, method_name=_method_name)

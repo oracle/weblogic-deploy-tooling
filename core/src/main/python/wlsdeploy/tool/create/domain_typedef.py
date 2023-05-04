@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -19,8 +19,14 @@ from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 CREATE_DOMAIN = 'createDomain'
-UPDATE_DOMAIN = 'updateDomain'
+DISCOVER_DOMAIN = 'discoverDomain'
 NOT_SUPPORTED = 'NOT_SUPPORTED'
+
+def _get_logger_name(program_name):
+    logger_name = 'wlsdeploy.create'
+    if program_name == DISCOVER_DOMAIN:
+        logger_name = 'wlsdeploy.discover'
+    return logger_name
 
 
 class DomainTypedef(object):
@@ -35,6 +41,19 @@ class DomainTypedef(object):
     RESTRICTED_JRF_TEMPLATE_REGEX = "^(Oracle Restricted JRF)$"
     JRF_SERVER_GROUP = 'JRF-MAN-SVR'
 
+    __key_mapping_table = {
+        'apps': '/Application',
+        'coherence-clusters': '/CoherenceClusterSystemResource',
+        'datasources': '/JDBCSystemResource',
+        'file-stores': '/FileStore',
+        'jms': '/JMSSystemResource',
+        'jms-server': '/JMSServer',
+        'shared-libraries': '/Library',
+        'shutdown-classes': '/ShutdownClass',
+        'startup-classes': '/StartupClass',
+        'wldf': '/WLDFSystemResource'
+    }
+
     def __init__(self, program_name, domain_type):
         """
         The DomainTypedef constructor.
@@ -43,7 +62,7 @@ class DomainTypedef(object):
         """
         _method_name = '__init__'
 
-        self._logger = PlatformLogger('wlsdeploy.create')
+        self._logger = PlatformLogger(_get_logger_name(program_name))
         self._program_name = program_name
         self._domain_type = domain_type
         self.wls_helper = WebLogicHelper(self._logger)
@@ -77,10 +96,15 @@ class DomainTypedef(object):
 
         self._targeting_type = self._resolve_targeting_type()
 
-        if 'system-elements' in self._domain_typedefs_dict:
-            self._system_elements = self._domain_typedefs_dict['system-elements']
+        if 'discover-filters' in self._domain_typedefs_dict:
+            if 'system-elements' in self._domain_typedefs_dict:
+                self._logger.notification('WLSDPLY-12317', self._domain_typedef_filename)
+            self._discover_filters = self._domain_typedefs_dict['discover-filters']
+        elif 'system-elements' in self._domain_typedefs_dict:
+            self._logger.deprecation('WLSDPLY-12318', self._domain_typedef_filename)
+            self._discover_filters = self._translate_system_elements(self._domain_typedefs_dict['system-elements'])
         else:
-            self._system_elements = {}
+            self._discover_filters = {}
 
         self._topology_profile = self._resolve_topology_profile()
 
@@ -107,13 +131,6 @@ class DomainTypedef(object):
         :return: the topology profile or None if no topology profile is specified
         """
         return self._topology_profile
-
-    def has_jrf_resources(self):
-        """
-        Determine if the domain type has domain resources from either the JRF or Restricted JRF templates.
-        :return: True if the domain type has resources from one of the JRF type
-        """
-        return self.is_jrf_domain_type() or self.is_restricted_jrf_domain_type()
 
     def is_jrf_domain_type(self):
         """
@@ -220,111 +237,54 @@ class DomainTypedef(object):
         """
         return self._targeting_type
 
-    def is_system_app(self, name):
+    def is_filtered(self, location, name=None):
         """
-        Determine if the specified name matches a WLS system application.
-        :param name: the name to be checked
-        :return: True if the name matches a system application, False otherwise
-        """
-        return self._is_system_name(name, 'apps')
+        Determine if the named object at the specified location is filtered.
 
-    def is_system_coherence_cluster(self, name):
+        :param location: the alias location object
+        :param name: the name of the object
+        :return: true, if the object should be filtered; false otherwise
         """
-        Determine if the specified name matches a WLS system Coherence cluster.
-        :param name: the name to be checked
-        :return: True if the name matches a system Coherence cluster, False otherwise
-        """
-        return self._is_system_name(name, 'coherence-clusters')
+        key = location.get_folder_path()
+        if key in self._discover_filters:
+            # Global filter to remove the entire section
+            if name is None:
+                return True
 
-    def is_system_datasource(self, name):
-        """
-        Determine if the specified name matches a WLS system datasource.
-        :param name: the name to be checked
-        :return: True if the name matches a system datasource, False otherwise
-        """
-        return self._is_system_name(name, 'datasources')
-
-    def is_system_file_store(self, name):
-        """
-        Determine if the specified name matches a WLS system file store.
-        :param name: the name to be checked
-        :return: True if the name matches a system file store, False otherwise
-        """
-        return self._is_system_name(name, 'file-stores')
-
-    def is_system_jms(self, name):
-        """
-        Determine if the specified name matches a WLS system JMS resource.
-        :param name: the name to be checked
-        :return: True if the name matches a system JMS resource, False otherwise
-        """
-        return self._is_system_name(name, 'jms')
-
-    def is_system_jms_server(self, name):
-        """
-        Determine if the specified name matches a WLS system JMS server.
-        :param name: the name to be checked
-        :return: True if the name matches a system JMS server, False otherwise
-        """
-        return self._is_system_name(name, 'jms-servers')
-
-    def is_system_shared_library(self, name):
-        """
-        Determine if the specified name matches a WLS system shared library.
-        :param name: the name to be checked
-        :return: True if the name matches a system shared library, False otherwise
-        """
-        return self._is_system_name(name, 'shared-libraries')
-
-    def is_system_shutdown_class(self, name):
-        """
-        Determine if the specified name matches a WLS system shutdown class.
-        :param name: the name to be checked
-        :return: True if the name matches a system shutdown class, False otherwise
-        """
-        return self._is_system_name(name, 'shutdown-classes')
-
-    def is_system_startup_class(self, name):
-        """
-        Determine if the specified name matches a WLS system startup class.
-        :param name: the name to be checked
-        :return: True if the name matches a system startup class, False otherwise
-        """
-        return self._is_system_name(name, 'startup-classes')
-
-    def is_system_wldf(self, name):
-        """
-        Determine if the specified name matches a WLS system WLDF resource.
-        :param name: the name to be checked
-        :return: True if the name matches a system WLDF resource, False otherwise
-        """
-        return self._is_system_name(name, 'wldf')
-
-    def is_security_configuration_supported(self):
-        """
-        Determine if the security configuration can be configured. Currently, update domain does not
-        support configuration of the SecurityConfiguration, and 11g create domain does not support
-        configuration of the SecurityConfiguration
-
-        :return: True if the security realm can be configured
-        """
-        return self._program_name != UPDATE_DOMAIN
-
-    def _is_system_name(self, name, key):
-        """
-        Determine if the specified name matches a WLS name of the specified type key.
-        :param name: the name to be checked
-        :param key: the key of the type to be checked against
-        :return: True if the name matches a system name, False otherwise
-        """
-        if key in self._system_elements:
-            system_names = self._system_elements[key]
-            for system_name in system_names:
-                matched = re.match(system_name, name)
+            discover_filters = self._discover_filters[key]
+            for discover_filter in discover_filters:
+                matched = re.match(discover_filter, name)
                 if matched is not None:
                     return True
-
         return False
+
+    def _translate_system_elements(self, system_elements_dict):
+        """
+        Convert the old system-elements format to the new discover-filters format.
+
+        :param system_elements_dict: the system-elements dictionary
+        :return:
+        """
+        discover_filters_dict = dict()
+        for key, value in system_elements_dict.iteritems():
+            new_key = self._convert_system_elements_key_name(key)
+            discover_filters_dict[new_key] = value
+        return discover_filters_dict
+
+    def _convert_system_elements_key_name(self, key):
+        """
+        Convert the old system-elements key names to the new discover-filters key names.
+        :param key: the system-elements key
+        :return: the equivalent discover-filters key
+        """
+        if key in self.__key_mapping_table:
+            return self.__key_mapping_table[key]
+        else:
+            if self._program_name == DISCOVER_DOMAIN:
+                ex = exception_helper.create_discover_exception('WLSDPLY-12316', key, self._domain_typedef_filename)
+            else:
+                ex = exception_helper.create_create_exception('WLSDPLY-12316', key, self._domain_typedef_filename)
+            raise ex
 
     def __resolve_paths(self):
         """

@@ -130,42 +130,21 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
-                    <encoding>UTF-8</encoding>
+<!--                    <encoding>UTF-8</encoding>-->
                     <failIfNoTests>false</failIfNoTests>
                     <argLine>
                         -Xmx1024m
                     </argLine>
                     <groups>gate</groups>
-                    <systemProperties>
-                        <property>
-                            <name>wdtversion</name>
-                            <value>${project.version}</value>
-                        </property>
-                        <property>
-                            <name>MW_HOME</name>
-                            <value>${mw_home}</value>
-                        </property>
-                        <property>
-                            <name>db.container.repo</name>
-                            <value>${db.container.repo}</value>
-                        </property>
-                        <property>
-                            <name>db.container.tag</name>
-                            <value>${db.container.tag}</value>
-                        </property>
-                        <property>
-                            <name>db.use.container.network</name>
-                            <value>${db.use.container.network}</value>
-                        </property>
-                        <property>
-                            <name>system-test-skip-jrf-tests</name>
-                            <value>${system-test-skip-jrf-tests}</value>
-                        </property>
-                        <property>
-                            <name>system-test-skip-rjrf-tests</name>
-                            <value>${system-test-skip-rjrf-tests}</value>
-                        </property>
-                    </systemProperties>
+                    <systemPropertyVariables>
+                        <wdtversion>${project.version}</wdtversion>
+                        <MW_HOME>${mw_home}</MW_HOME>
+                        <db.container.repo>${db.container.repo}</db.container.repo>
+                        <db.container.tag>${db.container.tag}</db.container.tag>
+                        <db.use.container.network>${db.use.container.network}</db.use.container.network>
+                        <system-test-skip-jrf-tests>${system-test-skip-jrf-tests}</system-test-skip-jrf-tests>
+                        <system-test-skip-rjrf-tests>${system-test-skip-rjrf-tests}</system-test-skip-rjrf-tests>
+                    </systemPropertyVariables>
                 </configuration>
                 <executions>
                     <execution>

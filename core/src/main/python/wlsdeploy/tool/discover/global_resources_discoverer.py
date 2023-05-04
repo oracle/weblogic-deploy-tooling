@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -60,6 +60,8 @@ class GlobalResourcesDiscoverer(Discoverer):
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary
 
+    # TODO - need to be able to filter self-tuning globally and subfolders items by name:
+    #             /SelfTuning/WorkManager: [ 'foo' ]
     def get_self_tuning(self):
         """
         Discover the self-tuning attributes from the domain.
@@ -96,7 +98,7 @@ class GlobalResourcesDiscoverer(Discoverer):
             typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for startup_class in startup_classes:
-                if typedef.is_system_startup_class(startup_class):
+                if typedef.is_filtered(location, startup_class):
                     _logger.info('WLSDPLY-06447', typedef.get_domain_type(), startup_class, class_name=_class_name,
                                  method_name=_method_name)
                 else:
@@ -126,7 +128,7 @@ class GlobalResourcesDiscoverer(Discoverer):
             typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for shutdown_class in shutdown_classes:
-                if typedef.is_system_shutdown_class(shutdown_class):
+                if typedef.is_filtered(location, shutdown_class):
                     _logger.info('WLSDPLY-06448', typedef.get_domain_type(), shutdown_class, class_name=_class_name,
                                  method_name=_method_name)
                 else:
@@ -199,13 +201,18 @@ class GlobalResourcesDiscoverer(Discoverer):
         singleton_services = self._find_names_in_folder(location)
         if singleton_services is not None:
             _logger.info('WLSDPLY-06445', len(singleton_services), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for singleton_service in singleton_services:
-                _logger.info('WLSDPLY-06446', singleton_service, class_name=_class_name, method_name=_method_name)
-                result[singleton_service] = OrderedDict()
-                location.add_name_token(name_token, singleton_service)
-                self._populate_model_parameters(result[singleton_service], location)
-                location.remove_name_token(name_token)
+                if typedef.is_filtered(location, singleton_service):
+                    _logger.info('WLSDPLY-06453', typedef.get_domain_type(), singleton_service, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06446', singleton_service, class_name=_class_name, method_name=_method_name)
+                    result[singleton_service] = OrderedDict()
+                    location.add_name_token(name_token, singleton_service)
+                    self._populate_model_parameters(result[singleton_service], location)
+                    location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
@@ -224,13 +231,18 @@ class GlobalResourcesDiscoverer(Discoverer):
         jolt_pools = self._find_names_in_folder(location)
         if jolt_pools is not None:
             _logger.info('WLSDPLY-06449', len(jolt_pools), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for jolt_pool in jolt_pools:
-                _logger.info('WLSDPLY-06450', jolt_pool, class_name=_class_name, method_name=_method_name)
-                result[jolt_pool] = OrderedDict()
-                location.add_name_token(name_token, jolt_pool)
-                self._populate_model_parameters(result[jolt_pool], location)
-                location.remove_name_token(name_token)
+                if typedef.is_filtered(location, jolt_pool):
+                    _logger.info('WLSDPLY-06454', typedef.get_domain_type(), jolt_pool, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06450', jolt_pool, class_name=_class_name, method_name=_method_name)
+                    result[jolt_pool] = OrderedDict()
+                    location.add_name_token(name_token, jolt_pool)
+                    self._populate_model_parameters(result[jolt_pool], location)
+                    location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
@@ -249,14 +261,19 @@ class GlobalResourcesDiscoverer(Discoverer):
         wtc_servers = self._find_names_in_folder(location)
         if wtc_servers is not None:
             _logger.info('WLSDPLY-06451', len(wtc_servers), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for wtc_server in wtc_servers:
-                _logger.info('WLSDPLY-06452', wtc_server, class_name=_class_name, method_name=_method_name)
-                result[wtc_server] = OrderedDict()
-                location.add_name_token(name_token, wtc_server)
-                self._populate_model_parameters(result[wtc_server], location)
-                self._discover_subfolders(result[wtc_server], location)
-                location.remove_name_token(name_token)
+                if typedef.is_filtered(location, wtc_server):
+                    _logger.info('WLSDPLY-06455', typedef.get_domain_type(), wtc_server, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06452', wtc_server, class_name=_class_name, method_name=_method_name)
+                    result[wtc_server] = OrderedDict()
+                    location.add_name_token(name_token, wtc_server)
+                    self._populate_model_parameters(result[wtc_server], location)
+                    self._discover_subfolders(result[wtc_server], location)
+                    location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result

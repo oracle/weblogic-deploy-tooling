@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os.path
@@ -98,7 +98,7 @@ class CommonResourcesDiscoverer(Discoverer):
             typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for datasource in datasources:
-                if typedef.is_system_datasource(datasource):
+                if typedef.is_filtered(location, datasource):
                     _logger.info('WLSDPLY-06361', typedef.get_domain_type(), datasource, class_name=_class_name,
                                  method_name=_method_name)
                 else:
@@ -250,14 +250,19 @@ class CommonResourcesDiscoverer(Discoverer):
         providers = self._find_names_in_folder(location)
         if providers is not None:
             _logger.info('WLSDPLY-06342', len(providers), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for provider in providers:
-                _logger.info('WLSDPLY-06343', provider, class_name=_class_name, method_name=_method_name)
-                location.add_name_token(name_token, provider)
-                result[provider] = OrderedDict()
-                self._populate_model_parameters(result[provider], location)
-                self._discover_subfolders(result[provider], location)
-                location.remove_name_token(name_token)
+                if typedef.is_filtered(location, provider):
+                    _logger.info('WLSDPLY-06375', typedef.get_domain_type(), provider, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06343', provider, class_name=_class_name, method_name=_method_name)
+                    location.add_name_token(name_token, provider)
+                    result[provider] = OrderedDict()
+                    self._populate_model_parameters(result[provider], location)
+                    self._discover_subfolders(result[provider], location)
+                    location.remove_name_token(name_token)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
 
@@ -275,15 +280,20 @@ class CommonResourcesDiscoverer(Discoverer):
         mail_sessions = self._find_names_in_folder(location)
         if mail_sessions is not None:
             _logger.info('WLSDPLY-06344', len(mail_sessions), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for mail_session in mail_sessions:
-                _logger.info('WLSDPLY-06345', mail_session, class_name=_class_name, method_name=_method_name)
-                result[mail_session] = OrderedDict()
-                mail_session_result = result[mail_session]
-                location.add_name_token(name_token, mail_session)
-                self._populate_model_parameters(mail_session_result, location)
-                _fix_passwords_in_mail_session_properties(mail_session_result)
-                location.remove_name_token(name_token)
+                if typedef.is_filtered(location, mail_session):
+                    _logger.info('WLSDPLY-06374', typedef.get_domain_type(), mail_session, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06345', mail_session, class_name=_class_name, method_name=_method_name)
+                    result[mail_session] = OrderedDict()
+                    mail_session_result = result[mail_session]
+                    location.add_name_token(name_token, mail_session)
+                    self._populate_model_parameters(mail_session_result, location)
+                    _fix_passwords_in_mail_session_properties(mail_session_result)
+                    location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
@@ -305,7 +315,7 @@ class CommonResourcesDiscoverer(Discoverer):
             typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for file_store in file_stores:
-                if typedef.is_system_file_store(file_store):
+                if typedef.is_filtered(location, file_store):
                     _logger.info('WLSDPLY-06363', typedef.get_domain_type(), file_store, class_name=_class_name,
                                  method_name=_method_name)
                 else:
@@ -358,14 +368,19 @@ class CommonResourcesDiscoverer(Discoverer):
         jdbc_stores = self._find_names_in_folder(location)
         if jdbc_stores is not None:
             _logger.info('WLSDPLY-06350', len(jdbc_stores), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for jdbc_store in jdbc_stores:
-                _logger.info('WLSDPLY-06351', jdbc_store, class_name=_class_name, method_name=_method_name)
-                result[jdbc_store] = OrderedDict()
-                location.add_name_token(name_token, jdbc_store)
-                self._populate_model_parameters(result[jdbc_store], location)
-                self.archive_jdbc_create_script(jdbc_store, result[jdbc_store])
-                location.remove_name_token(name_token)
+                if typedef.is_filtered(location, jdbc_store):
+                    _logger.info('WLSDPLY-06373', typedef.get_domain_type(), jdbc_store, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06351', jdbc_store, class_name=_class_name, method_name=_method_name)
+                    result[jdbc_store] = OrderedDict()
+                    location.add_name_token(name_token, jdbc_store)
+                    self._populate_model_parameters(result[jdbc_store], location)
+                    self.archive_jdbc_create_script(jdbc_store, result[jdbc_store])
+                    location.remove_name_token(name_token)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result
 
@@ -417,13 +432,18 @@ class CommonResourcesDiscoverer(Discoverer):
         path_services = self._find_names_in_folder(location)
         if path_services is not None:
             _logger.info('WLSDPLY-06355', len(path_services), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for path_service in path_services:
-                _logger.info('WLSDPLY-06356', path_service, class_name=_class_name, method_name=_method_name)
-                result[path_service] = OrderedDict()
-                location.add_name_token(name_token, path_service)
-                self._populate_model_parameters(result[path_service], location)
-                location.remove_name_token(name_token)
+                if typedef.is_filtered(location, path_service):
+                    _logger.info('WLSDPLY-06372', typedef.get_domain_type(), path_service, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06356', path_service, class_name=_class_name, method_name=_method_name)
+                    result[path_service] = OrderedDict()
+                    location.add_name_token(name_token, path_service)
+                    self._populate_model_parameters(result[path_service], location)
+                    location.remove_name_token(name_token)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result
 
@@ -444,7 +464,7 @@ class CommonResourcesDiscoverer(Discoverer):
             typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for wldf_resource in wldf_resources:
-                if typedef.is_system_wldf(wldf_resource):
+                if typedef.is_filtered(location, wldf_resource):
                     _logger.info('WLSDPLY-06362', typedef.get_domain_type(), wldf_resource, class_name=_class_name,
                                  method_name=_method_name)
                 else:
@@ -540,15 +560,20 @@ class CommonResourcesDiscoverer(Discoverer):
         if resource_names is not None:
             _logger.info('WLSDPLY-06364', len(resource_names), folder_name, class_name=_class_name,
                          method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for resource_name in resource_names:
-                _logger.info('WLSDPLY-06365', folder_name, resource_name, class_name=_class_name,
-                             method_name=_method_name)
-                location.add_name_token(name_token, resource_name)
-                result[resource_name] = OrderedDict()
-                self._populate_model_parameters(result[resource_name], location)
-                self._discover_subfolders(result[resource_name], location)
-                location.remove_name_token(name_token)
+                if typedef.is_filtered(location, resource_name):
+                    _logger.info('WLSDPLY-06362', typedef.get_domain_type(), folder_name, resource_name,
+                                 class_name=_class_name, method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06365', folder_name, resource_name, class_name=_class_name,
+                                 method_name=_method_name)
+                    location.add_name_token(name_token, resource_name)
+                    result[resource_name] = OrderedDict()
+                    self._populate_model_parameters(result[resource_name], location)
+                    self._discover_subfolders(result[resource_name], location)
+                    location.remove_name_token(name_token)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
 
