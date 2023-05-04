@@ -188,30 +188,22 @@ weight: 2
 
 #### Using the typedef file to exclude template installed resources from the model and archive
 
- The Discover Domain Tool attempts to provide a sparse model by employing strategies such as not including attributes that are default values. It is important to not install template resources through the model. First, the templates will install the same resources in the target domain. Second, if you install resources from a on-premises domain into a target domain that is a later WebLogic version, it could cause conflicts.
- The `system-elements` section of the typedef file is used to assist the Discover Domain Tool. The `system-elements` section comprises a list that tells the tool what to exclude from the model and archive files.
+ The Discover Domain Tool attempts to provide a sparse model by employing strategies such as not including attributes
+ that are default values. It is important to not install template resources through the model. First, the templates
+ will install the same resources in the target domain. Second, if you install resources from a on-premises domain into
+ a target domain that is a later WebLogic version, it could cause conflicts.  The Discover Domain Tool uses the 
+ `discover-filters` section of the typedef file to filter out discovered objects and exclude them from the model and
+ archive files.
 
- The list contains an entry for the type of resource to exclude along with a name or a regexp and name.
+ The list contains an entry for each type of resource to exclude, along with a list of names or regular expressions
+ that are used to match the name of the specified type to exclude.
 
- The different types of resources are as follows:
-
-| Resource name |
-| --- |
-| `apps` |
-|`coherence-clusters` |
-| `datasources` |
-| `file-stores`|
-| `jms` |
-| `jms-servers` |
-| `shared-libraries` |
-| `startup-classes` |
-| `wldf` |
-
-The following example is the `system-elements` list in the `JRF.json` typedef file.
+The following example is the `discover-filters` list in the `JRF.json` typedef file.  Note that the key is the model
+name starting from the top-level folder (and excluding the grouping construct names `topology`, `resources`, and `appDeployments`).
 
 ```json
-   "system-elements": {
-        "apps": [
+   "discover-filters": {
+        "/Application": [
             "^coherence-transaction-rar$",
             "^DMS Application.*",
             "^em$",
@@ -221,10 +213,10 @@ The following example is the `system-elements` list in the `JRF.json` typedef fi
             "^wsil-wls.*",
             "^wsm-pm$"
         ],
-        "coherence-clusters": [
+        "/CoherenceClusterSystemResource": [
             "^defaultCoherenceCluster$"
         ],
-        "datasources": [
+        "/JDBCSystemResource": [
             ".*LocalSvcTblDataSource$",
             ".*mds-owsm$",
             ".*opss-audit-DBDS$",
@@ -233,17 +225,17 @@ The following example is the `system-elements` list in the `JRF.json` typedef fi
             ".*opss-ds$",
             ".*WLSSchemaDataSource$"
         ],
-        "file-stores": [
+        "/FileStore": [
             "^JRFWSAsyncFileStore$",
             "^mds-owsm$"
         ],
-        "jms": [
+        "/JMSSystemResource": [
             "^JRFWSAsyncJmsModule$"
         ],
-        "jms-servers": [
+        "/JMSServer": [
             "^JRFWSAsyncJmsServer$"
         ],
-        "shared-libraries": [
+        "/Library": [
             "^adf\\.oracle\\.businesseditor.*",
             "^adf\\.oracle\\.domain.*",
             "^adf\\.oracle\\.domain\\.webapp.*",
@@ -295,11 +287,11 @@ The following example is the `system-elements` list in the `JRF.json` typedef fi
             "^owasp\\.esapi.*",
             "^UIX.*"
         ],
-        "shutdown-classes": [
+        "/ShutdownClass": [
             "^DMSShutdown$",
             "^JOC-Shutdown$"
         ],
-        "startup-classes": [
+        "/StartupClass": [
             "^JMX Framework Startup Class$",
             "^JOC-Startup$",
             "^JPS Startup Class$",
@@ -311,8 +303,24 @@ The following example is the `system-elements` list in the `JRF.json` typedef fi
             "^DMS-Startup$",
             "^AWT Application Context Startup Class$"
         ],
-        "wldf": [
+        "/WLDFSystemResource": [
             "^Module-FMWDFW$"
+        ]
+    }
+```
+
+This mechanism also supports other named top-level fields; for example, `/JDBCStore` and `/MailSession`.  It can also
+be used to exclude self-tuning-related resources that are nested.  For example:
+
+```json
+    "discover-filters": {
+        "/SelfTuning/WorkManager": [
+            "^wm/SOAWorkManager$",
+            "^SOA_Default_WM$",
+            "^SOA_DataSourceBound_WM$",
+            "^SOA_Notification_WM$",
+            "^SOA_Request_WM$",
+            "^SOA_EDN_WM$"
         ]
     }
 ```
