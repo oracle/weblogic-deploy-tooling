@@ -50,7 +50,8 @@ The tooling has five top-level model sections:
 - `topology`       - The location where servers, clusters, machines, server templates, and other domain-level configuration is specified.
 - `resources`      - The location where resources and services are specified (for example, data sources, JMS, WLDF).
 - `appDeployments` - The location where shared libraries and applications are specified.
-- `kubernetes`     - The location where the WLS Kubernetes Operator domain configuration is specified.
+- `kubernetes`     - The location where the WebLogic Kubernetes Operator domain configuration is specified.
+- `verrazzano`     - The location where the Verrazzano WebLogic Workload component and application configuration is specified.
 
 #### Simple example
 Here is a simple example of a model to deploy an application and its data source:
