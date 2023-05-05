@@ -12,20 +12,20 @@
     <title>Archive File :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1683256756" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1683256756" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1683256756" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1683256756" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1683256756" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1683256756" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1683256756" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1683256756" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1683256756" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1683256756" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1683304154" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1683304154" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1683304154" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1683304154" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1683304154" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1683304154" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1683304154" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1683304154" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1683304154" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1683304154" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1683256756"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1683304154"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1683256756"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1683256756"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1683304154"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1683304154"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1683256756"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1683304154"></script>
 
     
   </div>
@@ -1518,8 +1518,11 @@
         
 
 
-<p>The archive file is used to deploy binaries and other file resources to the target domain. The archive is a ZIP file with a specific directory structure.  Any file resources referenced in the model that are not already on the target system must be stored in the correct location in the archive, and the model must reflect the path into the archive. The model itself can also be stored inside the archive, if desired.</p>
-<p>Note that file resources that already exist on the target system need not be included in the archive, provided that the model specifies the correct location on the target system.</p>
+<p>The archive file is used to deploy binaries and other file resources to the target domain. The archive is a ZIP file
+with a specific directory structure.  Any file resources referenced in the model that are not already on the target
+system must be stored in the correct location in the archive, and the model must reflect the path into the archive.</p>
+<p>Note that file resources that already exist on the target system need not be included in the archive, provided that
+the model specifies the correct location on the target system.</p>
 <h3 id="contents">Contents</h3>
 <ul>
 <li><a href="#example">Example</a></li>
@@ -1534,21 +1537,17 @@
             <span style="color:#f92672">SourcePath</span>: <span style="color:#ae81ff">wlsdeploy/applications/simpleear.ear</span>
             <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">my-cluster</span>
             <span style="color:#f92672">ModuleType</span>: <span style="color:#ae81ff">ear</span>
-</code></pre></div><p>The example above shows the attribute <code>SourcePath</code> of the <code>simpleear</code> application with a value of <code>wlsdeploy/applications/simpleear.ear</code>.  The prefix <code>wlsdeploy/</code> indicates that the resource is located in the archive file in the specified location, and will be deployed to that directory in the domain, in this case <code>&lt;domain-home&gt;/wlsdeploy/applications/simpleear.ear</code>.</p>
+</code></pre></div><p>The example shows the attribute <code>SourcePath</code> of the <code>simpleear</code> application with a value of
+<code>wlsdeploy/applications/simpleear.ear</code>.  The prefix <code>wlsdeploy/</code> indicates that the resource is located in the archive
+file in the specified location, and will be deployed to that directory in the domain, in this case
+<code>&lt;domain-home&gt;/wlsdeploy/applications/simpleear.ear</code>.</p>
 <h3 id="archive-structure">Archive structure</h3>
-<p>These are the paths within the archive that are used for different types of resources. Users can create further directory structures underneath these locations to organize the files and directories as they see fit.</p>
-<h4 id="atpwallet"><code>atpwallet</code></h4>
-<p>The directory where a wallet can be stored for use with Oracle Autonomous Transaction Processing Cloud Database. The file resource name is not specified in the model, and is assumed to be a single ZIP file in the archive at this location.</p>
-<h4 id="model"><code>model</code></h4>
-<p>The directory where the model is optionally located. Only one model file, either in YAML or JSON, is allowed, and it must have the appropriate YAML or JSON file extension.</p>
-<h4 id="opsswallet"><code>opsswallet</code></h4>
-<p>The directory where a wallet can be stored for use with Oracle Platform Security Services. The file resource name is not specified in the model, and is assumed to be a single ZIP file in the archive at this location.</p>
+<p>These are the paths within the archive that are used for different types of resources. You can create further
+directory structures underneath some of these locations to organize the files and directories as you see fit.  The
+Archive Helper Tool makes it easy to add, update, and remove entries from the archive file.</p>
 <h4 id="wlsdeployapplications"><code>wlsdeploy/applications</code></h4>
-<p>The root directory under which applications are stored. Applications can be stored in the archive as EAR or WAR files, or expanded under this folder.</p>
-
-<div class="notices note" ><p>Expanded application directories are supported after WebLogic Deploy Tooling release 1.6.2.</p>
-</div>
-
+<p>The root directory under which applications and their deployment plans are stored. Applications can be stored in the
+archive as EAR, WAR, or JAR files, or as an exploded directory at this location.</p>
 <p>A sample expanded WAR application might have these entries:</p>
 <pre><code>wlsdeploy/applications/myApp/index.jsp
 wlsdeploy/applications/myApp/META-INF/MANIFEST.MF
@@ -1556,34 +1555,91 @@ wlsdeploy/applications/myApp/WEB-INF/classes/MyClass.class
 wlsdeploy/applications/myApp/WEB-INF/web.xml
 wlsdeploy/applications/myApp/WEB-INF/weblogic.xml
 </code></pre><h4 id="wlsdeployclasspathlibraries"><code>wlsdeploy/classpathLibraries</code></h4>
-<p>The root directory under which JARs/directories used for server classpaths are stored. Every file resource under this directory is extracted, even those not referenced in the model.</p>
+<p>The root directory under which JARs/directories used for server classpaths are stored. Every file resource under this
+directory is extracted, even those not referenced in the model.</p>
 <h4 id="wlsdeploycoherence"><code>wlsdeploy/coherence</code></h4>
-<p>The root directory under which empty directories must exist for Coherence persistent stores.</p>
+<p>The root directory under which Coherence config files and/or empty directories for Coherence persistent stores.</p>
+<h4 id="wlsdeployconfig"><code>wlsdeploy/config</code></h4>
+<p>The directory where a MIME mapping property file can be stored.</p>
 <h4 id="wlsdeploycustom"><code>wlsdeploy/custom</code></h4>
-<p>This is the root directory where your custom files can be stored and extracted from the archive. These files are not collected by the Discover Domain Tool.
-Every file resource under this directory is extracted during <code>createDomain</code> and <code>updateDomain</code>.</p>
+<p>This is the root directory where your custom files and directories can be stored and extracted from the archive. These
+files are not collected by the Discover Domain Tool.   Every file resource under this directory is extracted during
+<code>createDomain</code> and <code>updateDomain</code>.</p>
+<p>This location is particularly useful when handling files that live outside an application; for example, a property
+file used to configure the application.  The general steps to make applications that use such files work when
+provisioning them with WDT are:</p>
+<ol>
+<li>Place the file in the required location inside the <code>wlsdeploy/custom</code> folder inside the archive; for example,
+<code>wlsdeploy/custom/com/mycompany/myapp/myapp-config.properties</code>.</li>
+<li>Make sure the application is locating the file by <code>CLASSPATH</code>; for example, using
+<code>ClassLoader.getResourceAsStream(&quot;com/mycompany/myapp/myapp-config.properties&quot;)</code>.</li>
+<li>Make sure that the server&rsquo;s CLASSPATH includes the <code>$DOMAIN_HOME/wlsdeploy/custom</code> directory.  One way to achieve
+this would be to add a <code>setUserOverrides.sh</code> that includes this directory in the <code>PRE_CLASSPATH</code> environment
+variable to the <code>wlsdeploy/domainBin</code> location in the archive file.  Don&rsquo;t forget to add <code>setUserOverrides.sh</code> to
+the <code>domainInfo/domainBin</code> of the model so that it gets extracted.</li>
+</ol>
+<h4 id="wlsdeploydbwalletswallet-name"><code>wlsdeploy/dbWallets/&lt;wallet-name&gt;</code></h4>
+<p>The directory where named database wallets can be stored for use with the Oracle database.  The <code>rcu</code> name is used as
+the default location to store a wallet for RCU data sources.  The wallet placed into the archive can be either a ZIP
+file or a set of one or more files.  If it is a ZIP file, that ZIP file will be expanded in place when running WDT
+tools like the Create Domain or Update Domain tools.</p>
 <h4 id="wlsdeploydomainbin"><code>wlsdeploy/domainBin</code></h4>
-<p>The root directory under which <code>$DOMAIN_HOME/bin</code> scripts are stored. Only scripts referenced in the <code>domainInfo/domainBin</code> section of the model are extracted.</p>
-<h4 id="wlsdeploydomainlibraries"><code>wlsdeploy/domainLibraries</code></h4>
-<p>The root directory under which <code>$DOMAIN_HOME/lib</code> libraries are stored. Only libraries referenced in the <code>domainInfo/domainLibraries</code> section of the model are extracted.</p>
+<p>The root directory under which <code>$DOMAIN_HOME/bin</code> scripts are stored. Only scripts referenced in the
+<code>domainInfo/domainBin</code> section of the model are extracted, as shown in the example.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">    <span style="color:#f92672">domainInfo</span>:
+        <span style="color:#f92672">domainBin</span>:
+           - <span style="color:#ae81ff">wlsdeploy/domainBin/setUserOverrides.sh</span>
+</code></pre></div><h4 id="wlsdeploydomainlibraries"><code>wlsdeploy/domainLibraries</code></h4>
+<p>The root directory under which <code>$DOMAIN_HOME/lib</code> libraries are stored.  Domain libraries must be
+stored as JAR files. Only libraries referenced in the <code>domainInfo/domainLibraries</code> section of the model are extracted,
+as shown in the example.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">    <span style="color:#f92672">domainInfo</span>:
+        <span style="color:#f92672">domainLibraries</span>:
+           - <span style="color:#ae81ff">wlsdeploy/domainLibraries/myLibrary.jar</span>
+</code></pre></div><h4 id="wlsdeployjmsforeignserverjms-foreign-server-name"><code>wlsdeploy/jms/foreignServer/&lt;jms-foreign-server-name&gt;</code></h4>
+<p>The directory under which a JMS Foreign Server binding file is stored.</p>
 <h4 id="wlsdeploynodemanager"><code>wlsdeploy/nodeManager</code></h4>
-<p>The root directory under which Node Manager file resources, such as keystore files, are stored.</p>
+<p>The root directory under which Node Manager keystore files are stored.</p>
+<h4 id="wlsdeployopsswallet"><code>wlsdeploy/opsswallet</code></h4>
+<p>The directory where a wallet can be stored for use with Oracle Platform Security Services. The wallet placed into the
+archive can be either a ZIP file or a set of one or more files.  If it is a ZIP file, that ZIP file will be expanded
+in place when running WDT tools like the Create Domain or Update Domain tools.</p>
 <h4 id="wlsdeployscripts"><code>wlsdeploy/scripts</code></h4>
-<p>The root directory under which scripts are stored. These can include JDBC create scripts, and WLDF action scripts.</p>
-<h4 id="wlsdeployservers"><code>wlsdeploy/servers</code></h4>
-<p>The root directory under which server files, such as keystore files, are stored. These are organized by server name, such as <code>wlsdeploy/server/my-server/mykey.jks</code>.</p>
+<p>The root directory under which script files are stored. These can include JDBC create scripts and WLDF action scripts.</p>
+<h4 id="wlsdeployserversserver-name"><code>wlsdeploy/servers/&lt;server-name&gt;</code></h4>
+<p>The root directory under which server keystore files are stored. These are organized by server name, such as
+<code>wlsdeploy/server/AdminServer/mykey.jks</code>.</p>
 <h4 id="wlsdeploysharedlibraries"><code>wlsdeploy/sharedLibraries</code></h4>
-<p>The root directory under which shared libraries are stored. These are stored as JAR files within the archive.</p>
+<p>The root directory under which shared libraries and their deployment plans are stored. Shared libraries can be stored
+in the archive as EAR, WAR, or JAR files, or as an exploded directory at this location.</p>
 <h4 id="wlsdeploystores"><code>wlsdeploy/stores</code></h4>
 <p>The root directory under which empty directories must exist for <code>FileStore</code> elements in the model.</p>
-<h3 id="using-multiple-archive-files">Using multiple archive files</h3>
-<p>The Create Domain, Update Domain, Deploy Applications, and Validate Model Tools allow the specification of multiple archive files on the command line. For example:</p>
+<h4 id="wlsdeploystructuredapplications"><code>wlsdeploy/structuredApplications</code></h4>
+<p>The root directory under which &ldquo;structured&rdquo; applications are stored. Applications inside the specified directory
+structure can be stored in the archive as EAR or WAR files, or as an exploded directory.</p>
+<p>A sample &ldquo;structured&rdquo; application might have these entries:</p>
+<pre><code>wlsdeploy/structuredApplications/myApp/app/webapp.war
+wlsdeploy/structuredApplications/myApp/plan/plan.xml
+wlsdeploy/structuredApplications/myApp/plan/WEB-INF/weblogic.xml
+wlsdeploy/structuredApplications/myApp/plan/AppFileOverrides/updated.properties
+</code></pre><h3 id="using-multiple-archive-files">Using multiple archive files</h3>
+<p>The Create Domain, Update Domain, Deploy Applications, and Validate Model Tools allow the specification of multiple
+archive files on the command line. For example:</p>
 <pre><code>$ weblogic-deploy\bin\createDomain.cmd -archive_file one.zip,two.zip,three.zip ...
 </code></pre>
-<p>File resources can be present in any of these archives. Resources in each archive will supersede resources found in previous archives.</p>
-<p>When the model references a resource that is present in multiple archives, the latest in the list takes precedence. For example, if the model references <code>wlsdeploy/applications/myapp.ear</code>, and that resource is present in archives <code>one.zip</code> and <code>two.zip</code>, the resource in <code>two.zip</code> will be used.</p>
-<p>A similar rule applies for resources that have an assumed location, but are not specifically called out in the model. For example, if archive <code>two.zip</code> has a wallet in location <code>atpwallet/wallet2.zip</code>, and <code>three.zip</code> has a wallet in location <code>atpwallet/wallet3.zip</code>, the wallet <code>atpwallet/wallet3.zip</code> will be used.</p>
-<p>Resources that are extracted without being referenced directly are extracted from the archives in the order specified in the <code>archive_file</code> argument. For example, if <code>one.zip</code> and <code>two.zip</code> have resources under <code>wlsdeploy/classpathLibraries</code>, the resources in <code>one.zip</code> will be extracted to <code>&lt;domain-home&gt;/wlsdeploy/classpathLibraries</code>, then the resources of <code>two.zip</code> will be extracted to the same location, overwriting any overlapping files.</p>
+<p>File resources can be present in any of these archives. Resources in each archive will supersede resources found
+in previous archives.</p>
+<p>When the model references a resource that is present in multiple archives, the latest in the list takes precedence.
+For example, if the model references <code>wlsdeploy/applications/myapp.ear</code>, and that resource is present in archives
+<code>one.zip</code> and <code>two.zip</code>, the resource in <code>two.zip</code> will be used.</p>
+<p>A similar rule applies for resources that have an assumed location, but are not specifically called out in the model.
+For example, if archive <code>two.zip</code> has a wallet in location <code>atpwallet/wallet2.zip</code>, and <code>three.zip</code> has a wallet in
+location <code>atpwallet/wallet3.zip</code>, the wallet <code>atpwallet/wallet3.zip</code> will be used.</p>
+<p>Resources that are extracted without being referenced directly are extracted from the archives in the order specified
+in the <code>archive_file</code> argument. For example, if <code>one.zip</code> and <code>two.zip</code> have resources under
+<code>wlsdeploy/classpathLibraries</code>, the resources in <code>one.zip</code> will be extracted to
+<code>&lt;domain-home&gt;/wlsdeploy/classpathLibraries</code>, then the resources of <code>two.zip</code> will be extracted to the same location,
+overwriting any overlapping files.</p>
 
 
 <footer class="footline">
@@ -2592,19 +2648,19 @@ Every file resource under this directory is extracted during <code>createDomain<
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1683256756"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1683256756"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1683256756"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1683256756"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1683256756"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1683256756"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1683304154"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1683304154"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1683304154"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1683304154"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1683304154"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1683304154"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1683256756"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1683256756"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1683256756"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1683304154"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1683304154"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1683304154"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1683256756"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1683304154"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

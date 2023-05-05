@@ -12,20 +12,20 @@
     <title>Metadata Model :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1683256756" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1683256756" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1683256756" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1683256756" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1683256756" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1683256756" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1683256756" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1683256756" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1683256756" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1683256756" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1683304154" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1683304154" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1683304154" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1683304154" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1683304154" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1683304154" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1683304154" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1683304154" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1683304154" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1683304154" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1683256756"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1683304154"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1683256756"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1683256756"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1683304154"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1683304154"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1683256756"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1683304154"></script>
 
     
   </div>
@@ -1537,28 +1537,27 @@
 <li><a href="#upgrading-from-wdt-1x-to-wdt-2x-yaml-files">Upgrading from WDT 1.x to WDT 2.x YAML files</a></li>
 </ul>
 <h3 id="overview">Overview</h3>
-<p>The metadata model (or model, for short) is a version-independent description of a WebLogic Server domain configuration.  The tools are designed to support a sparse model so that the model need only describe what is required for the specific operation without describing other artifacts.  For example, to deploy an application that depends on a JDBC data source into an existing domain that may contain other applications or data sources, the model needs to describe only the application and the data source in question.  If the data source was previously created, the <code>deployApps</code> tool will not try to recreate it but may update part of that data source&rsquo;s configuration if the model description is different than the existing values.  If the application was previously deployed, the <code>deployApps</code> tool will compare the binaries to determine if the application needs to be redeployed or not.</p>
-<p>The model structure, and its folder and attribute names, are based on the WLST 12.2.1.3 offline structure and names with redundant folders removed to keep the model simple.  For example, the WLST path to the URL for a JDBC data source is <code>/JDBCSystemResource/&lt;data-source-name&gt;/JdbcResource/&lt;data-source-name&gt;/JDBCDriverParams/NO_NAME_0/URL</code>.  In the model, it is <code>resources:/JDBCSystemResource/&lt;data-source-name&gt;/JdbcResource/JDBCDriverParams/URL</code> (where <code>resources</code> is the top-level model section where all WebLogic Server resources/services are described).</p>
-<p>The model is written in YAML (or optionally, JSON).  The YAML parser, built into the underlying framework, is both strict with regard to the specification and supports only the subset of YAML needed to describe WebLogic Server artifacts.  For example, YAML does not support tabs as indent characters so the parser will generate parse errors if the model file contains leading tabs used for indentation purposes.  In general, names and values can be specified without quotes except when the content contains one of the restricted characters; in which case, the content must be enclosed in either single or double quotes.  The restricted characters are:</p>
-<ul>
-<li>comma</li>
-<li>colon</li>
-<li>exclamation mark</li>
-<li>question mark</li>
-<li>hyphen</li>
-<li>ampersand</li>
-<li>percent sign</li>
-<li>&ldquo;at&rdquo; sign</li>
-<li>star</li>
-<li>pound sign (also known as hash)</li>
-<li>equal sign</li>
-<li>less than</li>
-<li>greater than</li>
-<li>square brackets</li>
-<li>curly braces</li>
-<li>back quote</li>
-</ul>
-<p>All assignment statements must have one or more spaces between the colon and the value.  All comments must have a space after the pound sign (also known as hash) to be considered a comment.  YAML doesn&rsquo;t allow comments in all locations.  While the YAML parser used by the framework does not try to enforce these restrictions, it is likely that putting comments in some locations may cause parse errors since YAML is a difficult language to parse due to its complex indentation rules.</p>
+<p>The metadata model (or model, for short) is a version-independent description of a WebLogic Server domain configuration.
+The tools are designed to support a sparse model so that the model need only describe what is required for the specific
+operation without describing other artifacts.  For example, to deploy an application that depends on a JDBC data source
+into an existing domain that may contain other applications or data sources, the model needs to describe only the
+application and the data source in question.  If the data source was previously created, the <code>deployApps</code> tool will not
+try to recreate it but may update part of that data source&rsquo;s configuration if the model description is different from
+the existing values.  If the application was previously deployed, the <code>deployApps</code> tool will compare the binaries to
+determine if the application needs to be redeployed or not.</p>
+<p>The model structure, and its folder and attribute names, are based on the WLST 12.2.1.3 offline structure and names
+with redundant folders removed to keep the model simple.  For example, the WLST path to the URL for a JDBC data source
+is <code>/JDBCSystemResource/&lt;data-source-name&gt;/JdbcResource/&lt;data-source-name&gt;/JDBCDriverParams/NO_NAME_0/URL</code>.  In the
+model, it is <code>resources:/JDBCSystemResource/&lt;data-source-name&gt;/JdbcResource/JDBCDriverParams/URL</code> (where <code>resources</code>
+is the top-level model section where all WebLogic Server resources/services are described).</p>
+<p>The model is written in YAML (or optionally, JSON).  The YAML parser, based on Snake YAML, is strict with regard to the
+specification and is fully YAML 1.1 compliant.  For example, YAML does not support tabs as indent characters so the
+parser will generate parse errors if the model file contains leading tabs used for indentation purposes.  In general,
+names and values can be specified without quotes except when the content contains one of the restricted characters in a
+location that causes the YAML parser to consider it to be a markup character instead of text.  For example, a key may
+contain an embedded hyphen without needing to be quoted; however, if the key starts with a hyphen, the parser may
+consider it to be the start of a YAML list element. See the <a href="https://yaml.org/spec/1.1/">YAML 1.1 specification</a>
+for more information.</p>
 <h3 id="top-level-model-sections">Top-level model sections</h3>
 <p>The tooling has five top-level model sections:</p>
 <ul>
@@ -1599,18 +1598,37 @@
             <span style="color:#f92672">SourcePath</span>: <span style="color:#e6db74">&#39;@@WL_HOME@@/common/deployable-libraries/jsf-2.0.war&#39;</span>
             <span style="color:#f92672">Target</span>: <span style="color:#e6db74">&#39;@@PROP:myjcs.cluster1.name@@&#39;</span>
             <span style="color:#f92672">ModuleType</span>: <span style="color:#ae81ff">war</span>
-</code></pre></div><p>The above example shows two important features of the framework.  First, notice that the <code>URL</code>, <code>PasswordEncrypted</code>, <code>user</code> property <code>Value</code> and all <code>Target</code> fields contain values that have a <code>@@PROP:&lt;name&gt;@@</code> pattern.  This indicates a variable placeholder whose value is specified at runtime using a variables file. For more information about this and other token types, see <a href="#model-tokens">Model tokens</a>.</p>
-<p>Second, notice that the <code>jsf#2.0</code> shared library <code>SourcePath</code> attribute value starts with <code>@@WL_HOME@@</code>. This is a path token that can be used to specify that the location is relative to the location of the WebLogic Server home directory on the target environment.  For more information and a list of available path tokens, see <a href="#model-tokens">Model tokens</a>.</p>
-<p>The example above shows the attribute <code>SourcePath</code> of the <code>simpleear</code> application with a value of <code>wlsdeploy/applications/simpleear.ear</code>.  The prefix <code>wlsdeploy/</code> indicates that the resource is located in the archive file in the specified location, and will be deployed to that directory within the domain, in this case <code>&lt;domain-home&gt;/wlsdeploy/applications/simpleear.ear</code>. See the <a href="/weblogic-deploy-tooling/concepts/archive/">Archive file</a> for more details about using the archive file.</p>
-<p>Users can create further directory structures underneath the above locations to organize the files and directories as they see fit.  Note that any binary that already exists on the target system need not be included in the archive provided that the model specified the correct location on the target system.</p>
-<p>One final note is that the framework is written in such a way to allow the model to be extended for use by other tools.  Adding other top-level sections to the model is supported and the existing tooling and framework will simply ignore them, if present.  For example, it would be possible to add a <code>soaComposites</code> section to the model where SOA composite applications are described, and a location within the archive file where those binaries can be stored, so that a tool that understands SOA composites and how to deploy them could be run against the same model and archive files.</p>
+</code></pre></div><p>The above example shows two important features of the framework.  First, notice that the <code>URL</code>, <code>PasswordEncrypted</code>,
+<code>user</code> property <code>Value</code> and all <code>Target</code> fields contain values that have a <code>@@PROP:&lt;name&gt;@@</code> pattern.  This indicates a
+variable placeholder whose value is specified at runtime using a variables file. For more information about this and
+other token types, see <a href="#model-tokens">Model tokens</a>.</p>
+<p>Second, notice that the <code>jsf#2.0</code> shared library <code>SourcePath</code> attribute value starts with <code>@@WL_HOME@@</code>. This is a path
+token that can be used to specify that the location is relative to the location of the WebLogic Server home directory
+on the target environment.  For more information and a list of available path tokens, see <a href="#model-tokens">Model tokens</a>.</p>
+<p>The example above shows the attribute <code>SourcePath</code> of the <code>simpleear</code> application with a value of
+<code>wlsdeploy/applications/simpleear.ear</code>.  The prefix <code>wlsdeploy/</code> indicates that the resource is located in the archive
+file in the specified location, and will be deployed to that directory within the domain, in this case
+<code>&lt;domain-home&gt;/wlsdeploy/applications/simpleear.ear</code>. See the <a href="/weblogic-deploy-tooling/concepts/archive/">Archive file</a>
+for more details about using the archive file.</p>
+<p>Users can create further directory structures underneath the above locations to organize the files and directories as
+they see fit.  Note that any binary that already exists on the target system need not be included in the archive
+provided that the model specified the correct location on the target system.</p>
+<p>One final note is that the framework is written in such a way to allow the model to be extended for use by other tools.
+Adding other top-level sections to the model is supported and the existing tooling and framework will simply ignore
+them, if present.  For example, it would be possible to add a <code>soaComposites</code> section to the model where SOA composite
+applications are described, and a location within the archive file where those binaries can be stored, so that a tool
+that understands SOA composites and how to deploy them could be run against the same model and archive files.</p>
 <h3 id="model-names">Model names</h3>
-<p>The WebLogic Deploy Tooling handles names of WebLogic Server configuration artifacts in a very prescribed way.  To understand how names are handled, users first need a basic understanding of WLST offline naming.  In WLST offline, there are two general categories of configuration artifacts:</p>
+<p>The WebLogic Deploy Tooling handles names of WebLogic Server configuration artifacts in a very prescribed way.  To
+understand how names are handled, users first need a basic understanding of WLST offline naming.  In WLST offline,
+there are two general categories of configuration artifacts:</p>
 <ul>
 <li>Artifacts that can hold zero or more references to another configuration artifact type.</li>
 <li>Artifacts that can hold zero or one reference to another configuration artifact.</li>
 </ul>
-<p>For example, a domain can contain zero or more <code>JDBCSystemResource</code> or <code>AppDeployment</code> instances but can only contain a single <code>SecurityConfiguration</code> artifact.  When working with configuration artifacts like <code>JDBCSystemResource</code>, the name is always modeled as a sub-element of the <code>JDBCSystemResource</code> element, as shown below.</p>
+<p>For example, a domain can contain zero or more <code>JDBCSystemResource</code> or <code>AppDeployment</code> instances but can only contain
+a single <code>SecurityConfiguration</code> artifact.  When working with configuration artifacts like <code>JDBCSystemResource</code>, the
+name is always modeled as a sub-element of the <code>JDBCSystemResource</code> element, as shown below.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">resources</span>:
     <span style="color:#f92672">JDBCSystemResource</span>:
         <span style="color:#f92672">MyDataSource</span>:
@@ -1619,40 +1637,83 @@
         <span style="color:#f92672">YourDataSource</span>:
             <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">yourcluster</span>
             <span style="color:#ae81ff">...</span>
-</code></pre></div><p>In the example above, the model has two instances of <code>JDBCSystemResource</code>: one named <code>MyDataSource</code> and one named <code>YourDataSource</code>.  For anyone familiar with WLST, this should seem somewhat familiar because the WLST offline path to the <code>MyDataSource</code> configuration will always start with <code>/JDBCSystemResource/MyDataSource</code>.  What might not seem familiar is that in this WLST folder, there is a <code>Name</code> attribute that is also set to <code>MyDataSource</code>.  The WebLogic Deploy Tooling requires that modelers set the <code>JDBCSystemRTesource</code> name using the folder semantics as shown in the example.  It is not possible to set the Name using the <code>Name</code> attribute inside the folder and any attempts to do so, will not work; in this case, the <code>Name</code> attribute is redundant because the name was already specified as the folder name.</p>
-<p>When working with artifacts like <code>SecurityConfiguration</code> or <code>JMX</code>, there is never more than one instance of these artifacts in a domain because they are just configuration containers and their names generally have no semantic meaning.  As such, the WebLogic Deploy Tooling does not expose these names in the model, as shown below:</p>
+</code></pre></div><p>In the example above, the model has two instances of <code>JDBCSystemResource</code>: one named <code>MyDataSource</code> and one named
+<code>YourDataSource</code>.  For anyone familiar with WLST, this should seem somewhat familiar because the WLST offline path to
+the <code>MyDataSource</code> configuration will always start with <code>/JDBCSystemResource/MyDataSource</code>.  What might not seem
+familiar is that in this WLST folder, there is a <code>Name</code> attribute that is also set to <code>MyDataSource</code>.  The WebLogic
+Deploy Tooling requires that modelers set the <code>JDBCSystemRTesource</code> name using the folder semantics as shown in the
+example.  It is not possible to set the Name using the <code>Name</code> attribute inside the folder and any attempts to do so,
+will not work; in this case, the <code>Name</code> attribute is redundant because the name was already specified as the folder
+name.</p>
+<p>When working with artifacts like <code>SecurityConfiguration</code> or <code>JMX</code>, there is never more than one instance of these
+artifacts in a domain because they are just configuration containers and their names generally have no semantic
+meaning.  As such, the WebLogic Deploy Tooling does not expose these names in the model, as shown below:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
     <span style="color:#f92672">SecurityConfiguration</span>:
         <span style="color:#f92672">NodeManagerUsername</span>: <span style="color:#ae81ff">weblogic</span>
         <span style="color:#f92672">NodeManagerPasswordEncrypted</span>: <span style="color:#ae81ff">welcome1</span>
-</code></pre></div><p>As the example above shows, the <code>SecurityConfiguration</code> element has no named sub-element, as there is with <code>JDBCSystemResource</code>, even though the WLST path to the <code>SecurityConfiguration</code> attributes is <code>/SecurityConfiguration/&lt;domain-name&gt;</code>.  The WebLogic Deploy Tooling has built-in rules and a knowledge base that controls how these names are handled so that it can complete the configuration of these artifacts.  As with the previous class of configuration artifact, the folder almost always contains a <code> Name</code> attribute that, in WLST, could be used to change the name.  As with the previous class of artifact, the WebLogic Deploy Tooling does not support the use of the <code>Name</code> attribute in these folders and any attempt to set the <code>Name</code> attribute will not be honored.  In general, the only model location that uses the <code>Name</code> attribute is the top-level topology section, because this maps to where WLST stores the domain name.</p>
+</code></pre></div><p>As the example above shows, the <code>SecurityConfiguration</code> element has no named sub-element, as there is with
+<code>JDBCSystemResource</code>, even though the WLST path to the <code>SecurityConfiguration</code> attributes is
+<code>/SecurityConfiguration/&lt;domain-name&gt;</code>.  The WebLogic Deploy Tooling has built-in rules and a knowledge base that
+controls how these names are handled so that it can complete the configuration of these artifacts.  As with the
+previous class of configuration artifact, the folder almost always contains a <code> Name</code> attribute that, in WLST, could be
+used to change the name.  As with the previous class of artifact, the WebLogic Deploy Tooling does not support the use
+of the <code>Name</code> attribute in these folders and any attempt to set the <code>Name</code> attribute will not be honored.  In general,
+the only model location that uses the <code>Name</code> attribute is the top-level topology section, because this maps to where
+WLST stores the domain name.</p>
 <h3 id="model-tokens">Model tokens</h3>
-<p>The model allows the use of tokens that are substituted with text values as the model is processed. This section describes several types of tokens.</p>
-<p><strong>Variable tokens</strong> are declared with the syntax <code>@@PROP:&lt;variable&gt;@@</code>. This type of token represents a value that is resolved at runtime using a variables file in a standard Java properties file format.  Variables can be used for any value and for some names.  For example, to automate standing up an environment with one or more applications in the Oracle Java Cloud Service, service provisioning does not allow the provisioning script to specify the server names.  For example, if the application being deployed immediately following provisioning needs to tweak the Server Start arguments to specify a Java system property, the model can use a variable placeholder in place of the server name and populate the variable file with the provisioned server names dynamically between provisioning and application deployment.</p>
-<p><strong>File tokens</strong> are declared with the syntax <code>@@FILE:&lt;filename&gt;@@</code>. This type of token is similar to a variable token, but it references a single value that is read from the specified file. For example, the model may reference a password attribute as follows:</p>
+<p>The model allows the use of tokens that are substituted with text values as the model is processed. This section
+describes several types of tokens.</p>
+<p><strong>Variable tokens</strong> are declared with the syntax <code>@@PROP:&lt;variable&gt;@@</code>. This type of token represents a value that is
+resolved at runtime using a variables file in a standard Java properties file format.  Variables can be used for any
+value and for some names.  For example, to automate standing up an environment with one or more applications in the
+Oracle Java Cloud Service, service provisioning does not allow the provisioning script to specify the server names.
+For example, if the application being deployed immediately following provisioning needs to tweak the Server Start
+arguments to specify a Java system property, the model can use a variable placeholder in place of the server name and
+populate the variable file with the provisioned server names dynamically between provisioning and application
+deployment.</p>
+<p><strong>File tokens</strong> are declared with the syntax <code>@@FILE:&lt;filename&gt;@@</code>. This type of token is similar to a variable token,
+but it references a single value that is read from the specified file. For example, the model may reference a password
+attribute as follows:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">PasswordEncrypted</span>: <span style="color:#e6db74">&#39;@@FILE:/home/me/dbcs1.txt@@&#39;</span>
 </code></pre></div><p>The file <code>/home/me/dbcs1.txt</code> would then contain this single line:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ae81ff">password#123</span>
-</code></pre></div><p>As the model is processed, the value for the <code>PasswordEncrypted</code> would resolve to <code>password#123</code>. It is also possible to combine file placeholders with other types of tokens, to allow for variations in the name and location of the file, such as:</p>
+</code></pre></div><p>As the model is processed, the value for the <code>PasswordEncrypted</code> would resolve to <code>password#123</code>. It is also possible
+to combine file placeholders with other types of tokens, to allow for variations in the name and location of the file,
+such as:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">PasswordEncrypted</span>: <span style="color:#e6db74">&#39;@@FILE:/dir/@@PROP:name@@.txt@@&#39;</span>
 </code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">PasswordEncrypted</span>: <span style="color:#e6db74">&#39;@@FILE:@@ORACLE_HOME@@/dir/name.txt@@&#39;</span>
-</code></pre></div><p><strong>Environment tokens</strong> are declared with the syntax <code>@@ENV:&lt;name&gt;@@</code>. This type of token is resolved by looking up the system environment variable <code>&lt;name&gt;</code>, and substituting that value for the token.</p>
-<p><strong>Secret tokens</strong> are declared with the syntax <code>@@SECRET:&lt;name&gt;:&lt;key&gt;@@</code>. This type of token is resolved by determining the location of a Kubernetes secret file, and reading the first line from that file. That line is substituted for the token.</p>
-<p>There are two methods for deriving the location of the Kubernetes secret file. The first method involves using one or more configured root directories, and looking for the secret file in the path <code>&lt;root-directory&gt;/&lt;name&gt;/&lt;key&gt;</code>.</p>
-<p>The root directories are configured as a comma-separated list of directories, using the environment variable <code>WDT_MODEL_SECRETS_DIRS</code>. For example, if <code>WDT_MODEL_SECRETS_DIRS</code> is set to <code>/etc/my-secrets,/etc/your-secrets</code>, then the token <code>@@SECRET:secrets:the-secret@@</code> will search the following locations:</p>
+</code></pre></div><p><strong>Environment tokens</strong> are declared with the syntax <code>@@ENV:&lt;name&gt;@@</code>. This type of token is resolved by looking up the
+system environment variable <code>&lt;name&gt;</code>, and substituting that value for the token.</p>
+<p><strong>Secret tokens</strong> are declared with the syntax <code>@@SECRET:&lt;name&gt;:&lt;key&gt;@@</code>. This type of token is resolved by determining
+the location of a Kubernetes secret file, and reading the first line from that file. That line is substituted for the
+token.</p>
+<p>There are two methods for deriving the location of the Kubernetes secret file. The first method involves using one or
+more configured root directories, and looking for the secret file in the path <code>&lt;root-directory&gt;/&lt;name&gt;/&lt;key&gt;</code>.</p>
+<p>The root directories are configured as a comma-separated list of directories, using the environment variable
+<code>WDT_MODEL_SECRETS_DIRS</code>. For example, if <code>WDT_MODEL_SECRETS_DIRS</code> is set to <code>/etc/my-secrets,/etc/your-secrets</code>,
+then the token <code>@@SECRET:secrets:the-secret@@</code> will search the following locations:</p>
 <pre><code>/etc/my-secrets/secrets/the-secret
 /etc/your-secrets/secrets/the-secret
 </code></pre><p>If either of these files is found, the secret is read from that file and substituted in the model.</p>
-<p>The second method for locating the Kubernetes secret file is to use the environment variable <code>WDT_MODEL_SECRETS_NAME_DIR_PAIRS</code> to map <code>&lt;name&gt;</code> values to specific directory locations. For example, if <code>WDT_MODEL_SECRETS_NAME_DIR_PAIRS</code> is set to <code>my-root=/etc/my-secrets,your-root=/etc/your-secrets</code>, then the token <code>@@SECRET:your-root:the-secret@@</code> will look for the secrets file at:</p>
+<p>The second method for locating the Kubernetes secret file is to use the environment variable
+<code>WDT_MODEL_SECRETS_NAME_DIR_PAIRS</code> to map <code>&lt;name&gt;</code> values to specific directory locations. For example, if
+<code>WDT_MODEL_SECRETS_NAME_DIR_PAIRS</code> is set to <code>my-root=/etc/my-secrets,your-root=/etc/your-secrets</code>, then the token
+<code>@@SECRET:your-root:the-secret@@</code> will look for the secrets file at:</p>
 <pre><code>/etc/your-secrets/the-secret
-</code></pre><p>If the <code>&lt;name&gt;</code> value has a corresponding mapped directory in <code>WDT_MODEL_SECRETS_NAME_DIR_PAIRS</code>, then that directory will take precedence over any roots specified in <code>WDT_MODEL_SECRETS_DIRS</code>.</p>
+</code></pre><p>If the <code>&lt;name&gt;</code> value has a corresponding mapped directory in <code>WDT_MODEL_SECRETS_NAME_DIR_PAIRS</code>, then that directory
+will take precedence over any roots specified in <code>WDT_MODEL_SECRETS_DIRS</code>.</p>
 
-<div class="notices note" ><p>It is important that the secrets directories contain only secrets files, because those files are examined to create a list of available name/key pairs.</p>
+<div class="notices note" ><p>It is important that the secrets directories contain only secrets files, because those files are
+examined to create a list of available name/key pairs.</p>
 </div>
 
-<p><strong>Path tokens</strong> are tokens that reference known values, and can be used to make the model more portable. For example, a model may reference a WebLogic library source path as:</p>
+<p><strong>Path tokens</strong> are tokens that reference known values, and can be used to make the model more portable. For example,
+a model may reference a WebLogic library source path as:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">SourcePath</span>: <span style="color:#e6db74">&#39;@@WL_HOME@@/common/deployable-libraries/jsf-2.0.war&#39;</span>
-</code></pre></div><p>Using the path token <code>@@WL_HOME@@</code> allows the model to be used across multiple environments, even if the WebLogic installation directory is different. Path tokens can be used at any location in the model that specifies a file or directory location.  The supported tokens are:</p>
+</code></pre></div><p>Using the path token <code>@@WL_HOME@@</code> allows the model to be used across multiple environments, even if the WebLogic
+installation directory is different. Path tokens can be used at any location in the model that specifies a file or
+directory location.  The supported tokens are:</p>
 <ul>
 <li><code>@@ORACLE_HOME@@</code> - The location where WebLogic Server and any other FMW products are installed (in older versions, this was known as the <code>MW_HOME</code>).</li>
 <li><code>@@WL_HOME@@</code>     - The location within the Oracle Home where WebLogic Server is installed (for example, the <code>$ORACLE_HOME/wlserver</code> directory in 12.1.2+).</li>
@@ -1661,7 +1722,11 @@
 <li><code>@@TMP@@</code>         - The location of the temporary directory, as controlled by the <code>java.io.tmpdir</code> system property.</li>
 </ul>
 <h3 id="model-semantics">Model semantics</h3>
-<p>When modeling configuration attributes that can have multiple values, the WebLogic Deploy Tooling tries to make this as painless as possible.  For example, the <code>Target</code> attribute on resources can have zero or more clusters and/or servers specified.  When specifying the value of such list attributes, the user has freedom to specify them as a list or as a comma-delimited string (comma is the only recognized delimiter for lists).  For attributes where the values can legally contain commas, the items must be specified as a list.  Examples of each are shown below.</p>
+<p>When modeling configuration attributes that can have multiple values, the WebLogic Deploy Tooling tries to make this
+as painless as possible.  For example, the <code>Target</code> attribute on resources can have zero or more clusters and/or
+servers specified.  When specifying the value of such list attributes, the user has freedom to specify them as a list
+or as a comma-delimited string (comma is the only recognized delimiter for lists).  For attributes where the values can
+legally contain commas, the items must be specified as a list.  Examples of each are shown below.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">resources</span>:
     <span style="color:#f92672">JDBCSystemResource</span>:
         <span style="color:#f92672">MyStringDataSource</span>:
@@ -1689,10 +1754,27 @@
                                 <span style="color:#e6db74">&#39;com.bea:Name=m1,Type=ServerRuntime&#39;</span>
                             ]
                 <span style="color:#ae81ff">...</span>
-</code></pre></div><p>In the example above, the <code>Target</code> attribute is specified three different ways, as a comma-separated string, as a list, and as a single string in the case of where there is only a single target.  The <code>JNDIName</code> attribute is specified as a comma-separated string and as a list (a single string also works). On the other hand, the <code>HarvestedInstances</code> attribute had to be specified as a list because each element contains commas.</p>
-<p>One of the primary goals of the WebLogic Deploy Tooling is to support a sparse model where the user can specify just the configuration needed for a particular situation.  What this implies varies somewhat between the tools but, in general, this implies that the tools are using an additive model.  That is, the tools add to what is already there in the existing domain or domain templates (when creating a new domain) rather than making the domain conform exactly to the specified model.  Where it makes sense, a similar, additive approach is taken when setting the value of multi-valued attributes.  For example, if the model specified the cluster <code>mycluster</code> as the target for an artifact, the tooling will add <code>mycluster</code> to any existing list of targets for the artifact.  While the development team has tried to mark attributes that do not make sense to merge accordingly in our knowledge base, this behavior can be disabled on an attribute-by-attribute basis, by adding an additional annotation in the knowledge base data files.  The development team is already thinking about how to handle situations that require a non-additive, converge-to-the-model approach, and how that might be supported, but this still remains a wish list item.  Users with these requirements should raise an issue for this support.</p>
+</code></pre></div><p>In the example above, the <code>Target</code> attribute is specified three different ways, as a comma-separated string, as a list,
+and as a single string in the case of where there is only a single target.  The <code>JNDIName</code> attribute is specified as a
+comma-separated string and as a list (a single string also works). On the other hand, the <code>HarvestedInstances</code>
+attribute had to be specified as a list because each element contains commas.</p>
+<p>One of the primary goals of the WebLogic Deploy Tooling is to support a sparse model where the user can specify just
+the configuration needed for a particular situation.  What this implies varies somewhat between the tools but, in
+general, this implies that the tools are using an additive model.  That is, the tools add to what is already there in
+the existing domain or domain templates (when creating a new domain) rather than making the domain conform exactly to
+the specified model.  Where it makes sense, a similar, additive approach is taken when setting the value of
+multi-valued attributes.  For example, if the model specified the cluster <code>mycluster</code> as the target for an artifact,
+the tooling will add <code>mycluster</code> to any existing list of targets for the artifact.  While the development team has
+tried to mark attributes that do not make sense to merge accordingly in our knowledge base, this behavior can be
+disabled on an attribute-by-attribute basis, by adding an additional annotation in the knowledge base data files.
+The development team is already thinking about how to handle situations that require a non-additive,
+converge-to-the-model approach, and how that might be supported, but this still remains a wish list item.
+Users with these requirements should raise an issue for this support.</p>
 <h3 id="declaring-named-mbeans-to-delete">Declaring named MBeans to delete</h3>
-<p>With WebLogic Deploy Tooling, you can specify named items in the model to be deleted using the Create Domain, Update Domain, and Deploy Applications Tools.  Named items are those that have multiple instances that are distinguished by user-provided names, such as managed servers, data sources, and security realms.  Items to be deleted are prepended with an exclamation point (!) in the model.</p>
+<p>With WebLogic Deploy Tooling, you can specify named items in the model to be deleted using the Create Domain,
+Update Domain, and Deploy Applications Tools.  Named items are those that have multiple instances that are
+distinguished by user-provided names, such as managed servers, data sources, and security realms.  Items to be deleted
+are prepended with an exclamation point (!) in the model.</p>
 <p>In this example, the managed server <code>obsoleteServer</code> will be deleted, and <code>newServer</code> will be created:</p>
 <p>Note that the exclamation point, along with the name, should be inside quotation marks:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">    <span style="color:#f92672">Server</span>:
@@ -1700,7 +1782,10 @@
         <span style="color:#f92672">newServer</span>:
             <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">127.0.0.1</span>
             <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">9005</span>
-</code></pre></div><p>This feature can also remove items that were created by WebLogic Server templates. For example, the base template creates a default security realm called <code>myrealm</code>.  If a user chooses to declare a custom realm, <code>myrealm</code> is no longer needed.  In this example, <code>myrealm</code> will be deleted, and the custom realm <code>newrealm</code> will be created, and declared as the default realm:</p>
+</code></pre></div><p>This feature can also remove items that were created by WebLogic Server templates. For example, the base template
+creates a default security realm called <code>myrealm</code>.  If a user chooses to declare a custom realm, <code>myrealm</code> is no
+longer needed.  In this example, <code>myrealm</code> will be deleted, and the custom realm <code>newrealm</code> will be created, and
+declared as the default realm:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">    <span style="color:#f92672">SecurityConfiguration</span>:
         <span style="color:#f92672">DefaultRealm</span>: <span style="color:#ae81ff">newrealm</span>
         <span style="color:#f92672">Realm</span>:
@@ -1708,7 +1793,9 @@
             <span style="color:#f92672">newrealm</span>:
                 <span style="color:#f92672">AuthenticationProvider</span>:
                 <span style="color:#ae81ff">...</span>
-</code></pre></div><p>This feature does not apply to named security providers within a realm. These items follow a special set of rules that are required to maintain their ordering. See <a href="/weblogic-deploy-tooling/samples/securityproviders-model/">Modeling security providers</a> for detailed information.</p>
+</code></pre></div><p>This feature does not apply to named security providers within a realm. These items follow a special set of rules that
+are required to maintain their ordering. See
+<a href="/weblogic-deploy-tooling/samples/securityproviders-model/">Modeling security providers</a> for detailed information.</p>
 <p>This feature can be used to undeploy applications or remove libraries.</p>
 <h4 id="declaring-list-items-to-delete">Declaring list items to delete</h4>
 <p>In addition to deleting named mbeans, you can remove items from a list. Most practically, this would be within a Target list.</p>
@@ -1718,11 +1805,14 @@
 
 </code></pre></div><p>In this example, the BPMJMSModule has the AdminServer target removed from the target list.</p>
 <h3 id="using-multiple-models">Using multiple models</h3>
-<p>The Create Domain, Update Domain, Deploy Applications, and Validate Model Tools allow the specification of multiple models on the command line. For example:</p>
+<p>The Create Domain, Update Domain, Deploy Applications, and Validate Model Tools allow the specification of multiple
+models on the command line. For example:</p>
 <pre><code>$ weblogic-deploy\bin\createDomain.cmd -model_file modelOne,modelTwo,modelThree ...
 </code></pre>
-<p>In this case, the models are merged into a single model before being applied. Each successive model is added to the previous model. In cases where entities exist in both models, the attributes are combined and attribute values from successive models prevail.  The resulting model is then verified before being applied.
-For example, if Model 1 looks like:</p>
+<p>In this case, the models are merged into a single model before being applied. Each successive model is added to the
+previous model. In cases where entities exist in both models, the attributes are combined and attribute values from
+successive models prevail.  The resulting model is then verified before being applied.  For example,
+if Model 1 looks like:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
     <span style="color:#f92672">Server</span>:
         <span style="color:#f92672">m1</span>:
@@ -1744,14 +1834,16 @@ For example, if Model 1 looks like:</p>
         <span style="color:#f92672">m1</span>:
             <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">myhostname</span>
             <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">8000</span>
-            <span style="color:#f92672">Notes</span>: <span style="color:#e6db74">&#34;Server 1&#34;</span>
+            <span style="color:#f92672">Notes</span>: <span style="color:#ae81ff">Server 1</span>
         <span style="color:#f92672">m2</span>:
             <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">9000</span>
         <span style="color:#f92672">m3</span>:
             <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">10000</span>
-</code></pre></div><p>If variable properties are used in element names, such as <code>@@PROP:my-server@@</code>, the names in both models will be resolved and matching elements will be merged.</p>
+</code></pre></div><p>If variable properties are used in element names, such as <code>@@PROP:my-server@@</code>, the names in both models will be
+resolved and matching elements will be merged.</p>
 <h4 id="multiple-models-and-delete-notation">Multiple models and delete notation</h4>
-<p>A named element using <a href="#declaring-named-mbeans-to-delete">delete notation</a> will completely delete an element with a matching name and no delete notation in a previous model. For example, if Model 1 looks like:</p>
+<p>A named element using <a href="#declaring-named-mbeans-to-delete">delete notation</a> will completely delete an element with a
+matching name and no delete notation in a previous model. For example, if Model 1 looks like:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
     <span style="color:#f92672">Server</span>:
         <span style="color:#f92672">m1</span>:
@@ -1769,7 +1861,8 @@ For example, if Model 1 looks like:</p>
         <span style="color:#f92672">m1</span>:
             <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">7000</span>
             <span style="color:#f92672">Notes</span>: <span style="color:#ae81ff">Server 1</span>
-</code></pre></div><p>Similarly, an element without delete notation will completely replace an element with a matching name that has delete notation in a previous model. For example, if Model 1 looks like:</p>
+</code></pre></div><p>Similarly, an element without delete notation will completely replace an element with a matching name that has delete
+notation in a previous model. For example, if Model 1 looks like:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
     <span style="color:#f92672">Server</span>:
         <span style="color:#f92672">&#39;!m1&#39;</span>:
@@ -1796,8 +1889,8 @@ This may require some changes to existing models in order to be parsed correctly
         <span style="color:#f92672">&#39;!ms1&#39;</span>:
         <span style="color:#f92672">ms2</span>:
 </code></pre></div><ul>
-<li>Model elements under the same parent should be indented to the exact same level. The previous YAML parser did not enforce this restriction,
-but it is standard for YAML. In this example, each cluster is indented four spaces.</li>
+<li>Model elements under the same parent should be indented to the exact same level. The previous YAML parser did not
+enforce this restriction, but it is standard for YAML. In this example, each cluster is indented four spaces.</li>
 </ul>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
     <span style="color:#f92672">Cluster</span>:
@@ -1808,7 +1901,10 @@ but it is standard for YAML. In this example, each cluster is indented four spac
 </code></pre></div><ul>
 <li>
 <p>Object lists in the <code>kubernetes</code> section of the model now should be specified in a hyphenated list format,
-similar to how they appear in the domain resource file produced for <a href="https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/domain-resource/">WebLogic Kubernetes Operator</a>.</p>
+similar to how they appear in the domain resource file produced for</p>
+</li>
+<li>
+<p><a href="https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/domain-resource/">WebLogic Kubernetes Operator</a>.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">    <span style="color:#f92672">clusters</span>:
     - <span style="color:#f92672">clusterName</span>: <span style="color:#e6db74">&#39;cluster1&#39;</span>
       <span style="color:#f92672">allowReplicasBelowMinDynClusterSize</span>: <span style="color:#66d9ef">true</span>
@@ -2833,19 +2929,19 @@ The Model Help Tool has used model sample format, by default, since release 1.9.
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1683256756"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1683256756"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1683256756"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1683256756"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1683256756"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1683256756"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1683304154"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1683304154"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1683304154"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1683304154"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1683304154"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1683304154"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1683256756"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1683256756"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1683256756"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1683304154"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1683304154"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1683304154"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1683256756"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1683304154"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

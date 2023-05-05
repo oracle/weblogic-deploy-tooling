@@ -75,7 +75,8 @@ The system-test and alias-test modules contain test suites for verifying pull re
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/concepts/archive/</guid>
-      <description>The archive file is used to deploy binaries and other file resources to the target domain. The archive is a ZIP file with a specific directory structure. Any file resources referenced in the model that are not already on the target system must be stored in the correct location in the archive, and the model must reflect the path into the archive. The model itself can also be stored inside the archive, if desired.</description>
+      <description>The archive file is used to deploy binaries and other file resources to the target domain. The archive is a ZIP file with a specific directory structure. Any file resources referenced in the model that are not already on the target system must be stored in the correct location in the archive, and the model must reflect the path into the archive.
+Note that file resources that already exist on the target system need not be included in the archive, provided that the model specifies the correct location on the target system.</description>
     </item>
     
     <item>
