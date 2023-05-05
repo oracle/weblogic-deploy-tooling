@@ -77,11 +77,6 @@ public class WLSDeployArchive {
     public static final String ARCHIVE_OPSS_WALLET_PATH = WLSDPLY_ARCHIVE_BINARY_DIR + "/opsswallet";
 
     /**
-     * Top-level archive subdirectory where the model is stored and the subdirectory to which it will be extracted.
-     */
-    public static final String ARCHIVE_MODEL_TARGET_DIR = "model";
-
-    /**
      * Top-level archive subdirectory where the applications are stored and the subdirectory to which
      * they will be extracted.
      */
