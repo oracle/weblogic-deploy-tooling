@@ -139,8 +139,10 @@ in the archive as EAR, WAR, or JAR files, or as an exploded directory at this lo
 The root directory under which empty directories must exist for `FileStore` elements in the model.
 
 #### `wlsdeploy/structuredApplications`
-The root directory under which "structured" applications are stored. Applications inside the specified directory
-structure can be stored in the archive as EAR or WAR files, or as an exploded directory.
+The root directory under which "structured" applications are stored; the WebLogic Server documentation refers to them as
+[application installation directories](https://docs.oracle.com/en/middleware/standalone/weblogic-server/14.1.1.0/depgd/deployunits.html#GUID-B5DA7628-5900-43C3-9290-8D17E151EDD4).
+Applications inside the specified directory structure can be stored in the archive as EAR or WAR files, or as an
+exploded directory.
 
 A sample "structured" application might have these entries:
 
