@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+ * Copyright (c) 2017, 2023, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.aliases;
@@ -324,7 +324,9 @@ public final class TypeUtils {
             @SuppressWarnings("unchecked")
             Map<Object,Object> propMap = (Map<Object,Object>) value;
             properties = new Properties();
-            properties.putAll(propMap);
+            for (Map.Entry<Object, Object> entry: propMap.entrySet()) {
+                properties.setProperty(entry.getKey().toString(), getPropertyText(entry.getValue()));
+            }
         } else if (PyDictionary.class.isAssignableFrom(value.getClass())) {
             PyDictionary dict = (PyDictionary) value;
             properties = new Properties();
