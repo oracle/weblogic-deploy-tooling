@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Release 2.4.1 :: WebLogic Deploy Tooling</title>
+    <title>Release Notes 3.1.0 :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1683762167" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-2.4.1/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-3.1.0/">
     <nav id="sidebar" class="">
 
 
@@ -1212,7 +1212,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.1.0/" title="Release Notes 3.1.0" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.1.0/" title="Release Notes 3.1.0" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-3.1.0/">
         <b> </b>Release Notes 3.1.0
         
@@ -1401,7 +1401,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-2.4.1/" title="Release 2.4.1" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-2.4.1/" title="Release 2.4.1" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-2.4.1/">
         <b> </b>Release 2.4.1
         
@@ -1493,7 +1493,7 @@
             
           
           
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release 2.4.1
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release Notes 3.1.0
           
         
           
@@ -1510,7 +1510,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#changes-in-release-241">Changes in Release 2.4.1</a></li>
+        <li><a href="#changes-in-release-310">Changes in Release 3.1.0</a></li>
       </ul>
     </li>
   </ul>
@@ -1530,14 +1530,14 @@
           
             <h1>
               
-              Release 2.4.1
+              Release Notes 3.1.0
             </h1>
           
 
         
 
 
-<h3 id="changes-in-release-241">Changes in Release 2.4.1</h3>
+<h3 id="changes-in-release-310">Changes in Release 3.1.0</h3>
 <ul>
 <li><a href="#major-new-features">Major New Features</a></li>
 <li><a href="#other-changes">Other Changes</a></li>
@@ -1545,20 +1545,29 @@
 <li><a href="#known-issues">Known Issues</a></li>
 </ul>
 <h4 id="major-new-features">Major New Features</h4>
-<ul>
-<li>None</li>
-</ul>
-<h4 id="other-changes">Other Changes</h4>
 <p>None</p>
+<h4 id="other-changes">Other Changes</h4>
+<ul>
+<li>#1431 - Added new <code>OPSSInitialization</code> section to <code>domainInfo</code> in order to support ODI and OIG domain creation.</li>
+<li>#1432 - Added database connectivity check to validate RCU database connection details prior to creating a domain
+using RCU schemas when not running RCU.</li>
+<li>#1434 - Added JSON output of restart and non-dynamic change information (#1154)</li>
+<li>#1438 - Deprecated the use of all RCU-related arguments that provide database connectivity information with
+the Create Domain tool.</li>
+</ul>
 <h4 id="bug-fixes">Bug Fixes</h4>
 <ul>
-<li>#1237: Resolved an issue where the tools supporting the <code>-target</code> parameter were doing target-related work even if the parameter was not specified.</li>
+<li>#1428 - Added command-line usage for OPSS Wallet related arguments to Create Domain.  Enhanced the documentation to
+describe how to use the OPSS Wallet to recreate a domain that connects to existing RCU schemas.</li>
+<li>#1429 - Updated Discover Domain <code>-target</code> argument usage.  Updated the documentation related to <code>-target</code> to reflect
+recent changes.</li>
+<li>#1436 - Fixed an issue with deleting machines created by a template.</li>
+<li>#1437 - Fixed offline discovery issues when discovering domains that have used slashes in their object names (e.g., SOA Suite)</li>
+<li>#1438 - Fixed issues where Create Domain RCU-related command-line arguments were not override model-supplied values.</li>
+<li>#1439 - Worked around a discovery issue for domains with the <code>Trust Service Identity Asserter</code> when the Oracle Home
+has not been patched to contain the security provider&rsquo;s schema JAR file.</li>
 </ul>
 <h4 id="known-issues">Known Issues</h4>
-<ul>
-<li>Due to the changes made for WDT-663 in WDT 2.4.0, the resulting remotely discovered model contains extra fields that would not normally be there.
-This is an area of ongoing work to clean up the online aliases to not depend on these extra remote calls to produce a clean model.</li>
-</ul>
 
 
 <footer class="footline">
@@ -2383,6 +2392,23 @@ This is an area of ongoing work to clean up the online aliases to not depend on 
             
                 
                     
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
                         
                         
                     
@@ -2529,26 +2555,6 @@ This is an area of ongoing work to clean up the online aliases to not depend on 
             
             
                 
-                    
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
                     
                 
                 
@@ -2573,10 +2579,10 @@ This is an area of ongoing work to clean up the online aliases to not depend on 
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/release-2.4.2/" title="Release 2.4.2"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-2.4.0/" title="Release 2.4.0" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-3.0.4/" title="Release 3.0.4" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

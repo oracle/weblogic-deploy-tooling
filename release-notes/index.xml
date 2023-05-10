@@ -8,6 +8,16 @@
     <language>en-us</language>
     <lastBuildDate>Fri, 22 Feb 2019 15:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Release Notes 3.1.0</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.1.0/</link>
+      <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.1.0/</guid>
+      <description>Changes in Release 3.1.0  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes  #1431 - Added new OPSSInitialization section to domainInfo in order to support ODI and OIG domain creation. #1432 - Added database connectivity check to validate RCU database connection details prior to creating a domain using RCU schemas when not running RCU. #1434 - Added JSON output of restart and non-dynamic change information (#1154) #1438 - Deprecated the use of all RCU-related arguments that provide database connectivity information with the Create Domain tool.</description>
+    </item>
+    
+    <item>
       <title>Release 3.0.4</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.0.4/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
