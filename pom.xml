@@ -29,13 +29,6 @@
         </license>
     </licenses>
 
-    <scm>
-        <url>https://github.com/oracle/weblogic-deploy-tooling</url>
-        <connection>scm:git:git@github.com:oracle/weblogic-deploy-tooling.git</connection>
-        <developerConnection>scm:git:git@github.com:oracle/weblogic-deploy-tooling.git</developerConnection>
-        <tag>weblogic-deploy-tooling-1.6.2</tag>
-    </scm>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
@@ -47,6 +40,8 @@
         <antlr.version>4.9.3</antlr.version>
         <snakeyaml.version>2.0</snakeyaml.version>
         <picocli.version>4.7.3</picocli.version>
+        <wdt.scm.repo.url>${env.WDT_SCM_REPO_URL}</wdt.scm.repo.url>
+        <wdt.scm.repo.conn>${env.WDT_SCM_REPO_CONN}</wdt.scm.repo.conn>
 
         <sonar.organization>oracle</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -65,6 +60,12 @@
         <alias-test-skip-generate>true</alias-test-skip-generate>
         <test.groups>gate</test.groups>
     </properties>
+
+    <scm>
+        <url>${wdt.scm.repo.url}</url>
+        <connection>scm:git:${wdt.scm.repo.conn}</connection>
+        <developerConnection>scm:git:${wdt.scm.repo.conn}</developerConnection>
+    </scm>
 
     <dependencyManagement>
         <dependencies>
