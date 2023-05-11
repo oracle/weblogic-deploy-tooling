@@ -12,20 +12,20 @@
     <title>WDT project release process :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1683822128" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1683822128" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1683822128" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1683822128" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1683822128" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1683822128" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1683822128" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1683822128" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1683822128" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1683822128" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1683835508" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1683835508" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1683835508" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1683835508" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1683835508" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1683835508" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1683835508" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1683835508" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1683835508" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1683835508" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1683822128"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1683835508"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1683822128"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1683822128"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1683835508"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1683835508"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1683822128"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1683835508"></script>
 
     
   </div>
@@ -1570,14 +1570,21 @@
 <p>The best practice is to write the release notes that will be published to GitHub prior to starting the steps below.</p>
 <ol>
 <li>
-<p>Set (and export) the environment variable <code>WLST_DIR</code> to <code>&lt;WLS-install-dir&gt;/oracle_common/common/bin</code>, replacing <code>&lt;WLS-install-dir&gt;</code> with the full path to the WLS 12.2.1.x installation directory.</p>
+<p>Set (and export) the following environment variables:</p>
+<ul>
+<li><code>WLST_DIR</code> - set to <code>$MW_HOME/oracle_common/common/bin</code>, where <code>$MW_HOME</code> is the path to a WLS 12.2.1.x or newer installation directory.</li>
+<li><code>WDT_SCM_REPO_URL</code> - set to the browsable URL to the project (e.g., <code>https://github.com/oracle/weblogic-deploy-tooling</code>)</li>
+<li><code>WDT_SCM_REPO_CONN</code> - set to the clonable URL for the project (e.g., <code>git@github.com:oracle/weblogic-deploy-tooling.git</code>)</li>
+</ul>
 </li>
 <li>
 <p>In the <code>weblogic-deploy-tooling</code> project directory, run the <code>mvn -B release:prepare release:perform</code> command.</p>
 <ul>
 <li>If the next development version is changing the major or minor version, override the default <code>developmentVersion</code>
-property on the command line.  For example, <code>mvn -B -DdevelopmentVersion=3.2.0-SNAPSHOT release:prepare release:perform</code>.</li>
-<li>If your SSH private key has a passphrase, watch the build closely because it will prompt for your passphrase multiple times.  Failure to enter it in a timely manner may result in a failure.</li>
+property on the command line.  For example,<br>
+<code>mvn -B -DdevelopmentVersion=3.2.0-SNAPSHOT release:prepare release:perform</code>.</li>
+<li>If your SSH private key has a passphrase, watch the build closely because it will prompt for your passphrase multiple times.
+Failure to enter it in a timely manner may result in a failure.</li>
 </ul>
 </li>
 <li>
@@ -1588,7 +1595,8 @@ property on the command line.  For example, <code>mvn -B -DdevelopmentVersion=3.
 </li>
 </ol>
 <h3 id="github-release-process">GitHub release process</h3>
-<p>Note that this process relies on the WDT installers being in your local Maven repository.  As such, it is critical for the same user to run these steps on the same machine as the steps from the previous section!</p>
+<p>Note that this process relies on the WDT installers being in your local Maven repository.  As such, it is critical for
+the same user to run these steps on the same machine as the steps from the previous section!</p>
 <ol>
 <li>Save the release notes in the file <code>&lt;wdt-project-directory&gt;/target/ReleaseNotes.md</code>.</li>
 <li>Run the command <code>mvn -f github-release.xml -DreleaseVersion=&lt;release version number&gt; verify</code> to create the draft GitHub Release.</li>
@@ -2621,19 +2629,19 @@ property on the command line.  For example, <code>mvn -B -DdevelopmentVersion=3.
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1683822128"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1683822128"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1683822128"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1683822128"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1683822128"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1683822128"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1683835508"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1683835508"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1683835508"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1683835508"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1683835508"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1683835508"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1683822128"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1683822128"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1683822128"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1683835508"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1683835508"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1683835508"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1683822128"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1683835508"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
