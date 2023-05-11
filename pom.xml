@@ -65,8 +65,8 @@
         <url>${wdt.scm.repo.url}</url>
         <connection>scm:git:${wdt.scm.repo.conn}</connection>
         <developerConnection>scm:git:${wdt.scm.repo.conn}</developerConnection>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <dependencyManagement>
         <dependencies>
