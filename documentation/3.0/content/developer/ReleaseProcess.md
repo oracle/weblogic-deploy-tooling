@@ -40,18 +40,26 @@ This document describes the process that should be followed to create a WebLogic
 ### Software release process
 The best practice is to write the release notes that will be published to GitHub prior to starting the steps below.
 
-1. Set (and export) the environment variable `WLST_DIR` to `<WLS-install-dir>/oracle_common/common/bin`, replacing `<WLS-install-dir>` with the full path to the WLS 12.2.1.x installation directory.
+1. Set (and export) the following environment variables:
+
+    - `WLST_DIR` - set to `$MW_HOME/oracle_common/common/bin`, where `$MW_HOME` is the path to a WLS 12.2.1.x or newer installation directory.
+    - `WDT_SCM_REPO_URL` - set to the browsable URL to the project (e.g., `https://github.com/oracle/weblogic-deploy-tooling`)
+    - `WDT_SCM_REPO_CONN` - set to the clonable URL for the project (e.g., `git@github.com:oracle/weblogic-deploy-tooling.git`)
+
 2. In the `weblogic-deploy-tooling` project directory, run the `mvn -B release:prepare release:perform` command.
 
    - If the next development version is changing the major or minor version, override the default `developmentVersion` 
-     property on the command line.  For example, `mvn -B -DdevelopmentVersion=3.2.0-SNAPSHOT release:prepare release:perform`.
-   - If your SSH private key has a passphrase, watch the build closely because it will prompt for your passphrase multiple times.  Failure to enter it in a timely manner may result in a failure.
+     property on the command line.  For example,  
+     `mvn -B -DdevelopmentVersion=3.2.0-SNAPSHOT release:prepare release:perform`.
+   - If your SSH private key has a passphrase, watch the build closely because it will prompt for your passphrase multiple times.
+     Failure to enter it in a timely manner may result in a failure.
 
-3. If the build fails, run the `mvn -B release:rollback` command to undo it and start over from Step 2., after correcting the issue.
+3. If the build fails, run the `mvn -B release:rollback` command to undo it and start over from Step 2., after correcting the issue. 
 4. After the software has been released, move on to the GitHub Release Process.
 
 ### GitHub release process
-Note that this process relies on the WDT installers being in your local Maven repository.  As such, it is critical for the same user to run these steps on the same machine as the steps from the previous section!
+Note that this process relies on the WDT installers being in your local Maven repository.  As such, it is critical for
+the same user to run these steps on the same machine as the steps from the previous section!
 
 1. Save the release notes in the file `<wdt-project-directory>/target/ReleaseNotes.md`.
 2. Run the command `mvn -f github-release.xml -DreleaseVersion=<release version number> verify` to create the draft GitHub Release.
