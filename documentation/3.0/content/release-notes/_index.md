@@ -19,7 +19,7 @@ None
 #### Other Changes
 - #1450 - Added alias updates for April 2023 PSUs for 12.2.1.3, 12.2.1.4, and 14.1.1.
 - #1454 - Added aliases for new fields introduced 14.1.2.
-- #1457 - Deprecated `system-elements` section of typedef files and replaced it with new `discover-filters` section
+- #1457 - Deprecated `system-elements` section of typedef files and replaced it with a new `discover-filters` section
           that supports filtering named elements in most top-level folders.
 - #1458 - Updated Model and Archive documentation to reflect the current state of the code.
 
