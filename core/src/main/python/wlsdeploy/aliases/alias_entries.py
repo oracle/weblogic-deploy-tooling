@@ -442,7 +442,7 @@ class AliasEntries(object):
         :raises AliasException: if the location is missing required name tokens or
                                 the alias data for the location is bad
         """
-        _method_name = 'get_wlst_list_path_for_location'
+        _method_name = 'get_wlst_create_path_for_location'
 
         _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
         tokenized_path = self.__get_path_for_location(location, WLST_CREATE_PATH)
@@ -963,7 +963,7 @@ class AliasEntries(object):
         :param location: location context for the model folder
         :return: short name or model_folder name if not short named assigned
         """
-        _method_name = 'get_folder_short_name'
+        _method_name = 'get_folder_short_name_for_location'
         _logger.entering(location.get_folder_path(), class_name=_class_name, method_name=_method_name)
         folder_dict = self.__get_dictionary_for_location(location, False)
         result = ''
