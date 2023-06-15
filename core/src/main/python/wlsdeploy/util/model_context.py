@@ -56,7 +56,7 @@ class ModelContext(object):
         self._model_config = model_config.get_model_config(self._program_name)
 
         self._oracle_home = None
-        self._wl_home = None
+        self._wl_home = ""
         self._java_home = None
         self._domain_home = None
         self._domain_name = None
@@ -922,13 +922,13 @@ class ModelContext(object):
         # decide later what is required to be in context home for appropriate exception prevention
         result = my_path
         if not string_utils.is_empty(my_path):
-            if wl_home is not None and my_path.startswith(wl_home):
+            if wl_home and my_path.startswith(wl_home):
                 result = my_path.replace(wl_home, self.WL_HOME_TOKEN)
-            elif domain_home is not None and my_path.startswith(domain_home):
+            elif domain_home and my_path.startswith(domain_home):
                 result = my_path.replace(domain_home, self.DOMAIN_HOME_TOKEN)
-            elif oracle_home is not None and my_path.startswith(oracle_home):
+            elif oracle_home and my_path.startswith(oracle_home):
                 result = my_path.replace(oracle_home, self.ORACLE_HOME_TOKEN)
-            elif java_home is not None and my_path.startswith(java_home):
+            elif java_home and my_path.startswith(java_home):
                 result = my_path.replace(java_home, self.JAVA_HOME_TOKEN)
             elif my_path.startswith(cwd):
                 result = my_path.replace(cwd, self.CURRENT_DIRECTORY_TOKEN)
