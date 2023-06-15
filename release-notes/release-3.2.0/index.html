@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Install WDT :: WebLogic Deploy Tooling</title>
+    <title>Release Notes 3.2.0 :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1686860982" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/userguide/install/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-3.2.0/">
     <nav id="sidebar" class="">
 
 
@@ -170,7 +170,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/" title="User Guide" class="dd-item
-        parent
+        
         
         
         ">
@@ -198,7 +198,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/userguide/install/" title="Install WDT" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/install/" title="Install WDT" class="dd-item ">
         <a href="/weblogic-deploy-tooling/userguide/install/">
         Install WDT
         
@@ -1186,7 +1186,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
-        
+        parent
         
         
         ">
@@ -1212,7 +1212,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.2.0/" title="Release Notes 3.2.0" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.2.0/" title="Release Notes 3.2.0" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-3.2.0/">
         <b> </b>Release Notes 3.2.0
         
@@ -1514,7 +1514,7 @@
             
           
           
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/userguide/'>User Guide</a> > Install WDT
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release Notes 3.2.0
           
         
           
@@ -1531,7 +1531,7 @@
   <ul>
     <li>
       <ul>
-        <li></li>
+        <li><a href="#changes-in-release-320">Changes in Release 3.2.0</a></li>
       </ul>
     </li>
   </ul>
@@ -1551,82 +1551,36 @@
           
             <h1>
               
-              Install WDT
+              Release Notes 3.2.0
             </h1>
           
 
         
 
 
-<h4 id="download-and-install-the-software">Download and install the software</h4>
-<p>The WebLogic Deploy Tooling project repository is located at <a href="https://github.com/oracle/weblogic-deploy-tooling"><code>https://github.com/oracle/weblogic-deploy-tooling</code></a>.<br>
-You can download binary distributions of the <code>weblogic-deploy.zip</code> installer from the <a href="https://github.com/oracle/weblogic-deploy-tooling/releases">GitHub Releases page</a>.</p>
-<ol>
-<li>To install the software, simply unzip the <code>weblogic-deploy.zip</code> installer on a machine that has the desired versions of WebLogic Server installed.</li>
-<li>After being unzipped, the software is ready to use, just set the <code>JAVA_HOME</code> environment variable to point to a Java 7 or higher JDK  and the shell scripts are ready to run.</li>
-</ol>
-<h4 id="supported-wls-versions">Supported WLS versions</h4>
-<p>The following table specifies the supported WebLogic Server versions, along with the JDK versions, that must be used to run the WDT tool. You must set the <code>JAVA_HOME</code> environment variable to specify a JDK version different from the system default version.</p>
-<p>To create a domain with the proper JDK (particularly if the <code>JAVA_HOME</code> is different from the one which will be used by the target domain), set the domain <code>JavaHome</code> attribute in the domain model.</p>
-
-<div class="notices note" ><p>The Encryption Model Tool used to encrypt and decrypt clear-text passwords in the model and variable files, requires WDT to run with a minimum JDK version of 1.8.</p>
-</div>
-
-<table>
-<thead>
-<tr>
-<th>WebLogic Server Version</th>
-<th>Tool JDK Version</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>10.3.6</td>
-<td>1.7</td>
-</tr>
-<tr>
-<td>12.1.1</td>
-<td>1.7, 1.8</td>
-</tr>
-<tr>
-<td>12.1.2 <!-- raw HTML omitted -->[1]<!-- raw HTML omitted --><!-- raw HTML omitted -->[2]<!-- raw HTML omitted --></td>
-<td>1.7, 1.8</td>
-</tr>
-<tr>
-<td>12.1.3</td>
-<td>1.7, 1.8</td>
-</tr>
-<tr>
-<td>12.2.1 <!-- raw HTML omitted -->[3]<!-- raw HTML omitted --></td>
-<td>1.8</td>
-</tr>
-<tr>
-<td>12.2.1.1 <!-- raw HTML omitted -->[4]<!-- raw HTML omitted --></td>
-<td>1.8</td>
-</tr>
-<tr>
-<td>12.2.1.2</td>
-<td>1.8</td>
-</tr>
-<tr>
-<td>12.2.1.3</td>
-<td>1.8</td>
-</tr>
-<tr>
-<td>12.2.1.4 <!-- raw HTML omitted -->[5]<!-- raw HTML omitted --></td>
-<td>1.8</td>
-</tr>
-<tr>
-<td>14.1.1</td>
-<td>1.8, 1.11</td>
-</tr>
-</tbody>
-</table>
-<p><em><strong>1</strong></em> First release dynamic clusters are supported<br>
-<em><strong>2</strong></em> First release Coherence clusters are supported<br>
-<em><strong>3</strong></em> First release WLS roles are supported<br>
-<em><strong>4</strong></em> First release multitenancy is supported<br>
-<em><strong>5</strong></em> Last release multitenancy is supported</p>
+<h3 id="changes-in-release-320">Changes in Release 3.2.0</h3>
+<ul>
+<li><a href="#major-new-features">Major New Features</a></li>
+<li><a href="#other-changes">Other Changes</a></li>
+<li><a href="#bug-fixes">Bugs Fixes</a></li>
+<li><a href="#known-issues">Known Issues</a></li>
+</ul>
+<h4 id="major-new-features">Major New Features</h4>
+<p>None</p>
+<h4 id="other-changes">Other Changes</h4>
+<ul>
+<li>#1450 - Added alias updates for April 2023 PSUs for 12.2.1.3, 12.2.1.4, and 14.1.1.</li>
+<li>#1454 - Added aliases for new fields introduced 14.1.2.</li>
+<li>#1457 - Deprecated <code>system-elements</code> section of typedef files and replaced it with a new <code>discover-filters</code> section
+that supports filtering named elements in most top-level folders.</li>
+<li>#1458 - Updated Model and Archive documentation to reflect the current state of the code.</li>
+</ul>
+<h4 id="bug-fixes">Bug Fixes</h4>
+<ul>
+<li>#1459 - Fixed a type conversion issues for properties entries where boolean and integers were not being properly
+converted to strings in 14.1.1 and newer.</li>
+</ul>
+<h4 id="known-issues">Known Issues</h4>
 
 
 <footer class="footline">
@@ -1715,7 +1669,6 @@ You can download binary distributions of the <code>weblogic-deploy.zip</code> in
             
                 
                     
-                    
                 
                 
 
@@ -1730,7 +1683,6 @@ You can download binary distributions of the <code>weblogic-deploy.zip</code> in
             
             
                 
-                    
                     
                 
                 
@@ -1747,9 +1699,6 @@ You can download binary distributions of the <code>weblogic-deploy.zip</code> in
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2442,6 +2391,7 @@ You can download binary distributions of the <code>weblogic-deploy.zip</code> in
             
                 
                     
+                    
                 
                 
 
@@ -2454,6 +2404,7 @@ You can download binary distributions of the <code>weblogic-deploy.zip</code> in
             
             
                 
+                    
                     
                 
                 
@@ -2470,6 +2421,9 @@ You can download binary distributions of the <code>weblogic-deploy.zip</code> in
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2654,10 +2608,10 @@ You can download binary distributions of the <code>weblogic-deploy.zip</code> in
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/userguide/" title="User Guide"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/tools/" title="WDT Tools" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-3.1.0/" title="Release Notes 3.1.0" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
