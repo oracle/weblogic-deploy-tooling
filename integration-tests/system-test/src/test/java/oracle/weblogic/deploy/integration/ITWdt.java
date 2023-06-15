@@ -1224,7 +1224,10 @@ public class ITWdt extends BaseTest {
         checkContents.add("    AdminServerName: admin-server");
         checkContents.add("    ProductionModeEnabled: true");
         checkContents.add("    NMProperties:");
-        checkContents.add("        JavaHome: /usr/java/jdk1.8.0_361");
+
+        // Don't include the JavaHome path in the check since it will vary when running system-tests locally...
+        //
+        checkContents.add("        JavaHome: ");
         checkContents.add("    Server:");
         checkContents.add("        admin-server: {}");
         checkContents.add("    SecurityConfiguration:");
