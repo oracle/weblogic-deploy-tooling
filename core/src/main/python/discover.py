@@ -28,6 +28,7 @@ from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
+from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
@@ -315,19 +316,22 @@ def _establish_secure_mode(aliases, base_location, helper):
     try:
         secure_mode_location = LocationContext(base_location)
         secure_mode_location.append_location(model_constants.SECURITY_CONFIGURATION)
-        security_config_path = aliases.get_wlst_list_path(secure_mode_location)
-        security_config_token = helper.get_singleton_name(security_config_path)
-        secure_mode_location.add_name_token(aliases.get_name_token(secure_mode_location), security_config_token)
 
-        secure_mode_location.append_location(model_constants.SECURE_MODE)
-        secure_mode_path = aliases.get_wlst_list_path(secure_mode_location)
-        secure_mode_token = helper.get_singleton_name(secure_mode_path)
-        if secure_mode_token is not None:
-            secure_mode_location.add_name_token(aliases.get_name_token(secure_mode_location), secure_mode_token)
-            helper.cd(aliases.get_wlst_attributes_path(secure_mode_location))
-            secure_mode_enabled = helper.get(model_constants.SECURE_MODE_ENABLED)
-            aliases.set_secure_mode(secure_mode_enabled)
-            helper.cd(aliases.get_wlst_attributes_path(base_location))
+        code, message = aliases.is_valid_model_folder_name(secure_mode_location, model_constants.SECURE_MODE)
+        if code == ValidationCodes.VALID:
+            security_config_path = aliases.get_wlst_list_path(secure_mode_location)
+            security_config_token = helper.get_singleton_name(security_config_path)
+            secure_mode_location.add_name_token(aliases.get_name_token(secure_mode_location), security_config_token)
+
+            secure_mode_location.append_location(model_constants.SECURE_MODE)
+            secure_mode_path = aliases.get_wlst_list_path(secure_mode_location)
+            secure_mode_token = helper.get_singleton_name(secure_mode_path)
+            if secure_mode_token is not None:
+                secure_mode_location.add_name_token(aliases.get_name_token(secure_mode_location), secure_mode_token)
+                helper.cd(aliases.get_wlst_attributes_path(secure_mode_location))
+                secure_mode_enabled = helper.get(model_constants.SECURE_MODE_ENABLED)
+                aliases.set_secure_mode(secure_mode_enabled)
+                helper.cd(aliases.get_wlst_attributes_path(base_location))
     except PyWLSTException, pe:
         de = exception_helper.create_discover_exception('WLSDPLY-06038', pe.getLocalizedMessage())
         __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
