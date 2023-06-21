@@ -26,7 +26,7 @@ This example shows an application with a `SourcePath` value referencing an EAR f
 ```yaml
 appDeployments:
     Application:
-        simpleear :
+        simpleear:
             SourcePath: wlsdeploy/applications/simpleear.ear
             Target: my-cluster
             ModuleType: ear
