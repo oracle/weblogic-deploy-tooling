@@ -303,6 +303,24 @@ public class ArchiveHelperTestConstants {
         "wlsdeploy/opsswallet/opss-wallet.zip"
     };
 
+    static final String[] SAML2_SP_PROPERTIES_CONTENT = new String[] {
+        "wlsdeploy/security/saml2/saml2sppartner.properties"
+    };
+
+    static final String[] SAML2_DATA_CONTENTS = new String[] {
+        "wlsdeploy/security/saml2/",
+        "wlsdeploy/security/saml2/company1idp_metadata.xml",
+        "wlsdeploy/security/saml2/company2idp_metadata.xml",
+        "wlsdeploy/security/saml2/hmosp_metadata.xml",
+        "wlsdeploy/security/saml2/saml2idppartner.properties",
+        "wlsdeploy/security/saml2/saml2sppartner.properties"
+    };
+
+    static final String[] SAML2_DATA_LIST_ALL_CONTENTS = mergeStringArrays(
+        new String[] { "wlsdeploy/security/" },
+        SAML2_DATA_CONTENTS
+    );
+
     static final String[] SCRIPTS_FANCY_SCRIPT_CONTENTS = new String[] {
         "wlsdeploy/scripts/my_fancy_script.sh"
     };
@@ -506,6 +524,7 @@ public class ArchiveHelperTestConstants {
         MIME_MAPPINGS_CONTENT,
         NODE_MANAGER_CONTENT,
         OPSS_WALLET_CONTENT,
+        SAML2_DATA_LIST_ALL_CONTENTS,
         SCRIPTS_CONTENT,
         SERVERS_CONTENT,
         SHARED_LIBS_CONTENT,

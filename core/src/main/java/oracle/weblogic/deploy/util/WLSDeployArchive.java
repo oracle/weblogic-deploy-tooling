@@ -42,7 +42,7 @@ public class WLSDeployArchive {
     /**
      * Top-level archive subdirectory where the config will be extracted.
      */
-    public static final String ARCHIVE_CONFIG_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/config";
+    public static final String ARCHIVE_CONFIG_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP + "config";
 
     // Deprecated top-level archive subdirectory where the atp wallet is stored.
     public static final String OLD_ARCHIVE_ATP_WALLET_PATH = "atpwallet";
@@ -74,84 +74,95 @@ public class WLSDeployArchive {
     /**
      * Top-level archive subdirectory where the opss wallet is stored.
      */
-    public static final String ARCHIVE_OPSS_WALLET_PATH = WLSDPLY_ARCHIVE_BINARY_DIR + "/opsswallet";
+    public static final String ARCHIVE_OPSS_WALLET_PATH = WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP + "opsswallet";
+
+    /**
+     * Top-level archive subdirectory where security provider-related files are stored.
+     */
+    public static final String ARCHIVE_SECURITY_PATH = WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP + "security";
+
+    /**
+     * Archive directory where SAML2 data load XML and property files are stored.
+     */
+    public static final String ARCHIVE_SAML2_PATH = ARCHIVE_SECURITY_PATH + ZIP_SEP + "saml2";
 
     /**
      * Top-level archive subdirectory where the applications are stored and the subdirectory to which
      * they will be extracted.
      */
-    public static final String ARCHIVE_APPS_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/applications";
+    public static final String ARCHIVE_APPS_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP + "applications";
 
     /**
      * Top-level archive subdirectory where the applications are stored and the subdirectory to which
      * they will be extracted. This is for structured applications found under /app
      */
-    public static final String ARCHIVE_STRUCT_APPS_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/structuredApplications";
+    public static final String ARCHIVE_STRUCT_APPS_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP +
+        "structuredApplications";
 
     /**
      * Top-level archive subdirectory where the shared libraries are stored and the subdirectory to
      * which they will be extracted.
      */
-    public static final String ARCHIVE_SHLIBS_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/sharedLibraries";
+    public static final String ARCHIVE_SHLIBS_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP + "sharedLibraries";
 
     /**
      * Top-level archive subdirectory where the $DOMAIN_HOME/lib are stored.
      */
-    public static final String ARCHIVE_DOMLIB_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/domainLibraries";
+    public static final String ARCHIVE_DOMLIB_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP + "domainLibraries";
 
     /**
      * Top-level archive subdirectory where the classpath JARs/directories are stored and the
      * subdirectory to which they will be extracted.
      */
-    public static final String ARCHIVE_CPLIB_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/classpathLibraries";
+    public static final String ARCHIVE_CPLIB_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP + "classpathLibraries";
 
     /**
      * Top-level archive subdirectory where the classpath JARs/directories are stored and the
      * subdirectory to which they will be extracted.
      */
-    public static final String ARCHIVE_CUSTOM_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/custom";
+    public static final String ARCHIVE_CUSTOM_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP + "custom";
     /**
      * Top-level archive subdirectory where the $DOMAIN_HOME/bin scripts are stored.
      */
-    public static final String ARCHIVE_DOM_BIN_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/domainBin";
+    public static final String ARCHIVE_DOM_BIN_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP + "domainBin";
     /**
      * Top-level archive subdirectory where the FileStore directories are stored and the subdirectory
      * to which they will be extracted.
      */
-    public static final String ARCHIVE_FILE_STORE_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/stores";
+    public static final String ARCHIVE_FILE_STORE_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP + "stores";
 
     /**
      * Top-level archive subdirectory where the server files are stored and the
      * subdirectory to which they will be extracted.
      */
-    public static final String ARCHIVE_SERVER_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/servers";
+    public static final String ARCHIVE_SERVER_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP + "servers";
 
     /**
      * Top-level archive subdirectory where the Coherence persistence directories are stored and the
      * subdirectory to which they will be extracted.
      */
-    public static final String ARCHIVE_COHERENCE_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/coherence";
+    public static final String ARCHIVE_COHERENCE_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP + "coherence";
 
     /**
      * The subdirectory where node manager files are stored and extracted (such as keystore file).
      */
-    public static final String ARCHIVE_NODE_MANAGER_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/nodeManager";
+    public static final String ARCHIVE_NODE_MANAGER_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP + "nodeManager";
 
     /**
      * The subdirectory to which the scripts are extracted.
      */
-    public static final String ARCHIVE_SCRIPTS_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/scripts";
+    public static final String ARCHIVE_SCRIPTS_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP + "scripts";
 
     /**
-     * Top-level archive subdirectory for JMS and in which its sub-directories will be separated.
+     * Top-level archive subdirectory for JMS and in which its subdirectories will be separated.
      */
-    public static final String ARCHIVE_JMS_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + "/jms";
+    public static final String ARCHIVE_JMS_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP + "jms";
 
     /**
      * Top-level archive subdirectory where the JMS Foreign Server bindings files are stored and the
      * subdirectory to which they will be extracted.
      */
-    public static final String ARCHIVE_JMS_FOREIGN_SERVER_DIR = ARCHIVE_JMS_DIR + "/foreignServer";
+    public static final String ARCHIVE_JMS_FOREIGN_SERVER_DIR = ARCHIVE_JMS_DIR + ZIP_SEP + "foreignServer";
 
     public enum ArchiveEntryType {
         STRUCTURED_APPLICATION,
@@ -174,7 +185,8 @@ public class WLSDeployArchive {
         DB_WALLET,
         RCU_WALLET,
         OPSS_WALLET,
-        CUSTOM
+        CUSTOM,
+        SAML2_DATA
     }
 
     private enum FileOrDirectoryType {
@@ -322,6 +334,10 @@ public class WLSDeployArchive {
 
             case CUSTOM:
                 pathPrefix = ARCHIVE_CUSTOM_TARGET_DIR + ZIP_SEP;
+                break;
+
+            case SAML2_DATA:
+                pathPrefix = ARCHIVE_SAML2_PATH + ZIP_SEP;
                 break;
 
             default:
@@ -535,6 +551,10 @@ public class WLSDeployArchive {
      */
     public static String getNodeManagerKeyStoreArchivePath(String keystoreFile) {
         return getArchiveName(ARCHIVE_NODE_MANAGER_TARGET_DIR, keystoreFile);
+    }
+
+    public static String getSaml2DataArchivePath(String saml2DataFile) {
+        return getArchiveName(ARCHIVE_SAML2_PATH, saml2DataFile);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -2908,7 +2928,7 @@ public class WLSDeployArchive {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
-    //                           MIME mapping keystore methods                                   //
+    //                                MIME mapping methods                                       //
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -4182,6 +4202,194 @@ public class WLSDeployArchive {
         return result;
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                 SAML2 Data methods                                        //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    public boolean isSaml2DataFilePresent(String saml2DataFileName) throws WLSDeployArchiveIOException {
+        final String METHOD = "isSaml2DataFilePresent";
+        LOGGER.entering(CLASS, METHOD, saml2DataFileName);
+
+        validateNonEmptyString(saml2DataFileName, "saml2DataFileName", METHOD);
+
+        String archivePath;
+        if (saml2DataFileName.startsWith(ARCHIVE_SAML2_PATH + ZIP_SEP)) {
+            archivePath = saml2DataFileName;
+        } else {
+            archivePath = ARCHIVE_SAML2_PATH + ZIP_SEP + saml2DataFileName;
+        }
+
+        List<String> zipEntries = getZipFile().listZipEntries(ARCHIVE_SAML2_PATH + ZIP_SEP);
+        boolean result = zipListContainsPath(zipEntries, archivePath);
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    /**
+     * Add a SAML2 Data Initialization file to the archive if it does not already exist.
+     *
+     * @param saml2DataFile the file to add
+     * @return the new location of the file to use in the model
+     * @throws WLSDeployArchiveIOException if an error occurs while archiving the file or the entry already exists
+     * @throws IllegalArgumentException    if the file does not exist or the saml2DataFile is empty or null
+     */
+    public String addSaml2DataFile(String saml2DataFile) throws WLSDeployArchiveIOException {
+        return addSaml2DataFile(saml2DataFile, false);
+    }
+
+    /**
+     * Add a SAML2 Data Initialization file to the archive.
+     *
+     * @param saml2DataFile the file to add
+     * @param overwrite     whether to overwrite the existing file or throw an error if the file already exists
+     * @return the new location of the file to use in the model
+     * @throws WLSDeployArchiveIOException if an error occurs while archiving the file or the entry already exists
+     *                                     with override set to false
+     * @throws IllegalArgumentException    if the file does not exist or the saml2DataFile is empty or null
+     */
+    public String addSaml2DataFile(String saml2DataFile, boolean overwrite) throws WLSDeployArchiveIOException {
+        final String METHOD = "addSaml2DataFile";
+        LOGGER.entering(CLASS, METHOD, saml2DataFile, overwrite);
+
+        File filePath = new File(saml2DataFile);
+        validateExistingFile(filePath, "saml2DataFile", getArchiveFileName(), METHOD);
+
+        String archivePath = getArchiveName(ARCHIVE_SAML2_PATH, saml2DataFile);
+        List<String> zipEntries = getZipFile().listZipEntries(ARCHIVE_SAML2_PATH + ZIP_SEP);
+        boolean result = zipListContainsPath(zipEntries, archivePath);
+        if (result) {
+            if (overwrite) {
+                getZipFile().removeZipEntry(archivePath);
+            } else {
+                WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01462", saml2DataFile,
+                    getArchiveFileName(), archivePath);
+                LOGGER.throwing(CLASS, METHOD, ex);
+                throw ex;
+            }
+        }
+
+        String newName = addItemToZip(ARCHIVE_SAML2_PATH + ZIP_SEP, filePath);
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    /**
+     * Replace a SAML2 Data Initialization file in the archive.
+     *
+     * @param saml2DataPath the SAML2 Data Initialization file name or the path within the archive to replace
+     * @param sourceLocation the file system location of the new SAML2 Data Initialization file to replace
+     *                       the existing one
+     * @return the archive path of the new SAML2 Data Initialization file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
+     * @throws IllegalArgumentException    if the file or directory passed in does not exist
+     */
+    public String replaceSaml2DataFile(String saml2DataPath, String sourceLocation)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "replaceSaml2DataFile";
+        LOGGER.entering(CLASS, METHOD, saml2DataPath, sourceLocation);
+
+        String archivePath;
+        if (saml2DataPath.startsWith(ARCHIVE_SAML2_PATH + ZIP_SEP)) {
+            archivePath = saml2DataPath;
+        } else {
+            archivePath = ARCHIVE_SAML2_PATH + ZIP_SEP + saml2DataPath;
+        }
+
+        getZipFile().removeZipEntry(archivePath);
+        String newName = addSaml2DataFile(sourceLocation);
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    /**
+     * Extract the named SAML2 Data Initialization file to the domain home location.
+     *
+     * @param saml2DataFile                the name of the SAML2 Data Initialization file
+     * @param domainHome                   the existing directory location to write the file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or the saml2DataFile is empty
+     */
+    public void extractSaml2DataFile(String saml2DataFile, File domainHome)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "extractSaml2DataFile";
+        LOGGER.entering(CLASS, METHOD, saml2DataFile, domainHome);
+
+        validateNonEmptyString(saml2DataFile, "saml2DataFile", METHOD);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        String archivePath = saml2DataFile;
+        if (!saml2DataFile.startsWith(ARCHIVE_SAML2_PATH + ZIP_SEP)) {
+            archivePath = ARCHIVE_SAML2_PATH + ZIP_SEP + saml2DataFile;
+        }
+
+        extractFileFromZip(archivePath, domainHome);
+
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
+     * Remove the named SAML2 Data Initialization file from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param saml2DataPath  the name of the SAML2 Data Initialization file
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the SAML2 Data Initialization is not present or an IOException
+     *                                      occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the saml2DataPath is null or empty
+     */
+    public int removeSaml2DataFile(String saml2DataPath) throws WLSDeployArchiveIOException {
+        return removeSaml2DataFile(saml2DataPath, false);
+    }
+
+    /**
+     * Remove the named SAML2 Data Initialization file from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param saml2DataPath  the name of the MIME mapping file
+     * @param silent           If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the MIME mapping file is not present (and silent = false) or
+     *                                      an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the saml2DataPath is null or empty
+     */
+    public int removeSaml2DataFile(String saml2DataPath, boolean silent)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "removeSaml2DataFile";
+        LOGGER.entering(CLASS, METHOD, saml2DataPath, silent);
+
+        validateNonEmptyString(saml2DataPath, "saml2DataPath", METHOD);
+
+        String archivePath;
+        String keystoreName;
+        if (saml2DataPath.startsWith(ARCHIVE_SAML2_PATH + ZIP_SEP)) {
+            archivePath = saml2DataPath;
+            keystoreName = getNameFromPath(saml2DataPath, ARCHIVE_SAML2_PATH.length() + 2);
+        } else {
+            archivePath = ARCHIVE_SAML2_PATH + ZIP_SEP + saml2DataPath;
+            keystoreName = saml2DataPath;
+        }
+
+        List<String> zipEntries = getArchiveEntries(ArchiveEntryType.SAML2_DATA, keystoreName);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01461", saml2DataPath,
+                getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyTypeDir(ArchiveEntryType.SAML2_DATA, ARCHIVE_SAML2_PATH + ZIP_SEP);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////
     // Protected Helper methods                                                              //
     ///////////////////////////////////////////////////////////////////////////////////////////
@@ -4232,6 +4440,7 @@ public class WLSDeployArchive {
             case JMS_FOREIGN_SERVER:
             case MIME_MAPPING:
             case NODE_MANAGER_KEY_STORE:
+            case SAML2_DATA:
             case SCRIPT:
             case SERVER_KEYSTORE:
             case SHLIB_PLAN:

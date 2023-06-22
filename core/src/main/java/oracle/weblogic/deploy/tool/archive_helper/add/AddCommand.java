@@ -28,6 +28,7 @@ import picocli.CommandLine.Option;
         AddNodeManagerKeystoreCommand.class,
         AddOPSSWalletCommand.class,
         AddRCUWalletCommand.class,
+        AddSaml2InitializationDataCommand.class,
         AddScriptCommand.class,
         AddServerKeystoreCommand.class,
         AddSharedLibraryCommand.class,

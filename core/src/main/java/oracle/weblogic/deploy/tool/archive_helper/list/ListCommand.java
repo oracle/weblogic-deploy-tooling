@@ -27,6 +27,7 @@ import picocli.CommandLine.Option;
         ListNodeManagerKeystoreCommand.class,
         ListOPSSWalletCommand.class,
         ListRCUWalletCommand.class,
+        ListSaml2InitializationDataCommand.class,
         ListScriptCommand.class,
         ListServerKeystoreCommand.class,
         ListSharedLibraryCommand.class,

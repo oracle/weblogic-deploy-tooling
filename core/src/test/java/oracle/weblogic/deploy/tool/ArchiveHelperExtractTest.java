@@ -46,6 +46,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.MY_OTHER_AP
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.MY_OTHER_APP_WAR_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.NODE_MANAGER_IDENTITY_JKS_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.OPSS_WALLET_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SAML2_SP_PROPERTIES_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_FANCY_SCRIPT_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVERS_ADMIN_SERVER_IDENTITY_JKS_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS_MY_LIB_WAR_CONTENTS;
@@ -108,6 +109,7 @@ public class ArchiveHelperExtractTest {
         "jmsForeignServer, missing.properties",
         "mimeMapping, missing.properties",
         "nodeManagerKeystore, missing.jks",
+        "saml2InitializationData, missing.xml",
         "script, missing.sh",
         "serverKeystore, missing.jks",
         "sharedLibrary, missing.war",
@@ -151,6 +153,7 @@ public class ArchiveHelperExtractTest {
         "jmsForeignServer, missing.properties",
         "mimeMapping, missing.properties",
         "nodeManagerKeystore, missing.jks",
+        "saml2InitializationData, missing.xml",
         "script, missing.sh",
         "serverKeystore, missing.jks",
         "sharedLibrary, missing.war",
@@ -194,6 +197,7 @@ public class ArchiveHelperExtractTest {
         "jmsForeignServer",
         "mimeMapping",
         "nodeManagerKeystore",
+        "saml2InitializationData",
         "script",
         "serverKeystore",
         "sharedLibrary",
@@ -234,6 +238,7 @@ public class ArchiveHelperExtractTest {
         "fileStore, missing",
         "mimeMapping, missing.properties",
         "nodeManagerKeystore, missing.jks",
+        "saml2InitializationData, missing.xml",
         "script, missing.sh",
         "sharedLibrary, missing.war",
         "sharedLibraryPlan, missing.xml",
@@ -1094,6 +1099,36 @@ public class ArchiveHelperExtractTest {
             TARGET_VALUE
         };
         List<String> expectedPaths = Arrays.asList(DATABASE_WALLET_RCU_CONTENTS);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertExtractedFilesMatch(expectedPaths);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                              SAML2 Initialization Data                                    //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    void testExtractExistingSaml2InitializationDataFile_ProducesExpectedResults() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+            "extract",
+            "saml2InitializationData",
+            "-archive_file",
+            ARCHIVE_HELPER_VALUE,
+            "-target",
+            TARGET_VALUE,
+            "-name",
+            "saml2sppartner.properties"
+        };
+        List<String> expectedPaths = Arrays.asList(SAML2_SP_PROPERTIES_CONTENT);
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);
