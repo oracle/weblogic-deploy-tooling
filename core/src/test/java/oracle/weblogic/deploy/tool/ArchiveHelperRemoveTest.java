@@ -54,6 +54,8 @@ import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.MY_OTHER_AP
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.NODE_MANAGER_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.NODE_MANAGER_IDENTITY_JKS_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.OPSS_WALLET_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SAML2_DATA_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SAML2_SP_PROPERTIES_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVERS_ADMIN_SERVER_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVERS_ADMIN_SERVER_IDENTITY_JKS_CONTENTS;
@@ -98,7 +100,7 @@ public class ArchiveHelperRemoveTest {
     private static final String[] LIST_MIME_MAPPINGS = new String[] { "mimeMapping" };
     private static final String[] LIST_NODE_MANAGER_KEYSTORES = new String[] { "nodeManagerKeystore" };
     private static final String[] LIST_OPSS_WALLET = new String[] { "opssWallet" };
-    private static final String[] LIST_RCU_WALLET = new String[] { "rcuWallet" };
+    private static final String[] LIST_SAML2_DATA = new String[] { "saml2InitializationData" };
     private static final String[] LIST_SCRIPTS = new String[] { "script" };
     private static final String[] LIST_SERVER_KEYSTORES_ADMIN_SERVER = new String[] {
         "serverKeystore",
@@ -142,6 +144,7 @@ public class ArchiveHelperRemoveTest {
         "jmsForeignServer, missing.properties",
         "mimeMapping, missing.properties",
         "nodeManagerKeystore, missing.jks",
+        "saml2InitializationData, missing.xml",
         "script, missing.sh",
         "serverKeystore, missing.jks",
         "sharedLibrary, missing.war",
@@ -182,6 +185,7 @@ public class ArchiveHelperRemoveTest {
         "jmsForeignServer",
         "mimeMapping",
         "nodeManagerKeystore",
+        "saml2InitializationData",
         "script",
         "serverKeystore",
         "sharedLibrary",
@@ -219,6 +223,7 @@ public class ArchiveHelperRemoveTest {
         "fileStore, missing",
         "mimeMapping, missing.properties",
         "nodeManagerKeystore, missing.jks",
+        "saml2InitializationData, missing.xml",
         "script, missing.sh",
         "sharedLibrary, missing.war",
         "sharedLibraryPlan, missing.xml",
@@ -1339,8 +1344,57 @@ public class ArchiveHelperRemoveTest {
             actual = ArchiveHelper.executeCommand(out, err, args);
         }
         assertEquals(ExitCode.OK, actual,"expected command to exit with exit code " + ExitCode.OK);
-        // Removing the only jar so the test will also remove wlsdeploy/opsswallet/
+        // Removing the only jar so the test will also remove wlsdeploy/databaseWallet/rcu/
         assertArchiveInExpectedState(LIST_DATABASE_WALLETS, DATABASE_WALLETS_CONTENT, DATABASE_WALLET_RCU_CONTENTS);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                SAML2 Initialization Data                                  //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    void testRemoveExistingSaml2InitializationData_ReturnsExpectedResults() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+            "remove",
+            "saml2InitializationData",
+            "-archive_file",
+            ARCHIVE_HELPER_VALUE,
+            "-name",
+            "saml2sppartner.properties"
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        assertEquals(ExitCode.OK, actual,"expected command to exit with exit code " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_SAML2_DATA, SAML2_DATA_CONTENTS, SAML2_SP_PROPERTIES_CONTENT);
+    }
+
+    @Test
+    void testRemoveMissingSaml2InitializationDataForce_ReturnsExpectedResults() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+            "remove",
+            "saml2InitializationData",
+            "-archive_file",
+            ARCHIVE_HELPER_VALUE,
+            "-name",
+            "missing.xml",
+            "-force"
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        assertEquals(ExitCode.OK, actual,"expected command to exit with exit code " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_SAML2_DATA, SAML2_DATA_CONTENTS);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

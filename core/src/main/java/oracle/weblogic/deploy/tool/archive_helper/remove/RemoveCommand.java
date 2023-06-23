@@ -28,6 +28,7 @@ import picocli.CommandLine.Option;
         RemoveNodeManagerKeystoreCommand.class,
         RemoveOPSSWalletCommand.class,
         RemoveRCUWalletCommand.class,
+        RemoveSaml2InitializationDataCommand.class,
         RemoveScriptCommand.class,
         RemoveServerKeystoreCommand.class,
         RemoveSharedLibraryCommand.class,

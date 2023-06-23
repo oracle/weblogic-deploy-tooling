@@ -69,6 +69,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.MY_OTHER_AP
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.NODE_MANAGER_IDENTITY_JKS_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.NODE_MANAGER_IDENTITY_JKS_DUP_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.OPSS_WALLET_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SAML2_SP_PROPERTIES_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_FANCY_SCRIPT_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_FANCY_SCRIPT_DUP_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVERS_ADMIN_SERVER_IDENTITY_JKS_CONTENTS;
@@ -117,6 +118,7 @@ public class ArchiveHelperAddTest {
     private static final String[] LIST_NODE_MANAGER_KEYSTORES = new String[] { "nodeManagerKeystore" };
     private static final String[] LIST_OPSS_WALLET = new String[] { "opssWallet" };
     private static final String[] LIST_RCU_WALLET = new String[] { "rcuWallet" };
+    private static final String[] LIST_SAML2_INITIALIZATION_DATA_FILES = new String[] { "saml2InitializationData" };
     private static final String[] LIST_SCRIPTS = new String[] { "script" };
     private static final String[] LIST_SERVER_KEYSTORES = new String[] {
         "serverKeystore",
@@ -182,6 +184,7 @@ public class ArchiveHelperAddTest {
         "nodeManagerKeystore, missing.jks",
         "opssWallet, missing.zip",
         "rcuWallet, missing",
+        "saml2InitializationData, missing.xml",
         "script, missing.sh",
         "serverKeystore, missing.jks",
         "sharedLibrary, missing.war",
@@ -222,6 +225,7 @@ public class ArchiveHelperAddTest {
         "nodeManagerKeystore",
         "opssWallet",
         "rcuWallet",
+        "saml2InitializationData",
         "script",
         "serverKeystore",
         "sharedLibrary",
@@ -259,6 +263,7 @@ public class ArchiveHelperAddTest {
         "nodeManagerKeystore, missing.jks",
         "opssWallet, missing.zip",
         "rcuWallet, missing",
+        "saml2InitializationData, missing.xml",
         "script, missing.sh",
         "sharedLibrary, missing.war",
         "sharedLibraryPlan, missing.xml",
@@ -2228,6 +2233,93 @@ public class ArchiveHelperAddTest {
             NEW_ARCHIVE_VALUE,
             "-source",
             getSourcePath(ArchiveEntryType.RCU_WALLET, "")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.ERROR, actual, "expected command to return " + ExitCode.ERROR);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                SAML2 initialization data                                  //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    void testAddNewSaml2InitializationData_ReturnsExceptedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+            "add",
+            "saml2InitializationData",
+            "-archive_file",
+            NEW_ARCHIVE_VALUE,
+            "-source",
+            getSourcePath(ArchiveEntryType.SAML2_DATA, "saml2sppartner.properties")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_SAML2_INITIALIZATION_DATA_FILES, EMPTY_ARRAY, SAML2_SP_PROPERTIES_CONTENT);
+    }
+
+    @Test
+    void testAddSaml2InitializationDataOverwrite_ReturnsExceptedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+            "add",
+            "saml2InitializationData",
+            "-archive_file",
+            NEW_ARCHIVE_VALUE,
+            "-source",
+            getSourcePath(ArchiveEntryType.SAML2_DATA, "saml2sppartner.properties")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+
+        String[] overwriteArgs = getOverwriteArgs(args);
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, overwriteArgs);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_SAML2_INITIALIZATION_DATA_FILES, EMPTY_ARRAY, SAML2_SP_PROPERTIES_CONTENT);
+    }
+
+    @Test
+    void testAddSaml2InitializationDataTwice_ReturnsExpectedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+            "add",
+            "saml2InitializationData",
+            "-archive_file",
+            NEW_ARCHIVE_VALUE,
+            "-source",
+            getSourcePath(ArchiveEntryType.SAML2_DATA, "saml2sppartner.properties")
         };
 
         int actual = -1;

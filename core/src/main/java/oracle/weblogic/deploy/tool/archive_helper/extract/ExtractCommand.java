@@ -29,6 +29,7 @@ import picocli.CommandLine.Option;
         ExtractNodeManagerKeystoreCommand.class,
         ExtractOPSSWalletCommand.class,
         ExtractRCUWalletCommand.class,
+        ExtractSaml2InitializationDataCommand.class,
         ExtractScriptCommand.class,
         ExtractServerKeystoreCommand.class,
         ExtractSharedLibraryCommand.class,

@@ -21,7 +21,6 @@ import oracle.weblogic.deploy.util.WLSDeployZipFileTest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static oracle.weblogic.deploy.tool.ArchiveHelper.LOGGER_NAME;
@@ -50,6 +49,8 @@ import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.MY_OTHER_AP
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.NODE_MANAGER_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.NODE_MANAGER_TRUST_JKS_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.OPSS_WALLET_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SAML2_DATA_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SAML2_SP_PROPERTIES_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_FANCY_SCRIPT_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVERS_ADMIN_SERVER_CONTENTS;
@@ -96,6 +97,8 @@ public class ArchiveHelperListTest {
     private static final String[] LIST_RCU_WALLET_EXPECTED = DATABASE_WALLET_RCU_CONTENTS;
     private static final String[] LIST_WALLET1_EXPECTED = DATABASE_WALLET_WALLET1_CONTENTS;
 
+    private static final String[] LIST_SAML2_DATA_EXPECTED = SAML2_DATA_CONTENTS;
+
     private static final String[] LIST_SHLIB_FILE_EXPECTED = SHARED_LIBS_MY_LIB_WAR_CONTENTS;
     private static final String[] LIST_SHLIB_DIR_EXPECTED = SHARED_LIBS_MY_OTHER_LIB_CONTENTS;
     private static final String[] LIST_SHLIB_EXPECTED = SHARED_LIBS_CONTENT;
@@ -137,6 +140,7 @@ public class ArchiveHelperListTest {
         "nodeManagerKeystore",
         "opssWallet",
         "rcuWallet",
+        "saml2InitializationData",
         "script",
         "serverKeystore",
         "sharedLibrary",
@@ -176,6 +180,7 @@ public class ArchiveHelperListTest {
         "nodeManagerKeystore",
         "opssWallet",
         "rcuWallet",
+        "saml2InitializationData",
         "script",
         "serverKeystore",
         "sharedLibrary",
@@ -904,6 +909,59 @@ public class ArchiveHelperListTest {
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
         assertListsHaveSameElements(expectedPaths, outputLines, "rcuWallet");
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                 SAML2 Initialization Data                                 //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    void testListSaml2InitializationData_ReturnsExceptedNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[]{
+            "list",
+            "saml2InitializationData",
+            "-archive_file",
+            ARCHIVE_HELPER_VALUE
+        };
+        List<String> expectedPaths = Arrays.asList(SAML2_DATA_CONTENTS);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertListsHaveSameElements(expectedPaths, outputLines, "saml2InitializationData");
+    }
+
+    @Test
+    void testListSaml2InitializationDataFile_ReturnsExceptedNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[]{
+            "list",
+            "saml2InitializationData",
+            "-archive_file",
+            ARCHIVE_HELPER_VALUE,
+            "-name",
+            "saml2sppartner.properties"
+        };
+        List<String> expectedPaths = Arrays.asList(SAML2_SP_PROPERTIES_CONTENT);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertListsHaveSameElements(expectedPaths, outputLines,
+            "saml2InitializationData -name saml2sppartner.properties");
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
