@@ -1,8 +1,9 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import java.lang.Object as JObject
+import java.lang.String as JString
 import java.lang.System as JSystem
 import java.lang.Thread as JThread
 import java.lang.Throwable as Throwable
@@ -315,7 +316,8 @@ def _get_args_as_java_array(*args):
                 if isinstance(arg, unicode) or isinstance(arg, str):
                     result.add(arg)
                 elif isinstance(arg, JObject):
-                    result.add(arg.toString())
+                    # support Java objects with multiple toString signatures
+                    result.add(JString.valueOf(arg))
                 else:
                     result.add(str_helper.to_string(arg))
             else:

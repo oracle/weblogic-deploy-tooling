@@ -92,6 +92,7 @@ from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.credential_map_helper import CredentialMapHelper
 from wlsdeploy.tool.util.default_authenticator_helper import DefaultAuthenticatorHelper
 from wlsdeploy.tool.util.library_helper import LibraryHelper
+from wlsdeploy.tool.util.saml2_security_helper import Saml2SecurityHelper
 from wlsdeploy.tool.util.target_helper import TargetHelper
 from wlsdeploy.tool.util.targeting_types import TargetingType
 from wlsdeploy.tool.util.topology_profiles import TopologyProfile
@@ -180,10 +181,11 @@ class DomainCreator(Creator):
         self.__deploy_after_update()
         self.__create_boot_dot_properties()
         self.__create_credential_mappings()
+        self.__install_saml2_security_files()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-    #Override
+    # Override
     def _set_attributes(self, location, model_nodes):
         model_type, model_name = self.aliases.get_model_type_and_name(location)
         if model_type == CLUSTER:
@@ -1513,6 +1515,13 @@ class DomainCreator(Creator):
         if default_nodes:
             credential_map_helper = CredentialMapHelper(self.model_context, ExceptionType.CREATE)
             credential_map_helper.create_default_init_file(default_nodes)
+
+    def __install_saml2_security_files(self):
+        """
+        Install SAML2 security files from model archive.
+        """
+        saml2_security_helper = Saml2SecurityHelper(self._domain_home, ExceptionType.CREATE)
+        saml2_security_helper.extract_initialization_files(self.archive_helper)
 
     def __configure_opss_secrets(self):
         _method_name = '__configure_opss_secrets'
