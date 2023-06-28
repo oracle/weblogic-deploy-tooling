@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.aliases.location_context import LocationContext
@@ -21,6 +21,7 @@ from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCrea
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy.deployer import Deployer
 from wlsdeploy.tool.util.library_helper import LibraryHelper
+from wlsdeploy.tool.util.saml2_security_helper import Saml2SecurityHelper
 from wlsdeploy.tool.util.target_helper import TargetHelper
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.util import dictionary_utils
@@ -49,7 +50,8 @@ class TopologyUpdater(Deployer):
 
         self.target_helper = TargetHelper(self.model, self.model_context, self.aliases, self._exception_type,
                                           self.logger)
-    #Override
+
+    # Override
     def set_attributes(self, location, model_nodes, excludes=None):
         model_type, model_name = self.aliases.get_model_type_and_name(location)
         if model_type == CLUSTER:
@@ -125,6 +127,10 @@ class TopologyUpdater(Deployer):
         self.library_helper.extract_classpath_libraries()
         self.library_helper.extract_custom_files()
         self.library_helper.install_domain_scripts()
+
+        domain_home = self.model_context.get_domain_home()
+        saml2_security_helper = Saml2SecurityHelper(domain_home, self._exception_type)
+        saml2_security_helper.extract_initialization_files(self.archive_helper)
 
     def update_machines_clusters_and_servers(self, delete_now=True):
         """

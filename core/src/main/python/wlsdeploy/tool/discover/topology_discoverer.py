@@ -24,6 +24,7 @@ from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
+from wlsdeploy.tool.util.saml2_security_helper import Saml2SecurityHelper
 from wlsdeploy.tool.util.variable_injector import VARIABLE_SEP
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import dictionary_utils
@@ -131,6 +132,9 @@ class TopologyDiscoverer(Discoverer):
         finally:
             if current_tree is not None:
                 current_tree()
+
+        saml2_security_helper = Saml2SecurityHelper(self._model_context.get_domain_home(), ExceptionType.DISCOVER)
+        saml2_security_helper.discover_initialization_files(self._model_context.get_archive_file(), self)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary
