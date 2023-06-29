@@ -51,6 +51,8 @@ Subcommands:
   nodeManagerKeystore      Add node manager keystore to the archive file.
   opssWallet               Add OPSS wallet to the archive file.
   rcuWallet                Add RCU database wallet to the archive file.
+  saml2InitializationData  Add a SAML2 data initialization file to the archive
+                             file.
   script                   Add script to the archive file.
   serverKeystore           Add a server keystore to the archive file.
   sharedLibrary            Add shared library to the archive file.

@@ -127,6 +127,11 @@ in place when running WDT tools like the Create Domain or Update Domain tools.
 #### `wlsdeploy/scripts`
 The root directory under which script files are stored. These can include JDBC create scripts and WLDF action scripts.
 
+#### `wlsdeploy/security/saml2`
+The directory under which initialization files can be stored for use with the SAML2 Identity Asserter. These files can include `saml2idppartner.properties` and `saml2sppartner.properties`, and any XML metadata files they reference. These files are added to the archive by the Discover Domain Tool, and extracted by the Create Domain and Update Domain Tools.
+
+Initialization files and their metadata files are not deployed if a corresponding `<filename>.initialized` file is present in the domain's `<domain>/security` directory. This indicates that existing initialization files have already been processed. To overwrite an existing initialization file, remove the corresponding `<filename>.initialized` file, and restart the server to reinitialize the SAML2 Identity Asserter.
+
 #### `wlsdeploy/servers/<server-name>`
 The root directory under which server keystore files are stored. These are organized by server name, such as 
 `wlsdeploy/server/AdminServer/mykey.jks`.
