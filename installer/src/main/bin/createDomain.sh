@@ -106,7 +106,7 @@ usage() {
   echo "        opss_wallet_file - The path to the Oracle wallet containing the domain"
   echo "                           encryption key to use to reconnect the new domain to"
   echo "                           the existing RCU schemas."
-  echg ""
+  echo ""
   echo "        opss_wallet_passphrase_env - An alternative to entering the OPSS"
   echo "                          wallet passphrase at a prompt. The value is an"
   echo "                          ENVIRONMENT VARIABLE name that WDT will use to"
