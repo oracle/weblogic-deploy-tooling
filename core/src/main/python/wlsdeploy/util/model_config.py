@@ -4,6 +4,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 
 from java.io import IOException
+from java.lang import Boolean
 from java.lang import Long
 from java.lang import NumberFormatException
 from java.lang import System
@@ -45,8 +46,12 @@ WLST_EDIT_LOCK_EXCLUSIVE_PROP = 'wlst.edit.lock.exclusive'
 WLST_EDIT_LOCK_EXCLUSIVE_DEFAULT = 'false'
 YAML_FILE_MAX_CODE_POINTS_PROP = 'yaml.max.file.size'
 YAML_FILE_MAX_CODE_POINTS_DEFAULT = '0'
-USE_DEPRECATION_EXIT_CODE_PROP="use.deprecation.exit.code"
-USE_DEPRECATION_EXIT_CODE_DEFAULT="false"
+USE_DEPRECATION_EXIT_CODE_PROP='use.deprecation.exit.code'
+USE_DEPRECATION_EXIT_CODE_DEFAULT='false'
+SSH_DEFAULT_PRIVATE_KEY_NAME_PROP='ssh.private.key.default.name'
+SSH_DEFAULT_PRIVATE_KEY_NAME_DEFAULT='id_rsa'
+USE_SSH_COMPRESSION_PROP='use.ssh.compression'
+USE_SSH_COMPRESSION_DEFAULT='true'
 
 # System Property overrides for WLST timeout properties
 SYS_PROP_PREFIX = 'wdt.config.'
@@ -165,6 +170,20 @@ class ModelConfiguration(object):
         """
         return self._get_from_dict(USE_DEPRECATION_EXIT_CODE_PROP, USE_DEPRECATION_EXIT_CODE_DEFAULT)
 
+    def get_ssh_private_key_default_file_name(self):
+        """
+        Return the default file name for the SSH private key when using a passphrase
+        :return: the default file name for the private key when using a passphrase
+        """
+        return self._get_from_dict(SSH_DEFAULT_PRIVATE_KEY_NAME_PROP, SSH_DEFAULT_PRIVATE_KEY_NAME_DEFAULT)
+
+    def use_ssh_compression(self):
+        """
+        Return whether to use SSH compression.
+        :return: whether to use SSH compression
+        """
+        return self._get_from_dict_as_boolean(USE_SSH_COMPRESSION_PROP, USE_SSH_COMPRESSION_DEFAULT)
+
     def _get_from_dict(self, name, default_value=None):
         _method_name = '_get_from_dict'
         _logger.entering(name, default_value, class_name=_class_name, method_name=_method_name)
@@ -185,6 +204,11 @@ class ModelConfiguration(object):
                             class_name=_class_name, method_name=_method_name)
             result = Long(default_value).longValue()
         return result
+
+    def _get_from_dict_as_boolean(self, name, default_value=None):
+        _method_name = '_get_from_dict_as_boolean'
+        result = self._get_from_dict(name, default_value)
+        return Boolean.parseBoolean(result)
 
 
 def _load_properties_file():

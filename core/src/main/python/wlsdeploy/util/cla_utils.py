@@ -1,6 +1,6 @@
 """
 Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
-Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Module that handles command-line argument parsing and common validation.
 """
@@ -10,12 +10,14 @@ import java.io.BufferedReader as BufferedReader
 import java.io.InputStreamReader as InputStreamReader
 import java.io.IOException as IOException
 import java.lang.IllegalArgumentException as JIllegalArgumentException
-import java.lang.System as System
+import java.lang.Integer as JInteger
+import java.lang.NumberFormatException as NumberFormatException
 import java.net.URI as JURI
 import java.net.URISyntaxException as JURISyntaxException
 
 import oracle.weblogic.deploy.aliases.VersionUtils as JVersionUtils
 import oracle.weblogic.deploy.util.FileUtils as JFileUtils
+import oracle.weblogic.deploy.util.StringUtils as JStringUtils
 
 from wlsdeploy.exception.exception_helper import create_cla_exception
 from wlsdeploy.json.json_translator import JsonToPython
@@ -95,10 +97,28 @@ class CommandLineArgUtil(object):
     VARIABLE_INJECTOR_FILE_SWITCH   = '-variable_injector_file'
     VARIABLE_KEYWORDS_FILE_SWITCH   = '-variable_keywords_file'
     VARIABLE_PROPERTIES_FILE_SWITCH = '-variable_properties_file'
-    OUTPUT_DIR_SWITCH = "-output_dir"
-    WAIT_FOR_EDIT_LOCK_SWITCH = "-wait_for_edit_lock"
-    TARGET_SWITCH = '-target'
-
+    OUTPUT_DIR_SWITCH          = "-output_dir"
+    WAIT_FOR_EDIT_LOCK_SWITCH  = "-wait_for_edit_lock"
+    TARGET_SWITCH              = '-target'
+    # args for use with ssh/scp
+    SSH_HOST_SWITCH            = '-ssh_host'
+    SSH_PORT_SWITCH            = '-ssh_port'
+    REMOTE_ORACLE_HOME_SWITCH  = '-remote_oracle_home'
+    REMOTE_DOMAIN_HOME_SWITCH  = '-remote_domain_home'
+    REMOTE_TEST_FILE_SWITCH    = '-remote_test_file'
+    LOCAL_TEST_FILE_SWITCH     = '-local_test_file'
+    REMOTE_OUTPUT_DIR_SWITCH   = '-remote_output_dir'
+    LOCAL_OUTPUT_DIR_SWITCH    = '-local_output_dir'
+    SSH_USER_SWITCH            = '-ssh_user'
+    SSH_PASS_SWITCH            = '-ssh_pass'
+    SSH_PASS_ENV_SWITCH        = '-ssh_pass_env'
+    SSH_PASS_FILE_SWITCH       = '-ssh_pass_file'
+    SSH_PASS_PROMPT_SWITCH     = '-ssh_pass_prompt'
+    SSH_PRIVATE_KEY_SWITCH     = '-ssh_private_key'
+    SSH_PRIVATE_KEY_PASSPHRASE_SWITCH        = '-ssh_private_key_pass'
+    SSH_PRIVATE_KEY_PASSPHRASE_ENV_SWITCH    = '-ssh_private_key_pass_env'
+    SSH_PRIVATE_KEY_PASSPHRASE_FILE_SWITCH   = '-ssh_private_key_pass_file'
+    SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH = '-ssh_private_key_pass_prompt'
 
     # arguments that are true if specified, false if not
     BOOLEAN_SWITCHES = [
@@ -114,7 +134,9 @@ class CommandLineArgUtil(object):
         DISCARD_CURRENT_EDIT_SWITCH,
         USE_ENCRYPTION_SWITCH,
         REMOTE_SWITCH,
-        WAIT_FOR_EDIT_LOCK_SWITCH
+        WAIT_FOR_EDIT_LOCK_SWITCH,
+        SSH_PASS_PROMPT_SWITCH,
+        SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH
     ]
 
     # a slot to stash the parsed domain typedef dictionary
@@ -343,11 +365,77 @@ class CommandLineArgUtil(object):
                 value, idx = self._get_arg_value(args, idx)
                 value = self._validate_target_arg(value)
                 self._add_arg(key, value, True)
+            elif self.is_ssh_host_switch(key):
+                value, idx = self._get_arg_value(args, idx)
+                value = self._validate_ssh_host_arg(value)
+                self._add_arg(key, value)
+            elif self.is_ssh_port_switch(key):
+                value, idx = self._get_arg_value(args, idx)
+                value = self._validate_ssh_port_arg(value)
+                self._add_arg(key, value)
+            elif self.is_remote_oracle_home_switch(key):
+                value, idx = self._get_arg_value(args, idx)
+                full_path = self._validate_remote_oracle_home_arg(value)
+                self._add_arg(key, full_path, True)
+            elif self.is_remote_domain_home_switch(key):
+                value, idx = self._get_arg_value(args, idx)
+                full_path = self._validate_remote_domain_home_arg(value)
+                self._add_arg(key, full_path, True)
+            elif self.is_remote_test_file_switch(key):
+                value, idx = self._get_arg_value(args, idx)
+                full_path = self._validate_remote_test_file_arg(value)
+                self._add_arg(key, full_path, True)
+            elif self.is_local_test_file_switch(key):
+                value, idx = self._get_arg_value(args, idx)
+                full_path = self._validate_local_test_file_arg(value)
+                self._add_arg(key, full_path, True)
+            elif self.is_remote_output_dir_switch(key):
+                value, idx = self._get_arg_value(args, idx)
+                full_path = self._validate_remote_output_dir_arg(value)
+                self._add_arg(key, full_path, True)
+            elif self.is_local_output_dir_switch(key):
+                value, idx = self._get_arg_value(args, idx)
+                full_path = self._validate_local_output_dir_arg(value)
+                self._add_arg(key, full_path, True)
+            elif self.is_ssh_user_switch(key):
+                value, idx = self._get_arg_value(args, idx)
+                value = self._validate_ssh_user_arg(value)
+                self._add_arg(key, value)
+            elif self.is_ssh_pass_switch(key):
+                value, idx = self._get_arg_value(args, idx)
+                value = self._validate_ssh_pass_arg(value)
+                self._add_arg(key, value)
+            elif self.is_ssh_pass_env_switch(key):
+                value, idx = self._get_arg_value(args, idx)
+                value = self._validate_ssh_pass_env_arg(value)
+                self._add_arg(self.get_ssh_pass_switch(), value)
+            elif self.is_ssh_pass_file_switch(key):
+                value, idx = self._get_arg_value(args, idx)
+                value = self._validate_ssh_pass_file_arg(value)
+                self._add_arg(self.get_ssh_pass_switch(), value)
+            elif self.is_ssh_private_key_switch(key):
+                value, idx = self._get_arg_value(args, idx)
+                value = self._validate_ssh_private_key_arg(value)
+                self._add_arg(key, value)
+            elif self.is_ssh_private_key_passphrase_switch(key):
+                value, idx = self._get_arg_value(args, idx)
+                value = self._validate_ssh_private_key_passphrase_arg(value)
+                self._add_arg(key, value)
+            elif self.is_ssh_private_key_passphrase_env_switch(key):
+                value, idx = self._get_arg_value(args, idx)
+                value = self._validate_ssh_private_key_passphrase_env_arg(value)
+                self._add_arg(self.get_ssh_private_key_passphrase_switch(), value)
+            elif self.is_ssh_private_key_passphrase_file_switch(key):
+                value, idx = self._get_arg_value(args, idx)
+                value = self._validate_ssh_private_key_passphrase_file_arg(value)
+                self._add_arg(self.get_ssh_private_key_passphrase_switch(), value)
             else:
                 ex = create_cla_exception(ExitCode.USAGE_ERROR, 'WLSDPLY-01601', self._program_name, key)
                 _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
                 raise ex
             idx += 1
+
+        # TODO - -skip_archive, -remote, and -ssh_host should really be mutually exclusive.
 
         self._verify_required_args_present(self._program_name, self._required_args, self._required_result)
 
@@ -867,13 +955,18 @@ class CommandLineArgUtil(object):
 
     def _get_env_var_value(self, env_var):
         _method_name = '_get_env_var_value'
-        value = System.getenv(env_var)
+
+        value = None
+        if env_var in os.environ:
+            value = os.environ[env_var]
+
         if not value:
             ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-01649', env_var)
             _logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
         return value
 
+    # TODO - Improve the error handling to give the user better error messages.
     def _get_from_file_value(self, file_var):
         _method_name = '_get_from_file_value'
         ifile = None
@@ -883,10 +976,11 @@ class CommandLineArgUtil(object):
             value = ifile.readLine()
             ifile.close()
             return value
-        except IOException:
+        except IOException,ioe:
             if ifile:
                 ifile.close()
-            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-01651', file_var)
+            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-01651', file_var,
+                                      ioe.getLocalizedMessage(), error=ioe)
             _logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
@@ -1071,6 +1165,189 @@ class CommandLineArgUtil(object):
 
         return value
 
+    def is_ssh_host_switch(self, key):
+        return key == self.SSH_HOST_SWITCH
+
+    def _validate_ssh_host_arg(self, value):
+        method_name = '_validate_ssh_host_arg'
+
+        if JStringUtils.isEmpty(value):
+            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-01658', value)
+            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        return value
+
+    def is_ssh_port_switch(self, key):
+        return key == self.SSH_PORT_SWITCH
+
+    def _validate_ssh_port_arg(self, value):
+        method_name = '_validate_ssh_port_arg'
+
+        if JStringUtils.isEmpty(value):
+            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-01659', value)
+            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        else:
+            try:
+                return JInteger.parseInt(value)
+            except NumberFormatException,ne:
+                ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-00900', value,
+                                          ne.getLocalizedMessage(), error=ne)
+            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+
+    def is_remote_oracle_home_switch(self, key):
+        return key == self.REMOTE_ORACLE_HOME_SWITCH
+
+    def _validate_remote_oracle_home_arg(self, value):
+        method_name = '_validate_remote_oracle_home_arg'
+
+        if not JFileUtils.isRemotePathAbsolute(value):
+            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-01652', value)
+            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        return value
+
+    def is_remote_domain_home_switch(self, key):
+        return key == self.REMOTE_DOMAIN_HOME_SWITCH
+
+    def _validate_remote_domain_home_arg(self, value):
+        method_name = '_validate_remote_domain_home_arg'
+
+        if not JFileUtils.isRemotePathAbsolute(value):
+            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-01653', value)
+            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        return value
+
+    def is_remote_test_file_switch(self, key):
+        return key == self.REMOTE_TEST_FILE_SWITCH
+
+    def _validate_remote_test_file_arg(self, value):
+        method_name = '_validate_remote_test_file_arg'
+
+        if not JFileUtils.isRemotePathAbsolute(value):
+            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-00910', value)
+            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        return value
+
+    def is_local_test_file_switch(self, key):
+        return key == self.LOCAL_TEST_FILE_SWITCH
+
+    def _validate_local_test_file_arg(self, value):
+        method_name = '_validate_local_test_file_arg'
+
+        try:
+            new_value = JFileUtils.validateExistingPath(value)
+        except JIllegalArgumentException, iae:
+            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
+                                      'WLSDPLY-00911', value, iae.getLocalizedMessage(), error=iae)
+            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        return new_value.getAbsolutePath()
+
+    def is_remote_output_dir_switch(self, key):
+        return key == self.REMOTE_OUTPUT_DIR_SWITCH
+
+    def _validate_remote_output_dir_arg(self, value):
+        method_name = '_validate_remote_output_dir_arg'
+
+        if not JFileUtils.isRemotePathAbsolute(value):
+            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-00912', value)
+            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        return value
+
+    def is_local_output_dir_switch(self, key):
+        return key == self.LOCAL_OUTPUT_DIR_SWITCH
+
+    def _validate_local_output_dir_arg(self, value):
+        method_name = '_validate_local_output_dir_arg'
+
+        try:
+            new_value = JFileUtils.validateExistingDirectory(value)
+        except JIllegalArgumentException, iae:
+            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
+                                      'WLSDPLY-00913', value, iae.getLocalizedMessage(), error=iae)
+            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        return new_value.getAbsolutePath()
+
+    def is_ssh_user_switch(self, key):
+        return key == self.SSH_USER_SWITCH
+
+    def _validate_ssh_user_arg(self, value):
+        method_name = '_validate_ssh_user_arg'
+
+        if JStringUtils.isEmpty(value):
+            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-01654')
+            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        return value
+
+    def is_ssh_pass_switch(self, key):
+        return key == self.SSH_PASS_SWITCH
+
+    def _validate_ssh_pass_arg(self, value):
+        method_name = '_validate_ssh_pass_arg'
+        return self._get_password(value, method_name, 'WLSDPLY-01655')
+
+    def get_ssh_pass_switch(self):
+        return self.SSH_PASS_SWITCH
+
+    def is_ssh_pass_env_switch(self, key):
+        return key == self.SSH_PASS_ENV_SWITCH
+
+    def _validate_ssh_pass_env_arg(self, value):
+        method_name = '_validate_ssh_pass_arg'
+        return self._get_password_from_env_var(value, method_name, 'WLSDPLY-01656', 'WLSDPLY-01657')
+
+    def is_ssh_pass_file_switch(self, key):
+        return key == self.SSH_PASS_FILE_SWITCH
+
+    def _validate_ssh_pass_file_arg(self, value):
+        method_name = '_validate_ssh_pass_file_arg'
+        return self._get_password_from_file(value, method_name, 'WLSDPLY-00901', 'WLSDPLY-00902', 'WLSDPLY-00903')
+
+    def is_ssh_private_key_switch(self, key):
+        return key == self.SSH_PRIVATE_KEY_SWITCH
+
+    def _validate_ssh_private_key_arg(self, value):
+        method_name = '_validate_ssh_private_key_arg'
+
+        try:
+            key_file = JFileUtils.validateExistingFile(value)
+            return key_file.getAbsolutePath()
+        except JIllegalArgumentException,iae:
+            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-00910', value,
+                                      iae.getLocalizedMessage(), error=iae)
+            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+
+    def get_ssh_private_key_passphrase_switch(self):
+        return self.SSH_PRIVATE_KEY_PASSPHRASE_SWITCH
+
+    def is_ssh_private_key_passphrase_switch(self, key):
+        return key == self.SSH_PRIVATE_KEY_PASSPHRASE_SWITCH
+
+    def _validate_ssh_private_key_passphrase_arg(self, value):
+        method_name = '_validate_ssh_private_key_passphrase_arg'
+        return self._get_password(value, method_name, 'WLSDPLY-00904')
+
+    def is_ssh_private_key_passphrase_env_switch(self, key):
+        return key == self.SSH_PRIVATE_KEY_PASSPHRASE_SWITCH
+
+    def _validate_ssh_private_key_passphrase_env_arg(self, value):
+        method_name = '_validate_ssh_private_key_passphrase_env_arg'
+        return self._get_password_from_env_var(value, method_name, 'WLSDPLY-00905', 'WLSDPLY-00906')
+
+    def is_ssh_private_key_passphrase_file_switch(self, key):
+        return key == self.SSH_PRIVATE_KEY_PASSPHRASE_SWITCH
+
+    def _validate_ssh_private_key_passphrase_file_arg(self, value):
+        method_name = '_validate_ssh_private_key_passphrase_file_arg'
+        return self._get_password_from_file(value, method_name, 'WLSDPLY-00907', 'WLSDPLY-00908', 'WLSDPLY-00909')
 
     ###########################################################################
     # Helper methods                                                          #
@@ -1095,6 +1372,59 @@ class CommandLineArgUtil(object):
     def _get_out_of_args_exception(self, key):
         ex = create_cla_exception(ExitCode.USAGE_ERROR, 'WLSDPLY-01638', key, self._program_name)
         return ex
+
+    def _get_password(self, value, method_name, empty_error_key):
+        if JStringUtils.isEmpty(value):
+            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, empty_error_key)
+            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        return value
+
+    def _get_password_from_env_var(self, value, method_name, empty_name_error_key, empty_value_error_key):
+        result = None
+        if JStringUtils.isEmpty(value):
+            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, empty_name_error_key)
+            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        elif value in os.environ:
+            result = os.environ[value]
+
+        if JStringUtils.isEmpty(result):
+            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, empty_value_error_key, value)
+            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+
+        return result
+
+    def _get_password_from_file(self, value, method_name, empty_error_key, open_error_key, read_error_key):
+        file_name = None
+        if JStringUtils.isEmpty(value):
+            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, empty_error_key)
+            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        else:
+            file_name = JFileUtils.getCanonicalPath(value)
+
+        input_reader = None
+        try:
+            try:
+                input_reader = BufferedReader(InputStreamReader(JFileUtils.getFileAsStream(file_name)))
+                return input_reader.readLine()
+            except IOException,ioe:
+                if input_reader is None:
+                    ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, open_error_key, file_name,
+                                              ioe.getLocalizedMessage(), error=ioe)
+                else:
+                    ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, read_error_key, file_name,
+                                              ioe.getLocalizedMessage(), error=ioe)
+                _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+                raise ex
+        finally:
+            if input_reader is not None:
+                try:
+                    input_reader.close()
+                except IOException:
+                    pass
 
 
 ###########################################################################

@@ -1,5 +1,5 @@
 <!--
-    Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+    Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
     The Universal Permissive License (UPL), Version 1.0
 -->
 <assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
@@ -113,6 +113,11 @@
                 <include>org.antlr:antlr4-runtime</include>
                 <include>org.yaml:snakeyaml</include>
                 <include>info.picocli:picocli</include>
+                <include>com.hierynomus:sshj</include>
+                <include>net.i2p.crypto:eddsa</include>
+                <include>org.slf4j:slf4j-jdk14</include>
+                <include>org.slf4j:slf4j-api</include>
+                <include>com.jcraft:jzlib</include>
             </includes>
         </dependencySet>
     </dependencySets>

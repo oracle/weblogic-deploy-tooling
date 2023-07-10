@@ -37,6 +37,30 @@
             <artifactId>picocli</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.hierynomus</groupId>
+            <artifactId>sshj</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.i2p.crypto</groupId>
+            <artifactId>eddsa</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-jdk14</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jzlib</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
             <scope>provided</scope>
@@ -103,7 +127,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Class-Path>antlr4-runtime-${antlr.version}.jar snakeyaml-${snakeyaml.version}.jar picocli-${picocli.version}.jar</Class-Path>
+                            <Class-Path>antlr4-runtime-${antlr.version}.jar snakeyaml-${snakeyaml.version}.jar picocli-${picocli.version}.jar sshj-${sshj.version}.jar eddsa-${eddsa.version}.jar slf4j-jdk14-${slf4j.version}.jar slf4j-api-${slf4j.version}.jar jzlib-${jzlib.version}.jar</Class-Path>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -139,6 +163,11 @@
                             <wlstExtClasspath>
                                 <element>org.antlr:antlr4-runtime:jar</element>
                                 <element>org.yaml:snakeyaml:jar</element>
+                                <element>com.hierynomus:sshj:jar</element>
+                                <element>net.i2p.crypto:eddsa:jar</element>
+                                <element>org.slf4j:slf4j-jdk14:jar</element>
+                                <element>org.slf4j:slf4j-api:jar</element>
+                                <element>com.jcraft:jzlib:jar</element>
                             </wlstExtClasspath>
                             <systemProperties>
                                 <unit-test-wlst-dir>${unit-test-wlst-dir}</unit-test-wlst-dir>
