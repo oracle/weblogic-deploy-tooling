@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import sys
@@ -24,6 +24,7 @@ import oracle.weblogic.deploy.json.JsonException as JJsonException
 import oracle.weblogic.deploy.prepare.PrepareException as PrepareException
 import oracle.weblogic.deploy.util.CLAException as JCLAException
 import oracle.weblogic.deploy.util.PyWLSTException as PyWLSTException
+import oracle.weblogic.deploy.util.SSHException as SSHException
 import oracle.weblogic.deploy.util.TranslateException as JTranslateException
 import oracle.weblogic.deploy.util.VariableException as JVariableException
 import oracle.weblogic.deploy.util.WLSDeployArchiveIOException as JWLSDeployArchiveIOException
@@ -44,6 +45,7 @@ _EXCEPTION_TYPE_MAP = {
     ExceptionType.JSON:                  'create_json_exception',
     ExceptionType.PREPARE:               'create_prepare_exception',
     ExceptionType.PY_WLST:               'create_pywlst_exception',
+    ExceptionType.SSH:                   'create_ssh_exception',
     ExceptionType.TRANSLATE:             'create_translate_exception',
     ExceptionType.VALIDATE:              'create_validate_exception',
     ExceptionType.VARIABLE:              'create_variable_exception',
@@ -275,6 +277,27 @@ def create_pywlst_exception(key, *args, **kwargs):
             ex = PyWLSTException(key, arg_list)
         else:
             ex = PyWLSTException(key)
+    return ex
+
+
+def create_ssh_exception(key, *args, **kwargs):
+    """
+    Create a Java SSHException from a message id, list of message parameters and Throwable error.
+    :param key: key to the message in resource bundler or the message itself
+    :param args: list of parameters for the parameters or empty if none needed for the message
+    :param kwargs: contains Throwable or instance if present
+    :return: SSHException encapsulating the exception information
+    """
+    arg_list, error = _return_exception_params(*args, **kwargs)
+    if error is not None:
+        if len(arg_list) > 0:
+            ex = SSHException(key, error, arg_list)
+        else:
+            ex = SSHException(key, error)
+    elif len(arg_list) > 0:
+        ex = SSHException(key, arg_list)
+    else:
+        ex = SSHException(key)
     return ex
 
 

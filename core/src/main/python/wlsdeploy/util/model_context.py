@@ -8,6 +8,7 @@ import os
 import re
 import tempfile
 
+import java.lang.System as System
 import java.net.URI as URI
 
 from oracle.weblogic.deploy.util import XPathUtil
@@ -54,6 +55,7 @@ class ModelContext(object):
         self._logger = platform_logger.PlatformLogger('wlsdeploy.util')
         self._wls_helper = WebLogicHelper(self._logger)
         self._model_config = model_config.get_model_config(self._program_name)
+        self._ssh_context = None
 
         self._oracle_home = None
         self._wl_home = ""
@@ -102,6 +104,21 @@ class ModelContext(object):
         self._wait_for_edit_lock = False
         self._remote = False
         self._skip_archive = False
+        self._ssh_host = None
+        self._ssh_port = None
+        self._ssh_user = System.getProperty('user.name')
+        self._ssh_pass = None
+        self._ssh_pass_prompt = False
+        self._ssh_private_key = None
+        self._ssh_private_key_passphrase = None
+        self._ssh_private_key_passphrase_prompt = False
+        self._remote_oracle_home = None
+        self._remote_domain_home = None
+        self._remote_test_file = None
+        self._local_test_file = None
+        self._remote_output_dir = None
+        self._local_output_dir = None
+
 
         self._trailing_args = []
 
@@ -194,6 +211,49 @@ class ModelContext(object):
 
         if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH in arg_map:
             self._skip_archive = arg_map[CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH]
+
+        if CommandLineArgUtil.SSH_HOST_SWITCH in arg_map:
+            self._ssh_host = arg_map[CommandLineArgUtil.SSH_HOST_SWITCH]
+
+        if CommandLineArgUtil.SSH_PORT_SWITCH in arg_map:
+            self._ssh_port = arg_map[CommandLineArgUtil.SSH_PORT_SWITCH]
+
+        if CommandLineArgUtil.SSH_USER_SWITCH in arg_map:
+            self._ssh_user = arg_map[CommandLineArgUtil.SSH_USER_SWITCH]
+
+        if CommandLineArgUtil.SSH_PASS_SWITCH in arg_map:
+            self._ssh_pass = arg_map[CommandLineArgUtil.SSH_PASS_SWITCH]
+
+        if CommandLineArgUtil.SSH_PASS_PROMPT_SWITCH in arg_map:
+            self._ssh_pass_prompt = arg_map[CommandLineArgUtil.SSH_PASS_PROMPT_SWITCH]
+
+        if CommandLineArgUtil.SSH_PRIVATE_KEY_SWITCH in arg_map:
+            self._ssh_private_key = arg_map[CommandLineArgUtil.SSH_PRIVATE_KEY_SWITCH]
+
+        if CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_SWITCH in arg_map:
+            self._ssh_private_key_passphrase = arg_map[CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_SWITCH]
+
+        if CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH in arg_map:
+            self._ssh_private_key_passphrase_prompt = \
+                arg_map[CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH]
+
+        if CommandLineArgUtil.REMOTE_ORACLE_HOME_SWITCH in arg_map:
+            self._remote_oracle_home = arg_map[CommandLineArgUtil.REMOTE_ORACLE_HOME_SWITCH]
+
+        if CommandLineArgUtil.REMOTE_DOMAIN_HOME_SWITCH in arg_map:
+            self._remote_domain_home = arg_map[CommandLineArgUtil.REMOTE_DOMAIN_HOME_SWITCH]
+
+        if CommandLineArgUtil.REMOTE_TEST_FILE_SWITCH in arg_map:
+            self._remote_test_file = arg_map[CommandLineArgUtil.REMOTE_TEST_FILE_SWITCH]
+
+        if CommandLineArgUtil.LOCAL_TEST_FILE_SWITCH in arg_map:
+            self._local_test_file = arg_map[CommandLineArgUtil.LOCAL_TEST_FILE_SWITCH]
+
+        if CommandLineArgUtil.REMOTE_OUTPUT_DIR_SWITCH in arg_map:
+            self._remote_output_dir = arg_map[CommandLineArgUtil.REMOTE_OUTPUT_DIR_SWITCH]
+
+        if CommandLineArgUtil.LOCAL_OUTPUT_DIR_SWITCH in arg_map:
+            self._local_output_dir = arg_map[CommandLineArgUtil.LOCAL_OUTPUT_DIR_SWITCH]
 
         if CommandLineArgUtil.RUN_RCU_SWITCH in arg_map:
             self._run_rcu = arg_map[CommandLineArgUtil.RUN_RCU_SWITCH]
@@ -311,6 +371,35 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.REMOTE_SWITCH] = self._remote
         if self._skip_archive is not None:
             arg_map[CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH] = self._skip_archive
+        if self._ssh_host is not None:
+            arg_map[CommandLineArgUtil.SSH_HOST_SWITCH] = self._ssh_host
+        if self._ssh_port is not None:
+            arg_map[CommandLineArgUtil.SSH_PORT_SWITCH] = self._ssh_port
+        if self._ssh_user is not None:
+            arg_map[CommandLineArgUtil.SSH_USER_SWITCH] = self._ssh_user
+        if self._ssh_pass is not None:
+            arg_map[CommandLineArgUtil.SSH_PASS_SWITCH] = self._ssh_pass
+        if self._ssh_pass_prompt is not None:
+            arg_map[CommandLineArgUtil.SSH_PASS_PROMPT_SWITCH] = self._ssh_pass_prompt
+        if self._ssh_private_key is not None:
+            arg_map[CommandLineArgUtil.SSH_PRIVATE_KEY_SWITCH] = self._ssh_private_key
+        if self._ssh_private_key_passphrase is not None:
+            arg_map[CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_SWITCH] = self._ssh_private_key_passphrase
+        if self._ssh_private_key_passphrase_prompt is not None:
+            arg_map[CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH] = \
+                self._ssh_private_key_passphrase_prompt
+        if self._remote_oracle_home is not None:
+            arg_map[CommandLineArgUtil.REMOTE_ORACLE_HOME_SWITCH] = self._remote_oracle_home
+        if self._remote_domain_home is not None:
+            arg_map[CommandLineArgUtil.REMOTE_DOMAIN_HOME_SWITCH] = self._remote_domain_home
+        if self._remote_test_file is not None:
+            arg_map[CommandLineArgUtil.REMOTE_TEST_FILE_SWITCH] = self._remote_test_file
+        if self._local_test_file is not None:
+            arg_map[CommandLineArgUtil.LOCAL_TEST_FILE_SWITCH] = self._local_test_file
+        if self._remote_output_dir is not None:
+            arg_map[CommandLineArgUtil.REMOTE_OUTPUT_DIR_SWITCH] = self._remote_output_dir
+        if self._local_output_dir is not None:
+            arg_map[CommandLineArgUtil.LOCAL_OUTPUT_DIR_SWITCH] = self._local_output_dir
         if self._variable_file_name is not None:
             arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = self._variable_file_name
         if self._run_rcu is not None:
@@ -793,6 +882,167 @@ class ModelContext(object):
         """
         return self._skip_archive
 
+    def is_ssh(self):
+        """
+        Determine if the tool is running in SSH mode
+        :return:True if running in SSH mode
+        """
+        return self._ssh_context is not None
+
+    def is_ssh_user_pass_auth(self):
+        """
+        Determine if the SSH authentication mechanism is using username/password authentication.
+        :return: True, if using username/password authentication
+        """
+        return self._ssh_pass is not None or self._ssh_pass_prompt
+
+    def is_ssh_public_key_auth(self):
+        """
+        Determine if the SSH authentication mechanism is using public key-based authentication
+        :return: True, if not using username/password authentication
+        """
+        return not self.is_ssh_user_pass_auth()
+
+    def is_ssh_default_private_key(self):
+        """
+        Determine if the user has specified a private key.
+        :return: true if the private key file was not specified, false otherwise
+        """
+        return self._ssh_private_key is None
+
+    def is_ssh_private_key_encrypted(self):
+        """
+        Determine if the user's private key has a passphrase.
+        :return: True, if the user's private key has a passphrase
+        """
+        return self._ssh_private_key_passphrase is not None
+
+    def get_ssh_host(self):
+        """
+        Get the specified SSH host name or IP address.
+        :return: SSH host name or IP address or None
+        """
+        return self._ssh_host
+
+    def get_ssh_port(self):
+        """
+        Get the specified SSH port number, if any.
+        :return: the SSH port number or None
+        """
+        return self._ssh_port
+
+    def get_ssh_user(self):
+        """
+        Get the specified SSH username, if any.
+        :return: the SSH username or None
+        """
+        return self._ssh_user
+
+    def get_ssh_pass(self):
+        """
+        Get the specified SSH password, if any.
+        :return: the SSH user's password or None
+        """
+        return self._ssh_pass
+
+    def set_ssh_pass(self, ssh_pass):
+        """
+        Set the SSH user's password.
+        :param ssh_pass: the SSH user's password
+        """
+        self._ssh_pass = ssh_pass
+
+    def is_ssh_pass_prompt(self):
+        """
+        Whether prompting is needed for the SSH user's password.
+        :return: true if prompting is needed, false otherwise
+        """
+        return self._ssh_pass_prompt
+
+    def get_ssh_private_key(self):
+        """
+        Get the specified SSH private key file, if any.
+        :return: the SSH private key file or None
+        """
+        return self._ssh_private_key
+
+    def get_ssh_private_key_passphrase(self):
+        """
+        Get the specified SSH private key passphrase, if any.
+        :return: the SSH private key passphrase or None
+        """
+        return self._ssh_private_key_passphrase
+
+    def set_ssh_private_key_passphrase(self, passphrase):
+        """
+        Set the SSH private key passphrase.
+        :param passphrase: the SSH private key passphrase
+        """
+        self._ssh_private_key_passphrase = passphrase
+
+    def is_ssh_private_key_passphrase_prompt(self):
+        """
+        Whether prompting is needed for the SSH private key passphrase.
+        :return: true if prompting is needed, false otherwise
+        """
+        return self._ssh_private_key_passphrase_prompt
+
+    def get_remote_test_file(self):
+        """
+        Get the location of the test file or directory to download from the remote machine.
+        :return: the absolute path to the test file or directory
+        """
+        return self._remote_test_file
+
+    def get_local_test_file(self):
+        """
+        Get the location of the test file or directory to upload to the remote machine.
+        :return: the path to the test file or directory
+        """
+        return self._local_test_file
+
+    def get_remote_output_dir(self):
+        """
+        Get the location of the directory to which to upload on the remote machine.
+        :return: the absolute path on the remote machine
+        """
+        return self._remote_output_dir
+
+    def get_local_output_dir(self):
+        """
+        Get the location of the directory to which to download on the local machine.
+        :return: the path to the local directory
+        """
+        return self._local_output_dir
+
+    def get_remote_oracle_home(self):
+        """
+        Get the location of the Oracle Home on the remote machine.
+        :return: the location of the remote Oracle Home or None
+        """
+        return self._remote_oracle_home
+
+    def get_remote_domain_home(self):
+        """
+        Get the location of the WebLogic Domain Home on the remote machine.
+        :return: the location of the remote WebLogic Domain Home or None
+        """
+        return self._remote_domain_home
+
+    def get_ssh_context(self):
+        """
+        Get the SSH context object.
+        :return: the SSH context object
+        """
+        return self._ssh_context
+
+    def set_ssh_context(self, ssh_context):
+        """
+        Set the SSH context object
+        :param ssh_context: the new SSH context object
+        """
+        self._ssh_context = ssh_context
+
     def replace_tokens_in_path(self, attribute_name, resource_dict):
         """
         Replace any tokens in a path with the current values.
@@ -975,4 +1225,3 @@ def _replace(string_value, token, replace_token_string):
     else:
         result = string_value.replace(token, replace_token_string)
     return result
-

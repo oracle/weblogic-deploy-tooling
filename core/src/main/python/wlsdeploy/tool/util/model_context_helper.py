@@ -6,9 +6,10 @@ from wlsdeploy.tool.create.domain_typedef import DomainTypedef
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
+from wlsdeploy.util import ssh_helper
 
 
-def create_context(program_name, combined_arg_map, domain_typedef=None):
+def create_context(program_name, combined_arg_map, domain_typedef=None, exception_type=None):
     """
     Create a model context object from the specified argument map, with the domain typedef set up correctly.
     If the domain_typedef is not specified, construct it from the argument map.
@@ -23,6 +24,10 @@ def create_context(program_name, combined_arg_map, domain_typedef=None):
     combined_arg_map[CommandLineArgUtil.DOMAIN_TYPEDEF] = domain_typedef
     model_context = ModelContext(program_name, combined_arg_map)
     domain_typedef.set_model_context(model_context)
+    if exception_type is None:
+        ssh_helper.initialize_ssh(model_context, combined_arg_map)
+    else:
+        ssh_helper.initialize_ssh(model_context, combined_arg_map, exception_type)
     return model_context
 
 

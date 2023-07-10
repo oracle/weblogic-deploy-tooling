@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
- * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+ * Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+ * Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
 
@@ -238,6 +238,27 @@ public final class FileUtils {
     }
 
     /**
+     * This method validates that the specified path name exists in the file system.
+     * @param pathName the path name to validate
+     * @return the canonical file representing the path name
+     * @throws IllegalArgumentException if the path name is empty or does not exist
+     */
+    public static File validateExistingPath(String pathName) {
+        final String METHOD = "validateExistingPath";
+
+        LOGGER.entering(CLASS, METHOD, pathName);
+        File path = validatePathName(pathName);
+        if (!path.exists()) {
+            String message = ExceptionHelper.getMessage("WLSDPLY-01121", path.getAbsolutePath());
+            IllegalArgumentException iae  = new IllegalArgumentException(message);
+            LOGGER.throwing(CLASS, METHOD, iae);
+            throw iae;
+        }
+        LOGGER.exiting(CLASS, METHOD, path);
+        return path;
+    }
+
+    /**
      * This method validates that the specified file name is writable.
      *
      * @param fileName the file name to validate
@@ -431,7 +452,7 @@ public final class FileUtils {
      * Validate the file for the provided file name and return a File object handle. The file name
      * must not be a directory
      *
-     * @param fileName of the file to validate
+     * @param fileName the file to validate
      * @return File handle for the file name
      * @throws IllegalArgumentException if the file name is empty or is a directory
      */
@@ -439,14 +460,7 @@ public final class FileUtils {
         final String METHOD = "validateFileName";
 
         LOGGER.entering(CLASS, METHOD, fileName);
-        if (StringUtils.isEmpty(fileName)) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-01108");
-            IllegalArgumentException iae  = new IllegalArgumentException(message);
-            LOGGER.throwing(CLASS, METHOD, iae);
-            throw iae;
-        }
-
-        File file = FileUtils.getCanonicalFile(new File(fileName));
+        File file = validatePathNameInternal(fileName, "WLSDPLY-01108");
         if (file.isDirectory()) {
             String message = ExceptionHelper.getMessage("WLSDPLY-01109", file.getAbsolutePath());
             IllegalArgumentException iae  = new IllegalArgumentException(message);
@@ -459,10 +473,10 @@ public final class FileUtils {
 
     /**
      * Validate the directory for the provided directory name and return a File object handle.
-     * The directory name must not be a directory.
+     * The directory name must be a directory.
      *
-     * @param directoryName of the file to validate
-     * @return File handle for the file name
+     * @param directoryName the directory name to validate
+     * @return File handle for the directory name
      * @throws IllegalArgumentException if the directory name is empty or is not a directory
      */
     @SuppressWarnings("WeakerAccess")
@@ -470,14 +484,7 @@ public final class FileUtils {
         final String METHOD = "validateDirectoryName";
 
         LOGGER.entering(CLASS, METHOD, directoryName);
-        if (StringUtils.isEmpty(directoryName)) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-01110");
-            IllegalArgumentException iae  = new IllegalArgumentException(message);
-            LOGGER.throwing(CLASS, METHOD, iae);
-            throw iae;
-        }
-
-        File directory = FileUtils.getCanonicalFile(new File(directoryName));
+        File directory = validatePathNameInternal(directoryName, "WLSDPLY-01110");
         if (!directory.isDirectory()) {
             String message = ExceptionHelper.getMessage("WLSDPLY-01105", directory.getAbsolutePath());
             IllegalArgumentException iae  = new IllegalArgumentException(message);
@@ -486,6 +493,22 @@ public final class FileUtils {
         }
         LOGGER.exiting(CLASS, METHOD, directory);
         return directory;
+    }
+
+    /**
+     * Validate the path name and return a File object handle.
+     *
+     * @param pathName the path name to validate
+     * @return File handle for the path name
+     * @throws IllegalArgumentException if the path name is empty
+     */
+    public static File validatePathName(String pathName) {
+        final String METHOD = "validatePathName";
+
+        LOGGER.entering(CLASS, METHOD, pathName);
+        File path = validatePathNameInternal(pathName, "WLSDPLY-01120");
+        LOGGER.exiting(CLASS, METHOD, path);
+        return path;
     }
 
     /**
@@ -672,6 +695,29 @@ public final class FileUtils {
         return result != null ? getCanonicalPath(result) : null;
     }
 
+    /**
+     * Determines whether the argument contains an absolute path.
+     *
+     * @param filePath file path to check
+     * @return true if the value is an absolute path; false otherwise
+     */
+    public static boolean isAbsolutePath(String filePath) {
+        return !StringUtils.isEmpty(filePath) && new File(filePath).isAbsolute();
+    }
+
+    /**
+     * Determines whether the argument contains an absolute path for either Unix- or Windows-based file systems.
+     * This is necessary because java.io.File.isAbsolute() only tests based on the local file system type
+     * and since this is a remote path, it may be for a different file system type.
+     *
+     * @param filePath file path to check
+     * @return true if the value is an absolute path; false otherwise
+     */
+    public static boolean isRemotePathAbsolute(String filePath) {
+        return !StringUtils.isEmpty(filePath) &&
+            (filePath.startsWith("/") || filePath.startsWith(":\\", 1) || filePath.startsWith("\\\\"));
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // Private helper methods                                                //
     ///////////////////////////////////////////////////////////////////////////
@@ -829,5 +875,21 @@ public final class FileUtils {
             }
         }
         return result;
+    }
+
+    private static File validatePathNameInternal(String pathName, String emptyErrorKey) {
+        final String METHOD = "validatePathyNameInternal";
+
+        LOGGER.entering(CLASS, METHOD, pathName, emptyErrorKey);
+        if (StringUtils.isEmpty(pathName)) {
+            String message = ExceptionHelper.getMessage(emptyErrorKey);
+            IllegalArgumentException iae  = new IllegalArgumentException(message);
+            LOGGER.throwing(CLASS, METHOD, iae);
+            throw iae;
+        }
+
+        File path = FileUtils.getCanonicalFile(new File(pathName));
+        LOGGER.exiting(CLASS, METHOD, path);
+        return path;
     }
 }

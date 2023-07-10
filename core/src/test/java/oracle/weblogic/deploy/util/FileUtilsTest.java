@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
- * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+ * Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+ * Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
 
@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FileUtilsTest {
@@ -133,5 +134,40 @@ public class FileUtilsTest {
         Set<PosixFilePermission> perms2 = FileUtils.getPermissions(0006);
         assertTrue(perms2.contains(PosixFilePermission.OTHERS_READ));
         assertTrue(perms2.contains(PosixFilePermission.OTHERS_WRITE));
+    }
+
+    @Test
+    void testIsRemotePathAbsolute_UnixAbsolutePath_ToBeTrue() {
+        String path = "/foo/bar";
+        boolean actual = FileUtils.isRemotePathAbsolute(path);
+        assertTrue(actual, "Excepted " + path + " to be absolute");
+    }
+
+    @Test
+    void testIsRemotePathAbsolute_UnixRelativePath_ToBeFalse() {
+        String path = "foo/bar";
+        boolean actual = FileUtils.isRemotePathAbsolute(path);
+        assertFalse(actual, "Excepted " + path + " to not be absolute");
+    }
+
+    @Test
+    void testIsRemotePathAbsolute_WindowsDriveAbsolutePath_ToBeTrue() {
+        String path = "c:\\foo\\bar";
+        boolean actual = FileUtils.isRemotePathAbsolute(path);
+        assertTrue(actual, "Excepted " + path + " to be absolute");
+    }
+
+    @Test
+    void testIsRemotePathAbsolute_WindowsUNCAbsolutePath_ToBeTrue() {
+        String path = "\\\\foo\\bar";
+        boolean actual = FileUtils.isRemotePathAbsolute(path);
+        assertTrue(actual, "Excepted " + path + " to be absolute");
+    }
+
+    @Test
+    void testIsRemotePathAbsolute_WindowsRelativePath_ToBeFalse() {
+        String path = "\\foo\\bar";
+        boolean actual = FileUtils.isRemotePathAbsolute(path);
+        assertFalse(actual, "Excepted " + path + " to not be absolute");
     }
 }
