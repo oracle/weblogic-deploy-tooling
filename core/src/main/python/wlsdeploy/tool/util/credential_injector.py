@@ -1,11 +1,13 @@
 """
-Copyright (c) 2020, 2022, Oracle and/or its affiliates.
+Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
 from wlsdeploy.aliases.alias_constants import CREDENTIAL
 from wlsdeploy.aliases.alias_constants import PASSWORD
+from wlsdeploy.aliases.alias_constants import SECRET_PASSWORD_KEY
+from wlsdeploy.aliases.alias_constants import SECRET_USERNAME_KEY
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE
@@ -27,8 +29,6 @@ import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util import variables
 from wlsdeploy.util.target_configuration import CONFIG_OVERRIDES_SECRETS_METHOD
 from wlsdeploy.util.target_configuration import SECRETS_METHOD
-from wlsdeploy.util.target_configuration_helper import SECRET_PASSWORD_KEY
-from wlsdeploy.util.target_configuration_helper import SECRET_USERNAME_KEY
 from wlsdeploy.util.target_configuration_helper import WEBLOGIC_CREDENTIALS_SECRET_NAME
 
 _class_name = 'CredentialInjector'
@@ -168,28 +168,16 @@ class CredentialInjector(VariableInjector):
         aliases = self.get_aliases()
         target_config = self._model_context.get_target_configuration()
 
-        # domainInfo attributes have separate model and attribute locations
+        # the attribute location passed may differ from the model location (rare).
+        # for example, DomainInfo/... attribute location is a top-level model location.
         model_location = attribute_location
         if model_location.get_current_model_folder() == DOMAIN_INFO_ALIAS:
             model_location = LocationContext()
 
         if target_config.uses_credential_secrets():
-            # use the secret token name as variable name in the cache, such as jdbc-generic1.password .
-            # secret name is the adjusted variable name, with the last element replaced with "username" or "password".
-
-            attribute_type = aliases.get_model_attribute_type(attribute_location, attribute)
-            variable_name = VariableInjector.get_variable_name(self, model_location, attribute)
-            secret_name = target_configuration_helper.create_secret_name(variable_name, suffix)
-
-            secret_key = SECRET_USERNAME_KEY
-            if attribute_type == PASSWORD:
-                secret_key = SECRET_PASSWORD_KEY
-
-            # suffix such as map3.password in MailSession properties
-            if suffix and suffix.endswith(".password"):
-                secret_key = SECRET_PASSWORD_KEY
-
-            return '%s:%s' % (secret_name, secret_key)
+            # use the secret token name as variable name in the cache, such as jdbc-generic1:password
+            return target_configuration_helper.get_secret_path(model_location, attribute_location,
+                                                               attribute, aliases, suffix)
 
         return VariableInjector.get_variable_name(self, model_location, attribute, suffix=suffix)
 

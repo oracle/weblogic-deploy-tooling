@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.",
+    "copyright": "Copyright (c) 2017, 2023, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "SecurityConfiguration",
     "online_bean": "weblogic.management.configuration.SecurityConfigurationMBean",
@@ -1453,8 +1453,8 @@
                         "JMSExceptionReconnectAttempts": [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "JMSExceptionReconnectAttempts", "wlst_path": "WP001", "default_value": 0,              "wlst_type": "integer"    } ],
                         "JMSTopic":                      [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "JMSTopic",                      "wlst_path": "WP001", "default_value": null,           "wlst_type": "string"     } ],
                         "JMSTopicConnectionFactory":     [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "JMSTopicConnectionFactory",     "wlst_path": "WP001", "default_value": null,           "wlst_type": "string"     } ],
-                        "JNDIPasswordEncrypted":         [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "JNDIPasswordEncrypted",         "wlst_path": "WP001", "default_value": null,           "wlst_type": "password", "get_method": "GET"   } ],
-                        "JNDIUsername":                  [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "JNDIUsername",                  "wlst_path": "WP001", "default_value": null,           "wlst_type": "credential" } ],
+                        "JNDIPasswordEncrypted":         [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "JNDIPasswordEncrypted",         "wlst_path": "WP001", "default_value": null,           "wlst_type": "password", "get_method": "GET", "secret_suffix": "jndi" } ],
+                        "JNDIUsername":                  [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "JNDIUsername",                  "wlst_path": "WP001", "default_value": null,           "wlst_type": "credential", "secret_suffix": "jndi" } ],
                         "NotificationProperties":        [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "NotificationProperties",        "wlst_path": "WP001", "default_value": null,           "wlst_type": "string"     } ],
                         "PasswordEncrypted":             [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "PasswordEncrypted",             "wlst_path": "WP001", "default_value": null,           "wlst_type": "password",  "get_method": "GET" } ],
                         "Username":                      [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "Username",                      "wlst_path": "WP001", "default_value": null,           "wlst_type": "credential" } ]
@@ -1740,8 +1740,8 @@
         "ExcludedDomainName":                    [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "ExcludedDomainName${:s}",               "wlst_path": "WP001", "default_value": null,       "wlst_type": "delimited_string" } ],
         "IdentityDomainAwareProvidersRequired":  [ {"version": "[12.2.1,)",   "wlst_mode": "both", "wlst_name": "IdentityDomainAwareProvidersRequired",  "wlst_path": "WP001", "default_value": "false",    "wlst_type": "boolean"          } ],
         "IdentityDomainDefaultEnabled":          [ {"version": "[12.2.1,)",   "wlst_mode": "both", "wlst_name": "IdentityDomainDefaultEnabled",          "wlst_path": "WP001", "default_value": "${false:true}", "wlst_type": "boolean",    "get_method": "${LSA:GET}" } ],
-        "NodeManagerPasswordEncrypted":          [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "NodeManagerPasswordEncrypted",          "wlst_path": "WP001", "default_value": null,       "wlst_type": "password",        "get_method": "GET"} ],
-        "NodeManagerUsername":                   [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "NodeManagerUsername",                   "wlst_path": "WP001", "default_value": "weblogic", "wlst_type": "credential"       } ],
+        "NodeManagerPasswordEncrypted":          [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "NodeManagerPasswordEncrypted",          "wlst_path": "WP001", "default_value": null,       "wlst_type": "password",        "get_method": "GET", "secret_suffix": "nodemanager" } ],
+        "NodeManagerUsername":                   [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "NodeManagerUsername",                   "wlst_path": "WP001", "default_value": "weblogic", "wlst_type": "credential",      "secret_suffix": "nodemanager" } ],
         "NonceTimeoutSeconds":                   [ {"version": "[12.2.1,)",   "wlst_mode": "both", "wlst_name": "NonceTimeoutSeconds",                   "wlst_path": "WP001", "default_value": 120,        "wlst_type": "integer"          } ],
         "Notes":                                 [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "Notes",                                 "wlst_path": "WP001", "default_value": null,       "wlst_type": "string"           } ],
         "OutboundReferenceHostAllowList":        [
