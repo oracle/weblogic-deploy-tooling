@@ -1,21 +1,22 @@
 """
-Copyright (c) 2018, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2018, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import re
 
+from oracle.weblogic.deploy.aliases import AliasException
+
 import wlsdeploy.aliases.model_constants as model_constants
 import wlsdeploy.util.model as model_sections
-from oracle.weblogic.deploy.aliases import AliasException
+import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.logging.platform_logger import PlatformLogger
-import wlsdeploy.util.unicode_helper as str_helper
 
 _class_name = 'variable_injector'
 _logger = PlatformLogger('wlsdeploy.tool.util')
 
-_fake_name_marker = 'fakename'
-_fake_name_replacement = re.compile('.' + _fake_name_marker)
+FAKE_NAME_MARKER = 'fakename'
+_fake_name_replacement = re.compile('.' + FAKE_NAME_MARKER)
 _white_space_replacement = re.compile('\\s')
 
 # bad characters for a property name - anything that isn't a good character
@@ -73,6 +74,25 @@ def format_variable_name(location, attribute, aliases):
     """
     _method_name = 'format_variable_name'
 
+    short_name = get_short_name(location, attribute, aliases)
+
+    # remove or replace invalid characters in the variable name for use as a property name.
+    short_name = short_name.replace('/', '.')
+    short_name = _white_space_replacement.sub('-', short_name)
+    short_name = _bad_chars_replacement.sub('-', short_name)
+    return short_name
+
+
+def get_short_name(location, attribute, aliases):
+    """
+    Return a dot-delimited string representation of the location and attribute.
+    There are adjustments to use shorter element names and skip some redundant elements
+    This is used to make variable property names and secret names.
+    :param location: the location of the attribute
+    :param attribute: the attribute to be evaluated
+    :param aliases: for information about the location and attribute
+    :return: the short name
+    """
     short_list = __traverse_location(LocationContext(location), attribute, list(), aliases)
 
     short_name = ''
@@ -81,10 +101,6 @@ def format_variable_name(location, attribute, aliases):
             short_name += node + '.'
     short_name += attribute
 
-    # remove or replace invalid characters in the variable name for use as a property name.
-    short_name = short_name.replace('/', '.')
-    short_name = _white_space_replacement.sub('-', short_name)
-    short_name = _bad_chars_replacement.sub('-', short_name)
     short_name = _fake_name_replacement.sub('', short_name)
     return short_name
 
