@@ -6,7 +6,9 @@
 # ------------
 # WDT filters to prepare a model for use a target environment, using the createDomain or prepareModel tools.
 # These operations can be invoked as a single call, or independently of each other.
+
 from oracle.weblogic.deploy.util import PyRealBoolean
+
 from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.model_constants import AUTO_MIGRATION_ENABLED
 from wlsdeploy.aliases.model_constants import CALCULATED_LISTEN_PORTS
@@ -15,6 +17,7 @@ from wlsdeploy.aliases.model_constants import CANDIDATE_MACHINES_FOR_MIGRATABLE_
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import CLUSTER_MESSAGING_MODE
 from wlsdeploy.aliases.model_constants import DATABASE_LESS_LEASING_BASIS
+from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
 from wlsdeploy.aliases.model_constants import LISTEN_PORT
 from wlsdeploy.aliases.model_constants import MACHINE
@@ -22,6 +25,7 @@ from wlsdeploy.aliases.model_constants import MIGRATION_BASIS
 from wlsdeploy.aliases.model_constants import NM_PROPERTIES
 from wlsdeploy.aliases.model_constants import NODE_MANAGER_PW_ENCRYPTED
 from wlsdeploy.aliases.model_constants import NODE_MANAGER_USER_NAME
+from wlsdeploy.aliases.model_constants import OPSS_SECRETS
 from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PARTITION_WORK_MANAGER
 from wlsdeploy.aliases.model_constants import RESOURCES
@@ -57,6 +61,7 @@ def filter_model(model, model_context):
     :param model: the model to be filtered
     :param model_context: used by nested filters
     """
+    filter_domain_info(model, model_context)
     filter_topology(model, model_context)
     filter_resources(model, model_context)
     filter_online_attributes(model, model_context)
@@ -141,6 +146,26 @@ def check_clustered_server_ports(model, _model_context):
                                     method_name=_method_name)
             else:
                 server_port_map[server_cluster] = {"firstServer": server_name, "serverPort": server_port_text}
+
+
+def filter_domain_info(model, _model_context):
+    """
+    Remove elements from the domainInfo section of the model that are not relevant in a Kubernetes environment.
+    This may include references to OPSS secret elements.
+    :param model: the model to be updated
+    :param _model_context: used to get target configuration
+    """
+    _method_name = 'filter_domain_info'
+
+    target_configuration = _model_context.get_target_configuration()
+    if not target_configuration.uses_opss_secrets():
+        domain_info = dictionary_utils.get_dictionary_element(model, DOMAIN_INFO)
+        for delete_key in [OPSS_SECRETS]:
+            if delete_key in domain_info:
+                source_name = target_configuration.get_domain_home_source_name()
+                _logger.info('WLSDPLY-20208', OPSS_SECRETS, DOMAIN_INFO, source_name, class_name=_class_name,
+                             method_name=_method_name)
+                del domain_info[delete_key]
 
 
 def filter_topology(model, _model_context):

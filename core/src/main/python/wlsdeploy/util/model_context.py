@@ -674,7 +674,8 @@ class ModelContext(object):
         :return: target configuration object
         """
         if self._target_configuration is None:
-            configuration_dict = {}
+            # if no target declared, construct TargetConfiguration with None
+            configuration_dict = None
 
             if self._target:
                 target_configuration_file = self.get_target_configuration_file()

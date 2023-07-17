@@ -26,6 +26,7 @@ __id_filter_map = {
     'wko_filter': wko_filter.filter_model_for_wko,
 
     # individual filters for custom target environments
+    'domain_info_filter': wko_filter.filter_domain_info,
     'online_attributes_filter': wko_filter.filter_online_attributes,
     'resources_filter': wko_filter.filter_resources,
     'topology_filter': wko_filter.filter_topology,
