@@ -11,7 +11,6 @@
     "validation_method" : "lax",
     "product_key": "vz",
     "domain_home_source_type" : "pv",
-    "credentials_output_method" : "script",
     "exclude_domain_bin_contents": true,
     "use_persistent_volume" : true,
     "additional_output" : "vz-application.yaml"

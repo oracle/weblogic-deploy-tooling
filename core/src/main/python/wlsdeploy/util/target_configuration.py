@@ -83,8 +83,10 @@ class TargetConfiguration(object):
         """
         if config_dictionary is None:
             self.config_dictionary = {}
+            self.is_targeted = False  # no target was declared, methods are still usable
         else:
             self.config_dictionary = config_dictionary
+            self.is_targeted = True
 
     def get_credentials_method(self):
         """
@@ -96,10 +98,11 @@ class TargetConfiguration(object):
     def get_results_output_method(self):
         """
         Returns the method for generating results output.
-        :return: "default" (script and additional files) or "json" (single results file)
+        :return: "default" (script and additional files) or "json" (single results file), or None if not
+        using a targeted configuration
         """
         result = dictionary_utils.get_element(self.config_dictionary, RESULTS_OUTPUT_METHOD)
-        if result is None:
+        if not result and self.is_targeted:
             result = DEFAULT_RESULTS_OUTPUT_METHOD
         return result
 
@@ -219,7 +222,16 @@ class TargetConfiguration(object):
         :return: True if a model is included, False otherwise
         """
         source_type = self._get_domain_home_source_type()
-        return source_type == MODEL_IN_IMAGE_SOURCE_TYPE
+        return source_type in [None, MODEL_IN_IMAGE_SOURCE_TYPE]
+
+    def uses_opss_secrets(self):
+        """
+        Determine if OPSS secrets are applicable to this target configuration.
+        They are applicable for non-targeted scenarios.
+        :return: True if a model is included, False otherwise
+        """
+        source_type = self._get_domain_home_source_type()
+        return source_type not in [MODEL_IN_IMAGE_SOURCE_TYPE, PERSISTENT_VOLUME_SOURCE_TYPE]
 
     def get_domain_home_source_name(self):
         """
@@ -227,7 +239,9 @@ class TargetConfiguration(object):
         :return: the domain home source name
         """
         source_type = self._get_domain_home_source_type()
-        return SOURCE_TYPE_NAMES[source_type]
+        if source_type:
+            return SOURCE_TYPE_NAMES[source_type]
+        return None
 
     def sets_cluster_replicas(self):
         """
@@ -272,11 +286,11 @@ class TargetConfiguration(object):
         self._validate_enumerated_field(PRODUCT_VERSION, product_version, valid_product_versions, exit_code,
                                         target_configuration_file)
 
-        source_type = self._get_domain_home_source_type()
+        source_type = dictionary_utils.get_element(self.config_dictionary, DOMAIN_HOME_SOURCE_TYPE)
         self._validate_enumerated_field(DOMAIN_HOME_SOURCE_TYPE, source_type, SOURCE_TYPE_NAMES.keys(), exit_code,
                                         target_configuration_file)
 
-        output_method = self.get_results_output_method()
+        output_method = dictionary_utils.get_element(self.config_dictionary, RESULTS_OUTPUT_METHOD)
         self._validate_enumerated_field(RESULTS_OUTPUT_METHOD, output_method, RESULTS_OUTPUT_METHODS, exit_code,
                                         target_configuration_file)
 
@@ -287,10 +301,13 @@ class TargetConfiguration(object):
     def _get_domain_home_source_type(self):
         """
         Get the domain home source type (private method).
-        :return: the domain home source type key, or the default MODEL_IN_IMAGE_SOURCE_TYPE
+        :return: the configured domain home source type key, or MODEL_IN_IMAGE_SOURCE_TYPE. If not using a
+        targeted configuration, None is returned.
         """
         source_type = dictionary_utils.get_element(self.config_dictionary, DOMAIN_HOME_SOURCE_TYPE)
-        return source_type or MODEL_IN_IMAGE_SOURCE_TYPE
+        if not source_type and self.is_targeted:
+            source_type = MODEL_IN_IMAGE_SOURCE_TYPE
+        return source_type
 
     def _validate_enumerated_field(self, key, value, valid_values, exit_code, target_configuration_file):
         method_name = '_validate_enumerated_field'
