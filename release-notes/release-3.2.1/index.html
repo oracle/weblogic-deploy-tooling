@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Release 2.4.4 :: WebLogic Deploy Tooling</title>
+    <title>Release Notes 3.2.1 :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1689950651" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-2.4.4/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-3.2.1/">
     <nav id="sidebar" class="">
 
 
@@ -1212,7 +1212,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.2.1/" title="Release Notes 3.2.1" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.2.1/" title="Release Notes 3.2.1" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-3.2.1/">
         <b> </b>Release Notes 3.2.1
         
@@ -1380,7 +1380,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-2.4.4/" title="Release 2.4.4" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-2.4.4/" title="Release 2.4.4" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-2.4.4/">
         <b> </b>Release 2.4.4
         
@@ -1535,7 +1535,7 @@
             
           
           
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release 2.4.4
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release Notes 3.2.1
           
         
           
@@ -1552,7 +1552,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#changes-in-release-244">Changes in Release 2.4.4</a></li>
+        <li><a href="#changes-in-release-321">Changes in Release 3.2.1</a></li>
       </ul>
     </li>
   </ul>
@@ -1572,14 +1572,14 @@
           
             <h1>
               
-              Release 2.4.4
+              Release Notes 3.2.1
             </h1>
           
 
         
 
 
-<h3 id="changes-in-release-244">Changes in Release 2.4.4</h3>
+<h3 id="changes-in-release-321">Changes in Release 3.2.1</h3>
 <ul>
 <li><a href="#major-new-features">Major New Features</a></li>
 <li><a href="#other-changes">Other Changes</a></li>
@@ -1589,16 +1589,21 @@
 <h4 id="major-new-features">Major New Features</h4>
 <p>None</p>
 <h4 id="other-changes">Other Changes</h4>
-<p>None</p>
+<ul>
+<li>#1465 - Initial, limited i18n translation bundles added.</li>
+</ul>
 <h4 id="bug-fixes">Bug Fixes</h4>
 <ul>
-<li>#1361: Resolved issue where the custom Coherence configuration file was not placed in the WebLogic Server domain&rsquo;s expected location.</li>
+<li>#1466 - Updated <code>Server</code> and <code>ServerTemplate</code> aliases to add new 14.1.2 offline attributes.</li>
+<li>#1467 - Updated <code>CoherenceSystemResource</code> aliases to add new 14.1.2 <code>SecuredProduction</code> online attribute.</li>
+<li>#1468 - Fixed an error related to tool initialization with WebLogic Server versions earlier than 12.2.1 (Issue #1466).</li>
+<li>#1469 - Corrected method names used for logging so that they are the same as the actual method name in which they are
+being used.</li>
+<li>#1470 - Fixed system-test test 35 to allow it to succeed when run on machines other than the Jenkins agents.</li>
+<li>#1471 - Fixed a <code>discoverDomain</code> issue that was causing errors while looking for <code>SecureMode</code> on WebLogic Server
+versions earlier than 12.2.1.1 (Issue #1467).</li>
 </ul>
 <h4 id="known-issues">Known Issues</h4>
-<ul>
-<li>Due to the changes made for WDT-663 in WDT 2.4.0, the resulting remotely discovered model contains extra fields that would not normally be there.
-This is an area of ongoing work to clean up the online aliases to not depend on these extra remote calls to produce a clean model.</li>
-</ul>
 
 
 <footer class="footline">
@@ -2423,6 +2428,23 @@ This is an area of ongoing work to clean up the online aliases to not depend on 
             
                 
                     
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
                         
                         
                     
@@ -2553,26 +2575,6 @@ This is an area of ongoing work to clean up the online aliases to not depend on 
             
             
                 
-                    
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
                     
                 
                 
@@ -2645,10 +2647,10 @@ This is an area of ongoing work to clean up the online aliases to not depend on 
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/release-3.0.0/" title="Release 3.0.0"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-2.4.3/" title="Release 2.4.3" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-3.2.0/" title="Release Notes 3.2.0" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

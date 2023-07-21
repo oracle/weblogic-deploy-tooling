@@ -432,6 +432,16 @@ archiveHelper commands    Command Description     add Add items to the archive f
     </item>
     
     <item>
+      <title>Release Notes 3.2.1</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.1/</link>
+      <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.1/</guid>
+      <description>Changes in Release 3.2.1  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes  #1465 - Initial, limited i18n translation bundles added.  Bug Fixes  #1466 - Updated Server and ServerTemplate aliases to add new 14.1.2 offline attributes. #1467 - Updated CoherenceSystemResource aliases to add new 14.1.2 SecuredProduction online attribute. #1468 - Fixed an error related to tool initialization with WebLogic Server versions earlier than 12.</description>
+    </item>
+    
+    <item>
       <title>Release Notes 3.2.0</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.0/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
