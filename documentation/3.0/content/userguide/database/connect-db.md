@@ -90,9 +90,38 @@ domainInfo:
         javax.net.ssl.trustStorePassword : <atp wallet password when generating the wallet from Oracle Cloud Console>
         oracle.net.tns_admin: <optional: absolute path of the unzipped wallet root directory (outside of the archive), if the wallet.zip is not included in the archive>
 ```
-The database wallet can be included in the archive file under `atpwallet` zipentry structure
+The database wallet can be included in the archive file as a named entry (example uses `rcu` as that name) under the
+`dbWallets` archive structure, either as a zip file:
 
-`atpwallet/Walletxyz.zip`
+`wlsdeploy/dbWallets/rcu/Walletxyz.zip`
+
+or as the unzipped contents:
+
+- `wlsdeploy/dbWallets/rcu/cwallet.sso`
+- `wlsdeploy/dbWallets/rcu/ewallet.p12`
+- `wlsdeploy/dbWallets/rcu/ewallet.pem`
+- `wlsdeploy/dbWallets/rcu/keystore.jks`
+- `wlsdeploy/dbWallets/rcu/ojdbc.properties`
+- `wlsdeploy/dbWallets/rcu/sqlnet.ora`
+- `wlsdeploy/dbWallets/rcu/tnsnames.ora`
+- `wlsdeploy/dbWallets/rcu/truststore.jks`
+
+At runtime, WDT will extract the files (if they are in a zip file) to `$DOMAIN_HOME/wlsdeploy/dbWallets/rcu/` so that they can be
+referenced directly from the model using the normal relative path.  For example:
+
+```yaml
+domainInfo:
+    RCUDbInfo:
+        databaseType : 'ATP'
+        rcu_prefix : DEV
+        rcu_admin_password: <database admin password is required only when you specify -run_rcu flag>
+        rcu_schema_password : <RCU schema password>
+        rcu_db_user : admin
+        tns.alias : my_atp_db_medium
+        javax.net.ssl.keyStorePassword : wlsdeploy/dbWallets/rcu/keystore.jks
+        javax.net.ssl.trustStorePassword : wlsdeploy/dbWallets/rcu/truststore.jks
+        oracle.net.tns_admin: '@@DOMAIN_HOME@@/wlsdeploy/dbWallets/rcu'
+```
 
 Or, by specifying the unzipped root directory of the ATP wallet ZIP file in `oracle.net.tns_admin`.
 
