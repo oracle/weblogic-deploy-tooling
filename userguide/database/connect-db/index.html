@@ -12,20 +12,20 @@
     <title>Connect to a Database :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1690168752" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1690168752" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1690168752" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1690168752" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1690168752" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1690168752" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1690168752" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1690168752" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1690168752" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1690168752" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1690204822" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1690204822" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1690204822" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1690204822" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1690204822" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1690204822" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1690204822" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1690204822" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1690204822" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1690204822" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1690168752"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1690204822"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1690168752"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1690168752"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1690204822"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1690204822"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1690168752"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1690204822"></script>
 
     
   </div>
@@ -1700,9 +1700,34 @@ yyyy = (DESCRIPTION ...)
         <span style="color:#f92672">javax.net.ssl.keyStorePassword </span>: <span style="color:#ae81ff">&lt;atp wallet password when generating the wallet from Oracle Cloud Console&gt;</span>
         <span style="color:#f92672">javax.net.ssl.trustStorePassword </span>: <span style="color:#ae81ff">&lt;atp wallet password when generating the wallet from Oracle Cloud Console&gt;</span>
         <span style="color:#f92672">oracle.net.tns_admin: &lt;optional</span>: <span style="color:#ae81ff">absolute path of the unzipped wallet root directory (outside of the archive), if the wallet.zip is not included in the archive&gt;</span>
-</code></pre></div><p>The database wallet can be included in the archive file under <code>atpwallet</code> zipentry structure</p>
-<p><code>atpwallet/Walletxyz.zip</code></p>
-<p>Or, by specifying the unzipped root directory of the ATP wallet ZIP file in <code>oracle.net.tns_admin</code>.</p>
+</code></pre></div><p>The database wallet can be included in the archive file as a named entry (example uses <code>rcu</code> as that name) under the
+<code>dbWallets</code> archive structure, either as a zip file:</p>
+<p><code>wlsdeploy/dbWallets/rcu/Walletxyz.zip</code></p>
+<p>or as the unzipped contents:</p>
+<ul>
+<li><code>wlsdeploy/dbWallets/rcu/cwallet.sso</code></li>
+<li><code>wlsdeploy/dbWallets/rcu/ewallet.p12</code></li>
+<li><code>wlsdeploy/dbWallets/rcu/ewallet.pem</code></li>
+<li><code>wlsdeploy/dbWallets/rcu/keystore.jks</code></li>
+<li><code>wlsdeploy/dbWallets/rcu/ojdbc.properties</code></li>
+<li><code>wlsdeploy/dbWallets/rcu/sqlnet.ora</code></li>
+<li><code>wlsdeploy/dbWallets/rcu/tnsnames.ora</code></li>
+<li><code>wlsdeploy/dbWallets/rcu/truststore.jks</code></li>
+</ul>
+<p>At runtime, WDT will extract the files (if they are in a zip file) to <code>$DOMAIN_HOME/wlsdeploy/dbWallets/rcu/</code> so that they can be
+referenced directly from the model using the normal relative path.  For example:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
+    <span style="color:#f92672">RCUDbInfo</span>:
+        <span style="color:#f92672">databaseType </span>: <span style="color:#e6db74">&#39;ATP&#39;</span>
+        <span style="color:#f92672">rcu_prefix </span>: <span style="color:#ae81ff">DEV</span>
+        <span style="color:#f92672">rcu_admin_password</span>: <span style="color:#ae81ff">&lt;database admin password is required only when you specify -run_rcu flag&gt;</span>
+        <span style="color:#f92672">rcu_schema_password </span>: <span style="color:#ae81ff">&lt;RCU schema password&gt;</span>
+        <span style="color:#f92672">rcu_db_user </span>: <span style="color:#ae81ff">admin</span>
+        <span style="color:#f92672">tns.alias </span>: <span style="color:#ae81ff">my_atp_db_medium</span>
+        <span style="color:#f92672">javax.net.ssl.keyStorePassword </span>: <span style="color:#ae81ff">wlsdeploy/dbWallets/rcu/keystore.jks</span>
+        <span style="color:#f92672">javax.net.ssl.trustStorePassword </span>: <span style="color:#ae81ff">wlsdeploy/dbWallets/rcu/truststore.jks</span>
+        <span style="color:#f92672">oracle.net.tns_admin</span>: <span style="color:#e6db74">&#39;@@DOMAIN_HOME@@/wlsdeploy/dbWallets/rcu&#39;</span>
+</code></pre></div><p>Or, by specifying the unzipped root directory of the ATP wallet ZIP file in <code>oracle.net.tns_admin</code>.</p>
 <p><strong>Note: Prior to release 0.23, the <code>useATP</code> flag only accepts values of <code>0</code>, <code>1</code>, <code>true</code>, or <code>false</code>.</strong></p>
 <h4 id="ssl-database-using-sso-for-authentication">SSL database using SSO for authentication</h4>
 <p>For an Oracle SSL database with TW0_WAY SSL enabled, with an <code>SSO</code> wallet, use the following example:</p>
@@ -3027,19 +3052,19 @@ contains multiple physical data sources.   In order to create a spare model, for
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1690168752"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1690168752"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1690168752"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1690168752"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1690168752"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1690168752"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1690204822"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1690204822"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1690204822"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1690204822"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1690204822"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1690204822"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1690168752"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1690168752"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1690168752"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1690204822"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1690204822"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1690204822"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1690168752"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1690204822"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
