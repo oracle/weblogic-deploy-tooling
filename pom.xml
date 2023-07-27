@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
     Copyright (c) 2017, 2023, Oracle and/or its affiliates.
-    Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+    Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -40,6 +40,7 @@
         <antlr.version>4.9.3</antlr.version>
         <snakeyaml.version>2.0</snakeyaml.version>
         <picocli.version>4.7.4</picocli.version>
+        <junit.version>5.10.0</junit.version>
         <wdt.scm.repo.url>${env.WDT_SCM_REPO_URL}</wdt.scm.repo.url>
         <wdt.scm.repo.conn>${env.WDT_SCM_REPO_CONN}</wdt.scm.repo.conn>
 
@@ -88,7 +89,12 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
-                <version>5.9.3</version>
+                <version>${junit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-params</artifactId>
+                <version>${junit.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.easymock</groupId>
@@ -114,11 +120,6 @@
                 <groupId>info.picocli</groupId>
                 <artifactId>picocli</artifactId>
                 <version>${picocli.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-params</artifactId>
-                <version>5.9.3</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
