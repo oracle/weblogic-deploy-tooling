@@ -1,6 +1,6 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
-Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
 import re
@@ -22,6 +22,7 @@ import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging import platform_logger
 from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util import env_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 
 _class_name = "variables"
@@ -284,16 +285,16 @@ def _substitute(text, variables, model_context, error_info, attribute_name=None)
             #
             env_var_name = str_helper.to_string(key)
             is_windows = System.getProperty('os.name').startswith('Windows')
-            if is_windows and env_var_name not in os.environ and env_var_name.upper() in os.environ:
+            if is_windows and not env_helper.has_env(env_var_name) and env_var_name.has_env(env_var_name.upper()):
                 env_var_name = env_var_name.upper()
 
-            if env_var_name not in os.environ:
+            if not env_helper.has_env(env_var_name):
                 allow_unresolved = validation_config.allow_unresolved_environment_tokens()
                 _report_token_issue('WLSDPLY-01737', method_name, allow_unresolved, key)
                 _increment_error_count(error_info, allow_unresolved)
                 problem_found = True
                 continue
-            value = os.environ.get(env_var_name)
+            value = env_helper.getenv(env_var_name)
             text = text.replace(token, value)
 
         # check secret variables before @@FILE:/dir/@@SECRET:name:key@@.txt@@
@@ -420,7 +421,7 @@ def _init_secret_token_map(model_context):
 
     # add name/key pairs for files in sub-directories of directories in WDT_MODEL_SECRETS_DIRS.
 
-    locations = os.environ.get(str_helper.to_string(_secret_dirs_variable), None)
+    locations = env_helper.getenv(str_helper.to_string(_secret_dirs_variable))
     if locations is not None:
         for secret_dir in locations.split(","):
             if not os.path.isdir(secret_dir):
@@ -437,7 +438,7 @@ def _init_secret_token_map(model_context):
     # add name/key pairs for files in directories assigned in WDT_MODEL_SECRETS_NAME_DIR_PAIRS.
     # these pairs will override if they were previously added as sub-directory pairs.
 
-    dir_pairs_text = os.environ.get(str_helper.to_string(_secret_dir_pairs_variable), None)
+    dir_pairs_text = env_helper.getenv(str_helper.to_string(_secret_dir_pairs_variable))
     if dir_pairs_text is not None:
         dir_pairs = dir_pairs_text.split(',')
         for dir_pair in dir_pairs:
@@ -533,10 +534,10 @@ def substitute_key(text, variables):
     matches = _environment_pattern.findall(text)
     for token, key in matches:
         # log, or throw an exception if key is not found.
-        if str_helper.to_string(key) not in os.environ:
+        if not env_helper.has_env(str_helper.to_string(key)):
             continue
 
-        value = os.environ.get(str_helper.to_string(key))
+        value = env_helper.getenv(str_helper.to_string(key))
         text = text.replace(token, value)
 
     return text

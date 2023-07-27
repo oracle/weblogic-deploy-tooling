@@ -1,16 +1,18 @@
-# Copyright (c) 2020, 2023, Oracle and/or its affiliates.
-# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
-#
-# ------------
-# Description:
-# ------------
-#
-#   This code compares python dictionaries.  It is used to compare the new vs the old version.
-#   If the flag -output_dir <directory> is provided, the differences is written as yaml and json
-#   diffed_model.json diffed_model.yaml in the directory; the tool output is written as diffed_output_rc.
-#
-#   If the flag is not provided then all output is written to the standard out.
-#
+"""
+Copyright (c) 2020, 2023, Oracle and/or its affiliates.
+Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+------------
+Description:
+------------
+
+  This code compares python dictionaries.  It is used to compare the new vs the old version.
+  If the flag -output_dir <directory> is provided, the differences is written as yaml and json
+  diffed_model.json diffed_model.yaml in the directory; the tool output is written as diffed_output_rc.
+
+  If the flag is not provided then all output is written to the standard out.
+
+"""
 import os
 import sets
 import sys
@@ -39,6 +41,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.compare.model_comparer import ModelComparer
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
+from wlsdeploy.util import env_helper
 from wlsdeploy.util import tool_main
 from wlsdeploy.util import validate_configuration
 from wlsdeploy.util import variables
@@ -235,7 +238,7 @@ def debug(format_string, *arguments):
     :param format_string:  python formatted string
     :param arguments: arguments for the formatted string
     """
-    if os.environ.has_key('DEBUG_COMPARE_MODEL_TOOL'):
+    if env_helper.has_env('DEBUG_COMPARE_MODEL_TOOL'):
         print(format_string % arguments)
     else:
         __logger.finest(format_string, arguments)

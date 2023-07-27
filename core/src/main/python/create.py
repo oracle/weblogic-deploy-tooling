@@ -1,6 +1,6 @@
 """
 Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
-Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The main module for the WLSDeploy tool to create empty domains.
 """
@@ -41,6 +41,7 @@ from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.util import wlst_helper
 from wlsdeploy.tool.validate.content_validator import ContentValidator
 from wlsdeploy.util import cla_helper
+from wlsdeploy.util import env_helper
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import tool_main
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -128,7 +129,7 @@ def __process_java_home_arg(optional_arg_map):
     _method_name = '__process_java_home_arg'
 
     if CommandLineArgUtil.JAVA_HOME_SWITCH not in optional_arg_map:
-        java_home_name = os.environ.get('JAVA_HOME')
+        java_home_name = env_helper.getenv('JAVA_HOME')
         try:
             java_home = FileUtils.validateExistingDirectory(java_home_name)
         except IllegalArgumentException, iae:

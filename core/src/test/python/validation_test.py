@@ -1,6 +1,6 @@
 """
 Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
-Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
 import shutil
@@ -20,6 +20,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create import wlsroles_helper
 from wlsdeploy.tool.validate import validation_utils
 from wlsdeploy.tool.validate.validator import Validator
+from wlsdeploy.util import env_helper
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
@@ -76,7 +77,7 @@ class ValidationTestCase(BaseTestCase):
         _variable_file = self.RESOURCES_DIR + '/variablestest.properties'
         _archive_file = self.RESOURCES_DIR + '/variablestest.zip'
 
-        mw_home = os.environ['MW_HOME']
+        mw_home = env_helper.getenv('MW_HOME')
         args_map = {
             '-oracle_home': mw_home,
             '-model_file': _model_file,
@@ -124,7 +125,7 @@ class ValidationTestCase(BaseTestCase):
         _archive_file = self.TEST_CLASSES_DIR + "/SingleAppDomain.zip"
         _method_name = 'testYamlModelValidation'
 
-        mw_home = os.environ['MW_HOME']
+        mw_home = env_helper.getenv('MW_HOME')
         args_map = {
             '-oracle_home': mw_home,
             '-model_file': _model_file,
@@ -162,7 +163,7 @@ class ValidationTestCase(BaseTestCase):
         _archive_file = self.TEST_CLASSES_DIR + "/SingleAppDomain.zip"
         _method_name = 'testYamlModelValidation'
 
-        mw_home = os.environ['MW_HOME']
+        mw_home = env_helper.getenv('MW_HOME')
         args_map = {
             '-oracle_home': mw_home,
             '-model_file': _model_file,
@@ -238,7 +239,7 @@ class ValidationTestCase(BaseTestCase):
         _archive_file = self.TEST_CLASSES_DIR + "/SingleAppDomain.zip"
         _method_name = 'testFilterInvokedOnModelValidation'
 
-        mw_home = os.environ['MW_HOME']
+        mw_home = env_helper.getenv('MW_HOME')
 
         args_map = {
           '-oracle_home': mw_home,
