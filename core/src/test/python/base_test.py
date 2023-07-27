@@ -1,6 +1,6 @@
 """
 Copyright (c) 2021, 2023, Oracle and/or its affiliates.
-Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
 import shutil
@@ -9,6 +9,7 @@ import unittest
 from java.util.logging import Level
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.util import env_helper
 
 
 class BaseTestCase(unittest.TestCase):
@@ -24,7 +25,7 @@ class BaseTestCase(unittest.TestCase):
         self.TEST_CONFIG_DIR = os.path.join(self.TEST_OUTPUT_DIR, 'wdt-config')
         self.log_levels = {}
 
-        self.original_config_dir = os.environ.get('WDT_CUSTOM_CONFIG', self.TEST_CONFIG_DIR)
+        self.original_config_dir = env_helper.getenv('WDT_CUSTOM_CONFIG', self.TEST_CONFIG_DIR)
         # config items may need to be copied from here
         self.INSTALLER_LIB_DIR = os.path.abspath(os.path.join(self.TEST_CLASSES_DIR, '../../../installer/src/main/lib'))
 

@@ -1,6 +1,6 @@
 """
 Copyright (c) 2019, 2023, Oracle and/or its affiliates.
-Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+Licensed under the Universal Permissive License v1.0 as shown at http://oss.oracle.com/licenses/upl.
 """
 import os
 import shutil
@@ -11,6 +11,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util import cla_helper
+from wlsdeploy.util import env_helper
 
 
 class ClaHelperTest(BaseTestCase):
@@ -170,7 +171,7 @@ class ClaHelperTest(BaseTestCase):
         _archive_file = self.TEST_CLASSES_DIR + "/SingleAppDomain.zip"
         _method_name = 'testPersistModelAfterFilter'
 
-        mw_home = os.environ['MW_HOME']
+        mw_home = env_helper.getenv('MW_HOME')
 
         args_map = {
             '-oracle_home': mw_home,

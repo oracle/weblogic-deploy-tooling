@@ -1,6 +1,6 @@
 """
-Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
-Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+Copyright (c) 2020, 2023, Oracle Corporation and/or its affiliates.
+Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the modelHelp tool.
 """
@@ -16,6 +16,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.modelhelp.model_help_printer import ModelHelpPrinter
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
 from wlsdeploy.tool.util import model_context_helper
+from wlsdeploy.util import env_helper
 from wlsdeploy.util import model
 from wlsdeploy.util import tool_main
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -348,7 +349,7 @@ def interactive_help_main_loop(aliases, model_path, printer):
     history = ['top']
 
     # optionally get input from file instead of stdin (undocumented feature)
-    input_file_name = os.environ.get('WDT_INTERACTIVE_MODE_INPUT_FILE')
+    input_file_name = env_helper.getenv('WDT_INTERACTIVE_MODE_INPUT_FILE')
     input_file = None
     if input_file_name:
       input_file = open(input_file_name, "r")

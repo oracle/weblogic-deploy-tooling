@@ -1,6 +1,6 @@
 """
 Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
-Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the discoverDomain tool.
 """
@@ -49,6 +49,7 @@ from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import cla_utils
+from wlsdeploy.util import env_helper
 from wlsdeploy.util import model_translator
 from wlsdeploy.util import path_utils
 from wlsdeploy.util import tool_main
@@ -200,7 +201,7 @@ def __process_java_home(optional_arg_map):
     if CommandLineArgUtil.JAVA_HOME_SWITCH in optional_arg_map:
         java_home_name = optional_arg_map[CommandLineArgUtil.JAVA_HOME_SWITCH]
     else:
-        java_home_name = os.environ.get('JAVA_HOME')
+        java_home_name = env_helper.getenv('JAVA_HOME')
 
     try:
         FileUtils.validateExistingDirectory(java_home_name)
@@ -545,14 +546,14 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
 def __generate_remote_report_json(model_context):
     _method_name = '__remote_report'
 
-    if not model_context.is_remote() or not os.environ.has_key(_store_result_environment_variable):
+    if not model_context.is_remote() or not env_helper.has_env(_store_result_environment_variable):
         return
 
     # write JSON output if the __WLSDEPLOY_STORE_RESULT__ environment variable is set.
     # write to the file before the stdout so any logging messages come first.
     remote_map = discoverer.remote_dict
 
-    store_path = os.environ.get(_store_result_environment_variable)
+    store_path = env_helper.getenv(_store_result_environment_variable)
     __logger.info('WLSDPLY-06034', store_path, class_name=_class_name, method_name=_method_name)
     missing_archive_entries = []
     for key in remote_map:
