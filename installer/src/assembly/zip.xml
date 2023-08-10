@@ -114,6 +114,7 @@
                 <include>org.yaml:snakeyaml</include>
                 <include>info.picocli:picocli</include>
                 <include>com.hierynomus:sshj</include>
+                <include>com.hierynomus:asn-one</include>
                 <include>net.i2p.crypto:eddsa</include>
                 <include>org.slf4j:slf4j-jdk14</include>
                 <include>org.slf4j:slf4j-api</include>
