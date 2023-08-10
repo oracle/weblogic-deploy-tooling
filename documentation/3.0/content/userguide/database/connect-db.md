@@ -114,6 +114,7 @@ domainInfo:
     RCUDbInfo:
         databaseType : 'ATP'
         rcu_prefix : DEV
+        rcu_db_conn_string: <required URL string for use with -run_rcu>
         rcu_admin_password: <database admin password is required only when you specify -run_rcu flag>
         rcu_schema_password : <RCU schema password>
         rcu_db_user : admin
