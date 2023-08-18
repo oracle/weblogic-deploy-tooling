@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from oracle.weblogic.deploy.util import PyWLSTException
@@ -32,7 +32,7 @@ def deploy_resources(model, model_context, aliases, wlst_mode=WlstModes.OFFLINE)
         resources_deployer = ResourcesDeployer(model, model_context, aliases, wlst_mode=wlst_mode)
         resources_deployer.deploy(location)
     except PyWLSTException, pwe:
-        ex = exception_helper.create_deploy_exception('WLSDPLY-09111', pwe.getLocalizedMessage(), error=pwe)
+        ex = exception_helper.create_deploy_exception('WLSDPLY-09650', pwe.getLocalizedMessage(), error=pwe)
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
 
