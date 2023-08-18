@@ -75,8 +75,8 @@ usage() {
 
 WLSDEPLOY_PROGRAM_NAME="modelHelp"; export WLSDEPLOY_PROGRAM_NAME
 
-scriptName=$(basename "$0")
-scriptPath=$(dirname "$0")
+scriptName=`basename "$0"`
+scriptPath=`dirname "$0"`
 
 . "$scriptPath/shared.sh"
 
