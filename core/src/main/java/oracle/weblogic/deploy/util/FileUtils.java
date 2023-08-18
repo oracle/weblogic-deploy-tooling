@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
- * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+ * Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+ * Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
 
@@ -344,7 +344,7 @@ public final class FileUtils {
     }
 
     /**
-     * Whether or not the specified file has a YAML file extension.
+     * Whether the specified file has a YAML file extension.
      *
      * @param file the file
      * @return true, if the file extension matches the known YAML file extensions

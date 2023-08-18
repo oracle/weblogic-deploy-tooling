@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
- * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+ * Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+ * Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.create;
 
@@ -21,6 +21,9 @@ import oracle.weblogic.deploy.util.StringUtils;
 
 import org.python.core.PyDictionary;
 import org.python.core.PyString;
+
+import static oracle.weblogic.deploy.create.ValidationUtils.validateExistingDirectory;
+import static oracle.weblogic.deploy.create.ValidationUtils.validateExistingExecutableFile;
 
 
 /**
@@ -421,24 +424,6 @@ public class RCURunner {
         return schemaDoesNotExist;
     }
 
-    private static File validateExistingDirectory(String directoryName, String directoryTypeName)
-        throws CreateException {
-        final String METHOD = "validateExistingDirectory";
-
-        LOGGER.entering(CLASS, METHOD, directoryName, directoryTypeName);
-        File result;
-        try {
-            result = FileUtils.validateExistingDirectory(directoryName);
-        } catch (IllegalArgumentException iae) {
-            CreateException ce = new CreateException("WLSDPLY-12004", iae, CLASS, directoryTypeName,
-                directoryName, iae.getLocalizedMessage());
-            LOGGER.throwing(CLASS, METHOD, ce);
-            throw ce;
-        }
-        LOGGER.exiting(CLASS, METHOD, result);
-        return result;
-    }
-
     private static String quoteStringForCommandLine(String text, String textTypeName) throws CreateException {
         String result = validateNonEmptyString(text, textTypeName);
         return StringUtils.quoteString(result);
@@ -487,29 +472,6 @@ public class RCURunner {
         }
         LOGGER.exiting(CLASS, METHOD, stringList);
         return stringList;
-    }
-
-    private static void validateExistingExecutableFile(File executable, String executableTypeName)
-        throws CreateException {
-        final String METHOD = "validateExistingExecutableFile";
-
-        LOGGER.entering(CLASS, METHOD, executable, executableTypeName);
-        File tmp;
-        try {
-            tmp = FileUtils.validateExistingFile(executable.getAbsolutePath());
-        } catch (IllegalArgumentException iae) {
-            CreateException ce = new CreateException("WLSDPLY-12008", iae, CLASS, executableTypeName,
-                executable.getAbsolutePath(), iae.getLocalizedMessage());
-            LOGGER.throwing(CLASS, METHOD, ce);
-            throw ce;
-        }
-        if (!tmp.canExecute()) {
-            CreateException ce =
-                new CreateException("WLSDPLY-12009", CLASS, executableTypeName, executable.getAbsolutePath());
-            LOGGER.throwing(CLASS, METHOD, ce);
-            throw ce;
-        }
-        LOGGER.exiting(CLASS, METHOD);
     }
 
     /**

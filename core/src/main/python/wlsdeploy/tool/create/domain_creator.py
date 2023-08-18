@@ -1,6 +1,6 @@
 """
 Copyright (c) 2017, 2023, Oracle and/or its affiliates.
-Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os, re
 import weblogic.security.internal.SerializedSystemIni as SerializedSystemIni
@@ -10,6 +10,7 @@ from java.io import FileOutputStream
 from java.lang import IllegalArgumentException
 from java.util import Properties
 
+from oracle.weblogic.deploy.create import PostCreateDomainScriptRunner
 from oracle.weblogic.deploy.create import RCURunner
 from oracle.weblogic.deploy.util import FileUtils
 from wlsdeploy.aliases.location_context import LocationContext
@@ -182,6 +183,7 @@ class DomainCreator(Creator):
         self.__create_boot_dot_properties()
         self.__create_credential_mappings()
         self.__install_saml2_security_files()
+        self.__run_post_create_domain_script()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
@@ -682,13 +684,6 @@ class DomainCreator(Creator):
                 (self._domain_typedef.get_targeting() == TargetingType.APPLY_JRF):
             # for 11g, if template list includes JRF, or if specified in domain typedef, use applyJRF
             self.target_helper.target_jrf_groups_to_clusters_servers()
-        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
-    def __update_domain(self):
-        _method_name = '__update_domain'
-        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
-        self.wlst_helper.update_domain()
-        self.wlst_helper.close_domain()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def __apply_base_domain_config(self, topology_folder_list, delete=True):
@@ -1522,6 +1517,22 @@ class DomainCreator(Creator):
         """
         saml2_security_helper = Saml2SecurityHelper(self._domain_home, ExceptionType.CREATE)
         saml2_security_helper.extract_initialization_files(self.archive_helper)
+
+    def __run_post_create_domain_script(self):
+        _method_name = '__run_post_create_domain_script'
+
+        self.logger.entering(self.__class_name, _method_name)
+        script = self._domain_typedef.get_post_create_domain_script()
+        if script is None:
+            self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+            return
+
+        java_home = self.model_context.get_java_home()
+        oracle_home = self.model_context.get_oracle_home()
+        runner = PostCreateDomainScriptRunner(script, java_home, oracle_home, self._domain_home, self._domain_name)
+        runner.runScript()
+        self.logger.info('WLSDPLY-12576', script, class_name=self.__class_name, method_name=_method_name)
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def __configure_opss_secrets(self):
         _method_name = '__configure_opss_secrets'

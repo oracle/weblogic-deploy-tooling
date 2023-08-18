@@ -1,11 +1,12 @@
 """
 Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
-Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
 import re
 
 from java.lang import IllegalArgumentException
+from java.io import File
 
 from oracle.weblogic.deploy.json import JsonException
 
@@ -17,6 +18,8 @@ from wlsdeploy.tool.util.topology_profiles import TopologyProfile
 from wlsdeploy.util import path_utils
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
+
+IS_WINDOWS = File.separatorChar == '\\'
 
 CREATE_DOMAIN = 'createDomain'
 DISCOVER_DOMAIN = 'discoverDomain'
@@ -89,12 +92,21 @@ class DomainTypedef(object):
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
-        self._domain_typedef = self.__get_version_typedef()
+        self._version_typedef_name = None
         self._paths_resolved = False
         self._model_context = None
-        self._version_typedef_name = None
 
+        self._domain_typedef = self.__get_version_typedef()
         self._targeting_type = self._resolve_targeting_type()
+
+        if 'postCreateDomainScript' in self._domain_typedef:
+            self._logger.info('WLSDPLY-12320', domain_type, self._domain_typedef_filename, self._version_typedef_name,
+                              class_name=self.__class_name, method_name=_method_name)
+            self._post_create_domain_script_dict = self._domain_typedef['postCreateDomainScript']
+        else:
+            self._logger.info('WLSDPLY-12321', domain_type, self._domain_typedef_filename, self._version_typedef_name,
+                              class_name=self.__class_name, method_name=_method_name)
+            self._post_create_domain_script_dict = None
 
         if 'discover-filters' in self._domain_typedefs_dict:
             if 'system-elements' in self._domain_typedefs_dict:
@@ -236,6 +248,49 @@ class DomainTypedef(object):
         :return: the TargetingType enum value for the domain, or None
         """
         return self._targeting_type
+
+    def get_post_create_domain_script(self):
+        """
+        Get the script to run after domain creation is finished.
+        :return: the platform-specific script to run, or None
+        """
+        _method_name = 'get_post_create_domain_script'
+
+        self._logger.entering(class_name=self.__class_name, method_name=_method_name)
+        result = None
+        if self._post_create_domain_script_dict is None:
+            return result
+
+        if self._model_context is None:
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-12302')
+            self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        if IS_WINDOWS:
+            if 'windowsScript' in self._post_create_domain_script_dict:
+                script = self._post_create_domain_script_dict['windowsScript']
+                result = self._model_context.replace_token_string(script)
+                self._logger.info('WLSDPLY-12322', self._domain_type, self._domain_typedef_filename,
+                                  self._version_typedef_name, 'windowsScript', script, result,
+                                  class_name=self.__class_name, method_name=_method_name)
+            else:
+                self._logger.info('WLSDPLY-12319', self._domain_type, self._domain_typedef_filename,
+                                  self._version_typedef_name, 'windowsScript',
+                                  class_name=self.__class_name, method_name=_method_name)
+        else:
+            if 'unixScript' in self._post_create_domain_script_dict:
+                script = self._post_create_domain_script_dict['unixScript']
+                result = self._model_context.replace_token_string(script)
+                self._logger.info('WLSDPLY-12322', self._domain_type, self._domain_typedef_filename,
+                                  self._version_typedef_name, 'unixScript', script, result,
+                                  class_name=self.__class_name, method_name=_method_name)
+            else:
+                self._logger.info('WLSDPLY-12319', self._domain_type, self._domain_typedef_filename,
+                                  self._version_typedef_name, 'unixScript',
+                                  class_name=self.__class_name, method_name=_method_name)
+
+        self._logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
 
     def is_filtered(self, location, name=None):
         """
