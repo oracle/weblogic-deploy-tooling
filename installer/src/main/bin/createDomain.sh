@@ -144,8 +144,8 @@ usage() {
 
 WLSDEPLOY_PROGRAM_NAME="createDomain"; export WLSDEPLOY_PROGRAM_NAME
 
-scriptName=$(basename "$0")
-scriptPath=$(dirname "$0")
+scriptName=`basename "$0"`
+scriptPath=`dirname "$0"`
 
 . "$scriptPath/shared.sh"
 
@@ -154,7 +154,7 @@ umask 27
 checkArgs "$@"
 
 minJdkVersion=7
-if [ "$USE_ENCRYPTION" == "true" ]; then
+if [ "$USE_ENCRYPTION" = "true" ]; then
   minJdkVersion=8
 fi
 
