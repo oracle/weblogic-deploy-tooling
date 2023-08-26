@@ -1,12 +1,12 @@
 +++
 title = "Release Notes"
 date = 2019-02-22T15:27:38-05:00
-weight = 87
+weight = 86
 pre = "<b> </b>"
 +++
 
 
-### Changes in Release 3.2.2
+### Changes in Release 3.2.3
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -17,12 +17,19 @@ pre = "<b> </b>"
 None
 
 #### Other Changes
-- #1475 - Added support for upcoming SAML2 data initialization files in the archive file.
-- #1476 - Added support for upcoming SAML2 data initialization files in the Discover Domain, Create Domain, and Update Domain tools.
+- #1496 - Added a post-createDomain script element to the typedef file definitions to accommodate extra
+          offline work required for Oracle Identity Governance domain creation.
+- #1499 - Added updated translation bundle files. 
 
 #### Bug Fixes
-- #1482 - Fixed an issue related to secret naming that was causing the generated secret names to overlap in locations with multiple credential or password fields. 
-- #1483 - Filtered out the `OPSSSecrets` field in the `domainInfo` section of the model when targeting WebLogic Kubernetes Operator or Verrazzano MII and PV targets.
-- #1484 - Fixed aliases for the 12.2.1.4 and 14.1.1 July 2023 PSU versions.
+- #1486 - Fixed JSON parser issue in handling escaped newlines.
+- #1488 - Worked around a Jython 2.2.1 issue where environment variables with a newline in their value
+          caused remaining environment variable values to not be visible from Jython.
+- #1490 - Fixed an issue with deprecation logging statements to ensure that the class and method names
+          were logged properly.
+- #1494 - Changed the language for some logging/error messages to make them clearer.
+- #1495 - Reworded several log messages that were confusing to users and difficult to translate.
+- #1497 - Fixed sh-based shell scripts to work properly on Solaris 10.x Bourne shell
+- #1498 - Corrected the error message for a deploy-related error.
 
 #### Known Issues
