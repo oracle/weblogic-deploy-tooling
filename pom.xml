@@ -39,7 +39,7 @@
         <skipTests>false</skipTests>
         <antlr.version>4.9.3</antlr.version>
         <snakeyaml.version>2.1</snakeyaml.version>
-        <picocli.version>4.7.4</picocli.version>
+        <picocli.version>4.7.5</picocli.version>
         <junit.version>5.10.0</junit.version>
         <wdt.scm.repo.url>${env.WDT_SCM_REPO_URL}</wdt.scm.repo.url>
         <wdt.scm.repo.conn>${env.WDT_SCM_REPO_CONN}</wdt.scm.repo.conn>
