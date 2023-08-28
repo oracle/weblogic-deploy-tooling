@@ -432,6 +432,16 @@ archiveHelper commands    Command Description     add Add items to the archive f
     </item>
     
     <item>
+      <title>Release Notes 3.2.2</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.2/</link>
+      <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.2/</guid>
+      <description>Changes in Release 3.2.2  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes  #1475 - Added support for upcoming SAML2 data initialization files in the archive file. #1476 - Added support for upcoming SAML2 data initialization files in the Discover Domain, Create Domain, and Update Domain tools.  Bug Fixes  #1482 - Fixed an issue related to secret naming that was causing the generated secret names to overlap in locations with multiple credential or password fields.</description>
+    </item>
+    
+    <item>
       <title>Release Notes 3.2.1</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.1/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
