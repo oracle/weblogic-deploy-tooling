@@ -41,6 +41,8 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPER
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
+from wlsdeploy.aliases.model_constants import ENABLE_JMS_DB_PERSISTENCE
+from wlsdeploy.aliases.model_constants import ENABLE_JTALOG_DB_PERSISTENCE
 from wlsdeploy.aliases.model_constants import FRONTEND_HOST
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS_PROPERTIES
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
@@ -78,6 +80,7 @@ from wlsdeploy.aliases.model_constants import WS_RELIABLE_DELIVERY_POLICY
 from wlsdeploy.aliases.model_constants import WEB_SERVICE_SECURITY
 from wlsdeploy.aliases.model_constants import XML_ENTITY_CACHE
 from wlsdeploy.aliases.model_constants import XML_REGISTRY
+from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.create import atp_helper
@@ -618,6 +621,10 @@ class DomainCreator(Creator):
 
         self.__set_core_domain_params()
         self.__set_app_dir()
+
+        self.__enable_jms_db_persistence_if_set()
+        self.__enable_jta_tlog_db_persistence_if_set()
+
         if len(extension_templates) > 0:
             self.__configure_fmw_infra_database()
             self.__configure_opss_secrets()
@@ -1329,6 +1336,45 @@ class DomainCreator(Creator):
                              class_name=self.__class_name, method_name=_method_name)
 
         self.wlst_helper.set_option_if_needed(SET_OPTION_APP_DIR, app_dir)
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
+    def __enable_jms_db_persistence_if_set(self):
+        """
+        Enable jms db persistence if set
+        """
+        _method_name = '__enable_jms_db_persistence_if_set'
+
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+        if ENABLE_JMS_DB_PERSISTENCE in self._domain_info:
+            location = self.aliases.get_model_section_attribute_location(DOMAIN_INFO)
+            result, __ = self.aliases.is_valid_model_attribute_name(location,
+                                                                    ENABLE_JMS_DB_PERSISTENCE)
+
+            if result == ValidationCodes.VALID:
+                enable_jms_db = self._domain_info[ENABLE_JMS_DB_PERSISTENCE]
+                self.wlst_helper.enable_jms_store_db_persistence(enable_jms_db)
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return
+
+    def __enable_jta_tlog_db_persistence_if_set(self):
+        """
+        Enable jta tlog db persistence if set
+        """
+        _method_name = '__enable_jta_tlog_db_persistence_if_set'
+
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+        if ENABLE_JTALOG_DB_PERSISTENCE in self._domain_info:
+            location = self.aliases.get_model_section_attribute_location(DOMAIN_INFO)
+            result, __ = self.aliases.is_valid_model_attribute_name(location,
+                                                                      ENABLE_JTALOG_DB_PERSISTENCE)
+
+            if result == ValidationCodes.VALID:
+                enable_jta_db = self._domain_info[ENABLE_JTALOG_DB_PERSISTENCE]
+                self.wlst_helper.enable_jta_tlog_store_db_persistence(enable_jta_db)
+
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
