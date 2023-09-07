@@ -12,6 +12,8 @@
         "DynamicClusterServerGroupTargetingLimits": [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "dynamicClusterServerGroupTargetingLimits", "wlst_path": "WP001", "default_value": null,    "wlst_type": "dict" } ],
         "ServerStartMode":            [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ServerStartMode",            "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
         "UseSampleDatabase":          [ {"version": "[12.2.1,)", "wlst_mode": "offline", "wlst_name": "UseSampleDatabase",          "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
+        "EnableJMSStoreDBPersistence": [ {"version": "[12.2.1.1,)", "wlst_mode": "offline", "wlst_name": "EnableJMSStoreDBPersistence",          "wlst_path": "WP001", "default_value": false,    "wlst_type": "boolean" } ],
+        "EnableJTATLogDBPersistence":  [ {"version": "[12.2.1.1,)", "wlst_mode": "offline", "wlst_name": "EnableJTATLogDBPersistence",          "wlst_path": "WP001", "default_value": false,    "wlst_type": "boolean" } ],
         "domainBin":                  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "domainBin",                  "wlst_path": "WP001", "default_value": null,    "wlst_type": "list", "uses_path_tokens": "true" } ],
         "domainLibraries":            [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "domainLibraries",            "wlst_path": "WP001", "default_value": null,    "wlst_type": "list", "uses_path_tokens": "true" } ]
     },

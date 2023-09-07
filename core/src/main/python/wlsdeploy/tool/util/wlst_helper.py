@@ -1604,6 +1604,44 @@ class WlstHelper(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=drs)
         return drs
 
+    def enable_jta_tlog_store_db_persistence(self, jta_db_enabled):
+        """
+        Enable jta transaction log database store persistence if set
+        """
+        _method_name = 'enable_jta_tlog_store_db_persistence'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        try:
+            if self.__load_global('isJTATLogPersistenceConfigurable')() and not \
+                    self.__load_global('isJTATLogDBPersistenceSet')() and \
+                    jta_db_enabled:
+                self.__load_global('enableJTATLogDBPersistence')(True)
+
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDEPY-00132',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def enable_jms_store_db_persistence(self, jms_db_enabled):
+        """
+        Enable jms database store persistence if set
+        """
+        _method_name = 'enable_jms_store_db_persistence'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        try:
+            if self.__load_global('isJMSStorePersistenceConfigurable')() and not \
+                    self.__load_global('isJMSStoreDBPersistenceSet')() and \
+                    jms_db_enabled:
+                self.__load_global('enableJMSStoreDBPersistence')(True)
+
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDEPY-00131',
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
     def __ls(self, method_name, ls_type, path=None, log_throwing=True):
         """
         Private helper method shared by various API methods
