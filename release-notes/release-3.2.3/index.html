@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Alias definitions :: WebLogic Deploy Tooling</title>
+    <title>Release Notes 3.2.3 :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1694728820" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/developer/alias-definitions/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-3.2.3/">
     <nav id="sidebar" class="">
 
 
@@ -1026,7 +1026,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/developer/" title="Developer Guide" class="dd-item
-        parent
+        
         
         
         ">
@@ -1094,7 +1094,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/developer/alias-definitions/" title="Alias definitions" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/developer/alias-definitions/" title="Alias definitions" class="dd-item ">
         <a href="/weblogic-deploy-tooling/developer/alias-definitions/">
         Alias definitions
         
@@ -1186,7 +1186,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
-        
+        parent
         
         
         ">
@@ -1212,7 +1212,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.2.3/" title="Release Notes 3.2.3" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.2.3/" title="Release Notes 3.2.3" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-3.2.3/">
         <b> </b>Release Notes 3.2.3
         
@@ -1577,7 +1577,7 @@
             
           
           
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/developer/'>Developer Guide</a> > Alias definitions
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release Notes 3.2.3
           
         
           
@@ -1594,9 +1594,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#conventions">Conventions</a></li>
-        <li><a href="#keys-for-top-level-and-folders-elements">Keys for top level and <code>folders</code> elements</a></li>
-        <li><a href="#keys-for-attributes-elements">Keys for <code>attributes</code> elements</a></li>
+        <li><a href="#changes-in-release-323">Changes in Release 3.2.3</a></li>
       </ul>
     </li>
   </ul>
@@ -1616,134 +1614,41 @@
           
             <h1>
               
-              Alias definitions
+              Release Notes 3.2.3
             </h1>
           
 
         
 
 
-<p>WebLogic Deploy Tool uses a set of JSON configuration files to map folders and attributes in the model to the corresponding WLST MBeans and their attributes. These mappings are referred as &lsquo;aliases&rsquo; throughout the project code and documentation. Each element in the alias definition file has detailed properties that assist in this mapping.</p>
-<p>The model&rsquo;s folder and attribute names usually match the names of the corresponding elements in WLST. For cases where the names of WLST elements may change across WebLogic Server releases, the names should match the names in the 12.2.1.3 release. The unit test <code>AttributesTestCase</code> verifies that this convention is used, and identifies a few exceptions.</p>
-<p>Attributes that are introduced after the 12.2.1.3 release should, in most cases, match the name of the first WebLogic Server release in which they appear. The unit test <code>AttributesTestCase</code> will ignore these for now, because they will not be present in the 12.2.1.3 alias structure.</p>
-<p>The alias definition files reside in the directory:</p>
-<p><code>$WLSDEPLOY_HOME/core/src/main/resources/oracle/weblogic/deploy/aliases/category_module</code></p>
-<p>Each definition file corresponds to a second-level folder within the model, such as <code>JDBCSystemResource</code>.  Any elements below a second-level folder are defined in the file of that parent. For example, the model element <code>resources/JDBCSystemResource/JdbcResource/JDBCConnectionPoolParams</code> is described in <code>JDBCSystemResource.json</code>.</p>
-<p>Top-level elements such as <code>topology</code> and <code>resources</code> are for organizational purposes, and are not represented in the alias definition files.</p>
-<p>No elements in the <code>domainInfo</code> section of the model are represented in the alias definitions, because they don&rsquo;t correspond directly to WLST elements.</p>
-<p>This example, from the file <code>JDBCSystemResource.json</code>, will be used as a reference in the descriptions below:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
-    <span style="color:#f92672">&#34;copyright&#34;</span>: <span style="color:#e6db74">&#34;Copyright (c) 2017, 2018, Oracle Corporation and/or its affiliates.  All rights reserved.&#34;</span>,
-    <span style="color:#f92672">&#34;license&#34;</span>: <span style="color:#e6db74">&#34;Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl&#34;</span>,
-    <span style="color:#f92672">&#34;wlst_type&#34;</span>: <span style="color:#e6db74">&#34;JDBCSystemResource${:s}&#34;</span>,
-    <span style="color:#f92672">&#34;child_folders_type&#34;</span>: <span style="color:#e6db74">&#34;multiple&#34;</span>,
-    <span style="color:#f92672">&#34;folders&#34;</span>: {
-        <span style="color:#f92672">&#34;JdbcResource&#34;</span> : {
-            <span style="color:#f92672">&#34;wlst_type&#34;</span>: <span style="color:#e6db74">&#34;${Jdbc:JDBC}Resource&#34;</span>,
-            <span style="color:#f92672">&#34;folders&#34;</span>: {
-                <span style="color:#f92672">&#34;JDBCConnectionPoolParams&#34;</span>: {
-                    <span style="color:#f92672">&#34;wlst_type&#34;</span>: <span style="color:#e6db74">&#34;JDBCConnectionPoolParams&#34;</span>,
-                    <span style="color:#f92672">&#34;folders&#34;</span>: {},
-                    <span style="color:#f92672">&#34;attributes&#34;</span>: {
-                        <span style="color:#f92672">&#34;CapacityIncrement&#34;</span>:  [ {<span style="color:#f92672">&#34;version&#34;</span>: <span style="color:#e6db74">&#34;[10,)&#34;</span>,
-                                                 <span style="color:#f92672">&#34;wlst_mode&#34;</span>: <span style="color:#e6db74">&#34;both&#34;</span>,
-                                                 <span style="color:#f92672">&#34;wlst_name&#34;</span>: <span style="color:#e6db74">&#34;CapacityIncrement&#34;</span>,
-                                                 <span style="color:#f92672">&#34;wlst_path&#34;</span>: <span style="color:#e6db74">&#34;WP001&#34;</span>,
-                                                 <span style="color:#f92672">&#34;default_value&#34;</span>: <span style="color:#e6db74">&#34;${__NULL__:1}&#34;</span>,
-                                                 <span style="color:#f92672">&#34;wlst_type&#34;</span>: <span style="color:#e6db74">&#34;integer&#34;</span>,
-                                                 <span style="color:#f92672">&#34;get_method&#34;</span>: <span style="color:#e6db74">&#34;LSA&#34;</span>} ],
-                        <span style="color:#f92672">&#34;ConnectionCreationRetryFrequencySeconds&#34;</span>: [ {<span style="color:#f92672">&#34;version&#34;</span>: <span style="color:#e6db74">&#34;[10,)&#34;</span>,
-                                                                     <span style="color:#f92672">&#34;wlst_mode&#34;</span>: <span style="color:#e6db74">&#34;both&#34;</span>,
-                                                                     <span style="color:#f92672">&#34;wlst_name&#34;</span>: <span style="color:#e6db74">&#34;ConnectionCreationRetryFrequencySeconds&#34;</span>,
-                                                                     <span style="color:#f92672">&#34;wlst_path&#34;</span>: <span style="color:#e6db74">&#34;WP001&#34;</span>,
-                                                                     <span style="color:#f92672">&#34;default_value&#34;</span>: <span style="color:#e6db74">&#34;${__NULL__:0}&#34;</span>,
-                                                                     <span style="color:#f92672">&#34;wlst_type&#34;</span>: <span style="color:#e6db74">&#34;integer&#34;</span>,
-                                                                     <span style="color:#f92672">&#34;get_method&#34;</span>: <span style="color:#e6db74">&#34;LSA&#34;</span>} ]
-                    },
-                    <span style="color:#f92672">&#34;wlst_attributes_path&#34;</span>: <span style="color:#e6db74">&#34;WP001&#34;</span>,
-                    <span style="color:#f92672">&#34;wlst_paths&#34;</span>: {
-                        <span style="color:#f92672">&#34;WP001&#34;</span>: <span style="color:#e6db74">&#34;/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%DATASOURCE%/JDBCConnectionPoolParams/${NO_NAME_0:%DATASOURCE%}&#34;</span>
-                    }
-                },
-<span style="color:#960050;background-color:#1e0010">...</span>
-</code></pre></div><h3 id="conventions">Conventions</h3>
-<p>Notations similar to <code>${Jdbc:JDBC}Resource</code> appear throughout this example, and other alias definition files. It is shorthand for the common situation where a value is different between offline and online WLST. The value before the colon is used in offline processing, and the value after is used for online. In this example, the value for <code>wlst_type</code> is <code>JdbcResource</code> in offline, and <code>JDBCResource</code> in online. This notation can be used for values in most places in the model. It cannot be used for key values, such as <code>wlst_type</code>.</p>
-<h3 id="keys-for-top-level-and-folders-elements">Keys for top level and <code>folders</code> elements</h3>
-<p>These JSON keys are applicable for the top-level element (such as <code>JDBCSystemResource</code>), and each of its nested <code>folders</code> elements (such as <code>JdbcResource</code> and <code>JdbcResource/JDBCConnectionPoolParams</code>.</p>
-<h4 id="wlst_type"><code>wlst_type</code></h4>
-<p>This value is the type name of the WLST MBean that corresponds to a model folder. The <code>${x:y}</code> notation described above is often used here to distinguish offline and online folder names.</p>
-<h4 id="child_folders_type"><code>child_folders_type</code></h4>
-<p>This value specifies how the tool will map the domain model element to one or more WLST MBeans. The values are:</p>
+<h3 id="changes-in-release-323">Changes in Release 3.2.3</h3>
 <ul>
-<li>
-<p><code>single</code> (default) - this element represents a single MBean, and the MBean name is known.</p>
-</li>
-<li>
-<p><code>single-unpredictable</code> - this element represents a single MBean, but the MBean name must be derived at runtime.</p>
-</li>
-<li>
-<p><code>multiple</code> - this element contains multiple named elements (such as <code>dataSource1</code>, <code>dataSource2</code>), and each represents a single MBean.</p>
-</li>
+<li><a href="#major-new-features">Major New Features</a></li>
+<li><a href="#other-changes">Other Changes</a></li>
+<li><a href="#bug-fixes">Bugs Fixes</a></li>
+<li><a href="#known-issues">Known Issues</a></li>
 </ul>
-<h4 id="folders"><code>folders</code></h4>
-<p>Nested WLST MBean types for the current MBean are listed here. Each has a domain model type name, followed by its own JSON keyed elements.</p>
-<h4 id="wlst_attributes_path"><code>wlst_attributes_path</code></h4>
-<p>This key element specifies the name of the path expression used for navigating to the MBean attributes folder. The actual path expression is defined later in the <code>&quot;wlst_paths&quot;: { }</code> element.</p>
-<h4 id="wlst_paths"><code>wlst_paths</code></h4>
-<p>The dictionary key defines the various WLST path values used elsewhere in this folder&rsquo;s definition. Each entry maps a name to a full WLST MBean path.  In this example, <code>JDBCConnectionPoolParams</code> has a single path:</p>
-<p><code>&quot;WP001&quot;: &quot;/JDBCSystemResource${:s}/%DATASOURCE%/${Jdbc:JDBC}Resource/%DATASOURCE%/JDBCConnectionPoolParams/${NO_NAME_0:%DATASOURCE%}&quot;</code></p>
-<p>The <code>%DATASOURCE%</code> text is token placeholder. It will be replaced with the name of the actual data source by the tool.</p>
-<h3 id="keys-for-attributes-elements">Keys for <code>attributes</code> elements</h3>
-<p>Each child of an <code>attributes</code> element represents a single MBean attribute, and its key is the corresponding model name, such as <code>CapacityIncrement</code>. It contains at least one description element with the JSON keys below. There may be multiple description elements for cases where the configuration varies for different WebLogic Server version ranges, or varies between offline and online WLST.</p>
-<h4 id="version"><code>version</code></h4>
-<p>This key element defines the applicable versions for a particular MBean attribute description. Maven versioning conventions are used to describe ranges and limits. For example:</p>
-<p><code>&quot;version&quot;: &quot;[10,)&quot;</code></p>
-<p>Specifies that an MBean attribute description is relevant for WebLogic Server version 10 and later</p>
-<h4 id="wlst_mode"><code>wlst_mode</code></h4>
-<p>This key element specifies the WLST modes that are applicable for an MBean attribute description. The value can be &ldquo;offline&rdquo;, &ldquo;online&rdquo;, or &ldquo;both&rdquo;.</p>
-<h4 id="wlst_name"><code>wlst_name</code></h4>
-<p>This key element specifies the WLST name of the MBean attribute.</p>
-<h4 id="wlst_type-1"><code>wlst_type</code></h4>
-<p>This key element specifies the data type used to set the WLST MBean attribute. Valid values are <code>integer</code>, <code>long</code>, <code>string</code>, <code>delimited_string</code>, <code>boolean</code> and <code>jarray</code>. If the <code>wlst_read_type</code> is not set, this is also the data type used to read the value from WLST.</p>
-<h4 id="wlst_read_type"><code>wlst_read_type</code></h4>
-<p>This key element specifies the data type used to read the WLST MBean attribute. If it is not specified, the value of <code>wlst_type</code> is used for the read.</p>
-<h4 id="get_method"><code>get_method</code></h4>
-<p>This key element specifies which method should be used for retrieving the value the MBean attribute.  Valid values are:</p>
+<h4 id="major-new-features">Major New Features</h4>
+<p>None</p>
+<h4 id="other-changes">Other Changes</h4>
 <ul>
-<li><code>GET</code>  use the WLST get method to retrieve the value of the attribute</li>
-<li><code>LSA</code>  use ls(type=&lsquo;a&rsquo;) to retrieve the value of the attribute</li>
-<li><code>NONE</code> do not retrieve the attribute value</li>
+<li>#1496 - Added a post-createDomain script element to the typedef file definitions to accommodate extra
+offline work required for Oracle Identity Governance domain creation.</li>
+<li>#1499 - Added updated translation bundle files.</li>
 </ul>
-<h4 id="access"><code>access</code></h4>
-<p>By default, an attribute is read write in both WLST and MODEL. This element is used to set an attribute to read-only
-or ignored.  The two attribute values are:</p>
+<h4 id="bug-fixes">Bug Fixes</h4>
 <ul>
-<li><code>RO</code>       indicates that the attribute is read-only and will not be written into the domain; however, it will be
-discovered and written into the model by the Discover Domain Tool.</li>
-<li><code>IGNORED</code>  indicates that the attribute is both known and tolerated in the model but is never discovered or written
-into the domain.</li>
+<li>#1486 - Fixed JSON parser issue in handling escaped newlines.</li>
+<li>#1488 - Worked around a Jython 2.2.1 issue where environment variables with a newline in their value
+caused remaining environment variable values to not be visible from Jython.</li>
+<li>#1490 - Fixed an issue with deprecation logging statements to ensure that the class and method names
+were logged properly.</li>
+<li>#1494 - Changed the language for some logging/error messages to make them clearer.</li>
+<li>#1495 - Reworded several log messages that were confusing to users and difficult to translate.</li>
+<li>#1497 - Fixed sh-based shell scripts to work properly on Solaris 10.x Bourne shell</li>
+<li>#1498 - Corrected the error message for a deploy-related error.</li>
 </ul>
-<h4 id="preferred_model_type"><code>preferred_model_type</code></h4>
-<p>This key element specifies the preferred data type that should be used to put data in the model during discovery. As an example, list values can be represented in the model as comma-separated text, such as <code>&quot;value1, value2&quot;</code>, or as a YAML list, such as <code>[&quot;value1&quot;, &quot;value2&quot;]</code>. If the list values can contain commas, a YAML list must be used.</p>
-<h4 id="wlst_path"><code>wlst_path</code></h4>
-<p>This key element specifies the name of the path expression used for navigating to the MBean attribute&rsquo;s folder. This name maps to an entry in the parent folder&rsquo;s <code>&quot;wlst_paths&quot;: { }</code> list.</p>
-<h4 id="default_value"><code>default_value</code></h4>
-<p>This key element specifies the default value of the MBean attribute. For example:</p>
-<p><code>&quot;default_value&quot;: &quot;text&quot;</code></p>
-<p><code>&quot;default_value&quot;: 99</code></p>
-<p><code>&quot;default_value&quot;: null</code></p>
-<p><code>&quot;default_value&quot;: &quot;${__NULL__:1}&quot;</code></p>
-<p>The <code>__NULL__</code> key represents a <code>null</code> value when <code>&quot;${a:b}&quot;</code> notation is used to specify offline and online values.</p>
-<h4 id="set_method"><code>set_method</code></h4>
-<p>For cases where attributes cannot be set with simple types, it may be necessary to use a custom method to set the value. For example, most <code>Target</code> attributes require their values to be set as lists of MBeans, in online mode. This may be defined as:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">    <span style="color:#f92672">&#34;attributes&#34;: </span>{
-        <span style="color:#f92672">&#34;Target&#34;: </span>[ {
-            <span style="color:#f92672">&#34;set_method&#34;: </span><span style="color:#e6db74">&#34;MBEAN.set_target_mbeans&#34;</span>,
-            <span style="color:#f92672">&#34;set_mbean_type&#34;: </span><span style="color:#e6db74">&#34;weblogic.management.configuration.TargetMBean&#34;</span>} ],
-    },
-</code></pre></div><p>The method <code>set_target_mbeans</code> directs the tool to call the Jython method <code>attribute_setter.set_target_mbeans</code> to set this value.</p>
-<h4 id="set_mbean_type"><code>set_mbean_type</code></h4>
-<p>When a <code>set_method</code> key is specified, it may be required to specify the MBean type for the set method to use (see the example under <code>set_method</code>).</p>
+<h4 id="known-issues">Known Issues</h4>
 
 
 <footer class="footline">
@@ -2442,7 +2347,6 @@ into the domain.</li>
             
                 
                     
-                    
                 
                 
 
@@ -2456,8 +2360,21 @@ into the domain.</li>
             
                 
                     
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
                         
-                        
+            
+            
+                
                     
                 
                 
@@ -2490,26 +2407,6 @@ into the domain.</li>
             
             
                 
-                    
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
                     
                 
                 
@@ -2562,6 +2459,7 @@ into the domain.</li>
             
                 
                     
+                    
                 
                 
 
@@ -2574,6 +2472,7 @@ into the domain.</li>
             
             
                 
+                    
                     
                 
                 
@@ -2590,6 +2489,9 @@ into the domain.</li>
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -2822,10 +2724,10 @@ into the domain.</li>
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/developer/feature-impl/" title="Feature implementation"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/developer/buildwdt/" title="Build WebLogic Deploy Tool" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-3.2.2/" title="Release Notes 3.2.2" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
