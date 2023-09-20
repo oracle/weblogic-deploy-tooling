@@ -65,7 +65,6 @@ class CustomFolderHelper(object):
                          class_name=_class_name, method_name=_method_name)
         location = LocationContext(base_location)
         subfolder_result = PyOrderedDict()
-
         attribute_helper = self._info_helper.get_info_attribute_helper(location)
         if attribute_helper is None:
             _logger.warning('WLSDPLY-06753', model_type, str_helper.to_string(attribute_helper), mbean_name,
@@ -76,13 +75,22 @@ class CustomFolderHelper(object):
                           class_name=_class_name, method_name=_method_name)
             short_name = attribute_helper.get_mbean_name()
             # This is not like other custom interface names and should be changed to be more flexible
-            interface_name = security_provider_interface_name(attribute_helper.get_mbean_instance(),
-                                                              attribute_helper.get_mbean_interface_name())
+
+            if self._model_context.is_wlst_offline():
+                interface_name = security_provider_interface_name(attribute_helper.get_mbean_instance(),
+                                                                  attribute_helper.get_mbean_interface_name())
+            else:
+                mbi = self._wlst_helper.get_mbi()
+                descriptor = mbi.getDescriptor()
+                interface_name = descriptor.getFieldValue('interfaceclassname')
+                interface_name = _strip_mbean_from_string(interface_name)
+
             subfolder_result[mbean_name][interface_name] = PyOrderedDict()
             _logger.info('WLSDPLY-06751', model_type, short_name, class_name=_class_name, method_name=_method_name)
             _logger.info('WLSDPLY-06752', mbean_name, model_type, short_name,
                          class_name=_class_name, method_name=_method_name)
             subfolder_result[mbean_name][interface_name] = self.get_model_attribute_map(location, attribute_helper)
+
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return subfolder_result
 
@@ -374,14 +382,17 @@ def security_provider_interface_name(mbean_instance, mbean_interface_name):
             result = mbean_interface_name
             _logger.warning('WLSDPLY-06779', str_helper.to_string(mbean_instance),
                             class_name=_class_name, method_name=_method_name)
+
     except (Exception, JException):
         _logger.warning('WLSDPLY-06778', mbean_interface_name, class_name=_class_name, method_name=_method_name)
         result = mbean_interface_name
+    return _strip_mbean_from_string(result)
+
+def _strip_mbean_from_string(result):
     idx = result.rfind('MBean')
     if idx > 0:
         result = result[:idx]
     return result
-
 
 def attribute_type(attribute_helper, attribute_name):
     """
