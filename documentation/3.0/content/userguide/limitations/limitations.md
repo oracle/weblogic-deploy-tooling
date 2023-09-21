@@ -48,3 +48,16 @@ java.lang.IllegalArgumentException: In production mode, it's not allowed to set 
 **ISSUE**: For existing WLS versions, there is a problem setting the `RotateLogOnStartup` attribute in various log file folders. The value is not persisted correctly, and the assignment will not be present when the domain is started.
 
 **ACTION**: Contact Oracle Support to obtain the patch for bug number 29547985 for your WebLogic Server version before running the tool.
+
+#### Discover Domain tool does not discover users or groups
+
+**ISSUE**: Discovering a domain does not attempt to discover users and groups defined in any configured Authentication Provider type.
+
+**ACTION**: This should only be an issue for the domains using the DefaultAuthenticator, which uses the Embedded LDAP
+server that runs inside WebLogic Server as its user and group store.  Oracle recommends using an authentication provider
+with an external user and group store for managing users and groups.  For example, a Microsoft Active Directory server
+with the LDAP Authenticator or a database server with the SQL Authenticator.  This allows any domain created using the
+discovered model to use the same user and group store so that there is no need to export/import users and groups.  If a
+new user and group store is desired, these external stores natively provide export and import mechanisms for moving
+users and groups.  If this is not an option, then the user will need to hand-edit the discovered model file to add any
+users and groups not created by default.
