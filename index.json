@@ -340,7 +340,14 @@
 	"title": "Release Notes",
 	"tags": [],
 	"description": "",
-	"content": "Changes in Release 3.2.4  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes  #1503 - Added the EnableJMSStoreDBPersistence and EnableJTATLogDBPersistence attributes to domainInfo, which allow JRF domains to automatically convert template defined JMS and JTA stores from File stores to Database stores during domain creation. This feature was added in support of Oracle Identity Governance domain creation.  Bug Fixes None\nKnown Issues "
+	"content": "Changes in Release 3.2.5  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes None\nBug Fixes #1506 - Fixed an issue with online discovery of the JMS ErrorDestination attribute (GitHub #1494). #1507 - Added documentation for the WDT Discover Domain tool\u0026rsquo;s limitation regarding users and groups in the DefaultAuthenticator (GitHub #1493). #1508 - Fixed an issue with Update Domain that was causing the Oracle JDBC driver to throw FileNotFoundException when using a JRF domain with an ATP database. #1509 - Fixed an issue with online discovery of custom security providers that caused the implementation class name to be added to the model instead of the interface class name (GitHub #1495).\nKnown Issues None\nSee https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/ for the current set of known limitations.\n"
+},
+{
+	"uri": "https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.4/",
+	"title": "Release Notes 3.2.4",
+	"tags": [],
+	"description": "",
+	"content": "Changes in Release 3.2.4  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes  #1503 - Added the EnableJMSStoreDBPersistence and EnableJTATLogDBPersistence attributes to domainInfo, which allow JRF domains to automatically convert template-defined JMS and JTA stores from File stores to Database stores during domain creation. This feature was added in support of Oracle Identity Governance domain creation.  Bug Fixes None\nKnown Issues "
 },
 {
 	"uri": "https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.3/",

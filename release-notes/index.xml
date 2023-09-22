@@ -8,6 +8,17 @@
     <language>en-us</language>
     <lastBuildDate>Fri, 22 Feb 2019 15:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Release Notes 3.2.4</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.4/</link>
+      <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.4/</guid>
+      <description>Changes in Release 3.2.4  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes  #1503 - Added the EnableJMSStoreDBPersistence and EnableJTATLogDBPersistence attributes to domainInfo, which allow JRF domains to automatically convert template-defined JMS and JTA stores from File stores to Database stores during domain creation. This feature was added in support of Oracle Identity Governance domain creation.  Bug Fixes None
+Known Issues </description>
+    </item>
+    
+    <item>
       <title>Release Notes 3.2.3</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.3/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
