@@ -8,7 +8,7 @@
 
     <groupId>com.oracle.weblogic.lifecycle</groupId>
     <artifactId>weblogic-deploy</artifactId>
-    <version>3.2.5-SNAPSHOT</version>
+    <version>3.2.5</version>
     <packaging>pom</packaging>
 
     <name>Oracle WebLogic Server Deploy Tooling</name>
@@ -66,7 +66,7 @@
         <url>${wdt.scm.repo.url}</url>
         <connection>scm:git:${wdt.scm.repo.conn}</connection>
         <developerConnection>scm:git:${wdt.scm.repo.conn}</developerConnection>
-        <tag>HEAD</tag>
+        <tag>release-3.2.5</tag>
     </scm>
 
     <dependencyManagement>
