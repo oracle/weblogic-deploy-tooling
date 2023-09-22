@@ -86,7 +86,7 @@ def create_and_cd(location, existing_names, aliases):
     :param aliases: the alias helper used to determine path names
     """
     method_name = 'create_and_cd'
-    _logger.entering(str_helper.to_string(location), existing_names, _class_name, method_name)
+    _logger.entering(str_helper.to_string(location), existing_names, class_name=_class_name, method_name=method_name)
 
     mbean_name = get_mbean_name(location, existing_names, aliases)
     create_path = aliases.get_wlst_create_path(location)

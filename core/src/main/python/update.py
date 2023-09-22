@@ -223,10 +223,13 @@ def __update_offline(model, model_context, aliases):
     # deleting servers that are added by templates before set server groups causes mayhem
     jdbc_names = topology_updater.update_machines_clusters_and_servers(delete_now=False)
 
-    # update rcu schema password must happen before updating jrf domain
+    # update rcu schema password must happen before updating a jrf domain
     if model_context.get_update_rcu_schema_pass() is True:
         rcu_helper = RCUHelper(model, model_context, aliases)
         rcu_helper.update_rcu_password()
+
+    # Unzip any database wallet files before updating a jrf domain
+    topology_updater.extract_database_wallets()
 
     __update_offline_domain()
 
@@ -252,7 +255,6 @@ def __update_offline(model, model_context, aliases):
 
 
 def __update_offline_domain():
-
     try:
         __wlst_helper.update_domain()
     except BundleAwareException, ex:
@@ -272,7 +274,6 @@ def __close_domain_on_error():
         # the original problem by throwing yet another exception...
         __logger.warning('WLSDPLY-09013', ex.getLocalizedMessage(), error=ex,
                          class_name=_class_name, method_name=_method_name)
-    return
 
 
 def main(model_context):
