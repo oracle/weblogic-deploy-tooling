@@ -56,6 +56,7 @@ from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PASSWORD
 from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
 from wlsdeploy.aliases.model_constants import PRODUCTION_MODE_ENABLED
+from wlsdeploy.aliases.model_constants import RESOURCES
 from wlsdeploy.aliases.model_constants import RCU_COMP_INFO
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RCU_STG_INFO
@@ -94,6 +95,7 @@ from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.credential_map_helper import CredentialMapHelper
+from wlsdeploy.tool.deploy.datasource_deployer import DatasourceDeployer
 from wlsdeploy.tool.util.default_authenticator_helper import DefaultAuthenticatorHelper
 from wlsdeploy.tool.util.library_helper import LibraryHelper
 from wlsdeploy.tool.util.saml2_security_helper import Saml2SecurityHelper
@@ -105,6 +107,8 @@ from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model
 from wlsdeploy.util import model_helper
 from wlsdeploy.util import string_utils
+from wlsdeploy.aliases.wlst_modes import WlstModes
+
 import wlsdeploy.util.unicode_helper as str_helper
 
 class DomainCreator(Creator):
@@ -154,7 +158,7 @@ class DomainCreator(Creator):
 
         self.__default_domain_name = None
         self.__default_admin_server_name = None
-
+        self.__fmw_template_default_data_sources_names = None
         archive_file_name = self.model_context.get_archive_file_name()
         if archive_file_name is not None:
             self.archive_helper = ArchiveHelper(archive_file_name, self._domain_home, self.logger,
@@ -732,8 +736,29 @@ class DomainCreator(Creator):
 
         self.__create_other_domain_artifacts(location, topology_local_list)
 
+        if self.__fmw_template_default_data_sources_names:
+            self._reset_fmw_template_data_source_defaults_from_model()
+
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
+
+    def _reset_fmw_template_data_source_defaults_from_model(self):
+        # Go through the model to find any FMW data sources to override the defaults
+        # from users's model before the first writeDomain.
+        resources_dict = self.model.get_model_resources()
+        if JDBC_SYSTEM_RESOURCE in resources_dict:
+            fmw_resources = {RESOURCES: {JDBC_SYSTEM_RESOURCE: {}}}
+            fmw_jdbc_resources = fmw_resources[RESOURCES][JDBC_SYSTEM_RESOURCE]
+            ds_dict = resources_dict[JDBC_SYSTEM_RESOURCE]
+            for ds_name in ds_dict:
+                fmw_ds = ds_dict[ds_name]
+                if ds_name in self.__fmw_template_default_data_sources_names:
+                    fmw_jdbc_resources[ds_name] = fmw_ds
+            if len(fmw_resources[RESOURCES][JDBC_SYSTEM_RESOURCE]) != 0:
+                ds_location = LocationContext()
+                data_source_deployer = DatasourceDeployer(self.model, self.model_context, self.aliases,
+                                                          WlstModes.OFFLINE)
+                data_source_deployer.add_data_sources(fmw_resources[RESOURCES], ds_location)
 
     def __set_core_domain_params(self):
         """
@@ -1192,9 +1217,9 @@ class DomainCreator(Creator):
         folder_path = self.aliases.get_wlst_list_path(location)
         self.wlst_helper.cd(folder_path)
         ds_names = self.wlst_helper.lsc()
+        self.__fmw_template_default_data_sources_names = ds_names
 
         for ds_name in ds_names:
-
             # Set the driver params
             actual_url = self.__set_datasource_url(ds_name, fmw_database)
             self.__set_datasource_password(ds_name, rcu_schema_pwd)
@@ -1209,6 +1234,7 @@ class DomainCreator(Creator):
 
             self.logger.info('WLSDPLY_12575', ds_name, actual_url, actual_schema, pset,
                              class_name=self.__class_name, method_name=_method_name)
+
 
     def __reset_datasource_template_userid(self, datasource_name, rcu_prefix):
         location = deployer_utils.get_jdbc_driver_params_location(datasource_name, self.aliases)

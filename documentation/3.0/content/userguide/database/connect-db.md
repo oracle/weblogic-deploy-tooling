@@ -251,12 +251,45 @@ In the following examples of the JRF data source sparse model, you can use it to
 
 #### Default template data source
 
-This is a sparse model for JRF data sources with the RCU prefix `FMW1`.
-You will need to update at least the `URL`, `PasswordEncrypted`, and the `user` property value.  When you specify the value of `URL`, it
-must be a valid `JDBC URL` format, which is different from the `rcu_db_conn_string` which does not require the `jdbc:oracle:thin:...` part.
+For example, if you have created RCU schemas with different passwords for different schemas.  You can use a sparse model to create a domain with different passwords for different FMW data sources.
 
 ```yaml
+domainInfo:
+  RCUDbInfo:
+    rcu_prefix : -- FIX ME --
+    rcu_schema_password : -- FIX ME --
+    rcu_db_conn_string : -- FIX ME --
 resources:
+  JDBCSystemResource:
+    LocalSvcTblDataSource:
+      JdbcResource:
+        JDBCDriverParams:
+          PasswordEncrypted: --FIX ME--
+    opss-data-source:
+      JdbcResource:
+        JDBCDriverParams:
+          PasswordEncrypted: --FIX ME--
+    opss-audit-viewDS:
+      JdbcResource:
+        JDBCDriverParams:
+          PasswordEncrypted: --FIX ME--
+    opss-audit-DBDS:
+      JdbcResource:
+        JDBCDriverParams:
+          PasswordEncrypted: --FIX ME--
+    mds-owsm:
+      JdbcResource:
+        JDBCDriverParams:
+          PasswordEncrypted: --FIX ME--   
+```
+
+This is a sparse model of the FMW data sources discovered from a FMW domain.  You can use any part of it to update your domain.  
+
+```yaml
+
+...
+  
+resources:  
    JDBCSystemResource:
         WLSSchemaDataSource:
             JdbcResource:
