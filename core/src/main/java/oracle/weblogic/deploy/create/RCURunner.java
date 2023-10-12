@@ -62,7 +62,8 @@ public class RCURunner {
     private static final String COMPONENT_INFO_LOCATION_SWITCH = "-compInfoXMLLocation";
     private static final String STORAGE_LOCATION_SWITCH = "-storageXMLLocation";
 
-    private static final Pattern SCHEMA_DOES_NOT_EXIST_PATTERN = Pattern.compile("(ORA-01918|RCU-6013|ORA-12899)");
+    private static final Pattern SCHEMA_DOES_NOT_EXIST_PATTERN = Pattern.compile("(ORA-01918|RCU-6013[^0-9])");
+    private static final Pattern SCHEMA_ALREADY_EXISTS_PATTERN = Pattern.compile("RCU-6016[^0-9]");
 
     private final File oracleHome;
     private final File javaHome;
@@ -236,7 +237,7 @@ public class RCURunner {
      * @param rcuSchemaPass the RCU database schema password to use for all RCU schemas
      * @throws CreateException if an error occurs with parameter validation or running RCU
      */
-    public void runRcu(String rcuSysPass, String rcuSchemaPass) throws CreateException {
+    public void runRcu(String rcuSysPass, String rcuSchemaPass, boolean disableRcuDropSchema) throws CreateException {
         final String METHOD = "runRcu";
 
         File rcuBinDir = new File(new File(oracleHome, "oracle_common"), "bin");
@@ -246,45 +247,50 @@ public class RCURunner {
         validateNonEmptyString(rcuSysPass, "rcu_sys_password", true);
         validateNonEmptyString(rcuSchemaPass, "rcu_schema_password", true);
 
-        Map<String, String> dropEnv = getRcuDropEnv();
-        String[] scriptArgs = getCommandLineArgs(DROP_REPO_SWITCH);
-        List<String> scriptStdinLines = getRcuDropStdinLines(rcuSysPass, rcuSchemaPass);
-        ScriptRunner runner = new ScriptRunner(dropEnv, RCU_DROP_LOG_BASENAME);
-        int exitCode;
-        try {
-            exitCode = runner.executeScript(rcuScript, scriptStdinLines, scriptArgs);
-        } catch (ScriptRunnerException sre) {
-            CreateException ce = new CreateException("WLSDPLY-12001", sre, CLASS, sre.getLocalizedMessage());
-            LOGGER.throwing(CLASS, METHOD, ce);
-            throw ce;
-        }
-        // RCU is stupid and RCU drop exits with exit code 1 if the schemas do not exist...sigh
-        //
-
-        if (exitCode != 0 && !isSchemaNotExistError(runner)) {
-            CreateException ce = new CreateException("WLSDPLY-12002", CLASS, exitCode, runner.getStdoutFileName());
-            LOGGER.throwing(CLASS, METHOD, ce);
-            throw ce;
+        if (!disableRcuDropSchema) {
+            Map<String, String> dropEnv = getRcuDropEnv();
+            String[] scriptArgs = getCommandLineArgs(DROP_REPO_SWITCH);
+            List<String> scriptStdinLines = getRcuDropStdinLines(rcuSysPass, rcuSchemaPass);
+            ScriptRunner runner = new ScriptRunner(dropEnv, RCU_DROP_LOG_BASENAME);
+            int exitCode;
+            try {
+                exitCode = runner.executeScript(rcuScript, scriptStdinLines, scriptArgs);
+            } catch (ScriptRunnerException sre) {
+                CreateException ce = new CreateException("WLSDPLY-12001", sre, CLASS, sre.getLocalizedMessage());
+                LOGGER.throwing(CLASS, METHOD, ce);
+                throw ce;
+            }
+            // RCU is stupid and RCU drop exits with exit code 1 if the schemas do not exist...sigh
+            //
+            if (exitCode != 0 && !isSchemaNotExistError(runner)) {
+                CreateException ce = new CreateException("WLSDPLY-12002", CLASS, exitCode, runner.getStdoutFileName());
+                LOGGER.throwing(CLASS, METHOD, ce);
+                throw ce;
+            }
         }
 
         Map<String, String> createEnv = getRcuCreateEnv();
-        scriptArgs = getCommandLineArgs(CREATE_REPO_SWITCH);
-        scriptStdinLines = getRcuCreateStdinLines(rcuSysPass, rcuSchemaPass);
-        runner = new ScriptRunner(createEnv, RCU_CREATE_LOG_BASENAME);
+        String[] scriptArgs = getCommandLineArgs(CREATE_REPO_SWITCH);
+        List<String> scriptStdinLines = getRcuCreateStdinLines(rcuSysPass, rcuSchemaPass);
+        ScriptRunner runner = new ScriptRunner(createEnv, RCU_CREATE_LOG_BASENAME);
+        int exitCode;
         try {
             exitCode = runner.executeScript(rcuScript, scriptStdinLines, scriptArgs);
-            if (atpDB && exitCode != 0 && isSchemaNotExistError(runner)) {
-                exitCode = 0;
-            }
         } catch (ScriptRunnerException sre) {
             CreateException ce = new CreateException("WLSDPLY-12003", sre, CLASS, sre.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, ce);
             throw ce;
         }
         if (exitCode != 0) {
-            CreateException ce = new CreateException("WLSDPLY-12002", CLASS, exitCode, runner.getStdoutFileName());
-            LOGGER.throwing(CLASS, METHOD, ce);
-            throw ce;
+            if (disableRcuDropSchema && isSchemaAlreadyExistsError(runner)) {
+                CreateException ce = new CreateException("WLSDPLY-12015", CLASS, rcuPrefix, runner.getStdoutFileName());
+                LOGGER.throwing(CLASS, METHOD, ce);
+                throw ce;
+            } else {
+                CreateException ce = new CreateException("WLSDPLY-12002", CLASS, exitCode, runner.getStdoutFileName());
+                LOGGER.throwing(CLASS, METHOD, ce);
+                throw ce;
+            }
         }
     }
 
@@ -422,6 +428,19 @@ public class RCURunner {
             }
         }
         return schemaDoesNotExist;
+    }
+
+    private static boolean isSchemaAlreadyExistsError(ScriptRunner runner) {
+        List<String> stdoutBuffer = runner.getStdoutBuffer();
+        boolean schemaAlreadyExists = false;
+        for (String line : stdoutBuffer) {
+            Matcher matcher = SCHEMA_ALREADY_EXISTS_PATTERN.matcher(line);
+            if (matcher.find()) {
+                schemaAlreadyExists = true;
+                break;
+            }
+        }
+        return schemaAlreadyExists;
     }
 
     private static String quoteStringForCommandLine(String text, String textTypeName) throws CreateException {

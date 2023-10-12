@@ -45,8 +45,10 @@ WLST_EDIT_LOCK_EXCLUSIVE_PROP = 'wlst.edit.lock.exclusive'
 WLST_EDIT_LOCK_EXCLUSIVE_DEFAULT = 'false'
 YAML_FILE_MAX_CODE_POINTS_PROP = 'yaml.max.file.size'
 YAML_FILE_MAX_CODE_POINTS_DEFAULT = '0'
-USE_DEPRECATION_EXIT_CODE_PROP="use.deprecation.exit.code"
-USE_DEPRECATION_EXIT_CODE_DEFAULT="false"
+USE_DEPRECATION_EXIT_CODE_PROP='use.deprecation.exit.code'
+USE_DEPRECATION_EXIT_CODE_DEFAULT='false'
+DISABLE_RCU_DROP_SCHEMA_PROP='disable.rcu.drop.schema'
+DISABLE_RCU_DROP_SCHEMA_DEFAULT='false'
 
 # System Property overrides for WLST timeout properties
 SYS_PROP_PREFIX = 'wdt.config.'
@@ -165,13 +167,22 @@ class ModelConfiguration(object):
         """
         return self._get_from_dict(USE_DEPRECATION_EXIT_CODE_PROP, USE_DEPRECATION_EXIT_CODE_DEFAULT)
 
+    def get_disable_rcu_drop_schema(self):
+        """
+        Returns the value to determine whether to disable RCU from dropping schemas if they exist.
+        :return: the string 'true' or 'false' (default)
+        """
+        return self._get_from_dict(DISABLE_RCU_DROP_SCHEMA_PROP, DISABLE_RCU_DROP_SCHEMA_DEFAULT)
+
     def _get_from_dict(self, name, default_value=None):
         _method_name = '_get_from_dict'
         _logger.entering(name, default_value, class_name=_class_name, method_name=_method_name)
+
         result = default_value
         if name in self.__config_dict:
             result = self.__config_dict[name]
         result = System.getProperty(SYS_PROP_PREFIX + name, result)
+
         _logger.exiting(result=result, class_name=_class_name, method_name=_method_name)
         return result
 
@@ -204,7 +215,7 @@ def _load_properties_file():
 
         # Return an empty dict so that failing to load the tool.properties file does
         # not prevent the code above from working using the default values.  The WLST
-        # unit tests are depending on this behavior until they are refactored to all
+        # unit tests depend on this behavior until they are refactored to all
         # copy the tool.properties file into the target/unit_tests/config directory
         # and setting the WDT_CUSTOM_CONFIG environment variable to point to it.
         #
