@@ -370,7 +370,8 @@ class DomainCreator(Creator):
         rcu_storage_location = self.__extract_rcu_xml_file(RCU_STG_INFO, rcu_db_info.get_storage_location())
         runner.setXmlLocations(rcu_comp_info_location, rcu_storage_location)
 
-        runner.runRcu(rcu_sys_pass, rcu_schema_pass)
+        disable_rcu_drop_schema = self.model_context.get_model_config().get_disable_rcu_drop_schema() == 'true'
+        runner.runRcu(rcu_sys_pass, rcu_schema_pass, disable_rcu_drop_schema)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def _set_rcu_ssl_args_properties(self, ssl_conn_properties, rcu_db_info, keystore, keystore_type, truststore,
@@ -1182,7 +1183,7 @@ class DomainCreator(Creator):
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
 
         # only continue with RCU configuration for domain type that requires RCU.
-        if not self._domain_typedef.required_rcu():
+        if not self._domain_typedef.requires_rcu():
             self.logger.finer('WLSDPLY-12249', class_name=self.__class_name, method_name=_method_name)
             return
 

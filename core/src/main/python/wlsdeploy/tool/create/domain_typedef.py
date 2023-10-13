@@ -233,7 +233,7 @@ class DomainTypedef(object):
         # resolution for create.py argument processing.
         return list(self._domain_typedef['rcuSchemas'])
 
-    def required_rcu(self):
+    def requires_rcu(self):
         """
         Test whether it requires RCU components.
         :return: true if it requires rcu components
