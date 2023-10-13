@@ -8,6 +8,17 @@
     <language>en-us</language>
     <lastBuildDate>Fri, 22 Feb 2019 15:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Release Notes 3.2.5</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.5/</link>
+      <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.5/</guid>
+      <description>Changes in Release 3.2.5  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes None
+Bug Fixes #1506 - Fixed an issue with online discovery of the JMS ErrorDestination attribute (GitHub #1494). #1507 - Added documentation for the WDT Discover Domain tool&amp;rsquo;s limitation regarding users and groups in the DefaultAuthenticator (GitHub #1493). #1508 - Fixed an issue with Update Domain that was causing the Oracle JDBC driver to throw FileNotFoundException when using a JRF domain with an ATP database.</description>
+    </item>
+    
+    <item>
       <title>Release Notes 3.2.4</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.4/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>

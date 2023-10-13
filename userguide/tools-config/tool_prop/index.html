@@ -12,20 +12,20 @@
     <title>Tool property file :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1697167146" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1697167146" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1697167146" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1697167146" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1697167146" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1697167146" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1697167146" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1697167146" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1697167146" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1697167146" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1697214746" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1697214746" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1697214746" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1697214746" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1697214746" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1697214746" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1697214746" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1697214746" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1697214746" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1697214746" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1697167146"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1697214746"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1697167146"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1697167146"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1697214746"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1697214746"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1697167146"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1697214746"></script>
 
     
   </div>
@@ -1212,6 +1212,27 @@
  
   
     
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.2.5/" title="Release Notes 3.2.5" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-3.2.5/">
+        <b> </b>Release Notes 3.2.5
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
       <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.2.4/" title="Release Notes 3.2.4" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-3.2.4/">
         <b> </b>Release Notes 3.2.4
@@ -1667,6 +1688,10 @@
 <td>The number of milliseconds that WLST waits for the redeployment process to complete. A value of 0 means the operation will not timeout.</td>
 </tr>
 <tr>
+<td><code>undeploy.timeout</code></td>
+<td>The number of milliseconds that WLST waits for the undeployment process to complete. A value of 0 means the operation will not timeout.</td>
+</tr>
+<tr>
 <td><code>start.application.timeout</code></td>
 <td>The number of milliseconds that WLST waits for the start application process to complete. A value of 0 means the operation will not timeout.</td>
 </tr>
@@ -1690,11 +1715,27 @@
 <td><code>wlst.edit.lock.exclusive</code></td>
 <td>Specifies whether the edit lock acquired by <code>startEdit</code> should be exclusive or shared (default is shared).</td>
 </tr>
+<tr>
+<td><code>yaml.max.file.size</code></td>
+<td>The maximum size of the YAML model file that the WDT SnakeYAML parser will allow.  The default value of &lsquo;0&rsquo; uses the SnakeYAML default setting of 3145728 (i.e., 3 MB).</td>
+</tr>
+<tr>
+<td><code>use.deprecation.exit.code</code></td>
+<td>Whether deprecation messages should cause WDT tools to exit with a non-zero exit code (default is false).</td>
+</tr>
+<tr>
+<td><code>disable.rcu.drop.schema</code></td>
+<td>Whether the RCU drop step should be skipped when running Create Domain with the <code>-run_rco</code> switch (default is false).</td>
+</tr>
 </tbody>
 </table>
 <p>You can override the value of a single property using a Java System property with the name <code>wdt.config.&lt;tool-property-name&gt;</code>.
-For example, adding <code>-Dwdt.config.connect.timeout=5000</code> will set the effective <code>connect.timeout</code> property to 5000 milliseconds, regardless of what the value in the tool.properties file might be.</p>
-
+For example, adding <code>-Dwdt.config.connect.timeout=5000</code> will set the effective <code>connect.timeout</code> property to 5000 milliseconds, regardless of what the value in the tool.properties file might be.  To pass
+one or more of these properties to a WDT shell script (e.g., <code>createDomain.sh</code>), simply set the WLSDEPLOY_PROPERTIES environment variable prior to calling the shell script.  For example:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">WLSDEPLOY_PROPERTIES<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;-Dwdt.config.connect.timeout=5000 -Dwdt.config.disable.rcu.drop.schema=true&#34;</span>
+export WLSDEPLOY_PROPERTIES
+$WLSDEPLOY_HOME/bin/createDomain.sh ...
+</code></pre></div>
 
 <footer class="footline">
 	
@@ -2780,6 +2821,22 @@ For example, adding <code>-Dwdt.config.connect.timeout=5000</code> will set the 
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -2805,19 +2862,19 @@ For example, adding <code>-Dwdt.config.connect.timeout=5000</code> will set the 
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1697167146"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1697167146"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1697167146"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1697167146"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1697167146"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1697167146"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1697214746"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1697214746"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1697214746"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1697214746"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1697214746"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1697214746"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1697167146"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1697167146"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1697167146"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1697214746"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1697214746"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1697214746"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1697167146"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1697214746"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
