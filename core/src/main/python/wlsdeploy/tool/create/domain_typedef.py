@@ -25,6 +25,9 @@ CREATE_DOMAIN = 'createDomain'
 DISCOVER_DOMAIN = 'discoverDomain'
 NOT_SUPPORTED = 'NOT_SUPPORTED'
 
+POST_CREATE_RCU_SCHEMAS_LIFECYCLE_HOOK = exception_helper.get_message('WLSDPLY-12323')
+POST_CREATE_DOMAIN_LIFECYCLE_HOOK = exception_helper.get_message('WLSDPLY-12324')
+
 def _get_logger_name(program_name):
     logger_name = 'wlsdeploy.create'
     if program_name == DISCOVER_DOMAIN:
@@ -98,6 +101,21 @@ class DomainTypedef(object):
 
         self._domain_typedef = self.__get_version_typedef()
         self._targeting_type = self._resolve_targeting_type()
+
+        if 'postCreateRcuSchemasScript' in self._domain_typedef:
+            if 'rcuSchemas' in self._domain_typedef and len(self._domain_typedef['rcuSchemas']) > 0:
+                self._logger.info('WLSDPLY-12326', domain_type, self._domain_typedef_filename, self._version_typedef_name,
+                                  class_name=self.__class_name, method_name=_method_name)
+                self._post_create_rcu_schemas_script_dict = self._domain_typedef['postCreateRcuSchemasScript']
+            else:
+                self._logger.info('WLSDPLY-12327', domain_type, self._domain_typedef_filename, self._version_typedef_name,
+                                  class_name=self.__class_name, method_name=_method_name)
+                self._post_create_rcu_schemas_script_dict = None
+        else:
+            self._logger.info('WLSDPLY-12328', domain_type, self._domain_typedef_filename, self._version_typedef_name,
+                              class_name=self.__class_name, method_name=_method_name)
+            self._post_create_rcu_schemas_script_dict = None
+
 
         if 'postCreateDomainScript' in self._domain_typedef:
             self._logger.info('WLSDPLY-12320', domain_type, self._domain_typedef_filename, self._version_typedef_name,
@@ -248,6 +266,49 @@ class DomainTypedef(object):
         :return: the TargetingType enum value for the domain, or None
         """
         return self._targeting_type
+
+    def get_post_create_rcu_schemas_script(self):
+        """
+        Get the script to run after RCU schema creation is finished.
+        :return: the platform-specific script to run, or None
+        """
+        _method_name = 'get_post_create_domain_script'
+
+        self._logger.entering(class_name=self.__class_name, method_name=_method_name)
+        result = None
+        if self._post_create_rcu_schemas_script_dict is None:
+            return result
+
+        if self._model_context is None:
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-12302')
+            self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        if IS_WINDOWS:
+            if 'windowsScript' in self._post_create_rcu_schemas_script_dict:
+                script = self._post_create_rcu_schemas_script_dict['windowsScript']
+                result = self._model_context.replace_token_string(script)
+                self._logger.info('WLSDPLY-12329', self._domain_type, self._domain_typedef_filename,
+                                  self._version_typedef_name, 'windowsScript', script, result,
+                                  class_name=self.__class_name, method_name=_method_name)
+            else:
+                self._logger.info('WLSDPLY-12325', self._domain_type, self._domain_typedef_filename,
+                                  self._version_typedef_name, 'windowsScript',
+                                  class_name=self.__class_name, method_name=_method_name)
+        else:
+            if 'unixScript' in self._post_create_rcu_schemas_script_dict:
+                script = self._post_create_rcu_schemas_script_dict['unixScript']
+                result = self._model_context.replace_token_string(script)
+                self._logger.info('WLSDPLY-12329', self._domain_type, self._domain_typedef_filename,
+                                  self._version_typedef_name, 'unixScript', script, result,
+                                  class_name=self.__class_name, method_name=_method_name)
+            else:
+                self._logger.info('WLSDPLY-12325', self._domain_type, self._domain_typedef_filename,
+                                  self._version_typedef_name, 'unixScript',
+                                  class_name=self.__class_name, method_name=_method_name)
+
+        self._logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
 
     def get_post_create_domain_script(self):
         """
