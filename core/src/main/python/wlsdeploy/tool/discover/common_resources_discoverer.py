@@ -138,8 +138,14 @@ class CommonResourcesDiscoverer(Discoverer):
                 if qualified_property_value:
                     if qualified_property_value.startswith(WLSDeployArchive.WLSDPLY_ARCHIVE_BINARY_DIR
                                                            + WLSDeployArchive.ZIP_SEP):
-                        qualified_property_value = os.path.join(self._model_context.get_domain_home()
+                        qualified_property_value = os.path.join(self._model_context.get_effective_domain_home()
                                                                 , qualified_property_value)
+                    if self._model_context.is_ssh():
+                        qualified_property_value = self.download_deployment_from_remote_server(qualified_property_value,
+                                                                                       self.download_temporary_dir,
+                                                                                       "dbWallets-" + datasource)
+
+
                     if os.path.exists(qualified_property_value):
                         fixed_path = self._add_wallet_directory_to_archive(datasource, collected_wallet,
                                                                            qualified_property_value)
@@ -341,6 +347,11 @@ class CommonResourcesDiscoverer(Discoverer):
                                            WLSDeployArchive.ArchiveEntryType.FILE_STORE.name())
                 elif not self._model_context.skip_archive():
                     try:
+                        if self._model_context.is_ssh():
+                            file_store_name = self.download_deployment_from_remote_server(file_store_name,
+                                                                                     self.download_temporary_dir,
+                                                                                     "fileStore")
+
                         new_source_name = archive_file.addFileStoreDirectory(file_store_name)
                     except WLSDeployArchiveIOException, wioe:
                         de = exception_helper.create_discover_exception('WLSDPLY-06348', file_store_name, directory,
@@ -397,6 +408,11 @@ class CommonResourcesDiscoverer(Discoverer):
             file_name = self._convert_path(jdbc_store_dictionary[model_constants.CREATE_TABLE_DDL_FILE])
             _logger.info('WLSDPLY-06352', jdbc_store_name, file_name, class_name=_class_name, method_name=_method_name)
             try:
+                if self._model_context.is_ssh():
+                    file_name = self.download_deployment_from_remote_server(file_name,
+                                                                                   self.download_temporary_dir,
+                                                                                   "jdbcScript")
+
                 new_source_name = archive_file.addScript(file_name)
             except IllegalArgumentException, iae:
                 _logger.warning('WLSDPLY-06353', jdbc_store_name, file_name,
@@ -529,7 +545,17 @@ class CommonResourcesDiscoverer(Discoverer):
             # Set model_value to None if unable to add it to archive file
             modified_name = None
             try:
-                modified_name = archive_file.addScript(file_name)
+                if self._model_context.is_remote():
+                    new_file_name = WLSDeployArchive.getScriptArchivePath(file_name)
+                    self.add_to_remote_map(file_name, new_file_name,
+                                           WLSDeployArchive.ArchiveEntryType.SCRIPT.name())
+                else:
+                    if self._model_context.is_ssh():
+                        file_name = self.download_deployment_from_remote_server(file_name,
+                                                                                 self.download_temporary_dir,
+                                                                                 "wldfScript")
+
+                    modified_name = archive_file.addScript(file_name)
             except IllegalArgumentException, iae:
                 _logger.warning('WLSDPLY-06360', self._aliases.get_model_folder_path(location), file_name,
                                 iae.getLocalizedMessage(), class_name=_class_name,

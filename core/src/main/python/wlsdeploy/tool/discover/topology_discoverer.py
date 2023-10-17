@@ -133,7 +133,8 @@ class TopologyDiscoverer(Discoverer):
             if current_tree is not None:
                 current_tree()
 
-        saml2_security_helper = Saml2SecurityHelper(self._model_context.get_domain_home(), ExceptionType.DISCOVER)
+        saml2_security_helper = Saml2SecurityHelper(self._model_context,
+                                                    ExceptionType.DISCOVER)
         saml2_security_helper.discover_initialization_files(self._model_context.get_archive_file(), self)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -883,6 +884,12 @@ class TopologyDiscoverer(Discoverer):
                                        WLSDeployArchive.ArchiveEntryType.CLASSPATH_LIB.name())
             elif not self._model_context.skip_archive():
                 try:
+                    if self._model_context.is_ssh():
+                        file_name_path = self.download_deployment_from_remote_server(file_name_path,
+                                                                                      self.download_temporary_dir,
+                                                                                      "classPathLibraries")
+
+
                     new_source_name = archive_file.addClasspathLibrary(file_name_path)
                 except IllegalArgumentException, iae:
                     _logger.warning('WLSDPLY-06620', server_name, file_name_path, iae.getLocalizedMessage(),
@@ -946,6 +953,12 @@ class TopologyDiscoverer(Discoverer):
                                    WLSDeployArchive.ArchiveEntryType.SERVER_KEYSTORE.name())
         elif not self._model_context.skip_archive():
             try:
+
+                if self._model_context.is_ssh():
+                    file_path = self.download_deployment_from_remote_server(file_path,
+                                                                                  self.download_temporary_dir,
+                                                                                  "keyStoreFile-" + server_name)
+
                 new_name = archive_file.addServerKeyStoreFile(server_name, file_path)
             except IllegalArgumentException, iae:
                 _logger.warning('WLSDPLY-06624', server_name, file_path, iae.getLocalizedMessage(),
@@ -975,6 +988,10 @@ class TopologyDiscoverer(Discoverer):
 
         elif not self._model_context.skip_archive():
             try:
+                if self._model_context.is_ssh():
+                    file_path = self.download_deployment_from_remote_server(file_path,
+                                                                             self.download_temporary_dir,
+                                                                             "nodeManagerKeyStore")
                 new_name = archive_file.addNodeManagerKeyStoreFile(file_path)
             except IllegalArgumentException, iae:
                 _logger.warning('WLSDPLY-06637', file_path, iae.getLocalizedMessage(), class_name=_class_name,

@@ -87,21 +87,44 @@ class DomainInfoDiscoverer(Discoverer):
         archive_file = self._model_context.get_archive_file()
         domain_lib = self._convert_path('lib')
         entries = []
-        if os.path.isdir(domain_lib) and not self._model_context.skip_archive():
+        file_list = []
+        if not self._model_context.skip_archive():
+            if self._model_context.is_remote():
+                self.add_to_remote_map("$DOMAIN_HOME/lib/*", "<remote domain home lib>/*",
+                               WLSDeployArchive.ArchiveEntryType.DOMAIN_LIB.name())
+            elif self._model_context.is_ssh():
+                # execute remote command to find the script
+                results = self._model_context.get_ssh_context().remote_command("find " + os.path.join(
+                    self._model_context.get_remote_domain_home(), "lib") +
+                                                                               " -maxdepth 1 *,jar")
+                if results:
+                    for item in results.split('\n'):
+                        if item.startswith('/'):
+                            file_list.append(item)
+
+            elif os.path.isdir(domain_lib):
+                file_list = os.listdir(domain_lib)
             _logger.finer('WLSDPLY-06420', domain_lib, class_name=_class_name, method_name=_method_name)
-            for entry in os.listdir(domain_lib):
-                entry_path = os.path.join(domain_lib, entry)
+
+            for entry_path in file_list:
+                if not entry_path.startswith('/'):
+                    entry_path = os.path.join(domain_lib, entry_path)
                 if path_utils.is_jar_file(entry_path):
                     try:
+                        if self._model_context.is_ssh():
+                            entry_path = self.download_deployment_from_remote_server(entry_path,
+                                                                                 self.download_temporary_dir,
+                                                                                 "domainLib")
+
                         updated_name = archive_file.addDomainLibLibrary(entry_path)
                     except WLSDeployArchiveIOException, wioe:
-                        de = exception_helper.create_discover_exception('WLSDPLY-06421', entry,
+                        de = exception_helper.create_discover_exception('WLSDPLY-06421', entry_path,
                                                                         wioe.getLocalizedMessage())
                         _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
                         raise de
 
                     entries.append(updated_name)
-                    _logger.finer('WLSDPLY-06422', entry, updated_name, class_name=_class_name,
+                    _logger.finer('WLSDPLY-06422', entry_path, updated_name, class_name=_class_name,
                                   method_name=_method_name)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=entries)
@@ -121,29 +144,46 @@ class DomainInfoDiscoverer(Discoverer):
         else:
             archive_file = self._model_context.get_archive_file()
             domain_bin = self._convert_path('bin')
-            if os.path.isdir(domain_bin) and not self._model_context.skip_archive():
-                search_directory = FileUtils.fixupFileSeparatorsForJython(os.path.join(domain_bin, "setUserOverrides*.*"))
-                _logger.finer('WLSDPLY-06425', search_directory, class_name=_class_name, method_name=_method_name)
-                file_list = glob.glob(search_directory)
+            if not self._model_context.skip_archive():
+                if self._model_context.is_remote():
+                    # Tell user we won't be able to find them
+                    self.add_to_remote_map("setUserOverrides*.*", "<remote domain home bin>/setUserOverrides*.*",
+                                           WLSDeployArchive.ArchiveEntryType.DOMAIN_BIN.name())
+                    file_list = None
+                elif self._model_context.is_ssh():
+                    file_list = []
+                    # execute remote command to find the script
+                    results = self._model_context.get_ssh_context().remote_command("find " + os.path.join(
+                        self._model_context.get_remote_domain_home(), "bin") +
+                                                                        " -maxdepth 1 -name setUserOverrides*.* ")
+                    if results:
+                        for item in results.split('\n'):
+                            if item.startswith('/'):
+                                file_list.append(item)
+
+                elif os.path.isdir(domain_bin):
+                    search_directory = FileUtils.fixupFileSeparatorsForJython(os.path.join(domain_bin, "setUserOverrides*.*"))
+                    _logger.finer('WLSDPLY-06425', search_directory, class_name=_class_name, method_name=_method_name)
+                    file_list = glob.glob(search_directory)
+
                 if file_list:
                     _logger.finer('WLSDPLY-06423', domain_bin, class_name=_class_name, method_name=_method_name)
                     for entry in file_list:
-                        if self._model_context.is_remote():
-                            new_source_name = WLSDeployArchive.getDomainBinScriptArchivePath(entry)
-                            self.add_to_remote_map(entry, new_source_name,
-                                                   WLSDeployArchive.ArchiveEntryType.DOMAIN_BIN.name())
-                        else:
-                            try:
-                                updated_name = archive_file.addDomainBinScript(entry)
-                            except WLSDeployArchiveIOException, wioe:
-                                de = exception_helper.create_discover_exception('WLSDPLY-06426', entry,
-                                                                                wioe.getLocalizedMessage    ())
-                                _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
-                                raise de
+                        try:
+                            if self._model_context.is_ssh():
+                                entry = self.download_deployment_from_remote_server(entry,
+                                                                                         self.download_temporary_dir,
+                                                                                         "domainBin")
+                            updated_name = archive_file.addDomainBinScript(entry)
+                        except WLSDeployArchiveIOException, wioe:
+                            de = exception_helper.create_discover_exception('WLSDPLY-06426', entry,
+                                                                            wioe.getLocalizedMessage    ())
+                            _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+                            raise de
 
-                            entries.append(updated_name)
-                            _logger.finer('WLSDPLY-06424', entry, updated_name, class_name=_class_name,
-                                      method_name=_method_name)
+                        entries.append(updated_name)
+                        _logger.finer('WLSDPLY-06424', entry, updated_name, class_name=_class_name,
+                                  method_name=_method_name)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=entries)
         return model_constants.DOMAIN_SCRIPTS, entries

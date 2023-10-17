@@ -24,6 +24,7 @@ from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import path_utils
 import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
+import oracle.weblogic.deploy.util.FileUtils as FileUtils
 
 
 _DISCOVER_LOGGER_NAME = 'wlsdeploy.discover'
@@ -64,6 +65,14 @@ class Discoverer(object):
         self._wlst_helper = WlstHelper(ExceptionType.DISCOVER)
         self._mbean_utils = MBeanUtils(self._model_context, self._aliases, ExceptionType.DISCOVER)
         self._wls_version = self._weblogic_helper.get_actual_weblogic_version()
+
+        if model_context.is_remote() or model_context.is_ssh():
+            try:
+                self.download_temporary_dir = FileUtils.createTempDirectory("wdt-downloadtemp").getAbsolutePath()
+            except (IOException), e:
+                ex = exception_helper.create_discover_exception('WLSDPLY-06160', e.getLocalizedMessage(), error=e)
+                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
 
     def add_to_remote_map(self, local_name, archive_name, file_type):
         if not os.path.isabs(local_name):
@@ -683,7 +692,7 @@ class Discoverer(object):
     def _convert_path(self, file_name):
         file_name_resolved = self._model_context.replace_token_string(file_name)
         if path_utils.is_relative_path(file_name_resolved):
-            return convert_to_absolute_path(self._model_context.get_domain_home(), file_name_resolved)
+            return convert_to_absolute_path(self._model_context.get_effective_domain_home(), file_name_resolved)
         return file_name_resolved
 
     def _is_oracle_home_file(self, file_name):
@@ -849,6 +858,19 @@ class Discoverer(object):
             return False, None, None
 
         return True, url, path
+
+    def download_deployment_from_remote_server(self, source_path, local_download_root, type):
+        download_srcpath = source_path
+        if os.path.basename(source_path).find('.') > 0:
+            download_targetpath = os.path.join(local_download_root, type) + os.path.dirname(source_path)
+            return_path = os.path.join(local_download_root, type) + source_path
+        else:
+            download_targetpath = os.path.join(local_download_root, type) + source_path
+            return_path = download_targetpath
+        if not os.path.exists(download_targetpath):
+            os.makedirs(download_targetpath)
+        self._model_context.get_ssh_context().download(download_srcpath, download_targetpath)
+        return return_path
 
 
 def add_to_model_if_not_empty(dictionary, entry_name, entry_value):

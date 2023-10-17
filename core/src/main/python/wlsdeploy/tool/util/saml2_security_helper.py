@@ -23,26 +23,27 @@ class Saml2SecurityHelper(object):
     """
     _class_name = 'Saml2SecurityHelper'
 
-    def __init__(self, domain_home, exception_type):
+    def __init__(self, model_context, exception_type):
         """
         Initialize an instance of Saml2SecurityHelper.
         :param domain_home: used locate security files
         :param exception_type: the type of exception to be thrown
         """
-        self._domain_home = domain_home
+        self._domain_home = model_context.get_effective_domain_home()
+        self._model_context = model_context
         self._domain_security_directory = os.path.join(self._domain_home, DOMAIN_SECURITY_FOLDER)
         self._exception_type = exception_type
         self._logger = PlatformLogger('wlsdeploy.tool.util')
 
-    def extract_initialization_files(self, archive_helper):
+    def extract_initialization_files(self, archive_helper, deployer=None):
         """
         Extract initialization files from the archive to the security directory.
         :param archive_helper: used to find initialization files in archive
         """
-        self._extract_initialization_files(IDP_FILE_PREFIX, IDP_PARTNERS_KEY, archive_helper)
-        self._extract_initialization_files(SP_FILE_PREFIX, SP_PARTNERS_KEY, archive_helper)
+        self._extract_initialization_files(IDP_FILE_PREFIX, IDP_PARTNERS_KEY, archive_helper, deployer)
+        self._extract_initialization_files(SP_FILE_PREFIX, SP_PARTNERS_KEY, archive_helper, deployer)
 
-    def _extract_initialization_files(self, prefix, partners_key, archive_helper):
+    def _extract_initialization_files(self, prefix, partners_key, archive_helper, deployer):
         """
         Extract initialization files for a specific prefix.
         Don't install any files if the <prefix>initialized file exists in the security directory
@@ -58,17 +59,21 @@ class Saml2SecurityHelper(object):
             # if the "initialized" file is present, don't extract files
             initialized_file = properties_file_name + '.initialized'
             initialized_path = os.path.join(self._domain_security_directory, initialized_file)
-            if os.path.isfile(initialized_path):
+            if self._model_context.is_ssh():
+                extracted_file_path = archive_helper.extract_file(properties_path, deployer.upload_temporary_dir)
+                deployer.upload_specific_file_to_remote_server(extracted_file_path, self._domain_security_directory)
+            elif not self._model_context.is_ssh() and os.path.isfile(initialized_path):
                 self._logger.info('WLSDPLY-23000', properties_file_name, initialized_file,
                                   class_name=self._class_name, method_name=_method_name)
             else:
                 # extract the properties file, the read it to determine metadata files
                 self._logger.info('WLSDPLY-23001', properties_file_name, class_name=self._class_name,
                                   method_name=_method_name)
-                archive_helper.extract_file(properties_path, self._domain_security_directory)
-                self._extract_metadata_files(properties_file_name, partners_key, archive_helper)
 
-    def _extract_metadata_files(self, properties_file_name, partners_key, archive_helper):
+                archive_helper.extract_file(properties_path, self._domain_security_directory)
+                self._extract_metadata_files(properties_file_name, partners_key, archive_helper, deployer)
+
+    def _extract_metadata_files(self, properties_file_name, partners_key, archive_helper, deployer):
         """
         Extract metadata files specified in the properties file.
         :param properties_file_name: the name of the properties file containing the metadata file names
@@ -85,7 +90,13 @@ class Saml2SecurityHelper(object):
             if archive_helper.contains_file(metadata_file):
                 self._logger.info('WLSDPLY-23002', metadata_file_name, class_name=self._class_name,
                                   method_name=_method_name)
-                archive_helper.extract_file(metadata_file, self._domain_security_directory)
+
+                if self._model_context.is_ssh():
+                    extracted_file_path = archive_helper.extract_file(metadata_file, deployer.upload_temporary_dir)
+                    deployer.upload_specific_file_to_remote_server(extracted_file_path,
+                                                                    self._domain_security_directory)
+                else:
+                    archive_helper.extract_file(metadata_file, self._domain_security_directory)
             else:
                 self._logger.severe('WLSDPLY-23003', metadata_file_name, properties_file,
                                     class_name=self._class_name, method_name=_method_name)
@@ -111,10 +122,22 @@ class Saml2SecurityHelper(object):
 
         properties_file_name = prefix + '.properties'
         properties_file = os.path.join(self._domain_security_directory, properties_file_name)
+
+        if self._model_context.is_ssh():
+            # only if it exists
+            results = self._model_context.get_ssh_context().remote_command("find " + self._domain_security_directory +
+                                                                           " -maxdepth 1 -name " + properties_file_name)
+            if results:
+                items = results.split('\n')
+                if items[0] != '':
+                    properties_file = discoverer.download_deployment_from_remote_server(properties_file,
+                                                                                 discoverer.download_temporary_dir,
+                                                                           "samlInitFile")
         if os.path.isfile(properties_file):
             if archive:
                 self._logger.info('WLSDPLY-23005', properties_file_name, class_name=self._class_name,
                                   method_name=_method_name)
+
                 archive.addSaml2DataFile(properties_file, True)
             else:
                 # if -skip_archive or -remote, add to the remote map for manual addition

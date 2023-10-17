@@ -2,6 +2,7 @@
 Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+import os
 from java.io import File
 from oracle.weblogic.deploy.util import WLSDeployArchive
 from shutil import copy
@@ -22,14 +23,14 @@ class LibraryHelper(object):
     """
     __class_name = 'LibraryHelper'
 
-    def __init__(self, model, model_context, aliases, domain_home, exception_type, logger):
+    def __init__(self, model, model_context, aliases, domain_home, exception_type, logger, upload_temporary_dir=None):
         self.logger = logger
         self.model = model
         self.model_context = model_context
         self.domain_home = domain_home
         self.aliases = aliases
         self.wlst_helper = WlstHelper(exception_type)
-
+        self.upload_temporary_dir = upload_temporary_dir
         self.archive_helper = None
         archive_file_name = self.model_context.get_archive_file_name()
         if archive_file_name is not None:
@@ -57,7 +58,9 @@ class LibraryHelper(object):
                 if WLSDeployArchive.isPathIntoArchive(domain_lib):
                     self.logger.info('WLSDPLY-12215', domain_lib, self.domain_home,
                                      class_name=self.__class_name, method_name=_method_name)
-                    self.archive_helper.extract_domain_library(domain_lib)
+                    self.archive_helper.extract_domain_library(domain_lib, self.upload_temporary_dir)
+                    if self.model_context.is_ssh():
+                        self._upload_extracted_file(domain_lib, 'lib')
                 else:
                     self.logger.info('WLSDPLY-12235', domain_lib, self.domain_home,
                                      class_name=self.__class_name, method_name=_method_name)
@@ -76,10 +79,14 @@ class LibraryHelper(object):
         if self.archive_helper is None:
             self.logger.info('WLSDPLY-12216', class_name=self.__class_name, method_name=_method_name)
         else:
-            num_cp_libs = self.archive_helper.extract_classpath_libraries()
+            num_cp_libs = self.archive_helper.extract_classpath_libraries(self.upload_temporary_dir)
             if num_cp_libs > 0:
                 self.logger.info('WLSDPLY-12217', num_cp_libs, self.domain_home,
                                  class_name=self.__class_name, method_name=_method_name)
+
+                if self.model_context.is_ssh():
+                    self._upload_extracted_directory(WLSDeployArchive.ARCHIVE_CPLIB_TARGET_DIR,
+                                                     WLSDeployArchive.WLSDPLY_ARCHIVE_BINARY_DIR)
             else:
                 self.logger.info('WLSDPLY-12218', self.model_context.get_archive_file_name(),
                                  class_name=self.__class_name, method_name=_method_name)
@@ -96,10 +103,14 @@ class LibraryHelper(object):
         if self.archive_helper is None:
             self.logger.info('WLSDPLY-12565', class_name=self.__class_name, method_name=_method_name)
         else:
-            num_cp_libs = self.archive_helper.extract_custom_archive()
+            num_cp_libs = self.archive_helper.extract_custom_archive(self.upload_temporary_dir)
             if num_cp_libs > 0:
                 self.logger.info('WLSDPLY-12566', num_cp_libs, self.domain_home,
                                  class_name=self.__class_name, method_name=_method_name)
+                if self.model_context.is_ssh():
+                    self._upload_extracted_directory(WLSDeployArchive.ARCHIVE_CUSTOM_TARGET_DIR,
+                                                     WLSDeployArchive.WLSDPLY_ARCHIVE_BINARY_DIR)
+
             else:
                 self.logger.info('WLSDPLY-12567', self.model_context.get_archive_file_name(),
                                  class_name=self.__class_name, method_name=_method_name)
@@ -127,7 +138,10 @@ class LibraryHelper(object):
                 if WLSDeployArchive.isPathIntoArchive(domain_script):
                     self.logger.info('WLSDPLY-12251', domain_script, self.domain_home,
                                      class_name=self.__class_name, method_name=_method_name)
-                    self.archive_helper.extract_domain_bin_script(domain_script)
+                    self.archive_helper.extract_domain_bin_script(domain_script, self.upload_temporary_dir)
+                    if self.model_context.is_ssh():
+                        self._upload_extracted_file(domain_script, 'bin')
+
                 else:
                     self.logger.info('WLSDPLY-12252', domain_script, self.domain_home,
                                      class_name=self.__class_name, method_name=_method_name)
@@ -168,3 +182,30 @@ class LibraryHelper(object):
             ex = exception_helper.create_create_exception('WLSDPLY-12253', source_path, target_dir)
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
+
+    def _upload_extracted_directory(self, archive_path, target_parent_dir):
+        """
+        Convenient method to upload the extracted directories - classpathLibraries, custom
+        :param archive_path:  path from the archive wlsdeploy/classpathLibraries, wlsdeploy/custom
+        :param target_parent_dir:  wlsdeploy
+        """
+        if self.model_context.is_ssh():
+            self.model_context.get_ssh_context().remote_command("mkdir -p " + os.path.join(
+                self.model_context.get_remote_domain_home(), archive_path))
+            self.model_context.get_ssh_context().upload(os.path.join(self.upload_temporary_dir, archive_path),
+                                                        os.path.join(self.model_context.get_remote_domain_home(),
+                                                                     target_parent_dir))
+
+
+    def _upload_extracted_file(self, name, path_from_domain):
+        """
+        Convenient method to upload a single file for domainInfo.domainBin,  domainInfo.domainLib
+        :param name:   individual name in domainInfo.domainBin or domainInfo.domainLib
+        :param path_from_domain: destination folder after $domain_home - bin or lib
+        """
+        base_name = name[name.rfind('/')+1:]
+        # file is extracted to destination/lib
+        self.model_context.get_ssh_context().upload(os.path.join(self.upload_temporary_dir, path_from_domain,
+                                                                 base_name),
+                                                    os.path.join(self.model_context.get_remote_domain_home(),
+                                                                 path_from_domain, base_name))

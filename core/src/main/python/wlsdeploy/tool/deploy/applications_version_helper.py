@@ -104,7 +104,6 @@ class ApplicationsVersionHelper(object):
         versioned_name = model_name
         if self.is_module_type_app_module(module_type):
             return model_name
-
         try:
             manifest = self.__get_manifest(source_path, from_archive)
 

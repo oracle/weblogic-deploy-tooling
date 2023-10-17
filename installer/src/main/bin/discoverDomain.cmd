@@ -85,6 +85,15 @@ ECHO              [-admin_url ^<admin_url^>
 ECHO               -admin_user ^<admin_user^>
 ECHO               -admin_pass_env ^<admin_pass_env^> ^| -admin_pass_file ^<admin_pass_file^>
 ECHO              ]
+ECHO              [-ssh_host ^<ssh_host^>
+ECHO               -ssh_port ^<ssh_port^>
+ECHO               -ssh_user ^<ssh_user^>
+ECHO               -ssh_pass ^<ssh_pass^>
+ECHO               -ssh_pass_env ^<ssh_pass_env^> ^| -ssh_pass_file ^<ssh_pass_file^> ^| -ssh_pass_prompt
+ECHO               -ssh_private_key ^<ssh_private_key^>
+ECHO               -ssh_private_key_pass_env ^<ssh_private_key_pass_env^> ^| -ssh_private_key_pass_file ^<ssh_private_key_pass_file^> ^| -ssh_private_key_pass_prompt
+ECHO               -remote_domain_home ^<remote_domain_home^>
+ECHO            ]
 ECHO.
 ECHO     where:
 ECHO         oracle_home     - the existing Oracle Home directory for the domain.
@@ -130,6 +139,36 @@ ECHO         admin_pass_file - An alternative to entering the admin password at 
 ECHO                           prompt. The value is the name of a file with a
 ECHO                           string value which WDT will read to retrieve the
 ECHO                           password.
+ECHO.
+ECHO          ssh_host        - the host name for admin server when ssh protocol is used to collect resources
+ECHO                            from the admin server host.
+ECHO.
+ECHO          ssh_port        - the ssh port number for the admin server host.
+ECHO.
+ECHO          ssh_user        - the ssh user name for the admin server host.
+ECHO          ssh_pass        - the ssh user password for the admin server host.
+ECHO.
+ECHO          ssh_pass_env    - An alternative to enter the ssh password at the prompt.  The value is specified
+ECHO                            in an ENVIRONMENT VARIABLE name that WDT will use to retrieve the password
+ECHO.
+ECHO          ssh_pass_file   - An alternative to enter the ssh password at the prompt.  The value is the name of a
+ECHO                            file with a string value which WDT will read to retrieve the password.
+ECHO.
+ECHO          ssh_pass_prompt - Prompt for the ssh password.
+ECHO.
+ECHO          ssh_private_key - the private key to use for connecting to the admin server host using ssh.
+ECHO.
+ECHO          ssh_private_key_pass_env - An alternative to enter the ssh private keystore password at the prompt.
+ECHO                                     The value is specified in an ENVIRONMENT VARIABLE name that WDT will use
+ECHO                                     to retrieve the password
+ECHO.
+ECHO          ssh_private_key_pass_file - An alternative to enter the ssh private keystore password at the prompt.
+ECHO                                      The value is the name of a file with a string value which WDT will read
+ECHO                                      to retrieve the password.
+ECHO.
+ECHO          ssh_private_key_pass_prompt - Prompt for the ssh private keystore password.
+ECHO.
+ECHO          remote_domain_home - the domain home reside in the remote ssh host for the admin server.
 ECHO.
 ECHO    The -skip_archive argument suppresses the generation of the archive file.
 ECHO    If present, the -archive_file argument will be ignored and the file

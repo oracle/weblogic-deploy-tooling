@@ -404,6 +404,7 @@ public class WLSDeployArchive {
         return getArchiveName(ARCHIVE_APPS_TARGET_DIR, planFile);
     }
 
+
     /**
      * Convert the provided structured application's application installation directory into the
      * proper archive path.
@@ -3865,23 +3866,25 @@ public class WLSDeployArchive {
      *
      * @param domainHome the existing domain home directory
      * @param walletName the name of the database wallet to extract (e.g., rcu)
+     * @param validateDomainHome check existence of the domain home directory if true.
      * @return the full path to the directory containing the extracted wallet files or null, if no wallet was found
      * @throws WLSDeployArchiveIOException if an error occurs while reading or extracting the archive files
      * @throws IllegalArgumentException    if the wallet name if empty or the domain home directory does not exist
      * @see WLSDeployArchive#extractDatabaseWalletForArchiveHelper(String, File) 
      */
-    public String extractDatabaseWallet(File domainHome, String walletName) throws WLSDeployArchiveIOException {
+    public String extractDatabaseWallet(File domainHome, String walletName, boolean validateDomainHome) throws WLSDeployArchiveIOException {
         final String METHOD = "extractDatabaseWallet";
         LOGGER.entering(CLASS, METHOD, domainHome, walletName);
 
         validateNonEmptyString(walletName, "walletName", METHOD);
-
         String extractPath = null;
         if (DEFAULT_RCU_WALLET_NAME.equals(walletName)) {
             // handle archive files with deprecated path, as needed
-            extractPath = extractRCUWallet(domainHome);
+            extractPath = extractRCUWallet(domainHome, validateDomainHome);
         } else {
-            validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+            if (validateDomainHome) {
+                validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+            }
             List<String> zipEntries =
                 getZipFile().listZipEntries(ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + walletName + ZIP_SEP);
             zipEntries.remove(ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + walletName + ZIP_SEP);
@@ -3906,11 +3909,11 @@ public class WLSDeployArchive {
      * @throws IllegalArgumentException    if the domain home directory does not exist
      * @see WLSDeployArchive#extractRCUDatabaseWalletForArchiveHelper(File)
      */
-    public String extractRCUDatabaseWallet(File domainHome) throws WLSDeployArchiveIOException {
+    public String extractRCUDatabaseWallet(File domainHome, boolean validateDomainHome) throws WLSDeployArchiveIOException {
         final String METHOD = "extractRCUDatabaseWallet";
         LOGGER.entering(CLASS, METHOD, domainHome);
 
-        String extractPath = extractDatabaseWallet(domainHome, DEFAULT_RCU_WALLET_NAME);
+        String extractPath = extractDatabaseWallet(domainHome, DEFAULT_RCU_WALLET_NAME, validateDomainHome);
 
         LOGGER.exiting(CLASS, METHOD, extractPath);
         return extractPath;
@@ -3925,7 +3928,7 @@ public class WLSDeployArchive {
      * @param domainHome   the existing domain home directory
      * @throws WLSDeployArchiveIOException  if an error occurs while reading or extracting the archive files
      * @throws IllegalArgumentException     if the wallet name if empty or the domain home directory does not exist
-     * @see WLSDeployArchive#extractDatabaseWallet(File, String) 
+     * @see WLSDeployArchive#extractDatabaseWallet(File, String, boolean)
      */
     public void extractDatabaseWalletForArchiveHelper(String walletPath, File domainHome)
         throws WLSDeployArchiveIOException {
@@ -3953,7 +3956,7 @@ public class WLSDeployArchive {
      * @param domainHome   the existing domain home directory
      * @throws WLSDeployArchiveIOException  if an error occurs while reading or extracting the archive files
      * @throws IllegalArgumentException     if the domain home directory does not exist
-     * @see WLSDeployArchive#extractRCUDatabaseWallet(File)
+     * @see WLSDeployArchive#extractRCUDatabaseWallet(File, boolean)
      */
     public void extractRCUDatabaseWalletForArchiveHelper(File domainHome)
         throws WLSDeployArchiveIOException {
@@ -4927,11 +4930,14 @@ public class WLSDeployArchive {
         LOGGER.exiting(CLASS, METHOD);
     }
 
-    protected String extractRCUWallet(File domainHome) throws WLSDeployArchiveIOException {
+    protected String extractRCUWallet(File domainHome, boolean validateDomainHome) throws WLSDeployArchiveIOException {
         final String METHOD = "extractRCUWallet";
 
         LOGGER.entering(CLASS, METHOD, domainHome);
-        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        if (validateDomainHome) {
+            validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+        }
 
         // Look in the updated location first
         String extractPath = null;

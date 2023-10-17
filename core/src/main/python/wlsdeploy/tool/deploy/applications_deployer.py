@@ -69,12 +69,6 @@ class ApplicationsDeployer(Deployer):
         self._base_location = base_location
         self._parent_dict, self._parent_name, self._parent_type = self.__get_parent_by_location(self._base_location)
         self.version_helper = ApplicationsVersionHelper(model_context, self.archive_helper)
-        try:
-            self.upload_temporary_dir = FileUtils.createTempDirectory("wdt-uploadtemp").getAbsolutePath()
-        except (IOException), e:
-            ex = exception_helper.create_deploy_exception('WLSDPLY-09340', e.getLocalizedMessage(), error=e)
-            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-            raise ex
 
 
     def deploy(self):
@@ -334,10 +328,15 @@ class ApplicationsDeployer(Deployer):
         for app in stop_and_undeploy_app_list:
             self.__stop_app(app)
             self.__undeploy_app(app)
+            # if ssh remove the app
+            source_path = model_applications[app][SOURCE_PATH]
+            self._delete_deployment_to_remote_server(source_path)
 
         # library is updated, it must be undeployed first
         for lib in update_library_list:
             self.__undeploy_app(lib, library_module='true')
+            source_path = model_shared_libraries[lib][SOURCE_PATH]
+            self._delete_deployment_to_remote_server(source_path)
 
         self.__deploy_model_libraries(model_shared_libraries, lib_location)
         self.__deploy_model_applications(model_applications, app_location, deployed_app_list)
@@ -470,6 +469,13 @@ class ApplicationsDeployer(Deployer):
         running_apps = self.wlst_helper.get('/AppRuntimeStateRuntime/AppRuntimeStateRuntime/ApplicationIds')
         self.wlst_helper.server_config()
 
+        try:
+            local_download_root = FileUtils.createTempDirectory("wdt-downloadtemp").getAbsolutePath()
+        except (IOException), e:
+            ex = exception_helper.create_deploy_exception('WLSDPLY-06160', e.getLocalizedMessage(), error=e)
+            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+
         for app in apps:
             if running_apps is not None and app in running_apps:
                 app_location = LocationContext(location).add_name_token(token_name, app)
@@ -484,28 +490,37 @@ class ApplicationsDeployer(Deployer):
                     absolute_planpath = attributes_map['PlanPath']
 
                 if absolute_planpath is not None and not os.path.isabs(absolute_planpath):
-                    absolute_planpath = self.model_context.get_domain_home() + '/' + absolute_planpath
+                    absolute_planpath = self.model_context.get_effective_domain_home() + '/' + absolute_planpath
 
                 if absolute_sourcepath is None:
                     absolute_sourcepath = attributes_map['SourcePath']
 
                 if absolute_sourcepath is not None and not os.path.isabs(absolute_sourcepath):
-                    absolute_sourcepath = self.model_context.get_domain_home() + '/' + absolute_sourcepath
+                    absolute_sourcepath = self.model_context.get_effective_domain_home() + '/' + absolute_sourcepath
 
                 deployment_order = attributes_map['DeploymentOrder']
 
-                app_hash, plan_hash = self.__get_app_and_plan_hash(absolute_planpath, absolute_sourcepath)
+                app_hash, plan_hash = self.__get_app_and_plan_hash(absolute_planpath, absolute_sourcepath,
+                                                                   local_download_root)
 
                 _update_ref_dictionary(ref_dictionary, app, absolute_sourcepath, app_hash, config_targets,
                                        absolute_plan_path=absolute_planpath, deploy_order=deployment_order,
                                        plan_hash=plan_hash)
         return ref_dictionary
 
-    def __get_app_and_plan_hash(self, absolute_planpath, absolute_sourcepath):
-        if self.model_context.is_remote():
-            app_hash = None
-            plan_hash = None
-        else:
+    def __get_app_and_plan_hash(self, absolute_planpath, absolute_sourcepath, local_download_root):
+        app_hash = None
+        plan_hash = None
+        if self.model_context.is_ssh():
+            local_download_app_path = _download_deployment_for_hash_calculation(self.model_context, absolute_sourcepath,
+                                                                                local_download_root, "apps")
+            local_download_plan_path = _download_deployment_for_hash_calculation(self.model_context, absolute_planpath,
+                                                                                 local_download_root, "plans")
+            if local_download_app_path:
+                app_hash = self.__get_file_hash(local_download_app_path)
+            if local_download_plan_path:
+                plan_hash = self.__get_file_hash(local_download_plan_path)
+        elif not self.model_context.is_remote():
             app_hash = self.__get_file_hash(absolute_sourcepath)
             if absolute_planpath is not None:
                 plan_hash = self.__get_file_hash(absolute_planpath)
@@ -566,7 +581,7 @@ class ApplicationsDeployer(Deployer):
         if absolute_source_path is not None and not os.path.isabs(absolute_source_path):
             absolute_source_path = self.model_context.get_domain_home() + '/' + absolute_source_path
         deployment_order = config_attributes[DEPLOYMENT_ORDER]
-        if self.model_context.is_remote():
+        if self.model_context.is_remote() or self.model_context.is_ssh():
             lib_hash = None
         else:
             lib_hash = self.__get_file_hash(absolute_source_path)
@@ -652,7 +667,7 @@ class ApplicationsDeployer(Deployer):
                         continue
 
                     # always update if remote
-                    if self.model_context.is_remote():
+                    if self.model_context.is_remote() or self.model_context.is_ssh():
                         update_library_list.append(versioned_name)
                         continue
 
@@ -781,20 +796,20 @@ class ApplicationsDeployer(Deployer):
                     existing_app_targets_set = Set(existing_app_targets)
 
                     # always update if remote
-                    if self.model_context.is_remote():
+                    if self.model_context.is_remote() or self.model_context.is_ssh():
                         self.__append_to_stop_and_undeploy_apps(versioned_name, stop_and_undeploy_app_list
                                                                 , existing_app_targets_set)
                         continue
 
                     # based on the hash value of existing app and the new one in the archive
                     # set up how the app should be deployed or redeployed
-                    self.__update_app_build_strartegy_based_on_hashes(app, app_dict, existing_app_targets_set,
-                                                                      model_apps, model_src_path, plan_path, src_path,
-                                                                      stop_and_undeploy_app_list, versioned_name)
+                    self.__update_app_build_strategy_based_on_hashes(app, app_dict, existing_app_targets_set,
+                                                                     model_apps, model_src_path, plan_path, src_path,
+                                                                     stop_and_undeploy_app_list, versioned_name)
 
-    def __update_app_build_strartegy_based_on_hashes(self, app, app_dict, existing_app_targets_set, model_apps,
-                                                     model_src_path, plan_path, src_path, stop_and_undeploy_app_list,
-                                                     versioned_name):
+    def __update_app_build_strategy_based_on_hashes(self, app, app_dict, existing_app_targets_set, model_apps,
+                                                    model_src_path, plan_path, src_path, stop_and_undeploy_app_list,
+                                                    versioned_name):
         model_src_hash = self.__get_hash(model_src_path)
         model_plan_hash = self.__get_hash(dictionary_utils.get_element(app_dict, PLAN_PATH))
         existing_src_hash = self.__get_file_hash(src_path)
@@ -1053,10 +1068,11 @@ class ApplicationsDeployer(Deployer):
                     stage_mode = dictionary_utils.get_element(lib_dict, STAGE_MODE)
                     options, sub_module_targets = _get_deploy_options(model_libs, lib_name, library_module='true',
                                                                       application_version_helper=self.version_helper,
-                                                                      is_remote=self.model_context.is_remote())
+                                                                      is_remote=self.model_context.is_remote(),
+                                                                      is_ssh=self.model_context.is_ssh())
 
-                    src_path = self._get_source_path_fo_delooy_library(lib_dict, lib_name, src_path,
-                                                                       uses_path_tokens_attribute_names)
+                    src_path = self._get_source_path_for_deploy_library(lib_dict, lib_name, src_path,
+                                                                        uses_path_tokens_attribute_names)
 
                     location.add_name_token(token_name, lib_name)
                     resource_group_template_name, resource_group_name, partition_name = \
@@ -1066,16 +1082,16 @@ class ApplicationsDeployer(Deployer):
                                              resource_group_template=resource_group_template_name, options=options)
                     location.remove_name_token(token_name)
 
-    def _get_source_path_fo_delooy_library(self, lib_dict, lib_name, src_path, uses_path_tokens_attribute_names):
+    def _get_source_path_for_deploy_library(self, lib_dict, lib_name, src_path, uses_path_tokens_attribute_names):
         for uses_path_tokens_attribute_name in uses_path_tokens_attribute_names:
             if uses_path_tokens_attribute_name in lib_dict:
                 path = lib_dict[uses_path_tokens_attribute_name]
                 if deployer_utils.is_path_into_archive(path):
                     self.__extract_source_path_from_archive(path, LIBRARY, lib_name,
-                                                            is_remote=self.model_context.is_remote(),
                                                             upload_remote_directory=self.upload_temporary_dir)
                     # if it is remote app deployment src path is the local absolute location and the
                     # app archive will be uploaded to the admin server's upload directory
+                    # This is only needed for -remote case, for ssh we upload it under remote domain file system
                     if self.model_context.is_remote():
                         src_path = self.upload_temporary_dir + '/' + src_path
         return src_path
@@ -1095,12 +1111,12 @@ class ApplicationsDeployer(Deployer):
                     targets = dictionary_utils.get_element(app_dict, TARGET)
                     options, sub_module_targets  = _get_deploy_options(model_apps, app_name, library_module='false',
                                                                        application_version_helper=self.version_helper,
-                                                                       is_remote=self.model_context.is_remote())
+                                                                       is_remote=self.model_context.is_remote(),
+                                                                       is_ssh=self.model_context.is_ssh())
 
                     # any attribute with 'uses_path_tokens' may be in the archive (such as SourcePath)
                     path, src_path = self._get_source_path_for_deploy_application(app_dict, app_name, src_path,
                                                                                   uses_path_tokens_attribute_names)
-
                     location.add_name_token(token_name, app_name)
                     resource_group_template_name, resource_group_name, partition_name = \
                         self.__get_mt_names_from_location(location)
@@ -1124,10 +1140,10 @@ class ApplicationsDeployer(Deployer):
                 path = app_dict[uses_path_tokens_attribute_name]
                 if deployer_utils.is_path_into_archive(path):
                     self.__extract_source_path_from_archive(path, APPLICATION, app_name,
-                                                            is_remote=self.model_context.is_remote(),
                                                             upload_remote_directory=self.upload_temporary_dir)
                     # if it is remote app deployment src path is the local absolute location and the
                     # app archive will be uploaded to the admin server's upload directory
+                    # we only need this for -remote case, for ssh we upload to the remote domain file system
                     if self.model_context.is_remote():
                         src_path = self.upload_temporary_dir + '/' + src_path
         return path, src_path
@@ -1168,7 +1184,6 @@ class ApplicationsDeployer(Deployer):
         :param options: optional, extra options for the WLST deploy() call
         """
         _method_name = '__deploy_app_online'
-
         is_library = False
         if options is not None:
             is_library = dictionary_utils.get_element(options, 'libraryModule') == 'true'
@@ -1180,35 +1195,45 @@ class ApplicationsDeployer(Deployer):
         self.logger.info('WLSDPLY-09316', type_name, application_name, class_name=self._class_name,
                          method_name=_method_name)
 
+        if self.model_context.is_ssh():
+            real_domain_home = self.model_context.get_remote_domain_home()
+        else:
+            real_domain_home = self.model_context.get_domain_home()
+
         if string_utils.is_empty(source_path):
             ex = exception_helper.create_deploy_exception('WLSDPLY-09317', type_name, application_name, SOURCE_PATH)
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
         full_source_path = source_path
-        if not os.path.isabs(full_source_path):
-            full_source_path = self.model_context.get_domain_home() + '/' + source_path
 
-        if not os.path.exists(full_source_path):
-            ex = exception_helper.create_deploy_exception('WLSDPLY-09318', type_name, application_name,
-                                                          str_helper.to_string(full_source_path))
-            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-            raise ex
+        if not os.path.isabs(full_source_path):
+            full_source_path = real_domain_home + '/' + source_path
+
+        if os.path.isabs(full_source_path) and not self.model_context.is_ssh() and not os.path.exists(full_source_path):
+                ex = exception_helper.create_deploy_exception('WLSDPLY-09318', type_name, application_name,
+                                                              str_helper.to_string(full_source_path))
+                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
+
 
         if is_library:
-            computed_name = self.version_helper.get_library_versioned_name(source_path, application_name)
+            computed_name = self.version_helper.get_library_versioned_name(source_path, application_name,
+                                            from_archive=(self.model_context.is_remote() or self.model_context.is_ssh()))
         else:
             computed_name = self.version_helper.get_application_versioned_name(source_path, application_name,
-                                                                               module_type=module_type)
+                                                                               module_type=module_type,
+                                            from_archive=(self.model_context.is_remote() or self.model_context.is_ssh()))
 
         application_name = computed_name
 
         # build the dictionary of named arguments to pass to the deploy_application method
         args = list()
         kwargs = {'path': str_helper.to_string(full_source_path), 'targets': str_helper.to_string(targets)}
+
         if plan is not None:
             if not os.path.isabs(plan):
-                plan = self.model_context.get_domain_home() + '/' + plan
+                plan = real_domain_home + '/' + plan
 
             if not os.path.exists(plan):
                 ex = exception_helper.create_deploy_exception('WLSDPLY-09319', type_name, application_name, plan)
@@ -1236,7 +1261,8 @@ class ApplicationsDeployer(Deployer):
         self.wlst_helper.deploy_application(application_name, *args, **kwargs)
         return application_name
 
-    def __extract_source_path_from_archive(self, source_path, model_type, model_name, is_remote=False,
+
+    def __extract_source_path_from_archive(self, source_path, model_type, model_name,
                                            upload_remote_directory=None):
         """
         Extract contents from the archive set for the specified source path.
@@ -1244,6 +1270,7 @@ class ApplicationsDeployer(Deployer):
         :param source_path: the path to be extracted (previously checked to be under wlsdeploy)
         :param model_type: the model type (Application, etc.), used for logging
         :param model_name: the element name (my-app, etc.), used for logging
+        :param upload_remote_directory: the source directory where we upload the deployments
         """
         _method_name = '__extract_source_path_from_archive'
 
@@ -1253,24 +1280,37 @@ class ApplicationsDeployer(Deployer):
 
         # source path may be a single file (jar, war, etc.)
         if self.archive_helper.contains_file(source_path):
-            if is_remote:
+            if self.model_context.is_remote():
                 self.archive_helper.extract_file(source_path, upload_remote_directory, False)
+            elif self.model_context.is_ssh():
+                self.archive_helper.extract_file(source_path, upload_remote_directory, False)
+                self.upload_deployment_to_remote_server(source_path, upload_remote_directory)
             else:
                 self.archive_helper.extract_file(source_path)
 
         # source path may be exploded directory in archive
         elif self.archive_helper.contains_path(source_path):
             # exploded format cannot be used for remote upload
-            if is_remote:
+            if self.model_context.is_remote():
                 ex = exception_helper.create_deploy_exception('WLSDPLY-09341', model_name, source_path)
                 self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
-            self.archive_helper.extract_directory(source_path)
+            if self.model_context.is_ssh():
+                self.archive_helper.extract_directory(source_path, location=upload_remote_directory)
+                self.upload_deployment_to_remote_server(source_path, upload_remote_directory)
+            else:
+                self.archive_helper.extract_directory(source_path)
 
         else:
             ex = exception_helper.create_deploy_exception('WLSDPLY-09330', model_type, model_name, source_path)
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
+
+
+    def _delete_deployment_to_remote_server(self, source_path):
+        if self.model_context.is_ssh() and not source_path.startswith('/'):
+            self.model_context.get_ssh_context().remote_command("rm -fr " + os.path.join(
+                self.model_context.get_remote_domain_home(), source_path))
 
     def __get_deployment_ordering(self, apps):
         _method_name = '__get_deployment_ordering'
@@ -1356,8 +1396,24 @@ class ApplicationsDeployer(Deployer):
         for app in start_order:
             self.__start_app(app)
 
+def _download_deployment_for_hash_calculation(model_context, source_path, local_download_root, type):
+    if source_path is None:
+        return None
+    download_srcpath = source_path
 
-def _get_deploy_options(model_apps, app_name, library_module, application_version_helper, is_remote=False):
+    last_slash = source_path.rfind('/')
+    if source_path[last_slash:].find('.') > 0:
+        download_targetpath = os.path.join(local_download_root, type) + os.path.dirname(source_path)
+        return_path = os.path.join(local_download_root, type) + source_path
+    else:
+        # Ignore directory, cannot calculate hash on exploded deployment
+        return None
+    if not os.path.exists(download_targetpath):
+        os.makedirs(download_targetpath)
+    model_context.get_ssh_context().download(download_srcpath, download_targetpath)
+    return return_path
+
+def _get_deploy_options(model_apps, app_name, library_module, application_version_helper, is_remote=False, is_ssh=False):
     """
     Get the deploy command options.
     :param model_apps: the apps dictionary
@@ -1389,6 +1445,9 @@ def _get_deploy_options(model_apps, app_name, library_module, application_versio
 
     if is_remote:
         deploy_options['upload'] = 'true'
+
+    if is_ssh:
+        deploy_options['remote'] = 'true'
 
     if len(deploy_options) == 0:
         deploy_options = None

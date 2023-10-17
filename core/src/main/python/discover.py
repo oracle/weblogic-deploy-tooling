@@ -89,7 +89,20 @@ __optional_arguments = [
     CommandLineArgUtil.TARGET_MODE_SWITCH,
     CommandLineArgUtil.OUTPUT_DIR_SWITCH,
     CommandLineArgUtil.TARGET_SWITCH,
-    CommandLineArgUtil.REMOTE_SWITCH
+    CommandLineArgUtil.REMOTE_SWITCH,
+    CommandLineArgUtil.REMOTE_DOMAIN_HOME_SWITCH,
+    CommandLineArgUtil.SSH_HOST_SWITCH,
+    CommandLineArgUtil.SSH_PORT_SWITCH,
+    CommandLineArgUtil.SSH_USER_SWITCH,
+    CommandLineArgUtil.SSH_PASS_SWITCH,
+    CommandLineArgUtil.SSH_PASS_ENV_SWITCH,
+    CommandLineArgUtil.SSH_PASS_FILE_SWITCH,
+    CommandLineArgUtil.SSH_PASS_PROMPT_SWITCH,
+    CommandLineArgUtil.SSH_PRIVATE_KEY_SWITCH,
+    CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_SWITCH,
+    CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_ENV_SWITCH,
+    CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_FILE_SWITCH,
+    CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH
 ]
 
 
@@ -364,8 +377,8 @@ def __connect_to_domain(model_context, helper):
             helper.connect(model_context.get_admin_user(), model_context.get_admin_password(),
                            model_context.get_admin_url(), model_context.get_model_config().get_connect_timeout())
 
-            model_context.set_domain_home_name_if_remote(helper.get_domain_home_online(),
-                                                         helper.get_domain_name_online())
+            model_context.set_domain_home_name_if_remote_or_ssh(helper.get_domain_home_online(),
+                                                                helper.get_domain_name_online())
 
         except PyWLSTException, wlst_ex:
             ex = exception_helper.create_discover_exception('WLSDPLY-06001', model_context.get_admin_url(),
