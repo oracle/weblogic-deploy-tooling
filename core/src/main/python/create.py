@@ -378,8 +378,6 @@ def main(model_context):
             domain_path = _get_domain_path(model_context, model_dictionary)
             archive_helper = ArchiveHelper(archive_file_name, domain_path, __logger, ExceptionType.CREATE)
 
-        has_atp, has_ssl = validate_rcu_args_and_model(model_context, model_dictionary, archive_helper, aliases)
-
         if archive_helper:
             domain_parent = model_context.get_domain_parent_dir()
             domain_home = model_context.get_domain_home()
@@ -389,6 +387,8 @@ def main(model_context):
                 os.mkdir(os.path.abspath(domain_home))
 
             archive_helper.extract_all_database_wallets()
+
+        has_atp, has_ssl = validate_rcu_args_and_model(model_context, model_dictionary, archive_helper, aliases)
 
         creator = DomainCreator(model_dictionary, model_context, aliases)
 
