@@ -20,23 +20,29 @@ import static oracle.weblogic.deploy.create.ValidationUtils.validateExistingDire
 import static oracle.weblogic.deploy.create.ValidationUtils.validateExistingExecutableFile;
 import static oracle.weblogic.deploy.create.ValidationUtils.validateNonEmptyString;
 
-public class PostCreateDomainScriptRunner {
-    private static final String CLASS = PostCreateDomainScriptRunner.class.getName();
+public class CreateDomainLifecycleHookScriptRunner {
+    private static final String CLASS = CreateDomainLifecycleHookScriptRunner.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.create");
     private static final List<String> EMPTY_STRING_LIST = Collections.emptyList();
 
+    private final String scriptType;
+    private final String scriptLogBasenameDefault;
     private final File scriptFile;
     private final File javaHome;
     private final File oracleHome;
     private final File domainHome;
     private final String domainName;
     private Map<String, String> environmentVariables;
-    public PostCreateDomainScriptRunner(String scriptFileName, String javaHome, String oracleHome, String domainHome,
-                                        String domainName) throws CreateException {
+    public CreateDomainLifecycleHookScriptRunner(String scriptType, String scriptLogBasenameDefault,
+                                                 String scriptFileName, String javaHome, String oracleHome,
+                                                 String domainHome, String domainName) throws CreateException {
         final String METHOD = "<init>";
-        LOGGER.entering(CLASS, METHOD, scriptFileName, javaHome, oracleHome, domainHome, domainName);
+        LOGGER.entering(CLASS, METHOD, scriptType, scriptLogBasenameDefault, scriptFileName, javaHome, oracleHome,
+            domainHome, domainName);
 
-        this.scriptFile = validateExistingExecutableFile(scriptFileName, "Post Create Domain Script");
+        this.scriptType = validateNonEmptyString(scriptType, "script type");
+        this.scriptLogBasenameDefault = validateNonEmptyString(scriptType, "script log file basename default");
+        this.scriptFile = validateExistingExecutableFile(scriptFileName, scriptType);
         this.javaHome = validateExistingDirectory(javaHome, "JAVA_HOME");
         this.oracleHome = validateExistingDirectory(oracleHome, "ORACLE_HOME");
         this.domainHome = validateExistingDirectory(domainHome, "DOMAIN_HOME");
@@ -51,22 +57,22 @@ public class PostCreateDomainScriptRunner {
         LOGGER.entering(CLASS, METHOD);
 
         String[] fileComponents = FileUtils.parseFileName(this.scriptFile);
-        String logFileBaseName = fileComponents.length > 0 ? fileComponents[0] : "postCreateDomainScript";
+        String logFileBaseName = fileComponents.length > 0 ? fileComponents[0] : scriptLogBasenameDefault;
         ScriptRunner runner = new ScriptRunner(this.environmentVariables, logFileBaseName);
 
         int exitCode;
         try {
             exitCode = runner.executeScript(this.scriptFile, EMPTY_STRING_LIST);
         } catch (ScriptRunnerException sre) {
-            CreateException ce = new CreateException("WLSDPLY-12001", sre, CLASS, this.scriptFile.getAbsolutePath(),
-                sre.getLocalizedMessage());
+            CreateException ce = new CreateException("WLSDPLY-12013", sre, CLASS, this.scriptFile.getAbsolutePath(),
+                this.scriptType, sre.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, ce);
             throw ce;
         }
 
         if (exitCode != 0) {
-            CreateException ce = new CreateException("WLSDPLY-12014", this.scriptFile.getAbsolutePath(), exitCode,
-                runner.getStdoutFileName());
+            CreateException ce = new CreateException("WLSDPLY-12012", this.scriptType,
+                this.scriptFile.getAbsolutePath(), exitCode, runner.getStdoutFileName());
             LOGGER.throwing(CLASS, METHOD, ce);
             throw ce;
         }

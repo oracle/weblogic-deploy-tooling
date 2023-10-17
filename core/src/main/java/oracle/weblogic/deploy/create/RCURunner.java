@@ -283,7 +283,7 @@ public class RCURunner {
         }
         if (exitCode != 0) {
             if (disableRcuDropSchema && isSchemaAlreadyExistsError(runner)) {
-                CreateException ce = new CreateException("WLSDPLY-12015", CLASS, rcuPrefix, runner.getStdoutFileName());
+                CreateException ce = new CreateException("WLSDPLY-12010", CLASS, rcuPrefix, runner.getStdoutFileName());
                 LOGGER.throwing(CLASS, METHOD, ce);
                 throw ce;
             } else {
