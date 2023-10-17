@@ -414,6 +414,11 @@ class JmsResourcesDiscoverer(Discoverer):
                                            WLSDeployArchive.ArchiveEntryType.JMS_FOREIGN_SERVER.name())
                 elif not self._model_context.skip_archive():
                     try:
+                        if self._model_context.is_ssh():
+                            file_name = self.download_deployment_from_remote_server(file_name,
+                                                                                      self.download_temporary_dir,
+                                                                                      "foreignJMSServer" + server_name)
+
                         new_name = archive_file.addForeignServerFile(server_name, file_name)
                         new_name = FILE_URI + self._model_context.tokenize_path(self._convert_path(new_name))
                         _logger.info('WLSDPLY-06492', server_name, file_name, new_name, class_name=_class_name,

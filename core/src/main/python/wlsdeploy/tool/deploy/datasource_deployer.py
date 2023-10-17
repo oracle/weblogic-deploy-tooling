@@ -8,8 +8,10 @@ from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.tool.deploy.deployer import Deployer
 from wlsdeploy.util import dictionary_utils
+import oracle.weblogic.deploy.util.FileUtils as FileUtils
+import oracle.weblogic.deploy.util.WLSDeployArchive as WLSDeployArchive
 
-
+import os
 class DatasourceDeployer(Deployer):
     """
     Deploy data sources to JDBCSystemResource(s) using WLST.  Entry point, add_data_sources()
@@ -18,8 +20,22 @@ class DatasourceDeployer(Deployer):
 
     def __init__(self, model, model_context, aliases, wlst_mode=WlstModes.OFFLINE):
         Deployer.__init__(self, model, model_context, aliases, wlst_mode)
-        if not model_context.is_remote() and self.archive_helper:
+        if not model_context.is_remote() and not model_context.is_ssh() and self.archive_helper:
             self.archive_helper.extract_all_database_wallets()
+
+        if model_context.is_ssh() and self.archive_helper:
+            found_wallets = self.archive_helper.extract_all_database_wallets(self.upload_temporary_dir)
+            if found_wallets:
+                remote_wallets_dir = os.path.join(model_context.get_remote_domain_home(),
+                                                 WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR)
+                remote_wlsdeploy_dir = os.path.join(model_context.get_remote_domain_home(),
+                                                  WLSDeployArchive.WLSDPLY_ARCHIVE_BINARY_DIR)
+                model_context.get_ssh_context().remote_command("mkdir -p " + remote_wallets_dir)
+
+                model_context.get_ssh_context().upload(os.path.join(self.upload_temporary_dir,
+                                                                    WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR),
+                                                       remote_wlsdeploy_dir)
+
 
     def add_data_sources(self, parent_dict, location):
         """

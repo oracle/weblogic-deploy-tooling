@@ -501,6 +501,16 @@ class ModelContext(object):
         """
         return self._domain_home
 
+    def get_effective_domain_home(self):
+        """
+        Get the effective Domain Home.
+        :return: the Domain Home
+        """
+        if self.is_ssh():
+            return self._remote_domain_home
+        else:
+            return self._domain_home
+
     def get_domain_name(self):
         """
         Get the Domain name.
@@ -525,10 +535,11 @@ class ModelContext(object):
             self._domain_home = domain_home
             self._domain_name = os.path.basename(self._domain_home)
 
-    def set_domain_home_name_if_remote(self, domain_home, domain_name):
-        if self.is_remote():
+    def set_domain_home_name_if_remote_or_ssh(self, domain_home, domain_name):
+        if self.is_remote() or self.is_ssh():
             self.set_domain_home(domain_home)
             self.set_domain_name(domain_name)
+
 
     def get_domain_parent_dir(self):
         """

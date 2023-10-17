@@ -46,7 +46,8 @@ class TopologyUpdater(Deployer):
                                                                   self._exception_type, self.logger)
 
         self.library_helper = LibraryHelper(self.model, self.model_context, self.aliases,
-                                            model_context.get_domain_home(), self._exception_type, self.logger)
+                                            model_context.get_effective_domain_home(), self._exception_type, self.logger,
+                                            self.upload_temporary_dir)
 
         self.target_helper = TargetHelper(self.model, self.model_context, self.aliases, self._exception_type,
                                           self.logger)
@@ -128,9 +129,8 @@ class TopologyUpdater(Deployer):
         self.library_helper.extract_custom_files()
         self.library_helper.install_domain_scripts()
 
-        domain_home = self.model_context.get_domain_home()
-        saml2_security_helper = Saml2SecurityHelper(domain_home, self._exception_type)
-        saml2_security_helper.extract_initialization_files(self.archive_helper)
+        saml2_security_helper = Saml2SecurityHelper(self.model_context, self._exception_type)
+        saml2_security_helper.extract_initialization_files(self.archive_helper, self)
 
     def update_machines_clusters_and_servers(self, delete_now=True):
         """

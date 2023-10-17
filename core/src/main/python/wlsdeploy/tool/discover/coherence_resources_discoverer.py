@@ -173,6 +173,12 @@ class CoherenceResourcesDiscoverer(Discoverer):
                 config_path_in_model = self._convert_path(config_path_in_model)
                 if not self._model_context.skip_archive():
                     try:
+                        if self._model_context.is_ssh():
+                            config_path_in_model = self.download_deployment_from_remote_server(config_path_in_model,
+                                                                                 self.download_temporary_dir,
+                                                                                 "coherenceCustomConfig-" + cluster_name)
+
+
                         custom_config_path_into_archive = archive_file.addCoherenceConfigFile(cluster_name,
                                                                                            config_path_in_model)
                         _logger.finer('WLSDPLY-06315', config_path_in_model, class_name=_class_name,
@@ -245,6 +251,13 @@ class CoherenceResourcesDiscoverer(Discoverer):
                                WLSDeployArchive.ArchiveEntryType.COHERENCE_CONFIG.name())
         elif not self._model_context.skip_archive():
             try:
+
+                if self._model_context.is_ssh():
+                    file_name = self.download_deployment_from_remote_server(file_name,
+                                                                             self.download_temporary_dir,
+                                                                             "coherenceConfig-" + cluster_name)
+
+
                 new_name = archive_file.addCoherenceConfigFile(cluster_name, file_name)
                 _logger.info('WLSDPLY-06319', cluster_name, file_name, new_name, class_name=_class_name,
                              method_name='get_coherence_config_file')

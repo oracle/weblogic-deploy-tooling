@@ -5,6 +5,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 import os
 from java.io import File
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
+from oracle.weblogic.deploy.util import WLSDeployArchive
 
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
@@ -175,14 +176,26 @@ class GlobalResourcesDiscoverer(Discoverer):
                 file_path = model_value
                 if not self._model_context.is_remote():
                     file_path = self._convert_path(model_value)
-                if os.path.exists(file_path):
-                    # There is indeed a mime properties file
-                    # we need to change the different path in the model
-                    # and add file to the archive similar to apps
-                    archive_file = self._model_context.get_archive_file()
-                    base_name = os.path.basename(file_path)
-                    new_name = archive_file.ARCHIVE_CONFIG_TARGET_DIR + '/' + base_name
-                    archive_file.addMimeMappingFile(file_path)
+
+                if self._model_context.is_remote():
+                    new_file_name = WLSDeployArchive.getMimeMappingArchivePath(file_path)
+                    self.add_to_remote_map(file_path, new_file_name,
+                                           WLSDeployArchive.ArchiveEntryType.MIME_MAPPING.name())
+                else:
+                    if os.path.exists(file_path):
+                        # There is indeed a mime properties file
+                        # we need to change the different path in the model
+                        # and add file to the archive similar to apps
+                        archive_file = self._model_context.get_archive_file()
+                        base_name = os.path.basename(file_path)
+                        new_name = archive_file.ARCHIVE_CONFIG_TARGET_DIR + '/' + base_name
+                        if self._model_context.is_ssh():
+                            file_path = self.download_deployment_from_remote_server(file_path,
+                                                                                     self.download_temporary_dir,
+                                                                                     "mimeFile")
+
+
+                        archive_file.addMimeMappingFile(file_path)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
         return new_name

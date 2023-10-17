@@ -1520,7 +1520,7 @@ class DomainCreator(Creator):
         """
         Install SAML2 security files from model archive.
         """
-        saml2_security_helper = Saml2SecurityHelper(self._domain_home, ExceptionType.CREATE)
+        saml2_security_helper = Saml2SecurityHelper(self.model_context, ExceptionType.CREATE)
         saml2_security_helper.extract_initialization_files(self.archive_helper)
 
     def __configure_opss_secrets(self):

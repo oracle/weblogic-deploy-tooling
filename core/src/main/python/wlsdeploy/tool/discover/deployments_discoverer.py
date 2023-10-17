@@ -126,6 +126,12 @@ class DeploymentsDiscoverer(Discoverer):
                         _logger.info('WLSDPLY-06384', library_name, file_name_path, class_name=_class_name,
                                      method_name=_method_name)
                         try:
+
+                            if self._model_context.is_ssh():
+                                file_name_path = self.download_deployment_from_remote_server(file_name_path,
+                                                                                            self.download_temporary_dir,
+                                                                                            "sharedLibraries")
+
                             new_source_name = archive_file.addSharedLibrary(file_name_path)
                         except IllegalArgumentException, iae:
                             if model_constants.TARGET in library_dict:
@@ -191,6 +197,11 @@ class DeploymentsDiscoverer(Discoverer):
                                    WLSDeployArchive.ArchiveEntryType.SHLIB_PLAN.name())
         elif not self._model_context.skip_archive():
             try:
+                if self._model_context.is_ssh():
+                    plan_file_name = self.download_deployment_from_remote_server(plan_file_name,
+                                                                              self.download_temporary_dir,
+                                                                              "sharedLibraries")
+
                 new_plan_name = archive_file.addApplicationDeploymentPlan(plan_file_name,
                                                                           _generate_new_plan_name(
                                                                               library_source_name,
@@ -306,6 +317,11 @@ class DeploymentsDiscoverer(Discoverer):
                         _logger.info('WLSDPLY-06394', application_name, file_name_path, class_name=_class_name,
                                      method_name=_method_name)
                         try:
+                            if self._model_context.is_ssh():
+                                file_name_path = self.download_deployment_from_remote_server(file_name_path,
+                                                                                        self.download_temporary_dir,
+                                                                                              "applications")
+
                             new_source_name = archive_file.addApplication(file_name_path)
                             module_type = dictionary_utils.get_dictionary_element(application_dict,
                                                                                   model_constants.MODULE_TYPE)
@@ -372,6 +388,10 @@ class DeploymentsDiscoverer(Discoverer):
                                            WLSDeployArchive.ArchiveEntryType.STRUCTURED_APPLICATION.name())
                 elif not self._model_context.skip_archive():
                     try:
+                        if self._model_context.is_ssh():
+                            install_root_path = self.download_deployment_from_remote_server(install_root_path,
+                                                                                          self.download_temporary_dir,
+                                                                                          "applications")
                         new_install_root_path = archive_file.addStructuredApplication(install_root_path)
                     except IllegalArgumentException, iae:\
                         self._disconnect_target(application_name, application_dict, iae.getLocalizedMessage())
@@ -531,6 +551,11 @@ class DeploymentsDiscoverer(Discoverer):
                                    WLSDeployArchive.ArchiveEntryType.APPLICATION_PLAN.name())
         elif not self._model_context.skip_archive():
             try:
+                if self._model_context.is_ssh():
+                    plan_file_name = self.download_deployment_from_remote_server(plan_file_name,
+                                                                                  self.download_temporary_dir,
+                                                                                  "applications")
+
                 new_plan_name = archive_file.addApplicationDeploymentPlan(plan_file_name,
                                                                           _generate_new_plan_name(
                                                                               app_source_name,
@@ -562,7 +587,7 @@ class DeploymentsDiscoverer(Discoverer):
             if not StringUtils.isEmpty(plan_dir):
                 relative_to = plan_dir
             else:
-                relative_to = self._model_context.get_domain_home()
+                relative_to = self._model_context.get_effective_domain_home()
             return discoverer.convert_to_absolute_path(relative_to, plan_path)
         return plan_path
 

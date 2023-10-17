@@ -186,14 +186,18 @@ class CommonResourcesDeployer(Deployer):
 
         _method_name = '_make_coh_cluster_custom_config_available'
         try:
-            domain_home = self.model_context.get_domain_home()
+            domain_home = self.model_context.get_effective_domain_home()
+            extracted_path = None
+            if self.model_context.is_ssh():
+                extracted_path = self.upload_temporary_dir
+
             for coherence_cluster in coherence_clusters:
                 cluster = coherence_clusters[coherence_cluster]
                 use_custom_config = dictionary_utils.get_dictionary_element(cluster,
                                                                             COHERENCE_USE_CUSTOM_CLUSTER_CONFIG)
 
                 if use_custom_config:
-                    self._copy_custom_config_file_to_destination(cluster, coherence_cluster, domain_home)
+                    self._copy_custom_config_file_to_destination(cluster, coherence_cluster, domain_home, extracted_path)
                 else:
                     continue
 
@@ -202,7 +206,7 @@ class CommonResourcesDeployer(Deployer):
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
-    def _copy_custom_config_file_to_destination(self, cluster, coherence_cluster, domain_home):
+    def _copy_custom_config_file_to_destination(self, cluster, coherence_cluster, domain_home, extracted_file_path):
         coh_resource = dictionary_utils.get_dictionary_element(cluster, COHERENCE_RESOURCE)
         if coh_resource:
             custom_path = dictionary_utils.get_dictionary_element(coh_resource,
@@ -210,19 +214,37 @@ class CommonResourcesDeployer(Deployer):
 
             if custom_path is not None:
                 coh_cluster_config_path = os.path.join(domain_home, 'config', 'coherence', coherence_cluster)
+
                 if not os.path.exists(coh_cluster_config_path):
-                    os.mkdir(coh_cluster_config_path)
+                    if self.model_context.is_ssh():
+                        # mkdir remote
+                        self.model_context.get_ssh_context().remote_command("mkdir -p " + coh_cluster_config_path)
+                    else:
+                        os.mkdir(coh_cluster_config_path)
                 if custom_path.startswith(ARCHIVE_COHERENCE_TARGET_DIR):
                     # this is the extracted path from the archive
                     config_filepath = os.path.join(domain_home, custom_path)
+                    if extracted_file_path:
+                        config_filepath = os.path.join(extracted_file_path, custom_path)
+
                 else:
                     # absolute path
                     config_filepath = custom_path
 
                 if os.path.exists(config_filepath):
-                    shutil.copy(config_filepath, coh_cluster_config_path)
-                    if custom_path.startswith(ARCHIVE_COHERENCE_TARGET_DIR):
-                        os.remove(config_filepath)
+                    # file already extracted in much earlier stage to the wlsdeploy/* dir
+                    # deployer._extract_from_archive_if_needed  when setting attributes
+                    if self.model_context.is_ssh():
+                        target_path = os.path.join(coh_cluster_config_path,
+                                                   custom_path[custom_path.rfind('/')+1:])
+                        command = "cp %s %s" % (os.path.join(self.model_context.get_remote_domain_home(),
+                                                             custom_path),
+                                                os.path.dirname(target_path))
+                        self.model_context.get_ssh_context().remote_command(command)
+                    else:
+                        shutil.copy(config_filepath, coh_cluster_config_path)
+                        if custom_path.startswith(ARCHIVE_COHERENCE_TARGET_DIR):
+                            os.remove(config_filepath)
 
     def add_webapp_container(self, parent_dict, location):
         """
@@ -233,11 +255,7 @@ class CommonResourcesDeployer(Deployer):
         web_app_container = dictionary_utils.get_dictionary_element(parent_dict, WEBAPP_CONTAINER)
         if len(web_app_container) != 0:
             self._add_model_elements(WEBAPP_CONTAINER, web_app_container, location)
-            if self.archive_helper is not None:
-                if MIME_MAPPING_FILE in web_app_container:
-                    file_path = web_app_container[MIME_MAPPING_FILE]
-                    if self.archive_helper.contains_file(file_path):
-                        self.archive_helper.extract_file(file_path)
+            # No need to extract file again
 
     def add_wtc_servers(self, parent_dict, location):
         """

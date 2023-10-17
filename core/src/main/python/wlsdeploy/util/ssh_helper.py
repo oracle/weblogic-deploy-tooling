@@ -10,6 +10,8 @@ import java.io.IOException as IOException
 import java.lang.Exception as JException
 import java.lang.String as JString
 import java.lang.System as JSystem
+import java.lang.StringBuilder as StringBuilder
+import java.util.concurrent.TimeUnit as TimeUnit
 
 from net.schmizz.sshj import SSHClient
 import net.schmizz.sshj.common.SSHException as SSHJException
@@ -247,6 +249,36 @@ class SSHContext(object):
             self._ssh_client.newSCPFileTransfer().upload(abs_source_path, target_path)
             self._logger.info('WLSDPLY-32023', abs_source_path, remote_host, target_path,
                               class_name=self._class_name, method_name=_method_name)
+        except IOException,ioe:
+            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32021', abs_source_path, target_path,
+                                                   ioe.getLocalizedMessage(), error=ioe)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+
+    def remote_command(self, command):
+        _method_name = 'remote_command'
+        self._logger.entering(command, class_name=self._class_name, method_name=_method_name)
+
+        if StringUtils.isEmpty(command):
+            return
+        try:
+            session = self._ssh_client.startSession()
+            self._logger.info('WLSDPLY-32024', command,
+                              class_name=self._class_name, method_name=_method_name)
+            cmd = session.exec(command)
+            ins = cmd.getInputStream()
+            result = StringBuilder()
+            while True:
+                c = ins.read()
+                if c == -1:
+                    break
+                else:
+                    result.append(chr(c))
+
+            self._logger.info('WLSDPLY-32025', str(cmd.getExitStatus()),
+                              class_name=self._class_name, method_name=_method_name)
+            session.close()
+            return result.toString()
         except IOException,ioe:
             ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32021', abs_source_path, target_path,
                                                    ioe.getLocalizedMessage(), error=ioe)
