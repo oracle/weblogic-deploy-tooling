@@ -5,7 +5,6 @@
     "folders": {},
     "attributes": {
         "atp.admin.user":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "atp.admin.user",                   "wlst_path": "WP001", "default_value": null,    "wlst_type": "credential" } ],
-        "ssl.admin.user":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ssl.admin.user",                   "wlst_path": "WP001", "default_value": null,    "wlst_type": "credential", "secret_suffix": "ssladmin" } ],
         "atp.default.tablespace":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "atp.default.tablespace",           "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
         "atp.temp.tablespace":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "atp.temp.tablespace",              "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
         "databaseType":                     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "databaseType",                     "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
@@ -18,6 +17,7 @@
         "javax.net.ssl.trustStorePassword": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "javax.net.ssl.trustStorePassword", "wlst_path": "WP001", "default_value": null,    "wlst_type": "password", "secret_suffix": "ssltruststore" } ],
         "oracle.net.tns_admin":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "oracle.net.tns_admin",             "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",  "uses_path_tokens":  "true"} ],
         "rcu_admin_password":               [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "rcu_admin_password",               "wlst_path": "WP001", "default_value": null,    "wlst_type": "password" } ],
+        "rcu_admin_user":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "rcu_admin_user",                   "wlst_path": "WP001", "default_value": null,    "wlst_type": "credential" } ],
         "rcu_db_conn_string":               [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "rcu_db_conn_string",               "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
         "rcu_prefix":                       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "rcu_prefix",                       "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
         "rcu_db_user":                      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "rcu_db_user",                      "wlst_path": "WP001", "default_value": null,    "wlst_type": "credential" } ],

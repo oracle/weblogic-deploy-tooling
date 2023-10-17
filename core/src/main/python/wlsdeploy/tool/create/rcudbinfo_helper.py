@@ -16,6 +16,7 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPER
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
+from wlsdeploy.aliases.model_constants import RCU_ADMIN_USER
 from wlsdeploy.aliases.model_constants import RCU_DB_CONN
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RCU_DB_USER
@@ -160,28 +161,30 @@ class RcuDbInfo(object):
         else:
             return 'TEMP'
 
-    def get_atp_admin_user(self):
-        _method_name = 'get_atp_admin_user'
-        result = self._get_dictionary_element_value(ATP_ADMIN_USER)
-        if result is not None:
-            self._logger.deprecation('WLSDPLY-22000', ATP_ADMIN_USER, RCU_DB_USER,
-                                     class_name=_class_name, method_name=_method_name)
-            return result
-        elif self.get_rcu_db_user() is not None:
-            return self.get_rcu_db_user()
-        else:
-            return 'admin'
-
-    def get_rcu_db_user(self):
-        cli_admin_user = self.model_context.get_rcu_db_user()
-        if cli_admin_user != ModelContext.DB_USER_DEFAULT:
+    def get_rcu_admin_user(self):
+        _method_name = 'get_rcu_admin_user'
+        # Deprecated CLI arg (deprecation message is printed elsewhere)
+        cli_admin_user = self.model_context.get_rcu_admin_user()
+        if cli_admin_user != ModelContext.RCU_ADMIN_USER_DEFAULT:
             return cli_admin_user
 
-        result = self._get_dictionary_element_value(RCU_DB_USER)
-        if result is not None:
-            return result
-        else:
-            return cli_admin_user
+        result = self._get_dictionary_element_value(RCU_ADMIN_USER)
+        if result is None:
+            result = self._get_dictionary_element_value(RCU_DB_USER)
+            if result is not None:
+                self._logger.deprecation('WLSDPLY-22000', RCU_DB_USER, RCU_ADMIN_USER,
+                                         class_name=_class_name, method_name=_method_name)
+            else:
+                result = self._get_dictionary_element_value(ATP_ADMIN_USER)
+                if result is not None:
+                    self._logger.deprecation('WLSDPLY-22000', ATP_ADMIN_USER, RCU_ADMIN_USER,
+                                             class_name=_class_name, method_name=_method_name)
+        if result is None:
+            if self.is_use_atp():
+                result = 'admin'
+            else:
+                result = ModelContext.RCU_ADMIN_USER_DEFAULT
+        return result
 
     def get_comp_info_location(self):
         result = self._get_dictionary_element_value(RCU_COMP_INFO)
