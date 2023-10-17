@@ -43,10 +43,12 @@ def set_ssl_properties(xml_doc, atp_creds_path, keystore_password, truststore_pa
             else:
                 set_property(dom_tree, prop, 'javax.net.ssl.trustStore', truststore)
 
-            if keystore_password is not None:
-                set_property(dom_tree, prop, 'javax.net.ssl.keyStorePassword', keystore_password)
-            if truststore_password is not None:
-                set_property(dom_tree, prop, 'javax.net.ssl.trustStorePassword', truststore_password)
+            if keystore_type == 'JKS' and keystore_password is not None:
+                    set_property(dom_tree, prop, 'javax.net.ssl.keyStorePassword', keystore_password)
+
+            if truststore_type == 'JKS' and truststore_password is not None:
+                    set_property(dom_tree, prop, 'javax.net.ssl.trustStorePassword', truststore_password)
+
             # Persist the changes in the xml file
             file_handle = open(xml_doc, "w")
             dom_tree.writexml(file_handle)
@@ -56,14 +58,19 @@ def set_ssl_properties(xml_doc, atp_creds_path, keystore_password, truststore_pa
 def fix_store_type_and_default_value(keystore, keystore_type, truststore, truststore_type):
     # historical reason atp does not need these inputs by default and it uses JKS
     # set the default and return it
-    if truststore is None:
-        truststore = "truststore.jks"
+
     if keystore is None:
-        keystore = "keystore.jks"
-    if truststore_type is None:
-        truststore_type = "JKS"
-    if keystore_type is None:
-        keystore_type = "JKS"
+        if keystore_type == 'SSO':
+            keystore = 'cwallet.sso'
+        else:
+            keystore = 'keystore.jks'
+
+    if truststore is None:
+        if truststore_type == 'SSO':
+            truststore = 'cwallet.sso'
+        else:
+            truststore = 'truststore.jks'
+
     return keystore, keystore_type, truststore, truststore_type
 
 
