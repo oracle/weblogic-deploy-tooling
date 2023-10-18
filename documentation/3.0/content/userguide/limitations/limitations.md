@@ -61,3 +61,25 @@ discovered model to use the same user and group store so that there is no need t
 new user and group store is desired, these external stores natively provide export and import mechanisms for moving
 users and groups.  If this is not an option, then the user will need to hand-edit the discovered model file to add any
 users and groups not created by default.
+
+#### JRF Domain configuration files containing clear text password
+
+**ISSUE**: After a JRF domain is created, the `jps-config.xml` and `jps-config-jse.xml` files contain clear text password for the key store.
+
+**ACTION**: You will need to create a key store using Oracle Wallet and change the key store provider priority in the JVM. See Oracle Support Doc ID 2215283.1 for details.
+If you are creating a JRF domain using Oracle Autonomous Transaction Database, you can use the SSO key stores instead of JKS key stores,  
+the generated `jps-config.xml` and `jps-config-jse.xml` files will then use the SSO key stores without any clear text password.
+
+```yaml
+domainInfo:
+    RCUDbInfo:
+     databaseType : ATP
+     rcu_prefix : FMW
+     rcu_schema_password : '...'
+     rcu_admin_password: '...'
+     rcu_db_user : admin
+     tns.alias : myatp_tp
+     javax.net.ssl.keyStoreType: SSO
+     javax.net.ssl.trustStoreType: SSO
+```
+

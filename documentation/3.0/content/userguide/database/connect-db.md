@@ -82,9 +82,9 @@ domainInfo:
     RCUDbInfo:
         databaseType : 'ATP'
         rcu_prefix : DEV
+        rcu_admin_user : admin
         rcu_admin_password: <database admin password is required only when you specify -run_rcu flag>
         rcu_schema_password : <RCU schema password>
-        rcu_db_user : admin
         tns.alias : <tns alias name. e.g. dbname_tp>
         javax.net.ssl.keyStorePassword : <atp wallet password when generating the wallet from Oracle Cloud Console>
         javax.net.ssl.trustStorePassword : <atp wallet password when generating the wallet from Oracle Cloud Console>
@@ -115,9 +115,9 @@ domainInfo:
         databaseType : 'ATP'
         rcu_prefix : DEV
         rcu_db_conn_string: <required URL string for use with -run_rcu>
+        rcu_admin_user : admin
         rcu_admin_password: <database admin password is required only when you specify -run_rcu flag>
         rcu_schema_password : <RCU schema password>
-        rcu_db_user : admin
         tns.alias : my_atp_db_medium
         javax.net.ssl.keyStorePassword : wlsdeploy/dbWallets/rcu/keystore.jks
         javax.net.ssl.trustStorePassword : wlsdeploy/dbWallets/rcu/truststore.jks
@@ -211,12 +211,12 @@ For a typical database, use the following example:
 domainInfo:
     RCUDbInfo:
         rcu_prefix : DEV
-        # Optional rcu_db_user for creating RCU schema if -run_rcu flag is specified. Default user is SYS if not specified.
+        # Optional rcu_admin_user for creating RCU schema if -run_rcu flag is specified. Default user is SYS if not specified.
         # This user must have SYSDBA privilege and this is the equivalent of -dbUser in the RCU utility.
-        rcu_db_user: superuser
-        rcu_schema_password : <rcu schema password, will be prompted if not specified>
+        rcu_admin_user: superuser
         rcu_admin_password : <database admin password is required only when you specify -run_rcu flag, will be prompted
-         if not specified>
+          if not specified>
+        rcu_schema_password : <rcu schema password, will be prompted if not specified>
         rcu_db_conn_string : dbhost:1521/pdborcl
 ```
 

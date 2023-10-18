@@ -6,7 +6,9 @@ weight: 2
 ---
 
 
- WebLogic Deploy Tooling has an extensible domain type system.  The three built-in domain types (`WLS`, `RestrictedJRF`, and `JRF`) are defined in JSON files of the same name in the `WLSDEPLOY_HOME/lib/typedefs` directory.  For example, the `JRF` domain type is defined in the `WLSDEPLOY_HOME/lib/typedefs/JRF.json` file with similar content, as shown below.
+ WebLogic Deploy Tooling has an extensible domain type system.  The three built-in domain types (`WLS`, `RestrictedJRF`,
+ and `JRF`) are defined in JSON files of the same name in the `WLSDEPLOY_HOME/lib/typedefs` directory.  For example,
+ the `JRF` domain type is defined in the `WLSDEPLOY_HOME/lib/typedefs/JRF.json` file with similar content, as shown below.
 
  ```json
  {
@@ -82,13 +84,17 @@ weight: 2
  }
  ```
 
- This file tells the Create Domain Tool which templates to use to create the domain, which server groups to target, and even which RCU schemas to create, all based on the installed version of WebLogic Server.
+ This file tells the Create Domain Tool which templates to use to create the domain, which server groups to target, and
+ even which RCU schemas to create, all based on the installed version of WebLogic Server.
 
- New domain types can be defined by creating a new JSON file with the same structure in the `WLSDEPLOY_HOME/lib/typedefs` directory.
+ New domain types can be defined by creating a new JSON file with the same structure in the
+ `WLSDEPLOY_HOME/lib/typedefs` directory.
 
- Another option is to create this file in the [Custom configuration]({{< relref "/userguide/tools-config/custom_config.md" >}}) directory `$WDT_CUSTOM_CONFIG/typedefs`.
+ Another option is to create this file in the
+ [Custom configuration]({{< relref "/userguide/tools-config/custom_config.md" >}}) directory `$WDT_CUSTOM_CONFIG/typedefs`.
 
- For example, to define a `SOA` domain type for 12.2.1.3, add the `typedefs/SOA.json` file with similar content, as shown below.
+ For example, to define a `SOA` domain type for 12.2.1.3, add the `typedefs/SOA.json` file with similar content,
+ as shown below.
 
  ```json
  {
@@ -110,13 +116,21 @@ weight: 2
  }
  ```
 
- After the new domain `typedef` file exists, simply specify the new domain type name to the `createDomain` script, being sure to reference an Oracle Home with the required components installed.  For pre-12.2.1 versions, the `-wlst_path` argument must be used to point to the product home where the appropriate WLST shell script exists; for example, for SOA 12.1.3, add `-wlst_path <ORACLE_HOME>/soa` so that the tool uses the WLST shell script with the proper environment for SOA domains.  In 12.2.1 and later, this is no longer necessary because the WLST shell script in the standard `<ORACLE_HOME>oracle_common/common/bin` directory will automatically load all components in the Oracle Home.  Using the new domain type, simply run the following command to run RCU and create the SOA domain with all of its resources and applications deployed.
+ After the new domain `typedef` file exists, simply specify the new domain type name to the `createDomain` script,
+ being sure to reference an Oracle Home with the required components installed.  For pre-12.2.1 versions, the
+ `-wlst_path` argument must be used to point to the product home where the appropriate WLST shell script exists; for
+ example, for SOA 12.1.3, add `-wlst_path <ORACLE_HOME>/soa` so that the tool uses the WLST shell script with the
+ proper environment for SOA domains.  In 12.2.1 and later, this is no longer necessary because the WLST shell script
+ in the standard `<ORACLE_HOME>oracle_common/common/bin` directory will automatically load all components in the
+ Oracle Home.  Using the new domain type, simply run the following command to run RCU and create the SOA domain with
+ all of its resources and applications deployed.
 
-     weblogic-deploy\bin\createDomain.cmd -oracle_home d:\SOA12213 -domain_type SOA -domain_parent d:\demo\domains -model_file DemoDomain.yaml -archive_file DemoDomain.zip -variable_file DemoDomain.properties -run_rcu -rcu_db mydb.example.com:1539/PDBORCL -rcu_prefix DEMO [-rcu_db_user SYS]
+     weblogic-deploy\bin\createDomain.cmd -oracle_home d:\SOA12213 -domain_type SOA -domain_parent d:\demo\domains -model_file DemoDomain.yaml -archive_file DemoDomain.zip -variable_file DemoDomain.properties -run_rcu
 
  #### Custom extension templates
 
- The `customExtensionTemplates` attribute can be used to specify custom extension templates to be applied to the domain. These should be specified as absolute file paths, and can use tokens.  
+ The `customExtensionTemplates` attribute can be used to specify custom extension templates to be applied to the domain.
+ These should be specified as absolute file paths, and can use tokens.  
 
  ```json
  {
@@ -140,11 +154,13 @@ weight: 2
  }
  ```
 
- If there are any server groups in the custom template that should be targeted to managed servers, they should be specified in the `serverGroupsToTarget` attribute, similar to `MY_MAN_SVR` in the example above.
+ If there are any server groups in the custom template that should be targeted to managed servers, they should be
+ specified in the `serverGroupsToTarget` attribute, similar to `MY_MAN_SVR` in the example above.
 
  #### Using compact profile
 
- The `topologyProfile` field can be used to create a domain using a specific profile for each of the templates. This partial example will apply the compact profile for each of the specified templates.
+ The `topologyProfile` field can be used to create a domain using a specific profile for each of the templates. This
+ partial example will apply the compact profile for each of the specified templates.
 ```json
 {
   "copyright": "Copyright (c) 2022, Oracle Corporation and/or its affiliates.  All rights reserved.",
@@ -155,13 +171,17 @@ weight: 2
   ...
 }
 ```
- WebLogic Deploy Tooling provides the `JRF-Compact.json` type definition file that can be used to create a JRF domain using the compact profile.
+ WebLogic Deploy Tooling provides the `JRF-Compact.json` type definition file that can be used to create a JRF domain
+ using the compact profile.
 
  #### Targeting in earlier WebLogic Server versions
 
- Templates in WebLogic Server versions prior to 12.2.1 may require the use of the `applyJRF` WLST command to correctly target resources to the correct clusters and servers. The default behavior for WebLogic Deploy Tooling is to invoke `applyJRF` only when the `extensionTemplates` list includes JRF templates.
+ Templates in WebLogic Server versions prior to 12.2.1 may require the use of the `applyJRF` WLST command to correctly
+ target resources to the correct clusters and servers. The default behavior for WebLogic Deploy Tooling is to invoke
+ `applyJRF` only when the `extensionTemplates` list includes JRF templates.
 
- A custom type definition file can require `applyJRF` to be invoked after the templates are added. This is done by setting the `targeting` attribute to `APPLY_JRF`, as in this example:
+ A custom type definition file can require `applyJRF` to be invoked after the templates are added. This is done by
+ setting the `targeting` attribute to `APPLY_JRF`, as in this example:
 
  ```json
  {
