@@ -40,7 +40,7 @@ class ModelContext(object):
     CURRENT_DIRECTORY_TOKEN = '@@PWD@@'
     TEMP_DIRECTORY_TOKEN = '@@TMP@@'
 
-    DB_USER_DEFAULT = 'SYS'
+    RCU_ADMIN_USER_DEFAULT = 'SYS'
 
     def __init__(self, program_name, arg_map=None):
         """
@@ -71,6 +71,7 @@ class ModelContext(object):
         self._model_file = None
         self._variable_file_name = None
         self._run_rcu = False
+        self._rcu_admin_user = self.RCU_ADMIN_USER_DEFAULT
         self._rcu_database = None
         self._rcu_prefix = None
         self._rcu_sys_pass = None
@@ -97,7 +98,6 @@ class ModelContext(object):
         self._variable_injector_file = None
         self._variable_keywords_file = None
         self._variable_properties_file = None
-        self._rcu_db_user = self.DB_USER_DEFAULT
         self._discard_current_edit = False
         self._wait_for_edit_lock = False
         self._remote = False
@@ -198,17 +198,20 @@ class ModelContext(object):
         if CommandLineArgUtil.RUN_RCU_SWITCH in arg_map:
             self._run_rcu = arg_map[CommandLineArgUtil.RUN_RCU_SWITCH]
 
+        # deprecated command-line arg
         if CommandLineArgUtil.RCU_DB_SWITCH in arg_map:
             self._rcu_database = arg_map[CommandLineArgUtil.RCU_DB_SWITCH]
 
+        # deprecated command-line arg
         if CommandLineArgUtil.RCU_PREFIX_SWITCH in arg_map:
             self._rcu_prefix = arg_map[CommandLineArgUtil.RCU_PREFIX_SWITCH]
 
         if CommandLineArgUtil.RCU_SYS_PASS_SWITCH in arg_map:
             self._rcu_sys_pass = arg_map[CommandLineArgUtil.RCU_SYS_PASS_SWITCH]
 
+        # deprecated command-line arg
         if CommandLineArgUtil.RCU_DB_USER_SWITCH in arg_map:
-            self._rcu_db_user = arg_map[CommandLineArgUtil.RCU_DB_USER_SWITCH]
+            self._rcu_admin_user = arg_map[CommandLineArgUtil.RCU_DB_USER_SWITCH]
 
         if CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH in arg_map:
             self._rcu_schema_pass = arg_map[CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH]
@@ -325,8 +328,8 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.RCU_PREFIX_SWITCH] = self._rcu_prefix
         if self._rcu_sys_pass is not None:
             arg_map[CommandLineArgUtil.RCU_SYS_PASS_SWITCH] = self._rcu_sys_pass
-        if self._rcu_db_user is not None:
-            arg_map[CommandLineArgUtil.RCU_DB_USER_SWITCH] = self._rcu_db_user
+        if self._rcu_admin_user is not None:
+            arg_map[CommandLineArgUtil.RCU_DB_USER_SWITCH] = self._rcu_admin_user
         if self._rcu_schema_pass is not None:
             arg_map[CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH] = self._rcu_schema_pass
         if self._domain_typedef is not None:
@@ -631,12 +634,12 @@ class ModelContext(object):
         """
         return self._rcu_prefix
 
-    def get_rcu_db_user(self):
+    def get_rcu_admin_user(self):
         """
         Get the RCU DB user.
         :return: the RCU dbUser
         """
-        return self._rcu_db_user
+        return self._rcu_admin_user
 
     def get_rcu_sys_pass(self):
         """

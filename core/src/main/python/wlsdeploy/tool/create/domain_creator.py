@@ -326,17 +326,14 @@ class DomainCreator(Creator):
 
             # reset these to pick up any defaults from rcu_db_info
 
-            rcu_runner_map[ATP_ADMIN_USER] = rcu_db_info.get_atp_admin_user()
+            rcu_runner_map[ATP_ADMIN_USER] = rcu_db_info.get_rcu_admin_user()
             rcu_runner_map[ATP_TEMPORARY_TABLESPACE] = rcu_db_info.get_atp_temporary_tablespace()
             rcu_runner_map[ATP_DEFAULT_TABLESPACE] = rcu_db_info.get_atp_default_tablespace()
 
             fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
             runner = RCURunner.createAtpRunner(domain_type, oracle_home, java_home, fmw_database,
-                                               rcu_schemas, rcu_prefix,
-                                               rcu_db_info.get_rcu_variables(), rcu_db_info.get_database_type(),
-                                               rcu_runner_map,
-                                               ssl_conn_properties
-                                               )
+                                               rcu_schemas, rcu_prefix, rcu_db_info.get_rcu_variables(),
+                                               rcu_db_info.get_database_type(), rcu_runner_map, ssl_conn_properties)
 
         elif rcu_db_info.is_use_ssl():
 
@@ -344,7 +341,7 @@ class DomainCreator(Creator):
             truststore, keystore_pwd, keystore_type, keystore  = self.__validate_and_get_ssl_rcudbinfo(rcu_db_info)
 
             rcu_runner_map = dict()
-            rcu_db_user = rcu_db_info.get_rcu_db_user()
+            rcu_admin_user = rcu_db_info.get_rcu_admin_user()
             ssl_conn_properties = dict()
 
             self._set_rcu_ssl_args_properties(ssl_conn_properties, rcu_db_info, keystore, keystore_type, truststore,
@@ -356,7 +353,7 @@ class DomainCreator(Creator):
             runner = RCURunner.createSslRunner(domain_type, oracle_home, java_home, fmw_database, rcu_prefix, rcu_schemas,
                                                rcu_db_info.get_rcu_variables(), rcu_runner_map, ssl_conn_properties)
 
-            runner.setRCUAdminUser(rcu_db_user)
+            runner.setRCUAdminUser(rcu_admin_user)
         else:
             # Non-ATP database, use DB config from the command line or RCUDbInfo in the model.
             rcu_db = rcu_db_info.get_rcu_regular_db_conn()
@@ -365,11 +362,11 @@ class DomainCreator(Creator):
                 ex = exception_helper.create_create_exception('WLSDPLY-12572')
                 raise ex
 
-            rcu_db_user = rcu_db_info.get_rcu_db_user()
+            rcu_admin_user = rcu_db_info.get_rcu_admin_user()
 
             runner = RCURunner.createRunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas,
                                             rcu_db_info.get_rcu_variables())
-            runner.setRCUAdminUser(rcu_db_user)
+            runner.setRCUAdminUser(rcu_admin_user)
 
         rcu_comp_info_location = self.__extract_rcu_xml_file(RCU_COMP_INFO, rcu_db_info.get_comp_info_location())
         rcu_storage_location = self.__extract_rcu_xml_file(RCU_STG_INFO, rcu_db_info.get_storage_location())
