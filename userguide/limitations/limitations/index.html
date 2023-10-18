@@ -12,20 +12,20 @@
     <title>Limitations :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1697599125" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1697656528" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1697599125"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1697656528"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1697599125"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1697599125"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1697656528"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1697656528"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1697599125"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1697656528"></script>
 
     
   </div>
@@ -1212,6 +1212,27 @@
  
   
     
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.2.6/" title="Release Notes 3.2.6" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-3.2.6/">
+        <b> </b>Release Notes 3.2.6
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
       <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.2.5/" title="Release Notes 3.2.5" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-3.2.5/">
         <b> </b>Release Notes 3.2.5
@@ -1696,7 +1717,22 @@ discovered model to use the same user and group store so that there is no need t
 new user and group store is desired, these external stores natively provide export and import mechanisms for moving
 users and groups.  If this is not an option, then the user will need to hand-edit the discovered model file to add any
 users and groups not created by default.</p>
-
+<h4 id="jrf-domain-configuration-files-containing-clear-text-password">JRF Domain configuration files containing clear text password</h4>
+<p><strong>ISSUE</strong>: After a JRF domain is created, the <code>jps-config.xml</code> and <code>jps-config-jse.xml</code> files contain clear text password for the key store.</p>
+<p><strong>ACTION</strong>: You will need to create a key store using Oracle Wallet and change the key store provider priority in the JVM. See Oracle Support Doc ID 2215283.1 for details.
+If you are creating a JRF domain using Oracle Autonomous Transaction Database, you can use the SSO key stores instead of JKS key stores,<br>
+the generated <code>jps-config.xml</code> and <code>jps-config-jse.xml</code> files will then use the SSO key stores without any clear text password.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
+    <span style="color:#f92672">RCUDbInfo</span>:
+     <span style="color:#f92672">databaseType </span>: <span style="color:#ae81ff">ATP</span>
+     <span style="color:#f92672">rcu_prefix </span>: <span style="color:#ae81ff">FMW</span>
+     <span style="color:#f92672">rcu_schema_password </span>: <span style="color:#e6db74">&#39;...&#39;</span>
+     <span style="color:#f92672">rcu_admin_password</span>: <span style="color:#e6db74">&#39;...&#39;</span>
+     <span style="color:#f92672">rcu_db_user </span>: <span style="color:#ae81ff">admin</span>
+     <span style="color:#f92672">tns.alias </span>: <span style="color:#ae81ff">myatp_tp</span>
+     <span style="color:#f92672">javax.net.ssl.keyStoreType</span>: <span style="color:#ae81ff">SSO</span>
+     <span style="color:#f92672">javax.net.ssl.trustStoreType</span>: <span style="color:#ae81ff">SSO</span>
+</code></pre></div>
 
 <footer class="footline">
 	
@@ -2794,6 +2830,22 @@ users and groups not created by default.</p>
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -2819,19 +2871,19 @@ users and groups not created by default.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1697599125"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1697599125"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1697599125"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1697599125"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1697599125"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1697599125"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1697656528"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1697656528"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1697656528"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1697656528"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1697656528"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1697656528"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1697599125"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1697599125"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1697599125"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1697656528"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1697656528"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1697656528"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1697599125"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1697656528"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

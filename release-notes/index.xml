@@ -8,6 +8,16 @@
     <language>en-us</language>
     <lastBuildDate>Fri, 22 Feb 2019 15:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Release Notes 3.2.6</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.6/</link>
+      <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.6/</guid>
+      <description>Changes in Release 3.2.6  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes  #1514 - Added the ability to disable the RCU drop schema step when running Create Domain with -run_rcu.  Bug Fixes  #1511 - Fixed an error message to make it more helpful. #1513 - Fixed issues with sparse RCU Data Source template merging when creating JRF domains.  Known Issues None</description>
+    </item>
+    
+    <item>
       <title>Release Notes 3.2.5</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.5/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>

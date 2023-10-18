@@ -12,20 +12,20 @@
     <title>Create Domain Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1697599125" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1697656528" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1697599125"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1697656528"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1697599125"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1697599125"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1697656528"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1697656528"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1697599125"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1697656528"></script>
 
     
   </div>
@@ -1212,6 +1212,27 @@
  
   
     
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.2.6/" title="Release Notes 3.2.6" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-3.2.6/">
+        <b> </b>Release Notes 3.2.6
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
       <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.2.5/" title="Release Notes 3.2.5" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-3.2.5/">
         <b> </b>Release Notes 3.2.5
@@ -1672,28 +1693,66 @@
         
 
 
-<p>The Create Domain Tool uses a model and WLST offline to create a domain.  To use the tool, at a minimum, the model must specify the domain&rsquo;s administrative password in the <code>domainInfo</code> section of the model, as shown below.</p>
+<p>The Create Domain Tool uses a model and WLST offline to create a domain.  To use the tool, at a minimum, the model must
+specify the domain&rsquo;s administrative password in the <code>domainInfo</code> section of the model, as shown below.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
     <span style="color:#f92672">AdminPassword</span>: <span style="color:#ae81ff">welcome1</span>
 </code></pre></div><p>Using the model above, simply run the <code>createDomain</code> tool, specifying the type of domain to create and where to create it.</p>
 <pre><code>$ weblogic-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -domain_parent d:\demo\domains -model_file MinimalDemoDomain.yaml
 </code></pre>
-<p>Clearly, creating an empty domain with only the template-defined servers is not very interesting, but this example just reinforces how sparse the model can be.  When running the Create Domain Tool, the model must be provided either inside the archive file or as a standalone file.  If both the archive and model files are provided, the model file outside the archive will take precedence over any that might be inside the archive.  If the archive file is not provided, the Create Domain Tool will create the <code>topology</code> section only (using the <code>domainInfo</code> section) of the model in the domain.  This is because the <code>resources</code> and <code>appDeployments</code> sections of the model can reference files from the archive so to create the domain with the model-defined resources and applications, an archive file must be provided&ndash;even if the model does not reference anything in the archive.  At some point in the future, this restriction may be relaxed to require the archive only if it is actually needed.</p>
-<p>The Create Domain Tool understands three domain types: <code>WLS</code>, <code>RestrictedJRF</code>, and <code>JRF</code>.  When specifying the domain type, the Oracle Home must match the requirements for the domain type.  Both <code>RestrictedJRF</code> and <code>JRF</code> require an Oracle Home with the FMW Infrastucture (also known as JRF) installed.  When creating a JRF domain, the RCU database information must be provided as arguments to the <code>createDomain</code> script.  Note that the tool will prompt for any passwords required.  Optionally, they can be piped to standard input (for example, <code>stdin</code>) of the script, to make the script run without user input.  For example, the command to create a JRF domain looks like the one below.  Note that this requires the user to have run RCU prior to running the command.</p>
-<pre><code>$ weblogic-deploy\bin\createDomain.cmd -oracle_home c:\jrf12213 -domain_type JRF -domain_parent d:\demo\domains -model_file DemoDomain.yaml -rcu_db mydb.example.com:1539/PDBORCL -rcu_prefix DEMO [-rcu_db_user SYS]
+<p>Clearly, creating an empty domain with only the template-defined servers is not very interesting, but this example just
+reinforces how sparse the model can be.  When running the Create Domain Tool, the model must be provided either inside
+the archive file or as a standalone file.  If both the archive and model files are provided, the model file outside the
+archive will take precedence over any that might be inside the archive.  If the archive file is not provided, the
+Create Domain Tool will create the <code>topology</code> section only (using the <code>domainInfo</code> section) of the model in the domain.
+This is because the <code>resources</code> and <code>appDeployments</code> sections of the model can reference files from the archive so to
+create the domain with the model-defined resources and applications, an archive file must be provided&ndash;even if the model
+does not reference anything in the archive.  At some point in the future, this restriction may be relaxed to require the
+archive only if it is actually needed.</p>
+<p>The Create Domain Tool understands three domain types: <code>WLS</code>, <code>RestrictedJRF</code>, and <code>JRF</code>.  When specifying the domain
+type, the Oracle Home must match the requirements for the domain type.  Both <code>RestrictedJRF</code> and <code>JRF</code> require an
+Oracle Home with the FMW Infrastucture (also known as JRF) installed.  When creating a JRF domain, the RCU database
+information must be provided in the domainInfo section&rsquo;s RCUDbInfo section of the model.  Note that the tool will prompt
+for any passwords required.  Optionally, they can be piped to standard input (for example, <code>stdin</code>) of the script, to
+make the script run without user input.  For example, the command to create a JRF domain looks like the one below.
+Note that this requires the user to have run RCU prior to running the command and have the following section in the model.</p>
+<pre><code>$ weblogic-deploy\bin\createDomain.cmd -oracle_home c:\jrf12213 -domain_type JRF -domain_parent d:\demo\domains -model_file DemoDomain.yaml
 </code></pre>
-<p>To have the Create Domain Tool run RCU, simply add the <code>-run_rcu</code> argument to the previous command line and the RCU schemas will be automatically created.  Be aware that when the tool runs RCU, it will automatically drop any conflicting schemas that already exist with the same RCU prefix prior to creating the new schemas!</p>
-<p>It is also possible to specify the connection information in the model instead of using the command-line arguments.  This is especially easier for databases that require complex database connection string and extra parameters, such as RAC or Oracle Autonomous Transaction Processing Cloud Service database.  For information on how to use it, refer to <a href="/weblogic-deploy-tooling/userguide/database/connect-db/">Specifying RCU connection information in the model</a>.</p>
-<p>To create more complex domains, it may be necessary to create a custom domain type. This is useful for cases where the domain has custom templates, or templates for other Oracle products. For more information, refer to <a href="/weblogic-deploy-tooling/userguide/tools-config/domain_def/">Domain type definitions</a>.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
+    <span style="color:#f92672">RCUDbInfo</span>:
+        <span style="color:#f92672">rcu_db_conn_string</span>: <span style="color:#ae81ff">mydb.example.com:1539/PDBORCL</span>
+        <span style="color:#f92672">rcu_prefix</span>: <span style="color:#ae81ff">DEMO</span>
+</code></pre></div><p>To have the Create Domain Tool run RCU, add the following fields to the model and simply add the <code>-run_rcu</code> argument to
+the previous command line and the RCU schemas will be automatically created.  Be aware that when the tool runs RCU,
+it will automatically drop any conflicting schemas that already exist with the same RCU prefix prior to creating the
+new schemas!</p>
+<p>It is also possible to specify the connection information in the model instead of using the command-line arguments.
+This is especially easier for databases that require a complex database connection string and extra parameters, such as
+RAC or Oracle Autonomous Transaction Processing Cloud Service database.  For information on how to use it, refer to
+<a href="/weblogic-deploy-tooling/userguide/database/connect-db/">Specifying RCU connection information in the model</a>.</p>
+<p>To create more complex domains, it may be necessary to create a custom domain type. This is useful for cases where the
+domain has custom templates, or templates for other Oracle products. For more information, refer to
+<a href="/weblogic-deploy-tooling/userguide/tools-config/domain_def/">Domain type definitions</a>.</p>
 <h3 id="using-an-encrypted-model">Using an encrypted model</h3>
-<p>If the model or variables file contains passwords encrypted with the WDT Encryption tool, decrypt the passwords during create with the <code>-use_encryption</code> flag on the command line to tell the Create Domain Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, <code>stdin</code>) to allow the tool to run without any user input. You can bypass the stdin prompt with two other options. You can bypass the stdin prompt with two other options: store the passphrase in an environment variable, and use the environment variable name with the command-line
-option <code>-passphrase_env</code> or create a file with the single value of the passphrase. Provide the name of the file with the command-line option <code>-passphrase_file</code>. The passphrase will be read by the tool from the file.</p>
+<p>If the model or variables file contains passwords encrypted with the WDT Encryption tool, decrypt the passwords during
+creation with the <code>-use_encryption</code> flag on the command line to tell the Create Domain Tool that encryption is being used
+and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase
+from standard input (for example, <code>stdin</code>) to allow the tool to run without any user input. You can bypass the stdin
+prompt with two other options: store the passphrase in an environment variable, and use the environment variable name
+with the command-line option <code>-passphrase_env</code> or create a file with the single value of the passphrase. Provide the
+name of the file with the command-line option <code>-passphrase_file</code>. The passphrase will be read by the tool from the file.</p>
 <h3 id="using-multiple-models">Using multiple models</h3>
-<p>The Create Domain Tool supports the use of multiple models, as described in <a href="/weblogic-deploy-tooling/concepts/model/#using-multiple-models">Using multiple models</a>.</p>
+<p>The Create Domain Tool supports the use of multiple models, as described in
+<a href="/weblogic-deploy-tooling/concepts/model/#using-multiple-models">Using multiple models</a>.</p>
 <h3 id="development-domain-and-bootproperties">Development domain and <code>boot.properties</code></h3>
-<p>When creating a development domain, WDT provides the convenience of making a <code>boot.properties</code> file for each of the servers in the domain. The <code>boot.properties</code> file will contain encrypted values of the Administration Server user name and password. When the Administration Server or Managed Server is started, WebLogic Server will bypass the prompt for credentials, and instead use the credentials from the <code>boot.properties</code> file.</p>
-<p>A domain is in production mode if the <code>ServerStartMode</code> option is set to <code>prod</code> or the domain <code>ProductionModeEnabled</code> is set to <code>true</code>. The default value for both of these attributes is development mode.</p>
-<p>The <code>boot.properties</code> file is stored in the domain home on the machine where WDT runs. It is stored for each server as <code>&lt;domain_home&gt;/servers/&lt;server_name&gt;/security/boot.properties</code>.</p>
+<p>When creating a development domain, WDT provides the convenience of making a <code>boot.properties</code> file for each of the
+servers in the domain. The <code>boot.properties</code> file will contain encrypted values of the Administration Server user name
+and password. When the Administration Server or Managed Server is started, WebLogic Server will bypass the prompt for
+credentials, and instead use the credentials from the <code>boot.properties</code> file.</p>
+<p>A domain is in production mode if the <code>ServerStartMode</code> option is set to <code>prod</code> or the domain <code>ProductionModeEnabled</code>
+is set to <code>true</code>. The default value for both of these attributes is development mode.</p>
+<p>The <code>boot.properties</code> file is stored in the domain home on the machine where WDT runs. It is stored for each server
+as <code>&lt;domain_home&gt;/servers/&lt;server_name&gt;/security/boot.properties</code>.</p>
 <p>The following is a model example with both attributes explicitly set to development mode.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
     <span style="color:#f92672">AdminUserName</span>: <span style="color:#ae81ff">weblogic</span>
@@ -2904,6 +2963,22 @@ option <code>-passphrase_env</code> or create a file with the single value of th
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -2929,19 +3004,19 @@ option <code>-passphrase_env</code> or create a file with the single value of th
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1697599125"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1697599125"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1697599125"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1697599125"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1697599125"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1697599125"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1697656528"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1697656528"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1697656528"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1697656528"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1697656528"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1697656528"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1697599125"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1697599125"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1697599125"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1697656528"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1697656528"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1697656528"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1697599125"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1697656528"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

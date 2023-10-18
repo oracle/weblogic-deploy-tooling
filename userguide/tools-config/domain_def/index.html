@@ -12,20 +12,20 @@
     <title>Domain type definitions :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1697599125" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1697599125" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1697656528" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1697656528" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1697599125"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1697656528"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1697599125"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1697599125"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1697656528"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1697656528"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1697599125"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1697656528"></script>
 
     
   </div>
@@ -1212,6 +1212,27 @@
  
   
     
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.2.6/" title="Release Notes 3.2.6" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-3.2.6/">
+        <b> </b>Release Notes 3.2.6
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
       <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.2.5/" title="Release Notes 3.2.5" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-3.2.5/">
         <b> </b>Release Notes 3.2.5
@@ -1669,7 +1690,9 @@
         
 
 
-<p>WebLogic Deploy Tooling has an extensible domain type system.  The three built-in domain types (<code>WLS</code>, <code>RestrictedJRF</code>, and <code>JRF</code>) are defined in JSON files of the same name in the <code>WLSDEPLOY_HOME/lib/typedefs</code> directory.  For example, the <code>JRF</code> domain type is defined in the <code>WLSDEPLOY_HOME/lib/typedefs/JRF.json</code> file with similar content, as shown below.</p>
+<p>WebLogic Deploy Tooling has an extensible domain type system.  The three built-in domain types (<code>WLS</code>, <code>RestrictedJRF</code>,
+and <code>JRF</code>) are defined in JSON files of the same name in the <code>WLSDEPLOY_HOME/lib/typedefs</code> directory.  For example,
+the <code>JRF</code> domain type is defined in the <code>WLSDEPLOY_HOME/lib/typedefs/JRF.json</code> file with similar content, as shown below.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
     <span style="color:#f92672">&#34;copyright&#34;</span>: <span style="color:#e6db74">&#34;Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.&#34;</span>,
     <span style="color:#f92672">&#34;license&#34;</span>: <span style="color:#e6db74">&#34;Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl&#34;</span>,
@@ -1741,10 +1764,14 @@
          }
     }
 }
-</code></pre></div><p>This file tells the Create Domain Tool which templates to use to create the domain, which server groups to target, and even which RCU schemas to create, all based on the installed version of WebLogic Server.</p>
-<p>New domain types can be defined by creating a new JSON file with the same structure in the <code>WLSDEPLOY_HOME/lib/typedefs</code> directory.</p>
-<p>Another option is to create this file in the <a href="/weblogic-deploy-tooling/userguide/tools-config/custom_config/">Custom configuration</a> directory <code>$WDT_CUSTOM_CONFIG/typedefs</code>.</p>
-<p>For example, to define a <code>SOA</code> domain type for 12.2.1.3, add the <code>typedefs/SOA.json</code> file with similar content, as shown below.</p>
+</code></pre></div><p>This file tells the Create Domain Tool which templates to use to create the domain, which server groups to target, and
+even which RCU schemas to create, all based on the installed version of WebLogic Server.</p>
+<p>New domain types can be defined by creating a new JSON file with the same structure in the
+<code>WLSDEPLOY_HOME/lib/typedefs</code> directory.</p>
+<p>Another option is to create this file in the
+<a href="/weblogic-deploy-tooling/userguide/tools-config/custom_config/">Custom configuration</a> directory <code>$WDT_CUSTOM_CONFIG/typedefs</code>.</p>
+<p>For example, to define a <code>SOA</code> domain type for 12.2.1.3, add the <code>typedefs/SOA.json</code> file with similar content,
+as shown below.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
     <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;SOA&#34;</span>,
     <span style="color:#f92672">&#34;description&#34;</span>: <span style="color:#e6db74">&#34;SOA type domain definitions&#34;</span>,
@@ -1762,11 +1789,19 @@
         }
     }
 }
-</code></pre></div><p>After the new domain <code>typedef</code> file exists, simply specify the new domain type name to the <code>createDomain</code> script, being sure to reference an Oracle Home with the required components installed.  For pre-12.2.1 versions, the <code>-wlst_path</code> argument must be used to point to the product home where the appropriate WLST shell script exists; for example, for SOA 12.1.3, add <code>-wlst_path &lt;ORACLE_HOME&gt;/soa</code> so that the tool uses the WLST shell script with the proper environment for SOA domains.  In 12.2.1 and later, this is no longer necessary because the WLST shell script in the standard <code>&lt;ORACLE_HOME&gt;oracle_common/common/bin</code> directory will automatically load all components in the Oracle Home.  Using the new domain type, simply run the following command to run RCU and create the SOA domain with all of its resources and applications deployed.</p>
-<pre><code> weblogic-deploy\bin\createDomain.cmd -oracle_home d:\SOA12213 -domain_type SOA -domain_parent d:\demo\domains -model_file DemoDomain.yaml -archive_file DemoDomain.zip -variable_file DemoDomain.properties -run_rcu -rcu_db mydb.example.com:1539/PDBORCL -rcu_prefix DEMO [-rcu_db_user SYS]
+</code></pre></div><p>After the new domain <code>typedef</code> file exists, simply specify the new domain type name to the <code>createDomain</code> script,
+being sure to reference an Oracle Home with the required components installed.  For pre-12.2.1 versions, the
+<code>-wlst_path</code> argument must be used to point to the product home where the appropriate WLST shell script exists; for
+example, for SOA 12.1.3, add <code>-wlst_path &lt;ORACLE_HOME&gt;/soa</code> so that the tool uses the WLST shell script with the
+proper environment for SOA domains.  In 12.2.1 and later, this is no longer necessary because the WLST shell script
+in the standard <code>&lt;ORACLE_HOME&gt;oracle_common/common/bin</code> directory will automatically load all components in the
+Oracle Home.  Using the new domain type, simply run the following command to run RCU and create the SOA domain with
+all of its resources and applications deployed.</p>
+<pre><code> weblogic-deploy\bin\createDomain.cmd -oracle_home d:\SOA12213 -domain_type SOA -domain_parent d:\demo\domains -model_file DemoDomain.yaml -archive_file DemoDomain.zip -variable_file DemoDomain.properties -run_rcu
 </code></pre>
 <h4 id="custom-extension-templates">Custom extension templates</h4>
-<p>The <code>customExtensionTemplates</code> attribute can be used to specify custom extension templates to be applied to the domain. These should be specified as absolute file paths, and can use tokens.</p>
+<p>The <code>customExtensionTemplates</code> attribute can be used to specify custom extension templates to be applied to the domain.
+These should be specified as absolute file paths, and can use tokens.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
     <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;MyCustom&#34;</span>,
     <span style="color:#f92672">&#34;description&#34;</span>: <span style="color:#e6db74">&#34;My custom type domain definitions&#34;</span>,
@@ -1786,9 +1821,11 @@
         }
     }
 }
-</code></pre></div><p>If there are any server groups in the custom template that should be targeted to managed servers, they should be specified in the <code>serverGroupsToTarget</code> attribute, similar to <code>MY_MAN_SVR</code> in the example above.</p>
+</code></pre></div><p>If there are any server groups in the custom template that should be targeted to managed servers, they should be
+specified in the <code>serverGroupsToTarget</code> attribute, similar to <code>MY_MAN_SVR</code> in the example above.</p>
 <h4 id="using-compact-profile">Using compact profile</h4>
-<p>The <code>topologyProfile</code> field can be used to create a domain using a specific profile for each of the templates. This partial example will apply the compact profile for each of the specified templates.</p>
+<p>The <code>topologyProfile</code> field can be used to create a domain using a specific profile for each of the templates. This
+partial example will apply the compact profile for each of the specified templates.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
   <span style="color:#f92672">&#34;copyright&#34;</span>: <span style="color:#e6db74">&#34;Copyright (c) 2022, Oracle Corporation and/or its affiliates.  All rights reserved.&#34;</span>,
   <span style="color:#f92672">&#34;license&#34;</span>: <span style="color:#e6db74">&#34;Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl&#34;</span>,
@@ -1797,10 +1834,14 @@
   <span style="color:#f92672">&#34;topologyProfile&#34;</span>: <span style="color:#e6db74">&#34;Compact&#34;</span>,
   <span style="color:#960050;background-color:#1e0010">...</span>
 }
-</code></pre></div><p>WebLogic Deploy Tooling provides the <code>JRF-Compact.json</code> type definition file that can be used to create a JRF domain using the compact profile.</p>
+</code></pre></div><p>WebLogic Deploy Tooling provides the <code>JRF-Compact.json</code> type definition file that can be used to create a JRF domain
+using the compact profile.</p>
 <h4 id="targeting-in-earlier-weblogic-server-versions">Targeting in earlier WebLogic Server versions</h4>
-<p>Templates in WebLogic Server versions prior to 12.2.1 may require the use of the <code>applyJRF</code> WLST command to correctly target resources to the correct clusters and servers. The default behavior for WebLogic Deploy Tooling is to invoke <code>applyJRF</code> only when the <code>extensionTemplates</code> list includes JRF templates.</p>
-<p>A custom type definition file can require <code>applyJRF</code> to be invoked after the templates are added. This is done by setting the <code>targeting</code> attribute to <code>APPLY_JRF</code>, as in this example:</p>
+<p>Templates in WebLogic Server versions prior to 12.2.1 may require the use of the <code>applyJRF</code> WLST command to correctly
+target resources to the correct clusters and servers. The default behavior for WebLogic Deploy Tooling is to invoke
+<code>applyJRF</code> only when the <code>extensionTemplates</code> list includes JRF templates.</p>
+<p>A custom type definition file can require <code>applyJRF</code> to be invoked after the templates are added. This is done by
+setting the <code>targeting</code> attribute to <code>APPLY_JRF</code>, as in this example:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
     <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;MyCustom&#34;</span>,
     <span style="color:#f92672">&#34;description&#34;</span>: <span style="color:#e6db74">&#34;My custom type domain definitions&#34;</span>,
@@ -3050,6 +3091,22 @@ be used to exclude self-tuning-related resources that are nested.  For example:<
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -3075,19 +3132,19 @@ be used to exclude self-tuning-related resources that are nested.  For example:<
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1697599125"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1697599125"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1697599125"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1697599125"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1697599125"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1697599125"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1697656528"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1697656528"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1697656528"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1697656528"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1697656528"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1697656528"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1697599125"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1697599125"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1697599125"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1697656528"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1697656528"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1697656528"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1697599125"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1697656528"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
