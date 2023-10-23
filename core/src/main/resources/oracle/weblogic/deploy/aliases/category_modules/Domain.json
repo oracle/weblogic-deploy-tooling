@@ -61,7 +61,8 @@
         "ServiceMigrationHistorySize":                     [ {"version": "[12.1.2,12.2.1.1)", "wlst_mode": "both",    "wlst_name": "ServiceMigrationHistorySize",                      "wlst_path": "WP001", "default_value": -1,             "wlst_type": "integer",  "restart_required": "true" },
                                                              {"version": "[12.2.1.1,12.2.1.3)","wlst_mode": "both",   "wlst_name": "ServiceMigrationHistorySize",                      "wlst_path": "WP001", "default_value": -1,             "wlst_type": "integer"    },
                                                              {"version": "[12.2.1.3,)",       "wlst_mode": "both",    "wlst_name": "ServiceMigrationHistorySize",                      "wlst_path": "WP001", "default_value": 100,            "wlst_type": "integer"    } ],
-        "SiteName":                                        [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "SiteName",                                         "wlst_path": "WP001", "default_value": null,           "wlst_type": "string"     } ]
+        "SiteName":                                        [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "SiteName",                                         "wlst_path": "WP001", "default_value": null,           "wlst_type": "string"     } ],
+        "VirtualThreadEnableOption":                       [ {"version": "[14.1.2,)",         "wlst_mode": "online",  "wlst_name": "VirtualThreadEnableOption",                        "wlst_path": "WP001", "default_value": "enabled",      "wlst_type": "string"     } ]
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {
