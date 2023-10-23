@@ -704,7 +704,7 @@ class AliasFileSyntaxTestCase(unittest.TestCase):
     def _verify_boolean_value(self, folder_name, attribute_name, alias_attribute_name, alias_attribute_value):
         result = []
         constrained_string_values = ['true', 'false']
-        if type(alias_attribute_value) is str:
+        if isinstance(alias_attribute_value, basestring):
             if alias_attribute_value.lower() not in constrained_string_values:
                 result.append(self._get_invalid_attribute_boolean_string_value_message(folder_name, attribute_name,
                                                                                        alias_attribute_name,

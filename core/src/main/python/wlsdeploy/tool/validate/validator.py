@@ -895,7 +895,7 @@ class Validator(object):
             else:
                 model_folder_path += '/' + attribute_key
                 for key, value in attribute_value.iteritems():
-                    if type(key) is not str:
+                    if not isinstance(key, basestring):
                         # Force the key to a string for any value validation issues reported below
                         key = str_helper.to_string(key)
                         self._logger.severe('WLSDPLY-05033', str_helper.to_string, model_folder_path,
@@ -912,7 +912,7 @@ class Validator(object):
                         for element in value:
                             self._validate_single_server_group_target_limits_value(key, element,
                                                                                    model_folder_path)
-                    elif type(value) is str:
+                    elif isinstance(value, basestring):
                         self._validate_single_server_group_target_limits_value(key, value, model_folder_path)
                     else:
                         self._logger.severe('WLSDPLY-05034', key, model_folder_path,
