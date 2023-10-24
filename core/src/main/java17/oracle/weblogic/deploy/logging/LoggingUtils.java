@@ -22,19 +22,18 @@ public class LoggingUtils {
      * @param logRecord the log record to copy
      * @return the cloned log record without the exception
      */
-    @SuppressWarnings("deprecation")
     public static LogRecord cloneRecordWithoutException(LogRecord logRecord) {
         LogRecord newRecord = new LogRecord(logRecord.getLevel(), logRecord.getMessage());
 
         newRecord.setLoggerName(logRecord.getLoggerName());
-        newRecord.setMillis(logRecord.getMillis());
+        newRecord.setInstant(logRecord.getInstant());
         newRecord.setParameters(logRecord.getParameters());
         newRecord.setResourceBundle(logRecord.getResourceBundle());
         newRecord.setResourceBundleName(logRecord.getResourceBundleName());
         newRecord.setSequenceNumber(logRecord.getSequenceNumber());
         newRecord.setSourceClassName(logRecord.getSourceClassName());
         newRecord.setSourceMethodName(logRecord.getSourceMethodName());
-        newRecord.setThreadID(logRecord.getThreadID());
+        newRecord.setLongThreadID(logRecord.getLongThreadID());
         // Skip thrown
         return newRecord;
     }

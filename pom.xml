@@ -145,7 +145,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>3.2.1</version>
                     <configuration>
                         <groups>${test.groups}</groups>
                     </configuration>
@@ -181,7 +181,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>3.2.1</version>
                 </plugin>
                 <plugin>
                     <groupId>io.rhpatrick.mojo</groupId>
@@ -220,6 +220,12 @@
                             <goals>
                                 <goal>report</goal>
                             </goals>
+                            <!-- jacoco does not support multi-release jars -->
+                            <configuration>
+                                <excludes>
+                                    <exclude>META-INF/**</exclude>
+                                </excludes>
+                            </configuration>
                         </execution>
                     </executions>
                 </plugin>
@@ -256,42 +262,6 @@
                         <arg>-Xlint:all</arg>
                     </compilerArgs>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>enforce-build-environment</id>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                        <configuration>
-                            <rules>
-                                <requireJavaVersion>
-                                    <version>1.8.0</version>
-                                    <message>You must use JDK 8 to build the project since the encryption utilities unit test requires JDK 8 due to the encryption algorithms used</message>
-                                </requireJavaVersion>
-                            </rules>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>enforce-wlst</id>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${skipTests}</skip>
-                            <rules>
-                                <requireProperty>
-                                    <property>unit-test-wlst-dir</property>
-                                    <message>Unable to find WLST in order to run unit tests. Please set the unit-test-wlst-dir System property to point to the directory where wlst.sh lives in the Oracle Home. Or, set WLST_DIR environment variable. An example can be found in .mvn/maven.config-template. Optionally, you may -DskipTests.
-                                    </message>
-                                </requireProperty>
-                            </rules>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
