@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
- * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+ * Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+ * Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.create;
 
@@ -21,6 +21,9 @@ import oracle.weblogic.deploy.util.StringUtils;
 
 import org.python.core.PyDictionary;
 import org.python.core.PyString;
+
+import static oracle.weblogic.deploy.create.ValidationUtils.validateExistingDirectory;
+import static oracle.weblogic.deploy.create.ValidationUtils.validateExistingExecutableFile;
 
 
 /**
@@ -59,7 +62,8 @@ public class RCURunner {
     private static final String COMPONENT_INFO_LOCATION_SWITCH = "-compInfoXMLLocation";
     private static final String STORAGE_LOCATION_SWITCH = "-storageXMLLocation";
 
-    private static final Pattern SCHEMA_DOES_NOT_EXIST_PATTERN = Pattern.compile("(ORA-01918|RCU-6013|ORA-12899)");
+    private static final Pattern SCHEMA_DOES_NOT_EXIST_PATTERN = Pattern.compile("(ORA-01918|RCU-6013[^0-9])");
+    private static final Pattern SCHEMA_ALREADY_EXISTS_PATTERN = Pattern.compile("RCU-6016[^0-9]");
 
     private final File oracleHome;
     private final File javaHome;
@@ -233,7 +237,7 @@ public class RCURunner {
      * @param rcuSchemaPass the RCU database schema password to use for all RCU schemas
      * @throws CreateException if an error occurs with parameter validation or running RCU
      */
-    public void runRcu(String rcuSysPass, String rcuSchemaPass) throws CreateException {
+    public void runRcu(String rcuSysPass, String rcuSchemaPass, boolean disableRcuDropSchema) throws CreateException {
         final String METHOD = "runRcu";
 
         File rcuBinDir = new File(new File(oracleHome, "oracle_common"), "bin");
@@ -243,45 +247,50 @@ public class RCURunner {
         validateNonEmptyString(rcuSysPass, "rcu_sys_password", true);
         validateNonEmptyString(rcuSchemaPass, "rcu_schema_password", true);
 
-        Map<String, String> dropEnv = getRcuDropEnv();
-        String[] scriptArgs = getCommandLineArgs(DROP_REPO_SWITCH);
-        List<String> scriptStdinLines = getRcuDropStdinLines(rcuSysPass, rcuSchemaPass);
-        ScriptRunner runner = new ScriptRunner(dropEnv, RCU_DROP_LOG_BASENAME);
-        int exitCode;
-        try {
-            exitCode = runner.executeScript(rcuScript, scriptStdinLines, scriptArgs);
-        } catch (ScriptRunnerException sre) {
-            CreateException ce = new CreateException("WLSDPLY-12001", sre, CLASS, sre.getLocalizedMessage());
-            LOGGER.throwing(CLASS, METHOD, ce);
-            throw ce;
-        }
-        // RCU is stupid and RCU drop exits with exit code 1 if the schemas do not exist...sigh
-        //
-
-        if (exitCode != 0 && !isSchemaNotExistError(runner)) {
-            CreateException ce = new CreateException("WLSDPLY-12002", CLASS, exitCode, runner.getStdoutFileName());
-            LOGGER.throwing(CLASS, METHOD, ce);
-            throw ce;
+        if (!disableRcuDropSchema) {
+            Map<String, String> dropEnv = getRcuDropEnv();
+            String[] scriptArgs = getCommandLineArgs(DROP_REPO_SWITCH);
+            List<String> scriptStdinLines = getRcuDropStdinLines(rcuSysPass, rcuSchemaPass);
+            ScriptRunner runner = new ScriptRunner(dropEnv, RCU_DROP_LOG_BASENAME);
+            int exitCode;
+            try {
+                exitCode = runner.executeScript(rcuScript, scriptStdinLines, scriptArgs);
+            } catch (ScriptRunnerException sre) {
+                CreateException ce = new CreateException("WLSDPLY-12001", sre, CLASS, sre.getLocalizedMessage());
+                LOGGER.throwing(CLASS, METHOD, ce);
+                throw ce;
+            }
+            // RCU is stupid and RCU drop exits with exit code 1 if the schemas do not exist...sigh
+            //
+            if (exitCode != 0 && !isSchemaNotExistError(runner)) {
+                CreateException ce = new CreateException("WLSDPLY-12002", CLASS, exitCode, runner.getStdoutFileName());
+                LOGGER.throwing(CLASS, METHOD, ce);
+                throw ce;
+            }
         }
 
         Map<String, String> createEnv = getRcuCreateEnv();
-        scriptArgs = getCommandLineArgs(CREATE_REPO_SWITCH);
-        scriptStdinLines = getRcuCreateStdinLines(rcuSysPass, rcuSchemaPass);
-        runner = new ScriptRunner(createEnv, RCU_CREATE_LOG_BASENAME);
+        String[] scriptArgs = getCommandLineArgs(CREATE_REPO_SWITCH);
+        List<String> scriptStdinLines = getRcuCreateStdinLines(rcuSysPass, rcuSchemaPass);
+        ScriptRunner runner = new ScriptRunner(createEnv, RCU_CREATE_LOG_BASENAME);
+        int exitCode;
         try {
             exitCode = runner.executeScript(rcuScript, scriptStdinLines, scriptArgs);
-            if (atpDB && exitCode != 0 && isSchemaNotExistError(runner)) {
-                exitCode = 0;
-            }
         } catch (ScriptRunnerException sre) {
             CreateException ce = new CreateException("WLSDPLY-12003", sre, CLASS, sre.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, ce);
             throw ce;
         }
         if (exitCode != 0) {
-            CreateException ce = new CreateException("WLSDPLY-12002", CLASS, exitCode, runner.getStdoutFileName());
-            LOGGER.throwing(CLASS, METHOD, ce);
-            throw ce;
+            if (disableRcuDropSchema && isSchemaAlreadyExistsError(runner)) {
+                CreateException ce = new CreateException("WLSDPLY-12010", CLASS, rcuPrefix, runner.getStdoutFileName());
+                LOGGER.throwing(CLASS, METHOD, ce);
+                throw ce;
+            } else {
+                CreateException ce = new CreateException("WLSDPLY-12002", CLASS, exitCode, runner.getStdoutFileName());
+                LOGGER.throwing(CLASS, METHOD, ce);
+                throw ce;
+            }
         }
     }
 
@@ -421,22 +430,17 @@ public class RCURunner {
         return schemaDoesNotExist;
     }
 
-    private static File validateExistingDirectory(String directoryName, String directoryTypeName)
-        throws CreateException {
-        final String METHOD = "validateExistingDirectory";
-
-        LOGGER.entering(CLASS, METHOD, directoryName, directoryTypeName);
-        File result;
-        try {
-            result = FileUtils.validateExistingDirectory(directoryName);
-        } catch (IllegalArgumentException iae) {
-            CreateException ce = new CreateException("WLSDPLY-12004", iae, CLASS, directoryTypeName,
-                directoryName, iae.getLocalizedMessage());
-            LOGGER.throwing(CLASS, METHOD, ce);
-            throw ce;
+    private static boolean isSchemaAlreadyExistsError(ScriptRunner runner) {
+        List<String> stdoutBuffer = runner.getStdoutBuffer();
+        boolean schemaAlreadyExists = false;
+        for (String line : stdoutBuffer) {
+            Matcher matcher = SCHEMA_ALREADY_EXISTS_PATTERN.matcher(line);
+            if (matcher.find()) {
+                schemaAlreadyExists = true;
+                break;
+            }
         }
-        LOGGER.exiting(CLASS, METHOD, result);
-        return result;
+        return schemaAlreadyExists;
     }
 
     private static String quoteStringForCommandLine(String text, String textTypeName) throws CreateException {
@@ -487,29 +491,6 @@ public class RCURunner {
         }
         LOGGER.exiting(CLASS, METHOD, stringList);
         return stringList;
-    }
-
-    private static void validateExistingExecutableFile(File executable, String executableTypeName)
-        throws CreateException {
-        final String METHOD = "validateExistingExecutableFile";
-
-        LOGGER.entering(CLASS, METHOD, executable, executableTypeName);
-        File tmp;
-        try {
-            tmp = FileUtils.validateExistingFile(executable.getAbsolutePath());
-        } catch (IllegalArgumentException iae) {
-            CreateException ce = new CreateException("WLSDPLY-12008", iae, CLASS, executableTypeName,
-                executable.getAbsolutePath(), iae.getLocalizedMessage());
-            LOGGER.throwing(CLASS, METHOD, ce);
-            throw ce;
-        }
-        if (!tmp.canExecute()) {
-            CreateException ce =
-                new CreateException("WLSDPLY-12009", CLASS, executableTypeName, executable.getAbsolutePath());
-            LOGGER.throwing(CLASS, METHOD, ce);
-            throw ce;
-        }
-        LOGGER.exiting(CLASS, METHOD);
     }
 
     /**

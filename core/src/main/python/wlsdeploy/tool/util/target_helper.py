@@ -430,7 +430,7 @@ class TargetHelper(object):
 
         sg_targeting_limits = copy.deepcopy(server_group_targeting_limits)
         for server_group_name, sg_targeting_limit in sg_targeting_limits.iteritems():
-            if type(sg_targeting_limit) is str:
+            if isinstance(sg_targeting_limit, basestring):
                 if MODEL_LIST_DELIMITER in sg_targeting_limit:
                     sg_targeting_limit = sg_targeting_limit.split(MODEL_LIST_DELIMITER)
                 else:
@@ -474,7 +474,7 @@ class TargetHelper(object):
 
         dc_sg_targeting_limits = copy.deepcopy(targeting_limits)
         for server_group_name, dc_sg_targeting_limit in dc_sg_targeting_limits.iteritems():
-            if type(dc_sg_targeting_limit) is str:
+            if isinstance(dc_sg_targeting_limit, basestring):
                 if MODEL_LIST_DELIMITER in dc_sg_targeting_limit:
                     dc_sg_targeting_limit = dc_sg_targeting_limit.split(MODEL_LIST_DELIMITER)
                 else:

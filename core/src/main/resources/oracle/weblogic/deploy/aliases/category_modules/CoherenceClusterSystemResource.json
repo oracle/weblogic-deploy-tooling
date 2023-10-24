@@ -113,8 +113,9 @@
                             "default_name_value": "${NO_NAME_0:%COHERENCECLUSTER%}",
                             "folders": {},
                             "attributes": {
-                                "CoherenceIdentityAlias":                 [ {"version": "[12.2.1.1,)", "wlst_mode": "both",  "wlst_name": "CoherenceIdentityAlias",                 "wlst_path": "WP001", "default_value": null,   "wlst_type": "string"} ],
-                                "CoherencePrivateKeyPassPhraseEncrypted": [ {"version": "[12.2.1.1,)", "wlst_mode": "both",  "wlst_name": "CoherencePrivateKeyPassPhraseEncrypted", "wlst_path": "WP001", "default_value": null,   "wlst_type": "password",  "get_method": "GET"} ]
+                                "CoherenceClientAuth":                    [ {"version": "[14.1.2,)",   "wlst_mode": "online",  "wlst_name": "CoherenceClientAuth",                    "wlst_path": "WP001", "default_value": null,   "wlst_type": "string"} ],
+                                "CoherenceIdentityAlias":                 [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "CoherenceIdentityAlias",                 "wlst_path": "WP001", "default_value": null,   "wlst_type": "string"} ],
+                                "CoherencePrivateKeyPassPhraseEncrypted": [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "CoherencePrivateKeyPassPhraseEncrypted", "wlst_path": "WP001", "default_value": null,   "wlst_type": "password",  "get_method": "GET"} ]
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {
@@ -203,23 +204,6 @@
                         "WP001": "/CoherenceClusterSystemResource${:s}/%COHERENCECLUSTER%/Coherence${:Cluster}Resource/%COHERENCERESOURCE%/CoherenceClusterParams/%COHERENCECLUSTERPARAMS%"
                     }
                 },
-                "CoherencePersistenceParams": {
-                    "wlst_type": "CoherencePersistenceParams",
-                    "online_bean": "weblogic.coherence.descriptor.wl.CoherencePersistenceParamsBean",
-                    "version" : "[12.2.1.1,)",
-                    "default_name_value": "${NO_NAME_0:%COHERENCECLUSTER%}",
-                    "folders": {},
-                    "attributes": {
-                        "ActiveDirectory":         [ {"version": "[12.2.1.1,)",     "wlst_mode": "both",    "wlst_name": "ActiveDirectory",        "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string", "uses_path_tokens": "true" } ],
-                        "DefaultPersistenceMode":  [ {"version": "[12.2.1.1,)",     "wlst_mode": "both",    "wlst_name": "DefaultPersistenceMode", "wlst_path": "WP001", "default_value": "${__NULL__:on-demand}",   "wlst_type": "string" } ],
-                        "SnapshotDirectory":       [ {"version": "[12.2.1.1,)",     "wlst_mode": "both",    "wlst_name": "SnapshotDirectory",      "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string", "uses_path_tokens": "true" } ],
-                        "TrashDirectory":          [ {"version": "[12.2.1.1,)",     "wlst_mode": "both",    "wlst_name": "TrashDirectory",         "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string", "uses_path_tokens": "true" } ]
-                    },
-                    "wlst_attributes_path": "WP001",
-                    "wlst_paths": {
-                        "WP001": "/CoherenceClusterSystemResource${:s}/%COHERENCECLUSTER%/Coherence${:Cluster}Resource/%COHERENCERESOURCE%/CoherencePersistenceParams/%COHERENCEPERSISTENCEPARAMS%"
-                    }
-                },
                 "CoherenceFederationParams": {
                     "wlst_type": "CoherenceFederationParams",
                     "online_bean": "weblogic.coherence.descriptor.wl.CoherenceFederationParamsBean",
@@ -257,6 +241,25 @@
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
                         "WP001": "/CoherenceClusterSystemResource${:s}/%COHERENCECLUSTER%/Coherence${:Cluster}Resource/%COHERENCERESOURCE%/CoherenceLoggingParams/%COHERENCELOGGINGPARAMS%"
+                    }
+                },
+                "CoherencePersistenceParams": {
+                    "wlst_type": "CoherencePersistenceParams",
+                    "online_bean": "weblogic.coherence.descriptor.wl.CoherencePersistenceParamsBean",
+                    "version" : "[12.2.1.1,)",
+                    "default_name_value": "${NO_NAME_0:%COHERENCECLUSTER%}",
+                    "folders": {},
+                    "attributes": {
+                        "ActiveDirectory":         [ {"version": "[12.2.1.1,)",     "wlst_mode": "both",    "wlst_name": "ActiveDirectory",        "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string", "uses_path_tokens": "true" } ],
+                        "BackupDirectory":         [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "BackupDirectory",        "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string", "uses_path_tokens": "true" } ],
+                        "DefaultPersistenceMode":  [ {"version": "[12.2.1.1,)",     "wlst_mode": "both",    "wlst_name": "DefaultPersistenceMode", "wlst_path": "WP001", "default_value": "${__NULL__:on-demand}",   "wlst_type": "string" } ],
+                        "EventsDirectory":         [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "EventsDirectory",        "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string", "uses_path_tokens": "true" } ],
+                        "SnapshotDirectory":       [ {"version": "[12.2.1.1,)",     "wlst_mode": "both",    "wlst_name": "SnapshotDirectory",      "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string", "uses_path_tokens": "true" } ],
+                        "TrashDirectory":          [ {"version": "[12.2.1.1,)",     "wlst_mode": "both",    "wlst_name": "TrashDirectory",         "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string", "uses_path_tokens": "true" } ]
+                    },
+                    "wlst_attributes_path": "WP001",
+                    "wlst_paths": {
+                        "WP001": "/CoherenceClusterSystemResource${:s}/%COHERENCECLUSTER%/Coherence${:Cluster}Resource/%COHERENCERESOURCE%/CoherencePersistenceParams/%COHERENCEPERSISTENCEPARAMS%"
                     }
                 }
             },
@@ -307,7 +310,9 @@
         "Notes":                               [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "Notes",                               "wlst_path": "WP001", "default_value": null,    "wlst_type": "string"           } ],
         "PartitionName":                       [ {"version": "[12.2.1,)",   "wlst_mode": "online",  "wlst_name": "PartitionName",                       "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",          "get_method": "GET", "access": "IGNORED" } ],
         "PersistenceActiveDirectory":          [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "PersistenceActiveDirectory",          "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",          "access": "IGNORED" } ],
+        "PersistenceBackupDirectory":          [ {"version": "[14.1.2,)",   "wlst_mode": "both",    "wlst_name": "PersistenceBackupDirectory",          "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",          "access": "IGNORED" } ],
         "PersistenceDefaultMode":              [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "PersistenceDefaultMode",              "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",          "access": "IGNORED" } ],
+        "PersistenceEventsDirectory":          [ {"version": "[14.1.2,)",   "wlst_mode": "both",    "wlst_name": "PersistenceEventsDirectory",          "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",          "access": "IGNORED" } ],
         "PersistenceSnapshotDirectory":        [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "PersistenceSnapshotDirectory",        "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",          "access": "IGNORED" } ],
         "PersistenceTrashDirectory":           [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "PersistenceTrashDirectory",           "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",          "access": "IGNORED" } ],
         "ReportGroupFile":                     [ {"version": "[12.1.3,12.2.1)", "wlst_mode": "both", "wlst_name": "ReportGroupFile",                    "wlst_path": "WP001", "default_value": "em/coherence/report-group.xml",                  "wlst_type": "string", "uses_path_tokens": "true" },

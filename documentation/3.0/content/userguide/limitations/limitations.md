@@ -48,3 +48,38 @@ java.lang.IllegalArgumentException: In production mode, it's not allowed to set 
 **ISSUE**: For existing WLS versions, there is a problem setting the `RotateLogOnStartup` attribute in various log file folders. The value is not persisted correctly, and the assignment will not be present when the domain is started.
 
 **ACTION**: Contact Oracle Support to obtain the patch for bug number 29547985 for your WebLogic Server version before running the tool.
+
+#### Discover Domain tool does not discover users or groups
+
+**ISSUE**: Discovering a domain does not attempt to discover users and groups defined in any configured Authentication Provider type.
+
+**ACTION**: This should only be an issue for the domains using the DefaultAuthenticator, which uses the Embedded LDAP
+server that runs inside WebLogic Server as its user and group store.  Oracle recommends using an authentication provider
+with an external user and group store for managing users and groups.  For example, a Microsoft Active Directory server
+with the LDAP Authenticator or a database server with the SQL Authenticator.  This allows any domain created using the
+discovered model to use the same user and group store so that there is no need to export/import users and groups.  If a
+new user and group store is desired, these external stores natively provide export and import mechanisms for moving
+users and groups.  If this is not an option, then the user will need to hand-edit the discovered model file to add any
+users and groups not created by default.
+
+#### JRF Domain configuration files containing clear text password
+
+**ISSUE**: After a JRF domain is created, the `jps-config.xml` and `jps-config-jse.xml` files contain clear text password for the key store.
+
+**ACTION**: You will need to create a key store using Oracle Wallet and change the key store provider priority in the JVM. See Oracle Support Doc ID 2215283.1 for details.
+If you are creating a JRF domain using Oracle Autonomous Transaction Database, you can use the SSO key stores instead of JKS key stores,  
+the generated `jps-config.xml` and `jps-config-jse.xml` files will then use the SSO key stores without any clear text password.
+
+```yaml
+domainInfo:
+    RCUDbInfo:
+     databaseType : ATP
+     rcu_prefix : FMW
+     rcu_schema_password : '...'
+     rcu_admin_password: '...'
+     rcu_db_user : admin
+     tns.alias : myatp_tp
+     javax.net.ssl.keyStoreType: SSO
+     javax.net.ssl.trustStoreType: SSO
+```
+

@@ -29,6 +29,8 @@ PATH_TOKEN = 'path_token'
 PREFERRED_MODEL_TYPE = 'preferred_model_type'
 PRODUCTION_DEFAULT = 'production_default'
 RESTART_REQUIRED = 'restart_required'
+SECRET_KEY = 'secret_key'
+SECRET_SUFFIX = 'secret_suffix'
 SECURE_DEFAULT = 'secure_default'
 SET_MBEAN_TYPE = 'set_mbean_type'
 SET_METHOD = 'set_method'
@@ -102,6 +104,10 @@ SEMI_COLON_DELIMITED_STRING = 'delimited_string[semicolon]'
 SPACE_DELIMITED_STRING = 'delimited_string[space]'
 STRING = 'string'
 MASKED = '<masked>'
+
+# alias owns these, they are derived from secret_key, wlst_type
+SECRET_USERNAME_KEY = "username"
+SECRET_PASSWORD_KEY = "password"
 
 ALIAS_DELIMITED_TYPES = [
     COMMA_DELIMITED_STRING,

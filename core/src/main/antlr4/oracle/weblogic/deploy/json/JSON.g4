@@ -39,7 +39,7 @@ value
 
 
 STRING
-   : '"' (ESC | ~ ["\\])* '"'
+   : '"' (ESC | SAFECODEPOINT)* '"'
    ;
 fragment ESC
    : '\\' (["\\/bfnrt] | UNICODE)
@@ -49,6 +49,9 @@ fragment UNICODE
    ;
 fragment HEX
    : [0-9a-fA-F]
+   ;
+fragment SAFECODEPOINT
+   : ~ ["\\\u0000-\u001F]
    ;
 NUMBER
    : '-'? INT ('.' [0-9] +)? EXP?

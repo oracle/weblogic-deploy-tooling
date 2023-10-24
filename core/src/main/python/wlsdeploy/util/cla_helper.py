@@ -1,6 +1,6 @@
 """
 Copyright (c) 2019, 2023, Oracle Corporation and/or its affiliates.
-Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Utility CLS methods shared by multiple tools.
 """
@@ -10,6 +10,7 @@ from java.io import File
 from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import String
+
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import TranslateException
 from oracle.weblogic.deploy.util import VariableException
@@ -26,6 +27,7 @@ from wlsdeploy.util import getcreds
 from wlsdeploy.util import model_helper
 from wlsdeploy.util import model_translator
 from wlsdeploy.util import path_utils
+from wlsdeploy.util import env_helper
 
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -404,7 +406,7 @@ def persist_model(model_context, model_dictionary):
     _method_name = 'persist_model'
 
     if check_persist_model():
-        store_value = os.environ.get(_store_environment_variable)
+        store_value = env_helper.getenv(_store_environment_variable)
 
         if os.path.isabs(store_value):
             file_path = store_value
@@ -429,4 +431,4 @@ def check_persist_model():
     Determine if the model should be persisted, based on the environment variable __WLSDEPLOY_STORE_MODEL__
     :return: True if the model should be persisted
     """
-    return os.environ.has_key(_store_environment_variable)
+    return env_helper.has_env(_store_environment_variable)

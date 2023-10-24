@@ -1,6 +1,6 @@
 """
 Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
-Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The main module for the WLSDeploy tool to create empty domains.
 """
@@ -28,6 +28,8 @@ from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import DOMAIN_NAME
+from wlsdeploy.aliases.model_constants import PATH_TO_RCU_DB_CONN
+from wlsdeploy.aliases.model_constants import PATH_TO_RCU_PREFIX
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
@@ -41,6 +43,7 @@ from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.util import wlst_helper
 from wlsdeploy.tool.validate.content_validator import ContentValidator
 from wlsdeploy.util import cla_helper
+from wlsdeploy.util import env_helper
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import tool_main
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -128,7 +131,7 @@ def __process_java_home_arg(optional_arg_map):
     _method_name = '__process_java_home_arg'
 
     if CommandLineArgUtil.JAVA_HOME_SWITCH not in optional_arg_map:
-        java_home_name = os.environ.get('JAVA_HOME')
+        java_home_name = env_helper.getenv('JAVA_HOME')
         try:
             java_home = FileUtils.validateExistingDirectory(java_home_name)
         except IllegalArgumentException, iae:
@@ -247,23 +250,21 @@ def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
         has_atpdbinfo = rcu_db_info.has_atpdbinfo()
         has_ssldbinfo = rcu_db_info.has_ssldbinfo()
 
-        _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin, model,
-                                        model_context)
+        _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin, model)
     else:
-        if model_context.get_domain_typedef().required_rcu():
+        if model_context.get_domain_typedef().requires_rcu():
             if not model_context.get_rcu_database() or not model_context.get_rcu_prefix():
-                __logger.severe('WLSDPLY-12408', model_context.get_domain_type(), CommandLineArgUtil.RCU_DB_SWITCH,
-                                CommandLineArgUtil.RCU_PREFIX_SWITCH, class_name=_class_name, method_name=_method_name)
+                __logger.severe('WLSDPLY-12408', model_context.get_domain_type(), PATH_TO_RCU_DB_CONN,
+                                PATH_TO_RCU_PREFIX, class_name=_class_name, method_name=_method_name)
                 ex = exception_helper.create_create_exception('WLSDPLY-12408', model_context.get_domain_type(),
-                                                              CommandLineArgUtil.RCU_DB_SWITCH,
-                                                              CommandLineArgUtil.RCU_PREFIX_SWITCH)
+                                                              PATH_TO_RCU_DB_CONN, PATH_TO_RCU_PREFIX)
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
 
     return has_atpdbinfo, has_ssldbinfo
 
 
-def _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin, model, model_context):
+def _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin, model):
     _method_name = '_validate_atp_wallet_in_archive'
     if archive_helper and not is_regular_db:
         # 1. If it does not have the oracle.net.tns_admin specified, then extract to domain/atpwallet
@@ -306,7 +307,7 @@ def _precheck_rcu_connectivity(model_context, creator, rcu_db_info):
     _method_name = '_precheck_rcu_connectivity'
     domain_typename = model_context.get_domain_typedef().get_domain_type()
 
-    if model_context.get_domain_typedef().required_rcu() and not model_context.is_run_rcu() and 'STB' in \
+    if model_context.get_domain_typedef().requires_rcu() and not model_context.is_run_rcu() and 'STB' in \
             model_context.get_domain_typedef().get_rcu_schemas():
         # how to create rcu_db_info ?
         db_conn_props = None
@@ -377,8 +378,6 @@ def main(model_context):
             domain_path = _get_domain_path(model_context, model_dictionary)
             archive_helper = ArchiveHelper(archive_file_name, domain_path, __logger, ExceptionType.CREATE)
 
-        has_atp, has_ssl = validate_rcu_args_and_model(model_context, model_dictionary, archive_helper, aliases)
-
         if archive_helper:
             domain_parent = model_context.get_domain_parent_dir()
             domain_home = model_context.get_domain_home()
@@ -389,6 +388,8 @@ def main(model_context):
 
             archive_helper.extract_all_database_wallets()
 
+        has_atp, has_ssl = validate_rcu_args_and_model(model_context, model_dictionary, archive_helper, aliases)
+
         creator = DomainCreator(model_dictionary, model_context, aliases)
 
         rcu_db_info = rcudbinfo_helper.create(model_dictionary, model_context, aliases)
@@ -398,7 +399,7 @@ def main(model_context):
 
         creator.create()
 
-        if model_context.get_domain_typedef().required_rcu():
+        if model_context.get_domain_typedef().requires_rcu():
             if has_atp:
                 atp_helper.fix_jps_config(rcu_db_info, model_context)
             elif has_ssl:

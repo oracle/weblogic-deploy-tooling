@@ -1,5 +1,5 @@
 """
-Copyright (c) 2018, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2018, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -72,7 +72,6 @@ STANDARD_PASSWORD_INJECTOR = {
 
 # global variables for functions in VariableInjector
 _find_special_names_pattern = re.compile('[\[\]]')
-_fake_name_marker = 'fakename'
 _split_around_special_names = re.compile('([\w]+\[[\w\.,]+\])|\.')
 
 _class_name = 'variable_injector'
@@ -333,7 +332,7 @@ class VariableInjector(object):
         if injector_dictionary:
             location = LocationContext()
             domain_token = self.__aliases.get_name_token(location)
-            location.add_name_token(domain_token, _fake_name_marker)
+            location.add_name_token(domain_token, variable_injector_functions.FAKE_NAME_MARKER)
             for injector, injector_values in injector_dictionary.iteritems():
                 entries_dict = self.__inject_variable(location, injector, injector_values)
                 if len(entries_dict) > 0:
@@ -639,7 +638,7 @@ class VariableInjector(object):
 
     def _check_name_token(self, location, name_token):
         if self.__aliases.requires_unpredictable_single_name_handling(location):
-            location.add_name_token(name_token, _fake_name_marker)
+            location.add_name_token(name_token, variable_injector_functions.FAKE_NAME_MARKER)
 
     def _replace_tokens(self, path_string):
         result = path_string

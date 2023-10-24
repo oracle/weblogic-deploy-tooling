@@ -44,8 +44,8 @@ pipeline {
     stages {
         stage ('Environment') {
             tools {
-                maven 'maven-3.8.7'
-                jdk 'jdk8'
+                maven 'maven-3.9.5'
+                jdk 'jdk17'
             }
             steps {
                 sh 'env|sort'
@@ -65,8 +65,8 @@ pipeline {
                 equals(actual: haveVersionsToBuild(), expected: true)
             }
             tools {
-                maven 'maven-3.8.7'
-                jdk 'jdk8'
+                maven 'maven-3.9.5'
+                jdk 'jdk17'
             }
             steps {
                 withMaven(globalMavenSettingsConfig: 'wkt-maven-settings-xml', publisherStrategy: 'EXPLICIT') {

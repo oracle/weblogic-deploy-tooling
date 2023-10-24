@@ -15,6 +15,7 @@ from wlsdeploy.aliases.alias_constants import ACCESS
 from wlsdeploy.aliases.alias_constants import ALIAS_LIST_TYPES
 from wlsdeploy.aliases.alias_constants import ALIAS_MAP_TYPES
 from wlsdeploy.aliases.alias_constants import ATTRIBUTES
+from wlsdeploy.aliases.alias_constants import CREDENTIAL
 from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
 from wlsdeploy.aliases.alias_constants import DEFAULT_VALUE
 from wlsdeploy.aliases.alias_constants import DERIVED_DEFAULT
@@ -36,6 +37,10 @@ from wlsdeploy.aliases.alias_constants import PRODUCTION_DEFAULT
 from wlsdeploy.aliases.alias_constants import PROPERTIES
 from wlsdeploy.aliases.alias_constants import RESTART_REQUIRED
 from wlsdeploy.aliases.alias_constants import RO
+from wlsdeploy.aliases.alias_constants import SECRET_KEY
+from wlsdeploy.aliases.alias_constants import SECRET_PASSWORD_KEY
+from wlsdeploy.aliases.alias_constants import SECRET_SUFFIX
+from wlsdeploy.aliases.alias_constants import SECRET_USERNAME_KEY
 from wlsdeploy.aliases.alias_constants import SECURE_DEFAULT
 from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
@@ -1409,6 +1414,57 @@ class Aliases(object):
                         result = False
         except AliasException, ae:
             self._raise_exception(ae, _method_name, 'WLSDPLY-19045', model_attribute, location.get_folder_path(),
+                                  ae.getLocalizedMessage())
+
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
+
+    def get_secret_suffix(self, location, model_attribute):
+        """
+        Get the secret suffix for the specified location and attribute.
+        :param location: location of the attribute
+        :param model_attribute: model name of attribute to check
+        :return: the secret suffix, or None
+        """
+        _method_name = "get_secret_suffix"
+        self._logger.entering(model_attribute, class_name=self._class_name, method_name=_method_name)
+
+        result = None
+        try:
+            attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute)
+            if attribute_info is not None:
+                result = dictionary_utils.get_element(attribute_info, SECRET_SUFFIX)
+        except AliasException, ae:
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19049', model_attribute, location.get_folder_path(),
+                                  ae.getLocalizedMessage())
+
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
+
+    def get_secret_key(self, location, model_attribute):
+        """
+        Get the secret key for the specified location and attribute.
+        Return the secret_key value, or derive the value from the WLST type.
+        :param location: location of the attribute
+        :param model_attribute: model name of attribute to check
+        :return: the secret key, or None
+        """
+        _method_name = "get_secret_key"
+        self._logger.entering(model_attribute, class_name=self._class_name, method_name=_method_name)
+
+        result = None
+        try:
+            attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute)
+            if attribute_info is not None:
+                result = dictionary_utils.get_element(attribute_info, SECRET_KEY)
+                if not result:
+                    attribute_type = self.get_model_attribute_type(location, model_attribute)
+                    if attribute_type == PASSWORD:
+                        result = SECRET_PASSWORD_KEY
+                    elif attribute_type == CREDENTIAL:
+                        result = SECRET_USERNAME_KEY
+        except AliasException, ae:
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19050', model_attribute, location.get_folder_path(),
                                   ae.getLocalizedMessage())
 
         self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)

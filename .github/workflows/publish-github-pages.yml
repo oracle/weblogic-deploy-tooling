@@ -26,14 +26,14 @@ jobs:
 
     steps:
       - name: Checkout main
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 32
           path: main
 
       - name: Checkout gh-pages
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: gh-pages
           path: gh-pages

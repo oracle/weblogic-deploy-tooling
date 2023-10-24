@@ -10,24 +10,34 @@
         "12.2.1.3": "RJRF_12CR2",
         "12.2.1.4": "RJRF_12CR2",
         "12.2.1.5": "RJRF_12CR2",
-        "14.1.1": "NOT_SUPPORTED"
+        "14.1.1":   "NOT_SUPPORTED",
+        "14.1.2":   "RJRF_14"
     },
     "definitions": {
         "RJRF_12CR2_FIRST": {
             "baseTemplate": "Basic WebLogic Server Domain",
             "extensionTemplates": [ "Oracle Restricted JRF", "Oracle Enterprise Manager-Restricted JRF" ],
             "customExtensionTemplates": [ ],
-            "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSM-CACHE-SVR", "JRF-WS-CORE-MAN-SVR"],
+            "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSM-CACHE-SVR", "JRF-WS-CORE-MAN-SVR" ],
             "rcuSchemas": [ ]
         },
         "RJRF_12CR2": {
             "baseTemplate": "Basic WebLogic Server Domain",
             "extensionTemplates": [ "Oracle Restricted JRF", "Oracle Enterprise Manager-Restricted JRF" ],
             "customExtensionTemplates": [ ],
-            "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSM-CACHE-SVR", "JRF-WS-CORE-MAN-SVR"],
+            "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSM-CACHE-SVR", "JRF-WS-CORE-MAN-SVR"] ,
+            "dynamicClusterServerGroupsToTarget" : [ "WSM-CACHE-DYN-CLUSTER" ],
+            "rcuSchemas": [ ]
+        },
+        "RJRF_14": {
+            "baseTemplate": "Basic WebLogic Server Domain",
+            "extensionTemplates": [ "Oracle Restricted JRF", "Oracle Enterprise Manager-Restricted JRF" ],
+            "customExtensionTemplates": [ ],
+            "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSM-CACHE-SVR", "JRF-WS-CORE-MAN-SVR" ],
             "dynamicClusterServerGroupsToTarget" : [ "WSM-CACHE-DYN-CLUSTER" ],
             "rcuSchemas": [ ]
         }
+
     },
     "discover-filters": {
         "/Application": [

@@ -1,6 +1,6 @@
 """
-Copyright (c) 2020, 2022 Oracle and/or its affiliates.
-Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+Copyright (c) 2020, 2023, Oracle and/or its affiliates.
+Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import unittest
 
@@ -26,6 +26,7 @@ from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.model_constants import WORK_MANAGER
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util import env_helper
 from wlsdeploy.util import model_helper
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
@@ -91,7 +92,7 @@ class CompareModelTestCase(unittest.TestCase):
 
         os.mkdir(_temp_dir)
 
-        mw_home = os.environ['MW_HOME']
+        mw_home = env_helper.getenv('MW_HOME')
         args_map = {
             '-oracle_home': mw_home,
             '-variable_file': _variables_file,
@@ -157,7 +158,7 @@ class CompareModelTestCase(unittest.TestCase):
 
         os.mkdir(_temp_dir)
 
-        mw_home = os.environ['MW_HOME']
+        mw_home = env_helper.getenv('MW_HOME')
         args_map = {
             '-oracle_home': mw_home,
             '-output_dir' : _temp_dir,
@@ -206,7 +207,7 @@ class CompareModelTestCase(unittest.TestCase):
 
         os.mkdir(_temp_dir)
 
-        mw_home = os.environ['MW_HOME']
+        mw_home = env_helper.getenv('MW_HOME')
         args_map = {
             '-oracle_home': mw_home,
             '-output_dir' : _temp_dir,
@@ -255,7 +256,7 @@ class CompareModelTestCase(unittest.TestCase):
         os.mkdir(_temp_dir)
 
 
-        mw_home = os.environ['MW_HOME']
+        mw_home = env_helper.getenv('MW_HOME')
         args_map = {
             '-oracle_home': mw_home,
             '-variable_file': _variables_file,
@@ -289,7 +290,7 @@ class CompareModelTestCase(unittest.TestCase):
             shutil.rmtree(_temp_dir)
         os.mkdir(_temp_dir)
 
-        mw_home = os.environ['MW_HOME']
+        mw_home = env_helper.getenv('MW_HOME')
         args_map = {
             '-oracle_home': mw_home,
             '-variable_file': _variables_file,
@@ -340,7 +341,7 @@ class CompareModelTestCase(unittest.TestCase):
 
         os.mkdir(_temp_dir)
 
-        mw_home = os.environ['MW_HOME']
+        mw_home = env_helper.getenv('MW_HOME')
         args_map = {
             '-oracle_home': mw_home,
             '-variable_file': _variables_file,
@@ -398,7 +399,7 @@ class CompareModelTestCase(unittest.TestCase):
 
         os.mkdir(_temp_dir)
 
-        mw_home = os.environ['MW_HOME']
+        mw_home = env_helper.getenv('MW_HOME')
         args_map = {
             '-oracle_home': mw_home,
             '-variable_file': _variables_file,
@@ -467,7 +468,7 @@ class CompareModelTestCase(unittest.TestCase):
 
         os.mkdir(_temp_dir)
 
-        mw_home = os.environ['MW_HOME']
+        mw_home = env_helper.getenv('MW_HOME')
         args_map = {
             '-oracle_home': mw_home,
             '-variable_file': _variables_file,

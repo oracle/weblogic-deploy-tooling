@@ -228,6 +228,10 @@ class TopologyUpdater(Deployer):
     def is_online_with_ext_templates(self):
         return self.model_context.is_wlst_online() and self.model_context.get_domain_typedef().has_extension_templates()
 
+    def extract_database_wallets(self):
+        if self.archive_helper is not None:
+            self.archive_helper.extract_all_database_wallets()
+
     def _check_for_online_setservergroups_issue(self, existing_list, new_list):
         _method_name = '_check_for_online_setservergroups_issue'
         if len(existing_list) != len(new_list):
@@ -235,7 +239,6 @@ class TopologyUpdater(Deployer):
                 if entity_name not in existing_list:
                     self.logger.warning('WLSDPLY-09701', entity_name,
                                         class_name=self._class_name, method_name=_method_name)
-        return
 
     def _create_list_of_setservergroups_targets(self):
         """

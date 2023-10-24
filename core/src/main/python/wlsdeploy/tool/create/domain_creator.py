@@ -1,6 +1,6 @@
 """
 Copyright (c) 2017, 2023, Oracle and/or its affiliates.
-Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os, re
 import weblogic.security.internal.SerializedSystemIni as SerializedSystemIni
@@ -10,6 +10,7 @@ from java.io import FileOutputStream
 from java.lang import IllegalArgumentException
 from java.util import Properties
 
+from oracle.weblogic.deploy.create import CreateDomainLifecycleHookScriptRunner
 from oracle.weblogic.deploy.create import RCURunner
 from oracle.weblogic.deploy.util import FileUtils
 from wlsdeploy.aliases.location_context import LocationContext
@@ -40,6 +41,8 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPER
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
+from wlsdeploy.aliases.model_constants import ENABLE_JMS_DB_PERSISTENCE
+from wlsdeploy.aliases.model_constants import ENABLE_JTALOG_DB_PERSISTENCE
 from wlsdeploy.aliases.model_constants import FRONTEND_HOST
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS_PROPERTIES
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
@@ -53,6 +56,7 @@ from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PASSWORD
 from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
 from wlsdeploy.aliases.model_constants import PRODUCTION_MODE_ENABLED
+from wlsdeploy.aliases.model_constants import RESOURCES
 from wlsdeploy.aliases.model_constants import RCU_COMP_INFO
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RCU_STG_INFO
@@ -77,6 +81,7 @@ from wlsdeploy.aliases.model_constants import WS_RELIABLE_DELIVERY_POLICY
 from wlsdeploy.aliases.model_constants import WEB_SERVICE_SECURITY
 from wlsdeploy.aliases.model_constants import XML_ENTITY_CACHE
 from wlsdeploy.aliases.model_constants import XML_REGISTRY
+from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.tool.create import atp_helper
@@ -84,12 +89,15 @@ from wlsdeploy.tool.create import opss_helper
 from wlsdeploy.tool.create import ssl_helper
 from wlsdeploy.tool.create import rcudbinfo_helper
 from wlsdeploy.tool.create.creator import Creator
+from wlsdeploy.tool.create.domain_typedef import POST_CREATE_DOMAIN_LIFECYCLE_HOOK
+from wlsdeploy.tool.create.domain_typedef import POST_CREATE_RCU_SCHEMAS_LIFECYCLE_HOOK
 from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
 from wlsdeploy.tool.create.wlsroles_helper import WLSRoles
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy import model_deployer
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.credential_map_helper import CredentialMapHelper
+from wlsdeploy.tool.deploy.datasource_deployer import DatasourceDeployer
 from wlsdeploy.tool.util.default_authenticator_helper import DefaultAuthenticatorHelper
 from wlsdeploy.tool.util.library_helper import LibraryHelper
 from wlsdeploy.tool.util.saml2_security_helper import Saml2SecurityHelper
@@ -101,7 +109,12 @@ from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model
 from wlsdeploy.util import model_helper
 from wlsdeploy.util import string_utils
+from wlsdeploy.aliases.wlst_modes import WlstModes
+
 import wlsdeploy.util.unicode_helper as str_helper
+
+POST_CREATE_RCU_SCHEMA_LOG_BASENAME = 'postCreateRcuSchemasScript'
+POST_CREATE_DOMAIN_LOG_BASENAME = 'postCreateDomainScript'
 
 class DomainCreator(Creator):
     """
@@ -150,7 +163,7 @@ class DomainCreator(Creator):
 
         self.__default_domain_name = None
         self.__default_admin_server_name = None
-
+        self.__fmw_template_default_data_sources_names = None
         archive_file_name = self.model_context.get_archive_file_name()
         if archive_file_name is not None:
             self.archive_helper = ArchiveHelper(archive_file_name, self._domain_home, self.logger,
@@ -182,6 +195,7 @@ class DomainCreator(Creator):
         self.__create_boot_dot_properties()
         self.__create_credential_mappings()
         self.__install_saml2_security_files()
+        self.__run_post_create_domain_script()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
@@ -312,17 +326,14 @@ class DomainCreator(Creator):
 
             # reset these to pick up any defaults from rcu_db_info
 
-            rcu_runner_map[ATP_ADMIN_USER] = rcu_db_info.get_atp_admin_user()
+            rcu_runner_map[ATP_ADMIN_USER] = rcu_db_info.get_rcu_admin_user()
             rcu_runner_map[ATP_TEMPORARY_TABLESPACE] = rcu_db_info.get_atp_temporary_tablespace()
             rcu_runner_map[ATP_DEFAULT_TABLESPACE] = rcu_db_info.get_atp_default_tablespace()
 
             fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
             runner = RCURunner.createAtpRunner(domain_type, oracle_home, java_home, fmw_database,
-                                               rcu_schemas, rcu_prefix,
-                                               rcu_db_info.get_rcu_variables(), rcu_db_info.get_database_type(),
-                                               rcu_runner_map,
-                                               ssl_conn_properties
-                                               )
+                                               rcu_schemas, rcu_prefix, rcu_db_info.get_rcu_variables(),
+                                               rcu_db_info.get_database_type(), rcu_runner_map, ssl_conn_properties)
 
         elif rcu_db_info.is_use_ssl():
 
@@ -330,7 +341,7 @@ class DomainCreator(Creator):
             truststore, keystore_pwd, keystore_type, keystore  = self.__validate_and_get_ssl_rcudbinfo(rcu_db_info)
 
             rcu_runner_map = dict()
-            rcu_db_user = rcu_db_info.get_rcu_db_user()
+            rcu_admin_user = rcu_db_info.get_rcu_admin_user()
             ssl_conn_properties = dict()
 
             self._set_rcu_ssl_args_properties(ssl_conn_properties, rcu_db_info, keystore, keystore_type, truststore,
@@ -342,7 +353,7 @@ class DomainCreator(Creator):
             runner = RCURunner.createSslRunner(domain_type, oracle_home, java_home, fmw_database, rcu_prefix, rcu_schemas,
                                                rcu_db_info.get_rcu_variables(), rcu_runner_map, ssl_conn_properties)
 
-            runner.setRCUAdminUser(rcu_db_user)
+            runner.setRCUAdminUser(rcu_admin_user)
         else:
             # Non-ATP database, use DB config from the command line or RCUDbInfo in the model.
             rcu_db = rcu_db_info.get_rcu_regular_db_conn()
@@ -351,17 +362,19 @@ class DomainCreator(Creator):
                 ex = exception_helper.create_create_exception('WLSDPLY-12572')
                 raise ex
 
-            rcu_db_user = rcu_db_info.get_rcu_db_user()
+            rcu_admin_user = rcu_db_info.get_rcu_admin_user()
 
             runner = RCURunner.createRunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas,
                                             rcu_db_info.get_rcu_variables())
-            runner.setRCUAdminUser(rcu_db_user)
+            runner.setRCUAdminUser(rcu_admin_user)
 
         rcu_comp_info_location = self.__extract_rcu_xml_file(RCU_COMP_INFO, rcu_db_info.get_comp_info_location())
         rcu_storage_location = self.__extract_rcu_xml_file(RCU_STG_INFO, rcu_db_info.get_storage_location())
         runner.setXmlLocations(rcu_comp_info_location, rcu_storage_location)
 
-        runner.runRcu(rcu_sys_pass, rcu_schema_pass)
+        disable_rcu_drop_schema = self.model_context.get_model_config().get_disable_rcu_drop_schema() == 'true'
+        runner.runRcu(rcu_sys_pass, rcu_schema_pass, disable_rcu_drop_schema)
+        self.__run_post_create_rcu_schemas_script()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def _set_rcu_ssl_args_properties(self, ssl_conn_properties, rcu_db_info, keystore, keystore_type, truststore,
@@ -390,6 +403,23 @@ class DomainCreator(Creator):
                                                           DRIVER_PARAMS_TRUSTSTORE_PROPERTY)
             raise ex
 
+    def __run_post_create_rcu_schemas_script(self):
+        _method_name = '__run_post_create_rcu_schemas_script'
+
+        self.logger.entering(self.__class_name, _method_name)
+        script = self._domain_typedef.get_post_create_rcu_schemas_script()
+        if script is None:
+            self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+            return
+
+        java_home = self.model_context.get_java_home()
+        oracle_home = self.model_context.get_oracle_home()
+        runner = CreateDomainLifecycleHookScriptRunner(POST_CREATE_RCU_SCHEMAS_LIFECYCLE_HOOK,
+                                                       POST_CREATE_RCU_SCHEMA_LOG_BASENAME, script, java_home,
+                                                       oracle_home, self._domain_home, self._domain_name)
+        runner.runScript()
+        self.logger.info('WLSDPLY-12577', script, class_name=self.__class_name, method_name=_method_name)
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def __fail_mt_1221_domain_creation(self):
         """
@@ -478,7 +508,6 @@ class DomainCreator(Creator):
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
         model_deployer.deploy_resources_and_apps_for_create(self.model, self.model_context, self.aliases)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __create_base_domain(self, domain_home):
         """
@@ -502,7 +531,6 @@ class DomainCreator(Creator):
         self.wlst_helper.close_template()
         self.wlst_helper.read_domain(domain_home)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __extend_domain(self, domain_home):
         """
@@ -562,7 +590,6 @@ class DomainCreator(Creator):
         # known issue
         self.__apply_base_domain_config(topology_folder_list, delete=True)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __create_base_domain_with_select_template(self, domain_home):
         """
@@ -586,7 +613,6 @@ class DomainCreator(Creator):
         self.wlst_helper.select_template(base_template)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __extend_domain_with_select_template(self, domain_home):
         """
@@ -616,6 +642,10 @@ class DomainCreator(Creator):
 
         self.__set_core_domain_params()
         self.__set_app_dir()
+
+        self.__enable_jms_db_persistence_if_set()
+        self.__enable_jta_tlog_db_persistence_if_set()
+
         if len(extension_templates) > 0:
             self.__configure_fmw_infra_database()
             self.__configure_opss_secrets()
@@ -662,7 +692,6 @@ class DomainCreator(Creator):
         self.__create_security_folder()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __set_server_groups(self):
         _method_name = '__set_server_groups'
@@ -682,13 +711,6 @@ class DomainCreator(Creator):
                 (self._domain_typedef.get_targeting() == TargetingType.APPLY_JRF):
             # for 11g, if template list includes JRF, or if specified in domain typedef, use applyJRF
             self.target_helper.target_jrf_groups_to_clusters_servers()
-        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
-    def __update_domain(self):
-        _method_name = '__update_domain'
-        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
-        self.wlst_helper.update_domain()
-        self.wlst_helper.close_domain()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def __apply_base_domain_config(self, topology_folder_list, delete=True):
@@ -730,8 +752,28 @@ class DomainCreator(Creator):
 
         self.__create_other_domain_artifacts(location, topology_local_list)
 
+        if self.__fmw_template_default_data_sources_names:
+            self._reset_fmw_template_data_source_defaults_from_model()
+
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
+
+    def _reset_fmw_template_data_source_defaults_from_model(self):
+        # Go through the model to find any FMW data sources to override the defaults
+        # from users's model before the first writeDomain.
+        resources_dict = self.model.get_model_resources()
+        if JDBC_SYSTEM_RESOURCE in resources_dict:
+            fmw_resources = {RESOURCES: {JDBC_SYSTEM_RESOURCE: {}}}
+            fmw_jdbc_resources = fmw_resources[RESOURCES][JDBC_SYSTEM_RESOURCE]
+            ds_dict = resources_dict[JDBC_SYSTEM_RESOURCE]
+            for ds_name in ds_dict:
+                fmw_ds = ds_dict[ds_name]
+                if ds_name in self.__fmw_template_default_data_sources_names:
+                    fmw_jdbc_resources[ds_name] = fmw_ds
+            if len(fmw_resources[RESOURCES][JDBC_SYSTEM_RESOURCE]) != 0:
+                ds_location = LocationContext()
+                data_source_deployer = DatasourceDeployer(self.model, self.model_context, self.aliases,
+                                                          WlstModes.OFFLINE)
+                data_source_deployer.add_data_sources(fmw_resources[RESOURCES], ds_location)
 
     def __set_core_domain_params(self):
         """
@@ -813,7 +855,6 @@ class DomainCreator(Creator):
         if len(log_filter_nodes) > 0:
             self._create_named_mbeans(LOG_FILTER, log_filter_nodes, location, log_created=True)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __create_reliable_delivery_policy(self, location):
         """
@@ -829,7 +870,6 @@ class DomainCreator(Creator):
         if len(policy_nodes) > 0:
             self._create_named_mbeans(WS_RELIABLE_DELIVERY_POLICY, policy_nodes, location, log_created=True)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __create_xml_entity_cache(self, location):
         """
@@ -845,7 +885,6 @@ class DomainCreator(Creator):
         if len(cache_nodes) > 0:
             self._create_named_mbeans(XML_ENTITY_CACHE, cache_nodes, location, log_created=True)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __create_xml_registry(self, location):
         """
@@ -861,7 +900,6 @@ class DomainCreator(Creator):
         if len(registry_nodes) > 0:
             self._create_named_mbeans(XML_REGISTRY, registry_nodes, location, log_created=True)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __create_ws_security(self, location):
         """
@@ -875,7 +913,6 @@ class DomainCreator(Creator):
         if len(ws_security) > 0:
             self._create_named_mbeans(WEB_SERVICE_SECURITY, ws_security, location, log_created=True)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __create_machines(self, location, delete_now=True):
         """
@@ -895,7 +932,6 @@ class DomainCreator(Creator):
             self._create_named_mbeans(UNIX_MACHINE, unix_machine_nodes, location, log_created=True,
                                       delete_now=delete_now)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __create_machines_clusters_and_servers(self, delete_now=True):
         """
@@ -961,7 +997,6 @@ class DomainCreator(Creator):
         self.__create_migratable_targets(location, delete_now=delete_now)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __create_migratable_targets(self, location, delete_now=True):
         """
@@ -980,7 +1015,6 @@ class DomainCreator(Creator):
                                       delete_now=delete_now)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __create_other_domain_artifacts(self, location, mbean_type_list):
         """
@@ -1003,7 +1037,6 @@ class DomainCreator(Creator):
                     self._create_mbean(mbean_type, mbean_nodes, location, log_created=True)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __set_connection_property_info(self, root_location, property_name, property_value, info_bucket, encrypted=False):
         p = self.__set_connection_property(root_location, property_name, property_value, encrypted)
@@ -1155,7 +1188,7 @@ class DomainCreator(Creator):
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
 
         # only continue with RCU configuration for domain type that requires RCU.
-        if not self._domain_typedef.required_rcu():
+        if not self._domain_typedef.requires_rcu():
             self.logger.finer('WLSDPLY-12249', class_name=self.__class_name, method_name=_method_name)
             return
 
@@ -1163,15 +1196,6 @@ class DomainCreator(Creator):
         self.__set_rcu_datasource_parameters_without_shadow_table(rcu_db_info)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
-
-
-    def __rcudb_info_in_model(self):
-        model = self.model.get_model()
-        if (DOMAIN_INFO in model and RCU_DB_INFO in model[DOMAIN_INFO]):
-            return True
-        else:
-            return False
 
     def __set_rcu_datasource_parameters_without_shadow_table(self, rcu_db_info):
         """
@@ -1190,9 +1214,9 @@ class DomainCreator(Creator):
         folder_path = self.aliases.get_wlst_list_path(location)
         self.wlst_helper.cd(folder_path)
         ds_names = self.wlst_helper.lsc()
+        self.__fmw_template_default_data_sources_names = ds_names
 
         for ds_name in ds_names:
-
             # Set the driver params
             actual_url = self.__set_datasource_url(ds_name, fmw_database)
             self.__set_datasource_password(ds_name, rcu_schema_pwd)
@@ -1207,6 +1231,7 @@ class DomainCreator(Creator):
 
             self.logger.info('WLSDPLY_12575', ds_name, actual_url, actual_schema, pset,
                              class_name=self.__class_name, method_name=_method_name)
+
 
     def __reset_datasource_template_userid(self, datasource_name, rcu_prefix):
         location = deployer_utils.get_jdbc_driver_params_location(datasource_name, self.aliases)
@@ -1246,9 +1271,8 @@ class DomainCreator(Creator):
 
     def __get_store_path(self, tns_admin, store):
         result = store
-        if not os.path.isabs(store):
-            if tns_admin:
-                result = tns_admin + os.sep + store
+        if (not os.path.isabs(store)) and tns_admin:
+            result = tns_admin + os.sep + store
         return result
 
     def __set_ssl_standard_conn_properties(self, datasource_name, tns_admin, truststore, truststore_pwd,
@@ -1336,7 +1360,43 @@ class DomainCreator(Creator):
         self.wlst_helper.set_option_if_needed(SET_OPTION_APP_DIR, app_dir)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return
+
+    def __enable_jms_db_persistence_if_set(self):
+        """
+        Enable jms db persistence if set
+        """
+        _method_name = '__enable_jms_db_persistence_if_set'
+
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+        if ENABLE_JMS_DB_PERSISTENCE in self._domain_info:
+            location = self.aliases.get_model_section_attribute_location(DOMAIN_INFO)
+            result, __ = self.aliases.is_valid_model_attribute_name(location,
+                                                                    ENABLE_JMS_DB_PERSISTENCE)
+
+            if result == ValidationCodes.VALID:
+                enable_jms_db = self._domain_info[ENABLE_JMS_DB_PERSISTENCE]
+                self.wlst_helper.enable_jms_store_db_persistence(enable_jms_db)
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def __enable_jta_tlog_db_persistence_if_set(self):
+        """
+        Enable jta tlog db persistence if set
+        """
+        _method_name = '__enable_jta_tlog_db_persistence_if_set'
+
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+        if ENABLE_JTALOG_DB_PERSISTENCE in self._domain_info:
+            location = self.aliases.get_model_section_attribute_location(DOMAIN_INFO)
+            result, __ = self.aliases.is_valid_model_attribute_name(location,
+                                                                      ENABLE_JTALOG_DB_PERSISTENCE)
+
+            if result == ValidationCodes.VALID:
+                enable_jta_db = self._domain_info[ENABLE_JTALOG_DB_PERSISTENCE]
+                self.wlst_helper.enable_jta_tlog_store_db_persistence(enable_jta_db)
+
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def __set_domain_name(self):
         _method_name = '__set_domain_name'
@@ -1358,7 +1418,6 @@ class DomainCreator(Creator):
             self.wlst_helper.set_if_needed(DOMAIN_NAME, self._domain_name)
             self.logger.info('WLSDPLY-12227', self.__default_domain_name, self._domain_name,
                              class_name=self.__class_name, method_name=_method_name)
-        return
 
     def __set_admin_password(self):
         """
@@ -1397,7 +1456,6 @@ class DomainCreator(Creator):
                                                           model.get_model_domain_info_key())
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
-        return
 
     def __set_admin_server_name(self):
         """
@@ -1522,6 +1580,24 @@ class DomainCreator(Creator):
         """
         saml2_security_helper = Saml2SecurityHelper(self.model_context, ExceptionType.CREATE)
         saml2_security_helper.extract_initialization_files(self.archive_helper)
+
+    def __run_post_create_domain_script(self):
+        _method_name = '__run_post_create_domain_script'
+
+        self.logger.entering(self.__class_name, _method_name)
+        script = self._domain_typedef.get_post_create_domain_script()
+        if script is None:
+            self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+            return
+
+        java_home = self.model_context.get_java_home()
+        oracle_home = self.model_context.get_oracle_home()
+        runner = CreateDomainLifecycleHookScriptRunner(POST_CREATE_DOMAIN_LIFECYCLE_HOOK,
+                                                       POST_CREATE_DOMAIN_LOG_BASENAME, script, java_home, oracle_home,
+                                                       self._domain_home, self._domain_name)
+        runner.runScript()
+        self.logger.info('WLSDPLY-12576', script, class_name=self.__class_name, method_name=_method_name)
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def __configure_opss_secrets(self):
         _method_name = '__configure_opss_secrets'

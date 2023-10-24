@@ -10,6 +10,5 @@
   ],
   "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},
   "validation_method" : "lax",
-  "credentials_method" : "secrets",
-  "credentials_output_method" : "script"
+  "credentials_method" : "secrets"
 }

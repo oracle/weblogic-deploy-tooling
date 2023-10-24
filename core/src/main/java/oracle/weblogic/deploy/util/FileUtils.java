@@ -365,7 +365,7 @@ public final class FileUtils {
     }
 
     /**
-     * Whether or not the specified file has a YAML file extension.
+     * Whether the specified file has a YAML file extension.
      *
      * @param file the file
      * @return true, if the file extension matches the known YAML file extensions

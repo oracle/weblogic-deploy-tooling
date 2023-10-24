@@ -1,5 +1,5 @@
 {
-  "copyright": "Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.",
+  "copyright": "Copyright (c) 2020, 2023, Oracle and/or its affiliates.",
   "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
   "wlst_type": "WTCServer${:s}",
   "online_bean": "weblogic.management.configuration.WTCServerMBean",
@@ -58,7 +58,7 @@
           "ConnPrincipalName":                   [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "ConnPrincipalName",                   "wlst_path": "WP001", "default_value": null,                       "wlst_type": "string"                } ],
           "ConnectionPolicy":                    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "ConnectionPolicy",                    "wlst_path": "WP001", "default_value": "${__NULL__:ON_DEMAND}",    "wlst_type": "string"                } ],
           "IdentityKeyStoreFileName":            [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "IdentityKeyStoreFileName",            "wlst_path": "WP001", "default_value": null,                       "wlst_type": "string"                } ],
-          "IdentityKeyStorePassPhraseEncrypted": [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "IdentityKeyStorePassPhraseEncrypted", "wlst_path": "WP001", "default_value": null,                       "wlst_type": "password",             "get_method": "GET" } ],
+          "IdentityKeyStorePassPhraseEncrypted": [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "IdentityKeyStorePassPhraseEncrypted", "wlst_path": "WP001", "default_value": null,                       "wlst_type": "password",             "get_method": "GET", "secret_suffix": "identitykeystore" } ],
           "Interoperate":                        [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Interoperate",                        "wlst_path": "WP001", "default_value": "${__NULL__:No}",           "wlst_type": "string"                } ],
           "KeepAlive":                           [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "KeepAlive",                           "wlst_path": "WP001", "default_value": 0,                          "wlst_type": "integer"               } ],
           "KeepAliveWait":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "KeepAliveWait",                       "wlst_path": "WP001", "default_value": 0,                          "wlst_type": "integer"               } ],
@@ -69,13 +69,13 @@
           "NWAddr":                              [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "NWAddr",                              "wlst_path": "WP001", "default_value": "//localhost:8901",         "wlst_type": "string"                } ],
           "Notes":                               [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Notes",                               "wlst_path": "WP001", "default_value": null,                       "wlst_type": "string"                } ],
           "PrivateKeyAlias":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "PrivateKeyAlias",                     "wlst_path": "WP001", "default_value": null,                       "wlst_type": "string"                } ],
-          "PrivateKeyPassPhraseEncrypted":       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "PrivateKeyPassPhraseEncrypted",       "wlst_path": "WP001", "default_value": null,                       "wlst_type": "password",             "get_method": "GET" } ],
+          "PrivateKeyPassPhraseEncrypted":       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "PrivateKeyPassPhraseEncrypted",       "wlst_path": "WP001", "default_value": null,                       "wlst_type": "password",             "get_method": "GET", "secret_suffix": "privatekey" } ],
           "RetryInterval":                       [ {"version": "[10,12.2.1)",       "wlst_mode": "both",   "wlst_name": "RetryInterval",                       "wlst_path": "WP001", "default_value": 60,                         "wlst_type": "${integer:long}",      "get_method": "${LSA:GET}"   } ,
                                                    {"version": "[12.2.1,)",         "wlst_mode": "both",   "wlst_name": "RetryInterval",                       "wlst_path": "WP001", "default_value": 60,                         "wlst_type": "long",                 "get_method": "GET"          } ],
           "Security":                            [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Security",                            "wlst_path": "WP001", "default_value": "${__NULL__:NONE}",         "wlst_type": "string"                } ],
           "SslProtocolVersion":                  [ {"version": "[12.2.1.3,)",       "wlst_mode": "both",   "wlst_name": "S${sl:SL}ProtocolVersion",            "wlst_path": "WP001", "default_value": "${__NULL__:TLSv1.2}",      "wlst_type": "string"                } ],
           "TrustKeyStoreFileName":               [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TrustKeyStoreFileName",               "wlst_path": "WP001", "default_value": null,                       "wlst_type": "string"                } ],
-          "TrustKeyStorePassPhraseEncrypted":    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TrustKeyStorePassPhraseEncrypted",    "wlst_path": "WP001", "default_value": null,                       "wlst_type": "password",             "get_method": "GET" } ],
+          "TrustKeyStorePassPhraseEncrypted":    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TrustKeyStorePassPhraseEncrypted",    "wlst_path": "WP001", "default_value": null,                       "wlst_type": "password",             "get_method": "GET", "secret_suffix": "trustkeystore" } ],
           "UseSsl":                              [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "UseS${sl:SL}",                        "wlst_path": "WP001", "default_value": "${__NULL__:Off}",          "wlst_type": "string"                } ]
       },
       "wlst_attributes_path": "WP001",
@@ -91,12 +91,12 @@
       "folders": {},
       "attributes": {
         "LocalAccessPoint":                    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "LocalAccessPoint",                 "wlst_path": "WP001", "default_value": "myLAP",               "wlst_type": "string"      } ],
-        "LocalPassword":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "LocalPassword",                    "wlst_path": "WP001", "default_value": null,                  "wlst_type": "password",   "get_method": "GET"} ],
-        "LocalPasswordIV":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "LocalPasswordIV",                  "wlst_path": "WP001", "default_value": null,                  "wlst_type": "password",   "get_method": "GET"} ],
+        "LocalPassword":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "LocalPassword",                    "wlst_path": "WP001", "default_value": null,                  "wlst_type": "password",   "get_method": "GET", "secret_suffix": "local"} ],
+        "LocalPasswordIV":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "LocalPasswordIV",                  "wlst_path": "WP001", "default_value": null,                  "wlst_type": "password",   "get_method": "GET", "secret_suffix": "localiv"} ],
         "Notes":                               [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Notes",                            "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string"      } ],
         "RemoteAccessPoint":                   [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "RemoteAccessPoint",                "wlst_path": "WP001", "default_value": "myRAP",               "wlst_type": "string"      } ],
-        "RemotePassword":                      [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "RemotePassword",                   "wlst_path": "WP001", "default_value": null,                  "wlst_type": "password",   "get_method": "GET"} ],
-        "RemotePasswordIV":                    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "RemotePasswordIV",                 "wlst_path": "WP001", "default_value": null,                  "wlst_type": "password",   "get_method": "GET" } ]
+        "RemotePassword":                      [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "RemotePassword",                   "wlst_path": "WP001", "default_value": null,                  "wlst_type": "password",   "get_method": "GET", "secret_suffix": "remote" } ],
+        "RemotePasswordIV":                    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "RemotePasswordIV",                 "wlst_path": "WP001", "default_value": null,                  "wlst_type": "password",   "get_method": "GET", "secret_suffix": "remoteiv" } ]
       },
       "wlst_attributes_path": "WP001",
       "wlst_paths": {
@@ -151,8 +151,8 @@
       "short_name": "Resources",
       "folders": {},
       "attributes": {
-        "AppPassword":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "AppPassword",                      "wlst_path": "WP001", "default_value": null,                  "wlst_type": "password",                       "get_method": "GET"} ],
-        "AppPasswordIv":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "AppPassword${Iv:IV}",              "wlst_path": "WP001", "default_value": null,                  "wlst_type": "password",                       "get_method": "${LSA:GET}" } ],
+        "AppPassword":                       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "AppPassword",                      "wlst_path": "WP001", "default_value": null,                  "wlst_type": "password",                       "get_method": "GET", "secret_suffix": "app" } ],
+        "AppPasswordIv":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "AppPassword${Iv:IV}",              "wlst_path": "WP001", "default_value": null,                  "wlst_type": "password",                       "get_method": "${LSA:GET}", "secret_suffix": "appiv" } ],
         "FldTbl16Class":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "FldTbl16Class${:es}",              "wlst_path": "WP001", "default_value": "[]",                  "wlst_type": "${delimited_string:jarray}",     "get_method": "${LSA:GET}" } ],
         "FldTbl32Class":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "FldTbl32Class${:es}",              "wlst_path": "WP001", "default_value": "[]",                  "wlst_type": "${delimited_string:jarray}",     "get_method": "${LSA:GET}" } ],
         "MBEncodingMapFile":                 [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "MBEncodingMapFile",                "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string"                          } ],

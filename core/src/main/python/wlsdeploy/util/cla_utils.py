@@ -298,27 +298,27 @@ class CommandLineArgUtil(object):
                 value, idx = self._get_arg_value(args, idx)
                 self._validate_rcu_database_arg(value)
                 self._add_arg(key, value)
-                _logger.deprecation('WLSDPLY-31000')
+                _logger.deprecation('WLSDPLY-31000', class_name=self._class_name, method_name=method_name)
             elif self.is_rcu_dbuser_key(key):
                 value, idx = self._get_arg_value(args, idx)
                 self._validate_rcu_dbuser_arg(value)
                 self._add_arg(key, value)
-                _logger.deprecation('WLSDPLY-31001')
+                _logger.deprecation('WLSDPLY-31001', class_name=self._class_name, method_name=method_name)
             elif self.is_rcu_prefix_key(key):
                 value, idx = self._get_arg_value(args, idx)
                 self._validate_rcu_prefix_arg(value)
                 self._add_arg(key, value)
-                _logger.deprecation('WLSDPLY-31002')
+                _logger.deprecation('WLSDPLY-31002', class_name=self._class_name, method_name=method_name)
             elif self.is_rcu_sys_pass_key(key):
                 value, idx = self._get_arg_value(args, idx)
                 self._validate_rcu_sys_pass_arg(value)
                 self._add_arg(key, value)
-                _logger.deprecation('WLSDPLY-31003')
+                _logger.deprecation('WLSDPLY-31003', class_name=self._class_name, method_name=method_name)
             elif self.is_rcu_schema_pass_key(key):
                 value, idx = self._get_arg_value(args, idx)
                 self._validate_rcu_schema_pass_arg(value)
                 self._add_arg(key, value)
-                _logger.deprecation('WLSDPLY-31004')
+                _logger.deprecation('WLSDPLY-31004', class_name=self._class_name, method_name=method_name)
             elif self.is_passphrase_switch(key):
                 value, idx = self._get_arg_value(args, idx)
                 self._validate_passphrase_arg(value)

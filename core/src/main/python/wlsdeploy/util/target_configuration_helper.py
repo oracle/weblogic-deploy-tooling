@@ -3,13 +3,16 @@
 #
 # Shared methods for using target environments (-target abc).
 # Used by discoverDomain and prepareModel.
-import re
 import os
-from java.io import File
+import re
 
+from java.io import File
 from oracle.weblogic.deploy.json import JsonException
 from oracle.weblogic.deploy.util import FileUtils
+from oracle.weblogic.deploy.util import PyOrderedDict
 
+from wlsdeploy.aliases.alias_constants import SECRET_PASSWORD_KEY
+from wlsdeploy.aliases.alias_constants import SECRET_USERNAME_KEY
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
@@ -18,6 +21,7 @@ from wlsdeploy.aliases.model_constants import DEFAULT_ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.json.json_translator import PythonToJson
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import k8s_helper
 from wlsdeploy.tool.util import variable_injector_functions
@@ -26,8 +30,6 @@ from wlsdeploy.tool.util.targets import file_template_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
-from wlsdeploy.json.json_translator import PythonToJson
-
 
 __class_name = 'target_configuration_helper'
 __logger = PlatformLogger('wlsdeploy.tool.util')
@@ -47,10 +49,6 @@ JDBC_CREDENTIALS_SECRET_ONS_PASS_SUFFIX = '-' + JDBC_CREDENTIALS_SECRET_ONS_PASS
 
 RUNTIME_ENCRYPTION_SECRET_NAME = 'runtime-encryption-secret'
 RUNTIME_ENCRYPTION_SECRET_SUFFIX = '-' + RUNTIME_ENCRYPTION_SECRET_NAME
-
-# keys for secrets, such as "password" in "jdbc-mydatasource:password"
-SECRET_USERNAME_KEY = "username"
-SECRET_PASSWORD_KEY = "password"
 
 VZ_EXTRA_CONFIG = 'vz'
 
@@ -77,8 +75,6 @@ ADMIN_USER_SECRET_NAMES = [
 # for matching and refining credential secret names
 JDBC_USER_PATTERN = re.compile('.user.Value$')
 JDBC_USER_REPLACEMENT = '.user-value'
-SECURITY_NM_PATTERN = re.compile('^SecurityConfig.NodeManager')
-SECURITY_NM_REPLACEMENT = 'SecurityConfig.NodeManager.'
 
 K8S_SCRIPT_NAME = 'create_k8s_secrets.sh'
 K8S_SCRIPT_RESOURCE_PATH = 'oracle/weblogic/deploy/k8s/' + K8S_SCRIPT_NAME
@@ -116,20 +112,19 @@ def generate_all_output_files(model, aliases, credential_injector, model_context
     :param model_context: used to determine location and content for the output
     :param exception_type: the type of exception to throw if needed
     """
-    if model_context.is_targetted_config():
-        target_config = model_context.get_target_configuration()
-        credential_cache = credential_injector.get_variable_cache()
+    target_config = model_context.get_target_configuration()
+    credential_cache = credential_injector.get_variable_cache()
 
-        if target_config.generate_results_file():
-            generate_results_json(model_context, credential_cache, model.get_model(), exception_type)
+    if target_config.generate_results_file():
+        generate_results_json(model_context, credential_cache, model.get_model(), exception_type)
 
-        if target_config.generate_output_files():
-            # Generate k8s create secret script
-            generate_k8s_script(model_context, credential_cache, model.get_model(), exception_type)
+    if target_config.generate_output_files():
+        # Generate k8s create secret script
+        generate_k8s_script(model_context, credential_cache, model.get_model(), exception_type)
 
-            # create additional output files
-            additional_output_helper.create_additional_output(model, model_context, aliases, credential_injector,
-                                                              exception_type)
+        # create additional output files
+        additional_output_helper.create_additional_output(model, model_context, aliases, credential_injector,
+                                                          exception_type)
 
 
 def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
@@ -159,19 +154,23 @@ def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
             secret_keys[secret_key] = value
 
     # update the hash with secrets and paired secrets
-    secrets = []
+    secrets = []  # password only
     paired_secrets = [_build_secret_hash(WEBLOGIC_CREDENTIALS_SECRET_NAME, USER_TAG, PASSWORD_TAG)]
+    multi_secrets = []
 
     secret_names = secret_map.keys()
     secret_names.sort()
     for secret_name in secret_names:
         secret_keys = secret_map[secret_name]
         user_name = dictionary_utils.get_element(secret_keys, SECRET_USERNAME_KEY)
+        has_password = SECRET_PASSWORD_KEY in secret_keys
 
-        if user_name is None:
+        if len(secret_keys) == 1 and has_password:
             secrets.append(_build_secret_hash(secret_name, None, PASSWORD_TAG))
-        else:
+        elif len(secret_keys) == 2 and has_password and user_name is not None:
             paired_secrets.append(_build_secret_hash(secret_name, user_name, PASSWORD_TAG))
+        else:
+            multi_secrets.append(_build_multi_hash(secret_name, secret_keys))
 
     # add a secret with a specific comment for runtime encryption
     target_config = model_context.get_target_configuration()
@@ -185,6 +184,7 @@ def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
 
     script_hash['secrets'] = secrets
     script_hash['pairedSecrets'] = paired_secrets
+    script_hash['multiSecrets'] = multi_secrets
     script_hash['longMessage'] = exception_helper.get_message('WLSDPLY-01667', '${LONG_SECRETS_COUNT}')
 
     long_messages = [
@@ -227,7 +227,7 @@ def generate_results_json(model_context, token_dictionary, model_dictionary, exc
 
     result = {
         'domainUID': domain_uid,
-        'secrets': _build_json_secrets_result(model_context, token_dictionary, model_dictionary),
+        'secrets': _build_json_secrets_result(model_context, token_dictionary),
         'clusters': _build_json_cluster_result(model_dictionary),
         'servers': _build_json_server_result(model_dictionary)
     }
@@ -240,26 +240,52 @@ def generate_results_json(model_context, token_dictionary, model_dictionary, exc
                                                 ex.getLocalizedMessage(), error=ex)
 
 
-def _build_json_secrets_result(model_context, token_dictionary, model_dictionary):
-    script_hash = _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary)
+def _build_json_secrets_result(model_context, token_dictionary):
+    """
+    Build a secrets result dictionary for use in the results.json file.
+    Include the runtime encryption secret.
+    Exclude the WebLogic credentials secret if included.
+    :param model_context: use to used to get target configuration
+    :param token_dictionary: the token dictionary from prepare or discover tools
+    :return: the secrets dictionary
+    """
     secrets_map = {}
-    for secretType in ['secrets', 'pairedSecrets']:
-        for node in script_hash[secretType]:
-            secret_name = node['secretName']
-            keys = {}
-            user = dictionary_utils.get_element(node, 'user')
-            if user:
-                # For ui, empty it now.
-                if user.startswith('@@SECRET:'):
-                    user = ""
-                if secret_name == WEBLOGIC_CREDENTIALS_SECRET_NAME:
-                    user = ""
-                keys['username'] = user
+    for property_name in token_dictionary:
+        value = token_dictionary[property_name]
 
-            keys['password'] = ""
-            secret = {'keys': keys}
-            secrets_map[secret_name] = secret
-    return secrets_map
+        # discard unresolved secret value - not sure if this still occurs
+        if value.startswith('@@SECRET:'):
+            value = ""
+
+        halves = property_name.split(':', 1)
+        if len(halves) == 2:
+            secret_name = halves[0]
+            secret_key = halves[1]
+
+            # admin credentials are inserted later, at the top of the list
+            if secret_name == WEBLOGIC_CREDENTIALS_SECRET_NAME:
+                continue
+
+            if secret_name not in secrets_map:
+                secrets_map[secret_name] = {'keys': {}}
+
+            secret_keys = secrets_map[secret_name]['keys']
+            secret_keys[secret_key] = value
+
+    # runtime encryption key is not included in token_dictionary
+    target_config = model_context.get_target_configuration()
+    additional_secrets = target_config.get_additional_secrets()
+    if RUNTIME_ENCRYPTION_SECRET_NAME in additional_secrets:
+        secrets_map[RUNTIME_ENCRYPTION_SECRET_NAME] = {'keys': {'password': ''}}
+
+    # sort by secret name
+    secret_names = secrets_map.keys()
+    secret_names.sort()
+    sorted_map = PyOrderedDict()
+    for secret_name in secret_names:
+        sorted_map[secret_name] = secrets_map[secret_name]
+
+    return sorted_map
 
 
 def _build_json_cluster_result(model_dictionary):
@@ -330,59 +356,104 @@ def format_as_overrides_secret(secret_id):
 
 def get_secret_name_for_location(location, domain_uid, aliases):
     """
-    Returns the secret name for the specified model location.
+    Returns the secret name for the specified model location, such as mydomain-opsssecrets:password.
     Example: mydomain-jdbc-mydatasource
     :param location: the location to be evaluated
     :param domain_uid: used to prefix the secret name
     :param aliases: used to examine the location
     :return: the secret name
     """
-    variable_name = variable_injector_functions.format_variable_name(location, '(none)', aliases)
-    secret_name = create_secret_name(variable_name)
+    secret_name = format_secret_name(location, location, None, aliases)
     return domain_uid + '-' + secret_name
 
 
-def create_secret_name(variable_name, suffix=None):
+def get_secret_path(model_location, attribute_location, attribute, aliases, suffix=None):
     """
-    Return the secret name derived from the specified property variable name.
-    Some corrections are made for known attributes to associate user names with passwords.
-    Remove the last element of the variable name, which corresponds to the attribute name.
-    Follow limitations for secret names: only alphanumeric and "-", must start and end with alphanumeric.
-    For example, "JDBC.Generic1.PasswordEncrypted" becomes "jdbc-generic1".
-    :param variable_name: the variable name to be converted
+    Get the full secret path <secretName>:<secretKey>
+    Example: mail-mymailsession-properties-smtp:password
+    :param model_location: the model location of the attribute
+    :param attribute_location: the alias location of the attribute
+    :param attribute: the attribute to be evaluated, or None
+    :param aliases: for information about the location and attribute
     :param suffix: optional suffix for the name, such as "pop3.user"
-    :return: the derived secret name
+    :return: the secret path
     """
+    short_name = variable_injector_functions.get_short_name(model_location, attribute, aliases)
+    secret_name = format_secret_name(model_location, attribute_location, attribute, aliases, suffix)
 
-    # JDBC user ends with ".user.Value", needs to be .user-value to match with password
-    variable_name = JDBC_USER_PATTERN.sub(JDBC_USER_REPLACEMENT, variable_name)
+    if JDBC_USER_PATTERN.search(short_name):
+        # JDBC user property is still a special case
+        secret_key = SECRET_USERNAME_KEY
+    elif suffix:
+        # derive the secret key from the suffix, specific to MailSession
+        secret_key = SECRET_USERNAME_KEY
+        if suffix.endswith(".password"):
+            secret_key = SECRET_PASSWORD_KEY
+    else:
+        # derive the secret key from the alias
+        secret_key = aliases.get_secret_key(attribute_location, attribute)
+        secret_key = secret_key or 'unknown'
 
-    # associate the two SecurityConfiguration.NodeManager* credentials, distinct from CredentialEncrypted
-    variable_name = SECURITY_NM_PATTERN.sub(SECURITY_NM_REPLACEMENT, variable_name)
+    return '%s:%s' % (secret_name, secret_key)
 
-    # append the suffix ir present, such as mail-mymailsession-properties-pop3.user
+
+def format_secret_name(model_location, attribute_location, attribute, aliases, suffix=None):
+    """
+    Return a secret name for the specified attribute and location.
+    Some corrections are made for known attributes to associate usernames with passwords.
+    Remove the last element of the variable name, which corresponds to the attribute name.
+    Example: mail-mymailsession-properties-smtp
+    :param model_location: the model location of the attribute
+    :param attribute_location: the alias location of the attribute
+    :param attribute: the attribute to be evaluated, or None
+    :param aliases: for information about the location and attribute
+    :param suffix: optional suffix for the name, such as "pop3.user"
+    :return: the secret name
+    """
+    _method_name = 'format_secret_name'
+
+    # if no attribute passed in, use placeholder
+    short_attribute = attribute or '(none)'
+    short_attribute = re.sub('[.]', '-', short_attribute)  # RCU attributes have "."
+    short_name = variable_injector_functions.get_short_name(model_location, short_attribute, aliases)
+
+    # JDBC user ends with ".user.Value", needs to be .user-value to match with password secret
+    short_name = JDBC_USER_PATTERN.sub(JDBC_USER_REPLACEMENT, short_name)
+
+    # append the suffix if present, such as mail-mymailsession-properties-pop3.user
     if suffix:
-        variable_name = '%s-%s' % (variable_name, suffix)
+        short_name = '%s-%s' % (short_name, suffix)
 
-    variable_keys = variable_name.lower().split('.')
+    # split the short name into keys
+    name_keys = short_name.lower().split('.')
+    is_single_key = len(name_keys) == 1
 
     # admin user and password have a special secret name
-    if variable_keys[-1] in [ADMIN_USERNAME_KEY, ADMIN_PASSWORD_KEY]:
+    if name_keys[-1] in [ADMIN_USERNAME_KEY, ADMIN_PASSWORD_KEY]:
         return WEBLOGIC_CREDENTIALS_SECRET_NAME
 
-    # if the attribute was not in a folder, append an extra key to be skipped, such as opsssecrets.x
-    if len(variable_keys) == 1:
-        variable_keys.append('x')
+    # discard the last key (the attribute), unless it is the only key
+    if len(name_keys) > 1:
+        name_keys = name_keys[:-1]
 
-    secret_keys = []
-    for variable_key in variable_keys[:-1]:
-        secret_key = re.sub('[^a-z0-9-]', '-', variable_key)
-        secret_keys.append(secret_key)
+    # join the secret keys with hyphens, remove leading and trailing hyphens
+    secret = '-'.join(name_keys)
+    secret = re.sub('[^a-z0-9-]', '-', secret)
+    secret = secret.strip('-')
 
-    # rejoin with hyphens, remove leading and trailing hyphens from final name.
-    # if empty, just return "x".
-    secret = '-'.join(secret_keys).strip('-')
-    return secret or 'x'
+    # apply the alias suffix if present.
+    # aliases may define a suffix to distinguish multiple credentials.
+    alias_suffix = aliases.get_secret_suffix(attribute_location, attribute)
+    if alias_suffix:
+        if is_single_key:
+            # replace a single name (top-level attribute) with the alias suffix
+            secret = alias_suffix
+        else:
+            # append to secret
+            secret = '%s-%s' % (secret, alias_suffix)
+
+    # if the secret was empty, just return "secret"
+    return secret or 'secret'
 
 
 def _build_secret_hash(secret_name, user, password):
@@ -399,3 +470,27 @@ def _build_secret_hash(secret_name, user, password):
     else:
         message = exception_helper.get_message("WLSDPLY-01663", PASSWORD_TAG, secret_name)
         return {'secretName': secret_name, 'password': password, 'comments': [{'comment': message}]}
+
+
+def _build_multi_hash(secret_name, secret_key_map):
+    """
+    Build a hash for a single secret, for use with the create secrets script template.
+    :param secret_name: the name of the secret
+    :param secret_key_map: a map of secret names to values
+    :return: a secret hash
+    """
+    secret_pairs = []
+    update_values = []
+    for secret_key in secret_key_map:
+        value = secret_key_map[secret_key]
+        if not value:
+            value = '<' + secret_key + '>'
+            update_values.append(value)
+        secret_pairs.append('"' + secret_key + '=' + value + '"')
+
+    secret_pairs_text = ' '.join(secret_pairs)
+    message = exception_helper.get_message("WLSDPLY-01684", secret_name)
+    if update_values:
+        message = exception_helper.get_message("WLSDPLY-01683", secret_name, ', '.join(update_values))
+
+    return {'secretName': secret_name, 'secretPairs': secret_pairs_text, 'comments': [{'comment': message}]}

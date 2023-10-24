@@ -17,6 +17,7 @@
     </parent>
 
     <properties>
+        <wls_version>${env.WLS_VERSION}</wls_version>
         <mw_home>${env.ORACLE_HOME}</mw_home>
         <wls_java_home>${env.JAVA_HOME}</wls_java_home>
         <test_home>${project.build.directory}/test-home</test_home>
@@ -26,6 +27,8 @@
         <online_domain_home>${online_domain_parent}/${domain_name}</online_domain_home>
         <offline_domain_home>${offline_domain_parent}/${domain_name}</offline_domain_home>
         <skip-wdt-install>${alias-test-skip-generate}</skip-wdt-install>
+        <alias-test-generated-offline-file-name>generatedOffline-${wls_version}.json</alias-test-generated-offline-file-name>
+        <alias-test-generated-online-file-name>generatedOnline-${wls_version}.json</alias-test-generated-online-file-name>
     </properties>
 
     <build>
@@ -57,6 +60,26 @@
                                     </message>
                                     <regex>^[a-zA-Z0-9_]+.*$</regex>
                                     <regexMessage>The alias_test_tenancy must start with an alphanumeric character</regexMessage>
+                                </requireProperty>
+                            </rules>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>enforce-wls-version-for-install</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${alias-test-skip-generate}</skip>
+                            <rules>
+                                <requireProperty>
+                                    <property>wls_version</property>
+                                    <message>
+                                        You must specify the wls_version property that determines the version used for verification of the aliases.
+                                    </message>
+                                    <regex>^\d+(\.\d+){3,5}$</regex>
+                                    <regexMessage>The wls_version must be a proper WLS version number with 4 to 6 numbers</regexMessage>
                                 </requireProperty>
                             </rules>
                         </configuration>
@@ -326,29 +349,6 @@
                         <configuration>
                             <executable>${project.basedir}/src/test/bin/verifyGeneration.sh</executable>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.gmaven</groupId>
-                <artifactId>gmaven-plugin</artifactId>
-                <configuration>
-                    <!--
-                        This plugin does not support the skip parameter so putting the functionality into the script
-                    -->
-                    <properties>
-                        <skip>${alias-test-skip-generate}</skip>
-                        <buildDir>${project.build.directory}</buildDir>
-                    </properties>
-                    <source>${project.basedir}/src/test/bin/GetFileNames.groovy</source>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>get-generated-file-names</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>execute</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>

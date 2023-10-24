@@ -152,8 +152,9 @@ variableSetup() {
     # set the WLSDEPLOY_HOME variable. if it was already set, verify that it is valid
 
     if [ -z "${WLSDEPLOY_HOME}" ]; then
-        BASEDIR="$( cd "$( dirname "$0" )" && pwd )"
-        WLSDEPLOY_HOME=`cd "${BASEDIR}/.." ; pwd`
+        SCRIPT_DIR="`dirname "$0"`"
+        BASEDIR="`cd "${SCRIPT_DIR}" && pwd `"
+        WLSDEPLOY_HOME="`cd "${BASEDIR}/.." ; pwd`"
         export WLSDEPLOY_HOME
     elif [ ! -d "${WLSDEPLOY_HOME}" ]; then
         echo "Specified WLSDEPLOY_HOME of ${WLSDEPLOY_HOME} does not exist" >&2

@@ -1,12 +1,12 @@
 +++
 title = "Release Notes"
 date = 2019-02-22T15:27:38-05:00
-weight = 88
+weight = 82
 pre = "<b> </b>"
 +++
 
 
-### Changes in Release 3.2.1
+### Changes in Release 3.3.0
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -17,16 +17,17 @@ pre = "<b> </b>"
 None
 
 #### Other Changes
-- #1465 - Initial, limited i18n translation bundles added
+- #1517 - Added a `postCreateRcuSchemasScript` element to the typedef file definitions to accommodate extra
+  schema patching work required for Oracle Identity Governance domain creation.
+- #1519 - Added `rcu_admin_user` field to the `domainInfo:/RCUDbInfo` section to replace `rcu_db_user`, which is now
+  deprecated and will be removed in a future release.  This field is optional and will default to the appropriate
+  admin user name: `admin` when using an ATP database and `SYS` otherwise. 
 
 #### Bug Fixes
-- #1466 - Updated `Server` and `ServerTemplate` aliases to add new 14.1.2 offline attributes.
-- #1467 - Updated `CoherenceSystemResource` aliases to add new 14.1.2 `SecuredProduction` online attribute.
-- #1468 - Fixed an error related to tool initialization with WebLogic Server versions earlier than 12.2.1 (Issue #1466).
-- #1469 - Corrected method names used for logging so that they are the same as the actual method name in which they are
-          being used.
-- #1470 - Fixed system-test test 35 to allow it to succeed when run on machines other than the Jenkins slaves.
-- #1471 - Fixed a `discoverDomain` issue that was causing errors while looking for `SecureMode` on WebLogic Server
-          versions earlier than 12.2.1.1 (Issue #1467).
+- #1518 - Fixed an issue when using an ATP database as the RCU schema repository that was causing
+  `config/fmwconfig/jps-config.xml` to contain a clear text password after JRF domain creation.
 
 #### Known Issues
+None
+
+See https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/ for the current set of known limitations.

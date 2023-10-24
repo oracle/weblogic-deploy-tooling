@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
     Copyright (c) 2017, 2023, Oracle and/or its affiliates.
-    Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+    Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -38,13 +38,15 @@
         <weblogic-deploy-installer-name>weblogic-deploy</weblogic-deploy-installer-name>
         <skipTests>false</skipTests>
         <antlr.version>4.9.3</antlr.version>
-        <snakeyaml.version>2.0</snakeyaml.version>
-        <picocli.version>4.7.4</picocli.version>
+        <snakeyaml.version>2.2</snakeyaml.version>
+        <picocli.version>4.7.5</picocli.version>
         <sshj.version>0.35.0</sshj.version>
         <eddsa.version>0.3.0</eddsa.version>
         <slf4j.version>2.0.7</slf4j.version>
         <jzlib.version>1.1.3</jzlib.version>
         <asn.one.version>0.6.0</asn.one.version>
+        <junit.version>5.10.0</junit.version>
+
         <wdt.scm.repo.url>${env.WDT_SCM_REPO_URL}</wdt.scm.repo.url>
         <wdt.scm.repo.conn>${env.WDT_SCM_REPO_CONN}</wdt.scm.repo.conn>
 
@@ -86,46 +88,6 @@
                 <version>${snakeyaml.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.python</groupId>
-                <artifactId>jython</artifactId>
-                <version>2.2.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-engine</artifactId>
-                <version>5.9.3</version>
-            </dependency>
-            <dependency>
-                <groupId>org.easymock</groupId>
-                <artifactId>easymock</artifactId>
-                <version>5.1.0</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>32.0.1-jre</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>2.3.1</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>2.13.0</version>
-            </dependency>
-            <dependency>
-                <groupId>info.picocli</groupId>
-                <artifactId>picocli</artifactId>
-                <version>${picocli.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter-params</artifactId>
-                <version>5.9.3</version>
-            </dependency>
-            <dependency>
                 <groupId>com.hierynomus</groupId>
                 <artifactId>sshj</artifactId>
                 <version>${sshj.version}</version>
@@ -155,6 +117,46 @@
                 <artifactId>asn-one</artifactId>
                 <version>${asn.one.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.python</groupId>
+                <artifactId>jython</artifactId>
+                <version>2.2.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>${junit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-params</artifactId>
+                <version>${junit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.easymock</groupId>
+                <artifactId>easymock</artifactId>
+                <version>5.2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>32.1.3-jre</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>2.3.1</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.14.0</version>
+            </dependency>
+            <dependency>
+                <groupId>info.picocli</groupId>
+                <artifactId>picocli</artifactId>
+                <version>${picocli.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -174,12 +176,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>3.3.0</version>
+                    <version>3.4.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>3.2.1</version>
                     <configuration>
                         <groups>${test.groups}</groups>
                     </configuration>
@@ -215,7 +217,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>3.2.1</version>
                 </plugin>
                 <plugin>
                     <groupId>io.rhpatrick.mojo</groupId>
@@ -240,7 +242,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.10</version>
+                    <version>0.8.11</version>
                     <executions>
                         <execution>
                             <id>prepare-agent</id>
@@ -254,13 +256,19 @@
                             <goals>
                                 <goal>report</goal>
                             </goals>
+                            <!-- jacoco does not support multi-release jars -->
+                            <configuration>
+                                <excludes>
+                                    <exclude>META-INF/**</exclude>
+                                </excludes>
+                            </configuration>
                         </execution>
                     </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.sonarsource.scanner.maven</groupId>
                     <artifactId>sonar-maven-plugin</artifactId>
-                    <version>3.9.1.2184</version>
+                    <version>3.10.0.2594</version>
                 </plugin>
                 <plugin>
                     <groupId>com.labun.buildnumber</groupId>
@@ -290,42 +298,6 @@
                         <arg>-Xlint:all</arg>
                     </compilerArgs>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>enforce-build-environment</id>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                        <configuration>
-                            <rules>
-                                <requireJavaVersion>
-                                    <version>1.8.0</version>
-                                    <message>You must use JDK 8 to build the project since the encryption utilities unit test requires JDK 8 due to the encryption algorithms used</message>
-                                </requireJavaVersion>
-                            </rules>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>enforce-wlst</id>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${skipTests}</skip>
-                            <rules>
-                                <requireProperty>
-                                    <property>unit-test-wlst-dir</property>
-                                    <message>Unable to find WLST in order to run unit tests. Please set the unit-test-wlst-dir System property to point to the directory where wlst.sh lives in the Oracle Home. Or, set WLST_DIR environment variable. An example can be found in .mvn/maven.config-template. Optionally, you may -DskipTests.
-                                    </message>
-                                </requireProperty>
-                            </rules>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>

@@ -647,6 +647,7 @@ public class PlatformLogger {
         return details;
     }
 
+    @SuppressWarnings("deprecation")
     private LogRecord getLogRecord(Level level, CallerDetails details, String msg, Throwable error, Object... params) {
         LogRecord logRecord = new LogRecord(level, msg);
         logRecord.setLoggerName(this.getName());

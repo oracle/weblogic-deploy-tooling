@@ -302,7 +302,7 @@
                                           "default_name_value": "${NO_NAME_0:%QUEUE%}",
                                           "folders": {},
                                           "attributes": {
-                                                "ErrorDestination":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ErrorDestination",        "wlst_path": "WP001", "default_value": null,                "wlst_type": "string", "get_method": "LSA", "set_method": "MBEAN.set_jms_error_destination_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.DestinationBean"} ],
+                                                "ErrorDestination":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ErrorDestination",        "wlst_path": "WP001", "default_value": null,                "wlst_type": "string", "get_method": "${LSA:GET}", "set_method": "MBEAN.set_jms_error_destination_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.DestinationBean"} ],
                                                 "ExpirationLoggingPolicy": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ExpirationLoggingPolicy", "wlst_path": "WP001", "default_value": null,                "wlst_type": "string"  } ],
                                                 "ExpirationPolicy":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ExpirationPolicy",        "wlst_path": "WP001", "default_value": "${__NULL__:Discard}", "derived_default": "${:true}", "wlst_type": "string"  } ],
                                                 "RedeliveryLimit":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RedeliveryLimit",         "wlst_path": "WP001", "default_value": -1,                  "derived_default": "${:true}", "wlst_type": "integer" } ],
@@ -421,7 +421,7 @@
                                     "LogFormat":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LogFormat",                  "wlst_path": "WP001", "default_value": null,                "wlst_type": "string", "restart_required": "true" } ],
                                     "Notes":               [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                      "wlst_path": "WP001", "default_value": null,                "wlst_type": "string"  } ],
                                     "Policy":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Policy",                     "wlst_path": "WP001", "default_value": "${__NULL__:Discard}",   "wlst_type": "string", "restart_required": "true" } ],
-                                    "SafErrorDestination": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Saf:SAF}ErrorDestination", "wlst_path": "WP001", "default_value": null,                "wlst_type": "string", "get_method": "LSA", "set_method": "MBEAN.set_saf_error_destination_mbean"} ]
+                                    "SafErrorDestination": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "${Saf:SAF}ErrorDestination", "wlst_path": "WP001", "default_value": null,                "wlst_type": "string", "get_method": "${LSA:GET}", "set_method": "MBEAN.set_saf_error_destination_mbean"} ]
                               },
                               "wlst_attributes_path": "WP001",
                               "wlst_paths": {
@@ -585,7 +585,7 @@
                                           "default_name_value": "${NO_NAME_0:%TEMPLATE%}",
                                           "folders": {},
                                           "attributes": {
-                                                "ErrorDestination":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ErrorDestination",        "wlst_path": "WP001", "default_value": null,                "wlst_type": "string", "get_method": "LSA", "set_method": "MBEAN.set_jms_error_destination_mbean",  "set_mbean_type": "weblogic.j2ee.descriptor.wl.DestinationBean"} ],
+                                                "ErrorDestination":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ErrorDestination",        "wlst_path": "WP001", "default_value": null,                "wlst_type": "string", "get_method": "${LSA:GET}", "set_method": "MBEAN.set_jms_error_destination_mbean",  "set_mbean_type": "weblogic.j2ee.descriptor.wl.DestinationBean"} ],
                                                 "ExpirationLoggingPolicy": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ExpirationLoggingPolicy", "wlst_path": "WP001", "default_value": null,                "wlst_type": "string"  } ],
                                                 "ExpirationPolicy":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ExpirationPolicy",        "wlst_path": "WP001", "default_value": "${__NULL__:Discard}", "derived_default": "${:true}", "wlst_type": "string"  } ],
                                                 "RedeliveryLimit":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RedeliveryLimit",         "wlst_path": "WP001", "default_value": -1,                  "derived_default": "${:true}", "wlst_type": "integer" } ],
@@ -620,7 +620,7 @@
                                           "child_folders_type": "multiple",
                                           "folders": {},
                                           "attributes": {
-                                                "ErrorDestination":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ErrorDestination",  "wlst_path": "WP001", "default_value": null,  "wlst_type": "string", "get_method": "LSA", "set_method": "MBEAN.set_jms_error_destination_mbean",  "set_mbean_type": "weblogic.j2ee.descriptor.wl.DestinationBean"} ],
+                                                "ErrorDestination":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ErrorDestination",  "wlst_path": "WP001", "default_value": null,  "wlst_type": "string", "get_method": "${LSA:GET}", "set_method": "MBEAN.set_jms_error_destination_mbean",  "set_mbean_type": "weblogic.j2ee.descriptor.wl.DestinationBean"} ],
                                                 "SubDeploymentName": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "SubDeploymentName", "wlst_path": "WP001", "default_value": null,  "wlst_type": "string", "restart_required": "true" } ]
                                           },
                                           "wlst_attributes_path": "WP001",
@@ -729,7 +729,7 @@
                                           "default_name_value": "${NO_NAME_0:%TOPIC%}",
                                           "folders": {},
                                           "attributes": {
-                                                "ErrorDestination":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ErrorDestination",        "wlst_path": "WP001", "default_value": null,                "wlst_type": "string", "get_method": "LSA", "set_method": "MBEAN.set_jms_error_destination_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.DestinationBean"} ],
+                                                "ErrorDestination":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ErrorDestination",        "wlst_path": "WP001", "default_value": null,                "wlst_type": "string", "get_method": "${LSA:GET}", "set_method": "MBEAN.set_jms_error_destination_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.DestinationBean"} ],
                                                 "ExpirationLoggingPolicy": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ExpirationLoggingPolicy", "wlst_path": "WP001", "default_value": null,                "wlst_type": "string"  } ],
                                                 "ExpirationPolicy":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ExpirationPolicy",        "wlst_path": "WP001", "default_value": "${__NULL__:Discard}",   "derived_default": "${:true}", "wlst_type": "string"  } ],
                                                 "RedeliveryLimit":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RedeliveryLimit",         "wlst_path": "WP001", "default_value": -1,                  "derived_default": "${:true}", "wlst_type": "integer" } ],
@@ -973,7 +973,7 @@
                                           "default_name_value": "${NO_NAME_0:%UNIFORMDISTRIBUTEDTOPIC%}",
                                           "folders": {},
                                           "attributes": {
-                                                "ErrorDestination":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ErrorDestination",        "wlst_path": "WP001", "default_value": null,                "wlst_type": "string", "get_method": "LSA", "set_method": "MBEAN.set_jms_error_destination_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.DestinationBean"} ],
+                                                "ErrorDestination":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ErrorDestination",        "wlst_path": "WP001", "default_value": null,                "wlst_type": "string", "get_method": "${LSA:GET}", "set_method": "MBEAN.set_jms_error_destination_mbean", "set_mbean_type": "weblogic.j2ee.descriptor.wl.DestinationBean"} ],
                                                 "ExpirationLoggingPolicy": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ExpirationLoggingPolicy", "wlst_path": "WP001", "default_value": null,                "wlst_type": "string"  } ],
                                                 "ExpirationPolicy":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ExpirationPolicy",        "wlst_path": "WP001", "default_value": "${__NULL__:Discard}",   "derived_default": "${:true}", "wlst_type": "string"  } ],
                                                 "RedeliveryLimit":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RedeliveryLimit",         "wlst_path": "WP001", "default_value": -1,                  "derived_default": "${:true}", "wlst_type": "integer" } ],

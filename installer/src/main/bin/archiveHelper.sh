@@ -26,7 +26,7 @@
 
 WLSDEPLOY_PROGRAM_NAME="archiveHelper"; export WLSDEPLOY_PROGRAM_NAME
 
-scriptPath=$(dirname "$0")
+scriptPath=`dirname "$0"`
 
 . "$scriptPath/shared.sh"
 

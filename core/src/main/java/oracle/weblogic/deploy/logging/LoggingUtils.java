@@ -22,6 +22,7 @@ public class LoggingUtils {
      * @param logRecord the log record to copy
      * @return the cloned log record without the exception
      */
+    @SuppressWarnings("deprecation")
     public static LogRecord cloneRecordWithoutException(LogRecord logRecord) {
         LogRecord newRecord = new LogRecord(logRecord.getLevel(), logRecord.getMessage());
 
