@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+ * Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.logging;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -647,18 +648,17 @@ public class PlatformLogger {
         return details;
     }
 
-    @SuppressWarnings("deprecation")
     private LogRecord getLogRecord(Level level, CallerDetails details, String msg, Throwable error, Object... params) {
         LogRecord logRecord = new LogRecord(level, msg);
         logRecord.setLoggerName(this.getName());
-        logRecord.setMillis(System.currentTimeMillis());
+        logRecord.setInstant(Instant.now());
         if (params != null && params.length != 0) {
             logRecord.setParameters(params);
         }
         logRecord.setResourceBundle(logger.getResourceBundle());
         logRecord.setSourceClassName(details.clazz);
         logRecord.setSourceMethodName(details.method);
-        logRecord.setThreadID((int)Thread.currentThread().getId());
+        logRecord.setLongThreadID(Thread.currentThread().getId());
         logRecord.setThrown(error);
         return logRecord;
     }

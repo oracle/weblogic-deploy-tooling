@@ -1,8 +1,8 @@
 pipeline {
     agent any
     tools {
-        maven 'maven-3.8.7'
-        jdk 'jdk8'
+        maven 'maven-3.9.5'
+        jdk 'jdk17'
     }
     parameters {
         string(name: 'parent_git_commit', description: 'The git commit ID used by the main build')

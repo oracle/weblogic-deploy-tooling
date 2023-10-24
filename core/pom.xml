@@ -99,10 +99,78 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-build-environment</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>17</version>
+                                    <message>You must use JDK 17 to build the project</message>
+                                </requireJavaVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>enforce-wlst</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skipTests}</skip>
+                            <rules>
+                                <requireProperty>
+                                    <property>unit-test-wlst-dir</property>
+                                    <message>Unable to find WLST in order to run unit tests. Please set the unit-test-wlst-dir System property to point to the directory where wlst.sh lives in the Oracle Home. Or, set WLST_DIR environment variable. An example can be found in .mvn/maven.config-template. Optionally, you may -DskipTests.
+                                    </message>
+                                </requireProperty>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <source>${maven.compiler.source}</source>
+                            <target>${maven.compiler.target}</target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>compile-java-17</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <release>17</release>
+                            <source>17</source>
+                            <target>17</target>
+                            <compileSourceRoots>
+                                <compileSourceRoot>${project.basedir}/src/main/java17</compileSourceRoot>
+                            </compileSourceRoots>
+                            <multiReleaseOutput>true</multiReleaseOutput>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
                     <archive>
                         <manifestEntries>
+                            <Multi-Release>true</Multi-Release>
                             <Class-Path>antlr4-runtime-${antlr.version}.jar snakeyaml-${snakeyaml.version}.jar picocli-${picocli.version}.jar</Class-Path>
                         </manifestEntries>
                     </archive>

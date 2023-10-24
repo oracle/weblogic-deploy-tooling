@@ -15,8 +15,8 @@ pipeline {
     stages {
         stage ('Environment') {
             tools {
-                maven 'maven-3.8.7'
-                jdk 'jdk8'
+                maven 'maven-3.9.5'
+                jdk 'jdk17'
             }
             steps {
                 sh 'env|sort'
@@ -25,8 +25,8 @@ pipeline {
         }
         stage ('Build') {
             tools {
-                maven 'maven-3.8.7'
-                jdk 'jdk8'
+                maven 'maven-3.9.5'
+                jdk 'jdk17'
             }
             steps {
                 // Using Maven batch mode to suppress download progress lines in Jenkins output
@@ -41,7 +41,7 @@ pipeline {
                 docker {
                     alwaysPull true
                     reuseNode true
-                    image 'phx.ocir.io/devweblogic/wdt/jenkins-slave:122130'
+                    image 'phx.ocir.io/devweblogic/wdt/jenkins-slave:12.2.1.3.0'
                     args "-u ${jenkins_uid}:${jenkins_gid} --group-add oracle --group-add opc -v /var/run/docker.sock:/var/run/docker.sock"
                 }
             }
@@ -68,7 +68,7 @@ pipeline {
                 docker {
                     alwaysPull true
                     reuseNode true
-                    image "phx.ocir.io/${wdt_tenancy}/wdt/jenkins-slave:122130"
+                    image "phx.ocir.io/${wdt_tenancy}/wdt/jenkins-slave:12.2.1.3.0"
                     args "-u ${jenkins_uid}:${docker_gid} --group-add oracle --group-add opc --group-add docker -v /var/run/docker.sock:/var/run/docker.sock"
                 }
             }
