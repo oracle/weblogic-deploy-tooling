@@ -128,9 +128,23 @@ in place when running WDT tools like the Create Domain or Update Domain tools.
 The root directory under which script files are stored. These can include JDBC create scripts and WLDF action scripts.
 
 #### `wlsdeploy/security/saml2`
-The directory under which initialization files can be stored for use with the SAML2 Identity Asserter. These files can include `saml2idppartner.properties` and `saml2sppartner.properties`, and any XML metadata files they reference. These files are added to the archive by the Discover Domain Tool, and extracted by the Create Domain and Update Domain Tools.
+The directory under which SAML2 partner data initialization files can be stored for use with the SAML2 Identity Asserter.
+These files can include `saml2idppartner.properties` and `saml2sppartner.properties`, and any XML metadata files they reference.
 
-Initialization files and their metadata files are not deployed if a corresponding `<filename>.initialized` file is present in the domain's `<domain>/security` directory. This indicates that existing initialization files have already been processed. To overwrite an existing initialization file, remove the corresponding `<filename>.initialized` file, and restart the server to reinitialize the SAML2 Identity Asserter.
+If these files exist in the domain's `$DOMAIN_HOME/security` directory, then the Discover Domain Tool will add them to
+the archive.  However, the Discover Domain Tool will never try to export the SAML2 partner data or generate the
+properties files needed to load the exported SAML2 partner data into WebLogic Server.
+
+Both the Create Domain and Update Domain Tools will extract these files from the archive and place them into the target
+domain's `$DOMAIN_HOME/security` directory, if they exist in the archive.  No model references are required.
+
+Note that server will not load the SAML2 partner data files if a corresponding `<filename>.initialized` file is present
+in the domain's `$DOMAIN_HOME/security` directory. This indicates that existing data files have already
+been processed. To force the server to reload a SAML2 partner data file, remove the corresponding `<filename>.initialized`
+file, and restart the server to reinitialize the SAML2 partner data.
+
+Note that this functionality is only present starting in the October 2023 PSUs for WebLogic Server 12.2.1.4 and 14.1.1,
+and WebLogic Server 14.1.2 or newer.
 
 #### `wlsdeploy/servers/<server-name>`
 The root directory under which server keystore files are stored. These are organized by server name, such as 

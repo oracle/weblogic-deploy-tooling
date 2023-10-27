@@ -179,7 +179,7 @@ class WlstHelper(object):
         Set the specified attribute using the corresponding cmo set method (e.g., cmo.setListenPort()).
         :param wlst_name: the WLST attribute name
         :param wlst_value: the WLST value
-        :param masked: whether or not to mask the wlst_value from the log files.
+        :param masked: whether to mask the wlst_value from the log files.
         :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'set_with_cmo'

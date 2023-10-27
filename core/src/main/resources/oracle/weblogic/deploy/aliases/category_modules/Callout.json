@@ -1,0 +1,19 @@
+{
+  "copyright": "Copyright (c) 2023, Oracle Corporation and/or its affiliates.",
+  "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
+  "version": "[14.1.2,)",
+  "wlst_type": "Callout${:s}",
+  "online_bean": "weblogic.management.configuration.CalloutMBean",
+  "child_folders_type": "multiple",
+  "folders": {},
+  "attributes": {
+    "Argument":                            [ {"version": "[14.1.2,)",         "wlst_mode": "both",    "wlst_name": "Argument",                             "wlst_path": "WP001", "default_value": null,           "wlst_type": "string"           } ],
+    "ClassName":                           [ {"version": "[14.1.2,)",         "wlst_mode": "both",    "wlst_name": "ClassName",                            "wlst_path": "WP001", "default_value": null,           "wlst_type": "string"           } ],
+    "HookPoint":                           [ {"version": "[14.1.2,)",         "wlst_mode": "both",    "wlst_name": "HookPoint",                            "wlst_path": "WP001", "default_value": null,           "wlst_type": "string"           } ],
+    "Notes":                               [ {"version": "[14.1.2,)",         "wlst_mode": "both",    "wlst_name": "Notes",                                "wlst_path": "WP001", "default_value": null,           "wlst_type": "string"           } ]
+  },
+  "wlst_attributes_path": "WP001",
+  "wlst_paths": {
+    "WP001": "/Callout${:s}/%CALLOUT%"
+  }
+}

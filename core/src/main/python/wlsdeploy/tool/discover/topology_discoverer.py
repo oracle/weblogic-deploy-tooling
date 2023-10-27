@@ -129,6 +129,9 @@ class TopologyDiscoverer(Discoverer):
 
             model_folder_name, folder_result = self._get_ws_securities()
             discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+
+            model_top_folder_name, callouts = self.get_callouts()
+            discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, callouts)
         finally:
             if current_tree is not None:
                 current_tree()
@@ -138,6 +141,39 @@ class TopologyDiscoverer(Discoverer):
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary
+
+    def get_callouts(self):
+        """
+        Discover the Callouts in the domain.
+        :return:  model name for the dictionary and the dictionary containing the cluster information
+        """
+        _method_name = 'get_callouts'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+
+        result = OrderedDict()
+        model_top_folder_name = model_constants.CALLOUT
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        callouts = self._find_names_in_folder(location)
+        if callouts is not None:
+            _logger.info('WLSDPLY-06671', len(callouts), class_name=_class_name, method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
+            name_token = self._aliases.get_name_token(location)
+            for callout in callouts:
+                if typedef.is_filtered(location, callout):
+                    _logger.info('WLSDPLY-06673', typedef.get_domain_type(), callout, class_name=_class_name,
+                                 method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06672', callout, class_name=_class_name, method_name=_method_name)
+                    location.add_name_token(name_token, callout)
+                    result[callout] = OrderedDict()
+                    self._populate_model_parameters(result[callout], location)
+                    location.remove_name_token(name_token)
+            location.pop_location()
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
+        return model_top_folder_name, result
+
 
     def get_clusters(self):
         """
@@ -356,6 +392,8 @@ class TopologyDiscoverer(Discoverer):
 
         model_folder_name, folder_result = self.discover_domain_mbean(model_constants.ADMIN_CONSOLE)
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+        model_folder_name, folder_result = self.discover_domain_mbean(model_constants.ALLOW_LIST)
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self.discover_domain_mbean(model_constants.CDI_CONTAINER)
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self.discover_domain_mbean(model_constants.JMX)
@@ -368,7 +406,8 @@ class TopologyDiscoverer(Discoverer):
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self._get_nm_properties()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
-
+        model_folder_name, folder_result = self.discover_domain_mbean(model_constants.REMOTE_CONSOLE_HELPER)
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self.discover_domain_mbean(model_constants.RESTFUL_MANAGEMENT_SERVICES)
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
 
