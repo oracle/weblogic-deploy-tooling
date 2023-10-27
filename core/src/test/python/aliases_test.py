@@ -867,9 +867,7 @@ class AliasesTestCase(unittest.TestCase):
 
         for folder in top_level_topology_folders:
             result, message = self.aliases.is_valid_model_folder_name(location, folder)
-            self.assertEqual(result, ValidationCodes.VALID)
-
-        return
+            self.assertEqual(result == ValidationCodes.VALID or result == ValidationCodes.VERSION_INVALID, True)
 
     def testBooleanDefaultValues(self):
         location = LocationContext().append_location(FOLDERS.RESTFUL_MANAGEMENT_SERVICES, DOMAIN='mydomain')

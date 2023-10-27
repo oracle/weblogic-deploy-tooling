@@ -1376,7 +1376,7 @@ def _adjust_default_value_for_special_cases(attribute, attr_type, attr_default):
 
 
 PATH_INCLUDES_TOKENS = ['Path', 'Dir']
-PATH_EXCLUDES_TOKENS = ['ClassPath']
+PATH_EXCLUDES_TOKENS = ['ClassPath', 'ContextPath']
 PATH_EXCLUDE_ATTRIBUTE_NAMES = ['Direction', 'ErrorPath', 'UriPath']
 
 

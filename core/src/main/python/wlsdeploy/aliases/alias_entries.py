@@ -51,8 +51,10 @@ from wlsdeploy.aliases.alias_constants import WLST_SUBFOLDERS_PATH
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
 from wlsdeploy.aliases.flattened_folder import FlattenedFolder
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import ALLOW_LIST
 from wlsdeploy.aliases.model_constants import APP_DEPLOYMENTS
 from wlsdeploy.aliases.model_constants import APPLICATION
+from wlsdeploy.aliases.model_constants import CALLOUT
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
 from wlsdeploy.aliases.model_constants import JOLT_CONNECTION_POOL
@@ -61,6 +63,7 @@ from wlsdeploy.aliases.model_constants import ODL_CONFIGURATION
 from wlsdeploy.aliases.model_constants import OHS
 from wlsdeploy.aliases.model_constants import OPSS_INITIALIZATION
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
+from wlsdeploy.aliases.model_constants import REMOTE_CONSOLE_HELPER
 from wlsdeploy.aliases.model_constants import RESOURCE_MANAGER
 from wlsdeploy.aliases.model_constants import RESOURCES
 from wlsdeploy.aliases.model_constants import SYSTEM_COMPONENT
@@ -96,6 +99,8 @@ class AliasEntries(object):
 
     __topology_top_level_folders = [
         'AdminConsole',
+        ALLOW_LIST,
+        CALLOUT,
         'CdiContainer',
         'Cluster',
         'EmbeddedLDAP',
@@ -107,6 +112,7 @@ class AliasEntries(object):
         'Machine',
         'MigratableTarget',
         'NMProperties',
+        REMOTE_CONSOLE_HELPER,
         "RestfulManagementServices",
         'Security',
         'SecurityConfiguration',
