@@ -12,20 +12,20 @@
     <title>Archive File :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1698376708" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1698376708" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1698376708" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1698376708" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1698376708" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1698376708" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1698376708" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1698376708" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1698376708" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1698376708" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1698441980" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1698441980" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1698441980" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1698441980" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1698441980" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1698441980" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1698441980" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1698441980" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1698441980" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1698441980" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1698376708"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1698441980"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1698376708"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1698376708"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1698441980"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1698441980"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1698376708"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1698441980"></script>
 
     
   </div>
@@ -1775,8 +1775,19 @@ in place when running WDT tools like the Create Domain or Update Domain tools.</
 <h4 id="wlsdeployscripts"><code>wlsdeploy/scripts</code></h4>
 <p>The root directory under which script files are stored. These can include JDBC create scripts and WLDF action scripts.</p>
 <h4 id="wlsdeploysecuritysaml2"><code>wlsdeploy/security/saml2</code></h4>
-<p>The directory under which initialization files can be stored for use with the SAML2 Identity Asserter. These files can include <code>saml2idppartner.properties</code> and <code>saml2sppartner.properties</code>, and any XML metadata files they reference. These files are added to the archive by the Discover Domain Tool, and extracted by the Create Domain and Update Domain Tools.</p>
-<p>Initialization files and their metadata files are not deployed if a corresponding <code>&lt;filename&gt;.initialized</code> file is present in the domain&rsquo;s <code>&lt;domain&gt;/security</code> directory. This indicates that existing initialization files have already been processed. To overwrite an existing initialization file, remove the corresponding <code>&lt;filename&gt;.initialized</code> file, and restart the server to reinitialize the SAML2 Identity Asserter.</p>
+<p>The directory under which SAML2 partner data initialization files can be stored for use with the SAML2 Identity Asserter.
+These files can include <code>saml2idppartner.properties</code> and <code>saml2sppartner.properties</code>, and any XML metadata files they reference.</p>
+<p>If these files exist in the domain&rsquo;s <code>$DOMAIN_HOME/security</code> directory, then the Discover Domain Tool will add them to
+the archive.  However, the Discover Domain Tool will never try to export the SAML2 partner data or generate the
+properties files needed to load the exported SAML2 partner data into WebLogic Server.</p>
+<p>Both the Create Domain and Update Domain Tools will extract these files from the archive and place them into the target
+domain&rsquo;s <code>$DOMAIN_HOME/security</code> directory, if they exist in the archive.  No model references are required.</p>
+<p>Note that server will not load the SAML2 partner data files if a corresponding <code>&lt;filename&gt;.initialized</code> file is present
+in the domain&rsquo;s <code>$DOMAIN_HOME/security</code> directory. This indicates that existing data files have already
+been processed. To force the server to reload a SAML2 partner data file, remove the corresponding <code>&lt;filename&gt;.initialized</code>
+file, and restart the server to reinitialize the SAML2 partner data.</p>
+<p>Note that this functionality is only present starting in the October 2023 PSUs for WebLogic Server 12.2.1.4 and 14.1.1,
+and WebLogic Server 14.1.2 or newer.</p>
 <h4 id="wlsdeployserversserver-name"><code>wlsdeploy/servers/&lt;server-name&gt;</code></h4>
 <p>The root directory under which server keystore files are stored. These are organized by server name, such as
 <code>wlsdeploy/server/AdminServer/mykey.jks</code>.</p>
@@ -2949,19 +2960,19 @@ overwriting any overlapping files.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1698376708"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1698376708"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1698376708"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1698376708"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1698376708"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1698376708"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1698441980"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1698441980"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1698441980"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1698441980"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1698441980"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1698441980"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1698376708"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1698376708"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1698376708"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1698441980"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1698441980"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1698441980"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1698376708"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1698441980"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
