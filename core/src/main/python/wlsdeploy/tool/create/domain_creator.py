@@ -574,7 +574,7 @@ class DomainCreator(Creator):
             server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
             self.target_helper.target_server_groups_to_servers(server_groups_to_target)
 
-        elif self._domain_typedef.is_jrf_domain_type() or \
+        elif self._domain_typedef.has_jrf_with_database_store() or \
                 (self._domain_typedef.get_targeting() == TargetingType.APPLY_JRF):
             # for 11g, if template list includes JRF, or if specified in domain typedef, use applyJRF
             self.target_helper.target_jrf_groups_to_clusters_servers()
@@ -691,26 +691,6 @@ class DomainCreator(Creator):
             self.__apply_base_domain_config(topology_folder_list, delete=False)
         self.__create_security_folder()
 
-        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
-    def __set_server_groups(self):
-        _method_name = '__set_server_groups'
-        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
-        if self.wls_helper.is_set_server_groups_supported():
-            # 12c versions set server groups directly
-            server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
-            server_assigns, dynamic_assigns = \
-                self.target_helper.target_server_groups_to_servers(server_groups_to_target)
-            if len(server_assigns) > 0:
-                self.target_helper.target_server_groups(server_assigns)
-
-            if len(dynamic_assigns) > 0:
-                self.target_helper.target_server_groups_to_dynamic_clusters(dynamic_assigns)
-
-        elif self._domain_typedef.is_jrf_domain_type() or \
-                (self._domain_typedef.get_targeting() == TargetingType.APPLY_JRF):
-            # for 11g, if template list includes JRF, or if specified in domain typedef, use applyJRF
-            self.target_helper.target_jrf_groups_to_clusters_servers()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def __apply_base_domain_config(self, topology_folder_list, delete=True):
@@ -1602,7 +1582,7 @@ class DomainCreator(Creator):
     def __configure_opss_secrets(self):
         _method_name = '__configure_opss_secrets'
 
-        if not self._domain_typedef.is_jrf_domain_type():
+        if not self._domain_typedef.has_jrf_with_database_store():
             return
 
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
