@@ -194,7 +194,7 @@ class TopologyUpdater(Deployer):
                 self.target_helper.target_server_groups(server_assigns)
             if len(dynamic_assigns) > 0:
                 self.target_helper.target_dynamic_server_groups(dynamic_assigns)
-        elif self._domain_typedef.is_jrf_domain_type():
+        elif self._domain_typedef.has_jrf_with_database_store():
             self.target_helper.target_jrf_groups_to_clusters_servers()
 
     def _process_section(self, folder_dict, folder_list, key, location, delete_now=True):

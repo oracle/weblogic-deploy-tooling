@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -288,28 +288,13 @@ class TargetHelper(object):
                 ex = exception_helper.create_exception(self.exception_type, 'WLSDPLY-12256',
                                                        cluster, server_groups)
                 self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                raise ex 
+                raise ex
             elif len(server_groups) > 0:
                 self.logger.info('WLSDPLY-12255', server_groups[0], cluster_name,
                                  class_name=self.__class_name, method_name=_method_name)
                 self.wlst_helper.set_server_group_dynamic_cluster(cluster_name, server_groups[0])
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
-    def _target_jrf_resources(self, dynamic_cluster_assigns):
-        # Target the JRF resources directly using the applyJRF method.
-        _method_name = '_target_jrf_resources'
-        names_only = list()
-        for name in dynamic_cluster_assigns:
-            names_only.append(name)
-        if self.model_context.is_wlst_online() and \
-                self.model_context.get_domain_typedef().is_restricted_jrf_domain_type():
-            self.logger.warning('WLSDPLY-12244', str_helper.to_string(names_only), class_name=self.__class_name,
-                                _method_name=_method_name)
-        else:
-            self.logger.info('WLSDPLY-12236', str_helper.to_string(names_only),
-                             class_name=self.__class_name, method_name=_method_name)
-            self.wlst_helper.apply_jrf_with_context(names_only, self.model_context)
 
     def _get_existing_server_names(self):
         """
