@@ -119,7 +119,7 @@ def __perform_model_file_validation(model_file_name, model_context):
     try:
         wlst_mode = model_context.get_target_wlst_mode()
         aliases = Aliases(model_context=model_context, wlst_mode=wlst_mode, exception_type=ExceptionType.VALIDATE)
-        model_validator = Validator(model_context, aliases, logger=__logger)
+        model_validator = Validator(model_context, aliases)
         variable_map = model_validator.load_variables(model_context.get_variable_file())
         model_dictionary = cla_helper.merge_model_files(model_file_name, variable_map)
 

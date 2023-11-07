@@ -22,7 +22,6 @@ from wlsdeploy.tool.create import wlsroles_helper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.validate import validation_utils
 from wlsdeploy.tool.validate.crd_sections_validator import CrdSectionsValidator
-from wlsdeploy.tool.validate.validator_logger import ValidatorLogger
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model
 import wlsdeploy.util.unicode_helper as str_helper
@@ -40,8 +39,7 @@ from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.model_constants import WLS_ROLES
 
 _class_name = 'Validator'
-_logger = ValidatorLogger('wlsdeploy.validate')
-_info_logger = PlatformLogger('wlsdeploy.validate')
+_logger = PlatformLogger('wlsdeploy.validate')
 _ModelNodeTypes = Enum(['FOLDER_TYPE', 'NAME_TYPE', 'ATTRIBUTE', 'ARTIFICIAL_TYPE'])
 _ValidationModes = Enum(['STANDALONE', 'TOOL'])
 _ROOT_LEVEL_VALIDATION_AREA = validation_utils.format_message('WLSDPLY-05000')
@@ -60,24 +58,18 @@ class Validator(object):
     ValidationStatus = Enum(['VALID', 'INFOS_VALID', 'WARNINGS_INVALID', 'INVALID'])
     ReturnCode = Enum(['PROCEED', 'STOP'])
 
-    def __init__(self, model_context, aliases, logger=None, wlst_mode=None, validate_crd_sections=True):
+    def __init__(self, model_context, aliases, wlst_mode=None, validate_crd_sections=True):
         """
         Create a validator instance.
         :param model_context: used to get command-line options
         :param aliases: used to validate folders, attributes. also determines exception type
-        :param logger: alternate logger to use
         :param wlst_mode: online or offline mode
         :param validate_crd_sections: True if CRD sections (such as kubernetes) should be validated
         """
         self._model_context = model_context
         self._validate_configuration = model_context.get_validate_configuration()
 
-        if logger is None:
-            # No logger specified, so use the one declared at the module level
-            self._logger = _logger
-        else:
-            self._logger = logger
-
+        self._logger = _logger
         self._validation_mode = None
         self._variable_properties = {}
         self._wls_helper = WebLogicHelper(self._logger)
@@ -124,7 +116,6 @@ class Validator(object):
         # If standalone, log file will not be passed, so get a new logger with correct mode type
         self._validation_mode = _ValidationModes.STANDALONE
         return_code = Validator.ReturnCode.STOP
-        self._logger = ValidatorLogger(self._logger.get_name(), _ValidationModes.from_value(self._validation_mode))
         self._logger.entering(archive_file_name, class_name=_class_name, method_name=_method_name)
 
         # We need to make a deep copy of model_dict here, to ensure it's
@@ -467,7 +458,7 @@ class Validator(object):
             validation_location.add_name_token(path_token, '%s-0' % path_token)
 
         model_folder_path = self._aliases.get_model_folder_path(validation_location)
-        self._logger.finest('1 model_folder_path={0}', model_folder_path,
+        self._logger.finest('model_folder_path={0}', model_folder_path,
                             class_name=_class_name, method_name=_method_name)
 
         if not isinstance(model_node, dict):
@@ -475,7 +466,7 @@ class Validator(object):
             return
 
         if self._aliases.supports_multiple_mbean_instances(validation_location):
-            self._logger.finer('2 model_node_type={0}',
+            self._logger.finer('model_node_type={0}',
                                _ModelNodeTypes.from_value(_ModelNodeTypes.NAME_TYPE),
                                class_name=_class_name, method_name=_method_name)
 
@@ -484,7 +475,7 @@ class Validator(object):
                 if variables.has_variables(name):
                     expanded_name = self.__validate_variable_substitution(name, model_folder_path)
 
-                self._logger.finest('2 expanded_name={0}', expanded_name,
+                self._logger.finest('expanded_name={0}', expanded_name,
                                     class_name=_class_name, method_name=_method_name)
 
                 new_location = LocationContext(validation_location)
@@ -496,7 +487,7 @@ class Validator(object):
                 if name_token is not None:
                     new_location.add_name_token(name_token, expanded_name)
 
-                self._logger.finest('2 new_location={0}', str_helper.to_string(new_location),
+                self._logger.finest('new_location={0}', str_helper.to_string(new_location),
                                     class_name=_class_name, method_name=_method_name)
 
                 value_dict = model_node[name]
@@ -504,7 +495,7 @@ class Validator(object):
                 self.__process_model_node(value_dict, new_location)
 
         elif self._aliases.requires_artificial_type_subfolder_handling(validation_location):
-            self._logger.finer('3 model_node_type={0}',
+            self._logger.finer('model_node_type={0}',
                                _ModelNodeTypes.from_value(_ModelNodeTypes.ARTIFICIAL_TYPE),
                                class_name=_class_name, method_name=_method_name)
 
@@ -513,19 +504,19 @@ class Validator(object):
                 if variables.has_variables(name):
                     self._report_unsupported_variable_usage(name, model_folder_path)
 
-                self._logger.finest('3 expanded_name={0}', expanded_name,
+                self._logger.finest('expanded_name={0}', expanded_name,
                                     class_name=_class_name, method_name=_method_name)
 
                 new_location = LocationContext(validation_location)
 
                 name_token = self._aliases.get_name_token(new_location)
-                self._logger.finest('3 name_token={0}', name_token,
+                self._logger.finest('name_token={0}', name_token,
                                     class_name=_class_name, method_name=_method_name)
 
                 if name_token is not None:
                     new_location.add_name_token(name_token, expanded_name)
 
-                self._logger.finest('3 new_location={0}', new_location,
+                self._logger.finest('new_location={0}', new_location,
                                     class_name=_class_name, method_name=_method_name)
 
                 value_dict = model_node[name]
@@ -533,12 +524,12 @@ class Validator(object):
                 self.__process_model_node(value_dict, new_location)
 
         else:
-            self._logger.finer('4 model_node_type={0}',
+            self._logger.finer('model_node_type={0}',
                                _ModelNodeTypes.from_value(_ModelNodeTypes.FOLDER_TYPE),
                                class_name=_class_name, method_name=_method_name)
 
             name_token = self._aliases.get_name_token(validation_location)
-            self._logger.finest('4 name_token={0}', name_token,
+            self._logger.finest('name_token={0}', name_token,
                                 class_name=_class_name, method_name=_method_name)
 
             if name_token is not None:
@@ -547,10 +538,10 @@ class Validator(object):
                 if name is None:
                     name = '%s-0' % name_token
 
-                self._logger.finest('4 name={0}', name,
+                self._logger.finest('name={0}', name,
                                     class_name=_class_name, method_name=_method_name)
                 validation_location.add_name_token(name_token, name)
-                self._logger.finest('4 validation_location={0}', validation_location,
+                self._logger.finest('validation_location={0}', validation_location,
                                     class_name=_class_name, method_name=_method_name)
 
             self.__process_model_node(model_node, validation_location)
@@ -567,34 +558,30 @@ class Validator(object):
         valid_folder_keys = self._aliases.get_model_subfolder_names(validation_location)
         valid_attr_infos = self._aliases.get_model_attribute_names_and_types(validation_location)
 
-        self._logger.finest('5 model_node={0}', str_helper.to_string(model_node),
-                            class_name=_class_name, method_name=_method_name)
-        self._logger.finest('5 aliases.get_model_subfolder_names(validation_location) returned: {0}',
+        self._logger.finest('aliases.get_model_subfolder_names(validation_location) returned: {0}',
                             str_helper.to_string(valid_folder_keys),
                             class_name=_class_name, method_name=_method_name)
-        self._logger.finest('5 aliases.get_model_attribute_names_and_types(validation_location) returned: {0}',
+        self._logger.finest('aliases.get_model_attribute_names_and_types(validation_location) returned: {0}',
                             str_helper.to_string(valid_attr_infos),
                             class_name=_class_name, method_name=_method_name)
-        self._logger.finest('5 model_folder_path={0}', model_folder_path, class_name=_class_name,
+        self._logger.finest('model_folder_path={0}', model_folder_path, class_name=_class_name,
                             method_name=_method_name)
 
         for key, value in model_node.iteritems():
             if variables.has_variables(key):
                 self._report_unsupported_variable_usage(key, model_folder_path)
 
-            self._logger.finer('5 key={0}', key,
-                               class_name=_class_name, method_name=_method_name)
-            self._logger.finer('5 value={0}', value,
+            self._logger.finer('key={0}', key,
                                class_name=_class_name, method_name=_method_name)
 
             if key in valid_folder_keys:
                 new_location = LocationContext(validation_location).append_location(key)
-                self._logger.finer('6 new_location={0}', new_location,
+                self._logger.finer('new_location={0}', new_location,
                                    class_name=_class_name, method_name=_method_name)
 
                 if self._aliases.is_artificial_type_folder(new_location):
                     # key is an ARTIFICIAL_TYPE folder
-                    self._logger.finest('6 is_artificial_type_folder=True',
+                    self._logger.finest('is_artificial_type_folder=True',
                                         class_name=_class_name, method_name=_method_name)
                     valid_attr_infos = self._aliases.get_model_attribute_names_and_types(new_location)
 
@@ -662,8 +649,7 @@ class Validator(object):
     def __validate_attributes(self, attributes_dict, valid_attr_infos, validation_location):
         _method_name = '__validate_attributes'
 
-        self._logger.finest('validation_location={0}, attributes_dict={0}', str_helper.to_string(validation_location),
-                            str_helper.to_string(attributes_dict),
+        self._logger.finest('validation_location={0}', str_helper.to_string(validation_location),
                             class_name=_class_name, method_name=_method_name)
 
         model_folder_path = self._aliases.get_model_folder_path(validation_location)
@@ -722,7 +708,7 @@ class Validator(object):
     def __validate_properties(self, properties_dict, valid_prop_infos, validation_location):
         _method_name = '__validate_properties'
 
-        self._logger.entering(str_helper.to_string(properties_dict), str_helper.to_string(validation_location),
+        self._logger.entering(str_helper.to_string(validation_location),
                               class_name=_class_name, method_name=_method_name)
 
         for property_name, property_value in properties_dict.iteritems():
@@ -735,7 +721,7 @@ class Validator(object):
 
         _method_name = '__validate_property'
 
-        self._logger.entering(property_name, property_value, str_helper.to_string(valid_prop_infos),
+        self._logger.entering(property_name, str_helper.to_string(valid_prop_infos),
                               model_folder_path, class_name=_class_name, method_name=_method_name)
 
         if variables.has_variables(property_name):
@@ -759,7 +745,7 @@ class Validator(object):
     def __validate_variable_substitution(self, tokenized_value, model_folder_path):
         _method_name = '__validate_variable_substitution'
 
-        self._logger.entering(tokenized_value, model_folder_path, class_name=_class_name, method_name=_method_name)
+        self._logger.entering(model_folder_path, class_name=_class_name, method_name=_method_name)
         untokenized_value = tokenized_value
 
         if not isinstance(untokenized_value, dict):
@@ -774,7 +760,7 @@ class Validator(object):
                 else:
                     logger_method = self._logger.warning
                     if self._validate_configuration.allow_unresolved_variable_tokens():
-                        logger_method = _info_logger.info
+                        logger_method = self._logger.info
 
                     variables_file_name = self._model_context.get_variable_file()
 
@@ -831,7 +817,7 @@ class Validator(object):
             # Otherwise, log SEVERE messages that will cause validation to fail.
             log_method = self._logger.severe
             if self._validate_configuration.allow_unresolved_archive_references():
-                log_method = _info_logger.info
+                log_method = self._logger.info
 
             if self._archive_helper is not None:
                 archive_has_file = self._archive_helper.contains_file_or_path(path)
@@ -956,5 +942,5 @@ class Validator(object):
         """
         log_method = self._logger.warning
         if self._validate_configuration.allow_version_invalid_attributes():
-            log_method = _info_logger.info
+            log_method = self._logger.info
         log_method('WLSDPLY-05027', message, class_name=_class_name, method_name=method_name)
