@@ -67,6 +67,12 @@ ONLINE_ALIAS_ATTRIBUTE_IGNORE_MAP = {
     ]
 }
 
+ONLINE_ATTRIBUTE_READONLY_EXCEPTION_MAP = {
+    "/CoherenceClusterSystemResource/CoherenceResource": [
+        "CustomClusterConfigurationFileName"
+    ]
+}
+
 OFFLINE_TEST_ANOMALIES_MAP = {
     '/Application': {
         'ModuleType': 'war',
