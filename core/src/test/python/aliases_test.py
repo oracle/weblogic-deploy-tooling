@@ -350,15 +350,15 @@ class AliasesTestCase(unittest.TestCase):
     def testGetModelAttributeNameAndValue(self):
         location = get_jdbc_ds_params_location('my-datasource', self.aliases)
 
-        # get model attribute value should return the value only if its NOT the default
-        boolean_values = ['false', None]
+        # get model attribute value should return the value only if it's NOT the default
+        boolean_values = ['false', False]
         wlst_attribute_name = 'RowPrefetch'
         wlst_attribute_value = boolean_values[0]
         model_attribute_name, model_attribute_value = \
             self.aliases.get_model_attribute_name_and_value(location, wlst_attribute_name, wlst_attribute_value)
-        self.assertEqual(model_attribute_value, boolean_values[1])
+        self.assertEqual(bool(model_attribute_value), boolean_values[1])
 
-        # get model attribute value should return the value only if its NOT the default
+        # get model attribute value should return the value only if it's NOT the default
         string_value = [None, None]
         wlst_attribute_name = 'RowPrefetchSize'
         wlst_attribute_value = string_value[0]
@@ -366,7 +366,7 @@ class AliasesTestCase(unittest.TestCase):
             self.aliases.get_model_attribute_name_and_value(location, wlst_attribute_name, wlst_attribute_value)
         self.assertEqual(model_attribute_value, string_value[1])
 
-        # get model attribute value should return the value only if its NOT the default
+        # get model attribute value should return the value only if it's NOT the default
         location = LocationContext()
         location.append_location(FOLDERS.SERVER)
         boolean_values = [0, None]
