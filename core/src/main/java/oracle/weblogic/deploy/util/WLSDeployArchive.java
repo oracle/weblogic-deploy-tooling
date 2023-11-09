@@ -4536,7 +4536,7 @@ public class WLSDeployArchive {
 
     protected static String getURLArchiveName(String zipPathPrefix, URL url, boolean useFileNameInEntryPath) {
         String newName = zipPathPrefix;
-        String urlFileName = new File(url.getFile()).getName();
+        String urlFileName = new File(url.getPath()).getName();
         if (useFileNameInEntryPath) {
             if (!newName.endsWith(ZIP_SEP)) {
                 newName += ZIP_SEP;
@@ -4550,7 +4550,7 @@ public class WLSDeployArchive {
         throws WLSDeployArchiveIOException {
         final String METHOD = "addUrlToZip";
 
-        LOGGER.entering(CLASS, METHOD, zipPathPrefix, extension, useFileNameInEntryPath);
+        LOGGER.entering(CLASS, METHOD, zipPathPrefix, url, extension, useFileNameInEntryPath);
         HttpURLConnection connection = null;
         InputStream is = null;
         File tmpFile = null;
@@ -4573,7 +4573,7 @@ public class WLSDeployArchive {
 
             fos = new FileOutputStream(tmpFile);
             copyFile(is, fos);
-            newName = addSingleFileToZip(tmpFile, newName, METHOD);
+            newName = addSingleFileToZip(tmpFile, urlFileName, METHOD);
         } catch (IOException ioe) {
             WLSDeployArchiveIOException aioe =
                 new WLSDeployArchiveIOException("WLSDPLY-01410", ioe, url, ioe.getLocalizedMessage());
@@ -5005,7 +5005,9 @@ public class WLSDeployArchive {
 
     private String addSingleFileToZip(File itemToAdd, String preferredName, String callingMethod)
         throws WLSDeployArchiveIOException {
+        final String METHOD = "addSingleFileToZip";
 
+        LOGGER.entering(CLASS, METHOD, itemToAdd, preferredName, callingMethod);
         String newName = null;
         FileInputStream inputStream = null;
         try {
@@ -5022,6 +5024,7 @@ public class WLSDeployArchive {
                 }
             }
         }
+        LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
     }
 

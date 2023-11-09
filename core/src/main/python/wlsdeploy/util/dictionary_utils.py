@@ -5,6 +5,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 import java.util.Properties as JProperties
 
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
+from wlsdeploy.aliases import alias_utils
 import wlsdeploy.util.unicode_helper as str_helper
 
 
@@ -70,6 +71,22 @@ def get_element(dictionary, element_name, default_value=None):
     result = default_value
     if element_name in dictionary:
         result = dictionary[element_name]
+    return result
+
+
+def get_boolean_element(dictionary, element_name, default_value=False):
+    """
+    Convenience method to call get_element and convert the result to a boolean value.
+
+    :param dictionary: to find the element name
+    :param element_name: for which to retrieve the value
+    :param default_value: value to return if key is not in dictionary
+    :return: value from the dictionary as a boolean, or the default_value
+    """
+    result = default_value
+    element = get_element(dictionary, element_name, default_value=None)
+    if element is not None:
+        result = alias_utils.convert_boolean(element)
     return result
 
 

@@ -6,6 +6,8 @@ import os
 from javax.management import ObjectName
 from org.python.modules import jarray
 
+from java.lang import Throwable
+
 from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.alias_constants import BOOLEAN
 from wlsdeploy.aliases.alias_jvmargs import JVMArguments
@@ -674,17 +676,56 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if an error occurs
         """
-        if value is not None:
-            if value.startswith(ARCHIVE_COHERENCE_TARGET_DIR + os.sep):
-                # change from /wlsdeploy/coherence/<Cluster>/<filename> -->  coherence/<Cluster>/<filename>
-                value = value[len(WLSDPLY_ARCHIVE_BINARY_DIR + os.sep):]
-            else:
-                # The file will be copied to the $DOMAIN/config/coherence/<CLUSTER>
-                # changing the attribute value to the pattern coherence/<CLUSTER>/<filename>
-                cluster_name = location.get_name_for_token('COHERENCECLUSTER')
-                value = 'coherence/%s/%s' % (cluster_name, os.path.basename(value))
+        _method_name = 'set_coherence_cluster_custom_config_file'
+        self.__logger.entering(str_helper.to_string(location), key, value, wlst_value,
+                               class_name=self._class_name, method_name=_method_name)
 
-        self.set_attribute(location, key, value, wlst_merge_value=wlst_value)
+        if self.__wlst_mode == WlstModes.OFFLINE:
+            if value is not None:
+                if value.startswith(ARCHIVE_COHERENCE_TARGET_DIR + os.sep):
+                    # change from /wlsdeploy/coherence/<Cluster>/<filename> -->  coherence/<Cluster>/<filename>
+                    value = value[len(WLSDPLY_ARCHIVE_BINARY_DIR + os.sep):]
+                else:
+                    # The file will be copied to the $DOMAIN/config/coherence/<CLUSTER>
+                    # changing the attribute value to the pattern coherence/<CLUSTER>/<filename>
+                    cluster_name = location.get_name_for_token('COHERENCECLUSTER')
+                    value = 'coherence/%s/%s' % (cluster_name, os.path.basename(value))
+
+            self.set_attribute(location, key, value, wlst_merge_value=wlst_value)
+        else:
+            if value is not None:
+                # In this case, the relative path that the import operation takes is relative to
+                # $DOMAIN_HOME--not $DOMAIN_HOME/config.  Of course, the value may start with
+                # coherence/ which means is it relative to the $DOMAIN_HOME/config...
+                #
+                path_to_use = value
+                if not os.path.isabs(value):
+                    path_to_use = os.path.join(self.__model_context.get_domain_home(), value)
+                    if value.startswith('coherence/'):
+                        path_to_use = os.path.join(self.__model_context.get_domain_home(), 'config', value)
+
+                cluster_system_resource_location = LocationContext(location)
+                cluster_system_resource_location.pop_location()
+                cluster_system_resource_name_token = self.__aliases.get_name_token(cluster_system_resource_location)
+                cluster_name = cluster_system_resource_location.get_name_for_token(cluster_system_resource_name_token)
+
+                wlst_path = self.__aliases.get_wlst_attributes_path(cluster_system_resource_location)
+                cluster_system_resource_mbean = self.__wlst_helper.get_mbean_for_wlst_path(wlst_path)
+
+                try:
+                    self.__logger.info('WLSDPLY-19212', path_to_use, cluster_name,
+                                       class_name=self._class_name, method_name=_method_name)
+                    cluster_system_resource_mbean.importCustomClusterConfigurationFile(path_to_use)
+                    new_value = cluster_system_resource_mbean.getCustomClusterConfigurationFileName()
+                    self.__logger.info('WLSDPLY-19213', path_to_use, cluster_name, new_value,
+                                       class_name=self._class_name, method_name=_method_name)
+                except Throwable, ex:
+                    ex_type = self.__aliases.get_exception_type()
+                    error = exception_helper.create_exception(ex_type, 'WLSDPLY-19209', path_to_use,
+                                                              cluster_name, ex.getLocalizedMessage(), error=ex)
+                    self.__logger.throwing(error, class_name=self._class_name, method_name=_method_name)
+                    raise error
+        self.__logger.exiting(class_name=self._class_name, method_name=_method_name)
 
     #
     # public set_attribute convenience methods
