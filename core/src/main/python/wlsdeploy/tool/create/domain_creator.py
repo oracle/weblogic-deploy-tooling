@@ -58,7 +58,6 @@ from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
 from wlsdeploy.aliases.model_constants import PRODUCTION_MODE_ENABLED
 from wlsdeploy.aliases.model_constants import RESOURCES
 from wlsdeploy.aliases.model_constants import RCU_COMP_INFO
-from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RCU_STG_INFO
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
@@ -215,7 +214,7 @@ class DomainCreator(Creator):
         :param type_name: the model folder type
         :param model_nodes: the model dictionary of the specified model folder type
         :param base_location: the base location object to use to create the MBeans
-        :param log_created: whether or not to log created at INFO level, by default it is logged at the FINE level
+        :param log_created: whether to log created at INFO level, by default it is logged at the FINE level
         :raises: CreateException: if an error occurs
         """
         self.topology_helper.check_coherence_cluster_references(type_name, model_nodes)

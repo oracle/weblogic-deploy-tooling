@@ -680,10 +680,13 @@ class Discoverer(object):
     def _add_att_handler(self, attribute_key, method):
         self._att_handler_map[attribute_key] = method
 
-    def _convert_path(self, file_name):
+    def _convert_path(self, file_name, relative_to_config=False):
         file_name_resolved = self._model_context.replace_token_string(file_name)
         if path_utils.is_relative_path(file_name_resolved):
-            return convert_to_absolute_path(self._model_context.get_domain_home(), file_name_resolved)
+            relative_to_dir = self._model_context.get_domain_home()
+            if relative_to_config:
+                relative_to_dir = os.path.join(self._model_context.get_domain_home(), 'config')
+            return convert_to_absolute_path(relative_to_dir, file_name_resolved)
         return file_name_resolved
 
     def _is_oracle_home_file(self, file_name):
@@ -836,19 +839,29 @@ class Discoverer(object):
         :return: True if the file is hosted at a URL: URL file handle for the archive file to retrieve the file, or path
                  from file name
         """
+        _method_name = '_get_from_url'
+        _logger.entering(owner_name, file_name, class_name=_class_name, method_name=_method_name)
+
+        success = True
         url = None
         path = None
         try:
             uri = URI(file_name)
-            if 'http' == uri.getScheme():
+            if 'http' == uri.getScheme() or 'https' == uri.getScheme():
                 url = uri.toURL()
             elif 'file' == uri.getScheme() or uri.getScheme() is None:
                 path = uri.getPath()
+            else:
+                success = False
+                _logger.warning('WLSDPLY-06160', owner_name, file_name, uri.getScheme(),
+                                class_name=_class_name, method_name=_method_name)
         except (URISyntaxException, MalformedURLException), e:
-            _logger.warning('WLSDPLY-06321', owner_name, file_name, e.getLocalizedMessage)
-            return False, None, None
+            success = False
+            _logger.warning('WLSDPLY-06321', owner_name, file_name, e.getLocalizedMessage,
+                            error=e, class_name=_class_name, method_name=_method_name)
 
-        return True, url, path
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=(success, url, path))
+        return success, url, path
 
 
 def add_to_model_if_not_empty(dictionary, entry_name, entry_value):
