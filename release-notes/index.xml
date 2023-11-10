@@ -8,6 +8,16 @@
     <language>en-us</language>
     <lastBuildDate>Fri, 22 Feb 2019 15:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Release Notes 3.3.0</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.3.0/</link>
+      <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.3.0/</guid>
+      <description>Changes in Release 3.3.0  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes  #1517 - Added a postCreateRcuSchemasScript element to the typedef file definitions to accommodate extra schema patching work required for Oracle Identity Governance domain creation. #1519 - Added rcu_admin_user field to the domainInfo:/RCUDbInfo section to replace rcu_db_user, which is now deprecated and will be removed in a future release. This field is optional and will default to the appropriate admin user name: admin when using an ATP database and SYS otherwise.</description>
+    </item>
+    
+    <item>
       <title>Release Notes 3.2.6</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.6/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>

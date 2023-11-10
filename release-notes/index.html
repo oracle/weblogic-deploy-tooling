@@ -12,20 +12,20 @@
     <title>Release Notes :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1699499924" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1699499924" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1699499924" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1699499924" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1699499924" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1699499924" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1699499924" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1699499924" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1699499924" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1699499924" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1699576743" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1699576743" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1699576743" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1699576743" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1699576743" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1699576743" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1699576743" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1699576743" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1699576743" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1699576743" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1699499924"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1699576743"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1699499924"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1699499924"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1699576743"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1699576743"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1699499924"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1699576743"></script>
 
     
   </div>
@@ -1212,6 +1212,27 @@
  
   
     
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.3.0/" title="Release Notes 3.3.0" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-3.3.0/">
+        <b> </b>Release Notes 3.3.0
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
       <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.2.6/" title="Release Notes 3.2.6" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-3.2.6/">
         <b> </b>Release Notes 3.2.6
@@ -1651,7 +1672,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#changes-in-release-330">Changes in Release 3.3.0</a></li>
+        <li><a href="#changes-in-release-340">Changes in Release 3.4.0</a></li>
       </ul>
     </li>
   </ul>
@@ -1679,7 +1700,7 @@
 
 
 
-	<h3 id="changes-in-release-330">Changes in Release 3.3.0</h3>
+	<h3 id="changes-in-release-340">Changes in Release 3.4.0</h3>
 <ul>
 <li><a href="#major-new-features">Major New Features</a></li>
 <li><a href="#other-changes">Other Changes</a></li>
@@ -1690,16 +1711,23 @@
 <p>None</p>
 <h4 id="other-changes">Other Changes</h4>
 <ul>
-<li>#1517 - Added a <code>postCreateRcuSchemasScript</code> element to the typedef file definitions to accommodate extra
-schema patching work required for Oracle Identity Governance domain creation.</li>
-<li>#1519 - Added <code>rcu_admin_user</code> field to the <code>domainInfo:/RCUDbInfo</code> section to replace <code>rcu_db_user</code>, which is now
-deprecated and will be removed in a future release.  This field is optional and will default to the appropriate
-admin user name: <code>admin</code> when using an ATP database and <code>SYS</code> otherwise.</li>
+<li>#1521 - Added alias changes to accommodate October 2023 PSUs for WebLogic Server versions 12.2.1.4 and 14.1.1.</li>
+<li>#1525 - Added missing MBeans to better support the WebLogic Remote Console.</li>
+<li>#1527 - Added missing Security Provider attributes to better support the WebLogic Remote Console.</li>
+<li>#1530 - Refactored the handling of Coherence Custom Cluster and Cache Config files to correct the behavior
+and expand online update and discover capabilities.
+One side effect is that the Discover Domain tool when run in online mode will generate warnings
+and skip discovery of Coherence Cache Config folders.  This is due to a shortcoming in WebLogic Server&rsquo;s
+Coherence configuration support that is tracked by Bug 35969096.</li>
 </ul>
 <h4 id="bug-fixes">Bug Fixes</h4>
 <ul>
-<li>#1518 - Fixed an issue when using an ATP database as the RCU schema repository that was causing
-<code>config/fmwconfig/jps-config.xml</code> to contain a clear text password after JRF domain creation.</li>
+<li>#1522 - Fixed issues related to unicode handling that were causing errors processing typedef files.</li>
+<li>#1526 - Fixed an issue that was preventing custom typedefs from working properly (WDT-771/GitHub Issue #1506).</li>
+<li>#1528 - Fixed an issue that was causing the standalone Validate Model tool to write credentials to the log
+with certain models. Fixed an issue that was causing log level escalation (WDT-783).</li>
+<li>#1529 - Fixed an issue for boolean attributes with null default values. This issue was causing Discover Domain to
+incorrectly treat attributes whose values were <code>False</code> to be omitted from the discovered model.</li>
 </ul>
 <h4 id="known-issues">Known Issues</h4>
 <p>None</p>
@@ -2817,6 +2845,22 @@ admin user name: <code>admin</code> when using an ATP database and <code>SYS</co
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -2832,7 +2876,7 @@ admin user name: <code>admin</code> when using an ATP database and <code>SYS</co
 			<a class="nav nav-prev" href="/weblogic-deploy-tooling/developer/contribute/" title="Contribute to WDT"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-3.2.6/" title="Release Notes 3.2.6" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-3.3.0/" title="Release Notes 3.3.0" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -2842,19 +2886,19 @@ admin user name: <code>admin</code> when using an ATP database and <code>SYS</co
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1699499924"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1699499924"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1699499924"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1699499924"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1699499924"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1699499924"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1699576743"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1699576743"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1699576743"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1699576743"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1699576743"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1699576743"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1699499924"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1699499924"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1699499924"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1699576743"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1699576743"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1699576743"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1699499924"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1699576743"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

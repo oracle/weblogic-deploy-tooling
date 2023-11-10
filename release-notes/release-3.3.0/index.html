@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Hugo 0.82.0" />
-    <meta name="description" content="Adds token to a model with variables.">
+    <meta name="description" content="">
 
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Variable Injector Tool :: WebLogic Deploy Tooling</title>
+    <title>Release Notes 3.3.0 :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1699576743" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/userguide/tools/variable_injection/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-3.3.0/">
     <nav id="sidebar" class="">
 
 
@@ -170,7 +170,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/" title="User Guide" class="dd-item
-        parent
+        
         
         
         ">
@@ -220,7 +220,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/" title="WDT Tools" class="dd-item
-        parent
+        
         
         
         ">
@@ -435,7 +435,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/variable_injection/" title="Variable Injector Tool" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/variable_injection/" title="Variable Injector Tool" class="dd-item ">
         <a href="/weblogic-deploy-tooling/userguide/tools/variable_injection/">
         Variable Injector Tool
         
@@ -1186,7 +1186,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
-        
+        parent
         
         
         ">
@@ -1212,7 +1212,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.3.0/" title="Release Notes 3.3.0" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.3.0/" title="Release Notes 3.3.0" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-3.3.0/">
         <b> </b>Release Notes 3.3.0
         
@@ -1661,13 +1661,7 @@
             
           
           
-            
-            
-          
-          
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/userguide/'>User Guide</a> > <a href='/weblogic-deploy-tooling/userguide/tools/'>WDT Tools</a> > Variable Injector Tool
-          
-        
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release Notes 3.3.0
           
         
           
@@ -1684,9 +1678,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#custom-variable-injector">Custom variable injector</a></li>
-        <li><a href="#variable-injector-sample">Variable injector sample</a></li>
-        <li><a href="#parameter-table-for-injectvariables">Parameter table for <code>injectVariables</code></a></li>
+        <li><a href="#changes-in-release-330">Changes in Release 3.3.0</a></li>
       </ul>
     </li>
   </ul>
@@ -1706,207 +1698,38 @@
           
             <h1>
               
-              Variable Injector Tool
+              Release Notes 3.3.0
             </h1>
           
 
         
 
 
-<p>The Variable Injector Tool is used to tokenize a model with variables. The values for these variables are assigned using an external property file. This facilitates using the same domain model to create new domains in different environments. The Variable Injector Tool can be run as an option in the Discover Domain Tool, or from the standalone command-line interface.</p>
-<p>To enable the Variable Injector Tool during the Discover Domain Tool run, create a variable injector configuration by placing a JSON file named <code>model_variable_injector.json</code> into the <code>&lt;WLSDEPLOY&gt;/lib</code> directory using one or more of the pre-defined keywords and/or a CUSTOM list of files.</p>
-<p>Another option is to configure variable injection in a <a href="/weblogic-deploy-tooling/userguide/tools-config/custom_config/">Custom configuration</a> directory. Create the <code>model_variable_injector.json</code> file in the <code>$WDT_CUSTOM_CONFIG</code> directory.</p>
-<p>A keyword points to an injector directive file. The tool applies the directives to the attributes in a model, and if the directive matches an attribute, then a property token with a unique variable name is injected into the model and replaces the attribute value. The variable name and model attribute value are placed into the external variable properties file.</p>
-
-<div class="notices note" ><p>Variable injection on an attribute is only performed once. The property token is not replaced by any subsequent matches.</p>
-</div>
-
-<p>If variable injection is enabled, the Discover Domain Tool calls the variable injector after the model has been discovered and after all filters run, but before model validation.</p>
-<p>The supported keywords are as follows:</p>
+<h3 id="changes-in-release-330">Changes in Release 3.3.0</h3>
 <ul>
-<li><code>CREDENTIALS</code> - All MBean credentials attribute values (user and password) are injected with a variable.</li>
-<li><code>HOST</code> - All MBean host attribute values in the model are injected with a variable.</li>
-<li><code>PORT</code> - All MBean port attribute values in the model are injected with a variable.</li>
-<li><code>TARGET</code> - All MBean target attribute values in the model are injected with a variable.</li>
-<li><code>TOPOLOGY</code> - Common environmental MBean attributes found in the topology section of the model are injected with a variable.
-This includes server, machine and Node Manager ports, credentials and listen addresses, and cluster messaging modes, addresses and ports.</li>
-<li><code>URL</code> - All MBean URL attribute values in the model are injected with a variable.</li>
+<li><a href="#major-new-features">Major New Features</a></li>
+<li><a href="#other-changes">Other Changes</a></li>
+<li><a href="#bug-fixes">Bugs Fixes</a></li>
+<li><a href="#known-issues">Known Issues</a></li>
 </ul>
-
-<div class="notices note" ><p>The directives used by each pre-defined keyword are defined in an injector JSON file that is located in the <code>&lt;WLSDEPLOY&gt;/lib/injectors</code> folder. These files should not be changed, but could be used as is.</p>
-</div>
-
-<p>Here is an example of a <code>model_variable_injector.json</code> file using the PORT keyword.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
-	<span style="color:#f92672">&#34;PORT&#34;</span>: {}
-}
-</code></pre></div><p>Below is a model snippet that shows injected variables in the port attributes.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">
-<span style="color:#f92672">topology</span>:
-    <span style="color:#f92672">Name</span>: <span style="color:#ae81ff">soa_domain</span>
-    <span style="color:#f92672">AdminServerName</span>: <span style="color:#ae81ff">AdminServer</span>
-    <span style="color:#f92672">Cluster</span>:
-        <span style="color:#f92672">soa_cluster</span>:
-        <span style="color:#f92672">osb_cluster</span>:
-    <span style="color:#f92672">Server</span>:
-        <span style="color:#f92672">AdminServer</span>:
-            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">myadmin.example.com</span>
-            <span style="color:#f92672">ListenPort</span>: @@<span style="color:#ae81ff">PROP:Server.AdminServer.ListenPort@@</span>
-            <span style="color:#f92672">Machine</span>: <span style="color:#ae81ff">machine1</span>
-            <span style="color:#f92672">SSL</span>:
-                <span style="color:#f92672">Enabled</span>: <span style="color:#66d9ef">true</span>
-                <span style="color:#f92672">ListenPort</span>: @@<span style="color:#ae81ff">PROP:Server.SSL.AdminServer.ListenPort@@</span>
-        <span style="color:#f92672">soa_server1</span>:
-            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">managed1.example.com</span>
-            <span style="color:#f92672">ListenPort</span>: @@<span style="color:#ae81ff">PROP:Server.soa_server1.ListenPort@@</span>
-            <span style="color:#f92672">Cluster</span>: <span style="color:#ae81ff">soa_cluster</span>
-            <span style="color:#f92672">Machine</span>: <span style="color:#ae81ff">machine2</span>
-            <span style="color:#f92672">SSL</span>:
-                <span style="color:#f92672">Enabled</span>: <span style="color:#66d9ef">true</span>
-                <span style="color:#f92672">ListenPort</span>: @@<span style="color:#ae81ff">PROP:Server.SSL.soa_server1.ListenPort@@</span>
-        <span style="color:#f92672">soa_server2</span>:
-            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">managed2.example.com</span>
-            <span style="color:#f92672">ListenPort</span>: @@<span style="color:#ae81ff">PROP:Server.soa_server2.ListenPort@@</span>
-            <span style="color:#f92672">Cluster</span>: <span style="color:#ae81ff">soa_cluster</span>
-            <span style="color:#f92672">Machine</span>: <span style="color:#ae81ff">machine3</span>
-            <span style="color:#f92672">SSL</span>:
-                <span style="color:#f92672">Enabled</span>: <span style="color:#66d9ef">true</span>
-                <span style="color:#f92672">ListenPort</span>: @@<span style="color:#ae81ff">PROP:Server.SSL.soa_server2.ListenPort@@</span>
-</code></pre></div><p>And the resulting variable property file:</p>
-<pre><code>Server.AdminServer.ListenPort=7001
-Server.AdminServer.SSL.ListenPort=7002
-Server.soa_server1.ListenPort=8001
-Server.soa_server1.SSL.ListenPort=8002
-Server.soa_server2.ListenPort=8001
-Server.soa_server2.SSL.ListenPort=8002
-</code></pre><p>To specify the name and location of the variable properties file for the Discover Domain Tool, use the argument <code>-variable_properties_file</code> on the command line. Usage of the <code>-variable_properties_file</code> argument without the presence of the model variable injector file in the <code>&lt;WLSDEPLOY&gt;/lib</code> directory will cause an error condition and the tool will exit. If the model variable injector file exists in the directory, but the command-line argument is not used, the variable properties file is created with the following defaults:</p>
+<h4 id="major-new-features">Major New Features</h4>
+<p>None</p>
+<h4 id="other-changes">Other Changes</h4>
 <ul>
-<li>If the <code>-model_file</code> command-line argument is used on the Discover Domain Tool run, the properties file name and location will be the same as the model file, with the file extension <code>.properties</code>.</li>
-<li>If only the archive file argument is present, the archive file name and location will be used.</li>
+<li>#1517 - Added a <code>postCreateRcuSchemasScript</code> element to the typedef file definitions to accommodate extra
+schema patching work required for Oracle Identity Governance domain creation.</li>
+<li>#1519 - Added <code>rcu_admin_user</code> field to the <code>domainInfo:/RCUDbInfo</code> section to replace <code>rcu_db_user</code>, which is now
+deprecated and will be removed in a future release.  This field is optional and will default to the appropriate
+admin user name: <code>admin</code> when using an ATP database and <code>SYS</code> otherwise.</li>
 </ul>
-<p>As with the archive and model file, each run of the Discover Domain Tool will overwrite the contents of an existing variable property file with the values from the current run.</p>
-<h3 id="custom-variable-injector">Custom variable injector</h3>
-<p>To designate custom injector directives, use the <code>CUSTOM</code> keyword in the <code>model_variable_injector.json</code> file. The <code>CUSTOM</code> keyword requires a list of one or more custom injector directive JSON files.</p>
-<p>An injector directive contains a key that identifies an attribute to be tokenized, and an optional set of directive properties. The key is a period-separated MBean hierarchy and attribute name as they are defined in the model. Always exclude the name of the model section from the injector key.</p>
-<p>For example, an injector key for the Server SSL Listen Port is as below. This directive contains no additional properties.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
-  <span style="color:#f92672">&#34;Server.SSL.ListenPort&#34;</span>: {}
-}
-</code></pre></div><p><strong>NOTE</strong>: The hierarchy of MBeans in the model for the <code>ListenPort</code> attribute. Note that the MBean name of <code>AdminServer</code> is NOT included in the directive:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
-    <span style="color:#f92672">Server</span>:
-        <span style="color:#f92672">AdminServer</span>:
-            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">myadmin.example.com</span>
-            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">7001</span>
-            <span style="color:#f92672">Machine</span>: <span style="color:#ae81ff">machine1</span>
-            <span style="color:#f92672">SSL</span>:
-                <span style="color:#f92672">Enabled</span>: <span style="color:#66d9ef">true</span>
-                <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">7002</span>
-</code></pre></div><p>These custom injector JSON files will be processed by the Variable Injector Tool before keywords, each file processed in list order. A property injected into an attribute will not be replaced by any subsequent matches.</p>
-<h4 id="custom-directive-properties">Custom directive properties</h4>
-<p>Include the following properties to refine the directive as specified.</p>
+<h4 id="bug-fixes">Bug Fixes</h4>
 <ul>
-<li>
-<p><code>force:&lt;attribute&gt;</code>
-If the MBean hierarchy exists in the model, but the attribute does not, then the attribute will be added and persisted to the discovered model. The value stored in the
-model is the WebLogic default value.</p>
-</li>
-<li>
-<p><code>variable_value</code>:
-Replace the model value with the specified value in the variable properties. This may be used in conjunction with the force directive, replacing the default value with the indicated value.</p>
-</li>
-<li>
-<p><code>regexp</code>:
-A list of <code>regexp</code> patterns that will be applied to either the string values or map values of an attribute in the model. If the pattern matches, then the matching part of the
-string or dictionary will be injected with a property token and a unique variable name.</p>
-<ul>
-<li>
-<p><code>pattern</code>:
-The regular expression pattern to apply to the string value or map values of an attribute.</p>
-</li>
-<li>
-<p><code>suffix</code>:
-The suffix name to append to each resulting variable name in order to create a unique variable name.</p>
-</li>
+<li>#1518 - Fixed an issue when using an ATP database as the RCU schema repository that was causing
+<code>config/fmwconfig/jps-config.xml</code> to contain a clear text password after JRF domain creation.</li>
 </ul>
-</li>
-</ul>
-<p>The <code>regexp</code> list is useful when only a segment of a string value or map needs to be tokenized (giving you a clean list of property values in the variable properties file). You can inject more than one token into a string or map with multiple patterns. However, when you have more than one pattern, you must provide a suffix for each. This allows the tool to generate a unique variable name for each token in the string or map.</p>
-<p>The following is an example of how to effectively use the <code>regexp</code> directive list to search for a segment in a string value. In this example, we want to search for the host and port in each Oracle JDBC URL that uses the special Oracle URL notation, and create an entry for the host and port in the variable properties file.</p>
-<p>In the model, we expect to find a URL like the following:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">    <span style="color:#f92672">JDBCSystemResource</span>:
-        <span style="color:#f92672">Database1</span>:
-            <span style="color:#f92672">JdbcResource</span>:
-                <span style="color:#f92672">JDBCDriverParams</span>:
-                    <span style="color:#f92672">URL</span>: <span style="color:#e6db74">&#39;jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=slc05til.us.oracle.com)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=orcl.us.oracle.com)))&#39;</span>
-</code></pre></div><p>We create a directive in our custom injector JSON file:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">  <span style="color:#e6db74">&#34;JDBCSystemResource.JdbcResource.JDBCDriverParams.URL&#34;</span><span style="color:#960050;background-color:#1e0010">:</span>
-  {
-    <span style="color:#f92672">&#34;regexp&#34;</span>: [
-      {
-        <span style="color:#f92672">&#34;pattern&#34;</span>: <span style="color:#e6db74">&#34;(?&lt;=PORT=)[\\w.-]+(?=\\))&#34;</span>,
-        <span style="color:#f92672">&#34;suffix&#34;</span>: <span style="color:#e6db74">&#34;Port&#34;</span>
-      },
-      {
-        <span style="color:#f92672">&#34;pattern&#34;</span>: <span style="color:#e6db74">&#34;(?&lt;=HOST=)[\\w.-]+(?=\\))&#34;</span>,
-        <span style="color:#f92672">&#34;suffix&#34;</span>: <span style="color:#e6db74">&#34;Host&#34;</span>
-      }
-    ]
-  }<span style="color:#960050;background-color:#1e0010">,</span>
-</code></pre></div><p>During the Discover Domain Tool run, the pattern is applied to the URL string and tokens injected into the string:</p>
-<pre><code>URL: 'jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=@@PROP:JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Host@@:)(PORT=@@PROP:JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port@@)))(CONNECT_DATA=(SERVICE_NAME=orcl.us.oracle.com)))'
-</code></pre><p>And the variables put in the properties file:</p>
-<pre><code>JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Host=slc05til.us.oracle.com
-JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port=1521
-</code></pre><h4 id="selecting-specific-mbean-names-for-variable-injection">Selecting specific MBean names for variable injection</h4>
-<p>This final custom directive allows you to explicitly define which named entries for an MBean in the model you want to inject properties. For instance, you might want to tokenize an attribute just for a specific server. To define a list of one or more names for a specific MBean in the injector directive hierarchy, format the list as follows:</p>
-<pre><code>MBean[comma separated list of names]
-
-</code></pre><p>To select only the Administration Server named <code>AdminServer</code> for a Server directive, use the format <code>Server[AdminServer]</code>. To select servers <code>soa_server1</code> and <code>soa_server2</code>, format the key as <code>Server[soa_server1,soa_server2]</code>.</p>
-<p>The injector tool recognizes two KEYWORDS for a user list, <code>MANAGED_SERVERS</code> (all the Managed Servers in the model) and <code>ADMIN_SERVER</code> (the Administration Server in the model).</p>
-<p>A custom injector for the Administration Server SSL listen port is:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
-  <span style="color:#f92672">&#34;Server[ADMIN_SERVER].SSL.ListenPort&#34;</span>: {},
-}
-</code></pre></div><h3 id="variable-injector-sample">Variable injector sample</h3>
-<p>A sample of a <code>model_variable_injector.json</code> file and a custom injector JSON file are installed in the <code>WLSDEPLOY/samples</code> directory.</p>
-<h3 id="parameter-table-for-injectvariables">Parameter table for <code>injectVariables</code></h3>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Definition</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>-archive_file</code></td>
-<td>The path to the archive file that contains a model in which the variables will be injected. If the <code>-model_file</code> argument is used, this argument will be ignored.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-model_file</code></td>
-<td>The location of the model file in which variables will be injected. If not specified, the tool will look for the model in the archive file. Either the <code>-model_file</code> or the <code>-archive_file</code> argument must be provided.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-oracle_home</code></td>
-<td>Home directory for the Oracle WebLogic installation. This is required unless the <code>ORACLE_HOME</code> environment variable is set.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-variable_injector_file</code></td>
-<td>The location of the variable injector file which contains the variable injector keywords for this model injection run. If this argument is not provided, the <code>model_variable_injector.json</code> file must exist in the <code>lib</code> directory in the <code>WLSDEPLOY_HOME</code> location.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-variable_properties_file</code></td>
-<td>The location of the property file in which to store any variable names injected into the model. If this command-line argument is not specified, the variable will be located and named based on the model file or archive file name and location. If the file exists, the file will be updated with new variable values.</td>
-<td></td>
-</tr>
-</tbody>
-</table>
+<h4 id="known-issues">Known Issues</h4>
+<p>None</p>
+<p>See <a href="https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/">https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/</a> for the current set of known limitations.</p>
 
 
 <footer class="footline">
@@ -1995,7 +1818,6 @@ JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port=1521
             
                 
                     
-                    
                 
                 
 
@@ -2010,9 +1832,6 @@ JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port=1521
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2030,7 +1849,6 @@ JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port=1521
             
                 
                     
-                    
                 
                 
 
@@ -2043,9 +1861,6 @@ JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port=1521
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2191,7 +2006,6 @@ JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port=1521
             
                 
                     
-                    
                 
                 
 
@@ -2207,9 +2021,6 @@ JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port=1521
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2729,6 +2540,7 @@ JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port=1521
             
                 
                     
+                    
                 
                 
 
@@ -2741,6 +2553,7 @@ JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port=1521
             
             
                 
+                    
                     
                 
                 
@@ -2757,6 +2570,9 @@ JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port=1521
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -3053,10 +2869,10 @@ JDBCSystemResource.Database1.JdbcResource.JDBCDriverParams.URL--Port=1521
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/userguide/tools/kubernetes/" title="Extract Domain Resource Tool"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/tools/model_help/" title="Model Help Tool" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-3.2.6/" title="Release Notes 3.2.6" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
