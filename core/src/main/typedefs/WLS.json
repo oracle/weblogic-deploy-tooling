@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2023, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "name": "WLS",
     "description": "WLS type domain definitions",
@@ -19,28 +19,32 @@
             "extensionTemplates": [ ],
             "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ ],
-            "rcuSchemas": [ ]
+            "rcuSchemas": [ ],
+            "isJrfInstalled": false
         },
         "WLS_12CR1": {
             "baseTemplate": "@@WL_HOME@@/common/templates/wls/wls.jar",
             "extensionTemplates": [ ],
             "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ ],
-            "rcuSchemas": [ ]
+            "rcuSchemas": [ ],
+            "isJrfInstalled": false
         },
         "WLS_12CR2": {
             "baseTemplate": "Basic WebLogic Server Domain",
             "extensionTemplates": [ ],
             "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ ],
-            "rcuSchemas": [ ]
+            "rcuSchemas": [ ],
+            "isJrfInstalled": false
         },
         "WLS_14": {
             "baseTemplate": "Basic WebLogic Server Domain",
             "extensionTemplates": [ ],
             "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ ],
-            "rcuSchemas": [ ]
+            "rcuSchemas": [ ],
+            "isJrfInstalled": false
         }
     }
 }

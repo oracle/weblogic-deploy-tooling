@@ -77,7 +77,7 @@
             "folders": {
                 "DataSourceLogFile": {
                     "wlst_type": "DataSourceLogFile",
-                    "default_name_value": "${NO_NAME_0:%SERVER}",
+                    "default_name_value": "${NO_NAME_0:%SERVER%}",
                     "folders": {},
                     "attributes": {
                         "BufferSizeKb":        [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "BufferSizeK${b:B}",    "wlst_path": "WP001", "default_value": 8,                                           "wlst_type": "integer"          } ],
@@ -992,7 +992,26 @@
             "wlst_type": "ServerDiagnosticConfig",
             "online_bean": "weblogic.management.configuration.WLDFServerDiagnosticMBean",
             "default_name_value": "${NO_NAME_0:%SERVER%}",
-            "folders": {},
+            "folders": {
+                "WldfBuiltinWatchConfiguration": {
+                    "wlst_type": "${Wldf:WLDF}BuiltinWatchConfiguration",
+                    "version": "[14.1.2,)",
+                    "default_name_value": "${NO_NAME_0:%SERVER%}",
+                    "folders": {},
+                    "attributes": {
+                        "Notes":                                         [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "Notes",                                         "wlst_path": "WP001", "default_value": null,      "wlst_type": "string"           } ],
+                        "StuckThreadDiagnosticImageNotificationEnabled": [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "StuckThreadDiagnosticImageNotificationEnabled", "wlst_path": "WP001", "default_value": false,     "wlst_type": "boolean"          } ],
+                        "StuckThreadThreadDumpActionCount":              [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "StuckThreadThreadDumpActionCount",              "wlst_path": "WP001", "default_value": 3,         "wlst_type": "integer"          } ],
+                        "StuckThreadThreadDumpActionDelaySeconds":       [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "StuckThreadThreadDumpActionDelaySeconds",       "wlst_path": "WP001", "default_value": 10,        "wlst_type": "integer"          } ],
+                        "StuckThreadThreadDumpActionEnabled":            [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "StuckThreadThreadDumpActionEnabled",            "wlst_path": "WP001", "default_value": false,     "wlst_type": "boolean"          } ],
+                        "StuckThreadWatchEnabled":                       [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "StuckThreadWatchEnabled",                       "wlst_path": "WP001", "default_value": false,     "wlst_type": "boolean"          } ]
+                    },
+                    "wlst_attributes_path": "WP001",
+                    "wlst_paths": {
+                        "WP001": "/Server${:s}/%SERVER%/ServerDiagnosticConfig/%SERVERDIAGNOSTICCONFIG%/${Wldf:WLDF}BuiltinWatchConfiguration/%WLDFBUILTINWATCHCONFIGURATION%"
+                    }
+                }
+            },
             "attributes": {
                 "DataRetirementEnabled":                 [ {"version": "[10,)"       ,  "wlst_mode": "both",    "wlst_name": "DataRetirementEnabled",                "wlst_path": "WP001", "default_value": "true",                   "wlst_type": "boolean"} ],
                 "DataRetirementTestModeEnabled":         [ {"version": "[10,)"       ,  "wlst_mode": "offline",    "wlst_name": "DataRetirementTestModeEnabled",     "wlst_path": "WP001", "default_value": "false",                  "wlst_type": "boolean"} ],

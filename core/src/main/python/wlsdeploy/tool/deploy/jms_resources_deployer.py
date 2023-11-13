@@ -75,7 +75,7 @@ class JmsResourcesDeployer(Deployer):
         return
 
     # Override
-    def _add_named_elements(self, type_name, model_nodes, location):
+    def _add_named_elements(self, type_name, model_nodes, location, delete_now=True):
         """
         Override the base method for these special cases:
         1) Group params require special handling.
@@ -93,7 +93,7 @@ class JmsResourcesDeployer(Deployer):
             self._check_destination_template(model_nodes, location)
             # continue with regular processing
 
-        Deployer._add_named_elements(self, type_name, model_nodes, location)
+        Deployer._add_named_elements(self, type_name, model_nodes, location, delete_now)
 
     # Override
     def _add_model_elements(self, type_name, model_nodes, location):

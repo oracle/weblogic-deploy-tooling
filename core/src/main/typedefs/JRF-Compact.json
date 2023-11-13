@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2022, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "copyright": "Copyright (c) 2022, 2023, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "name": "JRF-Compact",
     "description": "JRF type domain with a compact profile definitions",
@@ -27,7 +27,8 @@
             ],
             "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ ],
-            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "WLS" ]
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "WLS" ],
+            "isJrfInstalled": true
         },
         "JRF_12CR2": {
             "baseTemplate": "Basic WebLogic Server Domain",
@@ -39,7 +40,8 @@
             ],
             "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ ],
-            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "WLS" ]
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "WLS" ],
+            "isJrfInstalled": true
         },
         "JRF_12CR2_LAST": {
             "baseTemplate": "Basic WebLogic Server Domain",
@@ -51,7 +53,8 @@
             ],
             "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ ],
-            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "WLS" ]
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "WLS" ],
+            "isJrfInstalled": true
         },
         "JRF_14": {
             "baseTemplate": "Basic WebLogic Server Domain",
@@ -63,7 +66,8 @@
             ],
             "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ ],
-            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "WLS" ]
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "WLS" ],
+            "isJrfInstalled": true
         }
     },
     "discover-filters": {

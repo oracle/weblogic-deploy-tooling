@@ -11,6 +11,7 @@ from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
 from wlsdeploy.aliases.model_constants import RESOURCE_MANAGEMENT
 from wlsdeploy.tool.deploy.applications_deployer import ApplicationsDeployer
+from wlsdeploy.tool.deploy.coherence_resources_deployer import CoherenceResourcesDeployer
 from wlsdeploy.tool.deploy.common_resources_deployer import CommonResourcesDeployer
 from wlsdeploy.tool.deploy.datasource_deployer import DatasourceDeployer
 from wlsdeploy.tool.deploy.deployer import Deployer
@@ -117,7 +118,8 @@ class MultiTenantResourcesDeployer(Deployer):
         wldf_deployer = WldfResourcesDeployer(self.model, self.model_context, self.aliases, self.wlst_mode)
         wldf_deployer.add_wldf_modules(parent_dict, location)
 
-        common_deployer.add_coherence_clusters(parent_dict, location)
+        coherence_deployer = CoherenceResourcesDeployer(self.model, self.model_context, self.aliases, self.wlst_mode)
+        coherence_deployer.add_coherence_cluster_system_resources(parent_dict, location)
 
         applications_deployer = \
             ApplicationsDeployer(self.model, self.model_context, self.aliases, self.wlst_mode, location)

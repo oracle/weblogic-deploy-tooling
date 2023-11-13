@@ -1091,9 +1091,10 @@ class Aliases(object):
                         model_attribute_value = PASSWORD_TOKEN
 
                 elif model_type == 'boolean':
-                    wlst_val = alias_utils.convert_boolean(converted_value)
-                    default_val = alias_utils.convert_boolean(default_value)
-                    if wlst_val == default_val:
+                    # some boolean attributes have WLST value of null until they are set
+                    wlst_boolean = _get_boolean_or_none(wlst_attribute_value)  # from unconverted value
+                    default_boolean = _get_boolean_or_none(default_value)
+                    if wlst_boolean == default_boolean:
                         model_attribute_value = None
                     else:
                         model_attribute_value = converted_value
@@ -1591,3 +1592,14 @@ def _strings_are_empty(converted_value, default_value):
         str_default_value = None
 
     return string_utils.is_empty(str_converted_value) and string_utils.is_empty(str_default_value)
+
+
+def _get_boolean_or_none(attribute_value):
+    """
+    Return the boolean value of the specified value, or None if it is None.
+    This is needed to match boolean WLST attributes that are null until they are set.
+    :param attribute_value: the value to convert to boolean or None
+    """
+    if attribute_value is None:
+        return None
+    return alias_utils.convert_boolean(attribute_value)

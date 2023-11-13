@@ -152,7 +152,7 @@ def __update_online(model, model_context, aliases):
     try:
 
         if model_context.is_remote():
-            model_validator = Validator(model_context, aliases, logger=__logger, wlst_mode=WlstModes.ONLINE)
+            model_validator = Validator(model_context, aliases, wlst_mode=WlstModes.ONLINE)
             model_validator.validate_in_tool_mode(model.get_model(), None,
                                                   model_context.get_archive_file_name())
 

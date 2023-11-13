@@ -179,7 +179,7 @@ class WlstHelper(object):
         Set the specified attribute using the corresponding cmo set method (e.g., cmo.setListenPort()).
         :param wlst_name: the WLST attribute name
         :param wlst_value: the WLST value
-        :param masked: whether or not to mask the wlst_value from the log files.
+        :param masked: whether to mask the wlst_value from the log files.
         :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'set_with_cmo'
@@ -554,6 +554,11 @@ class WlstHelper(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=mbean_name)
         return mbean_name
 
+    # FIXME - This code below is busted.
+    # - It ignores the path passed in when cd'ing (to where we already are) and getting the cmo the first time
+    # - It also only cd's back to the original location if there was no path passed in (so it never left the
+    #   current location in the first place).
+    #
     def get_mbean(self, wlst_path):
         """
         Return the current CMO or the proxy instance for the MBean of the current folder.
@@ -584,6 +589,9 @@ class WlstHelper(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=cmo)
         return cmo
 
+    # TODO - It feels like the only reason for this method is because the one above is broken
+    #        when the path is not empty.
+    #
     def get_mbean_for_wlst_path(self, path):
         """
         Return the mbean object for the provided path.

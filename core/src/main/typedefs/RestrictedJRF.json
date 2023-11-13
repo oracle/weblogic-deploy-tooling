@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2023, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "name": "RestrictedJRF",
     "description": "Restricted JRF type domain definitions",
@@ -19,7 +19,8 @@
             "extensionTemplates": [ "Oracle Restricted JRF", "Oracle Enterprise Manager-Restricted JRF" ],
             "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSM-CACHE-SVR", "JRF-WS-CORE-MAN-SVR" ],
-            "rcuSchemas": [ ]
+            "rcuSchemas": [ ],
+            "isJrfInstalled": true
         },
         "RJRF_12CR2": {
             "baseTemplate": "Basic WebLogic Server Domain",
@@ -27,7 +28,8 @@
             "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSM-CACHE-SVR", "JRF-WS-CORE-MAN-SVR"] ,
             "dynamicClusterServerGroupsToTarget" : [ "WSM-CACHE-DYN-CLUSTER" ],
-            "rcuSchemas": [ ]
+            "rcuSchemas": [ ],
+            "isJrfInstalled": true
         },
         "RJRF_14": {
             "baseTemplate": "Basic WebLogic Server Domain",
@@ -35,7 +37,8 @@
             "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSM-CACHE-SVR", "JRF-WS-CORE-MAN-SVR" ],
             "dynamicClusterServerGroupsToTarget" : [ "WSM-CACHE-DYN-CLUSTER" ],
-            "rcuSchemas": [ ]
+            "rcuSchemas": [ ],
+            "isJrfInstalled": true
         }
 
     },

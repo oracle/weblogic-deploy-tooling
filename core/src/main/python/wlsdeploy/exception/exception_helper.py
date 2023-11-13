@@ -479,6 +479,14 @@ def convert_error_to_exception():
     return custom_exception
 
 
+def get_error_message_from_exception(ex):
+    if isinstance(ex, Throwable):
+        message =  ex.getLocalizedMessage()
+    else:
+        message = ex.to_string()
+    return message
+
+
 def _return_exception_params(*args, **kwargs):
     """
     Get the exception parameters from the list
