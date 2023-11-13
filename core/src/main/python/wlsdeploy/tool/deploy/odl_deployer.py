@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.io import File
@@ -66,7 +66,7 @@ class OdlDeployer(object):
         odl_info = dictionary_utils.get_dictionary_element(parent_dict, ODL_CONFIGURATION)
         if len(odl_info):
             typedef = self.model_context.get_domain_typedef()
-            if not (typedef.is_jrf_domain_type() or typedef.is_restricted_jrf_domain_type()):
+            if not typedef.is_jrf_installed():
                 self.logger.info('WLSDPLY-19709', class_name=self.__class_name, method_name=_method_name)
             elif self.wlst_mode == WlstModes.ONLINE:
                 self.logger.info('WLSDPLY-19700', class_name=self.__class_name, method_name=_method_name)

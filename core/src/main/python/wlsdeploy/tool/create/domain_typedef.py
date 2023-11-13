@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -15,6 +15,7 @@ from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.targeting_types import TargetingType
 from wlsdeploy.tool.util.topology_profiles import TopologyProfile
+from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import path_utils
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
@@ -162,31 +163,30 @@ class DomainTypedef(object):
         """
         return self._topology_profile
 
-    def is_jrf_domain_type(self):
+    def is_jrf_installed(self):
         """
-        Determine if this is a JRF domain type by checking for the JRF extension template or
-        JRF SVR GrOUP.
-        This returns False for the Restricted JRF domain type.
-        :return: True if the JRF template is present
+        Determine if this is domain type has JRF installed, based on a flag in the typedef file.
+        If this is not specified in the typedef file, the default is True.
+        :return: the value of the "isJrfInstalled" flag, or True if not specified
         """
-        if self.is_restricted_jrf_domain_type():
-            return False
-        for template in self.get_extension_templates():
-            if re.match(self.JRF_TEMPLATE_REGEX, template):
-                return True
-        if self.JRF_SERVER_GROUP in self.get_server_groups_to_target():
-            return True
-        return False
+        jrf_installed = dictionary_utils.get_element(self._domain_typedef, 'isJrfInstalled')
+        if jrf_installed is None:
+            jrf_installed = True
+        return jrf_installed
 
-    def is_restricted_jrf_domain_type(self):
+    def has_jrf_with_file_store(self):
         """
-        Determine if this domain type applies the Restricted JRF template.
-        :return: True if the Restricted JRF template is in the extension templates list
+        Determine if this domain type has JRF installed and uses a file store.
+        :return: True if the domain type has JRF installed and uses a file store, False otherwise
         """
-        for template in self.get_extension_templates():
-            if re.match(self.RESTRICTED_JRF_TEMPLATE_REGEX, template):
-                return True
-            return False
+        return self.is_jrf_installed() and not self.get_rcu_schemas()
+
+    def has_jrf_with_database_store(self):
+        """
+        Determine if this domain type has JRF installed and uses a database store.
+        :return: True if the domain type has JRF installed and uses a database store, False otherwise
+        """
+        return self.is_jrf_installed() and bool(self.get_rcu_schemas())
 
     def get_base_template(self):
         """

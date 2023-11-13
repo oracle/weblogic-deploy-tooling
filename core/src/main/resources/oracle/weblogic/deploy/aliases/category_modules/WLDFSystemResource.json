@@ -25,7 +25,7 @@
                                 "Enabled":            [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Enabled",                 "wlst_path": "WP001", "default_value": "true",                  "wlst_type": "boolean"          } ],
                                 "HarvestedAttribute": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "HarvestedAttribute${:s}", "wlst_path": "WP001", "default_value": "[]",                    "wlst_type": "${list:jarray}",  "wlst_read_type": "delimited_string[semicolon]", "get_method": "${LSA:GET}", "preferred_model_type": "list" } ],
                                 "HarvestedInstance":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "HarvestedInstance${:s}",  "wlst_path": "WP001", "default_value": "[]",                    "wlst_type": "${list:jarray}",  "wlst_read_type": "delimited_string[semicolon]", "get_method": "${LSA:GET}", "preferred_model_type": "list" } ],
-                                "KnownType":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "KnownType",               "wlst_path": "WP001", "default_value": null,                    "wlst_type": "boolean"          } ],
+                                "KnownType":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "KnownType",               "wlst_path": "WP001", "default_value": false,                   "wlst_type": "boolean"          } ],
                                 "Namespace":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Namespace",               "wlst_path": "WP001", "default_value": "${__NULL__:ServerRuntime}", "wlst_type": "string"           } ]
                             },
                             "wlst_attributes_path": "WP001",
@@ -56,7 +56,7 @@
                             "attributes": {
                                 "Action":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Action${:s}",         "wlst_path": "WP001", "default_value": "[]",              "wlst_type": "${list:jarray}",   "wlst_read_type": "delimited_string[semicolon]", "preferred_model_type": "list", "get_method": "${LSA:GET}" } ],
                                 "Description":         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Description",         "wlst_path": "WP001", "default_value": null,              "wlst_type": "string"            } ],
-                                "DyeFilteringEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DyeFilteringEnabled", "wlst_path": "WP001", "default_value": null,              "wlst_type": "boolean"           } ],
+                                "DyeFilteringEnabled": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DyeFilteringEnabled", "wlst_path": "WP001", "default_value": false,             "wlst_type": "boolean"           } ],
                                 "DyeMask":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "DyeMask",             "wlst_path": "WP001", "default_value": null,              "wlst_type": "string"            } ],
                                 "Enabled":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Enabled",             "wlst_path": "WP001", "default_value": "true",            "wlst_type": "boolean"           } ],
                                 "Exclude":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Exclude${:s}",        "wlst_path": "WP001", "default_value": null,              "wlst_type": "delimited_string", "get_method": "LSA" } ],

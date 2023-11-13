@@ -1,0 +1,21 @@
+{
+  "copyright": "Copyright (c) 2023, Oracle Corporation and/or its affiliates.",
+  "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
+  "version": "[14.1.2,)",
+  "wlst_type": "RemoteConsoleHelper",
+  "online_bean": "weblogic.management.configuration.RemoteConsoleHelperMBean",
+  "default_name_value": "${NO_NAME_0:%DOMAIN%}",
+  "folders": {},
+  "attributes": {
+    "ContextPath":            [ {"version": "[14.1.2,)",         "wlst_mode": "both",    "wlst_name": "ContextPath",             "wlst_path": "WP001", "default_value": "${consolehelper:console}", "wlst_type": "string"   } ],
+    "CookieName":             [ {"version": "[14.1.2,)",         "wlst_mode": "both",    "wlst_name": "CookieName",              "wlst_path": "WP001", "default_value": "REMOTECONSOLESESSION",     "wlst_type": "string"   } ],
+    "Notes":                  [ {"version": "[14.1.2,)",         "wlst_mode": "both",    "wlst_name": "Notes",                   "wlst_path": "WP001", "default_value": null,                       "wlst_type": "string"    } ],
+    "ProtectedCookieEnabled": [ {"version": "[14.1.2,)",         "wlst_mode": "both",    "wlst_name": "ProtectedCookieEnabled",  "wlst_path": "WP001", "default_value": true,                       "wlst_type": "boolean"   } ],
+    "SessionTimeout":         [ {"version": "[14.1.2,)",         "wlst_mode": "both",    "wlst_name": "SessionTimeout",          "wlst_path": "WP001", "default_value": "600",                      "wlst_type": "integer"   } ],
+    "TokenTimeout":           [ {"version": "[14.1.2,)",         "wlst_mode": "both",    "wlst_name": "TokenTimeout",            "wlst_path": "WP001", "default_value": "60",                       "wlst_type": "integer"   } ]
+  },
+  "wlst_attributes_path": "WP001",
+  "wlst_paths": {
+    "WP001": "/RemoteConsoleHelper/%REMOTECONSOLEHELPER%"
+  }
+}

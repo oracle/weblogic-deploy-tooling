@@ -58,7 +58,6 @@ from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
 from wlsdeploy.aliases.model_constants import PRODUCTION_MODE_ENABLED
 from wlsdeploy.aliases.model_constants import RESOURCES
 from wlsdeploy.aliases.model_constants import RCU_COMP_INFO
-from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RCU_STG_INFO
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
@@ -215,7 +214,7 @@ class DomainCreator(Creator):
         :param type_name: the model folder type
         :param model_nodes: the model dictionary of the specified model folder type
         :param base_location: the base location object to use to create the MBeans
-        :param log_created: whether or not to log created at INFO level, by default it is logged at the FINE level
+        :param log_created: whether to log created at INFO level, by default it is logged at the FINE level
         :raises: CreateException: if an error occurs
         """
         self.topology_helper.check_coherence_cluster_references(type_name, model_nodes)
@@ -574,7 +573,7 @@ class DomainCreator(Creator):
             server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
             self.target_helper.target_server_groups_to_servers(server_groups_to_target)
 
-        elif self._domain_typedef.is_jrf_domain_type() or \
+        elif self._domain_typedef.has_jrf_with_database_store() or \
                 (self._domain_typedef.get_targeting() == TargetingType.APPLY_JRF):
             # for 11g, if template list includes JRF, or if specified in domain typedef, use applyJRF
             self.target_helper.target_jrf_groups_to_clusters_servers()
@@ -691,26 +690,6 @@ class DomainCreator(Creator):
             self.__apply_base_domain_config(topology_folder_list, delete=False)
         self.__create_security_folder()
 
-        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
-    def __set_server_groups(self):
-        _method_name = '__set_server_groups'
-        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
-        if self.wls_helper.is_set_server_groups_supported():
-            # 12c versions set server groups directly
-            server_groups_to_target = self._domain_typedef.get_server_groups_to_target()
-            server_assigns, dynamic_assigns = \
-                self.target_helper.target_server_groups_to_servers(server_groups_to_target)
-            if len(server_assigns) > 0:
-                self.target_helper.target_server_groups(server_assigns)
-
-            if len(dynamic_assigns) > 0:
-                self.target_helper.target_server_groups_to_dynamic_clusters(dynamic_assigns)
-
-        elif self._domain_typedef.is_jrf_domain_type() or \
-                (self._domain_typedef.get_targeting() == TargetingType.APPLY_JRF):
-            # for 11g, if template list includes JRF, or if specified in domain typedef, use applyJRF
-            self.target_helper.target_jrf_groups_to_clusters_servers()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def __apply_base_domain_config(self, topology_folder_list, delete=True):
@@ -1602,7 +1581,7 @@ class DomainCreator(Creator):
     def __configure_opss_secrets(self):
         _method_name = '__configure_opss_secrets'
 
-        if not self._domain_typedef.is_jrf_domain_type():
+        if not self._domain_typedef.has_jrf_with_database_store():
             return
 
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)

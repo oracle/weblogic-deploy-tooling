@@ -402,6 +402,7 @@ class JmsResourcesDiscoverer(Discoverer):
         _logger.entering(server_name, model_name, model_value, class_name=_class_name, method_name=_method_name)
         new_name = model_value
         if model_value is not None:
+            # FIXME - This is an ugly hack...
             success, _, file_name = self._get_from_url('Foreign Server ' + server_name + ' Connection URL', model_value)
             archive_file = self._model_context.get_archive_file()
             if success and file_name is not None:

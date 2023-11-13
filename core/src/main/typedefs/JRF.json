@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.",
+    "copyright": "Copyright (c) 2017, 2023, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "name": "JRF",
     "description": "JRF type domain definitions",
@@ -26,7 +26,8 @@
             ],
             "serverGroupsToTarget" : [ "JRF-MAN-SVR", "WSMPM-MAN-SVR" ],
             "customExtensionTemplates": [ ],
-            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS" ]
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS" ],
+            "isJrfInstalled": true
         },
         "JRF_1212" : {
             "baseTemplate": "@@WL_HOME@@/common/templates/wls/wls.jar",
@@ -38,7 +39,8 @@
             ],
             "customExtensionTemplates": [ ],
             "serverGroupsToTarget" : [ "JRF-MAN-SVR", "WSMPM-MAN-SVR" ],
-            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB" ]
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB" ],
+            "isJrfInstalled": true
         },
         "JRF_1213" : {
             "baseTemplate": "@@WL_HOME@@/common/templates/wls/wls.jar",
@@ -50,7 +52,8 @@
             ],
             "customExtensionTemplates": [ ],
             "serverGroupsToTarget" : [ "JRF-MAN-SVR", "WSMPM-MAN-SVR" ],
-            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB" ]
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB" ],
+            "isJrfInstalled": true
         },
         "JRF_12CR2_FIRST": {
             "baseTemplate": "Basic WebLogic Server Domain",
@@ -62,7 +65,8 @@
             ],
             "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSMPM-MAN-SVR" ],
-            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "WLS" ]
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "WLS" ],
+            "isJrfInstalled": true
         },
         "JRF_12CR2": {
             "baseTemplate": "Basic WebLogic Server Domain",
@@ -75,7 +79,8 @@
             "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSMPM-MAN-SVR" ],
             "dynamicClusterServerGroupsToTarget" : [ "WSMPM-DYN-CLUSTER" ],
-            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "WLS" ]
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "WLS" ],
+            "isJrfInstalled": true
         },
         "JRF_12CR2_LAST": {
             "baseTemplate": "Basic WebLogic Server Domain",
@@ -88,7 +93,8 @@
             "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSMPM-MAN-SVR" ],
             "dynamicClusterServerGroupsToTarget" : [ "WSMPM-DYN-CLUSTER", "WSM-CACHE-DYN-CLUSTER" ],
-            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "WLS" ]
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "WLS" ],
+            "isJrfInstalled": true
         },
         "JRF_14": {
             "baseTemplate": "Basic WebLogic Server Domain",
@@ -101,7 +107,8 @@
             "customExtensionTemplates": [ ],
             "serverGroupsToTarget": [ "JRF-MAN-SVR", "WSMPM-MAN-SVR" ],
             "dynamicClusterServerGroupsToTarget" : [ "WSMPM-DYN-CLUSTER", "WSM-CACHE-DYN-CLUSTER" ],
-            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "WLS" ]
+            "rcuSchemas": [ "MDS", "IAU", "IAU_VIEWER", "IAU_APPEND", "OPSS", "STB", "WLS" ],
+            "isJrfInstalled": true
         }
     },
     "discover-filters": {

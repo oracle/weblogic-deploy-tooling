@@ -54,6 +54,14 @@ class ArchiveHelper(object):
                 self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
 
+    def is_path_into_archive(self, path):
+        _method_name = 'is_path_into_archive'
+        self.__logger.entering(path, class_name=self.__class_name, method_name=_method_name)
+
+        result = WLSDeployArchive.isPathIntoArchive(path)
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
     def contains_file(self, path):
         """
         Does an archive file contain the specified location?

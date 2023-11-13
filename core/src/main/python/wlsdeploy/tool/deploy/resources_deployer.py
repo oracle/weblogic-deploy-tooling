@@ -8,6 +8,7 @@ from wlsdeploy.aliases.model_constants import STARTUP_CLASS
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy.odl_deployer import OdlDeployer
+from wlsdeploy.tool.deploy.coherence_resources_deployer import CoherenceResourcesDeployer
 from wlsdeploy.tool.deploy.common_resources_deployer import CommonResourcesDeployer
 from wlsdeploy.tool.deploy.datasource_deployer import DatasourceDeployer
 from wlsdeploy.tool.deploy.deployer import Deployer
@@ -84,7 +85,9 @@ class ResourcesDeployer(Deployer):
         wldf_deployer = WldfResourcesDeployer(self.model, self.model_context, self.aliases, self.wlst_mode)
         wldf_deployer.add_wldf_modules(self._resources, location)
 
-        common_deployer.add_coherence_clusters(self._resources, location)
+        coherence_deployer = CoherenceResourcesDeployer(self.model, self.model_context, self.aliases, self.wlst_mode)
+        coherence_deployer.add_coherence_cluster_system_resources(self._resources, location)
+
         common_deployer.add_webapp_container(self._resources, location)
         common_deployer.add_singleton_service(self._resources, location)
         common_deployer.add_system_components(self._resources, location)

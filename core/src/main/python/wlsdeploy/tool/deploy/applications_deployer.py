@@ -472,7 +472,7 @@ class ApplicationsDeployer(Deployer):
         try:
             local_download_root = FileUtils.createTempDirectory("wdt-downloadtemp").getAbsolutePath()
         except (IOException), e:
-            ex = exception_helper.create_deploy_exception('WLSDPLY-06160', e.getLocalizedMessage(), error=e)
+            ex = exception_helper.create_deploy_exception('WLSDPLY-06161', e.getLocalizedMessage(), error=e)
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 

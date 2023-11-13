@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -534,16 +534,10 @@ def convert_boolean(value):
     if value is not None:
         if type(value) is bool:
             result = value
-        elif type(value) is int:
-            if value == 1:
-                result = True
-            elif value == 0:
-                result = False
+        elif isinstance(value, (int, long)):
+            result = value == 1
         elif isinstance(value, basestring):
-            if value.lower() == 'true':
-                result = True
-            elif value.lower() == 'false':
-                result = False
+            result =  value.lower() in ['true', '1']
         elif isinstance(value, PyRealBoolean):
             result = value.getValue()
     return result

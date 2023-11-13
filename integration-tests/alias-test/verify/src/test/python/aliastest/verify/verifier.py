@@ -121,7 +121,7 @@ MSG_MAP = {
     ERROR_ATTRIBUTE_ALIAS_NOT_FOUND:               'Attribute not found in aliases',
     ERROR_ATTRIBUTE_INCORRECT_CASE:                'Attribute case incorrect',
     ERROR_ATTRIBUTE_ALIAS_NOT_FOUND_IS_READONLY:   'Readonly attribute not found in aliases',
-    ERROR_ATTRIBUTE_READONLY:                      'Attribute is marked readwrite',
+    ERROR_ATTRIBUTE_READONLY:                      'Attribute is marked readwrite in the alias but read-only in WLST',
     ERROR_ATTRIBUTE_NOT_READONLY_VERSION:          'Attribute is marked readonly or is invalid version range',
     ERROR_ATTRIBUTE_NOT_READONLY:                  'Attribute is not marked readwrite',
     ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE:           'Attribute wrong default value',
@@ -628,6 +628,12 @@ class Verifier(object):
         _method_name = '_is_generated_attribute_readonly'
         _logger.entering(location.get_folder_path(), generated_attribute, str(generated_attribute_info),
                          str(alias_get_required_attribute_list), class_name=CLASS_NAME, method_name=_method_name)
+
+        if self._model_context.get_target_wlst_mode() == WlstModes.ONLINE:
+            if location.get_folder_path() in verify_utils.ONLINE_ATTRIBUTE_READONLY_EXCEPTION_MAP:
+                attribute_exceptions = verify_utils.ONLINE_ATTRIBUTE_READONLY_EXCEPTION_MAP[location.get_folder_path()]
+                if isinstance(attribute_exceptions, list) and generated_attribute in attribute_exceptions:
+                    return False
 
         if READ_TYPE not in generated_attribute_info and CMO_READ_TYPE not in generated_attribute_info:
             self._add_error(location, ERROR_FAILURE_ATTRIBUTE_UNEXPECTED,
@@ -1376,7 +1382,7 @@ def _adjust_default_value_for_special_cases(attribute, attr_type, attr_default):
 
 
 PATH_INCLUDES_TOKENS = ['Path', 'Dir']
-PATH_EXCLUDES_TOKENS = ['ClassPath']
+PATH_EXCLUDES_TOKENS = ['ClassPath', 'ContextPath']
 PATH_EXCLUDE_ATTRIBUTE_NAMES = ['Direction', 'ErrorPath', 'UriPath']
 
 
