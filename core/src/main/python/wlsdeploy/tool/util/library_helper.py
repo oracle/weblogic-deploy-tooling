@@ -85,25 +85,6 @@ class LibraryHelper(object):
                                  class_name=self.__class_name, method_name=_method_name)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-    def extract_custom_files(self):
-        """
-        Extract any custom files in the archive to the domain home.
-        :raises: BundleAwareException of the specified type: if an error occurs
-        """
-        _method_name = 'extract_custom_files'
-
-        self.logger.entering(self.domain_home, class_name=self.__class_name, method_name=_method_name)
-        if self.archive_helper is None:
-            self.logger.info('WLSDPLY-12565', class_name=self.__class_name, method_name=_method_name)
-        else:
-            num_cp_libs = self.archive_helper.extract_custom_archive()
-            if num_cp_libs > 0:
-                self.logger.info('WLSDPLY-12566', num_cp_libs, self.domain_home,
-                                 class_name=self.__class_name, method_name=_method_name)
-            else:
-                self.logger.info('WLSDPLY-12567', self.model_context.get_archive_file_name(),
-                                 class_name=self.__class_name, method_name=_method_name)
-        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def install_domain_scripts(self):
         """

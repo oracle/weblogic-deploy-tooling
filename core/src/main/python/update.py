@@ -24,6 +24,7 @@ from wlsdeploy.tool.deploy.topology_updater import TopologyUpdater
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util import results_file
 from wlsdeploy.tool.util import wlst_helper
+from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.util.rcu_helper import RCUHelper
 from wlsdeploy.util import cla_helper
@@ -294,6 +295,15 @@ def main(model_context):
         model_dictionary = cla_helper.load_model(_program_name, model_context, aliases, "update", __wlst_mode,
                                                  validate_crd_sections=False)
         model = Model(model_dictionary)
+
+        archive_file_name = model_context.get_archive_file_name()
+        if archive_file_name:
+            domain_path = model_context.get_domain_home()
+            archive_helper = ArchiveHelper(archive_file_name, domain_path, __logger, ExceptionType.CREATE)
+            if archive_helper:
+                archive_helper.extract_all_database_wallets()
+                archive_helper.extract_custom_archive()
+
         _exit_code = __update(model, model_context, aliases)
     except DeployException, ex:
         _exit_code = ExitCode.ERROR
