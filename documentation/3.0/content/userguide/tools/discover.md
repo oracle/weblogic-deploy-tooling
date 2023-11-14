@@ -77,8 +77,6 @@ Total:       WARNING :     1    SEVERE :     0
 The following environment variables may be set.
 
 -  `JAVA_HOME`             The location of the JDK. This must be a valid Java 7 or later JDK.
--  `WLSDEPLOY_HOME`        The location of the WebLogic Deploy Tooling installation. By default, the location is calculated
-                         from the location of the `discoverDomain` script.
 -  `WLSDEPLOY_PROPERTIES`  System properties that will be passed to WLST.
 
 ### Opening an issue against Discover Domain

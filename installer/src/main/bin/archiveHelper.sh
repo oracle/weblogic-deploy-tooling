@@ -17,12 +17,6 @@
 # JAVA_HOME             - The location of the JDK to use.  The caller must set
 #                         this variable to a valid Java 7 (or later) JDK.
 #
-# WLSDEPLOY_HOME        - The location of the WLS Deploy installation.
-#                         If the caller sets this, the callers location will be
-#                         honored provided it is an existing directory.
-#                         Otherwise, the location will be calculated from the
-#                         location of this script.
-#
 
 WLSDEPLOY_PROGRAM_NAME="archiveHelper"; export WLSDEPLOY_PROGRAM_NAME
 

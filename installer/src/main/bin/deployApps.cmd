@@ -17,12 +17,6 @@
 @rem JAVA_HOME             - The location of the JDK to use.  The caller must set
 @rem                         this variable to a valid Java 7 (or later) JDK.
 @rem
-@rem WLSDEPLOY_HOME        - The location of the WLS Deploy installation.
-@rem                         If the caller sets this, the callers location will be
-@rem                         honored provided it is an existing directory.
-@rem                         Otherwise, the location will be calculated from the
-@rem                         location of this script.
-@rem
 @rem WLSDEPLOY_PROPERTIES  - Extra system properties to pass to WLST.  The caller
 @rem                         can use this environment variable to add additional
 @rem                         system properties to the WLST environment.
@@ -155,35 +149,34 @@ ECHO                           prompt. The value is a the name of a file with a
 ECHO                           string value which WDT will read to retrieve the
 ECHO                           password.
 ECHO.
-ECHO          ssh_host        - the host name for admin server when ssh protocol is used to collect resources 
+ECHO          ssh_host        - the host name for admin server when SSH protocol is used to collect resources
 ECHO                            from the admin server host. 
 ECHO.
-ECHO          ssh_port        - the ssh port number for the admin server host. 
+ECHO          ssh_port        - the SSH port number for the admin server host.
 ECHO.
-ECHO          ssh_user        - the ssh user name for the admin server host. 
-ECHO          ssh_pass        - the ssh user password for the admin server host.
+ECHO          ssh_user        - the SSH user name for the admin server host.
 ECHO.
-ECHO          ssh_pass_env    - An alternative to enter the ssh password at the prompt.  The value is specified 
+ECHO          ssh_pass_env    - An alternative to entering the SSH password at the prompt.  The value is specified
 ECHO                            in an ENVIRONMENT VARIABLE name that WDT will use to retrieve the password 
 ECHO.
-ECHO          ssh_pass_file   - An alternative to enter the ssh password at the prompt.  The value is the name of a 
+ECHO          ssh_pass_file   - An alternative to entering the SSH password at the prompt.  The value is the name of a
 ECHO                            file with a string value which WDT will read to retrieve the password. 
 ECHO.
-ECHO          ssh_pass_prompt - Prompt for the ssh password. 
+ECHO          ssh_pass_prompt - Prompt for the SSH password.
 ECHO.
-ECHO          ssh_private_key - the private key to use for connecting to the admin server host using ssh. 
+ECHO          ssh_private_key - the private key to use for connecting to the admin server host using SSH.
 ECHO.
-ECHO          ssh_private_key_pass_env - An alternative to enter the ssh private keystore password at the prompt. 
+ECHO          ssh_private_key_pass_env - An alternative to entering the SSH private keystore password at the prompt.
 ECHO                                     The value is specified in an ENVIRONMENT VARIABLE name that WDT will use 
 ECHO                                     to retrieve the password 
 ECHO.
-ECHO          ssh_private_key_pass_file - An alternative to enter the ssh private keystore password at the prompt. 
+ECHO          ssh_private_key_pass_file - An alternative to entering the SSH private keystore password at the prompt.
 ECHO                                      The value is the name of a file with a string value which WDT will read 
 ECHO                                      to retrieve the password. 
 ECHO.
-ECHO          ssh_private_key_pass_prompt - Prompt for the ssh private keystore password.
+ECHO          ssh_private_key_pass_prompt - Prompt for the SSH private keystore password.
 ECHO.
-ECHO          remote_domain_home - the domain home reside in the remote ssh host for the admin server.
+ECHO          remote_domain_home - the domain home reside in the remote SSH host for the admin server.
 ECHO.
 ECHO    The -use_encryption switch tells the program that one or more of the
 ECHO    passwords in the model or variables files are encrypted.  The program will

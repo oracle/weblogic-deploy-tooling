@@ -17,12 +17,6 @@
 # JAVA_HOME             - The location of the JDK to use.  The caller must set
 #                         this variable to a valid Java 7 (or later) JDK.
 #
-# WLSDEPLOY_HOME        - The location of the WLS Deploy installation.
-#                         If the caller sets this, the callers location will be
-#                         honored provided it is an existing directory.
-#                         Otherwise, the location will be calculated from the
-#                         location of this script.
-#
 # WLSDEPLOY_PROPERTIES  - Extra system properties to pass to WLST.  The caller
 #                         can use this environment variable to add additional
 #                         system properties to the WLST environment.
@@ -116,36 +110,34 @@ usage() {
   echo "                          string value which WDT will read to retrieve the"
   echo "                          password."
   echo ""
-  echo "        ssh_host        - the host name for admin server when ssh protocol is used to collect resources"
+  echo "        ssh_host        - the host name for admin server when SSH protocol is used to collect resources"
   echo "                          from the admin server host."
   echo ""
-  echo "        ssh_port        - the ssh port number for the admin server host."
+  echo "        ssh_port        - the SSH port number for the admin server host."
   echo ""
-  echo "        ssh_user        - the ssh user name for the admin server host."
+  echo "        ssh_user        - the SSH user name for the admin server host."
   echo ""
-  echo "        ssh_pass        - the ssh user password for the admin server host."
-  echo ""
-  echo "        ssh_pass_env    - An alternative to enter the ssh password at the prompt.  The value is specified"
+  echo "        ssh_pass_env    - An alternative to entering the SSH password at the prompt.  The value is specified"
   echo "                          in an ENVIRONMENT VARIABLE name that WDT will use to retrieve the password"
   echo ""
-  echo "        ssh_pass_file   - An alternative to enter the ssh password at the prompt.  The value is the name of a"
+  echo "        ssh_pass_file   - An alternative to entering the SSH password at the prompt.  The value is the name of a"
   echo "                          file with a string value which WDT will read to retrieve the password."
   echo ""
-  echo "        ssh_pass_prompt - Prompt for the ssh password."
+  echo "        ssh_pass_prompt - Prompt for the SSH password."
   echo ""
-  echo "        ssh_private_key - the private key to use for connecting to the admin server host using ssh."
+  echo "        ssh_private_key - the private key to use for connecting to the admin server host using SSH."
   echo ""
-  echo "        ssh_private_key_pass_env - An alternative to enter the ssh private keystore password at the prompt."
+  echo "        ssh_private_key_pass_env - An alternative to entering the SSH private keystore password at the prompt."
   echo "                                   The value is specified in an ENVIRONMENT VARIABLE name that WDT will use"
   echo "                                   to retrieve the password"
   echo ""
-  echo "        ssh_private_key_pass_file - An alternative to enter the ssh private keystore password at the prompt."
+  echo "        ssh_private_key_pass_file - An alternative to entering the SSH private keystore password at the prompt."
   echo "                                    The value is the name of a file with a string value which WDT will read"
   echo "                                    to retrieve the password."
   echo ""
-  echo "        ssh_private_key_pass_prompt - Prompt for the ssh private keystore password."
+  echo "        ssh_private_key_pass_prompt - Prompt for the SSH private keystore password."
   echo ""
-  echo "        remote_domain_home - the domain home reside in the remote ssh host for the admin server."
+  echo "        remote_domain_home - the domain home reside in the remote SSH host for the admin server."
   echo ""
   echo "    The -use_encryption switch tells the program that one or more of the"
   echo "    passwords in the model or variables files are encrypted.  The program will"
