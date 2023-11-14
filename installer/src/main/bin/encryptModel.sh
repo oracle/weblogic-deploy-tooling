@@ -22,12 +22,6 @@
 # JAVA_HOME             - The location of the JDK to use.  The caller must set
 #                         this variable to a valid Java 8 (or later) JDK.
 #
-# WLSDEPLOY_HOME        - The location of the WLS Deploy installation.
-#                         If the caller sets this, the callers location will be
-#                         honored provided it is an existing directory.
-#                         Otherwise, the location will be calculated from the
-#                         location of this script.
-#
 # WLSDEPLOY_PROPERTIES  - Extra system properties to pass to Java.  The caller
 #                         can use this environment variable to add additional
 #                         system properties to the Java environment.

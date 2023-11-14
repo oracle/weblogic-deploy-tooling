@@ -18,12 +18,6 @@
 #                         This overrides the JAVA_HOME value when locating attributes
 #                         which will be replaced with the java home global token in the model
 #
-# WLSDEPLOY_HOME        - The location of the WLS Deploy installation.
-#                         If the caller sets this, the callers location will be
-#                         honored provided it is an existing directory.
-#                         Otherwise, the location will be calculated from the
-#                         location of this script.
-#
 # WLSDEPLOY_PROPERTIES  - Extra system properties to pass to WLST.  The caller
 #                         can use this environment variable to add additional
 #                         system properties to the WLST environment.

@@ -17,12 +17,6 @@
 @rem JAVA_HOME             - The location of the JDK to use.  The caller must set
 @rem                         this variable to a valid Java 7 (or later) JDK.
 @rem
-@rem WLSDEPLOY_HOME        - The location of the WLS Deploy installation.
-@rem                         If the caller sets this, the callers location will be
-@rem                         honored provided it is an existing directory.
-@rem                         Otherwise, the location will be calculated from the
-@rem                         location of this script.
-@rem
 
 SETLOCAL
 
