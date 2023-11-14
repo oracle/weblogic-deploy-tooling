@@ -125,7 +125,6 @@ class TopologyUpdater(Deployer):
 
         self.library_helper.install_domain_libraries()
         self.library_helper.extract_classpath_libraries()
-        self.library_helper.extract_custom_files()
         self.library_helper.install_domain_scripts()
 
         domain_home = self.model_context.get_domain_home()

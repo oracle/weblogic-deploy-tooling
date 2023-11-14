@@ -469,7 +469,6 @@ class DomainCreator(Creator):
 
         self.library_helper.install_domain_libraries()
         self.library_helper.extract_classpath_libraries()
-        self.library_helper.extract_custom_files()
         self.library_helper.install_domain_scripts()
         self.wlsroles_helper.process_roles()
 

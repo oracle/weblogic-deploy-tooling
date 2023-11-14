@@ -377,16 +377,12 @@ def main(model_context):
         if archive_file_name:
             domain_path = _get_domain_path(model_context, model_dictionary)
             archive_helper = ArchiveHelper(archive_file_name, domain_path, __logger, ExceptionType.CREATE)
+            if archive_helper:
+                if not os.path.exists(os.path.abspath(domain_path)):
+                    os.mkdir(os.path.abspath(domain_path))
 
-        if archive_helper:
-            domain_parent = model_context.get_domain_parent_dir()
-            domain_home = model_context.get_domain_home()
-            if domain_parent and domain_home is None:
-                domain_home = os.path.join(domain_parent, model_dictionary[model_constants.TOPOLOGY]['Name'])
-            if not os.path.exists(os.path.abspath(domain_home)):
-                os.mkdir(os.path.abspath(domain_home))
-
-            archive_helper.extract_all_database_wallets()
+                archive_helper.extract_all_database_wallets()
+                archive_helper.extract_custom_archive()
 
         has_atp, has_ssl = validate_rcu_args_and_model(model_context, model_dictionary, archive_helper, aliases)
 
