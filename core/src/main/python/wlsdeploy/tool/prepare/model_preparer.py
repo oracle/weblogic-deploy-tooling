@@ -397,7 +397,7 @@ class ModelPreparer:
             self._apply_final_filters(merged_model_dictionary)
 
             # check for any content problems in the merged, substituted model
-            content_validator = ContentValidator(self.model_context)
+            content_validator = ContentValidator(self.model_context, self._aliases)
             content_validator.validate_model(merged_model_dictionary)
 
             target_configuration_helper.generate_all_output_files(Model(merged_model_dictionary), self._aliases,
