@@ -18,6 +18,7 @@ import java.util.Properties as Properties
 
 from oracle.weblogic.deploy.create import CreateException
 from oracle.weblogic.deploy.deploy import DeployException
+from oracle.weblogic.deploy.validate import ValidateException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 
@@ -369,7 +370,9 @@ def main(model_context):
                                                  validate_crd_sections=False)
 
         # check for any content problems in the merged, substituted model
-        content_validator = ContentValidator(model_context)
+        content_validator = ContentValidator(model_context, aliases)
+        # password validation errors are fatal and will raise a CreateException if any are found.
+        content_validator.validate_user_passwords(model_dictionary)
         content_validator.validate_model(model_dictionary)
 
         archive_helper = None
@@ -382,7 +385,7 @@ def main(model_context):
                     os.mkdir(os.path.abspath(domain_path))
 
                 archive_helper.extract_all_database_wallets()
-                archive_helper.extract_custom_archive()
+                archive_helper.extract_custom_directory()
 
         has_atp, has_ssl = validate_rcu_args_and_model(model_context, model_dictionary, archive_helper, aliases)
 
@@ -402,6 +405,10 @@ def main(model_context):
                 ssl_helper.fix_jps_config(rcu_db_info, model_context)
 
     except WLSDeployArchiveIOException, ex:
+        _exit_code = ExitCode.ERROR
+        __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
+                        class_name=_class_name, method_name=_method_name)
+    except ValidateException, ex:
         _exit_code = ExitCode.ERROR
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)

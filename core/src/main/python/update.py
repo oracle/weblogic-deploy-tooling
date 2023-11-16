@@ -302,7 +302,7 @@ def main(model_context):
             archive_helper = ArchiveHelper(archive_file_name, domain_path, __logger, ExceptionType.CREATE)
             if archive_helper:
                 archive_helper.extract_all_database_wallets()
-                archive_helper.extract_custom_archive()
+                archive_helper.extract_custom_directory()
 
         _exit_code = __update(model, model_context, aliases)
     except DeployException, ex:

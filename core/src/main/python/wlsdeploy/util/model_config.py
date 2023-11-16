@@ -49,6 +49,8 @@ USE_DEPRECATION_EXIT_CODE_PROP='use.deprecation.exit.code'
 USE_DEPRECATION_EXIT_CODE_DEFAULT='false'
 DISABLE_RCU_DROP_SCHEMA_PROP='disable.rcu.drop.schema'
 DISABLE_RCU_DROP_SCHEMA_DEFAULT='false'
+ENABLE_CREATE_DOMAIN_PASSWORD_VALIDATION_PROP = 'enable.create.domain.password.validation'
+ENABLE_CREATE_DOMAIN_PASSWORD_VALIDATION_DEFAULT = 'false'
 
 # System Property overrides for WLST timeout properties
 SYS_PROP_PREFIX = 'wdt.config.'
@@ -173,6 +175,14 @@ class ModelConfiguration(object):
         :return: the string 'true' or 'false' (default)
         """
         return self._get_from_dict(DISABLE_RCU_DROP_SCHEMA_PROP, DISABLE_RCU_DROP_SCHEMA_DEFAULT)
+
+    def get_enable_create_domain_password_validation(self):
+        """
+        Returns the value to determine whether to enable
+        :return:the string 'true' or 'false' (default)
+        """
+        return self._get_from_dict(ENABLE_CREATE_DOMAIN_PASSWORD_VALIDATION_PROP,
+                                   ENABLE_CREATE_DOMAIN_PASSWORD_VALIDATION_DEFAULT)
 
     def _get_from_dict(self, name, default_value=None):
         _method_name = '_get_from_dict'
