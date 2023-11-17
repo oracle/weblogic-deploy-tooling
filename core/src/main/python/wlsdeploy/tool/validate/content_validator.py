@@ -96,12 +96,13 @@ class ContentValidator(object):
 
         enabled = self._model_context.get_model_config().get_enable_create_domain_password_validation()
         if not alias_utils.convert_boolean(enabled):
-            self._logger.info('WLSDPLY-05210', class_name=self._class_name, method_name=_method_name)
+            self._logger.info('WLSDPLY-05202', class_name=self._class_name, method_name=_method_name)
             self._logger.exiting(class_name=self._class_name, method_name=_method_name)
             return
 
-        password_validator_config_map = self._get_system_password_validator_config_map(model_dict)
-        password_validator = PasswordValidator(password_validator_config_map)
+        password_validator_model_map = self._get_system_password_validator_model_map(model_dict)
+        password_validator_defaults_map = self._get_system_password_validator_defaults_map()
+        password_validator = PasswordValidator(password_validator_model_map, password_validator_defaults_map)
         admin_username, admin_password = self._get_admin_credentials(model_dict)
         users_dict = self._get_users_dictionary(model_dict)
 
@@ -110,45 +111,36 @@ class ContentValidator(object):
             if not password_validator.validate(admin_username, admin_password):
                 found_errors = True
         except ValidateException, ex:
-            self._logger.severe('WLSDPLY-05207', ex.getLocalizedMessage(),
+            self._logger.severe('WLSDPLY-05203', ex.getLocalizedMessage(),
                                 error=ex, class_name=self._class_name, method_name=_method_name)
-            ce = exception_helper.create_validate_exception('WLSDPLY-05207', ex.getLocalizedMessage(), error=ex)
+            ce = exception_helper.create_validate_exception('WLSDPLY-05203', ex.getLocalizedMessage(), error=ex)
             self._logger.throwing(error=ce, class_name=self._class_name, method_name=_method_name)
             raise ce
 
         if users_dict:
             for user_name, user_dict in users_dict.items():
                 password = dictionary_utils.get_element(user_dict, PASSWORD)
+                password = self._aliases.decrypt_password(password)
                 try:
                     if not password_validator.validate(user_name, password):
                         found_errors = True
                 except ValidateException, ex:
-                    self._logger.severe('WLSDPLY-05208', user_name, ex.getLocalizedMessage(),
+                    self._logger.severe('WLSDPLY-05204', user_name, ex.getLocalizedMessage(),
                                         error=ex, class_name=self._class_name, method_name=_method_name)
-                    ce = exception_helper.create_validate_exception('WLSDPLY-05207', ex.getLocalizedMessage(),
+                    ce = exception_helper.create_validate_exception('WLSDPLY-05204', ex.getLocalizedMessage(),
                                                                   error=ex)
                     self._logger.throwing(error=ce, class_name=self._class_name, method_name=_method_name)
                     raise ce
 
         if found_errors:
-            ce = exception_helper.create_validate_exception('WLSDPLY-05209')
+            ce = exception_helper.create_validate_exception('WLSDPLY-05205')
             self._logger.throwing(error=ce, class_name=self._class_name, method_name=_method_name)
             raise ce
 
         self._logger.exiting(class_name=self._class_name, method_name=_method_name)
 
-    def _get_system_password_validator_config_map(self, model_dict):
-        _method_name = '_get_system_password_validator_config_map'
-        self._logger.entering(class_name=self._class_name, method_name=_method_name)
-
-        model_system_password_validator_dict = self._get_system_password_validator_model_dict(model_dict)
-        system_password_validator_defaults_map = self._get_default_system_password_validator_config_map()
-        self._override_defaults_with_model_values(system_password_validator_defaults_map, model_system_password_validator_dict)
-        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=system_password_validator_defaults_map)
-        return system_password_validator_defaults_map
-
-    def _get_system_password_validator_model_dict(self, model_dict):
-        _method_name = '_get_system_password_validator_model_dict'
+    def _get_system_password_validator_model_map(self, model_dict):
+        _method_name = '_get_system_password_validator_model_map'
         self._logger.entering(class_name=self._class_name, method_name=_method_name)
 
         result = dict()
@@ -167,76 +159,60 @@ class ContentValidator(object):
             if SYSTEM_PASSWORD_VALIDATOR in pv_fields:
                 result = dictionary_utils.get_dictionary_element(pv_fields, SYSTEM_PASSWORD_VALIDATOR)
                 break
-        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
-        return result
 
-    def _get_default_system_password_validator_config_map(self):
-        _method_name = '_get_default_system_password_validator_config_map'
+        result_map = self._dict_to_map(result, 'WLSDPLY-05206')
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result_map)
+        return result_map
+
+    def _get_system_password_validator_defaults_map(self):
+        _method_name = '_get_system_password_validator_defaults_map'
         self._logger.entering(class_name=self._class_name, method_name=_method_name)
 
         location = _get_system_password_validator_location()
         attr_map = self._get_alias_attribute_names_and_types(location)
 
-        default_map = HashMap()
+        default_dict = dict()
         for attr_name, attr_type in attr_map.items():
             default_value = self._aliases.get_model_attribute_default_value(location, attr_name)
-            self._logger.finer('WLSDPLY-05205', attr_name, attr_type, default_value,
-                               class_name=self._class_name, method_name=_method_name)
+            default_dict[attr_name] = default_value
 
-            # This filters out attributes that do not matter to the validation logic,
-            # which are all string types.
-            #
-            converted_value = None
-            if attr_type == 'integer':
-                if default_value is not None:
-                    converted_value = Integer(default_value)
-            elif attr_type == 'boolean':
-                converted_value = alias_utils.convert_boolean(default_value)
-                if converted_value is not None:
-                    converted_value = Boolean(converted_value)
-
-            self._logger.finer('WLSDPLY-05206', attr_name, converted_value,
-                               class_name=self._class_name, method_name=_method_name)
-            if converted_value is not None:
-                default_map.put(attr_name, converted_value)
-
+        default_map = self._dict_to_map(default_dict, 'WLSDPLY-05207')
         self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=default_map)
         return default_map
 
-    def _override_defaults_with_model_values(self, defaults_map, model_dict):
-        _method_name = '_override_defaults_with_model_values'
+    def _get_alias_attribute_names_and_types(self, location = None):
+        if location is None:
+            location = _get_system_password_validator_location()
+        return self._aliases.get_model_attribute_names_and_types(location)
 
-        if model_dict:
-            for attr_name, attr_value in model_dict.items():
-                # defaults_map built from the aliases so if the model contains an
-                # attribute name not in the defaults, skip it...
-                #
-                self._logger.finer('WLSWDPLY-05202', attr_name, attr_value,
+    def _dict_to_map(self, dictionary, message_key):
+        _method_name = '_dict_to_map'
+        self._logger.entering(dictionary, message_key, class_name=self._class_name, method_name=_method_name)
+
+        result_map = HashMap()
+        if dictionary:
+            attr_type_map = self._get_alias_attribute_names_and_types()
+            for attr_name, attr_value in dictionary.items():
+                attr_type = attr_type_map[attr_name]
+                self._logger.finer(message_key, attr_name, attr_type, attr_value,
                                    class_name=self._class_name, method_name=_method_name)
-                if attr_name not in defaults_map:
-                    self._logger.finer('WLSWDPLY-05203', attr_name,
-                                       class_name=self._class_name, method_name=_method_name)
-                    continue
+                java_value = self._get_java_value(attr_name, attr_type, attr_value)
+                if java_value is not None:
+                    result_map.put(attr_name, java_value)
 
-                override_value = self._get_override_value(attr_name, attr_value)
-                if override_value is not None:
-                    self._logger.finer('WLSWDPLY-05204', attr_name, override_value,
-                                       class_name=self._class_name, method_name=_method_name)
-                    defaults_map.put(attr_name, override_value)
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result_map)
+        return result_map
 
-    def _get_override_value(self, attr_name, model_value):
-        _method_name = '_get_override_value'
-        self._logger.entering(attr_name, model_value,
+    def _get_java_value(self, attr_name, attr_type, attr_value):
+        _method_name = '_get_java_value'
+        self._logger.entering(attr_name, attr_type, attr_value,
                               class_name=self._class_name, method_name=_method_name)
 
-        attr_map = self._get_alias_attribute_names_and_types()
-        attr_type = attr_map[attr_name]
-
-        result = model_value
+        result = attr_value
         if attr_type == 'integer':
-            result = Integer.valueOf('%s' % model_value)
+            result = Integer.valueOf('%s' % attr_value)
         elif attr_type == 'boolean':
-            result = alias_utils.convert_boolean(model_value)
+            result = alias_utils.convert_boolean(attr_value)
             if result is not None:
                 result = Boolean.valueOf(result)
 
@@ -250,6 +226,7 @@ class ContentValidator(object):
         domain_info_folder = dictionary_utils.get_dictionary_element(model_dict, DOMAIN_INFO)
         admin_username = dictionary_utils.get_element(domain_info_folder, ADMIN_USERNAME)
         admin_password = dictionary_utils.get_element(domain_info_folder, ADMIN_PASSWORD)
+        admin_password = self._aliases.decrypt_password(admin_password)
 
         self._logger.exiting(class_name=self._class_name, method_name=_method_name)
         return admin_username, admin_password
@@ -264,11 +241,6 @@ class ContentValidator(object):
 
         self._logger.exiting(class_name=self._class_name, method_name=_method_name)
         return users_folder
-
-    def _get_alias_attribute_names_and_types(self, location = None):
-        if location is None:
-            location = _get_system_password_validator_location()
-        return self._aliases.get_model_attribute_names_and_types(location)
 
 def _get_system_password_validator_location():
     location = LocationContext()
