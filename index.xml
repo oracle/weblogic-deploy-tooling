@@ -432,6 +432,16 @@ archiveHelper commands    Command Description     add Add items to the archive f
     </item>
     
     <item>
+      <title>Release Notes 3.4.0</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.4.0/</link>
+      <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.4.0/</guid>
+      <description>Changes in Release 3.4.0  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes  #1521 - Added alias changes to accommodate October 2023 PSUs for WebLogic Server versions 12.2.1.4 and 14.1.1. #1525 - Added missing MBeans to better support the WebLogic Remote Console. #1527 - Added missing Security Provider attributes to better support the WebLogic Remote Console. #1530 - Refactored the handling of Coherence Custom Cluster and Cache Config files to correct the behavior and expand online update and discover capabilities.</description>
+    </item>
+    
+    <item>
       <title>Release Notes 3.3.0</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.3.0/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
