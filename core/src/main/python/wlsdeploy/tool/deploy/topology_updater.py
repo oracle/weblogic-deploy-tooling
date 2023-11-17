@@ -126,7 +126,6 @@ class TopologyUpdater(Deployer):
 
         self.library_helper.install_domain_libraries()
         self.library_helper.extract_classpath_libraries()
-        self.library_helper.extract_custom_files()
         self.library_helper.install_domain_scripts()
 
         saml2_security_helper = Saml2SecurityHelper(self.model_context, self._exception_type)

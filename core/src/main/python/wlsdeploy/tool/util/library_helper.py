@@ -103,7 +103,7 @@ class LibraryHelper(object):
         if self.archive_helper is None:
             self.logger.info('WLSDPLY-12565', class_name=self.__class_name, method_name=_method_name)
         else:
-            num_cp_libs = self.archive_helper.extract_custom_archive(self.upload_temporary_dir)
+            num_cp_libs = self.archive_helper.extract_custom_directory(self.upload_temporary_dir)
             if num_cp_libs > 0:
                 self.logger.info('WLSDPLY-12566', num_cp_libs, self.domain_home,
                                  class_name=self.__class_name, method_name=_method_name)

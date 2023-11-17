@@ -18,6 +18,7 @@ import java.util.Properties as Properties
 
 from oracle.weblogic.deploy.create import CreateException
 from oracle.weblogic.deploy.deploy import DeployException
+from oracle.weblogic.deploy.validate import ValidateException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 
@@ -369,7 +370,7 @@ def main(model_context):
                                                  validate_crd_sections=False)
 
         # check for any content problems in the merged, substituted model
-        content_validator = ContentValidator(model_context)
+        content_validator = ContentValidator(model_context, aliases)
         content_validator.validate_model(model_dictionary)
 
         archive_helper = None
@@ -377,16 +378,12 @@ def main(model_context):
         if archive_file_name:
             domain_path = _get_domain_path(model_context, model_dictionary)
             archive_helper = ArchiveHelper(archive_file_name, domain_path, __logger, ExceptionType.CREATE)
+            if archive_helper:
+                if not os.path.exists(os.path.abspath(domain_path)):
+                    os.mkdir(os.path.abspath(domain_path))
 
-        if archive_helper:
-            domain_parent = model_context.get_domain_parent_dir()
-            domain_home = model_context.get_domain_home()
-            if domain_parent and domain_home is None:
-                domain_home = os.path.join(domain_parent, model_dictionary[model_constants.TOPOLOGY]['Name'])
-            if not os.path.exists(os.path.abspath(domain_home)):
-                os.mkdir(os.path.abspath(domain_home))
-
-            archive_helper.extract_all_database_wallets()
+                archive_helper.extract_all_database_wallets()
+                archive_helper.extract_custom_directory()
 
         has_atp, has_ssl = validate_rcu_args_and_model(model_context, model_dictionary, archive_helper, aliases)
 
@@ -406,6 +403,10 @@ def main(model_context):
                 ssl_helper.fix_jps_config(rcu_db_info, model_context)
 
     except WLSDeployArchiveIOException, ex:
+        _exit_code = ExitCode.ERROR
+        __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
+                        class_name=_class_name, method_name=_method_name)
+    except ValidateException, ex:
         _exit_code = ExitCode.ERROR
         __logger.severe('WLSDPLY-12409', _program_name, ex.getLocalizedMessage(), error=ex,
                         class_name=_class_name, method_name=_method_name)
