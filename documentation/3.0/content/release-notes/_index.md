@@ -18,7 +18,7 @@ None
 
 #### Other Changes
 - #1535 - Changed the timing for extracting the archive file's `custom` folder to support storing custom WebLogic Server
-          security provider jar files (GitHub issue #1512).
+          security provider JAR files (GitHub issue #1512).
 - #1537, #1539 - Cleaned up user password validation and extended it to support customizing the default settings
          using the model's `SystemPasswordValidator` settings, if present.  See
          https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/create/#user-password-validation for details
