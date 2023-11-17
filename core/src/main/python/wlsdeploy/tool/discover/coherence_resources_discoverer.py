@@ -114,9 +114,11 @@ class CoherenceResourcesDiscoverer(Discoverer):
         cache_configs = self._find_names_in_folder(location)
         if cache_configs is not None:
             name_token = self._aliases.get_name_token(location)
+            attr_names = self._aliases.get_model_attribute_names(location)
             for cache_config in cache_configs:
                 location.add_name_token(name_token, cache_config)
-                if self._wlst_mode == WlstModes.ONLINE:
+
+                if self._wlst_mode == WlstModes.ONLINE and COHERENCE_RUNTIME_CACHE_CONFIG_URI not in attr_names:
                     _logger.warning('WLSDPLY-06323', cache_config, coherence_cluster_name,
                                     class_name=_class_name, method_name=_method_name)
                     continue
@@ -125,14 +127,14 @@ class CoherenceResourcesDiscoverer(Discoverer):
                              class_name=_class_name, method_name=_method_name)
                 result[cache_config] = OrderedDict()
                 self._populate_model_parameters(result[cache_config], location)
-                self._workaround_offline_cache_config_issue(coherence_cluster_name, cache_config, result[cache_config])
+                self._workaround_cache_config_issue(coherence_cluster_name, cache_config, result[cache_config])
                 self._discover_subfolders(result[cache_config], location)
                 location.remove_name_token(name_token)
         location.pop_location()
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return model_top_folder_name, result
 
-    def _workaround_offline_cache_config_issue(self, cluster_name, cache_config_name, cache_config_dict):
+    def _workaround_cache_config_issue(self, cluster_name, cache_config_name, cache_config_dict):
         """
         Coherence Cache Config objects contain two attributes related to the cache config file:
         CacheConfigurationFile and RuntimeCacheConfigurationUri.  The RuntimeCacheConfigurationUri
@@ -144,7 +146,7 @@ class CoherenceResourcesDiscoverer(Discoverer):
         :param cache_config_dict: the cache_config dictionary object containing the discovered value
         :param cache_config_name: the name of this cache_config object.
         """
-        _method_name = '_workaround_offline_cache_config_issue'
+        _method_name = '_workaround_cache_config_issue'
         _logger.entering(cluster_name, cache_config_name, cache_config_dict,
                          class_name=_class_name, method_name=_method_name)
 

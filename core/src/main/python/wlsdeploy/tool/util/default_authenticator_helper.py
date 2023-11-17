@@ -1,14 +1,13 @@
 """
-Copyright (c) 2021, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2021, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-import com.octetstring.vde.util.PasswordEncryptor as PasswordEncryptor
-import com.bea.security.xacml.cache.resource.ResourcePolicyIdUtil as ResourcePolicyIdUtil
 from java.io import File
-from java.lang import String
-import java.util.regex.Pattern as Pattern
 
-import oracle.weblogic.deploy.aliases.TypeUtils as TypeUtils
+from com.octetstring.vde.util import PasswordEncryptor
+from com.bea.security.xacml.cache.resource import ResourcePolicyIdUtil
+from oracle.weblogic.deploy.aliases import TypeUtils
+from oracle.weblogic.deploy.create import CreateException
 
 from wlsdeploy.aliases.model_constants import DESCRIPTION
 from wlsdeploy.aliases.model_constants import GROUP
@@ -69,7 +68,8 @@ class DefaultAuthenticatorHelper(object):
         output_dir = File(self._model_context.get_domain_home(), SECURITY_SUBDIR)
         output_file = File(output_dir, DEFAULT_AUTH_INIT_FILE)
 
-        self._logger.info('WLSDPLY-01900', output_file, class_name=self._class_name, method_name=_method_name)
+        self._logger.info('WLSDPLY-01900', output_file,
+                          class_name=self._class_name, method_name=_method_name)
 
         file_template_helper.append_file_from_resource(template_path, template_hash, output_file, self._exception_type)
 
@@ -79,6 +79,7 @@ class DefaultAuthenticatorHelper(object):
         :param mapping_section_nodes: the security elements from the model
         :return: the template hash dictionary
         """
+        _method_name = '_build_default_template_hash'
         template_hash = dict()
 
         group_mappings = []
@@ -92,8 +93,12 @@ class DefaultAuthenticatorHelper(object):
         if USER in mapping_section_nodes.keys():
             user_mapping_nodes = mapping_section_nodes[USER]
             for name in user_mapping_nodes:
-                mapping_hash = self._build_user_mapping_hash(user_mapping_nodes[name], name)
-                user_mappings.append(mapping_hash)
+                try:
+                    mapping_hash = self._build_user_mapping_hash(user_mapping_nodes[name], name)
+                    user_mappings.append(mapping_hash)
+                except CreateException, ce:
+                    self._logger.warning('WLSDPLY-01902', name, ce.getLocalizedMessage(),
+                                         error=ce, class_name=self._class_name, method_name=_method_name)
 
         template_hash[GROUP_MAPPINGS] = group_mappings
         template_hash[USER_MAPPINGS] = user_mappings
@@ -110,7 +115,10 @@ class DefaultAuthenticatorHelper(object):
         hash_entry[HASH_NAME] = name
         group_attributes = group_mapping_section
         description = dictionary_utils.get_element(group_attributes, DESCRIPTION)
-        hash_entry[HASH_DESCRIPTION] = description
+        if description is not None:
+            hash_entry[HASH_DESCRIPTION] = description
+        else:
+            hash_entry[HASH_DESCRIPTION] = ''
         groups = dictionary_utils.get_element(group_attributes, GROUP_MEMBER_OF)
         group_list = []
         group_mappings = list()
@@ -148,12 +156,16 @@ class DefaultAuthenticatorHelper(object):
         :param user_mapping_section: The security user section from the model
         :param name: name of the user for the user section
         :return: template hash map
+        :raises: CreateException if the user's password cannot be encoded
         """
         hash_entry = dict()
         hash_entry[HASH_NAME] = name
         group_attributes = user_mapping_section
         description = dictionary_utils.get_element(group_attributes, DESCRIPTION)
-        hash_entry[HASH_DESCRIPTION] = description
+        if description is not None:
+            hash_entry[HASH_DESCRIPTION] = description
+        else:
+            hash_entry[HASH_DESCRIPTION] = ''
         groups = dictionary_utils.get_element(group_attributes, GROUP_MEMBER_OF)
         password = self._get_required_attribute(user_mapping_section, PASSWORD, USER, name)
         password = self._aliases.decrypt_password(password)
@@ -175,17 +187,15 @@ class DefaultAuthenticatorHelper(object):
         return hash_entry
 
     def _encode_password(self, user, password):
-        pwd_pattern = '[\\!a-zA-Z]{1,}'
-        matches = Pattern.matches(pwd_pattern, password)
-        if len(password) < 8 or matches:
-            self._logger.warning('WLSDPLY-01902', user)
-            return None
+        _method_name = '_encode_password'
         try:
             encrypted_pass = PasswordEncryptor.doSSHA256(password)
             encrypted_pass = "{ssha256}" + encrypted_pass
         except Exception, e:
-            self._logger.warning('WLSDPLY-01901', user, e)
-            return None
+            ex = exception_helper.create_create_exception('WLSDPLY-01901',user, e.getLocalizedMessage(),
+                                                          error=e)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
         return encrypted_pass
 
     def _get_required_attribute(self, dictionary, name, mapping_type, mapping_name):

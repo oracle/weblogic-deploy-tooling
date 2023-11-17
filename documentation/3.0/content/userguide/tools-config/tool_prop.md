@@ -26,6 +26,7 @@ weight: 4
  | `yaml.max.file.size`             | The maximum size of the YAML model file that the WDT SnakeYAML parser will allow.  The default value of '0' uses the SnakeYAML default setting of 3145728 (i.e., 3 MB). |
  | `use.deprecation.exit.code`      | Whether deprecation messages should cause WDT tools to exit with a non-zero exit code (default is false).                                                               |
  | `disable.rcu.drop.schema`        | Whether the RCU drop step should be skipped when running Create Domain with the `-run_rco` switch (default is false).                                                   |
+ | `enable.create.domain.password.validation`        | Whether Create Domain should try to validate user passwords using the SystemPasswordValidator settings in the model (default is true).                                  |
 
  You can override the value of a single property using a Java System property with the name `wdt.config.<tool-property-name>`.
  For example, adding `-Dwdt.config.connect.timeout=5000` will set the effective `connect.timeout` property to 5000 milliseconds, regardless of what the value in the tool.properties file might be.  To pass
