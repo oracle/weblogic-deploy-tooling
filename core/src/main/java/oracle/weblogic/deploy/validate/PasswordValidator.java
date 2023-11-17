@@ -5,7 +5,9 @@
 package oracle.weblogic.deploy.validate;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
@@ -37,14 +39,19 @@ public class PasswordValidator {
     private static final char[] DISALLOWED_PASSWORD_START_CHARACTERS = { '{' };
 
     private final Map<String, Object> config;
+    private final Map<String, Object> cieDefaults;
+    private final Set<String> notifications;
 
     /**
      * The constructor.
      *
-     * @param config a map of the configuration values
+     * @param config      a map of the configuration values from the model
+     * @param cieDefaults a map of the default values from the aliases
      */
-    public PasswordValidator(Map<String, Object> config) {
+    public PasswordValidator(Map<String, Object> config, Map<String, Object> cieDefaults) {
         this.config = config;
+        this.cieDefaults = cieDefaults;
+        this.notifications = new HashSet<>();
     }
 
     /**
@@ -297,6 +304,20 @@ public class PasswordValidator {
                 result = (int) value;
             }
         }
+        if (cieDefaults.containsKey(fieldName)) {
+            Object value = cieDefaults.get(fieldName);
+            if (Integer.class.isAssignableFrom(value.getClass())) {
+                int cieDefault  = (int) value;
+
+                if (cieDefault > result) {
+                    if (result != NO_RESTRICTION && !notifications.contains(fieldName)) {
+                        LOGGER.notification("WLSDPLY-05415", fieldName, result, cieDefault);
+                        notifications.add(fieldName);
+                    }
+                    result = cieDefault;
+                }
+            }
+        }
         return result;
     }
 
@@ -305,7 +326,12 @@ public class PasswordValidator {
         if (config.containsKey(fieldName)) {
             Object value = config.get(fieldName);
             if (Boolean.class.isAssignableFrom(value.getClass())) {
-                result = (boolean) value;
+                result = (Boolean) value;
+            }
+        } else if (cieDefaults.containsKey(fieldName)) {
+            Object value = cieDefaults.get(fieldName);
+            if (Boolean.class.isAssignableFrom(value.getClass())) {
+                result = (Boolean) value;
             }
         }
         return result;

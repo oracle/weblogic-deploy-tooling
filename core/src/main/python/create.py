@@ -371,8 +371,6 @@ def main(model_context):
 
         # check for any content problems in the merged, substituted model
         content_validator = ContentValidator(model_context, aliases)
-        # password validation errors are fatal and will raise a CreateException if any are found.
-        content_validator.validate_user_passwords(model_dictionary)
         content_validator.validate_model(model_dictionary)
 
         archive_helper = None

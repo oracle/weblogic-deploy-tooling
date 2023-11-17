@@ -60,6 +60,51 @@ To create more complex domains, it may be necessary to create a custom domain ty
 domain has custom templates, or templates for other Oracle products. For more information, refer to
 [Domain type definitions]({{< relref "/userguide/tools-config/domain_def.md" >}}).
 
+### User password validation
+
+By default, WLST offline requires the administrator password to have a minimum of 8 characters and a minimum of 1
+numeric or special character.  The Create Domain tool will validate both the `domainInfo` section's `AdminPassword`
+attribute value and any `Password` fields for users added in the `topology` section's `Security/User` section against
+the default rules.
+
+Prior to 3.5.0, validation errors for the administrator password resulted in a WLST error that aborted domain creation
+while validation errors for other users resulted in warnings from WDT even though the domain and user was created.
+However, due to a bug, any of these users with an invalid password were created with an unusable password.
+
+Starting in 3.5.0, this validation has been unified and enhanced.  Now, password validation: 
+
+- Happens upfront during model validation;
+- Logs errors for all users' password validation errors and aborts the domain creation process;
+- Takes into account any model settings for the Web8Logic Server System Password Validator to ensure passwords
+  follow its settings.  For example, if model contains the snippet shown below, the minimum length of the passwords
+  will be 12 instead of the default value of 8.  Any attributes not present in the model will use their default values
+  during password validation.
+
+```yaml
+topology:
+    SecurityConfiguration:
+        Realm:
+            myrealm:
+                PasswordValidator:
+                    SystemPasswordValidator:
+                        SystemPasswordValidator:
+                            MinPasswordLength: 12
+```
+
+**WARNING:** The `MinPasswordLength` attribute, whose default value is 8, and the `MinNumericOrSpecialCharacters`
+             attribute, whose default value is 1, have special behavior.  WLST offline does not consider these
+             values when validating the administrator password.  Instead, it always uses the default values so even if
+             Create Domain allowed a lower value, WLST offline would fail to create the domain due to the password
+             not meeting these default values.  For this new password validation purposes only, Create Domain will
+             use the larger value between the one specified in the model and the default value.  Create Domain will
+             still create the `SystemPasswordValidator` security provider with the exact settings in the model.
+
+This new validation behavior can be disabled by setting the `enable.create.domain.password.validation` property to
+`false` in `$WLSDEPLOY_HOME/lib/tool.properties` or by adding 
+`-Dwdt.config.enable.create.domain.password.validation=false` to the `WLSDEPLOY_PROPERTIES` environment variable prior
+to invoking the Create Domain tool.  Note that disabling this validation will disable all validation of passwords
+except for the WLST offline validation of the domain's administrative password.
+
 ### Using an encrypted model
 
 If the model or variables file contains passwords encrypted with the WDT Encryption tool, decrypt the passwords during
