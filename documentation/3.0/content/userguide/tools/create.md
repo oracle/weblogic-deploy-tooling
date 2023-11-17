@@ -75,7 +75,7 @@ Starting in 3.5.0, this validation has been unified and enhanced.  Now, password
 
 - Happens upfront during model validation;
 - Logs errors for all users' password validation errors and aborts the domain creation process;
-- Takes into account any model settings for the Web8Logic Server System Password Validator to ensure passwords
+- Takes into account any model settings for the WebLogic Server System Password Validator to ensure passwords
   follow its settings.  For example, if model contains the snippet shown below, the minimum length of the passwords
   will be 12 instead of the default value of 8.  Any attributes not present in the model will use their default values
   during password validation.
