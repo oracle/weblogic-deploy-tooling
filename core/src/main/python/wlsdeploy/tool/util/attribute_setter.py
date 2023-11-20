@@ -189,7 +189,7 @@ class AttributeSetter(object):
         else:
             items = self.__merge_existing_items(value, wlst_value, location, key)
             if not items:
-                mbean = self.__wlst_helper.get_mbean(None)
+                mbean = self.__wlst_helper.get_mbean()
                 mbean.setTargets(None)
             else:
                 targets_value = MODEL_LIST_DELIMITER.join(items)
@@ -241,7 +241,7 @@ class AttributeSetter(object):
         :raises BundleAwareException of the specified type: if DataSource is not found
         """
         if not value:
-            mbean = self.__wlst_helper.get_mbean(None)
+            mbean = self.__wlst_helper.get_mbean()
             wlst_attr = self.__aliases.get_wlst_attribute_name(location, key)
             method = getattr(mbean, 'set' + wlst_attr)
             method(None)
@@ -710,7 +710,7 @@ class AttributeSetter(object):
                 cluster_name = cluster_system_resource_location.get_name_for_token(cluster_system_resource_name_token)
 
                 wlst_path = self.__aliases.get_wlst_attributes_path(cluster_system_resource_location)
-                cluster_system_resource_mbean = self.__wlst_helper.get_mbean_for_wlst_path(wlst_path)
+                cluster_system_resource_mbean = self.__wlst_helper.get_mbean(wlst_path)
 
                 try:
                     self.__logger.info('WLSDPLY-19212', path_to_use, cluster_name,
@@ -1016,7 +1016,7 @@ class AttributeSetter(object):
                 token = self.__aliases.get_name_token(location)
                 location.add_name_token(token, name)
                 path = self.__aliases.get_wlst_attributes_path(location)
-                return self.__wlst_helper.get_mbean_for_wlst_path(path)
+                return self.__wlst_helper.get_mbean(path)
 
         if required:
             ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19210', element_type, name,

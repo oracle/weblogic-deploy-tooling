@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2019, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import re
@@ -382,6 +382,7 @@ class MBeanAttributes(object):
         if self.__mbean_instance is None:
             attribute_path = self.__aliases.get_wlst_attributes_path(self.__location)
             self.__mbean_instance = self.__wlst_helper.get_mbean(attribute_path)
+            # the previous line raises an error if the return value would be None so this code is useless.
             if self.__mbean_instance is None:
                 ex = exception_helper.create_exception(self._get_exception_type(), 'WLSDPLY-01775', attribute_path)
                 _logger.throwing(ex, class_name=self.__class__.__name__, method_name=_method_name)
