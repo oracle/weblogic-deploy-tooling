@@ -33,6 +33,8 @@ class ModelContext(object):
     """
     _class_name = "ModelContext"
 
+    SECRET_REGEX = re.compile('@@SECRET:[a-zA-Z0-9_-]+:[a-zA-Z0-9_-]+@@')
+    ENV_REGEX = re.compile('@@ENV:[a-zA-Z0-9_-]+@@')
     ORACLE_HOME_TOKEN = '@@ORACLE_HOME@@'
     WL_HOME_TOKEN = '@@WL_HOME@@'
     DOMAIN_HOME_TOKEN = '@@DOMAIN_HOME@@'
@@ -956,6 +958,18 @@ class ModelContext(object):
             cp_elements[index] = self.tokenize_path(value)
 
         return MODEL_LIST_DELIMITER.join(cp_elements)
+
+    def password_is_tokenized(self, password):
+        """
+        Does the password contain a secret or environment variable token?
+        :param password: the password to test
+        :return: True if a secret or environment variable token is found; False otherwise
+        """
+        result = False
+        if password is not None:
+            result = self.SECRET_REGEX.search(password) is not None or self.ENV_REGEX.search(password) is not None
+        return result
+
 
     def copy(self, arg_map):
         model_context_copy = copy.copy(self)

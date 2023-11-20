@@ -346,7 +346,7 @@ def _precheck_rcu_connectivity(model_context, creator, rcu_db_info):
                                                           e.getLocalizedMessage(), error=e)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
-        except ee:
+        except ee:  # FIXME - WLSDPLY-12506 only has one placeholder so ee gets dropped on the floor.
             ex = exception_helper.create_create_exception('WLSDPLY-12506', domain_typename, ee)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
@@ -372,6 +372,7 @@ def main(model_context):
         # check for any content problems in the merged, substituted model
         content_validator = ContentValidator(model_context, aliases)
         content_validator.validate_model(model_dictionary)
+        content_validator.validate_user_passwords(model_dictionary)
 
         archive_helper = None
         archive_file_name = model_context.get_archive_file_name()
