@@ -40,7 +40,7 @@
                 <plugin>
                     <groupId>io.rhpatrick.mojo</groupId>
                     <artifactId>github-maven-plugin</artifactId>
-                    <version>0.7</version>
+                    <version>0.8</version>
                 </plugin>
             </plugins>
         </pluginManagement>

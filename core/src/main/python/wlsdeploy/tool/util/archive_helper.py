@@ -299,14 +299,15 @@ class ArchiveHelper(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=count)
         return count
 
-    def extract_custom_archive(self, extract_location=None):
+    def extract_custom_directory(self, extract_location=None):
         """
-        Extract all of the custom files in the archive to the $DOMAIN_HOME/wlsdeploy/custom
+        Extract any files in the archive's wlsdeploy/custom subdirectory to the $DOMAIN_HOME/wlsdeploy/custom
         directory.
+        :param extract_location: the location to extract to
         :return: the number of files extracted
         :raises: BundleAwareException of the appropriate type: if an error occurs
         """
-        _method_name = 'extract_custom_archive'
+        _method_name = 'extract_custom_directory'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
         count = 0
