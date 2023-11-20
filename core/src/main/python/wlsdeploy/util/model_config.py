@@ -50,6 +50,11 @@ USE_DEPRECATION_EXIT_CODE_PROP='use.deprecation.exit.code'
 USE_DEPRECATION_EXIT_CODE_DEFAULT='false'
 DISABLE_RCU_DROP_SCHEMA_PROP='disable.rcu.drop.schema'
 DISABLE_RCU_DROP_SCHEMA_DEFAULT='false'
+<<<<<<< Updated upstream
+=======
+ENABLE_CREATE_DOMAIN_PASSWORD_VALIDATION_PROP = 'enable.create.domain.password.validation'
+ENABLE_CREATE_DOMAIN_PASSWORD_VALIDATION_DEFAULT = 'true'
+>>>>>>> Stashed changes
 SSH_DEFAULT_PRIVATE_KEY_NAME_PROP='ssh.private.key.default.name'
 SSH_DEFAULT_PRIVATE_KEY_NAME_DEFAULT='id_rsa'
 USE_SSH_COMPRESSION_PROP='use.ssh.compression'
