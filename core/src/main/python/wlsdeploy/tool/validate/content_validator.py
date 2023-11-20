@@ -54,7 +54,10 @@ class ContentValidator(object):
         """
         _method_name = 'validate_model'
         self._logger.entering(class_name=self._class_name, method_name=_method_name)
-        self.validate_user_passwords(model_dict)
+        #
+        # This code is called by both Create Domain and Prepare Model.  Since passwords may still
+        # be tokenized in Prepare Model, do not call validate_user_passwords() from here.
+        #
         self.validate_dynamic_clusters(model_dict)
         self._logger.exiting(class_name=self._class_name, method_name=_method_name)
 
@@ -108,8 +111,12 @@ class ContentValidator(object):
 
         found_errors = False
         try:
-            if not password_validator.validate(admin_username, admin_password):
-                found_errors = True
+            if not self._model_context.password_is_tokenized(admin_password):
+                if not password_validator.validate(admin_username, admin_password):
+                    found_errors = True
+            else:
+                self._logger.notification('WLSDPLY-05208', admin_username,
+                                          class_name=self._class_name, method_name=_method_name)
         except ValidateException, ex:
             self._logger.severe('WLSDPLY-05203', ex.getLocalizedMessage(),
                                 error=ex, class_name=self._class_name, method_name=_method_name)
@@ -122,8 +129,12 @@ class ContentValidator(object):
                 password = dictionary_utils.get_element(user_dict, PASSWORD)
                 password = self._aliases.decrypt_password(password)
                 try:
-                    if not password_validator.validate(user_name, password):
-                        found_errors = True
+                    if not self._model_context.password_is_tokenized(password):
+                        if not password_validator.validate(user_name, password):
+                            found_errors = True
+                    else:
+                        self._logger.notification('WLSDPLY-05208', user_name,
+                                                  class_name=self._class_name, method_name=_method_name)
                 except ValidateException, ex:
                     self._logger.severe('WLSDPLY-05204', user_name, ex.getLocalizedMessage(),
                                         error=ex, class_name=self._class_name, method_name=_method_name)
