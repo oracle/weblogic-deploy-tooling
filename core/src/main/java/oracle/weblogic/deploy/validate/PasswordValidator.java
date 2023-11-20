@@ -268,7 +268,7 @@ public class PasswordValidator {
         }
         if (minNonAlphanumericChars > NO_RESTRICTION && nonAlphanumericCount < minNonAlphanumericChars) {
             foundErrors = true;
-            LOGGER.severe("WLSDPLY-05412", user, uppercaseCount, minNonAlphanumericChars);
+            LOGGER.severe("WLSDPLY-05412", user, nonAlphanumericCount, minNonAlphanumericChars);
         }
         if (minNumericOrSpecialChars > NO_RESTRICTION && numericOrSpecialCount < minNumericOrSpecialChars) {
             foundErrors = true;
