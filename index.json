@@ -340,7 +340,14 @@
 	"title": "Release Notes",
 	"tags": [],
 	"description": "",
-	"content": "Changes in Release 3.5.0  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes  #1535 - Changed the timing for extracting the archive file\u0026rsquo;s custom folder to support storing custom WebLogic Server security provider JAR files (GitHub issue #1512). #1537, #1539 - Cleaned up user password validation and extended it to support customizing the default settings using the model\u0026rsquo;s SystemPasswordValidator settings, if present. See https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/create/#user-password-validation for details (GitHub issue #1510).  Bug Fixes  #1538 - Fixed online discovery of Coherence Cache Config files if the fix for Bug 35969096 is present.  Known Issues None\nSee https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/ for the current set of known limitations.\n"
+	"content": "Changes in Release 3.5.1  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes None\nBug Fixes  #1542 - Fixed a Prepare Model issue related to the new password validation feature introduced in 3.5.0  Known Issues None\nSee https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/ for the current set of known limitations.\n"
+},
+{
+	"uri": "https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.5.0/",
+	"title": "Release Notes 3.5.0",
+	"tags": [],
+	"description": "",
+	"content": "Changes in Release 3.5.0  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes  #1535 - Changed the timing for extracting the archive file\u0026rsquo;s custom folder to support storing custom WebLogic Server security provider JAR files (GitHub issue #1512). #1537, #1539 - Cleaned up user password validation and extended it to support customizing the default settings using the model\u0026rsquo;s SystemPasswordValidator settings, if present. See https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/create/#user-password-validation for details (GitHub issue #1510).  Bug Fixes  #1538 - Fixed online discovery of Coherence Cache Config files if the fix for Bug 35969096 is present.  Known Issues  Prepare Model fails if the model contains tokenized passwords.  See https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/ for the current set of known limitations.\n"
 },
 {
 	"uri": "https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.4.0/",

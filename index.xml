@@ -432,6 +432,16 @@ archiveHelper commands    Command Description     add Add items to the archive f
     </item>
     
     <item>
+      <title>Release Notes 3.5.0</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.5.0/</link>
+      <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.5.0/</guid>
+      <description>Changes in Release 3.5.0  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes  #1535 - Changed the timing for extracting the archive file&amp;rsquo;s custom folder to support storing custom WebLogic Server security provider JAR files (GitHub issue #1512). #1537, #1539 - Cleaned up user password validation and extended it to support customizing the default settings using the model&amp;rsquo;s SystemPasswordValidator settings, if present.</description>
+    </item>
+    
+    <item>
       <title>Release Notes 3.4.0</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.4.0/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
