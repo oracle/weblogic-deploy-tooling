@@ -341,13 +341,12 @@ def _precheck_rcu_connectivity(model_context, creator, rcu_db_info):
             DriverManager.getConnection(fmw_database, props)
 
         except (exceptions.Exception, JException), e:
-            __logger.severe('WLSDPLY-12505', domain_typename, e.getClass().getName(), e.getLocalizedMessage())
             ex = exception_helper.create_create_exception('WLSDPLY-12505', domain_typename, e.getClass().getName(),
                                                           e.getLocalizedMessage(), error=e)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
-        except ee:  # FIXME - WLSDPLY-12506 only has one placeholder so ee gets dropped on the floor.
-            ex = exception_helper.create_create_exception('WLSDPLY-12506', domain_typename, ee)
+        except ee:
+            ex = exception_helper.create_create_exception('WLSDPLY-12506', domain_typename, error=ee)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 

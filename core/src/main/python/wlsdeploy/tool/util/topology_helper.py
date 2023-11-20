@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -179,7 +179,7 @@ class TopologyHelper(object):
             resource_location.add_name_token(token, name)
             wlst_path = self.aliases.get_wlst_attributes_path(resource_location)
             if self.wlst_helper.path_exists(wlst_path):
-                mbean = self.wlst_helper.get_mbean_for_wlst_path(wlst_path)
+                mbean = self.wlst_helper.get_mbean(wlst_path)
                 mbean.setTargets(None)
 
     def qualify_nm_properties(self, type_name, model_nodes, base_location, model_context, attribute_setter):

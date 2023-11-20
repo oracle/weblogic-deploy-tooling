@@ -736,7 +736,7 @@ def __delete_online_targets(app_deployments, model_type, aliases):
 
             location.add_name_token(name_token, deploy_name)
             mbean_path = aliases.get_wlst_attributes_path(location)
-            mbean = _wlst_helper.get_mbean_for_wlst_path(mbean_path)
+            mbean = _wlst_helper.get_mbean(mbean_path)
             mbean_targets = mbean.getTargets()
             for mbean_target in mbean_targets:
                 mbean_name = mbean_target.getName()

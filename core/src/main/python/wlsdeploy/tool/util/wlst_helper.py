@@ -31,7 +31,6 @@ class WlstHelper(object):
 
     def __init__(self, exception_type):
         self.__exception_type = exception_type
-        return
 
     def assign(self, source_type, source_name, target_type, target_name):
         """
@@ -117,7 +116,7 @@ class WlstHelper(object):
         mbean_path = self.get_pwd()
 
         try:
-            mbean = self.get_mbean_for_wlst_path(mbean_path)
+            mbean = self.get_mbean(mbean_path)
             if 'isSet' not in dir(mbean):
                 return True
 
@@ -542,7 +541,7 @@ class WlstHelper(object):
             nbr_names = 0
             if name_list is not None:
                 nbr_names = len(name_list)
-            if not nbr_names == 1:
+            if nbr_names != 1:
                 pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00031',
                                                         print_path, nbr_names, name_list)
                 self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
@@ -554,12 +553,7 @@ class WlstHelper(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=mbean_name)
         return mbean_name
 
-    # FIXME - This code below is busted.
-    # - It ignores the path passed in when cd'ing (to where we already are) and getting the cmo the first time
-    # - It also only cd's back to the original location if there was no path passed in (so it never left the
-    #   current location in the first place).
-    #
-    def get_mbean(self, wlst_path):
+    def get_mbean(self, wlst_path=None):
         """
         Return the current CMO or the proxy instance for the MBean of the current folder.
         There are certain directories in offline that will not deliver a cmo, but will
@@ -571,43 +565,23 @@ class WlstHelper(object):
         _method_name = 'get_mbean'
         self.__logger.entering(wlst_path, class_name=self.__class_name, method_name=_method_name)
         current_dir = self.get_pwd()
-        mbean_path = wlst_path
-        if mbean_path is None:
+
+        if wlst_path is not None:
+            mbean_path = wlst_path
+            cmo = self.cd(mbean_path)
+            self.cd(current_dir)
+        else:
             mbean_path = current_dir
+            cmo = self.get_cmo()
         self.__logger.finest('WLSDPLY-00097', mbean_path, class_name=self.__class_name, method_name=_method_name)
-        self.cd(current_dir)
-        cmo = self.get_cmo()
-        if cmo is None:
-            cmo = self.get_mbean_for_wlst_path(mbean_path)
+
         if cmo is None:
             pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00096', mbean_path)
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
-        if wlst_path is None:
-            self.cd(current_dir)
 
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=cmo)
         return cmo
-
-    # TODO - It feels like the only reason for this method is because the one above is broken
-    #        when the path is not empty.
-    #
-    def get_mbean_for_wlst_path(self, path):
-        """
-        Return the mbean object for the provided path.
-        :param path: to return mbean object
-        :return: mbean object
-        :raises: Exception for the specified tool type: if a WLST error occurs
-        """
-        _method_name = 'get_mbean_for_wlst_path'
-        self.__logger.finest(path, class_name=self.__class_name, method_name=_method_name)
-
-        current_dir = self.get_pwd()
-        the_object = self.cd(path)
-        self.cd(current_dir)
-
-        self.__logger.finest(self.__class_name, _method_name, the_object)
-        return the_object
 
     def read_template(self, template):
         """
@@ -1360,7 +1334,7 @@ class WlstHelper(object):
         _method_name = 'current_tree'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
-        current_tree = None;
+        current_tree = None
         try:
             current_tree = self.__load_global('currentTree')()
         except self.__load_global('WLSTException'), e:
