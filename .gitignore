@@ -28,3 +28,4 @@ release.properties
 **/*.pyc
 **/.DS_Store
 **/.hugo_build.lock
+.jython_cache
