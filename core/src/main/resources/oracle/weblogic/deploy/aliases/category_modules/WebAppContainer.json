@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2019, 2023, Oracle Corporation and/or its affiliates.",
+    "copyright": "Copyright (c) 2019, 2023, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "WebAppContainer",
     "online_bean": "weblogic.management.configuration.WebAppContainerMBean",
@@ -99,6 +99,7 @@
                                                  {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "ServletAuthenticationFormURL",       "wlst_path": "WP001", "default_value": true,                                "wlst_type": "boolean"           } ],
         "ServletReloadCheckSecs":              [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ServletReloadCheckSecs",             "wlst_path": "WP001", "default_value": 1, "production_default": "${__NULL__:-1}", "wlst_type": "integer"           } ],
         "ShowArchivedRealPathEnabled":         [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ShowArchivedRealPathEnabled",        "wlst_path": "WP001", "default_value": false,                               "wlst_type": "boolean"           } ],
+        "SynchronizedSessionTimeoutEnabled":   [ {"version": "[14.1.2,)",   "wlst_mode": "online",  "wlst_name": "SynchronizedSessionTimeoutEnabled",  "wlst_path": "WP001", "default_value": false,                               "wlst_type": "boolean"           } ],
         "WAPEnabled":                          [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "WAPEnabled",                         "wlst_path": "WP001", "default_value": false,                               "wlst_type": "boolean"           } ],
         "WeblogicPluginEnabled":               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "WeblogicPluginEnabled",              "wlst_path": "WP001", "default_value": false,                               "wlst_type": "boolean"           } ],
         "WorkContextPropagationEnabled":       [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "WorkContextPropagationEnabled",      "wlst_path": "WP001", "default_value": true,                                "wlst_type": "boolean"           } ],
