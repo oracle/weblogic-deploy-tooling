@@ -66,7 +66,7 @@ public class PasswordValidator {
         final String METHOD = "validate";
 
         LOGGER.entering(CLASS, METHOD, username);
-        String user = username.trim();
+        String user = StringUtils.isEmpty(username) ? username : username.trim();
 
         if (StringUtils.isEmpty(user)) {
             ValidateException ex = new ValidateException("WLSDPLY-05400");

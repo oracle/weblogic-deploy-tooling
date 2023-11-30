@@ -15,6 +15,7 @@ from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import DEFAULT_REALM
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
+from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
 from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
 from wlsdeploy.aliases.model_constants import PASSWORD
 from wlsdeploy.aliases.model_constants import PASSWORD_VALIDATOR
@@ -87,6 +88,38 @@ class ContentValidator(object):
 
                 else:
                     server_templates.append(server_template)
+
+
+class CreateDomainContentValidator(ContentValidator):
+    _class_name = 'CreateDomainContentValidator'
+    _logger = PlatformLogger('wlsdeploy.validate')
+
+    def __init__(self, model_context, aliases):
+        ContentValidator.__init__(self, model_context, aliases)
+
+    def validate_model(self, model_dict):
+        _method_name = 'validate_model'
+        self._logger.entering(class_name=self._class_name, method_name=_method_name)
+
+        self.validate_domain_info_section(model_dict)
+        self.validate_user_passwords(model_dict)
+        ContentValidator.validate_model(self, model_dict)
+
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name)
+
+    def validate_domain_info_section(self, model_dict):
+        """
+        Validate domainInfo section exists in the model.
+        :param model_dict: A Python dictionary of the model to be validated
+        :return: ValidationException: if problems occur during validation
+        """
+        _method_name = 'validate_domain_info_section'
+        if DOMAIN_INFO not in model_dict:
+            ex = exception_helper.create_validate_exception('WLSDPLY-12200', self._model_context.get_program_name(),
+                                                            DOMAIN_INFO,
+                                                            self._model_context.get_model_file())
+            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
 
     def validate_user_passwords(self, model_dict):
         """
@@ -236,6 +269,10 @@ class ContentValidator(object):
 
         domain_info_folder = dictionary_utils.get_dictionary_element(model_dict, DOMAIN_INFO)
         admin_username = dictionary_utils.get_element(domain_info_folder, ADMIN_USERNAME)
+        if admin_username is None:
+            location = LocationContext()
+            location.append_location(DOMAIN_INFO_ALIAS)
+            admin_username = self._aliases.get_model_attribute_default_value(location, ADMIN_USERNAME)
         admin_password = dictionary_utils.get_element(domain_info_folder, ADMIN_PASSWORD)
         admin_password = self._aliases.decrypt_password(admin_password)
 
