@@ -418,8 +418,8 @@ class Validator(object):
                 if isinstance(section_dict_value, dict):
                     result, message = self._aliases.is_valid_model_folder_name(validation_location,
                                                                                     section_dict_key)
-                    if result == ValidationCodes.VERSION_INVALID:
-                        self._log_version_invalid(message, _method_name)
+                    if result == ValidationCodes.CONTEXT_INVALID:
+                        self._log_context_invalid(message, _method_name)
                     elif result == ValidationCodes.INVALID:
                         self._logger.severe('WLSDPLY-05026', section_dict_key, 'folder', model_folder_path,
                                             '%s' % ', '.join(valid_section_folders), class_name=_class_name,
@@ -428,8 +428,8 @@ class Validator(object):
                 elif attribute_location is not None:
                     result, message = self._aliases.is_valid_model_attribute_name(attribute_location,
                                                                                        section_dict_key)
-                    if result == ValidationCodes.VERSION_INVALID:
-                        self._log_version_invalid(message, _method_name)
+                    if result == ValidationCodes.CONTEXT_INVALID:
+                        self._log_context_invalid(message, _method_name)
                     elif result == ValidationCodes.INVALID:
                         self._logger.severe('WLSDPLY-05029', section_dict_key, model_folder_path,
                                             '%s' % ', '.join(valid_attr_infos), class_name=_class_name,
@@ -444,8 +444,8 @@ class Validator(object):
         _method_name = '__validate_section_folder'
 
         result, message = self._aliases.is_version_valid_location(validation_location)
-        if result == ValidationCodes.VERSION_INVALID:
-            self._log_version_invalid(message, _method_name)
+        if result == ValidationCodes.CONTEXT_INVALID:
+            self._log_context_invalid(message, _method_name)
             return
         elif result == ValidationCodes.INVALID:
             self._logger.severe('WLSDPLY-05027', message, class_name=_class_name, method_name=_method_name)
@@ -624,8 +624,8 @@ class Validator(object):
 
                     # See if it's a version invalid folder
                     result, message = self._aliases.is_valid_model_folder_name(validation_location, key)
-                    if result == ValidationCodes.VERSION_INVALID:
-                        self._log_version_invalid(message, _method_name)
+                    if result == ValidationCodes.CONTEXT_INVALID:
+                        self._log_context_invalid(message, _method_name)
                     elif result == ValidationCodes.INVALID:
                         # key is an INVALID folder
                         self._logger.severe('WLSDPLY-05026', key, 'folder', model_folder_path,
@@ -638,8 +638,8 @@ class Validator(object):
 
                     # See if it's a version invalid attribute
                     result, message = self._aliases.is_valid_model_attribute_name(validation_location, key)
-                    if result == ValidationCodes.VERSION_INVALID:
-                        self._log_version_invalid(message, _method_name)
+                    if result == ValidationCodes.CONTEXT_INVALID:
+                        self._log_context_invalid(message, _method_name)
                     elif result == ValidationCodes.INVALID:
                         # key is an INVALID attribute
                         self._logger.severe('WLSDPLY-05029', key, model_folder_path,
@@ -696,8 +696,8 @@ class Validator(object):
                 self.__validate_path_tokens_attribute(attribute_name, attribute_value, model_folder_path)
         else:
             result, message = self._aliases.is_valid_model_attribute_name(validation_location, attribute_name)
-            if result == ValidationCodes.VERSION_INVALID:
-                self._log_version_invalid(message, _method_name)
+            if result == ValidationCodes.CONTEXT_INVALID:
+                self._log_context_invalid(message, _method_name)
             elif result == ValidationCodes.INVALID:
                 self._logger.severe('WLSDPLY-05029', attribute_name, model_folder_path,
                                     '%s' % ', '.join(valid_attr_infos), class_name=_class_name,
@@ -935,7 +935,7 @@ class Validator(object):
             self._logger.severe('WLSDPLY-05030', model_folder_path, token,
                                 class_name=_class_name, method_name=_method_name)
 
-    def _log_version_invalid(self, message, method_name):
+    def _log_context_invalid(self, message, method_name):
         """
         Log a message indicating that an attribute is not valid for the current WLS version and WLST mode.
         Log INFO or WARNING, depending on validation mode.

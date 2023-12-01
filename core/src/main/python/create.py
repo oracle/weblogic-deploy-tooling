@@ -42,7 +42,7 @@ from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.util import wlst_helper
-from wlsdeploy.tool.validate.content_validator import ContentValidator
+from wlsdeploy.tool.validate.content_validator import CreateDomainContentValidator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import env_helper
 from wlsdeploy.util import getcreds
@@ -369,9 +369,8 @@ def main(model_context):
                                                  validate_crd_sections=False)
 
         # check for any content problems in the merged, substituted model
-        content_validator = ContentValidator(model_context, aliases)
+        content_validator = CreateDomainContentValidator(model_context, aliases)
         content_validator.validate_model(model_dictionary)
-        content_validator.validate_user_passwords(model_dictionary)
 
         archive_helper = None
         archive_file_name = model_context.get_archive_file_name()

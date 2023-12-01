@@ -9,10 +9,6 @@ description: "Provides information about the folders and attributes that are val
 
 The Model Help Tool provides information about the folders and attributes that are valid for sections and folders of a domain model. This is useful when creating a new domain model, or expanding an existing model, including discovered models.
 
-{{% notice note %}} The Model Help Tool is new in WebLogic Deploy Tooling 1.8.
-The `-model_sample` argument is deprecated starting with WebLogic Deploy Tooling 1.9.2, when model sample became the default output format.
-{{% /notice %}}
-
 Here is a simple example using the Model Help Tool:
 ```yaml
 $ <wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/JDBCSystemResource
@@ -178,39 +174,49 @@ $ modelHelp.sh -interactive top
 ```
 The output is:
 ```yaml
-In interactive mode! Type 'help' for help.
+Model Help running in interactive mode.  Type help for help.
+
+Starting at location ('top',)
+
 [top] --> help
 
 Commands:
 
-  ls                      - list contents of current location
-  top, cd, cd /, cd top   - go to "top"
-  cd x[/[...]]            - relative change (go to child location x...)
-  cd section[:/[...]]     - absolute change (go to exact section and location)
-  cd /folder[/...]        - find section that contains the folder and go there
-  cd ..                   - go up
-  history                 - history of visited locations
-  exit                    - exit
+  ls                      - List contents of current location
+  ls [path]               - List contents of specified location
+  top, cd, cd /, cd top   - Change to the top-level location
+  cd [path]               - Change to the specified location
+  history                 - Show the history of visited locations
+  exit                    - Exit interactive mode and the tool
+
+  [path] Examples:
+    x/y/z               - Relative path from the current location
+    ../../a             - Relative path from the current location
+    section[:[/a/b/c]]  - Absolute path to section and location, if specified
+    /a[/b[/c]]          - Find the section that contains the specified folder
 
 Sections:
 
-  domainInfo, topology, resources, appDeployments, kubernetes
+  domainInfo, topology, resources, appDeployments, kubernetes, verrazzano
 
 Examples:
 
   cd topology
   cd topology:/Server/Log/StdoutSeverity
   cd /Server/Log/StdoutSeverity
+  cd ../../../ServerTemplate/DynamicServers
 
-[top] -->   
+
+  [top] --> 
 ```
 
 ### Parameter table for `model_help`
-| Parameter | Definition | Default |
-| ---- | ---- | ---- |
-| `-attributes_only` | List only the attributes for the specified model path. |    |
-| `-folders_only` | List only the folders for the specified model path. |    |
-| `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set. |    |
-| `-recursive` | List only the folders for the specified model path, and recursively include the folders below that path. |    |
-| `<model_path>` | The path to the model element to be examined. The format is `[^<section^>:][/^<folder^>]...` |    |
-| `-interactive <starting_model_path>` | Interactive mode. |   |
+| Parameter                            | Definition                                                                                                         | Default |
+|--------------------------------------|--------------------------------------------------------------------------------------------------------------------| ---- |
+| `-attributes_only`                   | List only the attributes for the specified model path.                                                             |    |
+| `-folders_only`                      | List only the folders for the specified model path.                                                                |    |
+| `-oracle_home`                       | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set. |    |
+| `-recursive`                         | List only the folders for the specified model path, and recursively include the folders below that path.           |    |
+| `-interactive <starting_model_path>` | Interactive mode.                                                                                                  |   |
+| `-target_mode <mode>`                | The WLST mode to use to load the aliases. The mode is either `online` or `offline` (the default).      |    |
+| `<model_path>`                       | The path to the model element to be examined. The format is `[^<section^>:][/^<folder^>]...`                       |    |

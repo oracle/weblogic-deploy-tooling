@@ -1007,7 +1007,7 @@ class AttributeSetter(object):
         method_name = '__find_in_location'
 
         location = LocationContext(location).append_location(element_type)
-        if self.__aliases.get_wlst_mbean_type(location) is not None:
+        if self.__aliases.is_model_location_valid(location):
             existing_names = self.__get_existing_object_list(location)
             if name in existing_names:
                 location_type, location_name = self.__aliases.get_model_type_and_name(location)

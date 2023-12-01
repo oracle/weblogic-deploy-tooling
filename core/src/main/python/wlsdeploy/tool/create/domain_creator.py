@@ -126,15 +126,6 @@ class DomainCreator(Creator):
         _method_name = '__init__'
         Creator.__init__(self, model_dictionary, model_context, aliases)
 
-        # domainInfo section is required to get the admin password, everything else
-        # is optional and will use the template defaults
-        if model.get_model_domain_info_key() not in model_dictionary:
-            ex = exception_helper.create_create_exception('WLSDPLY-12200', self.__program_name,
-                                                          model.get_model_domain_info_key(),
-                                                          self.model_context.get_model_file())
-            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-
         self.topology_helper = TopologyHelper(self.aliases, ExceptionType.CREATE, self.logger)
         self.security_provider_creator = SecurityProviderCreator(model_dictionary, model_context, aliases,
                                                                  ExceptionType.CREATE, self.logger)
