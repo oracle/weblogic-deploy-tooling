@@ -277,47 +277,127 @@ public final class VersionUtils {
     /**
      * Get the version range message to use for validation.
      *
-     * @param name the attribute name
-     * @param path the folder path that contains the attribute
-     * @param version the WebLogic version being used
-     * @param versionRange the range of versions where the attribute is valid
-     * @param wlstMode the WLST mode
-     * @return the formatted message
-     * @throws VersionException if an error occurs parsing the version range
+     * @param name             the attribute name
+     * @param path             the folder path that contains the attribute
+     * @param version          the WebLogic version being used
+     * @param mode             the WLST mode being used
+     * @param versionRangeHigh the supported version range above the current version, if any
+     * @param wlstModeHigh     the supported WLST mode, if not the mode being used
+     * @param versionRangeLow  the supported version range below the current version, if any
+     * @param wlstModeLow      the supported WLST mode, if not the mode being used
+     * @return the message describing the reason the attribute is invalid
+     * @throws VersionException if an error occurs
      */
     public static String getValidAttributeVersionRangeMessage(String name, String path, String version,
-        String versionRange, String wlstMode) throws VersionException {
+        String mode, String versionRangeHigh, String wlstModeHigh, String versionRangeLow, String wlstModeLow)
+        throws VersionException {
         final String METHOD = "getValidVersionRangeMessage";
 
-        LOGGER.entering(CLASS, METHOD, name, path, version, versionRange, wlstMode);
-        String message;
-        if (!StringUtils.isEmpty(versionRange)) {
-            String[] versions = getLowerAndUpperVersionStrings(versionRange);
-
-            switch (versions.length) {
-                case RANGE_SIZE:
-                    String low = versions[RANGE_LOW_INDEX];
-                    String high = versions[RANGE_HIGH_INDEX];
-                    if (StringUtils.isEmpty(high)) {
-                        message = ExceptionHelper.getMessage("WLSDPLY-08207", name, path, version, low);
-                    } else {
-                        message = ExceptionHelper.getMessage("WLSDPLY-08208", name, path, version, low, high);
-                    }
-                    break;
-
-                case VERSION_SIZE:
-                    String onlyVersion = versions[VERSION_INDEX];
-                    message = ExceptionHelper.getMessage("WLSDPLY-08209", name, path, version, onlyVersion);
-                    break;
-
-                default:
-                    VersionException ve = new VersionException("WLSDPLY-08206", versionRange, Arrays.asList(versions));
-                    LOGGER.throwing(CLASS, METHOD, ve);
-                    throw ve;
+        LOGGER.entering(CLASS, METHOD, name, path, version, mode, versionRangeHigh, wlstModeHigh,
+            versionRangeLow, wlstModeLow);
+        String message = "";
+        if (!StringUtils.isEmpty(versionRangeHigh)) {
+            if (!StringUtils.isEmpty(wlstModeHigh) && !"BOTH".equalsIgnoreCase(wlstModeHigh)) {
+                message = getAttributeVersionRangeAndModeMessage(name, path, version, mode, versionRangeHigh,
+                    wlstModeHigh, "WLSDPLY-08219", "WLSDPLY-08220", "WLSDPLY-08221");
+            } else {
+                message = getAttributeVersionRangeMessage(name, path, version, mode, versionRangeHigh,
+                    "WLSDPLY-08207", "WLSDPLY-08208", "WLSDPLY-08209");
+            }
+        } else if (!StringUtils.isEmpty(versionRangeLow)) {
+            if (!StringUtils.isEmpty(wlstModeLow) && !"BOTH".equalsIgnoreCase(wlstModeLow)) {
+                message = getAttributeVersionRangeAndModeMessage(name, path, version, mode, versionRangeLow,
+                    wlstModeLow, "WLSDPLY-08219", "WLSDPLY-08220", "WLSDPLY-08221");
+            } else {
+                message = getAttributeVersionRangeMessage(name, path, version, mode, versionRangeLow,
+                    "WLSDPLY-08207", "WLSDPLY-08208", "WLSDPLY-08209");
             }
         } else {
-            message = ExceptionHelper.getMessage("WLSDPLY-08210", name, path, version, wlstMode);
+            message = ExceptionHelper.getMessage("WLSDPLY-08210", name, path, version, mode);
         }
+        LOGGER.exiting(CLASS, METHOD, message);
+        return message;
+    }
+
+    private static String getAttributeVersionRangeMessage(String name, String path, String version, String mode,
+        String versionRange, String... messageKeys) throws VersionException {
+        final String METHOD = "getValidVersionRangeMessage";
+
+        LOGGER.entering(CLASS, METHOD, name, path, version, mode, versionRange, messageKeys);
+
+        String message;
+        if (messageKeys.length != 3) {
+            message = ExceptionHelper.getMessage("WLSDPLY-08218", METHOD, 3, messageKeys.length);
+            IllegalArgumentException ex = new IllegalArgumentException(message);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        String[] versions = getLowerAndUpperVersionStrings(versionRange);
+        switch (versions.length) {
+            case RANGE_SIZE:
+                String low = versions[RANGE_LOW_INDEX];
+                String high = versions[RANGE_HIGH_INDEX];
+                if (StringUtils.isEmpty(high)) {
+                    message = ExceptionHelper.getMessage(messageKeys[0], name, path, version, low);
+                } else {
+                    message = ExceptionHelper.getMessage(messageKeys[1], name, path, version, low, high);
+                }
+                break;
+
+            case VERSION_SIZE:
+                String onlyVersion = versions[VERSION_INDEX];
+                message = ExceptionHelper.getMessage(messageKeys[2], name, path, version, onlyVersion);
+                break;
+
+            default:
+                VersionException ve = new VersionException("WLSDPLY-08206", versionRange, Arrays.asList(versions));
+                LOGGER.throwing(CLASS, METHOD, ve);
+                throw ve;
+        }
+
+        LOGGER.exiting(CLASS, METHOD, message);
+        return message;
+    }
+
+    private static String getAttributeVersionRangeAndModeMessage(String name, String path, String version, String mode,
+        String versionRange, String wlstMode, String... messageKeys) throws VersionException {
+        final String METHOD = "getAttributeVersionRangeAndModeMessage";
+
+        LOGGER.entering(CLASS, METHOD, name, path, version, mode, versionRange, wlstMode, messageKeys);
+
+        String message = "";
+        if (messageKeys.length != 3) {
+            message = ExceptionHelper.getMessage("WLSDPLY-08218", METHOD, 3, messageKeys.length);
+            IllegalArgumentException ex = new IllegalArgumentException(message);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        String[] versions = getLowerAndUpperVersionStrings(versionRange);
+        switch (versions.length) {
+            case RANGE_SIZE:
+                String low = versions[RANGE_LOW_INDEX];
+                String high = versions[RANGE_HIGH_INDEX];
+                if (StringUtils.isEmpty(high)) {
+                    message = ExceptionHelper.getMessage(messageKeys[0], name, path, version, mode, low, wlstMode);
+                } else {
+                    message = ExceptionHelper.getMessage(messageKeys[1], name, path, version, mode, low, high, wlstMode);
+                }
+                break;
+
+            case VERSION_SIZE:
+                String onlyVersion = versions[VERSION_INDEX];
+                message = ExceptionHelper.getMessage(messageKeys[2], name, path, version, mode, onlyVersion, wlstMode);
+                break;
+
+            default:
+                VersionException ve = new VersionException("WLSDPLY-08206", versionRange, Arrays.asList(versions));
+                LOGGER.throwing(CLASS, METHOD, ve);
+                throw ve;
+        }
+
+        LOGGER.exiting(CLASS, METHOD, message);
         return message;
     }
 

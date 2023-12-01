@@ -109,7 +109,7 @@ class Creator(object):
         :param type_name: the model folder type
         :param model_nodes: the model dictionary of the specified model folder type
         :param base_location: the base location object to use to create the MBean
-        :param log_created: whether or not to log created at INFO level, by default it is logged at the FINE level
+        :param log_created: whether log created at INFO level, by default it is logged at the FINE level
         :raises: CreateException: if an error occurs
         """
         _method_name = '_create_mbean'
@@ -124,7 +124,7 @@ class Creator(object):
 
         location = LocationContext(base_location).append_location(type_name)
         result, message = self.aliases.is_version_valid_location(location)
-        if result == ValidationCodes.VERSION_INVALID:
+        if result == ValidationCodes.CONTEXT_INVALID:
             self.logger.warning('WLSDPLY-12123', message,
                                 class_name=self.__class_name, method_name=_method_name)
             return
@@ -388,7 +388,7 @@ class Creator(object):
         result = False
         if code == ValidationCodes.VALID:
             result = True
-        elif code == ValidationCodes.VERSION_INVALID:
+        elif code == ValidationCodes.CONTEXT_INVALID:
             path = self._format_model_path(location, type_name)
             self.logger.warning('WLSDPLY-12108', path, message,
                                 class_name=self.__class_name, method_name=_method_name)

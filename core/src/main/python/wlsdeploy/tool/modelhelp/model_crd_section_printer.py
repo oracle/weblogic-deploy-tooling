@@ -20,9 +20,10 @@ class ModelCrdSectionPrinter(object):
     _class_name = "ModelCrdSectionPrinter"
     _logger = PlatformLogger('wlsdeploy.modelhelp')
 
-    def __init__(self, model_context):
+    def __init__(self, model_context, output_buffer):
         self._crd_helper = model_crd_helper.get_helper(model_context)
         self._target = model_context.get_target()
+        self._output_buffer = output_buffer
 
     def print_model_sample(self, model_path_tokens, control_option):
         """
@@ -33,8 +34,8 @@ class ModelCrdSectionPrinter(object):
         """
         section_name = model_path_tokens[0]
         if section_name != self._crd_helper.get_model_section():
-            print("")
-            print(exception_helper.get_message('WLSDPLY-10113', section_name))
+            self._output_buffer.add_output("")
+            self._output_buffer.add_output(exception_helper.get_message('WLSDPLY-10113', section_name))
             return
 
         if len(model_path_tokens) == 1:
@@ -48,9 +49,9 @@ class ModelCrdSectionPrinter(object):
         :param section_name: the name of the model section
         :param control_option: A command-line switch that controls what is output to STDOUT
         """
-        print("")
+        self._output_buffer.add_output()
         path = section_name + ":"
-        _print_indent(path, 0)
+        self._print_indent(path, 0)
 
         # examine model folders directly under kubernetes
 
@@ -61,10 +62,10 @@ class ModelCrdSectionPrinter(object):
 
             if crd_folder.has_model_key():
                 if control_option != ControlOptions.RECURSIVE:
-                    print("")
+                    self._output_buffer.add_output()
 
                 model_key = crd_folder.get_model_key()
-                _print_indent(model_key + ':', indent)
+                self._print_indent(model_key + ':', indent)
                 show_children = control_option == ControlOptions.RECURSIVE
                 folder_path = path + '/' + model_key
                 indent = indent + 1
@@ -79,7 +80,7 @@ class ModelCrdSectionPrinter(object):
                 if model_help_utils.show_folders(control_option):
                     self._print_subfolders_sample(schema, control_option, indent, folder_path, in_array)
             else:
-                _print_indent("# see " + folder_path, indent)
+                self._print_indent("# see " + folder_path, indent)
 
     def _print_model_folder_sample(self, section_name, model_path_tokens, control_option):
         """
@@ -90,13 +91,13 @@ class ModelCrdSectionPrinter(object):
         """
         _method_name = '_print_model_folder_sample'
 
-        print("")
+        self._output_buffer.add_output()
 
         # write the parent folders leading up to the specified folder.
         # include any name folders.
 
         indent = 0
-        _print_indent(section_name + ":", indent)
+        self._print_indent(section_name + ":", indent)
         indent += 1
 
         in_object_array = False
@@ -117,7 +118,7 @@ class ModelCrdSectionPrinter(object):
                 raise ex
 
             model_key = crd_folder.get_model_key()
-            _print_indent(model_key + ":", indent, in_object_array)
+            self._print_indent(model_key + ":", indent, in_object_array)
             model_path += '/' + model_key
             token_index += 1
             indent += 1
@@ -156,7 +157,7 @@ class ModelCrdSectionPrinter(object):
                 token_suffix = '  # ' + option_key
                 current_folder = self._find_folder_option(folder_options, option_key, model_path + '/' + lookup_token)
 
-            _print_indent(lookup_token + ":" + token_suffix, indent, in_object_array)
+            self._print_indent(lookup_token + ":" + token_suffix, indent, in_object_array)
             indent += 1
 
             # apply to the next folder in the path
@@ -168,7 +169,7 @@ class ModelCrdSectionPrinter(object):
         # if this is a folder with multiple options, list the options and return
         folder_options = schema_helper.get_one_of_options(current_folder)
         if folder_options:
-            print_folder_options(folder_options, model_path, indent)
+            self._print_folder_options(folder_options, model_path, indent)
             return
 
         # list the attributes and folders, as specified
@@ -211,9 +212,9 @@ class ModelCrdSectionPrinter(object):
             folder_info = folder_map[key]
 
             if control_option != ControlOptions.RECURSIVE:
-                print("")
+                self._output_buffer.add_output()
 
-            _print_indent(key + ":", indent_level, in_object_array)
+            self._print_indent(key + ":", indent_level, in_object_array)
             in_object_array = False
 
             child_level = indent_level + 1
@@ -225,7 +226,7 @@ class ModelCrdSectionPrinter(object):
                 self._print_subfolders_sample(folder_info, control_option, child_level, path,
                                               child_in_object_array)
             else:
-                _print_indent("# see " + next_path, child_level)
+                self._print_indent("# see " + next_path, child_level)
 
         return in_object_array
 
@@ -270,10 +271,10 @@ class ModelCrdSectionPrinter(object):
             format_string = '%-' + str_helper.to_string(maxlen + 1) + 's # %s'
             for attr_name in attr_list:
                 line = format_string % (attr_name + ":", attribute_map[attr_name])
-                _print_indent(line, indent_level, in_object_array)
+                self._print_indent(line, indent_level, in_object_array)
                 in_object_array = False
         else:
-            _print_indent("# no attributes", indent_level)
+            self._print_indent("# no attributes", indent_level)
 
         return in_object_array
 
@@ -304,6 +305,38 @@ class ModelCrdSectionPrinter(object):
         self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
         raise ex
 
+    def _print_folder_options(self, folder_options, model_path, indent_level):
+        """
+        Print messages for a folder that has multiple content options.
+        :param folder_options: the options to be printed
+        :param model_path: the model path to be included in the output
+        :param indent_level: the level to indent by, before printing output
+        :return: the matching option, or None
+        """
+        self._print_indent("# " + exception_helper.get_message('WLSDPLY-10114', len(folder_options)), indent_level)
+        for index, one_of_option in enumerate(folder_options):
+            key = _get_kind_value(one_of_option) or index
+            self._output_buffer.add_output()
+            self._print_indent("# see " + model_path + "#" + str_helper.to_string(key), indent_level)
+
+    def _print_indent(self, msg, level=1, first_in_list_object=False):
+        """
+        Print a message at the specified indent level.
+        :param msg: the message to be printed
+        :param level: the indent level
+        :param first_in_list_object: True if this is the first property of an object in a list
+        """
+        result = ''
+        i = 0
+        while i < level:
+            result += '    '
+            i += 1
+
+        if first_in_list_object:
+            result = result[:-2] + "- "
+
+        self._output_buffer.add_output('%s%s' % (result, msg))
+
 
 def _get_properties(schema_folder):
     # in array elements, the properties are under "items"
@@ -329,21 +362,6 @@ def _get_folder_names(schema_properties):
     return folder_names
 
 
-def print_folder_options(folder_options, model_path, indent_level):
-    """
-    Print messages for a folder that has multiple content options.
-    :param folder_options: the options to be printed
-    :param model_path: the model path to be included in the output
-    :param indent_level: the level to indent by, before printing output
-    :return: the matching option, or None
-    """
-    _print_indent("# " + exception_helper.get_message('WLSDPLY-10114', len(folder_options)), indent_level)
-    for index, one_of_option in enumerate(folder_options):
-        key = _get_kind_value(one_of_option) or index
-        print("")
-        _print_indent("# see " + model_path + "#" + str_helper.to_string(key), indent_level)
-
-
 def _get_kind_value(folder_option):
     """
     Return the "kind" value of the specified folder option.
@@ -356,22 +374,3 @@ def _get_kind_value(folder_option):
     enum = dictionary_utils.get_dictionary_element(kind, "enum")
     if enum and len(enum):
         return enum[0]
-
-
-def _print_indent(msg, level=1, first_in_list_object=False):
-    """
-    Print a message at the specified indent level.
-    :param msg: the message to be printed
-    :param level: the indent level
-    :param first_in_list_object: True if this is the first property of an object in a list
-    """
-    result = ''
-    i = 0
-    while i < level:
-        result += '    '
-        i += 1
-
-    if first_in_list_object:
-        result = result[:-2] + "- "
-
-    print('%s%s' % (result, msg))

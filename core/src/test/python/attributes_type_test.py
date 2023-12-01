@@ -21,7 +21,7 @@ class AttributesTypeTestCase(unittest.TestCase):
     """
     wls_version = '12.2.1.3'
 
-    def testDelimitedAttributes(self):
+    def test_delimited_attributes(self):
         model_context = ModelContext("test", {})
         aliases = Aliases(model_context=model_context, wlst_mode=WlstModes.OFFLINE, wls_version=self.wls_version)
 
@@ -31,6 +31,9 @@ class AttributesTypeTestCase(unittest.TestCase):
         for folder_name in aliases.get_model_top_level_folder_names():
             location = LocationContext()
             location.append_location(folder_name)
+            name_token = aliases.get_name_token(location)
+            if name_token is not None:
+                location.add_name_token(name_token, 'foobar-0')
             self._check_folder(location, aliases)
 
     def _check_folder(self, location, aliases):
@@ -50,7 +53,7 @@ class AttributesTypeTestCase(unittest.TestCase):
 
                 wlst_name = aliases.get_wlst_attribute_name(location, key)
                 if wlst_name is not None:
-                    model_name, value = aliases.get_model_attribute_name_and_value(location, wlst_name, test_value)
+                    _, value = aliases.get_model_attribute_name_and_value(location, wlst_name, test_value)
                     message = "Value for attribute " + key + " in location " + str(location.get_folder_path()) + \
                         " should be comma-delimited"
                     self.assertEqual(expected_value, value, message)
@@ -58,8 +61,10 @@ class AttributesTypeTestCase(unittest.TestCase):
         folder_names = aliases.get_model_subfolder_names(location)
         for folder_name in folder_names:
             new_location = LocationContext(location).append_location(folder_name)
+            name_token = aliases.get_name_token(new_location)
+            if name_token is not None:
+                new_location.add_name_token(name_token, 'foobar-0')
             self._check_folder(new_location, aliases)
-        return
 
 
 if __name__ == '__main__':

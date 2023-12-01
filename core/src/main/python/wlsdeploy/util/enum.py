@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from oracle.weblogic.deploy.exception import ExceptionHelper
@@ -57,6 +57,6 @@ class Enum(object):
         :raises: ValueError: If the value is not a valid value for the Enum
         """
         if value not in range(0, len(self.enum_list)):
-            message = ExceptionHelper.getMessage('WLSDPLY-01700', value, self.__class__.__name__)
+            message = ExceptionHelper.getMessage('WLSDPLY-01700', [value, self.__class__.__name__])
             raise ValueError(message)
         return self.enum_list[value]

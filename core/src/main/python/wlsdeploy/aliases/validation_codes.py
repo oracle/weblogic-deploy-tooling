@@ -6,4 +6,7 @@ The ValidationCodes enum module
 """
 from wlsdeploy.util.enum import Enum
 
-ValidationCodes = Enum(['INVALID', 'VERSION_INVALID', 'VALID'])
+#
+# Only INVALID, CONTEXT_INVALID, and VALID should ever be exposed outside the aliases module.
+#
+ValidationCodes = Enum(['INVALID', 'CONTEXT_INVALID', 'VERSION_INVALID', 'MODE_INVALID', 'VALID'])

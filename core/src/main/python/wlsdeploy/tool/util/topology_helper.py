@@ -119,7 +119,7 @@ class TopologyHelper(object):
         original_location = self.wlst_helper.get_pwd()
         resource_location = LocationContext(location).append_location(model_type)
 
-        if self.aliases.get_wlst_mbean_type(resource_location) is not None:
+        if self.aliases.is_model_location_valid(resource_location):
             existing_names = deployer_utils.get_existing_object_list(resource_location, self.aliases)
 
             name_nodes = dictionary_utils.get_dictionary_element(model_nodes, model_type)

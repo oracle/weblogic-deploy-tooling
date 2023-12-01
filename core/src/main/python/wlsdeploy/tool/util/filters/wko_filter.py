@@ -238,13 +238,14 @@ class OnlineAttributeFilter(ModelTraverse):
     # Override
     def unrecognized_field(self, model_dict, key, model_location):
         """
-        If the attribute name has status ValidationCodes.VERSION_INVALID, it is a valid attribute sometimes,
+        If the attribute name has status ValidationCodes.CONTEXT_INVALID, it is a valid attribute sometimes,
         but not for offline mode in this WLS version.
         """
         _method_name = 'unrecognized_field'
 
         result, message = self._aliases.is_valid_model_attribute_name(model_location, key)
-        if result == ValidationCodes.VERSION_INVALID:
+        if result == ValidationCodes.CONTEXT_INVALID:
             path = self._aliases.get_model_folder_path(model_location)
-            _logger.info('WLSDPLY-20201', key, path, class_name=_class_name, method_name=_method_name)
+            _logger.info('WLSDPLY-20201', key, path, message,
+                         class_name=_class_name, method_name=_method_name)
             del model_dict[key]

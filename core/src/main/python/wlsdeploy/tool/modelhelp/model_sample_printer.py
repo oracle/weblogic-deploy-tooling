@@ -20,13 +20,14 @@ class ModelSamplePrinter(object):
     Class for printing the recognized model metadata as a model sample.
     """
 
-    def __init__(self, aliases, logger):
+    def __init__(self, aliases, logger, output_buffer):
         """
         :param aliases: A reference to an Aliases class instance
         :param logger: A reference to the platform logger to write to, if a log entry needs to be made
         """
         self._logger = logger
         self._aliases = aliases
+        self._output_buffer = output_buffer
 
     def print_model_sample(self, model_path_tokens, control_option):
         """
@@ -51,9 +52,9 @@ class ModelSamplePrinter(object):
         The -recursive flag is disregarded for this case.
         """
         for section in KNOWN_TOPLEVEL_MODEL_SECTIONS:
-            print("")
-            _print_indent(section + ":", 0)
-            _print_indent("# see " + section + ":", 1)
+            self._output_buffer.add_output()
+            self._print_indent(section + ":", 0)
+            self._print_indent("# see " + section + ":", 1)
 
     def _print_model_section_sample(self, section_name, valid_section_folder_keys, control_option):
         """
@@ -62,8 +63,8 @@ class ModelSamplePrinter(object):
         :param valid_section_folder_keys: list of the valid top folders in the specified section
         :param control_option: A command-line switch that controls what is output to STDOUT
         """
-        print("")
-        _print_indent(section_name + ":", 0)
+        self._output_buffer.add_output()
+        self._print_indent(section_name + ":", 0)
 
         if model_help_utils.show_attributes(control_option):
             attributes_location = self._aliases.get_model_section_attribute_location(section_name)
@@ -82,13 +83,13 @@ class ModelSamplePrinter(object):
         :param valid_section_folder_keys: A list of valid folder names for the model section in the path
         :param control_option: A command-line switch that controls what is output to STDOUT
         """
-
+        _method_name = '_print_model_folder_sample'
         if model_path_tokens[1] not in valid_section_folder_keys:
             # print attribute help if top_folder turns out to be an attribute, throw otherwise
             self._print_section_attribute_bean_help(model_path_tokens, valid_section_folder_keys)
             return
 
-        print("")
+        self._output_buffer.add_output()
 
         # write the parent folders, with indentation and any name folders included
 
@@ -101,24 +102,33 @@ class ModelSamplePrinter(object):
 
             if indent > 0:
                 code, message = self._aliases.is_valid_model_folder_name(model_location, token)
-                if code != ValidationCodes.VALID:
+                if code == ValidationCodes.CONTEXT_INVALID:
+                    ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
+                                                               'WLSDPLY-05027', message)
+                    self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                    raise ex
+                elif code == ValidationCodes.INVALID:
                     # print attribute help if the token turns out to be an attribute, throws otherwise
                     self._print_folder_attribute_bean_help(control_option, model_location,
-                                                           indent, tokens_left, token, message)
+                                                           indent, tokens_left, token)
                     return
                 model_location.append_location(token)
+                name_token = self._aliases.get_name_token(model_location)
+                if name_token is not None:
+                    model_location.add_name_token(name_token, self._get_member_name(model_location, 0))
+
 
             if self._aliases.is_artificial_type_folder(model_location):
                 name = self._get_member_name(last_location, 0)
-                _print_indent(name + ":", indent)
+                self._print_indent(name + ":", indent)
                 indent += 1
 
-            _print_indent(token + ":", indent)
+            self._print_indent(token + ":", indent)
             indent += 1
 
             if self._has_multiple_folders(model_location):
                 name = self._get_member_name(model_location, 0)
-                _print_indent(name + ":", indent)
+                self._print_indent(name + ":", indent)
                 indent += 1
 
         # list the attributes and folders, as specified
@@ -133,8 +143,8 @@ class ModelSamplePrinter(object):
         online_bean = self._aliases.get_online_bean_name(model_location)
         bean_help = WLSBeanHelp.get(online_bean, 60)
         if bean_help:
-            print("")
-            _print_indent(bean_help, 0)
+            self._output_buffer.add_output()
+            self._print_indent(bean_help, 0)
 
     def _print_subfolders_sample(self, model_location, control_option, indent_level):
         """
@@ -164,37 +174,37 @@ class ModelSamplePrinter(object):
             model_location.append_location(key)
 
             # folder may not be valid for WLS version
-            if self._aliases.get_wlst_mbean_type(model_location) is None:
+            if not self._aliases.is_model_location_valid(model_location):
                 model_location.pop_location()
                 continue
 
             name_token = self._aliases.get_name_token(model_location)
             if name_token is not None:
-                model_location.add_name_token(name_token, '%s-0' % key)
+                model_location.add_name_token(name_token, self._get_member_name(model_location, 0))
 
             if control_option != ControlOptions.RECURSIVE:
-                print("")
+                self._output_buffer.add_output()
 
             key_level = indent_level
             if self._aliases.is_artificial_type_folder(model_location):
                 name = self._get_member_name(parent_location, artificial_index)
                 artificial_index += 1
-                _print_indent(name + ":", indent_level)
+                self._print_indent(name + ":", indent_level)
                 key_level += 1
 
-            _print_indent(key + ":", key_level)
+            self._print_indent(key + ":", key_level)
 
             child_level = key_level
             if self._has_multiple_folders(model_location):
                 name = self._get_member_name(model_location, 0)
                 child_level += 1
-                _print_indent(name + ":", child_level)
+                self._print_indent(name + ":", child_level)
 
             if control_option == ControlOptions.RECURSIVE:
                 # Call this method recursively
                 self._print_subfolders_sample(model_location, control_option, child_level + 1)
             else:
-                _print_indent("# see " + model_location.get_folder_path(), child_level + 1)
+                self._print_indent("# see " + model_location.get_folder_path(), child_level + 1)
 
             model_location.pop_location()
 
@@ -246,10 +256,10 @@ class ModelSamplePrinter(object):
             for attr_name in attr_list:
                 att_help = self._get_att_short_help(model_location, attr_name)
                 line = format_string % (attr_name + ":", attr_infos[attr_name]) + att_help
-                _print_indent(line, indent_level)
+                self._print_indent(line, indent_level)
 
         else:
-            _print_indent("# no attributes", indent_level)
+            self._print_indent("# no attributes", indent_level)
 
     def _print_section_attribute_bean_help(self, model_path_tokens, valid_section_folder_keys):
         """
@@ -274,7 +284,7 @@ class ModelSamplePrinter(object):
         self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
 
-    def _print_folder_attribute_bean_help(self, control_option, model_location, indent, tokens_left, token, message):
+    def _print_folder_attribute_bean_help(self, control_option, model_location, indent, tokens_left, token):
         """
         Print attribute help if the token turns out to be an attribute, throw otherwise
         :param control_option: A command-line switch that controls what is output to STDOUT
@@ -287,14 +297,8 @@ class ModelSamplePrinter(object):
         """
         _method_name = '_print_folder_attribute_bean_help'
 
-        if tokens_left == 0 and model_help_utils.show_attributes(control_option) and \
-                self._print_attribute_bean_help(model_location, indent, token):
-            return
-
-        ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
-                                                   "WLSDPLY-05027", message)
-        self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-        raise ex
+        if tokens_left == 0 and model_help_utils.show_attributes(control_option):
+            self._print_attribute_bean_help(model_location, indent, token)
 
     def _print_attribute_bean_help(self, model_location, indent_level, the_attribute):
         """
@@ -304,13 +308,29 @@ class ModelSamplePrinter(object):
         :param the_attribute: The attribute to print
         :return: True if the_attribute was an attribute
         """
+        _method_name = '_print_attribute_bean_help'
+        self._logger.entering(str_helper.to_string(model_location), indent_level, the_attribute,
+                              class_name=_class_name, method_name=_method_name)
 
         the_bean = self._aliases.get_online_bean_name(model_location)
-        attr_infos = self._aliases.get_model_attribute_names_and_types(model_location)
+        code, message = self._aliases.is_valid_model_attribute_name(model_location, the_attribute)
+        if code == ValidationCodes.INVALID:
+            path = self._aliases.get_model_folder_path(model_location)
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
+                                                       'WLSDPLY-05044', path, the_attribute)
+            self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
+        elif code == ValidationCodes.CONTEXT_INVALID:
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
+                                                       'WLSDPLY-05027', message)
+            self._logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
 
+        # if we get here, the attribute is a valid attribute
+        attr_infos = self._aliases.get_model_attribute_names_and_types(model_location)
         if attr_infos and the_attribute in attr_infos:
-            line = '%s # %s' % (the_attribute + ":", attr_infos[the_attribute])
-            _print_indent(line, indent_level)
+            line = '%s: # %s' % (the_attribute, attr_infos[the_attribute])
+            self._print_indent(line, indent_level)
 
             att_default = self._aliases.get_model_attribute_default_value(model_location, the_attribute)
             if att_default is not None:
@@ -319,9 +339,9 @@ class ModelSamplePrinter(object):
             att_help = WLSBeanHelp.get(the_bean, the_attribute, 60, att_default)
 
             if att_help:
-                print("")
-                print(att_help)
-                print("")
+                self._output_buffer.add_output()
+                self._output_buffer.add_output(att_help)
+                self._output_buffer.add_output()
 
             return True
 
@@ -347,20 +367,20 @@ class ModelSamplePrinter(object):
         :return: the member name
         """
         short_name = self._aliases.get_folder_short_name(location)
-        if len(short_name) == 0:
+        if short_name == '':
             short_name = location.get_current_model_folder()
-        return "'%s-%s'" % (short_name, str_helper.to_string(index + 1))
+        return "%s-%s" % (short_name, str_helper.to_string(index + 1))
 
 
-def _print_indent(msg, level=1):
-    """
-    Print a message at the specified indent level.
-    :param msg: the message to be printed
-    :param level: the indent level
-    """
-    result = ''
-    i = 0
-    while i < level:
-        result += '    '
-        i += 1
-    print('%s%s' % (result, msg))
+    def _print_indent(self, msg, level=1):
+        """
+        Print a message at the specified indent level.
+        :param msg: the message to be printed
+        :param level: the indent level
+        """
+        result = ''
+        i = 0
+        while i < level:
+            result += '    '
+            i += 1
+        self._output_buffer.add_output('%s%s' % (result, msg))

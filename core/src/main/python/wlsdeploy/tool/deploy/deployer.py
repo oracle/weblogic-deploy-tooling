@@ -90,7 +90,7 @@ class Deployer(object):
 
         parent_type, parent_name = self.get_location_type_and_name(location)
         location = LocationContext(location).append_location(type_name)
-        if not self._check_location(location):
+        if not self.aliases.is_model_location_valid(location):
             return
 
         deployer_utils.check_flattened_folder(location, self.aliases)
@@ -146,7 +146,7 @@ class Deployer(object):
 
         parent_type, parent_name = self.get_location_type_and_name(location)
         location = LocationContext(location).append_location(type_name)
-        if not self._check_location(location):
+        if not self.aliases.is_model_location_valid(location):
             return
 
         deployer_utils.check_flattened_folder(location, self.aliases)
@@ -324,18 +324,6 @@ class Deployer(object):
                 raise ex
 
         return False
-
-    def _check_location(self, location):
-        """
-        Verify that the specified location in valid for the current WLS version.
-        Validation has already logged a WARNING or INFO message if the location was not valid.
-        :param location: the location to be checked
-        :return: True if the location is valid, False otherwise
-        """
-        _method_name = '_check_location'
-        if self.aliases.get_wlst_mbean_type(location) is None:
-            return False
-        return True
 
     def _extract_from_archive_if_needed(self, location, key, value):
         """
