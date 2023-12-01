@@ -122,11 +122,32 @@ description: "Special handling and model semantics for WebLogic Server security 
 {{% notice note %}} Creating and updating domains with custom security providers is limited to WebLogic version 12.1.2 and newer.
 {{% /notice %}}
 
- Prior to using this tooling to create or update a domain with a custom security provider, there are several prerequisites.  First, WebLogic Server requires the custom MBean JAR to be in the Oracle Home directory before it can be configured, `WLSERVER/server/lib/mbeantypes`.  Second, WebLogic Scripting Tool, WLST, requires that the schema JAR be placed in the Oracle Home directory before WLST offline can be used to discover it or configure it, `ORACLEHOME/oracle_common/lib/schematypes`.  Generating an MBean JAR documentation can be found in the WebLogic Server [documentation](https://docs.oracle.com/en/middleware/standalone/weblogic-server/14.1.1.0/devsp/generate_mbeantype.html).  Generating the schema JAR can be done with the `prepareCustomProvider` script provided in the WebLogic Server installation.
+Prior to using this tooling to create or update a domain with a custom security provider, there are several prerequisites.
+First, WebLogic Server requires the custom MBean JAR to be in the Oracle Home directory before it can be configured,
+`WLSERVER/server/lib/mbeantypes`.  Second, WebLogic Scripting Tool, WLST, requires that the schema JAR be placed in the
+Oracle Home directory before WLST offline can be used to discover it or configure it, `ORACLEHOME/oracle_common/lib/schematypes`.
+Generating an MBean JAR documentation can be found in the WebLogic Server [documentation](https://docs.oracle.com/en/middleware/standalone/weblogic-server/14.1.1.0/devsp/generate_mbeantype.html).  Generating the schema
+JAR can be done with the `prepareCustomProvider` script provided in the WebLogic Server installation.
 
-For the MBean jar, WebLogic allows you to define an alternate directory other than `WLSERVER/server/lib/mbeantypes` by using the system property `-Dfmwconfig.alternateTypesDirectory=dir`. For the WebLogic MBean schema type jar, you can use an alternate location by using `-Dfmwconfig.alternateSchemaDirectory=dir`. In order for the custom provider jars to be loaded correctly by WLST when discovering or configuring a domain, set this system property in the `WLSDEPLOY_PROPERTIES` environment variable. Both of the properties take a comma separated list of paths to directories containing the corresponding type of jar.
+For the MBean jar, WLST Offline allows you to define an alternate directory other than `WLSERVER/server/lib/mbeantypes`
+by using the system property `-Dfmwconfig.alternateTypesDirectory=dir`. For the WebLogic MBean schema type jar, you can
+use an alternate location by using `-Dfmwconfig.alternateSchemaDirectory=dir`. In order for the custom provider jars to
+be loaded correctly by WLST when discovering or creating a domain, set this system property in the `WLSDEPLOY_PROPERTIES`
+environment variable. Both of the properties take a comma separated list of paths to directories containing the
+corresponding type of jar.
 
- The format for a custom security provider is slightly different from a built-in provider in that the custom provider must supply the fully-qualified name of the class for the provider in the model between the provider name and the attributes for that provider.  Note that the generated Impl suffix is omitted from the name. In the custom `CredentialMapper` example below, note the location in the model of 'examples.security.providers.SampleCredentialMapper':
+{{% notice note %}} If you create a domain using the `-Dfmwconfig.alternateTypesDirectory=dir` and 
+`-Dfmwconfig.alternateSchemaDirectory=dir` system properties, you will need to make sure to specify the 
+`-Dweblogic.alternateTypesDirectory=dir` and `-Dweblogic.alternateSchemaDirectory=dir` system properties to the WebLogic
+Server servers' startup environment.  The Admin Server and all managed servers in the domain will require these properties
+to locate, load, and configure the custom security provider from these alternative locations.
+{{% /notice %}}
+
+
+The format for a custom security provider is slightly different from a built-in provider in that the custom provider must
+supply the fully-qualified name of the class for the provider in the model between the provider name and the attributes
+for that provider.  Note that the generated Impl suffix is omitted from the name. In the custom `CredentialMapper`
+example below, note the location in the model of 'examples.security.providers.SampleCredentialMapper':
 
  ```yaml
          CredentialMapper:

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2021, Oracle and/or its affiliates.
+# Copyright (c) 2021, 2023, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 # This script uses Hugo to generate the site for the project documentation for archived versions.
@@ -40,7 +40,7 @@ else
 fi
 
 echo "Building documentation for current version and for selected archived versions..."
-hugo -s 3.0 -d "${outdir}" -b https://oracle.github.io/weblogic-deploy-tooling
+hugo -s 4.0 -d "${outdir}" -b https://oracle.github.io/weblogic-deploy-tooling
 
 echo "Successfully generated documentation in ${outdir}..."
 
