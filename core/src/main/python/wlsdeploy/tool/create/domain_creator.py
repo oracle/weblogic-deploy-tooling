@@ -93,8 +93,8 @@ from wlsdeploy.tool.create.domain_typedef import POST_CREATE_RCU_SCHEMAS_LIFECYC
 from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
 from wlsdeploy.tool.create.wlsroles_helper import WLSRoles
 from wlsdeploy.tool.deploy import deployer_utils
-from wlsdeploy.tool.deploy import model_deployer
-from wlsdeploy.tool.util.archive_helper import ArchiveHelper
+from wlsdeploy.tool.deploy.model_deployer import ModelDeployer
+from wlsdeploy.tool.util.archive_helper import ArchiveList
 from wlsdeploy.tool.util.credential_map_helper import CredentialMapHelper
 from wlsdeploy.tool.deploy.datasource_deployer import DatasourceDeployer
 from wlsdeploy.tool.util.default_authenticator_helper import DefaultAuthenticatorHelper
@@ -103,7 +103,6 @@ from wlsdeploy.tool.util.saml2_security_helper import Saml2SecurityHelper
 from wlsdeploy.tool.util.target_helper import TargetHelper
 from wlsdeploy.tool.util.targeting_types import TargetingType
 from wlsdeploy.tool.util.topology_profiles import TopologyProfile
-from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model
 from wlsdeploy.util import model_helper
@@ -126,7 +125,6 @@ class DomainCreator(Creator):
         _method_name = '__init__'
         Creator.__init__(self, model_dictionary, model_context, aliases)
 
-        self.topology_helper = TopologyHelper(self.aliases, ExceptionType.CREATE, self.logger)
         self.security_provider_creator = SecurityProviderCreator(model_dictionary, model_context, aliases,
                                                                  ExceptionType.CREATE, self.logger)
 
@@ -146,6 +144,11 @@ class DomainCreator(Creator):
         else:
             self._domain_home = os.path.join(self.model_context.get_domain_parent_dir(), self._domain_name)
 
+        # set domain home result in model context, for use by deployers and helpers
+        self.model_context.set_domain_home(self._domain_home)
+
+        self.model_deployer = ModelDeployer(self.model, model_context, aliases)
+
         if ADMIN_SERVER_NAME in self._topology:
             self._admin_server_name = self._topology[ADMIN_SERVER_NAME]
         else:
@@ -156,8 +159,8 @@ class DomainCreator(Creator):
         self.__fmw_template_default_data_sources_names = None
         archive_file_name = self.model_context.get_archive_file_name()
         if archive_file_name is not None:
-            self.archive_helper = ArchiveHelper(archive_file_name, self._domain_home, self.logger,
-                                                exception_helper.ExceptionType.CREATE)
+            self.archive_helper = ArchiveList(archive_file_name, self._domain_home, self.model_context,
+                                              exception_helper.ExceptionType.CREATE)
 
         self.library_helper = LibraryHelper(self.model, self.model_context, self.aliases, self._domain_home,
                                             ExceptionType.CREATE, self.logger)
@@ -445,7 +448,6 @@ class DomainCreator(Creator):
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
         domain_type = self.model_context.get_domain_type()
         self.logger.info('WLSDPLY-12203', domain_type, class_name=self.__class_name, method_name=_method_name)
-        self.model_context.set_domain_home(self._domain_home)
 
         if self.wls_helper.is_select_template_supported():
             self.__create_base_domain_with_select_template(self._domain_home)
@@ -456,7 +458,11 @@ class DomainCreator(Creator):
 
         if len(self.files_to_extract_from_archive) > 0:
             for file_to_extract in self.files_to_extract_from_archive:
-                self.archive_helper.extract_file(file_to_extract)
+                # extract path may differ from archive path, such as config/wlsdeploy/*
+                destination_path = self.topology_helper.get_archive_extract_path(file_to_extract)
+                destination_directory = self.topology_helper.get_archive_extract_directory(destination_path,
+                                                                                           self._domain_home)
+                self.archive_helper.extract_file(file_to_extract, destination_directory)
 
         self.library_helper.install_domain_libraries()
         self.library_helper.extract_classpath_libraries()
@@ -484,7 +490,7 @@ class DomainCreator(Creator):
     def __deploy_after_update(self):
         _method_name = '__deploy_after_update'
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
-        model_deployer.deploy_model_after_update(self.model, self.model_context, self.aliases)
+        self.model_deployer.deploy_model_after_update()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def __deploy_resources_and_apps(self):
@@ -495,7 +501,7 @@ class DomainCreator(Creator):
         _method_name = '__deploy_resources_and_apps'
 
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
-        model_deployer.deploy_resources_and_apps_for_create(self.model, self.model_context, self.aliases)
+        self.model_deployer.deploy_resources_and_apps_for_create()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def __create_base_domain(self, domain_home):

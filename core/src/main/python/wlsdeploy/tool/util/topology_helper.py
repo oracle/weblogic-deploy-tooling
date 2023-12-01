@@ -3,6 +3,7 @@ Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
+import os
 import wlsdeploy.tool.deploy.deployer_utils as deployer_utils
 import wlsdeploy.util.dictionary_utils as dictionary_utils
 from oracle.weblogic.deploy.util import WLSDeployArchive
@@ -182,6 +183,35 @@ class TopologyHelper(object):
                 mbean = self.wlst_helper.get_mbean(wlst_path)
                 mbean.setTargets(None)
 
+    def get_archive_extract_path(self, archive_path, location=None, attribute_name=None):
+        """
+        Return the extract path for the specified archive path.
+        These can differ in cases where file in wlsdeploy/* are deployed to config/wlsdeploy/* .
+        If location is specified, a deprecation message is logged with the corrected archive path.
+        :param archive_path: the archive path to be examined
+        :param location: (optional) the alias location (used for logging)
+        :param attribute_name: (optional) the attribute name (used for logging)
+        :return:
+        """
+        extract_path = WLSDeployArchive.getExtractPath(archive_path)
+        if (extract_path != archive_path) and location:
+            location_text = self.aliases.get_model_folder_path(location)
+            self.logger.deprecation("WLSDPLY-09210", attribute_name, location_text, archive_path, extract_path)
+        return extract_path
+
+    def get_archive_extract_directory(self, extract_path, domain_home):
+        """
+        Return the extract directory for the specified extract path and domain home.
+        The directory is created if it does not exist.
+        :param extract_path: the path to be extracted (including the file name)
+        :param domain_home: the domain home being deployed
+        """
+        destination_file = os.path.join(domain_home, extract_path)
+        extract_directory = os.path.dirname(destination_file)
+        if not os.path.exists(extract_directory):
+            os.makedirs(extract_directory)
+        return extract_directory
+
     def qualify_nm_properties(self, type_name, model_nodes, base_location, model_context, attribute_setter):
         """
         For the NM properties MBean, update the keystore file path to be fully qualified with the domain directory.
@@ -195,17 +225,7 @@ class TopologyHelper(object):
             location = LocationContext(base_location).append_location(type_name)
             keystore_file = dictionary_utils.get_element(model_nodes, CUSTOM_IDENTITY_KEYSTORE_FILE)
             if keystore_file and WLSDeployArchive.isPathIntoArchive(keystore_file):
+                # don't pass location here, any deprecations were logged previously
+                keystore_file = self.get_archive_extract_path(keystore_file)
                 value = model_context.get_domain_home() + "/" + keystore_file
                 attribute_setter.set_attribute(location, CUSTOM_IDENTITY_KEYSTORE_FILE, value)
-
-    def is_clustered_server(self, server_name, servers_dictionary):
-        """
-        Return true if the server's Cluster attribute is set.
-        :param server_name: name of the server in the dictionary
-        :param servers_dictionary: model topology section of servers
-        :return: True if a clustered server
-        """
-        server_dictionary = dictionary_utils.get_dictionary_element(servers_dictionary, server_name)
-        if dictionary_utils.is_empty_dictionary_element(server_dictionary, CLUSTER):
-            return False
-        return True

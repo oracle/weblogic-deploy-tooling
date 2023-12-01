@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os.path
@@ -13,6 +13,7 @@ from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PATH_PROPERTIES
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -130,14 +131,11 @@ class CommonResourcesDiscoverer(Discoverer):
 
     def _update_wallet_property_and_collect_files(self, collected_wallet, datasource, properties):
         _method_name = '_update_wallet_property_and_collect_files'
-        for connection_property in [model_constants.DRIVER_PARAMS_KEYSTORE_PROPERTY,
-                                    model_constants.DRIVER_PARAMS_TRUSTSTORE_PROPERTY,
-                                    model_constants.DRIVER_PARAMS_NET_TNS_ADMIN]:
+        for connection_property in DRIVER_PARAMS_PATH_PROPERTIES:
             if connection_property in properties:
                 qualified_property_value = properties[connection_property]['Value']
                 if qualified_property_value:
-                    if qualified_property_value.startswith(WLSDeployArchive.WLSDPLY_ARCHIVE_BINARY_DIR
-                                                           + WLSDeployArchive.ZIP_SEP):
+                    if WLSDeployArchive.isPathIntoArchive(qualified_property_value):
                         qualified_property_value = os.path.join(self._model_context.get_effective_domain_home()
                                                                 , qualified_property_value)
                     if self._model_context.is_ssh():

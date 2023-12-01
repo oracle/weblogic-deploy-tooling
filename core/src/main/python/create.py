@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The main module for the WLSDeploy tool to create empty domains.
@@ -39,11 +39,12 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
 from wlsdeploy.tool.create.domain_creator import DomainCreator
 from wlsdeploy.tool.util import model_context_helper
-from wlsdeploy.tool.util.archive_helper import ArchiveHelper
+from wlsdeploy.tool.util.archive_helper import ArchiveList
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.util import wlst_helper
 from wlsdeploy.tool.validate.content_validator import CreateDomainContentValidator
 from wlsdeploy.util import cla_helper
+from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import env_helper
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import tool_main
@@ -244,8 +245,11 @@ def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
     has_atpdbinfo = 0
     has_ssldbinfo = 0
 
-    if model_constants.DOMAIN_INFO in model and model_constants.RCU_DB_INFO in model[model_constants.DOMAIN_INFO]:
-        rcu_db_info = RcuDbInfo(model_context, aliases, model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO])
+    domain_info = dictionary_utils.get_dictionary_element(model, model_constants.DOMAIN_INFO)
+
+    if model_constants.RCU_DB_INFO in domain_info:
+        rcu_info = domain_info[model_constants.RCU_DB_INFO]
+        rcu_db_info = RcuDbInfo(model_context, aliases, rcu_info)
         has_tns_admin = rcu_db_info.has_tns_admin()
         is_regular_db = rcu_db_info.is_regular_db()
         has_atpdbinfo = rcu_db_info.has_atpdbinfo()
@@ -268,11 +272,11 @@ def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
 def _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin, model):
     _method_name = '_validate_atp_wallet_in_archive'
     if archive_helper and not is_regular_db:
-        # 1. If it does not have the oracle.net.tns_admin specified, then extract to domain/atpwallet
+        # 1. If it does not have the oracle.net.tns_admin specified, then see if it was extracted
         # 2. If it is plain old regular oracle db, do nothing
-        # 3. If it deos not have tns_admin in the model, then the wallet must be in the archive
+        # 3. If it does not have tns_admin in the model, then the wallet must be in the archive
         if not has_tns_admin:
-            wallet_path = archive_helper.extract_database_wallet()
+            wallet_path = archive_helper.check_rcu_wallet_path()
             if wallet_path:
                 # update the model to add the tns_admin
                 model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
@@ -376,7 +380,7 @@ def main(model_context):
         archive_file_name = model_context.get_archive_file_name()
         if archive_file_name:
             domain_path = _get_domain_path(model_context, model_dictionary)
-            archive_helper = ArchiveHelper(archive_file_name, domain_path, __logger, ExceptionType.CREATE)
+            archive_helper = ArchiveList(archive_file_name, domain_path, model_context, ExceptionType.CREATE)
             if archive_helper:
                 if not os.path.exists(os.path.abspath(domain_path)):
                     os.mkdir(os.path.abspath(domain_path))

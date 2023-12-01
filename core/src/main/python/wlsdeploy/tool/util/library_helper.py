@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -7,10 +7,12 @@ from java.io import File
 from oracle.weblogic.deploy.util import WLSDeployArchive
 from shutil import copy
 
+from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.model_constants import DOMAIN_SCRIPTS
 from wlsdeploy.aliases.model_constants import DOMAIN_LIBRARIES
+from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.tool.util.archive_helper import ArchiveHelper
+from wlsdeploy.tool.util.archive_helper import ArchiveList
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 
 from wlsdeploy.util import dictionary_utils
@@ -34,7 +36,7 @@ class LibraryHelper(object):
         self.archive_helper = None
         archive_file_name = self.model_context.get_archive_file_name()
         if archive_file_name is not None:
-            self.archive_helper = ArchiveHelper(archive_file_name, self.domain_home, self.logger, exception_type)
+            self.archive_helper = ArchiveList(archive_file_name, self.domain_home, self.model_context, exception_type)
 
     def install_domain_libraries(self):
         """
@@ -45,16 +47,19 @@ class LibraryHelper(object):
 
         self.logger.entering(self.domain_home, class_name=self.__class_name, method_name=_method_name)
         domain_info_dict = self.model.get_model_domain_info()
-        if DOMAIN_LIBRARIES not in domain_info_dict or len(domain_info_dict[DOMAIN_LIBRARIES]) == 0:
+        domain_libs = dictionary_utils.get_element(domain_info_dict, DOMAIN_LIBRARIES)
+
+        if not domain_libs:  # not present or empty list
             self.logger.info('WLSDPLY-12213', class_name=self.__class_name, method_name=_method_name)
-        elif DOMAIN_LIBRARIES in domain_info_dict:
-            domain_libs = dictionary_utils.get_dictionary_element(domain_info_dict, DOMAIN_LIBRARIES)
+        else:
+            domain_libs_list = alias_utils.convert_to_type('list', domain_libs,
+                                                           delimiter=MODEL_LIST_DELIMITER)
             if self.archive_helper is None:
-                ex = exception_helper.create_create_exception('WLSDPLY-12214', domain_libs)
+                ex = exception_helper.create_create_exception('WLSDPLY-12214', domain_libs_list)
                 self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
 
-            for domain_lib in domain_libs:
+            for domain_lib in domain_libs_list:
                 if WLSDeployArchive.isPathIntoArchive(domain_lib):
                     self.logger.info('WLSDPLY-12215', domain_lib, self.domain_home,
                                      class_name=self.__class_name, method_name=_method_name)
@@ -92,30 +97,6 @@ class LibraryHelper(object):
                                  class_name=self.__class_name, method_name=_method_name)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-    def extract_custom_files(self):
-        """
-        Extract any custom files in the archive to the domain home.
-        :raises: BundleAwareException of the specified type: if an error occurs
-        """
-        _method_name = 'extract_custom_files'
-
-        self.logger.entering(self.domain_home, class_name=self.__class_name, method_name=_method_name)
-        if self.archive_helper is None:
-            self.logger.info('WLSDPLY-12565', class_name=self.__class_name, method_name=_method_name)
-        else:
-            num_cp_libs = self.archive_helper.extract_custom_directory(self.upload_temporary_dir)
-            if num_cp_libs > 0:
-                self.logger.info('WLSDPLY-12566', num_cp_libs, self.domain_home,
-                                 class_name=self.__class_name, method_name=_method_name)
-                if self.model_context.is_ssh():
-                    self._upload_extracted_directory(WLSDeployArchive.ARCHIVE_CUSTOM_TARGET_DIR,
-                                                     WLSDeployArchive.WLSDPLY_ARCHIVE_BINARY_DIR)
-
-            else:
-                self.logger.info('WLSDPLY-12567', self.model_context.get_archive_file_name(),
-                                 class_name=self.__class_name, method_name=_method_name)
-        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
-
     def install_domain_scripts(self):
         """
         Extract the scripts from domain bin listed in the model, if any, to the <DOMAIN_HOME>/bin directory.
@@ -125,16 +106,19 @@ class LibraryHelper(object):
 
         self.logger.entering(self.domain_home, class_name=self.__class_name, method_name=_method_name)
         domain_info_dict = self.model.get_model_domain_info()
-        if DOMAIN_SCRIPTS not in domain_info_dict or len(domain_info_dict[DOMAIN_SCRIPTS]) == 0:
+        domain_scripts = dictionary_utils.get_element(domain_info_dict, DOMAIN_SCRIPTS)
+
+        if not domain_scripts:  # not present or empty list
             self.logger.info('WLSDPLY-12241', class_name=self.__class_name, method_name=_method_name)
-        elif DOMAIN_SCRIPTS in domain_info_dict:
-            domain_scripts = dictionary_utils.get_dictionary_element(domain_info_dict, DOMAIN_SCRIPTS)
+        else:
+            domain_scripts_list = alias_utils.convert_to_type('list', domain_scripts,
+                                                              delimiter=MODEL_LIST_DELIMITER)
             if self.archive_helper is None:
-                ex = exception_helper.create_create_exception('WLSDPLY-12250', domain_scripts)
+                ex = exception_helper.create_create_exception('WLSDPLY-12250', domain_scripts_list)
                 self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
 
-            for domain_script in domain_scripts:
+            for domain_script in domain_scripts_list:
                 if WLSDeployArchive.isPathIntoArchive(domain_script):
                     self.logger.info('WLSDPLY-12251', domain_script, self.domain_home,
                                      class_name=self.__class_name, method_name=_method_name)

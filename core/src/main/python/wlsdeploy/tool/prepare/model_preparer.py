@@ -19,7 +19,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import filter_helper
-from wlsdeploy.tool.util.archive_helper import ArchiveHelper
+from wlsdeploy.tool.util.archive_helper import ArchiveList
 from wlsdeploy.tool.util.credential_injector import CredentialInjector
 from wlsdeploy.tool.util.variable_injector import VARIABLE_FILE_UPDATE
 from wlsdeploy.tool.util.variable_injector import VariableInjector
@@ -271,7 +271,8 @@ class ModelPreparer:
             return
 
         # If the archive file(s) exist, always make a copy even if we aren't filtering them
-        archive_helper = ArchiveHelper(archive_file_name, None, self._logger, exception_helper.ExceptionType.PREPARE)
+        archive_helper = ArchiveList(archive_file_name, None, self.model_context,
+                                     exception_helper.ExceptionType.PREPARE)
         archive_helper = archive_helper.copy_archives_to_target_directory(self.model_context.get_output_dir())
 
         if self.model_context.get_target_configuration().exclude_domain_bin_contents():

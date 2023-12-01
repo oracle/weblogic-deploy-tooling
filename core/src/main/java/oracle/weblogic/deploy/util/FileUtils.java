@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+ * Copyright (c) 2017, 2023, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
@@ -716,6 +716,26 @@ public final class FileUtils {
     public static boolean isRemotePathAbsolute(String filePath) {
         return !StringUtils.isEmpty(filePath) &&
             (filePath.startsWith("/") || filePath.startsWith(":\\", 1) || filePath.startsWith("\\\\"));
+    }
+
+    /**
+     * Determines the size of a directory's contents, including any subdirectories.
+     * @param directory the directory to be examined
+     * @return the size of the directory's contents
+     */
+    public static long getDirectorySize(File directory) {
+        long size = 0;
+        File[] files = directory.listFiles();
+        if(files != null) {
+            for(File file: files) {
+                if(file.isDirectory()) {
+                    size += getDirectorySize(file);
+                } else {
+                    size += file.length();
+                }
+            }
+        }
+        return size;
     }
 
     ///////////////////////////////////////////////////////////////////////////

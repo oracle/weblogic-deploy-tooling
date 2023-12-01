@@ -104,7 +104,6 @@ DOMAIN_INFO_ALIAS = 'DomainInfo'
 DOMAIN_LIBRARIES = 'domainLibraries'
 DOMAIN_SCRIPTS = 'domainBin'
 DYNAMIC_CLUSTER_SERVER_GROUP_TARGETING_LIMITS = 'DynamicClusterServerGroupTargetingLimits'
-DYNAMIC_CLUSTER_SIZE = 'DynamicClusterSize'
 DOMAIN_VERSION = 'DomainVersion'
 DYNAMIC_SERVERS = 'DynamicServers'
 EMBEDDED_LDAP = 'EmbeddedLDAP'
@@ -455,6 +454,14 @@ CRD_MODEL_SECTIONS = [
 CREATE_ONLY_DOMAIN_ATTRIBUTES = [
     DOMAIN_NAME,
     ADMIN_SERVER_NAME
+]
+
+# these JDBC driver param properties are paths, and may reference the archive.
+# there is special processing to discover and deploy them.
+DRIVER_PARAMS_PATH_PROPERTIES = [
+    DRIVER_PARAMS_KEYSTORE_PROPERTY,
+    DRIVER_PARAMS_NET_TNS_ADMIN,
+    DRIVER_PARAMS_TRUSTSTORE_PROPERTY
 ]
 
 # Model Path constants

@@ -1,4 +1,4 @@
-// Copyright 2019, 2023, Oracle Corporation and/or its affiliates.
+// Copyright 2019, 2023, Oracle and/or its affiliates.
 // Licensed under the Universal Permissive License v 1.0 as shown at
 // http://oss.oracle.com/licenses/upl.
 
@@ -1251,15 +1251,15 @@ public class ITWdt extends BaseTest {
         checkContents.add("                        user:");
         checkContents.add("                            Value: '@@PROP:JDBC.testds.user.Value@@'");
         checkContents.add("                        javax.net.ssl.trustStore:");
-        checkContents.add("                            Value: wlsdeploy/dbWallets/testds/cwallet.sso");
+        checkContents.add("                            Value: config/wlsdeploy/dbWallets/testds/cwallet.sso");
         checkContents.add("                        javax.net.ssl.trustStoreType:");
         checkContents.add("                            Value: SSO");
         checkContents.add("                        javax.net.ssl.keyStore:");
-        checkContents.add("                            Value: wlsdeploy/dbWallets/testds/cwallet.sso");
+        checkContents.add("                            Value: config/wlsdeploy/dbWallets/testds/cwallet.sso");
         checkContents.add("                        javax.net.ssl.keyStoreType:");
         checkContents.add("                            Value: SSO");
         checkContents.add("                        oracle.net.tns_admin:");
-        checkContents.add("                            Value: wlsdeploy/dbWallets/testds/");
+        checkContents.add("                            Value: config/wlsdeploy/dbWallets/testds/");
 
         verifyModelFileContents(expectedModelFile, checkContents);
     }
