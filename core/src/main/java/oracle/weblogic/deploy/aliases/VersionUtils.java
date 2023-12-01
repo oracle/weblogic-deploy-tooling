@@ -291,7 +291,7 @@ public final class VersionUtils {
     public static String getValidAttributeVersionRangeMessage(String name, String path, String version,
         String mode, String versionRangeHigh, String wlstModeHigh, String versionRangeLow, String wlstModeLow)
         throws VersionException {
-        final String METHOD = "getValidVersionRangeMessage";
+        final String METHOD = "getValidAttributeVersionRangeMessage";
 
         LOGGER.entering(CLASS, METHOD, name, path, version, mode, versionRangeHigh, wlstModeHigh,
             versionRangeLow, wlstModeLow);
@@ -321,7 +321,7 @@ public final class VersionUtils {
 
     private static String getAttributeVersionRangeMessage(String name, String path, String version, String mode,
         String versionRange, String... messageKeys) throws VersionException {
-        final String METHOD = "getValidVersionRangeMessage";
+        final String METHOD = "getAttributeVersionRangeMessage";
 
         LOGGER.entering(CLASS, METHOD, name, path, version, mode, versionRange, messageKeys);
 
