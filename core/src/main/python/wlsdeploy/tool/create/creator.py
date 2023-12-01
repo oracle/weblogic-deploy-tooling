@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -11,14 +11,15 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create.custom_folder_helper import CustomFolderHelper
+from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.util.attribute_setter import AttributeSetter
+from wlsdeploy.tool.util.topology_helper import TopologyHelper
+from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model_helper
-from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util.model import Model
 import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
-from wlsdeploy.tool.deploy import deployer_utils
 
 
 class Creator(object):
@@ -39,6 +40,7 @@ class Creator(object):
         self.wls_helper = WebLogicHelper(self.logger)
         self.attribute_setter = AttributeSetter(self.model_context, self.aliases, exception_type)
         self.custom_folder_helper = CustomFolderHelper(self.aliases, self.logger, self.model_context, exception_type)
+        self.topology_helper = TopologyHelper(self.aliases, ExceptionType.CREATE, self.logger)
 
         # Must be initialized by the subclass since only it has
         # the knowledge required to compute the domain name.
@@ -308,7 +310,9 @@ class Creator(object):
         """
         _method_name = '_set_attribute'
         if (model_name in uses_path_tokens_names) and (model_value is not None):
+            # extract path(s) may be different from original model value
             self._extract_archive_files(location, model_name, model_value)
+            model_value = self.topology_helper.get_archive_extract_path(model_value, location, model_name)
 
         wlst_name, wlst_value = self.aliases.get_wlst_attribute_name_and_value(location, model_name, model_value)
 
@@ -382,7 +386,7 @@ class Creator(object):
         :return: True if the location is valid, False otherwise
         :raises: CreateException: if an error occurs
         """
-        _method_name = '_check_location'
+        _method_name = '_is_type_valid'
 
         code, message = self.aliases.is_valid_model_folder_name(location, type_name)
         result = False

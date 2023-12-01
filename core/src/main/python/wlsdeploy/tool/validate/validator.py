@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -19,7 +19,7 @@ from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create import wlsroles_helper
-from wlsdeploy.tool.util.archive_helper import ArchiveHelper
+from wlsdeploy.tool.util.archive_helper import ArchiveList
 from wlsdeploy.tool.validate import validation_utils
 from wlsdeploy.tool.validate.crd_sections_validator import CrdSectionsValidator
 from wlsdeploy.util import dictionary_utils
@@ -283,9 +283,9 @@ class Validator(object):
         Performs pre-validation setup activities. These include things like:
 
             1.  Obtaining the domain name using either the WebLogicHelper object,
-                parameter passed ti the constructor or the model context object.
-            2.  Creating an ArchiveHelper object, which servers as a facade for
-                an Archive object.
+                parameter passed to the constructor or the model context object.
+            2.  Creating an ArchiveList object, which serves as a facade for
+                multiple Archive objects.
 
         :param model_dict: A Python dictionary of the model to be validated
         :param archive_file_name: Path to file containing binaries associated with the model file.
@@ -302,8 +302,8 @@ class Validator(object):
 
         if archive_file_name is not None:
             self._archive_file_name = archive_file_name
-            self._archive_helper = ArchiveHelper(self._archive_file_name, domain_name,
-                                                 self._logger, ExceptionType.VALIDATE)
+            self._archive_helper = ArchiveList(self._archive_file_name, domain_name,
+                                               self._model_context, ExceptionType.VALIDATE)
 
     def __validate_root_level(self, model_dict, valid_root_level_keys):
         _method_name = '__validate_root_level'

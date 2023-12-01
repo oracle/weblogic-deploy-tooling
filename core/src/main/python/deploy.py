@@ -18,7 +18,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
-from wlsdeploy.tool.deploy import model_deployer
+from wlsdeploy.tool.deploy.model_deployer import ModelDeployer
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util import wlst_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
@@ -112,22 +112,24 @@ def __deploy(model, model_context, aliases):
     :param aliases: the aliases
     :raises DeployException: if an error occurs
     """
+    model_deployer = ModelDeployer(model, model_context, aliases, wlst_mode=__wlst_mode)
+    model_deployer.extract_early_archive_files()
+
     if __wlst_mode == WlstModes.ONLINE:
-        ret_code = __deploy_online(model, model_context, aliases)
+        ret_code = __deploy_online(model_deployer, model_context)
     else:
-        ret_code = __deploy_offline(model, model_context, aliases)
+        ret_code = __deploy_offline(model_deployer, model_context)
 
     results_file.check_and_write(model_context, ExceptionType.DEPLOY)
 
     return ret_code
 
 
-def __deploy_online(model, model_context, aliases):
+def __deploy_online(model_deployer, model_context):
     """
     Online deployment orchestration
-    :param model: the model
+    :param model_deployer: ModelDeployer object
     :param model_context: the model context
-    :param aliases: the aliases object
     :raises: DeployException: if an error occurs
     """
     _method_name = '__deploy_online'
@@ -159,9 +161,8 @@ def __deploy_online(model, model_context, aliases):
     __logger.info("WLSDPLY-09007", admin_url, method_name=_method_name, class_name=_class_name)
 
     try:
-        model_deployer.deploy_resources(model, model_context, aliases, wlst_mode=__wlst_mode)
-        deployer_utils.delete_online_deployment_targets(model, aliases, __wlst_mode)
-        model_deployer.deploy_app_attributes_online(model, model_context, aliases)
+        model_deployer.deploy_resources()
+        model_deployer.deploy_app_attributes_online()
     except DeployException, de:
         deployer_utils.release_edit_session_and_disconnect()
         raise de
@@ -169,7 +170,7 @@ def __deploy_online(model, model_context, aliases):
     exit_code = deployer_utils.online_check_save_activate(model_context)
 
     if exit_code != ExitCode.CANCEL_CHANGES_IF_RESTART:
-        model_deployer.deploy_applications(model, model_context, aliases, wlst_mode=__wlst_mode)
+        model_deployer.deploy_applications()
 
     try:
         __wlst_helper.disconnect()
@@ -181,12 +182,11 @@ def __deploy_online(model, model_context, aliases):
     return exit_code
 
 
-def __deploy_offline(model, model_context, aliases):
+def __deploy_offline(model_deployer, model_context):
     """
     Offline deployment orchestration
-    :param model: the model
+    :param model_deployer: ModelDeployer object
     :param model_context: the model context
-    :param aliases: the aliases object
     :raises: DeployException: if an error occurs
     """
     _method_name = '__deploy_offline'
@@ -196,7 +196,7 @@ def __deploy_offline(model, model_context, aliases):
 
     __wlst_helper.read_domain(domain_home)
 
-    model_deployer.deploy_model_offline(model, model_context, aliases, wlst_mode=__wlst_mode)
+    model_deployer.deploy_model_offline()
 
     try:
         __wlst_helper.update_domain()
@@ -204,7 +204,7 @@ def __deploy_offline(model, model_context, aliases):
         __close_domain_on_error()
         raise ex
 
-    model_deployer.deploy_model_after_update(model, model_context, aliases, wlst_mode=__wlst_mode)
+    model_deployer.deploy_model_after_update()
 
     try:
         __wlst_helper.close_domain()

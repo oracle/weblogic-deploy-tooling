@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -26,6 +26,8 @@ CONNECT_TIMEOUT_PROP = 'connect.timeout'
 CONNECT_TIMEOUT_DEFAULT = '120000'
 ACTIVATE_TIMEOUT_PROP = 'activate.timeout'
 ACTIVATE_TIMEOUT_DEFAULT = '180000'
+ARCHIVE_CUSTOM_FOLDER_SIZE_LIMIT_PROP = 'archive.custom.folder.size.limit'
+ARCHIVE_CUSTOM_FOLDER_SIZE_LIMIT_DEFAULT = '1000000'
 DEPLOY_TIMEOUT_PROP = 'deploy.timeout'
 DEPLOY_TIMEOUT_DEFAULT = '180000'
 REDEPLOY_TIMEOUT_PROP = 'redeploy.timeout'
@@ -202,6 +204,14 @@ class ModelConfiguration(object):
         :return: whether to use SSH compression
         """
         return self._get_from_dict_as_boolean(USE_SSH_COMPRESSION_PROP, USE_SSH_COMPRESSION_DEFAULT)
+
+    def get_archive_custom_folder_size_limit(self):
+        """
+        Return the recommended limit for the size of the archive custom folder contents.
+        :return: the recommended limit
+        """
+        return self._get_from_dict_as_long(ARCHIVE_CUSTOM_FOLDER_SIZE_LIMIT_PROP,
+                                           ARCHIVE_CUSTOM_FOLDER_SIZE_LIMIT_DEFAULT)
 
     def _get_from_dict(self, name, default_value=None):
         _method_name = '_get_from_dict'

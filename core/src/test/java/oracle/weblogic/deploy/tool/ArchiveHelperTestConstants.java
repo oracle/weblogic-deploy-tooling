@@ -4,6 +4,8 @@
  */
 package oracle.weblogic.deploy.tool;
 
+import oracle.weblogic.deploy.util.WLSDeployArchive;
+
 public class ArchiveHelperTestConstants {
     static final String[] MY_APP_WAR_CONTENTS = new String[] {
         "wlsdeploy/applications/my-app.war"
@@ -98,27 +100,27 @@ public class ArchiveHelperTestConstants {
     );
 
     static final String[] COHERENCE_MYCLUSTER_CONFIG_FILE_CONTENTS = new String[] {
-        "wlsdeploy/coherence/mycluster/cache-config.xml"
+        WLSDeployArchive.ARCHIVE_COHERENCE_TARGET_DIR + "/mycluster/cache-config.xml"
     };
 
     static final String[] COHERENCE_MYCLUSTER_CONFIG_FILE_DUP_CONTENTS = new String[] {
-        "wlsdeploy/coherence/mycluster/cache-config(1).xml"
+        WLSDeployArchive.ARCHIVE_COHERENCE_TARGET_DIR + "/mycluster/cache-config(1).xml"
     };
 
     static final String[] COHERENCE_MYCLUSTER_PERSISTENT_DIR_ACTIVE_CONTENTS = new String[] {
-        "wlsdeploy/coherence/mycluster/active/"
+        WLSDeployArchive.ARCHIVE_COHERENCE_TARGET_DIR + "/mycluster/active/"
     };
 
     static final String[] COHERENCE_MYCLUSTER_PERSISTENT_DIR_ACTIVE_DUP_CONTENTS = new String[] {
-        "wlsdeploy/coherence/mycluster/active(1)/"
+        WLSDeployArchive.ARCHIVE_COHERENCE_TARGET_DIR + "/mycluster/active(1)/"
     };
 
     static final String[] COHERENCE_MYCLUSTER_PERSISTENT_DIR_SNAPSHOT_CONTENTS = new String[] {
-        "wlsdeploy/coherence/mycluster/snapshot/"
+        WLSDeployArchive.ARCHIVE_COHERENCE_TARGET_DIR + "/mycluster/snapshot/"
     };
 
     static final String[] COHERENCE_MYCLUSTER_PERSISTENT_DIR_TRASH_CONTENTS = new String[] {
-        "wlsdeploy/coherence/mycluster/trash/"
+        WLSDeployArchive.ARCHIVE_COHERENCE_TARGET_DIR + "/mycluster/trash/"
     };
 
     static final String[] COHERENCE_MYCLUSTER_PERSISTENT_DIR_CONTENTS = mergeStringArrays(
@@ -128,97 +130,97 @@ public class ArchiveHelperTestConstants {
     );
 
     static final String[] COHERENCE_MYCLUSTER_CONTENTS = mergeStringArrays(
-        new String[] { "wlsdeploy/coherence/mycluster/" },
+        new String[] { WLSDeployArchive.ARCHIVE_COHERENCE_TARGET_DIR + "/mycluster/" },
         COHERENCE_MYCLUSTER_PERSISTENT_DIR_CONTENTS,
         COHERENCE_MYCLUSTER_CONFIG_FILE_CONTENTS
     );
 
     static final String[] COHERENCE_MYCLUSTER2_CONFIG_FILE_CONTENTS = new String[] {
-        "wlsdeploy/coherence/mycluster2/cache-config.xml"
+        WLSDeployArchive.ARCHIVE_COHERENCE_TARGET_DIR + "/mycluster2/cache-config.xml"
     };
 
     static final String[] COHERENCE_MYCLUSTER2_PERSISTENT_DIR_CONTENTS = new String[] {
-        "wlsdeploy/coherence/mycluster2/snapshot/"
+        WLSDeployArchive.ARCHIVE_COHERENCE_TARGET_DIR + "/mycluster2/snapshot/"
     };
 
     static final String[] COHERENCE_MYCLUSTER2_CONTENTS = mergeStringArrays(
-        new String[] { "wlsdeploy/coherence/mycluster2/" },
+        new String[] { WLSDeployArchive.ARCHIVE_COHERENCE_TARGET_DIR + "/mycluster2/" },
         COHERENCE_MYCLUSTER2_PERSISTENT_DIR_CONTENTS,
         COHERENCE_MYCLUSTER2_CONFIG_FILE_CONTENTS
     );
 
     static final String[] COHERENCE_CONTENT = mergeStringArrays(
-        new String[] { "wlsdeploy/coherence/" },
+        new String[] { WLSDeployArchive.ARCHIVE_COHERENCE_TARGET_DIR + "/" },
         COHERENCE_MYCLUSTER_CONTENTS,
         COHERENCE_MYCLUSTER2_CONTENTS
     );
 
     static final String[] MIME_MAPPING_PROPERTIES_CONTENTS = new String[] {
-        "wlsdeploy/config/mimemappings.properties"
+        WLSDeployArchive.ARCHIVE_CONFIG_TARGET_DIR + "/mimemappings.properties"
     };
 
     static final String[] MIME_MAPPING_PROPERTIES_DUP_CONTENTS = new String[] {
-        "wlsdeploy/config/mimemappings(1).properties"
+        WLSDeployArchive.ARCHIVE_CONFIG_TARGET_DIR + "/mimemappings(1).properties"
     };
 
     static final String[] MIME_MAPPINGS_CONTENT = new String[] {
-        "wlsdeploy/config/",
-        "wlsdeploy/config/mimemappings.properties"
+        WLSDeployArchive.ARCHIVE_CONFIG_TARGET_DIR + "/",
+        WLSDeployArchive.ARCHIVE_CONFIG_TARGET_DIR + "/mimemappings.properties"
     };
 
     static final String[] CUSTOM_MYDIR_BAR_PROPERTIES_CONTENTS = new String[] {
-        "wlsdeploy/custom/mydir/bar.properties"
+        WLSDeployArchive.ARCHIVE_CUSTOM_TARGET_DIR + "/mydir/bar.properties"
     };
 
     static final String[] CUSTOM_MYDIR_CONTENTS = mergeStringArrays(
-        new String[] { "wlsdeploy/custom/mydir/" },
+        new String[] { WLSDeployArchive.ARCHIVE_CUSTOM_TARGET_DIR + "/mydir/" },
         CUSTOM_MYDIR_BAR_PROPERTIES_CONTENTS
     );
 
     static final String[] CUSTOM_MYDIR_DUP_CONTENTS = new String[] {
-        "wlsdeploy/custom/mydir(1)/",
-        "wlsdeploy/custom/mydir(1)/bar.properties"
+        WLSDeployArchive.ARCHIVE_CUSTOM_TARGET_DIR + "/mydir(1)/",
+        WLSDeployArchive.ARCHIVE_CUSTOM_TARGET_DIR + "/mydir(1)/bar.properties"
     };
 
     static final String[] CUSTOM_FOO_PROPERTIES_CONTENTS = {
-        "wlsdeploy/custom/foo.properties"
+        WLSDeployArchive.ARCHIVE_CUSTOM_TARGET_DIR + "/foo.properties"
     };
 
     static final String[] CUSTOM_FOO_PROPERTIES_DUP_CONTENTS = {
-        "wlsdeploy/custom/foo(1).properties"
+        WLSDeployArchive.ARCHIVE_CUSTOM_TARGET_DIR + "/foo(1).properties"
     };
 
     static final String[] CUSTOM_CONTENT = mergeStringArrays(
-        new String[] { "wlsdeploy/custom/" },
+        new String[] { WLSDeployArchive.ARCHIVE_CUSTOM_TARGET_DIR + "/" },
         CUSTOM_MYDIR_CONTENTS,
         CUSTOM_FOO_PROPERTIES_CONTENTS
     );
 
     static final String[] DATABASE_WALLET_RCU_CONTENTS = new String[] {
-        "wlsdeploy/dbWallets/rcu/",
-        "wlsdeploy/dbWallets/rcu/cwallet.sso",
-        "wlsdeploy/dbWallets/rcu/ewallet.p12",
-        "wlsdeploy/dbWallets/rcu/ewallet.pem",
-        "wlsdeploy/dbWallets/rcu/keystore.jks",
-        "wlsdeploy/dbWallets/rcu/ojdbc.properties",
-        "wlsdeploy/dbWallets/rcu/README",
-        "wlsdeploy/dbWallets/rcu/sqlnet.ora",
-        "wlsdeploy/dbWallets/rcu/tnsnames.ora",
-        "wlsdeploy/dbWallets/rcu/truststore.jks"
+        WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR + "/rcu/",
+        WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR + "/rcu/cwallet.sso",
+        WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR + "/rcu/ewallet.p12",
+        WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR + "/rcu/ewallet.pem",
+        WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR + "/rcu/keystore.jks",
+        WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR + "/rcu/ojdbc.properties",
+        WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR + "/rcu/README",
+        WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR + "/rcu/sqlnet.ora",
+        WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR + "/rcu/tnsnames.ora",
+        WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR + "/rcu/truststore.jks"
     };
 
     static final String[] DATABASE_WALLET_WALLET1_CONTENTS = new String[] {
-        "wlsdeploy/dbWallets/wallet1/",
-        "wlsdeploy/dbWallets/wallet1/atpwallet.zip"
+        WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR + "/wallet1/",
+        WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR + "/wallet1/atpwallet.zip"
     };
 
     static final String[] DATABASE_WALLET_WALLET1_DUP_CONTENTS = new String[] {
-        "wlsdeploy/dbWallets/wallet1(1)/",
-        "wlsdeploy/dbWallets/wallet1(1)/atpwallet.zip"
+        WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR + "/wallet1(1)/",
+        WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR + "/wallet1(1)/atpwallet.zip"
     };
 
     static final String[] DATABASE_WALLETS_CONTENT = mergeStringArrays(
-        new String[] { "wlsdeploy/dbWallets/" },
+        new String[] { WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR + "/" },
         DATABASE_WALLET_RCU_CONTENTS,
         DATABASE_WALLET_WALLET1_CONTENTS
     );
@@ -250,50 +252,50 @@ public class ArchiveHelperTestConstants {
     );
 
     static final String[] FOREIGN_SERVERS_FS1_JNDI_PROPERTIES_CONTENTS = new String[] {
-        "wlsdeploy/jms/foreignServer/fs1/jndi.properties"
+        WLSDeployArchive.ARCHIVE_JMS_FOREIGN_SERVER_DIR + "/fs1/jndi.properties"
     };
 
     static final String[] FOREIGN_SERVERS_FS1_JNDI_PROPERTIES_DUP_CONTENTS = new String[] {
-        "wlsdeploy/jms/foreignServer/fs1/jndi(1).properties"
+        WLSDeployArchive.ARCHIVE_JMS_FOREIGN_SERVER_DIR + "/fs1/jndi(1).properties"
     };
 
     static final String[] FOREIGN_SERVERS_FS1_CONTENTS = mergeStringArrays(
-        new String[] { "wlsdeploy/jms/foreignServer/fs1/" },
+        new String[] { WLSDeployArchive.ARCHIVE_JMS_FOREIGN_SERVER_DIR + "/fs1/" },
         FOREIGN_SERVERS_FS1_JNDI_PROPERTIES_CONTENTS
     );
 
     static final String[] FOREIGN_SERVERS_FS2_JNDI_PROPERTIES_CONTENTS = new String[] {
-        "wlsdeploy/jms/foreignServer/fs2/jndi.properties"
+        WLSDeployArchive.ARCHIVE_JMS_FOREIGN_SERVER_DIR + "/fs2/jndi.properties"
     };
 
     static final String[] FOREIGN_SERVERS_FS2_CONTENTS = mergeStringArrays(
-        new String[] { "wlsdeploy/jms/foreignServer/fs2/" },
+        new String[] { WLSDeployArchive.ARCHIVE_JMS_FOREIGN_SERVER_DIR + "/fs2/" },
         FOREIGN_SERVERS_FS2_JNDI_PROPERTIES_CONTENTS
     );
 
     static final String[] FOREIGN_SERVERS_CONTENT = mergeStringArrays(
         new String[] {
-            "wlsdeploy/jms/",
-            "wlsdeploy/jms/foreignServer/"
+            WLSDeployArchive.ARCHIVE_JMS_DIR + "/",
+            WLSDeployArchive.ARCHIVE_JMS_FOREIGN_SERVER_DIR + "/"
         },
         FOREIGN_SERVERS_FS1_CONTENTS,
         FOREIGN_SERVERS_FS2_CONTENTS
     );
 
     static final String[] NODE_MANAGER_IDENTITY_JKS_CONTENTS = new String[] {
-        "wlsdeploy/nodeManager/nmIdentity.jks"
+        WLSDeployArchive.ARCHIVE_NODE_MANAGER_TARGET_DIR + "/nmIdentity.jks"
     };
 
     static final String[] NODE_MANAGER_IDENTITY_JKS_DUP_CONTENTS = new String[] {
-        "wlsdeploy/nodeManager/nmIdentity(1).jks"
+        WLSDeployArchive.ARCHIVE_NODE_MANAGER_TARGET_DIR + "/nmIdentity(1).jks"
     };
 
     static final String[] NODE_MANAGER_TRUST_JKS_CONTENTS = new String[] {
-        "wlsdeploy/nodeManager/nmTrust.jks"
+        WLSDeployArchive.ARCHIVE_NODE_MANAGER_TARGET_DIR + "/nmTrust.jks"
     };
 
     static final String[] NODE_MANAGER_CONTENT = mergeStringArrays(
-        new String[] { "wlsdeploy/nodeManager/" },
+        new String[] { WLSDeployArchive.ARCHIVE_NODE_MANAGER_TARGET_DIR + "/" },
         NODE_MANAGER_IDENTITY_JKS_CONTENTS,
         NODE_MANAGER_TRUST_JKS_CONTENTS
     );
@@ -322,38 +324,38 @@ public class ArchiveHelperTestConstants {
     );
 
     static final String[] SCRIPTS_FANCY_SCRIPT_CONTENTS = new String[] {
-        "wlsdeploy/scripts/my_fancy_script.sh"
+        WLSDeployArchive.ARCHIVE_SCRIPTS_DIR + "/my_fancy_script.sh"
     };
 
     static final String[] SCRIPTS_FANCY_SCRIPT_DUP_CONTENTS = new String[] {
-        "wlsdeploy/scripts/my_fancy_script(1).sh"
+        WLSDeployArchive.ARCHIVE_SCRIPTS_DIR + "/my_fancy_script(1).sh"
     };
 
     static final String[] SCRIPTS_CONTENT = mergeStringArrays(
-        new String[] { "wlsdeploy/scripts/" },
+        new String[] { WLSDeployArchive.ARCHIVE_SCRIPTS_DIR + "/" },
         SCRIPTS_FANCY_SCRIPT_CONTENTS
     );
 
     static final String[] SERVERS_ADMIN_SERVER_IDENTITY_JKS_CONTENTS = new String[] {
-        "wlsdeploy/servers/AdminServer/identity.jks"
+        WLSDeployArchive.ARCHIVE_SERVER_TARGET_DIR + "/AdminServer/identity.jks"
     };
 
     static final String[] SERVERS_ADMIN_SERVER_IDENTITY_JKS_DUP_CONTENTS = new String[] {
-        "wlsdeploy/servers/AdminServer/identity(1).jks"
+        WLSDeployArchive.ARCHIVE_SERVER_TARGET_DIR + "/AdminServer/identity(1).jks"
     };
 
     static final String[] SERVERS_ADMIN_SERVER_TRUST_JKS_CONTENTS = new String[] {
-        "wlsdeploy/servers/AdminServer/trust.jks"
+        WLSDeployArchive.ARCHIVE_SERVER_TARGET_DIR + "/AdminServer/trust.jks"
     };
 
     static final String[] SERVERS_ADMIN_SERVER_CONTENTS = mergeStringArrays(
-        new String[] { "wlsdeploy/servers/AdminServer/" },
+        new String[] { WLSDeployArchive.ARCHIVE_SERVER_TARGET_DIR + "/AdminServer/" },
         SERVERS_ADMIN_SERVER_IDENTITY_JKS_CONTENTS,
         SERVERS_ADMIN_SERVER_TRUST_JKS_CONTENTS
     );
 
     static final String[] SERVERS_CONTENT = mergeStringArrays(
-        new String[] { "wlsdeploy/servers/" },
+        new String[] { WLSDeployArchive.ARCHIVE_SERVER_TARGET_DIR + "/" },
         SERVERS_ADMIN_SERVER_CONTENTS
     );
 

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os, sets
@@ -14,21 +14,23 @@ from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 
 
-class ArchiveHelper(object):
+class ArchiveList(object):
     """
-    Helper class for working with the archive file.
+    Helper class for working with multiple archive files.
     This class should be the access point for any operation that makes use of multiple archives.
     """
-    __class_name = 'ArchiveHelper'
+    __class_name = 'ArchiveList'
+    __logger = PlatformLogger('wlsdeploy.tool.util')
 
-    def __init__(self, archive_files_text, domain_home, logger, exception_type):
+    def __init__(self, archive_files_text, domain_home, model_context, exception_type):
         """
         :param archive_files_text: a comma-separated list of one or more file names
         :param domain_home: the domain home
-        :param logger: the logger to use
+        :param model_context: the model context to use
         :param exception_type: the exception type for the associated tool
         """
         _method_name = '__init__'
@@ -40,7 +42,7 @@ class ArchiveHelper(object):
         if domain_home:
             self.__domain_home = File(domain_home)
 
-        self.__logger = logger
+        self.__model_context = model_context
         self.__exception_type = exception_type
 
         self.__archive_files = []
@@ -313,20 +315,29 @@ class ArchiveHelper(object):
         count = 0
         for archive_file in self.__archive_files:
             try:
-                cp_libs = archive_file.listCustomFiles()
-                if cp_libs.size() > 0:
+                custom_files = archive_file.listCustomFiles()
+                if custom_files.size() > 0:
                     if extract_location is None:
                         archive_file.extractCustomFiles(self.__domain_home)
                     else:
                         archive_file.extractCustomFiles(File(extract_location))
 
-                    count += cp_libs.size()
+                    count += custom_files.size()
             except (WLSDeployArchiveIOException, IllegalArgumentException), e:
                 ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19310',
                                                        self.__archive_files_text, self.__domain_home.getAbsolutePath(),
                                                        e.getLocalizedMessage(), error=e)
                 self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
+
+        # warn if the size of the /config/wlsdeploy/custom directory exceeds the configured limit.
+        # this is done after looping through the archive files.
+        custom_file = File(self.__domain_home, WLSDeployArchive.ARCHIVE_CUSTOM_TARGET_DIR)
+        if custom_file.isDirectory():
+            size_limit = self.__model_context.get_model_config().get_archive_custom_folder_size_limit()
+            directory_size = FileUtils.getDirectorySize(custom_file)
+            if directory_size > size_limit:
+                self.__logger.warning("WLSDPLY-19314", directory_size, size_limit)
 
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=count)
         return count
@@ -404,17 +415,17 @@ class ArchiveHelper(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=all_entries)
         return all_entries
 
-    def extract_database_wallet(self, wallet_name=WLSDeployArchive.DEFAULT_RCU_WALLET_NAME, location=None):
+    def extract_database_wallet(self, wallet_archive_path, location=None):
         """
-        Extract the and unzip the named database wallet, if present, and return the path to
-        the wallet directory.
-        :param wallet_name Name of the database wallet
+        Extract and unzip the database wallet archive path, if present,
+        and return the full path of the wallet directory.
+        :param wallet_archive_path Path of the database wallet in the archive
         :param location  extract location
         :return: the path to the extracted wallet, or None if no wallet was found
         :raises: BundleAwareException of the appropriate type: if an error occurs
         """
         _method_name = 'extract_database_wallet'
-        self.__logger.entering(wallet_name, class_name=self.__class_name, method_name=_method_name)
+        self.__logger.entering(wallet_archive_path, class_name=self.__class_name, method_name=_method_name)
         resulting_wallet_path = None
         for archive_file in self.__archive_files:
             # __domain_home is a java File
@@ -424,16 +435,16 @@ class ArchiveHelper(object):
             if location is not None:
                 destination = File(location)
                 validate_domain_home = False
-            wallet_path = archive_file.extractDatabaseWallet(destination, wallet_name, validate_domain_home)
+            wallet_path = archive_file.extractDatabaseWallet(destination, wallet_archive_path, validate_domain_home)
             # Allow iteration to continue through all archive files but
             # make sure to store off the path for a wallet that was extracted.
             #
             self.__logger.finer('extract wallet {0} from archive file {1} returned wallet path {2}',
-                                wallet_name, archive_file.getArchiveFileName(), wallet_path,
+                                wallet_archive_path, archive_file.getArchiveFileName(), wallet_path,
                                 class_name=self.__class_name, method_name=_method_name)
             if wallet_path is not None:
-                # If multiple archives contain the same named wallet, they
-                # will all have the same path.
+                # If multiple archives contain the same named wallet,
+                # overwrite with the one that is latest in the archive list
                 #
                 resulting_wallet_path = wallet_path
 
@@ -447,20 +458,31 @@ class ArchiveHelper(object):
         # extract_database_wallet() loops through the archive files so just collect
         # the list of wallet names from the archive files and then loop through that list.
         found_wallets = False
-        wallet_names = sets.Set()
+        wallet_paths = sets.Set()
         for archive_file in self.__archive_files:
             self.__logger.finer('processing archive_file {0}', archive_file.getArchiveFileName(),
                                 class_name=self.__class_name, method_name=_method_name)
-            archive_wallet_names = archive_file.getDatabaseWalletNames()
-            wallet_names.update(archive_wallet_names)
+            archive_wallet_paths = archive_file.getDatabaseWalletPaths()
+            wallet_paths.update(archive_wallet_paths)
 
-        for wallet_name in wallet_names:
-            self.__logger.finer('extracting database wallet {0}', wallet_name,
+        for wallet_path in wallet_paths:
+            self.__logger.finer('extracting database wallet {0}', wallet_path,
                                 class_name=self.__class_name, method_name=_method_name)
-            self.extract_database_wallet(wallet_name, location=location)
+            self.extract_database_wallet(wallet_path, location=location)
             found_wallets = True
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return found_wallets
+
+    def check_rcu_wallet_path(self):
+        """
+        Return the path containing the RCU wallet, if present.
+        This should be called after wallets are extracted.
+        :return: the RCU wallet path, or None
+        """
+        wallet_path = os.path.join(self.__domain_home.getAbsolutePath(), WLSDeployArchive.DEFAULT_RCU_WALLET_PATH)
+        if os.path.isdir(wallet_path):
+            return wallet_path
+        return None
 
     def extract_opss_wallet(self):
         """
@@ -502,7 +524,7 @@ class ArchiveHelper(object):
         """
         Makes a copy of the specified archive file(s) to the target directory.
         :param target_directory: the directory to which the archive file(s) will be copied
-        :return: new ArchiveHelper for the new archive file(s)
+        :return: new ArchiveList for the new archive file(s)
         :raises: BundleAwareException of the appropriate type: if an error occurred while copying the file
         """
         _method_name = 'copy_archives_to_target_directory'
@@ -514,7 +536,7 @@ class ArchiveHelper(object):
             new_file_name = self._copy_file(file_name, target_directory)
             new_file_names.append(new_file_name)
         new_archive_file_text = CommandLineArgUtil.ARCHIVE_FILES_SEPARATOR.join(new_file_names)
-        return ArchiveHelper(new_archive_file_text, self.__domain_home, self.__logger, self.__exception_type)
+        return ArchiveList(new_archive_file_text, self.__domain_home, self.__model_context, self.__exception_type)
 
     def _copy_file(self, source_file_name, target_directory):
         """

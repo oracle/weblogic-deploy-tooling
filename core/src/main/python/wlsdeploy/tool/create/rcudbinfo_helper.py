@@ -1,7 +1,9 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+from oracle.weblogic.deploy.util import WLSDeployArchive
+
 from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.model_constants import ATP_ADMIN_USER
 from wlsdeploy.aliases.model_constants import ATP_DEFAULT_TABLESPACE
@@ -38,10 +40,12 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 
 _class_name = 'rcudbinfo_helper'
 
+
 class RcuDbInfo(object):
     """
     Accesses the fields of the domainInfo/RCUDbInfo section of the model.
     Decrypts fields if the model was encrypted.
+    Corrects archive paths for path attributes.
     Returns default values for some unspecified fields.
     """
 
@@ -56,6 +60,24 @@ class RcuDbInfo(object):
             return None
         else:
             return dictionary_utils.get_element(self.rcu_properties_map, key)
+
+    def _get_dictionary_path_value(self, key):
+        """
+        Values may be archive paths, and need adjustment.
+        For example, wlsdeploy/dbWallet/* becomes config/wlsdeploy/dbWallet/* .
+        Allow for a path that starts with @@DOMAIN_HOME@@ .
+        :param key: the key for the RCUDbInfo model folder
+        :return: the original value, or an adjusted path if needed
+        """
+        value = self._get_dictionary_element_value(key)
+        if value:
+            prefix = ''
+            if value.startswith(self.model_context.DOMAIN_HOME_TOKEN):
+                # point past the token and first slash
+                prefix = self.model_context.DOMAIN_HOME_TOKEN + WLSDeployArchive.ZIP_SEP
+                value = value[len(prefix):]
+            value = prefix + WLSDeployArchive.getExtractPath(value)
+        return value
 
     def get_database_type(self):
         type = self._get_dictionary_element_value(DATABASE_TYPE)
@@ -82,7 +104,7 @@ class RcuDbInfo(object):
             return type
 
     def get_tns_admin(self):
-        return self._get_dictionary_element_value(DRIVER_PARAMS_NET_TNS_ADMIN)
+        return self._get_dictionary_path_value(DRIVER_PARAMS_NET_TNS_ADMIN)
 
     def get_tns_entry(self):
         entry = self._get_dictionary_element_value(TNS_ENTRY)
@@ -105,7 +127,7 @@ class RcuDbInfo(object):
         return rcu_schema_pass
 
     def get_keystore(self):
-        return self._get_dictionary_element_value(DRIVER_PARAMS_KEYSTORE_PROPERTY)
+        return self._get_dictionary_path_value(DRIVER_PARAMS_KEYSTORE_PROPERTY)
 
     def get_keystore_type(self):
         return self._get_dictionary_element_value(DRIVER_PARAMS_KEYSTORETYPE_PROPERTY)
@@ -115,7 +137,7 @@ class RcuDbInfo(object):
         return self.aliases.decrypt_password(password)
 
     def get_truststore(self):
-        return self._get_dictionary_element_value(DRIVER_PARAMS_TRUSTSTORE_PROPERTY)
+        return self._get_dictionary_path_value(DRIVER_PARAMS_TRUSTSTORE_PROPERTY)
 
     def get_truststore_type(self):
         return self._get_dictionary_element_value(DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY)

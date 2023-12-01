@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
@@ -118,7 +118,7 @@ class JmsResourcesDeployer(Deployer):
             return
 
         location = LocationContext(location).append_location(JMS_RESOURCE)
-        if not self._check_location(location):
+        if not self.aliases.is_model_location_valid(location):
             return
         deployer_utils.set_single_folder_token(location, self.aliases)
 

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the updateDomain tool.
@@ -19,12 +19,11 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception.expection_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
-from wlsdeploy.tool.deploy import model_deployer
+from wlsdeploy.tool.deploy.model_deployer import ModelDeployer
 from wlsdeploy.tool.deploy.topology_updater import TopologyUpdater
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util import results_file
 from wlsdeploy.tool.util import wlst_helper
-from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.util.rcu_helper import RCUHelper
 from wlsdeploy.util import cla_helper
@@ -119,19 +118,23 @@ def __update(model, model_context, aliases):
     :param aliases: the aliases
     :raises DeployException: if an error occurs
     """
+    model_deployer = ModelDeployer(model, model_context, aliases, wlst_mode=__wlst_mode)
+    model_deployer.extract_early_archive_files()
+
     if __wlst_mode == WlstModes.ONLINE:
-        ret_code = __update_online(model, model_context, aliases)
+        ret_code = __update_online(model_deployer, model, model_context, aliases)
     else:
-        ret_code = __update_offline(model, model_context, aliases)
+        ret_code = __update_offline(model_deployer, model, model_context, aliases)
 
     results_file.check_and_write(model_context, ExceptionType.DEPLOY)
 
     return ret_code
 
 
-def __update_online(model, model_context, aliases):
+def __update_online(model_deployer, model, model_context, aliases):
     """
     Online update orchestration
+    :param model_deployer: ModelDeployer object
     :param model: the model
     :param model_context: the model context
     :param aliases: the aliases object
@@ -196,9 +199,8 @@ def __update_online(model, model_context, aliases):
     try:
         topology_updater.clear_placeholder_targeting(jdbc_names)
         topology_updater.update()
-        model_deployer.deploy_resources(model, model_context, aliases, wlst_mode=__wlst_mode)
-        deployer_utils.delete_online_deployment_targets(model, aliases, __wlst_mode)
-        model_deployer.deploy_app_attributes_online(model, model_context, aliases)
+        model_deployer.deploy_resources()
+        model_deployer.deploy_app_attributes_online()
     except DeployException, de:
         deployer_utils.release_edit_session_and_disconnect()
         raise de
@@ -207,7 +209,7 @@ def __update_online(model, model_context, aliases):
     # if user requested cancel changes if restart required stops
 
     if exit_code != ExitCode.CANCEL_CHANGES_IF_RESTART:
-        model_deployer.deploy_applications(model, model_context, aliases, wlst_mode=__wlst_mode)
+        model_deployer.deploy_applications()
 
     try:
         __wlst_helper.disconnect()
@@ -219,9 +221,10 @@ def __update_online(model, model_context, aliases):
     return exit_code
 
 
-def __update_offline(model, model_context, aliases):
+def __update_offline(model_deployer, model, model_context, aliases):
     """
     Offline update orchestration
+    :param model_deployer: ModelDeployer object
     :param model: the model
     :param model_context: the model context
     :param aliases: the aliases object
@@ -243,9 +246,6 @@ def __update_offline(model, model_context, aliases):
         rcu_helper = RCUHelper(model, model_context, aliases)
         rcu_helper.update_rcu_password()
 
-    # Unzip any database wallet files before updating a jrf domain
-    topology_updater.extract_database_wallets()
-
     __update_offline_domain()
 
     topology_updater.set_server_groups()
@@ -253,11 +253,11 @@ def __update_offline(model, model_context, aliases):
     topology_updater.update()
 
     # Add resources after server groups are established to prevent auto-renaming
-    model_deployer.deploy_model_offline(model, model_context, aliases, wlst_mode=__wlst_mode)
+    model_deployer.deploy_model_offline()
 
     __update_offline_domain()
 
-    model_deployer.deploy_model_after_update(model, model_context, aliases, wlst_mode=__wlst_mode)
+    model_deployer.deploy_model_after_update()
 
     try:
         __wlst_helper.close_domain()
@@ -309,14 +309,6 @@ def main(model_context):
         model_dictionary = cla_helper.load_model(_program_name, model_context, aliases, "update", __wlst_mode,
                                                  validate_crd_sections=False)
         model = Model(model_dictionary)
-
-        archive_file_name = model_context.get_archive_file_name()
-        if archive_file_name:
-            domain_path = model_context.get_domain_home()
-            archive_helper = ArchiveHelper(archive_file_name, domain_path, __logger, ExceptionType.CREATE)
-            if archive_helper:
-                archive_helper.extract_all_database_wallets()
-                archive_helper.extract_custom_directory()
 
         _exit_code = __update(model, model_context, aliases)
     except DeployException, ex:

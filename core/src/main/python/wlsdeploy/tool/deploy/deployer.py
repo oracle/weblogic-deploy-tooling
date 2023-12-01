@@ -23,7 +23,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.util import model_helper
 from wlsdeploy.tool.deploy import log_helper
-from wlsdeploy.tool.util.archive_helper import ArchiveHelper
+from wlsdeploy.tool.util.archive_helper import ArchiveList
 from wlsdeploy.tool.util.attribute_setter import AttributeSetter
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
@@ -61,8 +61,8 @@ class Deployer(object):
         self.archive_helper = None
         archive_file_name = self.model_context.get_archive_file_name()
         if archive_file_name is not None:
-            self.archive_helper = ArchiveHelper(archive_file_name, self.model_context.get_effective_domain_home(), self.logger,
-                                                exception_helper.ExceptionType.DEPLOY)
+            self.archive_helper = ArchiveList(archive_file_name, self.model_context.get_effective_domain_home(),
+                                              self.model_context, exception_helper.ExceptionType.DEPLOY)
         self.upload_temporary_dir = None
         if model_context.is_remote() or model_context.is_ssh():
             try:
@@ -193,7 +193,10 @@ class Deployer(object):
                 value = model_nodes[key]
                 if key in uses_path_tokens_attribute_names:
                     value = deployer_utils.extract_from_uri(self.model_context, value)
-                    self._extract_from_archive_if_needed(location, key, value)
+
+                    # value may change if archive extract path changes.
+                    # example: wlsdeploy/config/x may become config/wlsdeploy/config/x
+                    value = self._extract_from_archive_if_needed(location, key, value)
 
                 wlst_merge_value = None
                 if key in merge_attribute_names:
@@ -331,36 +334,40 @@ class Deployer(object):
         :param location: the location
         :param key: the attribute name
         :param value: the attribute value
-        :return: True if the file/directory was extracted, False otherwise
+        :return: the path value for use in the model (possibly changed from value argument)
         :raise: DeployException: if an error occurs
         """
         _method_name = '_extract_from_archive_if_needed'
         self.logger.entering(str_helper.to_string(location), key, value,
                              class_name=self._class_name, method_name=_method_name)
 
-        result = False
+        result = value
         relative_path_in_archive = deployer_utils.get_rel_path_from_uri(self.model_context, value)
         if deployer_utils.is_path_into_archive(relative_path_in_archive):
             if self.archive_helper is not None:
-                # we need to know where to extract to
-                # for ssh extract to temporary location
+                # archive entries using deprecated archive locations may be changed to config/wlsdeploy/...
+                extract_path = self.topology_helper.get_archive_extract_path(relative_path_in_archive, location, key)
+                result = extract_path
 
+                # we need to know where to extract to
                 if self.model_context.is_ssh():
+                    # for ssh extract to temporary location
                     extract_location = self.upload_temporary_dir
                 else:
-                    extract_location = None
+                    extract_location = self.topology_helper.get_archive_extract_directory(extract_path,
+                        self.model_context.get_domain_home())
 
-                result = self.__process_archive_entry(location, key, relative_path_in_archive, extract_location,
-                                                      self.model_context.is_ssh())
+                self.__process_archive_entry(location, key, relative_path_in_archive, extract_location,
+                                             self.model_context.is_ssh())
 
                 if not relative_path_in_archive.endswith('/') and result and self.model_context.is_ssh():
                     # upload to remote
                     source_path = os.path.join(self.upload_temporary_dir, relative_path_in_archive)
-                    target_path = os.path.join(self.model_context.get_remote_domain_home(), relative_path_in_archive)
+                    target_path = os.path.join(self.model_context.get_remote_domain_home(), extract_path)
                     self.upload_specific_file_to_remote_server(source_path, target_path)
             else:
                 path = self.aliases.get_model_folder_path(location)
-                ex = exception_helper.create_deploy_exception('WLSDPLY-09110', key, path, value)
+                ex = exception_helper.create_deploy_exception('WLSDPLY-09209', key, path, value)
                 self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
