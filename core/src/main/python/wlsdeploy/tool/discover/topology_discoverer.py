@@ -906,7 +906,7 @@ class TopologyDiscoverer(Discoverer):
         _method_name = '_add_library'
         _logger.entering(server_name, classpath_name, class_name=_class_name, method_name=_method_name)
         return_name = classpath_name
-        if self._is_oracle_home_file(classpath_name):
+        if self._is_file_to_exclude_from_archive(classpath_name):
             _logger.info('WLSDPLY-06618', classpath_name, server_name, class_name=_class_name, method_name=_method_name)
             return_name = self._model_context.tokenize_path(classpath_name)
         else:

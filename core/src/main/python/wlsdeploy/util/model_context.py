@@ -115,6 +115,7 @@ class ModelContext(object):
         self._ssh_private_key_passphrase = None
         self._ssh_private_key_passphrase_prompt = False
         self._remote_oracle_home = None
+        self._remote_wl_home = None
         self._remote_domain_home = None
         self._remote_test_file = None
         self._local_test_file = None
@@ -241,6 +242,7 @@ class ModelContext(object):
 
         if CommandLineArgUtil.REMOTE_ORACLE_HOME_SWITCH in arg_map:
             self._remote_oracle_home = arg_map[CommandLineArgUtil.REMOTE_ORACLE_HOME_SWITCH]
+            self._remote_wl_home = self._wls_helper.get_weblogic_home(self._remote_oracle_home)
 
         if CommandLineArgUtil.REMOTE_DOMAIN_HOME_SWITCH in arg_map:
             self._remote_domain_home = arg_map[CommandLineArgUtil.REMOTE_DOMAIN_HOME_SWITCH]
@@ -485,12 +487,40 @@ class ModelContext(object):
         """
         return self._oracle_home
 
+    def get_effective_oracle_home(self):
+        """
+        Get the effective Oracle Home.
+        :return: the Oracle Home
+        """
+        if self.is_ssh():
+            return self._remote_oracle_home
+        else:
+            return self._oracle_home
+
     def get_wl_home(self):
         """
         Get the WebLogic Home.
         :return: the WebLogic Home
         """
         return self._wl_home
+
+    def get_remote_wl_home(self):
+        """
+        Get the Remote WebLogic Home.  Note that this assumes that the local
+        and remote Oracle Homes have a similar version of WebLogic Server installed.
+        :return: the remote WebLogic Home
+        """
+        return self._remote_wl_home
+
+    def get_effective_wl_home(self):
+        """
+        Get the effective WebLogic Home.
+        :return: the WebLogic Home
+        """
+        if self.is_ssh():
+            return self._remote_wl_home
+        else:
+            return self._wl_home
 
     def get_java_home(self):
         """
@@ -1114,21 +1144,22 @@ class ModelContext(object):
         if uri_scheme is not None and str_helper.to_string(uri_scheme).startswith('file'):
             attribute_value = uri.getPath()
 
+        # TODO - the last three tokens will not work properly for an SSH context
         message = "Replacing {0} in {1} {2} {3} with {4}"
         if attribute_value.startswith(self.ORACLE_HOME_TOKEN):
             self._logger.fine(message, self.ORACLE_HOME_TOKEN, resource_type, resource_name, attribute_name,
-                              self.get_oracle_home(), class_name=self._class_name, method_name='_replace_tokens')
+                              self.get_effective_oracle_home(), class_name=self._class_name, method_name='_replace_tokens')
             resource_dict[attribute_name] = attribute_value.replace(self.ORACLE_HOME_TOKEN,
-                                                                    self.get_oracle_home())
+                                                                    self.get_effective_oracle_home())
         elif attribute_value.startswith(self.WL_HOME_TOKEN):
             self._logger.fine(message, self.WL_HOME_TOKEN, resource_type, resource_name, attribute_name,
-                              self.get_wl_home(), class_name=self._class_name, method_name='_replace_tokens')
-            resource_dict[attribute_name] = attribute_value.replace(self.WL_HOME_TOKEN, self.get_wl_home())
+                              self.get_effective_wl_home(), class_name=self._class_name, method_name='_replace_tokens')
+            resource_dict[attribute_name] = attribute_value.replace(self.WL_HOME_TOKEN, self.get_effective_wl_home())
         elif attribute_value.startswith(self.DOMAIN_HOME_TOKEN):
             self._logger.fine(message, self.DOMAIN_HOME_TOKEN, resource_type, resource_name, attribute_name,
-                              self.get_domain_home(), class_name=self._class_name, method_name='_replace_tokens')
+                              self.get_effective_domain_home(), class_name=self._class_name, method_name='_replace_tokens')
             resource_dict[attribute_name] = attribute_value.replace(self.DOMAIN_HOME_TOKEN,
-                                                                    self.get_domain_home())
+                                                                    self.get_effective_domain_home())
         elif attribute_value.startswith(self.JAVA_HOME_TOKEN):
             self._logger.fine(message, self.JAVA_HOME_TOKEN, resource_type, resource_name, attribute_name,
                               self.get_domain_home(), class_name=self._class_name, method_name='_replace_tokens')
@@ -1151,14 +1182,15 @@ class ModelContext(object):
         :param string_value: the value on which to perform token replacement
         :return: the detokenized value, or the original value if there were no tokens
         """
+        # TODO - the last three tokens will not work properly for an SSH context
         if string_value is None:
             result = None
         elif string_value.startswith(self.ORACLE_HOME_TOKEN):
-            result = _replace(string_value, self.ORACLE_HOME_TOKEN, self.get_oracle_home())
+            result = _replace(string_value, self.ORACLE_HOME_TOKEN, self.get_effective_oracle_home())
         elif string_value.startswith(self.WL_HOME_TOKEN):
-            result = _replace(string_value, self.WL_HOME_TOKEN, self.get_wl_home())
+            result = _replace(string_value, self.WL_HOME_TOKEN, self.get_effective_wl_home())
         elif string_value.startswith(self.DOMAIN_HOME_TOKEN):
-            result = _replace(string_value, self.DOMAIN_HOME_TOKEN, self.get_domain_home())
+            result = _replace(string_value, self.DOMAIN_HOME_TOKEN, self.get_effective_domain_home())
         elif string_value.startswith(self.JAVA_HOME_TOKEN):
             result = _replace(string_value, self.JAVA_HOME_TOKEN, self.get_java_home())
         elif string_value.startswith(self.CURRENT_DIRECTORY_TOKEN):
@@ -1179,9 +1211,10 @@ class ModelContext(object):
         :return: tokenized path or original path
         """
         my_path = path_utils.fixup_path(path)
-        wl_home = path_utils.fixup_path(self.get_wl_home())
-        domain_home = path_utils.fixup_path(self.get_domain_home())
-        oracle_home = path_utils.fixup_path(self.get_oracle_home())
+        wl_home = path_utils.fixup_path(self.get_effective_wl_home())
+        domain_home = path_utils.fixup_path(self.get_effective_domain_home())
+        oracle_home = path_utils.fixup_path(self.get_effective_oracle_home())
+        # TODO - these last three tokens will not work properly for an SSH context
         java_home = path_utils.fixup_path(self.get_java_home())
         tmp_dir = path_utils.fixup_path(tempfile.gettempdir())
         cwd = path_utils.fixup_path(os.path.dirname(os.path.abspath(__file__)))

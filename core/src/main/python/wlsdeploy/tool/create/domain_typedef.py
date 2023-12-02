@@ -127,11 +127,23 @@ class DomainTypedef(object):
                               class_name=self.__class_name, method_name=_method_name)
             self._post_create_domain_script_dict = None
 
+        if 'discoverExcludedBinariesList' in self._domain_typedef and \
+                len(self._domain_typedef['discoverExcludedBinariesList']) > 0:
+            self._logger.info('WLSDPLY-12330', domain_type, self._domain_typedef_filename,
+                              self._version_typedef_name, len(self._domain_typedef['discoverExcludedBinariesList']),
+                              class_name=self.__class_name, method_name=_method_name)
+            self._excluded_locations_binaries_to_archive = self._domain_typedef['discoverExcludedBinariesList']
+        else:
+            self._logger.info('WLSDPLY-12331', domain_type, self._domain_typedef_filename,
+                              self._version_typedef_name, class_name=self.__class_name, method_name=_method_name)
+            self._excluded_locations_binaries_to_archive = list()
+
         if 'discover-filters' in self._domain_typedefs_dict:
             if 'system-elements' in self._domain_typedefs_dict:
                 self._logger.notification('WLSDPLY-12317', self._domain_typedef_filename)
             self._discover_filters = self._domain_typedefs_dict['discover-filters']
         elif 'system-elements' in self._domain_typedefs_dict:
+            # Leave this until at least WDT 5.0 - rpatrick
             self._logger.deprecation('WLSDPLY-12318', self._domain_typedef_filename)
             self._discover_filters = self._translate_system_elements(self._domain_typedefs_dict['system-elements'])
         else:
@@ -352,6 +364,14 @@ class DomainTypedef(object):
 
         self._logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result
+
+    def should_archive_excluded_app(self, source_path):
+        """
+        Whether the source_path is listed in the discoverExcludedBinariesList list
+        :param source_path: the source_path from the app, which typically will be tokenized
+        :return: True, if the source path is included in the discoverExcludedBinariesList; False otherwise
+        """
+        return source_path in self._excluded_locations_binaries_to_archive
 
     def is_filtered(self, location, name=None):
         """
