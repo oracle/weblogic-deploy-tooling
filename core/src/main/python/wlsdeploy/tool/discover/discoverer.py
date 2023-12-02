@@ -700,18 +700,40 @@ class Discoverer(object):
             return convert_to_absolute_path(relative_to_dir, file_name_resolved)
         return file_name_resolved
 
-    def _is_oracle_home_file(self, file_name):
+    def _is_file_to_exclude_from_archive(self, file_name):
         """
-        Determine if the absolute file name starts with an oracle home. Disregard if the application is
-        located in the domain home.
+        Determine if the absolute file name is one that should be excluded from the archive file.
 
         :param file_name: to check for oracle home or weblogic home
-        :return: true if in oracle home location
+        :return: true if the file should not be added to the archive
         """
+        _method_name = '_is_file_to_exclude_from_archive'
+        _logger.entering(file_name, class_name=_class_name, method_name=_method_name)
+
         py_str = path_utils.fixup_path(str_helper.to_string(file_name))
-        return (not py_str.startswith(self._model_context.get_domain_home())) and \
-            (py_str.startswith(self._model_context.get_oracle_home()) or
-             py_str.startswith(self._model_context.get_wl_home()))
+        domain_home = self._model_context.get_effective_domain_home()
+        wl_home = self._model_context.get_effective_wl_home()
+        oracle_home = self._model_context.get_effective_oracle_home()
+        _logger.finer('WLSDPLY-06162', py_str, domain_home, oracle_home, wl_home,
+                      class_name=_class_name, method_name=_method_name)
+
+        if py_str.startswith(domain_home):
+            result = False
+        elif not py_str.startswith(wl_home) and not py_str.startswith(oracle_home):
+            result = False
+        else:
+            # We expect entries in the typedef's discoverExcludedLocationsBinariesToArchive
+            # list to normally be tokenized but let's check both just in case...
+            tokenized_py_str = self._model_context.tokenize_path(py_str)
+            typedef = self._model_context.get_domain_typedef()
+            result = not typedef.should_archive_excluded_app(tokenized_py_str)
+            _logger.finer('WLSDPLY-06163', py_str, tokenized_py_str, result,
+                          class_name=_class_name, method_name=_method_name)
+            if result and py_str != tokenized_py_str:
+                result = not typedef.should_archive_excluded_app(py_str)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
+        return result
 
     def _get_wlst_mode_string(self):
         """

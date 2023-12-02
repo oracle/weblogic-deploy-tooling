@@ -114,7 +114,7 @@ class DeploymentsDiscoverer(Discoverer):
                 file_name_path = file_name
                 if not self._model_context.is_remote():
                     file_name_path = self._convert_path(file_name)
-                if self._is_oracle_home_file(file_name_path):
+                if self._is_file_to_exclude_from_archive(file_name_path):
                     _logger.info('WLSDPLY-06383', library_name, class_name=_class_name, method_name=_method_name)
                 else:
                     new_source_name = None
@@ -305,7 +305,7 @@ class DeploymentsDiscoverer(Discoverer):
                 file_name_path = file_name
                 if not self._model_context.is_remote():
                     file_name_path = self._convert_path(file_name)
-                if self._is_oracle_home_file(file_name_path):
+                if self._is_file_to_exclude_from_archive(file_name_path):
                     _logger.info('WLSDPLY-06393', application_name, class_name=_class_name, method_name=_method_name)
                 else:
                     new_source_name = None
@@ -380,7 +380,7 @@ class DeploymentsDiscoverer(Discoverer):
             if not self._model_context.is_remote():
                 install_root_path = self._convert_path(install_root)
 
-            if not self._is_oracle_home_file(install_root_path):
+            if not self._is_file_to_exclude_from_archive(install_root_path):
                 new_install_root_path = None
                 if self._model_context.is_remote():
                     new_install_root_path = WLSDeployArchive.getStructuredApplicationArchivePath(install_root_path)

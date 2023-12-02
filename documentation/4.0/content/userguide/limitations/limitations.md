@@ -83,3 +83,28 @@ domainInfo:
      javax.net.ssl.trustStoreType: SSO
 ```
 
+### SSH usage
+
+**ISSUE**: WDT Create Domain does not appear to support SSH.
+
+**ACTION**: WDT Create Domain does not support SSH cause domain creation needs to run on the machine where the domain
+will exist to ensure that paths in the generated domain files point to the actual Java and Oracle Homes.  To support
+Create Domain via SSH, WDT would need to install itself on the remote machine and then execute its commands there.
+The workaround is for the user to temporarily install WDT, create the domain, and uninstall WDT.
+
+**ISSUE**: WDT always uses the local Oracle Home to determine the WebLogic version and patch level, which determines
+what alias data WDT loads.  If the remote Oracle Home version is different, this may cause issues where WDT incorrectly
+considers folders or attributes to be available or not available for the remote domain.
+
+**ACTION**: Ensure that the local and remote Oracle Homes are using the same WebLogic version and patch levels.
+
+**ISSUE**: WDT does not correctly handle the `@@WL_HOME@@` path token.
+
+**ACTION**: WDT computes the effective WL_HOME value based off the `-remote_oracle_home` argument and the local WebLogic
+version.  This should not be a problem unless the local and remote Oracle Homes are using different WebLogic versions.
+Update the local WebLogic version to match the remote version to resolve this problem.
+
+**ISSUE**: WDT does not correctly handle the `@@JAVA_HOME@@`, `@@PWD@@`, and `@@TMP` path tokens.
+
+**ACTION**: Do not use these path tokens in an SSH context because WDT does not currently provide a way for the user
+to supply "remote" values for these paths.
