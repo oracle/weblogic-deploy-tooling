@@ -4,11 +4,9 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 import re
 
-from oracle.weblogic.deploy.exception import ExceptionHelper
 
 from wlsdeploy.aliases.model_constants import CRD_MODEL_SECTIONS
 from wlsdeploy.aliases.model_constants import KNOWN_TOPLEVEL_MODEL_SECTIONS
-from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
 from wlsdeploy.tool.modelhelp.model_crd_section_printer import ModelCrdSectionPrinter
@@ -42,7 +40,7 @@ class ModelHelpOutputBuffer(object):
         self._buffer.append(line)
 
     def add_message(self, key, *args):
-        self._buffer.append(exception_helper.get_message(key, args))
+        self._buffer.append(exception_helper.get_message(key, *args))
 
     def print_output(self):
         for line in self._buffer:
@@ -192,4 +190,4 @@ def _format_message(key, *args):
     :param key: the message key
     :return: the formatted text message
     """
-    return ExceptionHelper.getMessage(key, list(args))
+    return exception_helper.get_message(key, *args)

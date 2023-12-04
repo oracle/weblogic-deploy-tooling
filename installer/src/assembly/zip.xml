@@ -119,6 +119,10 @@
                 <include>org.slf4j:slf4j-jdk14</include>
                 <include>org.slf4j:slf4j-api</include>
                 <include>com.jcraft:jzlib</include>
+                <include>org.jline:jline-reader</include>
+                <include>org.jline:jline-terminal</include>
+                <include>org.jline:jline-terminal-jansi</include>
+                <include>org.fusesource.jansi:jansi</include>
             </includes>
         </dependencySet>
     </dependencySets>
