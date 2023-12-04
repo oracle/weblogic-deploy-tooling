@@ -6,6 +6,9 @@ import os
 import re
 import sys
 
+from org.jline.terminal import TerminalBuilder
+from org.jline.reader import LineReaderBuilder
+from org.jline.reader.impl.completer import StringsCompleter
 from oracle.weblogic.deploy.util import CLAException
 
 # Jython tools don't require sys.path modification
@@ -32,12 +35,6 @@ class ModelHelpInteractivePrinter(ModelHelpPrinter):
         # setup starting history
         history = ['top']
 
-        # optionally get input from file instead of stdin (undocumented feature)
-        input_file_name = env_helper.getenv('WDT_INTERACTIVE_MODE_INPUT_FILE')
-        input_file = None
-        if input_file_name:
-            input_file = open(input_file_name, "r")
-
         # initial command (seeded from the command line)
         command_str = 'cd %s' % model_path
 
@@ -46,9 +43,13 @@ class ModelHelpInteractivePrinter(ModelHelpPrinter):
         self._output_buffer.add_output()
         self._output_buffer.add_message('WLSDPLY-10119', model_path)
 
+        completer = StringsCompleter(['cd', 'ls', 'top', 'exit'])
+        terminal = TerminalBuilder.terminal()
+        reader = LineReaderBuilder.builder().terminal(terminal).completer(completer).build()
         while True:
             if command_str == 'exit':
                 break
+            reader.getHistory().add(command_str)
 
             # the "process command" prints the help (or error) for the command_str
             # plus appends a new path to the history if the str specifies a successful directory change
@@ -57,9 +58,7 @@ class ModelHelpInteractivePrinter(ModelHelpPrinter):
             self._output_buffer.add_output()
             self._output_buffer.print_output()
 
-            # get the next command (from either stdin, or the input_file if input_file is set)
-
-            command_str = _interactive_help_prompt(history[-1], input_file)
+            command_str = _interactive_help_prompt(history[-1], reader)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
 
@@ -243,7 +242,7 @@ class ModelHelpInteractivePrinter(ModelHelpPrinter):
     def _handle_error_message(self, key, *args):
         self._output_buffer.clear()
         self._output_buffer.add_output()
-        self._output_buffer.add_message(key, args)
+        self._output_buffer.add_message(key, *args)
         self._output_buffer.add_output()
 
     def _interactive_help_print_short_instructions(self):
@@ -259,36 +258,38 @@ class ModelHelpInteractivePrinter(ModelHelpPrinter):
             prefix = kwargs['prefix']
         if 'suffix' in kwargs:
             suffix = kwargs['suffix']
-        message = exception_helper.get_message(key, args)
+        message = exception_helper.get_message(key, *args)
         self._output_buffer.add_output('%s%s%s' % (prefix, message, suffix))
 
 
-def _interactive_help_prompt(model_path, input_file):
+def _interactive_help_prompt(model_path, reader):
     """
     Gets the next command from stdin or a file.
     :param model_path: a current model path
-    :param input_file: specify a file to get input from file instead of stdin.
+    :param reader: JLine reader
     :param printer: a model help printer
     :return: returns when user types 'exit'
     """
+    command_str = reader.readLine('[%s] --> ' % model_path)
 
-    # prompt using sys.stdout.write to avoid newline
-    sys.stdout.write("[" + model_path + "] --> ")
-    sys.stdout.flush()
-
-    if not input_file:
-        command_str = raw_input('') # get command from stdin
-
-    else:
-        # get command from file instead of stdin (undocumented feature)
-        command_str = input_file.readline()
-        if not command_str:
-            command_str = 'exit' # reached EOF
-        else:
-            command_str = command_str.rstrip(os.linesep)
-
-        # show retrieved command_str right after the prompt
-        print(command_str)
+    #
+    # # prompt using sys.stdout.write to avoid newline
+    # sys.stdout.write("[" + model_path + "] --> ")
+    # sys.stdout.flush()
+    #
+    # if not input_file:
+    #     command_str = raw_input('') # get command from stdin
+    #
+    # else:
+    #     # get command from file instead of stdin (undocumented feature)
+    #     command_str = input_file.readline()
+    #     if not command_str:
+    #         command_str = 'exit' # reached EOF
+    #     else:
+    #         command_str = command_str.rstrip(os.linesep)
+    #
+    #     # show retrieved command_str right after the prompt
+    #     print(command_str)
 
     command_str = ' '.join(command_str.split()) # remove extra white-space
     return command_str
