@@ -803,16 +803,17 @@ class WlstHelper(object):
 
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-    def disconnect(self):
+    def disconnect(self, force='false'):
         """
         Disconnects WLST from the current connected WebLogic Server instance.
+        :param: whether to force disconnect (value must be a string)
         :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'disconnect'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
         try:
-            self.__load_global('disconnect')()
+            self.__load_global('disconnect')(force)
         except self.__load_global('WLSTException'), e:
             pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00048',
                                                     _format_exception(e), error=e)

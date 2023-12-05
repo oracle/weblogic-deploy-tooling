@@ -453,7 +453,9 @@ def __disconnect_domain(helper):
 
     if __wlst_mode == WlstModes.ONLINE:
         try:
-            helper.disconnect()
+            # Force disconnect in case the domain is in dev mode and the user
+            # has opened the Console, which automatically acquires an edit lock.
+            helper.disconnect('true')
         except PyWLSTException, wlst_ex:
             ex = exception_helper.create_discover_exception('WLSDPLY-06006',
                                                             wlst_ex.getLocalizedMessage(), error=wlst_ex)

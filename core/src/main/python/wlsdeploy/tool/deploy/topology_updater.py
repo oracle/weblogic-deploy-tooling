@@ -84,6 +84,20 @@ class TopologyUpdater(Deployer):
         self._topology_helper.qualify_nm_properties(type_name, model_nodes, location, self.model_context,
                                                     self.attribute_setter)
 
+    # Override
+    def _create_and_cd(self, location, existing_names):
+        _method_name = '_create_and_cd'
+
+        self.logger.entering(str_helper.to_string(location), existing_names,
+                             class_name=self._class_name, method_name=_method_name)
+        mbean_type = location.get_current_model_folder()
+        if mbean_type == UNIX_MACHINE and self.wlst_mode == WlstModes.ONLINE:
+            deployer_utils.create_and_cd(location, existing_names, self.aliases, MACHINE)
+        else:
+            deployer_utils.create_and_cd(location, existing_names, self.aliases)
+
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name)
+
     def update(self):
         """
         Deploy resource model elements at the domain level, including multi-tenant elements.
