@@ -129,11 +129,11 @@ Oracle Home directory before WLST offline can be used to discover it or configur
 Generating an MBean JAR documentation can be found in the WebLogic Server [documentation](https://docs.oracle.com/en/middleware/standalone/weblogic-server/14.1.1.0/devsp/generate_mbeantype.html).  Generating the schema
 JAR can be done with the `prepareCustomProvider` script provided in the WebLogic Server installation.
 
-For the MBean jar, WLST Offline allows you to define an alternate directory other than `WLSERVER/server/lib/mbeantypes`
-by using the system property `-Dfmwconfig.alternateTypesDirectory=dir`. For the WebLogic MBean schema type jar, you can
-use an alternate location by using `-Dfmwconfig.alternateSchemaDirectory=dir`. In order for the custom provider jars to
-be loaded correctly by WLST when discovering or creating a domain, set this system property in the `WLSDEPLOY_PROPERTIES`
-environment variable. Both of the properties take a comma separated list of paths to directories containing the
+For the MBean JAR, WLST offline allows you to define an alternate directory other than `WLSERVER/server/lib/mbeantypes`
+by using the system property `-Dfmwconfig.alternateTypesDirectory=dir`. For the WebLogic MBean schema type JAR, you can
+use an alternate location by using `-Dfmwconfig.alternateSchemaDirectory=dir`. In order for the custom provider JARs to
+be loaded correctly by WLST offline when discovering or creating a domain, set this system property in the `WLSDEPLOY_PROPERTIES`
+environment variable. Both of the properties take a comma-separated list of paths to directories containing the
 corresponding type of jar.
 
 {{% notice note %}} If you create a domain using the `-Dfmwconfig.alternateTypesDirectory=dir` and 

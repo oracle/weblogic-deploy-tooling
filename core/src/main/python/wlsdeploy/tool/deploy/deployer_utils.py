@@ -38,11 +38,13 @@ from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS_PROPERTIES
 from wlsdeploy.aliases.model_constants import JDBC_ORACLE_PARAMS
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE
 from wlsdeploy.aliases.model_constants import LIBRARY
+from wlsdeploy.aliases.model_constants import MACHINE
 from wlsdeploy.aliases.model_constants import MAX_DYNAMIC_SERVER_COUNT
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_NAME_PREFIX
 from wlsdeploy.aliases.model_constants import SERVER_NAME_START_IDX
 from wlsdeploy.aliases.model_constants import TARGET
+from wlsdeploy.aliases.model_constants import UNIX_MACHINE
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
@@ -77,45 +79,59 @@ def get_existing_object_list(location, aliases):
     return existing_names
 
 
-def create_and_cd(location, existing_names, aliases):
+def create_and_cd(location, existing_names, aliases, base_type=None):
     """
     Create the directories specified by location (if they do not exist), then CD to the attributes path for the
     location.
     :param location: the location of the directory to be created
     :param existing_names: names that already exist at the specified location
     :param aliases: the alias helper used to determine path names
+    :param base_type: the base type of the object to be created
     """
     method_name = 'create_and_cd'
-    _logger.entering(str_helper.to_string(location), existing_names, class_name=_class_name, method_name=method_name)
+    _logger.entering(str_helper.to_string(location), existing_names, base_type,
+                     class_name=_class_name, method_name=method_name)
 
     mbean_name = get_mbean_name(location, existing_names, aliases)
     create_path = aliases.get_wlst_create_path(location)
     _wlst_helper.cd(create_path)
 
-    create_if_not_exist(mbean_name,
-                        aliases.get_wlst_mbean_type(location),
-                        existing_names)
+    # This is a hack to deal with Unix Machine creation.
+    if base_type == MACHINE and location.get_current_model_folder() == UNIX_MACHINE:
+        mbean_type = UNIX_MACHINE
+    else:
+        mbean_type = aliases.get_wlst_mbean_type(location)
+
+    create_if_not_exist(mbean_name, mbean_type, existing_names, base_type)
     wlst_path = aliases.get_wlst_attributes_path(location)
-    _logger.exiting(_class_name, method_name, wlst_path)
+    _logger.exiting(class_name=_class_name, method_name=method_name, result=wlst_path)
     return _wlst_helper.cd(wlst_path)
 
 
-def create_if_not_exist(object_name, object_type, existing_names):
+def create_if_not_exist(object_name, object_type, existing_names, base_type=None):
     """
     If the provided object name does not exist in the provided list of object names, create the object
     at the current location.
     :param object_name: name of the new mbean object
     :param object_type: type of the mbean to create
     :param existing_names: list of existing mbean object names of the mbean object type
+    :param base_type: the base type of the mbean object to create
     :return: the return value of WLST create() or None if the object already existed and create() was not called
     """
     _method_name = 'create_if_not_exist'
-    _logger.entering(object_name, object_type, existing_names, class_name=_class_name, method_name=_method_name)
+    _logger.entering(object_name, object_type, existing_names, base_type,
+                     class_name=_class_name, method_name=_method_name)
 
     result = None
     if object_name not in existing_names:
-        _logger.finer('WLSDPLY-09101', object_name, object_type, class_name=_class_name, method_name=_method_name)
-        result = _wlst_helper.create(object_name, object_type)
+        if base_type is not None:
+            _logger.finer('WLSDPLY-09115', object_name, object_type, base_type,
+                          class_name=_class_name, method_name=_method_name)
+            result = _wlst_helper.create(object_name, object_type, base_type)
+        else:
+            _logger.finer('WLSDPLY-09101', object_name, object_type,
+                          class_name=_class_name, method_name=_method_name)
+            result = _wlst_helper.create(object_name, object_type)
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
 
