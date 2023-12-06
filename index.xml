@@ -432,6 +432,18 @@ archiveHelper commands    Command Description     add Add items to the archive f
     </item>
     
     <item>
+      <title>Release Notes 3.5.1</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.5.1/</link>
+      <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.5.1/</guid>
+      <description>Changes in Release 3.5.1  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes None
+Bug Fixes  #1542 - Fixed a Prepare Model issue related to the new password validation feature introduced in 3.5.0.  Known Issues None
+See https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/ for the current set of known limitations.</description>
+    </item>
+    
+    <item>
       <title>Release Notes 3.5.0</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.5.0/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>

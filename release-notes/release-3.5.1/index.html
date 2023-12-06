@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Hugo 0.82.0" />
-    <meta name="description" content="Provides both standalone validation of a model as well as model usage information to help users write or edit their models.">
+    <meta name="description" content="">
 
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Validate Model Tool :: WebLogic Deploy Tooling</title>
+    <title>Release Notes 3.5.1 :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1701891582" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/userguide/tools/validate/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-3.5.1/">
     <nav id="sidebar" class="">
 
 
@@ -170,7 +170,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/" title="User Guide" class="dd-item
-        parent
+        
         
         
         ">
@@ -220,7 +220,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/" title="WDT Tools" class="dd-item
-        parent
+        
         
         
         ">
@@ -351,7 +351,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/validate/" title="Validate Model Tool" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/validate/" title="Validate Model Tool" class="dd-item ">
         <a href="/weblogic-deploy-tooling/userguide/tools/validate/">
         Validate Model Tool
         
@@ -1186,7 +1186,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
-        
+        parent
         
         
         ">
@@ -1212,7 +1212,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.5.1/" title="Release Notes 3.5.1" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.5.1/" title="Release Notes 3.5.1" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-3.5.1/">
         <b> </b>Release Notes 3.5.1
         
@@ -1724,13 +1724,7 @@
             
           
           
-            
-            
-          
-          
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/userguide/'>User Guide</a> > <a href='/weblogic-deploy-tooling/userguide/tools/'>WDT Tools</a> > Validate Model Tool
-          
-        
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release Notes 3.5.1
           
         
           
@@ -1747,8 +1741,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#using-multiple-models">Using multiple models</a></li>
-        <li><a href="#parameter-table-for-validatemodel">Parameter table for <code>validateModel</code></a></li>
+        <li><a href="#changes-in-release-351">Changes in Release 3.5.1</a></li>
       </ul>
     </li>
   </ul>
@@ -1768,143 +1761,31 @@
           
             <h1>
               
-              Validate Model Tool
+              Release Notes 3.5.1
             </h1>
           
 
         
 
 
-<p>When working with a metadata model that drives tooling, it is critical to make it easy both to validate that the model and its related artifacts are well-formed and to provide help on the valid attributes and subfolders for a particular model location.  The Validate Model Tool provides both validation and help for model authors as a standalone tool.  In addition, the tool is integrated with the <code>createDomain</code> and <code>deployApps</code> tools to catch validation errors early, before any actions are performed on the domain.</p>
-<p>To use the Validate Model Tool, simply run the <code>validateModel</code> shell script with the correct arguments.  To see the list of valid arguments for any tool in the WebLogic Deploy Tooling installation, simply run the shell script with the <code>-help</code> option (or with no arguments) to see the shell script usage information.</p>
-<p>For example, starting with the following model shown below, where the <code>AdminServer</code> attribute <code>Machine</code> is misspelled as <code>Machines</code>:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">topology</span>:
-    <span style="color:#f92672">Name</span>: <span style="color:#ae81ff">DemoDomain</span>
-    <span style="color:#f92672">AdminServerName</span>: <span style="color:#ae81ff">AdminServer</span>
-    <span style="color:#f92672">Cluster</span>:
-        <span style="color:#f92672">mycluster</span>:
-    <span style="color:#f92672">Server</span>:
-        <span style="color:#f92672">AdminServer</span>:
-            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">192.168.1.50</span>
-            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">7001</span>
-            <span style="color:#f92672">Machines</span>: <span style="color:#ae81ff">machine1</span>
-            <span style="color:#f92672">SSL</span>:
-                <span style="color:#f92672">Enabled</span>: <span style="color:#66d9ef">true</span>
-                <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">7002</span>
-            <span style="color:#f92672">ServerStart</span>:
-                <span style="color:#f92672">ClassPath</span>: <span style="color:#ae81ff">c:\foo\bar</span>
-        <span style="color:#f92672">m1</span>:
-            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">192.168.1.50</span>
-            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">8001</span>
-            <span style="color:#f92672">Cluster</span>: <span style="color:#ae81ff">mycluster</span>
-            <span style="color:#f92672">Machine</span>: <span style="color:#ae81ff">machine1</span>
-            <span style="color:#f92672">ServerStart</span>:
-                <span style="color:#f92672">ClassPath</span>: <span style="color:#ae81ff">c:\foo\bar</span>
-        <span style="color:#f92672">m2</span>:
-            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">192.168.1.51</span>
-            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">8001</span>
-            <span style="color:#f92672">Cluster</span>: <span style="color:#ae81ff">mycluster</span>
-            <span style="color:#f92672">Machine</span>: <span style="color:#ae81ff">machine2</span>
-            <span style="color:#f92672">ServerStart</span>:
-                <span style="color:#f92672">ClassPath</span>: <span style="color:#ae81ff">c:\foo\bar</span>
-    <span style="color:#f92672">Machine</span>:
-        <span style="color:#f92672">machine1</span>:
-            <span style="color:#f92672">NodeManager</span>:
-                <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">192.168.1.50</span>
-                <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">5556</span>
-        <span style="color:#f92672">machine2</span>:
-            <span style="color:#f92672">NodeManager</span>:
-                <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">192.168.1.51</span>
-                <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">5556</span>
-</code></pre></div><p>To validate the standalone model file, run the tool as follows:</p>
-<pre><code>$ weblogic-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -model_file InvalidDemoDomain.yaml
-</code></pre>
-<p>The output of the tool will look something like this:</p>
-<pre><code>-----------------------------------------------
-Validation Area: topology Section
------------------------------------------------
-
-  Errors: 1
-    Message: Machines is not one of the folder, folder instance or attribute names allowed in model location topology:/Server/AdminServer
-</code></pre>
-<p>Use the <a href="/weblogic-deploy-tooling/userguide/tools/model_help/">Model Help Tool</a> to determine the valid list of attributes and folders at this model location.</p>
-<p>If the model contains variable definitions and the variable file or files is specified, the Validate Model Tool will validate that all variable references in the model are defined in the variable files.  For example, invoking the tool as shown here:</p>
-<pre><code>$ weblogic-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -model_file InvalidDemoDomain.yaml -variable_file InvalidDemoDomain.properties
-</code></pre>
-<p>Results in output similar to that shown below, if the <code>db.password</code> variable is not defined in the variable file.</p>
-<pre><code>-----------------------------------------------
-Validation Area: Variable Substitutions
------------------------------------------------
-
-  Errors: 2
-    Message: Model location resource:/JDBCSystemResource/Generic1/JdbcResource/JDBCDriverParams/PasswordEncrypted references variable db.password that is not defined in D:/demo/InvalidDemoDomain.properties
-    Message: Model location resource:/JDBCSystemResource/Generic2/JdbcResource/JDBCDriverParams/PasswordEncrypted references variable db.password that is not defined in D:/demo/InvalidDemoDomain.properties
-</code></pre>
-<p>If the model references binaries that should be present in the archive, the Validate Model Tool will validate that all binary references in the model that point to archive file locations are present in the archive file.  For example, invoking the tool as shown here:</p>
-<pre><code>$ weblogic-deploy\bin\validateModel.cmd -oracle_home c:\wls12213 -model_file InvalidDemoDomain.yaml -archive_file InvalidDemoDomain.zip
-</code></pre>
-<p>Results in output similar to that shown below, if the <code>simpleear.ear</code> file is not in the model-specified location inside the archive file.</p>
-<pre><code>-----------------------------------------------
-Validation Area: Archive Entries
------------------------------------------------
-
-  Errors: 1
-    Message: Model location appDeployments:/Application/simpleear/SourcePath references file wlsdeploy/applications/simpleear.ear that is not found in the archive file D:/demo/InvalidDemoDomain.zip
-</code></pre>
-<h3 id="using-multiple-models">Using multiple models</h3>
-<p>The Validate Model Tool supports the use of multiple models, as described in <a href="/weblogic-deploy-tooling/concepts/model/#using-multiple-models">Using multiple models</a>.</p>
-<h3 id="parameter-table-for-validatemodel">Parameter table for <code>validateModel</code></h3>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Definition</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>-archive_file</code></td>
-<td>The path to the archive file to use.  If the archive file is not provided, validation will only validate the artifacts provided.  This can also be specified as a comma-separated list of archive files.  The overlapping contents in each archive take precedence over previous archives in the list.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-domain_type</code></td>
-<td>The type of domain.  (for example, <code>WLS</code>, <code>JRF</code>)</td>
-<td><code>WLS</code></td>
-</tr>
-<tr>
-<td><code>-model_file</code></td>
-<td>The location of the model file to use.  This can also be specified as a comma-separated list of model locations, where each successive model layers on top of the previous ones. If not specified, the tool will look for the model in the archive. If the model is not found, validation will only validate the artifacts provided.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-oracle_home</code></td>
-<td>Home directory of the Oracle WebLogic installation. Required if the <code>ORACLE_HOME</code> environment variable is not set.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-target_mode</code></td>
-<td>The target WLST mode that the tool should use to validate the model content.  The only valid values are <code>online</code> or <code>offline</code>.</td>
-<td><code>offline</code></td>
-</tr>
-<tr>
-<td><code>-target_version</code></td>
-<td>The target version of WebLogic Server the tool should use to validate the model content.  This version number can be different than the version being used to run the tool.</td>
-<td>Oracle home version</td>
-</tr>
-<tr>
-<td><code>-variable_file</code></td>
-<td>The location of the property file containing the variable values for all variables used in the model. If the variable file is not provided, validation will only validate the artifacts provided.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-remote</code></td>
-<td>Validate the model from remote update or deploy command, must specify with -archive_file.</td>
-<td></td>
-</tr>
-</tbody>
-</table>
+<h3 id="changes-in-release-351">Changes in Release 3.5.1</h3>
+<ul>
+<li><a href="#major-new-features">Major New Features</a></li>
+<li><a href="#other-changes">Other Changes</a></li>
+<li><a href="#bug-fixes">Bugs Fixes</a></li>
+<li><a href="#known-issues">Known Issues</a></li>
+</ul>
+<h4 id="major-new-features">Major New Features</h4>
+<p>None</p>
+<h4 id="other-changes">Other Changes</h4>
+<p>None</p>
+<h4 id="bug-fixes">Bug Fixes</h4>
+<ul>
+<li>#1542 - Fixed a Prepare Model issue related to the new password validation feature introduced in 3.5.0.</li>
+</ul>
+<h4 id="known-issues">Known Issues</h4>
+<p>None</p>
+<p>See <a href="https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/">https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/</a> for the current set of known limitations.</p>
 
 
 <footer class="footline">
@@ -1993,7 +1874,6 @@ Validation Area: Archive Entries
             
                 
                     
-                    
                 
                 
 
@@ -2008,9 +1888,6 @@ Validation Area: Archive Entries
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2028,7 +1905,6 @@ Validation Area: Archive Entries
             
                 
                     
-                    
                 
                 
 
@@ -2041,9 +1917,6 @@ Validation Area: Archive Entries
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2125,7 +1998,6 @@ Validation Area: Archive Entries
             
                 
                     
-                    
                 
                 
 
@@ -2141,9 +2013,6 @@ Validation Area: Archive Entries
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2727,6 +2596,7 @@ Validation Area: Archive Entries
             
                 
                     
+                    
                 
                 
 
@@ -2739,6 +2609,7 @@ Validation Area: Archive Entries
             
             
                 
+                    
                     
                 
                 
@@ -2755,6 +2626,9 @@ Validation Area: Archive Entries
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -3099,10 +2973,10 @@ Validation Area: Archive Entries
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/userguide/tools/encrypt/" title="Encrypt Model Tool"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/tools/compare/" title="Compare Model Tool" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-3.5.0/" title="Release Notes 3.5.0" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

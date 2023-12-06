@@ -12,20 +12,20 @@
     <title>Release Notes :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1701886587" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1701886587" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1701886587" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1701886587" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1701886587" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1701886587" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1701886587" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1701886587" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1701886587" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1701886587" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1701891582" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1701891582" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1701891582" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1701891582" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1701891582" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1701891582" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1701891582" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1701891582" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1701891582" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1701891582" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1701886587"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1701891582"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1701886587"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1701886587"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1701891582"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1701891582"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1701886587"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1701891582"></script>
 
     
   </div>
@@ -1212,6 +1212,27 @@
  
   
     
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.5.1/" title="Release Notes 3.5.1" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-3.5.1/">
+        <b> </b>Release Notes 3.5.1
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
       <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.5.0/" title="Release Notes 3.5.0" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-3.5.0/">
         <b> </b>Release Notes 3.5.0
@@ -1714,7 +1735,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#changes-in-release-351">Changes in Release 3.5.1</a></li>
+        <li><a href="#changes-in-release-352">Changes in Release 3.5.2</a></li>
       </ul>
     </li>
   </ul>
@@ -1742,7 +1763,7 @@
 
 
 
-	<h3 id="changes-in-release-351">Changes in Release 3.5.1</h3>
+	<h3 id="changes-in-release-352">Changes in Release 3.5.2</h3>
 <ul>
 <li><a href="#major-new-features">Major New Features</a></li>
 <li><a href="#other-changes">Other Changes</a></li>
@@ -1752,10 +1773,14 @@
 <h4 id="major-new-features">Major New Features</h4>
 <p>None</p>
 <h4 id="other-changes">Other Changes</h4>
-<p>None</p>
+<ul>
+<li>#1557 - Added support for provisioning the WebLogic Remote Console domain extension WAR file.</li>
+</ul>
 <h4 id="bug-fixes">Bug Fixes</h4>
 <ul>
-<li>#1542 - Fixed a Prepare Model issue related to the new password validation feature introduced in 3.5.0</li>
+<li>#1547 -  Fixed a bug with password validation causing a <code>NullPointerException</code> when the <code>domainInfo</code> section was
+missing from the model.</li>
+<li>#1554 - Fixed a problem where the Discover Domain tool would hang when running in online mode and an edit lock exists.</li>
 </ul>
 <h4 id="known-issues">Known Issues</h4>
 <p>None</p>
@@ -2921,6 +2946,22 @@
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -2936,7 +2977,7 @@
 			<a class="nav nav-prev" href="/weblogic-deploy-tooling/developer/contribute/" title="Contribute to WDT"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-3.5.0/" title="Release Notes 3.5.0" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-3.5.1/" title="Release Notes 3.5.1" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -2946,19 +2987,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1701886587"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1701886587"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1701886587"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1701886587"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1701886587"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1701886587"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1701891582"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1701891582"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1701891582"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1701891582"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1701891582"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1701891582"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1701886587"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1701886587"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1701886587"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1701891582"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1701891582"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1701891582"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1701886587"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1701891582"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
