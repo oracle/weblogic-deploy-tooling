@@ -31,7 +31,8 @@ import picocli.CommandLine.Option;
         ListScriptCommand.class,
         ListServerKeystoreCommand.class,
         ListSharedLibraryCommand.class,
-        ListStructuredApplicationCommand.class
+        ListStructuredApplicationCommand.class,
+        ListWebLogicRemoteConsoleExtensionCommand.class
     }
 )
 public class ListCommand {

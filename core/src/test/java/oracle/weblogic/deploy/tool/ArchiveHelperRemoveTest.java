@@ -65,6 +65,8 @@ import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS_MY_OTHER_LIB_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.STRUCTURED_APPS_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.STRUCTURED_APP_WEBAPP_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.WRC_EXTENSION_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.WRC_EXTENSION_FILE_CONTENT;
 import static oracle.weblogic.deploy.util.WLSDeployArchive.DEFAULT_RCU_WALLET_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -109,6 +111,7 @@ public class ArchiveHelperRemoveTest {
     };
     private static final String[] LIST_SHARED_LIBRARIES = new String[] { "sharedLibrary" };
     private static final String[] LIST_STRUCTURED_APPLICATIONS = new String[] { "structuredApplication" };
+    private static final String[] LIST_WRC_EXTENSIONS = new String[] { "weblogicRemoteConsoleExtension" };
 
     @BeforeAll
     static void initialize() throws Exception {
@@ -149,7 +152,8 @@ public class ArchiveHelperRemoveTest {
         "serverKeystore, missing.jks",
         "sharedLibrary, missing.war",
         "sharedLibraryPlan, missing.xml",
-        "structuredApplication, missingApp"
+        "structuredApplication, missingApp",
+        "weblogicRemoteConsoleExtension, missing.war"
     })
     void testNoArchive_Fails(String subcommand, String name) {
         StringWriter outStringWriter = new StringWriter();
@@ -190,7 +194,8 @@ public class ArchiveHelperRemoveTest {
         "serverKeystore",
         "sharedLibrary",
         "sharedLibraryPlan",
-        "structuredApplication"
+        "structuredApplication",
+        "weblogicRemoteConsoleExtension"
     })
     void testRemoveNoName_Fails(String subcommand) {
         StringWriter outStringWriter = new StringWriter();
@@ -227,7 +232,8 @@ public class ArchiveHelperRemoveTest {
         "script, missing.sh",
         "sharedLibrary, missing.war",
         "sharedLibraryPlan, missing.xml",
-        "structuredApplication, missingApp"
+        "structuredApplication, missingApp",
+        "weblogicRemoteConsoleExtension, missing.war"
     })
     void testRemoveMissingName_ReturnsExpectedResults(String subcommand, String name) {
         StringWriter outStringWriter = new StringWriter();
@@ -1764,6 +1770,54 @@ public class ArchiveHelperRemoveTest {
         assertArchiveInExpectedState(LIST_STRUCTURED_APPLICATIONS, STRUCTURED_APPS_CONTENT);
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                           WebLogic Remote Console Extension                               //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    void testRemoveExistingWrcExtension_ReturnsExpectedResults() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+            "remove",
+            "weblogicRemoteConsoleExtension",
+            "-archive_file",
+            ARCHIVE_HELPER_VALUE,
+            "-name",
+            "console-rest-ext-6.0.war"
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        assertEquals(ExitCode.OK, actual,"expected command to exit with exit code " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_WRC_EXTENSIONS, WRC_EXTENSION_CONTENTS, WRC_EXTENSION_CONTENTS);
+    }
+
+    @Test
+    void testRemoveMissingWrcExtensionForce_ReturnsExpectedResults() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+            "remove",
+            "weblogicRemoteConsoleExtension",
+            "-archive_file",
+            ARCHIVE_HELPER_VALUE,
+            "-name",
+            "missing.war",
+            "-force"
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        assertEquals(ExitCode.OK, actual,"expected command to exit with exit code " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_WRC_EXTENSIONS, WRC_EXTENSION_CONTENTS);
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //                                Private Helper Methods                                     //

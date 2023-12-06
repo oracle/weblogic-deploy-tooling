@@ -33,7 +33,8 @@ import picocli.CommandLine.Option;
         RemoveServerKeystoreCommand.class,
         RemoveSharedLibraryCommand.class,
         RemoveSharedLibraryPlanCommand.class,
-        RemoveStructuredApplicationCommand.class
+        RemoveStructuredApplicationCommand.class,
+        RemoveWebLogicRemoteConsoleExtensionCommand.class
     }
 )
 public class RemoveCommand {
