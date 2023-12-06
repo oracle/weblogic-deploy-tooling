@@ -34,6 +34,7 @@ import picocli.CommandLine.Option;
         AddSharedLibraryCommand.class,
         AddSharedLibraryPlanCommand.class,
         AddStructuredApplicationCommand.class,
+        AddWebLogicRemoteConsoleExtensionCommand.class
     }
 )
 public class AddCommand {

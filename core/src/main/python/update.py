@@ -303,6 +303,7 @@ def main(model_context):
             if archive_helper:
                 archive_helper.extract_all_database_wallets()
                 archive_helper.extract_custom_directory()
+                archive_helper.extract_weblogic_remote_console_extension()
 
         _exit_code = __update(model, model_context, aliases)
     except DeployException, ex:

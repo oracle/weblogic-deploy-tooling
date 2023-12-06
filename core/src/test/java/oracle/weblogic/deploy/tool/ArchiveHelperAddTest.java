@@ -82,6 +82,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS_MY_OTHER_LIB_DUP_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.STRUCTURED_APP_WEBAPP_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.STRUCTURED_APP_WEBAPP_DUP_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.WRC_EXTENSION_FILE_CONTENT;
 import static oracle.weblogic.deploy.util.WLSDeployArchive.ZIP_SEP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -128,6 +129,8 @@ public class ArchiveHelperAddTest {
     private static final String[] LIST_SHARED_LIBRARIES = new String[] { "sharedLibrary" };
     private static final String[] LIST_SHARED_LIBRARIES_PLANS = LIST_SHARED_LIBRARIES;
     private static final String[] LIST_STRUCTURED_APPLICATIONS = new String[] { "structuredApplication" };
+
+    private static final String[] LIST_WRC_EXTENSIONS = new String[] { "weblogicRemoteConsoleExtension" };
 
     @BeforeAll
     static void initialize() throws Exception {
@@ -189,7 +192,8 @@ public class ArchiveHelperAddTest {
         "serverKeystore, missing.jks",
         "sharedLibrary, missing.war",
         "sharedLibraryPlan, missing.xml",
-        "structuredApplication, missing"
+        "structuredApplication, missing",
+        "weblogicRemoteConsoleExtension, missing.war"
     })
     void testAddNoArchive_Fails(String subcommand, String source) {
         StringWriter outStringWriter = new StringWriter();
@@ -230,7 +234,8 @@ public class ArchiveHelperAddTest {
         "serverKeystore",
         "sharedLibrary",
         "sharedLibraryPlan",
-        "structuredApplication"
+        "structuredApplication",
+        "weblogicRemoteConsoleExtension"
     })
     void testAddNoSource_Fails(String subcommand) {
         StringWriter outStringWriter = new StringWriter();
@@ -267,7 +272,8 @@ public class ArchiveHelperAddTest {
         "script, missing.sh",
         "sharedLibrary, missing.war",
         "sharedLibraryPlan, missing.xml",
-        "structuredApplication, missing"
+        "structuredApplication, missing",
+        "weblogicRemoteConsoleExtension, missing.war"
     })
     void testAddBadSource_Fails(String subcommand, String source) {
         StringWriter outStringWriter = new StringWriter();
@@ -2920,6 +2926,93 @@ public class ArchiveHelperAddTest {
         assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
         assertArchiveInExpectedState(LIST_STRUCTURED_APPLICATIONS, EMPTY_ARRAY, STRUCTURED_APP_WEBAPP_CONTENTS,
             STRUCTURED_APP_WEBAPP_DUP_CONTENTS);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                           WebLogic Remote Console Extension                               //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    void testAddNewWrcExtension_ReturnsExceptedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+            "add",
+            "weblogicRemoteConsoleExtension",
+            "-archive_file",
+            NEW_ARCHIVE_VALUE,
+            "-source",
+            getSourcePath(ArchiveEntryType.WEBLOGIC_REMOTE_CONSOLE_EXTENSION, "console-rest-ext-6.0.war")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_WRC_EXTENSIONS, EMPTY_ARRAY, WRC_EXTENSION_FILE_CONTENT);
+    }
+
+    @Test
+    void testAddWrcExtensionOverwrite_ReturnsExceptedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+            "add",
+            "weblogicRemoteConsoleExtension",
+            "-archive_file",
+            NEW_ARCHIVE_VALUE,
+            "-source",
+            getSourcePath(ArchiveEntryType.WEBLOGIC_REMOTE_CONSOLE_EXTENSION, "console-rest-ext-6.0.war")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+
+        String[] overwriteArgs = getOverwriteArgs(args);
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, overwriteArgs);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_WRC_EXTENSIONS, EMPTY_ARRAY, WRC_EXTENSION_FILE_CONTENT);
+    }
+
+    @Test
+    void testAddWrcExtensionTwice_ReturnsExpectedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+            "add",
+            "weblogicRemoteConsoleExtension",
+            "-archive_file",
+            NEW_ARCHIVE_VALUE,
+            "-source",
+            getSourcePath(ArchiveEntryType.WEBLOGIC_REMOTE_CONSOLE_EXTENSION, "console-rest-ext-6.0.war")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.ERROR, actual, "expected command to return " + ExitCode.ERROR);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

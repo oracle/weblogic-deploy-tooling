@@ -164,6 +164,13 @@ public class WLSDeployArchive {
      */
     public static final String ARCHIVE_JMS_FOREIGN_SERVER_DIR = ARCHIVE_JMS_DIR + ZIP_SEP + "foreignServer";
 
+    /**
+     * Archive location for the WebLogic Remote Console extension that must be placed into the DOMAIN_HOME
+     * prior to WebLogic Server 14.1.2.
+     */
+    public static final String ARCHIVE_WRC_EXTENSION_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP +
+        "wrcExtension";
+
     public enum ArchiveEntryType {
         STRUCTURED_APPLICATION,
         SHARED_LIBRARY,
@@ -186,7 +193,8 @@ public class WLSDeployArchive {
         RCU_WALLET,
         OPSS_WALLET,
         CUSTOM,
-        SAML2_DATA
+        SAML2_DATA,
+        WEBLOGIC_REMOTE_CONSOLE_EXTENSION,
     }
 
     private enum FileOrDirectoryType {
@@ -338,6 +346,10 @@ public class WLSDeployArchive {
 
             case SAML2_DATA:
                 pathPrefix = ARCHIVE_SAML2_PATH + ZIP_SEP;
+                break;
+
+            case WEBLOGIC_REMOTE_CONSOLE_EXTENSION:
+                pathPrefix = ARCHIVE_WRC_EXTENSION_DIR + ZIP_SEP;
                 break;
 
             default:
@@ -555,6 +567,10 @@ public class WLSDeployArchive {
 
     public static String getSaml2DataArchivePath(String saml2DataFile) {
         return getArchiveName(ARCHIVE_SAML2_PATH, saml2DataFile);
+    }
+
+    public static String getArchiveWrcExtensionPath(String wrcExtensionFile) {
+        return getArchiveName(ARCHIVE_WRC_EXTENSION_DIR, wrcExtensionFile, true);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -4347,10 +4363,10 @@ public class WLSDeployArchive {
      * Remove the named SAML2 Data Initialization file from the archive file.  If this is the only entry
      * in the archive file directory, the directory entry will also be removed, if present.
      *
-     * @param saml2DataPath  the name of the MIME mapping file
-     * @param silent           If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @param saml2DataPath  the name of the SAML2 Data Initialization file
+     * @param silent         If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
      * @return the number of zip entries removed from the archive
-     * @throws WLSDeployArchiveIOException  if the MIME mapping file is not present (and silent = false) or
+     * @throws WLSDeployArchiveIOException  if the SAML2 Data Initialization file is not present (and silent = false) or
      *                                      an IOException occurred while reading the archive or writing the file
      * @throws IllegalArgumentException     if the saml2DataPath is null or empty
      */
@@ -4385,6 +4401,213 @@ public class WLSDeployArchive {
             getZipFile().removeZipEntry(zipEntry);
         }
         result += removeEmptyTypeDir(ArchiveEntryType.SAML2_DATA, ARCHIVE_SAML2_PATH + ZIP_SEP);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                 SAML2 Data methods                                        //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    public boolean isWrcExtensionFilePresent(String wrcExtensionFileName) throws WLSDeployArchiveIOException {
+        final String METHOD = "isWrcExtensionFilePresent";
+        LOGGER.entering(CLASS, METHOD, wrcExtensionFileName);
+
+        validateNonEmptyString(wrcExtensionFileName, "wrcExtensionFileName", METHOD);
+
+        String archivePath;
+        if (wrcExtensionFileName.startsWith(ARCHIVE_WRC_EXTENSION_DIR + ZIP_SEP)) {
+            archivePath = wrcExtensionFileName;
+        } else {
+            archivePath = ARCHIVE_WRC_EXTENSION_DIR + ZIP_SEP + wrcExtensionFileName;
+        }
+
+        List<String> zipEntries = getZipFile().listZipEntries(ARCHIVE_WRC_EXTENSION_DIR + ZIP_SEP);
+        boolean result = zipListContainsPath(zipEntries, archivePath);
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    /**
+     * Add the WebLogic Remote Console Extension file to the archive if it does not already exist.
+     *
+     * @param wrcExtensionFileName the file to add
+     * @return the new location of the file to use in the model
+     * @throws WLSDeployArchiveIOException if an error occurs while archiving the file or the entry already exists
+     * @throws IllegalArgumentException    if the file does not exist or the wrcExtensionFileName is empty or null
+     */
+    public String addWrcExtensionFile(String wrcExtensionFileName) throws WLSDeployArchiveIOException {
+        return addWrcExtensionFile(wrcExtensionFileName, false);
+    }
+
+    /**
+     * Add the WebLogic Remote Console Extension file to the archive.
+     *
+     * @param wrcExtensionFileName the file to add
+     * @param overwrite        whether to overwrite the existing file or throw an error if the file already exists
+     * @return the new location of the file to use in the model
+     * @throws WLSDeployArchiveIOException if an error occurs while archiving the file or the entry already exists
+     *                                     with override set to false
+     * @throws IllegalArgumentException    if the file does not exist or the wrcExtensionFileName is empty or null
+     */
+    public String addWrcExtensionFile(String wrcExtensionFileName, boolean overwrite)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "addWrcExtensionFile";
+        LOGGER.entering(CLASS, METHOD, wrcExtensionFileName, overwrite);
+
+        File filePath = new File(wrcExtensionFileName);
+        validateExistingFile(filePath, "wrcExtensionFileName", getArchiveFileName(), METHOD);
+
+        String archivePath = getArchiveName(ARCHIVE_WRC_EXTENSION_DIR, wrcExtensionFileName);
+        List<String> zipEntries = getZipFile().listZipEntries(ARCHIVE_WRC_EXTENSION_DIR + ZIP_SEP);
+        boolean result = zipListContainsPath(zipEntries, archivePath);
+        if (result) {
+            if (overwrite) {
+                getZipFile().removeZipEntry(archivePath);
+            } else {
+                WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01463", wrcExtensionFileName,
+                    getArchiveFileName(), archivePath);
+                LOGGER.throwing(CLASS, METHOD, ex);
+                throw ex;
+            }
+        }
+
+        String newName = addItemToZip(ARCHIVE_WRC_EXTENSION_DIR + ZIP_SEP, filePath);
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    /**
+     * Replace the WebLogic Remote Console Extension file in the archive.
+     *
+     * @param wrcExtensionPath the WebLogic Remote Console Extension file name or the path within the archive to replace
+     * @param sourceLocation   the file system location of the new WebLogic Remote Console Extension file to replace
+     *                         the existing one
+     * @return the archive path of the new WebLogic Remote Console Extension file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
+     * @throws IllegalArgumentException    if the file or directory passed in does not exist
+     */
+    public String replaceWrcExtensionFile(String wrcExtensionPath, String sourceLocation)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "replaceWrcExtensionFile";
+        LOGGER.entering(CLASS, METHOD, wrcExtensionPath, sourceLocation);
+
+        String archivePath;
+        if (wrcExtensionPath.startsWith(ARCHIVE_WRC_EXTENSION_DIR + ZIP_SEP)) {
+            archivePath = wrcExtensionPath;
+        } else {
+            archivePath = ARCHIVE_WRC_EXTENSION_DIR + ZIP_SEP + wrcExtensionPath;
+        }
+
+        getZipFile().removeZipEntry(archivePath);
+        String newName = addWrcExtensionFile(sourceLocation);
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    /**
+     * Extract the WebLogic Remote Console Extension file to the domain home location.
+     *
+     * @param wrcExtensionFile             the name of the WebLogic Remote Console Extension file
+     * @param domainHome                   the existing directory location to write the file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or the wrcExtensionFile is empty
+     */
+    public void extractWrcExtensionFile(String wrcExtensionFile, File domainHome) throws WLSDeployArchiveIOException {
+        extractWrcExtensionFile(wrcExtensionFile, domainHome, false);
+    }
+
+    /**
+     * Extract the WebLogic Remote Console Extension file to the domain home location.
+     *
+     * @param wrcExtensionFile             the name of the WebLogic Remote Console Extension file
+     * @param domainHome                   the existing directory location to write the file
+     * @param stripLeadingPath             whether to remove the leading path in the archive
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or the wrcExtensionFile is empty
+     */
+    public void extractWrcExtensionFile(String wrcExtensionFile, File domainHome, boolean stripLeadingPath)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "extractWrcExtensionFile";
+        LOGGER.entering(CLASS, METHOD, wrcExtensionFile, domainHome);
+
+        validateNonEmptyString(wrcExtensionFile, "wrcExtensionFile", METHOD);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        String archivePath = wrcExtensionFile;
+        if (!wrcExtensionFile.startsWith(ARCHIVE_WRC_EXTENSION_DIR + ZIP_SEP)) {
+            archivePath = ARCHIVE_WRC_EXTENSION_DIR + ZIP_SEP + wrcExtensionFile;
+        }
+
+        if (stripLeadingPath) {
+            extractFileFromZip(archivePath, ARCHIVE_WRC_EXTENSION_DIR , "", domainHome);
+        } else {
+            extractFileFromZip(archivePath, domainHome);
+        }
+
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
+     * Remove the WebLogic Remote Console Extension file from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param wrcExtensionPath  the name of the WebLogic Remote Console Extension file
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the WebLogic Remote Console Extension is not present or an IOException
+     *                                      occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the wrcExtensionPath is null or empty
+     */
+    public int removeWrcExtensionFile(String wrcExtensionPath) throws WLSDeployArchiveIOException {
+        return removeWrcExtensionFile(wrcExtensionPath, false);
+    }
+
+    /**
+     * Remove the WebLogic Remote Console Extension file from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param wrcExtensionPath the name of the WebLogic Remote Console Extension file
+     * @param silent           If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the WebLogic Remote Console Extension file is not present
+     *                                      (and silent = false) or an IOException occurred while reading the
+     *                                      archive or writing the file
+     * @throws IllegalArgumentException     if the saml2DataPath is null or empty
+     */
+    public int removeWrcExtensionFile(String wrcExtensionPath, boolean silent)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "removeWrcExtensionFile";
+        LOGGER.entering(CLASS, METHOD, wrcExtensionPath, silent);
+
+        validateNonEmptyString(wrcExtensionPath, "wrcExtensionPath", METHOD);
+
+        String archivePath;
+        String keystoreName;
+        if (wrcExtensionPath.startsWith(ARCHIVE_WRC_EXTENSION_DIR + ZIP_SEP)) {
+            archivePath = wrcExtensionPath;
+            keystoreName = getNameFromPath(wrcExtensionPath, ARCHIVE_WRC_EXTENSION_DIR.length() + 2);
+        } else {
+            archivePath = ARCHIVE_WRC_EXTENSION_DIR + ZIP_SEP + wrcExtensionPath;
+            keystoreName = wrcExtensionPath;
+        }
+
+        List<String> zipEntries = getArchiveEntries(ArchiveEntryType.WEBLOGIC_REMOTE_CONSOLE_EXTENSION, keystoreName);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01464", wrcExtensionPath,
+                getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyTypeDir(ArchiveEntryType.WEBLOGIC_REMOTE_CONSOLE_EXTENSION, ARCHIVE_WRC_EXTENSION_DIR + ZIP_SEP);
 
         LOGGER.exiting(CLASS, METHOD, result);
         return result;
@@ -4882,7 +5105,9 @@ public class WLSDeployArchive {
         LOGGER.entering(CLASS, METHOD, itemToExtract, fromDir, toDir, extractToLocation);
         String targetFileName = itemToExtract;
         if (fromDir != null && toDir != null) {
-            targetFileName = itemToExtract.replace(fromDir + ZIP_SEP, toDir + SEP);
+            String from = fromDir.endsWith(ZIP_SEP) ? fromDir : fromDir + ZIP_SEP;
+            String to = toDir.endsWith(ZIP_SEP) ? toDir : toDir + ZIP_SEP;
+            targetFileName = itemToExtract.replace(from, to);
         }
         checkForZipSlip(extractToLocation, targetFileName);
 
