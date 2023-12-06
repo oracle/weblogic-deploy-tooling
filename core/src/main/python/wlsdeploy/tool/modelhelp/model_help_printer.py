@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import re
@@ -10,6 +10,7 @@ from wlsdeploy.aliases.model_constants import KNOWN_TOPLEVEL_MODEL_SECTIONS
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
 from wlsdeploy.tool.modelhelp.model_crd_section_printer import ModelCrdSectionPrinter
+from wlsdeploy.tool.modelhelp.model_help_utils import PathOptions
 from wlsdeploy.tool.modelhelp.model_sample_printer import ModelSamplePrinter
 from wlsdeploy.util import model
 import wlsdeploy.util.unicode_helper as str_helper
@@ -67,7 +68,7 @@ class ModelHelpPrinter(object):
     def get_output_buffer(self):
         return self._output_buffer
 
-    def print_model_help(self, model_path, control_option, print_output=True):
+    def print_model_help(self, model_path, control_option, print_output=True, path_option=PathOptions.ANY):
         """
         Prints out the help information for a given '''model_path'''. '''model_path''' needs to be specified
         using the following pattern:
@@ -82,6 +83,8 @@ class ModelHelpPrinter(object):
 
         :param model_path: a formatted string containing the model path
         :param control_option: a command-line switch that controls what is output
+        :param print_output: determine if the result is printed to the output
+        :param path_option: used to interpret the path as a folder, attribute, or either
         :raises CLAException: if a problem is encountered
         """
 
@@ -102,10 +105,10 @@ class ModelHelpPrinter(object):
 
         if model_path_tokens[0] in CRD_MODEL_SECTIONS:
             sample_printer = ModelCrdSectionPrinter(self._model_context, self._output_buffer)
-            sample_printer.print_model_sample(model_path_tokens, control_option)
+            sample_printer.print_model_sample(model_path_tokens, control_option, path_option)
         else:
             sample_printer = ModelSamplePrinter(self._aliases, self._logger, self._output_buffer)
-            sample_printer.print_model_sample(model_path_tokens, control_option)
+            sample_printer.print_model_sample(model_path_tokens, control_option, path_option)
 
         if print_output:
             self._output_buffer.print_output()
