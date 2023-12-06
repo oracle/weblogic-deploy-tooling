@@ -20,7 +20,7 @@ None
 None
 
 #### Bug Fixes
-- #1542 - Fixed a Prepare Model issue related to the new password validation feature introduced in 3.5.0 
+- #1542 - Fixed a Prepare Model issue related to the new password validation feature introduced in 3.5.0.
 
 #### Known Issues
 None

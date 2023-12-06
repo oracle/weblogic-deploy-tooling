@@ -174,7 +174,7 @@ wlsdeploy/structuredApplications/myApp/plan/AppFileOverrides/updated.properties
 
 #### `wlsdeploy/wrcExtension`
 The directory into which the WebLogic Remote Console extension WAR file (i.e., `console-rest-ext-6.0.war`) is stored.
-Create Domain, Update Domain, and Deploy Apps tools place any file in this directory into the 
+Create Domain, Update Domain, and Deploy Applications tools place any file in this directory into the 
 `$DOMAIN_HOME/management-services-ext/` directory.
 
 ### Using multiple archive files
