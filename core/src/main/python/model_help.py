@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the modelHelp tool.
@@ -32,7 +32,6 @@ __optional_arguments = [
     CommandLineArgUtil.ATTRIBUTES_ONLY_SWITCH,
     CommandLineArgUtil.FOLDERS_ONLY_SWITCH,
     CommandLineArgUtil.RECURSIVE_SWITCH,
-    CommandLineArgUtil.INTERACTIVE_MODE_SWITCH,
     CommandLineArgUtil.TARGET_SWITCH,
     CommandLineArgUtil.TARGET_MODE_SWITCH
 ]
@@ -53,7 +52,12 @@ def __process_args(args):
     _method_name = '__process_args'
 
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
-    argument_map = cla_util.process_args(args, trailing_arg_count=1)
+
+    # try parsing with a trailing argument (the model path), then without if that fails
+    try:
+        argument_map = cla_util.process_args(args, trailing_arg_count=1)
+    except CLAException:
+        argument_map = cla_util.process_args(args)
 
     # zero or one output type arguments should be set
     found = False
@@ -82,6 +86,10 @@ def print_help(model_path, model_context):
 
     __logger.entering(model_path, class_name=_class_name, method_name=_method_name)
 
+    product_key = model_context.get_target_configuration().get_product_key()
+    if product_key == 'vz':
+        __logger.deprecation("WLSDPLY-10139", product_key, model_context.get_target())
+
     # default to NORMAL
     control_option = ControlOptions.NORMAL
 
@@ -95,12 +103,12 @@ def print_help(model_path, model_context):
 
     aliases = Aliases(model_context, wlst_mode=model_context.get_target_wlst_mode())
 
-    if model_context.get_interactive_mode_option():
-        printer = ModelHelpInteractivePrinter(model_context, aliases, __logger)
-        printer.interactive_help_main_loop(model_path)
-    else:
+    if model_path:
         printer = ModelHelpPrinter(model_context, aliases, __logger)
         printer.print_model_help(model_path, control_option)
+    else:
+        printer = ModelHelpInteractivePrinter(model_context, aliases, __logger)
+        printer.interactive_help_main_loop()
 
     __logger.exiting(class_name=_class_name, method_name=_method_name)
     return ExitCode.OK
@@ -116,7 +124,10 @@ def main(model_context):
 
     _exit_code = ExitCode.OK
     try:
-        model_path = model_context.get_trailing_argument(0)
+        model_path = None
+        trailing_args = model_context.get_trailing_arguments()
+        if trailing_args:
+            model_path = trailing_args[0]
         _exit_code = print_help(model_path, model_context)
     except CLAException, ve:
         __logger.severe('WLSDPLY-10112', _program_name, ve.getLocalizedMessage(), error=ve,

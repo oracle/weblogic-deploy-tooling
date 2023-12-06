@@ -64,8 +64,8 @@ ECHO Usage: %SCRIPT_NAME%
 ECHO         [-help]
 ECHO         [-oracle_home ^<oracle_home^>]
 ECHO         [-target ^<target^>]
-ECHO         [-attributes_only ^| -folders_only ^| -recursive ^| -interactive]
-ECHO         ^<model_path^>
+ECHO         [-attributes_only ^| -folders_only ^| -recursive]
+ECHO         [^<model_path^>]
 ECHO.
 ECHO     where:
 ECHO         oracle_home - an existing Oracle Home directory.  This is required
@@ -90,8 +90,7 @@ ECHO     The -recursive switch will cause the tool to list only the folders
 ECHO     for the specified model path, and recursively include the folders below
 ECHO     that path.
 ECHO.
-ECHO     The -interactive switch will cause the tool to enter an interactive
-ECHO     command line with the specified model path as your initial location.
+ECHO     If no model path is specified, the tool will enter an interactive mode.
 ECHO.
 ECHO     model_path examples:
 ECHO         resources:/JDBCSystemResource/JdbcResource

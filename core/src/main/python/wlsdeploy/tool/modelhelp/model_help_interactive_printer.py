@@ -1,10 +1,8 @@
 """
-Copyright (c) 2020, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-import os
 import re
-import sys
 
 from org.jline.terminal import TerminalBuilder
 from org.jline.reader import LineReaderBuilder
@@ -15,25 +13,27 @@ from oracle.weblogic.deploy.util import CLAException
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.modelhelp.model_help_printer import ModelHelpPrinter
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
-from wlsdeploy.util import env_helper
+from wlsdeploy.tool.modelhelp.model_help_utils import PathOptions
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util import model
 
 _class_name = 'ModelHelpInteractivePrinter'
-SIMPLE_COMMAND_REGEX = re.compile(r'^top$|^(cd|ls)(?:\s+(\.\.(?:/[a-zA-Z0-9#.]+)*/?))?$')
-
+SIMPLE_COMMAND_REGEX = re.compile(r'^top$|^(cd|ls|cat)(?:\s+(\.\.(?:/[a-zA-Z0-9#.]+)*/?))?$')
+LIST_COMMANDS = ['ls', 'cat']
 
 class ModelHelpInteractivePrinter(ModelHelpPrinter):
     def __init__(self, model_context, aliases, logger):
         ModelHelpPrinter.__init__(self, model_context, aliases, logger)
 
-    def interactive_help_main_loop(self, model_path):
+    def interactive_help_main_loop(self):
         _method_name = 'interactive_help_main_loop'
 
-        self._logger.entering(model_path, class_name=_class_name, method_name=_method_name)
+        self._logger.entering(class_name=_class_name, method_name=_method_name)
 
         # setup starting history
         history = ['top']
+
+        model_path = 'top'
 
         # initial command (seeded from the command line)
         command_str = 'cd %s' % model_path
@@ -43,7 +43,7 @@ class ModelHelpInteractivePrinter(ModelHelpPrinter):
         self._output_buffer.add_output()
         self._output_buffer.add_message('WLSDPLY-10119', model_path)
 
-        completer = StringsCompleter(['cd', 'ls', 'top', 'exit'])
+        completer = StringsCompleter(['cat', 'cd', 'ls', 'top', 'exit'])
         terminal = TerminalBuilder.terminal()
         reader = LineReaderBuilder.builder().terminal(terminal).completer(completer).build()
         while True:
@@ -95,7 +95,12 @@ class ModelHelpInteractivePrinter(ModelHelpPrinter):
             elif command_str == 'ls' or command_str.startswith('ls '):
                 canonical_path = self._parse_dir_command_all(model_path, command_str)
                 model_path = _model_path_from_canonical_path(canonical_path)
-                self._handle_ls(model_path, history)
+                self._handle_ls(model_path)
+
+            elif command_str == 'cat' or command_str.startswith('cat '):
+                canonical_path = self._parse_dir_command_all(model_path, command_str)
+                model_path = _model_path_from_canonical_path(canonical_path)
+                self._handle_cat(model_path)
 
             elif command_str:
                 self._output_buffer.clear()
@@ -128,8 +133,8 @@ class ModelHelpInteractivePrinter(ModelHelpPrinter):
         :param command_str: the 'cd' command
         :return: the resulting path (an absolute canonical path)
         """
-
-        ret_path = command_str[3:].replace(':','').strip()
+        space_index = command_str.index(' ')
+        ret_path = command_str[space_index:].replace(':','').strip()
         while ret_path.endswith('/'):
             ret_path = ret_path[:-1]
         while ret_path.replace('//','/') != ret_path:
@@ -185,7 +190,9 @@ class ModelHelpInteractivePrinter(ModelHelpPrinter):
                 # and throw away the output if it returns successfully.
                 #
                 lines = self._output_buffer.get_buffer_contents()
-                self.print_model_help(model_path, ControlOptions.NORMAL, False)
+                # disallow cd to an attribute
+                self.print_model_help(model_path, ControlOptions.NORMAL, print_output=False,
+                                      path_option=PathOptions.FOLDER)
                 self._output_buffer.clear()
                 self._output_buffer.append(lines)
                 history.append(model_path)
@@ -193,18 +200,26 @@ class ModelHelpInteractivePrinter(ModelHelpPrinter):
             self._handle_error_message('WLSDPLY-10122', model_path, ex.getLocalizedMessage())
             self._interactive_help_print_short_instructions()
 
-    def _handle_ls(self, model_path, history):
+    def _handle_ls(self, model_path):
         """
         Prints help for the given model_path, or an error message.
-        Also updates the help history on success.
         :param model_path: the model path
-        :param history: history of successful model paths
-        :param printer: a model help printer
         """
         try:
             self.print_model_help(model_path, ControlOptions.NORMAL)
         except CLAException, ex:
             self._handle_error_message('WLSDPLY-10123', model_path, ex.getLocalizedMessage())
+            self._interactive_help_print_short_instructions()
+
+    def _handle_cat(self, model_path):
+        """
+        Prints attribute help for the given model_path, or an error message.
+        :param model_path: the model path
+        """
+        try:
+            self.print_model_help(model_path, ControlOptions.NORMAL, path_option=PathOptions.ATTRIBUTE)
+        except CLAException, ex:
+            self._handle_error_message('WLSDPLY-10138', model_path, ex.getLocalizedMessage())
             self._interactive_help_print_short_instructions()
 
     def _interactive_help_print_full_instructions(self):
@@ -271,26 +286,6 @@ def _interactive_help_prompt(model_path, reader):
     :return: returns when user types 'exit'
     """
     command_str = reader.readLine('[%s] --> ' % model_path)
-
-    #
-    # # prompt using sys.stdout.write to avoid newline
-    # sys.stdout.write("[" + model_path + "] --> ")
-    # sys.stdout.flush()
-    #
-    # if not input_file:
-    #     command_str = raw_input('') # get command from stdin
-    #
-    # else:
-    #     # get command from file instead of stdin (undocumented feature)
-    #     command_str = input_file.readline()
-    #     if not command_str:
-    #         command_str = 'exit' # reached EOF
-    #     else:
-    #         command_str = command_str.rstrip(os.linesep)
-    #
-    #     # show retrieved command_str right after the prompt
-    #     print(command_str)
-
     command_str = ' '.join(command_str.split()) # remove extra white-space
     return command_str
 
@@ -349,11 +344,11 @@ def _parse_dir_command_simple(model_path, matcher):
         dot_dot_path = groups[1]
         if dot_dot_path is not None:
             new_path = _resolve_dot_dot_path(canonical_path, dot_dot_path)
-        elif groups[0] == 'ls':
+        elif groups[0] in LIST_COMMANDS:
             new_path = canonical_path
         else:
             new_path = '/'
-    elif len(groups) == 1 and groups[0] == 'ls':
+    elif len(groups) == 1 and groups[0] in LIST_COMMANDS:
         new_path = canonical_path
     else:
         # Either cd with no argument or top
