@@ -310,18 +310,6 @@ def main(model_context):
                                                  validate_crd_sections=False)
         model = Model(model_dictionary)
 
-<<<<<<< HEAD
-=======
-        archive_file_name = model_context.get_archive_file_name()
-        if archive_file_name:
-            domain_path = model_context.get_domain_home()
-            archive_helper = ArchiveHelper(archive_file_name, domain_path, __logger, ExceptionType.CREATE)
-            if archive_helper:
-                archive_helper.extract_all_database_wallets()
-                archive_helper.extract_custom_directory()
-                archive_helper.extract_weblogic_remote_console_extension()
-
->>>>>>> main
         _exit_code = __update(model, model_context, aliases)
     except DeployException, ex:
         _exit_code = ExitCode.ERROR
