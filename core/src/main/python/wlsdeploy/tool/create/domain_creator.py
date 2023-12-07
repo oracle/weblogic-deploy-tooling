@@ -102,6 +102,7 @@ from wlsdeploy.tool.util.library_helper import LibraryHelper
 from wlsdeploy.tool.util.saml2_security_helper import Saml2SecurityHelper
 from wlsdeploy.tool.util.target_helper import TargetHelper
 from wlsdeploy.tool.util.targeting_types import TargetingType
+from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.tool.util.topology_profiles import TopologyProfile
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model
@@ -125,10 +126,7 @@ class DomainCreator(Creator):
         _method_name = '__init__'
         Creator.__init__(self, model_dictionary, model_context, aliases)
 
-<<<<<<< HEAD
-=======
         self.topology_helper = TopologyHelper(self.aliases, ExceptionType.CREATE, self.logger)
->>>>>>> main
         self.security_provider_creator = SecurityProviderCreator(model_dictionary, model_context, aliases,
                                                                  ExceptionType.CREATE, self.logger)
 
