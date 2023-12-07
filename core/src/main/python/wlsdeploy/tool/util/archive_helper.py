@@ -16,7 +16,7 @@ from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
-
+from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 class ArchiveList(object):
     """
@@ -35,6 +35,7 @@ class ArchiveList(object):
         """
         _method_name = '__init__'
 
+        self.__weblogic_helper = WebLogicHelper(self.__logger)
         # used for logging only, comma-separated text is OK
         self.__archive_files_text = archive_files_text
 
@@ -342,10 +343,53 @@ class ArchiveList(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=count)
         return count
 
+    def extract_weblogic_remote_console_extension(self, extract_location=None):
+        """
+        Extract the WebLogic Remote Console Extension to the $DOMAIN_HOME/management-services-ext directory.
+        :raises: BundleAwareException of the appropriate type: if an error occurs
+        """
+        _method_name = 'extract_weblogic_remote_console_extension'
+
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        current_entry = ''
+        if self.__weblogic_helper.is_wrc_domain_extension_supported():
+            if extract_location is None:
+                target_location = File(self.__domain_home, WLSDeployArchive.WRC_EXTENSION_TARGET_DIR_NAME)
+            else:
+                target_location = File(File(extract_location), WLSDeployArchive.WRC_EXTENSION_TARGET_DIR_NAME)
+
+            archive_entry_type = WLSDeployArchive.ArchiveEntryType.WEBLOGIC_REMOTE_CONSOLE_EXTENSION
+            for archive_file in self.__archive_files:
+                try:
+                    entries = \
+                        archive_file.getArchiveEntries(archive_entry_type)
+                    for entry in entries:
+                        current_entry = entry
+
+                        if not target_location.exists() and not target_location.mkdirs():
+                            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19316',
+                                current_entry, self.__archive_files_text, target_location.getPath())
+                            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                            raise ex
+
+                        self.__logger.info('WLSDPLY-19315', entry, target_location.getPath())
+                        archive_file.extractWrcExtensionFile(entry, target_location, True)
+
+                except (WLSDeployArchiveIOException, IllegalArgumentException), e:
+                    ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19317',
+                        current_entry, self.__archive_files_text, e.getLocalizedMessage(), error=e)
+                    self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                    raise ex
+
+        found = current_entry != ''
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=found)
+        return found
+
     def extract_domain_bin_script(self, script_path, extract_location=None):
         """
         Extract the specified domain bin script to the $DOMAIN_HOME/bin directory.
         :param script_path: the domain bin path and script into the archive file
+        :param extract_location: the location to which to extract if not the default
         :raises: BundleAwareException of the appropriate type: if an error occurs
         """
         _method_name = 'extract_domain_bin_script'

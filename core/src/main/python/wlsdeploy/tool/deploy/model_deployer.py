@@ -104,6 +104,25 @@ class ModelDeployer(Deployer):
         """
         self.extract_all_database_wallets()
         self.extract_all_custom_files()
+        self.extract_weblogic_remote_console_extension()
+
+    def extract_weblogic_remote_console_extension(self):
+        """
+        Extract all the database wallets in the archive(s) to the target domain.
+        Use SSH if the domain is on a remote system.
+        """
+        if self.model_context.is_remote():
+            return
+
+        archive_list = self.archive_helper
+        if archive_list:
+            if not self.model_context.is_ssh():
+                archive_list.extract_weblogic_remote_console_extension()
+            else:
+                found_ext = archive_list.extract_weblogic_remote_console_extension(self.upload_temporary_dir)
+                if found_ext:
+                    self._upload_extracted_directory(WLSDeployArchive.WRC_EXTENSION_TARGET_DIR_NAME)
+
 
     def extract_all_database_wallets(self):
         """

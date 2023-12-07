@@ -1,9 +1,7 @@
 """
-Copyright (c) 2019, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2019, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-
-import types
 
 from java.io import PrintStream
 from java.lang import System
@@ -810,7 +808,7 @@ class WlstHelper(object):
         :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'disconnect'
-        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+        self.__logger.entering(force, class_name=self.__class_name, method_name=_method_name)
 
         try:
             self.__load_global('disconnect')(force)

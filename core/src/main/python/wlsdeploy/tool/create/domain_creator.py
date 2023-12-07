@@ -125,6 +125,10 @@ class DomainCreator(Creator):
         _method_name = '__init__'
         Creator.__init__(self, model_dictionary, model_context, aliases)
 
+<<<<<<< HEAD
+=======
+        self.topology_helper = TopologyHelper(self.aliases, ExceptionType.CREATE, self.logger)
+>>>>>>> main
         self.security_provider_creator = SecurityProviderCreator(model_dictionary, model_context, aliases,
                                                                  ExceptionType.CREATE, self.logger)
 

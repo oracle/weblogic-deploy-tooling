@@ -6,6 +6,13 @@ package oracle.weblogic.deploy.tool;
 
 import oracle.weblogic.deploy.util.WLSDeployArchive;
 
+// When creating the archive-helper-test.zip, use the following command
+// once the config and wlsdeploy subdirectories are populated with the
+// necessary content.
+//
+// zip archive-helper-test.zip.zip wlsdeploy/**/* config/wlsdeploy/**/*
+
+
 public class ArchiveHelperTestConstants {
     static final String[] MY_APP_WAR_CONTENTS = new String[] {
         "wlsdeploy/applications/my-app.war"
@@ -251,6 +258,29 @@ public class ArchiveHelperTestConstants {
         DOMAIN_LIB_FOO_JAR_CONTENTS
     );
 
+    static final String[] FILE_STORES_FS1_CONTENTS = new String[] {
+        "wlsdeploy/stores/fs1/"
+    };
+
+    static final String[] FILE_STORES_FS1_DUP_CONTENTS = new String[] {
+        "wlsdeploy/stores/fs1(1)/"
+    };
+
+    static final String[] FILE_STORES_FS2_CONTENTS = new String[] {
+        "wlsdeploy/stores/fs2/"
+    };
+
+    static final String[] FILE_STORES_FS3_CONTENTS = new String[] {
+        "wlsdeploy/stores/fs3/"
+    };
+
+    static final String[] FILE_STORES_CONTENT = mergeStringArrays(
+        new String[] { "wlsdeploy/stores/" },
+        FILE_STORES_FS1_CONTENTS,
+        FILE_STORES_FS2_CONTENTS,
+        FILE_STORES_FS3_CONTENTS
+    );
+
     static final String[] FOREIGN_SERVERS_FS1_JNDI_PROPERTIES_CONTENTS = new String[] {
         WLSDeployArchive.ARCHIVE_JMS_FOREIGN_SERVER_DIR + "/fs1/jndi.properties"
     };
@@ -422,29 +452,6 @@ public class ArchiveHelperTestConstants {
         SHARED_LIBS_MY_LIB_XML_CONTENTS
     );
 
-    static final String[] FILE_STORES_FS1_CONTENTS = new String[] {
-        "wlsdeploy/stores/fs1/"
-    };
-
-    static final String[] FILE_STORES_FS1_DUP_CONTENTS = new String[] {
-        "wlsdeploy/stores/fs1(1)/"
-    };
-
-    static final String[] FILE_STORES_FS2_CONTENTS = new String[] {
-        "wlsdeploy/stores/fs2/"
-    };
-
-    static final String[] FILE_STORES_FS3_CONTENTS = new String[] {
-        "wlsdeploy/stores/fs3/"
-    };
-
-    static final String[] FILE_STORES_CONTENT = mergeStringArrays(
-        new String[] { "wlsdeploy/stores/" },
-        FILE_STORES_FS1_CONTENTS,
-        FILE_STORES_FS2_CONTENTS,
-        FILE_STORES_FS3_CONTENTS
-    );
-
     static final String[] STRUCTURED_APP_WEBAPP_CONTENTS = new String[] {
         "wlsdeploy/structuredApplications/webapp/",
         "wlsdeploy/structuredApplications/webapp/app/",
@@ -513,6 +520,17 @@ public class ArchiveHelperTestConstants {
         STRUCTURED_APP_WEBAPP1_CONTENTS
     );
 
+    static final String[] WRC_EXTENSION_FILE_CONTENT = new String[] {
+        "wlsdeploy/wrcExtension/console-rest-ext-6.0.war"
+    };
+
+    static final String[] WRC_EXTENSION_CONTENTS = mergeStringArrays(
+        new String[] { "wlsdeploy/wrcExtension/" },
+        WRC_EXTENSION_FILE_CONTENT
+    );
+
+    static final String[] WRC_EXTENSION_LIST_ALL_CONTENTS = WRC_EXTENSION_CONTENTS;
+
     static final String[] ALL_CONTENT = mergeStringArrays(
         APPLICATIONS_CONTENT,
         CLASSPATH_LIBS_CONTENT,
@@ -530,7 +548,8 @@ public class ArchiveHelperTestConstants {
         SCRIPTS_CONTENT,
         SERVERS_CONTENT,
         SHARED_LIBS_CONTENT,
-        STRUCTURED_APPS_CONTENT
+        STRUCTURED_APPS_CONTENT,
+        WRC_EXTENSION_LIST_ALL_CONTENTS
     );
 
     static String[] mergeStringArrays(String[]... arrays) {

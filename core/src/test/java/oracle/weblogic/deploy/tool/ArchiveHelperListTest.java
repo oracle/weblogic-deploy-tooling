@@ -61,6 +61,8 @@ import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.STRUCTURED_APPS_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.STRUCTURED_APP_WEBAPP_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.STRUCTURED_APP_WEBAPP1_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.WRC_EXTENSION_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.WRC_EXTENSION_FILE_CONTENT;
 import static oracle.weblogic.deploy.util.WLSDeployArchive.DEFAULT_RCU_WALLET_NAME;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -144,7 +146,8 @@ public class ArchiveHelperListTest {
         "script",
         "serverKeystore",
         "sharedLibrary",
-        "structuredApplication"
+        "structuredApplication",
+        "weblogicRemoteConsoleExtension"
     })
     void testListNoArchive_Fails(String subcommand) {
         StringWriter outStringWriter = new StringWriter();
@@ -184,7 +187,8 @@ public class ArchiveHelperListTest {
         "script",
         "serverKeystore",
         "sharedLibrary",
-        "structuredApplication"
+        "structuredApplication",
+        "weblogicRemoteConsoleExtension"
     })
     void testListBadArchive_Fails(String subcommand) {
         StringWriter outStringWriter = new StringWriter();
@@ -237,7 +241,7 @@ public class ArchiveHelperListTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testListAll_ReturnedExceptedNames() {
+    void testListAll_ReturnedExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -254,7 +258,6 @@ public class ArchiveHelperListTest {
             actual = ArchiveHelper.executeCommand(out, err, args);
         }
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
-
         assertEquals(0, actual, "expected command to exit with exit code 0");
         assertListsHaveSameElements(expectedPaths, outputLines, "all");
     }
@@ -1248,6 +1251,59 @@ public class ArchiveHelperListTest {
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
         assertListsHaveSameElements(expectedPaths, outputLines, "structuredApplication");
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                           WebLogic Remote Console Extension                               //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    void testListWrcExtension_ReturnsExceptedNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[]{
+            "list",
+            "weblogicRemoteConsoleExtension",
+            "-archive_file",
+            ARCHIVE_HELPER_VALUE
+        };
+        List<String> expectedPaths = Arrays.asList(WRC_EXTENSION_CONTENTS);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertListsHaveSameElements(expectedPaths, outputLines, "weblogicRemoteConsoleExtension");
+    }
+
+    @Test
+    void testListWrcExtensionFile_ReturnsExceptedNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[]{
+            "list",
+            "weblogicRemoteConsoleExtension",
+            "-archive_file",
+            ARCHIVE_HELPER_VALUE,
+            "-name",
+            "console-rest-ext-6.0.war"
+        };
+        List<String> expectedPaths = Arrays.asList(WRC_EXTENSION_FILE_CONTENT);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertListsHaveSameElements(expectedPaths, outputLines,
+            "weblogicRemoteConsoleExtension -name console-rest-ext-6.0.war");
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

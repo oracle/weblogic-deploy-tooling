@@ -53,6 +53,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS_MY_LIB_XML_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS_MY_OTHER_LIB_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.STRUCTURED_APP_WEBAPP_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.WRC_EXTENSION_FILE_CONTENT;
 import static oracle.weblogic.deploy.util.WLSDeployArchive.DEFAULT_RCU_WALLET_NAME;
 import static oracle.weblogic.deploy.util.WLSDeployArchive.ZIP_SEP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -114,7 +115,8 @@ public class ArchiveHelperExtractTest {
         "serverKeystore, missing.jks",
         "sharedLibrary, missing.war",
         "sharedLibraryPlan, missing.xml",
-        "structuredApplication, missing"
+        "structuredApplication, missing",
+        "weblogicRemoteConsoleExtension, missing.war"
     })
     void testExtractNoArchive_Fails(String subcommand, String name) {
         StringWriter outStringWriter = new StringWriter();
@@ -158,7 +160,8 @@ public class ArchiveHelperExtractTest {
         "serverKeystore, missing.jks",
         "sharedLibrary, missing.war",
         "sharedLibraryPlan, missing.xml",
-        "structuredApplication, missing"
+        "structuredApplication, missing",
+        "weblogicRemoteConsoleExtension, missing.war"
     })
     void testExtractNoTarget_Fails(String subcommand, String name) {
         StringWriter outStringWriter = new StringWriter();
@@ -202,7 +205,8 @@ public class ArchiveHelperExtractTest {
         "serverKeystore",
         "sharedLibrary",
         "sharedLibraryPlan",
-        "structuredApplication"
+        "structuredApplication",
+        "weblogicRemoteConsoleExtension"
     })
     void testExtractNoName_Fails(String subcommand) {
         StringWriter outStringWriter = new StringWriter();
@@ -242,7 +246,8 @@ public class ArchiveHelperExtractTest {
         "script, missing.sh",
         "sharedLibrary, missing.war",
         "sharedLibraryPlan, missing.xml",
-        "structuredApplication, missing"
+        "structuredApplication, missing",
+        "weblogicRemoteConsoleExtension, missing.war"
     })
     void testExtractBadName_Fails(String subcommand, String name) {
         StringWriter outStringWriter = new StringWriter();
@@ -1361,6 +1366,36 @@ public class ArchiveHelperExtractTest {
             "webapp"
         };
         List<String> expectedPaths = Arrays.asList(STRUCTURED_APP_WEBAPP_CONTENTS);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertExtractedFilesMatch(expectedPaths);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                           WebLogic Remote Console Extension                               //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    void testExtractExistingWrcExtensionFile_ProducesExpectedResults() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+            "extract",
+            "weblogicRemoteConsoleExtension",
+            "-archive_file",
+            ARCHIVE_HELPER_VALUE,
+            "-target",
+            TARGET_VALUE,
+            "-name",
+            "console-rest-ext-6.0.war"
+        };
+        List<String> expectedPaths = Arrays.asList(WRC_EXTENSION_FILE_CONTENT);
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);

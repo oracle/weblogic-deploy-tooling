@@ -387,6 +387,7 @@ def main(model_context):
 
                 archive_helper.extract_all_database_wallets()
                 archive_helper.extract_custom_directory()
+                archive_helper.extract_weblogic_remote_console_extension()
 
         has_atp, has_ssl = validate_rcu_args_and_model(model_context, model_dictionary, archive_helper, aliases)
 

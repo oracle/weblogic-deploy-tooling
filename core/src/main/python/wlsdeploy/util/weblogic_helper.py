@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import java.lang.Exception as JException
@@ -67,14 +67,15 @@ class WebLogicHelper(object):
         Is MultiTenant offline provisioning supported?
         :return: true if MT offline provisioning is supported; false otherwise
         """
-        return self.is_weblogic_version_or_above('12.2.1.1') or not self.is_weblogic_version_or_above('12.2.1')
+        return (self.is_weblogic_version_or_above('12.2.1.1') or not self.is_weblogic_version_or_above('12.2.1')) and \
+            not self.is_weblogic_version_or_above('14.1.1')
 
     def is_mt_provisioning_supported(self):
         """
         Is MultiTenant offline provisioning in a version that is still supports MT?
         :return: true if MT provisioning is supported; false otherwise
         """
-        return not self.is_weblogic_version_or_above('14.1.1')
+        return self.is_weblogic_version_or_above('12.2.1') and not self.is_weblogic_version_or_above('14.1.1')
 
     def is_select_template_supported(self):
         """
@@ -124,6 +125,13 @@ class WebLogicHelper(object):
         :return: true if version is within the range supporting topology profiles, false otherwise
         """
         return self.is_weblogic_version_or_above('12.2.1')
+
+    def is_wrc_domain_extension_supported(self):
+        """
+        Is the WebLogic Remote Console domain-level extension supported?
+        :return: true if version is within the range using the domain-level extension. false otherwise
+        """
+        return self.is_weblogic_version_or_above('12.2.1.3') and not self.is_weblogic_version_or_above('14.1.2')
 
     def get_jdbc_url_from_rcu_connect_string(self, rcu_connect_string):
         """

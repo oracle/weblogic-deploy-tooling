@@ -1,12 +1,12 @@
 +++
-title = "Release Notes"
+title = "Release Notes 3.5.1"
 date = 2019-02-22T15:27:38-05:00
-weight = 76
+weight = 78
 pre = "<b> </b>"
 +++
 
 
-### Changes in Release 4.0.0
+### Changes in Release 3.5.1
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -20,7 +20,7 @@ None
 None
 
 #### Bug Fixes
-None
+- #1542 - Fixed a Prepare Model issue related to the new password validation feature introduced in 3.5.0.
 
 #### Known Issues
 None
