@@ -233,6 +233,7 @@ class ModelHelpInteractivePrinter(ModelHelpPrinter):
         self._add_message('WLSDPLY-10126', prefix='  ls [path]               - ')
         self._add_message('WLSDPLY-10127', prefix='  top, cd, cd /, cd top   - ')
         self._add_message('WLSDPLY-10128', prefix='  cd [path]               - ')
+        self._add_message('WLSDPLY-10140', prefix='  cat [path]              - ')
         self._add_message('WLSDPLY-10129', prefix='  history                 - ')
         self._add_message('WLSDPLY-10130', prefix='  exit                    - ')
         self._output_buffer.add_output()
