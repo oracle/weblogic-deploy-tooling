@@ -47,7 +47,7 @@ Folders that support multiple instances, such as `JDBCSystemResource` in this ex
 
 Each sub-folder includes a comment with a model path that can be used to display additional information about that sub-folder. For example, to determine the attributes and sub-folders for `'SubDeployment-1'`, the Model Help Tool could be re-invoked with the model path from the comment:
 ```yaml
-$ <wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle -model_sample /JDBCSystemResource/SubDeployment
+$ <wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle /JDBCSystemResource/SubDeployment
 ```
 You can use the information above to construct this model section:
 ```yaml
@@ -166,17 +166,17 @@ resources:
 ```
 
 #### Interactive option
-To access an interactive command line for exploring model paths using a directory style syntax, use `modelHelp.sh -interactive <starting_model_path>`.
+To access an interactive command line for exploring model paths using a directory style syntax, omit the model path from the command line.
 
 For example:
 ```yaml
-$ modelHelp.sh -interactive top
+$ modelHelp.sh -oracle_home /tmp/oracle
 ```
 The output is:
 ```yaml
 Model Help running in interactive mode.  Type help for help.
 
-Starting at location ('top',)
+Starting at location top
 
 [top] --> help
 
@@ -186,6 +186,7 @@ Commands:
   ls [path]               - List contents of specified location
   top, cd, cd /, cd top   - Change to the top-level location
   cd [path]               - Change to the specified location
+  cat [path]              - Show details for the specified attribute location
   history                 - Show the history of visited locations
   exit                    - Exit interactive mode and the tool
 
@@ -207,16 +208,16 @@ Examples:
   cd ../../../ServerTemplate/DynamicServers
 
 
-  [top] --> 
+[top] --> 
 ```
 
 ### Parameter table for `model_help`
-| Parameter                            | Definition                                                                                                         | Default |
-|--------------------------------------|--------------------------------------------------------------------------------------------------------------------| ---- |
-| `-attributes_only`                   | List only the attributes for the specified model path.                                                             |    |
-| `-folders_only`                      | List only the folders for the specified model path.                                                                |    |
-| `-oracle_home`                       | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set. |    |
-| `-recursive`                         | List only the folders for the specified model path, and recursively include the folders below that path.           |    |
-| `-interactive <starting_model_path>` | Interactive mode.                                                                                                  |   |
-| `-target_mode <mode>`                | The WLST mode to use to load the aliases. The mode is either `online` or `offline` (the default).      |    |
-| `<model_path>`                       | The path to the model element to be examined. The format is `[^<section^>:][/^<folder^>]...`                       |    |
+| Parameter             | Definition                                                                                                                     | Default |
+|-----------------------|--------------------------------------------------------------------------------------------------------------------------------| ---- |
+| `-attributes_only`    | List only the attributes for the specified model path.                                                                         |    |
+| `-folders_only`       | List only the folders for the specified model path.                                                                            |    |
+| `-oracle_home`        | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set.             |    |
+| `-recursive`          | List only the folders for the specified model path, and recursively include the folders below that path.                       |    |
+| `-target <target>`    | The target platform, such as `wko` (the default). This determines the structure of the `kubernetes` and `verrazzano` sections. |    |
+| `-target_mode <mode>` | The WLST mode to use to load the aliases. The mode is either `online` or `offline` (the default).                              |    |
+| `<model_path>`        | The path to the model element to be examined. The format is `[^<section^>:][/^<folder^>]...`                                   |    |
