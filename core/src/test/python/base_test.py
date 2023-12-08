@@ -6,9 +6,6 @@ import os
 import shutil
 import unittest
 
-from java.util.logging import Level
-
-from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import env_helper
 
 
@@ -56,23 +53,6 @@ class BaseTestCase(unittest.TestCase):
         """
         if not os.path.isdir(name):
             os.mkdir(name)
-
-    def _suspend_logs(self, *args):
-        """
-        Disable the specified log names, and store their previous levels
-        """
-        for name in args:
-            logger = PlatformLogger(name)
-            self.log_levels[name] = logger.get_level()
-            logger.set_level(Level.OFF)
-
-    def _restore_logs(self):
-        """
-        Restore suspended logs to their original levels
-        """
-        for key in self.log_levels:
-            logger = PlatformLogger(key)
-            logger.set_level(self.log_levels[key])
 
     def _match(self, value, dictionary, *args):
         dictionary_value = self._traverse(dictionary, *args)

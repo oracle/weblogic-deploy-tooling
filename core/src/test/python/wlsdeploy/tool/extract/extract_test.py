@@ -29,13 +29,11 @@ class ExtractTest(BaseTestCase):
 
     def setUp(self):
         BaseTestCase.setUp(self)
-        self._suspend_logs('wlsdeploy.extract')
         self._establish_directory(self.EXTRACT_OUTPUT_DIR)
         self.config_dir = self._set_custom_config_dir('extract-wdt-config')
 
     def tearDown(self):
         BaseTestCase.tearDown(self)
-        self._restore_logs()
 
         # clean up temporary WDT custom configuration environment variable
         self._clear_custom_config_dir()

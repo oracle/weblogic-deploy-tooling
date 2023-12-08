@@ -90,6 +90,7 @@ class ModelFileDiffer:
         self.output_dir = output_dir
         self.model_context = model_context
         self.compare_msgs = sets.Set()
+        self._hide_output = False
 
     def compare(self):
         """
@@ -184,19 +185,19 @@ class ModelFileDiffer:
         comparer = ModelComparer(current_dict, past_dict, aliases, self.compare_msgs)
         change_model = comparer.compare_models()
 
-        print(BLANK_LINE)
-        print(format_message('WLSDPLY-05706', self.current_dict_file, self.past_dict_file))
-        print(BLANK_LINE)
+        self.print_output(BLANK_LINE)
+        self.print_output(format_message('WLSDPLY-05706', self.current_dict_file, self.past_dict_file))
+        self.print_output(BLANK_LINE)
         if len(change_model.keys()) == 0:
-            print(format_message('WLSDPLY-05710'))
-            print(BLANK_LINE)
+            self.print_output(format_message('WLSDPLY-05710'))
+            self.print_output(BLANK_LINE)
             return 0
 
         if self.output_dir:
             file_name = None
             try:
-                print(format_message('WLSDPLY-05711', self.output_dir))
-                print(BLANK_LINE)
+                self.print_output(format_message('WLSDPLY-05711', self.output_dir))
+                self.print_output(BLANK_LINE)
 
                 # write the change model as a JSON file
                 file_name = self.output_dir + '/diffed_model.json'
@@ -217,8 +218,8 @@ class ModelFileDiffer:
                 raise ex
         else:
             # write the change model to standard output in YAML format
-            print(format_message('WLSDPLY-05707'))
-            print(BLANK_LINE)
+            self.print_output(format_message('WLSDPLY-05707'))
+            self.print_output(BLANK_LINE)
             pty = PythonToYaml(change_model)
             pty.write_to_stream(System.out)
 
@@ -230,6 +231,14 @@ class ModelFileDiffer:
         :return: Set of warning or info messages
         """
         return self.compare_msgs
+
+    def print_output(self, text):
+        if not self._hide_output:
+            print(text)
+
+    def hide_output(self):
+        # disable output for unit tests
+        self._hide_output = True
 
 
 def debug(format_string, *arguments):

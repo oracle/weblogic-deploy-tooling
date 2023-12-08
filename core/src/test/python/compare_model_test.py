@@ -103,13 +103,14 @@ class CompareModelTestCase(unittest.TestCase):
 
         try:
             model_context = ModelContext('CompareModelTestCase', args_map)
-            obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
-            return_code = obj.compare()
+            differ = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
+            differ.hide_output()
+            return_code = differ.compare()
             self.assertEqual(return_code, 0)
 
             yaml_result = _temp_dir + os.sep + 'diffed_model.yaml'
             json_result = _temp_dir + os.sep + 'diffed_model.json'
-            stdout_result = obj.get_compare_msgs()
+            stdout_result = differ.get_compare_msgs()
             model_dictionary = FileToPython(yaml_result).parse()
             yaml_exists = os.path.exists(yaml_result)
             json_exists = os.path.exists(json_result)
@@ -168,13 +169,12 @@ class CompareModelTestCase(unittest.TestCase):
 
         try:
             model_context = ModelContext('CompareModelTestCase', args_map)
-            obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
-            return_code = obj.compare()
+            differ = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
+            differ.hide_output()
+            return_code = differ.compare()
             self.assertEqual(return_code, 0)
 
             yaml_result = _temp_dir + os.sep + 'diffed_model.yaml'
-            json_result = _temp_dir + os.sep + 'diffed_model.json'
-            stdout_result = obj.get_compare_msgs()
             model_dictionary = FileToPython(yaml_result).parse()
             self.assertEqual(model_dictionary.has_key('topology'), True)
             self.assertEqual(model_dictionary['topology'].has_key('SecurityConfiguration'), True)
@@ -217,13 +217,12 @@ class CompareModelTestCase(unittest.TestCase):
 
         try:
             model_context = ModelContext('CompareModelTestCase', args_map)
-            obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
-            return_code = obj.compare()
+            differ = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
+            differ.hide_output()
+            return_code = differ.compare()
             self.assertEqual(return_code, 0)
 
             yaml_result = _temp_dir + os.sep + 'diffed_model.yaml'
-            json_result = _temp_dir + os.sep + 'diffed_model.json'
-            stdout_result = obj.get_compare_msgs()
             model_dictionary = FileToPython(yaml_result).parse()
             self.assertEqual(model_dictionary.has_key('topology'), True)
             self.assertEqual(model_dictionary['topology'].has_key('SecurityConfiguration'), True)
@@ -266,8 +265,9 @@ class CompareModelTestCase(unittest.TestCase):
         }
         try:
             model_context = ModelContext('CompareModelTestCase', args_map)
-            obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
-            return_code = obj.compare()
+            differ = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
+            differ.hide_output()
+            return_code = differ.compare()
         except (CompareException, PyWLSTException), te:
             return_code = 2
             # self._logger.severe('WLSDPLY-05709', te.getLocalizedMessage(), error=te,
@@ -301,22 +301,10 @@ class CompareModelTestCase(unittest.TestCase):
 
         try:
             model_context = ModelContext('CompareModelTestCase', args_map)
-            obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
+            differ = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
+            differ.hide_output()
 
-            # expected parse error for model4, disable logging
-            yaml_logger = PlatformLogger('wlsdeploy.yaml')
-            yaml_level = yaml_logger.get_level()
-            yaml_logger.set_level(Level.OFF)
-
-            compare_logger = PlatformLogger('wlsdeploy.compare_model')
-            compare_level = compare_logger.get_level()
-            compare_logger.set_level(Level.OFF)
-
-            return_code = obj.compare()
-
-            # Restore original log levels
-            yaml_logger.set_level(yaml_level)
-            compare_logger.set_level(compare_level)
+            return_code = differ.compare()
 
         except (CompareException, PyWLSTException), te:
             return_code = 2
@@ -352,12 +340,13 @@ class CompareModelTestCase(unittest.TestCase):
 
         try:
             model_context = ModelContext('CompareModelTestCase', args_map)
-            obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
-            return_code = obj.compare()
+            differ = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
+            differ.hide_output()
+            return_code = differ.compare()
             self.assertEqual(return_code, 0)
 
             yaml_result = _temp_dir + os.sep + 'diffed_model.yaml'
-            stdout_result = obj.get_compare_msgs()
+            stdout_result = differ.get_compare_msgs()
             model_dictionary = FileToPython(yaml_result).parse()
             yaml_exists = os.path.exists(yaml_result)
 
@@ -410,13 +399,14 @@ class CompareModelTestCase(unittest.TestCase):
 
         try:
             model_context = ModelContext('CompareModelTestCase', args_map)
-            obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
-            return_code = obj.compare()
+            differ = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
+            differ.hide_output()
+            return_code = differ.compare()
             self.assertEqual(return_code, 0)
 
             yaml_result = _temp_dir + os.sep + 'diffed_model.yaml'
             json_result = _temp_dir + os.sep + 'diffed_model.json'
-            stdout_result = obj.get_compare_msgs()
+            stdout_result = differ.get_compare_msgs()
             model_dictionary = FileToPython(yaml_result).parse()
             yaml_exists = os.path.exists(yaml_result)
             json_exists = os.path.exists(json_result)
@@ -479,13 +469,14 @@ class CompareModelTestCase(unittest.TestCase):
 
         try:
             model_context = ModelContext('CompareModelTestCase', args_map)
-            obj = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
-            return_code = obj.compare()
+            differ = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _temp_dir)
+            differ.hide_output()
+            return_code = differ.compare()
             self.assertEqual(return_code, 0)
 
             yaml_result = _temp_dir + os.sep + 'diffed_model.yaml'
             json_result = _temp_dir + os.sep + 'diffed_model.json'
-            stdout_result = obj.get_compare_msgs()
+            stdout_result = differ.get_compare_msgs()
             model_dictionary = FileToPython(yaml_result).parse()
             yaml_exists = os.path.exists(yaml_result)
             json_exists = os.path.exists(json_result)
@@ -584,6 +575,7 @@ class CompareModelTestCase(unittest.TestCase):
         try:
             model_context = ModelContext('CompareModelTestCase', args_map)
             differ = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _output_dir)
+            differ.hide_output()
             return_code = differ.compare()
             self.assertEqual(return_code, 0)
 
@@ -666,6 +658,7 @@ class CompareModelTestCase(unittest.TestCase):
         try:
             model_context = ModelContext('CompareModelTestCase', args_map)
             differ = ModelFileDiffer(_new_model_file, _old_model_file, model_context, _output_dir)
+            differ.hide_output()
             return_code = differ.compare()
             self.assertEqual(return_code, 0)
 
