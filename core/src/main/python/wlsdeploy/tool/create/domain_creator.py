@@ -308,7 +308,8 @@ class DomainCreator(Creator):
             truststore_type = rcu_db_info.get_truststore_type()
             keystore_type = rcu_db_info.get_keystore_type()
             keystore, keystore_type, truststore, truststore_type = atp_helper.fix_store_type_and_default_value(keystore,
-                                                                        keystore_type, truststore, truststore_type)
+                                                                        keystore_type, truststore, truststore_type,
+                                                                        truststore_pwd, keystore_pwd)
 
 
             self._set_rcu_ssl_args_properties(ssl_conn_properties, rcu_db_info, keystore, keystore_type, truststore,
@@ -1287,7 +1288,8 @@ class DomainCreator(Creator):
                                            truststore_type, keystore_pwd, keystore_type, keystore):
         location = deployer_utils.get_jdbc_driver_params_properties_location(datasource_name, self.aliases)
         keystore, keystore_type, truststore, truststore_type = atp_helper.fix_store_type_and_default_value(keystore,
-                                                                    keystore_type, truststore, truststore_type)
+                                                                    keystore_type, truststore, truststore_type,
+                                                                    truststore_pwd, keystore_pwd)
 
         properties_set = []
         self.__set_connection_property_info(location, DRIVER_PARAMS_KEYSTORE_PROPERTY, self.__get_store_path(tns_admin,
@@ -1676,7 +1678,8 @@ class DomainCreator(Creator):
                                          truststore_type, keystore_pwd, keystore_type, keystore):
 
         keystore, keystore_type, truststore, truststore_type = atp_helper.fix_store_type_and_default_value(keystore,
-                                                                       keystore_type, truststore, truststore_type)
+                                                                       keystore_type, truststore, truststore_type,
+                                                                        truststore_pwd, keystore_pwd)
 
         properties_set = []
 
