@@ -25,7 +25,8 @@ def set_ssl_properties(xml_doc, atp_creds_path, keystore_password, truststore_pa
     props = collection.getElementsByTagName("propertySet")
 
     keystore, keystore_type, truststore, truststore_type = fix_store_type_and_default_value(keystore, keystore_type,
-                                                                                            truststore, truststore_type)
+                                                             truststore, truststore_type, truststore_password,
+                                                                                            keystore_password)
 
     for prop in props:
         if prop.getAttribute('name') == 'props.db.1':
@@ -55,21 +56,34 @@ def set_ssl_properties(xml_doc, atp_creds_path, keystore_password, truststore_pa
             file_handle.close()
 
 
-def fix_store_type_and_default_value(keystore, keystore_type, truststore, truststore_type):
+def fix_store_type_and_default_value(keystore, keystore_type, truststore, truststore_type, truststore_pw, keystore_pw):
     # historical reason atp does not need these inputs by default and it uses JKS
     # set the default and return it
 
-    if keystore is None:
-        if keystore_type == 'SSO':
-            keystore = 'cwallet.sso'
-        else:
-            keystore = 'keystore.jks'
+    # If there is password and type not set, set it to JKS
 
-    if truststore is None:
-        if truststore_type == 'SSO':
-            truststore = 'cwallet.sso'
-        else:
-            truststore = 'truststore.jks'
+    if keystore_pw is not None and keystore_type is None:
+        keystore_type = 'JKS'
+
+    if truststore_pw is not None and truststore_type is None:
+        truststore_type = 'JKS'
+
+    # If both type and store are not set, default to SSO
+    if keystore_type is None and keystore is None:
+        keystore_type = 'SSO'
+        keystore = 'cwallet.sso'
+
+    if truststore_type is None and truststore is None:
+        truststore_type = 'SSO'
+        truststore = 'cwallet.sso'
+
+    # If no store specify for JKS type
+    if keystore_type == 'JKS' and keystore is None:
+        keystore = 'keystore.jks'
+
+    if truststore_type == 'JKS' and truststore is None:
+        truststore = 'truststore.jks'
+
 
     return keystore, keystore_type, truststore, truststore_type
 
