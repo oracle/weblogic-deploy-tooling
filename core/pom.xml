@@ -260,6 +260,7 @@
                             </wlstExtClasspath>
                             <systemProperties>
                                 <unit-test-wlst-dir>${unit-test-wlst-dir}</unit-test-wlst-dir>
+                                <java.util.logging.config.file>${project.basedir}/src/test/resources/log-unit-test.properties</java.util.logging.config.file>
                             </systemProperties>
                             <environmentVariables>
                                 <WDT_CUSTOM_CONFIG>${project.build.directory}/unit-tests/wdt-config</WDT_CUSTOM_CONFIG>

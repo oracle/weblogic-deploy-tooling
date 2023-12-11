@@ -79,14 +79,8 @@ class PrepareTestCase(BaseTestCase):
 
         model_context = ModelContext('PrepareModelTestCase', args_map)
 
-        # disable relevant loggers, saving original levels
-        self._suspend_logs('wlsdeploy.prepare_model', 'wlsdeploy.util', 'wlsdeploy.tool.util')
-
         preparer = ModelPreparer(model_files, model_context, output_dir)
         preparer.prepare_models()
-
-        # Restore original log levels
-        self._restore_logs()
 
         # Check the model file
 
