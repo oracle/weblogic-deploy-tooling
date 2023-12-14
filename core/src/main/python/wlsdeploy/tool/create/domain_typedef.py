@@ -61,11 +61,15 @@ class DomainTypedef(object):
         'wldf': '/WLDFSystemResource'
     }
 
-    def __init__(self, program_name, domain_type):
+    def __init__(self, program_name, domain_type, exit_context=False):
         """
         The DomainTypedef constructor.
         :param program_name: the name of the program create this object
         :param domain_type: the domain type
+        :param exit_context: if the typedef is being created only in the context of the
+            exit model_context where the actual domain type is not yet known and has been
+            defaulted to WLS.  In this situation, we should suppress logging about the
+            domain type.
         """
         _method_name = '__init__'
 
@@ -103,53 +107,54 @@ class DomainTypedef(object):
         self._domain_typedef = self.__get_version_typedef()
         self._targeting_type = self._resolve_targeting_type()
 
-        if 'postCreateRcuSchemasScript' in self._domain_typedef:
-            if 'rcuSchemas' in self._domain_typedef and len(self._domain_typedef['rcuSchemas']) > 0:
-                self._logger.info('WLSDPLY-12326', domain_type, self._domain_typedef_filename, self._version_typedef_name,
-                                  class_name=self.__class_name, method_name=_method_name)
-                self._post_create_rcu_schemas_script_dict = self._domain_typedef['postCreateRcuSchemasScript']
+        if not exit_context:
+            if 'postCreateRcuSchemasScript' in self._domain_typedef:
+                if 'rcuSchemas' in self._domain_typedef and len(self._domain_typedef['rcuSchemas']) > 0:
+                    self._logger.info('WLSDPLY-12326', domain_type, self._domain_typedef_filename, self._version_typedef_name,
+                                      class_name=self.__class_name, method_name=_method_name)
+                    self._post_create_rcu_schemas_script_dict = self._domain_typedef['postCreateRcuSchemasScript']
+                else:
+                    self._logger.info('WLSDPLY-12327', domain_type, self._domain_typedef_filename, self._version_typedef_name,
+                                      class_name=self.__class_name, method_name=_method_name)
+                    self._post_create_rcu_schemas_script_dict = None
             else:
-                self._logger.info('WLSDPLY-12327', domain_type, self._domain_typedef_filename, self._version_typedef_name,
+                self._logger.info('WLSDPLY-12328', domain_type, self._domain_typedef_filename, self._version_typedef_name,
                                   class_name=self.__class_name, method_name=_method_name)
                 self._post_create_rcu_schemas_script_dict = None
-        else:
-            self._logger.info('WLSDPLY-12328', domain_type, self._domain_typedef_filename, self._version_typedef_name,
-                              class_name=self.__class_name, method_name=_method_name)
-            self._post_create_rcu_schemas_script_dict = None
 
 
-        if 'postCreateDomainScript' in self._domain_typedef:
-            self._logger.info('WLSDPLY-12320', domain_type, self._domain_typedef_filename, self._version_typedef_name,
-                              class_name=self.__class_name, method_name=_method_name)
-            self._post_create_domain_script_dict = self._domain_typedef['postCreateDomainScript']
-        else:
-            self._logger.info('WLSDPLY-12321', domain_type, self._domain_typedef_filename, self._version_typedef_name,
-                              class_name=self.__class_name, method_name=_method_name)
-            self._post_create_domain_script_dict = None
+            if 'postCreateDomainScript' in self._domain_typedef:
+                self._logger.info('WLSDPLY-12320', domain_type, self._domain_typedef_filename, self._version_typedef_name,
+                                  class_name=self.__class_name, method_name=_method_name)
+                self._post_create_domain_script_dict = self._domain_typedef['postCreateDomainScript']
+            else:
+                self._logger.info('WLSDPLY-12321', domain_type, self._domain_typedef_filename, self._version_typedef_name,
+                                  class_name=self.__class_name, method_name=_method_name)
+                self._post_create_domain_script_dict = None
 
-        if 'discoverExcludedBinariesList' in self._domain_typedef and \
-                len(self._domain_typedef['discoverExcludedBinariesList']) > 0:
-            self._logger.info('WLSDPLY-12330', domain_type, self._domain_typedef_filename,
-                              self._version_typedef_name, len(self._domain_typedef['discoverExcludedBinariesList']),
-                              class_name=self.__class_name, method_name=_method_name)
-            self._excluded_locations_binaries_to_archive = self._domain_typedef['discoverExcludedBinariesList']
-        else:
-            self._logger.info('WLSDPLY-12331', domain_type, self._domain_typedef_filename,
-                              self._version_typedef_name, class_name=self.__class_name, method_name=_method_name)
-            self._excluded_locations_binaries_to_archive = list()
+            if 'discoverExcludedBinariesList' in self._domain_typedef and \
+                    len(self._domain_typedef['discoverExcludedBinariesList']) > 0:
+                self._logger.info('WLSDPLY-12330', domain_type, self._domain_typedef_filename,
+                                  self._version_typedef_name, len(self._domain_typedef['discoverExcludedBinariesList']),
+                                  class_name=self.__class_name, method_name=_method_name)
+                self._excluded_locations_binaries_to_archive = self._domain_typedef['discoverExcludedBinariesList']
+            else:
+                self._logger.info('WLSDPLY-12331', domain_type, self._domain_typedef_filename,
+                                  self._version_typedef_name, class_name=self.__class_name, method_name=_method_name)
+                self._excluded_locations_binaries_to_archive = list()
 
-        if 'discover-filters' in self._domain_typedefs_dict:
-            if 'system-elements' in self._domain_typedefs_dict:
-                self._logger.notification('WLSDPLY-12317', self._domain_typedef_filename)
-            self._discover_filters = self._domain_typedefs_dict['discover-filters']
-        elif 'system-elements' in self._domain_typedefs_dict:
-            # Leave this until at least WDT 5.0 - rpatrick
-            self._logger.deprecation('WLSDPLY-12318', self._domain_typedef_filename)
-            self._discover_filters = self._translate_system_elements(self._domain_typedefs_dict['system-elements'])
-        else:
-            self._discover_filters = {}
+            if 'discover-filters' in self._domain_typedefs_dict:
+                if 'system-elements' in self._domain_typedefs_dict:
+                    self._logger.notification('WLSDPLY-12317', self._domain_typedef_filename)
+                self._discover_filters = self._domain_typedefs_dict['discover-filters']
+            elif 'system-elements' in self._domain_typedefs_dict:
+                # Leave this until at least WDT 5.0 - rpatrick
+                self._logger.deprecation('WLSDPLY-12318', self._domain_typedef_filename)
+                self._discover_filters = self._translate_system_elements(self._domain_typedefs_dict['system-elements'])
+            else:
+                self._discover_filters = {}
 
-        self._topology_profile = self._resolve_topology_profile()
+            self._topology_profile = self._resolve_topology_profile()
 
     def set_model_context(self, model_context):
         """
