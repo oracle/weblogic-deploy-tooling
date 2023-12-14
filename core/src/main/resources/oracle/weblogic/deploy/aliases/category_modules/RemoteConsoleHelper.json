@@ -7,7 +7,7 @@
   "default_name_value": "${NO_NAME_0:%DOMAIN%}",
   "folders": {},
   "attributes": {
-    "ContextPath":            [ {"version": "[14.1.2,)",         "wlst_mode": "both",    "wlst_name": "ContextPath",             "wlst_path": "WP001", "default_value": "${consolehelper:console}", "wlst_type": "string"   } ],
+    "ContextPath":            [ {"version": "[14.1.2,)",         "wlst_mode": "both",    "wlst_name": "ContextPath",             "wlst_path": "WP001", "default_value": "console",                  "wlst_type": "string"   } ],
     "CookieName":             [ {"version": "[14.1.2,)",         "wlst_mode": "both",    "wlst_name": "CookieName",              "wlst_path": "WP001", "default_value": "REMOTECONSOLESESSION",     "wlst_type": "string"   } ],
     "Notes":                  [ {"version": "[14.1.2,)",         "wlst_mode": "both",    "wlst_name": "Notes",                   "wlst_path": "WP001", "default_value": null,                       "wlst_type": "string"    } ],
     "ProtectedCookieEnabled": [ {"version": "[14.1.2,)",         "wlst_mode": "both",    "wlst_name": "ProtectedCookieEnabled",  "wlst_path": "WP001", "default_value": true,                       "wlst_type": "boolean"   } ],
