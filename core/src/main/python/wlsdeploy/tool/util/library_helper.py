@@ -174,7 +174,7 @@ class LibraryHelper(object):
         :param target_parent_dir:  wlsdeploy
         """
         if self.model_context.is_ssh():
-            self.model_context.get_ssh_context().remote_command("mkdir -p " + os.path.join(
+            self.model_context.get_ssh_context().create_directories_if_not_exist(os.path.join(
                 self.model_context.get_remote_domain_home(), archive_path))
             self.model_context.get_ssh_context().upload(os.path.join(self.upload_temporary_dir, archive_path),
                                                         os.path.join(self.model_context.get_remote_domain_home(),

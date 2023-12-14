@@ -1309,7 +1309,7 @@ class ApplicationsDeployer(Deployer):
 
     def _delete_deployment_to_remote_server(self, source_path):
         if self.model_context.is_ssh() and not source_path.startswith('/'):
-            self.model_context.get_ssh_context().remote_command("rm -fr " + os.path.join(
+            self.model_context.get_ssh_context().remove_file_or_directory(os.path.join(
                 self.model_context.get_remote_domain_home(), source_path))
 
     def __get_deployment_ordering(self, apps):

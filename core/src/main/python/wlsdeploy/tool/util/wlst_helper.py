@@ -30,6 +30,41 @@ class WlstHelper(object):
     def __init__(self, exception_type):
         self.__exception_type = exception_type
 
+    def get_server_version_data(self, username, password, url, timeout):
+        """
+        Get the WebLogic Server version and Patch List data from the running server.
+        :param username: WebLogic user name
+        :param password: WebLogic password
+        :param url: WebLogic Server URL
+        :param timeout: Connect timeout
+        :return: The raw data from the serverRuntime attributes.  It will require parsing to extract
+            a meaningful version.
+        :raises: Exception for the specified tool type: if a WLST error occurs
+        """
+        _method_name = 'get_server_version_data'
+        self.__logger.entering(username, url, timeout, class_name=self.__class_name, method_name=_method_name)
+
+        self.connect(username, password, url, timeout)
+        pwd = None
+        try:
+            try:
+                pwd = self.get_pwd()
+                self.__load_global('serverRuntime')()
+                version_string = self.get('WebLogicVersion')
+                patch_list_array = self.get('PatchList')
+            except self.__load_global('WLSTException'), e:
+                pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00133', url,
+                                                        self.__get_exception_mode(e), _format_exception(e), error=e)
+                self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+                raise pwe
+        finally:
+            if pwd is not None:
+                self.cd(pwd)
+            self.disconnect()
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=(version_string, patch_list_array))
+        return version_string, patch_list_array
+
     def assign(self, source_type, source_name, target_type, target_name):
         """
         Assign target entity to source entity

@@ -833,7 +833,7 @@ class Validator(object):
                     log_method('WLSDPLY-19313', attribute_name, model_folder_path, path,
                                    class_name=_class_name, method_name=_method_name)
 
-            elif not self._model_context.is_remote() and not self._model_context.skip_archive():
+            elif not self._model_context.is_remote() and not self._model_context.is_skip_archive():
                 log_method('WLSDPLY-05025', attribute_name, model_folder_path, path,
                            class_name=_class_name, method_name=_method_name)
         else:

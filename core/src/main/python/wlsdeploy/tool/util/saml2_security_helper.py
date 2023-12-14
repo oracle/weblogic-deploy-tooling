@@ -125,14 +125,11 @@ class Saml2SecurityHelper(object):
 
         if self._model_context.is_ssh():
             # only if it exists
-            results = self._model_context.get_ssh_context().remote_command("find " + self._domain_security_directory +
-                                                                           " -maxdepth 1 -name " + properties_file_name)
-            if results:
-                items = results.split('\n')
-                if items[0] != '':
+            results = self._model_context.get_ssh_context().get_directory_contents(self._domain_security_directory, True)
+            for result in results:
+                if result.lower().endswith(properties_file_name.lower()):
                     properties_file = discoverer.download_deployment_from_remote_server(properties_file,
-                                                                                 discoverer.download_temporary_dir,
-                                                                           "samlInitFile")
+                        discoverer.download_temporary_dir, "samlInitFile")
         if os.path.isfile(properties_file):
             if archive:
                 self._logger.info('WLSDPLY-23005', properties_file_name, class_name=self._class_name,

@@ -411,7 +411,7 @@ def __clear_archive_file(model_context):
 
     archive_file = model_context.get_archive_file()
 
-    if not model_context.skip_archive() and not model_context.is_remote():
+    if not model_context.is_skip_archive() and not model_context.is_remote():
         if archive_file is not None:
             try:
                 archive_file.removeAllBinaries()
@@ -490,8 +490,12 @@ def __persist_model(model, model_context):
     model_dict = model.get_model()
     message_1 = exception_helper.get_message('WLSDPLY-06039', WebLogicDeployToolingVersion.getVersion(), _program_name)
     model_dict.addComment(DOMAIN_INFO, message_1)
-    message_2 = exception_helper.get_message('WLSDPLY-06040', WlstModes.values()[__wlst_mode],
-                                             model_context.get_target_wls_version())
+    if model_context.is_remote() or model_context.is_ssh():
+        message_2 = exception_helper.get_message('WLSDPLY-06043', model_context.get_target_wls_version(),
+                                                 WlstModes.from_value(__wlst_mode), model_context.get_admin_url())
+    else:
+        message_2 = exception_helper.get_message('WLSDPLY-06040', WlstModes.from_value(__wlst_mode),
+                                                 model_context.get_target_wls_version())
     model_dict.addComment(DOMAIN_INFO, message_2)
     model_dict.addComment(DOMAIN_INFO, '')
 

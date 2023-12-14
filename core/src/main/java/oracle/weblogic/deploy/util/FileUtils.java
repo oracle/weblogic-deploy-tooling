@@ -715,7 +715,7 @@ public final class FileUtils {
      */
     public static boolean isRemotePathAbsolute(String filePath) {
         return !StringUtils.isEmpty(filePath) &&
-            (filePath.startsWith("/") || filePath.startsWith(":\\", 1) || filePath.startsWith("\\\\"));
+            (filePath.startsWith("/") || isWindowsRemoteAbsolutePath(filePath));
     }
 
     /**
@@ -741,6 +741,11 @@ public final class FileUtils {
     ///////////////////////////////////////////////////////////////////////////
     // Private helper methods                                                //
     ///////////////////////////////////////////////////////////////////////////
+
+    private static boolean isWindowsRemoteAbsolutePath(String path) {
+        String windowsPath = path.replace('/', '\\');
+        return windowsPath.startsWith(":\\", 1) || windowsPath.startsWith("\\\\");
+    }
 
     private static File getModelFileFromArray(File[] files, File modelDirectory) {
         File modelFile = null;

@@ -49,6 +49,7 @@ def run_tool(main, process_args, args, program_name, class_name, logger):
     model_context_obj = model_context_helper.create_exit_context(program_name)
     try:
         model_context_obj = process_args(args)
+
         exit_code = main(model_context_obj)
     except CLAException, ex:
         exit_code = ex.getExitCode()
@@ -78,16 +79,21 @@ def __exit_tool(model_context, exit_code):
     version = None
     use_deprecation_exit_code = None
     tool_mode = JWLSTMode.OFFLINE
+    is_remote = False
+    admin_url = None
     if model_context:
         program = model_context.get_program_name()
         version = model_context.get_target_wls_version()
         use_deprecation_exit_code = model_context.get_model_config().get_use_deprecation_exit_code()
         if model_context.get_target_wlst_mode() == WlstModes.ONLINE:
             tool_mode = JWLSTMode.ONLINE
+            is_remote = model_context.is_remote() or model_context.is_ssh()
+            if is_remote:
+                admin_url = model_context.get_admin_url()
 
     exit_code = __get_summary_handler_exit_code(exit_code, use_deprecation_exit_code)
 
-    WLSDeployExit.exit(WLSDeployContext(program, version, tool_mode), exit_code)
+    WLSDeployExit.exit(WLSDeployContext(program, version, tool_mode, is_remote, admin_url), exit_code)
 
 
 def __handle_unexpected_exception(ex, model_context, class_name, method_name, logger):

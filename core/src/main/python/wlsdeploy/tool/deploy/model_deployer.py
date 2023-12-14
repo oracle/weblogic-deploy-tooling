@@ -165,7 +165,7 @@ class ModelDeployer(Deployer):
         local_dir = os.path.join(self.upload_temporary_dir, archive_path)
         if os.path.isdir(local_dir):
             remote_dir = os.path.join(self.model_context.get_remote_domain_home(), archive_path)
-            self.model_context.get_ssh_context().remote_command("mkdir -p " + remote_dir)
+            self.model_context.get_ssh_context().create_directories_if_not_exist(remote_dir)
 
             remote_parent_dir = os.path.join(remote_dir, os.pardir)
             self.model_context.get_ssh_context().upload(local_dir, remote_parent_dir)

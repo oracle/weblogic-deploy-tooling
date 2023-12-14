@@ -1,23 +1,24 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Module that handles SSH communication with remote machines.
 """
 import os
 
+from java.io import BufferedReader
+from java.io import InputStreamReader
 import java.io.IOException as IOException
 import java.lang.Exception as JException
 import java.lang.String as JString
 import java.lang.System as JSystem
-import java.lang.StringBuilder as StringBuilder
-import java.util.concurrent.TimeUnit as TimeUnit
 
 from net.schmizz.sshj import SSHClient
 import net.schmizz.sshj.common.SSHException as SSHJException
 from net.schmizz.sshj.transport import TransportException
 from net.schmizz.sshj.userauth import UserAuthException
 
+from oracle.weblogic.deploy.exception import BundleAwareException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import SSHException
 from oracle.weblogic.deploy.util import StringUtils
@@ -28,13 +29,15 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import getcreds
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
+from wlsdeploy.util.ssh_command_line_helper import SSHUnixCommandLineHelper
+from wlsdeploy.util.ssh_command_line_helper import SSHWindowsCommandLineHelper
 
 __class_name = 'ssh_helper'
 __logger = PlatformLogger('wlsdeploy.util')
 
 def initialize_ssh(model_context, argument_map, exception_type=ExceptionType.SSH):
     _method_name = 'initialize_ssh'
-    __logger.entering(class_name=__class_name, method_name=_method_name)
+    __logger.entering(exception_type, class_name=__class_name, method_name=_method_name)
 
     if model_context.get_ssh_host() is None:
         __logger.finest('WLSDPLY-32007', class_name=__class_name, method_name=_method_name)
@@ -180,6 +183,11 @@ class SSHContext(object):
             raise ex
 
         self._authenticate()
+        self.is_windows = self._is_windows()
+        if self.is_windows:
+            self._os_helper = SSHWindowsCommandLineHelper()
+        else:
+            self._os_helper = SSHUnixCommandLineHelper()
 
         self._logger.exiting(class_name=self._class_name, method_name=_method_name)
 
@@ -217,8 +225,8 @@ class SSHContext(object):
             self._logger.info('WLSDPLY-32017', source_path, remote_host, abs_target_path,
                               class_name=self._class_name, method_name=_method_name)
         except IOException,ioe:
-            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32015', source_path, abs_target_path,
-                                                   ioe.getLocalizedMessage(), error=ioe)
+            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32015', source_path,
+                                                   abs_target_path, ioe.getLocalizedMessage(), error=ioe)
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
@@ -255,35 +263,96 @@ class SSHContext(object):
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
-    def remote_command(self, command):
-        _method_name = 'remote_command'
-        self._logger.entering(command, class_name=self._class_name, method_name=_method_name)
+    def create_directories_if_not_exist(self, directory_path):
+        _method_name = 'create_directories_if_not_exist'
+        self._logger.entering(directory_path, class_name=self._class_name, method_name=_method_name)
 
-        if StringUtils.isEmpty(command):
-            return
-        try:
-            session = self._ssh_client.startSession()
-            self._logger.info('WLSDPLY-32024', command,
-                              class_name=self._class_name, method_name=_method_name)
-            cmd = session.exec(command)
-            ins = cmd.getInputStream()
-            result = StringBuilder()
-            while True:
-                c = ins.read()
-                if c == -1:
-                    break
-                else:
-                    result.append(chr(c))
-
-            self._logger.info('WLSDPLY-32025', str(cmd.getExitStatus()),
-                              class_name=self._class_name, method_name=_method_name)
-            session.close()
-            return result.toString()
-        except IOException,ioe:
-            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32021', abs_source_path, target_path,
-                                                   ioe.getLocalizedMessage(), error=ioe)
+        result = False
+        if directory_path is not None and len(directory_path) > 0:
+            command = self._os_helper.get_mkdirs_command(directory_path)
+            exit_code, output_lines = self._run_exec_command(command)
+            if exit_code == 0:
+                result = True
+            else:
+                ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32035', directory_path,
+                    command, self._ssh_client.getRemoteHostname(), self._join_lines(output_lines))
+                self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
+        else:
+            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32036',
+                                                   self._ssh_client.getRemoteHostname())
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
+
+    def remove_file_or_directory(self, path):
+        _method_name = 'remove_file_or_directory'
+        self._logger.entering(path, class_name=self._class_name, method_name=_method_name)
+
+        result = False
+        if path is not None and len(path) > 0:
+            # This is messy because Windows requires a path type-specific command
+            if self.is_windows:
+                if self.does_directory_exist(path):
+                    command = self._os_helper.get_remove_dir_command(path)
+                else:
+                    command = self._os_helper.get_remove_file_command(path)
+            else:
+                command = self._os_helper.get_remove_command(path)
+
+            exit_code, output_lines = self._run_exec_command(command)
+            if exit_code == 0:
+                result = True
+            else:
+                self._logger.severe('WLSDPLY-32033', path, command, self._ssh_client.getRemoteHostname(),
+                                    self._join_lines(output_lines), class_name=self._class_name, method_name=_method_name)
+        else:
+            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32034',
+                                                   self._ssh_client.getRemoteHostname())
+            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
+
+    def does_directory_exist(self, directory_path):
+        _method_name = 'does_directory_exist'
+        self._logger.entering(directory_path, class_name=self._class_name, method_name=_method_name)
+
+        result = False
+        if directory_path is not None and len(directory_path) > 0:
+            command = self._os_helper.get_does_directory_exist_command(directory_path)
+            exit_code, _ = self._run_exec_command(command)
+            if exit_code == 0:
+                result = True
+
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
+
+    def get_directory_contents(self, directory_path, files_only=True, filtering_regex_pattern=None):
+        _method_name = 'get_directory_contents'
+        self._logger.entering(directory_path, files_only, filtering_regex_pattern,
+                              class_name=self._class_name, method_name=_method_name)
+
+        result = list()
+        if directory_path is not None and len(directory_path) > 0:
+            command = self._os_helper.get_directory_contents_command(directory_path)
+            exit_code, output_lines = self._run_exec_command(command)
+            if exit_code == 0:
+                result = self._os_helper.get_directory_contents(output_lines, files_only, filtering_regex_pattern)
+            else:
+                ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32024', directory_path,
+                    command, self._ssh_client.getRemoteHostname(), self._join_lines(output_lines))
+                self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
+        else:
+            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32025',
+                                                   self._ssh_client.getRemoteHostname())
+            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
 
     def connect(self):
         _method_name = 'connect'
@@ -341,6 +410,54 @@ class SSHContext(object):
             self._public_key_auth()
 
         self._logger.exiting(class_name=self._class_name, method_name=_method_name)
+
+    def _is_windows(self):
+        _method_name = '_is_windows'
+        self._logger.entering(class_name=self._class_name, method_name=_method_name)
+
+        result = False
+        session = None
+        host = self._model_context.get_ssh_host()
+        try:
+            #
+            # uname command does not normally exist on Windows unless the shell
+            # has Unix utilities installed, in which case it normally returns
+            # the string Windows_NT.
+            #
+            exit_code, result_lines = self._run_exec_command('uname')
+            if exit_code == 0:
+                # May or may not be Windows.
+                for result_line in result_lines:
+                    if result_line.startswith('Windows'):
+                        result = True
+                        break
+            else:
+                # More than likely, it is Windows but let's make sure.
+                exit_code, result_lines = self._run_exec_command('wmic os get caption')
+                if exit_code == 0:
+                    for result_line in result_lines:
+                        if result_line.startswith('Microsoft Windows'):
+                            result = True
+                            break
+                else:
+                    ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32026',
+                                                           host, self._join_lines(result_lines))
+                    self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                    raise ex
+        except (IOException, BundleAwareException), error:
+            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32027', host,
+                                                   error.getLocalizedMessage(), error=error)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+
+        if result:
+            key = 'WLSDPLY-32029'
+        else:
+            key = 'WLSDPLY-32030'
+
+        self._logger.info(key, host, class_name=self._class_name, method_name=_method_name)
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
 
     def _use_username_password_auth(self):
         return self._model_context.get_ssh_pass() is not None
@@ -427,3 +544,104 @@ class SSHContext(object):
                                                    user, err.getLocalizedMessage(), error=err)
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
+
+    def _run_exec_command(self, command):
+        _method_name = '_run_exec_command'
+        self._logger.entering(command, class_name=self._class_name, method_name=_method_name)
+
+        session = None
+        host = self._model_context.get_ssh_host()
+        try:
+            try:
+                session = self._ssh_client.startSession()
+                cmd = session.exec(command)
+                if cmd is None:
+                    ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32031',
+                                                           command, host)
+                    self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                    raise ex
+
+                output_lines = self._get_text_from_input_stream(cmd.getInputStream())
+                error_lines = self._get_text_from_input_stream(cmd.getErrorStream())
+
+                # Must close the session (and its underlying channel) prior to reading the exit status
+                self._close_ssh_session(session)
+                session = None
+                exit_code = cmd.getExitStatus()
+                error_signal = cmd.getExitSignal()
+                error_message = cmd.getExitErrorMessage()
+                if error_signal is not None and error_message is not None:
+                    exit_code = -1
+                    output_lines = [ error_message ]
+                elif exit_code != 0 and len(error_lines) > 0:
+                    output_lines = error_lines
+
+            except IOException, ioe:
+                ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32032',
+                                                       command, host, ioe.getLocalizedMessage(), error=ioe)
+                self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
+        finally:
+            self._close_ssh_session(session)
+
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name,
+                             result=(exit_code, output_lines))
+        return exit_code, output_lines
+
+    def _get_text_from_input_stream(self, input_stream):
+        _method_name = '_get_text_from_input_stream'
+        self._logger.entering(input_stream, class_name=self._class_name, method_name=_method_name)
+
+        reader = None
+        result = list()
+        try:
+            reader = BufferedReader(InputStreamReader(input_stream))
+            while True:
+                line = reader.readLine()
+                if line is not None:
+                    result.append(line)
+                else:
+                    break
+        finally:
+            if reader is not None:
+                reader.close()
+
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
+
+
+    def _fix_directory_path(self, path):
+        _method_name = '_fix_directory_path'
+        self._logger.entering(path, class_name=self._class_name, method_name=_method_name)
+
+        result = path
+        if self.is_windows:
+            result = result.replace('/', '\\')
+            if not result.endswith('\\'):
+                result = '%s\\' % result
+        elif not result.endswith('/'):
+            result = '%s/' % result
+
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
+
+    def _close_ssh_session(self, session):
+        _method_name = '_close_ssh_session'
+        self._logger.entering(session, class_name=self._class_name, method_name=_method_name)
+
+        if session is not None:
+            try:
+                session.close()
+            except IOException, ioe:
+                self._logger.finer('WLSDPLY-32028', ioe.getLocalizedMessage(), error=ioe)
+
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name)
+
+    def _join_lines(self, lines):
+        stripped_lines = list()
+        if isinstance(lines, list):
+            for line in lines:
+                stripped_line = line.strip()
+                if len(stripped_line) > 0:
+                    stripped_lines.append(stripped_line)
+        return '; '.join(stripped_lines)

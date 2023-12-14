@@ -231,7 +231,7 @@ class CoherenceResourcesDiscoverer(Discoverer):
             if not self._model_context.is_remote():
                 #  Get the actual full path
                 config_path_in_model = self._convert_path(config_path_in_model, True)
-                if not self._model_context.skip_archive():
+                if not self._model_context.is_skip_archive():
                     try:
                         if self._model_context.is_ssh():
                             config_path_in_model = \
@@ -264,7 +264,7 @@ class CoherenceResourcesDiscoverer(Discoverer):
         if self._model_context.is_remote():
             new_name = WLSDeployArchive.getCoherenceURLArchivePath(cluster_name, url)
             self.add_to_remote_map(url, new_name, WLSDeployArchive.ArchiveEntryType.COHERENCE_CONFIG.name())
-        elif self._model_context.skip_archive():
+        elif self._model_context.is_skip_archive():
             new_name = url
         else:
             try:
@@ -285,7 +285,7 @@ class CoherenceResourcesDiscoverer(Discoverer):
         if self._model_context.is_remote():
             new_name = WLSDeployArchive.getCoherenceConfigArchivePath(file_name)
             self.add_to_remote_map(file_name, new_name, WLSDeployArchive.ArchiveEntryType.COHERENCE_CONFIG.name())
-        elif self._model_context.skip_archive():
+        elif self._model_context.is_skip_archive():
             new_name = self._convert_path(file_name, True)
         else:
             file_name = self._convert_path(file_name, True)
@@ -337,7 +337,7 @@ class CoherenceResourcesDiscoverer(Discoverer):
                 new_name = WLSDeployArchive.getCoherencePersistArchivePath(cluster_name, dir_type)
                 self.add_to_remote_map(model_value, new_name,
                                       WLSDeployArchive.ArchiveEntryType.COHERENCE_PERSISTENCE_DIR.name())
-            elif not self._model_context.skip_archive():
+            elif not self._model_context.is_skip_archive():
                 try:
                     new_name = archive_file.addCoherencePersistenceDirectory(cluster_name, dir_type)
                     _logger.info('WLSDPLY-06320', cluster_name, model_value, dir_type, class_name=_class_name,

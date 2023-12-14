@@ -123,7 +123,7 @@ class CommonResourcesDiscoverer(Discoverer):
         return model_top_folder_name, result
 
     def _collect_jdbc_driver_wallet(self, datasource, collected_wallet, driver_params):
-        if not self._model_context.skip_archive() and \
+        if not self._model_context.is_skip_archive() and \
                 (isinstance(driver_params, dict) or isinstance(driver_params, OrderedDict)) and \
                 model_constants.JDBC_DRIVER_PARAMS_PROPERTIES in driver_params:
             properties = driver_params[model_constants.JDBC_DRIVER_PARAMS_PROPERTIES]
@@ -343,7 +343,7 @@ class CommonResourcesDiscoverer(Discoverer):
                     new_name = WLSDeployArchive.getFileStoreArchivePath(file_store_name)
                     self.add_to_remote_map(file_store_name, new_name,
                                            WLSDeployArchive.ArchiveEntryType.FILE_STORE.name())
-                elif not self._model_context.skip_archive():
+                elif not self._model_context.is_skip_archive():
                     try:
                         if self._model_context.is_ssh():
                             file_store_name = self.download_deployment_from_remote_server(file_store_name,
