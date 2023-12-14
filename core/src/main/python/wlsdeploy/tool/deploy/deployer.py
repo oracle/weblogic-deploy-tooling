@@ -2,12 +2,16 @@
 Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+from array import array
 import os
 import copy
 
-from array import array
+from java.io import IOException
 from java.lang import Class
+
+from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyWLSTException
+
 from wlsdeploy.aliases.model_constants import ABSOLUTE_PLAN_PATH
 from wlsdeploy.aliases.model_constants import ABSOLUTE_SOURCE_PATH
 from wlsdeploy.aliases.model_constants import APP_DEPLOYMENTS
@@ -29,8 +33,6 @@ from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 import wlsdeploy.util.dictionary_utils as dictionary_utils
 import wlsdeploy.util.unicode_helper as str_helper
-import oracle.weblogic.deploy.util.FileUtils as FileUtils
-
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
@@ -47,6 +49,8 @@ class Deployer(object):
     _list_interface = Class.forName('java.util.List')
 
     def __init__(self, model, model_context, aliases, wlst_mode=WlstModes.OFFLINE):
+        _method_name = '__init__'
+
         self.name = self._class_name
         self.model = model
         self.wlst_mode = wlst_mode
@@ -67,7 +71,7 @@ class Deployer(object):
         if model_context.is_remote() or model_context.is_ssh():
             try:
                 self.upload_temporary_dir = FileUtils.createTempDirectory("wdt-uploadtemp").getAbsolutePath()
-            except (IOException), e:
+            except IOException, e:
                 ex = exception_helper.create_deploy_exception('WLSDPLY-09340', e.getLocalizedMessage(), error=e)
                 self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
@@ -449,12 +453,12 @@ class Deployer(object):
         upload_srcpath = os.path.join(upload_remote_directory, source_path)
         upload_targetpath = os.path.join(self.model_context.get_remote_domain_home(), source_path)
         remote_dirname = os.path.dirname(source_path)
-        self.model_context.get_ssh_context().remote_command("mkdir -p " + os.path.join(
+        self.model_context.get_ssh_context().create_directories_if_not_exist(os.path.join(
             self.model_context.get_remote_domain_home(), remote_dirname))
         self.model_context.get_ssh_context().upload(upload_srcpath, upload_targetpath)
 
     def upload_specific_file_to_remote_server(self, source_path, upload_targetpath):
-        self.model_context.get_ssh_context().remote_command("mkdir -p " + os.path.dirname(upload_targetpath))
+        self.model_context.get_ssh_context().create_directories_if_not_exist(os.path.dirname(upload_targetpath))
         self.model_context.get_ssh_context().upload(source_path, upload_targetpath)
 
     def add_application_attributes_online(self, model, location):

@@ -921,7 +921,7 @@ class TopologyDiscoverer(Discoverer):
                 new_source_name = WLSDeployArchive.getClasspathArchivePath(file_name_path)
                 self.add_to_remote_map(file_name_path, new_source_name,
                                        WLSDeployArchive.ArchiveEntryType.CLASSPATH_LIB.name())
-            elif not self._model_context.skip_archive():
+            elif not self._model_context.is_skip_archive():
                 try:
                     if self._model_context.is_ssh():
                         file_name_path = self.download_deployment_from_remote_server(file_name_path,
@@ -990,7 +990,7 @@ class TopologyDiscoverer(Discoverer):
             new_name = WLSDeployArchive.getServerKeyStoreArchivePath(server_name, file_path)
             self.add_to_remote_map(file_path, new_name,
                                    WLSDeployArchive.ArchiveEntryType.SERVER_KEYSTORE.name())
-        elif not self._model_context.skip_archive():
+        elif not self._model_context.is_skip_archive():
             try:
 
                 if self._model_context.is_ssh():
@@ -1025,7 +1025,7 @@ class TopologyDiscoverer(Discoverer):
             self.add_to_remote_map(file_path, new_name,
                                    WLSDeployArchive.ArchiveEntryType.NODE_MANAGER_KEY_STORE.name())
 
-        elif not self._model_context.skip_archive():
+        elif not self._model_context.is_skip_archive():
             try:
                 if self._model_context.is_ssh():
                     file_path = self.download_deployment_from_remote_server(file_path,

@@ -916,7 +916,7 @@ class ModelContext(object):
         """
         return self._remote
 
-    def skip_archive(self):
+    def is_skip_archive(self):
         """
         Determine if the tool has the -skip_archive switch
         :return: True if the skip archive switch is set

@@ -1,0 +1,11 @@
+ Volume in drive C has no label.
+ Volume Serial Number is 2A18-1FCE
+
+ Directory of C:\Temp\help
+
+12/04/2023  06:11 AM    <DIR>          .
+12/04/2023  06:10 AM    <DIR>          ..
+12/04/2023  06:14 AM    <DIR>          weblogic-deploy
+12/04/2023  06:11 AM         3,902,194 weblogic-deploy.zip
+               1 File(s)      3,902,194 bytes
+               3 Dir(s)  398,915,760,128 bytes free

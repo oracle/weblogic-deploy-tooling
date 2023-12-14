@@ -122,7 +122,7 @@ class DeploymentsDiscoverer(Discoverer):
                         new_source_name = WLSDeployArchive.getSharedLibraryArchivePath(file_name_path)
                         self.add_to_remote_map(file_name_path, new_source_name,
                                            WLSDeployArchive.ArchiveEntryType.SHARED_LIBRARY.name())
-                    elif not self._model_context.skip_archive():
+                    elif not self._model_context.is_skip_archive():
                         _logger.info('WLSDPLY-06384', library_name, file_name_path, class_name=_class_name,
                                      method_name=_method_name)
                         try:
@@ -195,7 +195,7 @@ class DeploymentsDiscoverer(Discoverer):
             new_plan_name = WLSDeployArchive.getShLibArchivePath(plan_path)
             self.add_to_remote_map(plan_path, new_plan_name,
                                    WLSDeployArchive.ArchiveEntryType.SHLIB_PLAN.name())
-        elif not self._model_context.skip_archive():
+        elif not self._model_context.is_skip_archive():
             try:
                 if self._model_context.is_ssh():
                     plan_file_name = self.download_deployment_from_remote_server(plan_file_name,
@@ -313,7 +313,7 @@ class DeploymentsDiscoverer(Discoverer):
                         new_source_name = WLSDeployArchive.getApplicationArchivePath(file_name_path)
                         self.add_to_remote_map(file_name_path, new_source_name,
                                                WLSDeployArchive.ArchiveEntryType.APPLICATION.name())
-                    elif not self._model_context.skip_archive():
+                    elif not self._model_context.is_skip_archive():
                         _logger.info('WLSDPLY-06394', application_name, file_name_path, class_name=_class_name,
                                      method_name=_method_name)
                         try:
@@ -386,7 +386,7 @@ class DeploymentsDiscoverer(Discoverer):
                     new_install_root_path = WLSDeployArchive.getStructuredApplicationArchivePath(install_root_path)
                     self.add_to_remote_map(install_root_path, new_install_root_path,
                                            WLSDeployArchive.ArchiveEntryType.STRUCTURED_APPLICATION.name())
-                elif not self._model_context.skip_archive():
+                elif not self._model_context.is_skip_archive():
                     try:
                         if self._model_context.is_ssh():
                             install_root_path = self.download_deployment_from_remote_server(install_root_path,
@@ -549,7 +549,7 @@ class DeploymentsDiscoverer(Discoverer):
             new_plan_name = WLSDeployArchive.getApplicationPlanArchivePath(plan_file_name)
             self.add_to_remote_map(plan_path, new_plan_name,
                                    WLSDeployArchive.ArchiveEntryType.APPLICATION_PLAN.name())
-        elif not self._model_context.skip_archive():
+        elif not self._model_context.is_skip_archive():
             try:
                 if self._model_context.is_ssh():
                     plan_file_name = self.download_deployment_from_remote_server(plan_file_name,

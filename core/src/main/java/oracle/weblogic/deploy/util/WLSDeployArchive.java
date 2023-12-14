@@ -254,6 +254,26 @@ public class WLSDeployArchive {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
+     * Get the path for the WebLogic Remote Console domain extension directory.
+     *
+     * @param path the domain home path
+     * @return the path to the WebLogic Remote Console domain extension directory
+     */
+    public static String getWrcDomainDirectoryPath(String path) {
+        final String METHOD = "getWrcDomainDirectoryPath";
+
+        LOGGER.entering(CLASS, METHOD, path);
+        String result = null;
+        if (!StringUtils.isEmpty(path)) {
+            File domainHome = FileUtils.getCanonicalFile(path);
+            File wrcDomainExtDir = new File(domainHome, WRC_EXTENSION_TARGET_DIR_NAME);
+            result = FileUtils.getCanonicalPath(wrcDomainExtDir);
+        }
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    /**
      * Determine if the specified path string is a valid archive location.
      *
      * @param path the path

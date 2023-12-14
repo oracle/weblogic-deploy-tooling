@@ -1,8 +1,9 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
+
 from java.io import IOException
 from java.net import MalformedURLException
 from java.net import URI
@@ -68,7 +69,7 @@ class Discoverer(object):
         self._mbean_utils = MBeanUtils(self._model_context, self._aliases, ExceptionType.DISCOVER)
         self._wls_version = self._weblogic_helper.get_actual_weblogic_version()
 
-        if model_context.is_remote() or model_context.is_ssh():
+        if model_context.is_ssh():
             try:
                 self.download_temporary_dir = FileUtils.createTempDirectory("wdt-downloadtemp").getAbsolutePath()
             except IOException, e:

@@ -222,8 +222,16 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
     }
 
     private void summaryHead(Handler handler) {
-        handler.publish(getLogRecord("WLSDPLY-21003", context.getProgramName(),
-            WebLogicDeployToolingVersion.getVersion(), context.getVersion(), context.getWlstMode()));
+        LogRecord logRecord;
+        String wdtVersion = WebLogicDeployToolingVersion.getVersion();
+        if (context.isRemote()) {
+            logRecord = getLogRecord("WLSDPLY-21004", context.getProgramName(), wdtVersion,
+                context.getVersion(), context.getWlstMode(), context.getRemoteUrl());
+        } else {
+            logRecord = getLogRecord("WLSDPLY-21003", context.getProgramName(), wdtVersion,
+                context.getVersion(), context.getWlstMode());
+        }
+        handler.publish(logRecord);
     }
 
     private void summaryTail(Handler handler) {
