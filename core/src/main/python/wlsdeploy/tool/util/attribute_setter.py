@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -204,8 +204,9 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if destination is not found
         """
-        mbean = self.__find_jms_destination_mbean(location, value)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        if not self._check_mbean_unassign(location, key, value):
+            mbean = self.__find_jms_destination_mbean(location, value)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_jms_bridge_destination_mbean(self, location, key, value, wlst_value):
         """
@@ -216,8 +217,9 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if destination is not found
         """
-        mbean = self.__find_in_resource_group_or_domain(location, JMS_BRIDGE_DESTINATION, value, required=True)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        if not self._check_mbean_unassign(location, key, value):
+            mbean = self.__find_in_resource_group_or_domain(location, JMS_BRIDGE_DESTINATION, value, required=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_persistent_store_mbean(self, location, key, value, wlst_value):
         """
@@ -228,8 +230,9 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if store is not found
         """
-        mbean = self.__find_persistent_store(location, value)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        if not self._check_mbean_unassign(location, key, value):
+            mbean = self.__find_persistent_store(location, value)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_data_source_mbean(self, location, key, value, wlst_value):
         """
@@ -240,12 +243,7 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if DataSource is not found
         """
-        if not value:
-            mbean = self.__wlst_helper.get_mbean()
-            wlst_attr = self.__aliases.get_wlst_attribute_name(location, key)
-            method = getattr(mbean, 'set' + wlst_attr)
-            method(None)
-        else:
+        if not self._check_mbean_unassign(location, key, value):
             mbean = self.__find_in_resource_group_or_domain(location, JDBC_SYSTEM_RESOURCE, value, required=True)
             self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
@@ -258,9 +256,10 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if SAF RemoteContext is not found
         """
-        resource_location = self.__get_parent_location(location, JMS_RESOURCE)
-        mbean = self.__find_in_location(resource_location, SAF_REMOTE_CONTEXT, value, required=True)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        if not self._check_mbean_unassign(location, key, value):
+            resource_location = self.__get_parent_location(location, JMS_RESOURCE)
+            mbean = self.__find_in_location(resource_location, SAF_REMOTE_CONTEXT, value, required=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_saf_error_destination_mbean(self, location, key, value, wlst_value):
         """
@@ -271,8 +270,10 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if destination is not found
         """
-        mbean = self.__find_saf_destination_mbean(location, value)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        # a rare case where the set method name doesn't match the attribute name
+        if not self._check_mbean_unassign(location, key, value, set_name='SAFErrorDestination'):
+            mbean = self.__find_saf_destination_mbean(location, value)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_saf_error_handling_mbean(self, location, key, value, wlst_value):
         """
@@ -283,9 +284,10 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if destination is not found
         """
-        resource_location = self.__get_parent_location(location, JMS_RESOURCE)
-        mbean = self.__find_in_location(resource_location, SAF_ERROR_HANDLING, value, required=True)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        if not self._check_mbean_unassign(location, key, value):
+            resource_location = self.__get_parent_location(location, JMS_RESOURCE)
+            mbean = self.__find_in_location(resource_location, SAF_ERROR_HANDLING, value, required=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_self_tuning_mbean(self, location, key, value, wlst_value):
         """
@@ -296,9 +298,10 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if MBean is not found
         """
-        tuning_location = self.__get_parent_location(location, SELF_TUNING)
-        mbean = self.__find_in_location(tuning_location, key, value, required=True)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        if not self._check_mbean_unassign(location, key, value):
+            tuning_location = self.__get_parent_location(location, SELF_TUNING)
+            mbean = self.__find_in_location(tuning_location, key, value, required=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_server_mbeans(self, location, key, value, wlst_value):
         """
@@ -321,8 +324,9 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if the server is not found
         """
-        mbean = self.__find_in_location(LocationContext(), SERVER, value, required=True)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        if not self._check_mbean_unassign(location, key, value):
+            mbean = self.__find_in_location(LocationContext(), SERVER, value, required=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_server_template_mbean(self, location, key, value, wlst_value):
         """
@@ -333,8 +337,9 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if the server template is not found
         """
-        mbean = self.__find_in_location(LocationContext(), SERVER_TEMPLATE, value, required=True)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        if not self._check_mbean_unassign(location, key, value):
+            mbean = self.__find_in_location(LocationContext(), SERVER_TEMPLATE, value, required=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_cluster_mbean(self, location, key, value, wlst_value):
         """
@@ -345,8 +350,9 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if the cluster is not found
         """
-        mbean = self.__find_in_location(LocationContext(), CLUSTER, value, required=True)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        if not self._check_mbean_unassign(location, key, value):
+            mbean = self.__find_in_location(LocationContext(), CLUSTER, value, required=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_server_cluster_mbean(self, location, key, value, wlst_value):
         """
@@ -371,8 +377,9 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if store is not found
         """
-        mbean = self.__find_in_location(LocationContext(), COHERENCE_CLUSTER_SYSTEM_RESOURCE, value, required=True)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        if not self._check_mbean_unassign(location, key, value):
+            mbean = self.__find_in_location(LocationContext(), COHERENCE_CLUSTER_SYSTEM_RESOURCE, value, required=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_machine_mbean(self, location, key, value, wlst_value):
         """
@@ -383,8 +390,9 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if the machine is not found
         """
-        mbean = self.__find_in_location(LocationContext(), MACHINE, value, required=True)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        if not self._check_mbean_unassign(location, key, value):
+            mbean = self.__find_in_location(LocationContext(), MACHINE, value, required=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_jms_template_mbean(self, location, key, value, wlst_value):
         """
@@ -395,9 +403,10 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if the JMS Template is not found
         """
-        resource_location = self.__get_parent_location(location, JMS_RESOURCE)
-        mbean = self.__find_in_location(resource_location, TEMPLATE, value, required=True)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        if not self._check_mbean_unassign(location, key, value):
+            resource_location = self.__get_parent_location(location, JMS_RESOURCE)
+            mbean = self.__find_in_location(resource_location, TEMPLATE, value, required=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_wldf_action_mbeans(self, location, key, value, wlst_value):
         """
@@ -433,8 +442,9 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if store is not found
         """
-        mbean = self.__find_in_location(LocationContext(), LOG_FILTER, value, required=True)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        if not self._check_mbean_unassign(location, key, value):
+            mbean = self.__find_in_location(LocationContext(), LOG_FILTER, value, required=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_jms_server_mbean(self, location, key, value, wlst_value):
         """
@@ -445,8 +455,9 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if jms server mbean is not found.
         """
-        mbean = self.__find_in_location(LocationContext(), JMS_SERVER, value, required=True)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        if not self._check_mbean_unassign(location, key, value):
+            mbean = self.__find_in_location(LocationContext(), JMS_SERVER, value, required=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_jms_quota_mbean(self, location, key, value, wlst_value):
         """
@@ -457,9 +468,10 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if quota mbean is not found.
         """
-        resource_location = self.__get_parent_location(location, JMS_RESOURCE)
-        mbean = self.__find_in_location(resource_location, QUOTA, value, required=True)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        if not self._check_mbean_unassign(location, key, value):
+            resource_location = self.__get_parent_location(location, JMS_RESOURCE)
+            mbean = self.__find_in_location(resource_location, QUOTA, value, required=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_reliable_delivery_policy_mbean(self, location, key, value, wlst_value):
         """
@@ -470,8 +482,9 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if reliable delivery policy mbean is not found.
         """
-        mbean = self.__find_in_location(LocationContext(), WS_RELIABLE_DELIVERY_POLICY, value, required=True)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        if not self._check_mbean_unassign(location, key, value):
+            mbean = self.__find_in_location(LocationContext(), WS_RELIABLE_DELIVERY_POLICY, value, required=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_xml_entity_cache_mbean(self, location, key, value, wlst_value):
         """
@@ -482,8 +495,9 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if xml entity cache mbean is not found.
         """
-        mbean = self.__find_in_location(LocationContext(), XML_ENTITY_CACHE, value, required=True)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        if not self._check_mbean_unassign(location, key, value):
+            mbean = self.__find_in_location(LocationContext(), XML_ENTITY_CACHE, value, required=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_xml_registry_mbean(self, location, key, value, wlst_value):
         """
@@ -494,8 +508,9 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if xml registry mbean is not found.
         """
-        mbean = self.__find_in_location(LocationContext(), XML_REGISTRY, value, required=True)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        if not self._check_mbean_unassign(location, key, value):
+            mbean = self.__find_in_location(LocationContext(), XML_REGISTRY, value, required=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_mt_target_mbeans(self, location, key, value, wlst_value):
         """
@@ -518,9 +533,10 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if target is not found
         """
-        security_location = self.__get_domain_location(location).append_location(SECURITY_CONFIGURATION)
-        mbean = self.__find_in_location(security_location, REALM, value, required=True)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        if not self._check_mbean_unassign(location, key, value):
+            security_location = self.__get_domain_location(location).append_location(SECURITY_CONFIGURATION)
+            mbean = self.__find_in_location(security_location, REALM, value, required=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_certificate_registry_mbean(self, location, key, value, wlst_value):
         """
@@ -531,9 +547,10 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if target is not found
         """
-        realm_location = self.__get_parent_location(location, REALM)
-        mbean = self.__find_in_location(realm_location, CERT_PATH_PROVIDER, value, required=True)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        if not self._check_mbean_unassign(location, key, value):
+            realm_location = self.__get_parent_location(location, REALM)
+            mbean = self.__find_in_location(realm_location, CERT_PATH_PROVIDER, value, required=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_resource_group_template_mbean(self, location, key, value, wlst_value):
         """
@@ -544,9 +561,10 @@ class AttributeSetter(object):
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if target is not found
         """
-        domain_location = self.__get_domain_location(location)
-        mbean = self.__find_in_location(domain_location, RESOURCE_GROUP_TEMPLATE, value, required=True)
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+        if not self._check_mbean_unassign(location, key, value):
+            domain_location = self.__get_domain_location(location)
+            mbean = self.__find_in_location(domain_location, RESOURCE_GROUP_TEMPLATE, value, required=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_partition_work_manager_mbean(self, location, key, value, wlst_value):
         """
@@ -558,19 +576,20 @@ class AttributeSetter(object):
         :raises BundleAwareException of the specified type: if target is not found
         """
         method_name = 'set_partition_work_manager_mbean'
-        partition_location = self.__get_parent_location(location, PARTITION)
-        mbean = self.__find_in_location(partition_location, PARTITION_WORK_MANAGER, value)
-        if mbean is None:
-            domain_location = self.__get_domain_location(location)
-            mbean = self.__find_in_location(domain_location, PARTITION_WORK_MANAGER, value)
+        if not self._check_mbean_unassign(location, key, value):
+            partition_location = self.__get_parent_location(location, PARTITION)
+            mbean = self.__find_in_location(partition_location, PARTITION_WORK_MANAGER, value)
+            if mbean is None:
+                domain_location = self.__get_domain_location(location)
+                mbean = self.__find_in_location(domain_location, PARTITION_WORK_MANAGER, value)
 
-        if mbean is None:
-            _type, partition_name = self.__aliases.get_model_type_and_name(location)
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19206', value, partition_name)
-            self.__logger.throwing(class_name=self._class_name, method_name=method_name, error=ex)
-            raise ex
+            if mbean is None:
+                _type, partition_name = self.__aliases.get_model_type_and_name(location)
+                ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19206', value, partition_name)
+                self.__logger.throwing(class_name=self._class_name, method_name=method_name, error=ex)
+                raise ex
 
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_resource_manager_mbean(self, location, key, value, wlst_value):
         """
@@ -582,19 +601,20 @@ class AttributeSetter(object):
         :raises BundleAwareException of the specified type: if target is not found
         """
         method_name = 'set_resource_manager_mbean'
-        partition_location = self.__get_parent_location(location, PARTITION)
-        mbean = self.__find_in_location(partition_location, RESOURCE_MANAGER, value)
-        if mbean is None:
-            management_location = self.__get_domain_location(location).append_location(RESOURCE_MANAGEMENT)
-            mbean = self.__find_in_location(management_location, RESOURCE_MANAGER, value)
+        if not self._check_mbean_unassign(location, key, value):
+            partition_location = self.__get_parent_location(location, PARTITION)
+            mbean = self.__find_in_location(partition_location, RESOURCE_MANAGER, value)
+            if mbean is None:
+                management_location = self.__get_domain_location(location).append_location(RESOURCE_MANAGEMENT)
+                mbean = self.__find_in_location(management_location, RESOURCE_MANAGER, value)
 
-        if mbean is None:
-            _type, manager_name = self.__aliases.get_model_type_and_name(location)
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19207', value, manager_name)
-            self.__logger.throwing(class_name=self._class_name, method_name=method_name, error=ex)
-            raise ex
+            if mbean is None:
+                _type, manager_name = self.__aliases.get_model_type_and_name(location)
+                ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19207', value, manager_name)
+                self.__logger.throwing(class_name=self._class_name, method_name=method_name, error=ex)
+                raise ex
 
-        self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_jvm_args(self, location, key, value, wlst_value):
         """
@@ -1077,6 +1097,30 @@ class AttributeSetter(object):
         existing_names = self.__wlst_helper.get_existing_object_list(list_path)
         self.__logger.exiting(class_name=self._class_name, method_name=_method_name, result=existing_names)
         return existing_names
+
+    def _check_mbean_unassign(self, location, key, value, set_name=None):
+        """
+        Remove the existing MBean assignment if the value is empty or null.
+        :param location: location of the MBean attribute
+        :param key: the attribute name
+        :param value: the attribute value
+        :param set_name: the name for the set method name, if None, use the attribute key
+        :return: true if the assignment was removed
+        :raises BundleAwareException of the specified type: if WLST unset call fails.
+        """
+        _method_name = '_check_mbean_unassign'
+        is_unassign = False
+        if not value:
+            self.__logger.info('WLSDPLY-08027', key, class_name=self._class_name,
+                               method_name=_method_name)
+
+            if not set_name:
+                set_name = self.__aliases.get_wlst_attribute_name(location, key)
+            mbean = self.__wlst_helper.get_mbean()
+            method = getattr(mbean, 'set' + set_name)
+            method(None)
+            is_unassign = True
+        return is_unassign
 
     #
     # methods for merging existing values

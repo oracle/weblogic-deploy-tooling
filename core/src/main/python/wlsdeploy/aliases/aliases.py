@@ -900,15 +900,15 @@ class Aliases(object):
 
         return lsa_required_attribute_names
 
-    def model_mbean_has_set_mbean_type_attribute_name(self, location, model_name):
+    def model_attribute_has_set_method(self, location, model_name):
         """
-        Determine if the attribute for model_name has the set_mbean type value.
+        Determine if the attribute for model_name has the set_method type value.
         :param location: the location
         :param model_name: the attribute name
         :return: True if the attribute has the set method value
         :raises: Tool type exception: if an error occurs
         """
-        _method_name = 'model_mbean_has_set_mbean_type_attribute_name'
+        _method_name = 'model_attribute_has_set_method'
 
         try:
             module_folder = self._alias_entries.get_dictionary_for_location(location, resolve=False)
@@ -917,14 +917,13 @@ class Aliases(object):
                 self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
 
-            set_mbean_type = False
+            has_set_method = False
 
             if model_name in module_folder[ATTRIBUTES] and \
-                SET_MBEAN_TYPE in module_folder[ATTRIBUTES][model_name]:
+                SET_METHOD in module_folder[ATTRIBUTES][model_name]:
+                    has_set_method = True
 
-                    set_mbean_type = True
-
-            return set_mbean_type
+            return has_set_method
         except AliasException, ae:
 
             self._raise_exception(ae, _method_name, 'WLSDPLY-19017', location.get_folder_path(),

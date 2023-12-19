@@ -688,7 +688,7 @@ class Validator(object):
             self._logger.finer('WLSDPLY-05016', attribute_name, expected_data_type, actual_data_type,
                                class_name=_class_name, method_name=_method_name)
             if validation_utils.is_compatible_data_type(expected_data_type, actual_data_type) is False:
-                if not self._aliases.model_mbean_has_set_mbean_type_attribute_name(validation_location, attribute_name):
+                if not self._aliases.model_attribute_has_set_method(validation_location, attribute_name):
                     self._logger.warning('WLSDPLY-05017', attribute_name, model_folder_path, expected_data_type,
                                          actual_data_type, class_name=_class_name, method_name=_method_name)
 
