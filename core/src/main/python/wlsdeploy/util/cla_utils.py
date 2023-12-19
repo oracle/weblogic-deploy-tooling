@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Module that handles command-line argument parsing and common validation.
@@ -527,7 +527,7 @@ class CommandLineArgUtil(object):
         return self.ORACLE_HOME_SWITCH == key
 
     def _validate_oracle_home_arg(self, value):
-        from wlsdeploy.util.weblogic_helper import WebLogicHelper
+        from wlsdeploy.util import weblogic_helper
         method_name = '_validate_oracle_home_arg'
 
         try:
@@ -539,8 +539,8 @@ class CommandLineArgUtil(object):
             raise ex
 
         oh_name = oh.getAbsolutePath()
-        wl_helper = WebLogicHelper(_logger)
-        wl_home_name = wl_helper.get_weblogic_home(oh_name)
+        wl_version = weblogic_helper.get_local_weblogic_version()
+        wl_home_name = weblogic_helper.get_weblogic_home(oh_name, wl_version)
         try:
             JFileUtils.validateExistingDirectory(wl_home_name)
         except JIllegalArgumentException, iae:
@@ -549,7 +549,8 @@ class CommandLineArgUtil(object):
             _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
 
-        wl_version = wl_helper.get_actual_weblogic_version()
+        from wlsdeploy.util.weblogic_helper import WebLogicHelper
+        wl_helper = WebLogicHelper(_logger, wl_version)
         if not wl_helper.is_supported_weblogic_version():
             ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-01604', oh_name, wl_version,
                                       wl_helper.MINIMUM_WEBLOGIC_VERSION)

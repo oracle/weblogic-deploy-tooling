@@ -8,6 +8,9 @@ from org.python.modules import jarray
 
 from java.lang import Throwable
 
+from oracle.weblogic.deploy.util.WLSDeployArchive import ARCHIVE_COHERENCE_TARGET_DIR
+from oracle.weblogic.deploy.util.WLSDeployArchive import WLSDPLY_ARCHIVE_BINARY_DIR
+
 from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.alias_constants import BOOLEAN
 from wlsdeploy.aliases.alias_jvmargs import JVMArguments
@@ -80,9 +83,6 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import model_helper
 import wlsdeploy.util.unicode_helper as str_helper
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
-from oracle.weblogic.deploy.util.WLSDeployArchive import ARCHIVE_COHERENCE_TARGET_DIR
-from oracle.weblogic.deploy.util.WLSDeployArchive import WLSDPLY_ARCHIVE_BINARY_DIR
 
 class AttributeSetter(object):
     """
@@ -155,7 +155,7 @@ class AttributeSetter(object):
         self.__wlst_mode = wlst_mode
         self.__aliases = aliases
         self.__wlst_helper = WlstHelper(exception_type)
-        self.__weblogic_helper = WebLogicHelper(self.__logger)
+        self.__weblogic_helper = model_context.get_weblogic_helper()
 
     #
     # public set_ methods for special attribute types, signature (self, location, key, value, wlst_value, ...)

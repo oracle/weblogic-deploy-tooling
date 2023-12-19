@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import com.bea.common.security.utils.encoders.BASE64Encoder as BASE64Encoder
@@ -22,7 +22,6 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.targets import file_template_helper
 from wlsdeploy.util import dictionary_utils
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 DEFAULT_MAPPER_INIT_FILE = 'DefaultCredentialMapperInit.ldift'
 SECURITY_SUBDIR = 'security'
@@ -75,7 +74,7 @@ class CredentialMapHelper(object):
         self._model_context = model_context
         self._exception_type = exception_type
         self._logger = PlatformLogger('wlsdeploy.tool.util')
-        self._weblogic_helper = WebLogicHelper(self._logger)
+        self._weblogic_helper = model_context.get_weblogic_helper()
         self._resource_escaper = ResourcePolicyIdUtil.getEscaper()
         self._b64_encoder = BASE64Encoder()
 

@@ -99,7 +99,7 @@ class DomainInfoDiscoverer(Discoverer):
                                        WLSDeployArchive.ArchiveEntryType.WEBLOGIC_REMOTE_CONSOLE_EXTENSION.name())
         else:
             proceed = False
-            _logger.info('WLSDPLY-06429', self._model_context.get_target_wls_version(),
+            _logger.info('WLSDPLY-06429', self._model_context.get_effective_wls_version(),
                          class_name=_class_name, method_name=_method_name)
 
         if not proceed:

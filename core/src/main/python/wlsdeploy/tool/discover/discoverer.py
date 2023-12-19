@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -9,6 +9,7 @@ from java.net import MalformedURLException
 from java.net import URI
 from java.net import URISyntaxException
 from oracle.weblogic.deploy.discover import DiscoverException
+from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 from oracle.weblogic.deploy.util import StringUtils
 
@@ -25,8 +26,6 @@ from wlsdeploy.tool.util.mbean_utils import get_interface_name
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import path_utils
 import wlsdeploy.util.unicode_helper as str_helper
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
-import oracle.weblogic.deploy.util.FileUtils as FileUtils
 
 
 _DISCOVER_LOGGER_NAME = 'wlsdeploy.discover'
@@ -64,10 +63,10 @@ class Discoverer(object):
         self._att_handler_map = OrderedDict()
         self._custom_folder = CustomFolderHelper(self._aliases, _logger, self._model_context, ExceptionType.DISCOVER,
                                                  self._credential_injector)
-        self._weblogic_helper = WebLogicHelper(_logger)
+        self._weblogic_helper = model_context.get_weblogic_helper()
         self._wlst_helper = WlstHelper(ExceptionType.DISCOVER)
         self._mbean_utils = MBeanUtils(self._model_context, self._aliases, ExceptionType.DISCOVER)
-        self._wls_version = self._weblogic_helper.get_actual_weblogic_version()
+        self._wls_version = model_context.get_effective_wls_version()
 
         if model_context.is_ssh():
             try:

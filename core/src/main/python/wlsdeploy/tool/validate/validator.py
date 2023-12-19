@@ -27,7 +27,6 @@ from wlsdeploy.util import model
 import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util import variables
 from wlsdeploy.util.enum import Enum
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DYNAMIC_CLUSTER_SERVER_GROUP_TARGETING_LIMITS
@@ -72,18 +71,18 @@ class Validator(object):
         self._logger = _logger
         self._validation_mode = None
         self._variable_properties = {}
-        self._wls_helper = WebLogicHelper(self._logger)
+        self._wls_helper = model_context.get_weblogic_helper()
 
         if wlst_mode is not None:
             # In TOOL validate mode, the WLST mode is specified by the calling tool and the
             # WebLogic version is always the current version used to run WLST.
             self._wlst_mode = wlst_mode
-            self._wls_version = self._wls_helper.get_actual_weblogic_version()
+            self._wls_version = model_context.get_effective_wls_version()
         else:
             # In STANDALONE mode, the user can specify the target WLST mode and the target
             # WLS version using command-line args so get the value from the model_context.
             self._wlst_mode = model_context.get_target_wlst_mode()
-            self._wls_version = model_context.get_target_wls_version()
+            self._wls_version = model_context.get_effective_wls_version()
 
         self._aliases = aliases
 
@@ -295,7 +294,7 @@ class Validator(object):
         domain_name = dictionary_utils.get_element(topology_dict, NAME)
 
         if domain_name is None:
-            domain_name = WebLogicHelper(self._logger).get_default_wls_domain_name()
+            domain_name = self._wls_helper.get_default_wls_domain_name()
 
         if domain_name is not None:
             self._name_tokens_location.add_name_token('DOMAIN', domain_name)

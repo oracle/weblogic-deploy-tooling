@@ -163,7 +163,7 @@ def get_model_context(program_name, wlst_mode, verify_args):
 
 
 def get_generated_file_name(model_context, mode):
-    return '%s/generated%s-%s.json' % (model_context.get_generated_dir(), mode, model_context.get_target_wls_version())
+    return '%s/generated%s-%s.json' % (model_context.get_generated_dir(), mode, model_context.get_local_wls_version())
 
 
 def load_generated_online_dict(model_context):
@@ -292,7 +292,7 @@ def get_wlst_mode_as_string(model_context):
 
 def get_report_file_name(model_context):
     return 'report%s-%s.txt' % \
-           (get_wlst_mode_as_string(model_context).lower().capitalize(), model_context.get_target_wls_version())
+           (get_wlst_mode_as_string(model_context).lower().capitalize(), model_context.get_local_wls_version())
 
 
 def sort_dict(dictionary):
@@ -409,7 +409,7 @@ def _key_in_case_map(key, case_map):
 # Use the Java Parser directly so that we can control the use of unicode based on
 # the target WLS version instead of the version of Jython being used.
 def _get_json_translator(model_context, filename):
-    use_unicode = VersionUtils.compareVersions(model_context.get_target_wls_version(), '14.1.1.0') >= 0
+    use_unicode = VersionUtils.compareVersions(model_context.get_local_wls_version(), '14.1.1.0') >= 0
     return JJsonTranslator(filename, True, use_unicode)
 
 

@@ -21,7 +21,7 @@ class AliasHelper(object):
         self.__class_name__ = self.__class__.__name__
         self.__model_context = model_context
         self.__aliases = Aliases(self.__model_context, self.__model_context.get_target_wlst_mode(),
-                                 self.__model_context.get_target_wls_version())
+                                 self.__model_context.get_local_wls_version())
 
     def get_top_folder_map(self, location):
         top_folder_names = [folder for folder in self.__aliases.get_model_top_level_folder_names()
@@ -60,7 +60,7 @@ class AliasHelper(object):
                     # create a message for this
                     self.__logger.finer(
                         'Mbean folder {0} at location {1} is not implemented in aliases for version {2}}',
-                        name, location.get_folder_path(), self.__model_context.get_target_wls_version(),
+                        name, location.get_folder_path(), self.__model_context.get_local_wls_version(),
                         class_name=self.__class_name__, method_name=_method_name)
                 else:
                     folder_map[wlst_mbean] = name

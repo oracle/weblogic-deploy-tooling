@@ -30,7 +30,7 @@ class VerifyModelContext(object):
         if constants.OUTPUT_DIR_SWITCH in arg_map:
             self._output_dir = arg_map[constants.OUTPUT_DIR_SWITCH]
 
-    def get_target_wls_version(self):
+    def get_local_wls_version(self):
         """
         Get the target WebLogic version.
         :return: the target WebLogic version

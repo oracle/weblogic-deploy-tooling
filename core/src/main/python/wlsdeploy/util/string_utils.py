@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 This module provides string manipulation helper methods that are not found in the WLST version of Jython
@@ -109,9 +109,10 @@ def load_properties(property_file, exception_type=None):
 
 def is_weblogic_version_or_above(wls_version, str_version):
     """
-    Is the provided version number equal to or greater than the version encapsualted by this version instance
-    :param wls_version: the string representation of the current weblogic version
+    Is the provided wls_version number equal to or greater than the str_version
+    :param wls_version: the string representation of the weblogic version
     :param str_version: the string representation of the version to be compared to the weblogic version
-    :return: True if the provided version is equal or greater than the version represented by the wls_version argument
+    :return: True if the provided wls_version is equal or greater than the version represented
+     by the str_version argument, False otherwise
     """
     return VersionUtils.compareVersions(wls_version, str_version) >= 0

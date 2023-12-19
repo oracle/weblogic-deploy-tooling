@@ -77,13 +77,19 @@ class Aliases(object):
         :param wls_version: the WLS version to use, default is to Oracle Home version
         :param exception_type: the exception type to be thrown
         """
+        _method_name = '__init__'
+
         self._model_context = model_context
         self._wlst_mode = wlst_mode
         self._exception_type = exception_type
         self._logger = PlatformLogger('wlsdeploy.aliases')
 
         if wls_version is None:
-            self._wls_version = self._model_context.get_target_wls_version()
+            if self._model_context.get_model_config().use_server_version_for_online_operations():
+                self._wls_version = self._model_context.get_effective_wls_version()
+            else:
+                self._logger.fine('WLSDPLY-19051', class_name=self._class_name, method_name=_method_name)
+                self._wls_version = self._model_context.get_local_wls_version()
         else:
             self._wls_version = wls_version
 
@@ -91,6 +97,8 @@ class Aliases(object):
         self._production_mode_enabled = False
         self._secure_mode_enabled = False
         alias_utils._wlst_mode = wlst_mode
+        self._logger.info('WLSDPLY-19052', self._wls_version, WlstModes.from_value(wlst_mode),
+                          class_name=self._class_name, method_name=_method_name)
 
     def set_production_mode(self, production_mode_enabled):
         _method_name = 'set_production_mode'

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2019, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -25,7 +25,6 @@ from wlsdeploy.tool.util.mbean_utils import MBeanUtils
 from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 import wlsdeploy.util.unicode_helper as str_helper
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
 _logger = PlatformLogger('wlsdeploy.discover')
@@ -47,7 +46,7 @@ class CustomFolderHelper(object):
         self._model_context = model_context
         if logger is not None:
             _logger = logger
-        self._weblogic_helper = WebLogicHelper(_logger)
+        self._weblogic_helper = model_context.get_weblogic_helper()
         self._wlst_helper = WlstHelper(self._exception_type)
         self._info_helper = MBeanUtils(self._model_context, aliases, self._exception_type)
         self._credential_injector = credential_injector

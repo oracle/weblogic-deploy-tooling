@@ -1,5 +1,5 @@
 """
-Copyright (c) 2021, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2021, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.io import File
@@ -19,7 +19,6 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.targets import file_template_helper
 from wlsdeploy.util import dictionary_utils
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 TEMPLATE_PATH = 'oracle/weblogic/deploy/security'
 DEFAULT_AUTH_INIT_FILE = 'DefaultAuthenticatorInit.ldift'
@@ -50,7 +49,7 @@ class DefaultAuthenticatorHelper(object):
         self._aliases = aliases
         self._exception_type = exception_type
         self._logger = PlatformLogger('wlsdeploy.tool.util')
-        self._weblogic_helper = WebLogicHelper(self._logger)
+        self._weblogic_helper = model_context.get_weblogic_helper()
         self._resource_escaper = ResourcePolicyIdUtil.getEscaper()
 
     def create_default_init_file(self, security_mapping_nodes):

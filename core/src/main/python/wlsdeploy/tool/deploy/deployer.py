@@ -33,7 +33,6 @@ from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 import wlsdeploy.util.dictionary_utils as dictionary_utils
 import wlsdeploy.util.unicode_helper as str_helper
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
 class Deployer(object):
@@ -57,7 +56,7 @@ class Deployer(object):
         self.model_context = model_context
         self.aliases = aliases
         self.logger = PlatformLogger('wlsdeploy.deploy')
-        self.wls_helper = WebLogicHelper(self.logger)
+        self.wls_helper = model_context.get_weblogic_helper()
         self.wlst_helper = WlstHelper(ExceptionType.DEPLOY)
         self.attribute_setter = AttributeSetter(model_context, self.aliases, ExceptionType.DEPLOY, wlst_mode=wlst_mode)
         self.topology_helper = TopologyHelper(self.aliases, ExceptionType.DEPLOY, self.logger)
