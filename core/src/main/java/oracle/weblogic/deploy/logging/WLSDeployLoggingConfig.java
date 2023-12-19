@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+ * Copyright (c) 2017, 2023, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.logging;
@@ -37,7 +37,7 @@ public class WLSDeployLoggingConfig {
     private static final String HANDLERS_PROP = "handlers";
     private static final String CONFIG_PROP = "config";
 
-    private static final String WLSDEPLOY_STDOUT_CONSOLE_HANDLER =
+    /* package */ static final String WLSDEPLOY_STDOUT_CONSOLE_HANDLER =
         "oracle.weblogic.deploy.logging.StdoutHandler";
     private static final String WLSDEPLOY_STDERR_CONSOLE_HANDLER =
         "oracle.weblogic.deploy.logging.StderrHandler";
@@ -52,7 +52,7 @@ public class WLSDeployLoggingConfig {
         FILE_HANDLER
     ));
 
-    private static final String HANDLER_LEVEL_PROP = ".level";
+    /* package */ static final String HANDLER_LEVEL_PROP = ".level";
     private static final String HANDLER_FILTER_PROP = ".filter";
     private static final String HANDLER_FORMATTER_PROP = ".formatter";
     private static final String HANDLER_PATTERN_PROP = ".pattern";
