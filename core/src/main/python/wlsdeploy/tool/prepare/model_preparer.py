@@ -31,7 +31,6 @@ from wlsdeploy.util import target_configuration_helper
 import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.model_translator import FileToPython
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.yaml.yaml_translator import PythonToYaml
 
 _program_name = 'prepareModel'
@@ -205,7 +204,7 @@ class ModelPreparer:
             del model_dict[DOMAIN_INFO][DOMAIN_SCRIPTS]
 
         variable_injector = VariableInjector(_program_name, model_dict, model_context,
-                                             WebLogicHelper(self._logger).get_actual_weblogic_version(),
+                                             model_context.get_effective_wls_version(),
                                              credential_properties)
 
         # update the variable file with any new values

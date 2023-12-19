@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2022, Oracle Corporation and/or its affiliates.
+ * Copyright (c) 2021, 2023, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
@@ -13,8 +13,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -25,6 +23,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import oracle.weblogic.deploy.aliases.VersionUtils;
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 
@@ -37,13 +36,6 @@ import org.xml.sax.SAXException;
  */
 public class XPathUtil {
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.util");
-    private static final String PSU_DESCRIPTION_REGEX_OLD =
-        "^WebLogic Server (\\d+(\\.\\d+){3,5}) PSU Patch.*$";
-    private static final String PSU_DESCRIPTION_REGEX_NEW =
-        "^WLS PATCH SET UPDATE (\\d+(\\.\\d+){3,5})(\\(ID:(\\d+)\\.\\d+\\))?$";
-    private static final Pattern PSU_DESCRIPTION_PATTERN_OLD = Pattern.compile(PSU_DESCRIPTION_REGEX_OLD);
-    private static final Pattern PSU_DESCRIPTION_PATTERN_NEW = Pattern.compile(PSU_DESCRIPTION_REGEX_NEW);
-
     String oracleHome;
     String patchesHome;
     public XPathUtil(String oracleHome){
@@ -66,17 +58,6 @@ public class XPathUtil {
 
     /*
      * Get the PSU if one exists at the inventory/patches files (only works for WLS installations using OPatch).
-     * Look at the description for the PSU wording.  There are three known formats:
-     *
-     * - WLS PATCH SET UPDATE <version>.<PSU>
-     * - WLS PATCH SET UPDATE <version>.0(ID:<PSU>.<number>)
-     * - WebLogic Server <version>.<PSU> PSU Patch for BUG<number> <full date and time>
-     *
-     * The second format contains the PSU number in the first part of the ID.  In at least one
-     * case, the PSU number has a 4 digit year so the extractPsu() method is using this methodology
-     * to compute the PSU in this case.
-     *
-     * The third format was used for early 12.1.2/12.1.3 PSUs.
      */
     public String getPSU() {
         // find the names in the directory first
@@ -94,17 +75,7 @@ public class XPathUtil {
             String descrip = description(doc, "//@description");
             LOGGER.fine("Description {0}", descrip);
             if (!StringUtils.isEmpty(descrip)) {
-                String psu = null;
-                Matcher matcher = PSU_DESCRIPTION_PATTERN_NEW.matcher(descrip);
-                if (matcher.matches()) {
-                    psu = extractNewPsu(matcher);
-                } else {
-                    matcher = PSU_DESCRIPTION_PATTERN_OLD.matcher(descrip);
-                    if (matcher.matches()) {
-                        psu = extractOldPsu(matcher);
-                    }
-                }
-
+                String psu = VersionUtils.getPSUVersion(descrip);
                 if (psu != null) {
                     list.add(psu);
                 }
@@ -115,78 +86,6 @@ public class XPathUtil {
             return list.get(list.size() - 1);
         }
         return null;
-    }
-
-    // Only for unit testing
-    String extractNewPsu(String description) {
-        String psu = null;
-        if (description != null) {
-            Matcher matcher = PSU_DESCRIPTION_PATTERN_NEW.matcher(description);
-            if (matcher.matches()) {
-                psu = extractNewPsu(matcher);
-            }
-        }
-        return psu;
-    }
-
-    private String extractNewPsu(Matcher matcher) {
-        LOGGER.entering(matcher.group(0));
-
-        String psu = null;
-        int groupCount = matcher.groupCount();
-        if (groupCount == 4) {
-            String idGroup = matcher.group(4);
-            if (idGroup == null) {
-                psu = matcher.group(2).substring(1);
-            } else {
-                switch (idGroup.length()) {
-                    case 6:
-                        psu = idGroup;
-                        break;
-
-                    // PSU 12.2.1.3.0.190522 has the ID 20190522 so parse off the extra digits...
-                    case 8:
-                        psu = idGroup.substring(2);
-                        break;
-
-                    default:
-                        LOGGER.warning("WLSDPLY-01052", idGroup, idGroup.length(), matcher.group(0));
-                        break;
-                }
-            }
-        } else {
-            LOGGER.warning("WLSDPLY-01051", groupCount, matcher.group(0));
-        }
-
-        LOGGER.exiting(psu);
-        return psu;
-    }
-
-    // Only for unit testing
-    String extractOldPsu(String description) {
-        String psu = null;
-        if (description != null) {
-            Matcher matcher = PSU_DESCRIPTION_PATTERN_OLD.matcher(description);
-            if (matcher.matches()) {
-                psu = extractOldPsu(matcher);
-            }
-        }
-        return psu;
-    }
-
-    private String extractOldPsu(Matcher matcher) {
-        LOGGER.entering(matcher.group(0));
-
-        String psu = null;
-        int groupCount = matcher.groupCount();
-        if (groupCount == 2) {
-            psu = matcher.group(2).substring(1);
-        } else {
-            LOGGER.warning("WLSDPLY-01051", groupCount, matcher.group(0));
-        }
-
-        LOGGER.exiting(psu);
-        return psu;
     }
 
     /**

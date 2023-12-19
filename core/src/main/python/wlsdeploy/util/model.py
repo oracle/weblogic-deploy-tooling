@@ -1,19 +1,16 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 This module serves as a wrapper for the model dictionary.
 It has convenience methods for accessing top-level fields in the model.
 """
-import os
-import pprint
 
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
 from wlsdeploy.aliases.model_constants import KNOWN_TOPLEVEL_MODEL_SECTIONS
 from wlsdeploy.aliases.model_constants import KUBERNETES
 from wlsdeploy.aliases.model_constants import VERRAZZANO
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
 class Model(object):
@@ -24,7 +21,6 @@ class Model(object):
 
     def __init__(self, model_dictionary=None, wls_version=None):
         self._logger = PlatformLogger('wlsdeploy.model')
-        self._wls_helper = WebLogicHelper(wls_version)
         self._topology = OrderedDict()
         self._resources = OrderedDict()
         self._deployments = OrderedDict()
@@ -105,25 +101,6 @@ class Model(object):
         if len(self._verrazzano) > 0:
             model[VERRAZZANO] = self._verrazzano
         return model
-
-    def log_model(self, level, message, method_name, class_name='Model'):
-        """
-        Log the model.
-        :param level: the level to log at
-        :param message: the message to log
-        :param method_name: the method requesting the logging of the model
-        :param class_name: the class requesting the logging of the model
-        """
-        self._logger.log(level, '{0} for WebLogic {1} is:', message, self._wls_helper.wl_version,
-                         method_name=method_name, class_name=class_name)
-        self._logger.log(level, '"domainInfo": {0}', pprint.pformat(self._domain_info),
-                         method_name=method_name, class_name=class_name)
-        self._logger.log(level, '"topology": {0}', self._topology,
-                         method_name=method_name, class_name=class_name)
-        self._logger.log(level, '"resources": {0}', pprint.pformat(self._resources),
-                         method_name=method_name, class_name=class_name)
-        self._logger.log(level, '"appDeployments": {0}', pprint.pformat(self._deployments),
-                         method_name=method_name, class_name=class_name)
 
 
 def get_model_resources_key():

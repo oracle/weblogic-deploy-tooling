@@ -1,10 +1,13 @@
 /*
- * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2023, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.aliases;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,6 +26,17 @@ public final class VersionUtils {
     private static final String VERSION_REGEX_STRING = "[(\\[][ ]*(\\d+([-.]\\d+){0,5})[ ]*[)\\]]?";
     private static final Pattern VERSION_REGEX = Pattern.compile(VERSION_REGEX_STRING);
     private static final int VERSION_GROUP = 1;
+
+    private static final String WLS_VERSION_DESCRIPTION_REGEX_STRING = "^WebLogic Server (\\d+(?:\\.\\d+){3,4})(?: .*)?$";
+    private static final Pattern WLS_VERSION_DESCRIPTION_REGEX = Pattern.compile(WLS_VERSION_DESCRIPTION_REGEX_STRING);
+
+    private static final String PSU_DESCRIPTION_REGEX_OLD =
+        "^WebLogic Server (\\d+(\\.\\d+){3,5}) PSU Patch.*$";
+    private static final String PSU_DESCRIPTION_REGEX_NEW =
+        "^WLS PATCH SET UPDATE (\\d+(\\.\\d+){3,5})(\\(ID:(\\d+)\\.\\d+\\))?$";
+    private static final Pattern PSU_DESCRIPTION_PATTERN_OLD = Pattern.compile(PSU_DESCRIPTION_REGEX_OLD);
+    private static final Pattern PSU_DESCRIPTION_PATTERN_NEW = Pattern.compile(PSU_DESCRIPTION_REGEX_NEW);
+
 
     private static final String VERSION_RANGE_REGEX_STRING =
         "[(\\[][ ]*(\\d*([-.]\\d+){0,5})[ ]*,[ ]*(\\d*([-.]\\d+){0,5})[ ]*[)\\]]";
@@ -319,88 +333,6 @@ public final class VersionUtils {
         return message;
     }
 
-    private static String getAttributeVersionRangeMessage(String name, String path, String version, String mode,
-        String versionRange, String... messageKeys) throws VersionException {
-        final String METHOD = "getAttributeVersionRangeMessage";
-
-        LOGGER.entering(CLASS, METHOD, name, path, version, mode, versionRange, messageKeys);
-
-        String message;
-        if (messageKeys.length != 3) {
-            message = ExceptionHelper.getMessage("WLSDPLY-08218", METHOD, 3, messageKeys.length);
-            IllegalArgumentException ex = new IllegalArgumentException(message);
-            LOGGER.throwing(CLASS, METHOD, ex);
-            throw ex;
-        }
-
-        String[] versions = getLowerAndUpperVersionStrings(versionRange);
-        switch (versions.length) {
-            case RANGE_SIZE:
-                String low = versions[RANGE_LOW_INDEX];
-                String high = versions[RANGE_HIGH_INDEX];
-                if (StringUtils.isEmpty(high)) {
-                    message = ExceptionHelper.getMessage(messageKeys[0], name, path, version, low);
-                } else {
-                    message = ExceptionHelper.getMessage(messageKeys[1], name, path, version, low, high);
-                }
-                break;
-
-            case VERSION_SIZE:
-                String onlyVersion = versions[VERSION_INDEX];
-                message = ExceptionHelper.getMessage(messageKeys[2], name, path, version, onlyVersion);
-                break;
-
-            default:
-                VersionException ve = new VersionException("WLSDPLY-08206", versionRange, Arrays.asList(versions));
-                LOGGER.throwing(CLASS, METHOD, ve);
-                throw ve;
-        }
-
-        LOGGER.exiting(CLASS, METHOD, message);
-        return message;
-    }
-
-    private static String getAttributeVersionRangeAndModeMessage(String name, String path, String version, String mode,
-        String versionRange, String wlstMode, String... messageKeys) throws VersionException {
-        final String METHOD = "getAttributeVersionRangeAndModeMessage";
-
-        LOGGER.entering(CLASS, METHOD, name, path, version, mode, versionRange, wlstMode, messageKeys);
-
-        String message = "";
-        if (messageKeys.length != 3) {
-            message = ExceptionHelper.getMessage("WLSDPLY-08218", METHOD, 3, messageKeys.length);
-            IllegalArgumentException ex = new IllegalArgumentException(message);
-            LOGGER.throwing(CLASS, METHOD, ex);
-            throw ex;
-        }
-
-        String[] versions = getLowerAndUpperVersionStrings(versionRange);
-        switch (versions.length) {
-            case RANGE_SIZE:
-                String low = versions[RANGE_LOW_INDEX];
-                String high = versions[RANGE_HIGH_INDEX];
-                if (StringUtils.isEmpty(high)) {
-                    message = ExceptionHelper.getMessage(messageKeys[0], name, path, version, mode, low, wlstMode);
-                } else {
-                    message = ExceptionHelper.getMessage(messageKeys[1], name, path, version, mode, low, high, wlstMode);
-                }
-                break;
-
-            case VERSION_SIZE:
-                String onlyVersion = versions[VERSION_INDEX];
-                message = ExceptionHelper.getMessage(messageKeys[2], name, path, version, mode, onlyVersion, wlstMode);
-                break;
-
-            default:
-                VersionException ve = new VersionException("WLSDPLY-08206", versionRange, Arrays.asList(versions));
-                LOGGER.throwing(CLASS, METHOD, ve);
-                throw ve;
-        }
-
-        LOGGER.exiting(CLASS, METHOD, message);
-        return message;
-    }
-
     /**
      * Get the version range message to use for validation.
      *
@@ -523,6 +455,175 @@ public final class VersionUtils {
         return result;
     }
 
+    public static String getWebLogicVersion(String versionDescription) {
+        final String METHOD = "getWebLogicVersion";
+        LOGGER.entering(CLASS, METHOD, versionDescription);
+
+        String result = null;
+        if (!StringUtils.isEmpty(versionDescription)) {
+            Matcher matcher = WLS_VERSION_DESCRIPTION_REGEX.matcher(versionDescription);
+            if (matcher.matches()) {
+                result = matcher.group(1);
+            }
+        }
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    public static String getPSUVersion(String[] patchList) {
+        final String METHOD = "getPSUVersion";
+        LOGGER.entering(CLASS, METHOD, patchList != null ? Arrays.toString(patchList) : null);
+
+        String result = null;
+        if (patchList != null && patchList.length > 0) {
+            List<String> psuList = new ArrayList<>();
+            for (String patchString : patchList) {
+                if (!StringUtils.isEmpty(patchString)) {
+                    String[] patchComponents = patchString.split(";");
+                    for (String patchComponent : patchComponents) {
+                        String psu = getPSUVersion(patchComponent);
+                        if (psu != null) {
+                            psuList.add(psu);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!psuList.isEmpty()) {
+                Collections.sort(psuList);
+                result = psuList.get(psuList.size() - 1);
+            }
+        } else {
+            LOGGER.fine("Cannot detect PSU version patch list is empty");
+        }
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    /*
+     * Get the PSU from the provided description (only works for WLS PSUs using OPatch).
+     * Look at the description for the PSU wording.  There are three known formats:
+     *
+     * - WLS PATCH SET UPDATE <version>.<PSU>
+     * - WLS PATCH SET UPDATE <version>.0(ID:<PSU>.<number>)
+     * - WebLogic Server <version>.<PSU> PSU Patch for BUG<number> <full date and time>
+     *
+     * The second format contains the PSU number in the first part of the ID.  In at least one
+     * case, the PSU number has a 4 digit year so the extractPsu() method is using this methodology
+     * to compute the PSU in this case.
+     *
+     * The third format was used for early 12.1.2/12.1.3 PSUs.
+     */
+    public static String getPSUVersion(String description) {
+        final String METHOD = "getPSUVersion";
+        LOGGER.entering(CLASS, METHOD, description);
+
+        String psu = null;
+        if (!StringUtils.isEmpty(description)) {
+            Matcher matcher = PSU_DESCRIPTION_PATTERN_NEW.matcher(description);
+            if (matcher.matches()) {
+                psu = extractNewPsu(matcher);
+            } else {
+                matcher = PSU_DESCRIPTION_PATTERN_OLD.matcher(description);
+                if (matcher.matches()) {
+                    psu = extractOldPsu(matcher);
+                }
+            }
+        }
+
+        LOGGER.exiting(CLASS, METHOD, psu);
+        return psu;
+    }
+
+    /*************************************************************************
+     *                            Private methods                            *
+     *************************************************************************/
+
+    private static String getAttributeVersionRangeMessage(String name, String path, String version, String mode,
+                                                          String versionRange, String... messageKeys) throws VersionException {
+        final String METHOD = "getAttributeVersionRangeMessage";
+
+        LOGGER.entering(CLASS, METHOD, name, path, version, mode, versionRange, messageKeys);
+
+        String message;
+        if (messageKeys.length != 3) {
+            message = ExceptionHelper.getMessage("WLSDPLY-08218", METHOD, 3, messageKeys.length);
+            IllegalArgumentException ex = new IllegalArgumentException(message);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        String[] versions = getLowerAndUpperVersionStrings(versionRange);
+        switch (versions.length) {
+            case RANGE_SIZE:
+                String low = versions[RANGE_LOW_INDEX];
+                String high = versions[RANGE_HIGH_INDEX];
+                if (StringUtils.isEmpty(high)) {
+                    message = ExceptionHelper.getMessage(messageKeys[0], name, path, version, low);
+                } else {
+                    message = ExceptionHelper.getMessage(messageKeys[1], name, path, version, low, high);
+                }
+                break;
+
+            case VERSION_SIZE:
+                String onlyVersion = versions[VERSION_INDEX];
+                message = ExceptionHelper.getMessage(messageKeys[2], name, path, version, onlyVersion);
+                break;
+
+            default:
+                VersionException ve = new VersionException("WLSDPLY-08206", versionRange, Arrays.asList(versions));
+                LOGGER.throwing(CLASS, METHOD, ve);
+                throw ve;
+        }
+
+        LOGGER.exiting(CLASS, METHOD, message);
+        return message;
+    }
+
+    private static String getAttributeVersionRangeAndModeMessage(String name, String path, String version, String mode,
+                                                                 String versionRange, String wlstMode, String... messageKeys) throws VersionException {
+        final String METHOD = "getAttributeVersionRangeAndModeMessage";
+
+        LOGGER.entering(CLASS, METHOD, name, path, version, mode, versionRange, wlstMode, messageKeys);
+
+        String message = "";
+        if (messageKeys.length != 3) {
+            message = ExceptionHelper.getMessage("WLSDPLY-08218", METHOD, 3, messageKeys.length);
+            IllegalArgumentException ex = new IllegalArgumentException(message);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        String[] versions = getLowerAndUpperVersionStrings(versionRange);
+        switch (versions.length) {
+            case RANGE_SIZE:
+                String low = versions[RANGE_LOW_INDEX];
+                String high = versions[RANGE_HIGH_INDEX];
+                if (StringUtils.isEmpty(high)) {
+                    message = ExceptionHelper.getMessage(messageKeys[0], name, path, version, mode, low, wlstMode);
+                } else {
+                    message = ExceptionHelper.getMessage(messageKeys[1], name, path, version, mode, low, high, wlstMode);
+                }
+                break;
+
+            case VERSION_SIZE:
+                String onlyVersion = versions[VERSION_INDEX];
+                message = ExceptionHelper.getMessage(messageKeys[2], name, path, version, mode, onlyVersion, wlstMode);
+                break;
+
+            default:
+                VersionException ve = new VersionException("WLSDPLY-08206", versionRange, Arrays.asList(versions));
+                LOGGER.throwing(CLASS, METHOD, ve);
+                throw ve;
+        }
+
+        LOGGER.exiting(CLASS, METHOD, message);
+        return message;
+    }
+
     private static int parseVersionElement(String element, String version) throws VersionException {
         final String METHOD = "parseVersionElement";
 
@@ -535,5 +636,55 @@ public final class VersionUtils {
             throw ve;
         }
         return result;
+    }
+
+    private static String extractNewPsu(Matcher matcher) {
+        final String METHOD = "extractNewPsu";
+        LOGGER.entering(CLASS, METHOD, matcher.group(0));
+
+        String psu = null;
+        int groupCount = matcher.groupCount();
+        if (groupCount == 4) {
+            String idGroup = matcher.group(4);
+            if (idGroup == null) {
+                psu = matcher.group(2).substring(1);
+            } else {
+                switch (idGroup.length()) {
+                    case 6:
+                        psu = idGroup;
+                        break;
+
+                    // PSU 12.2.1.3.0.190522 has the ID 20190522 so parse off the extra digits...
+                    case 8:
+                        psu = idGroup.substring(2);
+                        break;
+
+                    default:
+                        LOGGER.warning("WLSDPLY-01052", idGroup, idGroup.length(), matcher.group(0));
+                        break;
+                }
+            }
+        } else {
+            LOGGER.warning("WLSDPLY-01051", groupCount, matcher.group(0));
+        }
+
+        LOGGER.exiting(CLASS, METHOD, psu);
+        return psu;
+    }
+
+    private static String extractOldPsu(Matcher matcher) {
+        final String METHOD = "extractOldPsu";
+        LOGGER.entering(CLASS, METHOD, matcher.group(0));
+
+        String psu = null;
+        int groupCount = matcher.groupCount();
+        if (groupCount == 2) {
+            psu = matcher.group(2).substring(1);
+        } else {
+            LOGGER.warning("WLSDPLY-01051", groupCount, matcher.group(0));
+        }
+
+        LOGGER.exiting(CLASS, METHOD, psu);
+        return psu;
     }
 }

@@ -31,7 +31,6 @@ from wlsdeploy.util import tool_main
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model import Model
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.tool.validate.validator import Validator
 
 
@@ -40,7 +39,6 @@ wlst_helper.wlst_functions = globals()
 _program_name = 'updateDomain'
 _class_name = 'update'
 __logger = PlatformLogger('wlsdeploy.update')
-__wls_helper = WebLogicHelper(__logger)
 __wlst_helper = WlstHelper(ExceptionType.DEPLOY)
 __wlst_mode = WlstModes.OFFLINE
 

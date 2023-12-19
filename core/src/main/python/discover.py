@@ -57,7 +57,6 @@ from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.cla_utils import TOOL_TYPE_DISCOVER
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model import Model
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.util import target_configuration_helper
 
 wlst_helper.wlst_functions = globals()
@@ -270,7 +269,7 @@ def __discover(model_context, aliases, credential_injector, helper, extra_tokens
                               extra_tokens=extra_tokens).discover()
         __discover_multi_tenant(model, model_context, base_location, aliases, credential_injector)
     except AliasException, ae:
-        wls_version = WebLogicHelper(__logger).get_actual_weblogic_version()
+        wls_version = model_context.get_effective_wls_version()
         wlst_mode = WlstModes.from_value(__wlst_mode)
         ex = exception_helper.create_discover_exception('WLSDPLY-06000', model_context.get_domain_name(),
                                                         model_context.get_domain_home(), wls_version, wlst_mode,
@@ -391,7 +390,7 @@ def __connect_to_domain(model_context, helper):
         try:
             helper.read_domain(model_context.get_domain_home())
         except PyWLSTException, wlst_ex:
-            wls_version = WebLogicHelper(__logger).get_actual_weblogic_version()
+            wls_version = model_context.get_effective_wls_version()
             ex = exception_helper.create_discover_exception('WLSDPLY-06002', model_context.get_domain_home(),
                                                             wls_version, wlst_ex.getLocalizedMessage(), error=wlst_ex)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -486,16 +485,22 @@ def __persist_model(model, model_context):
 
     __logger.entering(class_name=_class_name, method_name=_method_name)
 
+    global __wlst_mode
+
     # add model comments to dictionary extracted from the Model object
     model_dict = model.get_model()
     message_1 = exception_helper.get_message('WLSDPLY-06039', WebLogicDeployToolingVersion.getVersion(), _program_name)
     model_dict.addComment(DOMAIN_INFO, message_1)
-    if model_context.is_remote() or model_context.is_ssh():
-        message_2 = exception_helper.get_message('WLSDPLY-06043', model_context.get_target_wls_version(),
-                                                 WlstModes.from_value(__wlst_mode), model_context.get_admin_url())
+    if __wlst_mode == WlstModes.ONLINE:
+        remote_wls_version = model_context.get_remote_wls_version()
+        if remote_wls_version is None:
+            remote_wls_version = 'UNKNOWN'
+
+        message_2 = exception_helper.get_message('WLSDPLY-06043', model_context.get_local_wls_version(),
+                                                 WlstModes.from_value(__wlst_mode), remote_wls_version)
     else:
         message_2 = exception_helper.get_message('WLSDPLY-06040', WlstModes.from_value(__wlst_mode),
-                                                 model_context.get_target_wls_version())
+                                                 model_context.get_local_wls_version())
     model_dict.addComment(DOMAIN_INFO, message_2)
     model_dict.addComment(DOMAIN_INFO, '')
 
@@ -542,7 +547,7 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
     # Include the variable mappings that were collected in credential_cache.
 
     variable_injector = VariableInjector(_program_name, model.get_model(), model_context,
-                                         WebLogicHelper(__logger).get_actual_weblogic_version(), credential_cache)
+                                         model_context.get_effective_wls_version(), credential_cache)
 
     variable_injector.add_to_cache(dictionary=extra_tokens)
 
@@ -619,7 +624,7 @@ def main(model_context):
         credential_injector = None
         if model_context.get_variable_file() is not None or model_context.get_target() is not None:
             credential_injector = CredentialInjector(_program_name, dict(), model_context,
-                                                     WebLogicHelper(__logger).get_actual_weblogic_version())
+                                                     model_context.get_effective_wls_version())
 
             __logger.info('WLSDPLY-06025', class_name=_class_name, method_name=_method_name)
         else:

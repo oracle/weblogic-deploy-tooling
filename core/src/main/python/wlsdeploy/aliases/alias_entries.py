@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -210,8 +210,7 @@ class AliasEntries(object):
         self._wlst_mode = wlst_mode
         if wls_version is None:
             from wlsdeploy.util.weblogic_helper import WebLogicHelper
-            self._wls_helper = WebLogicHelper(_logger)
-            self._wls_version = self._wls_helper.get_actual_weblogic_version()
+            self._wls_version = WebLogicHelper(_logger).get_weblogic_version()
         else:
             self._wls_version = wls_version
 

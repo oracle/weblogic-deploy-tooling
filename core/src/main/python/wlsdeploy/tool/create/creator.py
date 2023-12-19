@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -19,7 +19,6 @@ from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model_helper
 from wlsdeploy.util.model import Model
 import wlsdeploy.util.unicode_helper as str_helper
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
 class Creator(object):
@@ -37,7 +36,7 @@ class Creator(object):
         self.wlst_helper = WlstHelper(exception_type)
         self.model = Model(model)
         self.model_context = model_context
-        self.wls_helper = WebLogicHelper(self.logger)
+        self.wls_helper = model_context.get_weblogic_helper()
         self.attribute_setter = AttributeSetter(self.model_context, self.aliases, exception_type)
         self.custom_folder_helper = CustomFolderHelper(self.aliases, self.logger, self.model_context, exception_type)
         self.topology_helper = TopologyHelper(self.aliases, ExceptionType.CREATE, self.logger)

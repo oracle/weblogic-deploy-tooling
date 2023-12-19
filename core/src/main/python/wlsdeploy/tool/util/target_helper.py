@@ -24,7 +24,6 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import string_utils
 import wlsdeploy.util.unicode_helper as str_helper
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
 class TargetHelper(object):
@@ -39,7 +38,7 @@ class TargetHelper(object):
         self.model_context = model_context
         self.aliases = aliases
         self.wlst_helper = WlstHelper(exception_type)
-        self.wls_helper = WebLogicHelper(self.logger)
+        self.wls_helper = model_context.get_weblogic_helper()
         self.exception_type = exception_type
         self.domain_typedef = self.model_context.get_domain_typedef()
         topology = model.get_model_topology()

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.tool.create.domain_typedef import DomainTypedef
@@ -25,11 +25,12 @@ def create_context(program_name, combined_arg_map, domain_typedef=None, exceptio
 
     combined_arg_map[CommandLineArgUtil.DOMAIN_TYPEDEF] = domain_typedef
     model_context = ModelContext(program_name, combined_arg_map)
-    domain_typedef.set_model_context(model_context)
-    if exception_type is None:
-        ssh_helper.initialize_ssh(model_context, combined_arg_map)
-    else:
-        ssh_helper.initialize_ssh(model_context, combined_arg_map, exception_type)
+    # domain_typedef.set_model_context(model_context)
+    if not exit_context:
+        if exception_type is None:
+            ssh_helper.initialize_ssh(model_context, combined_arg_map)
+        else:
+            ssh_helper.initialize_ssh(model_context, combined_arg_map, exception_type)
     return model_context
 
 
@@ -55,4 +56,4 @@ def create_typedef(program_name, argument_map, exit_context=False):
     domain_type = dictionary_utils.get_element(argument_map, CommandLineArgUtil.DOMAIN_TYPE_SWITCH)
     if domain_type is None:
         domain_type = 'WLS'
-    return DomainTypedef(program_name, domain_type, exit_context)
+    return DomainTypedef(program_name, domain_type, exit_context=exit_context)

@@ -264,7 +264,7 @@ class DomainCreator(Creator):
             return
         elif not self.wls_helper.is_weblogic_version_or_above('12.1.2'):
             ex = exception_helper.create_create_exception('WLSDPLY-12201', self.__program_name,
-                                                          self.wls_helper.get_actual_weblogic_version())
+                                                          self.model_context.get_local_wls_version())
             self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 

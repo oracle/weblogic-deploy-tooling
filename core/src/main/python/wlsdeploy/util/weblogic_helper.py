@@ -1,20 +1,45 @@
 """
-Copyright (c) 2017, 2022, Oracle and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+import os
+import re
+
 import java.lang.Exception as JException
 
 import weblogic.management.provider.ManagementServiceClient as ManagementServiceClient
 import weblogic.security.internal.SerializedSystemIni as SerializedSystemIni
 import weblogic.security.internal.encryption.ClearOrEncryptedService as ClearOrEncryptedService
-import weblogic.version as version_helper
 
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.util import string_utils
 import wlsdeploy.util.unicode_helper as str_helper
 
-import os
-import re
+
+def get_local_weblogic_version():
+    import weblogic.version as version_helper
+    return str_helper.to_string(version_helper.getReleaseBuildVersion())
+
+
+def get_weblogic_home(oracle_home, version):
+    wl_home = None
+    if oracle_home is not None:
+        if string_utils.is_weblogic_version_or_above(version, '12.1.2'):
+            wl_home = oracle_home + '/wlserver'
+        elif string_utils.is_weblogic_version_or_above(version, '12.1.1'):
+            wl_home = oracle_home + '/wlserver_12.1'
+        else:
+            wl_home = oracle_home + '/wlserver_10.3'
+
+        # if the path is not a valid directory, try to infer it from the pattern
+        if os.path.isdir(oracle_home) and not os.path.isdir(wl_home):
+            dirs = [f for f in os.listdir(oracle_home) if re.match(r'wlserver.*', f)]
+            if len(dirs) > 0:
+                wl_home = oracle_home + '/' + dirs[0]
+            else:
+                wl_home = None
+
+    return wl_home
 
 
 class WebLogicHelper(object):
@@ -34,9 +59,9 @@ class WebLogicHelper(object):
         self.logger = logger
         if wls_version is not None:
             self.wl_version = str_helper.to_string(wls_version)
-            self.wl_version_actual = str_helper.to_string(version_helper.getReleaseBuildVersion())
+            self.wl_version_actual = get_local_weblogic_version()
         else:
-            self.wl_version = str_helper.to_string(version_helper.getReleaseBuildVersion())
+            self.wl_version = get_local_weblogic_version()
             self.wl_version_actual = self.wl_version
 
     def get_actual_weblogic_version(self):
@@ -228,24 +253,7 @@ class WebLogicHelper(object):
         :param oracle_home: for the current wlst (is there a way to get oracle home from wlst?)
         :return: weblogic home path for the wlst version and oracle home
         """
-        wl_home = None
-        if oracle_home is not None:
-            if self.is_weblogic_version_or_above('12.1.2'):
-                wl_home = oracle_home + '/wlserver'
-            elif self.is_weblogic_version_or_above('12.1.1'):
-                wl_home = oracle_home + '/wlserver_12.1'
-            else:
-                wl_home = oracle_home + '/wlserver_10.3'
-
-            # if the path is not a valid directory, try to infer it from the pattern
-            if os.path.isdir(oracle_home) and not os.path.isdir(wl_home):
-                dirs = [f for f in os.listdir(oracle_home) if re.match(r'wlserver.*', f)]
-                if len(dirs) > 0:
-                    wl_home = oracle_home + '/' + dirs[0]
-                else:
-                    wl_home = None
-
-        return wl_home
+        return get_weblogic_home(oracle_home, self.wl_version)
 
     def is_weblogic_version_or_above(self, str_version, use_actual_version=False):
         """

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2019, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import re
@@ -14,7 +14,6 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 import wlsdeploy.util.unicode_helper as str_helper
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
 _logger = PlatformLogger('wlsdeploy.mbean.utils')
@@ -737,7 +736,7 @@ class MBeanInfoAttributes(MBeanAttributes):
     def __init__(self, model_context, aliases, exception_type, location):
         MBeanAttributes.__init__(self, model_context, aliases, exception_type, location)
 
-        self.__weblogic_helper = WebLogicHelper(_logger)
+        self.__weblogic_helper = model_context.get_weblogic_helper()
         self.__mbean_info_descriptors = None
         self.__mbean_info_map = None
 

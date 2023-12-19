@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -13,7 +13,6 @@ from wlsdeploy.tool.create.creator import Creator
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.util import dictionary_utils
 import wlsdeploy.util.unicode_helper as str_helper
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
 class SecurityProviderCreator(Creator):
@@ -54,7 +53,7 @@ class SecurityProviderCreator(Creator):
 
         self._topology = self.model.get_model_topology()
         self._domain_typedef = self.model_context.get_domain_typedef()
-        self._wls_helper = WebLogicHelper(self.logger)
+        self._wls_helper = model_context.get_weblogic_helper()
 
     def create_security_configuration(self, location):
         """

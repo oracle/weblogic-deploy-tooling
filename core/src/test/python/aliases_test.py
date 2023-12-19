@@ -457,7 +457,6 @@ class AliasesTestCase(unittest.TestCase):
         }
 
         this_model_context = ModelContext("test", arg_map)
-
         online_aliases = Aliases(this_model_context, WlstModes.ONLINE, wls_version)
         location = LocationContext()
         location.append_location('SecurityConfiguration')
@@ -476,7 +475,6 @@ class AliasesTestCase(unittest.TestCase):
         }
 
         this_model_context = ModelContext("test", arg_map)
-
         online_aliases = Aliases(this_model_context, WlstModes.ONLINE, wls_version)
         location = LocationContext()
         location.append_location('SecurityConfiguration')

@@ -27,7 +27,7 @@ CONNECT_TIMEOUT_DEFAULT = '120000'
 ACTIVATE_TIMEOUT_PROP = 'activate.timeout'
 ACTIVATE_TIMEOUT_DEFAULT = '180000'
 ARCHIVE_CUSTOM_FOLDER_SIZE_LIMIT_PROP = 'archive.custom.folder.size.limit'
-ARCHIVE_CUSTOM_FOLDER_SIZE_LIMIT_DEFAULT = '1000000'
+ARCHIVE_CUSTOM_FOLDER_SIZE_LIMIT_DEFAULT = '1048576' # 1 MB
 DEPLOY_TIMEOUT_PROP = 'deploy.timeout'
 DEPLOY_TIMEOUT_DEFAULT = '180000'
 REDEPLOY_TIMEOUT_PROP = 'redeploy.timeout'
@@ -54,10 +54,12 @@ DISABLE_RCU_DROP_SCHEMA_PROP='disable.rcu.drop.schema'
 DISABLE_RCU_DROP_SCHEMA_DEFAULT='false'
 ENABLE_CREATE_DOMAIN_PASSWORD_VALIDATION_PROP = 'enable.create.domain.password.validation'
 ENABLE_CREATE_DOMAIN_PASSWORD_VALIDATION_DEFAULT = 'true'
-SSH_DEFAULT_PRIVATE_KEY_NAME_PROP='ssh.private.key.default.name'
-SSH_DEFAULT_PRIVATE_KEY_NAME_DEFAULT='id_rsa'
+SSH_DEFAULT_PRIVATE_KEY_FILE_NAME_PROP='ssh.private.key.default.file.name'
+SSH_DEFAULT_PRIVATE_KEY_FILE_NAME_DEFAULT='id_rsa'
 USE_SSH_COMPRESSION_PROP='use.ssh.compression'
 USE_SSH_COMPRESSION_DEFAULT='true'
+USE_SERVER_VERSION_FOR_ONLINE_OPERATIONS_PROP='use.server.version.for.online.operations'
+USE_SERVER_VERSION_FOR_ONLINE_OPERATIONS_DEFAULT='true'
 
 # System Property overrides for WLST timeout properties
 SYS_PROP_PREFIX = 'wdt.config.'
@@ -196,7 +198,7 @@ class ModelConfiguration(object):
         Return the default file name for the SSH private key when using a passphrase
         :return: the default file name for the private key when using a passphrase
         """
-        return self._get_from_dict(SSH_DEFAULT_PRIVATE_KEY_NAME_PROP, SSH_DEFAULT_PRIVATE_KEY_NAME_DEFAULT)
+        return self._get_from_dict(SSH_DEFAULT_PRIVATE_KEY_FILE_NAME_PROP, SSH_DEFAULT_PRIVATE_KEY_FILE_NAME_DEFAULT)
 
     def use_ssh_compression(self):
         """
@@ -204,6 +206,14 @@ class ModelConfiguration(object):
         :return: whether to use SSH compression
         """
         return self._get_from_dict_as_boolean(USE_SSH_COMPRESSION_PROP, USE_SSH_COMPRESSION_DEFAULT)
+
+    def use_server_version_for_online_operations(self):
+        """
+        Return whether online operations should use the server version for loading the aliases.
+        :return: true if using the server version, false otherwise
+        """
+        return self._get_from_dict_as_boolean(USE_SERVER_VERSION_FOR_ONLINE_OPERATIONS_PROP,
+                                              USE_SERVER_VERSION_FOR_ONLINE_OPERATIONS_DEFAULT)
 
     def get_archive_custom_folder_size_limit(self):
         """

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -55,7 +55,13 @@ class ModelContext(object):
         """
         self._program_name = program_name
         self._logger = platform_logger.PlatformLogger('wlsdeploy.util')
-        self._wls_helper = WebLogicHelper(self._logger)
+        #
+        # We are using late initialization of the wls_helper to accommodate
+        # basing it on the remote version, if applicable.
+        #
+        self._initialization_complete = False
+        self._wls_helper = None
+        self.string_utils = None
         self._model_config = model_config.get_model_config(self._program_name)
         self._ssh_context = None
 
@@ -85,6 +91,7 @@ class ModelContext(object):
         self._encrypt_one_pass = None
         self._use_encryption = False
         self._wl_version = None
+        self._remote_wl_version = None
         self._wlst_mode = None
         self._recursive = False
         self._attributes_only = False
@@ -125,7 +132,8 @@ class ModelContext(object):
         self._trailing_args = []
 
         if self._wl_version is None:
-            self._wl_version = self._wls_helper.get_actual_weblogic_version()
+            from wlsdeploy.util import weblogic_helper
+            self._wl_version = weblogic_helper.get_local_weblogic_version()
 
 
         if self._wlst_mode is None:
@@ -139,6 +147,11 @@ class ModelContext(object):
         #
         if arg_map is not None:
             self.__copy_from_args(arg_map)
+            if self._admin_url is None:
+                self.complete_initialization()
+        else:
+            self._initialization_complete = True
+
 
     def __copy_from_args(self, arg_map):
         _method_name = '__copy_from_args'
@@ -157,7 +170,8 @@ class ModelContext(object):
 
             self._logger.info('WLSDPLY-01050', self._wl_version, class_name=self._class_name,
                               method_name=_method_name)
-            self._wl_home = self._wls_helper.get_weblogic_home(self._oracle_home)
+            from wlsdeploy.util import weblogic_helper
+            self._wl_home = weblogic_helper.get_weblogic_home(self._oracle_home, self._wl_version)
 
         if CommandLineArgUtil.JAVA_HOME_SWITCH in arg_map:
             self._java_home = arg_map[CommandLineArgUtil.JAVA_HOME_SWITCH]
@@ -238,7 +252,6 @@ class ModelContext(object):
 
         if CommandLineArgUtil.REMOTE_ORACLE_HOME_SWITCH in arg_map:
             self._remote_oracle_home = arg_map[CommandLineArgUtil.REMOTE_ORACLE_HOME_SWITCH]
-            self._remote_wl_home = self._wls_helper.get_weblogic_home(self._remote_oracle_home)
 
         if CommandLineArgUtil.REMOTE_DOMAIN_HOME_SWITCH in arg_map:
             self._remote_domain_home = arg_map[CommandLineArgUtil.REMOTE_DOMAIN_HOME_SWITCH]
@@ -458,7 +471,38 @@ class ModelContext(object):
         if self._variable_properties_file is not None:
             arg_map[CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH] = self._variable_properties_file
 
-        return ModelContext(self._program_name, arg_map)
+        new_context = ModelContext(self._program_name, arg_map)
+        if not new_context.is_initialization_complete():
+            new_context.complete_initialization(self._remote_wl_version)
+
+        return new_context
+
+    def is_initialization_complete(self):
+        return self._initialization_complete
+
+    def complete_initialization(self, remote_wl_version = None):
+        """
+        Set the remote version when running in online mode.
+        :param remote_wl_version: the version of the online server
+        """
+        if not self._initialization_complete:
+            self._remote_wl_version = remote_wl_version
+            self._wls_helper = WebLogicHelper(self._logger, remote_wl_version)
+            if self._remote_oracle_home is not None:
+                # If we couldn't determine the remote version, just use the local version and hope for the best.
+                from wlsdeploy.util import weblogic_helper
+                self._remote_wl_home = \
+                    weblogic_helper.get_weblogic_home(self._remote_oracle_home, self.get_effective_wls_version())
+            if self._domain_typedef is not None:
+                self._domain_typedef.finish_initialization(self)
+            self._initialization_complete = True
+
+    def get_weblogic_helper(self):
+        """
+        Return the encapsulated WebLogicHelper instance
+        :return: the encapsulated WebLogicHelper instance
+        """
+        return self._wls_helper
 
     def get_model_config(self):
         """
@@ -826,8 +870,8 @@ class ModelContext(object):
 
     def is_encryption_manual(self):
         """
-        Get whether or not the user selected to do manual encryption.
-        :return: whether or not the user selected to do manual encryption
+        Get whether the user selected to do manual encryption.
+        :return: whether the user selected to do manual encryption
         """
         return self._encrypt_manual
 
@@ -840,17 +884,34 @@ class ModelContext(object):
 
     def is_using_encryption(self):
         """
-        Get whether or not the model is using encryption.
-        :return: whether or not the model is using encryption
+        Get whether the model is using encryption.
+        :return: whether the model is using encryption
         """
         return self._use_encryption
 
-    def get_target_wls_version(self):
+    def get_local_wls_version(self):
         """
-        Get the target WebLogic version.
-        :return: the target WebLogic version
+        Get the local WebLogic version.
+        :return: the local WebLogic version
         """
         return self._wl_version
+
+    def get_remote_wls_version(self):
+        """
+        Get the remote WebLogic version.
+        :return: the remote WebLogic version or None
+        """
+        return self._remote_wl_version
+
+    def get_effective_wls_version(self):
+        """
+        Get the WebLogic version for the domain.
+        :return: the WebLogic version for the domain
+        """
+        if self._remote_wl_version is not None:
+            return self._remote_wl_version
+        else:
+            return self._wl_version
 
     def get_target_wlst_mode(self):
         """
@@ -1262,6 +1323,8 @@ class ModelContext(object):
     def copy(self, arg_map):
         model_context_copy = copy.copy(self)
         model_context_copy.__copy_from_args(arg_map)
+        if not model_context_copy.is_initialization_complete():
+            model_context_copy.complete_initialization(self.get_remote_wls_version())
         return model_context_copy
 
     # private methods

@@ -51,7 +51,6 @@ from wlsdeploy.util import tool_main
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.cla_utils import TOOL_TYPE_CREATE
 from wlsdeploy.util.exit_code import ExitCode
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.tool.create import atp_helper
 from wlsdeploy.tool.create import ssl_helper
 import wlsdeploy.tool.create.rcudbinfo_helper as rcudbinfo_helper
@@ -63,7 +62,6 @@ _program_name = 'createDomain'
 _class_name = 'create'
 __logger = PlatformLogger('wlsdeploy.create')
 __wlst_mode = WlstModes.OFFLINE
-__version = WebLogicHelper(__logger).get_actual_weblogic_version()
 
 __required_arguments = [
     CommandLineArgUtil.MODEL_FILE_SWITCH,

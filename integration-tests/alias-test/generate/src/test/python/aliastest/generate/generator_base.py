@@ -1,5 +1,5 @@
 """
-Copyright (c) 2021, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2021, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import types
@@ -74,7 +74,7 @@ class GeneratorBase(object):
         self._model_context = model_context
         self._dictionary = dictionary
         self._aliases = \
-            Aliases(model_context, model_context.get_target_wlst_mode(), model_context.get_target_wls_version())
+            Aliases(model_context, model_context.get_target_wlst_mode(), model_context.get_local_wls_version())
         self._ignore_list = self._aliases.get_ignore_attribute_names()
 
     def add_derived_default(self, dictionary, cmo_helper, attribute_name):
@@ -85,7 +85,7 @@ class GeneratorBase(object):
         # Currently, there is no concept of derived default in WLST offline.
         # Early versions of WLST getMBI does not return derived default, so do not
         # put the derived default value into the json file
-        if self._model_context.get_target_wls_version() in DERIVED_DEFAULT_DISMISS:
+        if self._model_context.get_local_wls_version() in DERIVED_DEFAULT_DISMISS:
             return
         if self._model_context.get_target_wlst_mode() == WlstModes.ONLINE:
             if cmo_helper is not None:

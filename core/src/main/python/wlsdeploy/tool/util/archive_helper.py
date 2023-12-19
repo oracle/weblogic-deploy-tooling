@@ -16,7 +16,6 @@ from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 class ArchiveList(object):
     """
@@ -35,7 +34,7 @@ class ArchiveList(object):
         """
         _method_name = '__init__'
 
-        self.__weblogic_helper = WebLogicHelper(self.__logger)
+        self.__weblogic_helper = model_context.get_weblogic_helper()
         # used for logging only, comma-separated text is OK
         self.__archive_files_text = archive_files_text
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2018, 2023, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
@@ -30,7 +30,7 @@ public class WLSDeployContext {
     private WLSTMode wlstMode;
     private String programName;
     private boolean isRemote;
-    private String remoteUrl;
+    private String remoteVersion;
 
     /**
      * The context members are encapsulated within this instance through the constructor.
@@ -44,24 +44,24 @@ public class WLSDeployContext {
         this.version = version;
         this.wlstMode = wlstMode;
         this.isRemote = false;
-        this.remoteUrl = null;
+        this.remoteVersion = null;
     }
 
     /**
      * The context members are encapsulated within this instance through the constructor.
      *
-     * @param programName name of the currently running tool
-     * @param version     version of oracle home in use by the tool
-     * @param wlstMode    mode online or offline how tool is attached to wlst
-     * @param isRemote    whether WDT was run using -remote or with -ssh_host
-     * @param remoteUrl   the admin URL if the server is running remotely
+     * @param programName   name of the currently running tool
+     * @param version       version of oracle home in use by the tool
+     * @param wlstMode      mode online or offline how tool is attached to wlst
+     * @param isRemote      whether WDT was run using -remote or with -ssh_host
+     * @param remoteVersion the version of the server if it is running remotely
      */
-    public WLSDeployContext(String programName, String version, WLSTMode wlstMode, boolean isRemote, String remoteUrl) {
+    public WLSDeployContext(String programName, String version, WLSTMode wlstMode, boolean isRemote, String remoteVersion) {
         this.programName = programName;
         this.version = version;
         this.wlstMode = wlstMode;
         this.isRemote = isRemote;
-        this.remoteUrl = remoteUrl;
+        this.remoteVersion = remoteVersion;
     }
 
     /**
@@ -101,11 +101,11 @@ public class WLSDeployContext {
     }
 
     /**
-     * The remote admin server's URL.
+     * Get the remote WebLogic Server version.
      *
-     * @return remote admin server's URL
+     * @return remote WebLogic Server version or null
      */
-    public String getRemoteUrl() {
-        return remoteUrl;
+    public String getRemoteVersion() {
+        return remoteVersion;
     }
 }

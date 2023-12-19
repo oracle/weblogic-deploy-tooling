@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.lang import IllegalArgumentException
@@ -11,7 +11,6 @@ from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 import wlsdeploy.util.unicode_helper as str_helper
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
 class CustomFolderHelper(object):
@@ -27,7 +26,7 @@ class CustomFolderHelper(object):
         self.logger = logger
         self.model_context = model_context
         self.exception_type = exception_type
-        self.weblogic_helper = WebLogicHelper(self.logger)
+        self.weblogic_helper = model_context.get_weblogic_helper()
         self.wlst_helper = WlstHelper(self.exception_type)
 
     def update_security_folder(self, location, model_type, model_subtype, model_name, model_nodes):

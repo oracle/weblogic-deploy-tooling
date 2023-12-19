@@ -18,7 +18,6 @@ from wlsdeploy.aliases.model_constants import NM_PROPERTIES
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.util import model_helper
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 
 
@@ -32,7 +31,6 @@ class TopologyHelper(object):
         self.logger = logger
         self.aliases = aliases
         self.wlst_helper = WlstHelper(exception_type)
-        self.wl_helper = WebLogicHelper(self.logger)
         self._coherence_cluster_elements = [CLUSTER, SERVER, SERVER_TEMPLATE]
 
     def check_coherence_cluster_references(self, type_name, model_nodes):

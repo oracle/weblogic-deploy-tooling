@@ -1,5 +1,5 @@
 """
-Copyright (c) 2018, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2018, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the injectVariables tool.
@@ -24,7 +24,6 @@ from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.model_translator import FileToPython
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 _program_name = 'injectVariables'
 _class_name = 'variable_inject'
@@ -66,7 +65,7 @@ def __inject(model, model_context):
     :param model_context: the model context
     :return: True if variables were inserted into model: The updated model
     """
-    version = WebLogicHelper(__logger).get_actual_weblogic_version()
+    version = model_context.get_effective_wls_version()
     injector = VariableInjector(_program_name, model, model_context, version)
 
     inserted, variable_model, variable_file_name =\

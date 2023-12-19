@@ -28,7 +28,6 @@ from wlsdeploy.util import tool_main
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model import Model
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 wlst_helper.wlst_functions = globals()
 
@@ -36,7 +35,6 @@ wlst_helper.wlst_functions = globals()
 _program_name = 'deployApps'
 _class_name = 'deploy'
 __logger = PlatformLogger('wlsdeploy.deploy')
-__wls_helper = WebLogicHelper(__logger)
 __wlst_helper = WlstHelper(ExceptionType.DEPLOY)
 __wlst_mode = WlstModes.OFFLINE
 
