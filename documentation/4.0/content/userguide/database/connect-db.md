@@ -1,8 +1,8 @@
 ---
-title: "Connect to a Database"
+title: "Connect to a database"
 date: 2019-02-23T17:19:24-05:00
 draft: false
-weight: 3
+weight: 5
 description: "Create a connection to access your database."
 ---
 
@@ -288,7 +288,7 @@ This is a sparse model of the FMW data sources discovered from a FMW domain.  Yo
 ```yaml
 
 ...
-  
+
 resources:  
    JDBCSystemResource:
         WLSSchemaDataSource:

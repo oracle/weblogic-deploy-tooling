@@ -2,7 +2,7 @@
 title: "Target environments"
 date: 2019-02-23T17:19:24-05:00
 draft: false
-weight: 2
+weight: 4
 ---
 
 ### Contents
@@ -107,7 +107,7 @@ In WebLogic Kubernetes Operator [Model in Image](https://oracle.github.io/weblog
 
 #### The create secrets script
 
-For target environments that use Kubernetes secret tokens, a shell script is created to generate the required secrets. The script is named `create_k8s_secrets.sh`, and is created in the target output directory. The script has commands to create each secret, for example: 
+For target environments that use Kubernetes secret tokens, a shell script is created to generate the required secrets. The script is named `create_k8s_secrets.sh`, and is created in the target output directory. The script has commands to create each secret, for example:
 ```shell
 # Update <user> and <password> for weblogic-credentials
 create_paired_k8s_secret weblogic-credentials <user> <password>
@@ -269,4 +269,3 @@ This field specifies a comma-separated list of secret types that are to be inclu
 You can use this field to create additional output for use in the target environment. The value is a comma-separated list of template files in the `$WLSDEPLOY_HOME/lib/targets/templates` directory. These templates are populated with information derived from the model, and written to a file with the same name in the specified output directory.
 
 **Note: Prior to release 2.0.1, template files were stored in the `$WLSDEPLOY_HOME/lib/targets/<target-name>` directory.**
-
