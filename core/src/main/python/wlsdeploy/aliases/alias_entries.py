@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2022, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -22,7 +22,6 @@ from wlsdeploy.aliases.alias_constants import FLATTENED_FOLDER_DATA
 from wlsdeploy.aliases.alias_constants import FOLDER_ORDER
 from wlsdeploy.aliases.alias_constants import FOLDER_PARAMS
 from wlsdeploy.aliases.alias_constants import FOLDERS
-from wlsdeploy.aliases.alias_constants import GET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import GET_METHOD
 from wlsdeploy.aliases.alias_constants import MODEL_NAME
 from wlsdeploy.aliases.alias_constants import NAME_VALUE
@@ -1579,7 +1578,7 @@ class AliasEntries(object):
                 if key in NULL_VALUE_KEY_FIELDS and result[key] == NULL_VALUE_KEY:
                     result[key] = None
 
-        for key in [GET_METHOD, SET_METHOD, GET_MBEAN_TYPE, SET_MBEAN_TYPE]:
+        for key in [GET_METHOD, SET_METHOD, SET_MBEAN_TYPE]:
             if key in result and len(result[key]) == 0:
                 del result[key]
         return result
