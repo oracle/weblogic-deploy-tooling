@@ -2,7 +2,7 @@
 title: "Create Domain Tool"
 date: 2019-02-23T17:19:24-05:00
 draft: false
-weight: 1
+weight: 2
 description: "Creates a domain and populates the domain with all the resources and applications specified in the model."
 ---
 
@@ -71,7 +71,7 @@ Prior to 3.5.0, validation errors for the administrator password resulted in a W
 while validation errors for other users resulted in warnings from WDT even though the domain and user was created.
 However, due to a bug, any of these users with an invalid password were created with an unusable password.
 
-Starting in 3.5.0, this validation has been unified and enhanced.  Now, password validation: 
+Starting in 3.5.0, this validation has been unified and enhanced.  Now, password validation:
 
 - Happens upfront during model validation;
 - Logs errors for all users' password validation errors and aborts the domain creation process;
@@ -100,7 +100,7 @@ topology:
              still create the `SystemPasswordValidator` security provider with the exact settings in the model.
 
 This new validation behavior can be disabled by setting the `enable.create.domain.password.validation` property to
-`false` in `$WLSDEPLOY_HOME/lib/tool.properties` or by adding 
+`false` in `$WLSDEPLOY_HOME/lib/tool.properties` or by adding
 `-Dwdt.config.enable.create.domain.password.validation=false` to the `WLSDEPLOY_PROPERTIES` environment variable prior
 to invoking the Create Domain tool.  Note that disabling this validation will disable all validation of passwords
 except for the WLST offline validation of the domain's administrative password.
