@@ -365,5 +365,6 @@
         <module>core</module>
         <module>installer</module>
         <module>integration-tests</module>
+        <module>tools</module>
     </modules>
 </project>
