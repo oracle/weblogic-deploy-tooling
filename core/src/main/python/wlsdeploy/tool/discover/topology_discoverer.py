@@ -54,6 +54,8 @@ class TopologyDiscoverer(Discoverer):
         Discoverer.__init__(self, model_context, base_location, wlst_mode, aliases, credential_injector)
         self._dictionary = topology_dictionary
         self._add_att_handler(model_constants.CLASSPATH, self._add_classpath_libraries_to_archive)
+        self._add_att_handler(model_constants.CREATE_TABLE_DDL_FILE,
+                              self._add_jdbc_transaction_log_create_table_ddl_file_to_archive)
         self._add_att_handler(model_constants.CUSTOM_IDENTITY_KEYSTORE_FILE, self._add_keystore_file_to_archive)
         self._add_att_handler(model_constants.CUSTOM_TRUST_KEYSTORE_FILE, self._add_keystore_file_to_archive)
         self._wlst_helper = WlstHelper(ExceptionType.DISCOVER)
@@ -459,9 +461,8 @@ class TopologyDiscoverer(Discoverer):
                     location.remove_name_token(name_token)
                 except DiscoverException, de:
                     wlst_path = self._aliases.get_wlst_attributes_path(location)
-                    _logger.warning('WLSDPLY-06200', wlst_path,
-                                    self._wls_version, de.getLocalizedMessage(),
-                                    class_name=_class_name, method_name=_method_name)
+                    _logger.warning('WLSDPLY-06200', wlst_path, self._wls_version, de.getLocalizedMessage(),
+                                    class_name=_class_name, method_name=_method_name, error=de)
                     result = OrderedDict()
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
@@ -863,7 +864,7 @@ class TopologyDiscoverer(Discoverer):
 
         Add the server files and directories listed in the server classpath attribute to the archive file.
         File locations in the oracle_home will be removed from the classpath and will not be added to the archive file.
-        :param model_name: attribute for the server server start classpath attribute
+        :param model_name: attribute for the server's server start classpath attribute
         :param model_value: classpath value in domain
         :param location: context containing current location information
         :return model
@@ -932,16 +933,56 @@ class TopologyDiscoverer(Discoverer):
                     new_source_name = archive_file.addClasspathLibrary(file_name_path)
                 except IllegalArgumentException, iae:
                     _logger.warning('WLSDPLY-06620', server_name, file_name_path, iae.getLocalizedMessage(),
-                                    class_name=_class_name, method_name=_method_name)
+                                    class_name=_class_name, method_name=_method_name, error=iae)
                 except WLSDeployArchiveIOException, wioe:
                     de = exception_helper.create_discover_exception('WLSDPLY-06621', server_name, file_name_path,
-                                                                    wioe.getLocalizedMessage())
+                                                                    wioe.getLocalizedMessage(), error=wioe)
                     _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
                     raise de
             if new_source_name is not None:
                 return_name = new_source_name
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=return_name)
         return return_name
+
+    def _add_jdbc_transaction_log_create_table_ddl_file_to_archive(self, model_name, model_value, location):
+        """
+        Add JDBC transaction log's create table DDL file to the archive.
+        :param model_name: attribute name in the model
+        :param model_value: converted model value for the attribute
+        :param location: context containing the current location information
+        :return: modified location and name for the model create table DDL file
+        """
+        _method_name = '_add_jdbc_transaction_log_create_table_ddl_file_to_archive'
+        _logger.entering(model_name, model_value, str_helper.to_string(location),
+                         class_name=_class_name, method_name=_method_name)
+        new_name = None
+        if not string_utils.is_empty(model_value):
+            entity_type, entity_name = self._get_server_or_template_name_from_location(location)
+            archive_file = self._model_context.get_archive_file()
+
+            if self._model_context.is_remote():
+                new_name = WLSDeployArchive.getScriptArchivePath(model_value)
+                self.add_to_remote_map(model_value, new_name, WLSDeployArchive.ArchiveEntryType.SCRIPT.name())
+            elif not self._model_context.is_skip_archive():
+                file_path = self._convert_path(model_value)
+                try:
+                    if self._model_context.is_ssh():
+                        file_path = \
+                            self.download_deployment_from_remote_server(file_path, self.download_temporary_dir,
+                                                                        "jdbcTXLogCreateTableDDLFile-%s" % entity_name)
+
+                    new_name = archive_file.addScript(file_path)
+                except IllegalArgumentException, iae:
+                    _logger.warning('WLSDPLY-06674', file_path, entity_type, entity_name, iae.getLocalizedMessage(),
+                                    class_name=_class_name, method_name=_method_name, error=iae)
+                except WLSDeployArchiveIOException, wioe:
+                    de = exception_helper.create_discover_exception('WLSDPLY-06675', file_path, entity_type,
+                                                                    entity_name, wioe.getLocalizedMessage(), error=wioe)
+                    _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+                    raise de
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
+        return new_name
 
     def _add_keystore_file_to_archive(self, model_name, model_value, location):
         """
@@ -967,17 +1008,18 @@ class TopologyDiscoverer(Discoverer):
                 if not self._model_context.is_remote():
                     file_path = self._convert_path(model_value)
                 if server_name:
-                    new_name = self._add_server_keystore_file_to_archive(server_name, archive_file, file_path)
+                    new_name = self._add_server_keystore_file_to_archive(model_name, server_name, archive_file, file_path)
                 else:
                     new_name = self._add_node_manager_keystore_file_to_archive(archive_file, file_path)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
         return new_name
 
-    def _add_server_keystore_file_to_archive(self, server_name, archive_file, file_path):
+    def _add_server_keystore_file_to_archive(self, attribute_name, server_name, archive_file, file_path):
         """
         Add the Server custom trust or identity keystore file to the archive.
-        :param server_name: attribute name in the model
+        :param attribute_name: The name of the attribute in the server
+        :param server_name: the name of the server whose attribute refers to the file
         :param archive_file: converted model value for the attribute
         :param file_path: context containing the current location information
         :return: modified location and name for the model keystore file
@@ -994,19 +1036,20 @@ class TopologyDiscoverer(Discoverer):
             try:
 
                 if self._model_context.is_ssh():
-                    file_path = self.download_deployment_from_remote_server(file_path,
-                                                                                  self.download_temporary_dir,
-                                                                                  "keyStoreFile-" + server_name)
+                    file_path = self.download_deployment_from_remote_server(file_path, self.download_temporary_dir,
+                                                                            "keyStoreFile-%s" % server_name)
 
                 new_name = archive_file.addServerKeyStoreFile(server_name, file_path)
             except IllegalArgumentException, iae:
-                _logger.warning('WLSDPLY-06624', server_name, file_path, iae.getLocalizedMessage(),
-                                class_name=_class_name, method_name=_method_name)
+                _logger.warning('WLSDPLY-06624', attribute_name, file_path, server_name, iae.getLocalizedMessage(),
+                                class_name=_class_name, method_name=_method_name, error=iae)
             except WLSDeployArchiveIOException, wioe:
-                de = exception_helper.create_discover_exception('WLSDPLY-06625', server_name, file_path,
-                                                                wioe.getLocalizedMessage())
+                de = exception_helper.create_discover_exception('WLSDPLY-06625', attribute_name, file_path, server_name,
+                                                                wioe.getLocalizedMessage(), error=wioe)
                 _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
                 raise de
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
         return new_name
 
     def _add_node_manager_keystore_file_to_archive(self, archive_file, file_path):
@@ -1028,28 +1071,47 @@ class TopologyDiscoverer(Discoverer):
         elif not self._model_context.is_skip_archive():
             try:
                 if self._model_context.is_ssh():
-                    file_path = self.download_deployment_from_remote_server(file_path,
-                                                                             self.download_temporary_dir,
-                                                                             "nodeManagerKeyStore")
+                    file_path = self.download_deployment_from_remote_server(file_path, self.download_temporary_dir,
+                                                                            "nodeManagerKeyStore")
                 new_name = archive_file.addNodeManagerKeyStoreFile(file_path)
             except IllegalArgumentException, iae:
                 _logger.warning('WLSDPLY-06637', file_path, iae.getLocalizedMessage(), class_name=_class_name,
-                                method_name=_method_name)
+                                method_name=_method_name, error=iae)
             except WLSDeployArchiveIOException, wioe:
-                de = exception_helper.create_discover_exception('WLSDPLY-06638', file_path, wioe.getLocalizedMessage())
+                de = exception_helper.create_discover_exception('WLSDPLY-06638', file_path, wioe.getLocalizedMessage(),
+                                                                error=wioe)
                 _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
                 raise de
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
         return new_name
 
     def _get_server_name_from_location(self, location):
         """
-        Retrieve the server name from the location context file.
+        Retrieve the server name from the location context.
         :param location: context containing the server information
         :return: server name
         """
         temp = LocationContext()
         temp.append_location(model_constants.SERVER)
         return location.get_name_for_token(self._aliases.get_name_token(temp))
+
+    def _get_server_or_template_name_from_location(self, location):
+        """
+        Retrieve the name for the server or server template from the location context.
+        :param location: context containing either a server ot server template information
+        :return: the name of the server or server template
+        """
+        location_folders = location.get_model_folders()
+        temp = LocationContext()
+        if location_folders[0] == model_constants.SERVER:
+            entity_type = model_constants.SERVER
+            temp.append_location(model_constants.SERVER)
+        else:
+            entity_type = model_constants.SERVER_TEMPLATE
+            temp.append_location(model_constants.SERVER_TEMPLATE)
+        entity_name = location.get_name_for_token(self._aliases.get_name_token(temp))
+        return entity_type, entity_name
 
     def _dynamic_target(self, target, location):
         """
