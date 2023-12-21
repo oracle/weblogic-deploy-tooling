@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env sh
 
 set -eu
 
@@ -6,71 +6,43 @@ set -eu
 NAMESPACE={{{namespace}}}
 DOMAIN_UID={{{domainUid}}}
 
-LONG_SECRETS=()
+LONG_SECRETS=""
 
-function check_secret_name {
-  if [ ${#1} -gt 63 ]; then
-    LONG_SECRETS+=($1)
+check_secret_name() {
+  if [ ${#1} -gt {{{maxSecretLength}}} ]; then
+    LONG_SECRETS="${LONG_SECRETS} $1"
   fi
 }
 
-function create_k8s_secret {
-  SECRET_NAME=${DOMAIN_UID}-$1
-  check_secret_name ${SECRET_NAME}
-  kubectl -n $NAMESPACE delete secret ${SECRET_NAME} --ignore-not-found
-  kubectl -n $NAMESPACE create secret generic ${SECRET_NAME} --from-literal=password=$2
-  kubectl -n $NAMESPACE label secret ${SECRET_NAME} weblogic.domainUID=${DOMAIN_UID}
-}
-
-function create_paired_k8s_secret {
-  SECRET_NAME=${DOMAIN_UID}-$1
-  check_secret_name ${SECRET_NAME}
-  kubectl -n $NAMESPACE delete secret ${SECRET_NAME} --ignore-not-found
-  kubectl -n $NAMESPACE create secret generic ${SECRET_NAME} --from-literal=username=$2 --from-literal=password=$3
-  kubectl -n $NAMESPACE label secret ${SECRET_NAME} weblogic.domainUID=${DOMAIN_UID}
-}
-
-function create_multi_k8s_secret {
+create_k8s_secret() {
   SECRET_NAME=${DOMAIN_UID}-$1
   check_secret_name "${SECRET_NAME}"
   kubectl -n $NAMESPACE delete secret "${SECRET_NAME}" --ignore-not-found
 
+  shift
+
   K8S_COMMAND="kubectl -n $NAMESPACE create secret generic ${SECRET_NAME}"
-  for var in "${@:2}"
+  for var in "${@}"
   do
-    K8S_COMMAND+=" --from-literal=${var}"
+    K8S_COMMAND="${K8S_COMMAND} --from-literal=${var}"
   done
   $K8S_COMMAND
 
   kubectl -n $NAMESPACE label secret "${SECRET_NAME}" weblogic.domainUID=${DOMAIN_UID}
 }
-{{#pairedSecrets}}
-
-{{#comments}}
-# {{{comment}}}
-{{/comments}}
-create_paired_k8s_secret {{{secretName}}} "{{{user}}}" {{{password}}}
-{{/pairedSecrets}}
 {{#secrets}}
 
 {{#comments}}
 # {{{comment}}}
 {{/comments}}
-create_k8s_secret {{{secretName}}} {{{password}}}
+create_k8s_secret {{{secretName}}} {{{secretPairs}}}
 {{/secrets}}
-{{#multiSecrets}}
 
-{{#comments}}
-# {{{comment}}}
-{{/comments}}
-create_multi_k8s_secret {{{secretName}}} {{{secretPairs}}}
-{{/multiSecrets}}
-
-LONG_SECRETS_COUNT=${#LONG_SECRETS[@]}
+LONG_SECRETS_COUNT=`echo "${LONG_SECRETS}" | wc -w | xargs`
 if [ "${LONG_SECRETS_COUNT}" -gt 0 ]; then
   echo ""
   echo "{{{longMessage}}}"
-  for NAME in "${LONG_SECRETS[@]}"; do
+  for NAME in ${LONG_SECRETS}; do
     echo "  ${NAME}"
   done
   echo ""

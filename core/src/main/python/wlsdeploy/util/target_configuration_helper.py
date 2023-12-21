@@ -50,12 +50,7 @@ JDBC_CREDENTIALS_SECRET_ONS_PASS_SUFFIX = '-' + JDBC_CREDENTIALS_SECRET_ONS_PASS
 RUNTIME_ENCRYPTION_SECRET_NAME = 'runtime-encryption-secret'
 RUNTIME_ENCRYPTION_SECRET_SUFFIX = '-' + RUNTIME_ENCRYPTION_SECRET_NAME
 
-VZ_EXTRA_CONFIG = 'vz'
-
-ADMIN_USER_TAG = "<admin-user>"
-ADMIN_PASSWORD_TAG = "<admin-password>"
-USER_TAG = "<user>"
-PASSWORD_TAG = "<password>"
+MAX_SECRET_LENGTH=63
 
 # placeholders for config override secrets
 ADMIN_USERNAME_KEY = ADMIN_USERNAME.lower()
@@ -133,7 +128,8 @@ def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
     domain_name = k8s_helper.get_domain_name(model_dictionary)
     domain_uid = k8s_helper.get_domain_uid(domain_name)
     comment = exception_helper.get_message("WLSDPLY-01665")
-    script_hash = {'domainUid': domain_uid, 'topComment': comment, 'namespace': domain_uid}
+    script_hash = {'domainUid': domain_uid, 'topComment': comment, 'namespace': domain_uid,
+                   "maxSecretLength": str(MAX_SECRET_LENGTH)}
 
     # build a map of secret names (jdbc-generic1) to keys (username, password)
     secret_map = {}
@@ -153,42 +149,38 @@ def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
             secret_keys = secret_map[secret_name]
             secret_keys[secret_key] = value
 
-    # update the hash with secrets and paired secrets
-    secrets = []  # password only
-    paired_secrets = [_build_secret_hash(WEBLOGIC_CREDENTIALS_SECRET_NAME, USER_TAG, PASSWORD_TAG)]
-    multi_secrets = []
+    # update the secrets hash
 
+    # include WebLogic credentials always, they're not in secret_map
+    secrets = [_build_secret_hash(WEBLOGIC_CREDENTIALS_SECRET_NAME, {
+        SECRET_USERNAME_KEY: None,
+        SECRET_PASSWORD_KEY: None
+    })]
+
+    # add secrets found in the model
     secret_names = secret_map.keys()
     secret_names.sort()
     for secret_name in secret_names:
         secret_keys = secret_map[secret_name]
-        user_name = dictionary_utils.get_element(secret_keys, SECRET_USERNAME_KEY)
-        has_password = SECRET_PASSWORD_KEY in secret_keys
-
-        if len(secret_keys) == 1 and has_password:
-            secrets.append(_build_secret_hash(secret_name, None, PASSWORD_TAG))
-        elif len(secret_keys) == 2 and has_password and user_name is not None:
-            paired_secrets.append(_build_secret_hash(secret_name, user_name, PASSWORD_TAG))
-        else:
-            multi_secrets.append(_build_multi_hash(secret_name, secret_keys))
+        secrets.append(_build_secret_hash(secret_name, secret_keys))
 
     # add a secret with a specific comment for runtime encryption
     target_config = model_context.get_target_configuration()
     additional_secrets = target_config.get_additional_secrets()
     if RUNTIME_ENCRYPTION_SECRET_NAME in additional_secrets:
-        runtime_hash = _build_secret_hash(RUNTIME_ENCRYPTION_SECRET_NAME, None, PASSWORD_TAG)
-        message1 = exception_helper.get_message("WLSDPLY-01671", PASSWORD_TAG)
+        runtime_hash = _build_secret_hash(RUNTIME_ENCRYPTION_SECRET_NAME, {
+            SECRET_PASSWORD_KEY: None
+        })
+        message1 = exception_helper.get_message("WLSDPLY-01671", SECRET_PASSWORD_KEY)
         message2 = exception_helper.get_message("WLSDPLY-01672")
         runtime_hash['comments'] = [{'comment': message1}, {'comment': message2}]
         secrets.append(runtime_hash)
 
     script_hash['secrets'] = secrets
-    script_hash['pairedSecrets'] = paired_secrets
-    script_hash['multiSecrets'] = multi_secrets
     script_hash['longMessage'] = exception_helper.get_message('WLSDPLY-01667', '${LONG_SECRETS_COUNT}')
 
     long_messages = [
-        {'text': exception_helper.get_message('WLSDPLY-01668')},
+        {'text': exception_helper.get_message('WLSDPLY-01668', MAX_SECRET_LENGTH)},
         {'text': exception_helper.get_message('WLSDPLY-01669')},
         {'text': exception_helper.get_message('WLSDPLY-01670')}
     ]
@@ -456,23 +448,7 @@ def format_secret_name(model_location, attribute_location, attribute, aliases, s
     return secret or 'secret'
 
 
-def _build_secret_hash(secret_name, user, password):
-    """
-    Build a hash for a single secret, for use with the create secrets script template.
-    :param secret_name: the name of the secret
-    :param user: the associated user name, or None
-    :param password: the associated password
-    :return: a secret hash
-    """
-    if user:
-        message = exception_helper.get_message("WLSDPLY-01664", USER_TAG, PASSWORD_TAG, secret_name)
-        return {'secretName': secret_name, 'user': user, 'password': password, 'comments': [{'comment': message}]}
-    else:
-        message = exception_helper.get_message("WLSDPLY-01663", PASSWORD_TAG, secret_name)
-        return {'secretName': secret_name, 'password': password, 'comments': [{'comment': message}]}
-
-
-def _build_multi_hash(secret_name, secret_key_map):
+def _build_secret_hash(secret_name, secret_key_map):
     """
     Build a hash for a single secret, for use with the create secrets script template.
     :param secret_name: the name of the secret
@@ -480,17 +456,17 @@ def _build_multi_hash(secret_name, secret_key_map):
     :return: a secret hash
     """
     secret_pairs = []
-    update_values = []
+    update_keys = []
     for secret_key in secret_key_map:
         value = secret_key_map[secret_key]
         if not value:
             value = '<' + secret_key + '>'
-            update_values.append(value)
+            update_keys.append(secret_key)
         secret_pairs.append('"' + secret_key + '=' + value + '"')
 
     secret_pairs_text = ' '.join(secret_pairs)
     message = exception_helper.get_message("WLSDPLY-01684", secret_name)
-    if update_values:
-        message = exception_helper.get_message("WLSDPLY-01683", secret_name, ', '.join(update_values))
+    if update_keys:
+        message = exception_helper.get_message("WLSDPLY-01683", secret_name, ', '.join(update_keys))
 
     return {'secretName': secret_name, 'secretPairs': secret_pairs_text, 'comments': [{'comment': message}]}
