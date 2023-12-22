@@ -102,7 +102,8 @@ def create_additional_output(model, model_context, aliases, credential_injector,
     # all current output types use this hash, and process a set of template files
     template_hash = _build_template_hash(model, model_context, aliases, credential_injector, domain_home_override)
     for index, template_name in enumerate(template_names):
-        source_file_name = _get_template_source_name(template_name, target_configuration)
+        source_file_name = (_get_template_source_name(template_name, target_configuration) +
+                            file_template_helper.MUSTACHE_SUFFIX)
         output_file = File(os.path.join(output_dir, template_name))
 
         _create_file(source_file_name, template_hash, output_file, exception_type)

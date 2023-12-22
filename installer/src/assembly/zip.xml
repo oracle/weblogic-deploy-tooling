@@ -41,6 +41,7 @@
             <outputDirectory>lib/targets</outputDirectory>
             <includes>
                 <include>**/*.json</include>
+                <include>**/*.mustache</include>
                 <include>**/*.py</include>
                 <include>**/*.yaml</include>
             </includes>

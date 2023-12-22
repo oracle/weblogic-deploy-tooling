@@ -72,7 +72,7 @@ JDBC_USER_PATTERN = re.compile('.user.Value$')
 JDBC_USER_REPLACEMENT = '.user-value'
 
 K8S_SCRIPT_NAME = 'create_k8s_secrets.sh'
-K8S_SCRIPT_RESOURCE_PATH = 'oracle/weblogic/deploy/k8s/' + K8S_SCRIPT_NAME
+K8S_SCRIPT_RESOURCE_PATH = 'oracle/weblogic/deploy/k8s/' + K8S_SCRIPT_NAME + file_template_helper.MUSTACHE_SUFFIX
 RESULTS_FILE_NAME = 'results.json'
 
 
@@ -129,7 +129,7 @@ def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
     domain_uid = k8s_helper.get_domain_uid(domain_name)
     comment = exception_helper.get_message("WLSDPLY-01665")
     script_hash = {'domainUid': domain_uid, 'topComment': comment, 'namespace': domain_uid,
-                   "maxSecretLength": str(MAX_SECRET_LENGTH)}
+                   'maxSecretLength': str(MAX_SECRET_LENGTH)}
 
     # build a map of secret names (jdbc-generic1) to keys (username, password)
     secret_map = {}
