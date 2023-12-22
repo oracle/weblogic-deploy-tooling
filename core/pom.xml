@@ -134,6 +134,7 @@
                 <includes>
                     <include>oracle/**/*.json</include>
                     <include>oracle/**/*.ldift</include>
+                    <include>oracle/**/*.mustache</include>
                     <include>oracle/**/*.properties</include>
                     <include>oracle/**/*.sh</include>
                     <include>oracle/**/*.yaml</include>

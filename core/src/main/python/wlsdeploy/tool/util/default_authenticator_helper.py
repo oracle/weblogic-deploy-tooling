@@ -62,7 +62,7 @@ class DefaultAuthenticatorHelper(object):
         _method_name = 'create_default_init_file'
 
         template_hash = self._build_default_template_hash(security_mapping_nodes)
-        template_path = TEMPLATE_PATH + '/' + DEFAULT_AUTH_INIT_FILE
+        template_path = TEMPLATE_PATH + '/' + DEFAULT_AUTH_INIT_FILE + file_template_helper.MUSTACHE_SUFFIX
 
         output_dir = File(self._model_context.get_domain_home(), SECURITY_SUBDIR)
         output_file = File(output_dir, DEFAULT_AUTH_INIT_FILE)
