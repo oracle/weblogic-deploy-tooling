@@ -111,7 +111,7 @@ usage() {
   echo "                          of a file with a string value which WDT will read to"
   echo "                          retrieve the passphrase."
   echo ""
-  echo "        wlst_path       - the Oracle Home subdirectory of the wlst.cmd"
+  echo "        wlst_path       - the Oracle Home subdirectory of the wlst.sh"
   echo "                          script to use (e.g., <ORACLE_HOME>/soa)."
   echo ""
   echo "        rcu_database    - the RCU database connect string (if the domain"

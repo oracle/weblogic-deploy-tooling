@@ -74,7 +74,7 @@ usage() {
   echo "        domain_type     - the type of domain (e.g., WLS, JRF)."
   echo "                          Used to locate wlst.cmd if -wlst_path not specified."
   echo ""
-  echo "        wlst_path       - the Oracle Home subdirectory of the wlst.cmd"
+  echo "        wlst_path       - the Oracle Home subdirectory of the wlst.sh"
   echo "                          script to use (e.g., <ORACLE_HOME>/soa)."
   echo ""
   echo "        java_home       - overrides the JAVA_HOME value when discovering domain"

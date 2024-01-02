@@ -24,7 +24,7 @@ from wlsdeploy.util.exit_code import ExitCode
 
 wlst_helper.wlst_functions = globals()
 
-_program_name = 'verifySsh'
+_program_name = 'verifySSH'
 
 _class_name = 'verify_ssh'
 __logger = PlatformLogger('wlsdeploy.tool.util')

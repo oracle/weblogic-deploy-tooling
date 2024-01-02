@@ -89,7 +89,7 @@ usage() {
   echo "                          string value which WDT will read to retrieve the"
   echo "                          passphrase."
   echo ""
-  echo "        wlst_path       - the Oracle Home subdirectory of the wlst.cmd"
+  echo "        wlst_path       - the Oracle Home subdirectory of the wlst.sh"
   echo "                          script to use (e.g., <ORACLE_HOME>/soa)."
   echo ""
   echo "        output_dir      - if specified, files containing restart information"
