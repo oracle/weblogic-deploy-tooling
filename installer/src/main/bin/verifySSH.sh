@@ -94,7 +94,7 @@ usage() {
   echo "                          authentication and the private key is encrypted with"
   echo "                          a passphrase."
   echo ""
-  echo "        wlst_path       - the Oracle Home subdirectory of the wlst.cmd"
+  echo "        wlst_path       - the Oracle Home subdirectory of the wlst.sh"
   echo "                          script to use (e.g., <ORACLE_HOME>/soa)."
   echo ""
   echo "    The -ssh_pass_prompt argument tells WDT to prompt for the SSH user's"
