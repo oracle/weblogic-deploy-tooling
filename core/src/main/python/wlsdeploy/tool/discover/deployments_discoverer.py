@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -587,7 +587,7 @@ class DeploymentsDiscoverer(Discoverer):
             if not StringUtils.isEmpty(plan_dir):
                 relative_to = plan_dir
             else:
-                relative_to = self._model_context.get_effective_domain_home()
+                relative_to = self._model_context.get_domain_home()
             return discoverer.convert_to_absolute_path(relative_to, plan_path)
         return plan_path
 

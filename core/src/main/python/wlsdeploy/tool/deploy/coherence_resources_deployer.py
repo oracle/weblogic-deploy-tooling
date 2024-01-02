@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os, shutil
@@ -170,7 +170,7 @@ class CoherenceResourcesDeployer(Deployer):
         # We will copy the config file over, at this point the model's attribute value is still the original value
 
         _method_name = '_make_coh_cluster_custom_config_available'
-        domain_home = self.model_context.get_effective_domain_home()
+        domain_home = self.model_context.get_domain_home()
 
         for coherence_cluster_name in coherence_clusters:
             cluster_dict = coherence_clusters[coherence_cluster_name]

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -122,7 +122,6 @@ class ModelContext(object):
         self._ssh_private_key_passphrase_prompt = False
         self._remote_oracle_home = None
         self._remote_wl_home = None
-        self._remote_domain_home = None
         self._remote_test_file = None
         self._local_test_file = None
         self._remote_output_dir = None
@@ -252,9 +251,6 @@ class ModelContext(object):
 
         if CommandLineArgUtil.REMOTE_ORACLE_HOME_SWITCH in arg_map:
             self._remote_oracle_home = arg_map[CommandLineArgUtil.REMOTE_ORACLE_HOME_SWITCH]
-
-        if CommandLineArgUtil.REMOTE_DOMAIN_HOME_SWITCH in arg_map:
-            self._remote_domain_home = arg_map[CommandLineArgUtil.REMOTE_DOMAIN_HOME_SWITCH]
 
         if CommandLineArgUtil.REMOTE_TEST_FILE_SWITCH in arg_map:
             self._remote_test_file = arg_map[CommandLineArgUtil.REMOTE_TEST_FILE_SWITCH]
@@ -404,8 +400,6 @@ class ModelContext(object):
                 self._ssh_private_key_passphrase_prompt
         if self._remote_oracle_home is not None:
             arg_map[CommandLineArgUtil.REMOTE_ORACLE_HOME_SWITCH] = self._remote_oracle_home
-        if self._remote_domain_home is not None:
-            arg_map[CommandLineArgUtil.REMOTE_DOMAIN_HOME_SWITCH] = self._remote_domain_home
         if self._remote_test_file is not None:
             arg_map[CommandLineArgUtil.REMOTE_TEST_FILE_SWITCH] = self._remote_test_file
         if self._local_test_file is not None:
@@ -574,16 +568,6 @@ class ModelContext(object):
         """
         return self._domain_home
 
-    def get_effective_domain_home(self):
-        """
-        Get the effective Domain Home.
-        :return: the Domain Home
-        """
-        if self.is_ssh():
-            return self._remote_domain_home
-        else:
-            return self._domain_home
-
     def get_domain_name(self):
         """
         Get the Domain name.
@@ -608,8 +592,8 @@ class ModelContext(object):
             self._domain_home = domain_home
             self._domain_name = os.path.basename(self._domain_home)
 
-    def set_domain_home_name_if_remote_or_ssh(self, domain_home, domain_name):
-        if self.is_remote() or self.is_ssh():
+    def set_domain_home_name_if_online(self, domain_home, domain_name):
+        if self._wlst_mode == WlstModes.ONLINE:
             self.set_domain_home(domain_home)
             self.set_domain_name(domain_name)
 
@@ -1124,13 +1108,6 @@ class ModelContext(object):
         """
         return self._remote_oracle_home
 
-    def get_remote_domain_home(self):
-        """
-        Get the location of the WebLogic Domain Home on the remote machine.
-        :return: the location of the remote WebLogic Domain Home or None
-        """
-        return self._remote_domain_home
-
     def get_ssh_context(self):
         """
         Get the SSH context object.
@@ -1212,9 +1189,9 @@ class ModelContext(object):
             resource_dict[attribute_name] = attribute_value.replace(self.WL_HOME_TOKEN, self.get_effective_wl_home())
         elif attribute_value.startswith(self.DOMAIN_HOME_TOKEN):
             self._logger.fine(message, self.DOMAIN_HOME_TOKEN, resource_type, resource_name, attribute_name,
-                              self.get_effective_domain_home(), class_name=self._class_name, method_name='_replace_tokens')
+                              self.get_domain_home(), class_name=self._class_name, method_name='_replace_tokens')
             resource_dict[attribute_name] = attribute_value.replace(self.DOMAIN_HOME_TOKEN,
-                                                                    self.get_effective_domain_home())
+                                                                    self.get_domain_home())
         elif attribute_value.startswith(self.JAVA_HOME_TOKEN):
             self._logger.fine(message, self.JAVA_HOME_TOKEN, resource_type, resource_name, attribute_name,
                               self.get_domain_home(), class_name=self._class_name, method_name='_replace_tokens')
@@ -1245,7 +1222,7 @@ class ModelContext(object):
         elif string_value.startswith(self.WL_HOME_TOKEN):
             result = _replace(string_value, self.WL_HOME_TOKEN, self.get_effective_wl_home())
         elif string_value.startswith(self.DOMAIN_HOME_TOKEN):
-            result = _replace(string_value, self.DOMAIN_HOME_TOKEN, self.get_effective_domain_home())
+            result = _replace(string_value, self.DOMAIN_HOME_TOKEN, self.get_domain_home())
         elif string_value.startswith(self.JAVA_HOME_TOKEN):
             result = _replace(string_value, self.JAVA_HOME_TOKEN, self.get_java_home())
         elif string_value.startswith(self.CURRENT_DIRECTORY_TOKEN):
@@ -1267,7 +1244,7 @@ class ModelContext(object):
         """
         my_path = path_utils.fixup_path(path)
         wl_home = path_utils.fixup_path(self.get_effective_wl_home())
-        domain_home = path_utils.fixup_path(self.get_effective_domain_home())
+        domain_home = path_utils.fixup_path(self.get_domain_home())
         oracle_home = path_utils.fixup_path(self.get_effective_oracle_home())
         # TODO - these last three tokens will not work properly for an SSH context
         java_home = path_utils.fixup_path(self.get_java_home())

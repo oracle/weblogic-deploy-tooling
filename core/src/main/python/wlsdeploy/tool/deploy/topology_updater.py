@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.aliases.location_context import LocationContext
@@ -46,7 +46,7 @@ class TopologyUpdater(Deployer):
                                                                   self._exception_type, self.logger)
 
         self.library_helper = LibraryHelper(self.model, self.model_context, self.aliases,
-                                            model_context.get_effective_domain_home(), self._exception_type, self.logger,
+                                            model_context.get_domain_home(), self._exception_type, self.logger,
                                             self.upload_temporary_dir)
 
         self.target_helper = TargetHelper(self.model, self.model_context, self.aliases, self._exception_type,

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the updateDomain tool.
@@ -66,9 +66,8 @@ __optional_arguments = [
     CommandLineArgUtil.OUTPUT_DIR_SWITCH,
     CommandLineArgUtil.UPDATE_RCU_SCHEMA_PASS_SWITCH,
     CommandLineArgUtil.DISCARD_CURRENT_EDIT_SWITCH,
-    CommandLineArgUtil.REMOTE_SWITCH,
     CommandLineArgUtil.WAIT_FOR_EDIT_LOCK_SWITCH,
-    CommandLineArgUtil.REMOTE_DOMAIN_HOME_SWITCH,
+    CommandLineArgUtil.REMOTE_SWITCH,
     CommandLineArgUtil.SSH_HOST_SWITCH,
     CommandLineArgUtil.SSH_PORT_SWITCH,
     CommandLineArgUtil.SSH_USER_SWITCH,
@@ -99,9 +98,8 @@ def __process_args(args):
     cla_helper.validate_optional_archive(_program_name, argument_map)
     cla_helper.validate_required_model(_program_name, argument_map)
     cla_helper.validate_variable_file_exists(_program_name, argument_map)
-    cla_helper.validate_if_domain_home_required(_program_name, argument_map)
-
     __wlst_mode = cla_helper.process_online_args(argument_map)
+    cla_helper.validate_if_domain_home_required(_program_name, argument_map, __wlst_mode)
     cla_helper.process_encryption_args(argument_map)
 
     return model_context_helper.create_context(_program_name, argument_map)
@@ -159,9 +157,9 @@ def __update_online(model_deployer, model, model_context, aliases):
 
         __wlst_helper.connect(admin_user, admin_pwd, admin_url, timeout)
 
-        # -remote does not have domain home set, so get it from online wlst after connect
-        model_context.set_domain_home_name_if_remote_or_ssh(__wlst_helper.get_domain_home_online(),
-                                                            __wlst_helper.get_domain_name_online())
+        # All online operations do not have domain home set, so get it from online wlst after connect
+        model_context.set_domain_home_name_if_online(__wlst_helper.get_domain_home_online(),
+                                                     __wlst_helper.get_domain_name_online())
 
         deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions(skip_edit_session_check)
         __wlst_helper.edit()

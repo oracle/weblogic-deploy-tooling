@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -175,9 +175,9 @@ class LibraryHelper(object):
         """
         if self.model_context.is_ssh():
             self.model_context.get_ssh_context().create_directories_if_not_exist(os.path.join(
-                self.model_context.get_remote_domain_home(), archive_path))
+                self.model_context.get_domain_home(), archive_path))
             self.model_context.get_ssh_context().upload(os.path.join(self.upload_temporary_dir, archive_path),
-                                                        os.path.join(self.model_context.get_remote_domain_home(),
+                                                        os.path.join(self.model_context.get_domain_home(),
                                                                      target_parent_dir))
 
 
@@ -191,5 +191,5 @@ class LibraryHelper(object):
         # file is extracted to destination/lib
         self.model_context.get_ssh_context().upload(os.path.join(self.upload_temporary_dir, path_from_domain,
                                                                  base_name),
-                                                    os.path.join(self.model_context.get_remote_domain_home(),
+                                                    os.path.join(self.model_context.get_domain_home(),
                                                                  path_from_domain, base_name))

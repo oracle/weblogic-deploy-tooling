@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem extractDomainResource.cmd
 @rem
-@rem Copyright (c) 2020, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME

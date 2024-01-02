@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem deployApps.cmd
 @rem
-@rem Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -98,7 +98,7 @@ ECHO                           This argument is required unless the ORACLE_HOME
 ECHO                           environment variable is set.
 ECHO.
 ECHO         domain_home     - the domain home directory.  This argument is
-ECHO                           required if -remote option is not specified.
+ECHO                           required if running in offline mode.
 ECHO.
 ECHO         model_file      - the location of the model file to use.  This can also
 ECHO                           be specified as a comma-separated list of model
@@ -175,8 +175,6 @@ ECHO                                      The value is the name of a file with a
 ECHO                                      to retrieve the password. 
 ECHO.
 ECHO          ssh_private_key_pass_prompt - Prompt for the SSH private keystore password.
-ECHO.
-ECHO          remote_domain_home - the domain home reside in the remote SSH host for the admin server.
 ECHO.
 ECHO    The -use_encryption switch tells the program that one or more of the
 ECHO    passwords in the model or variables files are encrypted.  The program will

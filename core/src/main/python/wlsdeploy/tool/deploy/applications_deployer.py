@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -490,13 +490,13 @@ class ApplicationsDeployer(Deployer):
                     absolute_planpath = attributes_map['PlanPath']
 
                 if absolute_planpath is not None and not os.path.isabs(absolute_planpath):
-                    absolute_planpath = self.model_context.get_effective_domain_home() + '/' + absolute_planpath
+                    absolute_planpath = self.model_context.get_domain_home() + '/' + absolute_planpath
 
                 if absolute_sourcepath is None:
                     absolute_sourcepath = attributes_map['SourcePath']
 
                 if absolute_sourcepath is not None and not os.path.isabs(absolute_sourcepath):
-                    absolute_sourcepath = self.model_context.get_effective_domain_home() + '/' + absolute_sourcepath
+                    absolute_sourcepath = self.model_context.get_domain_home() + '/' + absolute_sourcepath
 
                 deployment_order = attributes_map['DeploymentOrder']
 
@@ -1195,10 +1195,7 @@ class ApplicationsDeployer(Deployer):
         self.logger.info('WLSDPLY-09316', type_name, application_name, class_name=self._class_name,
                          method_name=_method_name)
 
-        if self.model_context.is_ssh():
-            real_domain_home = self.model_context.get_remote_domain_home()
-        else:
-            real_domain_home = self.model_context.get_domain_home()
+        real_domain_home = self.model_context.get_domain_home()
 
         if string_utils.is_empty(source_path):
             ex = exception_helper.create_deploy_exception('WLSDPLY-09317', type_name, application_name, SOURCE_PATH)
@@ -1310,7 +1307,7 @@ class ApplicationsDeployer(Deployer):
     def _delete_deployment_to_remote_server(self, source_path):
         if self.model_context.is_ssh() and not source_path.startswith('/'):
             self.model_context.get_ssh_context().remove_file_or_directory(os.path.join(
-                self.model_context.get_remote_domain_home(), source_path))
+                self.model_context.get_domain_home(), source_path))
 
     def __get_deployment_ordering(self, apps):
         _method_name = '__get_deployment_ordering'
