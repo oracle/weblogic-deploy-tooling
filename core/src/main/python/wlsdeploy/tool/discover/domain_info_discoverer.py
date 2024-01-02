@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import glob
@@ -109,10 +109,10 @@ class DomainInfoDiscoverer(Discoverer):
         archive_file = self._model_context.get_archive_file()
         if self._model_context.is_ssh():
             _logger.info('WLSDPLY-06430', self._model_context.get_ssh_host(),
-                         self._model_context.get_remote_domain_home(), class_name=_class_name, method_name=_method_name)
+                         self._model_context.get_domain_home(), class_name=_class_name, method_name=_method_name)
             # Download the entire directory if it exists.
             #
-            remote_dir = os.path.join(self._model_context.get_remote_domain_home(),
+            remote_dir = os.path.join(self._model_context.get_domain_home(),
                                       WLSDeployArchive.WRC_EXTENSION_TARGET_DIR_NAME)
             ssh_client = self._model_context.get_ssh_context()
             if ssh_client.does_directory_exist(remote_dir):
@@ -175,7 +175,7 @@ class DomainInfoDiscoverer(Discoverer):
             elif self._model_context.is_ssh():
                 # execute remote command to find the domain libs
                 results = self._model_context.get_ssh_context().get_directory_contents(os.path.join(
-                    self._model_context.get_remote_domain_home(), "lib"), True, '^.+\.jar$')
+                    self._model_context.get_domain_home(), "lib"), True, '^.+\.jar$')
                 for item in results:
                     file_list.append(item)
 
@@ -231,7 +231,7 @@ class DomainInfoDiscoverer(Discoverer):
                     file_list = []
                     # execute remote command to find the script
                     results = self._model_context.get_ssh_context().get_directory_contents(os.path.join(
-                        self._model_context.get_remote_domain_home(), "bin"), True, '^setUserOverrides.*\..+$')
+                        self._model_context.get_domain_home(), "bin"), True, '^setUserOverrides.*\..+$')
                     if results:
                         for item in results:
                             file_list.append(item)

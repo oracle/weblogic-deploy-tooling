@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -694,9 +694,9 @@ class Discoverer(object):
     def _convert_path(self, file_name, relative_to_config=False):
         file_name_resolved = self._model_context.replace_token_string(file_name)
         if path_utils.is_relative_path(file_name_resolved):
-            relative_to_dir = self._model_context.get_effective_domain_home()
+            relative_to_dir = self._model_context.get_domain_home()
             if relative_to_config:
-                relative_to_dir = os.path.join(self._model_context.get_effective_domain_home(), 'config')
+                relative_to_dir = os.path.join(self._model_context.get_domain_home(), 'config')
             return convert_to_absolute_path(relative_to_dir, file_name_resolved)
         return file_name_resolved
 
@@ -711,7 +711,7 @@ class Discoverer(object):
         _logger.entering(file_name, class_name=_class_name, method_name=_method_name)
 
         py_str = path_utils.fixup_path(str_helper.to_string(file_name))
-        domain_home = self._model_context.get_effective_domain_home()
+        domain_home = self._model_context.get_domain_home()
         wl_home = self._model_context.get_effective_wl_home()
         oracle_home = self._model_context.get_effective_oracle_home()
         _logger.finer('WLSDPLY-06162', py_str, domain_home, oracle_home, wl_home,

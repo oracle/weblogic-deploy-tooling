@@ -44,3 +44,10 @@ skipped the discovery of this MBean and its configuration, resulting in an incom
 Domain will no longer silently skip server configuration and will warn you when it is unable to discover some aspects
 of the server's configuration.  To rectify these warnings, simply make sure that WDT is using the same WebLogic Server
 version and patch level as the running server.
+
+### Domain name and home directory
+Prior to WDT 4.0, online operations generally required the user to specify the path to the domain home directory.
+Starting in WDT 4.0, online operations no longer require the user to specify the domain home directory.  Both the domain
+name and home directory are determined using WLST online to interrogate the admin server to get the actual value from
+the running server.  Any attempt to provide the `-domain_home` parameter to an online operation will result in a
+notification message upon tool completion to let you know that the parameter was not used.

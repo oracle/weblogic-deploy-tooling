@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Utility CLS methods shared by multiple tools.
@@ -124,15 +124,18 @@ def validate_variable_file_exists(program_name, argument_map):
         argument_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = ",".join(result_files)
 
 
-def validate_if_domain_home_required(program_name, argument_map):
+def validate_if_domain_home_required(program_name, argument_map, wlst_mode):
     method_name = 'validate_if_domain_home_required'
-    if CommandLineArgUtil.REMOTE_SWITCH not in argument_map and \
-        CommandLineArgUtil.REMOTE_DOMAIN_HOME_SWITCH not in argument_map and \
-            CommandLineArgUtil.DOMAIN_HOME_SWITCH not in argument_map:
-        ex = create_cla_exception(ExitCode.USAGE_ERROR, 'WLSDPLY-20005',
-                                  program_name, CommandLineArgUtil.DOMAIN_HOME_SWITCH)
-        __logger.throwing(ex, class_name=_class_name, method_name=method_name)
-        raise ex
+    if CommandLineArgUtil.DOMAIN_HOME_SWITCH not in argument_map:
+        if wlst_mode == WlstModes.OFFLINE:
+            ex = create_cla_exception(ExitCode.USAGE_ERROR, 'WLSDPLY-20005',
+                                      program_name, CommandLineArgUtil.DOMAIN_HOME_SWITCH)
+            __logger.throwing(ex, class_name=_class_name, method_name=method_name)
+            raise ex
+    else:
+        if wlst_mode == WlstModes.ONLINE:
+            __logger.notification('WLSDPLY-20041', program_name, CommandLineArgUtil.DOMAIN_HOME_SWITCH,
+                                  class_name=_class_name, method_name=method_name)
 
 
 def process_encryption_args(optional_arg_map):

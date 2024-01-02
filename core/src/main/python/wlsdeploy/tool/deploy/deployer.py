@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from array import array
@@ -64,7 +64,7 @@ class Deployer(object):
         self.archive_helper = None
         archive_file_name = self.model_context.get_archive_file_name()
         if archive_file_name is not None:
-            self.archive_helper = ArchiveList(archive_file_name, self.model_context.get_effective_domain_home(),
+            self.archive_helper = ArchiveList(archive_file_name, self.model_context.get_domain_home(),
                                               self.model_context, exception_helper.ExceptionType.DEPLOY)
         self.upload_temporary_dir = None
         if model_context.is_remote() or model_context.is_ssh():
@@ -372,7 +372,7 @@ class Deployer(object):
                 if not relative_path_in_archive.endswith('/') and result and self.model_context.is_ssh():
                     # upload to remote
                     source_path = os.path.join(self.upload_temporary_dir, relative_path_in_archive)
-                    target_path = os.path.join(self.model_context.get_remote_domain_home(), extract_path)
+                    target_path = os.path.join(self.model_context.get_domain_home(), extract_path)
                     self.upload_specific_file_to_remote_server(source_path, target_path)
             else:
                 path = self.aliases.get_model_folder_path(location)
@@ -403,7 +403,7 @@ class Deployer(object):
         else:
             strip_leading_path = True
 
-        full_path_into_domain = os.path.join(self.model_context.get_effective_domain_home(), value)
+        full_path_into_domain = os.path.join(self.model_context.get_domain_home(), value)
 
         if self.archive_helper.contains_file(value):
             if self.wlst_mode == WlstModes.OFFLINE:
@@ -450,10 +450,10 @@ class Deployer(object):
 
     def upload_deployment_to_remote_server(self, source_path, upload_remote_directory):
         upload_srcpath = os.path.join(upload_remote_directory, source_path)
-        upload_targetpath = os.path.join(self.model_context.get_remote_domain_home(), source_path)
+        upload_targetpath = os.path.join(self.model_context.get_domain_home(), source_path)
         remote_dirname = os.path.dirname(source_path)
         self.model_context.get_ssh_context().create_directories_if_not_exist(os.path.join(
-            self.model_context.get_remote_domain_home(), remote_dirname))
+            self.model_context.get_domain_home(), remote_dirname))
         self.model_context.get_ssh_context().upload(upload_srcpath, upload_targetpath)
 
     def upload_specific_file_to_remote_server(self, source_path, upload_targetpath):

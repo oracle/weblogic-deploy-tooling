@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os.path
@@ -136,7 +136,7 @@ class CommonResourcesDiscoverer(Discoverer):
                 qualified_property_value = properties[connection_property]['Value']
                 if qualified_property_value:
                     if WLSDeployArchive.isPathIntoArchive(qualified_property_value):
-                        qualified_property_value = os.path.join(self._model_context.get_effective_domain_home()
+                        qualified_property_value = os.path.join(self._model_context.get_domain_home()
                                                                 , qualified_property_value)
                     if self._model_context.is_ssh():
                         qualified_property_value = self.download_deployment_from_remote_server(qualified_property_value,

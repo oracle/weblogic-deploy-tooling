@@ -1,5 +1,5 @@
 """
-Copyright (c) 2023, Oracle and/or its affiliates.
+Copyright (c) 2023, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os.path
@@ -29,7 +29,7 @@ class Saml2SecurityHelper(object):
         :param domain_home: used locate security files
         :param exception_type: the type of exception to be thrown
         """
-        self._domain_home = model_context.get_effective_domain_home()
+        self._domain_home = model_context.get_domain_home()
         self._model_context = model_context
         self._domain_security_directory = os.path.join(self._domain_home, DOMAIN_SECURITY_FOLDER)
         self._exception_type = exception_type

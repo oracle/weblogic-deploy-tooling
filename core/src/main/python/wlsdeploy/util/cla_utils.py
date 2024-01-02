@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Module that handles command-line argument parsing and common validation.
@@ -29,10 +29,10 @@ from wlsdeploy.util.target_configuration import TargetConfiguration
 from wlsdeploy.util.validate_configuration import VALIDATION_METHODS
 
 # tool type may indicate variations in argument processing
-TOOL_TYPE_CREATE = "create"
-TOOL_TYPE_DEFAULT = "default"
-TOOL_TYPE_EXTRACT = "extract"
+TOOL_TYPE_CREATE = 'create'
+TOOL_TYPE_DEFAULT = 'default'
 TOOL_TYPE_DISCOVER = 'discover'
+TOOL_TYPE_EXTRACT = 'extract'
 
 _logger = PlatformLogger('wlsdeploy.util')
 
@@ -103,7 +103,6 @@ class CommandLineArgUtil(object):
     SSH_HOST_SWITCH            = '-ssh_host'
     SSH_PORT_SWITCH            = '-ssh_port'
     REMOTE_ORACLE_HOME_SWITCH  = '-remote_oracle_home'
-    REMOTE_DOMAIN_HOME_SWITCH  = '-remote_domain_home'
     REMOTE_TEST_FILE_SWITCH    = '-remote_test_file'
     LOCAL_TEST_FILE_SWITCH     = '-local_test_file'
     REMOTE_OUTPUT_DIR_SWITCH   = '-remote_output_dir'
@@ -197,7 +196,7 @@ class CommandLineArgUtil(object):
         args = self._check_trailing_arguments(args, trailing_arg_count)
         args_len = len(args)
         is_remote = False
-        if CommandLineArgUtil.REMOTE_SWITCH in args:
+        if CommandLineArgUtil.REMOTE_SWITCH in args or CommandLineArgUtil.SSH_HOST_SWITCH in args:
             is_remote = True
 
         idx = 1
@@ -222,6 +221,7 @@ class CommandLineArgUtil(object):
                 elif tool_type == TOOL_TYPE_EXTRACT:
                     full_path = self._validate_domain_home_arg_for_extract(value)
                 elif tool_type == TOOL_TYPE_DISCOVER:
+                    # discover handles validation based on its specific context
                     full_path = value
                 else:
                     if is_remote:
@@ -374,10 +374,6 @@ class CommandLineArgUtil(object):
             elif self.is_remote_oracle_home_switch(key):
                 value, idx = self._get_arg_value(args, idx)
                 full_path = self._validate_remote_oracle_home_arg(value)
-                self._add_arg(key, full_path, True)
-            elif self.is_remote_domain_home_switch(key):
-                value, idx = self._get_arg_value(args, idx)
-                full_path = self._validate_remote_domain_home_arg(value)
                 self._add_arg(key, full_path, True)
             elif self.is_remote_test_file_switch(key):
                 value, idx = self._get_arg_value(args, idx)
@@ -1203,18 +1199,6 @@ class CommandLineArgUtil(object):
 
         if not JFileUtils.isRemotePathAbsolute(value):
             ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-01652', value)
-            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-            raise ex
-        return value
-
-    def is_remote_domain_home_switch(self, key):
-        return key == self.REMOTE_DOMAIN_HOME_SWITCH
-
-    def _validate_remote_domain_home_arg(self, value):
-        method_name = '_validate_remote_domain_home_arg'
-
-        if not JFileUtils.isRemotePathAbsolute(value):
-            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-01653', value)
             _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
         return value

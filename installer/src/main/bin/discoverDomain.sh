@@ -2,7 +2,7 @@
 # *****************************************************************************
 # discoverDomain.sh
 #
-# Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+# Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -49,7 +49,7 @@ usage() {
   echo "           -ssh_pass_env <ssh_pass_env> | -ssh_pass_file <ssh_pass_file> | -ssh_pass_prompt"
   echo "           -ssh_private_key <ssh_private_key>"
   echo "           -ssh_private_key_pass_env <ssh_private_key_pass_env> | -ssh_private_key_pass_file <ssh_private_key_pass_file> | -ssh_private_key_pass_prompt"
-  echo "           -remote_domain_home <remote_domain_home>"
+  echo "           -remote_oracle_home <remote_oracle_home>"
   echo "          ]"
   echo ""
   echo "    where:"
@@ -58,7 +58,7 @@ usage() {
   echo "                          environment variable is set."
   echo ""
   echo "        domain_home     - the domain home directory.  This argument is"
-  echo "                          required if -remote option is not specified"
+  echo "                          required if running in offline mode."
   echo ""
   echo "        model_file      - the location of the model file to use.  This argument"
   echo "                          is required."
@@ -97,6 +97,8 @@ usage() {
   echo "                          string value which WDT will read to retrieve the"
   echo "                          password."
   echo ""
+  echo "        remote_oracle_home - the full path to the Oracle Home on the remote machine."
+  echo ""
   echo "        ssh_host        - the host name for admin server when SSH protocol is used to collect resources"
   echo "                          from the admin server host."
   echo ""
@@ -124,8 +126,6 @@ usage() {
   echo ""
   echo "        ssh_private_key_pass_prompt - Prompt for the SSH private keystore password."
   echo ""
-  echo "        remote_domain_home - the domain home reside in the remote SSH host for the admin server."
-  echo ""
   echo "    The -skip_archive argument suppresses the generation of the archive file."
   echo "    If present, the -archive_file argument will be ignored and the file"
   echo "    references in the model will be the names from the discovered domain's"
@@ -136,9 +136,9 @@ usage() {
   echo "    server's file system, no archive file will be generated.  However, the file"
   echo "    references in the model will contain the values pointing into the archive"
   echo "    file (which the user must construct separately).  With this option, the"
-  echo "    -domain_home value should be the remote server's domain home path.  This"
+  echo "    -remote_oracle_home value should be the remote server's Oracle home path.  This"
   echo "    allows discover domain to tokenize any file system references containing"
-  echo "    the domain home path."
+  echo "    the Oracle home path."
   echo ""
 }
 

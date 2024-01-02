@@ -2,7 +2,7 @@
 # *****************************************************************************
 # updateDomain.sh
 #
-# Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+# Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -59,7 +59,7 @@ usage() {
   echo "                           environment variable is set."
   echo ""
   echo "        domain_home      - the domain home directory.  This argument is"
-  echo "                           required if -remote option is not specified"
+  echo "                           required if running in offline mode."
   echo ""
   echo "        model_file       - the location of the model file to use.  This can also"
   echo "                           be specified as a comma-separated list of model"
@@ -136,8 +136,6 @@ usage() {
   echo "                                    to retrieve the password."
   echo ""
   echo "        ssh_private_key_pass_prompt - Prompt for the SSH private keystore password."
-  echo ""
-  echo "        remote_domain_home - the domain home reside in the remote SSH host for the admin server."
   echo ""
   echo "    The -use_encryption switch tells the program that one or more of the"
   echo "    passwords in the model or variables files are encrypted.  The program will"
