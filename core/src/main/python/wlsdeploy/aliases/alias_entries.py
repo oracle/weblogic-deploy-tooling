@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -67,6 +67,7 @@ from wlsdeploy.aliases.model_constants import RESOURCE_MANAGER
 from wlsdeploy.aliases.model_constants import RESOURCES
 from wlsdeploy.aliases.model_constants import SYSTEM_COMPONENT
 from wlsdeploy.aliases.model_constants import TOPOLOGY
+from wlsdeploy.aliases.model_constants import WLS_POLICIES
 from wlsdeploy.aliases.model_constants import WLS_ROLES
 from wlsdeploy.aliases.model_constants import WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
 from wlsdeploy.aliases.model_constants import WTC_SERVER
@@ -165,6 +166,7 @@ class AliasEntries(object):
     __domain_info_top_level_folders = [
         OPSS_INITIALIZATION,
         RCU_DB_INFO,
+        WLS_POLICIES,
         WLS_ROLES,
         WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
     ]

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The main module for the WLSDeploy tool to create empty domains.
@@ -34,7 +34,7 @@ from wlsdeploy.aliases.model_constants import PATH_TO_RCU_PREFIX
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
 from wlsdeploy.tool.create.domain_creator import DomainCreator

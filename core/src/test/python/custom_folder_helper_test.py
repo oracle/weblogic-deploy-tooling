@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 The Universal Permissive License (UPL), Version 1.0
 """
 
@@ -21,7 +21,7 @@ import wlsdeploy.aliases.alias_constants as alias_constants
 import wlsdeploy.logging.platform_logger as platform_logger
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.tool.discover.custom_folder_helper import CustomFolderHelper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil as CLA
 from wlsdeploy.util.model_context import ModelContext

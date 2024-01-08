@@ -1,5 +1,5 @@
 """
-Copyright (c) 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2023, 2024, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The main module for the WebLogic Deploy tool to verify the user's SSH configuration is compatible with WDT.
@@ -12,7 +12,7 @@ from oracle.weblogic.deploy.util import SSHException
 sys.path.insert(0, os.path.dirname(os.path.realpath(sys.argv[0])))
 
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util import wlst_helper

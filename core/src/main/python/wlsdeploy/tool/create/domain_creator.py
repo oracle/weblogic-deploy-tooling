@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os, re
@@ -82,7 +82,7 @@ from wlsdeploy.aliases.model_constants import XML_ENTITY_CACHE
 from wlsdeploy.aliases.model_constants import XML_REGISTRY
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.tool.create import atp_helper
 from wlsdeploy.tool.create import opss_helper
 from wlsdeploy.tool.create import ssl_helper
@@ -91,6 +91,7 @@ from wlsdeploy.tool.create.creator import Creator
 from wlsdeploy.tool.create.domain_typedef import POST_CREATE_DOMAIN_LIFECYCLE_HOOK
 from wlsdeploy.tool.create.domain_typedef import POST_CREATE_RCU_SCHEMAS_LIFECYCLE_HOOK
 from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
+from wlsdeploy.tool.create.wlspolicies_helper import WLSPolicies
 from wlsdeploy.tool.create.wlsroles_helper import WLSRoles
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy.model_deployer import ModelDeployer
@@ -172,6 +173,7 @@ class DomainCreator(Creator):
 
         self.wlsroles_helper = WLSRoles(self._domain_info, self._domain_home, self.wls_helper,
                                         ExceptionType.CREATE, self.logger)
+        self.wlspolicies_helper = WLSPolicies(self._domain_info, self.model_context, self.logger)
 
     def create(self):
         """
@@ -471,6 +473,7 @@ class DomainCreator(Creator):
         self.library_helper.extract_classpath_libraries()
         self.library_helper.install_domain_scripts()
         self.wlsroles_helper.process_roles()
+        self.wlspolicies_helper.process_policies()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return

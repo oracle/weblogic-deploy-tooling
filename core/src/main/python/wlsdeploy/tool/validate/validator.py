@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -15,9 +15,10 @@ from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.create import wlspolicies_helper
 from wlsdeploy.tool.create import wlsroles_helper
 from wlsdeploy.tool.util.archive_helper import ArchiveList
 from wlsdeploy.tool.validate import validation_utils
@@ -35,6 +36,7 @@ from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.aliases.model_constants import SERVER_GROUP_TARGETING_LIMITS
 from wlsdeploy.aliases.model_constants import TOPOLOGY
+from wlsdeploy.aliases.model_constants import WLS_POLICIES
 from wlsdeploy.aliases.model_constants import WLS_ROLES
 
 _class_name = 'Validator'
@@ -859,6 +861,9 @@ class Validator(object):
 
         elif field_key == WLS_ROLES:
             self.__validate_wlsroles_section(field_value)
+        elif field_key == WLS_POLICIES:
+            self.__validate_wlspolicies_section(field_value)
+
 
     def __validate_server_group_targeting_limits(self, attribute_key, attribute_value, model_folder_path):
         """
@@ -917,12 +922,23 @@ class Validator(object):
                                 str_helper.to_string(type(value)),
                                 class_name=_class_name, method_name=_method_name)
 
+    def __validate_wlspolicies_section(self, attribute_value):
+        __method_name = '__validate_wlspolicies_section'
+        self._logger.entering(class_name=_class_name, method_name=__method_name)
+
+        # Validate WebLogic policy content using WLSPolicies helper
+        wlspolicies_validator = \
+            wlspolicies_helper.get_wls_policies_validator(attribute_value, self._model_context, self._logger)
+        wlspolicies_validator.validate_policies()
+
+        self._logger.exiting(class_name=_class_name, method_name=__method_name)
+
     def __validate_wlsroles_section(self, attribute_value):
         __method_name = '__validate_wlsroles_section'
         self._logger.entering(class_name=_class_name, method_name=__method_name)
 
         # Validate WebLogic role content using WLSRoles helper
-        wlsroles_validator = wlsroles_helper.validator(attribute_value, self._logger)
+        wlsroles_validator = wlsroles_helper.get_wls_roles_validator(attribute_value, self._logger)
         wlsroles_validator.validate_roles()
 
         self._logger.exiting(class_name=_class_name, method_name=__method_name)

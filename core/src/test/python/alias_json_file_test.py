@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -56,7 +56,7 @@ from wlsdeploy.aliases.alias_constants import WLST_SUBFOLDERS_PATH
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
 from wlsdeploy.aliases.alias_entries import AliasEntries
 from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.tool.util.attribute_setter import AttributeSetter
 from wlsdeploy.util.model_context import ModelContext
 

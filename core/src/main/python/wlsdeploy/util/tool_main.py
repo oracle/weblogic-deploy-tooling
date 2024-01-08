@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import exceptions
@@ -20,7 +20,7 @@ from oracle.weblogic.deploy.util import WLSDeployContext
 import oracle.weblogic.deploy.util.WLSDeployContext.WLSTMode as JWLSTMode
 
 from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.util import cla_helper
 import wlsdeploy.util.unicode_helper as str_helper

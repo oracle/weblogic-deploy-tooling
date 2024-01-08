@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2023, Oracle and/or its affiliates.
+Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at http://oss.oracle.com/licenses/upl.
 """
 import os
@@ -8,7 +8,7 @@ import shutil
 from base_test import BaseTestCase
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import env_helper

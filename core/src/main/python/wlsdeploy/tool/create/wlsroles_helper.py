@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2023, Oracle and/or its affiliates.
+Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.io import File
@@ -174,7 +174,7 @@ class WLSRoles(object):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
 
-def validator(roles_map, logger):
+def get_wls_roles_validator(roles_map, logger):
     """
     Obtain a WLSRoles helper only for the validation of the WLSRoles section
     """

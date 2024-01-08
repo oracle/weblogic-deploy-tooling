@@ -17,7 +17,7 @@ from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.discover.custom_folder_helper import CustomFolderHelper
