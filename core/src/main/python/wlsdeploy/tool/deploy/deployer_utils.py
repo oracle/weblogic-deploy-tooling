@@ -544,8 +544,9 @@ def list_non_dynamic_changes(unactivated_changes, non_dynamic_changes_string, mo
         pw.println(non_dynamic_changes_string)
         pw.close()
 
+    has_affected_bean = model_context.get_weblogic_helper().is_weblogic_version_or_above('12.2.1')
     for change in unactivated_changes:
-        if change.isRestartRequired() and not change.getAffectedBean():
+        if change.isRestartRequired() and (not has_affected_bean or not change.getAffectedBean()):
             bean_name = str(change.getBean())
             attribute_name = change.getAttributeName()
             results_file.add_non_dynamic_change(bean_name, attribute_name)
