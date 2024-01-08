@@ -22,7 +22,7 @@ from wlsdeploy.aliases.model_constants import TARGET
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.util import model_helper

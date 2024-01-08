@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -17,6 +17,7 @@ from wlsdeploy.aliases import alias_constants
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.create import wlspolicies_helper
 from wlsdeploy.tool.create import wlsroles_helper
 from wlsdeploy.tool.validate import validation_utils
 from wlsdeploy.tool.validate.validator import Validator
@@ -200,6 +201,37 @@ class ValidationTestCase(BaseTestCase):
 
         self.assertEqual(return_code, Validator.ReturnCode.STOP)
 
+    def test_wls_policies_validation(self):
+        """
+        Run the validation portion of the WLSPolicies helper and check for expected results.
+        """
+        wls_policies_dict = {
+            'BuiltinPolicy': {
+                'ResourceID': 'type=<jms>',
+                'Policy': 'Grp(Monitors)'
+            },
+            'MissingResourceIDPolicy': {
+                'Policy': 'Grp(Administrators)'
+            },
+            'MissingPolicyPolicy': {
+                'ResourceID': 'type=<jms>, application=MyJmsModule, destinationType=queue, resource=MyQueue, action=browse'
+            },
+            'MyQueueBrowsePolicy': {
+                'ResourceID': 'type=<jms>, application=MyJmsModule, destinationType=queue, resource=MyQueue, action=browse',
+                'Policy': 'Grp(Administrators)'
+            }
+        }
+
+        wls_policies_validator = wlspolicies_helper.get_wls_policies_validator(wls_policies_dict, None, self._logger)
+        wls_policies_validator.validate_policies()
+
+        handler = self._summary_handler
+        self.assertNotEqual(handler, None, "Summary handler is not present")
+
+        # Verify only 3 errors resulted
+        self.assertEqual(handler.getMessageCount(Level.SEVERE), 3)
+        self.assertEqual(handler.getMessageCount(Level.WARNING), 0)
+
     def testWLSRolesValidation(self):
         """
         Run the validation portion of the WLSRoles helper and check for expected results.
@@ -219,7 +251,7 @@ class ValidationTestCase(BaseTestCase):
                          'MyTester3': {'UpdateMode': 'bad',
                                        'Expression': 'Grp(MyTester3)'}}
 
-        wlsroles_validator = wlsroles_helper.validator(wlsroles_dict, self._logger)
+        wlsroles_validator = wlsroles_helper.get_wls_roles_validator(wlsroles_dict, self._logger)
         wlsroles_validator.validate_roles()
 
         handler = self._summary_handler

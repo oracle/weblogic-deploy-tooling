@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.dirname(os.path.realpath(sys.argv[0])))
 # imports from local packages start here
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy.model_deployer import ModelDeployer

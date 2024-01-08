@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import sys
@@ -31,7 +31,7 @@ import oracle.weblogic.deploy.util.WLSDeployArchiveIOException as JWLSDeployArch
 import oracle.weblogic.deploy.validate.ValidateException as ValidateException
 import oracle.weblogic.deploy.yaml.YamlException as JYamlException
 
-from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.util import unicode_helper as str_helper
 
 _EXCEPTION_TYPE_MAP = {

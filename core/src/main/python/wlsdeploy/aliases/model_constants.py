@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -218,6 +218,7 @@ PERSISTENT_STORE = 'PersistentStore'
 PKI_CREDENTIAL_MAPPER = 'PKICredentialMapper'
 PLAN_DIR = 'PlanDir'
 PLAN_PATH = 'PlanPath'
+POLICY = 'Policy'
 PREPEND = 'prepend'
 PROPERTIES = 'Properties'
 PRODUCTION_MODE_ENABLED = 'ProductionModeEnabled'
@@ -247,6 +248,7 @@ REMOTE_USER = 'RemoteUser'
 REPLACE = 'replace'
 RESOURCE_GROUP = 'ResourceGroup'
 RESOURCE_GROUP_TEMPLATE = 'ResourceGroupTemplate'
+RESOURCE_ID = 'ResourceID'
 RESOURCES = 'resources'
 RESOURCE_MANAGEMENT = 'ResourceManagement'
 RESOURCE_MANAGER = 'ResourceManager'
@@ -345,6 +347,7 @@ WORK_MANAGER = "WorkManager"
 WLDF_INSTRUMENTATION_MONITOR = "WLDFInstrumentationMonitor"
 WLDF_RESOURCE = "WLDFResource"
 WLDF_SYSTEM_RESOURCE = "WLDFSystemResource"
+WLS_POLICIES = "WLSPolicies"
 WLS_ROLES = "WLSRoles"
 WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS = 'WLSUserPasswordCredentialMappings'
 WLS_DEFAULT_AUTHENTICATION = 'WLSDefaultAuthentication'
