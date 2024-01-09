@@ -1,6 +1,6 @@
 +++
 title = "Release Notes"
-date = 2019-02-22T15:27:38-05:00
+date = 2024-01-09T18:27:38-05:00
 weight = 76
 pre = "<b> </b>"
 +++
@@ -14,13 +14,40 @@ pre = "<b> </b>"
 
 
 #### Major New Features
-None
+- #1481 - Added new Verify SSH Tool to support testing an environment for using the new SSH support.
+- #1516 - Added SSH support for Discover Domain, Update Domain, and Deploy Apps Tools that will allow
+          these tools to work against a WebLogic domain running on a remote machine.
+- #1548, #1553, #1556 - Revamped the Model Help Tool to improve the semantics and behavior of interactive mode.
+                 Added online mode support.  Fixed CRDs to work consistently with alias folders and attributes.
+- #1550 - Refactored the archive file and moved content extraction into `$DOMAIN_HOME/config/wlsdeploy` for some types
+          to take advantage of existing Pack/Unpack behavior and admin server to managed server replications capabilities.
+- #1584 - Added support for creating WebLogic authorization policies during domain creation (GitHub issue #1496). 
 
 #### Other Changes
-None
+- #1544 - Consolidated multiple internal WLST helper methods to get an MBean.
+- #1552 - Added typedef support for `discoverExcludedBinariesList` to allow OIG to add a custom application in the
+          Oracle Home to the archive file.
+- #1564 - Added Discover Domain Tool support for discovering the WebLogic Remote Console domain extension.
+- #1568 - Added the ability to remove MBean assignments in the model by setting them to null or empty (GitHub issue #1483).
+- #1569 - Improved version handling for online operations to always use the server's WebLogic Server version.
+- #1572 - Enhanced the `wlsdeploy.debugToStdout` system property to also include exception stacktraces when set to `true`.
+          This will help WebLogic Kubernetes Operator users running into WDT issues see the details normally hidden in
+          the log files.
+- #1583 - Eliminated the `-domain_home` argument from tools running in online mode.
+- #1586 - Simplified variable injector configuration and customization.
+- #1587 - Removed deprecated RCU-related command-line arguments from the Create Domain Tool.
+- #1588 - Deprecated the `domainInfo` section's `OPSSSecrets` attribute and replaced it with `OPSSWalletPassphrase` to
+          better represent the purpose of the attribute.
 
 #### Bug Fixes
-None
+- #1555 - Fixed issues with creating and discovering `UnixMachine` objects in online mode.
+- #1562 - Added missing default values for `RCUDbInfo` attributes.
+- #1563 - Fixed an issue with Compare Model where it was trying to compare an invalid field.
+- #1565 - Suppressed logging of domain typedef information by the exit context used to handle unexpected errors.
+- #1575 - Added support for storing the `CreateTableDDLFile` script referenced by the `TransactionLogJDBCStore` in the
+          archive file.
+- #1579 - Fixed an issue that limited the number of secret keys that could be referenced by the model. 
+- #1584 - Fixed an issue where online updates that required restarts were using a 12.2.1+ API even with older versions.
 
 #### Known Issues
 None
