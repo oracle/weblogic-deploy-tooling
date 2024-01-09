@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2024, Oracle Corporation and/or its affiliates.
 The Universal Permissive License (UPL), Version 1.0
 """
 
@@ -12,7 +12,7 @@ from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTOREPWD_PROPERTY
-from wlsdeploy.aliases.model_constants import OPSS_SECRETS
+from wlsdeploy.aliases.model_constants import OPSS_WALLET_PASSPHRASE
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -95,7 +95,7 @@ class TargetConfigurationTests(unittest.TestCase):
         info_location = LocationContext()
         info_att_location = LocationContext().append_location(DOMAIN_INFO_ALIAS)
         self.assertEqual('opsssecrets:walletPassword', HELPER.get_secret_path(info_location, info_att_location,
-                                                                              OPSS_SECRETS, self.aliases))
+                                                                              OPSS_WALLET_PASSPHRASE, self.aliases))
 
         # domainInfo:/RCUDbInfo/javax.net.ssl.keyStorePassword has dots in the name
         rcu_location = LocationContext().append_location(RCU_DB_INFO)
