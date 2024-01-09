@@ -10,7 +10,6 @@ import shutil
 import java.io.FileInputStream as FileInputStream
 import java.io.FileOutputStream as FileOutputStream
 import java.io.IOException as IOException
-import java.lang.Boolean as Boolean
 import java.lang.IllegalArgumentException as IllegalArgumentException
 import java.util.Properties as Properties
 
@@ -483,14 +482,6 @@ class VariableInjector(object):
             _logger.finer('WLSDPLY-19529', variable_name, attribute_value, attribute, variable_value,
                           class_name=_class_name, method_name=_method_name)
             model[attribute] = attribute_value
-        # elif replace_if_nosegment:
-        #     check_value = model[attribute]
-        #     if not _already_property(check_value):
-        #         variable_value = check_value
-        #         variable_name = self.__format_variable_name(location, attribute)
-        #         model[attribute] = _format_as_property(variable_name)
-        #         _logger.finer('WLSDPLY-19530', attribute, model[attribute], class_name=_class_name,
-        #                       method_name=_method_name)
         else:
             _logger.finer('WLSDPLY-19524', pattern, attribute, model[attribute],
                           location.get_folder_path, class_name=_class_name,
@@ -702,7 +693,7 @@ class VariableInjector(object):
         injector_name_list = None
         injector_config_location = None
 
-        if self._model_context.is_targetted_config():
+        if self._model_context.is_targeted_config():
             # variable injector list is in the target configuration
             injector_name_list = self._model_context.get_target_configuration().get_variable_injectors()
             injector_config_location = self._model_context.get_target_configuration_file()

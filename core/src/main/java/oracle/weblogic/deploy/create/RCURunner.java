@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+ * Copyright (c) 2017, 2024, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.create;
@@ -157,7 +157,7 @@ public class RCURunner {
         runner.atpDB = true; // "ATP".equals(databaseType);  // or scan if there are any 'ssl' in properties ?
         runner.sslArgs = sslArgs.toString();
 
-        runner.atpAdminUser = get(runnerMap, "atp.admin.user");
+        runner.atpAdminUser = get(runnerMap, "rcu_admin_user");
         runner.atpDefaultTablespace = get(runnerMap, "atp.default.tablespace");
         runner.atpTemporaryTablespace = get(runnerMap, "atp.temp.tablespace");
 

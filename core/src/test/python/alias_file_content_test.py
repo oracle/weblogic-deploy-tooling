@@ -2,7 +2,6 @@
 Copyright (c) 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-import pprint
 import re
 import unittest
 
@@ -21,8 +20,6 @@ from wlsdeploy.aliases.alias_constants import WLST_MODE
 from wlsdeploy.aliases.alias_constants import WLST_PATHS
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
 from wlsdeploy.aliases.alias_entries import AliasEntries
-from wlsdeploy.aliases.model_constants import ATP_ADMIN_USER
-from wlsdeploy.aliases.model_constants import RCU_DB_USER
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import unicode_helper
@@ -32,7 +29,6 @@ class AliasFileContentTestCase(unittest.TestCase):
     _resources_dir = '../../test-classes/'
     _token_pattern = re.compile("^%([\\w-]+)%$")
     _base_wlst_path_name = 'WP001'
-    _credential_exceptions = [ unicode_helper.to_string(ATP_ADMIN_USER), unicode_helper.to_string(RCU_DB_USER) ]
 
     def setUp(self):
         self.alias_entries = AliasEntries(wls_version='12.2.1.3')
@@ -165,9 +161,6 @@ class AliasFileContentTestCase(unittest.TestCase):
                 if wlst_type in suffix_maps.keys():
                     suffix_map = suffix_maps[wlst_type]
                     suffixed_attribute = dictionary_utils.get_element(suffix_map, secret_suffix)
-                    if unicode_helper.to_string(attribute_name) in self._credential_exceptions:
-                        continue
-
                     if suffixed_attribute and unicode_helper.to_string(suffixed_attribute) != unicode_helper.to_string(attribute_name):
                         result.append('Multiple %s attributes in path %s with secret_suffix %s: %s and %s' %
                                       (wlst_type, folder_path, secret_suffix, suffixed_attribute, attribute_name))

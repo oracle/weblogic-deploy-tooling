@@ -44,14 +44,14 @@ topology:
 ```
 
 #### WebLogic global roles
-The model allows for the definition of WebLogic roles that can augment the well known WebLogic global roles (for
+The model allows for the definition of WebLogic roles that can augment the well-known WebLogic global roles (for
 example, `Admin`, `Deployer`, `Monitor`, and such) in addition to defining new roles. When updating the well-known WebLogic
 roles, you can specify an `UpdateMode` as `{ append | prepend | replace }` with the default being `replace` when not
-specified. Also, when updating the well known roles, the specified `Expression` will be a logical `OR` with the default
+specified. Also, when updating the well-known roles, the specified `Expression` will be a logical `OR` with the default
 expression. The `Expression` value for the role is the same as when using the WebLogic `RoleEditorMBean` for a WebLogic
 security role mapping provider.
 
-For example, the `WLSRoles` section below updates the well known `Admin`, `Deployer` and `Monitor` roles while adding a
+For example, the `WLSRoles` section below updates the well-known `Admin`, `Deployer` and `Monitor` roles while adding a
 new global role with `Tester` as the role name:
 
 ```yaml

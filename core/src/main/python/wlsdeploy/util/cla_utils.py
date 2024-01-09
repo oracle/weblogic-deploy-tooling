@@ -65,13 +65,6 @@ class CommandLineArgUtil(object):
     OPSS_WALLET_FILE_PASSPHRASE = '-opss_wallet_passphrase_file'
     OPSS_WALLET_ENV_PASSPHRASE  = '-opss_wallet_passphrase_env'
     VARIABLE_FILE_SWITCH       = '-variable_file'
-    RCU_DB_SWITCH              = '-rcu_db'
-    RCU_DB_USER_SWITCH         = '-rcu_db_user'
-    RCU_PREFIX_SWITCH          = '-rcu_prefix'
-    # phony arg used as a key to store the password
-    RCU_SYS_PASS_SWITCH        = '-rcu_sys_pass'
-    # phony arg used as a key to store the password
-    RCU_SCHEMA_PASS_SWITCH     = '-rcu_schema_pass'
     # phony arg used as a key to store the encryption passphrase
     PASSPHRASE_SWITCH          = '-passphrase'
     PASSPHRASE_ENV_SWITCH      = '-passphrase_env'
@@ -89,6 +82,7 @@ class CommandLineArgUtil(object):
     ATTRIBUTES_ONLY_SWITCH     = '-attributes_only'
     FOLDERS_ONLY_SWITCH        = '-folders_only'
     RECURSIVE_SWITCH           = '-recursive'
+    # undocumented arg used by operator when using the old JRF on MII support
     UPDATE_RCU_SCHEMA_PASS_SWITCH = '-updateRCUSchemaPassword'
     VALIDATION_METHOD          = '-method'
     REMOTE_SWITCH              = '-remote'
@@ -291,31 +285,6 @@ class CommandLineArgUtil(object):
             elif self.is_variable_file_key(key):
                 value, idx = self._get_arg_value(args, idx)
                 self._add_arg(key, value, True)
-            elif self.is_rcu_database_key(key):
-                value, idx = self._get_arg_value(args, idx)
-                self._validate_rcu_database_arg(value)
-                self._add_arg(key, value)
-                _logger.deprecation('WLSDPLY-31000', class_name=self._class_name, method_name=method_name)
-            elif self.is_rcu_dbuser_key(key):
-                value, idx = self._get_arg_value(args, idx)
-                self._validate_rcu_dbuser_arg(value)
-                self._add_arg(key, value)
-                _logger.deprecation('WLSDPLY-31001', class_name=self._class_name, method_name=method_name)
-            elif self.is_rcu_prefix_key(key):
-                value, idx = self._get_arg_value(args, idx)
-                self._validate_rcu_prefix_arg(value)
-                self._add_arg(key, value)
-                _logger.deprecation('WLSDPLY-31002', class_name=self._class_name, method_name=method_name)
-            elif self.is_rcu_sys_pass_key(key):
-                value, idx = self._get_arg_value(args, idx)
-                self._validate_rcu_sys_pass_arg(value)
-                self._add_arg(key, value)
-                _logger.deprecation('WLSDPLY-31003', class_name=self._class_name, method_name=method_name)
-            elif self.is_rcu_schema_pass_key(key):
-                value, idx = self._get_arg_value(args, idx)
-                self._validate_rcu_schema_pass_arg(value)
-                self._add_arg(key, value)
-                _logger.deprecation('WLSDPLY-31004', class_name=self._class_name, method_name=method_name)
             elif self.is_passphrase_switch(key):
                 value, idx = self._get_arg_value(args, idx)
                 self._validate_passphrase_arg(value)
@@ -873,75 +842,6 @@ class CommandLineArgUtil(object):
 
     def is_variable_file_key(self, key):
         return self.VARIABLE_FILE_SWITCH == key
-
-    def get_rcu_database_key(self):
-        return self.RCU_DB_SWITCH
-
-    def is_rcu_database_key(self, key):
-        return self.RCU_DB_SWITCH == key
-
-    def _validate_rcu_database_arg(self, value):
-        method_name = '_validate_rcu_database_arg'
-
-        if value is None or len(value) == 0:
-            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-01621')
-            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-            raise ex
-
-    def get_rcu_dbuser_key(self):
-        return self.RCU_DB_USER_SWITCH
-
-    def is_rcu_dbuser_key(self, key):
-        return self.RCU_DB_USER_SWITCH == key
-
-    def _validate_rcu_dbuser_arg(self, value):
-        method_name = '_validate_rcu_dbuser_arg'
-        if value is None or len(value) == 0:
-            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-01622')
-            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-            raise ex
-
-    def get_rcu_prefix_key(self):
-        return self.RCU_PREFIX_SWITCH
-
-    def is_rcu_prefix_key(self, key):
-        return self.RCU_PREFIX_SWITCH == key
-
-    def _validate_rcu_prefix_arg(self, value):
-        method_name = '_validate_rcu_prefix_arg'
-
-        if value is None or len(value) == 0:
-            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-01622')
-            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-            raise ex
-
-    def get_rcu_sys_pass_key(self):
-        return self.RCU_SYS_PASS_SWITCH
-
-    def is_rcu_sys_pass_key(self, key):
-        return self.RCU_SYS_PASS_SWITCH == key
-
-    def _validate_rcu_sys_pass_arg(self, value):
-        method_name = '_validate_rcu_sys_pass_arg'
-
-        if value is None or len(value) == 0:
-            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-01623')
-            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-            raise ex
-
-    def get_rcu_schema_pass_key(self):
-        return self.RCU_SCHEMA_PASS_SWITCH
-
-    def is_rcu_schema_pass_key(self, key):
-        return self.RCU_SCHEMA_PASS_SWITCH == key
-
-    def _validate_rcu_schema_pass_arg(self, value):
-        method_name = '_validate_rcu_schema_pass_arg'
-
-        if value is None or len(value) == 0:
-            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-01624')
-            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
-            raise ex
 
     def _get_env_var_value(self, env_var):
         _method_name = '_get_env_var_value'
