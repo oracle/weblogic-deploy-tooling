@@ -1,5 +1,5 @@
 """
-Copyright (c) 2021, 2023, Oracle and/or its affiliates.
+Copyright (c) 2021, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -98,8 +98,3 @@ class BaseTestCase(unittest.TestCase):
                 if not os.path.exists(test_file):
                     injector_file = os.path.join(injectors_dir, injector_name)
                     shutil.copy(injector_file, test_file)
-
-        test_keywords_file = os.path.join(config_dir, 'variable_keywords.json')
-        if not os.path.exists(test_keywords_file):
-            keywords_file = os.path.join(self.INSTALLER_LIB_DIR, 'variable_keywords.json')
-            shutil.copy(keywords_file, test_keywords_file)

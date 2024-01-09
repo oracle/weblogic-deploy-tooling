@@ -1,5 +1,5 @@
 """
-Copyright (c) 2018, 2023, Oracle and/or its affiliates.
+Copyright (c) 2018, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the injectVariables tool.
@@ -7,17 +7,16 @@ The entry point for the injectVariables tool.
 import sys
 
 from java.io import File
-from java.lang import IllegalArgumentException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import TranslateException
-from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 # Jython tools don't require sys.path modification
 
 import wlsdeploy.tool.util.variable_injector as variable_injector
+from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import model_context_helper
+from wlsdeploy.tool.util.credential_injector import CredentialInjector
 from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.util import model_translator, cla_helper, tool_main
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -37,7 +36,6 @@ __required_arguments = [
 
 __optional_arguments = [
     CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH,
-    CommandLineArgUtil.VARIABLE_KEYWORDS_FILE_SWITCH,
     CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH,
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH
 ]
@@ -65,11 +63,17 @@ def __inject(model, model_context):
     :param model_context: the model context
     :return: True if variables were inserted into model: The updated model
     """
-    version = model_context.get_effective_wls_version()
-    injector = VariableInjector(_program_name, model, model_context, version)
+    wlst_mode = model_context.get_target_wlst_mode()
+    aliases = Aliases(model_context, wlst_mode)
+
+    credential_injector = CredentialInjector(_program_name, model_context, aliases)
+
+    credential_injector.inject_model_variables(model)
+
+    injector = VariableInjector(_program_name, model_context, aliases, credential_injector.get_variable_cache())
 
     inserted, variable_model, variable_file_name =\
-        injector.inject_variables_keyword_file(append_option=variable_injector.VARIABLE_FILE_UPDATE)
+        injector.inject_variables_from_configuration(model, append_option=variable_injector.VARIABLE_FILE_UPDATE)
 
     if inserted:
         model = Model(variable_model)

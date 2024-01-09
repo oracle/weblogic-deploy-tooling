@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem injectVariables.cmd
 @rem
-@rem Copyright (c) 2018, 2023, Oracle and/or its affiliates.
+@rem Copyright (c) 2018, 2024, Oracle and/or its affiliates.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -64,7 +64,6 @@ ECHO Usage: %SCRIPT_NAME% [-help]
 ECHO              [-oracle_home ^<oracle_home^>]
 ECHO              -model_file ^<model_file^>
 ECHO              [-variable_injector_file ^<variable_injector_file^>]
-ECHO              [-variable_keywords_file ^<variable_keywords_file^>]
 ECHO              [-variable_properties_file ^<variable_file^>]
 ECHO.
 ECHO     where:
@@ -80,12 +79,6 @@ ECHO                           which contains the variable injector keywords for
 ECHO                           model injection run. If this argument is not provided,
 ECHO                           the model_variable_injector.json file must exist in
 ECHO                           the lib directory in the WLSDEPLOY_HOME location.
-ECHO.
-ECHO         variable_keywords_file - this argument overrides the INSTALLED version
-ECHO                           of the allowed variable keywords for the variable
-ECHO                           injector. This argument is for advanced usage only.
-ECHO                           The installed keywords file is located in the lib
-ECHO                           directory of WLSDEPLOY_HOME location.
 ECHO.
 ECHO         variable_file   - the location of the property file in which to store
 ECHO                           any variable names injected into the model. This

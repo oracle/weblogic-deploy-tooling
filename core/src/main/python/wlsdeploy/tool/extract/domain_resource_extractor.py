@@ -29,7 +29,8 @@ class DomainResourceExtractor:
     def extract(self):
         # create a credential injector containing secrets from the model
         model_dict = self._model.get_model()
-        credential_injector = CredentialInjector(DomainResourceExtractor, model_dict, self._model_context)
+        credential_injector = CredentialInjector(DomainResourceExtractor, self._model_context,
+                                                 self._aliases)
         _add_secrets(model_dict, credential_injector)
 
         # if -domain_home was specified on the extract command line, it should override any value in the model

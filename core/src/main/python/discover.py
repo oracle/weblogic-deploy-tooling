@@ -293,7 +293,7 @@ def _add_domain_name(location, aliases, helper):
         location.add_name_token(aliases.get_name_token(location), domain_name)
         __logger.info('WLSDPLY-06022', domain_name, class_name=_class_name, method_name=_method_name)
     else:
-        de = exception_helper.create_discover_exception('WLSDPLY-WLSDPLY-06023')
+        de = exception_helper.create_discover_exception('WLSDPLY-06023')
         __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
         raise de
 
@@ -546,12 +546,11 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
     # Apply the injectors specified in model_variable_injector.json, or in the target configuration.
     # Include the variable mappings that were collected in credential_cache.
 
-    variable_injector = VariableInjector(_program_name, model.get_model(), model_context,
-                                         model_context.get_effective_wls_version(), credential_cache)
+    variable_injector = VariableInjector(_program_name, model_context, aliases, variable_dictionary=credential_cache)
 
     variable_injector.add_to_cache(dictionary=extra_tokens)
 
-    inserted, variable_model, variable_file_name = variable_injector.inject_variables_keyword_file()
+    inserted, variable_model, variable_file_name = variable_injector.inject_variables_from_configuration(model.get_model())
 
     if inserted:
         model = Model(variable_model)
@@ -623,8 +622,7 @@ def main(model_context):
         aliases = Aliases(model_context, wlst_mode=__wlst_mode, exception_type=ExceptionType.DISCOVER)
         credential_injector = None
         if model_context.get_variable_file() is not None or model_context.get_target() is not None:
-            credential_injector = CredentialInjector(_program_name, dict(), model_context,
-                                                     model_context.get_effective_wls_version())
+            credential_injector = CredentialInjector(_program_name, model_context, aliases)
 
             __logger.info('WLSDPLY-06025', class_name=_class_name, method_name=_method_name)
         else:

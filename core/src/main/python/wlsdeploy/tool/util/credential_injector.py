@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2023, Oracle and/or its affiliates.
+Copyright (c) 2020, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -9,6 +9,7 @@ from wlsdeploy.aliases.alias_constants import PASSWORD
 from wlsdeploy.aliases.alias_constants import SECRET_PASSWORD_KEY
 from wlsdeploy.aliases.alias_constants import SECRET_USERNAME_KEY
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
@@ -24,6 +25,7 @@ from wlsdeploy.tool.util.variable_injector import REGEXP_SUFFIX
 from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
 from wlsdeploy.tool.util.variable_injector import VARIABLE_VALUE
 from wlsdeploy.tool.util.variable_injector import VariableInjector
+from wlsdeploy.util import model
 from wlsdeploy.util import target_configuration_helper
 import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util import variables
@@ -70,18 +72,14 @@ class CredentialInjector(VariableInjector):
         WEBLOGIC_CREDENTIALS_SECRET_NAME + ":" + SECRET_USERNAME_KEY
     ]
 
-    def __init__(self, program_name, model, model_context, version=None, variable_dictionary=None):
+    def __init__(self, program_name, model_context, aliases):
         """
         Construct an instance of the credential injector.
         :param program_name: name of the calling tool
-        :param model: to be updated with variables
         :param model_context: context with command line information
-        :param version: of model if model context is not provided
-        :param variable_dictionary: optional, a pre-populated map of variables
+        :param aliases: the aliases to use for injection
         """
-        VariableInjector.__init__(self, program_name, model, model_context, version=version,
-                                  variable_dictionary=variable_dictionary)
-        self._model_context = model_context
+        VariableInjector.__init__(self, program_name, model_context, aliases)
         self._no_filter_keys_cache = []
         self._no_filter_keys_cache.append(self.NO_FILTER_KEYS)
 
@@ -93,8 +91,7 @@ class CredentialInjector(VariableInjector):
         :param attribute: the name of the attribute
         :param location: the location of the attribute
         """
-        aliases = self.get_aliases()
-        attribute_type = aliases.get_model_attribute_type(location, attribute)
+        attribute_type = self._aliases.get_model_attribute_type(location, attribute)
         folder_path = '.'.join(location.get_model_folders())
         model_value = model_dict[attribute]
 
@@ -108,7 +105,7 @@ class CredentialInjector(VariableInjector):
             self.custom_injection(model_dict, attribute, location, STANDARD_PASSWORD_INJECTOR)
 
         elif folder_path.endswith(self.JDBC_PROPERTIES_PATH):
-            token = aliases.get_name_token(location)
+            token = self._aliases.get_name_token(location)
             property_name = location.get_name_for_token(token)
             if (property_name == DRIVER_PARAMS_USER_PROPERTY) and (attribute == DRIVER_PARAMS_PROPERTY_VALUE):
                 injector_commands = OrderedDict()
@@ -157,6 +154,7 @@ class CredentialInjector(VariableInjector):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return result
 
+    # Override
     def get_variable_name(self, attribute_location, attribute, suffix=None):
         """
         Override method to possibly create secret token names instead of property names.
@@ -165,7 +163,6 @@ class CredentialInjector(VariableInjector):
         :param suffix: optional suffix for name
         :return: the derived name, such as jdbc-generic1.password
         """
-        aliases = self.get_aliases()
         target_config = self._model_context.get_target_configuration()
 
         # the attribute location passed may differ from the model location (rare).
@@ -177,10 +174,11 @@ class CredentialInjector(VariableInjector):
         if target_config.uses_credential_secrets():
             # use the secret token name as variable name in the cache, such as jdbc-generic1:password
             return target_configuration_helper.get_secret_path(model_location, attribute_location,
-                                                               attribute, aliases, suffix)
+                                                               attribute, self._aliases, suffix)
 
         return VariableInjector.get_variable_name(self, model_location, attribute, suffix=suffix)
 
+    # Override
     def get_variable_token(self, attribute, variable_name):
         """
         Override method to possibly create secret tokens instead of property token.
@@ -201,6 +199,7 @@ class CredentialInjector(VariableInjector):
     def get_property_token(self, attribute, variable_name):
         return VariableInjector.get_variable_token(self, attribute, variable_name)
 
+    # Override
     def _check_tokenized(self, attribute_value):
         """
         Override to return true if target uses credentials and the value is formatted like @@SECRET:xyz:abc@@.
@@ -244,17 +243,138 @@ class CredentialInjector(VariableInjector):
                 _logger.info("WLSDPLY-19651", variable_name, class_name=_class_name, method_name=_method_name)
                 del self.get_variable_cache()[key]
 
-    def _add_model_variables(self, model_dictionary, variables):
+    def inject_model_variables(self, model_dictionary):
+        """
+        Inject variables into each section of the specified model dictionary.
+        :param model_dictionary the dictionary to be checked
+        """
+        self.__walk_model_section(model.get_model_domain_info_key(), model_dictionary,
+                                  self._aliases.get_model_section_top_level_folder_names(DOMAIN_INFO))
+
+        self.__walk_model_section(model.get_model_topology_key(), model_dictionary,
+                                  self._aliases.get_model_topology_top_level_folder_names())
+
+        self.__walk_model_section(model.get_model_resources_key(), model_dictionary,
+                                  self._aliases.get_model_resources_top_level_folder_names())
+
+    def _add_model_variables(self, model_dictionary, variables_list):
         """
         Add any variable values found in the model dictionary to the variables list
         :param model_dictionary: the dictionary to be examined
-        :param variables: the list to be appended
+        :param variables_list: the list to be appended
         """
         for key in model_dictionary:
             value = model_dictionary[key]
             if isinstance(value, dict):
-                self._add_model_variables(value, variables)
+                self._add_model_variables(value, variables_list)
             else:
                 text = str_helper.to_string(value)
                 if text.startswith('@@'):
-                    variables.append(text)
+                    variables_list.append(text)
+
+    def __walk_model_section(self, model_section_key, model_dict, valid_section_folders):
+        """
+        Tokenize credential attributes in a model section.
+        """
+        if model_section_key not in model_dict.keys():
+            return
+
+        # only specific top-level sections have attributes
+        attribute_location = self._aliases.get_model_section_attribute_location(model_section_key)
+
+        valid_attr_infos = []
+
+        if attribute_location is not None:
+            valid_attr_infos = self._aliases.get_model_attribute_names_and_types(attribute_location)
+
+        model_section_dict = model_dict[model_section_key]
+        for section_dict_key, section_dict_value in model_section_dict.iteritems():
+            # section_dict_key is either the name of a folder in the
+            # section, or the name of an attribute in the section.
+            model_location = LocationContext()
+            model_location.add_name_token('DOMAIN', "testdomain")
+
+            if section_dict_key in valid_attr_infos:
+                # section_dict_key is the name of an attribute in the section
+                self.__walk_attribute(model_section_dict, section_dict_key, attribute_location)
+
+            elif section_dict_key in valid_section_folders:
+                # section_dict_key is a folder under the model section
+
+                # Append section_dict_key to location context
+                model_location.append_location(section_dict_key)
+                self.__add_name_token(model_location, None)
+
+                # Call self.__walk_model_folder() passing in section_dict_value as the model_node to process
+                self.__walk_model_folder(section_dict_value, model_location)
+
+    def __walk_model_folder(self, model_node, validation_location):
+        """
+        Tokenize credential attributes in a model folder.
+        """
+        if self._aliases.supports_multiple_mbean_instances(validation_location) or \
+                self._aliases.requires_artificial_type_subfolder_handling(validation_location):
+            for name in model_node:
+                new_location = LocationContext(validation_location)
+                self.__add_name_token(new_location, name)
+
+                value_dict = model_node[name]
+
+                self.__walk_model_node(value_dict, new_location)
+        else:
+            self.__walk_model_node(model_node, validation_location)
+
+    def __walk_model_node(self, model_node, validation_location):
+        """
+        Tokenize credential attributes in a model node.
+        """
+        valid_folder_keys = self._aliases.get_model_subfolder_names(validation_location)
+        valid_attr_infos = self._aliases.get_model_attribute_names_and_types(validation_location)
+
+        for key, value in model_node.iteritems():
+
+            if key in valid_folder_keys:
+                new_location = LocationContext(validation_location).append_location(key)
+                self.__add_name_token(new_location, None)
+
+                if self._aliases.is_artificial_type_folder(new_location):
+                    # key is an ARTIFICIAL_TYPE folder
+                    valid_attr_infos = self._aliases.get_model_attribute_names_and_types(new_location)
+
+                    self.__walk_attributes(value, valid_attr_infos, new_location)
+                else:
+                    self.__walk_model_folder(value, new_location)
+
+            elif key in valid_attr_infos:
+                # aliases.get_model_attribute_names_and_types(location) filters out
+                # attributes that ARE NOT valid in the wlst_version being used, so if
+                # we're in this section of code we know key is a bonafide "valid" attribute
+                self.__walk_attribute(model_node, key, validation_location)
+
+    def __walk_attributes(self, attributes_dict, valid_attr_infos, validation_location):
+        """
+        Tokenize credential attributes in a dictionary.
+        """
+        for attribute_name, attribute_value in attributes_dict.iteritems():
+            if attribute_name in valid_attr_infos:
+                self.__walk_attribute(attributes_dict, attribute_name, validation_location)
+
+    def __walk_attribute(self, model_dict, attribute_name, attribute_location):
+        """
+        Tokenize an attribute if it is a credential.
+        """
+        _method_name = '__walk_attribute'
+
+        self.check_and_tokenize(model_dict, attribute_name, attribute_location)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+    def __add_name_token(self, location, name):
+        """
+        Add a name token to the specified location if needed.
+        """
+        name_token = self._aliases.get_name_token(location)
+        if name_token is not None:
+            if name is None:
+                name = '%s-0' % name_token
+            location.add_name_token(name_token, name)
