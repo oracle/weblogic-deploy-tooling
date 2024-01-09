@@ -1,11 +1,10 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from oracle.weblogic.deploy.util import WLSDeployArchive
 
 from wlsdeploy.aliases import alias_utils
-from wlsdeploy.aliases.model_constants import ATP_ADMIN_USER
 from wlsdeploy.aliases.model_constants import ATP_DEFAULT_TABLESPACE
 from wlsdeploy.aliases.model_constants import ATP_TEMPORARY_TABLESPACE
 from wlsdeploy.aliases.model_constants import TNS_ENTRY
@@ -21,7 +20,6 @@ from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_ADMIN_USER
 from wlsdeploy.aliases.model_constants import RCU_DB_CONN
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
-from wlsdeploy.aliases.model_constants import RCU_DB_USER
 from wlsdeploy.aliases.model_constants import RCU_PREFIX
 from wlsdeploy.aliases.model_constants import RCU_SCHEMA_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_STG_INFO
@@ -30,11 +28,9 @@ from wlsdeploy.aliases.model_constants import RCU_VARIABLES
 from wlsdeploy.aliases.model_constants import USE_ATP
 from wlsdeploy.aliases.model_constants import USE_SSL
 from wlsdeploy.aliases.model_constants import DATABASE_TYPE
-from wlsdeploy.aliases.model_constants import RCU_DEFAULT_TBLSPACE
+from wlsdeploy.aliases.model_constants import RCU_DEFAULT_TABLESPACE
 from wlsdeploy.aliases.model_constants import RCU_TEMP_TBLSPACE
 from wlsdeploy.util import dictionary_utils
-from wlsdeploy.util import string_utils
-from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.logging.platform_logger import PlatformLogger
 
 
@@ -87,7 +83,7 @@ class RcuDbInfo(object):
             return type
 
     def get_rcu_default_tablespace(self):
-        type = self._get_dictionary_element_value(RCU_DEFAULT_TBLSPACE)
+        type = self._get_dictionary_element_value(RCU_DEFAULT_TABLESPACE)
         if type is None:
             if self.is_use_atp():
                 return 'DATA'
@@ -114,16 +110,11 @@ class RcuDbInfo(object):
             return None
 
     def get_rcu_prefix(self):
-        rcu_prefix = self.model_context.get_rcu_prefix()
-        if string_utils.is_empty(rcu_prefix):
-            rcu_prefix = self._get_dictionary_element_value(RCU_PREFIX)
-        return rcu_prefix
+        return self._get_dictionary_element_value(RCU_PREFIX)
 
     def get_rcu_schema_password(self):
-        rcu_schema_pass = self.model_context.get_rcu_schema_pass()
-        if string_utils.is_empty(rcu_schema_pass):
-            password = self._get_dictionary_element_value(RCU_SCHEMA_PASSWORD)
-            rcu_schema_pass = self.aliases.decrypt_password(password)
+        password = self._get_dictionary_element_value(RCU_SCHEMA_PASSWORD)
+        rcu_schema_pass = self.aliases.decrypt_password(password)
         return rcu_schema_pass
 
     def get_keystore(self):
@@ -147,23 +138,18 @@ class RcuDbInfo(object):
         return self.aliases.decrypt_password(password)
 
     def get_admin_password(self):
-        rcu_admin_pass = self.model_context.get_rcu_sys_pass()
-        if string_utils.is_empty(rcu_admin_pass):
-            password = self._get_dictionary_element_value(RCU_ADMIN_PASSWORD)
-            rcu_admin_pass = self.aliases.decrypt_password(password)
+        password = self._get_dictionary_element_value(RCU_ADMIN_PASSWORD)
+        rcu_admin_pass = self.aliases.decrypt_password(password)
         return rcu_admin_pass
 
     def get_rcu_regular_db_conn(self):
-        rcu_db_conn = self.model_context.get_rcu_database()
-        if string_utils.is_empty(rcu_db_conn):
-            rcu_db_conn = self._get_dictionary_element_value(RCU_DB_CONN)
-        return rcu_db_conn
+        return self._get_dictionary_element_value(RCU_DB_CONN)
 
     def get_atp_default_tablespace(self):
         _method_name = 'get_atp_default_tablespace'
         result = self._get_dictionary_element_value(ATP_DEFAULT_TABLESPACE)
         if result is not None:
-            self._logger.deprecation('WLSDPLY-22000', ATP_DEFAULT_TABLESPACE, RCU_DEFAULT_TBLSPACE,
+            self._logger.deprecation('WLSDPLY-22000', ATP_DEFAULT_TABLESPACE, RCU_DEFAULT_TABLESPACE,
                                      class_name=_class_name, method_name=_method_name)
             return result
         elif self.get_rcu_default_tablespace() is not None:
@@ -185,27 +171,13 @@ class RcuDbInfo(object):
 
     def get_rcu_admin_user(self):
         _method_name = 'get_rcu_admin_user'
-        # Deprecated CLI arg (deprecation message is printed elsewhere)
-        cli_admin_user = self.model_context.get_rcu_admin_user()
-        if cli_admin_user != ModelContext.RCU_ADMIN_USER_DEFAULT:
-            return cli_admin_user
 
         result = self._get_dictionary_element_value(RCU_ADMIN_USER)
-        if result is None:
-            result = self._get_dictionary_element_value(RCU_DB_USER)
-            if result is not None:
-                self._logger.deprecation('WLSDPLY-22000', RCU_DB_USER, RCU_ADMIN_USER,
-                                         class_name=_class_name, method_name=_method_name)
-            else:
-                result = self._get_dictionary_element_value(ATP_ADMIN_USER)
-                if result is not None:
-                    self._logger.deprecation('WLSDPLY-22000', ATP_ADMIN_USER, RCU_ADMIN_USER,
-                                             class_name=_class_name, method_name=_method_name)
         if result is None:
             if self.is_use_atp():
                 result = 'admin'
             else:
-                result = ModelContext.RCU_ADMIN_USER_DEFAULT
+                result = 'SYS'
         return result
 
     def get_comp_info_location(self):

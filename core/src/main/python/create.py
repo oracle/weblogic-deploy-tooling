@@ -75,11 +75,6 @@ __optional_arguments = [
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
     CommandLineArgUtil.JAVA_HOME_SWITCH,
     CommandLineArgUtil.RUN_RCU_SWITCH,
-    CommandLineArgUtil.RCU_SYS_PASS_SWITCH,
-    CommandLineArgUtil.RCU_DB_SWITCH,
-    CommandLineArgUtil.RCU_DB_USER_SWITCH,
-    CommandLineArgUtil.RCU_PREFIX_SWITCH,
-    CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH,
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,
     CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
     CommandLineArgUtil.PASSPHRASE_SWITCH,
@@ -170,51 +165,15 @@ def __process_rcu_args(optional_arg_map, domain_type, domain_typedef):
     :param optional_arg_map: the optional arguments map
     :param domain_type:      the domain type
     :param domain_typedef:   the domain_typedef data structure
-    :raises CLAException:    if an error occurs getting the passwords from the user or arguments are missing
     """
     _method_name = '__process_rcu_args'
 
     rcu_schema_count = len(domain_typedef.get_rcu_schemas())
-    run_rcu = False
     if CommandLineArgUtil.RUN_RCU_SWITCH in optional_arg_map:
-        run_rcu = optional_arg_map[CommandLineArgUtil.RUN_RCU_SWITCH]
         if rcu_schema_count == 0:
             __logger.info('WLSDPLY-12402', _program_name, CommandLineArgUtil.RUN_RCU_SWITCH, domain_type)
             del optional_arg_map[CommandLineArgUtil.RUN_RCU_SWITCH]
             return
-
-    if rcu_schema_count > 0:
-        if CommandLineArgUtil.RCU_DB_SWITCH in optional_arg_map:
-            if CommandLineArgUtil.RCU_PREFIX_SWITCH in optional_arg_map:
-                if run_rcu and CommandLineArgUtil.RCU_SYS_PASS_SWITCH not in optional_arg_map:
-                    try:
-                        password = getcreds.getpass('WLSDPLY-12403')
-                    except IOException, ioe:
-                        ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
-                                                                   'WLSDPLY-12404', ioe.getLocalizedMessage(),
-                                                                   error=ioe)
-                        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                        raise ex
-                    optional_arg_map[CommandLineArgUtil.RCU_SYS_PASS_SWITCH] = str(String(password))
-                if CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH not in optional_arg_map:
-                    try:
-                        password = getcreds.getpass('WLSDPLY-12405')
-                    except IOException, ioe:
-                        ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
-                                                                   'WLSDPLY-12406', ioe.getLocalizedMessage(),
-                                                                   error=ioe)
-                        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                        raise ex
-                    optional_arg_map[CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH] = str(String(password))
-            else:
-                ex = exception_helper.create_cla_exception(ExitCode.USAGE_ERROR,
-                                                           'WLSDPLY-12407', _program_name,
-                                                           CommandLineArgUtil.RCU_DB_SWITCH,
-                                                           CommandLineArgUtil.RCU_PREFIX_SWITCH)
-                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                raise ex
-
-        # Delay the checking later for rcu related parameters
 
 
 def __process_opss_args(optional_arg_map):
@@ -254,15 +213,13 @@ def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
         has_ssldbinfo = rcu_db_info.has_ssldbinfo()
 
         _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin, model)
-    else:
-        if model_context.get_domain_typedef().requires_rcu():
-            if not model_context.get_rcu_database() or not model_context.get_rcu_prefix():
-                __logger.severe('WLSDPLY-12408', model_context.get_domain_type(), PATH_TO_RCU_DB_CONN,
-                                PATH_TO_RCU_PREFIX, class_name=_class_name, method_name=_method_name)
-                ex = exception_helper.create_create_exception('WLSDPLY-12408', model_context.get_domain_type(),
-                                                              PATH_TO_RCU_DB_CONN, PATH_TO_RCU_PREFIX)
-                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                raise ex
+    elif model_context.get_domain_typedef().requires_rcu():
+        __logger.severe('WLSDPLY-12408', model_context.get_domain_type(), PATH_TO_RCU_DB_CONN,
+                        PATH_TO_RCU_PREFIX, class_name=_class_name, method_name=_method_name)
+        ex = exception_helper.create_create_exception('WLSDPLY-12408', model_context.get_domain_type(),
+                                                      PATH_TO_RCU_DB_CONN, PATH_TO_RCU_PREFIX)
+        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
 
     return has_atpdbinfo, has_ssldbinfo
 

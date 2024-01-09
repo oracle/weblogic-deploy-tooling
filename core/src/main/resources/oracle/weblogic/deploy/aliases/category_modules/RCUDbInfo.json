@@ -4,7 +4,6 @@
     "wlst_type": "RCUDbInfo",
     "folders": {},
     "attributes": {
-        "atp.admin.user":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "atp.admin.user",                   "wlst_path": "WP001", "default_value": null,    "wlst_type": "credential" } ],
         "atp.default.tablespace":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "atp.default.tablespace",           "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
         "atp.temp.tablespace":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "atp.temp.tablespace",              "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
         "databaseType":                     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "databaseType",                     "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
@@ -20,15 +19,12 @@
         "rcu_admin_user":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "rcu_admin_user",                   "wlst_path": "WP001", "default_value": null,    "wlst_type": "credential" } ],
         "rcu_db_conn_string":               [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "rcu_db_conn_string",               "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
         "rcu_prefix":                       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "rcu_prefix",                       "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
-        "rcu_db_user":                      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "rcu_db_user",                      "wlst_path": "WP001", "default_value": null,    "wlst_type": "credential" } ],
         "rcu_schema_password":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "rcu_schema_password",              "wlst_path": "WP001", "default_value": null,    "wlst_type": "password", "secret_suffix": "schema" } ],
         "rcu_default_tablespace":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "rcu_default_tablespace",           "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
         "rcu_temp_tablespace":              [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "rcu_temp_tablespace",              "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
         "tns.alias":                        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "tns.alias",                        "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
         "rcu_variables":                    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "rcu_variables",                    "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
-        "storageXMLLocation":               [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "storageXMLLocation",               "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",  "uses_path_tokens":  "true" } ],
-        "useATP":                           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "useATP",                           "wlst_path": "WP001", "default_value": null,    "wlst_type": "boolean" } ],
-        "useSSL":                           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "useSSL",                           "wlst_path": "WP001", "default_value": null,    "wlst_type": "boolean" } ]
+        "storageXMLLocation":               [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "storageXMLLocation",               "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",  "uses_path_tokens":  "true" } ]
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {

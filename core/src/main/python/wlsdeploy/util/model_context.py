@@ -43,8 +43,6 @@ class ModelContext(object):
     CURRENT_DIRECTORY_TOKEN = '@@PWD@@'
     TEMP_DIRECTORY_TOKEN = '@@TMP@@'
 
-    RCU_ADMIN_USER_DEFAULT = 'SYS'
-
     def __init__(self, program_name, arg_map=None):
         """
         Create a new model context instance.
@@ -81,11 +79,6 @@ class ModelContext(object):
         self._model_file = None
         self._variable_file_name = None
         self._run_rcu = False
-        self._rcu_admin_user = self.RCU_ADMIN_USER_DEFAULT
-        self._rcu_database = None
-        self._rcu_prefix = None
-        self._rcu_sys_pass = None
-        self._rcu_schema_pass = None
         self._encryption_passphrase = None
         self._encrypt_manual = False
         self._encrypt_one_pass = None
@@ -266,24 +259,6 @@ class ModelContext(object):
         if CommandLineArgUtil.RUN_RCU_SWITCH in arg_map:
             self._run_rcu = arg_map[CommandLineArgUtil.RUN_RCU_SWITCH]
 
-        # deprecated command-line arg
-        if CommandLineArgUtil.RCU_DB_SWITCH in arg_map:
-            self._rcu_database = arg_map[CommandLineArgUtil.RCU_DB_SWITCH]
-
-        # deprecated command-line arg
-        if CommandLineArgUtil.RCU_PREFIX_SWITCH in arg_map:
-            self._rcu_prefix = arg_map[CommandLineArgUtil.RCU_PREFIX_SWITCH]
-
-        if CommandLineArgUtil.RCU_SYS_PASS_SWITCH in arg_map:
-            self._rcu_sys_pass = arg_map[CommandLineArgUtil.RCU_SYS_PASS_SWITCH]
-
-        # deprecated command-line arg
-        if CommandLineArgUtil.RCU_DB_USER_SWITCH in arg_map:
-            self._rcu_admin_user = arg_map[CommandLineArgUtil.RCU_DB_USER_SWITCH]
-
-        if CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH in arg_map:
-            self._rcu_schema_pass = arg_map[CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH]
-
         if CommandLineArgUtil.DOMAIN_TYPEDEF in arg_map:
             self._domain_typedef = arg_map[CommandLineArgUtil.DOMAIN_TYPEDEF]
 
@@ -412,16 +387,6 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.DISCARD_CURRENT_EDIT_SWITCH] = self._discard_current_edit
         if self._wait_for_edit_lock is not None:
             arg_map[CommandLineArgUtil.WAIT_FOR_EDIT_LOCK_SWITCH] = self._wait_for_edit_lock
-        if self._rcu_database is not None:
-            arg_map[CommandLineArgUtil.RCU_DB_SWITCH] = self._rcu_database
-        if self._rcu_prefix is not None:
-            arg_map[CommandLineArgUtil.RCU_PREFIX_SWITCH] = self._rcu_prefix
-        if self._rcu_sys_pass is not None:
-            arg_map[CommandLineArgUtil.RCU_SYS_PASS_SWITCH] = self._rcu_sys_pass
-        if self._rcu_admin_user is not None:
-            arg_map[CommandLineArgUtil.RCU_DB_USER_SWITCH] = self._rcu_admin_user
-        if self._rcu_schema_pass is not None:
-            arg_map[CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH] = self._rcu_schema_pass
         if self._domain_typedef is not None:
             arg_map[CommandLineArgUtil.DOMAIN_TYPEDEF] = self._domain_typedef
         if self._encryption_passphrase is not None:
@@ -756,45 +721,10 @@ class ModelContext(object):
 
     def is_run_rcu(self):
         """
-        Get whether or not to run RCU.
-        :return: whether or not to run RCU
+        Get whether to run RCU.
+        :return: whether to run RCU
         """
         return self._run_rcu
-
-    def get_rcu_database(self):
-        """
-        Get the RCU database connect string.
-        :return: the RCU database connect string
-        """
-        return self._rcu_database
-
-    def get_rcu_prefix(self):
-        """
-        Get the RCU prefix.
-        :return: the RCU prefix
-        """
-        return self._rcu_prefix
-
-    def get_rcu_admin_user(self):
-        """
-        Get the RCU DB user.
-        :return: the RCU dbUser
-        """
-        return self._rcu_admin_user
-
-    def get_rcu_sys_pass(self):
-        """
-        Get the RCU database SYS user password.
-        :return: the RCU database SYS user password
-        """
-        return self._rcu_sys_pass
-
-    def get_rcu_schema_pass(self):
-        """
-        Get the RCU schema users' password.
-        :return: the RCU schema users' password
-        """
-        return self._rcu_schema_pass
 
     def get_encryption_passphrase(self):
         """
@@ -839,10 +769,10 @@ class ModelContext(object):
     def get_target(self):
         return self._target
 
-    def is_targetted_config(self):
+    def is_targeted_config(self):
         """
-        Return the output directory for generated k8s target.
-        :return: output directory
+        Determine if target configuration is used.
+        :return: True if target configuration is used
         """
         return self._target is not None
 

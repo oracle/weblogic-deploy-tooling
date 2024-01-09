@@ -18,7 +18,6 @@ from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
 from wlsdeploy.aliases.model_constants import APP_DIR
-from wlsdeploy.aliases.model_constants import ATP_ADMIN_USER
 from wlsdeploy.aliases.model_constants import ATP_DEFAULT_TABLESPACE
 from wlsdeploy.aliases.model_constants import ATP_TEMPORARY_TABLESPACE
 from wlsdeploy.aliases.model_constants import CLUSTER
@@ -57,6 +56,7 @@ from wlsdeploy.aliases.model_constants import PASSWORD
 from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
 from wlsdeploy.aliases.model_constants import PRODUCTION_MODE_ENABLED
 from wlsdeploy.aliases.model_constants import RESOURCES
+from wlsdeploy.aliases.model_constants import RCU_ADMIN_USER
 from wlsdeploy.aliases.model_constants import RCU_COMP_INFO
 from wlsdeploy.aliases.model_constants import RCU_STG_INFO
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
@@ -324,7 +324,7 @@ class DomainCreator(Creator):
 
             # reset these to pick up any defaults from rcu_db_info
 
-            rcu_runner_map[ATP_ADMIN_USER] = rcu_db_info.get_rcu_admin_user()
+            rcu_runner_map[RCU_ADMIN_USER] = rcu_db_info.get_rcu_admin_user()
             rcu_runner_map[ATP_TEMPORARY_TABLESPACE] = rcu_db_info.get_atp_temporary_tablespace()
             rcu_runner_map[ATP_DEFAULT_TABLESPACE] = rcu_db_info.get_atp_default_tablespace()
 

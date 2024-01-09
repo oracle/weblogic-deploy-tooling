@@ -455,11 +455,12 @@ topology:
             Notes: Server 1
 ```
 
-### Upgrading from WDT 1.x to WDT 2.x YAML files
+### Upgrading from WDT 1.x to current WDT version YAML files
 
 Beginning in 2.0, WebLogic Deploy Tooling now incorporates the SnakeYAML parser for reading and writing model files.
 This may require some changes to existing models in order to be parsed correctly.
-   - Model elements that use [delete notation]({{< relref "/concepts/model#declaring-named-mbeans-to-delete" >}}) need to be escaped in single or double quotation marks.
+   - Model elements that use [delete notation]({{< relref "/concepts/model#declaring-named-mbeans-to-delete" >}}) need
+     to be escaped in single or double quotation marks.
    ```yaml
    topology:
        Server:
@@ -481,8 +482,8 @@ This may require some changes to existing models in order to be parsed correctly
 
 
 
-- Object lists in the `kubernetes` section of the model now should be specified in a hyphenated list format,
-similar to how they appear in the domain resource file produced for
+- Object lists in the `kubernetes` section of the model must be specified in a hyphenated list format,
+  similar to how they appear in the domain resource file produced for
 - [WebLogic Kubernetes Operator](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/domain-resource/).
 
    ```yaml
@@ -493,7 +494,8 @@ similar to how they appear in the domain resource file produced for
          allowReplicasBelowMinDynClusterSize: true
    ```
 
-   - The "named object list" format is deprecated now, and will cause warning messages to be displayed.
+   - Support for the old "named object list" format in the `kubernetes` section has been removed and will result in
+     validation errors if not converted to the hyphenated list format.
    ```yaml
        clusters:
          'cluster1':

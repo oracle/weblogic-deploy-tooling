@@ -8,22 +8,22 @@ description: "Create a connection to access your database."
 
 ### Specifying RCU connection information in the model
 
-When creating a JRF domain, you can provide all the RCU connection information in a section `RCUDbInfo` under the `domainInfo` section in the model.
-It provides you with more flexibility over the basic command-line arguments of
-`-rcu_db` and `-rcu_prefix`.  Use this when the connection string is more complex and requires extra options.
+When creating a JRF domain, you can provide all the RCU connection information in a section `RCUDbInfo` under the 
+`domainInfo` section in the model.
+
 
 ### Background on JRF domain RCU tables
 
 A JRF domain creates several data sources from the JRF domain template.
 
-| Data source name        | JNDI name                  | Schema  | Target |
-|-------------------------|----------------------------|---------|---|
-| WLSSchemaDataSource     | jdbc/WLSSchemaDataSource   | prefix_WLS_RUNTIME | None |
-| LocalSvcTblDataSource   | jdbc/WLSSchemaDataSource   | prefix_STB | admin server |
-| opss-data-source        | jdbc/OpssDataSource        | prefix_OPSS | admin server and cluster |
-| opss-audit-viewDS       | jdbc/AuditViewDataSource   | prefix_IAU_VIEWER | admin server and cluster |
-| opss-audit-DBDS         | jdbc/AuditAppendDataSource | prefix_IAU_APPEND | admin server and cluster |
-| mds-owsm                | jdbc/mds/owsm              | prefix_MDS | admin server and cluster |
+| Data source name        | JNDI name                  | Schema             | Target                   |
+|-------------------------|----------------------------|--------------------|--------------------------|
+| WLSSchemaDataSource     | jdbc/WLSSchemaDataSource   | prefix_WLS_RUNTIME | None                     |
+| LocalSvcTblDataSource   | jdbc/WLSSchemaDataSource   | prefix_STB         | admin server             |
+| opss-data-source        | jdbc/OpssDataSource        | prefix_OPSS        | admin server and cluster |
+| opss-audit-viewDS       | jdbc/AuditViewDataSource   | prefix_IAU_VIEWER  | admin server and cluster |
+| opss-audit-DBDS         | jdbc/AuditAppendDataSource | prefix_IAU_APPEND  | admin server and cluster |
+| mds-owsm                | jdbc/mds/owsm              | prefix_MDS         | admin server and cluster |
 
 By default, the JRF domain template data source has only the default information such as URL and schema with the default prefix `DEV`.  During domain creation,
 WDT will use the information you provided in the command line or in the `RCUDbinfo` section to override the default values from the template so that it can connect to the database you specified.
@@ -125,8 +125,6 @@ domainInfo:
 ```
 
 Or, by specifying the unzipped root directory of the ATP wallet ZIP file in `oracle.net.tns_admin`.
-
-**Note: Prior to release 0.23, the `useATP` flag only accepts values of `0`, `1`, `true`, or `false`.**
 
 #### SSL database using SSO for authentication
 
