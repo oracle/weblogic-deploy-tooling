@@ -2,7 +2,7 @@
 # *****************************************************************************
 # injectVariables.sh
 #
-# Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+# Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -30,7 +30,6 @@ usage() {
   echo "          [-oracle_home <oracle_home>]"
   echo "          -model_file <model_file>"
   echo "          [-variable_injector_file <variable_injector_file>]"
-  echo "          [-variable_keywords_file <variable_keywords_file>]"
   echo "          [-variable_properties_file <variable_file>]"
   echo ""
   echo "    where:"
@@ -46,12 +45,6 @@ usage() {
   echo "                          model injection run. If this argument is not provided,"
   echo "                          the model_variable_injector.json file must exist in"
   echo "                          the lib directory in the WLSDEPLOY_HOME location."
-  echo ""
-  echo "        variable_keywords_file - this argument overrides the INSTALLED version"
-  echo "                          of the allowed variable keywords for the variable"
-  echo "                          injector. This argument is for advanced usage only."
-  echo "                          The installed keywords file is located in the lib"
-  echo "                          directory of WLSDEPLOY_HOME location."
   echo ""
   echo "        variable_file   - the location of the property file in which to store"
   echo "                          any variable names injected into the model. This"

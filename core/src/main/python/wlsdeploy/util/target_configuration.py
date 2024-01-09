@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2023, Oracle and/or its affiliates.
+Copyright (c) 2020, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.exception import exception_helper
@@ -38,6 +38,9 @@ DEFAULT_PRODUCT_KEY = 'wko'
 
 # Determines the version of the target product.
 PRODUCT_VERSION = 'product_version'
+
+# Determines the injectors to apply to a model
+VARIABLE_INJECTORS = 'variable_injectors'
 
 # put secret tokens in the model, and build a script to create the secrets.
 SECRETS_METHOD = 'secrets'
@@ -149,10 +152,13 @@ class TargetConfiguration(object):
 
     def get_variable_injectors(self):
         """
-        Return a dictionary of variable injectors for this target environment.
-        :return: the dictionary of variable injectors
+        Return a list of variable injector names for this target environment.
+        :return: the list of variable injector names
         """
-        return dictionary_utils.get_dictionary_element(self.config_dictionary, 'variable_injectors')
+        injectors = dictionary_utils.get_element(self.config_dictionary, VARIABLE_INJECTORS)
+        if injectors is None:
+            injectors = []
+        return injectors
 
     def get_additional_secrets(self):
         """
@@ -293,6 +299,12 @@ class TargetConfiguration(object):
         output_method = dictionary_utils.get_element(self.config_dictionary, RESULTS_OUTPUT_METHOD)
         self._validate_enumerated_field(RESULTS_OUTPUT_METHOD, output_method, RESULTS_OUTPUT_METHODS, exit_code,
                                         target_configuration_file)
+
+        variable_injectors = self.get_variable_injectors()
+        if not isinstance(variable_injectors, list):
+            ex = exception_helper.create_cla_exception(exit_code, 'WLSDPLY-01685', target_configuration_file,
+                                                       type(variable_injectors), VARIABLE_INJECTORS)
+            raise ex
 
     ###################
     # Private methods #

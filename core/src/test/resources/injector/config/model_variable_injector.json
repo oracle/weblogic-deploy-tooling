@@ -1,5 +1,6 @@
 {
-  "PORT": {},
-  "URL": {},
-  "CREDENTIALS": {}
+  "injectors": [
+    "port",
+    "url"
+  ]
 }

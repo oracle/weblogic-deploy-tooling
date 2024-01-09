@@ -1,5 +1,5 @@
 {
-  "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},
+  "variable_injectors" : ["port", "host", "url"],
   "validation_method" : "lax",
   "credentials_method" : "secrets",
   "results_output_method" : "json",

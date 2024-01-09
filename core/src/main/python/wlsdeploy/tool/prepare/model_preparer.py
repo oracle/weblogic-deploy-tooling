@@ -11,7 +11,6 @@ from oracle.weblogic.deploy.validate import ValidateException
 import oracle.weblogic.deploy.util.TranslateException as TranslateException
 import wlsdeploy.util.variables as variables
 from wlsdeploy.aliases.aliases import Aliases
-from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DOMAIN_SCRIPTS
 from wlsdeploy.aliases.wlst_modes import WlstModes
@@ -26,7 +25,6 @@ from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.tool.validate.content_validator import ContentValidator
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
-from wlsdeploy.util import model
 from wlsdeploy.util import target_configuration_helper
 import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.model import Model
@@ -48,120 +46,8 @@ class ModelPreparer:
         self._aliases = Aliases(model_context=model_context, wlst_mode=WlstModes.OFFLINE,
                                 exception_type=ExceptionType.PREPARE)
         self._logger = PlatformLogger('wlsdeploy.prepare_model')
-        self._name_tokens_location = LocationContext()
-        self._name_tokens_location.add_name_token('DOMAIN', "testdomain")
         self.current_dict = None
-        self.credential_injector = CredentialInjector(_program_name, None, model_context)
-
-    def __walk_model_section(self, model_section_key, model_dict, valid_section_folders):
-        """
-        Tokenize credential attributes in a model section.
-        """
-        if model_section_key not in model_dict.keys():
-            return
-
-        # only specific top-level sections have attributes
-        attribute_location = self._aliases.get_model_section_attribute_location(model_section_key)
-
-        valid_attr_infos = []
-
-        if attribute_location is not None:
-            valid_attr_infos = self._aliases.get_model_attribute_names_and_types(attribute_location)
-
-        model_section_dict = model_dict[model_section_key]
-        for section_dict_key, section_dict_value in model_section_dict.iteritems():
-            # section_dict_key is either the name of a folder in the
-            # section, or the name of an attribute in the section.
-            model_location = LocationContext()
-
-            if section_dict_key in valid_attr_infos:
-                # section_dict_key is the name of an attribute in the section
-                self.__walk_attribute(model_section_dict, section_dict_key, attribute_location)
-
-            elif section_dict_key in valid_section_folders:
-                # section_dict_key is a folder under the model section
-
-                # Append section_dict_key to location context
-                model_location.append_location(section_dict_key)
-
-                # Call self.__walk_model_folder() passing in section_dict_value as the model_node to process
-                self.__walk_model_folder(section_dict_value, model_location)
-
-    def __walk_model_folder(self, model_node, validation_location):
-        """
-        Tokenize credential attributes in a model folder.
-        """
-        if self._aliases.supports_multiple_mbean_instances(validation_location) or \
-                self._aliases.requires_artificial_type_subfolder_handling(validation_location):
-            for name in model_node:
-                expanded_name = name
-
-                new_location = LocationContext(validation_location)
-
-                name_token = self._aliases.get_name_token(new_location)
-
-                if name_token is not None:
-                    new_location.add_name_token(name_token, expanded_name)
-
-                value_dict = model_node[name]
-
-                self.__walk_model_node(value_dict, new_location)
-        else:
-            name_token = self._aliases.get_name_token(validation_location)
-
-            if name_token is not None:
-                name = self._name_tokens_location.get_name_for_token(name_token)
-
-                if name is None:
-                    name = '%s-0' % name_token
-
-                validation_location.add_name_token(name_token, name)
-
-            self.__walk_model_node(model_node, validation_location)
-
-    def __walk_model_node(self, model_node, validation_location):
-        """
-        Tokenize credential attributes in a model node.
-        """
-        valid_folder_keys = self._aliases.get_model_subfolder_names(validation_location)
-        valid_attr_infos = self._aliases.get_model_attribute_names_and_types(validation_location)
-
-        for key, value in model_node.iteritems():
-
-            if key in valid_folder_keys:
-                new_location = LocationContext(validation_location).append_location(key)
-
-                if self._aliases.is_artificial_type_folder(new_location):
-                    # key is an ARTIFICIAL_TYPE folder
-                    valid_attr_infos = self._aliases.get_model_attribute_names_and_types(new_location)
-
-                    self.__walk_attributes(value, valid_attr_infos, new_location)
-                else:
-                    self.__walk_model_folder(value, new_location)
-
-            elif key in valid_attr_infos:
-                # aliases.get_model_attribute_names_and_types(location) filters out
-                # attributes that ARE NOT valid in the wlst_version being used, so if
-                # we're in this section of code we know key is a bonafide "valid" attribute
-                self.__walk_attribute(model_node, key, validation_location)
-
-    def __walk_attributes(self, attributes_dict, valid_attr_infos, validation_location):
-        """
-        Tokenize credential attributes in a dictionary.
-        """
-        for attribute_name, attribute_value in attributes_dict.iteritems():
-            if attribute_name in valid_attr_infos:
-                self.__walk_attribute(attributes_dict, attribute_name, validation_location)
-
-    def __walk_attribute(self, model_dict, attribute_name, attribute_location):
-        """
-        Tokenize an attribute if it is a credential.
-        """
-        _method_name = '__walk_attribute'
-
-        self.credential_injector.check_and_tokenize(model_dict, attribute_name, attribute_location)
-
-        self._logger.exiting(class_name=_class_name, method_name=_method_name)
+        self.credential_injector = CredentialInjector(_program_name, model_context, self._aliases)
 
     def fix_property_secrets(self):
         # Just in case the credential cache has @@PROP in the model's attribute value,
@@ -203,13 +89,12 @@ class ModelPreparer:
                 and DOMAIN_SCRIPTS in model_dict[DOMAIN_INFO]:
             del model_dict[DOMAIN_INFO][DOMAIN_SCRIPTS]
 
-        variable_injector = VariableInjector(_program_name, model_dict, model_context,
-                                             model_context.get_effective_wls_version(),
+        variable_injector = VariableInjector(_program_name, model_context, self._aliases,
                                              credential_properties)
 
         # update the variable file with any new values
         inserted, variable_model, variable_file_name = \
-            variable_injector.inject_variables_keyword_file(append_option=VARIABLE_FILE_UPDATE)
+            variable_injector.inject_variables_from_configuration(model_dict, append_option=VARIABLE_FILE_UPDATE)
 
         # return variable_model - if writing the variables file failed, this will be the original model.
         # a warning is issued in inject_variables_keyword_file() if that was the case.
@@ -352,14 +237,7 @@ class ModelPreparer:
 
                 self.current_dict = model_dictionary
 
-                self.__walk_model_section(model.get_model_domain_info_key(), self.current_dict,
-                                          aliases.get_model_section_top_level_folder_names(DOMAIN_INFO))
-
-                self.__walk_model_section(model.get_model_topology_key(), self.current_dict,
-                                          aliases.get_model_topology_top_level_folder_names())
-
-                self.__walk_model_section(model.get_model_resources_key(), self.current_dict,
-                                          aliases.get_model_resources_top_level_folder_names())
+                self.credential_injector.inject_model_variables(self.current_dict)
 
                 self.current_dict = self._apply_filter_and_inject_variable(self.current_dict, self.model_context)
 

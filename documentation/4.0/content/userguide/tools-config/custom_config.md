@@ -26,7 +26,6 @@ The customized configuration files should be named and organized the same way th
             *.py  (filter files)
     model_filters.json
     model_variable_injector.json
-    variable_keywords.json
 ```
 This is a full set of files that can be configured. You will need only to add the files you have created or extended. Details for each configuration type are found at:
 - [Tool property file]({{< relref "/userguide/tools-config/tool_prop.md" >}})
