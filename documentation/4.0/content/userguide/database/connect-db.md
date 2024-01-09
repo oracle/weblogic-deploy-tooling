@@ -48,11 +48,11 @@ When you want to recreate the JRF domain home, you have two options:
    - `-opss_wallet_passphrase_file <path-to-file>` - Simply pass the file name for the file containing the wallet passphrase.
 
 2. Add the OPSS wallet to the archive file in the prescribed location (i.e., `wlsdeploy/opsswallet/`) using the Archive
-   Helper tool's `add opssWallet` command and then provide the passphrase in the `domainInfo` section's `OPSSSecrets` field.
+   Helper tool's `add opssWallet` command and then provide the passphrase in the `domainInfo` section's `OPSSWalletPassphrase` field.
 
     ```yaml
     domainInfo:
-        OPSSSecrets: MySecureOPSSWalletPassphrase
+        OPSSWalletPassphrase: MySecureOPSSWalletPassphrase
     ```
 
 ### Access a database using a wallet

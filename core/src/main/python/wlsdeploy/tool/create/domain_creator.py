@@ -2,17 +2,21 @@
 Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-import os, re
-import weblogic.security.internal.SerializedSystemIni as SerializedSystemIni
-import weblogic.security.internal.encryption.ClearOrEncryptedService as ClearOrEncryptedService
+import os
+import re
+
 from java.io import File
 from java.io import FileOutputStream
 from java.lang import IllegalArgumentException
 from java.util import Properties
 
+import weblogic.security.internal.SerializedSystemIni as SerializedSystemIni
+import weblogic.security.internal.encryption.ClearOrEncryptedService as ClearOrEncryptedService
+
 from oracle.weblogic.deploy.create import CreateDomainLifecycleHookScriptRunner
 from oracle.weblogic.deploy.create import RCURunner
 from oracle.weblogic.deploy.util import FileUtils
+
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_SERVER_NAME
@@ -51,6 +55,7 @@ from wlsdeploy.aliases.model_constants import MACHINE
 from wlsdeploy.aliases.model_constants import MIGRATABLE_TARGET
 from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.aliases.model_constants import OPSS_SECRETS
+from wlsdeploy.aliases.model_constants import OPSS_WALLET_PASSPHRASE
 from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PASSWORD
 from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
@@ -1583,22 +1588,29 @@ class DomainCreator(Creator):
 
     def __configure_opss_secrets(self):
         _method_name = '__configure_opss_secrets'
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
 
         if not self._domain_typedef.has_jrf_with_database_store():
             return
 
-        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
         domain_info = self._domain_info
-        if OPSS_SECRETS in domain_info:
-            opss_secret_password = domain_info[OPSS_SECRETS]
-            if self.archive_helper and opss_secret_password:
+        opss_wallet_password = None
+        if OPSS_WALLET_PASSPHRASE in domain_info:
+            opss_wallet_password = domain_info[OPSS_WALLET_PASSPHRASE]
+        elif OPSS_SECRETS in domain_info:
+            self.logger.deprecation('WLSDPLY-22000', OPSS_SECRETS, OPSS_WALLET_PASSPHRASE,
+                                    class_name=self.__class_name, method_name=_method_name)
+            opss_wallet_password = domain_info[OPSS_SECRETS]
+
+        if opss_wallet_password is not None:
+            if self.archive_helper and opss_wallet_password:
                 extract_path = self.archive_helper.extract_opss_wallet()
-                self.wlst_helper.set_shared_secret_store_with_password(extract_path, opss_secret_password)
+                self.wlst_helper.set_shared_secret_store_with_password(extract_path, opss_wallet_password)
         else:
-            opss_secret_password = self.model_context.get_opss_wallet_passphrase()
+            opss_wallet_password = self.model_context.get_opss_wallet_passphrase()
             opss_wallet = self.model_context.get_opss_wallet()
-            if opss_wallet is not None and opss_secret_password is not None:
-                self.wlst_helper.set_shared_secret_store_with_password(opss_wallet, opss_secret_password)
+            if opss_wallet is not None and opss_wallet_password is not None:
+                self.wlst_helper.set_shared_secret_store_with_password(opss_wallet, opss_wallet_password)
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 

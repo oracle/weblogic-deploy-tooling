@@ -26,6 +26,7 @@ from wlsdeploy.aliases.model_constants import NM_PROPERTIES
 from wlsdeploy.aliases.model_constants import NODE_MANAGER_PW_ENCRYPTED
 from wlsdeploy.aliases.model_constants import NODE_MANAGER_USER_NAME
 from wlsdeploy.aliases.model_constants import OPSS_SECRETS
+from wlsdeploy.aliases.model_constants import OPSS_WALLET_PASSPHRASE
 from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PARTITION_WORK_MANAGER
 from wlsdeploy.aliases.model_constants import RESOURCES
@@ -160,11 +161,11 @@ def filter_domain_info(model, _model_context):
     target_configuration = _model_context.get_target_configuration()
     if not target_configuration.uses_opss_secrets():
         domain_info = dictionary_utils.get_dictionary_element(model, DOMAIN_INFO)
-        for delete_key in [OPSS_SECRETS]:
+        for delete_key in [OPSS_WALLET_PASSPHRASE, OPSS_SECRETS]:
             if delete_key in domain_info:
                 source_name = target_configuration.get_domain_home_source_name()
-                _logger.info('WLSDPLY-20208', OPSS_SECRETS, DOMAIN_INFO, source_name, class_name=_class_name,
-                             method_name=_method_name)
+                _logger.info('WLSDPLY-20208', delete_key, DOMAIN_INFO, source_name,
+                             class_name=_class_name, method_name=_method_name)
                 del domain_info[delete_key]
 
 
