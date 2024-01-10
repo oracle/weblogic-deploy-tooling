@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2023, Oracle and/or its affiliates.",
+    "copyright": "Copyright (c) 2017, 2024, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "ServerTemplate${:s}",
     "online_bean": "weblogic.management.configuration.ServerTemplateMBean",
@@ -1155,8 +1155,8 @@
                     {"version": "[14.1.1.0.0.231012,)",       "wlst_mode": "both", "wlst_name": "ServiceProviderSingleLogoutEnabled",                  "wlst_path": "WP001", "default_value": "true",              "wlst_type": "boolean"         }
                 ],
                 "ServiceProviderSingleLogoutRedirectUri":                [
-                    {"version": "[12.2.1.4.0.231010,14.1.1)", "wlst_mode": "both", "wlst_name": "ServiceProviderSingleLogoutRedirect${Uri:URIs}",     "wlst_path": "WP001", "default_value": null,                "wlst_type": "jarray",         "get_method": "GET", "preferred_model_type": "list" },
-                    {"version": "[14.1.1.0.0.231012,)",       "wlst_mode": "both", "wlst_name": "ServiceProviderSingleLogoutRedirect${Uri:URIs}",     "wlst_path": "WP001", "default_value": null,                "wlst_type": "jarray",         "get_method": "GET", "preferred_model_type": "list" }
+                    {"version": "[12.2.1.4.0.231010,14.1.1)", "wlst_mode": "both", "wlst_name": "ServiceProviderSingleLogoutRedirect${Uri:URIs}",     "wlst_path": "WP001", "default_value": null,                "wlst_type": "list",         "get_method": "GET", "preferred_model_type": "list" },
+                    {"version": "[14.1.1.0.0.231012,)",       "wlst_mode": "both", "wlst_name": "ServiceProviderSingleLogoutRedirect${Uri:URIs}",     "wlst_path": "WP001", "default_value": null,                "wlst_type": "list",         "get_method": "GET", "preferred_model_type": "list" }
                 ],
                 "SignAuthnRequests":                                     [ {"version": "[12.2.1,)",    "wlst_mode": "both", "wlst_name": "SignAuthnRequests",                                   "wlst_path": "WP001", "default_value": "false",             "wlst_type": "boolean"         } ],
                 "SsoSigningKeyAlias":                                    [ {"version": "[12.2.1,)",    "wlst_mode": "both", "wlst_name": "S${so:SO}SigningKeyAlias",                            "wlst_path": "WP001", "default_value": null,                "wlst_type": "string"          } ],

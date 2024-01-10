@@ -5,7 +5,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 import sys
 import traceback
 
-import java.lang.Throwable as Throwable
+from java.lang import Throwable as JThrowable
 
 import oracle.weblogic.deploy.aliases.AliasException as AliasException
 import oracle.weblogic.deploy.compare.CompareException as CompareException
@@ -98,10 +98,16 @@ def create_create_exception(key, *args, **kwargs):
     arg_list, error = _return_exception_params(*args, **kwargs)
     arg_len = len(arg_list)
     if error is not None:
-        if isinstance(error, Throwable) is False:
+        if not isinstance(error, JThrowable):
             error = convert_error_to_exception()
         if arg_len > 0:
-            ex = CreateException(key, error, arg_list)
+            # Jython 2.7.1 in 14.1.1 is broken when it comes to binding varargs
+            # Java methods.  Calling the CreateException(key, error, arg_list) is
+            # binding to the CreateException(String key, Object... params) constructor
+            # instead of CreateException(String key, Throwable cause, Object...params).
+            #
+            ex = CreateException(key, arg_list)
+            ex.initCause(error)
         else:
             ex = CreateException(key, error)
     else:
@@ -123,11 +129,17 @@ def create_deploy_exception(key, *args, **kwargs):
     arg_list, error = _return_exception_params(*args, **kwargs)
     arg_len = len(arg_list)
     if error is not None:
-        if isinstance(error, Throwable) is False:
+        if isinstance(error, JThrowable) is False:
             error = convert_error_to_exception()
 
         if arg_len > 0:
-            ex = DeployException(key, error, arg_list)
+            # Jython 2.7.1 in 14.1.1 is broken when it comes to binding varargs
+            # Java methods.  Calling the DeployException(key, error, arg_list) is
+            # binding to the DeployException(String key, Object... params) constructor
+            # instead of DeployException(String key, Throwable cause, Object...params).
+            #
+            ex = DeployException(key, arg_list)
+            ex.initCause(error)
         else:
             ex = DeployException(key, error)
     else:
@@ -149,10 +161,16 @@ def create_discover_exception(key, *args, **kwargs):
     arg_list, error = _return_exception_params(*args, **kwargs)
     arg_len = len(arg_list)
     if error is not None:
-        if isinstance(error, Throwable) is False:
+        if isinstance(error, JThrowable) is False:
             error = convert_error_to_exception()
         if arg_len > 0:
-            ex = DiscoverException(key, error, arg_list)
+            # Jython 2.7.1 in 14.1.1 is broken when it comes to binding varargs
+            # Java methods.  Calling the DiscoverException(key, error, arg_list) is
+            # binding to the DiscoverException(String key, Object... params) constructor
+            # instead of DiscoverException(String key, Throwable cause, Object...params).
+            #
+            ex = DiscoverException(key, arg_list)
+            ex.initCause(error)
         else:
             ex = DiscoverException(key, error)
     else:
@@ -175,7 +193,13 @@ def create_alias_exception(key, *args, **kwargs):
     arg_len = len(arg_list)
     if error is not None:
         if arg_len > 0:
-            ex = AliasException(key, error, arg_list)
+            # Jython 2.7.1 in 14.1.1 is broken when it comes to binding varargs
+            # Java methods.  Calling the AliasException(key, error, arg_list) is
+            # binding to the AliasException(String key, Object... params) constructor
+            # instead of AliasException(String key, Throwable cause, Object...params).
+            #
+            ex = AliasException(key, arg_list)
+            ex.initCause(error)
         else:
             ex = AliasException(key, error)
     else:
@@ -198,7 +222,13 @@ def create_validate_exception(key, *args, **kwargs):
     arg_len = len(arg_list)
     if error is not None:
         if arg_len > 0:
-            ex = ValidateException(key, error, arg_list)
+            # Jython 2.7.1 in 14.1.1 is broken when it comes to binding varargs
+            # Java methods.  Calling the ValidateException(key, error, arg_list) is
+            # binding to the ValidateException(String key, Object... params) constructor
+            # instead of ValidateException(String key, Throwable cause, Object...params).
+            #
+            ex = ValidateException(key, arg_list)
+            ex.initCause(error)
         else:
             ex = ValidateException(key, error)
     else:
@@ -221,7 +251,13 @@ def create_compare_exception(key, *args, **kwargs):
     arg_len = len(arg_list)
     if error is not None:
         if arg_len > 0:
-            ex = CompareException(key, error, arg_list)
+            # Jython 2.7.1 in 14.1.1 is broken when it comes to binding varargs
+            # Java methods.  Calling the CompareException(key, error, arg_list) is
+            # binding to the CompareException(String key, Object... params) constructor
+            # instead of CompareException(String key, Throwable cause, Object...params).
+            #
+            ex = CompareException(key, arg_list)
+            ex.initCause(error)
         else:
             ex = CompareException(key, error)
     else:
@@ -244,7 +280,13 @@ def create_prepare_exception(key, *args, **kwargs):
     arg_len = len(arg_list)
     if error is not None:
         if arg_len > 0:
-            ex = PrepareException(key, error, arg_list)
+            # Jython 2.7.1 in 14.1.1 is broken when it comes to binding varargs
+            # Java methods.  Calling the PrepareException(key, error, arg_list) is
+            # binding to the PrepareException(String key, Object... params) constructor
+            # instead of PrepareException(String key, Throwable cause, Object...params).
+            #
+            ex = PrepareException(key, arg_list)
+            ex.initCause(error)
         else:
             ex = PrepareException(key, error)
     else:
@@ -266,10 +308,16 @@ def create_pywlst_exception(key, *args, **kwargs):
     arg_list, error = _return_exception_params(*args, **kwargs)
     arg_len = len(arg_list)
     if error is not None:
-        if isinstance(error, Throwable) is False:
+        if isinstance(error, JThrowable) is False:
             error = convert_error_to_exception()
         if arg_len > 0:
-            ex = PyWLSTException(key, error, arg_list)
+            # Jython 2.7.1 in 14.1.1 is broken when it comes to binding varargs
+            # Java methods.  Calling the PyWLSTException(key, error, arg_list) is
+            # binding to the PyWLSTException(String key, Object... params) constructor
+            # instead of PyWLSTException(String key, Throwable cause, Object...params).
+            #
+            ex = PyWLSTException(key, arg_list)
+            ex.initCause(error)
         else:
             ex = PyWLSTException(key, error)
     else:
@@ -291,7 +339,13 @@ def create_ssh_exception(key, *args, **kwargs):
     arg_list, error = _return_exception_params(*args, **kwargs)
     if error is not None:
         if len(arg_list) > 0:
-            ex = SSHException(key, error, arg_list)
+            # Jython 2.7.1 in 14.1.1 is broken when it comes to binding varargs
+            # Java methods.  Calling the SSHException(key, error, arg_list) is
+            # binding to the SSHException(String key, Object... params) constructor
+            # instead of SSHException(String key, Throwable cause, Object...params).
+            #
+            ex = SSHException(key, arg_list)
+            ex.initCause(error)
         else:
             ex = SSHException(key, error)
     elif len(arg_list) > 0:
@@ -312,7 +366,13 @@ def create_yaml_exception(key, *args, **kwargs):
     arg_list, error = _return_exception_params(*args, **kwargs)
     if error is not None:
         if len(arg_list) > 0:
-            ex = JYamlException(key, error, arg_list)
+            # Jython 2.7.1 in 14.1.1 is broken when it comes to binding varargs
+            # Java methods.  Calling the JYamlException(key, error, arg_list) is
+            # binding to the JYamlException(String key, Object... params) constructor
+            # instead of JYamlException(String key, Throwable cause, Object...params).
+            #
+            ex = JYamlException(key, arg_list)
+            ex.initCause(error)
         else:
             ex = JYamlException(key, error)
     elif len(arg_list) > 0:
@@ -333,7 +393,13 @@ def create_json_exception(key, *args, **kwargs):
     arg_list, error = _return_exception_params(*args, **kwargs)
     if error is not None:
         if len(arg_list) > 0:
-            ex = JJsonException(key, error, arg_list)
+            # Jython 2.7.1 in 14.1.1 is broken when it comes to binding varargs
+            # Java methods.  Calling the JJsonException(key, error, arg_list) is
+            # binding to the JJsonException(String key, Object... params) constructor
+            # instead of JJsonException(String key, Throwable cause, Object...params).
+            #
+            ex = JJsonException(key, arg_list)
+            ex.initCause(error)
         else:
             ex = JJsonException(key, error)
     elif len(arg_list) > 0:
@@ -354,7 +420,13 @@ def create_translate_exception(key, *args, **kwargs):
     arg_list, error = _return_exception_params(*args, **kwargs)
     if error is not None:
         if len(arg_list) > 0:
-            ex = JTranslateException(key, error, arg_list)
+            # Jython 2.7.1 in 14.1.1 is broken when it comes to binding varargs
+            # Java methods.  Calling the JTranslateException(key, error, arg_list) is
+            # binding to the JTranslateException(String key, Object... params) constructor
+            # instead of JTranslateException(String key, Throwable cause, Object...params).
+            #
+            ex = JTranslateException(key, arg_list)
+            ex.initCause(error)
         else:
             ex = JTranslateException(key, error)
     elif len(arg_list) > 0:
@@ -376,7 +448,13 @@ def create_cla_exception(exit_code, key, *args, **kwargs):
     arg_list, error = _return_exception_params(*args, **kwargs)
     if error is not None:
         if len(arg_list) > 0:
-            ex = JCLAException(exit_code, key, error, arg_list)
+            # Jython 2.7.1 in 14.1.1 is broken when it comes to binding varargs
+            # Java methods.  Calling the JCLAException(key, error, arg_list) is
+            # binding to the JCLAException(String key, Object... params) constructor
+            # instead of JCLAException(String key, Throwable cause, Object...params).
+            #
+            ex = JCLAException(exit_code, key, arg_list)
+            ex.initCause(error)
         else:
             ex = JCLAException(exit_code, key, error)
     elif len(arg_list) > 0:
@@ -397,7 +475,13 @@ def create_variable_exception(key, *args, **kwargs):
     arg_list, error = _return_exception_params(*args, **kwargs)
     if error is not None:
         if len(arg_list) > 0:
-            ex = JVariableException(key, error, arg_list)
+            # Jython 2.7.1 in 14.1.1 is broken when it comes to binding varargs
+            # Java methods.  Calling the JVariableException(key, error, arg_list) is
+            # binding to the JVariableException(String key, Object... params) constructor
+            # instead of JVariableException(String key, Throwable cause, Object...params).
+            #
+            ex = JVariableException(key, arg_list)
+            ex.initCause(error)
         else:
             ex = JVariableException(key, error)
     elif len(arg_list) > 0:
@@ -418,7 +502,13 @@ def create_archive_ioexception(key, *args, **kwargs):
     arg_list, error = _return_exception_params(*args, **kwargs)
     if error is not None:
         if len(arg_list) > 0:
-            ex = JWLSDeployArchiveIOException(key, error, arg_list)
+            # Jython 2.7.1 in 14.1.1 is broken when it comes to binding varargs
+            # Java methods.  Calling the JWLSDeployArchiveIOException(key, error, arg_list) is
+            # binding to the JWLSDeployArchiveIOException(String key, Object... params) constructor
+            # instead of JWLSDeployArchiveIOException(String key, Throwable cause, Object...params).
+            #
+            ex = JWLSDeployArchiveIOException(key, arg_list)
+            ex.initCause(error)
         else:
             ex = JWLSDeployArchiveIOException(key, error)
     elif len(arg_list) > 0:
@@ -439,7 +529,13 @@ def create_encryption_exception(key, *args, **kwargs):
     arg_list, error = _return_exception_params(*args, **kwargs)
     if error is not None:
         if len(arg_list) > 0:
-            ex = JEncryptionException(key, error, arg_list)
+            # Jython 2.7.1 in 14.1.1 is broken when it comes to binding varargs
+            # Java methods.  Calling the JEncryptionException(key, error, arg_list) is
+            # binding to the JEncryptionException(String key, Object... params) constructor
+            # instead of JEncryptionException(String key, Throwable cause, Object...params).
+            #
+            ex = JEncryptionException(key, arg_list)
+            ex.initCause(error)
         else:
             ex = JEncryptionException(key, error)
     elif len(arg_list) > 0:
@@ -480,7 +576,7 @@ def convert_error_to_exception():
 
 
 def get_error_message_from_exception(ex):
-    if isinstance(ex, Throwable):
+    if isinstance(ex, JThrowable):
         message =  ex.getLocalizedMessage()
     else:
         message = ex.to_string()
