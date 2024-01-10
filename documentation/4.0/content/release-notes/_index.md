@@ -31,7 +31,7 @@ pre = "<b> </b>"
 - #1568 - Added the ability to remove MBean assignments in the model by setting them to null or empty (GitHub issue #1483).
 - #1569 - Improved version handling for online operations to always use the server's WebLogic Server version.
 - #1572 - Enhanced the `wlsdeploy.debugToStdout` system property to also include exception stacktraces when set to `true`.
-          This will help WebLogic Kubernetes Operator users running into WDT issues see the details normally hidden in
+          This will help WebLogic Kubernetes Operator users running into WDT issues to see the details normally hidden in
           the log files.
 - #1583 - Eliminated the `-domain_home` argument from tools running in online mode.
 - #1586 - Simplified variable injector configuration and customization.
