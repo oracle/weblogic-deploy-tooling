@@ -31,7 +31,7 @@ This is a full set of files that can be configured. You will need only to add th
 - [Tool property file]({{< relref "/userguide/tools-config/tool_prop.md" >}})
 - [Model filters]({{< relref "/userguide/tools-config/model_filters.md" >}})
 - [Type definitions]({{< relref "/userguide/tools-config/domain_def.md" >}}) (See the following [Extending a type definition](#example-extending-a-type-definition) example.)
-- [Variable injection]({{< relref "/userguide/tools/variable_injection.md" >}})
+- [Variable injectors]({{< relref "/userguide/tools-config/variable_injectors.md" >}})
 - [The Prepare Model Tool]({{< relref "/userguide/tools/prepare.md" >}}); see [Target environments]({{< relref "/userguide/target_env.md" >}}).
 
 The WDT tools will look for each configuration file under `$WDT_CUSTOM_CONFIG` if specified, then under `$WLSDEPLOY_HOME/lib`.
