@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import java.io.IOException as IOException
@@ -153,6 +153,15 @@ MSG_ID = 'id'
 LOCATION = 'location'
 MESSAGE = 'message'
 ATTRIBUTE = 'attribute'
+
+LIST_TYPE_MATCH_EXCEPTIONS = [
+    # despite WLS methods with String[] signatures, these 4 attributes have to be set as Jython arrays.
+    # their alias type needs to be `list`, so they are exempted from the exact type match
+    '/Server/SingleSignOnServices/ServiceProviderSingleLogoutRedirectUri',
+    '/Server/SingleSignOnServices/ServiceProviderSingleLogoutRedirectURIs',
+    '/ServerTemplate/SingleSignOnServices/ServiceProviderSingleLogoutRedirectUri',
+    '/ServerTemplate/SingleSignOnServices/ServiceProviderSingleLogoutRedirectURIs'
+]
 
 _logger = PlatformLogger('test.aliases.verify')
 CLASS_NAME = 'Verifier'
@@ -1222,8 +1231,11 @@ class Verifier(object):
                                                          self._alias_helper.get_wlst_read_type(location, model_name)):
                 valid = True
         elif alias_type == alias_constants.LIST:
-            if _is_of_type_with_get_required(generated_attribute, alias_type, generated_attr_info,
-                                             get_required_attribute_list):
+            match_path = location.get_folder_path() + '/' + generated_attribute
+            if match_path in LIST_TYPE_MATCH_EXCEPTIONS:
+                valid = True
+            elif _is_of_type_with_get_required(generated_attribute, alias_type, generated_attr_info,
+                                               get_required_attribute_list):
                 valid = True
             elif _is_of_type_with_lsa(generated_attribute, alias_type, generated_attr_info,
                                       get_required_attribute_list):
@@ -1274,7 +1286,7 @@ class Verifier(object):
             attr_type = _is_attribute_type_for_get_required(get_type, cmo_type)
             if attr_type != alias_constants.PROPERTIES:
                 self._add_invalid_type_error(location, attribute, attr_type, alias_type,
-                                             'Alias has GET with wrong type')
+                                             get_required_attribute_list, 'Alias has GET with wrong type')
         elif _is_any_string_type(attr_info) and self._alias_helper.get_wlst_read_type(location, model_name) == \
                 alias_constants.SEMI_COLON_DELIMITED_STRING:
             _logger.finest('Attribute {0} is string type and WLST read type is a delimited string type', attribute,
