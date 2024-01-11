@@ -38,6 +38,7 @@ pre = "<b> </b>"
 - #1587 - Removed deprecated RCU-related command-line arguments from the Create Domain Tool.
 - #1588 - Deprecated the `domainInfo` section's `OPSSSecrets` attribute and replaced it with `OPSSWalletPassphrase` to
           better represent the purpose of the attribute.
+- #1592 - Deprecated Verrazzano support.
 
 #### Bug Fixes
 - #1555 - Fixed issues with creating and discovering `UnixMachine` objects in online mode.
