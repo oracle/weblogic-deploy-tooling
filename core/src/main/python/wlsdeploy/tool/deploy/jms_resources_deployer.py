@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
@@ -27,7 +27,7 @@ from wlsdeploy.aliases.model_constants import TOPIC
 from wlsdeploy.aliases.model_constants import UNIFORM_DISTRIBUTED_QUEUE
 from wlsdeploy.aliases.model_constants import UNIFORM_DISTRIBUTED_TOPIC
 from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.util import model_helper
 from wlsdeploy.tool.deploy import log_helper

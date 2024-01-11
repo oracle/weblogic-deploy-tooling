@@ -5,7 +5,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 import unittest
 
 from wlsdeploy.exception import exception_helper
-from wlsdeploy.exception.expection_types import ExceptionType
+from wlsdeploy.exception.exception_types import ExceptionType
 
 class ExceptionHelperTestCase(unittest.TestCase):
 
