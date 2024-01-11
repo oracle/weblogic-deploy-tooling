@@ -21,7 +21,11 @@ When creating the archive, the tool will try to gather all binaries, scripts, an
 2. In its current form, the Discover Domain Tool will only gather binaries and scripts that are accessible from the local machine.  Warnings will be generated for any binaries or scripts that cannot be found but the configuration for those binaries will still be collected, where possible.  It is the user's responsibility to add those missing files to the archive in the appropriate locations and edit the the model, as needed, to point to those files inside the archive using the relative path inside the archive (for example, `wlsdeploy/applications/myapp.ear`).
 3. You can you run the Discover Domain Tool without generating an archive file if you wish to inspect the model file. A create or update domain requires a valid archive file for any binaries, scripts or directories that will be installed into the domain.
 
-You can customize what is generated in the model for password attributes by providing a variable file location and name. This file is a text properties file which will contain a key=value for each password found in the model. The key is a unique token name for a password attribute, and the value is the replacement value; in this case, an empty string. The attribute in the model is injected with the token name and property field notation. For example, `@@PROP:AdminUserName@@` or `@@PROP:JDBCSystemResource.<Name>.JdbcResource.JDBCDriverParams.PasswordEncrypted@@`.
+You can customize what is generated in the model for password attributes by using the `-variable_file` argument on the command line with variable file location. This file is a text properties file which will contain a key=value for each password found in the model. The key is a unique token name for a password attribute, and the value is the replacement value; in this case, an empty string. The attribute in the model is injected with the token name and property field notation. For example, `@@PROP:AdminUserName@@` or `@@PROP:JDBCSystemResource.<Name>.JdbcResource.JDBCDriverParams.PasswordEncrypted@@`.
+
+If [variable injection]({{< relref "/userguide/tools-config/variable_injectors.md" >}}) is configured, but the `-variable_file` argument is not used, the variable properties file is created with the same name as the model file, with the file extension `.properties`.
+
+As with the archive and model file, each run of the Discover Domain Tool will overwrite the contents of an existing variable property file with the values from the current run.
 
 A command-line example containing the variable file name:
 
@@ -51,7 +55,7 @@ An example of using the domain type argument:
 
 Before the model is persisted to the model file, any variable injectors or model filters are run, in that order. The final step is validation, which validates the contents of the model, archive and variable file. If the validation is successful, the model is persisted. For more information on these three topics, see:
 
- - [Variable injection]({{< relref "/userguide/tools/variable_injection.md" >}})
+ - [Variable injection]({{< relref "/userguide/tools-config/variable_injectors.md" >}})
  - [Model filters]({{< relref "/userguide/tools-config/model_filters.md" >}})
  - [Validate Model Tool]({{< relref "/userguide/tools/validate.md" >}})
 
