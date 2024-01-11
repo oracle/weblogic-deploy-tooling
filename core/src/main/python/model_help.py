@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2023, Oracle and/or its affiliates.
+Copyright (c) 2020, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the modelHelp tool.
@@ -85,10 +85,6 @@ def print_help(model_path, model_context):
     _method_name = 'print_help'
 
     __logger.entering(model_path, class_name=_class_name, method_name=_method_name)
-
-    product_key = model_context.get_target_configuration().get_product_key()
-    if product_key == 'vz':
-        __logger.deprecation("WLSDPLY-10139", product_key, model_context.get_target())
 
     # default to NORMAL
     control_option = ControlOptions.NORMAL
