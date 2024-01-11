@@ -432,6 +432,16 @@ archiveHelper commands    Command Description     add Add items to the archive f
     </item>
     
     <item>
+      <title>Release Notes 3.5.2</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.5.2/</link>
+      <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.5.2/</guid>
+      <description>Changes in Release 3.5.2  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes  #1557 - Added support for provisioning the WebLogic Remote Console domain extension WAR file.  Bug Fixes  #1547 - Fixed a bug with password validation causing a NullPointerException when the domainInfo section was missing from the model. #1554 - Fixed a problem where the Discover Domain tool would hang when running in online mode and an edit lock exists.</description>
+    </item>
+    
+    <item>
       <title>Release Notes 3.5.1</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.5.1/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
