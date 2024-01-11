@@ -233,7 +233,7 @@ You can use the `@@TARGET_CONFIG_DIR@@` token to indicate that the specified fil
 
 #### `variable_injectors`
 
-This field specifies the variable injectors to be applied to the resulting model. This follows the same format and rules as the [Variable injectors]({{< relref "/userguide/tools/variable_injection.md" >}}) configuration.
+This field specifies the variable injectors to be applied to the resulting model. This follows the same format and rules as the [Variable injectors]({{< relref "/userguide/tools-config/variable_injectors" >}}) configuration.
 
 #### `validation_method`
 

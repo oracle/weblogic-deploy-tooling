@@ -18,7 +18,7 @@ policies become part of the WebLogic authorizer (that is, `XACMLAuthorizer`).
 The model allows for the definition of a set of users and groups that will be loaded into the WebLogic Embedded LDAP
 Server (for example, `DefaultAuthenticator`). New groups can be specified and users can be added as members of the new
 groups or existing groups, such as the `Administrators` group, which is defaulted to be in the WebLogic `Admin` global
-role.  For additional information on users and groups, see [Known Limitations]({{< relref "#known-limitations"}}).
+role.  For additional information on users and groups, see [Known Limitations]({{< relref "#known-limitations" >}}).
 
 You can specify the user password with a placeholder or encrypt it with the
 [Encrypt Tool]({{< relref "/userguide/tools/encrypt.md" >}}). An example `Security` section that adds an additional
