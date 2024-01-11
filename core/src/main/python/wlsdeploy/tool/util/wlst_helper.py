@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -1744,5 +1744,5 @@ def _format_exception(e):
             while message is None and cause is not None:
                 message = cause.getLocalizedMessage()
                 cause = cause.getCause()
-        return message
+        return str_helper.to_string(message)
     return str_helper.to_string(e)

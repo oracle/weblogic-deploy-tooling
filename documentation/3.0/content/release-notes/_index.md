@@ -6,7 +6,7 @@ pre = "<b> </b>"
 +++
 
 
-### Changes in Release 3.5.2
+### Changes in Release 3.5.3
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -17,12 +17,16 @@ pre = "<b> </b>"
 None
 
 #### Other Changes
-- #1557 - Added support for provisioning the WebLogic Remote Console domain extension WAR file.
+- #1573 - Enhanced the `wlsdeploy.debugToStdout` system property to also include exception stacktraces when set to `true`.
+          This will help WebLogic Kubernetes Operator users running into WDT issues to see the details normally hidden in
+          the log files.
 
 #### Bug Fixes
-- #1547 -  Fixed a bug with password validation causing a `NullPointerException` when the `domainInfo` section was
-  missing from the model.
-- #1554 - Fixed a problem where the Discover Domain tool would hang when running in online mode and an edit lock exists.
+- #1561 - Fixed a NullPointerException when there is missing fields in the `RCUDbInfo` section.
+- #1590 - Fixed an issue with the `ServiceProviderSingleLogoutRedirectUri` attribute in the October 2023 PSUs for
+          12.2.1.4 and 14.1.1 that was causing an error.
+- #1590 - Fixed an issue with exception creation in 14.1.1 that was causing error messages not to be properly populated
+          due to Jython 2.7.1 vararg method binding being broken.
 
 #### Known Issues
 None
