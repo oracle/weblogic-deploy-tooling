@@ -22,6 +22,7 @@ import oracle.weblogic.deploy.util.StringUtils as JStringUtils
 from wlsdeploy.exception.exception_helper import create_cla_exception
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.util.targets.model_crd_helper import VERRAZZANO_PRODUCT_KEY
 from wlsdeploy.util import path_utils
 import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.exit_code import ExitCode
@@ -1014,7 +1015,7 @@ class CommandLineArgUtil(object):
         return key == self.TARGET_SWITCH
 
     def _validate_target_arg(self, value):
-        method_name = 'validate_kubernetes_script_file_switch'
+        method_name = '_validate_target_arg'
 
         # Check if the target configuration file exists
         target_configuration_file = path_utils.find_config_path(os.path.join('targets', value, 'target.json'))
@@ -1029,6 +1030,11 @@ class CommandLineArgUtil(object):
                 target_configuration = TargetConfiguration(config_dictionary)
 
                 target_configuration.validate_configuration(ExitCode.ARG_VALIDATION_ERROR, target_configuration_file)
+
+                # check for deprecated VZ product
+                product_key = target_configuration.get_product_key()
+                if product_key == VERRAZZANO_PRODUCT_KEY:
+                    _logger.deprecation("WLSDPLY-00914", product_key, value)
 
             except SyntaxError, se:
                 ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-01644', target_configuration_file, se)
