@@ -1781,7 +1781,7 @@ def _format_exception(e):
     :param e: the exception
     :return: the formatted exception message
     """
-    if isinstance(e, offlineWLSTException):
+    if isinstance(e, offlineWLSTException) or _is_wlst_online_exception(e):
         message = e.getLocalizedMessage()
         #
         # Try to find a message that is not empty
@@ -1793,3 +1793,11 @@ def _format_exception(e):
                 cause = cause.getCause()
         return str_helper.to_string(message)
     return str_helper.to_string(e)
+
+
+def _is_wlst_online_exception(e):
+    result = False
+    if wlst_functions is not None and 'WLSTException' in wlst_functions:
+        wlst_online_exception = wlst_functions['WLSTException']
+        result = isinstance(e, wlst_online_exception)
+    return result
