@@ -39,6 +39,8 @@ pre = "<b> </b>"
 - #1588 - Deprecated the `domainInfo` section's `OPSSSecrets` attribute and replaced it with `OPSSWalletPassphrase` to
           better represent the purpose of the attribute.
 - #1592 - Deprecated Verrazzano support.
+- #1598 - Added support for online wallet distribution to managed servers in 14.1.2.
+- #1599 - Added support for the 12.2.1.4 and 14.1.1 January 2024 PSUs.
 
 #### Bug Fixes
 - #1555 - Fixed issues with creating and discovering `UnixMachine` objects in online mode.
@@ -49,6 +51,7 @@ pre = "<b> </b>"
           archive file.
 - #1579 - Fixed an issue that limited the number of secret keys that could be referenced by the model. 
 - #1584 - Fixed an issue where online updates that required restarts were using a 12.2.1+ API even with older versions.
+- #1603 - Fixed a bug related to online WLST error message formatting.
 
 #### Known Issues
 None
