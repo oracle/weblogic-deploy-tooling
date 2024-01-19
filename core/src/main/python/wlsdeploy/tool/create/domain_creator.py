@@ -145,15 +145,8 @@ class DomainCreator(Creator):
         else:
             self._domain_name = DEFAULT_WLS_DOMAIN_NAME
 
-        # if domain home specified on command line, set it here, otherwise append domain name to domain parent
-        model_domain_home = self.model_context.get_domain_home()
-        if model_domain_home:
-            self._domain_home = model_domain_home
-        else:
-            self._domain_home = os.path.join(self.model_context.get_domain_parent_dir(), self._domain_name)
-
-        # set domain home result in model context, for use by deployers and helpers
-        self.model_context.set_domain_home(self._domain_home)
+        # domain_home has already been corrected in model context if -domain_parent was used
+        self._domain_home = self.model_context.get_domain_home()
 
         self.model_deployer = ModelDeployer(self.model, model_context, aliases)
 
@@ -167,7 +160,7 @@ class DomainCreator(Creator):
         self.__fmw_template_default_data_sources_names = None
         archive_file_name = self.model_context.get_archive_file_name()
         if archive_file_name is not None:
-            self.archive_helper = ArchiveList(archive_file_name, self._domain_home, self.model_context,
+            self.archive_helper = ArchiveList(archive_file_name, self.model_context,
                                               exception_helper.ExceptionType.CREATE)
 
         self.library_helper = LibraryHelper(self.model, self.model_context, self.aliases, self._domain_home,

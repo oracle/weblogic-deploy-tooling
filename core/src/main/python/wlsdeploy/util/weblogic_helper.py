@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -150,6 +150,13 @@ class WebLogicHelper(object):
         :return: true if version is within the range supporting topology profiles, false otherwise
         """
         return self.is_weblogic_version_or_above('12.2.1')
+
+    def is_db_client_data_distribution_supported(self):
+        """
+        Is database client data distribution supported?
+        :return: true if version is within the range supporting distribution, false otherwise
+        """
+        return self.is_weblogic_version_or_above('14.1.2')
 
     def is_wrc_domain_extension_supported(self):
         """

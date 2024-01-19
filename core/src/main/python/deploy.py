@@ -109,11 +109,11 @@ def __deploy(model, model_context, aliases):
     :raises DeployException: if an error occurs
     """
     model_deployer = ModelDeployer(model, model_context, aliases, wlst_mode=__wlst_mode)
-    model_deployer.extract_early_archive_files()
 
     if __wlst_mode == WlstModes.ONLINE:
         ret_code = __deploy_online(model_deployer, model_context)
     else:
+        model_deployer.extract_early_archive_files()
         ret_code = __deploy_offline(model_deployer, model_context)
 
     results_file.check_and_write(model_context, ExceptionType.DEPLOY)
@@ -147,6 +147,7 @@ def __deploy_online(model_deployer, model_context):
     model_context.set_domain_home_name_if_online(__wlst_helper.get_domain_home_online(),
                                                  __wlst_helper.get_domain_name_online())
 
+    model_deployer.extract_early_archive_files()
     deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions(skip_edit_session_check)
     __wlst_helper.edit()
     __logger.fine("WLSDPLY-09019", edit_lock_acquire_timeout, edit_lock_release_timeout, edit_lock_exclusive)
@@ -159,6 +160,7 @@ def __deploy_online(model_deployer, model_context):
 
     try:
         model_deployer.deploy_resources()
+        model_deployer.distribute_database_wallets_online()
         model_deployer.deploy_app_attributes_online()
     except DeployException, de:
         deployer_utils.release_edit_session_and_disconnect()

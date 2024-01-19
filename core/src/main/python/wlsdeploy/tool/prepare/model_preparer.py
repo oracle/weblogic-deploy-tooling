@@ -155,7 +155,7 @@ class ModelPreparer:
             return
 
         # If the archive file(s) exist, always make a copy even if we aren't filtering them
-        archive_helper = ArchiveList(archive_file_name, None, self.model_context,
+        archive_helper = ArchiveList(archive_file_name, self.model_context,
                                      exception_helper.ExceptionType.PREPARE)
         archive_helper = archive_helper.copy_archives_to_target_directory(self.model_context.get_output_dir())
 

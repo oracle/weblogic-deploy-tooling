@@ -327,6 +327,9 @@ def main(model_context):
         model_dictionary = cla_helper.load_model(_program_name, model_context, aliases, "create", __wlst_mode,
                                                  validate_crd_sections=False)
 
+        # set domain home result in model context, for use by deployers and helpers
+        model_context.set_domain_home(_get_domain_path(model_context, model_dictionary))
+
         # check for any content problems in the merged, substituted model
         content_validator = CreateDomainContentValidator(model_context, aliases)
         content_validator.validate_model(model_dictionary)
@@ -335,7 +338,7 @@ def main(model_context):
         archive_file_name = model_context.get_archive_file_name()
         if archive_file_name:
             domain_path = _get_domain_path(model_context, model_dictionary)
-            archive_helper = ArchiveList(archive_file_name, domain_path, model_context, ExceptionType.CREATE)
+            archive_helper = ArchiveList(archive_file_name, model_context, ExceptionType.CREATE)
             if archive_helper:
                 if not os.path.exists(os.path.abspath(domain_path)):
                     os.mkdir(os.path.abspath(domain_path))
