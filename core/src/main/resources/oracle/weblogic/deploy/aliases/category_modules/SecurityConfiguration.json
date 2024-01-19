@@ -597,6 +597,36 @@
                                 "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
                             }
                         },
+                        "OIDCIdentityAsserter": {
+                            "version": "[14.1.2,)",
+                            "wlst_type": "${OIDCIdentityAsserter:weblogic.security.providers.authentication.OIDCIdentityAsserter}",
+                            "online_bean": "weblogic.security.providers.authentication.OIDCIdentityAsserterMBean",
+                            "child_folders_type": "none",
+                            "folders": {},
+                            "attributes" : {
+                                "ActiveType":                                 [
+                                    {"version": "[14.1.2,)",       "wlst_mode": "online",    "wlst_name": "ActiveTypes",                             "wlst_path": "WP001", "default_value": ["oidc_token"],                                                                            "wlst_type": "jarray",   "get_method":  "GET", "preferred_model_type": "list"},
+                                    {"version": "[14.1.2,)",       "wlst_mode": "offline",   "wlst_name": "ActiveType",                              "wlst_path": "WP001", "default_value": null,                                                                                      "wlst_type": "jarray",   "get_method":  "GET", "preferred_model_type": "list"}
+                                ],
+                                "Base64DecodingRequired":                      [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "Base64DecodingRequired",                  "wlst_path": "WP001", "default_value": true,                                                                                      "wlst_type": "boolean"  } ],
+                                "ClockSkew":                                   [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "ClockSkew",                               "wlst_path": "WP001", "default_value": 120,                                                                                       "wlst_type": "integer"  } ],
+                                "CompatibilityObjectName":                     [ {"version": "[14.1.2,)",       "wlst_mode": "offline", "wlst_name": "CompatibilityObjectName",                 "wlst_path": "WP001", "default_value": null,                                                                                      "wlst_type": "string"   } ],
+                                "Description":                                 [ {"version": "[14.1.2,)",       "wlst_mode": "online",  "wlst_name": "Description",                             "wlst_path": "WP001", "default_value": "WebLogic OpenID Connect Identity Assertion provider",                                     "wlst_type": "string", "access": "IGNORED" } ],
+                                "IdentityDomain":                              [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "IdentityDomain",                          "wlst_path": "WP001", "default_value": null,                                                                                      "wlst_type": "string"   } ],
+                                "KeyCacheSize":                                [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "KeyCacheSize",                            "wlst_path": "WP001", "default_value": "${0:10}",                                                                                 "wlst_type": "integer"  } ],
+                                "KeyCacheTtl":                                 [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "KeyCacheT${tl:TL}",                       "wlst_path": "WP001", "default_value": "${0:300}",                                                                                "wlst_type": "integer"  } ],
+                                "ProviderClassName":                           [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "ProviderClassName",                       "wlst_path": "WP001", "default_value": "${__NULL__:weblogic.security.providers.authentication.OIDCIdentityAsserterProviderImpl}", "wlst_type": "string", "access": "IGNORED" } ],
+                                "RequestCacheSize":                            [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "RequestCacheSize",                        "wlst_path": "WP001", "default_value": "${0:500}",                                                                                "wlst_type": "integer"  } ],
+                                "RequestCacheTtl":                             [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "RequestCacheT${tl:TL}",                   "wlst_path": "WP001", "default_value": "${0:300}",                                                                                "wlst_type": "integer"  } ],
+                                "SupportedTypes":                              [ {"version": "[14.1.2,)",       "wlst_mode": "online",  "wlst_name": "SupportedTypes",                          "wlst_path": "WP001", "default_value": ["oidc_token"],                                                                            "wlst_type": "jarray",  "access": "IGNORED",  "get_method":  "GET", "preferred_model_type": "list"} ],
+                                "Version":                                     [ {"version": "[14.1.2,)",       "wlst_mode": "online",  "wlst_name": "Version",                                 "wlst_path": "WP001", "default_value": "1.0",                                                                                     "wlst_type": "string", "access": "IGNORED" } ],
+                                "VirtualUserAllowed":                          [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "VirtualUserAllowed",                      "wlst_path": "WP001", "default_value": true,                                                                                      "wlst_type": "boolean"  } ]
+                            },
+                            "wlst_attributes_path": "WP001",
+                            "wlst_paths": {
+                                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/Realm${:s}/%REALM%/AuthenticationProvider${:s}/%PROVIDER%"
+                            }
+                        },
                         "OpenLDAPAuthenticator": {
                             "wlst_type": "${OpenLDAPAuthenticator:weblogic.security.providers.authentication.OpenLDAPAuthenticator}",
                             "online_bean": "weblogic.security.providers.authentication.OpenLDAPAuthenticatorMBean",
