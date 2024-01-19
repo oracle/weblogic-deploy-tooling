@@ -1202,14 +1202,14 @@ class CommandLineArgUtil(object):
         return self._get_password(value, method_name, 'WLSDPLY-00904')
 
     def is_ssh_private_key_passphrase_env_switch(self, key):
-        return key == self.SSH_PRIVATE_KEY_PASSPHRASE_SWITCH
+        return key == self.SSH_PRIVATE_KEY_PASSPHRASE_ENV_SWITCH
 
     def _validate_ssh_private_key_passphrase_env_arg(self, value):
         method_name = '_validate_ssh_private_key_passphrase_env_arg'
         return self._get_password_from_env_var(value, method_name, 'WLSDPLY-00905', 'WLSDPLY-00906')
 
     def is_ssh_private_key_passphrase_file_switch(self, key):
-        return key == self.SSH_PRIVATE_KEY_PASSPHRASE_SWITCH
+        return key == self.SSH_PRIVATE_KEY_PASSPHRASE_FILE_SWITCH
 
     def _validate_ssh_private_key_passphrase_file_arg(self, value):
         method_name = '_validate_ssh_private_key_passphrase_file_arg'
