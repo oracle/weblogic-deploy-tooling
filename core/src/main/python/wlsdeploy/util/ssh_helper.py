@@ -23,6 +23,7 @@ from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import SSHException
 from oracle.weblogic.deploy.util import StringUtils
 
+from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -44,7 +45,7 @@ def initialize_ssh(model_context, argument_map, exception_type=ExceptionType.SSH
         __logger.exiting(class_name=__class_name, method_name=_method_name)
         return
 
-    __validate_ssh_arguments(argument_map)
+    __validate_ssh_arguments(argument_map, model_context)
     __ensure_ssh_credentials(model_context)
 
     try:
@@ -59,9 +60,20 @@ def initialize_ssh(model_context, argument_map, exception_type=ExceptionType.SSH
     __logger.exiting(class_name=__class_name, method_name=_method_name)
 
 
-def __validate_ssh_arguments(argument_map):
+def __validate_ssh_arguments(argument_map, model_context):
     _method_name = '__validate_ssh_arguments'
     __logger.entering(class_name=__class_name, method_name=_method_name)
+
+    if model_context.get_program_name() != 'verifySSH':
+        if CommandLineArgUtil.REMOTE_SWITCH in argument_map:
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-32039',
+                CommandLineArgUtil.SSH_HOST_SWITCH, CommandLineArgUtil.REMOTE_SWITCH)
+            __logger.throwing(ex, class_name=__class_name, method_name=_method_name)
+            raise ex
+        elif not model_context.get_target_wlst_mode() == WlstModes.ONLINE:
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-32040')
+            __logger.throwing(ex, class_name=__class_name, method_name=_method_name)
+            raise ex
 
     has_password_args, password_arg_name = __has_ssh_user_password_args(argument_map)
     has_passphrase_args, passphrase_arg_name = __has_ssh_private_key_passphrase_args(argument_map)
@@ -177,8 +189,8 @@ class SSHContext(object):
         try:
             self._ssh_client = self._connect()
         except IOException,err:
-            ex = exception_helper.create_exception(exception_type, ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-32004',
-                                                   err.getLocalizedMessage(), error=err)
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-32038',
+                                                       self._model_context.get_ssh_host(), err.getLocalizedMessage(), error=err)
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
@@ -471,7 +483,7 @@ class SSHContext(object):
         try:
             self._ssh_client.authPassword(user, passwd)
         except (UserAuthException, TransportException),err:
-            ex = exception_helper.create_exception(self._exception_type, ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-32004',
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-32004',
                                                    user, err.getLocalizedMessage(), error=err)
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
@@ -522,7 +534,7 @@ class SSHContext(object):
             else:
                 key_provider = self._ssh_client.loadKeys(key_path)
         except (SSHJException, IOException),err:
-            ex = exception_helper.create_exception(self._exception_type, ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-32006',
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-32006',
                                                    key_path, err.getLocalizedMessage(), error=err)
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
@@ -540,7 +552,7 @@ class SSHContext(object):
             else:
                 self._ssh_client.authPublickey(user)
         except (UserAuthException, TransportException),err:
-            ex = exception_helper.create_exception(self._exception_type, ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-32005',
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-32005',
                                                    user, err.getLocalizedMessage(), error=err)
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
