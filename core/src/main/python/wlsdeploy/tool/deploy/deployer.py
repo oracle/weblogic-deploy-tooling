@@ -64,8 +64,8 @@ class Deployer(object):
         self.archive_helper = None
         archive_file_name = self.model_context.get_archive_file_name()
         if archive_file_name is not None:
-            self.archive_helper = ArchiveList(archive_file_name, self.model_context.get_domain_home(),
-                                              self.model_context, exception_helper.ExceptionType.DEPLOY)
+            self.archive_helper = ArchiveList(archive_file_name, self.model_context,
+                                              exception_helper.ExceptionType.DEPLOY)
         self.upload_temporary_dir = None
         if model_context.is_remote() or model_context.is_ssh():
             try:

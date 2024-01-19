@@ -36,7 +36,7 @@ class LibraryHelper(object):
         self.archive_helper = None
         archive_file_name = self.model_context.get_archive_file_name()
         if archive_file_name is not None:
-            self.archive_helper = ArchiveList(archive_file_name, self.domain_home, self.model_context, exception_type)
+            self.archive_helper = ArchiveList(archive_file_name, self.model_context, exception_type)
 
     def install_domain_libraries(self):
         """

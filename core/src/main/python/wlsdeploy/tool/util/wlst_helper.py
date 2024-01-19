@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2023, Oracle and/or its affiliates.
+Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -208,7 +208,7 @@ class WlstHelper(object):
             self.__load_global('set')(attribute, value)
         except (self.__load_global('WLSTException'), offlineWLSTException), e:
             path = self.get_pwd()
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-0100', attribute, path,
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00100', attribute, path,
                                                    log_value, _format_exception(e), error=e)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
@@ -1055,6 +1055,37 @@ class WlstHelper(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result
 
+    def distribute_application(self, application_name, *args, **kwargs):
+        """
+        Deploy the application in the connected domain.
+        :param application_name: the application name
+        :param args: the positional arguments to the WLST function
+        :param kwargs: the keyword arguments to the WLST function
+        :return: progress object (depends on whether it is blocked)
+        :raises: Exception for the specified tool type: if a WLST error occurs
+        """
+        _method_name = 'distribute_application'
+        self.__logger.entering(application_name, args, kwargs, class_name=self.__class_name, method_name=_method_name)
+        deploy_error = None
+        sostream = None
+
+        try:
+            self.enable_stdout()
+            sostream = StringOutputStream()
+            System.setOut(PrintStream(sostream))
+            result = self.__load_global('distributeApplication')(application_name, *args, **kwargs)
+            self.silence()
+        except self.__load_global('WLSTException'), e:
+            if sostream:
+                deploy_error = sostream.get_string()
+            self.silence()
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00134', application_name,
+                                                    args, kwargs, _format_exception(e), deploy_error, error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
     def deploy_application(self, application_name, *args, **kwargs):
         """
         Deploy the application in the connected domain.
@@ -1602,7 +1633,7 @@ class WlstHelper(object):
         result = name
         if name is not None and '/' in name:
             result = '(' + name + ')'
-        self.__logger.finest('WLSDPLY-0098', class_name=self.__class_name, method_name=_method_name)
+        self.__logger.finest('WLSDPLY-00098', class_name=self.__class_name, method_name=_method_name)
         return result
 
     def get_server_runtimes(self):

@@ -330,13 +330,13 @@ class ApplicationsDeployer(Deployer):
             self.__undeploy_app(app)
             # if ssh remove the app
             source_path = model_applications[app][SOURCE_PATH]
-            self._delete_deployment_to_remote_server(source_path)
+            self._delete_deployment_on_server(source_path)
 
         # library is updated, it must be undeployed first
         for lib in update_library_list:
             self.__undeploy_app(lib, library_module='true')
             source_path = model_shared_libraries[lib][SOURCE_PATH]
-            self._delete_deployment_to_remote_server(source_path)
+            self._delete_deployment_on_server(source_path)
 
         self.__deploy_model_libraries(model_shared_libraries, lib_location)
         self.__deploy_model_applications(model_applications, app_location, deployed_app_list)
@@ -1304,10 +1304,21 @@ class ApplicationsDeployer(Deployer):
             raise ex
 
 
-    def _delete_deployment_to_remote_server(self, source_path):
-        if self.model_context.is_ssh() and not source_path.startswith('/'):
-            self.model_context.get_ssh_context().remove_file_or_directory(os.path.join(
-                self.model_context.get_domain_home(), source_path))
+    def _delete_deployment_on_server(self, source_path):
+        """
+        Remove deployed files on server after undeploy.
+        :param source_path: source path in the model
+        """
+        # remove if ssh or local
+        # For remote then the undeploy should already been removed the source
+        if not source_path.startswith('/'):
+            if self.model_context.is_ssh():
+                self.model_context.get_ssh_context().remove_file_or_directory(os.path.join(
+                    self.model_context.get_domain_home(), source_path))
+            else:
+                if not self.model_context.is_remote():
+                    FileUtils.deleteDirectory(File(os.path.join(
+                        self.model_context.get_domain_home(), source_path)))
 
     def __get_deployment_ordering(self, apps):
         _method_name = '__get_deployment_ordering'

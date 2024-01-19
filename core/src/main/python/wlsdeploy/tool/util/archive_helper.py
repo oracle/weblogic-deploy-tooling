@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os, sets
@@ -25,10 +25,9 @@ class ArchiveList(object):
     __class_name = 'ArchiveList'
     __logger = PlatformLogger('wlsdeploy.tool.util')
 
-    def __init__(self, archive_files_text, domain_home, model_context, exception_type):
+    def __init__(self, archive_files_text, model_context, exception_type):
         """
         :param archive_files_text: a comma-separated list of one or more file names
-        :param domain_home: the domain home
         :param model_context: the model context to use
         :param exception_type: the exception type for the associated tool
         """
@@ -37,10 +36,6 @@ class ArchiveList(object):
         self.__weblogic_helper = model_context.get_weblogic_helper()
         # used for logging only, comma-separated text is OK
         self.__archive_files_text = archive_files_text
-
-        self.__domain_home = None
-        if domain_home:
-            self.__domain_home = File(domain_home)
 
         self.__model_context = model_context
         self.__exception_type = exception_type
@@ -181,7 +176,7 @@ class ArchiveList(object):
             archive_file = self._find_archive_for_path(path, True)
             # location is None means it is using local domain home
             if location is None:
-                result = archive_file.extractFile(path, self.__domain_home)
+                result = archive_file.extractFile(path, self.get_domain_home_file())
             else:
                 # When an actual location is passed, the file (not the full path from the archive) is extracted
                 # to the location
@@ -209,7 +204,7 @@ class ArchiveList(object):
         try:
             archive_file = self._find_archive_for_path(path, True)
             if location is None:
-                result = archive_file.extractDirectory(path, self.__domain_home)
+                result = archive_file.extractDirectory(path, self.get_domain_home_file())
             else:
                 extract_location = FileUtils.getCanonicalFile(File(location))
                 result = archive_file.extractDirectory(path, extract_location)
@@ -254,7 +249,7 @@ class ArchiveList(object):
             archive = self._find_archive_for_path(lib_path)
             if archive is not None:
                 if extract_location is None:
-                    archive.extractDomainLibLibrary(lib_path, File(self.__domain_home, 'lib'))
+                    archive.extractDomainLibLibrary(lib_path, File(self.get_domain_home_file(), 'lib'))
                 else:
                     if not os.path.exists(os.path.join(extract_location, 'lib')):
                         os.makedirs(os.path.join(extract_location, 'lib'))
@@ -287,13 +282,14 @@ class ArchiveList(object):
                 cp_libs = archive_file.listClasspathLibraries()
                 if cp_libs.size() > 0:
                     if extract_location is None:
-                        archive_file.extractClasspathLibraries(self.__domain_home)
+                        archive_file.extractClasspathLibraries(self.get_domain_home_file())
                     else:
                         archive_file.extractClasspathLibraries(File(extract_location))
                     count += cp_libs.size()
             except (WLSDeployArchiveIOException, IllegalArgumentException), e:
                 ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19307',
-                                                       self.__archive_files_text, self.__domain_home.getAbsolutePath(),
+                                                       self.__archive_files_text,
+                                                       self.get_domain_home_file().getAbsolutePath(),
                                                        e.getLocalizedMessage(), error=e)
                 self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
@@ -318,21 +314,22 @@ class ArchiveList(object):
                 custom_files = archive_file.listCustomFiles()
                 if custom_files.size() > 0:
                     if extract_location is None:
-                        archive_file.extractCustomFiles(self.__domain_home)
+                        archive_file.extractCustomFiles(self.get_domain_home_file())
                     else:
                         archive_file.extractCustomFiles(File(extract_location))
 
                     count += custom_files.size()
             except (WLSDeployArchiveIOException, IllegalArgumentException), e:
                 ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-19310',
-                                                       self.__archive_files_text, self.__domain_home.getAbsolutePath(),
+                                                       self.__archive_files_text,
+                                                       self.get_domain_home_file().getAbsolutePath(),
                                                        e.getLocalizedMessage(), error=e)
                 self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
 
         # warn if the size of the /config/wlsdeploy/custom directory exceeds the configured limit.
         # this is done after looping through the archive files.
-        custom_file = File(self.__domain_home, WLSDeployArchive.ARCHIVE_CUSTOM_TARGET_DIR)
+        custom_file = File(self.get_domain_home_file(), WLSDeployArchive.ARCHIVE_CUSTOM_TARGET_DIR)
         if custom_file.isDirectory():
             size_limit = self.__model_context.get_model_config().get_archive_custom_folder_size_limit()
             directory_size = FileUtils.getDirectorySize(custom_file)
@@ -353,7 +350,7 @@ class ArchiveList(object):
         current_entry = ''
         if self.__weblogic_helper.is_wrc_domain_extension_supported():
             if extract_location is None:
-                target_location = File(self.__domain_home, WLSDeployArchive.WRC_EXTENSION_TARGET_DIR_NAME)
+                target_location = File(self.get_domain_home_file(), WLSDeployArchive.WRC_EXTENSION_TARGET_DIR_NAME)
             else:
                 target_location = File(File(extract_location), WLSDeployArchive.WRC_EXTENSION_TARGET_DIR_NAME)
 
@@ -398,7 +395,7 @@ class ArchiveList(object):
             archive = self._find_archive_for_path(script_path)
             if archive is not None:
                 if extract_location is None:
-                    archive.extractDomainBinScript(script_path, File(self.__domain_home, 'bin'))
+                    archive.extractDomainBinScript(script_path, File(self.get_domain_home_file(), 'bin'))
                 else:
                     if not os.path.exists(os.path.join(extract_location, 'bin')):
                         os.makedirs(os.path.join(extract_location, 'bin'))
@@ -471,8 +468,8 @@ class ArchiveList(object):
         self.__logger.entering(wallet_archive_path, class_name=self.__class_name, method_name=_method_name)
         resulting_wallet_path = None
         for archive_file in self.__archive_files:
-            # __domain_home is a java File
-            destination = self.__domain_home
+            # get_domain_home_file is a java File
+            destination = self.get_domain_home_file()
             validate_domain_home = True
             # if ssh then location is passed in,  we don't validate the domain home
             if location is not None:
@@ -516,13 +513,30 @@ class ArchiveList(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return found_wallets
 
+    def get_all_database_wallet_paths(self):
+        _method_name = 'get_all_database_wallet_paths'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        found_wallets = []
+        for archive_file in self.__archive_files:
+            self.__logger.finer('processing archive_file {0}', archive_file.getArchiveFileName(),
+                                class_name=self.__class_name, method_name=_method_name)
+            archive_wallet_paths = archive_file.getDatabaseWalletPaths()
+            path = { 'archive': archive_file.getArchiveFileName(), 'paths': archive_wallet_paths}
+            if path not in found_wallets:
+                found_wallets.append(path)
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return found_wallets
+
     def check_rcu_wallet_path(self):
         """
         Return the path containing the RCU wallet, if present.
         This should be called after wallets are extracted.
         :return: the RCU wallet path, or None
         """
-        wallet_path = os.path.join(self.__domain_home.getAbsolutePath(), WLSDeployArchive.DEFAULT_RCU_WALLET_PATH)
+        wallet_path = os.path.join(self.get_domain_home_file().getAbsolutePath(),
+                                   WLSDeployArchive.DEFAULT_RCU_WALLET_PATH)
         if os.path.isdir(wallet_path):
             return wallet_path
         return None
@@ -538,7 +552,7 @@ class ArchiveList(object):
 
         resulting_wallet_path = None
         for archive_file in self.__archive_files:
-            wallet_path = archive_file.extractOPSSWallet(self.__domain_home)
+            wallet_path = archive_file.extractOPSSWallet(self.get_domain_home_file())
             # Allow iteration to continue through all archive files but
             # make sure to store off the path for a wallet that was extracted.
             #
@@ -579,7 +593,7 @@ class ArchiveList(object):
             new_file_name = self._copy_file(file_name, target_directory)
             new_file_names.append(new_file_name)
         new_archive_file_text = CommandLineArgUtil.ARCHIVE_FILES_SEPARATOR.join(new_file_names)
-        return ArchiveList(new_archive_file_text, self.__domain_home, self.__model_context, self.__exception_type)
+        return ArchiveList(new_archive_file_text, self.__model_context, self.__exception_type)
 
     def _copy_file(self, source_file_name, target_directory):
         """
@@ -625,3 +639,7 @@ class ArchiveList(object):
             raise ex
 
         return None
+
+    def get_domain_home_file(self):
+        # don't initialize in constructor, online home may not be established
+        return File(self.__model_context.get_domain_home())

@@ -303,8 +303,7 @@ class Validator(object):
 
         if archive_file_name is not None:
             self._archive_file_name = archive_file_name
-            self._archive_helper = ArchiveList(self._archive_file_name, domain_name,
-                                               self._model_context, ExceptionType.VALIDATE)
+            self._archive_helper = ArchiveList(self._archive_file_name, self._model_context, ExceptionType.VALIDATE)
 
     def __validate_root_level(self, model_dict, valid_root_level_keys):
         _method_name = '__validate_root_level'
