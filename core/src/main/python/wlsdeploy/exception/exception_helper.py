@@ -33,10 +33,11 @@ import oracle.weblogic.deploy.yaml.YamlException as JYamlException
 
 from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.util import unicode_helper as str_helper
+from wlsdeploy.util.exit_code import ExitCode
 
 _EXCEPTION_TYPE_MAP = {
     ExceptionType.ALIAS:                 'create_alias_exception',
-    ExceptionType.CLA:                   'create_cla_exception',
+    ExceptionType.CLA:                   '_create_cla_type_exception',
     ExceptionType.COMPARE:               'create_compare_exception',
     ExceptionType.CREATE:                'create_create_exception',
     ExceptionType.DEPLOY:                'create_deploy_exception',
@@ -434,6 +435,18 @@ def create_translate_exception(key, *args, **kwargs):
     else:
         ex = JTranslateException(key)
     return ex
+
+
+def _create_cla_type_exception(key, *args, **kwargs):
+    """
+    Create a Java CLAException from a message id, list of message parameters and Throwable error.
+    This internal wrapper method provides a matching signature for _EXCEPTION_TYPE_MAP.
+    :param key: key to the message in resource bundle or the message itself
+    :param args: list of parameters for the message or empty if none needed
+    :param kwargs: contains Throwable or instance if present
+    :return: CLAException encapsulating the exception information
+    """
+    return create_cla_exception(ExitCode.ERROR, key, *args, **kwargs)
 
 
 def create_cla_exception(exit_code, key, *args, **kwargs):
