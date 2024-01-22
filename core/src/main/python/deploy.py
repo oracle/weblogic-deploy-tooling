@@ -239,6 +239,9 @@ def main(model_context):
     _method_name = 'main'
     __logger.entering(class_name=_class_name, method_name=_method_name)
 
+    __logger.deprecation('WLSDPLY-09020', _program_name, 'updateDomain', class_name=_class_name,
+                         method_name=_method_name)
+
     __wlst_helper.silence()
     _exit_code = ExitCode.OK
 
