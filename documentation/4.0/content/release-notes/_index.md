@@ -41,6 +41,8 @@ pre = "<b> </b>"
 - #1592 - Deprecated Verrazzano support.
 - #1598 - Added support for online wallet distribution to managed servers in 14.1.2.
 - #1599 - Added support for the 12.2.1.4 and 14.1.1 January 2024 PSUs.
+- #1605 - Deprecated the Deploy Applications Tool.  The intention going forward is that users should be able to use
+          the Update Domain Tool, which already does everything that the Deploy Applications Tool does and more.
 
 #### Bug Fixes
 - #1555 - Fixed issues with creating and discovering `UnixMachine` objects in online mode.
