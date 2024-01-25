@@ -1,7 +1,9 @@
 """
-Copyright (c) 2021, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2021, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+import re
+
 from java.io import File
 
 from com.octetstring.vde.util import PasswordEncryptor
@@ -26,6 +28,7 @@ DEFAULT_AUTH_INIT_FILE = 'DefaultAuthenticatorInit.ldift'
 SECURITY_SUBDIR = 'security'
 GROUP_MAPPINGS = 'group'
 USER_MAPPINGS = 'user'
+EXISTING_ENTRIES = 'existingEntries'
 
 # template hash constants
 HASH_NAME = 'name'
@@ -35,6 +38,12 @@ HASH_GROUP = 'groupMemberOf'
 HASH_USER_PASSWORD = 'password'
 HASH_ATTRIBUTES = 'userattr'
 HASH_ATTRIBUTE = 'attribute'
+HASH_EXISTING_LINES = 'existingLines'
+HASH_EXISTING_TEXT = 'existingText'
+HASH_CHILD_GROUPS = 'childGroups'
+HASH_CHILD_GROUP_NAME = 'childGroupName'
+
+CN_REGEX = re.compile('^cn: (.+)$')
 
 
 class DefaultAuthenticatorHelper(object):
@@ -62,21 +71,22 @@ class DefaultAuthenticatorHelper(object):
         """
         _method_name = 'create_default_init_file'
 
-        template_hash = self._build_default_template_hash(security_mapping_nodes)
+        output_dir = File(self._model_context.get_domain_home(), SECURITY_SUBDIR)
+        init_file = File(output_dir, DEFAULT_AUTH_INIT_FILE)
+
+        template_hash = self._build_default_template_hash(security_mapping_nodes, init_file)
         template_path = TEMPLATE_PATH + '/' + DEFAULT_AUTH_INIT_FILE
 
-        output_dir = File(self._model_context.get_domain_home(), SECURITY_SUBDIR)
-        output_file = File(output_dir, DEFAULT_AUTH_INIT_FILE)
-
-        self._logger.info('WLSDPLY-01900', output_file,
+        self._logger.info('WLSDPLY-01900', init_file,
                           class_name=self._class_name, method_name=_method_name)
 
-        file_template_helper.append_file_from_resource(template_path, template_hash, output_file, self._exception_type)
+        file_template_helper.create_file_from_resource(template_path, template_hash, init_file, self._exception_type)
 
-    def _build_default_template_hash(self, mapping_section_nodes):
+    def _build_default_template_hash(self, mapping_section_nodes, init_file):
         """
         Create a dictionary of substitution values to apply to the default authenticator template.
         :param mapping_section_nodes: the security elements from the model
+        :param init_file: java.io.File containing original LDIFT entries
         :return: the template hash dictionary
         """
         _method_name = '_build_default_template_hash'
@@ -90,6 +100,7 @@ class DefaultAuthenticatorHelper(object):
             for name in group_mapping_nodes:
                 mapping_hash = self._build_group_mapping_hash(group_mapping_nodes[name], name)
                 group_mappings.append(mapping_hash)
+
         if USER in mapping_section_nodes.keys():
             user_mapping_nodes = mapping_section_nodes[USER]
             for name in user_mapping_nodes:
@@ -100,9 +111,60 @@ class DefaultAuthenticatorHelper(object):
                     self._logger.warning('WLSDPLY-01902', name, ce.getLocalizedMessage(),
                                          error=ce, class_name=self._class_name, method_name=_method_name)
 
+        # build a map of group names to group children
+        group_child_map = {}
+        for group_mapping in group_mappings:
+            group_name = group_mapping[HASH_NAME]
+            member_of_groups = group_mapping[HASH_GROUPS]
+            for member_of_group in member_of_groups:
+                member_of_name = member_of_group[HASH_GROUP]
+                if not dictionary_utils.get_element(group_child_map, member_of_name):
+                    group_child_map[member_of_name] = []
+                group_child_map[member_of_name].append({HASH_CHILD_GROUP_NAME: group_name})
+
+        # assign group child names to groups
+        for group_mapping in group_mappings:
+            group_name = group_mapping[HASH_NAME]
+            child_groups = dictionary_utils.get_element(group_child_map, group_name)
+            if child_groups:
+                group_mapping[HASH_CHILD_GROUPS] = child_groups
+
         template_hash[GROUP_MAPPINGS] = group_mappings
         template_hash[USER_MAPPINGS] = user_mappings
+        template_hash[EXISTING_ENTRIES] = self._build_existing_entries_list(init_file, group_child_map)
         return template_hash
+
+    def _build_existing_entries_list(self, init_file, group_child_map):
+        """
+        Create a list of existing group entries from the original LDIFT file.
+        Each entry is a list of string declarations, and a list of any child groups.
+        :param init_file: java.io.File containing original LDIFT entries
+        :param group_child_map: a map of group names to child group names
+        :return: the existing entries list
+        """
+        init_reader = open(init_file.getPath(), 'r')
+        init_lines = init_reader.readlines()
+        init_reader.close()
+
+        existing_entry = None
+        existing_entries = []
+        for init_line in init_lines:
+            line_text = init_line.strip()
+            if len(line_text) == 0:
+                existing_entry = None
+            else:
+                if existing_entry is None:
+                    existing_entry = {HASH_EXISTING_LINES: [], HASH_CHILD_GROUPS: []}
+                    existing_entries.append(existing_entry)
+                existing_entry[HASH_EXISTING_LINES].append({HASH_EXISTING_TEXT: line_text})
+
+                match = re.match(CN_REGEX, line_text)
+                if match:
+                    child_groups = dictionary_utils.get_element(group_child_map, match.group(1))
+                    if child_groups:
+                        existing_entry[HASH_CHILD_GROUPS] = child_groups
+
+        return existing_entries
 
     def _build_group_mapping_hash(self, group_mapping_section, name):
         """
