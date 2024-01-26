@@ -37,12 +37,6 @@ java.lang.IllegalArgumentException: In production mode, it's not allowed to set 
 ```
 **ACTION**: Contact Oracle Support to obtain the patch for bug number 30874677 for your WebLogic Server version before running the tool.
 
-#### Assigning security groups to users
-
-**ISSUE**: For WLS versions prior to 14.1.1, there is a problem setting the `GroupMemberOf` attribute in the `topology/Security/User` folder. The value is not persisted correctly, and the assignment will not be present when the domain is started.
-
-**ACTION**: Contact Oracle Support to obtain the patch for bug number 30319071 for your WebLogic Server version before running the tool.
-
 #### Problems setting `RotateLogOnStartup` attribute
 
 **ISSUE**: For existing WLS versions, there is a problem setting the `RotateLogOnStartup` attribute in various log file folders. The value is not persisted correctly, and the assignment will not be present when the domain is started.
