@@ -59,6 +59,8 @@ In addition, the `wko` target will replace credentials in the model with referen
 
 #### The Verrazzano targets
 
+**NOTE**: Verrazzano support is deprecated in WDT 4.0.0.
+
 You can use these targets to customize the model and create a Kubernetes resource file for use with Verrazzano. There are three targets for specific [domain home source types](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/choosing-a-model/):
 
 - `vz` for [Model in Image](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/model-in-image/) deployments

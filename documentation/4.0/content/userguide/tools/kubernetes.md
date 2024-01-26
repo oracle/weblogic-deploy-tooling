@@ -11,6 +11,8 @@ description: "Generates YAML resource files for use with the WebLogic Kubernetes
 
 You can use the Extract Domain Resource Tool to create resource files for use with the WebLogic Kubernetes Operator or Verrazzano. This allows the domain configuration and the Kubernetes container configuration to be specified in a single model file.
 
+**NOTE**: Verrazzano support is deprecated in WDT 4.0.0.
+
 This is especially useful when making configuration changes to the domain that also need to be reflected in the resource file. For example, adding a cluster to the domain only requires that it be added to the `topology` section of the WDT model, then a new resource file can be generated to apply to Kubernetes.
 
 More information about the WebLogic Kubernetes Operator can be found [here](https://oracle.github.io/weblogic-kubernetes-operator).

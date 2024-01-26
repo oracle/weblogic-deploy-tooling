@@ -40,7 +40,7 @@ parser will generate parse errors if the model file contains leading tabs used f
 names and values can be specified without quotes except when the content contains one of the restricted characters in a
 location that causes the YAML parser to consider it to be a markup character instead of text.  For example, a key may
 contain an embedded hyphen without needing to be quoted; however, if the key starts with a hyphen, the parser may
-consider it to be the start of a YAML list element. See the [YAML 1.1 specification](https://yaml.org/spec/1.1/) 
+consider it to be the start of a YAML list element. See the [YAML 1.1 specification](https://yaml.org/spec/1.1/)
 for more information.
 
 ### Top-level model sections
@@ -51,7 +51,7 @@ The tooling has five top-level model sections:
 - `resources`      - The location where resources and services are specified (for example, data sources, JMS, WLDF).
 - `appDeployments` - The location where shared libraries and applications are specified.
 - `kubernetes`     - The location where the WebLogic Kubernetes Operator domain configuration is specified.
-- `verrazzano`     - The location where the Verrazzano WebLogic Workload component and application configuration is specified.
+- `verrazzano`     - The location where the Verrazzano WebLogic Workload component and application configuration is specified. **NOTE**: Verrazzano support is deprecated in WDT 4.0.0.
 
 #### Simple example
 Here is a simple example of a model to deploy an application and its data source:
@@ -88,7 +88,7 @@ appDeployments:
             ModuleType: war
 ```
 
-The above example shows two important features of the framework.  First, notice that the `URL`, `PasswordEncrypted`, 
+The above example shows two important features of the framework.  First, notice that the `URL`, `PasswordEncrypted`,
 `user` property `Value` and all `Target` fields contain values that have a `@@PROP:<name>@@` pattern.  This indicates a
 variable placeholder whose value is specified at runtime using a variables file. For more information about this and
 other token types, see [Model tokens](#model-tokens).
@@ -99,7 +99,7 @@ on the target environment.  For more information and a list of available path to
 
 The example above shows the attribute `SourcePath` of the `simpleear` application with a value of
 `wlsdeploy/applications/simpleear.ear`.  The prefix `wlsdeploy/` indicates that the resource is located in the archive
-file in the specified location, and will be deployed to that directory within the domain, in this case 
+file in the specified location, and will be deployed to that directory within the domain, in this case
 `<domain-home>/wlsdeploy/applications/simpleear.ear`. See the [Archive file]({{< relref "/concepts/archive.md" >}})
 for more details about using the archive file.
 
@@ -221,8 +221,8 @@ then the token `@@SECRET:secrets:the-secret@@` will search the following locatio
 If either of these files is found, the secret is read from that file and substituted in the model.
 
 The second method for locating the Kubernetes secret file is to use the environment variable
-`WDT_MODEL_SECRETS_NAME_DIR_PAIRS` to map `<name>` values to specific directory locations. For example, if 
-`WDT_MODEL_SECRETS_NAME_DIR_PAIRS` is set to `my-root=/etc/my-secrets,your-root=/etc/your-secrets`, then the token 
+`WDT_MODEL_SECRETS_NAME_DIR_PAIRS` to map `<name>` values to specific directory locations. For example, if
+`WDT_MODEL_SECRETS_NAME_DIR_PAIRS` is set to `my-root=/etc/my-secrets,your-root=/etc/your-secrets`, then the token
 `@@SECRET:your-root:the-secret@@` will look for the secrets file at:
 ```
 /etc/your-secrets/the-secret
@@ -310,7 +310,7 @@ Users with these requirements should raise an issue for this support.
 With WebLogic Deploy Tooling, you can specify named items in the model to be deleted using the Create Domain,
 Update Domain, and Deploy Applications Tools.  Named items are those that have multiple instances that are
 distinguished by user-provided names, such as managed servers, data sources, and security realms.  Items to be deleted
-are prepended with an exclamation point (!) in the model.
+are prepended with an exclamation point (!) in the model. **NOTE**: The Deploy Applications Tool is deprecated in WDT 4.0.0.
 
 In this example, the managed server ```obsoleteServer``` will be deleted, and ```newServer``` will be created:
 
@@ -365,7 +365,7 @@ models on the command line. For example:
 
 In this case, the models are merged into a single model before being applied. Each successive model is added to the
 previous model. In cases where entities exist in both models, the attributes are combined and attribute values from
-successive models prevail.  The resulting model is then verified before being applied.  For example, 
+successive models prevail.  The resulting model is then verified before being applied.  For example,
 if Model 1 looks like:
 ```yaml
 topology:

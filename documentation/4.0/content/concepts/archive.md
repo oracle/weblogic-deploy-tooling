@@ -41,7 +41,7 @@ file in the specified location, and will be deployed to that directory in the do
 
 These are the paths within the archive that are used for different types of resources. You can create further
 directory structures underneath some of these locations to organize the files and directories as you see fit.  The
-Archive Helper Tool makes it easy to add, update, and remove entries from the archive file. 
+Archive Helper Tool makes it easy to add, update, and remove entries from the archive file.
 
 #### `config/wlsdeploy/coherence`
 The root directory under which Coherence config files and/or empty directories for Coherence persistent stores.
@@ -106,7 +106,7 @@ The root directory under which JARs/directories used for server classpaths are s
 directory is extracted, even those not referenced in the model.
 
 #### `wlsdeploy/domainBin`
-The root directory under which `$DOMAIN_HOME/bin` scripts are stored. Only scripts referenced in the 
+The root directory under which `$DOMAIN_HOME/bin` scripts are stored. Only scripts referenced in the
 `domainInfo/domainBin` section of the model are extracted, as shown in the example.
 
 ```yaml
@@ -174,8 +174,8 @@ wlsdeploy/structuredApplications/myApp/plan/AppFileOverrides/updated.properties
 
 #### `wlsdeploy/wrcExtension`
 The directory into which the WebLogic Remote Console extension WAR file (i.e., `console-rest-ext-6.0.war`) is stored.
-Create Domain, Update Domain, and Deploy Applications tools place any file in this directory into the 
-`$DOMAIN_HOME/management-services-ext/` directory.
+Create Domain, Update Domain, and Deploy Applications tools place any file in this directory into the
+`$DOMAIN_HOME/management-services-ext/` directory. **NOTE**: The Deploy Applications Tool is deprecated in WDT 4.0.0.
 
 ### Using multiple archive files
 
