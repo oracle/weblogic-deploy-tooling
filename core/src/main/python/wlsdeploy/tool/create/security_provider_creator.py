@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -8,6 +8,7 @@ from oracle.weblogic.deploy.exception import BundleAwareException
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import REALM
 from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
+from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.create.creator import Creator
 from wlsdeploy.tool.deploy import deployer_utils
@@ -139,6 +140,13 @@ class SecurityProviderCreator(Creator):
 
             model_type_subfolder_name = list(model_node.keys())[0]
             child_nodes = dictionary_utils.get_dictionary_element(model_node, model_type_subfolder_name)
+            folder_validation_code, folder_validation_message = \
+                self.aliases.is_valid_model_folder_name(location, model_type_subfolder_name)
+            if folder_validation_code == ValidationCodes.CONTEXT_INVALID:
+                ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-12144', type_name,
+                                                       model_type_subfolder_name, folder_validation_message)
+                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
 
             # custom providers require special processing, they are not described in alias framework
             if allow_custom and (model_type_subfolder_name not in known_providers):

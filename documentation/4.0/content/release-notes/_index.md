@@ -54,7 +54,9 @@ pre = "<b> </b>"
 - #1579 - Fixed an issue that limited the number of secret keys that could be referenced by the model. 
 - #1584 - Fixed an issue where online updates that required restarts were using a 12.2.1+ API even with older versions.
 - #1603 - Fixed a bug related to online WLST error message formatting.
-
+- #1608 - Fixed a bug in creating Security groups that are members of another group.
+- #1610 - Fixed a bug where the Create Domain and Update Domain Tools were trying to create a security provider that
+          is not valid in the current WebLogic Server version.
 #### Known Issues
 None
 
