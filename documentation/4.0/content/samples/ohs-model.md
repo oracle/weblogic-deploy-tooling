@@ -6,7 +6,7 @@ weight: 9
 description: "A model for configuring Oracle HTTP Server (OHS)."
 ---
 
-Starting with WDT 1.8.0, you can configure and update Oracle HTTP Server (OHS) using the Create Domain, Update Domain, and Deploy Applications Tools, in offline mode only. To discover the OHS configuration, use the Discover Domain Tool, in offline mode only.
+Starting with WDT 1.8.0, you can configure and update Oracle HTTP Server (OHS) using the Create Domain, Update Domain, and Deploy Applications Tools, in offline mode only. To discover the OHS configuration, use the Discover Domain Tool, in offline mode only. **NOTE**: The Deploy Applications Tool is deprecated in WDT 4.0.0. 
 
 #### Prerequisites
 

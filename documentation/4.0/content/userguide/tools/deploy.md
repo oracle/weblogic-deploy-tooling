@@ -6,6 +6,9 @@ weight: 3
 description: "Adds resources and applications to an existing domain, either in offline or online mode."
 ---
 
+{{% notice note %}}
+The Deploy Applications Tool is deprecated in WDT 4.0.0. For comparable functionality and more, use the [Update Domain Tool]({{< relref "/userguide/tools/update.md" >}}).
+{{% /notice %}}
 
 The Deploy Applications Tool uses a model, the archive, and WLST to deploy applications and resources into an existing WebLogic Server domain in either WLST online or offline mode.  When deploying applications and resources from a model, the Deploy Applications Tool focuses primarily on the `resources` and `appDeployments` sections of the model.  There are exceptions for the `domainInfo` and `topology` sections, where those configuration elements are deemed to be "application-related."  For example, the servers' `ServerStart` folder has an `Arguments` and a `ClassPath` attribute that change the server environment (when started by the Node Manager) that applications may rely on to function properly.  Likewise, the `domainInfo` section contains a list of JAR files that are to be placed in `<DOMAIN_HOME>/lib` which are relevant to applications for a similar reason.
 
@@ -40,7 +43,7 @@ If you are running from a remote machine, then you do not need to specify the do
   create such directory or file.  For example, if you specify a `domainBin: [ wlsdeploy/domainBin/setUserOverrides.sh]` which references a file entry in the archive file `wlsdeploy/domainBin/setUserOverrides.sh`,
   the tool will fail with an error.
 - Exploded format application specified in the archive is not supported
-- 
+-
 As usual, the tool will prompt for the password (it can also be supplied by piping it to standard input of the tool). To bypass the prompt, you can use one of two options. Store the password in an environment variable, and use the variable name with command-line option `-admin_pass_env`. Store the password in a file. Provide the file name with command-line option `-admin_pass_file`.
 
 When running the tool in WLST online mode, the deploy operation may require server restarts or a domain restart to pick up the changes.  The deploy operation can also encounter situations where it cannot complete its operation until the domain is restarted.  To communicate these conditions to scripts that may be calling the Deploy Applications Tool, the shell scripts have three special, non-zero exit codes to communicate these states:

@@ -208,7 +208,7 @@ Examples:
   cd ../../../ServerTemplate/DynamicServers
 
 
-[top] --> 
+[top] -->
 ```
 
 ### Parameter table for `model_help`
@@ -218,6 +218,6 @@ Examples:
 | `-folders_only`       | List only the folders for the specified model path.                                                                            |    |
 | `-oracle_home`        | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set.             |    |
 | `-recursive`          | List only the folders for the specified model path, and recursively include the folders below that path.                       |    |
-| `-target <target>`    | The target platform, such as `wko` (the default). This determines the structure of the `kubernetes` and `verrazzano` sections. |    |
+| `-target <target>`    | The target platform, such as `wko` (the default). This determines the structure of the `kubernetes` and `verrazzano` sections. **NOTE**: Verrazzano support is deprecated in WDT 4.0.0.|    |
 | `-target_mode <mode>` | The WLST mode to use to load the aliases. The mode is either `online` or `offline` (the default).                              |    |
 | `<model_path>`        | The path to the model element to be examined. The format is `[^<section^>:][/^<folder^>]...`                                   |    |
