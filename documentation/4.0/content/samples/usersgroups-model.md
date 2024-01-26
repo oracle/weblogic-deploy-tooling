@@ -104,5 +104,4 @@ Don't forget that the values of these fields may need to be enclosed in quotes i
 - The processing of users, groups, and roles will only take place when using the [Create Domain Tool]({{< relref "/userguide/tools/create.md" >}}).
 - WebLogic global roles are only supported with WebLogic Server version 12.2.1 or greater.
 - WebLogic global roles are only updated for the WebLogic security XACML role mapping provider (for example, `XACMLRoleMapper`).
-- The user and group processing is not complete, currently, users cannot be assigned to groups. Users created using the `Security` section are automatically added to the `Administrators` group and are not added to the groups specified. For information about a patch for this issue, see [Known issues]({{< relref "/release-notes#assigning-security-groups-to-users" >}}).
 - Currently, WDT does not support modifying the default WebLogic authorization policies. 
