@@ -548,6 +548,8 @@ class Validator(object):
 
     def __process_model_node(self, model_node, validation_location):
         _method_name = '__process_model_node'
+        self._logger.entering(str_helper.to_string(validation_location),
+                              class_name=_class_name, method_name=_method_name)
 
         model_folder_path = self._aliases.get_model_folder_path(validation_location)
 
@@ -574,7 +576,12 @@ class Validator(object):
             self._logger.finer('key={0}', key,
                                class_name=_class_name, method_name=_method_name)
 
-            if key in valid_folder_keys:
+            folder_validation_code, folder_validation_message = \
+                self._aliases.is_valid_model_folder_name(validation_location, key)
+            attribute_validation_code, attribute_validation_message = \
+                self._aliases.is_valid_model_attribute_name(validation_location, key)
+
+            if folder_validation_code == ValidationCodes.VALID:
                 new_location = LocationContext(validation_location).append_location(key)
                 self._logger.finer('new_location={0}', new_location,
                                    class_name=_class_name, method_name=_method_name)
@@ -588,8 +595,7 @@ class Validator(object):
                     self.__validate_attributes(value, valid_attr_infos, new_location)
                 else:
                     self.__validate_section_folder(value, new_location)
-
-            elif key in valid_attr_infos:
+            elif attribute_validation_code == ValidationCodes.VALID:
                 # aliases.get_model_attribute_names_and_types(location) filters out
                 # attributes that ARE NOT valid in the wlst_version being used, so if
                 # we're in this section of code we know key is a bonafide "valid" attribute
@@ -605,7 +611,10 @@ class Validator(object):
 
                     self.__validate_attribute(key, value, valid_attr_infos, path_tokens_attr_keys, model_folder_path,
                                               validation_location)
-
+            elif folder_validation_code == ValidationCodes.CONTEXT_INVALID:
+                self._log_context_invalid(folder_validation_message, _method_name)
+            elif attribute_validation_code == ValidationCodes.CONTEXT_INVALID:
+                self._log_context_invalid(attribute_validation_message, _method_name)
             elif self._aliases.is_custom_folder_allowed(validation_location):
                 # custom folders are not validated, just log this and continue
                 self._logger.info('WLSDPLY-05037', model_folder_path,
@@ -623,10 +632,7 @@ class Validator(object):
                     # method pulls those out, in the self.__validate_section_folder().
 
                     # See if it's a version invalid folder
-                    result, message = self._aliases.is_valid_model_folder_name(validation_location, key)
-                    if result == ValidationCodes.CONTEXT_INVALID:
-                        self._log_context_invalid(message, _method_name)
-                    elif result == ValidationCodes.INVALID:
+                    if folder_validation_code == ValidationCodes.INVALID:
                         # key is an INVALID folder
                         self._logger.severe('WLSDPLY-05026', key, 'folder', model_folder_path,
                                             '%s' % ', '.join(valid_folder_keys), class_name=_class_name,
@@ -637,10 +643,7 @@ class Validator(object):
                     # method pulls those out, in the self.__validate_section_folder().
 
                     # See if it's a version invalid attribute
-                    result, message = self._aliases.is_valid_model_attribute_name(validation_location, key)
-                    if result == ValidationCodes.CONTEXT_INVALID:
-                        self._log_context_invalid(message, _method_name)
-                    elif result == ValidationCodes.INVALID:
+                    if attribute_validation_code == ValidationCodes.INVALID:
                         # key is an INVALID attribute
                         self._logger.severe('WLSDPLY-05029', key, model_folder_path,
                                             '%s' % ', '.join(valid_attr_infos), class_name=_class_name,
