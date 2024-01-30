@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -186,6 +186,20 @@ def substitute_value(text, variables, model_context):
         _logger.throwing(ex, class_name=_class_name, method_name=method_name)
         raise ex
     return result
+
+
+def substitute_text(text, variables, model_context):
+    """
+    Perform token substitutions on a single text value.
+    Return a tuple with the revised text and the number of errors reported.
+    :param text: the original text
+    :param variables: a dictionary of variables for substitution
+    :param model_context: used to resolve variables in file paths
+    :return the revised text and the number of errors reported
+    """
+    error_info = {'errorCount': 0}
+    result = _substitute(text, variables, model_context, error_info)
+    return result, error_info['errorCount']
 
 
 def substitute(dictionary, variables, model_context):
