@@ -81,6 +81,9 @@ class ModelDeployer(Deployer):
         """
         _method_name = 'distribute_database_wallets_online'
 
+        if self.archive_helper is None:
+            return
+
         if not self.wls_helper.is_db_client_data_distribution_supported():
             # Older WLS versions don't support wallet distribution
             return

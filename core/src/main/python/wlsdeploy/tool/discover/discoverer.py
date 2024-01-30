@@ -943,6 +943,14 @@ def convert_to_absolute_path(relative_to, file_name):
     """
     if not StringUtils.isEmpty(relative_to) and not StringUtils.isEmpty(file_name):
         file_name = os.path.join(relative_to, file_name)
+
+        # Because we are supporting cross-platform, remote interaction using SSH, make sure
+        # that we are not joining a Unix path with a Windows separator.  The reverse scenario
+        # is typically fine since Java accepts forward slash separators on Windows.
+        #
+        if file_name.startswith('/'):
+            file_name = file_name.replace('\\','/')
+
     return file_name
 
 
