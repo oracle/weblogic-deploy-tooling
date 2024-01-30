@@ -57,7 +57,7 @@ def get_parent_directory(path):
     """
     result = path
     if path is not None:
-        result = JFile(path).getParentFile().getCanonicalPath()
+        result = JFile(path).getCanonicalFile().getParentFile().getCanonicalPath()
     return result
 
 
