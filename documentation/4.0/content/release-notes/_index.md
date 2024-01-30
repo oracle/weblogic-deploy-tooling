@@ -43,6 +43,9 @@ pre = "<b> </b>"
 - #1599 - Added support for the 12.2.1.4 and 14.1.1 January 2024 PSUs.
 - #1605 - Deprecated the Deploy Applications Tool.  The intention going forward is that users should be able to use
           the Update Domain Tool, which already does everything that the Deploy Applications Tool does and more.
+- #1613 - Added ability to use variable tokens in the SAML 2 data initialization property files that will be replaced
+          during domain creation or update processing.
+- #1614 - Updated Discover Domain Tool to overwrite existing variable and archive files if they already exist. 
 
 #### Bug Fixes
 - #1555 - Fixed issues with creating and discovering `UnixMachine` objects in online mode.

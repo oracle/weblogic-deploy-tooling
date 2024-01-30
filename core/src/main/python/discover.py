@@ -169,11 +169,20 @@ def __process_archive_filename_arg(argument_map):
     else:
         archive_file_name = argument_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
         archive_dir_name = path_utils.get_parent_directory(archive_file_name)
-        if os.path.exists(archive_dir_name) is False:
+        if not os.path.exists(archive_dir_name):
             ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-06026', archive_file_name)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
+
+        # Delete any existing archive file for discoverDomain so that we always start with a fresh zip file.
+        archive_file_obj = FileUtils.getCanonicalFile(archive_file_name)
+        if archive_file_obj.exists() and not archive_file_obj.delete():
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,'WLSDPLY-06047',
+                                                       _program_name, archive_file_name)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
+
         try:
             archive_file = WLSDeployArchive(archive_file_name)
         except (IllegalArgumentException, IllegalStateException), ie:
@@ -187,23 +196,27 @@ def __process_archive_filename_arg(argument_map):
 
 def __process_variable_filename_arg(optional_arg_map):
     """
-    If the variable filename argument is present, the required model variable injector json file must exist in
-    the WLSDEPLOY lib directory.
+    Validate the variable filename argument if present.
     :param optional_arg_map: containing the variable file name
-    :raises: CLAException: if this argument is present but the model variable injector json does not exist
+    :raises: CLAException: if this argument is present but fails validation
     """
     _method_name = '__process_variable_filename_arg'
 
     if CommandLineArgUtil.VARIABLE_FILE_SWITCH in optional_arg_map:
-        variable_injector_file_name = optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH]
-        try:
-            FileUtils.validateWritableFile(variable_injector_file_name)
-        except IllegalArgumentException, ie:
+        variable_file_name = optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH]
+        variable_dir_name = path_utils.get_parent_directory(variable_file_name)
+
+        if not os.path.exists(variable_dir_name):
             ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
-                                                       'WLSDPLY-06021',
-                                                       optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH],
-                                                       variable_injector_file_name,
-                                                       ie.getLocalizedMessage(), error=ie)
+                                                       'WLSDPLY-06048', variable_file_name)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
+
+        # Delete any existing variable file for discoverDomain so that we always start with a fresh file.
+        variable_file_obj = FileUtils.getCanonicalFile(variable_file_name)
+        if variable_file_obj.exists() and not variable_file_obj.delete():
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,'WLSDPLY-06049',
+                                                       _program_name, variable_file_name)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
