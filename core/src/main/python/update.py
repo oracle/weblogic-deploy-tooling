@@ -7,6 +7,7 @@ The entry point for the updateDomain tool.
 import os
 import sys
 
+from java.lang import Exception as JException
 from oracle.weblogic.deploy.deploy import DeployException
 from oracle.weblogic.deploy.exception import BundleAwareException
 from oracle.weblogic.deploy.validate import ValidateException
@@ -177,30 +178,23 @@ def __update_online(model_deployer, model, model_context, aliases):
     __logger.info("WLSDPLY-09007", admin_url, method_name=_method_name, class_name=_class_name)
 
     topology_updater = TopologyUpdater(model, model_context, aliases, wlst_mode=WlstModes.ONLINE)
-    jdbc_names = None
     try:
         jdbc_names = topology_updater.update_machines_clusters_and_servers(delete_now=False)
         topology_updater.warn_set_server_groups()
-    except DeployException, de:
-        deployer_utils.release_edit_session_and_disconnect()
-        raise de
 
-    # Server or Cluster may be added, this is to make sure they are targeted properly
-    try:
+        # Server or Cluster may be added, this is to make sure they are targeted properly
         topology_updater.set_server_groups()
-    except BundleAwareException, ex:
-        deployer_utils.release_edit_session_and_disconnect()
-        raise ex
 
-    try:
         topology_updater.clear_placeholder_targeting(jdbc_names)
         topology_updater.update()
         model_deployer.deploy_resources()
         model_deployer.distribute_database_wallets_online()
         model_deployer.deploy_app_attributes_online()
-    except DeployException, de:
+
+    except (DeployException, exceptions.Exception, JException), ex:
+        # release the edit session, and raise the exception for tool_main to handle
         deployer_utils.release_edit_session_and_disconnect()
-        raise de
+        raise ex
 
     exit_code = deployer_utils.online_check_save_activate(model_context)
     # if user requested cancel changes if restart required stops

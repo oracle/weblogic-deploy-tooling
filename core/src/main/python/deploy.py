@@ -162,9 +162,10 @@ def __deploy_online(model_deployer, model_context):
         model_deployer.deploy_resources()
         model_deployer.distribute_database_wallets_online()
         model_deployer.deploy_app_attributes_online()
-    except DeployException, de:
+    except (DeployException, exceptions.Exception, JException), ex:
+        # release the edit session, and raise the exception for tool_main to handle
         deployer_utils.release_edit_session_and_disconnect()
-        raise de
+        raise ex
 
     exit_code = deployer_utils.online_check_save_activate(model_context)
 
