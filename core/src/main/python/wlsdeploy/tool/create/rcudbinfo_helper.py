@@ -152,8 +152,6 @@ class RcuDbInfo(object):
             self._logger.deprecation('WLSDPLY-22000', ATP_DEFAULT_TABLESPACE, RCU_DEFAULT_TABLESPACE,
                                      class_name=_class_name, method_name=_method_name)
             return result
-        elif self.get_rcu_default_tablespace() is not None:
-            return self.get_rcu_default_tablespace()
         else:
             return self.get_rcu_default_tablespace()
 
@@ -193,11 +191,10 @@ class RcuDbInfo(object):
         return None
 
     def get_rcu_variables(self):
-        result = self._get_dictionary_element_value(RCU_VARIABLES)
-        if result is not None:
-            return result
-        else:
-            return None
+        return self._get_dictionary_element_value(RCU_VARIABLES)
+
+    def get_rcu_admin_password(self):
+        return self._get_dictionary_element_value(RCU_ADMIN_PASSWORD)
 
     # has_tns_admin is used to find the extract location if it is already extracted by the user
     # its an optional field, so insufficient to determine whether it has atp
