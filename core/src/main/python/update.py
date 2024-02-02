@@ -4,6 +4,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The entry point for the updateDomain tool.
 """
+import exceptions
 import os
 import sys
 
