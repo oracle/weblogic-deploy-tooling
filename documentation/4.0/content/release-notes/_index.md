@@ -46,6 +46,7 @@ pre = "<b> </b>"
 - #1613 - Added ability to use variable tokens in the SAML 2 data initialization property files that will be replaced
           during domain creation or update processing.
 - #1614 - Updated Discover Domain Tool to overwrite existing variable and archive files if they already exist. 
+- #1616 - Improved `RCUDbInfo` validation in Create Domain tool.
 
 #### Bug Fixes
 - #1555 - Fixed issues with creating and discovering `UnixMachine` objects in online mode.
@@ -60,6 +61,9 @@ pre = "<b> </b>"
 - #1608 - Fixed a bug in creating Security groups that are members of another group.
 - #1610 - Fixed a bug where the Create Domain and Update Domain Tools were trying to create a security provider that
           is not valid in the current WebLogic Server version.
+- #1615 - Fixed an issue where certain errors during online update or deploy operations could leave a pending edit
+          state that caused subsequent invocations to fail due to the pending edit state.
+
 #### Known Issues
 None
 

@@ -27,7 +27,8 @@ sys.path.insert(0, os.path.dirname(os.path.realpath(sys.argv[0])))
 # imports from local packages start here
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases import model_constants
-from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
+from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME, PATH_TO_RCU_ADMIN_PASSWORD, \
+    PATH_TO_RCU_SCHEMA_PASSWORD
 from wlsdeploy.aliases.model_constants import DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import PATH_TO_RCU_DB_CONN
 from wlsdeploy.aliases.model_constants import PATH_TO_RCU_PREFIX
@@ -47,6 +48,7 @@ from wlsdeploy.util import cla_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import env_helper
 from wlsdeploy.util import getcreds
+from wlsdeploy.util import string_utils
 from wlsdeploy.util import tool_main
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.cla_utils import TOOL_TYPE_CREATE
@@ -204,22 +206,44 @@ def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
 
     domain_info = dictionary_utils.get_dictionary_element(model, model_constants.DOMAIN_INFO)
 
-    if model_constants.RCU_DB_INFO in domain_info:
-        rcu_info = domain_info[model_constants.RCU_DB_INFO]
-        rcu_db_info = RcuDbInfo(model_context, aliases, rcu_info)
-        has_tns_admin = rcu_db_info.has_tns_admin()
-        is_regular_db = rcu_db_info.is_regular_db()
-        has_atpdbinfo = rcu_db_info.has_atpdbinfo()
-        has_ssldbinfo = rcu_db_info.has_ssldbinfo()
+    if model_context.get_domain_typedef().requires_rcu():
+        if model_constants.RCU_DB_INFO in domain_info:
+            rcu_info = domain_info[model_constants.RCU_DB_INFO]
+            rcu_db_info = RcuDbInfo(model_context, aliases, rcu_info)
 
-        _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin, model)
-    elif model_context.get_domain_typedef().requires_rcu():
-        __logger.severe('WLSDPLY-12408', model_context.get_domain_type(), PATH_TO_RCU_DB_CONN,
-                        PATH_TO_RCU_PREFIX, class_name=_class_name, method_name=_method_name)
-        ex = exception_helper.create_create_exception('WLSDPLY-12408', model_context.get_domain_type(),
-                                                      PATH_TO_RCU_DB_CONN, PATH_TO_RCU_PREFIX)
-        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-        raise ex
+            if string_utils.is_empty(rcu_db_info.get_rcu_prefix()):
+                ex = exception_helper.create_validate_exception('WLSDPLY-12414', model_context.get_domain_type(),
+                                                                PATH_TO_RCU_PREFIX)
+                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
+            #
+            # Skip validating rcu_db_conn since is there is a tnsnames.ora file,
+            # the connection string is picked up from there.
+            #
+            if string_utils.is_empty(rcu_db_info.get_rcu_schema_password()):
+                ex = exception_helper.create_validate_exception('WLSDPLY-12414', model_context.get_domain_type(),
+                                                                PATH_TO_RCU_SCHEMA_PASSWORD)
+                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
+
+            if model_context.is_run_rcu() and string_utils.is_empty(rcu_db_info.get_rcu_admin_password()):
+                ex = exception_helper.create_validate_exception('WLSDPLY-12415', model_context.get_domain_type(),
+                                                                CommandLineArgUtil.RUN_RCU_SWITCH, PATH_TO_RCU_ADMIN_PASSWORD)
+                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
+
+            has_tns_admin = rcu_db_info.has_tns_admin()
+            is_regular_db = rcu_db_info.is_regular_db()
+            has_atpdbinfo = rcu_db_info.has_atpdbinfo()
+            has_ssldbinfo = rcu_db_info.has_ssldbinfo()
+
+            _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin, model)
+        else:
+            ex = exception_helper.create_validate_exception('WLSDPLY-12408', model_context.get_domain_type(),
+                                                            PATH_TO_RCU_DB_CONN, PATH_TO_RCU_PREFIX,
+                                                            PATH_TO_RCU_ADMIN_PASSWORD, PATH_TO_RCU_SCHEMA_PASSWORD)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
 
     return has_atpdbinfo, has_ssldbinfo
 
@@ -237,8 +261,7 @@ def _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin
                 model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
                     model_constants.DRIVER_PARAMS_NET_TNS_ADMIN] = wallet_path
             else:
-                __logger.severe('WLSDPLY-12411', class_name=_class_name, method_name=_method_name)
-                ex = exception_helper.create_create_exception('WLSDPLY-12411')
+                ex = exception_helper.create_validate_exception('WLSDPLY-12411')
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
 

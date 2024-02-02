@@ -244,7 +244,7 @@ public class RCURunner {
         File rcuScript = FileUtils.getCanonicalFile(new File(rcuBinDir, RCU_SCRIPT_NAME));
 
         validateExistingExecutableFile(rcuScript, RCU_SCRIPT_NAME);
-        validateNonEmptyString(rcuSysPass, "rcu_sys_password", true);
+        validateNonEmptyString(rcuSysPass, "rcu_admin_password", true);
         validateNonEmptyString(rcuSchemaPass, "rcu_schema_password", true);
 
         if (!disableRcuDropSchema) {
