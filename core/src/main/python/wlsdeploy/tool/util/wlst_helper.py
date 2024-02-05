@@ -480,7 +480,8 @@ class WlstHelper(object):
                 value = entry.getValue()
                 if value and type(value) in [str, unicode]:
                     new_value = value.rstrip()
-                    if new_value == 'null' or new_value == 'none':
+                    # 'none' was previously mapped to None, interfered with RotationType 'none'
+                    if new_value == 'null':
                         make_dict[key] = None
                     else:
                         make_dict[key] = new_value
