@@ -711,9 +711,9 @@ class Discoverer(object):
         _logger.entering(file_name, class_name=_class_name, method_name=_method_name)
 
         py_str = path_utils.fixup_path(str_helper.to_string(file_name))
-        domain_home = self._model_context.get_domain_home()
-        wl_home = self._model_context.get_effective_wl_home()
-        oracle_home = self._model_context.get_effective_oracle_home()
+        domain_home = path_utils.fixup_path(self._model_context.get_domain_home())
+        wl_home = path_utils.fixup_path(self._model_context.get_effective_wl_home())
+        oracle_home = path_utils.fixup_path(self._model_context.get_effective_oracle_home())
         _logger.finer('WLSDPLY-06162', py_str, domain_home, oracle_home, wl_home,
                       class_name=_class_name, method_name=_method_name)
 
@@ -896,18 +896,8 @@ class Discoverer(object):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=(success, url, path))
         return success, url, path
 
-    def download_deployment_from_remote_server(self, source_path, local_download_root, type):
-        download_srcpath = source_path
-        if os.path.basename(source_path).find('.') > 0:
-            download_targetpath = os.path.join(local_download_root, type) + os.path.dirname(source_path)
-            return_path = os.path.join(local_download_root, type) + source_path
-        else:
-            download_targetpath = os.path.join(local_download_root, type) + source_path
-            return_path = download_targetpath
-        if not os.path.exists(download_targetpath):
-            os.makedirs(download_targetpath)
-        self._model_context.get_ssh_context().download(download_srcpath, download_targetpath)
-        return return_path
+    def download_deployment_from_remote_server(self, source_path, local_download_root, file_type):
+        return path_utils.download_file_from_remote_server(self._model_context, source_path, local_download_root, file_type)
 
 
 def add_to_model_if_not_empty(dictionary, entry_name, entry_value):

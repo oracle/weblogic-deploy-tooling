@@ -50,6 +50,7 @@ from wlsdeploy.tool.deploy.applications_version_helper import ApplicationsVersio
 from wlsdeploy.tool.deploy.deployer import Deployer
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model_helper
+from wlsdeploy.util import path_utils
 from wlsdeploy.util import string_utils
 import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.tool.util import appmodule_helper
@@ -512,10 +513,12 @@ class ApplicationsDeployer(Deployer):
         app_hash = None
         plan_hash = None
         if self.model_context.is_ssh():
-            local_download_app_path = _download_deployment_for_hash_calculation(self.model_context, absolute_sourcepath,
-                                                                                local_download_root, "apps")
-            local_download_plan_path = _download_deployment_for_hash_calculation(self.model_context, absolute_planpath,
-                                                                                 local_download_root, "plans")
+            local_download_app_path = \
+                path_utils.download_file_from_remote_server(self.model_context, absolute_sourcepath,
+                                                            local_download_root, 'apps')
+            local_download_plan_path = \
+                path_utils.download_file_from_remote_server(self.model_context, absolute_planpath,
+                                                            local_download_root, 'plans')
             if local_download_app_path:
                 app_hash = self.__get_file_hash(local_download_app_path)
             if local_download_plan_path:
@@ -1404,29 +1407,13 @@ class ApplicationsDeployer(Deployer):
         for app in start_order:
             self.__start_app(app)
 
-def _download_deployment_for_hash_calculation(model_context, source_path, local_download_root, type):
-    if source_path is None:
-        return None
-    download_srcpath = source_path
-
-    last_slash = source_path.rfind('/')
-    if source_path[last_slash:].find('.') > 0:
-        download_targetpath = os.path.join(local_download_root, type) + os.path.dirname(source_path)
-        return_path = os.path.join(local_download_root, type) + source_path
-    else:
-        # Ignore directory, cannot calculate hash on exploded deployment
-        return None
-    if not os.path.exists(download_targetpath):
-        os.makedirs(download_targetpath)
-    model_context.get_ssh_context().download(download_srcpath, download_targetpath)
-    return return_path
 
 def _get_deploy_options(model_apps, app_name, library_module, application_version_helper, is_remote=False, is_ssh=False):
     """
     Get the deploy command options.
     :param model_apps: the apps dictionary
     :param app_name: the app name
-    :param library_module: whether or not it is a library (as a string)
+    :param library_module: whether it is a library (as a string)
     :return: dictionary of the deploy options
     """
     deploy_options = OrderedDict()

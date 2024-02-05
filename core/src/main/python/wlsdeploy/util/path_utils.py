@@ -162,3 +162,26 @@ def find_config_path(file_path):
 
     wls_deploy_path = env_helper.getenv(WLSDEPLOY_HOME_VARIABLE, '')
     return os.path.join(wls_deploy_path, 'lib', file_path)
+
+
+def download_file_from_remote_server(model_context, remote_source_path, local_download_root_directory, file_type):
+    _method_name = 'download_file_from_remote_server'
+    __logger.entering(remote_source_path, local_download_root_directory, file_type,
+                      class_name=_class_name, method_name=_method_name)
+
+    if remote_source_path is None:
+        __logger.exiting(class_name=_class_name, method_name=_method_name, result=None)
+        return None
+
+    download_file_or_dir_name = os.path.basename(remote_source_path)
+    download_target_path = os.path.join(local_download_root_directory, file_type)
+    return_path = os.path.join(local_download_root_directory, file_type, download_file_or_dir_name)
+    __logger.finer('WLSDPLY-06164', remote_source_path, download_target_path, return_path,
+                   class_name=_class_name, method_name=_method_name)
+
+    if not os.path.exists(download_target_path):
+        os.makedirs(download_target_path)
+
+    model_context.get_ssh_context().download(remote_source_path, download_target_path)
+    __logger.exiting(class_name=_class_name, method_name=_method_name, result=return_path)
+    return return_path
