@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.",
+    "copyright": "Copyright (c) 2017, 2024, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "Cluster${:s}",
     "online_bean": "weblogic.management.configuration.ClusterMBean",
@@ -184,7 +184,7 @@
         "ClusterBroadcastChannel":                   [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "ClusterBroadcastChannel",                   "wlst_path": "WP001", "default_value": null,                         "wlst_type": "string"            } ],
         "ClusterMessagingMode":                      [ {"version": "[10,12.1.1)",   "wlst_mode": "both",    "wlst_name": "ClusterMessagingMode",                      "wlst_path": "WP001", "default_value": "${unicast:multicast}",       "wlst_type": "string"            } ,
                                                        {"version": "[12.1.1,)",     "wlst_mode": "both",    "wlst_name": "ClusterMessagingMode",                      "wlst_path": "WP001", "default_value": "unicast",                    "wlst_type": "string"            } ],
-        "ClusterType":                               [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "ClusterType",                               "wlst_path": "WP001", "default_value": null,                         "wlst_type": "string",           "restart_required": "true" } ],
+        "ClusterType":                               [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "ClusterType",                               "wlst_path": "WP001", "default_value": "${__NULL__:none}",           "wlst_type": "string",           "restart_required": "true" } ],
         "CoherenceClusterSystemResource":            [ {"version": "[12.1.2,)",     "wlst_mode": "both",    "wlst_name": "CoherenceClusterSystemResource",            "wlst_path": "WP001", "default_value": null,                         "wlst_type": "string",           "get_method": "${LSA:GET}","set_method": "${:MBEAN.set_coherence_cluster_mbean}", "set_mbean_type": "${:weblogic.management.configuration.CoherenceClusterSystemResourceMBean}", "restart_required": "true" } ],
         "ConcurrentSingletonActivationEnabled":      [ {"version": "[12.2.1.3,)",   "wlst_mode": "both",    "wlst_name": "ConcurrentSingletonActivationEnabled",      "wlst_path": "WP001", "default_value": "false",                      "wlst_type": "boolean",          "restart_required": "true" } ],
         "ConsensusParticipants":                     [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "ConsensusParticipants",                     "wlst_path": "WP001", "default_value": 0,                            "wlst_type": "integer",          "get_method": "GET" } ],

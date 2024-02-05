@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2024, Oracle Corporation and/or its affiliates.",
+    "copyright": "Copyright (c) 2017, 2024, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "CoherenceClusterSystemResource${:s}",
     "online_bean": "weblogic.management.configuration.CoherenceClusterSystemResourceMBean",
@@ -218,7 +218,7 @@
                     "default_name_value": "${NO_NAME_0:%COHERENCECLUSTER%}",
                     "folders": {},
                     "attributes": {
-                        "FederationTopology":                [ {"version": "[12.2.1.1,)",     "wlst_mode": "both",    "wlst_name": "FederationTopology",               "wlst_path": "WP001", "default_value": null,              "wlst_type": "string" } ],
+                        "FederationTopology":                [ {"version": "[12.2.1.1,)",     "wlst_mode": "both",    "wlst_name": "FederationTopology",               "wlst_path": "WP001", "default_value": "${__NULL__:none}", "wlst_type": "string" } ],
                         "RemoteCoherenceClusterListenPort":  [ {"version": "[12.2.1.1,)",     "wlst_mode": "both",    "wlst_name": "RemoteCoherenceClusterListenPort", "wlst_path": "WP001", "default_value": "${__NULL__:7574}",    "wlst_type": "integer"} ],
                         "RemoteCoherenceClusterName":        [ {"version": "[12.2.1.1,)",     "wlst_mode": "both",    "wlst_name": "RemoteCoherenceClusterName",       "wlst_path": "WP001", "default_value": null,              "wlst_type": "string" } ],
                         "RemoteParticipantHost":             [ {"version": "[12.2.1.1,)",     "wlst_mode": "both",    "wlst_name": "RemoteParticipantHost${:s}",       "wlst_path": "WP001", "default_value": null,              "wlst_type": "${list:jarray}", "wlst_read_type": "delimited_string[semicolon]", "get_method": "${LSA:GET}", "preferred_model_type": "delimited_string" } ]
@@ -312,7 +312,7 @@
         "FederationRemoteClusterListenPort":   [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "FederationRemoteClusterListenPort",   "wlst_path": "WP001", "default_value": 0,       "wlst_type": "integer",         "access": "IGNORED" } ],
         "FederationRemoteClusterName":         [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "FederationRemoteClusterName",         "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",          "access": "IGNORED" } ],
         "FederationRemoteParticipantHost":     [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "FederationRemoteParticipantHost${:s}","wlst_path": "WP001", "default_value": null,    "wlst_type": "string",          "access": "IGNORED" } ],
-        "FederationTopology":                  [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "FederationTopology",                  "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",          "access": "IGNORED" } ],
+        "FederationTopology":                  [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "FederationTopology",                  "wlst_path": "WP001", "default_value": "${__NULL__:none}", "wlst_type": "string", "access": "IGNORED" } ],
         "ModuleType":                          [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "ModuleType",                          "wlst_path": "WP001", "default_value": null,    "wlst_type": "string"           } ],
         "Notes":                               [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "Notes",                               "wlst_path": "WP001", "default_value": null,    "wlst_type": "string"           } ],
         "PartitionName":                       [ {"version": "[12.2.1,)",   "wlst_mode": "online",  "wlst_name": "PartitionName",                       "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",          "get_method": "GET", "access": "IGNORED" } ],
