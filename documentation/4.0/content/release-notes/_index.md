@@ -63,6 +63,7 @@ pre = "<b> </b>"
           is not valid in the current WebLogic Server version.
 - #1615 - Fixed an issue where certain errors during online update or deploy operations could leave a pending edit
           state that caused subsequent invocations to fail due to the pending edit state.
+- #1619 - Fixed a bug that was causing offline discovery to omit the `LogRotation` attribute when the value was set to `none`.
 
 #### Known Issues
 None
