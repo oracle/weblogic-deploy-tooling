@@ -1,5 +1,5 @@
 """
-Copyright (c) 2021, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2021, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import re
@@ -452,7 +452,8 @@ def lsa_map():
             value = entry.getValue()
             if value and isinstance(value, basestring):
                 new_value = value.rstrip()
-                if new_value == 'null' or new_value == 'none':
+                # 'none' was previously mapped to None, interfered with RotationType 'none'
+                if new_value == 'null':
                     make_dict[key] = None
                 else:
                     make_dict[key] = new_value
@@ -476,7 +477,8 @@ def lsa_map_modified():
             value = entry.getValue()
             if value and isinstance(value, basestring):
                 new_value = value.rstrip()
-                if new_value == 'null' or new_value == 'none':
+                # 'none' was previously mapped to None, interfered with RotationType 'none'
+                if new_value == 'null':
                     make_dict[key] = None
                 else:
                     make_dict[key] = new_value
