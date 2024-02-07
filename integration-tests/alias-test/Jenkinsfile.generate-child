@@ -71,7 +71,7 @@ pipeline {
                 // -Dwls_java_home will point to JDK7 for early WLS versions where it is required.
                 // For all newer versions, it points to the JAVA_HOME location so it is a no-op.
                 //
-                sh 'pushd integration-tests/alias-test/generate && mvn -s ${jenkins_home_directory}/.m2/settings.xml -B install -Dalias-test-skip-generate=false -Dskip-wdt-install=true  -Dalias_test_oci_profile=${oci_profile} -Dwls_java_home=/u01/jdk -Dwls_version=${params.wls_version} && popd'
+                sh 'pushd integration-tests/alias-test/generate && mvn -s ${jenkins_home_directory}/.m2/settings.xml -B install -Dalias-test-skip-generate=false -Dskip-wdt-install=true  -Dalias_test_oci_profile=${oci_profile} -Dwls_java_home=/u01/jdk && popd'
             }
         }
     }
