@@ -52,24 +52,26 @@ pipeline {
                     alwaysPull true
                     reuseNode true
                     image "phx.ocir.io/devweblogic/wdt/jenkins-alias-test-slave:${params.wls_version}"
-                    args "--group-add=oracle --group-add=${jenkins_group} -v /var/run/docker.sock:/var/run/docker.sock -v${jenkins_home_directory}/.m2:${jenkins_home_directory}/.m2"
+                    args "--group-add=oracle --group-add=${jenkins_group} -v /var/run/docker.sock:/var/run/docker.sock"
                 }
             }
             steps {
                 withCredentials([file(credentialsId: "${oci_config_file_creds}", variable: 'OCI_CONFIG_FILE'),
                                  file(credentialsId: "${oci_signing_key_creds}", variable: 'OCI_SIGNING_KEY')]) {
                     sh "mkdir -p ${jenkins_home_directory}/.oci"
+                    sh "mkdir =p ${jenkins_home_directory}/.m2"
                     sh "sed -e \"s:__jenkins_home__:${jenkins_home_directory}:g\" \"\$OCI_CONFIG_FILE\" > ${jenkins_home_directory}/.oci/config"
                     sh "cp \"\$OCI_SIGNING_KEY\" ${jenkins_home_directory}/.oci/oci-signing-key.pem"
                 }
-                configFileProvider([configFile(fileId: 'wkt-maven-settings-xml', targetLocation: "${jenkins_home_directory}/.m2/settings.xml")]) {
-                    // In 2 JDK images, JAVA_HOME is set to JDK8 in /u01/maven-jdk and JDK7 is in /u01/jdk.
-                    // In single JDK images, JAVA_HOME is set to /u01/jdk.  That means that the
-                    // -Dwls_java_home will point to JDK7 for early WLS versions where it is required.
-                    // For all newer versions, it points to the JAVA_HOME location so it is a no-op.
-                    //
-                    sh 'pushd integration-tests/alias-test/generate && mvn -s ${jenkins_home_directory}/.m2/settings.xml -B install -Dalias-test-skip-generate=false -Dskip-wdt-install=true  -Dalias_test_oci_profile=${oci_profile} -Dwls_java_home=/u01/jdk && popd'
+                configFileProvider([configFile(fileId: 'wkt-maven-settings-xml', variable: 'MAVEN_SETTINGS')]) {
+                    sh "cp \"\$MAVEN_SETTINGS\" ${jenkins_home_directory}/.m2/settings.xml"
                 }
+                // In 2 JDK images, JAVA_HOME is set to JDK8 in /u01/maven-jdk and JDK7 is in /u01/jdk.
+                // In single JDK images, JAVA_HOME is set to /u01/jdk.  That means that the
+                // -Dwls_java_home will point to JDK7 for early WLS versions where it is required.
+                // For all newer versions, it points to the JAVA_HOME location so it is a no-op.
+                //
+                sh 'pushd integration-tests/alias-test/generate && mvn -s ${jenkins_home_directory}/.m2/settings.xml -B install -Dalias-test-skip-generate=false -Dskip-wdt-install=true  -Dalias_test_oci_profile=${oci_profile} -Dwls_java_home=/u01/jdk && popd'
             }
         }
     }
