@@ -1163,6 +1163,7 @@
                 ],
                 "WantAuthnRequestsSigned":                               [ {"version": "[12.2.1,)",    "wlst_mode": "both", "wlst_name": "WantAuthnRequestsSigned",                             "wlst_path": "WP001", "default_value": "false",             "wlst_type": "boolean"         } ],
                 "WantBasicAuthClientAuthentication":                     [ {"version": "[12.2.1,)",    "wlst_mode": "both", "wlst_name": "WantBasicAuthClientAuthentication",                   "wlst_path": "WP001", "default_value": "false",             "wlst_type": "boolean"         } ],
+                "WantResponsesSigned":                                   [ {"version": "[14.1.2,)",    "wlst_mode": "both", "wlst_name": "WantResponsesSigned",                                 "wlst_path": "WP001", "default_value": "false",             "wlst_type": "boolean"         } ],
                 "WantTransportLayerSecurityClientAuthentication":        [ {"version": "[12.2.1,)",    "wlst_mode": "both", "wlst_name": "WantTransportLayerSecurityClientAuthentication",      "wlst_path": "WP001", "default_value": "false",             "wlst_type": "boolean"         } ]            },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
