@@ -329,15 +329,12 @@ class ApplicationsDeployer(Deployer):
         for app in stop_and_undeploy_app_list:
             self.__stop_app(app)
             self.__undeploy_app(app)
-            # if ssh remove the app
-            source_path = model_applications[app][SOURCE_PATH]
-            self._delete_deployment_on_server(source_path)
+            self._delete_deployment_on_server(model_applications[app])
 
         # library is updated, it must be undeployed first
         for lib in update_library_list:
             self.__undeploy_app(lib, library_module='true')
-            source_path = model_shared_libraries[lib][SOURCE_PATH]
-            self._delete_deployment_on_server(source_path)
+            self._delete_deployment_on_server(model_shared_libraries[lib])
 
         self.__deploy_model_libraries(model_shared_libraries, lib_location)
         self.__deploy_model_applications(model_applications, app_location, deployed_app_list)
@@ -1307,21 +1304,27 @@ class ApplicationsDeployer(Deployer):
             raise ex
 
 
-    def _delete_deployment_on_server(self, source_path):
+    def _delete_deployment_on_server(self, app_or_lib):
         """
         Remove deployed files on server after undeploy.
         :param source_path: source path in the model
         """
         # remove if ssh or local
         # For remote then the undeploy should already been removed the source
-        if not source_path.startswith('/'):
-            if self.model_context.is_ssh():
-                self.model_context.get_ssh_context().remove_file_or_directory(os.path.join(
-                    self.model_context.get_domain_home(), source_path))
-            else:
-                if not self.model_context.is_remote():
-                    FileUtils.deleteDirectory(File(os.path.join(
-                        self.model_context.get_domain_home(), source_path)))
+        # Check for None and source path, a simple partial model may not have all the information
+        # e.g. appDeployments:
+        #        "!myear":
+        #
+        if app_or_lib is not None and SOURCE_PATH in app_or_lib:
+            source_path = app_or_lib[SOURCE_PATH]
+            if not source_path.startswith('/'):
+                if self.model_context.is_ssh():
+                    self.model_context.get_ssh_context().remove_file_or_directory(os.path.join(
+                        self.model_context.get_domain_home(), source_path))
+                else:
+                    if not self.model_context.is_remote():
+                        FileUtils.deleteDirectory(File(os.path.join(
+                            self.model_context.get_domain_home(), source_path)))
 
     def __get_deployment_ordering(self, apps):
         _method_name = '__get_deployment_ordering'
