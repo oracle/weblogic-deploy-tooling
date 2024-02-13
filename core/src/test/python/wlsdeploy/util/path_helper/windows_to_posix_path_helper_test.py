@@ -81,6 +81,94 @@ class WindowsToPosixPathHelperTestCase(unittest.TestCase):
         self.assertEquals(actual, expected)
 
     ###########################################################################################
+    #                             local_basename() Tests                                      #
+    ###########################################################################################
+
+    def testLocalBasename_WithAbsoluteFilePath(self):
+        source_path = 'c:\\foo\\bar\\baz.yaml'
+        expected = 'baz.yaml'
+
+        actual = self.path_helper.local_basename(source_path)
+        self.assertEquals(actual, expected)
+
+    def testLocalBasename_WithAbsoluteFilePathWithForwardSlashes(self):
+        source_path = 'c:/foo/bar/baz.yaml'
+        expected = 'baz.yaml'
+
+        actual = self.path_helper.local_basename(source_path)
+        self.assertEquals(actual, expected)
+
+    def testLocalBasename_WithAbsoluteDirectoryPath(self):
+        source_path = 'c:\\foo\\bar\\baz'
+        expected = 'baz'
+
+        actual = self.path_helper.local_basename(source_path)
+        self.assertEquals(actual, expected)
+
+    def testLocalBasename_WithAbsoluteDirectoryPathWithForwardSlashes(self):
+        source_path = 'c:/foo/bar/baz'
+        expected = 'baz'
+
+        actual = self.path_helper.local_basename(source_path)
+        self.assertEquals(actual, expected)
+
+    def testLocalBasename_WithRelativeFilePath(self):
+        source_path = 'bar\\baz.yaml'
+        expected = 'baz.yaml'
+
+        actual = self.path_helper.local_basename(source_path)
+        self.assertEquals(actual, expected)
+
+    def testLocalBasename_WithRelativeFilePathWithForwardSlashes(self):
+        source_path = 'bar/baz.yaml'
+        expected = 'baz.yaml'
+
+        actual = self.path_helper.local_basename(source_path)
+        self.assertEquals(actual, expected)
+
+    def testLocalBasename_WithRelativeDirectoryPath(self):
+        source_path = 'bar\\baz'
+        expected = 'baz'
+
+        actual = self.path_helper.local_basename(source_path)
+        self.assertEquals(actual, expected)
+
+    def testLocalBasename_WithRelativeDirectoryPathWithForwardSlashes(self):
+        source_path = 'bar/baz'
+        expected = 'baz'
+
+        actual = self.path_helper.local_basename(source_path)
+        self.assertEquals(actual, expected)
+
+    def testLocalBasename_WithFileNameOnly(self):
+        source_path = 'baz.yaml'
+        expected = 'baz.yaml'
+
+        actual = self.path_helper.local_basename(source_path)
+        self.assertEquals(actual, expected)
+
+    def testLocalBasename_WithDirectoryNameOnly(self):
+        source_path = 'baz'
+        expected = 'baz'
+
+        actual = self.path_helper.local_basename(source_path)
+        self.assertEquals(actual, expected)
+
+    def testLocalBasename_WithEmptyPath(self):
+        source_path = ''
+        expected = None
+
+        actual = self.path_helper.local_basename(source_path)
+        self.assertEquals(actual, expected)
+
+    def testLocalBasename_WithNullPath(self):
+        source_path = None
+        expected = None
+
+        actual = self.path_helper.local_basename(source_path)
+        self.assertEquals(actual, expected)
+
+    ###########################################################################################
     #                               fixup_path() Tests                                        #
     ###########################################################################################
 
@@ -159,11 +247,13 @@ class WindowsToPosixPathHelperTestCase(unittest.TestCase):
         actual = self.path_helper.get_canonical_path(source_path)
         self.assertEquals(actual, expected)
 
-    #
-    # Cannot reliably test get_canonical_path() with a relative path and
-    # no relative_to value without making assumptions about the underlying
-    # file system.
-    #
+    def testGetCanonicalPath_WithRelativePath(self):
+        source_path = 'bar/baz.yaml'
+        # kind of hacky since the OS running the build could be windows...
+        expected = (os.getcwd() + '/' + source_path).replace('\\', '/')
+
+        actual = self.path_helper.get_canonical_path(source_path).replace('\\', '/')
+        self.assertEquals(actual, expected)
 
     def testGetCanonicalPath_WithAbsolutePathAndRelativeTo(self):
         source_path = '/foo/bar/baz.yaml'
@@ -199,11 +289,13 @@ class WindowsToPosixPathHelperTestCase(unittest.TestCase):
         actual = self.path_helper.get_remote_canonical_path(source_path)
         self.assertEquals(actual, expected)
 
-    #
-    # Cannot reliably test get_remote_canonical_path() with a relative path and
-    # no relative_to value since there is no direct access to the underlying
-    # remote file system.
-    #
+    def testGetRemoteCanonicalPath_WithRelativePath(self):
+        source_path = 'bar/baz.yaml'
+        # kind of hacky since the OS running the build could be windows...
+        expected = (os.getcwd() + '/' + source_path).replace('\\', '/')
+
+        actual = self.path_helper.get_remote_canonical_path(source_path).replace('\\', '/')
+        self.assertEquals(actual, expected)
 
     def testGetRemoteCanonicalPath_WithAbsolutePathAndRelativeTo(self):
         source_path = '/foo/bar/baz.yaml'
@@ -241,10 +333,20 @@ class WindowsToPosixPathHelperTestCase(unittest.TestCase):
 
     def testGetParentDirectory_WithRelativeFilePath(self):
         source_path = 'bar/baz.yaml'
-        expected = 'bar'
+        try:
+            __ = self.path_helper.get_parent_directory(source_path)
+            self.fail('Expected get_parent_directory() to fail with an active remote path module and a relative path')
+        except:
+            pass
 
-        actual = self.path_helper.get_parent_directory(source_path)
-        self.assertEquals(actual, expected)
+    def testGetParentDirectory_WithFileOnlyPath(self):
+        source_path = 'baz.yaml'
+
+        try:
+            __ = self.path_helper.get_parent_directory(source_path)
+            self.fail('Expected get_parent_directory() to fail with an active remote path module and only a file name')
+        except:
+            pass
 
     def testGetParentDirectory_WithEmptyPath(self):
         source_path = ''
@@ -273,10 +375,19 @@ class WindowsToPosixPathHelperTestCase(unittest.TestCase):
 
     def testGetRemoteParentDirectory_WithRelativeFilePath(self):
         source_path = 'bar/baz.yaml'
-        expected = 'bar'
+        try:
+            __ = self.path_helper.get_remote_parent_directory(source_path)
+            self.fail('Expected get_remote_parent_directory() to fail with an active remote path module and a relative path')
+        except:
+            pass
 
-        actual = self.path_helper.get_remote_parent_directory(source_path)
-        self.assertEquals(actual, expected)
+    def testGetRemoteParentDirectory_WithFileOnlyPath(self):
+        source_path = 'baz.yaml'
+        try:
+            __ = self.path_helper.get_remote_parent_directory(source_path)
+            self.fail('Expected get_remote_parent_directory() to fail with an active remote path module and only a file name')
+        except:
+            pass
 
     def testGetRemoteParentDirectory_WithEmptyPath(self):
         source_path = ''

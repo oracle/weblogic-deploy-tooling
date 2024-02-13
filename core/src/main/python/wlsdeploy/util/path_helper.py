@@ -144,6 +144,19 @@ class PathHelper(object):
         self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
         return result
 
+    #
+    # There are currently no use cases that require a remote_basename() method.
+    #
+    def local_basename(self, path):
+        _method_name = 'local_basename'
+        self._logger.entering(path, class_name=self._class_name, method_name=_method_name)
+
+        result = None
+        if not string_utils.is_empty(path):
+            result = self._local_path_module.basename(path)
+
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
 
     def fixup_path(self, path, relative_to=None):
         _method_name = 'fixup_path'
@@ -233,7 +246,9 @@ class PathHelper(object):
 
         result = path
         if not string_utils.is_empty(path):
-            result = self._local_path_module.dirname(path)
+            if not self._local_path_module.isabs(path):
+                result = self._local_path_module.abspath(path)
+            result = self._local_path_module.dirname(result)
             if string_utils.is_empty(result):
                 result = None
 
@@ -247,6 +262,10 @@ class PathHelper(object):
         self._verify_remote_path_module(_method_name)
         result = path
         if not string_utils.is_empty(path):
+            if not self._remote_path_module.isabs(path):
+                ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-02107', path)
+                self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
             result = self._remote_path_module.dirname(path)
             if string_utils.is_empty(result):
                 result = None

@@ -169,7 +169,7 @@ class ModelContext(object):
 
         if CommandLineArgUtil.DOMAIN_HOME_SWITCH in arg_map:
             self._domain_home = arg_map[CommandLineArgUtil.DOMAIN_HOME_SWITCH]
-            self._domain_name = self._path_helper.get_filename_from_path(self._domain_home)
+            self._domain_name = self._path_helper.local_basename(self._domain_home)
 
         if CommandLineArgUtil.DOMAIN_PARENT_SWITCH in arg_map:
             self._domain_parent_dir = arg_map[CommandLineArgUtil.DOMAIN_PARENT_SWITCH]
@@ -550,13 +550,12 @@ class ModelContext(object):
         """
         if self._domain_home is None and domain_home is not None and len(domain_home) > 0:
             self._domain_home = domain_home
-            self._domain_name = self._path_helper.get_filename_from_path(self._domain_home)
+            self._domain_name = self._path_helper.local_basename(self._domain_home)
 
     def set_domain_home_name_if_online(self, domain_home, domain_name):
         if self._wlst_mode == WlstModes.ONLINE:
             self.set_domain_home(domain_home)
             self.set_domain_name(domain_name)
-
 
     def get_domain_parent_dir(self):
         """

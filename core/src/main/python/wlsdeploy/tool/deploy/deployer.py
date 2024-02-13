@@ -453,7 +453,7 @@ class Deployer(object):
     def upload_deployment_to_remote_server(self, source_path, upload_remote_directory):
         upload_srcpath = self.path_helper.local_join(upload_remote_directory, source_path)
         upload_targetpath = self.path_helper.remote_join(self.model_context.get_domain_home(), source_path)
-        remote_dirname = self.path_helper.get_remote_parent_directory(source_path)
+        remote_dirname = self.path_helper.get_remote_parent_directory(upload_targetpath)
         self.model_context.get_ssh_context().create_directories_if_not_exist(self.path_helper.remote_join(
             self.model_context.get_domain_home(), remote_dirname))
         self.model_context.get_ssh_context().upload(upload_srcpath, upload_targetpath)
