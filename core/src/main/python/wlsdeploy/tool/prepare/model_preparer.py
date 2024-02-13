@@ -1,5 +1,7 @@
-# Copyright (c) 2021, 2024, Oracle and/or its affiliates.
-# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+"""
+Copyright (c) 2021, 2024, Oracle and/or its affiliates.
+Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+"""
 
 import os
 from java.io import FileInputStream
@@ -200,6 +202,7 @@ class ModelPreparer:
                 if target is not None and self.model_context.get_target_configuration().get_additional_output_types():
                     additional_output_types = []
                     output_types = self.model_context.get_target_configuration().get_additional_output_types()
+
                     if isinstance(output_types, list):
                         additional_output_types.extend(output_types)
                     else:

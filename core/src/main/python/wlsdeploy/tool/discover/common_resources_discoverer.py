@@ -136,14 +136,20 @@ class CommonResourcesDiscoverer(Discoverer):
                 qualified_property_value = properties[connection_property]['Value']
                 if qualified_property_value:
                     if WLSDeployArchive.isPathIntoArchive(qualified_property_value):
-                        qualified_property_value = os.path.join(self._model_context.get_domain_home()
-                                                                , qualified_property_value)
+                        qualified_property_value = self.path_helper.local_join(self._model_context.get_domain_home(),
+                                                                               qualified_property_value)
                     if self._model_context.is_ssh():
                         qualified_property_value = self.download_deployment_from_remote_server(qualified_property_value,
                                                                                        self.download_temporary_dir,
                                                                                        "dbWallets-" + datasource)
-
-
+                    if self.path_helper.is_relative_local_path(qualified_property_value):
+                        #
+                        # if the property value is a relative path at this point, it is relative to the
+                        # domain home.  If this path is absolute already, get_local_canonical_path is a no-op.
+                        #
+                        qualified_property_value = \
+                            self.path_helper.get_local_canonical_path(qualified_property_value,
+                                                                      self._model_context.get_domain_home())
                     if os.path.exists(qualified_property_value):
                         fixed_path = self._add_wallet_directory_to_archive(datasource, collected_wallet,
                                                                            qualified_property_value)
@@ -151,12 +157,9 @@ class CommonResourcesDiscoverer(Discoverer):
                                      class_name=_class_name, method_name=_method_name)
                         properties[connection_property]['Value'] = fixed_path
                     else:
-                        _logger.severe('WLSDPLY-06370', datasource, connection_property,
-                                       properties[connection_property]['Value'])
                         de = exception_helper.create_discover_exception('WLSDPLY-06370', datasource,
                                                                         connection_property,
-                                                                        properties[connection_property][
-                                                                            'Value'])
+                                                                        properties[connection_property]['Value'])
                         _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
                         raise de
 
@@ -181,7 +184,8 @@ class CommonResourcesDiscoverer(Discoverer):
         if onprem_wallet_parent_path not in collected_wallet_dictionary:
             if onprem_wallet_dir_is_not_flat:
                 # collect the specific file
-                fixed_path = archive_file.addDatabaseWallet(wallet_name, os.path.abspath(property_value))
+                # 
+                fixed_path = archive_file.addDatabaseWallet(wallet_name, property_value)
                 path_into_archive = os.path.dirname(fixed_path)
             else:
                 fixed_path = archive_file.addDatabaseWallet(wallet_name, onprem_wallet_parent_path)

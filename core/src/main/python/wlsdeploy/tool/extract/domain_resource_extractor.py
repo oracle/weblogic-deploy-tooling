@@ -27,6 +27,9 @@ class DomainResourceExtractor:
         self._logger = logger
 
     def extract(self):
+        _method_name = 'extract'
+        self._logger.entering(class_name=self._class_name, method_name=_method_name)
+
         # create a credential injector containing secrets from the model
         model_dict = self._model.get_model()
         credential_injector = CredentialInjector(DomainResourceExtractor, self._model_context,
@@ -40,7 +43,7 @@ class DomainResourceExtractor:
         additional_output_helper.create_additional_output(
             self._model, self._model_context, self._aliases, credential_injector, ExceptionType.DEPLOY,
             domain_home_override=domain_home)
-
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name)
 
 def _add_secrets(folder, credential_injector):
     """

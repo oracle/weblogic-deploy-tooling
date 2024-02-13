@@ -23,11 +23,11 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_utils
+from wlsdeploy.util import env_helper
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import model_helper
 from wlsdeploy.util import model_translator
-from wlsdeploy.util import path_utils
-from wlsdeploy.util import env_helper
+from wlsdeploy.util import path_helper
 
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -411,17 +411,18 @@ def persist_model(model_context, model_dictionary):
     if check_persist_model():
         store_value = env_helper.getenv(_store_environment_variable)
 
-        if os.path.isabs(store_value):
+        _path_helper = path_helper.get_path_helper()
+        if _path_helper.is_absolute_local_path(store_value):
             file_path = store_value
         elif model_context.get_domain_home() is not None:
-            file_path = model_context.get_domain_home() + os.sep + 'wlsdeploy' + os.sep + 'domain_model.json'
+            file_path = _path_helper.local_join(model_context.get_domain_home(), 'wlsdeploy', 'domain_model.json')
         else:
             file_dir = FileUtils.createTempDirectory('wlsdeploy')
             file_path = File(file_dir, 'domain_model.json').getAbsolutePath()
 
         __logger.info('WLSDPLY-01650', file_path, class_name=_class_name, method_name=_method_name)
 
-        persist_dir = path_utils.get_parent_directory(file_path)
+        persist_dir = _path_helper.get_local_parent_directory(file_path)
         if not os.path.exists(persist_dir):
             os.makedirs(persist_dir)
 

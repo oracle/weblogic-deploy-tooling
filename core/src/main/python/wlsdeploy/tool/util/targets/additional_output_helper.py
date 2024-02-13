@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2023, Oracle and/or its affiliates.
+Copyright (c) 2020, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Methods for creating Kubernetes resource configuration files for Verrazzano.
@@ -27,7 +27,7 @@ from wlsdeploy.tool.util.targets import crd_file_updater
 from wlsdeploy.tool.util.targets import file_template_helper
 from wlsdeploy.tool.util.targets import model_crd_helper
 from wlsdeploy.util import dictionary_utils
-from wlsdeploy.util import path_utils
+from wlsdeploy.util import path_helper
 from wlsdeploy.util import target_configuration_helper
 import wlsdeploy.util.unicode_helper as str_helper
 
@@ -91,6 +91,9 @@ def create_additional_output(model, model_context, aliases, credential_injector,
     :param exception_type: the type of exception to throw if needed
     :param domain_home_override: (optionsl) domain home value to use in CRD, or None
     """
+    _method_name = 'create_additional_output'
+    __logger.entering(exception_type, domain_home_override, class_name=__class_name, method_name=_method_name)
+
     target_configuration = model_context.get_target_configuration()
     template_names = target_configuration.get_additional_output_types()
     if not len(template_names):
@@ -111,6 +114,7 @@ def create_additional_output(model, model_context, aliases, credential_injector,
         crd_helper = model_crd_helper.get_helper(model_context)
         crd_file_updater.update_from_model(output_file, model, crd_helper)
 
+    __logger.exiting(class_name=__class_name, method_name=_method_name)
 
 def _create_file(template_name, template_hash, output_file, exception_type):
     """
@@ -124,7 +128,8 @@ def _create_file(template_name, template_hash, output_file, exception_type):
     _method_name = '_create_file'
 
     template_subdir = "targets/templates/" + template_name
-    template_path = path_utils.find_config_path(template_subdir)
+    _path_helper = path_helper.get_path_helper()
+    template_path = _path_helper.find_local_config_path(template_subdir)
 
     __logger.info('WLSDPLY-01662', output_file, class_name=__class_name, method_name=_method_name)
 

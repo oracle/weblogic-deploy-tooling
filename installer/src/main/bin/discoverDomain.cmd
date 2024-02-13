@@ -86,7 +86,6 @@ ECHO               -ssh_pass ^<ssh_pass^>
 ECHO               -ssh_pass_env ^<ssh_pass_env^> ^| -ssh_pass_file ^<ssh_pass_file^> ^| -ssh_pass_prompt
 ECHO               -ssh_private_key ^<ssh_private_key^>
 ECHO               -ssh_private_key_pass_env ^<ssh_private_key_pass_env^> ^| -ssh_private_key_pass_file ^<ssh_private_key_pass_file^> ^| -ssh_private_key_pass_prompt
-ECHO               -remote_oracle_home ^<remote_oracle_home^>
 ECHO            ]
 ECHO.
 ECHO     where:
@@ -133,8 +132,6 @@ ECHO         admin_pass_file - An alternative to entering the admin password at 
 ECHO                           prompt. The value is the name of a file with a
 ECHO                           string value which WDT will read to retrieve the
 ECHO                           password.
-ECHO.
-ECHO         remote_oracle_home - the full path to the Oracle Home on the remote machine.
 ECHO.
 ECHO         ssh_host        - the host name for admin server when SSH protocol is used to collect resources
 ECHO                           from the admin server host.

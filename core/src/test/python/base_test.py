@@ -6,7 +6,11 @@ import os
 import shutil
 import unittest
 
+from java.io import File
+
+from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.util import env_helper
+from wlsdeploy.util import path_helper
 
 
 class BaseTestCase(unittest.TestCase):
@@ -22,11 +26,13 @@ class BaseTestCase(unittest.TestCase):
         self.TEST_CONFIG_DIR = os.path.join(self.TEST_OUTPUT_DIR, 'wdt-config')
         self.log_levels = {}
 
-        self.original_config_dir = env_helper.getenv('WDT_CUSTOM_CONFIG', self.TEST_CONFIG_DIR)
+        self.original_config_dir = env_helper.getenv('WLSDEPLOY_CUSTOM_CONFIG', self.TEST_CONFIG_DIR)
         # config items may need to be copied from here
         self.INSTALLER_LIB_DIR = os.path.abspath(os.path.join(self.TEST_CLASSES_DIR, '../../../installer/src/main/lib'))
 
     def setUp(self):
+        path_helper.initialize_path_helper(ExceptionType.ALIAS, unit_test_force=True, unit_test_is_windows=File.separator == '\\')
+        self.path_helper = path_helper.get_path_helper()
         # subclasses should call this
         self._establish_directory(self.TEST_OUTPUT_DIR)
 
@@ -41,11 +47,11 @@ class BaseTestCase(unittest.TestCase):
             shutil.rmtree(config_dir)
         shutil.copytree(self.original_config_dir, config_dir)
 
-        os.environ['WDT_CUSTOM_CONFIG'] = str(config_dir)
+        os.environ['WLSDEPLOY_CUSTOM_CONFIG'] = str(config_dir)
         return config_dir
 
     def _clear_custom_config_dir(self):
-        os.environ['WDT_CUSTOM_CONFIG'] = self.original_config_dir
+        os.environ['WLSDEPLOY_CUSTOM_CONFIG'] = self.original_config_dir
 
     def _establish_directory(self, name):
         """

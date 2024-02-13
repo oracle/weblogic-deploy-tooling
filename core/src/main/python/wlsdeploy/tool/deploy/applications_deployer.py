@@ -50,7 +50,6 @@ from wlsdeploy.tool.deploy.applications_version_helper import ApplicationsVersio
 from wlsdeploy.tool.deploy.deployer import Deployer
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model_helper
-from wlsdeploy.util import path_utils
 from wlsdeploy.util import string_utils
 import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.tool.util import appmodule_helper
@@ -233,10 +232,9 @@ class ApplicationsDeployer(Deployer):
     def __substitute_appmodule_token(self, path, module_type):
         # we need to substitute any token in the app module xml file
         if  self.version_helper.is_module_type_app_module(module_type):
-            if os.path.isabs(path):
-                abspath = path
-            else:
-                abspath = self.model_context.get_domain_home() + os.sep + path
+            abspath = path
+            if self.path_helper.is_relative_local_path(path):
+                abspath = self.path_helper.local_join(self.model_context.get_domain_home(), path)
 
             original_variables = {}
             variable_file = self.model_context.get_variable_file()
@@ -487,14 +485,15 @@ class ApplicationsDeployer(Deployer):
                 if absolute_planpath is None:
                     absolute_planpath = attributes_map['PlanPath']
 
-                if absolute_planpath is not None and not os.path.isabs(absolute_planpath):
-                    absolute_planpath = self.model_context.get_domain_home() + '/' + absolute_planpath
+                if absolute_planpath is not None and self.path_helper.is_relative_path(absolute_planpath):
+                    absolute_planpath = self.path_helper.join(self.model_context.get_domain_home(), absolute_planpath)
 
                 if absolute_sourcepath is None:
                     absolute_sourcepath = attributes_map['SourcePath']
 
-                if absolute_sourcepath is not None and not os.path.isabs(absolute_sourcepath):
-                    absolute_sourcepath = self.model_context.get_domain_home() + '/' + absolute_sourcepath
+                if absolute_sourcepath is not None and self.path_helper.is_relative_path(absolute_sourcepath):
+                    absolute_sourcepath = \
+                        self.path_helper.join(self.model_context.get_domain_home(), absolute_sourcepath)
 
                 deployment_order = attributes_map['DeploymentOrder']
 
@@ -511,11 +510,11 @@ class ApplicationsDeployer(Deployer):
         plan_hash = None
         if self.model_context.is_ssh():
             local_download_app_path = \
-                path_utils.download_file_from_remote_server(self.model_context, absolute_sourcepath,
-                                                            local_download_root, 'apps')
+                self.path_helper.download_file_from_remote_server(self.model_context, absolute_sourcepath,
+                                                                  local_download_root, 'apps')
             local_download_plan_path = \
-                path_utils.download_file_from_remote_server(self.model_context, absolute_planpath,
-                                                            local_download_root, 'plans')
+                self.path_helper.download_file_from_remote_server(self.model_context, absolute_planpath,
+                                                                  local_download_root, 'plans')
             if local_download_app_path:
                 app_hash = self.__get_file_hash(local_download_app_path)
             if local_download_plan_path:
@@ -726,10 +725,9 @@ class ApplicationsDeployer(Deployer):
         # If the existing running app's source path (always absolute from runtime mbean) = the model's source path.
         # or if the model sourcepath + domain home is exactly equal to the running's app source path.
         # return True otherwise return False
-        if not os.path.isabs(model_src_path):
-            return FileUtils.getCanonicalPath(self.model_context.get_domain_home() + '/' + model_src_path) == src_path
-        else:
-            return FileUtils.getCanonicalPath(src_path) == FileUtils.getCanonicalPath(model_src_path)
+        app_path = self.path_helper.get_canonical_path(src_path)
+        model_path = self.path_helper.get_canonical_path(model_src_path, self.model_context.get_domain_home())
+        return app_path == model_path
 
     def __append_to_stop_and_undeploy_apps(self, versioned_name, stop_and_undeploy_app_list, existing_targets_set):
         if versioned_name not in stop_and_undeploy_app_list and len(existing_targets_set) > 0:
@@ -954,7 +952,7 @@ class ApplicationsDeployer(Deployer):
 
         if string_utils.is_empty(path):
             hash_value = None
-        elif os.path.isabs(path):
+        elif self.path_helper.is_absolute_local_path(path):
             hash_value = self.__get_file_hash(path)
         elif deployer_utils.is_path_into_archive(path):
             if self.archive_helper.contains_path(path):
@@ -964,8 +962,8 @@ class ApplicationsDeployer(Deployer):
             else:
                 hash_value = self.archive_helper.get_file_hash(path)
         else:
-            path =  self.model_context.get_domain_home() + '/' + path
-            if os.path.isabs(path):
+            path =  self.path_helper.local_join(self.model_context.get_domain_home(), path)
+            if self.path_helper.is_absolute_local_path(path):
                 hash_value = self.__get_file_hash(path)
             else:
                 ex = exception_helper.create_deploy_exception('WLSDPLY-09310', path)
@@ -1204,23 +1202,23 @@ class ApplicationsDeployer(Deployer):
 
         full_source_path = source_path
 
-        if not os.path.isabs(full_source_path):
-            full_source_path = real_domain_home + '/' + source_path
+        if self.path_helper.is_relative_local_path(full_source_path):
+            full_source_path = self.path_helper.local_join(real_domain_home, source_path)
 
-        if os.path.isabs(full_source_path) and not self.model_context.is_ssh() and not os.path.exists(full_source_path):
-                ex = exception_helper.create_deploy_exception('WLSDPLY-09318', type_name, application_name,
-                                                              str_helper.to_string(full_source_path))
-                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                raise ex
-
+        if self.path_helper.is_absolute_local_path(full_source_path) and not self.model_context.is_ssh() \
+                and not os.path.exists(full_source_path):
+            ex = exception_helper.create_deploy_exception('WLSDPLY-09318', type_name, application_name,
+                                                          str_helper.to_string(full_source_path))
+            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
 
         if is_library:
             computed_name = self.version_helper.get_library_versioned_name(source_path, application_name,
-                                            from_archive=(self.model_context.is_remote() or self.model_context.is_ssh()))
+                                from_archive=(self.model_context.is_remote() or self.model_context.is_ssh()))
         else:
             computed_name = self.version_helper.get_application_versioned_name(source_path, application_name,
-                                                                               module_type=module_type,
-                                            from_archive=(self.model_context.is_remote() or self.model_context.is_ssh()))
+                                module_type=module_type,
+                               from_archive=(self.model_context.is_remote() or self.model_context.is_ssh()))
 
         application_name = computed_name
 
@@ -1229,8 +1227,8 @@ class ApplicationsDeployer(Deployer):
         kwargs = {'path': str_helper.to_string(full_source_path), 'targets': str_helper.to_string(targets)}
 
         if plan is not None:
-            if not os.path.isabs(plan):
-                plan = real_domain_home + '/' + plan
+            if self.path_helper.is_relative_local_path(plan):
+                plan = self.path_helper.local_join(real_domain_home, plan)
 
             if not os.path.exists(plan):
                 ex = exception_helper.create_deploy_exception('WLSDPLY-09319', type_name, application_name, plan)
@@ -1311,19 +1309,20 @@ class ApplicationsDeployer(Deployer):
         """
         # remove if ssh or local
         # For remote then the undeploy should already been removed the source
+        #
         # Check for None and source path, a simple partial model may not have all the information
         # e.g. appDeployments:
         #        "!myear":
         #
         if app_or_lib is not None and SOURCE_PATH in app_or_lib:
             source_path = app_or_lib[SOURCE_PATH]
-            if not source_path.startswith('/'):
+            if self.path_helper.is_relative_path(source_path):
                 if self.model_context.is_ssh():
-                    self.model_context.get_ssh_context().remove_file_or_directory(os.path.join(
+                    self.model_context.get_ssh_context().remove_file_or_directory(self.path_helper.remote_join(
                         self.model_context.get_domain_home(), source_path))
                 else:
                     if not self.model_context.is_remote():
-                        FileUtils.deleteDirectory(File(os.path.join(
+                        FileUtils.deleteDirectory(File(self.path_helper.local_join(
                             self.model_context.get_domain_home(), source_path)))
 
     def __get_deployment_ordering(self, apps):
@@ -1368,7 +1367,7 @@ class ApplicationsDeployer(Deployer):
         if plan_path is not None and len(str_helper.to_string(plan_path)) > 0:
             plan_file_name = plan_path
 
-        plan_file = os.path.join(self.model_context.get_domain_home(), plan_dir, plan_file_name)
+        plan_file = self.path_helper.local_join(self.model_context.get_domain_home(), plan_dir, plan_file_name)
         dbf = DocumentBuilderFactory.newInstance()
         db = dbf.newDocumentBuilder()
         document = db.parse(File(plan_file))

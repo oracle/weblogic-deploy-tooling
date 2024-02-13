@@ -25,6 +25,7 @@ from wlsdeploy.tool.validate import validation_utils
 from wlsdeploy.tool.validate.crd_sections_validator import CrdSectionsValidator
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model
+from wlsdeploy.util import path_helper
 import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util import variables
 from wlsdeploy.util.enum import Enum
@@ -74,6 +75,7 @@ class Validator(object):
         self._validation_mode = None
         self._variable_properties = {}
         self._wls_helper = model_context.get_weblogic_helper()
+        self.path_helper = path_helper.get_path_helper()
 
         if wlst_mode is not None:
             # In TOOL validate mode, the WLST mode is specified by the calling tool and the
@@ -846,7 +848,7 @@ class Validator(object):
             # TODO(mwooten) - This would be a good place to validate any path token found...
 
             if not self._model_context.has_token_prefix(path):
-                if not os.path.isabs(path):
+                if self.path_helper.is_relative_local_path(path):
                     self._logger.info('WLSDPLY-05031', attribute_name, model_folder_path, path,
                                       class_name=_class_name, method_name=_method_name)
 

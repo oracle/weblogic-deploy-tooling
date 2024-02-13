@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -182,19 +182,16 @@ class GlobalResourcesDiscoverer(Discoverer):
                     self.add_to_remote_map(file_path, new_file_name,
                                            WLSDeployArchive.ArchiveEntryType.MIME_MAPPING.name())
                 else:
+                    if self._model_context.is_ssh():
+                        file_path = self.download_deployment_from_remote_server(file_path, self.download_temporary_dir,
+                                                                                "mimeFile")
                     if os.path.exists(file_path):
                         # There is indeed a mime properties file
                         # we need to change the different path in the model
                         # and add file to the archive similar to apps
                         archive_file = self._model_context.get_archive_file()
-                        base_name = os.path.basename(file_path)
-                        new_name = archive_file.ARCHIVE_CONFIG_TARGET_DIR + '/' + base_name
-                        if self._model_context.is_ssh():
-                            file_path = self.download_deployment_from_remote_server(file_path,
-                                                                                     self.download_temporary_dir,
-                                                                                     "mimeFile")
-
-
+                        base_name = self.path_helper.get_local_filename_from_path(file_path)
+                        new_name = self.path_helper.local_join(archive_file.ARCHIVE_CONFIG_TARGET_DIR, base_name)
                         archive_file.addMimeMappingFile(file_path)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)

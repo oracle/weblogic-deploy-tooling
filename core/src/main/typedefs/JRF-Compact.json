@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2022, 2023, Oracle and/or its affiliates.",
+    "copyright": "Copyright (c) 2022, 2024, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "name": "JRF-Compact",
     "description": "JRF type domain with a compact profile definitions",
@@ -91,7 +91,8 @@
             ".*opss-audit-viewDS$",
             ".*opss-data-source$",
             ".*opss-ds$",
-            ".*WLSSchemaDataSource$"
+            ".*WLSSchemaDataSource$",
+            ".*WLSRuntimeSchemaDataSource$"
         ],
         "/FileStore": [
             "^JRFWSAsyncFileStore$",
@@ -127,6 +128,9 @@
             "^jsf.*",
             "^jstl.*",
             "^log4j_jar.*",
+            "^log4j-api_jar$",
+            "^log4j-bridge_jar$",
+            "^log4j-core_jar$",
             "^odl\\.clickhistory.*",
             "^odl\\.clickhistory\\.webapp.*",
             "^ohw-rcf.*",
@@ -154,6 +158,10 @@
             "^orai18n-adf.*",
             "^owasp\\.esapi.*",
             "^UIX.*"
+        ],
+        "/ServerTemplate": [
+            "^wsm-cache-server-template$",
+            "^wsmpm-server-template$"
         ],
         "/ShutdownClass": [
             "^DMSShutdown$",

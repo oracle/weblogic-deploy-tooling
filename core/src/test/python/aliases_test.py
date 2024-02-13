@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from org.python.modules import jarray
@@ -21,7 +21,9 @@ import wlsdeploy.aliases.model_constants as FOLDERS
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.exception.exception_types import ExceptionType
 import wlsdeploy.logging.platform_logger as platform_logger
+from wlsdeploy.util import path_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
 
@@ -39,6 +41,7 @@ class AliasesTestCase(unittest.TestCase):
     }
 
     logger = platform_logger.PlatformLogger('wlsdeploy.unittest')
+    path_helper.initialize_path_helper(ExceptionType.ALIAS, unit_test_force=True)
     model_context = ModelContext("test", arg_map)
 
     # create a set of aliases for use with WLST

@@ -25,13 +25,14 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
-from wlsdeploy.util import model_helper
 from wlsdeploy.tool.deploy import log_helper
 from wlsdeploy.tool.util.archive_helper import ArchiveList
 from wlsdeploy.tool.util.attribute_setter import AttributeSetter
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
-import wlsdeploy.util.dictionary_utils as dictionary_utils
+from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util import model_helper
+from wlsdeploy.util import path_helper
 import wlsdeploy.util.unicode_helper as str_helper
 
 
@@ -60,6 +61,7 @@ class Deployer(object):
         self.wlst_helper = WlstHelper(ExceptionType.DEPLOY)
         self.attribute_setter = AttributeSetter(model_context, self.aliases, ExceptionType.DEPLOY, wlst_mode=wlst_mode)
         self.topology_helper = TopologyHelper(self.aliases, ExceptionType.DEPLOY, self.logger)
+        self.path_helper = path_helper.get_path_helper()
 
         self.archive_helper = None
         archive_file_name = self.model_context.get_archive_file_name()
@@ -371,8 +373,8 @@ class Deployer(object):
 
                 if not relative_path_in_archive.endswith('/') and result and self.model_context.is_ssh():
                     # upload to remote
-                    source_path = os.path.join(self.upload_temporary_dir, relative_path_in_archive)
-                    target_path = os.path.join(self.model_context.get_domain_home(), extract_path)
+                    source_path = self.path_helper.local_join(self.upload_temporary_dir, relative_path_in_archive)
+                    target_path = self.path_helper.remote_join(self.model_context.get_domain_home(), extract_path)
                     self.upload_specific_file_to_remote_server(source_path, target_path)
             else:
                 path = self.aliases.get_model_folder_path(location)
@@ -403,7 +405,7 @@ class Deployer(object):
         else:
             strip_leading_path = True
 
-        full_path_into_domain = os.path.join(self.model_context.get_domain_home(), value)
+        full_path_into_domain = self.path_helper.local_join(self.model_context.get_domain_home(), value)
 
         if self.archive_helper.contains_file(value):
             if self.wlst_mode == WlstModes.OFFLINE:
@@ -449,15 +451,16 @@ class Deployer(object):
         return result
 
     def upload_deployment_to_remote_server(self, source_path, upload_remote_directory):
-        upload_srcpath = os.path.join(upload_remote_directory, source_path)
-        upload_targetpath = os.path.join(self.model_context.get_domain_home(), source_path)
-        remote_dirname = os.path.dirname(source_path)
-        self.model_context.get_ssh_context().create_directories_if_not_exist(os.path.join(
+        upload_srcpath = self.path_helper.local_join(upload_remote_directory, source_path)
+        upload_targetpath = self.path_helper.remote_join(self.model_context.get_domain_home(), source_path)
+        remote_dirname = self.path_helper.get_remote_parent_directory(source_path)
+        self.model_context.get_ssh_context().create_directories_if_not_exist(self.path_helper.remote_join(
             self.model_context.get_domain_home(), remote_dirname))
         self.model_context.get_ssh_context().upload(upload_srcpath, upload_targetpath)
 
     def upload_specific_file_to_remote_server(self, source_path, upload_targetpath):
-        self.model_context.get_ssh_context().create_directories_if_not_exist(os.path.dirname(upload_targetpath))
+        self.model_context.get_ssh_context().create_directories_if_not_exist(
+            self.path_helper.get_remote_parent_directory(upload_targetpath))
         self.model_context.get_ssh_context().upload(source_path, upload_targetpath)
 
     def add_application_attributes_online(self, model, location):

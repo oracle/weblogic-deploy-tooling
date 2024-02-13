@@ -8,6 +8,7 @@ from oracle.weblogic.deploy.util import WLSDeployArchive
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util import path_helper
 from wlsdeploy.util import string_utils
 from wlsdeploy.util import variables
 
@@ -32,7 +33,8 @@ class Saml2SecurityHelper(object):
         """
         self._domain_home = model_context.get_domain_home()
         self._model_context = model_context
-        self._domain_security_directory = os.path.join(self._domain_home, DOMAIN_SECURITY_FOLDER)
+        self.path_helper = path_helper.get_path_helper()
+        self._domain_security_directory = self.path_helper.join(self._domain_home, DOMAIN_SECURITY_FOLDER)
         self._exception_type = exception_type
         self._logger = PlatformLogger('wlsdeploy.tool.util')
 
@@ -67,7 +69,7 @@ class Saml2SecurityHelper(object):
         if archive_helper and archive_helper.contains_file(properties_path):
             # if the "initialized" file is present, don't extract files
             initialized_file = properties_file_name + '.initialized'
-            initialized_path = os.path.join(self._domain_security_directory, initialized_file)
+            initialized_path = self.path_helper.join(self._domain_security_directory, initialized_file)
             if self._model_context.is_ssh():
                 extracted_file_path = archive_helper.extract_file(properties_path, deployer.upload_temporary_dir)
                 if self._detokenize_file(extracted_file_path, variable_map):
@@ -169,8 +171,7 @@ class Saml2SecurityHelper(object):
         _method_name = '_discover_initialization_files'
 
         properties_file_name = prefix + '.properties'
-        properties_file = os.path.join(self._domain_security_directory, properties_file_name)
-
+        properties_file = self.path_helper.join(self._domain_security_directory, properties_file_name)
         if self._model_context.is_ssh():
             # only if it exists
             results = self._model_context.get_ssh_context().get_directory_contents(self._domain_security_directory, True)
@@ -179,6 +180,7 @@ class Saml2SecurityHelper(object):
                     properties_file = discoverer.download_deployment_from_remote_server(
                         properties_file,
                         discoverer.download_temporary_dir, "samlInitFile")
+
         if os.path.isfile(properties_file):
             if archive:
                 self._logger.info('WLSDPLY-23005', properties_file_name, class_name=self._class_name,
@@ -204,10 +206,14 @@ class Saml2SecurityHelper(object):
         """
         _method_name = '_discover_metadata_files'
 
-        properties_file = os.path.join(self._domain_security_directory, properties_file_name)
+        properties_file = self.path_helper.join(self._domain_security_directory, properties_file_name)
         metadata_file_names = self._get_metadata_file_names(properties_file, partners_key)
         for metadata_file_name in metadata_file_names:
-            metadata_file = os.path.join(self._domain_security_directory, metadata_file_name)
+            metadata_file = self.path_helper.join(self._domain_security_directory, metadata_file_name)
+            if self._model_context.is_ssh():
+                metadata_file = discoverer.download_deployment_from_remote_server(metadata_file,
+                    discoverer.download_temporary_dir, "samlInitFile")
+
             if not os.path.isfile(metadata_file):
                 self._logger.severe('WLSDPLY-23007', metadata_file_name, properties_file_name,
                                     class_name=self._class_name, method_name=_method_name)
@@ -241,6 +247,6 @@ class Saml2SecurityHelper(object):
                 if metadata_file_name:
                     metadata_file_names.append(metadata_file_name)
                 else:
-                    self._logger.severe('WLSDPLY-23004', metadata_key, properties_file, class_name=self._class_name,
-                                        method_name=_method_name)
+                    self._logger.severe('WLSDPLY-23004', metadata_key, properties_file,
+                                        class_name=self._class_name, method_name=_method_name)
         return metadata_file_names

@@ -23,7 +23,7 @@ from wlsdeploy.exception.exception_helper import create_cla_exception
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.targets.model_crd_helper import VERRAZZANO_PRODUCT_KEY
-from wlsdeploy.util import path_utils
+from wlsdeploy.util import path_helper
 import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.target_configuration import TargetConfiguration
@@ -1018,7 +1018,9 @@ class CommandLineArgUtil(object):
         method_name = '_validate_target_arg'
 
         # Check if the target configuration file exists
-        target_configuration_file = path_utils.find_config_path(os.path.join('targets', value, 'target.json'))
+        _path_helper = path_helper.get_path_helper()
+        target_configuration_file = \
+            _path_helper.find_local_config_path(_path_helper.local_join('targets', value, 'target.json'))
         if not os.path.exists(target_configuration_file):
             ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-01643', value, target_configuration_file)
             _logger.throwing(ex, class_name=self._class_name, method_name=method_name)

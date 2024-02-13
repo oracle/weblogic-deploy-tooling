@@ -20,7 +20,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
 from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
-from wlsdeploy.util import path_utils
+from wlsdeploy.util import path_helper
 
 _class_name = 'DomainInfoDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
@@ -112,16 +112,17 @@ class DomainInfoDiscoverer(Discoverer):
                          self._model_context.get_domain_home(), class_name=_class_name, method_name=_method_name)
             # Download the entire directory if it exists.
             #
-            remote_dir = os.path.join(self._model_context.get_domain_home(),
-                                      WLSDeployArchive.WRC_EXTENSION_TARGET_DIR_NAME)
+            remote_dir = self.path_helper.remote_join(self._model_context.get_domain_home(),
+                                                      WLSDeployArchive.WRC_EXTENSION_TARGET_DIR_NAME)
             ssh_client = self._model_context.get_ssh_context()
             if ssh_client.does_directory_exist(remote_dir):
                 ssh_client.download(remote_dir, self.download_temporary_dir)
-                local_dir = os.path.join(self.download_temporary_dir, WLSDeployArchive.WRC_EXTENSION_TARGET_DIR_NAME)
+                local_dir = self.path_helper.local_join(self.download_temporary_dir,
+                                                        WLSDeployArchive.WRC_EXTENSION_TARGET_DIR_NAME)
                 dir_entries = os.listdir(local_dir)
                 archive_file_name = archive_file.getArchiveFileName()
                 for dir_entry in dir_entries:
-                    abs_dir_entry = os.path.join(local_dir, dir_entry)
+                    abs_dir_entry = self.path_helper.local_join(local_dir, dir_entry)
                     if os.path.isfile(abs_dir_entry):
                         try:
                             archive_file.addWrcExtensionFile(abs_dir_entry, True)
@@ -135,13 +136,13 @@ class DomainInfoDiscoverer(Discoverer):
                             raise ex
         else:
             _logger.info('WLSDPLY-06431', self._model_context.get_domain_home())
-            install_dir = \
-                os.path.join(self._model_context.get_domain_home(), WLSDeployArchive.WRC_EXTENSION_TARGET_DIR_NAME)
+            install_dir = self.path_helper.local_join(self._model_context.get_domain_home(),
+                                                      WLSDeployArchive.WRC_EXTENSION_TARGET_DIR_NAME)
             if os.path.exists(install_dir) and os.path.isdir(install_dir):
                 dir_entries = os.listdir(install_dir)
                 archive_file_name = archive_file.getArchiveFileName()
                 for dir_entry in dir_entries:
-                    abs_dir_entry = os.path.join(install_dir, dir_entry)
+                    abs_dir_entry = self.path_helper.local_join(install_dir, dir_entry)
                     if os.path.isfile(abs_dir_entry):
                         try:
                             archive_file.addWrcExtensionFile(abs_dir_entry, True)
@@ -174,7 +175,7 @@ class DomainInfoDiscoverer(Discoverer):
                                WLSDeployArchive.ArchiveEntryType.DOMAIN_LIB.name())
             elif self._model_context.is_ssh():
                 # execute remote command to find the domain libs
-                results = self._model_context.get_ssh_context().get_directory_contents(os.path.join(
+                results = self._model_context.get_ssh_context().get_directory_contents(self.path_helper.remote_join(
                     self._model_context.get_domain_home(), "lib"), True, '^.+\.jar$')
                 for item in results:
                     file_list.append(item)
@@ -184,9 +185,9 @@ class DomainInfoDiscoverer(Discoverer):
             _logger.finer('WLSDPLY-06420', domain_lib, class_name=_class_name, method_name=_method_name)
 
             for entry_path in file_list:
-                if not entry_path.startswith('/'):
-                    entry_path = os.path.join(domain_lib, entry_path)
-                if path_utils.is_jar_file(entry_path):
+                if self.path_helper.is_relative_path(entry_path):
+                    entry_path = self.path_helper.join(domain_lib, entry_path)
+                if self.path_helper.is_jar_file(entry_path):
                     try:
                         if self._model_context.is_ssh():
                             entry_path = self.download_deployment_from_remote_server(entry_path,
@@ -230,14 +231,15 @@ class DomainInfoDiscoverer(Discoverer):
                 elif self._model_context.is_ssh():
                     file_list = []
                     # execute remote command to find the script
-                    results = self._model_context.get_ssh_context().get_directory_contents(os.path.join(
+                    results = self._model_context.get_ssh_context().get_directory_contents(self.path_helper.remote_join(
                         self._model_context.get_domain_home(), "bin"), True, '^setUserOverrides.*\..+$')
                     if results:
                         for item in results:
                             file_list.append(item)
 
                 elif os.path.isdir(domain_bin):
-                    search_directory = FileUtils.fixupFileSeparatorsForJython(os.path.join(domain_bin, "setUserOverrides*.*"))
+                    search_directory = \
+                        self.path_helper.fixup_local_path(self.path_helper.local_join(domain_bin, "setUserOverrides*.*"))
                     _logger.finer('WLSDPLY-06425', search_directory, class_name=_class_name, method_name=_method_name)
                     file_list = glob.glob(search_directory)
 

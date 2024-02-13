@@ -18,7 +18,7 @@ from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging import platform_logger
 from wlsdeploy.util import validate_configuration
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
-from wlsdeploy.util import path_utils
+from wlsdeploy.util import path_helper
 from wlsdeploy.util import string_utils
 from wlsdeploy.util import model_config
 from wlsdeploy.util.target_configuration import TargetConfiguration
@@ -118,7 +118,7 @@ class ModelContext(object):
         self._local_test_file = None
         self._remote_output_dir = None
         self._local_output_dir = None
-
+        self._path_helper = path_helper.get_path_helper()
 
         self._trailing_args = []
 
@@ -169,7 +169,7 @@ class ModelContext(object):
 
         if CommandLineArgUtil.DOMAIN_HOME_SWITCH in arg_map:
             self._domain_home = arg_map[CommandLineArgUtil.DOMAIN_HOME_SWITCH]
-            self._domain_name = os.path.basename(self._domain_home)
+            self._domain_name = self._path_helper.get_filename_from_path(self._domain_home)
 
         if CommandLineArgUtil.DOMAIN_PARENT_SWITCH in arg_map:
             self._domain_parent_dir = arg_map[CommandLineArgUtil.DOMAIN_PARENT_SWITCH]
@@ -240,9 +240,6 @@ class ModelContext(object):
         if CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH in arg_map:
             self._ssh_private_key_passphrase_prompt = \
                 arg_map[CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH]
-
-        if CommandLineArgUtil.REMOTE_ORACLE_HOME_SWITCH in arg_map:
-            self._remote_oracle_home = arg_map[CommandLineArgUtil.REMOTE_ORACLE_HOME_SWITCH]
 
         if CommandLineArgUtil.REMOTE_TEST_FILE_SWITCH in arg_map:
             self._remote_test_file = arg_map[CommandLineArgUtil.REMOTE_TEST_FILE_SWITCH]
@@ -433,13 +430,17 @@ class ModelContext(object):
     def is_initialization_complete(self):
         return self._initialization_complete
 
-    def complete_initialization(self, remote_wl_version = None):
+    def complete_initialization(self, remote_wl_version = None, remote_oracle_home = None):
         """
         Set the remote version when running in online mode.
         :param remote_wl_version: the version of the online server
+        :param remote_oracle_home: the directory location of the Oracle Home on the online server
         """
         if not self._initialization_complete:
             self._remote_wl_version = remote_wl_version
+            self._remote_oracle_home = remote_oracle_home
+            path_helper.set_remote_file_system_from_oracle_home(remote_oracle_home)
+
             self._wls_helper = WebLogicHelper(self._logger, remote_wl_version)
             if self._remote_oracle_home is not None:
                 # If we couldn't determine the remote version, just use the local version and hope for the best.
@@ -549,7 +550,7 @@ class ModelContext(object):
         """
         if self._domain_home is None and domain_home is not None and len(domain_home) > 0:
             self._domain_home = domain_home
-            self._domain_name = os.path.basename(self._domain_home)
+            self._domain_name = self._path_helper.get_filename_from_path(self._domain_home)
 
     def set_domain_home_name_if_online(self, domain_home, domain_name):
         if self._wlst_mode == WlstModes.ONLINE:
@@ -763,7 +764,7 @@ class ModelContext(object):
     def get_target_configuration_file(self):
         if self._target:
             target_path = os.path.join('targets', self._target, 'target.json')
-            return path_utils.find_config_path(target_path)
+            return self._path_helper.find_local_config_path(target_path)
         return None
 
     def get_target(self):
@@ -1115,12 +1116,12 @@ class ModelContext(object):
             resource_dict[attribute_name] = attribute_value.replace(self.JAVA_HOME_TOKEN,
                                                                     self.get_java_home())
         elif attribute_value.startswith(self.CURRENT_DIRECTORY_TOKEN):
-            cwd = path_utils.fixup_path(os.getcwd())
+            cwd = self._path_helper.fixup_local_path(os.getcwd())
             self._logger.fine(message, self.CURRENT_DIRECTORY_TOKEN, resource_type, resource_name,
                               attribute_name, cwd, class_name=self._class_name, method_name='_replace_tokens')
             resource_dict[attribute_name] = attribute_value.replace(self.CURRENT_DIRECTORY_TOKEN, cwd)
         elif attribute_value.startswith(self.TEMP_DIRECTORY_TOKEN):
-            temp_dir = path_utils.fixup_path(tempfile.gettempdir())
+            temp_dir = self._path_helper.fixup_local_path(tempfile.gettempdir())
             self._logger.fine(message, self.TEMP_DIRECTORY_TOKEN, resource_type, resource_name, attribute_name,
                               temp_dir, class_name=self._class_name, method_name='_replace_tokens')
             resource_dict[attribute_name] = attribute_value.replace(self.TEMP_DIRECTORY_TOKEN, temp_dir)
@@ -1143,9 +1144,11 @@ class ModelContext(object):
         elif string_value.startswith(self.JAVA_HOME_TOKEN):
             result = _replace(string_value, self.JAVA_HOME_TOKEN, self.get_java_home())
         elif string_value.startswith(self.CURRENT_DIRECTORY_TOKEN):
-            result = _replace(string_value, self.CURRENT_DIRECTORY_TOKEN, path_utils.fixup_path(os.getcwd()))
+            result = _replace(string_value, self.CURRENT_DIRECTORY_TOKEN,
+                              self._path_helper.fixup_local_path(os.getcwd()))
         elif string_value.startswith(self.TEMP_DIRECTORY_TOKEN):
-            result = _replace(string_value, self.TEMP_DIRECTORY_TOKEN, path_utils.fixup_path(tempfile.gettempdir()))
+            result = _replace(string_value, self.TEMP_DIRECTORY_TOKEN,
+                              self._path_helper.fixup_local_path(tempfile.gettempdir()))
         else:
             result = string_value
 
@@ -1159,14 +1162,14 @@ class ModelContext(object):
         :param path: to check for directories to be tokenized
         :return: tokenized path or original path
         """
-        my_path = path_utils.fixup_path(path)
-        wl_home = path_utils.fixup_path(self.get_effective_wl_home())
-        domain_home = path_utils.fixup_path(self.get_domain_home())
-        oracle_home = path_utils.fixup_path(self.get_effective_oracle_home())
-        # TODO - these last three tokens will not work properly for an SSH context
-        java_home = path_utils.fixup_path(self.get_java_home())
-        tmp_dir = path_utils.fixup_path(tempfile.gettempdir())
-        cwd = path_utils.fixup_path(os.path.dirname(os.path.abspath(__file__)))
+        my_path = self._path_helper.fixup_path(path)
+        wl_home = self._path_helper.fixup_path(self.get_effective_wl_home())
+        domain_home = self._path_helper.fixup_path(self.get_domain_home())
+        oracle_home = self._path_helper.fixup_path(self.get_effective_oracle_home())
+        # TODO - these last three tokens will not work properly for a remote/SSH context
+        java_home = self._path_helper.fixup_local_path(self.get_java_home())
+        tmp_dir = self._path_helper.fixup_local_path(tempfile.gettempdir())
+        cwd = self._path_helper.fixup_local_path(os.getcwd())
 
         # decide later what is required to be in context home for appropriate exception prevention
         result = my_path
@@ -1197,7 +1200,7 @@ class ModelContext(object):
         for index, value in enumerate(cp_elements):
             path_is_windows = '\\' in value or re.match('^[a-zA-Z][:]', value)
             if path_is_windows:
-                value = path_utils.fixup_path(value)
+                value = self._path_helper.fixup_path(value)
             cp_elements[index] = self.tokenize_path(value)
 
         return MODEL_LIST_DELIMITER.join(cp_elements)

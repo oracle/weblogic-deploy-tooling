@@ -101,7 +101,7 @@ class ModelDeployer(Deployer):
                     # correct deprecated location
                     if path.startswith(WLSDeployArchive.WLSDPLY_ARCHIVE_BINARY_DIR + WLSDeployArchive.ZIP_SEP):
                         path = WLSDeployArchive.CONFIG_DIR_NAME + WLSDeployArchive.ZIP_SEP + path
-                    absolute_path = os.path.join(self.model_context.get_domain_home(), path)
+                    absolute_path = self.path_helper.join(self.model_context.get_domain_home(), path)
                     if absolute_path not in distribute_list:
                         distribute_list.append(absolute_path)
 
@@ -206,10 +206,11 @@ class ModelDeployer(Deployer):
                     self._upload_extracted_directory(WLSDeployArchive.DEPRECATED_CUSTOM_TARGET_DIR)
 
     def _upload_extracted_directory(self, archive_path):
-        local_dir = os.path.join(self.upload_temporary_dir, archive_path)
+        local_dir = self.path_helper.local_join(self.upload_temporary_dir, archive_path)
         if os.path.isdir(local_dir):
-            remote_dir = os.path.join(self.model_context.get_domain_home(), archive_path)
+            remote_dir = self.path_helper.remote_join(self.model_context.get_domain_home(), archive_path)
             self.model_context.get_ssh_context().create_directories_if_not_exist(remote_dir)
 
-            remote_parent_dir = os.path.join(remote_dir, os.pardir)
+            remote_parent_dir = \
+                self.path_helper.get_remote_canonical_path(self.path_helper.remote_join(remote_dir, os.pardir))
             self.model_context.get_ssh_context().upload(local_dir, remote_parent_dir)

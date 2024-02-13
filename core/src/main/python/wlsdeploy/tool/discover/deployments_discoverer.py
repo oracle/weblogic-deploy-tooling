@@ -28,7 +28,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
 from wlsdeploy.util import dictionary_utils
-from wlsdeploy.util import path_utils
+from wlsdeploy.util import path_helper
 
 _class_name = 'DeploymentsDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
@@ -318,9 +318,10 @@ class DeploymentsDiscoverer(Discoverer):
                                      method_name=_method_name)
                         try:
                             if self._model_context.is_ssh():
-                                file_name_path = self.download_deployment_from_remote_server(file_name_path,
-                                                                                        self.download_temporary_dir,
-                                                                                              "applications")
+                                file_name_path = \
+                                    self.download_deployment_from_remote_server(file_name_path,
+                                                                                self.download_temporary_dir,
+                                                                                "applications")
 
                             new_source_name = archive_file.addApplication(file_name_path)
                             module_type = dictionary_utils.get_dictionary_element(application_dict,
@@ -514,8 +515,7 @@ class DeploymentsDiscoverer(Discoverer):
 
     def _get_pass_replacement(self, jdbc_file, name, type, properties=None, username=''):
         if self._credential_injector is not None:
-            head, tail = os.path.split(jdbc_file)
-            token = tail[:len(tail) - len('.xml')]
+            token = self.path_helper.get_local_filename_no_ext_from_path(jdbc_file)
             token = token + name
             if properties is not None:
                 self._extra_tokens[token] = properties
@@ -602,8 +602,9 @@ def _generate_new_plan_name(binary_path, plan_path):
     :param plan_path: path of the plan from the domain
     :return: newly generated plan name for the archive file
     """
-    new_name = path_utils.get_filename_from_path(plan_path)
+    _path_helper = path_helper.get_path_helper()
+    new_name = _path_helper.get_filename_from_path(plan_path)
     if binary_path is not None:
-        prefix = path_utils.get_filename_no_ext_from_path(binary_path)
+        prefix = _path_helper.get_filename_no_ext_from_path(binary_path)
         new_name = prefix + '-' + new_name
     return new_name

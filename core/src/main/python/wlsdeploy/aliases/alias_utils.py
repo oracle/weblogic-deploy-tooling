@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -429,15 +429,19 @@ def replace_tokens_in_path(location, path):
     :raises: AliasException: if an error occurs while processing the path tokens
     """
     _method_name = 'replace_tokens_in_path'
-
     _logger.entering(str_helper.to_string(location), path, class_name=_class_name, method_name=_method_name)
+
     name_tokens = location.get_name_tokens()
     new_path = path
     if name_tokens:
         for key, value in name_tokens.iteritems():
-            if '/' in value and _wlst_mode == WlstModes.OFFLINE:
-                value = '(%s)' % value
-            new_path = new_path.replace('%s%s%s' % ('%', key, '%'), value)
+            if isinstance(value, (str, unicode)):
+                if '/' in value and _wlst_mode == WlstModes.OFFLINE:
+                    value = '(%s)' % value
+                new_path = new_path.replace('%s%s%s' % ('%', key, '%'), value)
+            else:
+                _logger.finer('WLSDPLY-08028', key, value, str_helper.to_string(location),
+                              class_name=_class_name, method_name=_method_name)
 
     missing_name_token = get_missing_name_tokens(new_path)
 
@@ -445,6 +449,7 @@ def replace_tokens_in_path(location, path):
         ex = exception_helper.create_alias_exception('WLSDPLY-08014', new_path, missing_name_token)
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
+
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_path)
     return new_path
 

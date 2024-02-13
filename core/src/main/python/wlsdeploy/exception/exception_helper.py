@@ -54,6 +54,28 @@ _EXCEPTION_TYPE_MAP = {
     ExceptionType.YAML:                  'create_yaml_exception'
 }
 
+_PROGRAM_NAME_TO_EXCEPTION_TYPE_MAP = {
+    'compareModel':          ExceptionType.COMPARE,
+    'createDomain':          ExceptionType.CREATE,
+    'deployApps':            ExceptionType.DEPLOY,
+    'discoverDomain':        ExceptionType.DISCOVER,
+    'encryptModel':          ExceptionType.ENCRYPTION,
+    'extractDomainResource': ExceptionType.DEPLOY,
+    'injectVariables':       ExceptionType.TRANSLATE,
+    'modelHelp':             ExceptionType.CLA,
+    'prepareModel':          ExceptionType.PREPARE,
+    'updateDomain':          ExceptionType.DEPLOY,
+    'validateModel':         ExceptionType.VALIDATE,
+    'verifySSH':             ExceptionType.SSH
+}
+
+
+def get_exception_type_from_program_name(program_name):
+    if program_name in _PROGRAM_NAME_TO_EXCEPTION_TYPE_MAP:
+        exception_type = _PROGRAM_NAME_TO_EXCEPTION_TYPE_MAP[program_name]
+    else:
+        raise TypeError(str_helper.to_string('Unknown program name: %s' % program_name))
+    return exception_type
 
 def get_exception_class(exception_type):
     ex = create_exception(exception_type, 'Find the class')

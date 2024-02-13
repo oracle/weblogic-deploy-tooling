@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -16,7 +16,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.targeting_types import TargetingType
 from wlsdeploy.tool.util.topology_profiles import TopologyProfile
 from wlsdeploy.util import dictionary_utils
-from wlsdeploy.util import path_utils
+from wlsdeploy.util import path_helper
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -80,7 +80,9 @@ class DomainTypedef(object):
         self.wls_helper = None
 
         file_name = domain_type + self.__domain_typedef_extension
-        self._domain_typedef_filename = path_utils.find_config_path(os.path.join('typedefs', file_name))
+        _path_helper = path_helper.get_path_helper()
+        self._domain_typedef_filename = \
+            _path_helper.find_local_config_path(_path_helper.local_join('typedefs', file_name))
 
         # No need to explicitly validate the filename since the JsonToPython constructor does that...
         try:

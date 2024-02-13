@@ -433,10 +433,11 @@ class AliasEntries(object):
                                 the alias data for the location is bad
         """
         _method_name = 'get_wlst_list_path_for_location'
-
         _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
+
         tokenized_path = self.__get_path_for_location(location, WLST_LIST_PATH)
         result = alias_utils.replace_tokens_in_path(location, tokenized_path)
+
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return result
 

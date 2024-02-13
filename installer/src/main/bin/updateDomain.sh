@@ -50,7 +50,6 @@ usage() {
   echo "           -ssh_pass_env <ssh_pass_env> | -ssh_pass_file <ssh_pass_file> | -ssh_pass_prompt"
   echo "           -ssh_private_key <ssh_private_key>"
   echo "           -ssh_private_key_pass_env <ssh_private_key_pass_env> | -ssh_private_key_pass_file <ssh_private_key_pass_file> | -ssh_private_key_pass_prompt"
-  echo "           -remote_domain_home <remote_domain_home>"
   echo "          ]"
   echo ""
   echo "    where:"

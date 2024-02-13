@@ -11,7 +11,6 @@ from java.net import URISyntaxException
 from oracle.weblogic.deploy.discover import DiscoverException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
-from oracle.weblogic.deploy.util import StringUtils
 
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
@@ -24,7 +23,7 @@ from wlsdeploy.tool.discover.custom_folder_helper import CustomFolderHelper
 from wlsdeploy.tool.util.mbean_utils import MBeanUtils
 from wlsdeploy.tool.util.mbean_utils import get_interface_name
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
-from wlsdeploy.util import path_utils
+from wlsdeploy.util import path_helper
 import wlsdeploy.util.unicode_helper as str_helper
 
 
@@ -67,6 +66,7 @@ class Discoverer(object):
         self._wlst_helper = WlstHelper(ExceptionType.DISCOVER)
         self._mbean_utils = MBeanUtils(self._model_context, self._aliases, ExceptionType.DISCOVER)
         self._wls_version = model_context.get_effective_wls_version()
+        self.path_helper = path_helper.get_path_helper()
 
         if model_context.is_ssh():
             try:
@@ -77,11 +77,9 @@ class Discoverer(object):
                 raise ex
 
     def add_to_remote_map(self, local_name, archive_name, file_type):
-        if not os.path.isabs(local_name):
-            local_name = os.path.join(self._model_context.get_domain_home(), local_name)
-        # we don't know the remote machine type, so automatically turn into forward
-        # slashes.
-        local_name = local_name.replace('\\', '/')
+        # we don't know the remote machine type, so automatically
+        # turn into forward slashes.
+        local_name = self.path_helper.fixup_path(local_name, self._model_context.get_domain_home())
         remote_dict[local_name] = OrderedDict()
         remote_dict[local_name][REMOTE_TYPE] = file_type
         remote_dict[local_name][REMOTE_ARCHIVE_PATH] = archive_name
@@ -693,11 +691,11 @@ class Discoverer(object):
 
     def _convert_path(self, file_name, relative_to_config=False):
         file_name_resolved = self._model_context.replace_token_string(file_name)
-        if path_utils.is_relative_path(file_name_resolved):
+        if self.path_helper.is_relative_path(file_name_resolved):
             relative_to_dir = self._model_context.get_domain_home()
             if relative_to_config:
-                relative_to_dir = os.path.join(self._model_context.get_domain_home(), 'config')
-            return convert_to_absolute_path(relative_to_dir, file_name_resolved)
+                relative_to_dir = self.path_helper.join(self._model_context.get_domain_home(), 'config')
+            return self.path_helper.get_canonical_path(file_name_resolved, relative_to_dir)
         return file_name_resolved
 
     def _is_file_to_exclude_from_archive(self, file_name):
@@ -710,10 +708,10 @@ class Discoverer(object):
         _method_name = '_is_file_to_exclude_from_archive'
         _logger.entering(file_name, class_name=_class_name, method_name=_method_name)
 
-        py_str = path_utils.fixup_path(str_helper.to_string(file_name))
-        domain_home = path_utils.fixup_path(self._model_context.get_domain_home())
-        wl_home = path_utils.fixup_path(self._model_context.get_effective_wl_home())
-        oracle_home = path_utils.fixup_path(self._model_context.get_effective_oracle_home())
+        py_str = self.path_helper.fixup_path(str_helper.to_string(file_name))
+        domain_home = self.path_helper.fixup_path(self._model_context.get_domain_home())
+        wl_home = self.path_helper.fixup_path(self._model_context.get_effective_wl_home())
+        oracle_home = self.path_helper.fixup_path(self._model_context.get_effective_oracle_home())
         _logger.finer('WLSDPLY-06162', py_str, domain_home, oracle_home, wl_home,
                       class_name=_class_name, method_name=_method_name)
 
@@ -897,7 +895,8 @@ class Discoverer(object):
         return success, url, path
 
     def download_deployment_from_remote_server(self, source_path, local_download_root, file_type):
-        return path_utils.download_file_from_remote_server(self._model_context, source_path, local_download_root, file_type)
+        return self.path_helper.download_file_from_remote_server(self._model_context, source_path,
+                                                                 local_download_root, file_type)
 
 
 def add_to_model_if_not_empty(dictionary, entry_name, entry_value):
@@ -922,26 +921,6 @@ def add_to_model(dictionary, entry_name, entry_value):
     :param entry_value: dictionary to add
     """
     dictionary[entry_name] = entry_value
-
-def convert_to_absolute_path(relative_to, file_name):
-    """
-    Transform the path by joining the relative_to before the file_name and converting the resulting path name to
-    an absolute path name.
-    :param relative_to: prefix of the path
-    :param file_name: name of the file
-    :return: absolute path of the relative_to and file_name
-    """
-    if not StringUtils.isEmpty(relative_to) and not StringUtils.isEmpty(file_name):
-        file_name = os.path.join(relative_to, file_name)
-
-        # Because we are supporting cross-platform, remote interaction using SSH, make sure
-        # that we are not joining a Unix path with a Windows separator.  The reverse scenario
-        # is typically fine since Java accepts forward slash separators on Windows.
-        #
-        if file_name.startswith('/'):
-            file_name = file_name.replace('\\','/')
-
-    return file_name
 
 
 def _is_containment(mbean_attribute_info):

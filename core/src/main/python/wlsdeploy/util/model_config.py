@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2023, Oracle and/or its affiliates.
+Copyright (c) 2020, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -10,7 +10,7 @@ from java.lang import NumberFormatException
 from java.lang import System
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.util import path_utils
+from wlsdeploy.util import path_helper
 from wlsdeploy.util import string_utils
 
 TOOL_PROPERTIES_FILE_NAME = 'tool.properties'
@@ -259,19 +259,21 @@ def _load_properties_file():
     """
     _method_name = 'load_properties_file'
     _logger.entering(class_name=_class_name, method_name=_method_name)
-    wlsdeploy_path = path_utils.find_config_path(TOOL_PROPERTIES_FILE_NAME)
+    _path_helper = path_helper.get_path_helper()
+    tool_properties_path = _path_helper.find_local_config_path(TOOL_PROPERTIES_FILE_NAME)
+
     result = None
     try:
-        result = string_utils.load_properties(wlsdeploy_path)
+        result = string_utils.load_properties(tool_properties_path)
     except IOException, ioe:
-        _logger.warning('WLSDPLY-01570', wlsdeploy_path, ioe.getMessage(),
+        _logger.warning('WLSDPLY-01570', tool_properties_path, ioe.getMessage(),
                         class_name=_class_name, method_name=_method_name)
 
         # Return an empty dict so that failing to load the tool.properties file does
         # not prevent the code above from working using the default values.  The WLST
         # unit tests depend on this behavior until they are refactored to all
         # copy the tool.properties file into the target/unit_tests/config directory
-        # and setting the WDT_CUSTOM_CONFIG environment variable to point to it.
+        # and setting the WLSDEPLOY_CUSTOM_CONFIG environment variable to point to it.
         #
         result = dict()
     _logger.exiting(class_name=_class_name, method_name=_method_name)

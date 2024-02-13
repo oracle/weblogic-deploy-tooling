@@ -48,6 +48,7 @@ class WlstHelper(object):
         pwd = None
         version_string = None
         patch_list_array = None
+        remote_oracle_home = None
         try:
             try:
                 pwd = self.get_pwd()
@@ -61,6 +62,8 @@ class WlstHelper(object):
                     version_string = lsa_dict['WeblogicVersion']
                 if 'PatchList' in lsa_dict:
                     patch_list_array = self.get('PatchList')
+                if 'OracleHome' in lsa_dict:
+                    remote_oracle_home = self.get('OracleHome')
             except self.__load_global('WLSTException'), e:
                 pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00133', url,
                                                         self.__get_exception_mode(e), _format_exception(e), error=e)
@@ -71,8 +74,9 @@ class WlstHelper(object):
                 self.cd(pwd)
             self.disconnect()
 
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=(version_string, patch_list_array))
-        return version_string, patch_list_array
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name,
+                              result=(version_string, patch_list_array, remote_oracle_home))
+        return version_string, patch_list_array, remote_oracle_home
 
     def assign(self, source_type, source_name, target_type, target_name):
         """

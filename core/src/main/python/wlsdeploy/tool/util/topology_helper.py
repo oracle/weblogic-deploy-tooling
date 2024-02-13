@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -18,6 +18,7 @@ from wlsdeploy.aliases.model_constants import NM_PROPERTIES
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.util import model_helper
+from wlsdeploy.util import path_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 
 
@@ -32,6 +33,7 @@ class TopologyHelper(object):
         self.aliases = aliases
         self.wlst_helper = WlstHelper(exception_type)
         self._coherence_cluster_elements = [CLUSTER, SERVER, SERVER_TEMPLATE]
+        self.path_helper = path_helper.get_path_helper()
 
     def check_coherence_cluster_references(self, type_name, model_nodes):
         """
@@ -202,9 +204,9 @@ class TopologyHelper(object):
         Return the extract directory for the specified extract path and domain home.
         The directory is created if it does not exist.
         :param extract_path: the path to be extracted (including the file name)
-        :param domain_home: the domain home being deployed
+        :param domain_home: the domain home being deployed (or the SSH temporary upload directory)
         """
-        destination_file = os.path.join(domain_home, extract_path)
+        destination_file = self.path_helper.local_join(domain_home, extract_path)
         extract_directory = os.path.dirname(destination_file)
         if not os.path.exists(extract_directory):
             os.makedirs(extract_directory)

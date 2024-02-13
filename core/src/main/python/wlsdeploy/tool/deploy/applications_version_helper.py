@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2024, Oracle Corporation and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -19,6 +19,7 @@ from java.util.zip import ZipException
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
+from wlsdeploy.util import path_helper
 from wlsdeploy.util import string_utils
 import wlsdeploy.util.unicode_helper as str_helper
 
@@ -152,7 +153,8 @@ class ApplicationsVersionHelper(object):
             return self.archive_helper.get_manifest(source_path)
 
         else:
-            if not os.path.isabs(source_path):
+            _path_helper = path_helper.get_path_helper()
+            if _path_helper.is_relative_local_path(source_path):
                 # if this was in archive, it has been expanded under domain home.
                 # or it may be a relative file intentionally placed under domain home.
                 source_file = File(File(self.model_context.get_domain_home()), source_path)

@@ -25,7 +25,7 @@ from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import dictionary_utils
-from wlsdeploy.util import path_utils
+from wlsdeploy.util import path_helper
 import wlsdeploy.util.unicode_helper as str_helper
 
 WEBLOGIC_DEPLOY_HOME_TOKEN = '@@WLSDEPLOY@@'
@@ -91,6 +91,7 @@ class VariableInjector(object):
         self.__section_keys = model_sections.get_model_top_level_keys()
         self.__section_keys.remove(model_sections.get_model_domain_info_key())
         self.__variable_dictionary = variable_dictionary
+        self.__path_helper = path_helper.get_path_helper()
 
     def get_variable_cache(self):
         """
@@ -179,7 +180,8 @@ class VariableInjector(object):
             variable_file_location = variable_file_override
         elif properties_file_override is not None:
             variable_file_location = properties_file_override
-            _logger.info('WLSDPLY-19602', properties_file_override, class_name=_class_name, method_name=_method_name)
+            _logger.info('WLSDPLY-19602', properties_file_override,
+                         class_name=_class_name, method_name=_method_name)
         else:
             variable_file_location = variables.get_default_variable_file_name(self._model_context)
 
@@ -596,7 +598,7 @@ class VariableInjector(object):
     def _replace_tokens(self, path_string):
         result = path_string
         if path_string.startswith(WEBLOGIC_DEPLOY_HOME_TOKEN):
-            wlsdeploy_location = path_utils.get_wls_deploy_path()
+            wlsdeploy_location = self.__path_helper.get_wls_deploy_path()
             result = path_string.replace(WEBLOGIC_DEPLOY_HOME_TOKEN, wlsdeploy_location)
         elif path_string and self._model_context:
             result = self._model_context.replace_token_string(path_string)
@@ -706,7 +708,7 @@ class VariableInjector(object):
                 _logger.info('WLSDPLY-19600', injector_config_file_override, class_name=_class_name,
                              method_name=_method_name)
             else:
-                config_file_path = path_utils.find_config_path(VARIABLE_INJECTOR_FILE_NAME)
+                config_file_path = self.__path_helper.find_local_config_path(VARIABLE_INJECTOR_FILE_NAME)
                 if os.path.exists(config_file_path):
                     injector_config_file = config_file_path
 
@@ -738,7 +740,8 @@ class VariableInjector(object):
                 file_name = name + '.json'
                 if file_name not in injector_file_list:
                     if not os.path.isabs(file_name):
-                        file_name = path_utils.find_config_path(os.path.join(INJECTORS_LOCATION, file_name))
+                        file_name = self.__path_helper.find_local_config_path(self.__path_helper.local_join(
+                            INJECTORS_LOCATION, file_name))
                     injector_file_list.append(file_name)
                     _logger.finer('WLSDPLY-19508', file_name, name, class_name=_class_name,
                                   method_name=_method_name)

@@ -104,7 +104,7 @@ class CoherenceResourcesDeployer(Deployer):
             if runtime_cache_config_uri is not None:
                 # Use case 1
                 domain_home = self.model_context.get_domain_home()
-                result[COHERENCE_RUNTIME_CACHE_CONFIG_URI] = os.path.join(domain_home, runtime_cache_config_uri)
+                result[COHERENCE_RUNTIME_CACHE_CONFIG_URI] = self.path_helper.join(domain_home, runtime_cache_config_uri)
                 use_cache_config_file = False
 
         if use_cache_config_file:
@@ -117,7 +117,7 @@ class CoherenceResourcesDeployer(Deployer):
                                          class_name=self._class_name, method_name=_method_name)
                 self.logger.exiting(class_name=self._class_name, method_name=_method_name)
                 return cache_config_dict
-            elif os.path.isabs(cache_configuration_file):
+            elif self.path_helper.is_absolute_path(cache_configuration_file):
                 value_to_use = cache_configuration_file
                 self.logger.fine('WLSDPLY-09419', cluster_name, cache_config_name, cache_configuration_file,
                                  class_name=self._class_name, method_name=_method_name)
@@ -193,7 +193,8 @@ class CoherenceResourcesDeployer(Deployer):
             model_path = dictionary_utils.get_element(coh_resource, COHERENCE_CUSTOM_CLUSTER_CONFIGURATION)
 
             if isinstance(model_path, (str, unicode)) and len(model_path) > 0:
-                coh_cluster_config_path = os.path.join(domain_home, 'config', 'coherence', coherence_cluster_name)
+                coh_cluster_config_path = \
+                    self.path_helper.join(domain_home, 'config', 'coherence', coherence_cluster_name)
                 if self.model_context.is_ssh():
                     self.logger.fine("WLSDPLY-09425", model_path, coh_cluster_config_path,
                                      class_name=self._class_name, method_name=_method_name)
@@ -219,18 +220,18 @@ class CoherenceResourcesDeployer(Deployer):
         if self.archive_helper.is_path_into_archive(model_path):
             # this is the extracted path from the archive
             if self.model_context.is_ssh():
-                config_filepath = os.path.join(self.upload_temporary_dir, model_path)
+                config_filepath = self.path_helper.local_join(self.upload_temporary_dir, model_path)
             else:
-                config_filepath = os.path.join(domain_home, model_path)
-        elif os.path.isabs(model_path):
+                config_filepath = self.path_helper.local_join(domain_home, model_path)
+        elif self.path_helper.is_absolute_local_path(model_path):
             # absolute path
             config_filepath = model_path
         else:
             # what to do with a relative path that is not in the exploded Archive location?
-            coh_domain_config_path_prefix = os.path.join(domain_home, 'config')
+            coh_domain_config_path_prefix = self.path_helper.local_join(domain_home, 'config')
             self.logger.info("WLSDPLY-09411", model_path, coh_domain_config_path_prefix,
                              class_name=self._class_name, method_name=_method_name)
-            config_filepath = os.path.join(coh_domain_config_path_prefix, model_path)
+            config_filepath = self.path_helper.local_join(coh_domain_config_path_prefix, model_path)
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=config_filepath)
         return config_filepath

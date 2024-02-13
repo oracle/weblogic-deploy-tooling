@@ -88,7 +88,6 @@ ECHO               -ssh_pass ^<ssh_pass^>
 ECHO               -ssh_pass_env ^<ssh_pass_env^> ^| -ssh_pass_file ^<ssh_pass_file^> ^| -ssh_pass_prompt
 ECHO               -ssh_private_key ^<ssh_private_key^>
 ECHO               -ssh_private_key_pass_env ^<ssh_private_key_pass_env^> ^| -ssh_private_key_pass_file ^<ssh_private_key_pass_file^> ^| -ssh_private_key_pass_prompt
-ECHO               -remote_domain_home ^<remote_domain_home^>
 ECHO            ]
 ECHO.
 ECHO     where:

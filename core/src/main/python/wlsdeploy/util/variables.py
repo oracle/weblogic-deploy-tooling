@@ -16,14 +16,14 @@ from java.io import IOException
 
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 
-from wlsdeploy.util import path_utils
-from wlsdeploy.util import string_utils
-import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging import platform_logger
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import env_helper
+from wlsdeploy.util import path_helper
+from wlsdeploy.util import string_utils
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
+import wlsdeploy.util.unicode_helper as str_helper
 
 _class_name = "variables"
 _logger = platform_logger.PlatformLogger('wlsdeploy.variables')
@@ -135,22 +135,34 @@ def get_default_variable_file_name(model_context):
     :return: location and file name of variable properties file.
     """
     _method_name = 'get_default_variable_file_name'
+    _logger.entering(class_name=_class_name, method_name=_method_name)
 
+    _path_helper = path_helper.get_path_helper()
     if model_context.get_target() is not None:
-        default_variable_file = os.path.join(model_context.get_output_dir(), model_context.get_target() +
-                                             "_variable.properties")
+        default_variable_file = \
+            _path_helper.local_join(model_context.get_output_dir(),
+                                    '%s_variable.properties' % model_context.get_target())
+        _logger.finer('WLSDPLY-01747', model_context.get_target(), default_variable_file,
+                      class_name=_class_name, method_name=_method_name)
     else:
         extract_file_name = model_context.get_model_file()
         if not extract_file_name:
             extract_file_name = model_context.get_archive_file_name()
-        default_variable_file = path_utils.get_filename_no_ext_from_path(extract_file_name)
+        default_variable_file = _path_helper.get_local_filename_no_ext_from_path(extract_file_name)
+        _logger.finer('WLSDPLY-01748', extract_file_name, default_variable_file,
+                      class_name=_class_name, method_name=_method_name)
 
         if default_variable_file:
-            default_variable_file = os.path.join(path_utils.get_pathname_from_path(extract_file_name),
-                                                 default_variable_file + '.properties')
+            default_variable_file = \
+                _path_helper.local_join(_path_helper.get_local_pathname_from_path(extract_file_name),
+                                        '%s.properties' % default_variable_file)
+            _logger.finer('WLSDPLY-01749', extract_file_name, default_variable_file,
+                          class_name=_class_name, method_name=_method_name)
+
     if default_variable_file:
         _logger.finer('WLSDPLY-01736', default_variable_file, class_name=_class_name, method_name=_method_name)
 
+    _logger.exiting(class_name=_class_name, method_name=_method_name, result=default_variable_file)
     return default_variable_file
 
 

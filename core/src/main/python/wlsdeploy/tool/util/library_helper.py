@@ -16,6 +16,7 @@ from wlsdeploy.tool.util.archive_helper import ArchiveList
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 
 from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util import path_helper
 import wlsdeploy.util.unicode_helper as str_helper
 
 
@@ -33,6 +34,7 @@ class LibraryHelper(object):
         self.aliases = aliases
         self.wlst_helper = WlstHelper(exception_type)
         self.upload_temporary_dir = upload_temporary_dir
+        self.path_helper = path_helper.get_path_helper()
         self.archive_helper = None
         archive_file_name = self.model_context.get_archive_file_name()
         if archive_file_name is not None:
@@ -174,11 +176,11 @@ class LibraryHelper(object):
         :param target_parent_dir:  wlsdeploy
         """
         if self.model_context.is_ssh():
-            self.model_context.get_ssh_context().create_directories_if_not_exist(os.path.join(
+            self.model_context.get_ssh_context().create_directories_if_not_exist(self.path_helper.remote_join(
                 self.model_context.get_domain_home(), archive_path))
-            self.model_context.get_ssh_context().upload(os.path.join(self.upload_temporary_dir, archive_path),
-                                                        os.path.join(self.model_context.get_domain_home(),
-                                                                     target_parent_dir))
+            self.model_context.get_ssh_context().upload(
+                self.path_helper.local_join(self.upload_temporary_dir, archive_path),
+                self.path_helper.remote_join(self.model_context.get_domain_home(), target_parent_dir))
 
 
     def _upload_extracted_file(self, name, path_from_domain):
@@ -189,7 +191,6 @@ class LibraryHelper(object):
         """
         base_name = name[name.rfind('/')+1:]
         # file is extracted to destination/lib
-        self.model_context.get_ssh_context().upload(os.path.join(self.upload_temporary_dir, path_from_domain,
-                                                                 base_name),
-                                                    os.path.join(self.model_context.get_domain_home(),
-                                                                 path_from_domain, base_name))
+        self.model_context.get_ssh_context().upload(
+            self.path_helper.local_join(self.upload_temporary_dir, path_from_domain, base_name),
+            self.path_helper.remote_join(self.model_context.get_domain_home(), path_from_domain, base_name))

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -82,6 +82,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import model_helper
+from wlsdeploy.util import path_helper
 import wlsdeploy.util.unicode_helper as str_helper
 
 class AttributeSetter(object):
@@ -156,6 +157,7 @@ class AttributeSetter(object):
         self.__aliases = aliases
         self.__wlst_helper = WlstHelper(exception_type)
         self.__weblogic_helper = model_context.get_weblogic_helper()
+        self.path_helper = path_helper.get_path_helper()
 
     #
     # public set_ methods for special attribute types, signature (self, location, key, value, wlst_value, ...)
@@ -703,7 +705,7 @@ class AttributeSetter(object):
         if self.__wlst_mode == WlstModes.OFFLINE:
             if value is not None:
                 if value.startswith(ARCHIVE_COHERENCE_TARGET_DIR + os.sep):
-                    # change from /wlsdeploy/coherence/<Cluster>/<filename> -->  coherence/<Cluster>/<filename>
+                    # change from wlsdeploy/coherence/<Cluster>/<filename> -->  coherence/<Cluster>/<filename>
                     value = value[len(WLSDPLY_ARCHIVE_BINARY_DIR + os.sep):]
                 else:
                     # The file will be copied to the $DOMAIN/config/coherence/<CLUSTER>
@@ -719,10 +721,10 @@ class AttributeSetter(object):
                 # coherence/ which means is it relative to the $DOMAIN_HOME/config...
                 #
                 path_to_use = value
-                if not os.path.isabs(value):
-                    path_to_use = os.path.join(self.__model_context.get_domain_home(), value)
+                if self.path_helper.is_relative_path(value):
+                    path_to_use = self.path_helper.join(self.__model_context.get_domain_home(), value)
                     if value.startswith('coherence/'):
-                        path_to_use = os.path.join(self.__model_context.get_domain_home(), 'config', value)
+                        path_to_use = self.path_helper.join(self.__model_context.get_domain_home(), 'config', value)
 
                 cluster_system_resource_location = LocationContext(location)
                 cluster_system_resource_location.pop_location()

@@ -51,7 +51,7 @@ from wlsdeploy.util import cla_helper
 from wlsdeploy.util import cla_utils
 from wlsdeploy.util import env_helper
 from wlsdeploy.util import model_translator
-from wlsdeploy.util import path_utils
+from wlsdeploy.util import path_helper
 from wlsdeploy.util import tool_main
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.cla_utils import TOOL_TYPE_DISCOVER
@@ -90,7 +90,6 @@ __optional_arguments = [
     CommandLineArgUtil.OUTPUT_DIR_SWITCH,
     CommandLineArgUtil.TARGET_SWITCH,
     CommandLineArgUtil.REMOTE_SWITCH,
-    CommandLineArgUtil.REMOTE_ORACLE_HOME_SWITCH,
     CommandLineArgUtil.SSH_HOST_SWITCH,
     CommandLineArgUtil.SSH_PORT_SWITCH,
     CommandLineArgUtil.SSH_USER_SWITCH,
@@ -137,7 +136,8 @@ def __process_model_arg(argument_map):
     _method_name = '__process_model_arg'
 
     model_file_name = argument_map[CommandLineArgUtil.MODEL_FILE_SWITCH]
-    model_dir_name = path_utils.get_parent_directory(model_file_name)
+    path_helper_obj = path_helper.get_path_helper()
+    model_dir_name = path_helper_obj.get_local_parent_directory(model_file_name)
     if os.path.exists(model_dir_name) is False:
         ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                    'WLSDPLY-06037', model_file_name)
@@ -168,7 +168,8 @@ def __process_archive_filename_arg(argument_map):
         raise ex
     else:
         archive_file_name = argument_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
-        archive_dir_name = path_utils.get_parent_directory(archive_file_name)
+        path_helper_obj = path_helper.get_path_helper()
+        archive_dir_name = path_helper_obj.get_local_parent_directory(archive_file_name)
         if not os.path.exists(archive_dir_name):
             ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-06026', archive_file_name)
@@ -204,7 +205,8 @@ def __process_variable_filename_arg(optional_arg_map):
 
     if CommandLineArgUtil.VARIABLE_FILE_SWITCH in optional_arg_map:
         variable_file_name = optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH]
-        variable_dir_name = path_utils.get_parent_directory(variable_file_name)
+        path_helper_obj = path_helper.get_path_helper()
+        variable_dir_name = path_helper_obj.get_local_parent_directory(variable_file_name)
 
         if not os.path.exists(variable_dir_name):
             ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
