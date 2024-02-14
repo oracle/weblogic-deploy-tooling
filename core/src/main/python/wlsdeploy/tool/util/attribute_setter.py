@@ -711,7 +711,7 @@ class AttributeSetter(object):
                     # The file will be copied to the $DOMAIN/config/coherence/<CLUSTER>
                     # changing the attribute value to the pattern coherence/<CLUSTER>/<filename>
                     cluster_name = location.get_name_for_token('COHERENCECLUSTER')
-                    value = 'coherence/%s/%s' % (cluster_name, os.path.basename(value))
+                    value = 'coherence/%s/%s' % (cluster_name, self.path_helper.local_basename(value))
 
             self.set_attribute(location, key, value, wlst_merge_value=wlst_value)
         else:

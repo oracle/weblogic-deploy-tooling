@@ -190,7 +190,7 @@ class CommonResourcesDiscoverer(Discoverer):
             else:
                 fixed_path = archive_file.addDatabaseWallet(wallet_name, onprem_wallet_parent_path)
                 path_into_archive = fixed_path
-                fixed_path = os.path.join(fixed_path, os.path.basename(property_value))
+                fixed_path = self.path_helper.local_join(fixed_path, self.path_helper.local_basename(property_value))
 
             collected_wallet_dictionary[onprem_wallet_parent_path] = \
                 {'wallet_name' : wallet_name, 'path_into_archive': path_into_archive}
@@ -199,7 +199,7 @@ class CommonResourcesDiscoverer(Discoverer):
             # check for the wallet to see if the file has already been collected on prem and add only the file
             check_path = os.path.join(
                 collected_wallet_dictionary[onprem_wallet_parent_path]['path_into_archive'],
-                os.path.basename(property_value))
+                self.path_helper.local_basename(property_value))
             if check_path not in archive_file.getArchiveEntries() and os.path.isfile(property_value):
                 # only case is it is not flat directory if the particular file has not been collected before, add
                 # it to the previous wallet
@@ -211,7 +211,7 @@ class CommonResourcesDiscoverer(Discoverer):
                     fixed_path = collected_wallet_dictionary[onprem_wallet_parent_path]['path_into_archive']
                 else:
                     fixed_path = os.path.join(collected_wallet_dictionary[onprem_wallet_parent_path]['path_into_archive'],
-                                              os.path.basename(property_value))
+                                              self.path_helper.local_basename(property_value))
 
         return fixed_path
 

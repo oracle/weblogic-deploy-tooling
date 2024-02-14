@@ -190,7 +190,7 @@ class GlobalResourcesDiscoverer(Discoverer):
                         # we need to change the different path in the model
                         # and add file to the archive similar to apps
                         archive_file = self._model_context.get_archive_file()
-                        base_name = self.path_helper.get_local_filename_from_path(file_path)
+                        base_name = self.path_helper.local_basename(file_path)
                         new_name = self.path_helper.local_join(archive_file.ARCHIVE_CONFIG_TARGET_DIR, base_name)
                         archive_file.addMimeMappingFile(file_path)
 
