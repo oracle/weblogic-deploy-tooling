@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2023, Oracle and/or its affiliates.",
+    "copyright": "Copyright (c) 2017, 2024, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "ServerTemplate${:s}",
     "online_bean": "weblogic.management.configuration.ServerTemplateMBean",
@@ -200,6 +200,23 @@
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
                 "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/FederationServices/%FEDERATIONSERVICES%"
+            }
+        },
+        "HealthScore": {
+            "wlst_type": "HealthScore",
+            "online_bean": "weblogic.management.configuration.HealthScoreMBean",
+            "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
+            "version": "[14.1.2,)",
+            "folders": {},
+            "attributes": {
+                "CalculateIntervalSecs": [ {"version": "[14.1.2,)", "wlst_mode": "both", "wlst_name": "CalculateIntervalSecs", "wlst_path": "WP001", "default_value": 5,     "wlst_type": "integer"  } ],
+                "Enabled":               [ {"version": "[14.1.2,)", "wlst_mode": "both", "wlst_name": "Enabled",               "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean"  } ],
+                "Notes":                 [ {"version": "[14.1.2,)", "wlst_mode": "both", "wlst_name": "Notes",                 "wlst_path": "WP001", "default_value": null,  "wlst_type": "string"   } ],
+                "PluginClassName":       [ {"version": "[14.1.2,)", "wlst_mode": "both", "wlst_name": "PluginClassName",       "wlst_path": "WP001", "default_value": "weblogic.health.DefaultHealthScorePlugin", "wlst_type": "string"} ]
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/ServerTemplate${:s}/%SERVERTEMPLATE%/HealthScore/%HEALTHSCORE%"
             }
         },
         "IIOP": {
