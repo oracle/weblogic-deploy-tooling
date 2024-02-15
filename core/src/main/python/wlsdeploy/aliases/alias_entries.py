@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -57,6 +57,7 @@ from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import CALLOUT
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
+from wlsdeploy.aliases.model_constants import HEALTH_SCORE
 from wlsdeploy.aliases.model_constants import JOLT_CONNECTION_POOL
 from wlsdeploy.aliases.model_constants import JPA
 from wlsdeploy.aliases.model_constants import ODL_CONFIGURATION
@@ -104,6 +105,7 @@ class AliasEntries(object):
         'CdiContainer',
         'Cluster',
         'EmbeddedLDAP',
+        HEALTH_SCORE,
         'JMX',
         JPA,
         'JTA',

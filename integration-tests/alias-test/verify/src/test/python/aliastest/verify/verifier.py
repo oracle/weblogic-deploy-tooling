@@ -2,19 +2,16 @@
 Copyright (c) 2020, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-import java.io.IOException as IOException
-import java.lang.Boolean as Boolean
-
+from aliastest.verify import utils as verify_utils
+from aliastest.verify.alias_helper import AliasHelper
+from java.io import IOException
+from java.lang import Boolean
 from oracle.weblogic.deploy.aliases import AliasException
-
+from wlsdeploy.aliases import alias_constants
 from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.location_context import LocationContext
-from wlsdeploy.logging.platform_logger import PlatformLogger
-import wlsdeploy.aliases.alias_constants as alias_constants
 from wlsdeploy.aliases.wlst_modes import WlstModes
-
-from aliastest.verify.alias_helper import AliasHelper
-import aliastest.verify.utils as verify_utils
+from wlsdeploy.logging.platform_logger import PlatformLogger
 
 ADDITIONAL_RECHECK = "additional"
 ATTRIBUTES = 'attributes'
@@ -598,12 +595,15 @@ class Verifier(object):
                     self._add_error(location, ERROR_ATTRIBUTE_INCORRECT_CASE,
                                     message=message, attribute=generated_attribute)
 
-                elif location.get_folder_path().startswith('/SecurityConfiguration/Realm'):
-                    # We are not fully implementing Security Providers and only intend to
-                    # add attributes as customers need them so make these warnings.
-                    #
-                    self._add_warning(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND,
-                                      attribute=generated_attribute, message=message)
+                ### we used to exempt these folders
+                #
+                # elif location.get_folder_path().startswith('/SecurityConfiguration/Realm'):
+                #     # We are not fully implementing Security Providers and only intend to
+                #     # add attributes as customers need them so make these warnings.
+                #     #
+                #     self._add_warning(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND,
+                #                       attribute=generated_attribute, message=message)
+
                 elif location.get_folder_path() == '/Security':
                     # We do not use Security folder attributes in aliases.
                     # flag these as informational.
@@ -924,17 +924,20 @@ class Verifier(object):
                          class_name=CLASS_NAME, method_name=_method_name)
 
         valid = True
-        if model_attribute_name in restart_required_list:
-            if RESTART not in generated_attribute_info or \
-                    (generated_attribute_info[RESTART] != RESTART_NO_CHECK and
-                     generated_attribute_info[RESTART] != 'true'):
-                # TODO - temporary change to warning until we decide what to do about the restart attributes of the aliases.
-                self._add_warning(location, ERROR_ATTRIBUTE_NOT_RESTART, attribute=model_attribute_name)
-                valid = False
-        elif RESTART in generated_attribute_info and generated_attribute_info[RESTART] == 'true':
-            # TODO - temporary change to warning until we decide what to do about the restart attributes of the aliases.
-            self._add_warning(location, ERROR_ATTRIBUTE_RESTART, attribute=generated_attribute)
-            valid = False
+
+        ### WDT appears to not use the alias restart_required flag, so disabling for now
+        # if model_attribute_name in restart_required_list:
+        #     if RESTART not in generated_attribute_info or \
+        #             (generated_attribute_info[RESTART] != RESTART_NO_CHECK and
+        #              generated_attribute_info[RESTART] != 'true'):
+        #         # TODO - temporary change to warning until we decide what to do about the restart attributes of the aliases.
+        #         self._add_warning(location, ERROR_ATTRIBUTE_NOT_RESTART, attribute=model_attribute_name)
+        #         valid = False
+        #
+        # elif RESTART in generated_attribute_info and generated_attribute_info[RESTART] == 'true':
+        #     # TODO - temporary change to warning until we decide what to do about the restart attributes of the aliases.
+        #     self._add_warning(location, ERROR_ATTRIBUTE_RESTART, attribute=generated_attribute)
+        #     valid = False
 
         _logger.exiting(result=verify_utils.bool_to_string(valid), class_name=CLASS_NAME, method_name=_method_name)
         return valid
