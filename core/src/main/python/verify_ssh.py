@@ -17,6 +17,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util import wlst_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
+from wlsdeploy.util import path_helper
 from wlsdeploy.util import tool_main
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.cla_utils import TOOL_TYPE_DEFAULT
@@ -92,6 +93,7 @@ def __ensure_upload_download_args(argument_map):
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
 
+
 def __do_test_download(model_context):
     _method_name = '__do_test_download'
     __logger.entering(class_name=_class_name, method_name=_method_name)
@@ -116,6 +118,21 @@ def __do_test_upload(model_context):
     model_context.get_ssh_context().upload(local_path, remote_path)
 
 
+def __initialize_remote_path_helper(model_context):
+    _method_name = '__initialize_remote_path_helper'
+    _path_helper = path_helper.get_path_helper()
+    ssh_context = model_context.get_ssh_context()
+    if path_helper is None:
+        ex = exception_helper.create_ssh_exception('WLSDPLY-32905')
+        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
+    elif ssh_context is None:
+        ex = exception_helper.create_ssh_exception('WLSDPLY-32906')
+        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
+
+    _path_helper.set_remote_path_module(ssh_context.is_remote_system_running_windows())
+
 def main(model_context):
     """
     The main entry point for the discoverDomain tool.
@@ -130,8 +147,8 @@ def main(model_context):
     helper.silence()
 
     _exit_code = ExitCode.OK
-
     try:
+        __initialize_remote_path_helper(model_context)
         __do_test_download(model_context)
         __do_test_upload(model_context)
     except SSHException,ex:

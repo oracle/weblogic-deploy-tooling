@@ -19,7 +19,6 @@ from net.schmizz.sshj.transport import TransportException
 from net.schmizz.sshj.userauth import UserAuthException
 
 from oracle.weblogic.deploy.exception import BundleAwareException
-from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import SSHException
 from oracle.weblogic.deploy.util import StringUtils
 
@@ -30,6 +29,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import getcreds
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
+from wlsdeploy.util import path_helper
 from wlsdeploy.util.ssh_command_line_helper import SSHUnixCommandLineHelper
 from wlsdeploy.util.ssh_command_line_helper import SSHWindowsCommandLineHelper
 
@@ -201,6 +201,8 @@ class SSHContext(object):
         else:
             self._os_helper = SSHUnixCommandLineHelper()
 
+        self.path_helper = path_helper.get_path_helper()
+
         self._logger.exiting(class_name=self._class_name, method_name=_method_name)
 
     def is_connected(self):
@@ -208,6 +210,9 @@ class SSHContext(object):
 
     def is_authenticated(self):
         return self.is_connected() and self._ssh_client.isAuthenticated()
+
+    def is_remote_system_running_windows(self):
+        return self.is_windows
 
     def download(self, source_path, target_path):
         _method_name = 'download'
@@ -217,7 +222,7 @@ class SSHContext(object):
             ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32012')
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
-        elif not FileUtils.isRemotePathAbsolute(source_path):
+        elif not self.path_helper.is_absolute_remote_path(source_path):
             ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32013', source_path)
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
@@ -227,7 +232,7 @@ class SSHContext(object):
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
-        abs_target_path = FileUtils.getCanonicalPath(target_path)
+        abs_target_path = self.path_helper.get_local_canonical_path(target_path).replace('\\', '/')
 
         try:
             remote_host = self._ssh_client.getRemoteHostname()
@@ -250,7 +255,7 @@ class SSHContext(object):
             ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32018')
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
-        elif not FileUtils.isRemotePathAbsolute(target_path):
+        elif not self.path_helper.is_absolute_remote_path(target_path):
             ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32019', target_path)
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
@@ -260,7 +265,7 @@ class SSHContext(object):
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
-        abs_source_path = FileUtils.getCanonicalPath(source_path)
+        abs_source_path = self.path_helper.get_local_canonical_path(source_path)
 
         try:
             remote_host = self._ssh_client.getRemoteHostname()
@@ -270,8 +275,8 @@ class SSHContext(object):
             self._logger.info('WLSDPLY-32023', abs_source_path, remote_host, target_path,
                               class_name=self._class_name, method_name=_method_name)
         except IOException,ioe:
-            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32021', abs_source_path, target_path,
-                                                   ioe.getLocalizedMessage(), error=ioe)
+            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32021', abs_source_path,
+                                                   target_path, ioe.getLocalizedMessage(), error=ioe)
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
