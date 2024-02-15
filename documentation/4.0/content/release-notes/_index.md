@@ -66,6 +66,8 @@ pre = "<b> </b>"
 - #1619 - Fixed a bug that was causing offline discovery to omit the `LogRotation` attribute when the value was set to `none`.
 
 #### Known Issues
-None
+- SSH support for the Update Domain Tool and Deploy Apps Tool do not work when using an archive file and the remote 
+  WebLogic Server is running on Windows using the optional, Windows-provided, OpenSSH component.  This is due to an
+  issue with the SSHJ library WDT is using.  See https://github.com/hierynomus/sshj/issues/929 for more information.
 
 See https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/ for the current set of known limitations.
