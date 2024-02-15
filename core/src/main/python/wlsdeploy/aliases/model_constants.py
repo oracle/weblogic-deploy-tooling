@@ -128,6 +128,7 @@ GROUP_MEMBER_OF = 'GroupMemberOf'
 GLOBAL_VARIABLE_SUBSTITUTION = 'VariableSubstitution'
 HARVESTED_TYPE = 'HarvestedType'
 HARVESTER = 'Harvester'
+HEALTH_SCORE = "HealthScore"
 HEAP_DUMP_ACTION = 'HeapDumpAction'
 HEAP_RETAINED = 'HeapRetained'
 IMAGE_NOTIFICATION = 'ImageNotification'

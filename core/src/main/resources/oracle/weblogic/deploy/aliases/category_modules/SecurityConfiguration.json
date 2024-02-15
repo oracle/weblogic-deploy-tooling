@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2023, Oracle and/or its affiliates.",
+    "copyright": "Copyright (c) 2017, 2024, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "SecurityConfiguration",
     "online_bean": "weblogic.management.configuration.SecurityConfigurationMBean",
@@ -117,7 +117,7 @@
                             "child_folders_type": "none",
                             "folders": {},
                             "attributes" : {
-                                "ActiveContextHandlerEntry":       [ {"version": "[10,)",       "wlst_mode": "offline", "wlst_name": "ActiveContextHandlerEntry",       "wlst_path": "WP001", "default_value": null,                       "wlst_type": "string"  } ],
+                                "ActiveContextHandlerEntry":       [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ActiveContextHandlerEntr${y:ies}", "wlst_path": "WP001", "default_value": null,                      "wlst_type": "string"  } ],
                                 "BeginMarker":                     [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "BeginMarker",                     "wlst_path": "WP001", "default_value": "#### Audit Record Begin",  "wlst_type": "string", "get_method": "${LSA:GET}"} ],
                                 "CompatibilityObjectName":         [ {"version": "[10,)",       "wlst_mode": "offline", "wlst_name": "CompatibilityObjectName",         "wlst_path": "WP001", "default_value": null,                       "wlst_type": "string"  } ],
                                 "Description":                     [ {"version": "[10,)",       "wlst_mode": "online",  "wlst_name": "Description",                     "wlst_path": "WP001", "default_value": null,                       "wlst_type": "string", "access": "IGNORED" } ],
@@ -499,7 +499,10 @@
                                 "ResultsTimeLimit":            [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "ResultsTimeLimit",           "wlst_path": "WP001", "default_value": 0,                         "wlst_type": "integer"                      } ],
                                 "SSLEnabled":                  [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "SSLEnabled",                 "wlst_path": "WP001", "default_value": false,                     "wlst_type": "boolean"                      } ],
                                 "SupportedTypes":              [ {"version": "[10,)",     "wlst_mode": "online", "wlst_name": "SupportedTypes",           "wlst_path": "WP001", "default_value": null,                      "wlst_type": "jarray", "access": "IGNORED" } ],
-                                "UserFilterAttribute":         [ {"version": "[10,)",     "wlst_mode": "offline", "wlst_name": "UserFilterAttribute",     "wlst_path": "WP001", "default_value": null,                      "wlst_type": "${list:jarray}",              "wlst_read_type": "delimited_string[semicolon]", "preferred_model_type": "list", "get_method": "LSA" } ],
+                                "UserFilterAttribute":         [
+                                    {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "UserFilterAttribute",  "wlst_path": "WP001", "default_value": null,            "wlst_type": "${list:jarray}", "wlst_read_type": "delimited_string[semicolon]", "preferred_model_type": "list", "get_method": "LSA" },
+                                    {"version": "[10,)", "wlst_mode": "online",  "wlst_name": "UserFilterAttributes", "wlst_path": "WP001", "default_value": ["cn=$subj.cn"], "wlst_type": "${list:jarray}", "wlst_read_type": "delimited_string[semicolon]", "preferred_model_type": "list", "get_method": "GET" }
+                                ],
                                 "UsernameAttribute":           [ {"version": "[10,)",     "wlst_mode": "both", "wlst_name": "UsernameAttribute",          "wlst_path": "WP001", "default_value": "cn",                      "wlst_type": "string"                       } ],
                                 "Version":                     [ {"version": "[10,)",     "wlst_mode": "online", "wlst_name": "Version",                  "wlst_path": "WP001", "default_value": null,                      "wlst_type": "string", "access": "IGNORED" } ]
                             },
@@ -1541,6 +1544,12 @@
                             "attributes" : {
                                 "CompatibilityObjectName":    [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "CompatibilityObjectName",    "wlst_path": "WP001", "default_value": null,    "wlst_type": "string"  } ],
                                 "Description":                [ {"version": "[10,)", "wlst_mode": "online", "wlst_name": "Description",                 "wlst_path": "WP001", "default_value": null,    "wlst_type": "string", "access": "IGNORED" } ],
+                                "DeployBasePredicatesEnabled": [
+                                    {"version": "[12.2.1.3.221013,12.2.1.4)", "wlst_mode": "online", "wlst_name": "DeployBasePredicatesEnabled", "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+                                    {"version": "[12.2.1.4.220929,14.1.1)",   "wlst_mode": "online", "wlst_name": "DeployBasePredicatesEnabled", "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+                                    {"version": "[14.1.1.221010,14.1.2)",     "wlst_mode": "online", "wlst_name": "DeployBasePredicatesEnabled", "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" },
+                                    {"version": "[14.1.2,)",                  "wlst_mode": "both",   "wlst_name": "DeployBasePredicatesEnabled", "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
+                                ],
                                 "ProviderClassName":          [ {"version": "[10,)",       "wlst_mode": "online",  "wlst_name": "ProviderClassName",    "wlst_path": "WP001", "default_value": null,    "wlst_type": "string", "access": "IGNORED" },
                                                                 {"version": "[12.2.1.4,)", "wlst_mode": "offline", "wlst_name": "ProviderClassName",    "wlst_path": "WP001", "default_value": null,    "wlst_type": "string", "access": "IGNORED", "get_method": "GET" }],
                                 "RoleDeploymentEnabled":      [ {"version": "[10,)", "wlst_mode": "both",   "wlst_name": "RoleDeploymentEnabled",       "wlst_path": "WP001", "default_value": true,    "wlst_type": "boolean" } ],
