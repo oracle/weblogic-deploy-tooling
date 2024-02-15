@@ -102,3 +102,4 @@ Please provide the `STDOUT` and `STDERR` log streams in the GitHub Issue. If the
 | `-skip_archive` | Do not generate an archive file. The `-archive_file` option will be ignored. |    |
 | `-target` | The target output type. The default is `wko`. For more information about target types, see [Target Environments]({{< relref "userguide/target_env" >}}). |    |
 | `-remote` | Update the domain from a remote machine.                                                                                                                                                                                                                                                              |    |
+| `-variable_file`               | The path to the variable property file.                                                                                                                                        |                                            |
