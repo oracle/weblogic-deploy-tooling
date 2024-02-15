@@ -1091,7 +1091,7 @@ class ApplicationsDeployer(Deployer):
                     # app archive will be uploaded to the admin server's upload directory
                     # This is only needed for -remote case, for ssh we upload it under remote domain file system
                     if self.model_context.is_remote():
-                        src_path = self.upload_temporary_dir + '/' + src_path
+                        src_path = self.path_helper.local_join(self.upload_temporary_dir, src_path)
         return src_path
 
     def __deploy_model_applications(self, model_apps, app_location, deployed_applist):
@@ -1143,7 +1143,7 @@ class ApplicationsDeployer(Deployer):
                     # app archive will be uploaded to the admin server's upload directory
                     # we only need this for -remote case, for ssh we upload to the remote domain file system
                     if self.model_context.is_remote():
-                        src_path = self.upload_temporary_dir + '/' + src_path
+                        src_path = self.path_helper.local_join(self.upload_temporary_dir, src_path)
         return path, src_path
 
     def __get_mt_names_from_location(self, app_location):
