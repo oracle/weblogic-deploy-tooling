@@ -172,15 +172,12 @@ class VariableInjector(object):
 
         injector_file_list, injector_config_location = self._load_injector_file_list()
 
-        # discover may have passed -variable_file; inject variables may have passed -variable_properties_file
+        # discover or injector tool may have passed -variable_file
         variable_file_override = self._model_context.get_variable_file()
-        properties_file_override = self._model_context.get_variable_properties_file()
 
         if variable_file_override is not None:
             variable_file_location = variable_file_override
-        elif properties_file_override is not None:
-            variable_file_location = properties_file_override
-            _logger.info('WLSDPLY-19602', properties_file_override,
+            _logger.info('WLSDPLY-19602', variable_file_override,
                          class_name=_class_name, method_name=_method_name)
         else:
             variable_file_location = variables.get_default_variable_file_name(self._model_context)

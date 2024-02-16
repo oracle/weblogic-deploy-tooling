@@ -81,14 +81,12 @@ ECHO                           the model_variable_injector.json file must exist 
 ECHO                           the lib directory in the WLSDEPLOY_HOME location.
 ECHO.
 ECHO         variable_file   - the location of the property file in which to store
-ECHO                           any variable names injected into the model. This
-ECHO                           argument overrides the value in the model injector
-ECHO                           file.  If the variable file is not listed in the
-ECHO                           model injector file, and this command-line argument
-ECHO                           is not used, the variable properties will be located
-ECHO                           and named based on the model file or archive file name
-ECHO                           and location.  If the variable file exists, new
-ECHO                           variable values will be appended to the file.
+ECHO                           any variable names injected into the model.
+ECHO                           If this command-line argument is not used,
+ECHO                           the variable properties will be located and named
+ECHO                           based on the model file name and location.
+ECHO                           If the variable file exists, new variable values
+ECHO                           will be appended to the file.
 ECHO.
 
 :exit_script

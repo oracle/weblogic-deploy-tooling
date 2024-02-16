@@ -99,7 +99,6 @@ class ModelContext(object):
         self._target = None
         self._target_configuration = None  # lazy load
         self._variable_injector_file = None
-        self._variable_properties_file = None
         self._discard_current_edit = False
         self._wait_for_edit_lock = False
         self._remote = False
@@ -314,9 +313,6 @@ class ModelContext(object):
         if CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH in arg_map:
             self._variable_injector_file = arg_map[CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH]
 
-        if CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH in arg_map:
-            self._variable_properties_file = arg_map[CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH]
-
     def __copy__(self):
         arg_map = dict()
         if self._oracle_home is not None:
@@ -418,8 +414,6 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.OUTPUT_DIR_SWITCH] = self._output_dir
         if self._variable_injector_file is not None:
             arg_map[CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH] = self._variable_injector_file
-        if self._variable_properties_file is not None:
-            arg_map[CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH] = self._variable_properties_file
 
         new_context = ModelContext(self._program_name, arg_map)
         if not new_context.is_initialization_complete():
@@ -834,13 +828,6 @@ class ModelContext(object):
         :return: the variable injector file
         """
         return self._variable_injector_file
-
-    def get_variable_properties_file(self):
-        """
-        Get the variable properties file override.
-        :return: the variable properties file
-        """
-        return self._variable_properties_file
 
     def get_trailing_arguments(self):
         """

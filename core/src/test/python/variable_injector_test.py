@@ -15,6 +15,7 @@ from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
 from wlsdeploy.tool.util.variable_injector import VariableInjector
+from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 
@@ -33,7 +34,9 @@ class VariableFileHelperTest(BaseTestCase):
         BaseTestCase.setUp(self)
         self.name = 'VariableFileHelperTest'
         self._model = FileToPython(self._model_file).parse()
-        self._model_context = ModelContext(self.name, {})
+        self._model_context = ModelContext(self.name, {
+            CommandLineArgUtil.VARIABLE_FILE_SWITCH: self._variable_file
+        })
         aliases = Aliases(self._model_context, wls_version='12.2.1.3')
         self._helper = VariableInjector(self.name, self._model_context, aliases)
 
@@ -264,7 +267,6 @@ class VariableFileHelperTest(BaseTestCase):
         expected[short_name + '.machine1.ListenPort'] = '5557'
 
         self._establish_directory(self.OUTPUT_DIR)
-        self._model_context._variable_properties_file = self._variable_file
 
         # Define custom configuration path for WDT, with custom injector files
         config_dir = self._set_custom_config_dir('injector-wdt-config')
