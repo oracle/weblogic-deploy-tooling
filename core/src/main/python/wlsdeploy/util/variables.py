@@ -129,8 +129,7 @@ def write_sorted_variables(program_name, variable_map, file_path, append=False):
 def get_default_variable_file_name(model_context):
     """
     Generate location and file name for the variable file.
-    If model file is present, use the model file name and location;
-    else, use the archive file name and location.
+    Use the model file name and location.
     :param model_context: contains the model and archive file arguments
     :return: location and file name of variable properties file.
     """
@@ -146,8 +145,6 @@ def get_default_variable_file_name(model_context):
                       class_name=_class_name, method_name=_method_name)
     else:
         extract_file_name = model_context.get_model_file()
-        if not extract_file_name:
-            extract_file_name = model_context.get_archive_file_name()
         default_variable_file = _path_helper.get_local_filename_no_ext_from_path(extract_file_name)
         _logger.finer('WLSDPLY-01748', extract_file_name, default_variable_file,
                       class_name=_class_name, method_name=_method_name)

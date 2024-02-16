@@ -4,6 +4,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The entry point for the injectVariables tool.
 """
+import os
 import sys
 
 from java.io import File
@@ -14,11 +15,13 @@ from oracle.weblogic.deploy.util import TranslateException
 import wlsdeploy.tool.util.variable_injector as variable_injector
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util.credential_injector import CredentialInjector
 from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.util import model_translator, cla_helper, tool_main
+from wlsdeploy.util import path_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model import Model
@@ -36,7 +39,7 @@ __required_arguments = [
 
 __optional_arguments = [
     CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH,
-    CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH,
+    CommandLineArgUtil.VARIABLE_FILE_SWITCH,
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH
 ]
 
@@ -53,8 +56,24 @@ def __process_args(args):
     argument_map = cla_util.process_args(args)
 
     cla_helper.validate_required_model(_program_name, argument_map)
+    __process_variable_filename_arg(argument_map)
 
     return model_context_helper.create_context(_program_name, argument_map)
+
+
+def __process_variable_filename_arg(argument_map):
+    _method_name = '__process_variable_filename_arg'
+
+    if CommandLineArgUtil.VARIABLE_FILE_SWITCH in argument_map:
+        variable_file_name = argument_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH]
+        path_helper_obj = path_helper.get_path_helper()
+        variable_dir_name = path_helper_obj.get_local_parent_directory(variable_file_name)
+        if not os.path.exists(variable_dir_name):
+            ex = exception_helper.create_cla_exception(
+                ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-19606', CommandLineArgUtil.VARIABLE_FILE_SWITCH,
+                variable_dir_name)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
 
 
 def __inject(model, model_context):
