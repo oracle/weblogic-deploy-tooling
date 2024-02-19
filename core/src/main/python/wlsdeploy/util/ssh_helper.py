@@ -232,17 +232,18 @@ class SSHContext(object):
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
+        abs_source_path = self.path_helper.get_remote_canonical_path(source_path)
         abs_target_path = self.path_helper.get_local_canonical_path(target_path).replace('\\', '/')
 
         try:
             remote_host = self._ssh_client.getRemoteHostname()
-            self._logger.info('WLSDPLY-32016', source_path, remote_host, abs_target_path,
+            self._logger.info('WLSDPLY-32016', abs_source_path, remote_host, abs_target_path,
                               class_name=self._class_name, method_name=_method_name)
-            self._ssh_client.newSCPFileTransfer().download(source_path, abs_target_path)
-            self._logger.info('WLSDPLY-32017', source_path, remote_host, abs_target_path,
+            self._ssh_client.newSCPFileTransfer().download(abs_source_path, abs_target_path)
+            self._logger.info('WLSDPLY-32017', abs_source_path, remote_host, abs_target_path,
                               class_name=self._class_name, method_name=_method_name)
         except IOException,ioe:
-            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32015', source_path,
+            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32015', abs_source_path,
                                                    abs_target_path, ioe.getLocalizedMessage(), error=ioe)
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
@@ -265,18 +266,19 @@ class SSHContext(object):
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
-        abs_source_path = self.path_helper.get_local_canonical_path(source_path)
+        abs_source_path = self.path_helper.get_local_canonical_path(source_path).replace('\\', '/')
+        abs_target_path = self.path_helper.get_remote_canonical_path(target_path)
 
         try:
             remote_host = self._ssh_client.getRemoteHostname()
-            self._logger.info('WLSDPLY-32022', abs_source_path, remote_host, target_path,
+            self._logger.info('WLSDPLY-32022', abs_source_path, remote_host, abs_target_path,
                               class_name=self._class_name, method_name=_method_name)
             self._ssh_client.newSCPFileTransfer().upload(abs_source_path, target_path)
-            self._logger.info('WLSDPLY-32023', abs_source_path, remote_host, target_path,
+            self._logger.info('WLSDPLY-32023', abs_source_path, remote_host, abs_target_path,
                               class_name=self._class_name, method_name=_method_name)
         except IOException,ioe:
             ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32021', abs_source_path,
-                                                   target_path, ioe.getLocalizedMessage(), error=ioe)
+                                                   abs_target_path, ioe.getLocalizedMessage(), error=ioe)
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 

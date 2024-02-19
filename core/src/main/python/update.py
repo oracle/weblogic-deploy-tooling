@@ -201,7 +201,8 @@ def __update_online(model_deployer, model, model_context, aliases):
     # if user requested cancel changes if restart required stops
 
     if exit_code != ExitCode.CANCEL_CHANGES_IF_RESTART:
-        model_deployer.deploy_applications()
+        is_restart_required = exit_code == ExitCode.RESTART_REQUIRED
+        model_deployer.deploy_applications(is_restart_required=is_restart_required)
 
     try:
         __wlst_helper.disconnect()
