@@ -71,7 +71,7 @@ class ApplicationsDeployer(Deployer):
         self.version_helper = ApplicationsVersionHelper(model_context, self.archive_helper)
 
 
-    def deploy(self):
+    def deploy(self, is_restart_required=False):
         """
         Deploy the libraries and applications from the model
         :raises: DeployException: if an error occurs
@@ -80,7 +80,7 @@ class ApplicationsDeployer(Deployer):
             self.__add_shared_libraries()
             self.__add_applications()
         else:
-            self.__online_deploy_apps_and_libs(self._base_location)
+            self.__online_deploy_apps_and_libs(self._base_location, is_restart_required)
 
     def __add_shared_libraries(self):
         """
@@ -256,7 +256,7 @@ class ApplicationsDeployer(Deployer):
             newfh.close()
 
 
-    def __online_deploy_apps_and_libs(self, base_location):
+    def __online_deploy_apps_and_libs(self, base_location, is_restart_required=False):
         """
         Deploy shared libraries and applications in online mode.
 
@@ -264,6 +264,8 @@ class ApplicationsDeployer(Deployer):
         It also handles shared libraries that have changed by undeploying all of their referencing
         applications first, deploy the new shared library, and then redeploying the newest version
         of the referencing applications.
+        :param base_location: the location where the apps/libraries are located
+        :param is_restart_required: if online deployment, whether the previous changes require a server restart
         :raises: DeployException: if an error occurs
         """
         _method_name = '__online_deploy_apps_and_libs'
@@ -337,7 +339,7 @@ class ApplicationsDeployer(Deployer):
         self.__deploy_model_libraries(model_shared_libraries, lib_location)
         self.__deploy_model_applications(model_applications, app_location, deployed_app_list)
 
-        self.__start_all_apps(deployed_app_list, base_location)
+        self.__start_all_apps(deployed_app_list, base_location, is_restart_required)
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 
     ###########################################################################
@@ -1327,6 +1329,8 @@ class ApplicationsDeployer(Deployer):
 
     def __get_deployment_ordering(self, apps):
         _method_name = '__get_deployment_ordering'
+        self.logger.entering(apps, class_name=self._class_name, method_name=_method_name)
+
         name_sorted_keys = apps.keys()
         name_sorted_keys.sort()
 
@@ -1360,6 +1364,9 @@ class ApplicationsDeployer(Deployer):
 
         self.logger.fine('WLSDPLY-09326', str_helper.to_string(result_deploy_order),
                          class_name=self._class_name, method_name=_method_name)
+
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name,
+                            result=str_helper.to_string(result_deploy_order))
         return result_deploy_order
 
     def _fix_plan_file(self, plan_dir, plan_path):
@@ -1388,7 +1395,10 @@ class ApplicationsDeployer(Deployer):
 
             transformer.transform(source, result)
 
-    def __start_all_apps(self, deployed_app_list, base_location):
+    def __start_all_apps(self, deployed_app_list, base_location, is_restart_required=False):
+        _method_name = '__start_all_apps'
+        self.logger.entering(deployed_app_list, str_helper.to_string(base_location), is_restart_required,
+                             class_name=self._class_name, method_name=_method_name)
 
         temp_app_dict = OrderedDict()
         location = LocationContext(base_location).append_location(APPLICATION)
@@ -1407,7 +1417,12 @@ class ApplicationsDeployer(Deployer):
 
         start_order = self.__get_deployment_ordering(temp_app_dict)
         for app in start_order:
-            self.__start_app(app)
+            if is_restart_required:
+                self.logger.notification('WLSDPLY-09800', app, class_name=self._class_name, method_name=_method_name)
+            else:
+                self.__start_app(app)
+
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 
 
 def _get_deploy_options(model_apps, app_name, library_module, application_version_helper, is_remote=False, is_ssh=False):

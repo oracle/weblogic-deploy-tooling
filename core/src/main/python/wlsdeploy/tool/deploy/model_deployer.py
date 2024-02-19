@@ -51,12 +51,12 @@ class ModelDeployer(Deployer):
         deployer_utils.delete_online_deployment_targets(self.model, self.aliases, self.wlst_mode)
         self.applications_deployer.add_application_attributes_online(self.model, LocationContext())
 
-    def deploy_applications(self):
+    def deploy_applications(self, is_restart_required=False):
         """
         Deploy the applications from the model.
         :raises DeployException: if an error occurs
         """
-        self.applications_deployer.deploy()
+        self.applications_deployer.deploy(is_restart_required)
 
     def deploy_model_offline(self):
         """
