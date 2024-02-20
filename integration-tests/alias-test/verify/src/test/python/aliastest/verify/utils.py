@@ -34,6 +34,9 @@ ONLINE_ALIAS_FOLDER_IGNORE_MAP = {
 }
 
 ONLINE_ALIAS_ATTRIBUTE_IGNORE_MAP = {
+    '/': [
+        'ResourceManagement'  # appears in attribute list since folder MBean is no longer created
+    ],
     '/Cluster/OverloadProtection': [
         'ServerFailureTrigger'  # appears in attribute list until folder MBean is created
     ],
