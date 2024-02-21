@@ -47,7 +47,8 @@ pre = "<b> </b>"
           during domain creation or update processing.
 - #1614 - Updated Discover Domain Tool to overwrite existing variable and archive files if they already exist. 
 - #1616 - Improved `RCUDbInfo` validation in Create Domain tool.
-
+- #1630 - Replaced the `-variable_property_file` argument in the Inject Variables tool with `-variable_file`
+ 
 #### Bug Fixes
 - #1555 - Fixed issues with creating and discovering `UnixMachine` objects in online mode.
 - #1562 - Added missing default values for `RCUDbInfo` attributes.
@@ -64,6 +65,10 @@ pre = "<b> </b>"
 - #1615 - Fixed an issue where certain errors during online update or deploy operations could leave a pending edit
           state that caused subsequent invocations to fail due to the pending edit state.
 - #1619 - Fixed a bug that was causing offline discovery to omit the `LogRotation` attribute when the value was set to `none`.
+- #1631 - Fixed an issue where the Update Domain and the Deploy Applications Tools running in online mode were trying to
+          call start on an application when earlier changes required a server restart.
+- #1632 - Fixed an issue with the `ResourceManagement` MBean when running the Discover Domain Tool in online mode with
+          WebLogic Server 14.1.1 and newer.
 
 #### Known Issues
 - SSH support for the Update Domain Tool and Deploy Apps Tool do not work when using an archive file and the remote 
