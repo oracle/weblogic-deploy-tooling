@@ -67,8 +67,10 @@ pre = "<b> </b>"
 - #1619 - Fixed a bug that was causing offline discovery to omit the `LogRotation` attribute when the value was set to `none`.
 - #1631 - Fixed an issue where the Update Domain and the Deploy Applications Tools running in online mode were trying to
           call start on an application when earlier changes required a server restart.
-- #1632 - Fixed an issue with the `ResourceManagement` MBean when running the Discover Domain Tool in online mode with
+- #1634 - Fixed an issue with the `ResourceManagement` MBean when running the Discover Domain Tool in online mode with
           WebLogic Server 14.1.1 and newer.
+- #1636 - Fixed an issue with Update Domain and Deploy Applications Tools when using the `-remote` option that was
+          causing a TODO message to be generated when there was nothing for the user to do.
 
 #### Known Issues
 - SSH support for the Update Domain Tool and Deploy Apps Tool do not work when using an archive file and the remote 

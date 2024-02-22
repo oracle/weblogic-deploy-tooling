@@ -162,14 +162,17 @@ class ModelDeployer(Deployer):
                 if found_ext:
                     self._upload_extracted_directory(WLSDeployArchive.WRC_EXTENSION_TARGET_DIR_NAME)
 
-    def _add_warnings_for_remote_update_files(self, archive_name, file_paths, destination):
-        _logger.todo('WLSDPLY-06044', archive_name, ', '.join(file_paths), destination)
+    def _add_warnings_for_remote_update_files(self, archive_name, file_paths, destination, method_name):
+        if file_paths is not None and len(file_paths) > 0:
+            _logger.todo('WLSDPLY-06044', archive_name, ', '.join(file_paths), destination,
+                         class_name=_class_name, method_name=method_name)
 
     def extract_all_database_wallets(self):
         """
         Extract all the database wallets in the archive(s) to the target domain.
         Use SSH if the domain is on a remote system.
         """
+        _method_name = 'extract_all_database_wallets'
         archive_list = self.archive_helper
 
         if archive_list:
@@ -177,7 +180,7 @@ class ModelDeployer(Deployer):
                 wallet_paths = archive_list.get_all_database_wallet_paths()
                 for wallet in wallet_paths:
                     remote_dir = self.model_context.get_domain_home()
-                    self._add_warnings_for_remote_update_files(wallet['archive'], wallet['paths'], remote_dir)
+                    self._add_warnings_for_remote_update_files(wallet['archive'], wallet['paths'], remote_dir, _method_name)
             elif not self.model_context.is_ssh():
                 archive_list.extract_all_database_wallets()
             else:
