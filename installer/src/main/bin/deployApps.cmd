@@ -85,7 +85,6 @@ ECHO              ]
 ECHO              [-ssh_host ^<ssh_host^>
 ECHO               -ssh_port ^<ssh_port^>
 ECHO               -ssh_user ^<ssh_user^>
-ECHO               -ssh_pass ^<ssh_pass^>
 ECHO               -ssh_pass_env ^<ssh_pass_env^> ^| -ssh_pass_file ^<ssh_pass_file^> ^| -ssh_pass_prompt
 ECHO               -ssh_private_key ^<ssh_private_key^>
 ECHO               -ssh_private_key_pass_env ^<ssh_private_key_pass_env^> ^| -ssh_private_key_pass_file ^<ssh_private_key_pass_file^> ^| -ssh_private_key_pass_prompt

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+ * Copyright (c) 2017, 2024, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
@@ -8,7 +8,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -17,11 +16,7 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import javax.xml.bind.DatatypeConverter;
@@ -53,6 +48,7 @@ public final class FileUtils {
      * @param fileName the resource to get
      * @return the InputStream, or null if it was not found
      */
+    @SuppressWarnings("unused")
     public static InputStream getResourceAsStream(String fileName) {
         return FileUtils.class.getClassLoader().getResourceAsStream(fileName);
     }
@@ -68,23 +64,10 @@ public final class FileUtils {
      * @return
      * @throws IOException
      */
+    @SuppressWarnings("unused")
     public static InputStream getFileAsStream(String fileName) throws IOException {
         File file = validateExistingFile(fileName);
         return new FileInputStream(getCanonicalFile(file));
-    }
-
-    /**
-     * Convert a file path into one that Jython will handle.
-     *
-     * @param filename the filename to convert
-     * @return the converted filename that is Jython compatible
-     */
-    public static String fixupFileSeparatorsForJython(String filename) {
-        String newFileName = filename;
-        if (WINDOWS) {
-            newFileName = newFileName.replace('\\', '/');
-        }
-        return newFileName;
     }
 
     /**
@@ -106,6 +89,7 @@ public final class FileUtils {
      * @return the temporary directory file
      * @throws IOException if an error occurs while create the temporary directory
      */
+    @SuppressWarnings("unused")
     public static File createTempDirectory(String dirBaseName) throws IOException {
         return getCanonicalFile(Files.createTempDirectory(dirBaseName).toFile());
     }
@@ -243,6 +227,7 @@ public final class FileUtils {
      * @return the canonical file representing the path name
      * @throws IllegalArgumentException if the path name is empty or does not exist
      */
+    @SuppressWarnings("unused")
     public static File validateExistingPath(String pathName) {
         final String METHOD = "validateExistingPath";
 
@@ -287,6 +272,7 @@ public final class FileUtils {
      * @return the canonical file representing the directory name
      * @throws IllegalArgumentException if the directory name is not valid, doesn't exist, or is not writable
      */
+    @SuppressWarnings("unused")
     public static File validateWritableDirectory(String directoryName) {
         final String METHOD = "validateWritableDirectory";
 
@@ -376,7 +362,7 @@ public final class FileUtils {
     }
 
     /**
-     * Whether or not the specified file has a JSON file extension.
+     * Whether the specified file has a JSON file extension.
      *
      * @param file the file
      * @return true, if the file extension matches the known JSON file extensions
@@ -384,68 +370,6 @@ public final class FileUtils {
     public static boolean isJsonFile(File file) {
         String fileName = file.getName().toLowerCase(Locale.ENGLISH);
         return fileName.endsWith(".json");
-    }
-
-    /**
-     * Get the model file from the specified, existing directory.
-     *
-     * @param modelDirectory the existing directory location to search for a model file.
-     * @return the model file or null, if it does not exist
-     * @throws IllegalArgumentException if the directory is not a valid, existing, and readable directory
-     * @throws IllegalStateException if the modelDirectory contains more than one YAML and/or JSON file
-     */
-    public static File getModelFile(File modelDirectory) {
-        final String METHOD = "getModelFile";
-
-        LOGGER.entering(CLASS, METHOD, modelDirectory);
-        if (modelDirectory == null) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-01104", METHOD, CLASS, "modelDirectory");
-            IllegalArgumentException iae = new IllegalArgumentException(message);
-            LOGGER.throwing(CLASS, METHOD, iae);
-            throw iae;
-        } else if (!modelDirectory.exists()) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-01102", modelDirectory.getAbsolutePath());
-            IllegalArgumentException iae = new IllegalArgumentException(message);
-            LOGGER.throwing(CLASS, METHOD, iae);
-            throw iae;
-        } else if (!modelDirectory.isDirectory()) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-01105", modelDirectory.getAbsolutePath());
-            IllegalArgumentException iae = new IllegalArgumentException(message);
-            LOGGER.throwing(CLASS, METHOD, iae);
-            throw iae;
-        } else if (!modelDirectory.canRead()) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-01106", modelDirectory.getAbsolutePath());
-            IllegalArgumentException iae = new IllegalArgumentException(message);
-            LOGGER.throwing(CLASS, METHOD, iae);
-            throw iae;
-        }
-
-        File[] dirEntries;
-        try {
-            dirEntries = modelDirectory.listFiles(new ModelFilenameFilter());
-        } catch (SecurityException se) {
-            String message = ExceptionHelper.getMessage("WLSDPLY-01107", se,
-                modelDirectory.getAbsolutePath(), se.getLocalizedMessage());
-            IllegalArgumentException iae = new IllegalArgumentException(message, se);
-            LOGGER.throwing(CLASS, METHOD, iae);
-            throw iae;
-        }
-
-        File modelFile = getModelFileFromArray(dirEntries, modelDirectory);
-        LOGGER.exiting(CLASS, METHOD, modelFile);
-        return modelFile;
-    }
-
-    /**
-     * Find the model filename from the list.
-     *
-     * @param filenames the list of filenames
-     * @param modelDirectoryName the directory name (for logging purposes only)
-     * @return the model file name or null, if it was not found
-     * @throws IllegalStateException if the modelDirectory contains more than one YAML and/or JSON file
-     */
-    public static String getModelFileName(List<String> filenames, String modelDirectoryName) {
-        return getModelFileNameFromList(filenames, modelDirectoryName);
     }
 
     /**
@@ -638,6 +562,7 @@ public final class FileUtils {
         return outputStream.toByteArray();
     }
 
+    @SuppressWarnings("unused")
     public static File getTmpDir() {
         return new File(System.getProperty("java.io.tmpdir"));
     }
@@ -648,6 +573,7 @@ public final class FileUtils {
      * @return PrintWriter instance which is automatically closed
      * @throws IllegalArgumentException if the file is not writable
      */
+    @SuppressWarnings("unused")
     public static PrintWriter getPrintWriter(String fileName)  {
         final String METHOD = "getPrintWriter";
         validateWritableFile(fileName);
@@ -668,41 +594,11 @@ public final class FileUtils {
      * @param octals octal number set like OS chmod permissions
      * @throws IOException if permissions update fails
      */
+    @SuppressWarnings("unused")
     public static void chmod(String path, int octals) throws IOException {
         if(!WINDOWS) {
             Files.setPosixFilePermissions(Paths.get(path), getPermissions(octals));
         }
-    }
-
-    public static String getCommonRootDirectory(File firstDir, File secondDir) {
-        if (firstDir == null || secondDir == null) {
-            return null;
-        }
-
-        String[] firstDirComponents = getFileComponents(firstDir);
-        String[] secondDirComponents = getFileComponents(secondDir);
-        int maxLength = Math.min(firstDirComponents.length, secondDirComponents.length);
-
-        List<String> resultComponents = new ArrayList<>();
-        for (int i = 0; i < maxLength; i++) {
-            if (firstDirComponents[i].equals(secondDirComponents[i])) {
-                resultComponents.add(firstDirComponents[i]);
-            } else {
-                break;
-            }
-        }
-        File result = getFileFromComponents(resultComponents.toArray(new String[0]));
-        return result != null ? getCanonicalPath(result) : null;
-    }
-
-    /**
-     * Determines whether the argument contains an absolute path.
-     *
-     * @param filePath file path to check
-     * @return true if the value is an absolute path; false otherwise
-     */
-    public static boolean isAbsolutePath(String filePath) {
-        return !StringUtils.isEmpty(filePath) && new File(filePath).isAbsolute();
     }
 
     /**
@@ -723,6 +619,7 @@ public final class FileUtils {
      * @param directory the directory to be examined
      * @return the size of the directory's contents
      */
+    @SuppressWarnings("unused")
     public static long getDirectorySize(File directory) {
         long size = 0;
         File[] files = directory.listFiles();
@@ -745,89 +642,6 @@ public final class FileUtils {
     private static boolean isWindowsRemoteAbsolutePath(String path) {
         String windowsPath = path.replace('/', '\\');
         return windowsPath.startsWith(":\\", 1) || windowsPath.startsWith("\\\\");
-    }
-
-    private static File getModelFileFromArray(File[] files, File modelDirectory) {
-        File modelFile = null;
-        if (files != null && files.length > 0) {
-            modelFile = getModelFileFromList(Arrays.asList(files), modelDirectory);
-        }
-        return modelFile;
-    }
-
-    private static String getModelFileNameFromList(List<String> filenames, String modelDirectoryName) {
-        String result = null;
-        if (filenames != null && !filenames.isEmpty()) {
-            List<File> files = new ArrayList<>(filenames.size());
-            for (String filename : filenames) {
-                files.add(new File(filename));
-            }
-            File modelFile = getModelFileFromList(files, new File(modelDirectoryName));
-            if (modelFile != null) {
-                result = modelFile.getPath();
-            }
-        }
-        return result;
-    }
-
-    private static File getModelFileFromList(List<File> files, File modelDirectory) {
-        final String METHOD = "getModelFileFromList";
-
-        File modelFile = null;
-        if (files != null && !files.isEmpty()) {
-            File yamlFile = null;
-            File jsonFile = null;
-
-            for (File file : files) {
-                if (FileUtils.isYamlFile(file)) {
-                    if (yamlFile == null) {
-                        yamlFile = file;
-                    } else {
-                        String message = ExceptionHelper.getMessage("WLSDPLY-01117", modelDirectory.getAbsolutePath(),
-                            "YAML", file.getName(), yamlFile.getName());
-                        IllegalStateException ise = new IllegalStateException(message);
-                        LOGGER.throwing(CLASS, METHOD, ise);
-                        throw ise;
-                    }
-                } else if (isJsonFile(file)) {
-                    if (jsonFile == null) {
-                        jsonFile = file;
-                    } else {
-                        String message = ExceptionHelper.getMessage("WLSDPLY-01117", modelDirectory.getAbsolutePath(),
-                            "JSON", file.getName(), jsonFile.getName());
-                        IllegalStateException ise = new IllegalStateException(message);
-                        LOGGER.throwing(CLASS, METHOD, ise);
-                        throw ise;
-                    }
-                }
-            }
-            if (yamlFile != null) {
-                modelFile = yamlFile;
-            } else if (jsonFile != null) {
-                modelFile = jsonFile;
-            }
-        }
-        return modelFile;
-    }
-
-    /**
-     * FilenameFilter class for model files.
-     */
-    private static class ModelFilenameFilter implements FilenameFilter {
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean accept(File dir, String name) {
-            boolean result = false;
-            if (!StringUtils.isEmpty(name)) {
-                File f = new File(dir, name);
-                if (FileUtils.isYamlFile(f) || FileUtils.isJsonFile(f)) {
-                    result = true;
-                }
-            }
-            return result;
-        }
     }
 
     /**
@@ -864,40 +678,6 @@ public final class FileUtils {
         }
         if ( (0001 & octals) > 0) {
             result.add(PosixFilePermission.OTHERS_EXECUTE);
-        }
-        return result;
-    }
-
-    private static String[] getFileComponents(File file) {
-        String[] result;
-        if (file != null) {
-            File canonicalFile = getCanonicalFile(file);
-            List<String> names = new ArrayList<>();
-            while(true) {
-                File parent = canonicalFile.getParentFile();
-                if (parent == null) {
-                    names.add(canonicalFile.getPath());
-                    break;
-                } else {
-                    names.add(canonicalFile.getName());
-                    canonicalFile = parent;
-                }
-            }
-            Collections.reverse(names);
-            result = names.toArray(new String[0]);
-        } else {
-            result = new String[0];
-        }
-        return result;
-    }
-
-    private static File getFileFromComponents(String[] components) {
-        File result = null;
-        if (components != null && components.length > 0) {
-            result = new File(components[0]);
-            for (int i = 1; i < components.length; i++) {
-                result = new File(result, components[i]);
-            }
         }
         return result;
     }

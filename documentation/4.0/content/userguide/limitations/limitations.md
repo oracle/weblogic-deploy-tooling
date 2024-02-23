@@ -9,6 +9,15 @@ description: "Review existing WDT limitations."
 
 The following sections describe known limitations for WebLogic Deploy Tooling. Each issue may contain a workaround or an associated issue number.
 
+#### WebLogic Kubernetes Operator Model-in-Image domains fail when using WebLogic Deploy Tooling 4.0.0 (and newer)
+**ISSUE**:
+Deploy a WebLogic Kubernetes Operator domain with Model-in-Image (MII) produces introspector failures.
+
+**ACTION**:
+WDT 4.0 made significant changes to archive file path handling that required changes in WebLogic Kubernetes Operator,
+which became available starting in WebLogic Kubernetes Operator 4.2.0.  Upgrade to WebLogic Kubernetes Operator 4.2.0+
+to resolve the issue.
+
 #### Discover Domain Tool `SEVERE` messages
 
 **ISSUE**:
