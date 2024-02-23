@@ -46,7 +46,6 @@ usage() {
   echo "          [-ssh_host <ssh_host>"
   echo "           -ssh_port <ssh_port>"
   echo "           -ssh_user <ssh_user>"
-  echo "           -ssh_pass <ssh_pass>"
   echo "           -ssh_pass_env <ssh_pass_env> | -ssh_pass_file <ssh_pass_file> | -ssh_pass_prompt"
   echo "           -ssh_private_key <ssh_private_key>"
   echo "           -ssh_private_key_pass_env <ssh_private_key_pass_env> | -ssh_private_key_pass_file <ssh_private_key_pass_file> | -ssh_private_key_pass_prompt"

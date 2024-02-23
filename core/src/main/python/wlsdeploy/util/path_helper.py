@@ -144,9 +144,55 @@ class PathHelper(object):
         self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
         return result
 
-    #
-    # There are currently no use cases that require a remote_basename() method.
-    #
+    def split(self, path):
+        _method_name = 'split'
+        self._logger.entering(path, class_name=self._class_name, method_name=_method_name)
+
+        if self._remote_path_module is not None:
+            path_name, file_or_dir_name = self.remote_split(path)
+        else:
+            path_name, file_or_dir_name = self.local_split(path)
+
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=[path_name, file_or_dir_name])
+        return path_name, file_or_dir_name
+
+    def local_split(self, path):
+        _method_name = 'local_split'
+        self._logger.entering(path, class_name=self._class_name, method_name=_method_name)
+
+        path_name = None
+        file_or_dir_name = None
+        if not string_utils.is_empty(path):
+            path_name, file_or_dir_name = self._local_path_module.split(path)
+
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=[path_name, file_or_dir_name])
+        return path_name, file_or_dir_name
+
+    def remote_split(self, path):
+        _method_name = 'remote_split'
+        self._logger.entering(path, class_name=self._class_name, method_name=_method_name)
+
+        self._verify_remote_path_module(_method_name)
+        path_name = None
+        file_or_dir_name = None
+        if not string_utils.is_empty(path):
+            path_name, file_or_dir_name = self._remote_path_module.split(path)
+
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=[path_name, file_or_dir_name])
+        return path_name, file_or_dir_name
+
+    def basename(self, path):
+        _method_name = 'basename'
+        self._logger.entering(path, class_name=self._class_name, method_name=_method_name)
+
+        if self._remote_path_module is not None:
+            result = self.remote_basename(path)
+        else:
+            result = self.local_basename(path)
+
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
+
     def local_basename(self, path):
         _method_name = 'local_basename'
         self._logger.entering(path, class_name=self._class_name, method_name=_method_name)
@@ -154,6 +200,18 @@ class PathHelper(object):
         result = None
         if not string_utils.is_empty(path):
             result = self._local_path_module.basename(path)
+
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
+
+    def remote_basename(self, path):
+        _method_name = 'remote_basename'
+        self._logger.entering(path, class_name=self._class_name, method_name=_method_name)
+
+        self._verify_remote_path_module(_method_name)
+        result = None
+        if not string_utils.is_empty(path):
+            result = self._remote_path_module.basename(path)
 
         self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
         return result

@@ -6,7 +6,6 @@ import os
 
 from java.io import BufferedReader
 from java.io import BufferedWriter
-from java.io import File
 from java.io import FileReader
 from java.io import FileWriter
 from java.lang import IllegalArgumentException
@@ -306,7 +305,8 @@ class DeploymentsDiscoverer(Discoverer):
                 if not self._model_context.is_remote():
                     file_name_path = self._convert_path(file_name)
                 if self._is_file_to_exclude_from_archive(file_name_path):
-                    _logger.info('WLSDPLY-06393', application_name, class_name=_class_name, method_name=_method_name)
+                    _logger.info('WLSDPLY-06393', application_name,
+                                 class_name=_class_name, method_name=_method_name)
                 else:
                     new_source_name = None
                     if self._model_context.is_remote():
@@ -314,8 +314,8 @@ class DeploymentsDiscoverer(Discoverer):
                         self.add_to_remote_map(file_name_path, new_source_name,
                                                WLSDeployArchive.ArchiveEntryType.APPLICATION.name())
                     elif not self._model_context.is_skip_archive():
-                        _logger.info('WLSDPLY-06394', application_name, file_name_path, class_name=_class_name,
-                                     method_name=_method_name)
+                        _logger.info('WLSDPLY-06394', application_name, file_name_path,
+                                     class_name=_class_name, method_name=_method_name)
                         try:
                             if self._model_context.is_ssh():
                                 file_name_path = \
@@ -373,7 +373,8 @@ class DeploymentsDiscoverer(Discoverer):
 
     def _add_structured_application_to_archive(self, application_name, application_dict, location, install_root):
         _method_name = '_add_structured_application_to_archive'
-        _logger.entering(application_name, location, install_root, class_name=_class_name, method_name=_method_name)
+        _logger.entering(application_name, location, install_root,
+                         class_name=_class_name, method_name=_method_name)
         archive_file = self._model_context.get_archive_file()
 
         install_root_path = install_root
@@ -407,6 +408,10 @@ class DeploymentsDiscoverer(Discoverer):
                         self._aliases.get_model_uses_path_tokens_attribute_names(location, only_readable=True)
                     for key, value in application_dict.iteritems():
                         if key in path_attributes:
+                            # In the SSH case, the install_root_path and value do not share a common path.
+                            #
+                            if self._model_context.is_ssh():
+                                value = self._convert_value_to_ssh_download_location(key, value, install_root_path)
                             application_dict[key] = \
                                 WLSDeployArchive.getStructuredApplicationArchivePath(install_root_path,
                                                                                      new_install_root_path, value)
@@ -417,7 +422,7 @@ class DeploymentsDiscoverer(Discoverer):
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
     def _is_structured_app(self, application_name, application_dict):
-        _method_name = 'is_structured_app'
+        _method_name = '_is_structured_app'
 
         _logger.entering(application_dict, class_name=_class_name, method_name=_method_name)
 
@@ -440,21 +445,78 @@ class DeploymentsDiscoverer(Discoverer):
             _logger.exiting(class_name=_class_name, method_name=_method_name, result=[False, None])
             return False, None
 
-        source_path_file = File(source_path)
-        source_path_parent_file = source_path_file.getParentFile()
-        if source_path_parent_file is None or \
-                source_path_parent_file.getName() != 'app' or \
-                source_path_parent_file.getParentFile() is None:
+        if self.path_helper.is_relative_path(source_path):
+            source_path = self.path_helper.join(self._model_context.get_domain_home(), source_path)
+            source_path = self.path_helper.get_canonical_path(source_path)
+        if self.path_helper.is_relative_path(plan_dir):
+            plan_dir = self.path_helper.join(self._model_context.get_domain_home(), plan_dir)
+            plan_dir = self.path_helper.get_canonical_path(plan_dir)
+
+        source_path_parent = self.path_helper.get_parent_directory(source_path)
+        if source_path_parent is None or \
+                self.path_helper.basename(source_path_parent) != 'app' or \
+                self.path_helper.get_parent_directory(source_path_parent) == source_path_parent:
             _logger.exiting(class_name=_class_name, method_name=_method_name, result=[False, None])
             return False, None
 
-        install_root_dir = FileUtils.getCommonRootDirectory(source_path_file, File(plan_dir))
+        install_root_dir = self._get_app_install_root(source_path_parent, plan_dir)
         if install_root_dir is not None:
-            _logger.exiting(class_name=_class_name, method_name=_method_name, result=[True, install_root_dir])
+            _logger.exiting(class_name=_class_name, method_name=_method_name,
+                            result=[True, install_root_dir])
             return True, install_root_dir
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=[False, None])
         return False, None
+
+    def _convert_value_to_ssh_download_location(self, key, value, install_root_path):
+        _method_name = '_convert_value_to_ssh_download_location'
+        _logger.entering(key, value, install_root_path, class_name=_class_name, method_name=_method_name)
+
+        new_value = value
+        if not StringUtils.isEmpty(value):
+            # strip off any trailing separator so that Jython basename works properly...
+            if install_root_path.endswith('/') or install_root_path.endswith('\\'):
+                install_root_path = install_root_path[0:-1]
+            install_directory_name = self.path_helper.local_basename(install_root_path)
+
+            add_trailing_slash = False
+            if value.endswith('/') or value.endswith('\\'):
+                add_trailing_slash = True
+                new_value = value[0:-1]
+
+            trailing_path_components = list()
+            value_path, value_current_dir_name = self.path_helper.remote_split(new_value)
+
+            # Skip over the first occurrence in case it is an exploded app directory
+            # (e.g., servers/AdminServer/upload/OtdApp/app/OtdApp)
+            #
+            if value_current_dir_name == install_directory_name:
+                trailing_path_components.append(value_current_dir_name)
+                value_path, value_current_dir_name = self.path_helper.remote_split(value_path)
+
+            found_match = False
+            while not StringUtils.isEmpty(value_current_dir_name):
+                if value_current_dir_name == install_directory_name:
+                    found_match = True
+                    break
+                elif StringUtils.isEmpty(value_path):
+                    break
+                else:
+                    trailing_path_components.append(value_current_dir_name)
+
+                value_path, value_current_dir_name = self.path_helper.remote_split(value_path)
+
+            if found_match:
+                trailing_path_components.append(install_root_path)
+                trailing_path_components.reverse()
+                new_value = self.path_helper.local_join(*trailing_path_components)
+                if add_trailing_slash:
+                    new_value += os.sep
+            else:
+                new_value = value
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_value)
+        return new_value
 
     def _jdbc_password_fix(self, source_name):
         """
@@ -588,8 +650,21 @@ class DeploymentsDiscoverer(Discoverer):
                 relative_to = plan_dir
             else:
                 relative_to = self._model_context.get_domain_home()
-            return discoverer.convert_to_absolute_path(relative_to, plan_path)
+            return self.path_helper.get_canonical_path(plan_path, relative_to=relative_to)
         return plan_path
+
+    def _get_app_install_root(self, app_dir, plan_dir):
+        _method_name = '_get_app_install_root'
+        _logger.entering(app_dir, plan_dir, class_name=_class_name, method_name=_method_name)
+
+        app_install_root = self.path_helper.get_parent_directory(app_dir)
+        if plan_dir.startswith(app_install_root):
+            install_root = app_install_root
+        else:
+            install_root = None
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=install_root)
+        return install_root
 
 
 def _generate_new_plan_name(binary_path, plan_path):
