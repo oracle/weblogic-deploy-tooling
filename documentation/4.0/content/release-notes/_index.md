@@ -71,6 +71,9 @@ pre = "<b> </b>"
           WebLogic Server 14.1.1 and newer.
 - #1636 - Fixed an issue with Update Domain and Deploy Applications Tools when using the `-remote` option that was
           causing a TODO message to be generated when there was nothing for the user to do.
+- #1638 - Fixed an issue with Update Domain and Deploy Applications Tools where the application specified a `PlanDir`
+          and a `PlanPath` but the online deployment was ignoring the `PlanDir`, resulting in a file does not exist
+          error when attempting to deploy the application.
 
 #### Known Issues
 - SSH support for the Update Domain Tool and Deploy Apps Tool do not work when using an archive file and the remote 
