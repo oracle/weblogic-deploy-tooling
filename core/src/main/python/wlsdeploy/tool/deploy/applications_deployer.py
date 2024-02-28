@@ -1063,7 +1063,7 @@ class ApplicationsDeployer(Deployer):
                 if not model_helper.is_delete_name(lib_name):
                     lib_dict = model_libs[lib_name]
                     src_path = dictionary_utils.get_element(lib_dict, SOURCE_PATH)
-                    plan_file = dictionary_utils.get_element(lib_dict, PLAN_PATH)
+                    plan_file = self.__get_plan_file_path(lib_dict)
                     targets = dictionary_utils.get_element(lib_dict, TARGET)
                     stage_mode = dictionary_utils.get_element(lib_dict, STAGE_MODE)
                     options, sub_module_targets = _get_deploy_options(model_libs, lib_name, library_module='true',
@@ -1106,7 +1106,7 @@ class ApplicationsDeployer(Deployer):
                 if not model_helper.is_delete_name(app_name):
                     app_dict = model_apps[app_name]
                     src_path = dictionary_utils.get_element(app_dict, SOURCE_PATH)
-                    plan_file = dictionary_utils.get_element(app_dict, PLAN_PATH)
+                    plan_file = self.__get_plan_file_path(app_dict)
                     stage_mode = dictionary_utils.get_element(app_dict, STAGE_MODE)
                     targets = dictionary_utils.get_element(app_dict, TARGET)
                     options, sub_module_targets  = _get_deploy_options(model_apps, app_name, library_module='false',
@@ -1135,6 +1135,7 @@ class ApplicationsDeployer(Deployer):
                     self.__substitute_appmodule_token(path, module_type)
 
     def _get_source_path_for_deploy_application(self, app_dict, app_name, src_path, uses_path_tokens_attribute_names):
+        path = None
         for uses_path_tokens_attribute_name in uses_path_tokens_attribute_names:
             if uses_path_tokens_attribute_name in app_dict:
                 path = app_dict[uses_path_tokens_attribute_name]
@@ -1147,6 +1148,18 @@ class ApplicationsDeployer(Deployer):
                     if self.model_context.is_remote():
                         src_path = self.path_helper.local_join(self.upload_temporary_dir, src_path)
         return path, src_path
+
+    def __get_plan_file_path(self, deployment_dict):
+        _method_name = '__get_plan_file_path'
+        self.logger.entering(class_name=self._class_name, method_name=_method_name)
+
+        plan_dir = dictionary_utils.get_element(deployment_dict, PLAN_DIR)
+        plan_file = dictionary_utils.get_element(deployment_dict, PLAN_PATH)
+        if self.path_helper.is_relative_local_path(plan_file) and not string_utils.is_empty(plan_dir):
+            plan_file = self.path_helper.local_join(plan_dir, plan_file)
+
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=plan_file)
+        return plan_file
 
     def __get_mt_names_from_location(self, app_location):
         dummy_location = LocationContext()
