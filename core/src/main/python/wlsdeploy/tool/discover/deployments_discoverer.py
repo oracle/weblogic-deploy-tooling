@@ -226,6 +226,7 @@ class DeploymentsDiscoverer(Discoverer):
         """
         _method_name = 'get_applications'
         _logger.entering(class_name=_class_name, method_name=_method_name)
+
         result = OrderedDict()
         model_top_folder_name = model_constants.APPLICATION
         location = LocationContext(self._base_location)
@@ -418,12 +419,10 @@ class DeploymentsDiscoverer(Discoverer):
             else:
                 _logger.info('WLSDPLY-06393', application_name, class_name=_class_name, method_name=_method_name)
 
-
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
     def _is_structured_app(self, application_name, application_dict):
         _method_name = '_is_structured_app'
-
         _logger.entering(application_dict, class_name=_class_name, method_name=_method_name)
 
         source_path = None
@@ -437,29 +436,45 @@ class DeploymentsDiscoverer(Discoverer):
         if 'PlanPath' in application_dict:
             plan_path = application_dict['PlanPath']
 
+        _logger.finer('WLSDPLY-06405', application_name, source_path, plan_dir, plan_path,
+                      class_name=_class_name, method_name=_method_name)
+
         if source_path is None:
             de = exception_helper.create_discover_exception('WLSDPLY-06404', application_name)
             _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
             raise de
-        if plan_path is None or plan_dir is None:
+        if plan_path is None:
             _logger.exiting(class_name=_class_name, method_name=_method_name, result=[False, None])
             return False, None
 
         if self.path_helper.is_relative_path(source_path):
             source_path = self.path_helper.join(self._model_context.get_domain_home(), source_path)
             source_path = self.path_helper.get_canonical_path(source_path)
-        if self.path_helper.is_relative_path(plan_dir):
-            plan_dir = self.path_helper.join(self._model_context.get_domain_home(), plan_dir)
-            plan_dir = self.path_helper.get_canonical_path(plan_dir)
 
         source_path_parent = self.path_helper.get_parent_directory(source_path)
+        _logger.finer('WLSDPLY-06406', application_name, source_path_parent,
+                      class_name=_class_name, method_name=_method_name)
         if source_path_parent is None or \
                 self.path_helper.basename(source_path_parent) != 'app' or \
                 self.path_helper.get_parent_directory(source_path_parent) == source_path_parent:
             _logger.exiting(class_name=_class_name, method_name=_method_name, result=[False, None])
             return False, None
 
-        install_root_dir = self._get_app_install_root(source_path_parent, plan_dir)
+        # _get_app_install_root() only needs a path to either the PlanDir or the PlanPath to determine
+        # if this application is a structured app.
+        #
+        if plan_dir is None:
+            if self.path_helper.is_relative_path(plan_path):
+                plan_path = self.path_helper.join(self._model_context.get_domain_home(), plan_path)
+                plan_path = self.path_helper.get_canonical_path(plan_path)
+            effective_plan = plan_path
+        else:
+            if self.path_helper.is_relative_path(plan_dir):
+                plan_dir = self.path_helper.join(self._model_context.get_domain_home(), plan_dir)
+                plan_dir = self.path_helper.get_canonical_path(plan_dir)
+            effective_plan = plan_dir
+
+        install_root_dir = self._get_app_install_root(source_path_parent, effective_plan)
         if install_root_dir is not None:
             _logger.exiting(class_name=_class_name, method_name=_method_name,
                             result=[True, install_root_dir])

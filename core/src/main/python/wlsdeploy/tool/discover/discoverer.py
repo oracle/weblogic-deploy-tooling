@@ -119,28 +119,35 @@ class Discoverer(object):
         :return: dictionary of model attribute name and wlst value
         """
         _method_name = '_populate_model_parameters'
+        _logger.entering(dictionary, str_helper.to_string(location),
+                              class_name=_class_name, method_name=_method_name)
+
         wlst_path = self._aliases.get_wlst_attributes_path(location)
         _logger.finer('WLSDPLY-06100', wlst_path, class_name=_class_name, method_name=_method_name)
 
         if not self.wlst_cd(wlst_path, location):
+            _logger.exiting(class_name=_class_name, method_name=_method_name, result=None)
             return
 
         wlst_lsa_params = self._get_attributes_for_current_location(location)
         wlst_did_get = list()
-        _logger.finest('WLSDPLY-06102', self._wlst_helper.get_pwd(), wlst_lsa_params, class_name=_class_name,
-                       method_name=_method_name)
+        _logger.finest('WLSDPLY-06102', self._wlst_helper.get_pwd(), wlst_lsa_params,
+                       class_name=_class_name, method_name=_method_name)
         wlst_get_params = self._get_required_attributes(location)
         _logger.finest('WLSDPLY-06103', str_helper.to_string(location), wlst_get_params,
                        class_name=_class_name, method_name=_method_name)
         if wlst_lsa_params is not None:
             for wlst_lsa_param in wlst_lsa_params:
                 if wlst_lsa_param in wlst_get_params:
+                    _logger.finest('WLSDPLY-06132', wlst_lsa_param,
+                                   class_name=_class_name, method_name=_method_name)
                     success, wlst_value = self._get_attribute_value_with_get(wlst_lsa_param, wlst_path)
                     wlst_did_get.append(wlst_lsa_param)
                     if not success:
                         continue
                 else:
-                    _logger.finer('WLSDPLY-06131', wlst_lsa_param, class_name=_class_name, method_name=_method_name)
+                    _logger.finest('WLSDPLY-06131', wlst_lsa_param,
+                                   class_name=_class_name, method_name=_method_name)
                     wlst_value = wlst_lsa_params[wlst_lsa_param]
 
                 # if attribute was never set (online only), don't add to the model
@@ -160,9 +167,13 @@ class Discoverer(object):
         # Find the attributes that are not in the LSA wlst map but are in the alias definitions with GET access
         get_attributes = [get_param for get_param in wlst_get_params if not get_param in wlst_did_get]
         for get_attribute in get_attributes:
+            _logger.finest('WLSDPLY-06133', get_attribute,
+                           class_name=_class_name, method_name=_method_name)
             success, wlst_value = self._get_attribute_value_with_get(get_attribute, wlst_path)
             if success:
                 self._add_to_dictionary(dictionary, location, get_attribute, wlst_value, wlst_path)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name)
 
     def _omit_from_model(self, location, wlst_lsa_param):
         """

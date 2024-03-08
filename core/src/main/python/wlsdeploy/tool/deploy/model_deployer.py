@@ -12,7 +12,6 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
-from wlsdeploy.tool.deploy.applications_deployer import ApplicationsDeployer
 from wlsdeploy.tool.deploy.deployer import Deployer
 from wlsdeploy.tool.deploy.resources_deployer import ResourcesDeployer
 
@@ -29,7 +28,8 @@ class ModelDeployer(Deployer):
     def __init__(self, model, model_context, aliases, wlst_mode=WlstModes.OFFLINE):
         Deployer.__init__(self, model, model_context, aliases, wlst_mode)
         self.resources_deployer = ResourcesDeployer(model, model_context, aliases, wlst_mode=wlst_mode)
-        self.applications_deployer = ApplicationsDeployer(model, model_context, aliases, wlst_mode=wlst_mode)
+        self.applications_deployer = \
+            deployer_utils.get_applications_deployer(model, model_context, aliases, wlst_mode=wlst_mode)
 
     def deploy_resources(self):
         """

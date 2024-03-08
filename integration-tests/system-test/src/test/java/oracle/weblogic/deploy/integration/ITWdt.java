@@ -1,6 +1,7 @@
-// Copyright 2019, 2023, Oracle and/or its affiliates.
-// Licensed under the Universal Permissive License v 1.0 as shown at
-// http://oss.oracle.com/licenses/upl.
+/*
+ * Copyright (c) 2019, 2024, Oracle and/or its affiliates.
+ * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+*/
 
 package oracle.weblogic.deploy.integration;
 
@@ -86,15 +87,15 @@ public class ITWdt extends BaseTest {
             throw new IllegalArgumentException("Method is not present in this context, and this method cannot be used");
         }
         String methodName = testInfo.getTestMethod().get().getName();
-        Path outputPath = Paths.get("target", "test-output", methodName);
+        Path outputPath = Paths.get("target", "test-output", methodName).normalize();
         if (!Files.exists(outputPath)) {
             Files.createDirectories(outputPath);
         }
         return outputPath;
     }
 
-    private static Map<String,String> getTestMethodEnvironment(TestInfo testInfo) throws IOException {
-        Map<String,String> env = new HashMap<>();
+    private static Map<String, String> getTestMethodEnvironment(TestInfo testInfo) throws IOException {
+        Map<String, String> env = new HashMap<>();
         env.put("WLSDEPLOY_LOG_DIRECTORY", getTestOutputPath(testInfo).toString());
         return env;
     }
@@ -120,6 +121,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test createDomain.sh with only -oracle_home argument
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 1: createDomain bad arguments")
@@ -137,6 +139,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test createDomain.sh with only -oracle_home and -domain_type arguments
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 2: createDomain bad arguments")
@@ -155,6 +158,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test createDomain.sh without model file
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 3: createDomain bad arguments")
@@ -173,6 +177,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test createDomain.sh without archive file
+     *
      * @throws Exception - if output file could not be created or written
      */
     @DisplayName("Test 4: createDomain without archive file")
@@ -181,7 +186,7 @@ public class ITWdt extends BaseTest {
     @Test
     void test04CreateDomainNoArchivefile(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_parent " + domainParentDir +
-                " -model_file " + getSampleModelFile("-constant") ;
+            " -model_file " + getSampleModelFile("-constant");
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(2, result.exitValue(), "Unexpected return code");
@@ -192,6 +197,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test createDomain.sh with required arguments using simple-topology-constant.yaml (domain = domain1)
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 5: createDomain with domain_parent")
@@ -200,8 +206,8 @@ public class ITWdt extends BaseTest {
     @Test
     void test05CreateDomain(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_parent " + domainParentDir +
-                " -model_file " + getSampleModelFile("-constant") +
-                " -archive_file " + getSampleArchiveFile();
+            " -model_file " + getSampleModelFile("-constant") +
+            " -archive_file " + getSampleArchiveFile();
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result.exitValue(), "Unexpected return code");
@@ -213,6 +219,7 @@ public class ITWdt extends BaseTest {
      * test createDomain.sh using simple-topology-constant.yaml with different domain name in
      * -domain_home and model file in model file, it specifies the domain name as 'domain1'
      * in -domain_home argument, it specifies the domain home as 'domain2'
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 6: createDomain with domain_home")
@@ -234,6 +241,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test createDomain.sh with WLS domain_type using simple-topology-constant.yaml (domain = domain2)
+     *
      * @throws Exception -if any error occurs
      */
     @Order(7)
@@ -242,8 +250,8 @@ public class ITWdt extends BaseTest {
     void test07CreateDomainWLSType(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
             domainParentDir + FS + "domain2 -model_file " +
-                getSampleModelFile("-constant") + " -archive_file " + getSampleArchiveFile() +
-                " -domain_type WLS";
+            getSampleModelFile("-constant") + " -archive_file " + getSampleArchiveFile() +
+            " -domain_type WLS";
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result.exitValue(), "Unexpected return code");
@@ -253,6 +261,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test createDomain.sh, model file contains variables but no variable_file specified
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 8: createDomain but needs variable file")
@@ -261,8 +270,8 @@ public class ITWdt extends BaseTest {
     @Test
     void test08CreateDomainNoVariableFile(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_parent " + domainParentDir +
-                " -model_file " + getSampleModelFile("1") +
-                " -archive_file " + getSampleArchiveFile()  ;
+            " -model_file " + getSampleModelFile("1") +
+            " -archive_file " + getSampleArchiveFile();
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(2, result.exitValue(), "Unexpected return code");
@@ -273,6 +282,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test createDomain.sh with variable_file argument using simple-topology1.yaml (domain = domain2)
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 9: createDomain with variable file")
@@ -282,8 +292,8 @@ public class ITWdt extends BaseTest {
     void test09CreateDomainWithVariableFile(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
             domainParentDir + FS + "domain2 -model_file " +
-                getSampleModelFile("1") + " -archive_file " + getSampleArchiveFile() +
-                " -domain_type WLS -variable_file " + getSampleVariableFile();
+            getSampleModelFile("1") + " -archive_file " + getSampleArchiveFile() +
+            " -domain_type WLS -variable_file " + getSampleVariableFile();
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result.exitValue(), "Unexpected return code");
@@ -293,6 +303,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test createDomain.sh with wlst_path set to mwhome/wlserver using simple-topology1.yaml (domain = domain2)
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 10: createDomain with WLS wlst_path")
@@ -302,9 +313,9 @@ public class ITWdt extends BaseTest {
     void test10CreateDomainWithWlstPath(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
             domainParentDir + FS + "domain2 -model_file " +
-                getSampleModelFile("1") + " -archive_file " + getSampleArchiveFile() +
-                " -domain_type WLS -variable_file " + getSampleVariableFile() + " -wlst_path " +
-                mwhome_12213 + FS + "wlserver";
+            getSampleModelFile("1") + " -archive_file " + getSampleArchiveFile() +
+            " -domain_type WLS -variable_file " + getSampleVariableFile() + " -wlst_path " +
+            mwhome_12213 + FS + "wlserver";
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result.exitValue(), "Unexpected return code");
@@ -314,6 +325,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test createDomain.sh with -wlst_path set to mwhome/oracle_common using simple-topology1.yaml (domain = domain2)
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 11: createDomain with oracle_commmon wlst_path")
@@ -323,9 +335,9 @@ public class ITWdt extends BaseTest {
     void test11CreateDomainWithOracleCommonWlstPath(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
             domainParentDir + FS + "domain2 -model_file " +
-                getSampleModelFile("1") + " -archive_file " + getSampleArchiveFile() +
-                " -domain_type WLS -variable_file " + getSampleVariableFile() + " -wlst_path " +
-                mwhome_12213 + FS + "oracle_common";
+            getSampleModelFile("1") + " -archive_file " + getSampleArchiveFile() +
+            " -domain_type WLS -variable_file " + getSampleVariableFile() + " -wlst_path " +
+            mwhome_12213 + FS + "oracle_common";
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result.exitValue(), "Unexpected return code");
@@ -336,6 +348,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test createDomain.sh, create JRF domain without -run_rcu argument
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 12: createDomain JRF domain without DB")
@@ -362,6 +375,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test createDomain.sh, create JRF domain with -run_rcu argument
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 13: createDomain JRF domain and run RCU")
@@ -392,6 +406,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * testDOnlineUpdate1 check for 103 return code if an update requires restart.
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 14: Update JRF domain that requires restart")
@@ -410,25 +425,26 @@ public class ITWdt extends BaseTest {
         boolean isServerUp = startAdminServer(domainHome, adminServerOut);
 
         if (isServerUp) {
-            try (PrintWriter out = getTestMethodWriter(testInfo)) {
-                // update wdt model file
-                Path source = Paths.get(getSampleModelFile("-onlineUpdate"));
-                Path model = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "-onlineUpdate.yaml");
-                Files.copy(source, model, StandardCopyOption.REPLACE_EXISTING);
+            try {
+                try (PrintWriter out = getTestMethodWriter(testInfo)) {
+                    // update wdt model file
+                    Path source = Paths.get(getSampleModelFile("-onlineUpdate"));
+                    Path model = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "-onlineUpdate.yaml");
+                    Files.copy(source, model, StandardCopyOption.REPLACE_EXISTING);
 
-                String cmd = "echo welcome1 | "
-                    + updateDomainScript
-                    + " -oracle_home " + mwhome_12213
-                    + " -domain_home " + domainParentDir + FS + "jrfDomain1"
-                    + " -model_file " + model
-                    + " -domain_type JRF"
-                    + " -admin_url t3://localhost:7001 -admin_user weblogic";
-                CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-
+                    String cmd = "echo welcome1 | "
+                        + updateDomainScript
+                        + " -oracle_home " + mwhome_12213
+                        + " -domain_home " + domainParentDir + FS + "jrfDomain1"
+                        + " -model_file " + model
+                        + " -domain_type JRF"
+                        + " -admin_url t3://localhost:7001 -admin_user weblogic";
+                    CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+                    assertEquals(103, result.exitValue(), "onlineUpdate is expecting return code of 103");
+                }
+            } finally {
                 stopAdminServer(domainHome);
-                assertEquals(103, result.exitValue(), "onlineUpdate is expecting return code of 103");
             }
-
         } else {
             // Best effort to clean up server
             tryKillTheAdminServer(domainHome, "admin-server");
@@ -439,6 +455,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * testDOnlineUpdate2 check for 104 return code if an update cancel changes.
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 15: Update JRF domain that requires restart, but cancel changes")
@@ -452,25 +469,26 @@ public class ITWdt extends BaseTest {
         String domainHome = domainParentDir + FS + "jrfDomain1";
         Path adminServerOut = getTestOutputPath(testInfo).resolve("admin-server.out");
         boolean isServerUp = startAdminServer(domainHome, adminServerOut);
-
         if (isServerUp) {
-            try (PrintWriter out = getTestMethodWriter(testInfo)) {
-                Path source = Paths.get(getSampleModelFile("-onlineUpdate2"));
-                Path model = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "-onlineUpdate2.yaml");
-                Files.copy(source, model, StandardCopyOption.REPLACE_EXISTING);
+            try {
+                try (PrintWriter out = getTestMethodWriter(testInfo)) {
+                    Path source = Paths.get(getSampleModelFile("-onlineUpdate2"));
+                    Path model = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "-onlineUpdate2.yaml");
+                    Files.copy(source, model, StandardCopyOption.REPLACE_EXISTING);
 
-                String cmd = "echo welcome1 | "
-                    + updateDomainScript
-                    + " -oracle_home " + mwhome_12213
-                    + " -domain_home " + domainParentDir + FS + "jrfDomain1"
-                    + " -model_file " + model
-                    + " -domain_type JRF"
-                    + " -admin_url t3://localhost:7001 -admin_user weblogic"
-                    + " -cancel_changes_if_restart_required";
-                CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-
+                    String cmd = "echo welcome1 | "
+                        + updateDomainScript
+                        + " -oracle_home " + mwhome_12213
+                        + " -domain_home " + domainParentDir + FS + "jrfDomain1"
+                        + " -model_file " + model
+                        + " -domain_type JRF"
+                        + " -admin_url t3://localhost:7001 -admin_user weblogic"
+                        + " -cancel_changes_if_restart_required";
+                    CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+                    assertEquals(104, result.exitValue(), "onlineUpdate2 is expecting return code of 104");
+                }
+            } finally {
                 stopAdminServer(domainHome);
-                assertEquals(104, result.exitValue(), "onlineUpdate2 is expecting return code of 104");
             }
         } else {
             // Best effort to clean up server
@@ -482,6 +500,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test createDomain.sh, create restrictedJRF domain
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 16: create restricted JRF domain")
@@ -492,8 +511,8 @@ public class ITWdt extends BaseTest {
         assumeTrue(new RestrictedJrfChecker(), "User specified skipping Restricted JRF tests");
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
             domainParentDir + FS + "restrictedJRFD1 -model_file " +
-                getSampleModelFile("-constant") + " -archive_file " + getSampleArchiveFile() +
-                " -domain_type RestrictedJRF";
+            getSampleModelFile("-constant") + " -archive_file " + getSampleArchiveFile() +
+            " -domain_type RestrictedJRF";
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result.exitValue(), "Unexpected return code");
@@ -504,6 +523,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test discoverDomain.sh with required arguments
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 17: Discover domain restrictedJRFD1")
@@ -513,9 +533,9 @@ public class ITWdt extends BaseTest {
     void test17DiscoverDomainWithRequiredArgument(TestInfo testInfo) throws Exception {
         assumeTrue(new RestrictedJrfChecker(), "User specified skipping Restricted JRF tests");
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
-                domainParentDir + FS + "restrictedJRFD1-discover17-18-19 -model_file " +
-                getSampleModelFile("-constant") + " -archive_file " + getSampleArchiveFile() +
-                " -domain_type RestrictedJRF";
+            domainParentDir + FS + "restrictedJRFD1-discover17-18-19 -model_file " +
+            getSampleModelFile("-constant") + " -archive_file " + getSampleArchiveFile() +
+            " -domain_type RestrictedJRF";
         try (PrintWriter out = getTestMethodWriter(testInfo, "CreateDomain")) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result.exitValue(), "Unexpected return code");
@@ -542,18 +562,20 @@ public class ITWdt extends BaseTest {
     }
 
     private void verifyFDiscoverDomainWithRequiredArgument(String expectedModelFile) throws Exception {
-         List<String> checkContents = new ArrayList<>();
-         checkContents.add("domainInfo:");
-         checkContents.add("AdminUserName: --FIX ME--");
-         checkContents.add("CoherenceClusterSystemResource: defaultCoherenceCluster");
-         checkContents.add("PublicAddress: kubernetes");
-         checkContents.add("Trust Service Identity Asserter:");
-         checkContents.add("appDeployments:");
-         checkContents.add("SourcePath: wlsdeploy/applications/simple-app.war");
+        List<String> checkContents = new ArrayList<>();
+        checkContents.add("domainInfo:");
+        checkContents.add("AdminUserName: --FIX ME--");
+        checkContents.add("CoherenceClusterSystemResource: defaultCoherenceCluster");
+        checkContents.add("PublicAddress: kubernetes");
+        checkContents.add("Trust Service Identity Asserter:");
+        checkContents.add("appDeployments:");
+        checkContents.add("SourcePath: wlsdeploy/applications/simple-app.war");
         verifyModelFileContents(expectedModelFile, checkContents);
     }
+
     /**
      * test discoverDomain.sh with -model_file argument
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 18: Discover domain restrictedJRFD1 using model_file arg")
@@ -567,8 +589,8 @@ public class ITWdt extends BaseTest {
         Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
         Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.yaml");
         String cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
-                domainParentDir + FS + "restrictedJRFD1-discover17-18-19 -archive_file " + discoveredArchive +
-                " -model_file " + discoveredModelFile;
+            domainParentDir + FS + "restrictedJRFD1-discover17-18-19 -archive_file " + discoveredArchive +
+            " -model_file " + discoveredModelFile;
         try (PrintWriter out = getTestMethodWriter(testInfo)) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             // SecurityConfiguration warning
@@ -580,37 +602,38 @@ public class ITWdt extends BaseTest {
     }
 
     /**
-    * test discoverDomain.sh with -variable_file argument
-    * @throws Exception - if any error occurs
-    */
+     * test discoverDomain.sh with -variable_file argument
+     *
+     * @throws Exception - if any error occurs
+     */
     @DisplayName("Test 19: Discover domain restrictedJRFD1 using variable file")
     @Order(19)
     @Tag("gate")
     @Test
     void test19DiscoverDomainWithVariableFile(TestInfo testInfo) throws Exception {
-      assumeTrue(new JrfChecker(), "User specified skipping JRF tests");
-      assertTrue(discover17DomainCreated, "Domain not created and cannot be discovered");
-      Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
-      Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.yaml");
-      Path discoveredVariableFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.properties");
+        assumeTrue(new JrfChecker(), "User specified skipping JRF tests");
+        assertTrue(discover17DomainCreated, "Domain not created and cannot be discovered");
+        Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
+        Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.yaml");
+        Path discoveredVariableFile = getTestOutputPath(testInfo).resolve("discoveredRestrictedJRFD1.properties");
 
-      String cmd = discoverDomainScript
-          + " -oracle_home " + mwhome_12213
-          + " -domain_home " + domainParentDir + FS + "restrictedJRFD1-discover17-18-19"
-          + " -archive_file " + discoveredArchive
-          + " -model_file " + discoveredModelFile
-          + " -variable_file " + discoveredVariableFile;
+        String cmd = discoverDomainScript
+            + " -oracle_home " + mwhome_12213
+            + " -domain_home " + domainParentDir + FS + "restrictedJRFD1-discover17-18-19"
+            + " -archive_file " + discoveredArchive
+            + " -model_file " + discoveredModelFile
+            + " -variable_file " + discoveredVariableFile;
 
-      try (PrintWriter out = getTestMethodWriter(testInfo)) {
-          CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-          // SecurityConfiguration warning
-          assertEquals(0, result.exitValue(), "Unexpected return code");
+        try (PrintWriter out = getTestMethodWriter(testInfo)) {
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+            // SecurityConfiguration warning
+            assertEquals(0, result.exitValue(), "Unexpected return code");
 
-          // verify model file and variable file
-          verifyModelFile(discoveredModelFile.toString());
-          verifyModelFile(discoveredVariableFile.toString());
-          verifyGDiscoverDomainWithVariableFile(discoveredModelFile.toString());
-      }
+            // verify model file and variable file
+            verifyModelFile(discoveredModelFile.toString());
+            verifyModelFile(discoveredVariableFile.toString());
+            verifyGDiscoverDomainWithVariableFile(discoveredModelFile.toString());
+        }
     }
 
     private void verifyGDiscoverDomainWithVariableFile(String expectedModelFile) throws Exception {
@@ -621,6 +644,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test discoverDomain.sh with -domain_type as JRF
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 20: Discover domain domain_type JRF")
@@ -637,8 +661,8 @@ public class ITWdt extends BaseTest {
             replaceStringInFile(source, modelOut, "%DB_HOST%", getDBContainerIP());
 
             String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
-                    domainParentDir + FS + "jrfDomain1-discover20 -model_file " +
-                    modelOut + " -archive_file " + getSampleArchiveFile() + " -domain_type JRF -run_rcu";
+                domainParentDir + FS + "jrfDomain1-discover20 -model_file " +
+                modelOut + " -archive_file " + getSampleArchiveFile() + " -domain_type JRF -run_rcu";
 
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result.exitValue(), "Unexpected return code");
@@ -676,6 +700,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test updateDomain.sh, update the domain to set the number of dynamic servers to 4
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 21: Update domain dynamic server count")
@@ -714,6 +739,7 @@ public class ITWdt extends BaseTest {
     /**
      * Test deployApp with missing model in archive.
      * Negative test, expects error message.
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 22: Deploy App negative test")
@@ -734,6 +760,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * Test deployApps.
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 23: Deploy App")
@@ -755,6 +782,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test validateModel.sh with -oracle_home only
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 24: Validate model negative (no model)")
@@ -771,6 +799,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test validateModel.sh with -oracle_home and -model_file
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 25: Validate model negative (no archive)")
@@ -788,6 +817,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test validateModel.sh without -variable_file
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 26: Validate model negative (no variable file)")
@@ -806,6 +836,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test compareModel.sh with only attribute difference.  The files existences test whether it impacts WKO operation
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 27: Compare model")
@@ -831,6 +862,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test validateModel.sh with invalid model file
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 28: Validate model negative (invalid model)")
@@ -880,6 +912,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test updateDomain.sh online with untargeting, deploy, and app update
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 30: createDomain and run updateDomain online for application")
@@ -900,104 +933,106 @@ public class ITWdt extends BaseTest {
             assertTrue(result.stdout().contains("createDomain.sh completed successfully"), "Create failed");
         }
 
+        Path source = Paths.get(getSampleModelFile("-untargetapp"));
+        Path model = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "-onlineUpdate.yaml");
+
         String domainHome = domainParentDir + FS + domainDir;
         setUpBootProperties(domainHome, "admin-server", "weblogic", "welcome1");
         Path adminServerOut = getTestOutputPath(testInfo).resolve("admin-server.out");
         boolean isServerUp = startAdminServer(domainHome, adminServerOut);
-
-        Path source = Paths.get(getSampleModelFile("-untargetapp"));
-        Path model = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "-onlineUpdate.yaml");
         if (isServerUp) {
-            try (PrintWriter out = getTestMethodWriter(testInfo, "UpdateDomain-1")) {
-                // update wdt model file
-                Files.copy(source, model, StandardCopyOption.REPLACE_EXISTING);
+            try {
+                try (PrintWriter out = getTestMethodWriter(testInfo, "UpdateDomain-1")) {
+                    // update wdt model file
+                    Files.copy(source, model, StandardCopyOption.REPLACE_EXISTING);
 
-                cmd = "echo welcome1 | "
-                    + updateDomainScript
-                    + " -oracle_home " + mwhome_12213
-                    + " -domain_home " + domainParentDir + FS + domainDir
-                    + " -model_file " + model
-                    + " -archive_file " + getSampleArchiveFile()
-                    + " -admin_url t3://localhost:7001 -admin_user weblogic";
-                CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+                    cmd = "echo welcome1 | "
+                        + updateDomainScript
+                        + " -oracle_home " + mwhome_12213
+                        + " -domain_home " + domainParentDir + FS + domainDir
+                        + " -model_file " + model
+                        + " -archive_file " + getSampleArchiveFile()
+                        + " -admin_url t3://localhost:7001 -admin_user weblogic";
+                    CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
-                assertEquals(0, result.exitValue(), "Unexpected return code for untargeting app");
-                assertTrue(result.stdout().contains("<remove_app_from_deployment> <WLSDPLY-09339>"),
-                    "Update does not contains expected message WLSDPLY-09339");
-            }
-            try (PrintWriter out = getTestMethodWriter(testInfo, "UpdateDomain-2")) {
-                // Check result
-                source = Paths.get(getSampleModelFile("-targetapp"));
-                model = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "-onlineUpdate.yaml");
-                Files.copy(source, model, StandardCopyOption.REPLACE_EXISTING);
-
-                cmd = "echo welcome1 | "
-                    + updateDomainScript
-                    + " -oracle_home " + mwhome_12213
-                    + " -domain_home " + domainParentDir + FS + domainDir
-                    + " -model_file " + model
-                    + " -archive_file " + getSampleArchiveFile()
-                    + " -admin_url t3://localhost:7001 -admin_user weblogic";
-                CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-
-                assertEquals(0, result.exitValue(), "Unexpected return code for targeting app");
-                assertTrue(result.stdout().contains("<__deploy_app_online> <WLSDPLY-09316>"),
-                    "Update does not contains expected message WLSDPLY-09316");
-                assertTrue(result.stdout().contains("<__start_app> <WLSDPLY-09313>"),
-                    "Update does not contains expected message WLSDPLY-09313");
-            }
-            try (PrintWriter out = getTestMethodWriter(testInfo, "UpdateDomain-online")) {
-                source = Paths.get(getSampleModelFile("-targetapp"));
-                model = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "-onlineUpdate.yaml");
-                Files.copy(source, model, StandardCopyOption.REPLACE_EXISTING);
-
-                cmd = "echo welcome1 | "
-                    + updateDomainScript
-                    + " -oracle_home " + mwhome_12213
-                    + " -domain_home " + domainParentDir + FS + domainDir
-                    + " -model_file " + model
-                    + " -archive_file " + getUpdatedSampleArchiveFile()
-                    + " -admin_url t3://localhost:7001 -admin_user weblogic";
-                CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-
-                assertEquals(0, result.exitValue(), "Unexpected return code for updating domain with new archive");
-                assertTrue(result.stdout().contains("<__stop_app> <WLSDPLY-09312>"),
-                    "Update does not contains expected message WLSDPLY-09312");
-                assertTrue(result.stdout().contains("<__undeploy_app> <WLSDPLY-09314>"),
-                    "Update does not contains expected message WLSDPLY-09314");
-                assertTrue(result.stdout().contains("<__deploy_app_online> <WLSDPLY-09316>"),
-                    "Update does not contains expected message WLSDPLY-09316");
-                assertTrue(result.stdout().contains("<__start_app> <WLSDPLY-09313>"),
-                    "Update does not contains expected message WLSDPLY-09313");
-
-                cmd = "echo welcome1 | "
-                    + updateDomainScript
-                    + " -oracle_home " + mwhome_12213
-                    + " -domain_home " + domainParentDir + FS + domainDir
-                    + " -model_file " + model
-                    + " -remote"
-                    + " -archive_file " + getUpdatedSampleArchiveFile()
-                    + " -admin_url t3://localhost:7001 -admin_user weblogic";
-                result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-
-                assertEquals(0, result.exitValue(), "Unexpected return code for remote updating domain with new archive");
-
-                Path sourcePyfile = Paths.get(getResourcePath() + FS + SAMPLE_MODEL_FILE_PREFIX + "-chk-srcpath.py");
-                Path testPyFile = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "-chk-srcpath.py");
-                Files.copy(sourcePyfile, testPyFile, StandardCopyOption.REPLACE_EXISTING);
-                cmd = mwhome_12213 + "/oracle_common/common/bin/wlst.sh " + testPyFile + " " + domainParentDir + FS +
-                    domainDir;
-                result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-                assertEquals(0, result.exitValue(), "Unexpected return code for running wlst to find app sourcepath");
-                Pattern pattern = Pattern.compile("SRCPATH=(.*)");
-                Matcher matcher = pattern.matcher(result.stdout());
-                String srcPath = "Unknown";
-                if (matcher.find()) {
-                    srcPath = matcher.group(1);
+                    assertEquals(0, result.exitValue(), "Unexpected return code for untargeting app");
+                    assertTrue(result.stdout().contains("<__remove_app_from_deployment> <WLSDPLY-09339>"),
+                        "Update does not contains expected message WLSDPLY-09339");
                 }
-                assertTrue(srcPath.equals("servers/admin-server/upload/simple-app/app/simple-app.war"),
-                    "App SourcePath returned " + srcPath + " does not match the expected value");
+                try (PrintWriter out = getTestMethodWriter(testInfo, "UpdateDomain-2")) {
+                    // Check result
+                    source = Paths.get(getSampleModelFile("-targetapp"));
+                    model = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "-onlineUpdate.yaml");
+                    Files.copy(source, model, StandardCopyOption.REPLACE_EXISTING);
 
+                    cmd = "echo welcome1 | "
+                        + updateDomainScript
+                        + " -oracle_home " + mwhome_12213
+                        + " -domain_home " + domainParentDir + FS + domainDir
+                        + " -model_file " + model
+                        + " -archive_file " + getSampleArchiveFile()
+                        + " -admin_url t3://localhost:7001 -admin_user weblogic";
+                    CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+                    assertEquals(0, result.exitValue(), "Unexpected return code for targeting app");
+                    assertTrue(result.stdout().contains("<__deploy_app_or_library> <WLSDPLY-09316>"),
+                        "Update does not contains expected message WLSDPLY-09316");
+                    assertTrue(result.stdout().contains("<__start_app> <WLSDPLY-09313>"),
+                        "Update does not contains expected message WLSDPLY-09313");
+                }
+                try (PrintWriter out = getTestMethodWriter(testInfo, "UpdateDomain-online")) {
+                    source = Paths.get(getSampleModelFile("-targetapp"));
+                    model = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "-onlineUpdate.yaml");
+                    Files.copy(source, model, StandardCopyOption.REPLACE_EXISTING);
+
+                    cmd = "echo welcome1 | "
+                        + updateDomainScript
+                        + " -oracle_home " + mwhome_12213
+                        + " -domain_home " + domainParentDir + FS + domainDir
+                        + " -model_file " + model
+                        + " -archive_file " + getUpdatedSampleArchiveFile()
+                        + " -admin_url t3://localhost:7001 -admin_user weblogic";
+                    CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+                    assertEquals(0, result.exitValue(), "Unexpected return code for updating domain with new archive");
+                    assertTrue(result.stdout().contains("<__stop_app> <WLSDPLY-09312>"),
+                        "Update does not contains expected message WLSDPLY-09312");
+                    assertTrue(result.stdout().contains("<__undeploy_app> <WLSDPLY-09314>"),
+                        "Update does not contains expected message WLSDPLY-09314");
+                    assertTrue(result.stdout().contains("<__deploy_app_or_library> <WLSDPLY-09316>"),
+                        "Update does not contains expected message WLSDPLY-09316");
+                    assertTrue(result.stdout().contains("<__start_app> <WLSDPLY-09313>"),
+                        "Update does not contains expected message WLSDPLY-09313");
+
+                    cmd = "echo welcome1 | "
+                        + updateDomainScript
+                        + " -oracle_home " + mwhome_12213
+                        + " -domain_home " + domainParentDir + FS + domainDir
+                        + " -model_file " + model
+                        + " -remote"
+                        + " -archive_file " + getUpdatedSampleArchiveFile()
+                        + " -admin_url t3://localhost:7001 -admin_user weblogic";
+                    result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+                    assertEquals(0, result.exitValue(), "Unexpected return code for remote updating domain with new archive");
+
+                    Path sourcePyfile = Paths.get(getResourcePath() + FS + SAMPLE_MODEL_FILE_PREFIX + "-chk-srcpath.py");
+                    Path testPyFile = getTestOutputPath(testInfo).resolve(SAMPLE_MODEL_FILE_PREFIX + "-chk-srcpath.py");
+                    Files.copy(sourcePyfile, testPyFile, StandardCopyOption.REPLACE_EXISTING);
+                    cmd = mwhome_12213 + "/oracle_common/common/bin/wlst.sh " + testPyFile + " " + domainParentDir + FS +
+                        domainDir;
+                    result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+                    assertEquals(0, result.exitValue(), "Unexpected return code for running wlst to find app sourcepath");
+                    Pattern pattern = Pattern.compile("SRCPATH=(.*)");
+                    Matcher matcher = pattern.matcher(result.stdout());
+                    String srcPath = "Unknown";
+                    if (matcher.find()) {
+                        srcPath = matcher.group(1);
+                    }
+                    assertTrue(srcPath.equals("servers/admin-server/upload/simple-app/app/simple-app.war"),
+                        "App SourcePath returned " + srcPath + " does not match the expected value");
+                }
+            } finally {
                 stopAdminServer(domainHome);
             }
         } else {
@@ -1009,6 +1044,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test discoverDomain.sh that model can create a working domain
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 31: Discover domain and then create a new domain from the model")
@@ -1018,10 +1054,10 @@ public class ITWdt extends BaseTest {
     void test31DiscoverDomainWithModelFile(TestInfo testInfo) throws Exception {
         String domainDir = "domain2-discover31";
         String cmd = createDomainScript
-                + " -oracle_home " + mwhome_12213
-                + " -domain_home " + domainParentDir + FS + domainDir
-                + " -model_file " + getSampleModelFile("-onlinebase")
-                + " -archive_file " + getSampleArchiveFile();
+            + " -oracle_home " + mwhome_12213
+            + " -domain_home " + domainParentDir + FS + domainDir
+            + " -model_file " + getSampleModelFile("-onlinebase")
+            + " -archive_file " + getSampleArchiveFile();
 
         try (PrintWriter out = getTestMethodWriter(testInfo, "CreateDomain")) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
@@ -1031,8 +1067,8 @@ public class ITWdt extends BaseTest {
         Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredModel.yaml");
         Path discoveredVariableFile = getTestOutputPath(testInfo).resolve("discoveredVariable.properties");
         cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
-                domainParentDir + FS + "domain2-discover31 -archive_file " + discoveredArchive +
-                " -model_file " + discoveredModelFile + " -variable_file " + discoveredVariableFile;
+            domainParentDir + FS + "domain2-discover31 -archive_file " + discoveredArchive +
+            " -model_file " + discoveredModelFile + " -variable_file " + discoveredVariableFile;
         try (PrintWriter out = getTestMethodWriter(testInfo, "DiscoverDomain")) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
@@ -1045,16 +1081,17 @@ public class ITWdt extends BaseTest {
         try (PrintWriter out = getTestMethodWriter(testInfo, "CreateDomainFromDiscover")) {
             String domainHome = domainParentDir + FS + "createDomainFromDiscover";
             cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
-                    domainHome + " -archive_file " + discoveredArchive +
-                    " -model_file " + discoveredModelFile + " -variable_file " + getSampleVariableFile();
+                domainHome + " -archive_file " + discoveredArchive +
+                " -model_file " + discoveredModelFile + " -variable_file " + getSampleVariableFile();
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
             verifyResult(result, "createDomain.sh completed successfully");
 
             setUpBootProperties(domainHome, "AdminServer", "weblogic", "welcome1");
             Path adminServerOut = getTestOutputPath(testInfo).resolve("AdminServer.out");
-            boolean isServerUp = startAdminServer(domainHome, adminServerOut );
+            boolean isServerUp = startAdminServer(domainHome, adminServerOut);
             if (!isServerUp) {
+                tryKillTheAdminServer(domainHome, "AdminServer");
                 throw new Exception("Admin server did not come up after createDomain from discoverDomain");
             }
             stopAdminServer(domainHome);
@@ -1063,6 +1100,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * test prepareModel.sh with -target as wko
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 32: Prepare model")
@@ -1075,10 +1113,10 @@ public class ITWdt extends BaseTest {
         try (PrintWriter out = getTestMethodWriter(testInfo, "PrepareModel")) {
             String wkoModelFile = getSampleModelFile("-targetwko");
             String cmd = prepareModelScript
-                    + " -oracle_home " + mwhome_12213
-                    + " -output_dir " + outputFiles
-                    + " -model_file " + wkoModelFile
-                    + " -target " + "wko";
+                + " -oracle_home " + mwhome_12213
+                + " -output_dir " + outputFiles
+                + " -model_file " + wkoModelFile
+                + " -target " + "wko";
 
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             // ListenPort differences warning
@@ -1098,6 +1136,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * Test Discover Domain using the -skip_archive argument
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 33: Skip archive")
@@ -1106,8 +1145,8 @@ public class ITWdt extends BaseTest {
     @Test
     void test33DiscoverSkipArchive(TestInfo testInfo) throws Exception {
         String cmd = createDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
-                domainParentDir + FS + "discoverDomainSkipArchive-33-34 -model_file " +
-                getSampleModelFile("-onlinebase") + " -archive_file " + getSampleArchiveFile();
+            domainParentDir + FS + "discoverDomainSkipArchive-33-34 -model_file " +
+            getSampleModelFile("-onlinebase") + " -archive_file " + getSampleArchiveFile();
         try (PrintWriter out = getTestMethodWriter(testInfo, "CreateDomain")) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result.exitValue(), "Unexpected return code");
@@ -1120,7 +1159,7 @@ public class ITWdt extends BaseTest {
                 + " -oracle_home " + mwhome_12213
                 + " -domain_home " + domainParentDir + FS + "discoverDomainSkipArchive-33-34"
                 + " -model_file " + discoveredModel
-                + " -skip_archive " ;
+                + " -skip_archive ";
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             // SecurityConfiguration warning
             assertEquals(0, result.exitValue(), "Unexpected return code");
@@ -1129,6 +1168,7 @@ public class ITWdt extends BaseTest {
 
     /**
      * Test Discover Domain using the -run_remote argument
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 34: remote discovery")
@@ -1141,31 +1181,34 @@ public class ITWdt extends BaseTest {
         setUpBootProperties(domainHome, "admin-server", "weblogic", "welcome1");
         Path adminServerOut = getTestOutputPath(testInfo).resolve("admin-server.out");
         boolean isServerUp = startAdminServer(domainHome, adminServerOut);
-
         if (isServerUp) {
-            try (PrintWriter out = getTestMethodWriter(testInfo)) {
-                Path discoveredModel = getTestOutputPath(testInfo).resolve("discoveredModel.yaml");
-                String cmd = discoverDomainScript
-                    + " -oracle_home " + mwhome_12213
-                    + " -domain_home " + domainHome
-                    + " -model_file " + discoveredModel
-                    + " -admin_user weblogic -admin_pass welcome1 -admin_url t3://localhost:7001"
-                    + " -remote";
-                CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
-                // SecurityConfiguration warning
-                verifyResult(result, "Remote discovery created a model that references files or directories" +
-                    " on the remote machine");
+            try {
+                try (PrintWriter out = getTestMethodWriter(testInfo)) {
+                    Path discoveredModel = getTestOutputPath(testInfo).resolve("discoveredModel.yaml");
+                    String cmd = discoverDomainScript
+                        + " -oracle_home " + mwhome_12213
+                        + " -domain_home " + domainHome
+                        + " -model_file " + discoveredModel
+                        + " -admin_user weblogic -admin_pass welcome1 -admin_url t3://localhost:7001"
+                        + " -remote";
+                    CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+                    // SecurityConfiguration warning
+                    verifyResult(result, "Remote discovery created a model that references files or directories" +
+                        " on the remote machine");
+                }
+            } finally {
+                stopAdminServer(domainHome);
             }
         } else {
             // Best effort to clean up server
             tryKillTheAdminServer(domainHome, "admin-server");
             throw new Exception("test34DiscoverRemote failed - cannot bring up server");
         }
-
     }
 
     /**
      * test create and discover domain with jdbc wallet.
+     *
      * @throws Exception - if any error occurs
      */
     @DisplayName("Test 35: test create and discover domain with jdbc wallet")
@@ -1201,7 +1244,7 @@ public class ITWdt extends BaseTest {
         Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredModel.yaml");
         Path discoveredVariableFile = getTestOutputPath(testInfo).resolve("discoveredVariable.properties");
         cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
-            domainParentDir + FS + domainDir +  " -archive_file " + discoveredArchive +
+            domainParentDir + FS + domainDir + " -archive_file " + discoveredArchive +
             " -model_file " + discoveredModelFile + " -variable_file " + discoveredVariableFile;
         try (PrintWriter out = getTestMethodWriter(testInfo, "DiscoverDomain")) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
@@ -1210,6 +1253,258 @@ public class ITWdt extends BaseTest {
 
             verifyDiscoveredJDBCWalletModelFile(discoveredModelFile.toString());
 
+        }
+    }
+
+    @DisplayName("Test 36: Create domain with structured app and then discover it")
+    @Order(36)
+    @Tag("gate")
+    @Test
+    void test36CreateDomainAndDiscoverOfflineWithStructuredApp(TestInfo testInfo) throws Exception {
+        String domainDir = "domain36";
+        String domainHome = domainParentDir + FS + domainDir;
+        String cmd = createDomainScript
+            + " -oracle_home " + mwhome_12213
+            + " -domain_home " + domainHome
+            + " -model_file " + getSampleModelFile("-structured-offline")
+            + " -variable_file " + getSampleVariableFile()
+            + " -archive_file " + getTargetDir() + FS + "archive36.zip";
+
+        try (PrintWriter out = getTestMethodWriter(testInfo, "CreateDomain")) {
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+            assertEquals(0, result.exitValue(), "Unexpected return code");
+
+            // Verify that the structured application's directory is extracted to the expected location.
+            verifyStructuredAppDirectoryStructure(domainHome);
+        }
+
+        try (PrintWriter out = getTestMethodWriter(testInfo, "UpdateDomain")) {
+            cmd = updateDomainScript
+                + " -oracle_home " + mwhome_12213
+                + " -domain_home " + domainHome
+                + " -model_file " + getSampleModelFile("-structured-online-update")
+                + " -variable_file " + getSampleVariableFile()
+                + " -archive_file " + getTargetDir() + FS + "archive38.zip";
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+            verifyResult(result, "updateDomain.sh completed successfully");
+
+            verifyStructuredAppDirectoryStructure(domainHome, "Domain Home", "OverridesConfig.properties",
+                "ConfigOverrides.properties");
+        }
+
+        Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
+        Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredModel.yaml");
+        Path discoveredVariableFile = getTestOutputPath(testInfo).resolve("discoveredVariable.properties");
+        cmd = discoverDomainScript + " -oracle_home " + mwhome_12213 + " -domain_home " +
+            domainHome + " -archive_file " + discoveredArchive +
+            " -model_file " + discoveredModelFile + " -variable_file " + discoveredVariableFile;
+        try (PrintWriter out = getTestMethodWriter(testInfo, "DiscoverDomain")) {
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+            verifyResult(result, "discoverDomain.sh completed successfully");
+        }
+
+        try (PrintWriter out = getTestMethodWriter(testInfo, "ArchiveHelperOnDiscoveredArchive")) {
+            Path archiveExtractDir = getTestOutputPath(testInfo);
+
+            cmd = archiveHelperScript + " extract structuredApplication -name OtdApp " +
+                " -target " + archiveExtractDir + " -archive_file " + discoveredArchive;
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+            assertEquals(0, result.exitValue(), "Unexpected return code");
+
+            verifyStructuredAppDirectoryStructure(archiveExtractDir.toString(), "Archive Extract",
+                "OverridesConfig.properties", "ConfigOverrides.properties");
+        }
+    }
+
+    @DisplayName("Test 37: Create empty domain and deploy structured app in online mode and then discover it")
+    @Order(37)
+    @Tag("gate")
+    @Test
+    void test37OnlineUpdateDomainWithStructuredApp(TestInfo testInfo) throws Exception {
+        String domainDir = "domain37";
+        String domainHome = domainParentDir + FS + domainDir;
+        String cmd = createDomainScript
+            + " -oracle_home " + mwhome_12213
+            + " -domain_home " + domainHome
+            + " -model_file " + getSampleModelFile("-structured-online-create")
+            + " -variable_file " + getSampleVariableFile();
+
+        try (PrintWriter out = getTestMethodWriter(testInfo, "CreateDomain")) {
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+            assertEquals(0, result.exitValue(), "Unexpected return code");
+        }
+
+        Path adminServerOut = getTestOutputPath(testInfo).resolve("admin-server.out");
+        boolean isServerUp = startAdminServer(domainHome, adminServerOut);
+        if (isServerUp) {
+            try {
+                try (PrintWriter out = getTestMethodWriter(testInfo, "UpdateDomain")) {
+                    cmd = updateDomainScript
+                        + " -oracle_home " + mwhome_12213
+                        + " -model_file " + getSampleModelFile("-structured-online-update")
+                        + " -variable_file " + getSampleVariableFile()
+                        + " -archive_file " + getTargetDir() + FS + "archive36.zip"
+                        + " -admin_user weblogic -admin_pass welcome1 -admin_url t3://localhost:7001";
+                    CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+                    verifyResult(result, "updateDomain.sh completed successfully");
+
+                    verifyStructuredAppDirectoryStructure(domainHome);
+                }
+
+                Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
+                Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredModel.yaml");
+                Path discoveredVariableFile = getTestOutputPath(testInfo).resolve("discoveredVariable.properties");
+                cmd = discoverDomainScript + " -oracle_home " + mwhome_12213
+                    + " -model_file " + discoveredModelFile + " -variable_file " + discoveredVariableFile
+                    + " -archive_file " + discoveredArchive
+                    + " -admin_user weblogic -admin_pass welcome1 -admin_url t3://localhost:7001";
+                try (PrintWriter out = getTestMethodWriter(testInfo, "DiscoverDomain")) {
+                    CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+                    verifyResult(result, "discoverDomain.sh completed successfully");
+                }
+
+                try (PrintWriter out = getTestMethodWriter(testInfo, "ArchiveHelperOnDiscoveredArchive")) {
+                    Path archiveExtractDir = getTestOutputPath(testInfo);
+
+                    cmd = archiveHelperScript + " extract structuredApplication -name OtdApp " +
+                        " -target " + archiveExtractDir + " -archive_file " + discoveredArchive;
+                    CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+                    assertEquals(0, result.exitValue(), "Unexpected return code");
+
+                    verifyStructuredAppDirectoryStructure(archiveExtractDir.toString(), "Archive Extract");
+                }
+            } finally {
+                stopAdminServer(domainHome);
+            }
+        } else {
+            // Best effort to clean up server
+            tryKillTheAdminServer(domainHome, "admin-server");
+            throw new Exception("test37OnlineUpdateDomainWithStructuredApp failed - cannot bring up server");
+        }
+    }
+
+    @DisplayName("Test 38: Create domain with structured app and use online update the redeploy it")
+    @Order(38)
+    @Tag("gate")
+    @Test
+    void test38OnlineRedeployStructuredApp(TestInfo testInfo) throws Exception {
+        String domainDir = "domain38";
+        String domainHome = domainParentDir + FS + domainDir;
+        String cmd = createDomainScript
+            + " -oracle_home " + mwhome_12213
+            + " -domain_home " + domainHome
+            + " -model_file " + getSampleModelFile("-structured-online")
+            + " -variable_file " + getSampleVariableFile()
+            + " -archive_file " + getTargetDir() + FS + "archive36.zip";
+
+        try (PrintWriter out = getTestMethodWriter(testInfo, "CreateDomain")) {
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+            assertEquals(0, result.exitValue(), "Unexpected return code");
+
+            verifyStructuredAppDirectoryStructure(domainHome);
+        }
+
+        Path adminServerOut = getTestOutputPath(testInfo).resolve("admin-server.out");
+        boolean isServerUp = startAdminServer(domainHome, adminServerOut);
+        if (isServerUp) {
+            try {
+                try (PrintWriter out = getTestMethodWriter(testInfo, "UpdateDomain")) {
+                    cmd = updateDomainScript
+                        + " -oracle_home " + mwhome_12213
+                        + " -model_file " + getSampleModelFile("-structured-online-update")
+                        + " -variable_file " + getSampleVariableFile()
+                        + " -archive_file " + getTargetDir() + FS + "archive38.zip"
+                        + " -admin_user weblogic -admin_pass welcome1 -admin_url t3://localhost:7001";
+                    CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+                    verifyResult(result, "updateDomain.sh completed successfully");
+
+                    verifyStructuredAppDirectoryStructure(domainHome, "Domain Home", "OverridesConfig.properties",
+                        "ConfigOverrides.properties");
+                }
+
+                Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
+                Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredModel.yaml");
+                Path discoveredVariableFile = getTestOutputPath(testInfo).resolve("discoveredVariable.properties");
+                cmd = discoverDomainScript + " -oracle_home " + mwhome_12213
+                    + " -model_file " + discoveredModelFile + " -variable_file " + discoveredVariableFile
+                    + " -archive_file " + discoveredArchive
+                    + " -admin_user weblogic -admin_pass welcome1 -admin_url t3://localhost:7001";
+                try (PrintWriter out = getTestMethodWriter(testInfo, "DiscoverDomain")) {
+                    CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+                    verifyResult(result, "discoverDomain.sh completed successfully");
+                }
+
+                try (PrintWriter out = getTestMethodWriter(testInfo, "ArchiveHelperOnDiscoveredArchive")) {
+                    Path archiveExtractDir = getTestOutputPath(testInfo);
+
+                    cmd = archiveHelperScript + " extract structuredApplication -name OtdApp " +
+                        " -target " + archiveExtractDir + " -archive_file " + discoveredArchive;
+                    CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+                    assertEquals(0, result.exitValue(), "Unexpected return code");
+
+                    verifyStructuredAppDirectoryStructure(domainHome, "Archive Extract", "OverridesConfig.properties",
+                        "ConfigOverrides.properties");
+                }
+            } finally {
+                stopAdminServer(domainHome);
+            }
+        } else {
+            // Best effort to clean up server
+            tryKillTheAdminServer(domainHome, "admin-server");
+            throw new Exception("test38OnlineRedeployStructuredApp failed - cannot bring up server");
+        }
+    }
+
+    private void verifyStructuredAppDirectoryStructure(String domainHomeDir) throws Exception {
+        verifyStructuredAppDirectoryStructure(domainHomeDir, "Domain Home");
+    }
+
+    private void verifyStructuredAppDirectoryStructure(String domainHomeDir, String dirName) throws Exception {
+        verifyStructuredAppDirectoryStructure(domainHomeDir, dirName, "ConfigOverrides.properties", null);
+    }
+
+    private void verifyStructuredAppDirectoryStructure(String domainHomeDir, String dirName, String propertiesFileName,
+                                                       String excludedPropertiesFileName) throws Exception {
+        File domainHomeDirFile = new File(domainHomeDir);
+        assertTrue(domainHomeDirFile.isDirectory(), dirName + " directory " +
+            domainHomeDirFile.getAbsolutePath() + " does not exist");
+
+        String pathToStructuredAppDir = "wlsdeploy" + FS + "structuredApplications" + FS + "OtdApp";
+        File otdAppDirFile = new File(domainHomeDirFile, pathToStructuredAppDir);
+        assertTrue(otdAppDirFile.isDirectory(), "Structured application OtdApp directory " +
+            otdAppDirFile.getAbsolutePath() + " does not exist");
+
+        String pathToWar = "app" + FS + "OtdApp.war";
+        File otdWarFile = new File(otdAppDirFile, pathToWar);
+        assertTrue(otdWarFile.isFile(), "Structured application OtdApp war file " +
+            otdWarFile.getAbsolutePath() + " does not exist");
+
+        File otdPlanDirFile = new File(otdAppDirFile, "plan");
+        assertTrue(otdPlanDirFile.isDirectory(), "Structured application OtdApp plan directory " +
+            otdPlanDirFile.getAbsolutePath() + " does not exist");
+
+        File otdPlanFile = new File(otdPlanDirFile, "Plan.xml");
+        assertTrue(otdPlanFile.isFile(), "Structured application OtdApp plan file " +
+            otdPlanFile.getAbsolutePath() + " does not exist");
+
+        File otdAppFileOverridesDirFile = new File(otdPlanDirFile, "AppFileOverrides");
+        assertTrue(otdPlanDirFile.isDirectory(), "Structured application OtdApp AppFileOverrides directory " +
+            otdAppFileOverridesDirFile.getAbsolutePath() + " does not exist");
+
+        File otdConfigOverridesFile = new File(otdAppFileOverridesDirFile, propertiesFileName);
+        assertTrue(otdConfigOverridesFile.isFile(), "Structured application " + propertiesFileName + " file " +
+            otdConfigOverridesFile.getAbsolutePath() + " does not exist");
+
+        if (excludedPropertiesFileName != null) {
+            File oldOtdConfigOverridesFile = new File(otdAppFileOverridesDirFile, excludedPropertiesFileName);
+            assertFalse(oldOtdConfigOverridesFile.isFile(), "Structured application " + oldOtdConfigOverridesFile +
+                " file " + otdConfigOverridesFile.getAbsolutePath() + " exists when it should not");
         }
     }
 
@@ -1333,9 +1628,7 @@ public class ITWdt extends BaseTest {
     }
 
     private void tryKillTheAdminServer(String domainHome, String server) throws Exception {
-
         File domainDir = new File(domainHome);
-
         String cmd_format = "ps axww | " +
             "grep weblogic.Server | " +
             "grep \"%s\" | " +
@@ -1355,6 +1648,5 @@ public class ITWdt extends BaseTest {
         result = Runner.run(cmd);
         logger.info("DEBUG: " + cmd + " returns " + result.stdout());
         }
-
     }
 }

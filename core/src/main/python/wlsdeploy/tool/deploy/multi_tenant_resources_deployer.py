@@ -10,7 +10,7 @@ from wlsdeploy.aliases.model_constants import PARTITION_WORK_MANAGER
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
 from wlsdeploy.aliases.model_constants import RESOURCE_MANAGEMENT
-from wlsdeploy.tool.deploy.applications_deployer import ApplicationsDeployer
+from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy.coherence_resources_deployer import CoherenceResourcesDeployer
 from wlsdeploy.tool.deploy.common_resources_deployer import CommonResourcesDeployer
 from wlsdeploy.tool.deploy.datasource_deployer import DatasourceDeployer
@@ -121,8 +121,8 @@ class MultiTenantResourcesDeployer(Deployer):
         coherence_deployer = CoherenceResourcesDeployer(self.model, self.model_context, self.aliases, self.wlst_mode)
         coherence_deployer.add_coherence_cluster_system_resources(parent_dict, location)
 
-        applications_deployer = \
-            ApplicationsDeployer(self.model, self.model_context, self.aliases, self.wlst_mode, location)
+        applications_deployer = deployer_utils.get_applications_deployer(self.model, self.model_context, self.aliases,
+                                                                         self.wlst_mode, location)
         applications_deployer.deploy()
 
     def _add_partition_work_managers(self, parent_dict, location):
