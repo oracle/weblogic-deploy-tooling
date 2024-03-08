@@ -783,8 +783,8 @@ class Validator(object):
         self._logger.finest('value_data_type={0}', value_data_type,
                             class_name=_class_name, method_name=_method_name)
 
-        valid_valus_data_types = ['list', 'string', 'unicode']
-        if value_data_type not in valid_valus_data_types:
+        valid_value_data_types = ['list', 'string', 'unicode']
+        if value_data_type not in valid_value_data_types:
             self._logger.severe('WLSDPLY-05023', attribute_name, model_folder_path, value_data_type,
                                 class_name=_class_name, method_name=_method_name)
         else:
@@ -802,6 +802,8 @@ class Validator(object):
 
             for item_path in attr_values:
                 self.__validate_single_path_in_archive(item_path.strip(), attribute_name, model_folder_path)
+
+        self._logger.exiting(class_name=_class_name, method_name=_method_name)
 
     def __validate_single_path_in_archive(self, path, attribute_name, model_folder_path):
         _method_name = '__validate_single_path_in_archive'

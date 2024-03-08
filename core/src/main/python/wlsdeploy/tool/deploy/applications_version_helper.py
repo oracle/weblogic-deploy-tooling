@@ -50,37 +50,38 @@ class ApplicationsVersionHelper(object):
         :raises: DeployException: if an error occurs
         """
         _method_name = 'get_library_versioned_name'
-
         self.logger.entering(source_path, model_name, class_name=self._class_name, method_name=_method_name)
 
-        old_name_tuple = deployer_utils.get_library_name_components(model_name)
-        try:
-            versioned_name = old_name_tuple[self._EXTENSION_INDEX]
-            manifest = self.__get_manifest(source_path, from_archive)
-            if manifest is not None:
-                attributes = manifest.getMainAttributes()
+        versioned_name = model_name
+        if not string_utils.is_empty(model_name):
+            old_name_tuple = deployer_utils.get_library_name_components(model_name)
+            try:
+                versioned_name = old_name_tuple[self._EXTENSION_INDEX]
+                manifest = self.__get_manifest(source_path, from_archive)
+                if manifest is not None:
+                    attributes = manifest.getMainAttributes()
 
-                extension_name = attributes.getValue(EXTENSION_NAME)
-                if not string_utils.is_empty(extension_name):
-                    versioned_name = extension_name
+                    extension_name = attributes.getValue(EXTENSION_NAME)
+                    if not string_utils.is_empty(extension_name):
+                        versioned_name = extension_name
 
-                specification_version = attributes.getValue(SPECIFICATION_VERSION)
-                if not string_utils.is_empty(specification_version):
-                    versioned_name += '#' + specification_version
+                    specification_version = attributes.getValue(SPECIFICATION_VERSION)
+                    if not string_utils.is_empty(specification_version):
+                        versioned_name += '#' + specification_version
 
-                    # Cannot specify an impl version without a spec version
-                    implementation_version = attributes.getValue(IMPLEMENTATION_VERSION)
-                    if not string_utils.is_empty(implementation_version):
-                        versioned_name += '@' + implementation_version
+                        # Cannot specify an impl version without a spec version
+                        implementation_version = attributes.getValue(IMPLEMENTATION_VERSION)
+                        if not string_utils.is_empty(implementation_version):
+                            versioned_name += '@' + implementation_version
 
-                self.logger.info('WLSDPLY-09324', model_name, versioned_name,
-                                 class_name=self._class_name, method_name=_method_name)
+                    self.logger.info('WLSDPLY-09324', model_name, versioned_name,
+                                     class_name=self._class_name, method_name=_method_name)
 
-        except (IOException, FileNotFoundException, ZipException, IllegalStateException), e:
-            ex = exception_helper.create_deploy_exception('WLSDPLY-09325', model_name, source_path,
-                                                          str_helper.to_string(e), error=e)
-            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-            raise ex
+            except (IOException, FileNotFoundException, ZipException, IllegalStateException), e:
+                ex = exception_helper.create_deploy_exception('WLSDPLY-09325', model_name, source_path,
+                                                              str_helper.to_string(e), error=e)
+                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=versioned_name)
         return versioned_name
@@ -98,32 +99,30 @@ class ApplicationsVersionHelper(object):
         :raises: DeployException: if an error occurs
         """
         _method_name = 'get_application_versioned_name'
-
         self.logger.entering(source_path, model_name, class_name=self._class_name, method_name=_method_name)
 
         # if no manifest version is found, leave the original name unchanged
         versioned_name = model_name
-        if self.is_module_type_app_module(module_type):
-            return model_name
-        try:
-            manifest = self.__get_manifest(source_path, from_archive)
+        if not self.is_module_type_app_module(module_type) and not string_utils.is_empty(source_path):
+            try:
+                manifest = self.__get_manifest(source_path, from_archive)
 
-            if manifest is not None:
-                attributes = manifest.getMainAttributes()
-                application_version = attributes.getValue(self._APP_VERSION_MANIFEST_KEY)
-                if application_version is not None:
-                    # replace any version information in the model name
-                    model_name_tuple = deployer_utils.get_library_name_components(model_name)
-                    versioned_name = model_name_tuple[self._EXTENSION_INDEX]
-                    versioned_name = versioned_name + '#' + application_version
-                    self.logger.info('WLSDPLY-09328', model_name, versioned_name, class_name=self._class_name,
-                                     method_name=_method_name)
+                if manifest is not None:
+                    attributes = manifest.getMainAttributes()
+                    application_version = attributes.getValue(self._APP_VERSION_MANIFEST_KEY)
+                    if application_version is not None:
+                        # replace any version information in the model name
+                        model_name_tuple = deployer_utils.get_library_name_components(model_name)
+                        versioned_name = model_name_tuple[self._EXTENSION_INDEX]
+                        versioned_name = versioned_name + '#' + application_version
+                        self.logger.info('WLSDPLY-09328', model_name, versioned_name,
+                                         class_name=self._class_name, method_name=_method_name)
 
-        except (IOException, FileNotFoundException, ZipException, IllegalStateException), e:
-            ex = exception_helper.create_deploy_exception('WLSDPLY-09329', model_name, source_path,
-                                                          str_helper.to_string(e), error=e)
-            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-            raise ex
+            except (IOException, FileNotFoundException, ZipException, IllegalStateException), e:
+                ex = exception_helper.create_deploy_exception('WLSDPLY-09329', model_name, source_path,
+                                                              str_helper.to_string(e), error=e)
+                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=versioned_name)
         return versioned_name

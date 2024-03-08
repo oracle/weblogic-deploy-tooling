@@ -1,0 +1,10 @@
+appDeployments:
+  Application:
+    OtdApp:
+      SourcePath: wlsdeploy/structuredApplications/OtdApp/app/OtdApp.war
+      PlanDir: wlsdeploy/structuredApplications/OtdApp/plan
+      PlanPath: Plan.xml
+      Target: '@@PROP:CLUSTER_NAME@@'
+      ModuleType: war
+      StagingMode: nostage
+      PlanStagingMode: nostage

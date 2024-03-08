@@ -50,6 +50,8 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging import platform_logger
+from wlsdeploy.tool.deploy.applications_offline_deployer import OfflineApplicationsDeployer
+from wlsdeploy.tool.deploy.applications_online_deployer import OnlineApplicationsDeployer
 from wlsdeploy.tool.util import results_file
 from wlsdeploy.tool.util.string_output_stream import StringOutputStream
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
@@ -64,6 +66,14 @@ from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
 _class_name = "deployer_utils"
 _logger = platform_logger.PlatformLogger('wlsdeploy.deploy.utils')
 _wlst_helper = WlstHelper(ExceptionType.DEPLOY)
+
+
+def get_applications_deployer(model, model_context, aliases, wlst_mode=WlstModes.OFFLINE, location=LocationContext()):
+    if wlst_mode == WlstModes.OFFLINE:
+        app_deployer = OfflineApplicationsDeployer(model, model_context, aliases, base_location=location)
+    else:
+        app_deployer = OnlineApplicationsDeployer(model, model_context, aliases, base_location=location)
+    return app_deployer
 
 
 def get_existing_object_list(location, aliases):

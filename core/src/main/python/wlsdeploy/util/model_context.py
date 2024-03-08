@@ -1081,7 +1081,7 @@ class ModelContext(object):
             attribute_value = uri.getPath()
 
         # TODO - the last three tokens will not work properly for an SSH context
-        message = "Replacing {0} in {1} {2} {3} with {4}"
+        message = 'WLSDPLY-01057'
         if attribute_value.startswith(self.ORACLE_HOME_TOKEN):
             self._logger.fine(message, self.ORACLE_HOME_TOKEN, resource_type, resource_name, attribute_name,
                               self.get_effective_oracle_home(), class_name=self._class_name, method_name='_replace_tokens')
