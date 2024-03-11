@@ -291,6 +291,42 @@ class ValidationTestCase(BaseTestCase):
         self.assertEquals('gumby1234', model_dictionary['domainInfo']['AdminPassword'],
                           "Expected validate filter to have changed AdminPassword to 'gumby1234'")
 
+    def testDeploymentValidation(self):
+        """
+        Test for bad directory names in archive paths.
+        """
+        _method_name = 'testDeploymentValidation'
+
+        model_dict = {
+            'appDeployments': {
+                'Application': {
+                    'myApp': {
+                        'SourcePath' : 'wlsdeploy/applicationsBad/abc.war'
+                    }
+                },
+                'Library': {
+                    'myLib': {
+                        'SourcePath' : 'wlsdeploy/sharedLibrariesBad/abc.war'
+                    }
+                }
+            }
+        }
+
+        args_map = {
+            '-oracle_home': '/oracle'
+        }
+        model_context = ModelContext(self._class_name, args_map)
+        aliases = Aliases(model_context, wls_version=self._wls_version)
+
+        validator = Validator(model_context, aliases)
+        validator.validate_in_standalone_mode(model_dict, {})
+
+        handler = self._summary_handler
+        self.assertNotEqual(handler, None, "Summary handler is not present")
+
+        # Verify 4 errors were logged, 2 directory names are bad, and 2 paths aren't in archive
+        self.assertEqual(handler.getMessageCount(Level.SEVERE), 4)
+        self.assertEqual(handler.getMessageCount(Level.WARNING), 0)
 
 if __name__ == '__main__':
     unittest.main()
