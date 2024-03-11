@@ -10,8 +10,6 @@ from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import LIBRARY
 from wlsdeploy.aliases.model_constants import MODULE_TYPE
-from wlsdeploy.aliases.model_constants import PLAN_DIR
-from wlsdeploy.aliases.model_constants import PLAN_PATH
 from wlsdeploy.aliases.model_constants import SOURCE_PATH
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
@@ -50,11 +48,10 @@ class OfflineApplicationsDeployer(ApplicationsDeployer):
 
             for shared_library_name in shared_libraries:
                 self.wlst_helper.cd(root_path)  # avoid cd to pwd that may contain slashed names
-                existing_shared_libraries = \
-                    deployer_utils.get_existing_object_list(shared_library_location, self.aliases)
+                existing_shared_libs = deployer_utils.get_existing_object_list(shared_library_location, self.aliases)
 
                 if model_helper.is_delete_name(shared_library_name):
-                    self.__delete_existing_deployment(existing_shared_libraries, shared_library_name, 'lib')
+                    self.__delete_existing_deployment(existing_shared_libs, shared_library_name, 'lib')
                     continue
 
                 self.logger.info('WLSDPLY-09301', LIBRARY, shared_library_name, self._parent_type, self._parent_name,
@@ -69,23 +66,21 @@ class OfflineApplicationsDeployer(ApplicationsDeployer):
                 #
                 shared_library = \
                     copy.deepcopy(dictionary_utils.get_dictionary_element(shared_libraries, shared_library_name))
-                shlib_source_path = self._replace_tokens_in_path(shared_library, SOURCE_PATH)
-                shlib_plan_dir = self._replace_tokens_in_path(shared_library, PLAN_DIR)
-                shlib_plan_path = self._replace_tokens_in_path(shared_library, PLAN_PATH)
+                self._replace_path_tokens_for_deployment(LIBRARY, shared_library_name, shared_library)
 
-                self.__validate_shared_library_source_path(shared_library_name, shlib_source_path,
-                                                           existing_shared_libraries)
-                self.__extract_deployment_from_archive(shared_library_name, LIBRARY, shlib_source_path,
-                                                       shlib_plan_dir, shlib_plan_path)
+                self.__validate_deployment_source_path(shared_library_name, LIBRARY, shared_library,
+                                                       existing_shared_libs)
+                self._extract_deployment_from_archive(shared_library_name, LIBRARY, shared_library)
 
                 # If SourcePath is empty and hasn't caused an error, library_name will be shared_library_name.
+                shlib_source_path = dictionary_utils.get_element(shared_library, SOURCE_PATH)
                 library_name = \
                     self.version_helper.get_library_versioned_name(shlib_source_path, shared_library_name)
                 # names are quoted/escaped later, when paths are resolved
                 shared_library_location.add_name_token(shared_library_token, library_name)
 
                 self.wlst_helper.cd(root_path)
-                deployer_utils.create_and_cd(shared_library_location, existing_shared_libraries, self.aliases)
+                deployer_utils.create_and_cd(shared_library_location, existing_shared_libs, self.aliases)
                 self.set_attributes(shared_library_location, shared_library)
                 shared_library_location.remove_name_token(shared_library_token)
         else:
@@ -106,10 +101,10 @@ class OfflineApplicationsDeployer(ApplicationsDeployer):
 
             for application_name in applications:
                 self.wlst_helper.cd(root_path)  # avoid cd to pwd that may contain slashed names
-                existing_applications = deployer_utils.get_existing_object_list(application_location, self.aliases)
+                existing_apps = deployer_utils.get_existing_object_list(application_location, self.aliases)
 
                 if model_helper.is_delete_name(application_name):
-                    self.__delete_existing_deployment(existing_applications, application_name, 'app')
+                    self.__delete_existing_deployment(existing_apps, application_name, 'app')
                     continue
 
                 self.logger.info('WLSDPLY-09301', APPLICATION, application_name, self._parent_type, self._parent_name,
@@ -117,15 +112,13 @@ class OfflineApplicationsDeployer(ApplicationsDeployer):
 
                 application = \
                     copy.deepcopy(dictionary_utils.get_dictionary_element(applications, application_name))
+                self._replace_path_tokens_for_deployment(APPLICATION, application_name, application)
 
-                app_source_path = self._replace_tokens_in_path(application, SOURCE_PATH)
-                app_plan_dir = self._replace_tokens_in_path(application, PLAN_DIR)
-                app_plan_path = self._replace_tokens_in_path(application, PLAN_PATH)
+                self.__validate_deployment_source_path(application_name, APPLICATION, application, existing_apps)
+                self._extract_deployment_from_archive(application_name, APPLICATION, application)
 
-                self.__validate_application_source_path(application_name, app_source_path, existing_applications)
-                self.__extract_deployment_from_archive(application_name, APPLICATION, app_source_path,
-                                                       app_plan_dir, app_plan_path)
-
+                # If SourcePath is empty and hasn't caused an error, library_name will be shared_library_name.
+                app_source_path = dictionary_utils.get_element(application, SOURCE_PATH)
                 module_type = dictionary_utils.get_element(application, MODULE_TYPE)
                 application_name = self.version_helper.get_application_versioned_name(app_source_path, application_name,
                                                                                       module_type=module_type)
@@ -133,13 +126,13 @@ class OfflineApplicationsDeployer(ApplicationsDeployer):
                 application_location.add_name_token(application_token, application_name)
 
                 self.wlst_helper.cd(root_path)
-                deployer_utils.create_and_cd(application_location, existing_applications, self.aliases)
+                deployer_utils.create_and_cd(application_location, existing_apps, self.aliases)
                 self._set_attributes_and_add_subfolders(application_location, application)
 
                 self._substitute_appmodule_token(app_source_path, module_type)
-                # FIXME - for a sparse model that only contains the plan, this doesn't work.
-                if app_source_path.startswith(self.STRUCTURED_APPLICATION_PATH_INTO_ARCHIVE):
-                    self._fix_plan_file(app_plan_dir, app_plan_path)
+                is_structured_app, __ = self._is_structured_app(application)
+                if is_structured_app:
+                    self._fixup_structured_app_plan_file_config_root(application)
 
                 application_location.remove_name_token(application_token)
         else:
@@ -164,134 +157,130 @@ class OfflineApplicationsDeployer(ApplicationsDeployer):
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 
-    def __extract_deployment_from_archive(self, deployment_name, deployment_type, source_path, plan_dir, plan_path):
-        _method_name = '__extract_deployment_from_archive'
-        self.logger.entering(deployment_name, deployment_type, source_path, plan_dir, plan_path,
+    # FIXME: duplicate code in online and offline
+    def _extract_deployment_from_archive(self, deployment_name, deployment_type, deployment_dict):
+        _method_name = '_extract_deployment_from_archive'
+        self.logger.entering(deployment_name, deployment_type, deployment_dict,
                              class_name=self._class_name, method_name=_method_name)
 
-        if deployer_utils.is_path_into_archive(source_path) or \
-                deployer_utils.is_path_into_archive(plan_dir) or \
-                deployer_utils.is_path_into_archive(plan_path):
+        source_path = dictionary_utils.get_element(deployment_dict, SOURCE_PATH)
+        combined_path_path = self._get_combined_model_plan_path(deployment_dict)
+        if deployer_utils.is_path_into_archive(source_path) or deployer_utils.is_path_into_archive(combined_path_path):
             if self.archive_helper is not None:
-                self.__extract_app_or_lib_from_archive(deployment_name, deployment_type, source_path, plan_dir, plan_path)
+                self._extract_app_or_lib_from_archive(deployment_name, deployment_type, deployment_dict)
             else:
                 ex = exception_helper.create_deploy_exception('WLSDPLY-09303', deployment_type, deployment_name)
                 self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
 
-    # FIXME - very similar to superclass _extract_source_path_from_archive()
-    def __extract_app_or_lib_from_archive(self, model_name, model_type, model_source_path, model_plan_dir,
-                                          model_plan_path):
+    def _extract_app_or_lib_from_archive(self, model_name, model_type, model_dict):
         """
         Extract deployment contents from the archive.
 
         :param model_name: the element name (my-app, etc.), used for logging
         :param model_type: the model type (Application, etc.), used for logging
-        :param model_source_path: the model SourcePath value with any tokens already replaced
-        :param model_plan_dir: the model PlanDir value with any tokens already replaced
-        :param model_plan_path: the model PlanPath value with any tokens already replaced
+        :param model_dict: the model dictionary
         """
-        _method_name = '__extract_app_or_lib_from_archive'
-        self.logger.entering(model_name, model_type, model_source_path, model_plan_dir, model_plan_path,
+        _method_name = '_extract_app_or_lib_from_archive'
+        self.logger.entering(model_name, model_type, model_dict,
                              class_name=self._class_name, method_name=_method_name)
 
-        is_structured_app = \
-            self._validate_source_path_matches_deployment_type(model_name, model_type, model_source_path)
-
-        plan_file_to_extract = self._validate_plan_file_to_extract(model_name, model_type, is_structured_app,
-                                                                   model_plan_dir, model_plan_path)
-
-        if not string_utils.is_empty(model_source_path) and \
-                (model_source_path.endswith('/') or model_source_path.endswith('\\')):
-            # model may have trailing slash on exploded source path
-            source_path_to_extract = model_source_path[:-1]
-        else:
-            source_path_to_extract = model_source_path
+        is_structured_app = False
+        structured_app_dir = None
+        if model_type == APPLICATION:
+            is_structured_app, structured_app_dir = self._is_structured_app(model_dict)
 
         if is_structured_app:
-            source_path_to_extract = \
-                self._get_structured_app_archive_path(model_name, source_path_to_extract, plan_file_to_extract)
-
-        if not string_utils.is_empty(source_path_to_extract):
-            # source path may be a single file (jar, war, etc.)
-            if self.archive_helper.contains_file(source_path_to_extract):
-                self.archive_helper.extract_file(source_path_to_extract)
-
-            # source path may be exploded directory in archive or a structured application
-            elif self.archive_helper.contains_path(source_path_to_extract):
+            # is_structured_app() only returns true if both the app and the plan have similar paths.
+            # Since the caller already verified the app or plan was in the archive, it is safe to assume
+            # both are in the archive.
+            if self.archive_helper.contains_path(structured_app_dir):
                 #
                 # When extracting a directory, delete the old directory if it already exists so that the
                 # extracted directory is exactly what is in the archive file.
                 #
                 existing_directory_path = \
-                    self.path_helper.local_join(self.model_context.get_domain_home(), source_path_to_extract)
+                    self.path_helper.local_join(self.model_context.get_domain_home(), structured_app_dir)
                 if os.path.isdir(existing_directory_path):
                     shutil.rmtree(existing_directory_path)
-                self.archive_helper.extract_directory(source_path_to_extract)
+                self.archive_helper.extract_directory(structured_app_dir)
             else:
                 ex = exception_helper.create_deploy_exception('WLSDPLY-09330',
-                                                              model_type, model_name, source_path_to_extract)
+                                                              model_type, model_name, structured_app_dir)
                 self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
+        else:
+            model_source_path = dictionary_utils.get_element(model_dict, SOURCE_PATH)
+            plan_file_to_extract = self._get_combined_model_plan_path(model_dict)
 
-        # plan_file_to_extract should always be None for a structured app
-        if not string_utils.is_empty(plan_file_to_extract):
-            self.archive_helper.extract_file(plan_file_to_extract)
+            if not string_utils.is_empty(model_source_path) and \
+                    (model_source_path.endswith('/') or model_source_path.endswith('\\')):
+                # model may have trailing slash on exploded source path
+                source_path_to_extract = model_source_path[:-1]
+            else:
+                source_path_to_extract = model_source_path
 
-        self.logger.exiting(class_name=self._class_name, method_name=_method_name)
-
-    def __validate_shared_library_source_path(self, shlib_name, shlib_source_path, existing_shlib_names):
-        _method_name = '__validate_shared_library_source_path'
-        self.logger.entering(shlib_name, shlib_source_path, existing_shlib_names,
-                             class_name=self._class_name, method_name=_method_name)
-        #
-        # Any model-defined shared library without the SourcePath requires that the shared library is already deployed.
-        # Since we need the deployment descriptor to determine the actual name of the shared library,
-        # we have a Catch-22 situation...for now, we simply reject an empty SourcePath if the shared library name
-        # does not have an exact match in the existing shared libraries that are already deployed.
-        #
-        if string_utils.is_empty(shlib_source_path):
-            found_exact_match = False
-            possible_matches = list()
-            shlib_pattern = '%s#' % shlib_name
-            for existing_shlib_name in existing_shlib_names:
-                if existing_shlib_name == shlib_name:
-                    found_exact_match = True
-                    break
-                elif existing_shlib_name.startswith(shlib_pattern):
-                    possible_matches.append(existing_shlib_name)
-            if not found_exact_match:
-                if len(possible_matches) > 0:
-                    ex = exception_helper.create_deploy_exception('WLSDPLY-09347', shlib_name, possible_matches)
+            # The caller only verified that either the app or the plan was in the archive; therefore,
+            # we have to validate each one before trying to extract.
+            if self.archive_helper.is_path_into_archive(source_path_to_extract):
+                # source path may be a single file (jar, war, etc.) or an exploded directory
+                if self.archive_helper.contains_file(source_path_to_extract):
+                    self.archive_helper.extract_file(source_path_to_extract)
+                elif self.archive_helper.contains_path(source_path_to_extract):
+                    #
+                    # When extracting a directory, delete the old directory if it already exists so that the
+                    # extracted directory is exactly what is in the archive file.
+                    #
+                    existing_directory_path = \
+                        self.path_helper.local_join(self.model_context.get_domain_home(), source_path_to_extract)
+                    if os.path.isdir(existing_directory_path):
+                        shutil.rmtree(existing_directory_path)
+                    self.archive_helper.extract_directory(source_path_to_extract)
                 else:
-                    ex = exception_helper.create_deploy_exception('WLSDPLY-09302', LIBRARY,
-                                                                  shlib_name, SOURCE_PATH)
-                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                raise ex
+                    ex = exception_helper.create_deploy_exception('WLSDPLY-09330',
+                                                                  model_type, model_name, source_path_to_extract)
+                    self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                    raise ex
+
+            # plan_file_to_extract should always be None for a structured app
+            if self.archive_helper.is_path_into_archive(plan_file_to_extract):
+                self.archive_helper.extract_file(plan_file_to_extract)
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 
-    def __validate_application_source_path(self, app_name, app_source_path, existing_app_names):
-        _method_name = '__validate_application_source_path'
-        self.logger.entering(app_name, app_source_path, existing_app_names,
+    def __validate_deployment_source_path(self, deployment_name, deployment_type, deployment_dict,
+                                          existing_deployment_names):
+        _method_name = '__validate_deployment_source_path'
+        self.logger.entering(deployment_name, deployment_type, deployment_dict, existing_deployment_names,
                              class_name=self._class_name, method_name=_method_name)
 
-        if string_utils.is_empty(app_source_path):
+        #
+        # Any model-defined deployment the SourcePath requires that the deployment is already deployed.
+        # Since we need the deployment descriptor to determine the actual name of the deployment,
+        # we have a Catch-22 situation...for now, we simply reject an empty SourcePath if the deployment name
+        # does not have an exact match in the existing deployments that are already deployed.
+        #
+        deployment_source_path = dictionary_utils.get_element(deployment_dict, SOURCE_PATH)
+        if string_utils.is_empty(deployment_source_path):
             found_exact_match = False
             possible_matches = list()
-            app_pattern = '%s#' % app_name
-            for existing_deployment_name in existing_app_names:
-                if existing_deployment_name == app_name:
+            deployment_pattern = '%s#' % deployment_name
+            for existing_deployment_name in existing_deployment_names:
+                if existing_deployment_name == deployment_name:
                     found_exact_match = True
                     break
-                elif existing_deployment_name.startswith(app_pattern):
+                elif existing_deployment_name.startswith(deployment_pattern):
                     possible_matches.append(existing_deployment_name)
             if not found_exact_match:
                 if len(possible_matches) > 0:
-                    ex = exception_helper.create_deploy_exception('WLSDPLY-09348', app_name, possible_matches)
+                    if deployment_type == LIBRARY:
+                        key = 'WLSDPLY-09347'
+                    else:
+                        key = 'WLSDPLY-09348'
+                    ex = exception_helper.create_deploy_exception(key, deployment_name, possible_matches)
                 else:
-                    ex = exception_helper.create_deploy_exception('WLSDPLY-09302', APPLICATION,
-                                                                  app_name, SOURCE_PATH)
+                    ex = exception_helper.create_deploy_exception('WLSDPLY-09302', deployment_type,
+                                                                  deployment_name, SOURCE_PATH)
                 self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
 

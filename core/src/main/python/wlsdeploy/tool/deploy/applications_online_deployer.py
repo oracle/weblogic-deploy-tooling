@@ -21,15 +21,19 @@ from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import DEPLOYMENT_ORDER
 from wlsdeploy.aliases.model_constants import LIBRARY
 from wlsdeploy.aliases.model_constants import MODULE_TYPE
+from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PLAN_DIR
 from wlsdeploy.aliases.model_constants import PLAN_PATH
 from wlsdeploy.aliases.model_constants import PLAN_STAGING_MODE
+from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
+from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
 from wlsdeploy.aliases.model_constants import SECURITY_DD_MODEL
 from wlsdeploy.aliases.model_constants import SOURCE_PATH
 from wlsdeploy.aliases.model_constants import STAGE_MODE
 from wlsdeploy.aliases.model_constants import SUB_DEPLOYMENT
 from wlsdeploy.aliases.model_constants import SUB_MODULE_TARGETS
 from wlsdeploy.aliases.model_constants import TARGET
+from wlsdeploy.aliases.model_constants import TARGETS
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.deploy import deployer_utils
@@ -67,8 +71,11 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
 
         # Make copies of the model dictionary since we are going
         # to modify it as we build the deployment strategy.
+        #
         model_shared_libraries = copy.deepcopy(dictionary_utils.get_dictionary_element(self._parent_dict, LIBRARY))
+        self._replace_deployments_path_tokens(LIBRARY, model_shared_libraries)
         model_applications = copy.deepcopy(dictionary_utils.get_dictionary_element(self._parent_dict, APPLICATION))
+        self._replace_deployments_path_tokens(APPLICATION, model_applications)
 
         if len(model_shared_libraries) == 0 and len(model_applications) == 0:
             # Nothing to do...
@@ -332,10 +339,39 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=[app_hash, plan_hash])
         return app_hash, plan_hash
 
+    def _get_config_targets(self):
+        self.wlst_helper.cd(TARGETS)
+        config_targets = self.wlst_helper.lsc()
+        self.wlst_helper.cd('..')
+        return config_targets
+
+    def _get_mt_names_from_location(self, app_location):
+        dummy_location = LocationContext()
+        token_name = self.aliases.get_name_token(dummy_location)
+        dummy_location.add_name_token(token_name, self.model_context.get_domain_name())
+
+        dummy_location.append_location(RESOURCE_GROUP_TEMPLATE)
+        token_name = self.aliases.get_name_token(dummy_location)
+        resource_group_template_name = app_location.get_name_for_token(token_name)
+        dummy_location.pop_location()
+
+        dummy_location.append_location(RESOURCE_GROUP)
+        token_name = self.aliases.get_name_token(dummy_location)
+        resource_group_name = app_location.get_name_for_token(token_name)
+        dummy_location.pop_location()
+
+        dummy_location.append_location(PARTITION)
+        token_name = self.aliases.get_name_token(dummy_location)
+        partition_name = app_location.get_name_for_token(token_name)
+        dummy_location.pop_location()
+        return resource_group_template_name, resource_group_name, partition_name
+
+
     ###########################################################################
     #                      Build deploy strategies                            #
     ###########################################################################
 
+    # FIXME - why is stop_app_list passed in but never used?
     def __build_library_deploy_strategy(self, location, model_libs, existing_lib_refs, stop_app_list,
                                         update_library_list):
         """
@@ -351,20 +387,16 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
 
         if model_libs is not None:
             existing_libs = existing_lib_refs.keys()
-            uses_path_tokens_model_attribute_names = self.__get_uses_path_tokens_attribute_names(location)
 
             # use items(), not iteritems(), to avoid ConcurrentModificationException if a lib is removed
             for lib, lib_dict in model_libs.items():
-                for param in uses_path_tokens_model_attribute_names:
-                    if param in lib_dict:
-                        self.model_context.replace_tokens(LIBRARY, lib, param, lib_dict)
-
                 if model_helper.is_delete_name(lib):
                     self.__update_delete_library_in_model(existing_libs, lib, model_libs, update_library_list)
                     continue
 
                 # determine the versioned name of the library from the library's MANIFEST
                 model_src_path = dictionary_utils.get_element(lib_dict, SOURCE_PATH)
+                # FIXME - why is from_archive always set to True???
                 versioned_name = \
                     self.version_helper.get_library_versioned_name(model_src_path, lib, from_archive=True)
 
@@ -427,21 +459,9 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
 
         if model_apps is not None:
             existing_apps = existing_app_refs.keys()
-            uses_path_tokens_model_attribute_names = self.__get_uses_path_tokens_attribute_names(location)
 
             # use items(), not iteritems(), to avoid ConcurrentModificationException if an app is removed
             for app, app_dict in model_apps.items():
-                model_src_path = \
-                    self.model_context.replace_token_string(dictionary_utils.get_element(app_dict, SOURCE_PATH))
-                model_plan_dir = self.model_context.replace_token_string(dictionary_utils.get_element(app, PLAN_DIR))
-                model_plan_path = self.model_context.replace_token_string(dictionary_utils.get_element(app, PLAN_PATH))
-
-                if not string_utils.is_empty(model_plan_path):
-                    if model_plan_path.startswith(self.STRUCTURED_APPLICATION_PATH_INTO_ARCHIVE) or \
-                            (not string_utils.is_empty(model_plan_dir) and
-                             model_plan_dir.startswith(self.STRUCTURED_APPLICATION_PATH_INTO_ARCHIVE)):
-                        self._fix_plan_file(model_plan_dir, model_plan_path)
-
                 if model_helper.is_delete_name(app):
                     if self._does_deployment_to_delete_exist(app, existing_apps, 'app'):
                         # remove the !app from the model
@@ -450,7 +470,9 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
                         stop_and_undeploy_app_list.append(model_helper.get_delete_item_name(app))
                     continue
 
+                model_src_path = dictionary_utils.get_element(app_dict, SOURCE_PATH)
                 # determine the versioned name of the library from the application's MANIFEST
+                # FIXME - why is from_archive always set to True???
                 versioned_name = \
                     self.version_helper.get_application_versioned_name(model_src_path, app, from_archive=True)
 
@@ -467,7 +489,7 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
                     plan_path = dictionary_utils.get_element(existing_app_ref, 'planPath')
                     src_path = dictionary_utils.get_element(existing_app_ref, 'sourcePath')
 
-                    # For update case, the sparse model may be just changing targets, therefore without sourcepath
+                    # For update case, the sparse model may be just changing targets, therefore without SourcePath
 
                     if model_src_path is None and src_path is not None:
                         model_src_path = src_path
@@ -486,6 +508,8 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
                     self.__update_app_build_strategy_based_on_hashes(app, app_dict, existing_app_targets_set,
                                                                      model_apps, model_src_path, plan_path, src_path,
                                                                      stop_and_undeploy_app_list, versioned_name)
+
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 
     def __get_uses_path_tokens_attribute_names(self, app_location):
         location = LocationContext(app_location)
@@ -773,14 +797,17 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
                     options, sub_module_targets  = \
                         self.__get_deploy_options(deployments, deployment_name, deployment_type == LIBRARY)
 
-                    is_structured_app = \
-                        self._validate_source_path_matches_deployment_type(deployment_name, deployment_type, src_path)
+                    self._extract_deployment_from_archive(deployment_name, deployment_type, deployment_dict)
 
-                    plan_path = self.__get_plan_path_for_deployment(deployment_dict, deployment_name, deployment_type,
-                                                                    is_structured_app)
+                    if deployment_type == APPLICATION:
+                        is_structured_app, _ = self._is_structured_app(deployment_dict)
+                        if is_structured_app:
+                            self._fixup_structured_app_plan_file_config_root(deployment_dict)
 
-                    deploy_path = self.__get_source_path_for_deployment(deployment_type, deployment_name, src_path,
-                                                                        plan_path, is_structured_app)
+                    model_source_path = dictionary_utils.get_element(deployment_dict, SOURCE_PATH)
+                    combined_plan_path = self._get_combined_model_plan_path(deployment_dict)
+                    deploy_path = self.__get_online_deployment_path(model_source_path)
+                    plan_path = self.__get_online_deployment_path(combined_plan_path)
 
                     location.add_name_token(token_name, deployment_name)
                     resource_group_template_name, resource_group_name, partition_name = \
@@ -892,66 +919,6 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
                          class_name=self._class_name, method_name=_method_name)
         self.wlst_helper.deploy_application(application_name, *args, **kwargs)
         return application_name
-
-    def __get_plan_path_for_deployment(self, deployment_dict, deployment_name, deployment_type, is_structured_app):
-        """
-        Return the plan path for the deployment, based on the model dictionary.
-        Extract the plan path from the archive if it is an archive path and not part of a structured app.
-        :param deployment_dict: the model dictionary for the deployment
-        :param deployment_name: the element name (my-app, etc.), used for logging
-        :param deployment_type: the model type (Application, etc.), used for logging
-        :param is_structured_app: True if this is a structured app
-        :return: the plan path used to deploy
-        """
-        plan_dir = dictionary_utils.get_element(deployment_dict, PLAN_DIR)
-        plan_path = dictionary_utils.get_element(deployment_dict, PLAN_PATH)
-        combined_plan_path = self._get_combined_model_plan_path(deployment_dict)
-
-        plan_extract_path = self._validate_plan_file_to_extract(deployment_name, deployment_type, is_structured_app,
-                                                                plan_dir, plan_path)
-
-        # plan_file_to_extract should always be None for a structured app
-        if not string_utils.is_empty(plan_extract_path):
-            self.archive_helper.extract_file(plan_extract_path)
-
-        return combined_plan_path
-
-    def __get_source_path_for_deployment(self, deployment_type, deployment_name, src_path, plan_path,
-                                         is_structured_app):
-        """
-        Return the revised source path for the deployment, based on the model source path.
-        Extract the source path from the archive if it is an archive path.
-        :param deployment_type: the model type (Application, etc.), used for logging
-        :param deployment_name: the element name (my-app, etc.), used for logging
-        :param src_path: the source path from the model
-        :param plan_path: the deployment plan path from the model
-        :param is_structured_app: True if this is a structured app
-        :return: the source path used to deploy
-        """
-        _method_name = '__get_source_path_for_deployment'
-        self.logger.entering(deployment_name, src_path, class_name=self._class_name, method_name=_method_name)
-
-        if not string_utils.is_empty(src_path):
-            if deployer_utils.is_path_into_archive(src_path):
-                if is_structured_app:
-                    extract_path = self._get_structured_app_archive_path(deployment_name, src_path, plan_path)
-                else:
-                    extract_path = src_path
-
-                self._extract_source_path_from_archive(extract_path, deployment_type, deployment_name,
-                                                       upload_remote_directory=self.upload_temporary_dir)
-                # if it is remote app deployment src path is the local absolute location and the
-                # app archive will be uploaded to the admin server's upload directory
-                if self.model_context.is_remote():
-                    src_path = self.upload_temporary_dir + '/' + src_path
-            else:
-                # if it is remote app deployment src path is the local absolute location and the
-                # app archive will be uploaded to the admin server's upload directory
-                # This is only needed for -remote case, for ssh we upload it under remote domain file system
-                if self.model_context.is_remote() and self.path_helper.is_relative_local_path(src_path):
-                    src_path = self.path_helper.local_join(self.upload_temporary_dir, src_path)
-
-        return src_path
 
     def __get_deployment_ordering(self, apps):
         _method_name = '__get_deployment_ordering'
@@ -1165,6 +1132,176 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
                 self.__start_app(app)
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
+
+    def _replace_deployments_path_tokens(self, deployment_type, deployments_dict):
+        _method_name = '_replace_deployments_path_tokens'
+        self.logger.entering(deployment_type, class_name=self._class_name, method_name=_method_name)
+
+        if deployments_dict is not None:
+            for deployment_name, deployment_dict in deployments_dict.iteritems():
+                self._replace_path_tokens_for_deployment(deployment_type, deployment_name, deployment_dict)
+
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name)
+
+    # FIXME: duplicate code in online and offline
+    def _extract_deployment_from_archive(self, deployment_name, deployment_type, deployment_dict):
+        _method_name = '_extract_deployment_from_archive'
+        self.logger.entering(deployment_name, deployment_type, deployment_dict,
+                             class_name=self._class_name, method_name=_method_name)
+
+        source_path = dictionary_utils.get_element(deployment_dict, SOURCE_PATH)
+        combined_path_path = self._get_combined_model_plan_path(deployment_dict)
+        if deployer_utils.is_path_into_archive(source_path) or deployer_utils.is_path_into_archive(combined_path_path):
+            if self.archive_helper is not None:
+                self._extract_app_or_lib_from_archive(deployment_name, deployment_type, deployment_dict)
+            else:
+                ex = exception_helper.create_deploy_exception('WLSDPLY-09303', deployment_type, deployment_name)
+                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
+
+    def _extract_app_or_lib_from_archive(self, model_name, model_type, model_dict):
+        """
+        Extract deployment contents from the archive.
+
+        :param model_name: the element name (my-app, etc.), used for logging
+        :param model_type: the model type (Application, etc.), used for logging
+        :param model_dict: the model dictionary
+        """
+        _method_name = '_extract_app_or_lib_from_archive'
+        self.logger.entering(model_name, model_type, model_dict,
+                             class_name=self._class_name, method_name=_method_name)
+
+        is_structured_app = False
+        structured_app_dir = None
+        if model_type == APPLICATION:
+            is_structured_app, structured_app_dir = self._is_structured_app(model_dict)
+
+        if is_structured_app:
+            # is_structured_app() only returns true if both the app and the plan have similar paths.
+            # Since the caller already verified the app or plan was in the archive, it is safe to assume
+            # both are in the archive.
+            if self.archive_helper.contains_path(structured_app_dir):
+                # directory cannot be used for remote upload
+                if self.model_context.is_remote():
+                    ex = exception_helper.create_deploy_exception('WLSDPLY-09349',model_name, structured_app_dir)
+                    self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                    raise ex
+                elif self.model_context.is_ssh():
+                    self.archive_helper.extract_directory(structured_app_dir, location=self.upload_temporary_dir)
+                    self.upload_deployment_to_remote_server(structured_app_dir, self.upload_temporary_dir)
+                else:
+                    self.archive_helper.extract_directory(structured_app_dir)
+        else:
+            model_source_path = dictionary_utils.get_element(model_dict, SOURCE_PATH)
+            plan_file_to_extract = self._get_combined_model_plan_path(model_dict)
+
+            if not string_utils.is_empty(model_source_path) and \
+                    (model_source_path.endswith('/') or model_source_path.endswith('\\')):
+                # model may have trailing slash on exploded source path
+                source_path_to_extract = model_source_path[:-1]
+            else:
+                source_path_to_extract = model_source_path
+
+            # The caller only verified that either the app or the plan was in the archive; therefore,
+            # we have to validate each one before trying to extract.
+            if self.archive_helper.is_path_into_archive(source_path_to_extract):
+                # source path may be a single file (jar, war, etc.) or an exploded directory
+                if self.archive_helper.contains_file(source_path_to_extract):
+                    if self.model_context.is_remote():
+                        self.archive_helper.extract_file(source_path_to_extract, self.upload_temporary_dir, False)
+                    elif self.model_context.is_ssh():
+                        self.archive_helper.extract_file(source_path_to_extract, self.upload_temporary_dir, False)
+                        self.upload_deployment_to_remote_server(source_path_to_extract, self.upload_temporary_dir)
+                    else:
+                        self.archive_helper.extract_file(source_path_to_extract)
+                elif self.archive_helper.contains_path(source_path_to_extract):
+                    if self.model_context.is_remote():
+                        ex = exception_helper.create_deploy_exception('WLSDPLY-09341',
+                                                                      model_name, source_path_to_extract)
+                        self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                        raise ex
+                    elif self.model_context.is_ssh():
+                        self.archive_helper.extract_directory(source_path_to_extract, location=self.upload_temporary_dir)
+                        self.upload_deployment_to_remote_server(source_path_to_extract, self.upload_temporary_dir)
+                    else:
+                        self.archive_helper.extract_directory(source_path_to_extract)
+                else:
+                    ex = exception_helper.create_deploy_exception('WLSDPLY-09330',
+                                                                  model_type, model_name, source_path_to_extract)
+                    self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                    raise ex
+
+            if self.archive_helper.is_path_into_archive(plan_file_to_extract):
+                if self.model_context.is_remote():
+                    self.archive_helper.extract_file(plan_file_to_extract, self.upload_temporary_dir, False)
+                elif self.model_context.is_ssh():
+                    self.archive_helper.extract_file(plan_file_to_extract, self.upload_temporary_dir, False)
+                    self.upload_deployment_to_remote_server(plan_file_to_extract, self.upload_temporary_dir)
+                else:
+                    self.archive_helper.extract_file(plan_file_to_extract)
+
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name)
+
+    def _extract_source_path_from_archive(self, source_path, model_type, model_name,
+                                          upload_remote_directory=None):
+        """
+        Extract contents from the archive set for the specified source path.
+        The contents may be a single file, or a directory with exploded content.
+        :param source_path: the path to be extracted (previously checked to be under wlsdeploy)
+        :param model_type: the model type (Application, etc.), used for logging
+        :param model_name: the element name (my-app, etc.), used for logging
+        :param upload_remote_directory: the source directory where we upload the deployments
+        """
+        _method_name = '_extract_source_path_from_archive'
+
+        # model may have trailing slash on exploded source path
+        if source_path.endswith('/') or source_path.endswith('\\'):
+            source_path = source_path[:-1]
+
+        # source path may be a single file (jar, war, etc.)
+        if self.archive_helper.contains_file(source_path):
+            if self.model_context.is_remote():
+                self.archive_helper.extract_file(source_path, upload_remote_directory, False)
+            elif self.model_context.is_ssh():
+                self.archive_helper.extract_file(source_path, upload_remote_directory, False)
+                self.upload_deployment_to_remote_server(source_path, upload_remote_directory)
+            else:
+                self.archive_helper.extract_file(source_path)
+
+        # source path may be exploded directory in archive
+        elif self.archive_helper.contains_path(source_path):
+            # exploded format cannot be used for remote upload
+            if self.model_context.is_remote():
+                ex = exception_helper.create_deploy_exception('WLSDPLY-09341', model_name, source_path)
+                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
+            elif self.model_context.is_ssh():
+                self.archive_helper.extract_directory(source_path, location=upload_remote_directory)
+                self.upload_deployment_to_remote_server(source_path, upload_remote_directory)
+            else:
+                self.archive_helper.extract_directory(source_path)
+
+        else:
+            ex = exception_helper.create_deploy_exception('WLSDPLY-09330', model_type, model_name, source_path)
+            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+
+    def __get_online_deployment_path(self, model_path):
+        _method_name = '__get_online_deployment_path'
+        self.logger.entering(model_path, class_name=self._class_name, method_name=_method_name)
+
+        result = model_path
+        if not string_utils.is_empty(model_path):
+            if self.archive_helper and self.archive_helper.is_path_into_archive(model_path):
+                if self.model_context.is_remote():
+                    result = self.path_helper.local_join(self.upload_temporary_dir, model_path)
+                elif self.model_context.is_ssh():
+                    result = self.path_helper.remote_join(self.model_context.get_domain_home(), model_path)
+                else:
+                    result = self.path_helper.local_join(self.model_context.get_domain_home(), model_path)
+
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
 
 
 def _get_deployment_order(apps_dict, ordered_list, order):
