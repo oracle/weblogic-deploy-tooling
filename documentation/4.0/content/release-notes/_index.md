@@ -21,7 +21,12 @@ pre = "<b> </b>"
                  Added online mode support.  Fixed CRDs to work consistently with alias folders and attributes.
 - #1550 - Refactored the archive file and moved content extraction into `$DOMAIN_HOME/config/wlsdeploy` for some types
           to take advantage of existing Pack/Unpack behavior and admin server to managed server replications capabilities.
-- #1584 - Added support for creating WebLogic authorization policies during domain creation (GitHub issue #1496). 
+- #1584 - Added support for creating WebLogic authorization policies during domain creation (GitHub issue #1496).
+- #1641, #1643 - Overhauled Application and Library provisioning.  As part of this overhaul, we have tried to define the
+          semantics for non-archive application deployments, particularly with online Update Domain and Deploy Apps tools.
+          For non-archive applications/libraries, online deployment of binaries outside of the archive will always
+          assume that the binaries are available to the Admin Server at the model-specified paths.  Neither the
+          `-remote` or SSH options will attempt to upload the non-archived binaries. 
 
 #### Other Changes
 - #1544 - Consolidated multiple internal WLST helper methods to get an MBean.
@@ -71,9 +76,12 @@ pre = "<b> </b>"
           WebLogic Server 14.1.1 and newer.
 - #1636 - Fixed an issue with Update Domain and Deploy Applications Tools when using the `-remote` option that was
           causing a TODO message to be generated when there was nothing for the user to do.
-- #1638 - Fixed an issue with Update Domain and Deploy Applications Tools where the application specified a `PlanDir`
-          and a `PlanPath` but the online deployment was ignoring the `PlanDir`, resulting in a file does not exist
-          error when attempting to deploy the application.
+- #1638 - Fixed an issue with the Update Domain and Deploy Applications Tools where the application specified a
+         `PlanDir` and a `PlanPath` but the online deployment was ignoring the `PlanDir`, resulting in a file does
+          not exist error when attempting to deploy the application.
+- #1642 - Fixed deployment issues with deploying applications not included in an archive file.
+- #1643 - Fixed an issue with Discover Domain where application/library path tokenization was preventing adding
+          deployments to the archive file.
 
 #### Known Issues
 - SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,

@@ -21,6 +21,9 @@ from oracle.weblogic.deploy.util import WLSDeployArchive
 from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import PLAN_DIR
+from wlsdeploy.aliases.model_constants import PLAN_PATH
+from wlsdeploy.aliases.model_constants import SOURCE_PATH
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -299,49 +302,48 @@ class DeploymentsDiscoverer(Discoverer):
         _logger.entering(application_name, class_name=_class_name, method_name=_method_name)
 
         archive_file = self._model_context.get_archive_file()
-        if model_constants.SOURCE_PATH in application_dict:
-            file_name = application_dict[model_constants.SOURCE_PATH]
-            if file_name:
-                file_name_path = file_name
-                if not self._model_context.is_remote():
-                    file_name_path = self._convert_path(file_name)
-                if self._is_file_to_exclude_from_archive(file_name_path):
-                    _logger.info('WLSDPLY-06393', application_name,
+        file_name = self._get_dictionary_attribute_with_path_tokens_replaced(application_dict, SOURCE_PATH)
+        if file_name is not None:
+            file_name_path = file_name
+            if not self._model_context.is_remote():
+                file_name_path = self._convert_path(file_name)
+            if self._is_file_to_exclude_from_archive(file_name_path):
+                _logger.info('WLSDPLY-06393', application_name,
+                             class_name=_class_name, method_name=_method_name)
+            else:
+                new_source_name = None
+                if self._model_context.is_remote():
+                    new_source_name = WLSDeployArchive.getApplicationArchivePath(file_name_path)
+                    self.add_to_remote_map(file_name_path, new_source_name,
+                                           WLSDeployArchive.ArchiveEntryType.APPLICATION.name())
+                elif not self._model_context.is_skip_archive():
+                    _logger.info('WLSDPLY-06394', application_name, file_name_path,
                                  class_name=_class_name, method_name=_method_name)
-                else:
-                    new_source_name = None
-                    if self._model_context.is_remote():
-                        new_source_name = WLSDeployArchive.getApplicationArchivePath(file_name_path)
-                        self.add_to_remote_map(file_name_path, new_source_name,
-                                               WLSDeployArchive.ArchiveEntryType.APPLICATION.name())
-                    elif not self._model_context.is_skip_archive():
-                        _logger.info('WLSDPLY-06394', application_name, file_name_path,
-                                     class_name=_class_name, method_name=_method_name)
-                        try:
-                            if self._model_context.is_ssh():
-                                file_name_path = \
-                                    self.download_deployment_from_remote_server(file_name_path,
-                                                                                self.download_temporary_dir,
-                                                                                "applications")
+                    try:
+                        if self._model_context.is_ssh():
+                            file_name_path = \
+                                self.download_deployment_from_remote_server(file_name_path,
+                                                                            self.download_temporary_dir,
+                                                                            "applications")
 
-                            new_source_name = archive_file.addApplication(file_name_path)
-                            module_type = dictionary_utils.get_dictionary_element(application_dict,
-                                                                                  model_constants.MODULE_TYPE)
-                            if module_type == 'jdbc':
-                                self._jdbc_password_fix(new_source_name)
+                        new_source_name = archive_file.addApplication(file_name_path)
+                        module_type = dictionary_utils.get_dictionary_element(application_dict,
+                                                                              model_constants.MODULE_TYPE)
+                        if module_type == 'jdbc':
+                            self._jdbc_password_fix(new_source_name)
 
-                        except IllegalArgumentException, iae:
-                            self._disconnect_target(application_name, application_dict, iae.getLocalizedMessage())
-                        except WLSDeployArchiveIOException, wioe:
-                            de = exception_helper.create_discover_exception('WLSDPLY-06397', application_name,
-                                                                        file_name_path, wioe.getLocalizedMessage())
-                            _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
-                            raise de
-                    if new_source_name is not None:
-                        _logger.finer('WLSDPLY-06398', application_name, new_source_name, class_name=_class_name,
-                                      method_name=_method_name)
-                        application_dict[model_constants.SOURCE_PATH] = new_source_name
-                    self.add_application_plan_to_archive(application_name, application_dict)
+                    except IllegalArgumentException, iae:
+                        self._disconnect_target(application_name, application_dict, iae.getLocalizedMessage())
+                    except WLSDeployArchiveIOException, wioe:
+                        de = exception_helper.create_discover_exception('WLSDPLY-06397', application_name,
+                                                                    file_name_path, wioe.getLocalizedMessage())
+                        _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+                        raise de
+                if new_source_name is not None:
+                    _logger.finer('WLSDPLY-06398', application_name, new_source_name, class_name=_class_name,
+                                  method_name=_method_name)
+                    application_dict[model_constants.SOURCE_PATH] = new_source_name
+                self.add_application_plan_to_archive(application_name, application_dict)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
@@ -357,9 +359,17 @@ class DeploymentsDiscoverer(Discoverer):
         _method_name = 'add_application_plan_to_archive'
         _logger.entering(application_name, class_name=_class_name, method_name=_method_name)
         archive_file = self._model_context.get_archive_file()
-        if model_constants.PLAN_PATH in application_dict:
-            app_source_name = application_dict[model_constants.SOURCE_PATH]
-            plan_path = application_dict[model_constants.PLAN_PATH]
+
+        model_plan_path = self._get_dictionary_attribute_with_path_tokens_replaced(application_dict, PLAN_PATH)
+        if model_plan_path is not None:
+            app_source_name = self._get_dictionary_attribute_with_path_tokens_replaced(application_dict, SOURCE_PATH)
+            model_plan_dir = self._get_dictionary_attribute_with_path_tokens_replaced(application_dict, PLAN_DIR)
+
+            if model_plan_dir is not None and self.path_helper.is_relative_path(model_plan_path):
+                plan_path = self.path_helper.join(model_plan_dir, model_plan_path)
+            else:
+                plan_path = model_plan_path
+
             if plan_path:
                 if not self._model_context.is_remote():
                     plan_path = self._convert_path(plan_path)
@@ -425,16 +435,9 @@ class DeploymentsDiscoverer(Discoverer):
         _method_name = '_is_structured_app'
         _logger.entering(application_dict, class_name=_class_name, method_name=_method_name)
 
-        source_path = None
-        plan_dir = None
-        plan_path = None
-
-        if 'SourcePath' in application_dict:
-            source_path = application_dict['SourcePath']
-        if 'PlanDir' in application_dict:
-            plan_dir = application_dict['PlanDir']
-        if 'PlanPath' in application_dict:
-            plan_path = application_dict['PlanPath']
+        source_path = self._get_dictionary_attribute_with_path_tokens_replaced(application_dict, SOURCE_PATH)
+        plan_dir = self._get_dictionary_attribute_with_path_tokens_replaced(application_dict, PLAN_DIR)
+        plan_path = self._get_dictionary_attribute_with_path_tokens_replaced(application_dict, PLAN_PATH)
 
         _logger.finer('WLSDPLY-06405', application_name, source_path, plan_dir, plan_path,
                       class_name=_class_name, method_name=_method_name)
@@ -681,6 +684,16 @@ class DeploymentsDiscoverer(Discoverer):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=install_root)
         return install_root
 
+    def _get_dictionary_attribute_with_path_tokens_replaced(self, model_dict, attribute_name):
+        _method_name = '_get_dictionary_attribute_with_path_tokens_replaced'
+        _logger.entering(model_dict, attribute_name, class_name=_class_name, method_name=_method_name)
+
+        result = dictionary_utils.get_element(model_dict, attribute_name)
+        if result is not None:
+            result = self._model_context.replace_token_string(result)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
+        return result
 
 def _generate_new_plan_name(binary_path, plan_path):
     """

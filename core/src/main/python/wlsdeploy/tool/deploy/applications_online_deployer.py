@@ -996,9 +996,16 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
             deploy_options['libraryModule'] = 'true'
 
         if self.model_context.is_remote():
-            deploy_options['upload'] = 'true'
-
-        if self.model_context.is_ssh():
+            # In the -remote use case, if the SourcePath and combined PlanDir/PlanPath are absolute paths in
+            # the model, we do not try to upload them and instead assume that they are available on the remote
+            # machine already.
+            #
+            deploy_should_upload = self.__remote_deploy_should_upload_app(app, app_name, is_library_module)
+            if deploy_should_upload:
+                deploy_options['upload'] = 'true'
+            else:
+                deploy_options['remote'] = 'true'
+        elif self.model_context.is_ssh():
             deploy_options['remote'] = 'true'
 
         if len(deploy_options) == 0:
@@ -1011,6 +1018,47 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         self.logger.exiting(class_name=self._class_name, method_name=_method_name,
                             result=[deploy_options, sub_module_targets])
         return deploy_options, sub_module_targets
+
+    def __remote_deploy_should_upload_app(self, deployment_dict, deployment_name, is_library_module):
+        """
+        In the -remote use case, should the deployment be uploaded>
+        :param deployment_dict: the model dictionary
+        :param deployment_name: the model name
+        :param is_library_module: whether the deployment is a shared library
+        :return: True, if the deploy options should set upload to true; False otherwise
+        :raises: DeployException: if the model deployment paths are inconsistent
+        """
+        _method_name = '__remote_deploy_should_upload_app'
+        self.logger.entering(deployment_dict, deployment_name, is_library_module,
+                             class_name=self._class_name, method_name=_method_name)
+
+        deploy_should_upload = True
+
+        model_source_path = dictionary_utils.get_element(deployment_dict, SOURCE_PATH)
+        if not string_utils.is_empty(model_source_path):
+            if self.path_helper.is_absolute_path(model_source_path):
+                deploy_should_upload = False
+
+        model_combined_plan_path = self._get_combined_model_plan_path(deployment_dict)
+        if not string_utils.is_empty(model_combined_plan_path):
+            if self.path_helper.is_absolute_path(model_combined_plan_path):
+                if string_utils.is_empty(model_source_path):
+                    deploy_should_upload = False
+                elif deploy_should_upload:
+                    # SourcePath was not empty and not an absolute path but the plan is an absolute path so
+                    # the model is inconsistent and the deploy operation cannot process it.
+                    #
+                    model_type = APPLICATION
+                    if is_library_module:
+                        model_type = LIBRARY
+                    ex = exception_helper.create_deploy_exception('WLSDPLY-09350', model_type, deployment_name,
+                                                                  model_source_path, model_combined_plan_path)
+                    self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                    raise ex
+                # else deploy_should_upload already set to false so there is nothing to do
+
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=deploy_should_upload)
+        return deploy_should_upload
 
     def __set_sub_deployments_for_app_module(self, app, module_type, sub_module_targets):
         _method_name = '__set_sub_deployments_for_app_module'

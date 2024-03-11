@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -1461,6 +1462,86 @@ public class ITWdt extends BaseTest {
         }
     }
 
+    @DisplayName("Test 39: Structured app remote online update without an archive")
+    @Order(39)
+    @Tag("gate")
+    @Test
+    void test39OnlineRemoteDeployStructuredAppOutsideArchiveFile(TestInfo testInfo) throws Exception {
+        String cmd;
+        String archiveToExplode =
+            FileSystems.getDefault().getPath(getTargetDir().toString(), "archive36.zip").toAbsolutePath().toString();
+        try (PrintWriter out = getTestMethodWriter(testInfo, "ArchiveHelperExtractAppFromArchive")) {
+            Path archiveExtractDir = getTestOutputPath(testInfo);
+
+            cmd = archiveHelperScript + " extract structuredApplication -name OtdApp " +
+                " -target " + archiveExtractDir + " -archive_file " + archiveToExplode;
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+            assertEquals(0, result.exitValue(), "Unexpected return code");
+        }
+
+        String domainDir = "domain39";
+        String domainHome = domainParentDir + FS + domainDir;
+        cmd = createDomainScript
+            + " -oracle_home " + mwhome_12213
+            + " -domain_home " + domainHome
+            + " -model_file " + getSampleModelFile("-structured-online-create-39")
+            + " -variable_file " + getSampleVariableFile();
+
+        try (PrintWriter out = getTestMethodWriter(testInfo, "CreateDomain")) {
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+            assertEquals(0, result.exitValue(), "Unexpected return code");
+        }
+
+        Path adminServerOut = getTestOutputPath(testInfo).resolve("admin-server.out");
+        boolean isServerUp = startAdminServer(domainHome, adminServerOut);
+        if (isServerUp) {
+            try {
+                try (PrintWriter out = getTestMethodWriter(testInfo, "UpdateDomain")) {
+                    cmd = updateDomainScript
+                        + " -oracle_home " + mwhome_12213
+                        + " -model_file " + getSampleModelFile("-structured-online-update-39")
+                        + " -variable_file " + getSampleVariableFile()
+                        + " -remote -admin_user weblogic -admin_pass welcome1 -admin_url t3://localhost:7001";
+                    CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+                    verifyResult(result, "updateDomain.sh completed successfully");
+                }
+
+                Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
+                Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredModel.yaml");
+                Path discoveredVariableFile = getTestOutputPath(testInfo).resolve("discoveredVariable.properties");
+                cmd = discoverDomainScript + " -oracle_home " + mwhome_12213
+                    + " -model_file " + discoveredModelFile + " -variable_file " + discoveredVariableFile
+                    + " -archive_file " + discoveredArchive
+                    + " -admin_user weblogic -admin_pass welcome1 -admin_url t3://localhost:7001";
+                try (PrintWriter out = getTestMethodWriter(testInfo, "DiscoverDomain")) {
+                    CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+                    verifyResult(result, "discoverDomain.sh completed successfully");
+                    File discoveredArchiveFile = discoveredArchive.toFile();
+                    assertTrue(discoveredArchiveFile.exists(),
+                        "discovery should have created archive file " + discoveredArchive);
+                }
+
+                try (PrintWriter out = getTestMethodWriter(testInfo, "ArchiveHelperOnDiscoveredArchive")) {
+                    Path archiveExtractDir = getTestOutputPath(testInfo);
+
+                    cmd = archiveHelperScript + " extract structuredApplication -name OtdApp " +
+                        " -target " + archiveExtractDir + " -archive_file " + discoveredArchive;
+                    CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+                    assertEquals(0, result.exitValue(), "Unexpected return code");
+
+                    verifyStructuredAppDirectoryStructure(archiveExtractDir.toString(), "Archive Extract");
+                }
+            } finally {
+                stopAdminServer(domainHome);
+            }
+        } else {
+            // Best effort to clean up server
+            tryKillTheAdminServer(domainHome, "admin-server");
+            throw new Exception("test39OnlineRemoteDeployStructuredAppOutsideArchiveFile failed - cannot bring up server");
+        }
+    }
     private void verifyStructuredAppDirectoryStructure(String domainHomeDir) throws Exception {
         verifyStructuredAppDirectoryStructure(domainHomeDir, "Domain Home");
     }
