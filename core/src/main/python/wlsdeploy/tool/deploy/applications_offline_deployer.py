@@ -3,8 +3,6 @@ Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
-import os
-import shutil
 
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import APPLICATION
@@ -154,97 +152,6 @@ class OfflineApplicationsDeployer(ApplicationsDeployer):
                 location.append_location(APPLICATION)
 
             deployer_utils.delete_named_element(location, deployment_name, existing_deployment_names_list, self.aliases)
-
-        self.logger.exiting(class_name=self._class_name, method_name=_method_name)
-
-    # FIXME: duplicate code in online and offline
-    def _extract_deployment_from_archive(self, deployment_name, deployment_type, deployment_dict):
-        _method_name = '_extract_deployment_from_archive'
-        self.logger.entering(deployment_name, deployment_type, deployment_dict,
-                             class_name=self._class_name, method_name=_method_name)
-
-        source_path = dictionary_utils.get_element(deployment_dict, SOURCE_PATH)
-        combined_path_path = self._get_combined_model_plan_path(deployment_dict)
-        if deployer_utils.is_path_into_archive(source_path) or deployer_utils.is_path_into_archive(combined_path_path):
-            if self.archive_helper is not None:
-                self._extract_app_or_lib_from_archive(deployment_name, deployment_type, deployment_dict)
-            else:
-                ex = exception_helper.create_deploy_exception('WLSDPLY-09303', deployment_type, deployment_name)
-                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                raise ex
-
-    def _extract_app_or_lib_from_archive(self, model_name, model_type, model_dict):
-        """
-        Extract deployment contents from the archive.
-
-        :param model_name: the element name (my-app, etc.), used for logging
-        :param model_type: the model type (Application, etc.), used for logging
-        :param model_dict: the model dictionary
-        """
-        _method_name = '_extract_app_or_lib_from_archive'
-        self.logger.entering(model_name, model_type, model_dict,
-                             class_name=self._class_name, method_name=_method_name)
-
-        is_structured_app = False
-        structured_app_dir = None
-        if model_type == APPLICATION:
-            is_structured_app, structured_app_dir = self._is_structured_app(model_dict)
-
-        if is_structured_app:
-            # is_structured_app() only returns true if both the app and the plan have similar paths.
-            # Since the caller already verified the app or plan was in the archive, it is safe to assume
-            # both are in the archive.
-            if self.archive_helper.contains_path(structured_app_dir):
-                #
-                # When extracting a directory, delete the old directory if it already exists so that the
-                # extracted directory is exactly what is in the archive file.
-                #
-                existing_directory_path = \
-                    self.path_helper.local_join(self.model_context.get_domain_home(), structured_app_dir)
-                if os.path.isdir(existing_directory_path):
-                    shutil.rmtree(existing_directory_path)
-                self.archive_helper.extract_directory(structured_app_dir)
-            else:
-                ex = exception_helper.create_deploy_exception('WLSDPLY-09330',
-                                                              model_type, model_name, structured_app_dir)
-                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                raise ex
-        else:
-            model_source_path = dictionary_utils.get_element(model_dict, SOURCE_PATH)
-            plan_file_to_extract = self._get_combined_model_plan_path(model_dict)
-
-            if not string_utils.is_empty(model_source_path) and \
-                    (model_source_path.endswith('/') or model_source_path.endswith('\\')):
-                # model may have trailing slash on exploded source path
-                source_path_to_extract = model_source_path[:-1]
-            else:
-                source_path_to_extract = model_source_path
-
-            # The caller only verified that either the app or the plan was in the archive; therefore,
-            # we have to validate each one before trying to extract.
-            if self.archive_helper.is_path_into_archive(source_path_to_extract):
-                # source path may be a single file (jar, war, etc.) or an exploded directory
-                if self.archive_helper.contains_file(source_path_to_extract):
-                    self.archive_helper.extract_file(source_path_to_extract)
-                elif self.archive_helper.contains_path(source_path_to_extract):
-                    #
-                    # When extracting a directory, delete the old directory if it already exists so that the
-                    # extracted directory is exactly what is in the archive file.
-                    #
-                    existing_directory_path = \
-                        self.path_helper.local_join(self.model_context.get_domain_home(), source_path_to_extract)
-                    if os.path.isdir(existing_directory_path):
-                        shutil.rmtree(existing_directory_path)
-                    self.archive_helper.extract_directory(source_path_to_extract)
-                else:
-                    ex = exception_helper.create_deploy_exception('WLSDPLY-09330',
-                                                                  model_type, model_name, source_path_to_extract)
-                    self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                    raise ex
-
-            # plan_file_to_extract should always be None for a structured app
-            if self.archive_helper.is_path_into_archive(plan_file_to_extract):
-                self.archive_helper.extract_file(plan_file_to_extract)
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 

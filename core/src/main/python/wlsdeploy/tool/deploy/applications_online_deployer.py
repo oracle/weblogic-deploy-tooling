@@ -61,14 +61,6 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         self.logger.entering(self._parent_name, self._parent_type,
                              class_name=self._class_name, method_name=_method_name)
 
-        self.__deploy_apps_and_libs(is_restart_required)
-
-        self.logger.exiting(class_name=self._class_name, method_name=_method_name)
-
-    def __deploy_apps_and_libs(self, is_restart_required):
-        _method_name = '__deploy_apps_and_libs'
-        self.logger.entering(is_restart_required, class_name=self._class_name, method_name=_method_name)
-
         # Make copies of the model dictionary since we are going
         # to modify it as we build the deployment strategy.
         #
@@ -109,9 +101,9 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         # for undeploying apps.
         #
         #   1.  It needs to be fully undeploy shared library referenced apps
-        #   2.  But if the user only provides a sparse model for library update,  the sparse model will not have the
-        #   original app and it will not be deployed again
-        #   3.  There maybe transitive references by shared library and it will be difficult to handle processing order
+        #   2.  But if the user only provides a sparse model for library update, the sparse model will not have the
+        #   original app, and it will not be deployed again
+        #   3.  There maybe transitive references by shared library, and it will be difficult to handle processing order
         #    the full dependency graph
         #   4.  Console will result in error and ask user to undeploy the app first, so we are not trying to add new
         #   functionalities in wls.
@@ -134,7 +126,43 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         deployed_app_list = self.__deploy_model_applications(model_applications, app_location)
 
         self.__start_all_apps(deployed_app_list, self._base_location, is_restart_required)
+
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
+
+    # Override
+    def _extract_directory_from_archive(self, directory_path, deployment_name, deployment_type):
+        """
+        Extract the specified directory path from the archive.
+        Extend for online to extract for SSH or remote.
+        """
+        _method_name = '_extract_directory_from_archive'
+
+        # directory cannot be used for remote upload
+        if self.model_context.is_remote():
+            ex = exception_helper.create_deploy_exception(
+                'WLSDPLY-09341',deployment_type, deployment_name, directory_path)
+            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+        elif self.model_context.is_ssh():
+            self.archive_helper.extract_directory(directory_path, location=self.upload_temporary_dir)
+            self.upload_deployment_to_remote_server(directory_path, self.upload_temporary_dir)
+        else:
+            ApplicationsDeployer._extract_directory_from_archive(
+                self, directory_path, deployment_name, deployment_type)
+
+    # Override
+    def _extract_file_from_archive(self, file_path, deployment_name, deployment_type):
+        """
+        Extract the specified file path from the archive.
+        Extend for online to extract for SSH or remote.
+        """
+        if self.model_context.is_remote():
+            self.archive_helper.extract_file(file_path, self.upload_temporary_dir, False)
+        elif self.model_context.is_ssh():
+            self.archive_helper.extract_file(file_path, self.upload_temporary_dir, False)
+            self.upload_deployment_to_remote_server(file_path, self.upload_temporary_dir)
+        else:
+            ApplicationsDeployer._extract_file_from_archive(self, file_path, deployment_name, deployment_type)
 
     ###########################################################################
     #                      Get existing deployments                           #
@@ -1127,6 +1155,33 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
                         FileUtils.deleteDirectory(File(self.path_helper.local_join(
                             self.model_context.get_domain_home(), delete_path)))
 
+    def _replace_deployments_path_tokens(self, deployment_type, deployments_dict):
+        _method_name = '_replace_deployments_path_tokens'
+        self.logger.entering(deployment_type, class_name=self._class_name, method_name=_method_name)
+
+        if deployments_dict is not None:
+            for deployment_name, deployment_dict in deployments_dict.iteritems():
+                self._replace_path_tokens_for_deployment(deployment_type, deployment_name, deployment_dict)
+
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name)
+
+    def __get_online_deployment_path(self, model_path):
+        _method_name = '__get_online_deployment_path'
+        self.logger.entering(model_path, class_name=self._class_name, method_name=_method_name)
+
+        result = model_path
+        if not string_utils.is_empty(model_path):
+            if self.archive_helper and self.archive_helper.is_path_into_archive(model_path):
+                if self.model_context.is_remote():
+                    result = self.path_helper.local_join(self.upload_temporary_dir, model_path)
+                elif self.model_context.is_ssh():
+                    result = self.path_helper.remote_join(self.model_context.get_domain_home(), model_path)
+                else:
+                    result = self.path_helper.local_join(self.model_context.get_domain_home(), model_path)
+
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
+
     ###########################################################################
     #                       Start and stop applications                       #
     ###########################################################################
@@ -1180,176 +1235,6 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
                 self.__start_app(app)
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
-
-    def _replace_deployments_path_tokens(self, deployment_type, deployments_dict):
-        _method_name = '_replace_deployments_path_tokens'
-        self.logger.entering(deployment_type, class_name=self._class_name, method_name=_method_name)
-
-        if deployments_dict is not None:
-            for deployment_name, deployment_dict in deployments_dict.iteritems():
-                self._replace_path_tokens_for_deployment(deployment_type, deployment_name, deployment_dict)
-
-        self.logger.exiting(class_name=self._class_name, method_name=_method_name)
-
-    # FIXME: duplicate code in online and offline
-    def _extract_deployment_from_archive(self, deployment_name, deployment_type, deployment_dict):
-        _method_name = '_extract_deployment_from_archive'
-        self.logger.entering(deployment_name, deployment_type, deployment_dict,
-                             class_name=self._class_name, method_name=_method_name)
-
-        source_path = dictionary_utils.get_element(deployment_dict, SOURCE_PATH)
-        combined_path_path = self._get_combined_model_plan_path(deployment_dict)
-        if deployer_utils.is_path_into_archive(source_path) or deployer_utils.is_path_into_archive(combined_path_path):
-            if self.archive_helper is not None:
-                self._extract_app_or_lib_from_archive(deployment_name, deployment_type, deployment_dict)
-            else:
-                ex = exception_helper.create_deploy_exception('WLSDPLY-09303', deployment_type, deployment_name)
-                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                raise ex
-
-    def _extract_app_or_lib_from_archive(self, model_name, model_type, model_dict):
-        """
-        Extract deployment contents from the archive.
-
-        :param model_name: the element name (my-app, etc.), used for logging
-        :param model_type: the model type (Application, etc.), used for logging
-        :param model_dict: the model dictionary
-        """
-        _method_name = '_extract_app_or_lib_from_archive'
-        self.logger.entering(model_name, model_type, model_dict,
-                             class_name=self._class_name, method_name=_method_name)
-
-        is_structured_app = False
-        structured_app_dir = None
-        if model_type == APPLICATION:
-            is_structured_app, structured_app_dir = self._is_structured_app(model_dict)
-
-        if is_structured_app:
-            # is_structured_app() only returns true if both the app and the plan have similar paths.
-            # Since the caller already verified the app or plan was in the archive, it is safe to assume
-            # both are in the archive.
-            if self.archive_helper.contains_path(structured_app_dir):
-                # directory cannot be used for remote upload
-                if self.model_context.is_remote():
-                    ex = exception_helper.create_deploy_exception('WLSDPLY-09349',model_name, structured_app_dir)
-                    self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                    raise ex
-                elif self.model_context.is_ssh():
-                    self.archive_helper.extract_directory(structured_app_dir, location=self.upload_temporary_dir)
-                    self.upload_deployment_to_remote_server(structured_app_dir, self.upload_temporary_dir)
-                else:
-                    self.archive_helper.extract_directory(structured_app_dir)
-        else:
-            model_source_path = dictionary_utils.get_element(model_dict, SOURCE_PATH)
-            plan_file_to_extract = self._get_combined_model_plan_path(model_dict)
-
-            if not string_utils.is_empty(model_source_path) and \
-                    (model_source_path.endswith('/') or model_source_path.endswith('\\')):
-                # model may have trailing slash on exploded source path
-                source_path_to_extract = model_source_path[:-1]
-            else:
-                source_path_to_extract = model_source_path
-
-            # The caller only verified that either the app or the plan was in the archive; therefore,
-            # we have to validate each one before trying to extract.
-            if self.archive_helper.is_path_into_archive(source_path_to_extract):
-                # source path may be a single file (jar, war, etc.) or an exploded directory
-                if self.archive_helper.contains_file(source_path_to_extract):
-                    if self.model_context.is_remote():
-                        self.archive_helper.extract_file(source_path_to_extract, self.upload_temporary_dir, False)
-                    elif self.model_context.is_ssh():
-                        self.archive_helper.extract_file(source_path_to_extract, self.upload_temporary_dir, False)
-                        self.upload_deployment_to_remote_server(source_path_to_extract, self.upload_temporary_dir)
-                    else:
-                        self.archive_helper.extract_file(source_path_to_extract)
-                elif self.archive_helper.contains_path(source_path_to_extract):
-                    if self.model_context.is_remote():
-                        ex = exception_helper.create_deploy_exception('WLSDPLY-09341',
-                                                                      model_name, source_path_to_extract)
-                        self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                        raise ex
-                    elif self.model_context.is_ssh():
-                        self.archive_helper.extract_directory(source_path_to_extract, location=self.upload_temporary_dir)
-                        self.upload_deployment_to_remote_server(source_path_to_extract, self.upload_temporary_dir)
-                    else:
-                        self.archive_helper.extract_directory(source_path_to_extract)
-                else:
-                    ex = exception_helper.create_deploy_exception('WLSDPLY-09330',
-                                                                  model_type, model_name, source_path_to_extract)
-                    self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                    raise ex
-
-            if self.archive_helper.is_path_into_archive(plan_file_to_extract):
-                if self.model_context.is_remote():
-                    self.archive_helper.extract_file(plan_file_to_extract, self.upload_temporary_dir, False)
-                elif self.model_context.is_ssh():
-                    self.archive_helper.extract_file(plan_file_to_extract, self.upload_temporary_dir, False)
-                    self.upload_deployment_to_remote_server(plan_file_to_extract, self.upload_temporary_dir)
-                else:
-                    self.archive_helper.extract_file(plan_file_to_extract)
-
-        self.logger.exiting(class_name=self._class_name, method_name=_method_name)
-
-    def _extract_source_path_from_archive(self, source_path, model_type, model_name,
-                                          upload_remote_directory=None):
-        """
-        Extract contents from the archive set for the specified source path.
-        The contents may be a single file, or a directory with exploded content.
-        :param source_path: the path to be extracted (previously checked to be under wlsdeploy)
-        :param model_type: the model type (Application, etc.), used for logging
-        :param model_name: the element name (my-app, etc.), used for logging
-        :param upload_remote_directory: the source directory where we upload the deployments
-        """
-        _method_name = '_extract_source_path_from_archive'
-
-        # model may have trailing slash on exploded source path
-        if source_path.endswith('/') or source_path.endswith('\\'):
-            source_path = source_path[:-1]
-
-        # source path may be a single file (jar, war, etc.)
-        if self.archive_helper.contains_file(source_path):
-            if self.model_context.is_remote():
-                self.archive_helper.extract_file(source_path, upload_remote_directory, False)
-            elif self.model_context.is_ssh():
-                self.archive_helper.extract_file(source_path, upload_remote_directory, False)
-                self.upload_deployment_to_remote_server(source_path, upload_remote_directory)
-            else:
-                self.archive_helper.extract_file(source_path)
-
-        # source path may be exploded directory in archive
-        elif self.archive_helper.contains_path(source_path):
-            # exploded format cannot be used for remote upload
-            if self.model_context.is_remote():
-                ex = exception_helper.create_deploy_exception('WLSDPLY-09341', model_name, source_path)
-                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                raise ex
-            elif self.model_context.is_ssh():
-                self.archive_helper.extract_directory(source_path, location=upload_remote_directory)
-                self.upload_deployment_to_remote_server(source_path, upload_remote_directory)
-            else:
-                self.archive_helper.extract_directory(source_path)
-
-        else:
-            ex = exception_helper.create_deploy_exception('WLSDPLY-09330', model_type, model_name, source_path)
-            self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-            raise ex
-
-    def __get_online_deployment_path(self, model_path):
-        _method_name = '__get_online_deployment_path'
-        self.logger.entering(model_path, class_name=self._class_name, method_name=_method_name)
-
-        result = model_path
-        if not string_utils.is_empty(model_path):
-            if self.archive_helper and self.archive_helper.is_path_into_archive(model_path):
-                if self.model_context.is_remote():
-                    result = self.path_helper.local_join(self.upload_temporary_dir, model_path)
-                elif self.model_context.is_ssh():
-                    result = self.path_helper.remote_join(self.model_context.get_domain_home(), model_path)
-                else:
-                    result = self.path_helper.local_join(self.model_context.get_domain_home(), model_path)
-
-        self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
-        return result
 
 
 def _get_deployment_order(apps_dict, ordered_list, order):
