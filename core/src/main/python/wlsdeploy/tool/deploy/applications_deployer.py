@@ -4,6 +4,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 import os
 import re
+import shutil
 
 from java.io import File
 from java.io import FileOutputStream
@@ -16,6 +17,7 @@ from javax.xml.transform.stream import StreamResult
 from oracle.weblogic.deploy.util import WLSDeployArchive
 
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PLAN_DIR
 from wlsdeploy.aliases.model_constants import PLAN_PATH
@@ -308,6 +310,89 @@ class ApplicationsDeployer(Deployer):
             newfh = open(abspath, 'w')
             newfh.write(newtext)
             newfh.close()
+
+    def _extract_deployment_from_archive(self, deployment_name, deployment_type, deployment_dict):
+        _method_name = '_extract_deployment_from_archive'
+        self.logger.entering(deployment_name, deployment_type, deployment_dict,
+                             class_name=self._class_name, method_name=_method_name)
+
+        source_path = dictionary_utils.get_element(deployment_dict, SOURCE_PATH)
+        combined_path_path = self._get_combined_model_plan_path(deployment_dict)
+        if deployer_utils.is_path_into_archive(source_path) or deployer_utils.is_path_into_archive(combined_path_path):
+            if self.archive_helper is None:
+                ex = exception_helper.create_deploy_exception(
+                    'WLSDPLY-09303', deployment_type, deployment_name)
+                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
+
+            is_structured_app = False
+            structured_app_dir = None
+            if deployment_type == APPLICATION:
+                is_structured_app, structured_app_dir = self._is_structured_app(deployment_dict)
+
+            if is_structured_app:
+                # is_structured_app() only returns true if both the app and the plan have similar paths.
+                # Since the caller already verified the app or plan was in the archive, it is safe to assume
+                # both are in the archive.
+                if self.archive_helper.contains_path(structured_app_dir):
+                    self._extract_directory_from_archive(structured_app_dir, deployment_name, deployment_type)
+            else:
+                model_source_path = dictionary_utils.get_element(deployment_dict, SOURCE_PATH)
+                plan_file_to_extract = self._get_combined_model_plan_path(deployment_dict)
+
+                if not string_utils.is_empty(model_source_path) and \
+                        (model_source_path.endswith('/') or model_source_path.endswith('\\')):
+                    # model may have trailing slash on exploded source path
+                    source_path_to_extract = model_source_path[:-1]
+                else:
+                    source_path_to_extract = model_source_path
+
+                # The caller only verified that either the app or the plan was in the archive; therefore,
+                # we have to validate each one before trying to extract.
+                if self.archive_helper.is_path_into_archive(source_path_to_extract):
+                    # source path may be a single file (jar, war, etc.) or an exploded directory
+                    if self.archive_helper.contains_file(source_path_to_extract):
+                        self._extract_file_from_archive(source_path_to_extract, deployment_name, deployment_type)
+                    elif self.archive_helper.contains_path(source_path_to_extract):
+                        self._extract_directory_from_archive(source_path_to_extract, deployment_name, deployment_type)
+                    else:
+                        ex = exception_helper.create_deploy_exception(
+                            'WLSDPLY-09330', deployment_type, deployment_name, source_path_to_extract)
+                        self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                        raise ex
+
+                if self.archive_helper.is_path_into_archive(plan_file_to_extract):
+                    self._extract_file_from_archive(plan_file_to_extract, deployment_name, deployment_type)
+
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name)
+
+    def _extract_directory_from_archive(self, directory_path, _deployment_name, _deployment_type):
+        """
+        Extract the specified directory path from the archive.
+        The default behavior is to extract to the local file system.
+        Subclasses can this method for other cases (ssh and remote).
+        :param directory_path: the path to extract
+        :param _deployment_name: the deployment name (myApp), can be used for logging
+        :param _deployment_type: the deployment type (Application, etc.), can be used for logging
+        """
+        # When extracting a directory, delete the old directory if it already exists so that the
+        # extracted directory is exactly what is in the archive file.
+        existing_directory_path = \
+            self.path_helper.local_join(self.model_context.get_domain_home(), directory_path)
+        if os.path.isdir(existing_directory_path):
+            shutil.rmtree(existing_directory_path)
+        self.archive_helper.extract_directory(directory_path)
+
+    def _extract_file_from_archive(self, file_path, _deployment_name, _deployment_type):
+        """
+        Extract the specified file path from the archive.
+        The default behavior is to extract to the local file system.
+        Subclasses can this method for other cases (ssh and remote).
+        :param file_path: the path to extract
+        :param _deployment_name: the deployment name (myApp), can be used for logging
+        :param _deployment_type: the deployment type (Application, etc.), can be used for logging
+        """
+        self.archive_helper.extract_file(file_path)
 
     ###########################################################################
     #                      Private utility methods                            #
