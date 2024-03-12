@@ -522,10 +522,11 @@ class ApplicationsDeployer(Deployer):
 
         result = False
         structured_app_dir = None
-        if not string_utils.is_empty(model_source_path) and not string_utils.is_empty(combined_plan_path):
+        if not string_utils.is_empty(model_source_path) and not string_utils.is_empty(combined_plan_path) \
+                and not WLSDeployArchive.isPathIntoArchive(model_source_path):
+
             source_path_to_compare = model_source_path.replace('\\', '/')
             plan_path_to_compare = combined_plan_path.replace('\\', '/')
-
 
             # Try to determine the structured application_directory as best we can.
             source_path_elements = source_path_to_compare.split('/')
@@ -537,7 +538,7 @@ class ApplicationsDeployer(Deployer):
                     app_dir_index = idx
 
             if app_dir_index > 0:
-                fake_str_app_dir = '/'.join(source_path_elements[0:app_dir_index - 1])
+                fake_str_app_dir = '/'.join(source_path_elements[0:app_dir_index])
                 if plan_path_to_compare.startswith(fake_str_app_dir + '/'):
                     result = True
                     structured_app_dir = model_source_path[0:len(fake_str_app_dir)]
