@@ -104,6 +104,22 @@
                                     <overWrite>true</overWrite>
                                     <destFileName>archive38.zip</destFileName>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>weblogic-deploy-system-test-apps-versioned-app-updated-archive</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>zip</type>
+                                    <overWrite>true</overWrite>
+                                    <destFileName>archive40.zip</destFileName>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>weblogic-deploy-system-test-apps-versioned-app-updated-archive</artifactId>
+                                    <version>${project.version}</version>
+                                    <type>zip</type>
+                                    <overWrite>true</overWrite>
+                                    <destFileName>archive40-updated.zip</destFileName>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>

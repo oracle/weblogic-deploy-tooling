@@ -20,6 +20,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -558,11 +561,11 @@ public class ITWdt extends BaseTest {
 
             // verify model file
             verifyModelFile(discoveredModel.toString());
-            verifyFDiscoverDomainWithRequiredArgument(discoveredModel.toString());
+            verifyDiscoverDomainWithRequiredArgument(discoveredModel.toString());
         }
     }
 
-    private void verifyFDiscoverDomainWithRequiredArgument(String expectedModelFile) throws Exception {
+    private void verifyDiscoverDomainWithRequiredArgument(String expectedModelFile) throws Exception {
         List<String> checkContents = new ArrayList<>();
         checkContents.add("domainInfo:");
         checkContents.add("AdminUserName: --FIX ME--");
@@ -950,11 +953,12 @@ public class ITWdt extends BaseTest {
                     cmd = "echo welcome1 | "
                         + updateDomainScript
                         + " -oracle_home " + mwhome_12213
-                        + " -domain_home " + domainParentDir + FS + domainDir
                         + " -model_file " + model
                         + " -archive_file " + getSampleArchiveFile()
                         + " -admin_url t3://localhost:7001 -admin_user weblogic";
                     CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+                    moveWDTLogFile(getTestOutputPath(testInfo), "updateDomain.log", "updateDomain-1.log");
 
                     assertEquals(0, result.exitValue(), "Unexpected return code for untargeting app");
                     assertTrue(result.stdout().contains("<__remove_app_from_deployment> <WLSDPLY-09339>"),
@@ -974,6 +978,8 @@ public class ITWdt extends BaseTest {
                         + " -archive_file " + getSampleArchiveFile()
                         + " -admin_url t3://localhost:7001 -admin_user weblogic";
                     CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+                    moveWDTLogFile(getTestOutputPath(testInfo), "updateDomain.log", "updateDomain-2.log");
 
                     assertEquals(0, result.exitValue(), "Unexpected return code for targeting app");
                     assertTrue(result.stdout().contains("<__deploy_app_or_library> <WLSDPLY-09316>"),
@@ -995,6 +1001,8 @@ public class ITWdt extends BaseTest {
                         + " -admin_url t3://localhost:7001 -admin_user weblogic";
                     CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
+                    moveWDTLogFile(getTestOutputPath(testInfo), "updateDomain.log", "updateDomain-3.log");
+
                     assertEquals(0, result.exitValue(), "Unexpected return code for updating domain with new archive");
                     assertTrue(result.stdout().contains("<__stop_app> <WLSDPLY-09312>"),
                         "Update does not contains expected message WLSDPLY-09312");
@@ -1014,6 +1022,8 @@ public class ITWdt extends BaseTest {
                         + " -archive_file " + getUpdatedSampleArchiveFile()
                         + " -admin_url t3://localhost:7001 -admin_user weblogic";
                     result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+                    moveWDTLogFile(getTestOutputPath(testInfo), "updateDomain.log", "updateDomain-4.log");
 
                     assertEquals(0, result.exitValue(), "Unexpected return code for remote updating domain with new archive");
 
@@ -1062,6 +1072,9 @@ public class ITWdt extends BaseTest {
 
         try (PrintWriter out = getTestMethodWriter(testInfo, "CreateDomain")) {
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+            moveWDTLogFile(getTestOutputPath(testInfo), "createDomain.log", "createDomain-1.log");
+
             assertEquals(0, result.exitValue(), "Unexpected return code");
         }
         Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
@@ -1085,6 +1098,8 @@ public class ITWdt extends BaseTest {
                 domainHome + " -archive_file " + discoveredArchive +
                 " -model_file " + discoveredModelFile + " -variable_file " + getSampleVariableFile();
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+            moveWDTLogFile(getTestOutputPath(testInfo), "createDomain.log", "createDomain-2.log");
 
             verifyResult(result, "createDomain.sh completed successfully");
 
@@ -1542,6 +1557,98 @@ public class ITWdt extends BaseTest {
             throw new Exception("test39OnlineRemoteDeployStructuredAppOutsideArchiveFile failed - cannot bring up server");
         }
     }
+
+    @DisplayName("Test 40: Create domain with versioned app and use online update the redeploy a new version")
+    @Order(40)
+    @Tag("gate")
+    @Test
+    void test40OnlineRedeployVersionedApp(TestInfo testInfo) throws Exception {
+        String domainDir = "domain40";
+        String domainHome = domainParentDir + FS + domainDir;
+        String cmd = createDomainScript
+            + " -oracle_home " + mwhome_12213
+            + " -domain_home " + domainHome
+            + " -model_file " + getSampleModelFile("-versioned-online")
+            + " -variable_file " + getSampleVariableFile()
+            + " -archive_file " + getTargetDir() + FS + "archive40.zip";
+
+        try (PrintWriter out = getTestMethodWriter(testInfo, "CreateDomain")) {
+            CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+            assertEquals(0, result.exitValue(), "Unexpected return code");
+        }
+
+        Path adminServerOut = getTestOutputPath(testInfo).resolve("admin-server.out");
+        boolean isServerUp = startAdminServer(domainHome, adminServerOut);
+        if (isServerUp) {
+            try {
+                try (PrintWriter out = getTestMethodWriter(testInfo, "UpdateDomainSameVersion")) {
+                    cmd = updateDomainScript
+                        + " -oracle_home " + mwhome_12213
+                        + " -model_file " + getSampleModelFile("-versioned-online-redeploy")
+                        + " -variable_file " + getSampleVariableFile()
+                        + " -archive_file " + getTargetDir() + FS + "archive40.zip"
+                        + " -admin_user weblogic -admin_pass welcome1 -admin_url t3://localhost:7001";
+                    CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+                    moveWDTLogFile(getTestOutputPath(testInfo), "updateDomain.log", "updateDomain-1.log");
+
+                    verifyResult(result, "updateDomain.sh completed successfully");
+                }
+
+                try (PrintWriter out = getTestMethodWriter(testInfo, "UpdateDomainRemoteNewVersion")) {
+                    cmd = updateDomainScript
+                        + " -oracle_home " + mwhome_12213
+                        + " -model_file " + getSampleModelFile("-versioned-online-redeploy")
+                        + " -variable_file " + getSampleVariableFile()
+                        + " -archive_file " + getTargetDir() + FS + "archive40-updated.zip"
+                        + " -remote -admin_user weblogic -admin_pass welcome1 -admin_url t3://localhost:7001";
+                    CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+                    moveWDTLogFile(getTestOutputPath(testInfo), "updateDomain.log", "updateDomain-2.log");
+
+                    verifyResult(result, "updateDomain.sh completed successfully");
+                }
+
+                Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
+                Path discoveredModelFile = getTestOutputPath(testInfo).resolve("discoveredModel.yaml");
+                Path discoveredVariableFile = getTestOutputPath(testInfo).resolve("discoveredVariable.properties");
+                cmd = discoverDomainScript + " -oracle_home " + mwhome_12213
+                    + " -model_file " + discoveredModelFile + " -variable_file " + discoveredVariableFile
+                    + " -archive_file " + discoveredArchive
+                    + " -admin_user weblogic -admin_pass welcome1 -admin_url t3://localhost:7001";
+                try (PrintWriter out = getTestMethodWriter(testInfo, "DiscoverDomain")) {
+                    CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+                    verifyResult(result, "discoverDomain.sh completed successfully");
+                }
+
+                try (PrintWriter out = getTestMethodWriter(testInfo, "ArchiveHelperOnDiscoveredArchive")) {
+                    Path archiveExtractDir = getTestOutputPath(testInfo);
+
+                    cmd = archiveHelperScript + " extract all -target " + archiveExtractDir +
+                        " -archive_file " + discoveredArchive;
+                    CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
+
+                    assertEquals(0, result.exitValue(), "Unexpected return code");
+                }
+            } finally {
+                stopAdminServer(domainHome);
+            }
+        } else {
+            // Best effort to clean up server
+            tryKillTheAdminServer(domainHome, "admin-server");
+            throw new Exception("test40OnlineRedeployVersionedApp failed - cannot bring up server");
+        }
+    }
+
+    private void verifyVersionedAppVersion(File archivedAppFile, String version) throws Exception {
+        JarFile warFile = new JarFile(archivedAppFile.getAbsolutePath());
+        Manifest manifest = warFile.getManifest();
+        Attributes attributes = manifest.getAttributes("Weblogic-Application-Version");
+        String archiveVersion = attributes.getValue("Weblogic-Application-Version");
+        assertEquals(version, archiveVersion, "Expected the archive version to match the expected version");
+    }
+
     private void verifyStructuredAppDirectoryStructure(String domainHomeDir) throws Exception {
         verifyStructuredAppDirectoryStructure(domainHomeDir, "Domain Home");
     }
@@ -1729,5 +1836,11 @@ public class ITWdt extends BaseTest {
         result = Runner.run(cmd);
         logger.info("DEBUG: " + cmd + " returns " + result.stdout());
         }
+    }
+
+    private void moveWDTLogFile(Path testDirectory, String originalName, String newName) throws Exception {
+        Path sourceFile = testDirectory.resolve(originalName);
+        Path targetFile = testDirectory.resolve(newName);
+        Files.move(sourceFile, targetFile, StandardCopyOption.REPLACE_EXISTING);
     }
 }

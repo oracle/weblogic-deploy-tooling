@@ -500,10 +500,7 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
 
                 model_src_path = dictionary_utils.get_element(app_dict, SOURCE_PATH)
                 # determine the versioned name of the library from the application's MANIFEST
-                # FIXME - why is from_archive always set to True???
-                versioned_name = \
-                    self.version_helper.get_application_versioned_name(model_src_path, app, from_archive=True)
-
+                versioned_name = self.version_helper.get_application_versioned_name(model_src_path, app)
                 existing_app_ref = dictionary_utils.get_dictionary_element(existing_app_refs, versioned_name)
 
                 # remove deleted targets from the model and the existing app targets
@@ -818,7 +815,6 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
             for deployment_name in deploy_ordered_keys:
                 if not model_helper.is_delete_name(deployment_name):
                     deployment_dict = deployments[deployment_name]
-                    src_path = dictionary_utils.get_element(deployment_dict, SOURCE_PATH)
                     stage_mode = dictionary_utils.get_element(deployment_dict, STAGE_MODE)
                     targets = dictionary_utils.get_element(deployment_dict, TARGET)
 
@@ -833,9 +829,9 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
                             self._fixup_structured_app_plan_file_config_root(deployment_dict)
 
                     model_source_path = dictionary_utils.get_element(deployment_dict, SOURCE_PATH)
+                    source_path = self.__get_online_deployment_path(deployment_name, deployment_type, SOURCE_PATH, model_source_path)
                     combined_plan_path = self._get_combined_model_plan_path(deployment_dict)
-                    deploy_path = self.__get_online_deployment_path(model_source_path)
-                    plan_path = self.__get_online_deployment_path(combined_plan_path)
+                    plan_path = self.__get_online_deployment_path(deployment_name, deployment_type, PLAN_PATH, combined_plan_path)
 
                     location.add_name_token(token_name, deployment_name)
                     resource_group_template_name, resource_group_name, partition_name = \
@@ -843,8 +839,9 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
 
                     module_type = dictionary_utils.get_element(deployment_dict, MODULE_TYPE)
 
-                    new_name = self.__deploy_app_or_library(deployment_name, deploy_path, targets, plan=plan_path,
-                                                            stage_mode=stage_mode, partition=partition_name,
+                    new_name = self.__deploy_app_or_library(deployment_name, model_source_path, source_path, targets,
+                                                            plan=plan_path, stage_mode=stage_mode,
+                                                            partition=partition_name,
                                                             resource_group=resource_group_name,
                                                             resource_group_template=resource_group_template_name,
                                                             module_type=module_type,
@@ -852,22 +849,23 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
                                                             options=options)
 
                     deployed_names.append(new_name)
-                    self._substitute_appmodule_token(src_path, module_type)
+                    self._substitute_appmodule_token(model_source_path, module_type)
 
                     location.remove_name_token(token_name)
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
         return deployed_names
 
-    def __deploy_app_or_library(self, application_name, source_path, targets, stage_mode=None, plan=None, partition=None,
-                                resource_group=None, resource_group_template=None, sub_module_targets=None,
-                                module_type = None, options=None):
+    def __deploy_app_or_library(self, application_name, model_source_path, deploy_source_path, targets, stage_mode=None,
+                                plan=None, partition=None, resource_group=None, resource_group_template=None,
+                                sub_module_targets=None, module_type = None, options=None):
         """
         Deploy an application or shared library in online mode.
         :param application_name: the name of the app or library from the model
-        :param source_path: the source path of the app or library
+        :param model_source_path: the model source path of the app or library
+        :param deploy_source_path: the full source path of the app or library
         :param targets: the intended targets
-        :param plan: optional, the path to the plan
+        :param plan: optional, the full path to the plan file
         :param partition: optional, the partition
         :param resource_group: optional, the resource group
         :param resource_group_template: optional, the resource group template
@@ -887,42 +885,39 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
 
         real_domain_home = self.model_context.get_domain_home()
 
-        if string_utils.is_empty(source_path):
+        if string_utils.is_empty(model_source_path):
             ex = exception_helper.create_deploy_exception('WLSDPLY-09317', type_name, application_name, SOURCE_PATH)
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
-        full_source_path = source_path
-
-        if self.path_helper.is_relative_local_path(full_source_path):
-            full_source_path = self.path_helper.local_join(real_domain_home, source_path)
-
-        if self.path_helper.is_absolute_local_path(full_source_path) and not self.model_context.is_ssh() \
-                and not os.path.exists(full_source_path):
+        if not self.model_context.is_ssh() and self.path_helper.is_absolute_local_path(deploy_source_path) and \
+                not os.path.exists(deploy_source_path):
             ex = exception_helper.create_deploy_exception('WLSDPLY-09318', type_name, application_name,
-                                                          str_helper.to_string(full_source_path))
+                                                          str_helper.to_string(deploy_source_path))
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
         if is_library:
-            computed_name = self.version_helper.get_library_versioned_name(source_path, application_name,
-                                                                           from_archive=(self.model_context.is_remote() or self.model_context.is_ssh()))
+            computed_name = self.version_helper.get_library_versioned_name(model_source_path, application_name)
         else:
-            computed_name = self.version_helper.get_application_versioned_name(source_path, application_name,
-                                                                               module_type=module_type,
-                                                                               from_archive=(self.model_context.is_remote() or self.model_context.is_ssh()))
+            computed_name = self.version_helper.get_application_versioned_name(model_source_path, application_name,
+                                                                               module_type=module_type)
 
         application_name = computed_name
 
         # build the dictionary of named arguments to pass to the deploy_application method
         args = list()
-        kwargs = {'path': str_helper.to_string(full_source_path), 'targets': str_helper.to_string(targets)}
+        kwargs = {'path': str_helper.to_string(deploy_source_path), 'targets': str_helper.to_string(targets)}
+        if options is not None:
+            is_remote = dictionary_utils.get_element(options, 'remote') == 'true'
+        else:
+            is_remote = False
 
         if plan is not None:
             if self.path_helper.is_relative_local_path(plan):
                 plan = self.path_helper.local_join(real_domain_home, plan)
 
-            if not os.path.exists(plan):
+            if not is_remote and not os.path.exists(plan):
                 ex = exception_helper.create_deploy_exception('WLSDPLY-09319', type_name, application_name, plan)
                 self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
@@ -1165,19 +1160,25 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 
-    def __get_online_deployment_path(self, model_path):
+    def __get_online_deployment_path(self, model_name, model_type, attribute_name, attribute_value):
         _method_name = '__get_online_deployment_path'
-        self.logger.entering(model_path, class_name=self._class_name, method_name=_method_name)
+        self.logger.entering(model_name, model_type, attribute_name, attribute_value,
+                             class_name=self._class_name, method_name=_method_name)
 
-        result = model_path
-        if not string_utils.is_empty(model_path):
-            if self.archive_helper and self.archive_helper.is_path_into_archive(model_path):
+        result = attribute_value
+        if not string_utils.is_empty(attribute_value):
+            if self.archive_helper and self.archive_helper.is_path_into_archive(attribute_value):
                 if self.model_context.is_remote():
-                    result = self.path_helper.local_join(self.upload_temporary_dir, model_path)
+                    result = self.path_helper.local_join(self.upload_temporary_dir, attribute_value)
                 elif self.model_context.is_ssh():
-                    result = self.path_helper.remote_join(self.model_context.get_domain_home(), model_path)
+                    result = self.path_helper.remote_join(self.model_context.get_domain_home(), attribute_value)
                 else:
-                    result = self.path_helper.local_join(self.model_context.get_domain_home(), model_path)
+                    result = self.path_helper.local_join(self.model_context.get_domain_home(), attribute_value)
+            elif self.path_helper.is_relative_path(attribute_value):
+                ex = exception_helper.create_deploy_exception('WLSDPLY-09351', model_type, model_name,
+                                                              attribute_name, attribute_value)
+                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
         return result

@@ -37,7 +37,7 @@ class ApplicationsVersionHelper(object):
         self.archive_helper = archive_helper
         self.logger = PlatformLogger('wlsdeploy.deploy')
 
-    def get_library_versioned_name(self, source_path, model_name, from_archive=False):
+    def get_library_versioned_name(self, source_path, model_name):
         """
         Get the proper name of the deployable library that WLST requires in the target domain.  This method is
         primarily needed for shared libraries in the Oracle Home where the implementation version may have
@@ -57,7 +57,7 @@ class ApplicationsVersionHelper(object):
             old_name_tuple = deployer_utils.get_library_name_components(model_name)
             try:
                 versioned_name = old_name_tuple[self._EXTENSION_INDEX]
-                manifest = self.__get_manifest(source_path, from_archive)
+                manifest = self.__get_manifest(source_path)
                 if manifest is not None:
                     attributes = manifest.getMainAttributes()
 
@@ -86,7 +86,7 @@ class ApplicationsVersionHelper(object):
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=versioned_name)
         return versioned_name
 
-    def get_application_versioned_name(self, source_path, model_name, from_archive=False, module_type=None):
+    def get_application_versioned_name(self, source_path, model_name, module_type=None):
         """
         Get the proper name of the deployable application that WLST requires in the target domain.
         This method is needed for the case where the application is explicitly versioned in its ear/war manifest.
@@ -94,18 +94,19 @@ class ApplicationsVersionHelper(object):
         the information from the application's archive file (e.g., war file) and compute the correct name.
         :param source_path: the SourcePath value of the application
         :param model_name: the model name of the application
-        :param from_archive: if True, use the manifest from the archive, otherwise from the file system
+        :param module_type: optional argument to specify the module type being deployed
         :return: the updated application name for the target environment
         :raises: DeployException: if an error occurs
         """
         _method_name = 'get_application_versioned_name'
-        self.logger.entering(source_path, model_name, class_name=self._class_name, method_name=_method_name)
+        self.logger.entering(source_path, model_name, module_type,
+                             class_name=self._class_name, method_name=_method_name)
 
         # if no manifest version is found, leave the original name unchanged
         versioned_name = model_name
         if not self.is_module_type_app_module(module_type) and not string_utils.is_empty(source_path):
             try:
-                manifest = self.__get_manifest(source_path, from_archive)
+                manifest = self.__get_manifest(source_path)
 
                 if manifest is not None:
                     attributes = manifest.getMainAttributes()
@@ -133,12 +134,11 @@ class ApplicationsVersionHelper(object):
         else:
             return False
 
-    def __get_manifest(self, source_path, from_archive):
+    def __get_manifest(self, source_path):
         """
         Returns the manifest object for the specified path.
         The source path may be a jar, or an exploded path.
         :param source_path: the source path to be checked
-        :param from_archive: if True, use the manifest from the archive, otherwise from the file system
         :return: the manifest, or None if it is not present
         :raises: IOException: if there are problems reading an existing manifest
         """
@@ -148,7 +148,7 @@ class ApplicationsVersionHelper(object):
 
         source_path = self.model_context.replace_token_string(source_path)
 
-        if from_archive and deployer_utils.is_path_into_archive(source_path):
+        if deployer_utils.is_path_into_archive(source_path):
             return self.archive_helper.get_manifest(source_path)
 
         else:
