@@ -824,7 +824,7 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
                     self._extract_deployment_from_archive(deployment_name, deployment_type, deployment_dict)
 
                     if deployment_type == APPLICATION:
-                        is_structured_app, _ = self._is_structured_app(deployment_dict)
+                        is_structured_app, _ = self._is_structured_app(deployment_name, deployment_dict)
                         if is_structured_app:
                             self._fixup_structured_app_plan_file_config_root(deployment_dict)
 

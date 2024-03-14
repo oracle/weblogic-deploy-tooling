@@ -26,11 +26,14 @@ from wlsdeploy.aliases.model_constants import PLAN_PATH
 from wlsdeploy.aliases.model_constants import SOURCE_PATH
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
+from wlsdeploy.tool.util import structured_apps_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import path_helper
+from wlsdeploy.util import string_utils
 
 _class_name = 'DeploymentsDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
@@ -442,45 +445,17 @@ class DeploymentsDiscoverer(Discoverer):
         _logger.finer('WLSDPLY-06405', application_name, source_path, plan_dir, plan_path,
                       class_name=_class_name, method_name=_method_name)
 
-        if source_path is None:
+        if string_utils.is_empty(source_path):
             de = exception_helper.create_discover_exception('WLSDPLY-06404', application_name)
             _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
             raise de
-        if plan_path is None:
+        if string_utils.is_empty(plan_path):
             _logger.exiting(class_name=_class_name, method_name=_method_name, result=[False, None])
             return False, None
 
-        if self.path_helper.is_relative_path(source_path):
-            source_path = self.path_helper.join(self._model_context.get_domain_home(), source_path)
-            source_path = self.path_helper.get_canonical_path(source_path)
-
-        source_path_parent = self.path_helper.get_parent_directory(source_path)
-        _logger.finer('WLSDPLY-06406', application_name, source_path_parent,
-                      class_name=_class_name, method_name=_method_name)
-        if source_path_parent is None or \
-                self.path_helper.basename(source_path_parent) != 'app' or \
-                self.path_helper.get_parent_directory(source_path_parent) == source_path_parent:
-            _logger.exiting(class_name=_class_name, method_name=_method_name, result=[False, None])
-            return False, None
-
-        # _get_app_install_root() only needs a path to either the PlanDir or the PlanPath to determine
-        # if this application is a structured app.
-        #
-        if plan_dir is None:
-            if self.path_helper.is_relative_path(plan_path):
-                plan_path = self.path_helper.join(self._model_context.get_domain_home(), plan_path)
-                plan_path = self.path_helper.get_canonical_path(plan_path)
-            effective_plan = plan_path
-        else:
-            if self.path_helper.is_relative_path(plan_dir):
-                plan_dir = self.path_helper.join(self._model_context.get_domain_home(), plan_dir)
-                plan_dir = self.path_helper.get_canonical_path(plan_dir)
-            effective_plan = plan_dir
-
-        install_root_dir = self._get_app_install_root(source_path_parent, effective_plan)
+        install_root_dir = self._get_structured_app_install_root(application_name, source_path, plan_dir, plan_path)
         if install_root_dir is not None:
-            _logger.exiting(class_name=_class_name, method_name=_method_name,
-                            result=[True, install_root_dir])
+            _logger.exiting(class_name=_class_name, method_name=_method_name, result=[True, install_root_dir])
             return True, install_root_dir
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=[False, None])
@@ -671,15 +646,39 @@ class DeploymentsDiscoverer(Discoverer):
             return self.path_helper.get_canonical_path(plan_path, relative_to=relative_to)
         return plan_path
 
-    def _get_app_install_root(self, app_dir, plan_dir):
-        _method_name = '_get_app_install_root'
-        _logger.entering(app_dir, plan_dir, class_name=_class_name, method_name=_method_name)
+    def _get_structured_app_install_root(self, app_name, source_path, plan_dir, plan_path):
+        """
+        This method tries to determine if this is a structured application and if so, returns the
+        install root directory.
 
-        app_install_root = self.path_helper.get_parent_directory(app_dir)
-        if plan_dir.startswith(app_install_root):
-            install_root = app_install_root
+        :param app_name:    The application name
+        :param source_path: The application source path (already validated as not None)
+        :param plan_dir:    The application plan directory, if set
+        :param plan_path:   The application plan path (already validated as not None)
+        :return: The structured application install root directory or None, if it is not a structured application
+        """
+        _method_name = '_get_structured_app_install_root'
+        _logger.entering(app_name, source_path, plan_dir, plan_path,
+                         class_name=_class_name, method_name=_method_name)
+
+        full_source_path = source_path
+        if self.path_helper.is_relative_path(source_path):
+            full_source_path = self.path_helper.join(self._model_context.get_domain_home(), source_path)
+            full_source_path = self.path_helper.get_canonical_path(full_source_path)
+
+        full_plan_path = plan_path
+        if string_utils.is_empty(plan_dir):
+            if self.path_helper.is_relative_path(plan_path):
+                full_plan_path = self.path_helper.join(self._model_context.get_domain_home(), plan_path)
+                full_plan_path = self.path_helper.get_canonical_path(full_plan_path)
         else:
-            install_root = None
+            full_plan_path = self.path_helper.join(plan_dir, plan_path)
+            if self.path_helper.is_relative_path(full_plan_path):
+                full_plan_path = self.path_helper.join(self._model_context.get_domain_home(), full_plan_path)
+                full_plan_path = self.path_helper.get_canonical_path(full_plan_path)
+
+        install_root = structured_apps_helper.get_structured_app_install_root(app_name, full_source_path,
+                                                                              full_plan_path, ExceptionType.DISCOVER)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=install_root)
         return install_root
@@ -694,6 +693,7 @@ class DeploymentsDiscoverer(Discoverer):
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return result
+
 
 def _generate_new_plan_name(binary_path, plan_path):
     """

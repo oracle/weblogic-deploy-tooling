@@ -27,10 +27,12 @@ from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
 from wlsdeploy.aliases.model_constants import SOURCE_PATH
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.deploy.applications_version_helper import ApplicationsVersionHelper
 from wlsdeploy.tool.deploy.deployer import Deployer
 from wlsdeploy.tool.util import appmodule_helper
+from wlsdeploy.tool.util import structured_apps_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model_helper
 from wlsdeploy.util import string_utils
@@ -182,16 +184,17 @@ class ApplicationsDeployer(Deployer):
                         # best effort only...
                         pass
 
-    def _is_structured_app(self, app_dict):
+    def _is_structured_app(self, app_name, app_dict):
         """
         Is the application represented by the dictionary a structured application?  It is the caller's responsibility
         to only call this method for applications and not shared libraries!
 
+        :param app_name: the application name
         :param app_dict: the model dictionary representing the application
         :return: True, structured_app_dir if the application is a structured application; False, None otherwise
         """
         _method_name = 'is_structured_app'
-        self.logger.entering(app_dict, class_name=self._class_name, method_name=_method_name)
+        self.logger.entering(app_name, app_dict, class_name=self._class_name, method_name=_method_name)
 
         result = False
         structured_app_dir = None
@@ -203,7 +206,7 @@ class ApplicationsDeployer(Deployer):
 
             if not result:
                 result, structured_app_dir = \
-                    self.__is_external_structured_app(model_source_path, combined_plan_path)
+                    self.__is_external_structured_app(app_name, model_source_path, combined_plan_path)
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=[result, structured_app_dir])
         return result, structured_app_dir
@@ -328,7 +331,7 @@ class ApplicationsDeployer(Deployer):
             is_structured_app = False
             structured_app_dir = None
             if deployment_type == APPLICATION:
-                is_structured_app, structured_app_dir = self._is_structured_app(deployment_dict)
+                is_structured_app, structured_app_dir = self._is_structured_app(deployment_name, deployment_dict)
 
             if is_structured_app:
                 # is_structured_app() only returns true if both the app and the plan have similar paths.
@@ -515,33 +518,18 @@ class ApplicationsDeployer(Deployer):
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=[result, structured_app_dir])
         return result, structured_app_dir
 
-    def __is_external_structured_app(self, model_source_path, combined_plan_path):
+    def __is_external_structured_app(self, app_name, model_source_path, combined_plan_path):
         _method_name = '__is_external_structured_app'
-        self.logger.entering(model_source_path, combined_plan_path,
+        self.logger.entering(app_name, model_source_path, combined_plan_path,
                              class_name=self._class_name, method_name=_method_name)
 
-        result = False
         structured_app_dir = None
         if not string_utils.is_empty(model_source_path) and not string_utils.is_empty(combined_plan_path) \
                 and not WLSDeployArchive.isPathIntoArchive(model_source_path):
-
-            source_path_to_compare = model_source_path.replace('\\', '/')
-            plan_path_to_compare = combined_plan_path.replace('\\', '/')
-
-            # Try to determine the structured application_directory as best we can.
-            source_path_elements = source_path_to_compare.split('/')
-            app_dir_index = -1
-            for idx, source_path_element in enumerate(source_path_elements):
-                # Search the entire list since the path could include multiple directories named 'app'
-                # and we always want the last one.
-                if source_path_element.lower() == 'app':
-                    app_dir_index = idx
-
-            if app_dir_index > 0:
-                fake_str_app_dir = '/'.join(source_path_elements[0:app_dir_index])
-                if plan_path_to_compare.startswith(fake_str_app_dir + '/'):
-                    result = True
-                    structured_app_dir = model_source_path[0:len(fake_str_app_dir)]
+            structured_app_dir = \
+                structured_apps_helper.get_structured_app_install_root(app_name, model_source_path, combined_plan_path,
+                                                                       ExceptionType.DEPLOY)
+        result = not string_utils.is_empty(structured_app_dir)
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=[result, structured_app_dir])
         return result, structured_app_dir
