@@ -141,7 +141,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>33.0.0-jre</version>
+                <version>33.1.0-jre</version>
             </dependency>
             <dependency>
                 <groupId>javax.xml.bind</groupId>
@@ -187,7 +187,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.6.0</version>
+                    <version>3.7.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -289,7 +289,7 @@
                 <plugin>
                     <groupId>org.sonarsource.scanner.maven</groupId>
                     <artifactId>sonar-maven-plugin</artifactId>
-                    <version>3.10.0.2594</version>
+                    <version>3.11.0.3922</version>
                 </plugin>
                 <plugin>
                     <groupId>com.labun.buildnumber</groupId>
