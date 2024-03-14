@@ -8,7 +8,17 @@
     <language>en-us</language>
     <lastBuildDate>Fri, 22 Feb 2019 15:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Release Notes 3.5.2</title>
+      <title>Release 3.5.3</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.5.3/</link>
+      <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.5.3/</guid>
+      <description>Changes in Release 3.5.3  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes  #1573 - Enhanced the wlsdeploy.debugToStdout system property to also include exception stacktraces when set to true. This will help WebLogic Kubernetes Operator users running into WDT issues to see the details normally hidden in the log files.  Bug Fixes  #1561 - Fixed a NullPointerException when there is missing fields in the RCUDbInfo section.</description>
+    </item>
+    
+    <item>
+      <title>Release 3.5.2</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.5.2/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
       
@@ -18,7 +28,7 @@ Other Changes  #1557 - Added support for provisioning the WebLogic Remote Consol
     </item>
     
     <item>
-      <title>Release Notes 3.5.1</title>
+      <title>Release 3.5.1</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.5.1/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
       
@@ -30,7 +40,7 @@ See https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limit
     </item>
     
     <item>
-      <title>Release Notes 3.5.0</title>
+      <title>Release 3.5.0</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.5.0/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
       
@@ -40,7 +50,7 @@ Other Changes  #1535 - Changed the timing for extracting the archive file&amp;rs
     </item>
     
     <item>
-      <title>Release Notes 3.4.0</title>
+      <title>Release 3.4.0</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.4.0/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
       
@@ -50,7 +60,7 @@ Other Changes  #1521 - Added alias changes to accommodate October 2023 PSUs for 
     </item>
     
     <item>
-      <title>Release Notes 3.3.0</title>
+      <title>Release 3.3.0</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.3.0/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
       
@@ -60,7 +70,7 @@ Other Changes  #1517 - Added a postCreateRcuSchemasScript element to the typedef
     </item>
     
     <item>
-      <title>Release Notes 3.2.6</title>
+      <title>Release 3.2.6</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.6/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
       
@@ -70,7 +80,7 @@ Other Changes  #1514 - Added the ability to disable the RCU drop schema step whe
     </item>
     
     <item>
-      <title>Release Notes 3.2.5</title>
+      <title>Release 3.2.5</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.5/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
       
@@ -81,7 +91,7 @@ Bug Fixes #1506 - Fixed an issue with online discovery of the JMS ErrorDestinati
     </item>
     
     <item>
-      <title>Release Notes 3.2.4</title>
+      <title>Release 3.2.4</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.4/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
       
@@ -92,7 +102,7 @@ Known Issues </description>
     </item>
     
     <item>
-      <title>Release Notes 3.2.3</title>
+      <title>Release 3.2.3</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.3/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
       
@@ -102,7 +112,7 @@ Other Changes  #1496 - Added a post-createDomain script element to the typedef f
     </item>
     
     <item>
-      <title>Release Notes 3.2.2</title>
+      <title>Release 3.2.2</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.2/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
       
@@ -112,7 +122,7 @@ Other Changes  #1475 - Added support for upcoming SAML2 data initialization file
     </item>
     
     <item>
-      <title>Release Notes 3.2.1</title>
+      <title>Release 3.2.1</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.1/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
       
@@ -122,7 +132,7 @@ Other Changes  #1465 - Initial, limited i18n translation bundles added.  Bug Fix
     </item>
     
     <item>
-      <title>Release Notes 3.2.0</title>
+      <title>Release 3.2.0</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.0/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
       
@@ -132,7 +142,7 @@ Other Changes  #1450 - Added alias updates for April 2023 PSUs for 12.2.1.3, 12.
     </item>
     
     <item>
-      <title>Release Notes 3.1.0</title>
+      <title>Release 3.1.0</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.1.0/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
       
@@ -153,7 +163,7 @@ Bug Fixes  #1422: Fixed a bug in online discovery of the Cluster attribute of Se
     </item>
     
     <item>
-      <title>Release Notes 3.0.3</title>
+      <title>Release 3.0.3</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.0.3/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
       
@@ -164,7 +174,7 @@ Bug Fixes  #1412: Fixed a bug in the Prepare Model integration with WKTUI. #1413
     </item>
     
     <item>
-      <title>Release Notes 3.0.2</title>
+      <title>Release 3.0.2</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.0.2/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
       

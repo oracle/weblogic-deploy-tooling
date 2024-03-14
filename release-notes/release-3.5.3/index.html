@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Model filters :: WebLogic Deploy Tooling</title>
+    <title>Release 3.5.3 :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1710416983" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/userguide/tools-config/model_filters/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-3.5.3/">
     <nav id="sidebar" class="">
 
 
@@ -170,7 +170,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/" title="User Guide" class="dd-item
-        parent
+        
         
         
         ">
@@ -550,7 +550,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/" title="Tools configuration" class="dd-item
-        parent
+        
         
         
         ">
@@ -576,7 +576,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/model_filters/" title="Model filters" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/model_filters/" title="Model filters" class="dd-item ">
         <a href="/weblogic-deploy-tooling/userguide/tools-config/model_filters/">
         Model filters
         
@@ -1186,7 +1186,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
-        
+        parent
         
         
         ">
@@ -1212,7 +1212,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.5.3/" title="Release 3.5.3" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.5.3/" title="Release 3.5.3" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-3.5.3/">
         <b> </b>Release 3.5.3
         
@@ -1766,13 +1766,7 @@
             
           
           
-            
-            
-          
-          
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/userguide/'>User Guide</a> > <a href='/weblogic-deploy-tooling/userguide/tools-config/'>Tools configuration</a> > Model filters
-          
-        
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release 3.5.3
           
         
           
@@ -1789,7 +1783,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#internal-filters">Internal Filters</a></li>
+        <li><a href="#changes-in-release-353">Changes in Release 3.5.3</a></li>
       </ul>
     </li>
   </ul>
@@ -1809,56 +1803,39 @@
           
             <h1>
               
-              Model filters
+              Release 3.5.3
             </h1>
           
 
         
 
 
-<p>WebLogic Deploy Tooling supports the use of model filters to manipulate the domain model. The Create Domain, Update Domain, and Deploy Applications Tools apply filters to the model after it is read, before it is validated and applied to the domain. The Discover Domain Tool applies filters to the model after it has been discovered, before the model is validated and written.</p>
-<p>Model filters are written in Jython, and must be compatible with the version used in the corresponding version of WLST. A filter must implement the method <code>filter_model(model)</code>, which accepts as a single argument the domain model as a Jython dictionary. This method can make any adjustments to the domain model that are required. Filters can be stored in any directory, as long as they can be accessed by WebLogic Deploy Tooling.</p>
-<p>The following filter example (<code>fix-password.py</code>) sets the password for two attributes in the <code>SecurityConfiguration</code> WLST folder.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">filter_model</span>(model):
-   <span style="color:#66d9ef">if</span> model <span style="color:#f92672">and</span> <span style="color:#e6db74">&#39;topology&#39;</span> <span style="color:#f92672">in</span> model:
-       <span style="color:#66d9ef">if</span> <span style="color:#e6db74">&#39;SecurityConfiguration&#39;</span> <span style="color:#f92672">in</span> model[<span style="color:#e6db74">&#39;topology&#39;</span>]:
-           model[<span style="color:#e6db74">&#39;topology&#39;</span>][<span style="color:#e6db74">&#39;SecurityConfiguration&#39;</span>][<span style="color:#e6db74">&#39;CredentialEncrypted&#39;</span>] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;welcome1&#39;</span>
-           model[<span style="color:#e6db74">&#39;topology&#39;</span>][<span style="color:#e6db74">&#39;SecurityConfiguration&#39;</span>][<span style="color:#e6db74">&#39;NodeManagerPasswordEncrypted&#39;</span>] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;welcome1&#39;</span>
-           <span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#39;Replaced SecurityConfiguration password&#39;</span>
-       <span style="color:#66d9ef">else</span>:
-           <span style="color:#66d9ef">print</span> <span style="color:#e6db74">&#39;SecurityConfiguration not in the model&#39;</span>
-</code></pre></div><p>Model filters are configured by creating a <code>model_filters.json</code> file in the <code>WLSDEPLOY_HOME/lib</code> directory. This file has separate sections for filters to be applied for specific tools.</p>
-<p>Another option is to configure model filters in a <a href="/weblogic-deploy-tooling/userguide/tools-config/custom_config/">Custom configuration</a> directory. Create the <code>model_filters.json</code> file in the <code>$WDT_CUSTOM_CONFIG</code> directory.</p>
-<p>This example configures two filters for the Create Domain Tool: <code>fix-password.py</code> and <code>no-mail.py</code>, and one filter for the Discover Domain tool.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
-  <span style="color:#f92672">&#34;create&#34;</span>: [
-    { <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;fixPassword&#34;</span>, <span style="color:#f92672">&#34;path&#34;</span>: <span style="color:#e6db74">&#34;/home/user/fix-password.py&#34;</span> },
-    { <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;noMail&#34;</span>, <span style="color:#f92672">&#34;path&#34;</span>: <span style="color:#e6db74">&#34;/home/user/no-mail.py&#34;</span> }
-  ],
-  <span style="color:#f92672">&#34;deploy&#34;</span>: [
-  ],
-  <span style="color:#f92672">&#34;discover&#34;</span>: [
-    { <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;noMail&#34;</span>, <span style="color:#f92672">&#34;path&#34;</span>: <span style="color:#e6db74">&#34;/home/user/no-mail.py&#34;</span> }
-  ],
-  <span style="color:#f92672">&#34;update&#34;</span>: [
-  ]
-}
-</code></pre></div><h3 id="internal-filters">Internal Filters</h3>
-<p>Internal filters are provided by WebLogic Deploy Tooling to perform modifications to the domain model. They are referenced by ID in the target configuration file. This example shows the use of the internal filter <code>wko_filter</code> and a user-defined filter <code>fix-password</code> for use with the Create Domain Tool.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
-  <span style="color:#f92672">&#34;create&#34;</span>: [
-    { <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;fixPassword&#34;</span>, <span style="color:#f92672">&#34;path&#34;</span>: <span style="color:#e6db74">&#34;/home/user/fix-password.py&#34;</span> },
-    { <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;wko_filter&#34;</span> }
-  ]
-}
-</code></pre></div><p>Internal filters cannot be copied or modified like other types of filters.</p>
-<h4 id="internal-filter-wko_filter">Internal filter <code>wko_filter</code></h4>
-<p>This filter prepares the domain model for use with WebLogic Kubernetes Operator. It performs the following modifications:</p>
+<h3 id="changes-in-release-353">Changes in Release 3.5.3</h3>
 <ul>
-<li>Removes any attributes that can only be deployed in online mode</li>
-<li>Sets the <code>CalculatedListenPorts</code> attribute to false for dynamic clusters</li>
-<li>Warns if servers in a static cluster have different listen ports</li>
+<li><a href="#major-new-features">Major New Features</a></li>
+<li><a href="#other-changes">Other Changes</a></li>
+<li><a href="#bug-fixes">Bugs Fixes</a></li>
+<li><a href="#known-issues">Known Issues</a></li>
 </ul>
+<h4 id="major-new-features">Major New Features</h4>
+<p>None</p>
+<h4 id="other-changes">Other Changes</h4>
+<ul>
+<li>#1573 - Enhanced the <code>wlsdeploy.debugToStdout</code> system property to also include exception stacktraces when set to <code>true</code>.
+This will help WebLogic Kubernetes Operator users running into WDT issues to see the details normally hidden in
+the log files.</li>
+</ul>
+<h4 id="bug-fixes">Bug Fixes</h4>
+<ul>
+<li>#1561 - Fixed a NullPointerException when there is missing fields in the <code>RCUDbInfo</code> section.</li>
+<li>#1590 - Fixed an issue with the <code>ServiceProviderSingleLogoutRedirectUri</code> attribute in the October 2023 PSUs for
+12.2.1.4 and 14.1.1 that was causing an error.</li>
+<li>#1590 - Fixed an issue with exception creation in 14.1.1 that was causing error messages not to be properly populated
+due to Jython 2.7.1 vararg method binding being broken.</li>
+</ul>
+<h4 id="known-issues">Known Issues</h4>
+<p>None</p>
+<p>See <a href="https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/">https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/</a> for the current set of known limitations.</p>
 
 
 <footer class="footline">
@@ -1947,7 +1924,6 @@
             
                 
                     
-                    
                 
                 
 
@@ -1962,9 +1938,6 @@
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2222,7 +2195,6 @@
             
                 
                     
-                    
                 
                 
 
@@ -2235,7 +2207,6 @@
             
             
                 
-                    
                     
                 
                 
@@ -2252,9 +2223,6 @@
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2678,6 +2646,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -2690,6 +2659,7 @@
             
             
                 
+                    
                     
                 
                 
@@ -2706,6 +2676,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -3082,10 +3055,10 @@
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/userguide/tools-config/" title="Tools configuration"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/tools-config/domain_def/" title="Domain type definitions" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-3.5.2/" title="Release 3.5.2" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

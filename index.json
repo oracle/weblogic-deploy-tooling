@@ -340,95 +340,102 @@
 	"title": "Release Notes",
 	"tags": [],
 	"description": "",
+	"content": "Changes in Release 3.5.4  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes  #1600 - Added alias updates to support the Jan 2024 PSUs.  Bug Fixes  #1607 - Fixed an issue with assigning groups to parent groups. #1620 - Fixed an issue that caused an attribute with the WLST value none to be interpreted as a Python None. #1635 - Fixed an issue with the ResourceManagement attribute in WebLogic Server 14.1.1 and higher.  Known Issues None\nSee https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/ for the current set of known limitations.\n"
+},
+{
+	"uri": "https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.5.3/",
+	"title": "Release 3.5.3",
+	"tags": [],
+	"description": "",
 	"content": "Changes in Release 3.5.3  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes  #1573 - Enhanced the wlsdeploy.debugToStdout system property to also include exception stacktraces when set to true. This will help WebLogic Kubernetes Operator users running into WDT issues to see the details normally hidden in the log files.  Bug Fixes  #1561 - Fixed a NullPointerException when there is missing fields in the RCUDbInfo section. #1590 - Fixed an issue with the ServiceProviderSingleLogoutRedirectUri attribute in the October 2023 PSUs for 12.2.1.4 and 14.1.1 that was causing an error. #1590 - Fixed an issue with exception creation in 14.1.1 that was causing error messages not to be properly populated due to Jython 2.7.1 vararg method binding being broken.  Known Issues None\nSee https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/ for the current set of known limitations.\n"
 },
 {
 	"uri": "https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.5.2/",
-	"title": "Release Notes 3.5.2",
+	"title": "Release 3.5.2",
 	"tags": [],
 	"description": "",
 	"content": "Changes in Release 3.5.2  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes  #1557 - Added support for provisioning the WebLogic Remote Console domain extension WAR file.  Bug Fixes  #1547 - Fixed a bug with password validation causing a NullPointerException when the domainInfo section was missing from the model. #1554 - Fixed a problem where the Discover Domain tool would hang when running in online mode and an edit lock exists.  Known Issues None\nSee https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/ for the current set of known limitations.\n"
 },
 {
 	"uri": "https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.5.1/",
-	"title": "Release Notes 3.5.1",
+	"title": "Release 3.5.1",
 	"tags": [],
 	"description": "",
 	"content": "Changes in Release 3.5.1  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes None\nBug Fixes  #1542 - Fixed a Prepare Model issue related to the new password validation feature introduced in 3.5.0.  Known Issues None\nSee https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/ for the current set of known limitations.\n"
 },
 {
 	"uri": "https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.5.0/",
-	"title": "Release Notes 3.5.0",
+	"title": "Release 3.5.0",
 	"tags": [],
 	"description": "",
 	"content": "Changes in Release 3.5.0  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes  #1535 - Changed the timing for extracting the archive file\u0026rsquo;s custom folder to support storing custom WebLogic Server security provider JAR files (GitHub issue #1512). #1537, #1539 - Cleaned up user password validation and extended it to support customizing the default settings using the model\u0026rsquo;s SystemPasswordValidator settings, if present. See https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/create/#user-password-validation for details (GitHub issue #1510).  Bug Fixes  #1538 - Fixed online discovery of Coherence Cache Config files if the fix for Bug 35969096 is present.  Known Issues  Prepare Model fails if the model contains tokenized passwords.  See https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/ for the current set of known limitations.\n"
 },
 {
 	"uri": "https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.4.0/",
-	"title": "Release Notes 3.4.0",
+	"title": "Release 3.4.0",
 	"tags": [],
 	"description": "",
 	"content": "Changes in Release 3.4.0  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes  #1521 - Added alias changes to accommodate October 2023 PSUs for WebLogic Server versions 12.2.1.4 and 14.1.1. #1525 - Added missing MBeans to better support the WebLogic Remote Console. #1527 - Added missing Security Provider attributes to better support the WebLogic Remote Console. #1530 - Refactored the handling of Coherence Custom Cluster and Cache Config files to correct the behavior and expand online update and discover capabilities. One side effect is that the Discover Domain tool when run in online mode will generate warnings and skip discovery of Coherence Cache Config folders. This is due to a shortcoming in WebLogic Server\u0026rsquo;s Coherence configuration support that is tracked by Bug 35969096.  Bug Fixes  #1522 - Fixed issues related to unicode handling that were causing errors processing typedef files. #1526 - Fixed an issue that was preventing custom typedefs from working properly (WDT-771/GitHub Issue #1506). #1528 - Fixed an issue that was causing the standalone Validate Model tool to write credentials to the log with certain models. Fixed an issue that was causing log level escalation (WDT-783). #1529 - Fixed an issue for boolean attributes with null default values. This issue was causing Discover Domain to incorrectly treat attributes whose values were False to be omitted from the discovered model.  Known Issues None\nSee https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/ for the current set of known limitations.\n"
 },
 {
 	"uri": "https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.3.0/",
-	"title": "Release Notes 3.3.0",
+	"title": "Release 3.3.0",
 	"tags": [],
 	"description": "",
 	"content": "Changes in Release 3.3.0  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes  #1517 - Added a postCreateRcuSchemasScript element to the typedef file definitions to accommodate extra schema patching work required for Oracle Identity Governance domain creation. #1519 - Added rcu_admin_user field to the domainInfo:/RCUDbInfo section to replace rcu_db_user, which is now deprecated and will be removed in a future release. This field is optional and will default to the appropriate admin user name: admin when using an ATP database and SYS otherwise.  Bug Fixes  #1518 - Fixed an issue when using an ATP database as the RCU schema repository that was causing config/fmwconfig/jps-config.xml to contain a clear text password after JRF domain creation.  Known Issues None\nSee https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/ for the current set of known limitations.\n"
 },
 {
 	"uri": "https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.6/",
-	"title": "Release Notes 3.2.6",
+	"title": "Release 3.2.6",
 	"tags": [],
 	"description": "",
 	"content": "Changes in Release 3.2.6  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes  #1514 - Added the ability to disable the RCU drop schema step when running Create Domain with -run_rcu.  Bug Fixes  #1511 - Fixed an error message to make it more helpful. #1513 - Fixed issues with sparse RCU Data Source template merging when creating JRF domains.  Known Issues None\nSee https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/ for the current set of known limitations.\n"
 },
 {
 	"uri": "https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.5/",
-	"title": "Release Notes 3.2.5",
+	"title": "Release 3.2.5",
 	"tags": [],
 	"description": "",
 	"content": "Changes in Release 3.2.5  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes None\nBug Fixes #1506 - Fixed an issue with online discovery of the JMS ErrorDestination attribute (GitHub #1494). #1507 - Added documentation for the WDT Discover Domain tool\u0026rsquo;s limitation regarding users and groups in the DefaultAuthenticator (GitHub #1493). #1508 - Fixed an issue with Update Domain that was causing the Oracle JDBC driver to throw FileNotFoundException when using a JRF domain with an ATP database. #1509 - Fixed an issue with online discovery of custom security providers that caused the implementation class name to be added to the model instead of the interface class name (GitHub #1495).\nKnown Issues None\nSee https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/ for the current set of known limitations.\n"
 },
 {
 	"uri": "https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.4/",
-	"title": "Release Notes 3.2.4",
+	"title": "Release 3.2.4",
 	"tags": [],
 	"description": "",
 	"content": "Changes in Release 3.2.4  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes  #1503 - Added the EnableJMSStoreDBPersistence and EnableJTATLogDBPersistence attributes to domainInfo, which allow JRF domains to automatically convert template-defined JMS and JTA stores from File stores to Database stores during domain creation. This feature was added in support of Oracle Identity Governance domain creation.  Bug Fixes None\nKnown Issues "
 },
 {
 	"uri": "https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.3/",
-	"title": "Release Notes 3.2.3",
+	"title": "Release 3.2.3",
 	"tags": [],
 	"description": "",
 	"content": "Changes in Release 3.2.3  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes  #1496 - Added a post-createDomain script element to the typedef file definitions to accommodate extra offline work required for Oracle Identity Governance domain creation. #1499 - Added updated translation bundle files.  Bug Fixes  #1486 - Fixed JSON parser issue in handling escaped newlines. #1488 - Worked around a Jython 2.2.1 issue where environment variables with a newline in their value caused remaining environment variable values to not be visible from Jython. #1490 - Fixed an issue with deprecation logging statements to ensure that the class and method names were logged properly. #1494 - Changed the language for some logging/error messages to make them clearer. #1495 - Reworded several log messages that were confusing to users and difficult to translate. #1497 - Fixed sh-based shell scripts to work properly on Solaris 10.x Bourne shell #1498 - Corrected the error message for a deploy-related error.  Known Issues "
 },
 {
 	"uri": "https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.2/",
-	"title": "Release Notes 3.2.2",
+	"title": "Release 3.2.2",
 	"tags": [],
 	"description": "",
 	"content": "Changes in Release 3.2.2  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes  #1475 - Added support for upcoming SAML2 data initialization files in the archive file. #1476 - Added support for upcoming SAML2 data initialization files in the Discover Domain, Create Domain, and Update Domain tools.  Bug Fixes  #1482 - Fixed an issue related to secret naming that was causing the generated secret names to overlap in locations with multiple credential or password fields. #1483 - Filtered out the OPSSSecrets field in the domainInfo section of the model when targeting WebLogic Kubernetes Operator or Verrazzano MII and PV targets. #1484 - Fixed aliases for the 12.2.1.4 and 14.1.1 July 2023 PSU versions.  Known Issues "
 },
 {
 	"uri": "https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.1/",
-	"title": "Release Notes 3.2.1",
+	"title": "Release 3.2.1",
 	"tags": [],
 	"description": "",
 	"content": "Changes in Release 3.2.1  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes  #1465 - Initial, limited i18n translation bundles added.  Bug Fixes  #1466 - Updated Server and ServerTemplate aliases to add new 14.1.2 offline attributes. #1467 - Updated CoherenceSystemResource aliases to add new 14.1.2 SecuredProduction online attribute. #1468 - Fixed an error related to tool initialization with WebLogic Server versions earlier than 12.2.1 (Issue #1466). #1469 - Corrected method names used for logging so that they are the same as the actual method name in which they are being used. #1470 - Fixed system-test test 35 to allow it to succeed when run on machines other than the Jenkins agents. #1471 - Fixed a discoverDomain issue that was causing errors while looking for SecureMode on WebLogic Server versions earlier than 12.2.1.1 (Issue #1467).  Known Issues "
 },
 {
 	"uri": "https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.0/",
-	"title": "Release Notes 3.2.0",
+	"title": "Release 3.2.0",
 	"tags": [],
 	"description": "",
 	"content": "Changes in Release 3.2.0  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes  #1450 - Added alias updates for April 2023 PSUs for 12.2.1.3, 12.2.1.4, and 14.1.1. #1454 - Added aliases for new fields introduced 14.1.2. #1457 - Deprecated system-elements section of typedef files and replaced it with a new discover-filters section that supports filtering named elements in most top-level folders. #1458 - Updated Model and Archive documentation to reflect the current state of the code.  Bug Fixes  #1459 - Fixed a type conversion issues for properties entries where boolean and integers were not being properly converted to strings in 14.1.1 and newer.  Known Issues "
 },
 {
 	"uri": "https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.1.0/",
-	"title": "Release Notes 3.1.0",
+	"title": "Release 3.1.0",
 	"tags": [],
 	"description": "",
 	"content": "Changes in Release 3.1.0  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes  #1431 - Added new OPSSInitialization section to domainInfo in order to support ODI and OIG domain creation. #1432 - Added database connectivity check to validate RCU database connection details prior to creating a domain using RCU schemas when not running RCU. #1434 - Added JSON output of restart and non-dynamic change information (#1154) #1438 - Deprecated the use of all RCU-related arguments that provide database connectivity information with the Create Domain tool.  Bug Fixes  #1428 - Added command-line usage for OPSS Wallet related arguments to Create Domain. Enhanced the documentation to describe how to use the OPSS Wallet to recreate a domain that connects to existing RCU schemas. #1429 - Updated Discover Domain -target argument usage. Updated the documentation related to -target to reflect recent changes. #1436 - Fixed an issue with deleting machines created by a template. #1437 - Fixed offline discovery issues when discovering domains that have used slashes in their object names (e.g., SOA Suite) #1438 - Fixed issues where Create Domain RCU-related command-line arguments were not override model-supplied values. #1439 - Worked around a discovery issue for domains with the Trust Service Identity Asserter when the Oracle Home has not been patched to contain the security provider\u0026rsquo;s schema JAR file.  Known Issues "
@@ -442,14 +449,14 @@
 },
 {
 	"uri": "https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.0.3/",
-	"title": "Release Notes 3.0.3",
+	"title": "Release 3.0.3",
 	"tags": [],
 	"description": "",
 	"content": "Changes in Release 3.0.3  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes None\nBug Fixes  #1412: Fixed a bug in the Prepare Model integration with WKTUI. #1413: Fixed a number of internationalization message-related issues. #1414: Fixed a bug with wallet collection during discovery of a Proxy data source. #1416: Fixed a bug in the handling of mail session properties with credentials that was causing a Jython AttributeError (Issue #1415). #1419: Fixed open issue from previous releases regarding wlst attribute not defined errors in online remote discovery. #1420: Fixed a bug where a trailing slash on an application SourcePath would cause a empty ZIP file error.  Known Issues "
 },
 {
 	"uri": "https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.0.2/",
-	"title": "Release Notes 3.0.2",
+	"title": "Release 3.0.2",
 	"tags": [],
 	"description": "",
 	"content": "Changes in Release 3.0.2  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None\nOther Changes None\nBug Fixes  #1405: Corrected some issues with the Windows shell scripts where they were not properly handling paths with spaces. #1409: Corrected a bug where a wallet deprecation message was still being logged as a warning. #1411: Corrected a bug where wallet extraction handling with multiple archive files was happening in the wrong order.  Known Issues  When running discoverDomain with the -remote flag, there are several MBeans that are not being properly handled that will result in INFO level messages that look similar to the example shown below. These errors seem to happen only when the MBean is non-existent so the resulting model should still be accurate. These issues are expected to be fixed in a future release.  ####\u0026lt;Feb 16, 2023 1:40:00 PM\u0026gt; \u0026lt;INFO\u0026gt; \u0026lt;Discoverer\u0026gt; \u0026lt;_add_to_dictionary\u0026gt; \u0026lt;WLSDPLY-06106\u0026gt; \u0026lt;Unable to add ServerFailureTrigger from location /Clusters/mycluster/OverloadProtection/mycluster to the model : Failed to convert the wlst attribute name and value for the model at location (model_folders = ['Cluster', 'OverloadProtection'], 'name_tokens' = {'DOMAIN': 'tododomain', 'CLUSTER': 'mycluster','OVERLOADPROTECTION': 'mycluster'}) : The wlst attribute ServerFailureTrigger is not defined for the model folder /Cluster/OverloadProtection\u0026gt; "
