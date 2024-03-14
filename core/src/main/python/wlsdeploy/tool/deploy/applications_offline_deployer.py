@@ -128,7 +128,7 @@ class OfflineApplicationsDeployer(ApplicationsDeployer):
                 self._set_attributes_and_add_subfolders(application_location, application)
 
                 self._substitute_appmodule_token(app_source_path, module_type)
-                is_structured_app, __ = self._is_structured_app(application)
+                is_structured_app, __ = self._is_structured_app(application_name, application)
                 if is_structured_app:
                     self._fixup_structured_app_plan_file_config_root(application)
 
