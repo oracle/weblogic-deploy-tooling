@@ -28,11 +28,11 @@ topology:
       ListenPort: '@@PROP:MANAGED_SERVER_PORT@@'
 appDeployments:
   Application:
-    OtdApp:
-      SourcePath: wlsdeploy/structuredApplications/OtdApp/app/OtdApp.war
-      PlanDir: wlsdeploy/structuredApplications/OtdApp/plan
+    MyWebServicesApp:
+      SourcePath: wlsdeploy/structuredApplications/MyWebServicesApp/app/MyWebServicesApp.war
+      PlanDir: wlsdeploy/structuredApplications/MyWebServicesApp/plan
       PlanPath: Plan.xml
-      Target: '@@PROP:CLUSTER_NAME@@'
+      Target: '@@PROP:ADMIN_NAME@@,@@PROP:CLUSTER_NAME@@'
       ModuleType: war
       StagingMode: nostage
       PlanStagingMode: nostage

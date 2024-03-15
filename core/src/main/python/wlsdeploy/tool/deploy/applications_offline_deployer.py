@@ -130,7 +130,7 @@ class OfflineApplicationsDeployer(ApplicationsDeployer):
                 self._substitute_appmodule_token(app_source_path, module_type)
                 is_structured_app, __ = self._is_structured_app(application_name, application)
                 if is_structured_app:
-                    self._fixup_structured_app_plan_file_config_root(application)
+                    self._fixup_structured_app_plan_file_config_root(application_name, application)
 
                 application_location.remove_name_token(application_token)
         else:

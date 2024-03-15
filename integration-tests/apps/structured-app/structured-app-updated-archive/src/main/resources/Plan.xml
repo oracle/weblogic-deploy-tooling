@@ -3,23 +3,28 @@
     Copyright (c) 2024, Oracle Corporation and/or its affiliates.  All rights reserved.
     The Universal Permissive License (UPL), Version 1.0
 -->
-<deployment-plan xmlns="http://xmlns.oracle.com/weblogic/deployment-plan" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.oracle.com/weblogic/deployment-plan http://xmlns.oracle.com/weblogic/deployment-plan/1.0/deployment-plan.xsd">
-  <application-name>OtdApp.war</application-name>
+<deployment-plan xmlns="http://xmlns.oracle.com/weblogic/deployment-plan"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://xmlns.oracle.com/weblogic/deployment-plan http://xmlns.oracle.com/weblogic/deployment-plan/1.0/deployment-plan.xsd"
+                 global-variables="false">
+  <application-name>MyWebServicesApp.war</application-name>
+  <variable-definition>
+    <variable>
+      <name>my_env_value</name>
+      <value>"new"</value>
+    </variable>
+  </variable-definition>
   <module-override>
-    <module-name>OtdApp.war</module-name>
+    <module-name>MyWebServicesApp.war</module-name>
     <module-type>war</module-type>
-    <module-descriptor external="true">
-      <root-element>weblogic-web-app</root-element>
-      <uri>WEB-INF/weblogic.xml</uri>
-    </module-descriptor>
     <module-descriptor external="false">
       <root-element>web-app</root-element>
       <uri>WEB-INF/web.xml</uri>
-    </module-descriptor>
-    <module-descriptor external="true">
-      <root-element>wldf-resource</root-element>
-      <uri>META-INF/weblogic-diagnostics.xml</uri>
+      <variable-assignment>
+        <name>my_env_value</name>
+        <xpath>/web-app/env-entry/[env-entry-name="myValue"]/env-entry-value</xpath>
+        <operation>replace</operation>
+      </variable-assignment>
     </module-descriptor>
   </module-override>
-  <config-root>wlsdeploy/structuredApplications/OtdApp/plan</config-root>
 </deployment-plan>

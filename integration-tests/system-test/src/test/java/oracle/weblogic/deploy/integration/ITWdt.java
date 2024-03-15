@@ -5,12 +5,16 @@
 
 package oracle.weblogic.deploy.integration;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -49,6 +53,10 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 public class ITWdt extends BaseTest {
     @TestingLogger
     private static final Logger logger = Logger.getLogger("integration.tests");
+
+    private static final String BASE_REST_URL = "http://localhost:7001/MyWebServicesApp/api/test";
+    private static final String REST_PLAN_URL_STRING = BASE_REST_URL + "/plan";
+    private static final String REST_OVERRIDES_URL_TEMPLATE = BASE_REST_URL + "/overrides/%s/property1";
 
     private static boolean rcuDomainCreated = false;
 
@@ -1323,7 +1331,7 @@ public class ITWdt extends BaseTest {
         try (PrintWriter out = getTestMethodWriter(testInfo, "ArchiveHelperOnDiscoveredArchive")) {
             Path archiveExtractDir = getTestOutputPath(testInfo);
 
-            cmd = archiveHelperScript + " extract structuredApplication -name OtdApp " +
+            cmd = archiveHelperScript + " extract structuredApplication -name MyWebServicesApp " +
                 " -target " + archiveExtractDir + " -archive_file " + discoveredArchive;
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
@@ -1367,6 +1375,7 @@ public class ITWdt extends BaseTest {
                     verifyResult(result, "updateDomain.sh completed successfully");
 
                     verifyStructuredAppDirectoryStructure(domainHome);
+                    verifyStructuredAppIsWorking("ConfigOverrides.properties", "updated");
                 }
 
                 Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
@@ -1385,7 +1394,7 @@ public class ITWdt extends BaseTest {
                 try (PrintWriter out = getTestMethodWriter(testInfo, "ArchiveHelperOnDiscoveredArchive")) {
                     Path archiveExtractDir = getTestOutputPath(testInfo);
 
-                    cmd = archiveHelperScript + " extract structuredApplication -name OtdApp " +
+                    cmd = archiveHelperScript + " extract structuredApplication -name MyWebServicesApp " +
                         " -target " + archiveExtractDir + " -archive_file " + discoveredArchive;
                     CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
@@ -1428,6 +1437,8 @@ public class ITWdt extends BaseTest {
         boolean isServerUp = startAdminServer(domainHome, adminServerOut);
         if (isServerUp) {
             try {
+                verifyStructuredAppIsWorking("ConfigOverrides.properties", "updated");
+
                 try (PrintWriter out = getTestMethodWriter(testInfo, "UpdateDomain")) {
                     cmd = updateDomainScript
                         + " -oracle_home " + mwhome_12213
@@ -1440,6 +1451,8 @@ public class ITWdt extends BaseTest {
 
                     verifyStructuredAppDirectoryStructure(domainHome, "Domain Home", "OverridesConfig.properties",
                         "ConfigOverrides.properties");
+
+                    verifyStructuredAppIsWorking("OverridesConfig.properties", "new");
                 }
 
                 Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
@@ -1458,7 +1471,7 @@ public class ITWdt extends BaseTest {
                 try (PrintWriter out = getTestMethodWriter(testInfo, "ArchiveHelperOnDiscoveredArchive")) {
                     Path archiveExtractDir = getTestOutputPath(testInfo);
 
-                    cmd = archiveHelperScript + " extract structuredApplication -name OtdApp " +
+                    cmd = archiveHelperScript + " extract structuredApplication -name MyWebServicesApp " +
                         " -target " + archiveExtractDir + " -archive_file " + discoveredArchive;
                     CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
@@ -1488,7 +1501,7 @@ public class ITWdt extends BaseTest {
         try (PrintWriter out = getTestMethodWriter(testInfo, "ArchiveHelperExtractAppFromArchive")) {
             Path archiveExtractDir = getTestOutputPath(testInfo);
 
-            cmd = archiveHelperScript + " extract structuredApplication -name OtdApp " +
+            cmd = archiveHelperScript + " extract structuredApplication -name MyWebServicesApp " +
                 " -target " + archiveExtractDir + " -archive_file " + archiveToExplode;
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result.exitValue(), "Unexpected return code");
@@ -1519,6 +1532,8 @@ public class ITWdt extends BaseTest {
                         + " -remote -admin_user weblogic -admin_pass welcome1 -admin_url t3://localhost:7001";
                     CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
                     verifyResult(result, "updateDomain.sh completed successfully");
+
+                    verifyStructuredAppIsWorking("ConfigOverrides.properties", "updated");
                 }
 
                 Path discoveredArchive = getTestOutputPath(testInfo).resolve("discoveredArchive.zip");
@@ -1540,7 +1555,7 @@ public class ITWdt extends BaseTest {
                 try (PrintWriter out = getTestMethodWriter(testInfo, "ArchiveHelperOnDiscoveredArchive")) {
                     Path archiveExtractDir = getTestOutputPath(testInfo);
 
-                    cmd = archiveHelperScript + " extract structuredApplication -name OtdApp " +
+                    cmd = archiveHelperScript + " extract structuredApplication -name MyWebServicesApp " +
                         " -target " + archiveExtractDir + " -archive_file " + discoveredArchive;
                     CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
 
@@ -1663,36 +1678,36 @@ public class ITWdt extends BaseTest {
         assertTrue(domainHomeDirFile.isDirectory(), dirName + " directory " +
             domainHomeDirFile.getAbsolutePath() + " does not exist");
 
-        String pathToStructuredAppDir = "wlsdeploy" + FS + "structuredApplications" + FS + "OtdApp";
-        File otdAppDirFile = new File(domainHomeDirFile, pathToStructuredAppDir);
-        assertTrue(otdAppDirFile.isDirectory(), "Structured application OtdApp directory " +
-            otdAppDirFile.getAbsolutePath() + " does not exist");
+        String pathToStructuredAppDir = "wlsdeploy" + FS + "structuredApplications" + FS + "MyWebServicesApp";
+        File appDirFile = new File(domainHomeDirFile, pathToStructuredAppDir);
+        assertTrue(appDirFile.isDirectory(), "Structured application MyWebServicesApp directory " +
+            appDirFile.getAbsolutePath() + " does not exist");
 
-        String pathToWar = "app" + FS + "OtdApp.war";
-        File otdWarFile = new File(otdAppDirFile, pathToWar);
-        assertTrue(otdWarFile.isFile(), "Structured application OtdApp war file " +
-            otdWarFile.getAbsolutePath() + " does not exist");
+        String pathToWar = "app" + FS + "MyWebServicesApp.war";
+        File warFile = new File(appDirFile, pathToWar);
+        assertTrue(warFile.isFile(), "Structured application MyWebServicesApp war file " +
+            warFile.getAbsolutePath() + " does not exist");
 
-        File otdPlanDirFile = new File(otdAppDirFile, "plan");
-        assertTrue(otdPlanDirFile.isDirectory(), "Structured application OtdApp plan directory " +
-            otdPlanDirFile.getAbsolutePath() + " does not exist");
+        File planDirFile = new File(appDirFile, "plan");
+        assertTrue(planDirFile.isDirectory(), "Structured application MyWebServicesApp plan directory " +
+            planDirFile.getAbsolutePath() + " does not exist");
 
-        File otdPlanFile = new File(otdPlanDirFile, "Plan.xml");
-        assertTrue(otdPlanFile.isFile(), "Structured application OtdApp plan file " +
-            otdPlanFile.getAbsolutePath() + " does not exist");
+        File planFile = new File(planDirFile, "Plan.xml");
+        assertTrue(planFile.isFile(), "Structured application MyWebServicesApp plan file " +
+            planFile.getAbsolutePath() + " does not exist");
 
-        File otdAppFileOverridesDirFile = new File(otdPlanDirFile, "AppFileOverrides");
-        assertTrue(otdPlanDirFile.isDirectory(), "Structured application OtdApp AppFileOverrides directory " +
-            otdAppFileOverridesDirFile.getAbsolutePath() + " does not exist");
+        File appFileOverridesDirFile = new File(planDirFile, "AppFileOverrides");
+        assertTrue(planDirFile.isDirectory(), "Structured application MyWebServicesApp AppFileOverrides directory " +
+            appFileOverridesDirFile.getAbsolutePath() + " does not exist");
 
-        File otdConfigOverridesFile = new File(otdAppFileOverridesDirFile, propertiesFileName);
-        assertTrue(otdConfigOverridesFile.isFile(), "Structured application " + propertiesFileName + " file " +
-            otdConfigOverridesFile.getAbsolutePath() + " does not exist");
+        File configOverridesFile = new File(appFileOverridesDirFile, propertiesFileName);
+        assertTrue(configOverridesFile.isFile(), "Structured application " + propertiesFileName + " file " +
+            configOverridesFile.getAbsolutePath() + " does not exist");
 
         if (excludedPropertiesFileName != null) {
-            File oldOtdConfigOverridesFile = new File(otdAppFileOverridesDirFile, excludedPropertiesFileName);
-            assertFalse(oldOtdConfigOverridesFile.isFile(), "Structured application " + oldOtdConfigOverridesFile +
-                " file " + otdConfigOverridesFile.getAbsolutePath() + " exists when it should not");
+            File oldConfigOverridesFile = new File(appFileOverridesDirFile, excludedPropertiesFileName);
+            assertFalse(oldConfigOverridesFile.isFile(), "Structured application " + oldConfigOverridesFile +
+                " file " + configOverridesFile.getAbsolutePath() + " exists when it should not");
         }
     }
 
@@ -1842,5 +1857,36 @@ public class ITWdt extends BaseTest {
         Path sourceFile = testDirectory.resolve(originalName);
         Path targetFile = testDirectory.resolve(newName);
         Files.move(sourceFile, targetFile, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    private void verifyStructuredAppIsWorking(String overridesFileName, String expectedResult) throws Exception {
+        verifyHttpGetResponse(REST_PLAN_URL_STRING, expectedResult);
+
+        // This part of the code is not currently working.
+        // See Bug 36409111.
+        //
+        // String overridesUrlString = String.format(REST_OVERRIDES_URL_TEMPLATE, overridesFileName);
+        // verifyHttpGetResponse(overridesUrlString, expectedResult);
+    }
+
+    private void verifyHttpGetResponse(String urlString, String expectedResult) throws Exception {
+        URL url = new URL(urlString);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setConnectTimeout(5000);
+        conn.setReadTimeout(5000);
+
+        int status = conn.getResponseCode();
+        assertEquals(200, status, "Expected HTTP GET to " + urlString + " response to be 200");
+
+        String actualResult;
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+            actualResult = in.readLine();
+            if (actualResult != null) {
+                actualResult = actualResult.trim();
+            }
+        }
+        assertEquals(expectedResult, actualResult,
+            "Expected HTTP GET to " + urlString + " response to be: " + expectedResult);
     }
 }

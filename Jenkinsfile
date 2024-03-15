@@ -10,7 +10,7 @@ pipeline {
     }
     triggers {
         // timer trigger for "nightly build" on main branch
-        cron( env.BRANCH_NAME.equals('main') ? 'H H(0-3) * * 1-5' : '')
+        cron( env.BRANCH_NAME.equals('main') ? 'H H(2-3) * * 1-5' : '')
     }
     stages {
         stage ('Environment') {
