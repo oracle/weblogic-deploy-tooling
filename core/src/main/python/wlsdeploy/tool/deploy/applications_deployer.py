@@ -139,50 +139,65 @@ class ApplicationsDeployer(Deployer):
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=found_deployment)
         return found_deployment
 
-    def _fixup_structured_app_plan_file_config_root(self, structured_app_dict):
+    def _fixup_structured_app_plan_file_config_root(self, structured_app_name, structured_app_dict):
         _method_name = '_fixup_structured_app_plan_file_config_root'
-        self.logger.entering(structured_app_dict, class_name=self._class_name, method_name=_method_name)
+        self.logger.entering(structured_app_name, structured_app_dict,
+                             class_name=self._class_name, method_name=_method_name)
 
-        # The plan file must exist for structured applications...
+        # The plan file must exist for structured applications but we should only edit
+        # it if we plan to move it--which means only if it is in the archive...
         plan_file_name = self._get_combined_model_plan_path(structured_app_dict)
-        # The config-root of the deployment plan must be set to the plan_dir.
-        plan_dir, __ = self.path_helper.split(plan_file_name)
-        plan_dir = plan_dir.replace('\\', '/')
-
-        if self.path_helper.is_relative_local_path(plan_file_name):
+        if deployer_utils.is_path_into_archive(plan_file_name):
+            # We need to know where the file lives on the local file system so that it can be edited.
             if self.model_context.is_remote() or self.model_context.is_ssh():
                 plan_file_name = self.path_helper.local_join(self.upload_temporary_dir, plan_file_name)
             else:
                 plan_file_name = self.path_helper.local_join(self.model_context.get_domain_home(), plan_file_name)
 
-        dbf = DocumentBuilderFactory.newInstance()
-        db = dbf.newDocumentBuilder()
-        document = db.parse(File(plan_file_name))
-        document.normalizeDocument()
-        elements = document.getElementsByTagName("config-root")
+            # The config-root of the deployment plan must be set to the location where the plan_dir will eventually live.
+            future_plan_file_name = self._get_combined_model_plan_path(structured_app_dict)
+            future_plan_file_name = self.path_helper.join(self.model_context.get_domain_home(), future_plan_file_name)
+            plan_dir, __ = self.path_helper.split(future_plan_file_name)
+            # Since the plan is processed by Java code, go ahead and replace any Windows separators with forward slashes.
+            plan_dir = plan_dir.replace('\\', '/')
 
-        if elements is not None and elements.getLength() > 0:
-            element = elements.item(0)
-            element.setNodeValue(plan_dir)
-            element.setTextContent(plan_dir)
-            output_stream = None
-            try:
-                output_stream = FileOutputStream(plan_file_name)
-                transformer_factory = TransformerFactory.newInstance()
-                transformer = transformer_factory.newTransformer()
-                transformer.setOutputProperty(OutputKeys.INDENT, "yes")
-                transformer.setOutputProperty(OutputKeys.STANDALONE, "no")
-                source = DOMSource(document)
-                result = StreamResult(output_stream)
+            if File(plan_file_name).isFile():
+                dbf = DocumentBuilderFactory.newInstance()
+                db = dbf.newDocumentBuilder()
+                document = db.parse(File(plan_file_name))
+                document.normalizeDocument()
+                elements = document.getElementsByTagName("config-root")
 
-                transformer.transform(source, result)
-            finally:
-                if output_stream is not None:
+                if elements is not None and elements.getLength() > 0:
+                    element = elements.item(0)
+                    element.setNodeValue(plan_dir)
+                    element.setTextContent(plan_dir)
+                    output_stream = None
                     try:
-                        output_stream.close()
-                    except IOException:
-                        # best effort only...
-                        pass
+                        output_stream = FileOutputStream(plan_file_name)
+                        transformer_factory = TransformerFactory.newInstance()
+                        transformer = transformer_factory.newTransformer()
+                        transformer.setOutputProperty(OutputKeys.INDENT, "yes")
+                        transformer.setOutputProperty(OutputKeys.STANDALONE, "no")
+                        source = DOMSource(document)
+                        result = StreamResult(output_stream)
+
+                        transformer.transform(source, result)
+                    finally:
+                        if output_stream is not None:
+                            try:
+                                output_stream.close()
+                            except IOException:
+                                # best effort only...
+                                pass
+            else:
+                self.logger.warning('WLSDPLY-09352', structured_app_name, plan_file_name,
+                                    class_name=self._class_name, method_name=_method_name)
+        else:
+            self.logger.fine('WLSDPLY-09353', structured_app_name, plan_file_name,
+                             class_name=self._class_name, method_name=_method_name)
+
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 
     def _is_structured_app(self, app_name, app_dict):
         """

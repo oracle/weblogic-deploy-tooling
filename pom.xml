@@ -178,6 +178,11 @@
                 <artifactId>jline-reader</artifactId>
                 <version>${jline.version}</version>
             </dependency>
+            <dependency>
+                <groupId>javax</groupId>
+                <artifactId>javaee-api</artifactId>
+                <version>7.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

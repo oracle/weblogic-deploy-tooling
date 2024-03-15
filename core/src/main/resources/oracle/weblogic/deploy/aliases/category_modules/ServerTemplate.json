@@ -457,9 +457,11 @@
                     "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
                     "folders": {},
                     "attributes": {
-                        "MaxStuckThreadTime": [ {"version": "[12.1.2,)",       "wlst_mode": "both",    "wlst_name": "MaxStuckThreadTime", "wlst_path": "WP001", "default_value": 600,     "wlst_type": "integer"} ],
-                        "StuckThreadCount":   [ {"version": "[12.1.2,)",       "wlst_mode": "both",    "wlst_name": "StuckThreadCount",   "wlst_path": "WP001", "default_value": 0,       "wlst_type": "integer", "get_method": "GET"} ],
-                        "Notes":              [ {"version": "[12.1.2,)",       "wlst_mode": "both",    "wlst_name": "Notes",              "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ]
+                        "HeapDumpingOnDeadlock":          [ {"version": "[14.1.2,)",       "wlst_mode": "online",  "wlst_name": "HeapDumpingOnDeadlock",          "wlst_path": "WP001", "default_value": false,   "wlst_type": "boolean"  } ],
+                        "HeapDumpingOnMaxStuckThread":    [ {"version": "[14.1.2,)",       "wlst_mode": "online",  "wlst_name": "HeapDumpingOnMaxStuckThread",    "wlst_path": "WP001", "default_value": false,   "wlst_type": "boolean"  } ],
+                        "MaxStuckThreadTime":             [ {"version": "[12.1.2,)",       "wlst_mode": "both",    "wlst_name": "MaxStuckThreadTime",             "wlst_path": "WP001", "default_value": 600,     "wlst_type": "integer"  } ],
+                        "StuckThreadCount":               [ {"version": "[12.1.2,)",       "wlst_mode": "both",    "wlst_name": "StuckThreadCount",               "wlst_path": "WP001", "default_value": 0,       "wlst_type": "integer", "get_method": "GET"} ],
+                        "Notes":                          [ {"version": "[12.1.2,)",       "wlst_mode": "both",    "wlst_name": "Notes",                          "wlst_path": "WP001", "default_value": null,    "wlst_type": "string"   } ]
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
@@ -468,14 +470,14 @@
                 }
             },
             "attributes": {
-                "FailureAction":                  [ {"version": "[12.1.2,)",         "wlst_mode": "both", "wlst_name": "FailureAction",                  "wlst_path": "WP001", "default_value": "${__NULL__:no-action}", "derived_default": "${:true}", "wlst_type": "string" } ],
-                "FreeMemoryPercentHighThreshold": [ {"version": "[12.1.2,)",         "wlst_mode": "both", "wlst_name": "FreeMemoryPercentHighThreshold", "wlst_path": "WP001", "default_value": 0, "derived_default": "${:true}", "wlst_type": "integer"} ],
-                "FreeMemoryPercentLowThreshold":  [ {"version": "[12.1.2,)",         "wlst_mode": "both", "wlst_name": "FreeMemoryPercentLowThreshold",  "wlst_path": "WP001", "default_value": 0, "derived_default": "${:true}", "wlst_type": "integer"} ],
-                "Notes":                          [ {"version": "[12.1.2,)",         "wlst_mode": "both", "wlst_name": "Notes",                          "wlst_path": "WP001", "default_value": null,                   "wlst_type": "string" } ],
-                "PanicAction":                    [ {"version": "[12.1.2,12.2.1)",   "wlst_mode": "both", "wlst_name": "PanicAction",                    "wlst_path": "WP001", "default_value": "${__NULL__:no-action}", "derived_default": "${:true}", "wlst_type": "string" }  ,
-                                                    {"version": "[12.2.1,)",         "wlst_mode": "both", "wlst_name": "PanicAction",                    "wlst_path": "WP001", "default_value": "${__NULL__:system-exit}", "derived_default": "${:true}", "wlst_type": "string" } ],
-                "ServerFailureTrigger":           [ {"version": "[10,)",             "wlst_mode": "online", "wlst_name": "ServerFailureTrigger",         "wlst_path": "WP001", "default_value": null,                   "wlst_type": "string", "access": "IGNORED", "comment":  "Appears in attribute list until ServerFailureTrigger folder is created"} ],
-                "SharedCapacityForWorkManagers":  [ {"version": "[12.1.2,)",         "wlst_mode": "both", "wlst_name": "SharedCapacityForWorkManagers",  "wlst_path": "WP001", "default_value": 65536, "derived_default": "${:true}", "wlst_type": "integer"} ]
+                "FailureAction":                  [ {"version": "[12.1.2,)",         "wlst_mode": "both",    "wlst_name": "FailureAction",                  "wlst_path": "WP001", "default_value": "${__NULL__:no-action}",   "derived_default": "${:true}", "wlst_type": "string" } ],
+                "FreeMemoryPercentHighThreshold": [ {"version": "[12.1.2,)",         "wlst_mode": "both",    "wlst_name": "FreeMemoryPercentHighThreshold", "wlst_path": "WP001", "default_value": 0,                         "derived_default": "${:true}", "wlst_type": "integer"} ],
+                "FreeMemoryPercentLowThreshold":  [ {"version": "[12.1.2,)",         "wlst_mode": "both",    "wlst_name": "FreeMemoryPercentLowThreshold",  "wlst_path": "WP001", "default_value": 0,                         "derived_default": "${:true}", "wlst_type": "integer"} ],
+                "Notes":                          [ {"version": "[12.1.2,)",         "wlst_mode": "both",    "wlst_name": "Notes",                          "wlst_path": "WP001", "default_value": null,                      "wlst_type": "string"   } ],
+                "PanicAction":                    [ {"version": "[12.1.2,12.2.1)",   "wlst_mode": "both",    "wlst_name": "PanicAction",                    "wlst_path": "WP001", "default_value": "${__NULL__:no-action}",   "derived_default": "${:true}", "wlst_type": "string" }  ,
+                                                    {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "PanicAction",                    "wlst_path": "WP001", "default_value": "${__NULL__:system-exit}", "derived_default": "${:true}", "wlst_type": "string" } ],
+                "ServerFailureTrigger":           [ {"version": "[10,)",             "wlst_mode": "online",  "wlst_name": "ServerFailureTrigger",           "wlst_path": "WP001", "default_value": null,                      "wlst_type": "string", "access": "IGNORED", "comment":  "Appears in attribute list until ServerFailureTrigger folder is created"} ],
+                "SharedCapacityForWorkManagers":  [ {"version": "[12.1.2,)",         "wlst_mode": "both",    "wlst_name": "SharedCapacityForWorkManagers",  "wlst_path": "WP001", "default_value": 65536,                     "derived_default": "${:true}", "wlst_type": "integer"} ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
@@ -848,6 +850,7 @@
                 "DebugMessagingBridgeStartup":                  [ {"version": "[12.1.2,)",       "wlst_mode": "both",    "wlst_name": "DebugMessagingBridgeStartup",                  "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugMessagingKernel":                         [ {"version": "[12.1.2,)",       "wlst_mode": "both",    "wlst_name": "DebugMessagingKernel",                         "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugMessagingKernelBoot":                     [ {"version": "[12.1.2,)",       "wlst_mode": "both",    "wlst_name": "DebugMessagingKernelBoot",                     "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
+                "DebugMessagingKernelVerbose":                  [ {"version": "[14.1.2,)",       "wlst_mode": "online",  "wlst_name": "DebugMessagingKernelVerbose",                  "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugMessagingOwnableLock":                    [ {"version": "[12.2.1,)",       "wlst_mode": "both",    "wlst_name": "DebugMessagingOwnableLock",                    "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugMigrationInfo":                           [ {"version": "[12.2.1,)",       "wlst_mode": "both",    "wlst_name": "DebugMigrationInfo",                           "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "get_method": "${LSA:GET}"} ],
                 "DebugMuxer":                                   [ {"version": "[12.1.2,)",       "wlst_mode": "both",    "wlst_name": "DebugMuxer",                                   "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],

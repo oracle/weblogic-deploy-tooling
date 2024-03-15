@@ -826,7 +826,7 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
                     if deployment_type == APPLICATION:
                         is_structured_app, _ = self._is_structured_app(deployment_name, deployment_dict)
                         if is_structured_app:
-                            self._fixup_structured_app_plan_file_config_root(deployment_dict)
+                            self._fixup_structured_app_plan_file_config_root(deployment_name, deployment_dict)
 
                     model_source_path = dictionary_utils.get_element(deployment_dict, SOURCE_PATH)
                     source_path = self.__get_online_deployment_path(deployment_name, deployment_type, SOURCE_PATH, model_source_path)
@@ -872,6 +872,10 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         :param options: optional, extra options for the WLST deploy() call
         """
         _method_name = '__deploy_app_or_library'
+        self.logger.entering(application_name, model_source_path, deploy_source_path, targets, stage_mode, plan,
+                             partition, resource_group, resource_group_template, sub_module_targets, module_type,
+                             options, class_name=self._class_name, method_name=_method_name)
+
         is_library = False
         if options is not None:
             is_library = dictionary_utils.get_element(options, 'libraryModule') == 'true'
@@ -941,6 +945,8 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         self.logger.fine('WLSDPLY-09320', type_name, application_name, kwargs,
                          class_name=self._class_name, method_name=_method_name)
         self.wlst_helper.deploy_application(application_name, *args, **kwargs)
+
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=application_name)
         return application_name
 
     def __get_deployment_ordering(self, apps):
@@ -1103,6 +1109,8 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
     def __undeploy_app(self, application_name, library_module='false', partition_name=None,
                        resource_group_template=None, targets=None):
         _method_name = '__undeploy_app'
+        self.logger.entering(application_name, library_module, partition_name, resource_group_template, targets,
+                             class_name=self._class_name, method_name=_method_name)
 
         type_name = APPLICATION
         if library_module == 'true':
@@ -1120,6 +1128,8 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
                                               timeout=self.model_context.get_model_config().get_undeploy_timeout(),
                                               targets=targets)
 
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name)
+
     def __delete_deployment_on_server(self, deployment_name, deployment_dict):
         """
         Remove deployed files on server after undeploy.
@@ -1132,6 +1142,8 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         # e.g. appDeployments:
         #        "!myear":
         #
+        _method_name = '__delete_deployment_on_server'
+        self.logger.entering(deployment_name, deployment_dict, class_name=self._class_name, method_name=_method_name)
 
         if deployment_dict is not None and SOURCE_PATH in deployment_dict:
             source_path = deployment_dict[SOURCE_PATH]
@@ -1149,6 +1161,8 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
                     if not self.model_context.is_remote():
                         FileUtils.deleteDirectory(File(self.path_helper.local_join(
                             self.model_context.get_domain_home(), delete_path)))
+
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 
     def _replace_deployments_path_tokens(self, deployment_type, deployments_dict):
         _method_name = '_replace_deployments_path_tokens'
@@ -1189,10 +1203,10 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
 
     def __stop_app(self, application_name, partition_name=None):
         _method_name = '__stop_app'
+        self.logger.entering(application_name, partition_name, class_name=self._class_name, method_name=_method_name)
 
         self.logger.info('WLSDPLY-09312', application_name, class_name=self._class_name, method_name=_method_name)
-        progress = self.wlst_helper.stop_application(
-            application_name, partition=partition_name,
+        progress = self.wlst_helper.stop_application(application_name, partition=partition_name,
             timeout=self.model_context.get_model_config().get_stop_app_timeout())
         while progress.isRunning():
             continue
@@ -1201,12 +1215,17 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name)
+
     def __start_app(self, application_name, partition_name=None):
         _method_name = '__start_app'
+        self.logger.entering(application_name, partition_name, class_name=self._class_name, method_name=_method_name)
 
         self.logger.info('WLSDPLY-09313', application_name, class_name=self._class_name, method_name=_method_name)
         self.wlst_helper.start_application(application_name, partition=partition_name,
                                            timeout=self.model_context.get_model_config().get_start_app_timeout())
+
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 
     def __start_all_apps(self, deployed_app_list, base_location, is_restart_required=False):
         _method_name = '__start_all_apps'

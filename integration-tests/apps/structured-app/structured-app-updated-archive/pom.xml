@@ -38,7 +38,7 @@
                                     <type>war</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}</outputDirectory>
-                                    <destFileName>OtdApp.war</destFileName>
+                                    <destFileName>MyWebServicesApp.war</destFileName>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

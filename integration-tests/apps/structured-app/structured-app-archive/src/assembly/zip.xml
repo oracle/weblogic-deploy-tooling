@@ -14,21 +14,21 @@
     <fileSets>
         <fileSet>
             <directory>${project.build.directory}</directory>
-            <outputDirectory>structuredApplications/OtdApp/app</outputDirectory>
+            <outputDirectory>structuredApplications/MyWebServicesApp/app</outputDirectory>
             <includes>
-                <include>OtdApp.war</include>
+                <include>MyWebServicesApp.war</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>${project.build.directory}</directory>
-            <outputDirectory>structuredApplications/OtdApp/plan</outputDirectory>
+            <outputDirectory>structuredApplications/MyWebServicesApp/plan</outputDirectory>
             <includes>
                 <include>Plan.xml</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>${project.build.directory}</directory>
-            <outputDirectory>structuredApplications/OtdApp/plan/AppFileOverrides</outputDirectory>
+            <outputDirectory>structuredApplications/MyWebServicesApp/plan/AppFileOverrides</outputDirectory>
             <includes>
                 <include>ConfigOverrides.properties</include>
             </includes>

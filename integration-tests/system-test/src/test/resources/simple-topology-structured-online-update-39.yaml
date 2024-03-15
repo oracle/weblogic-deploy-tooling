@@ -1,10 +1,10 @@
 appDeployments:
   Application:
-    OtdApp:
-      SourcePath: '@@PROP:TEST39_OUTPUT_DIR@@/wlsdeploy/structuredApplications/OtdApp/app/OtdApp.war'
-      PlanDir: '@@PROP:TEST39_OUTPUT_DIR@@/wlsdeploy/structuredApplications/OtdApp/plan'
+    MyWebServicesApp:
+      SourcePath: '@@PROP:TEST39_OUTPUT_DIR@@/wlsdeploy/structuredApplications/MyWebServicesApp/app/MyWebServicesApp.war'
+      PlanDir: '@@PROP:TEST39_OUTPUT_DIR@@/wlsdeploy/structuredApplications/MyWebServicesApp/plan'
       PlanPath: Plan.xml
-      Target: '@@PROP:CLUSTER_NAME@@'
+      Target: '@@PROP:ADMIN_NAME@@,@@PROP:CLUSTER_NAME@@'
       ModuleType: war
       StagingMode: nostage
       PlanStagingMode: nostage
