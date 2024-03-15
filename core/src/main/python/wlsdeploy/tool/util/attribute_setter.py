@@ -678,6 +678,7 @@ class AttributeSetter(object):
         This is required when WLST does not encrypt a plain-text value during set() as it normally does.
         This can happen when offline WLST does not include an attribute in a hard-coded list of encrypted values.
         Currently, only OracleIdentityCloudIntegrator/ClientSecretEncrypted offline has this issue.
+        See bug 34195228.
         :param location: the location
         :param key: the attribute name
         :param value: the new attribute value

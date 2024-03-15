@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2023, Oracle and/or its affiliates.
+Copyright (c) 2020, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.aliases.location_context import LocationContext
@@ -262,12 +262,12 @@ class ModelSamplePrinter(object):
 
         online_bean = self._aliases.get_online_bean_name(model_location)
 
-        # Instead of showing abbreviated help, use a trailing "+" to indicate
-        # that more help is avail for the attribute, and a "-" otherwise
+        # Instead of showing abbreviated help, use a trailing "*" to indicate
+        # that more help is avail for the attribute.
         if WLSBeanHelp.get(online_bean, attr_name, 100, ''):
-            return att_default + ' +'
+            return att_default + ' *'
         else:
-            return att_default + ' -'
+            return ''
 
     def _print_attributes_sample(self, model_location, indent_level):
         """
@@ -376,7 +376,6 @@ class ModelSamplePrinter(object):
             if att_help:
                 self._output_buffer.add_output()
                 self._output_buffer.add_output(att_help)
-                self._output_buffer.add_output()
 
             return True
 

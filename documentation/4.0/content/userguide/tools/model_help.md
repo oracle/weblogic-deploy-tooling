@@ -20,14 +20,14 @@ Attributes and sub-folders for resources:/JDBCSystemResource
 resources:
     JDBCSystemResource:
         'JDBC-1':
-            CompatibilityName:       # string            +
-            DeploymentOrder:         # integer           (default=100) +
-            DeploymentPrincipalName: # string            +
-            DescriptorFileName:      # string            +
-            ModuleType:              # string            +
-            Notes:                   # string            +
-            SourcePath:              # string            +
-            Target:                  # delimited_string  +
+            CompatibilityName:       # string            *
+            DeploymentOrder:         # integer           (default=100) *
+            DeploymentPrincipalName: # string            *
+            DescriptorFileName:      # string            *
+            ModuleType:              # string            *
+            Notes:                   # string            *
+            SourcePath:              # string            *
+            Target:                  # delimited_string  *
 
             JdbcResource:
                 # see /JDBCSystemResource/JdbcResource
@@ -41,7 +41,8 @@ This bean defines a system-level JDBC resource.  It links a separate
 descriptor that specifies the definition.
 ```
 This output shows the eight attributes and two sub-folders available for the `JDBCSystemResource` folder in the `resources` section of the model. Each attribute includes a comment describing the type of the value to be added.
-A plus sign (`+`) on an attribute indicates that appending the attribute to the model path will yield more information about the attribute.
+
+An asterisk (`*`) next to an attribute indicates that the attribute has additional information available, possibly including a default value, valid range, and a description.   
 
 Folders that support multiple instances, such as `JDBCSystemResource` in this example, are shown with a derived name, such as `'JDBC-1'`.
 
