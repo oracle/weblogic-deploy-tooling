@@ -99,3 +99,11 @@ The workaround is for the user to temporarily install WDT, create the domain, an
 
 **ACTION**: Do not use these path tokens in an SSH context because WDT does not currently provide a way for the user
 to supply "remote" values for these paths.
+
+### Production Redeployment of Versioned Applications
+
+**ISSUE**: WDT Update Domain does not properly deploy a new version of an application to support non-disruptive updates.
+
+**ACTION**: While we fully intend to resolve this issue in an upcoming release, the workaround for now is to use the
+`weblogic.Deployer` tool to redeploy the application pointing at the new source files, as described in the
+[WebLogic Server documentation](https://docs.oracle.com/en/middleware/fusion-middleware/weblogic-server/12.2.1.4/depgd/redeploy.html#GUID-2C0A6D50-3D20-4167-8091-4A5546DEFD6C).

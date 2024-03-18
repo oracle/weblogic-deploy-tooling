@@ -37,6 +37,7 @@ import oracle.weblogic.deploy.integration.utils.CommandResult;
 import oracle.weblogic.deploy.integration.utils.Runner;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -1573,6 +1574,10 @@ public class ITWdt extends BaseTest {
         }
     }
 
+    // This test is disabled because it tries to test production redeployment, which WDT doesn't really support
+    // at this point in time.  See WDT-861.
+    //
+    @Disabled
     @DisplayName("Test 40: Create domain with versioned app and use online update the redeploy a new version")
     @Order(40)
     @Tag("gate")
