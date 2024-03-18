@@ -33,7 +33,7 @@
                             <artifactItems>
                                 <artifactItem>
                                     <groupId>com.oracle.weblogic.lifecycle</groupId>
-                                    <artifactId>weblogic-deploy-system-test-apps-versioned-app-war</artifactId>
+                                    <artifactId>weblogic-deploy-system-test-apps-versioned-app-updated-war</artifactId>
                                     <version>${project.version}</version>
                                     <type>war</type>
                                     <overWrite>true</overWrite>
