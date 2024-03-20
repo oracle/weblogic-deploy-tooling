@@ -18,6 +18,7 @@ class BaseTestCase(unittest.TestCase):
     Base class for unit tests.
     Provides helper functions for working with test directories, testing dictionary structures, etc.
     """
+    ALIAS_WLS_VERSION = '12.2.1.3'
 
     def __init__(self, *args):
         unittest.TestCase.__init__(self, *args)

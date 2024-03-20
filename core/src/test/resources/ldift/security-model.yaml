@@ -1,0 +1,32 @@
+topology:
+  Security:
+    Group:
+      # update existing group, assign to Administrators group
+      Monitors:
+        Description: Updated monitors group
+        GroupMemberOf: [ Administrators ]
+      # add new group, assign to existing group
+      AppMonitors:
+        Description: Application Monitors
+        GroupMemberOf: [ Administrators ]
+      # add new group, assign to new group
+      DoorMonitors:
+        Description: Door Monitors
+        GroupMemberOf: [ AppMonitors ]
+    User:
+      # update existing group, assign to new
+      OracleSystemUser:
+        Description: An updated Oracle system user
+        Password: changed1Pass!
+        # he was already assigned to OracleSystemGroup, should not duplicate
+        GroupMemberOf: [ OracleSystemGroup, AppMonitors ]
+        UserAttribute:
+          mail: osu@mycompany.com
+          mobile: 555-123-4567
+          pager: 555-234-5678
+      # add new user, assign to existing and new group
+      john:
+        Description: New user John
+        Password: welcome1
+        GroupMemberOf: [ Monitors, AppMonitors ]
+        mail: john@mycompany.com

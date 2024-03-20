@@ -1,0 +1,28 @@
+dn: cn=Administrators,ou=groups,ou=@realm@,dc=@domain@
+memberURL: ldap:///ou=groups,ou=@realm@,dc=@domain@??sub?(&(objectclass=person)(wlsMemberOf=cn=Administrators,ou=groups,ou=@realm@,dc=@domain@))
+description: Administrators can view and modify all resource attributes and start and stop servers.
+objectclass: top
+objectclass: groupOfUniqueNames
+objectclass: groupOfURLs
+cn: Administrators
+
+dn: cn=Monitors,ou=groups,ou=@realm@,dc=@domain@
+memberURL: ldap:///ou=groups,ou=@realm@,dc=@domain@??sub?(&(objectclass=person)(wlsMemberOf=cn=Monitors,ou=groups,ou=@realm@,dc=@domain@))
+description: Monitors can view and modify all resource attributes and perform operations not restricted by roles.
+objectclass: top
+objectclass: groupOfUniqueNames
+objectclass: groupOfURLs
+cn: Monitors
+
+dn: uid=OracleSystemUser,ou=people,ou=@realm@,dc=@domain@
+description: Oracle application software system user.
+objectclass: inetOrgPerson
+objectclass: organizationalPerson
+objectclass: person
+objectclass: top
+cn: OracleSystemUser
+sn: OracleSystemUser
+userpassword: {ssha256}OqdaQ2G/NBi/BdlIsilzB1IQTv0hKIk91O0C3Vq4K9jsw3rE
+uid: OracleSystemUser
+objectclass: wlsUser
+wlsMemberOf: cn=OracleSystemGroup,ou=groups,ou=@realm@,dc=@domain@
