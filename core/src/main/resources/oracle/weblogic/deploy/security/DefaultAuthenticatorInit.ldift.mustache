@@ -2,9 +2,6 @@
 {{#existingLines}}
 {{{existingText}}}
 {{/existingLines}}
-{{#childGroups}}
-uniquemember: cn={{{childGroupName}}},ou=groups,ou=@realm@,dc=@domain@
-{{/childGroups}}
 
 {{/existingEntries}}
 {{#group}}
@@ -21,7 +18,6 @@ uniquemember: cn={{{childGroupName}}},ou=groups,ou=@realm@,dc=@domain@
 
 {{/group}}
 {{#user}}
-
 dn: uid={{{name}}},ou=people,ou=@realm@,dc=@domain@
 description: {{{description}}}
 objectclass: inetOrgPerson
@@ -33,11 +29,11 @@ sn: {{{name}}}
 userpassword: {{{password}}}
 uid: {{{name}}}
 objectclass: wlsUser
-{{#groups}}
-wlsMemberOf: cn={{{groupMemberOf}}},ou=groups,ou=@realm@,dc=@domain@
-{{/groups}}
-{{#userattr}}
-{{{attribute}}}
-{{/userattr}}
+{{#userGroups}}
+wlsMemberOf: cn={{{userGroupName}}},ou=groups,ou=@realm@,dc=@domain@
+{{/userGroups}}
+{{#userAttributes}}
+{{{key}}}={{{value}}}
+{{/userAttributes}}
 
 {{/user}}
