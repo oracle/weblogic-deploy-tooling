@@ -1,12 +1,12 @@
 +++
-title = "Release 3.5.1"
+title = "Release 3.5.4"
 date = 2019-02-22T15:27:38-05:00
-weight = 78
+weight = 75
 pre = "<b> </b>"
 +++
 
 
-### Changes in Release 3.5.1
+### Changes in Release 3.5.4
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -17,12 +17,15 @@ pre = "<b> </b>"
 None
 
 #### Other Changes
-None
+- #1600 - Added alias updates to support the Jan 2024 PSUs.
 
 #### Bug Fixes
-- #1542 - Fixed a Prepare Model issue related to the new password validation feature introduced in 3.5.0.
+- #1607 - Fixed an issue with assigning groups to parent groups.
+- #1620 - Fixed an issue that caused an attribute with the WLST value `none` to be interpreted as a Python `None`.
+- #1635 - Fixed an issue with the `ResourceManagement` attribute in WebLogic Server 14.1.1 and higher.
 
 #### Known Issues
 None
 
 See https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/ for the current set of known limitations.
+

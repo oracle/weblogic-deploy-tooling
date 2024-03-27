@@ -15,6 +15,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -415,7 +417,6 @@ public class ITWdt extends BaseTest {
             rcuDomainCreated = true;
         }
     }
-
 
     /**
      * testDOnlineUpdate1 check for 103 return code if an update requires restart.
@@ -1498,7 +1499,7 @@ public class ITWdt extends BaseTest {
     void test39OnlineRemoteDeployStructuredAppOutsideArchiveFile(TestInfo testInfo) throws Exception {
         String cmd;
         String archiveToExplode =
-            FileSystems.getDefault().getPath(getTargetDir().toString(), "archive36.zip").toAbsolutePath().toString();
+            Paths.get(getTargetDir().toString(), "archive36.zip").toAbsolutePath().toString();
         try (PrintWriter out = getTestMethodWriter(testInfo, "ArchiveHelperExtractAppFromArchive")) {
             Path archiveExtractDir = getTestOutputPath(testInfo);
 
@@ -1506,6 +1507,9 @@ public class ITWdt extends BaseTest {
                 " -target " + archiveExtractDir + " -archive_file " + archiveToExplode;
             CommandResult result = Runner.run(cmd, getTestMethodEnvironment(testInfo), out);
             assertEquals(0, result.exitValue(), "Unexpected return code");
+
+            Path baseDir = Paths.get(System.getProperty("user.dir"), archiveExtractDir.toString()).toRealPath();
+            fixupPlanConfigRoot(baseDir, "wlsdeploy/structuredApplications/MyWebServicesApp/plan", "Plan.xml");
         }
 
         String domainDir = "domain39";
@@ -1867,11 +1871,8 @@ public class ITWdt extends BaseTest {
     private void verifyStructuredAppIsWorking(String overridesFileName, String expectedResult) throws Exception {
         verifyHttpGetResponse(REST_PLAN_URL_STRING, expectedResult);
 
-        // This part of the code is not currently working.
-        // See Bug 36409111.
-        //
-        // String overridesUrlString = String.format(REST_OVERRIDES_URL_TEMPLATE, overridesFileName);
-        // verifyHttpGetResponse(overridesUrlString, expectedResult);
+        String overridesUrlString = String.format(REST_OVERRIDES_URL_TEMPLATE, overridesFileName);
+        verifyHttpGetResponse(overridesUrlString, expectedResult);
     }
 
     private void verifyHttpGetResponse(String urlString, String expectedResult) throws Exception {
@@ -1893,5 +1894,16 @@ public class ITWdt extends BaseTest {
         }
         assertEquals(expectedResult, actualResult,
             "Expected HTTP GET to " + urlString + " response to be: " + expectedResult);
+    }
+
+    private void fixupPlanConfigRoot(Path baseDir, String relativePlanDir, String planPath) throws Exception {
+        Path planFile = Paths.get(baseDir.toString(), relativePlanDir, planPath);
+        Charset charset = StandardCharsets.UTF_8;
+
+        String planContents = new String(Files.readAllBytes(planFile), charset);
+        Path newPlanDir = Paths.get(baseDir.toString(), relativePlanDir).toRealPath();
+        planContents = planContents.replace("<config-root>" + relativePlanDir,
+            "<config-root>" + newPlanDir);
+        Files.write(planFile, planContents.getBytes(charset));
     }
 }

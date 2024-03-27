@@ -25,11 +25,12 @@ A JRF domain creates several data sources from the JRF domain template.
 | opss-audit-DBDS         | jdbc/AuditAppendDataSource | prefix_IAU_APPEND  | admin server and cluster |
 | mds-owsm                | jdbc/mds/owsm              | prefix_MDS         | admin server and cluster |
 
-By default, the JRF domain template data source has only the default information such as URL and schema with the default prefix `DEV`.  During domain creation,
-WDT will use the information you provided in the command line or in the `RCUDbinfo` section to override the default values from the template so that it can connect to the database you specified.
+By default, the JRF domain template data source has only the default information such as URL and schema with the
+default prefix `DEV`.  During domain creation,  WDT will use the information you provided in the `RCUDbinfo` section to
+override the default values from the template so that it can connect to the database you specified.
 
-For some advanced use cases, such as using an Oracle Active GridLink data source or Multi Data Sources, you can provide a sparse model of the data sources in a separate model file
-during domain creation.  See [Advance use cases](#advanced-jrf-database-use-cases).
+For some advanced use cases, such as using an Oracle Active GridLink data source or Multi Data Sources, you can provide
+a sparse model of the data sources in a separate model file during domain creation.  See [Advance use cases](#advanced-jrf-database-use-cases).
 
 ### Creating a new domain to connect to an existing RCU schema
 
@@ -55,11 +56,37 @@ When you want to recreate the JRF domain home, you have two options:
         OPSSWalletPassphrase: MySecureOPSSWalletPassphrase
     ```
 
-### Access a database using a wallet
+### Using wallets to access the RCU database
 
-When accessing a database, such as ATP or SSL, using a wallet, you need to obtain the wallet from your DBA and information about the database:
+The term `wallet` can refer to either an Oracle PKI-created wallet file such as `cwallet.sso` or `ewallet.p12` or a bundle
+of files used to establish the database connection such as the contents of the ZIP file downloaded from an OCI ATP database.
+In WDT, the term `wallet` is simply a location where one or more files related to connecting to the database can be stored.
 
-- `tns alias` - The network service name. You can find this in the `tnsnames.ora` file inside the database wallet.  The alias is on the left side of the equals sign.
+The Archive Helper Tool supports adding database wallets to the archive using the `add databaseWallet -wallet_name <name>`.
+The standard name of the wallet used for the RCU database is `rcu` and the Archive Helper Tool provides a shortcut for adding
+the files by using the `add rcuWallet` command.  WDT supports adding one or more files to an archive-stored wallet directory
+by:
+
+- Adding one or more files directly, or
+- Adding a single ZIP file containing the files (such as one downloaded from an ATP database).
+
+If the archive wallet contains a single ZIP file, the ZIP file will be automatically extracted when WDT extracts it from
+the archive file.
+
+Please obtain the necessary wallet file(s) from your DBA.
+
+### Using a tnsnames.ora file instead of the database connection string
+
+When accessing an Oracle database for the RCU schemas, you can use a `tnsnames.ora` file to specify the database connection string.
+Instead of specifying the `rcu_db_conn_string` explicitly, do one of the following:
+
+1. Place the `tnsnames.ora` file in the `rcu` wallet inside the archive file, or
+2. Set the `oracle.net.tns_admin` attribute to point to the path to the directory where the `tnsnames.ora` file resides.  
+   This may either be a relative path from the domain directory (which may be the path into the archive such as 
+   `config/wlsdeploy/dbWallets/myWallet`) or an absolute path.
+
+In both cases, the `tns.alias` attribute must be set.  The `tns.alias` is the network service name of an entry inside the
+`tnsnames.ora` file.  The alias is on the left side and the connect string is on the right side of the equals sign.
 
    ```text
    xxxx = (DESCRIPTION ...)
@@ -67,31 +94,71 @@ When accessing a database, such as ATP or SSL, using a wallet, you need to obtai
    ...
    ```
 
-- `keystore and truststore password` - Password used to generate the wallet.
-- `keystore and truststore type` - SSO or PKCS12.
-- `keystore and truststore file` - `cwallet.sso` (if store type is SSO), `ewallet.p12` (if store type is PKCS12).
+WDT will parse the `tnsnames.ora` file to find the connect string that matches the specified `tns.alias` to obtain the RCU
+database connect string.
 
-Depending on the type of database and the choice of method for authentication, you can provide the necessary information with `RCUDbInfo` in the model.
+### Access a database using SSL connections
+
+When accessing an Oracle database using a TLS connection (such as an `oracle_database_connection_type` of ATP or SSL),
+the database may use ONE_WAY or TWO_WAY (also known as mutual TLS or simply mTLS) SSL.  
+
+For ONE_WAY SSL, the connection requires only a "trust store"; that is, a keystore that contains the Certificate Authority's
+(CA) certificate used to sign the database server's certificate.  This trust store is used by the database client to determine
+whether it trusts the certificate presented by the database server during the SSL handshake.
+
+When using TWO_WAY SSL, the connection requires both a "trust store" and an "identity store"; that is, a certificate that
+the database client presents to the database server during the SSL handshake.
+
+In the `RCUDbInfo` section, the trust and identity stores are specified using the following attributes.
+
+#### Trust Store
+- `javax.net.ssl.trustStore`         - The key store file to use as the trust store.  This may be a relative path from
+  the domain home (for example, the path into the archive such as `config/wlsdeploy/dbWallets/rcu/truststore.jks`) or
+  the absolute path to the key store file.
+- `javax.net.ssl.trustStoreType`     - The key store type (JKS, PKCS12, or SSO).
+- `javax.net.ssl.trustStorePassword` - The passphrase used to open the key store file, if required. 
+
+#### Identity Store
+- `javax.net.ssl.keyStore`         - The key store file to use as the trust store.  This may be a relative path from
+  the domain home (for example, the path into the archive such as `config/wlsdeploy/dbWallets/rcu/keystore.jks`) or the
+  absolute path to the key store file.
+- `javax.net.ssl.keyStoreType`     - The key store type (JKS, PKCS12, or SSO).
+- `javax.net.ssl.keyStorePassword` - The passphrase used to open the key store file, if required.
+
+Depending on the type of database and the SSL connection type, you can provide the necessary information
+with `RCUDbInfo` in the model.
+
+### Examples
+The following examples represent how to specify the `RCUDbInfo` parameters for connecting to an RCU database.
 
 #### ATP database
+ATP databases can use either ONE_WAY or TWO_WAY SSL.  See the [Access a database using SSL connections](#access-a-database-using-ssl-connections)
+for more details on which fields are relevant for your ATP database configuration.
 
-For example, to use the Oracle Autonomous Transaction Processing Cloud Database for a JRF domain, specify the following information in the model:
+For example, to use the Oracle Autonomous Transaction Processing Cloud Database for a JRF domain, specify the following
+information in the model:
 
 ```yaml
 domainInfo:
     RCUDbInfo:
-        databaseType : 'ATP'
+        oracle_database_connection_type : 'ATP'
+        rcu_db_conn_string: <URL string, optional if using tnsnames.ora>
         rcu_prefix : DEV
-        rcu_admin_user : admin
-        rcu_admin_password: <database admin password is required only when you specify -run_rcu flag>
+        rcu_admin_user : admin # only required when you specify the `-run_rcu` flag
+        rcu_admin_password: <database admin password> # only required when you specify the `-run_rcu` flag
         rcu_schema_password : <RCU schema password>
-        tns.alias : <tns alias name. e.g. dbname_tp>
-        javax.net.ssl.keyStorePassword : <atp wallet password when generating the wallet from Oracle Cloud Console>
-        javax.net.ssl.trustStorePassword : <atp wallet password when generating the wallet from Oracle Cloud Console>
-        oracle.net.tns_admin: <optional: absolute path of the unzipped wallet root directory (outside of the archive), if the wallet.zip is not included in the archive>
+        oracle.net.tns_admin: <optional path to the wallet directory containing the tnsnames.ora file>
+        tns.alias : <alias of ATP db in the tnsnames.ora file>
+        javax.net.ssl.keyStore: <archive path or absolute path to the identity key store if using mTLS>
+        javax.net.ssl.keyStoreType: <the identity key store type (JKS, SSO, or PKCS12) if using mTLS>
+        javax.net.ssl.keyStorePassword : <the identity key store password when generating the wallet from Oracle Cloud Console if using mTLS and not using an SSO wallet as the key store>
+        javax.net.ssl.trustStore: <archive path or absolute path to the trust key store>
+        javax.net.ssl.trustStoreType: <the trust key store type (JKS, SSO, or PKCS12)>
+        javax.net.ssl.trustStorePassword : <the trust key store password when generating the wallet from Oracle Cloud Console if not using an SSO wallet as the trust key store>
 ```
-The database wallet can be included in the archive file as a named entry (example uses `rcu` as that name) under the
-`dbWallets` archive structure, either as a zip file:
+
+The database wallet downloaded from the ATP database can be included in the archive file as a named entry (example uses
+`rcu` as that name) under the`dbWallets` archive structure, either as a ZIP file:
 
 `wlsdeploy/dbWallets/rcu/Walletxyz.zip`
 
@@ -106,81 +173,65 @@ or as the unzipped contents:
 - `wlsdeploy/dbWallets/rcu/tnsnames.ora`
 - `wlsdeploy/dbWallets/rcu/truststore.jks`
 
-At runtime, WDT will extract the files (if they are in a zip file) to `$DOMAIN_HOME/wlsdeploy/dbWallets/rcu/` so that they can be
+At runtime, WDT will extract the files (if they are in a ZIP file) to `$DOMAIN_HOME/wlsdeploy/dbWallets/rcu/` so that they can be
 referenced directly from the model using the normal relative path.  For example:
 
+#### Oracle database using an SSL connection
+Other Oracle databases can use either ONE_WAY or TWO_WAY SSL.  See the [Access a database using SSL connections](#access-a-database-using-ssl-connections)
+for more details on which fields are relevant for your database configuration.
+
+For an Oracle SSL database with TWO_WAY SSL enabled, with an `SSO` wallet, use the following example:
 ```yaml
 domainInfo:
     RCUDbInfo:
-        databaseType : 'ATP'
-        rcu_prefix : DEV
-        rcu_db_conn_string: <required URL string for use with -run_rcu>
-        rcu_admin_user : admin
-        rcu_admin_password: <database admin password is required only when you specify -run_rcu flag>
-        rcu_schema_password : <RCU schema password>
-        tns.alias : my_atp_db_medium
-        javax.net.ssl.keyStorePassword : wlsdeploy/dbWallets/rcu/keystore.jks
-        javax.net.ssl.trustStorePassword : wlsdeploy/dbWallets/rcu/truststore.jks
-        oracle.net.tns_admin: '@@DOMAIN_HOME@@/wlsdeploy/dbWallets/rcu'
-```
-
-Or, by specifying the unzipped root directory of the ATP wallet ZIP file in `oracle.net.tns_admin`.
-
-#### SSL database using SSO for authentication
-
-For an Oracle SSL database with TW0_WAY SSL enabled, with an `SSO` wallet, use the following example:
-```yaml
-domainInfo:
-    RCUDbInfo:
-      databaseType : 'SSL'
-      rcu_db_conn_string: <required URL string for use with -run_rcu>
+      oracle_database_connection_type : 'SSL'
+      rcu_db_conn_string: <URL string, optional if using tnsnames.ora>
       rcu_prefix : DEV
       rcu_admin_password: <required with -run_rcu flag>
-      rcu_schema_password: <required with -run_rcu flag>
+      rcu_schema_password: <required>
+      oracle.net.tns_admin: <optional path to the wallet directory containing the tnsnames.ora file>
       tns.alias: <alias of ssl db in the tnsnames.ora file>
-      javax.net.ssl.keyStore: <keystore found in unzipped wallet, i.e. cwallet.sso>
+      javax.net.ssl.keyStore: <path to the SSO wallet with the identity certificate; for example, config/wlsdeploy/dbWallets/rcu/cwallet.sso>
       javax.net.ssl.keyStoreType: SSO
-      javax.net,ssl.trustStore: <truststore found in unzipped wallet, i.e cwallet.sso>
+      javax.net,ssl.trustStore: <path to the SSO wallet with the trust CA certificate; for example, config/wlsdeploy/dbWallets/rcu/cwallet.sso>
       javax.net.ssl.trustStoreType: SSO
-      oracle.net.tns_admin: <absolute path of the unzipped wallet root directory>
-
 ```
 
 For an Oracle SSL database with ONE_WAY SSL enabled, with an `SSO` wallet, use the following example:
+
 ```yaml
 domainInfo:
     RCUDbInfo:
       databaseType : 'SSL'
-      rcu_db_conn_string: <required URL string for use with -run_rcu>
       rcu_prefix : DEV
+      rcu_db_conn_string: <URL string, optional if using tnsnames.ora>
       rcu_admin_password: <required with -run_rcu flag>
-      rcu_schema_password: <required with -run_rcu flag>
+      rcu_schema_password: <required>
+      oracle.net.tns_admin: <optional path to the wallet directory containing the tnsnames.ora file>
       tns.alias: <alias of ssl db in the tnsnames.ora file>
-      javax.net,ssl.trustStore: <truststore found in unzipped wallet, i.e cwallet.sso>
+      javax.net,ssl.trustStore: <path to the SSO wallet with the trust CA certificate; for example, config/wlsdeploy/dbWallets/rcu/cwallet.sso>
       javax.net.ssl.trustStoreType: SSO
-      oracle.net.tns_admin: <absolute path of the unzipped wallet root directory>
-
 ```
 
-#### SSL database using PKCS12 for authentication
+#### SSL database using Oracle PKI PKCS12 wallets
 
-For an Oracle SSL database with TW0_WAY SSL enabled, with a `PKCS12` wallet, use the following example:
+For an Oracle SSL database with TW0_WAY SSL enabled, with an Oracle PKI `PKCS12` wallet, use the following example:
 ```yaml
 domainInfo:
     RCUDbInfo:
       databaseType : 'SSL'
-      rcu_db_conn_string: <required URL string for use with -run_rcu>
+      rcu_db_conn_string: <URL string, optional if using tnsnames.ora>
       rcu_prefix : DEV
       rcu_admin_password: <required with -run_rcu flag>
-      rcu_schema_password: <required with -run_rcu flag>
+      rcu_schema_password: <required>
+      oracle.net.tns_admin: <optional path to the wallet directory containing the tnsnames.ora file>
       tns.alias: <alias of ssl db in the tnsnames.ora file>
-      javax.net.ssl.keyStore: <keystore found in the unzipped wallet, i.e. ewallet.p12>
+      javax.net.ssl.keyStore: <path to the PKCS12 keystore with the identity certificate; for example, config/wlsdeploy/dbWallets/rcu/ewallet.p12>
       javax.net.ssl.keyStoreType: PKCS12
       javax.net.ssl.keyStorePassword: <keystore password>
-      javax.net.ssl.trustStore: <truststore found in the unzipped wallet, i.e ewallet.p12>
+      javax.net.ssl.trustStore: <path to the PKCS12 keystore with the trust CA certificate; for example, config/wlsdeploy/dbWallets/rcu/ewallet.p12>
       javax.net.ssl.trustStoreType: PKCS12
-      javax.net.ssl.trustStorePassword: <password of the truststore>
-      oracle.net.tns_admin: <absolute path of the unzipped wallet root directory>
+      javax.net.ssl.trustStorePassword: <truststore password>
 
 ```
 For an Oracle SSL database with ONE_WAY SSL enabled, with a `PKCS12` wallet, use the following example:
@@ -188,20 +239,20 @@ For an Oracle SSL database with ONE_WAY SSL enabled, with a `PKCS12` wallet, use
 domainInfo:
     RCUDbInfo:
       databaseType : 'SSL'
-      rcu_db_conn_string: <required URL string for use with -run_rcu>
+      rcu_db_conn_string: <URL string, optional if using tnsnames.ora>
       rcu_prefix : DEV
       rcu_admin_password: <required with -run_rcu flag>
-      rcu_schema_password: <required with -run_rcu flag>
+      rcu_schema_password: <required>
+      oracle.net.tns_admin: <optional path to the wallet directory containing the tnsnames.ora file>
       tns.alias: <alias of ssl db in the tnsnames.ora file>
-      javax.net.ssl.trustStore: <truststore found in the unzipped wallet, i.e ewallet.p12>
+      javax.net.ssl.trustStore: <truststore found in the unzipped wallet; for example, config/wlsdeploy/dbWallets/rcu/ewallet.p12>
       javax.net.ssl.trustStoreType: PKCS12
       javax.net.ssl.trustStorePassword: <password of the truststore>
-      oracle.net.tns_admin: <absolute path of the unzipped wallet root directory>
 
 ```
-When using a PKCS12 wallet, you must include the Oracle PKI provider to access your wallet. Add the Oracle PKI provider to your Java `java.security` file. For more information, see Section 2.2.4 "How can Oracle wallets be used in Java" in [SSL with Oracle JDBC Thin Driver](https://www.oracle.com/technetwork/topics/wp-oracle-jdbc-thin-ssl-130128.pdf).
+When using an Oracle PKI-generated PKCS12 wallet, you must include the Oracle PKI provider to access your wallet.  Add the Oracle PKI provider to your Java `java.security` file. For more information, see Section 2.2.4 "How can Oracle wallets be used in Java" in [SSL with Oracle JDBC Thin Driver](https://www.oracle.com/technetwork/topics/wp-oracle-jdbc-thin-ssl-130128.pdf).
 
-### Access a database without using a wallet (non wallet-based access)
+### Access a database without using a wallet
 
 For a typical database, use the following example:
 
@@ -212,9 +263,8 @@ domainInfo:
         # Optional rcu_admin_user for creating RCU schema if -run_rcu flag is specified. Default user is SYS if not specified.
         # This user must have SYSDBA privilege and this is the equivalent of -dbUser in the RCU utility.
         rcu_admin_user: superuser
-        rcu_admin_password : <database admin password is required only when you specify -run_rcu flag, will be prompted
-          if not specified>
-        rcu_schema_password : <rcu schema password, will be prompted if not specified>
+        rcu_admin_password : <required with -run_rcu flag>
+        rcu_schema_password : <rcu schema password>
         rcu_db_conn_string : dbhost:1521/pdborcl
 ```
 
@@ -239,8 +289,8 @@ Include your XML files in your archive file using the location `wlsdeploy/custom
 ```yaml
 domainInfo:
     RCUDbInfo:
-        compInfoXMLLocation: wlsdeploy/custom/rcu/config/MyComponentInfo.xml
-        storageXMLLocation: wlsdeploy/custom/rcu/config/MyStorage.xml
+        compInfoXMLLocation: config/wlsdeploy/custom/rcu/config/MyComponentInfo.xml
+        storageXMLLocation: config/wlsdeploy/custom/rcu/config/MyStorage.xml
 ```
 
 ### Advanced JRF database use cases

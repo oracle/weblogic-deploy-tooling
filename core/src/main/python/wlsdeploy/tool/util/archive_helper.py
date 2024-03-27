@@ -529,17 +529,15 @@ class ArchiveList(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return found_wallets
 
-    def check_rcu_wallet_path(self):
+    def has_rcu_wallet_path(self):
         """
-        Return the path containing the RCU wallet, if present.
-        This should be called after wallets are extracted.
-        :return: the RCU wallet path, or None
+        Determine if any archive contains an RCU wallet path.
+        :return: True if an RCU wallet path is found, False otherwise
         """
-        wallet_path = os.path.join(self.get_domain_home_file().getAbsolutePath(),
-                                   WLSDeployArchive.DEFAULT_RCU_WALLET_PATH)
-        if os.path.isdir(wallet_path):
-            return wallet_path
-        return None
+        for archive_file in self.__archive_files:
+            if (archive_file.containsPath(WLSDeployArchive.DEFAULT_RCU_WALLET_PATH)
+                    or archive_file.containsPath(WLSDeployArchive.DEPRECATED_RCU_WALLET_PATH)):
+                return True
 
     def extract_opss_wallet(self):
         """

@@ -76,8 +76,6 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         existing_app_refs = self.__get_existing_apps()
         existing_lib_refs = self.__get_existing_library_references()
 
-        # stop the app if the referenced shared library is newer or if the source path changes
-        stop_app_list = list()
         # applications to be stopped and undeployed
         stop_and_undeploy_app_list = list()
         # libraries to be undeployed
@@ -86,8 +84,8 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         lib_location = LocationContext(self._base_location).append_location(LIBRARY)
         # Go through the model libraries and find existing libraries that are referenced
         # by applications and compute a processing strategy for each library.
-        self.__build_library_deploy_strategy(lib_location, model_shared_libraries, existing_lib_refs,
-                                             stop_app_list, update_library_list)
+        self.__build_library_deploy_strategy(lib_location, model_shared_libraries,
+                                             existing_lib_refs, update_library_list)
 
         # Go through the model applications and compute the processing strategy for each application.
         app_location = LocationContext(self._base_location).append_location(APPLICATION)
@@ -399,15 +397,12 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
     #                      Build deploy strategies                            #
     ###########################################################################
 
-    # FIXME - why is stop_app_list passed in but never used?
-    def __build_library_deploy_strategy(self, location, model_libs, existing_lib_refs, stop_app_list,
-                                        update_library_list):
+    def __build_library_deploy_strategy(self, location, model_libs, existing_lib_refs, update_library_list):
         """
         Update maps and lists to control re-deployment processing.
         :param location: the location of the libraries
         :param model_libs: a copy of libraries from the model, attributes may be revised
         :param existing_lib_refs: map of information about each existing library
-        :param stop_app_list: a list to update with dependent apps to be stopped and undeployed
         :param update_library_list: a list to update with libraries to be stopped before deploying
         """
         _method_name = '__build_library_deploy_strategy'
@@ -424,9 +419,7 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
 
                 # determine the versioned name of the library from the library's MANIFEST
                 model_src_path = dictionary_utils.get_element(lib_dict, SOURCE_PATH)
-                # FIXME - why is from_archive always set to True???
-                versioned_name = \
-                    self.version_helper.get_library_versioned_name(model_src_path, lib, from_archive=True)
+                versioned_name = self.version_helper.get_library_versioned_name(model_src_path, lib)
 
                 existing_lib_ref = dictionary_utils.get_dictionary_element(existing_lib_refs, versioned_name)
 
