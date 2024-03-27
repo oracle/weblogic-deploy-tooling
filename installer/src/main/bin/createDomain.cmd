@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem createDomain.cmd
 @rem
-@rem Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+@rem Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -79,10 +79,6 @@ ECHO              [-opss_wallet] ^<opss_wallet_file^>]
 ECHO              [-opss_wallet_passphrase_env ^<opss_wallet_passphrase_env^>]
 ECHO              [-opss_wallet_passphrase_file ^<opss_wallet_passphrase_file^>]
 ECHO              [-wlst_path ^<wlst_path^>]
-ECHO              [-rcu_db ^<rcu_database^>
-ECHO               -rcu_prefix ^<rcu_prefix^>
-ECHO               -rcu_db_user ^<rcu_db_user^>
-ECHO              ]
 ECHO.
 ECHO     where:
 ECHO         oracle_home     - the existing Oracle Home directory for the domain.
@@ -152,16 +148,6 @@ ECHO                           retrieve the passphrase.
 ECHO.
 ECHO         wlst_path       - the Oracle Home subdirectory of the wlst.cmd
 ECHO                           script to use (e.g., ^<ORACLE_HOME^>\soa).
-ECHO.
-ECHO         rcu_database    - the RCU database connect string (if the domain
-ECHO                           type requires RCU).
-ECHO.
-ECHO         rcu_prefix      - the RCU prefix to use (if the domain type requires
-ECHO                           RCU).
-ECHO.
-ECHO         rcu_db_user    - the RCU dbUser to use (if the domain type requires
-ECHO                          RCU.  Default SYS if not specified).  This user must
-ECHO                          have SYSDBA privilege.
 ECHO.
 ECHO    The -use_encryption switch tells the program that one or more of the
 ECHO    passwords in the model or variables files are encrypted.  The program will

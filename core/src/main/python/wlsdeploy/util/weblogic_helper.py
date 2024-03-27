@@ -11,6 +11,11 @@ import weblogic.management.provider.ManagementServiceClient as ManagementService
 import weblogic.security.internal.SerializedSystemIni as SerializedSystemIni
 import weblogic.security.internal.encryption.ClearOrEncryptedService as ClearOrEncryptedService
 
+from oracle.weblogic.deploy.create.RCURunner import DB2_DB_TYPE
+from oracle.weblogic.deploy.create.RCURunner import EBR_DB_TYPE
+from oracle.weblogic.deploy.create.RCURunner import MYSQL_DB_TYPE
+from oracle.weblogic.deploy.create.RCURunner import ORACLE_DB_TYPE
+from oracle.weblogic.deploy.create.RCURunner import SQLSERVER_DB_TYPE
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.util import string_utils
 import wlsdeploy.util.unicode_helper as str_helper
@@ -92,12 +97,11 @@ class WebLogicHelper(object):
         Is MultiTenant offline provisioning supported?
         :return: true if MT offline provisioning is supported; false otherwise
         """
-        return (self.is_weblogic_version_or_above('12.2.1.1') or not self.is_weblogic_version_or_above('12.2.1')) and \
-            not self.is_weblogic_version_or_above('14.1.1')
+        return self.is_weblogic_version_or_above('12.2.1.1') and not self.is_weblogic_version_or_above('14.1.1')
 
     def is_mt_provisioning_supported(self):
         """
-        Is MultiTenant offline provisioning in a version that is still supports MT?
+        Is MultiTenant online provisioning in a version that is still supports MT?
         :return: true if MT provisioning is supported; false otherwise
         """
         return self.is_weblogic_version_or_above('12.2.1') and not self.is_weblogic_version_or_above('14.1.1')
@@ -165,31 +169,61 @@ class WebLogicHelper(object):
         """
         return self.is_weblogic_version_or_above('12.2.1.3') and not self.is_weblogic_version_or_above('14.1.2')
 
-    def get_jdbc_url_from_rcu_connect_string(self, rcu_connect_string):
+    def get_jdbc_url_from_rcu_connect_string(self, rcu_connect_string, rcu_database_type='ORACLE'):
         """
         Get the JDBC URL from the RCU connect string.
         :param rcu_connect_string: the RCU connect string
         :return: the JDBC URL
         """
-        jdbc_url = rcu_connect_string
-        if not rcu_connect_string.startswith('jdbc:oracle:'):
-            if rcu_connect_string.startswith('('):
-                # Long format
-                jdbc_url = 'jdbc:oracle:thin:@' + rcu_connect_string
-            elif rcu_connect_string.rfind('/') != -1:
-                # host:port/service format
-                jdbc_url = 'jdbc:oracle:thin:@//' + rcu_connect_string
-            else:
-                # host:port:sid format
-                jdbc_url = 'jdbc:oracle:thin:@' + rcu_connect_string
-        return jdbc_url
+        _method_name = 'get_jdbc_url_from_rcu_connect_string'
+        self.logger.entering(rcu_connect_string, rcu_database_type,
+                             class_name=self._class_name, method_name=_method_name)
 
-    def get_stb_data_source_jdbc_driver_name(self):
-        """
-        Get the Service Table JDBC Driver class name.
-        :return: the Service Table JDBC Driver class name
-        """
-        return 'oracle.jdbc.OracleDriver'
+        jdbc_url = rcu_connect_string
+        if rcu_database_type == ORACLE_DB_TYPE or rcu_database_type == EBR_DB_TYPE:
+            if not rcu_connect_string.startswith('jdbc:oracle:'):
+                if rcu_connect_string.startswith('('):
+                    # Long format
+                    jdbc_url = 'jdbc:oracle:thin:@' + rcu_connect_string
+                elif rcu_connect_string.rfind('/') != -1:
+                    # host:port/service format
+                    jdbc_url = 'jdbc:oracle:thin:@//' + rcu_connect_string
+                else:
+                    # host:port:sid format
+                    jdbc_url = 'jdbc:oracle:thin:@' + rcu_connect_string
+        elif rcu_database_type == SQLSERVER_DB_TYPE:
+            if not rcu_connect_string.startswith('jdbc:weblogic:sqlserver://'):
+                if rcu_connect_string.count(':') == 2:
+                    rcu_connect_string_components = rcu_connect_string.split(':')
+                    rcu_connect_string = '%s:%s;DatabaseName=%s' % (
+                        rcu_connect_string_components[0],
+                        rcu_connect_string_components[1],
+                        rcu_connect_string_components[2]
+                    )
+                jdbc_url = 'jdbc:weblogic:sqlserver://' + rcu_connect_string
+        elif rcu_database_type == DB2_DB_TYPE:
+            if not rcu_connect_string.startswith('jdbc:weblogic:db2://'):
+                if rcu_connect_string.count(':') == 2:
+                    rcu_connect_string_components = rcu_connect_string.split(':')
+                    rcu_connect_string = '%s:%s;DatabaseName=%s' % (
+                        rcu_connect_string_components[0],
+                        rcu_connect_string_components[1],
+                        rcu_connect_string_components[2]
+                    )
+                jdbc_url = 'jdbc:weblogic:db2://' + rcu_connect_string
+        elif rcu_database_type == MYSQL_DB_TYPE:
+            if not rcu_connect_string.startswith('jdbc:mysql://'):
+                if rcu_connect_string.count(':') == 2:
+                    rcu_connect_string_components = rcu_connect_string.split(':')
+                    rcu_connect_string = '%s:%s/%s' % (
+                        rcu_connect_string_components[0],
+                        rcu_connect_string_components[1],
+                        rcu_connect_string_components[2]
+                    )
+                jdbc_url = 'jdbc:mysql://' + rcu_connect_string
+
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=jdbc_url)
+        return jdbc_url
 
     def get_stb_user_name(self, rcu_prefix):
         """

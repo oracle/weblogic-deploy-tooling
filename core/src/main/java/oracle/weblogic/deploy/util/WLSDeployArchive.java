@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+ * Copyright (c) 2017, 2024, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
@@ -73,6 +73,7 @@ public class WLSDeployArchive {
      * Default, top-level archive subdirectory where the database wallet for the RCU database is stored.
      */
     public static final String DEFAULT_RCU_WALLET_PATH = ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + DEFAULT_RCU_WALLET_NAME;
+    public static final String DEPRECATED_RCU_WALLET_PATH = DEPRECATED_DB_WALLETS_DIR + ZIP_SEP + DEFAULT_RCU_WALLET_NAME;
 
     /**
      * Top-level archive subdirectory where the opss wallet is stored.
