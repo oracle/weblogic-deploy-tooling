@@ -1,5 +1,5 @@
 +++
-title = "Release Notes 3.4.0"
+title = "Release 3.4.0"
 date = 2019-02-22T15:27:38-05:00
 weight = 80
 pre = "<b> </b>"

@@ -1,7 +1,7 @@
 +++
 title = "Release Notes"
 date = 2024-01-09T18:27:38-05:00
-weight = 76
+weight = 74
 pre = "<b> </b>"
 +++
 
@@ -22,11 +22,13 @@ pre = "<b> </b>"
 - #1550 - Refactored the archive file and moved content extraction into `$DOMAIN_HOME/config/wlsdeploy` for some types
           to take advantage of existing Pack/Unpack behavior and admin server to managed server replications capabilities.
 - #1584 - Added support for creating WebLogic authorization policies during domain creation (GitHub issue #1496).
-- #1641, #1643 - Overhauled Application and Library provisioning.  As part of this overhaul, we have tried to define the
-          semantics for non-archive application deployments, particularly with online Update Domain and Deploy Apps tools.
-          For non-archive applications/libraries, online deployment of binaries outside of the archive will always
-          assume that the binaries are available to the Admin Server at the model-specified paths.  Neither the
-          `-remote` or SSH options will attempt to upload the non-archived binaries. 
+- #1641, #1643, #1644, #1645, #1646, #1647, #1648, #1650 - Overhauled Application and Library provisioning.  As part of
+          this overhaul, we have tried to define the semantics for non-archived application deployments, particularly
+          with online Update Domain and Deploy Applications tools.  For non-archive applications/libraries, online deployment of
+          binaries outside of the archive will always assume that the binaries are available to the Administration Server at the
+          model-specified paths.  Neither the `-remote` or SSH options will attempt to upload the non-archived binaries.
+- #1654 - Overhaul of the Create Domain Tool's support for running RCU and applying RCU-related changes to the
+          RCU Data Sources.
 
 #### Other Changes
 - #1544 - Consolidated multiple internal WLST helper methods to get an MBean.
@@ -53,6 +55,13 @@ pre = "<b> </b>"
 - #1614 - Updated Discover Domain Tool to overwrite existing variable and archive files if they already exist. 
 - #1616 - Improved `RCUDbInfo` validation in Create Domain tool.
 - #1630 - Replaced the `-variable_property_file` argument in the Inject Variables tool with `-variable_file`
+- #1653 - Added support for creating a domain with password digests enabled and users that are properly provisioned so
+          that you do not need to delete and recreate the users after the server is started.
+- #1654 - Added `OAM` and `OIG` domain typedefs to support the Oracle Identity Management team's Kubernetes offering.
+          Please be aware that these are not intended to be general-purpose, WDT typedefs and are only supported by
+          the Oracle Identity Management team in the context of their Kubernetes offering!
+- #1654 - Deprecated the `RCUDbInfo` section's `databaseType` attribute and replaced it 
+          with `oracle_database_connection_type`.  
  
 #### Bug Fixes
 - #1555 - Fixed issues with creating and discovering `UnixMachine` objects in online mode.

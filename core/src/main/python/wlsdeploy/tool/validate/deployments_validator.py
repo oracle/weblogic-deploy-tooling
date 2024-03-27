@@ -46,17 +46,16 @@ class DeploymentsValidator(ModelValidator):
         """
         Validate the app deployments section of the model.
         :param model_dict: the top-level model dictionary
-        :param model_dict:
         """
         self.validate_model_section(APP_DEPLOYMENTS, model_dict,
                                     self._aliases.get_model_app_deployments_top_level_folder_names())
 
     # Override
-    def _process_model_node(self, model_node, validation_location):
+    def _validate_folder_content(self, model_node, validation_location):
         """
         Override this method to validate combined PlanDir and PlanPath, if both are present.
         """
-        ModelValidator._process_model_node(self, model_node, validation_location)
+        ModelValidator._validate_folder_content(self, model_node, validation_location)
 
         plan_path = dictionary_utils.get_element(model_node, PLAN_PATH)
         if plan_path:

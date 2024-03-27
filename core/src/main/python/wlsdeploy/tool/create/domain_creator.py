@@ -15,21 +15,33 @@ import weblogic.security.internal.encryption.ClearOrEncryptedService as ClearOrE
 
 from oracle.weblogic.deploy.create import CreateDomainLifecycleHookScriptRunner
 from oracle.weblogic.deploy.create import RCURunner
+from oracle.weblogic.deploy.create.RCURunner import COMPONENT_INFO_LOCATION_SWITCH
+from oracle.weblogic.deploy.create.RCURunner import DB2_DB_TYPE
+from oracle.weblogic.deploy.create.RCURunner import EBR_DB_TYPE
+from oracle.weblogic.deploy.create.RCURunner import MYSQL_DB_TYPE
+from oracle.weblogic.deploy.create.RCURunner import ORACLE_DB_TYPE
+from oracle.weblogic.deploy.create.RCURunner import SQLSERVER_DB_TYPE
+from oracle.weblogic.deploy.create.RCURunner import EDITION_SWITCH
+from oracle.weblogic.deploy.create.RCURunner import STORAGE_LOCATION_SWITCH
+from oracle.weblogic.deploy.create.RCURunner import TABLESPACE_SWITCH
+from oracle.weblogic.deploy.create.RCURunner import TEMP_TABLESPACE_SWITCH
+from oracle.weblogic.deploy.create.RCURunner import UNICODE_SUPPORT
+from oracle.weblogic.deploy.create.RCURunner import VARIABLES_SWITCH
 from oracle.weblogic.deploy.util import FileUtils
+from oracle.weblogic.deploy.util import WLSDeployArchive
 
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
 from wlsdeploy.aliases.model_constants import APP_DIR
-from wlsdeploy.aliases.model_constants import ATP_DEFAULT_TABLESPACE
-from wlsdeploy.aliases.model_constants import ATP_TEMPORARY_TABLESPACE
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import CREATE_ONLY_DOMAIN_ATTRIBUTES
 from wlsdeploy.aliases.model_constants import DEFAULT_ADMIN_SERVER_NAME
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DOMAIN_NAME
+from wlsdeploy.aliases.model_constants import DRIVER_NAME
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORETYPE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTOREPWD_PROPERTY
@@ -61,7 +73,6 @@ from wlsdeploy.aliases.model_constants import PASSWORD
 from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
 from wlsdeploy.aliases.model_constants import PRODUCTION_MODE_ENABLED
 from wlsdeploy.aliases.model_constants import RESOURCES
-from wlsdeploy.aliases.model_constants import RCU_ADMIN_USER
 from wlsdeploy.aliases.model_constants import RCU_COMP_INFO
 from wlsdeploy.aliases.model_constants import RCU_STG_INFO
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
@@ -88,14 +99,14 @@ from wlsdeploy.aliases.model_constants import XML_REGISTRY
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.exception_types import ExceptionType
-from wlsdeploy.tool.create import atp_helper
+from wlsdeploy.logging.platform_logger import get_logged_value
 from wlsdeploy.tool.create import opss_helper
-from wlsdeploy.tool.create import ssl_helper
 from wlsdeploy.tool.create import rcudbinfo_helper
 from wlsdeploy.tool.create.creator import Creator
 from wlsdeploy.tool.create.domain_typedef import POST_CREATE_DOMAIN_LIFECYCLE_HOOK
 from wlsdeploy.tool.create.domain_typedef import POST_CREATE_RCU_SCHEMAS_LIFECYCLE_HOOK
 from wlsdeploy.tool.create.security_provider_creator import SecurityProviderCreator
+from wlsdeploy.tool.create.tnsnames_helper import TnsNamesHelper
 from wlsdeploy.tool.create.wlspolicies_helper import WLSPolicies
 from wlsdeploy.tool.create.wlsroles_helper import WLSRoles
 from wlsdeploy.tool.deploy import deployer_utils
@@ -120,6 +131,7 @@ import wlsdeploy.util.unicode_helper as str_helper
 
 POST_CREATE_RCU_SCHEMA_LOG_BASENAME = 'postCreateRcuSchemasScript'
 POST_CREATE_DOMAIN_LOG_BASENAME = 'postCreateDomainScript'
+PASSWORD_MASK = '********'
 
 class DomainCreator(Creator):
     """
@@ -228,7 +240,8 @@ class DomainCreator(Creator):
 
     def __extract_rcu_xml_file(self, xml_type, path):
         _method_name = '__extract_rcu_xml_files'
-        self.logger.entering(path, class_name=self.__class_name, method_name=_method_name)
+        self.logger.entering(xml_type, path, class_name=self.__class_name, method_name=_method_name)
+
         result = None
         if path is not None:
             resolved_path = self.model_context.replace_token_string(path)
@@ -257,8 +270,8 @@ class DomainCreator(Creator):
         :raises CreateException: if running rcu fails
         """
         _method_name = '__run_rcu'
-
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+
         if not self.model_context.is_run_rcu():
             self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
             return
@@ -273,131 +286,168 @@ class DomainCreator(Creator):
             self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
             return
 
-        domain_type = self.model_context.get_domain_type()
-        oracle_home = self.model_context.get_oracle_home()
-        java_home = self.model_context.get_java_home()
-
-        # create RcuDbInfo, with optional data from the model
         rcu_db_info = rcudbinfo_helper.create(self.model.get_model(), self.model_context, self.aliases)
 
-        # get these values from the command-line or RCUDbInfo in the model
+        oracle_home = self.model_context.get_oracle_home()
+        java_home = self.model_context.get_java_home()
+        rcu_database_type = rcu_db_info.get_rcu_database_type()
+        oracle_database_connection_type = rcu_db_info.get_oracle_database_connection_type()
+        rcu_db_conn_string = rcu_db_info.get_rcu_db_conn_string()
         rcu_prefix = rcu_db_info.get_rcu_prefix()
-        rcu_sys_pass = rcu_db_info.get_admin_password()
+        rcu_admin_user = rcu_db_info.get_rcu_admin_user()
+        rcu_admin_pass = rcu_db_info.get_rcu_admin_password()
         rcu_schema_pass = rcu_db_info.get_rcu_schema_password()
+        extra_rcu_args_map = self._get_extra_rcu_args_map(rcu_db_info)
 
-        database_type = rcu_db_info.get_database_type()
-        if database_type is not None and database_type not in ['SSL', 'ATP', 'ORACLE']:
-            ex = exception_helper.create_create_exception('WLSDPLY-12573', database_type)
+        ssl_conn_properties = None
+        if rcu_db_info.is_oracle_database_type():
+            tns_admin, rcu_db_conn_string = self.__get_rcu_db_connect_string(rcu_db_info)
+            if rcu_db_info.is_use_atp() or rcu_db_info.is_use_ssl():
+                ssl_conn_properties = self.__get_rcu_ssl_args_properties(rcu_db_info, tns_admin)
+
+                if rcu_db_info.is_use_atp():
+                    # hard coding for now, may need to expose it if ATP access changed later
+                    ssl_conn_properties[DRIVER_PARAMS_NET_FAN_ENABLED] = 'false'
+                    ssl_conn_properties[DRIVER_PARAMS_NET_SSL_VERSION] = DRIVER_PARAMS_NET_SSL_VERSION_VALUE
+
+                ssl_conn_properties[DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY] = 'false'
+
+        rcu_db_conn_string = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_db_conn_string, rcu_database_type)
+        if rcu_db_conn_string is None:
+            ex = exception_helper.create_create_exception('WLSDPLY-12572')
+            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
-        if rcu_db_info.is_use_atp():
-            # ATP database, build runner map from RCUDbInfo in the model.
-
-            # check it first
-            tns_admin, rcu_database, truststore_pwd, truststore_type, \
-            truststore, keystore_pwd, keystore_type, keystore = self.__validate_and_get_atp_rcudbinfo(rcu_db_info, True)
-
-            rcu_runner_map = dict()
-            ssl_conn_properties = dict()
-
-            # historical reason, these values may not be there, and assume default name for now, user can override with
-            # sso file name
-
-            truststore = rcu_db_info.get_truststore()
-            keystore = rcu_db_info.get_keystore()
-            truststore_type = rcu_db_info.get_truststore_type()
-            keystore_type = rcu_db_info.get_keystore_type()
-            keystore, keystore_type, truststore, truststore_type = atp_helper.fix_store_type_and_default_value(keystore,
-                                                                        keystore_type, truststore, truststore_type,
-                                                                        truststore_pwd, keystore_pwd)
-
-
-            self._set_rcu_ssl_args_properties(ssl_conn_properties, rcu_db_info, keystore, keystore_type, truststore,
-                                              truststore_type)
-
-            # hard coding for now, may need to expose it if ATP access changed later
-            ssl_conn_properties[DRIVER_PARAMS_NET_FAN_ENABLED] = 'false'
-            ssl_conn_properties[DRIVER_PARAMS_NET_SSL_VERSION] = DRIVER_PARAMS_NET_SSL_VERSION_VALUE
-            ssl_conn_properties[DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY] = 'false'
-
-            # reset these to pick up any defaults from rcu_db_info
-
-            rcu_runner_map[RCU_ADMIN_USER] = rcu_db_info.get_rcu_admin_user()
-            rcu_runner_map[ATP_TEMPORARY_TABLESPACE] = rcu_db_info.get_atp_temporary_tablespace()
-            rcu_runner_map[ATP_DEFAULT_TABLESPACE] = rcu_db_info.get_atp_default_tablespace()
-
-            fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
-            runner = RCURunner.createAtpRunner(domain_type, oracle_home, java_home, fmw_database,
-                                               rcu_schemas, rcu_prefix, rcu_db_info.get_rcu_variables(),
-                                               rcu_db_info.get_database_type(), rcu_runner_map, ssl_conn_properties)
-
-        elif rcu_db_info.is_use_ssl():
-
-            tns_admin, rcu_database, truststore_pwd, truststore_type, \
-            truststore, keystore_pwd, keystore_type, keystore  = self.__validate_and_get_ssl_rcudbinfo(rcu_db_info)
-
-            rcu_runner_map = dict()
-            rcu_admin_user = rcu_db_info.get_rcu_admin_user()
-            ssl_conn_properties = dict()
-
-            self._set_rcu_ssl_args_properties(ssl_conn_properties, rcu_db_info, keystore, keystore_type, truststore,
-                                              truststore_type)
-
-            ssl_conn_properties["oracle.net.ssl_server_dn_match"] = 'false'
-
-            fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
-            runner = RCURunner.createSslRunner(domain_type, oracle_home, java_home, fmw_database, rcu_prefix, rcu_schemas,
-                                               rcu_db_info.get_rcu_variables(), rcu_runner_map, ssl_conn_properties)
-
-            runner.setRCUAdminUser(rcu_admin_user)
-        else:
-            # Non-ATP database, use DB config from the command line or RCUDbInfo in the model.
-            rcu_db = rcu_db_info.get_rcu_regular_db_conn()
-
-            if rcu_db is None:
-                ex = exception_helper.create_create_exception('WLSDPLY-12572')
-                raise ex
-
-            rcu_admin_user = rcu_db_info.get_rcu_admin_user()
-
-            runner = RCURunner.createRunner(domain_type, oracle_home, java_home, rcu_db, rcu_prefix, rcu_schemas,
-                                            rcu_db_info.get_rcu_variables())
-            runner.setRCUAdminUser(rcu_admin_user)
-
-        rcu_comp_info_location = self.__extract_rcu_xml_file(RCU_COMP_INFO, rcu_db_info.get_comp_info_location())
-        rcu_storage_location = self.__extract_rcu_xml_file(RCU_STG_INFO, rcu_db_info.get_storage_location())
-        runner.setXmlLocations(rcu_comp_info_location, rcu_storage_location)
-
         disable_rcu_drop_schema = self.model_context.get_model_config().get_disable_rcu_drop_schema() == 'true'
-        runner.runRcu(rcu_sys_pass, rcu_schema_pass, disable_rcu_drop_schema)
+        rcu_runner = RCURunner(oracle_home, java_home, rcu_database_type, oracle_database_connection_type,
+                               rcu_db_conn_string, rcu_prefix, rcu_admin_user, rcu_schemas, extra_rcu_args_map,
+                               ssl_conn_properties)
+        rcu_runner.runRcu(rcu_admin_pass, rcu_schema_pass, disable_rcu_drop_schema)
+
         self.__run_post_create_rcu_schemas_script()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-    def _set_rcu_ssl_args_properties(self, ssl_conn_properties, rcu_db_info, keystore, keystore_type, truststore,
-                                     truststore_type):
-        if rcu_db_info.get_keystore_password() is not None:
-            ssl_conn_properties[DRIVER_PARAMS_KEYSTOREPWD_PROPERTY] = rcu_db_info.get_keystore_password()
-        if rcu_db_info.get_truststore_password() is not None:
-            ssl_conn_properties[DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY] = rcu_db_info.get_truststore_password()
-        ssl_conn_properties[DRIVER_PARAMS_NET_TNS_ADMIN] = rcu_db_info.get_tns_admin()
-        ssl_conn_properties[DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY] = truststore_type
-        ssl_conn_properties[DRIVER_PARAMS_KEYSTORETYPE_PROPERTY] = keystore_type
-        ssl_conn_properties[DRIVER_PARAMS_TRUSTSTORE_PROPERTY] = self.__get_store_path(rcu_db_info.get_tns_admin(),
-                                                                                       truststore)
-        ssl_conn_properties[DRIVER_PARAMS_KEYSTORE_PROPERTY] = self.__get_store_path(rcu_db_info.get_tns_admin(),
-                                                                                     keystore)
+    def __get_rcu_db_connect_string(self, rcu_db_info):
+        _method_name = '__get_rcu_db_connect_string'
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
 
-        if not os.path.exists(ssl_conn_properties[DRIVER_PARAMS_KEYSTORE_PROPERTY]):
+        rcu_db_conn_string = rcu_db_info.get_rcu_db_conn_string()
+        tns_admin = self.__get_tns_admin_path(rcu_db_info.get_tns_admin())
+        # If user specify connect string, no need to fetch from tnsnames.ora
+        if string_utils.is_empty(rcu_db_conn_string):
+            if string_utils.is_empty(tns_admin) and self.archive_helper is not None:
+                if self.archive_helper.has_rcu_wallet_path():
+                    # Extracting the RCU wallet from the archive always puts it into the new location.
+                    archive_elements = WLSDeployArchive.DEFAULT_RCU_WALLET_PATH.split('/')
+                    tns_admin = \
+                        os.path.join(self.model_context.get_domain_home(), *archive_elements)
+
+            if string_utils.is_empty(tns_admin) or not os.path.exists(os.path.join(tns_admin, 'tnsnames.ora')):
+                ex = exception_helper.create_create_exception('WLSDPLY-12562')
+                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
+
+            if rcu_db_info.get_tns_entry() is None:
+                ex = exception_helper.create_create_exception('WLSDPLY-12416','tns.alias')
+                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
+
+            tnsnames_helper = TnsNamesHelper(self.model_context, os.path.join(tns_admin, 'tnsnames.ora'))
+            rcu_db_conn_string = tnsnames_helper.get_connect_string(rcu_db_info.get_tns_entry())
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name,
+                            result=[tns_admin, rcu_db_conn_string])
+        return tns_admin, rcu_db_conn_string
+
+    def __get_rcu_ssl_args_properties(self, rcu_db_info, tns_admin):
+        _method_name = '__get_rcu_ssl_args_properties'
+        self.logger.entering(tns_admin, class_name=self.__class_name, method_name=_method_name)
+
+        keystore = rcu_db_info.get_keystore()
+        keystore_type = rcu_db_info.get_keystore_type()
+        keystore_password = rcu_db_info.get_keystore_password()
+        truststore = rcu_db_info.get_truststore()
+        truststore_type = rcu_db_info.get_truststore_type()
+        truststore_password = rcu_db_info.get_truststore_password()
+
+        ssl_conn_properties = dict()
+        if not string_utils.is_empty(tns_admin):
+            ssl_conn_properties[DRIVER_PARAMS_NET_TNS_ADMIN] = tns_admin
+        if not string_utils.is_empty(keystore):
+            ssl_conn_properties[DRIVER_PARAMS_KEYSTORE_PROPERTY] = self.__get_store_path(tns_admin, keystore)
+        if not string_utils.is_empty(keystore_type):
+            ssl_conn_properties[DRIVER_PARAMS_KEYSTORETYPE_PROPERTY] = keystore_type
+        if not string_utils.is_empty(keystore_password):
+            ssl_conn_properties[DRIVER_PARAMS_KEYSTOREPWD_PROPERTY] = keystore_password
+        if not string_utils.is_empty(truststore):
+            ssl_conn_properties[DRIVER_PARAMS_TRUSTSTORE_PROPERTY] = self.__get_store_path(tns_admin, truststore)
+        if not string_utils.is_empty(truststore_type):
+            ssl_conn_properties[DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY] = truststore_type
+        if not string_utils.is_empty(truststore_password):
+            ssl_conn_properties[DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY] = truststore_password
+
+        if DRIVER_PARAMS_KEYSTORE_PROPERTY in ssl_conn_properties and \
+                not os.path.exists(ssl_conn_properties[DRIVER_PARAMS_KEYSTORE_PROPERTY]):
             ex = exception_helper.create_create_exception('WLSDPLY-12574',
                                                           ssl_conn_properties[DRIVER_PARAMS_KEYSTORE_PROPERTY],
                                                           DRIVER_PARAMS_KEYSTORE_PROPERTY)
+            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
-        if not os.path.exists(ssl_conn_properties[DRIVER_PARAMS_TRUSTSTORE_PROPERTY]):
+        if DRIVER_PARAMS_TRUSTSTORE_PROPERTY in ssl_conn_properties and \
+                not os.path.exists(ssl_conn_properties[DRIVER_PARAMS_TRUSTSTORE_PROPERTY]):
             ex = exception_helper.create_create_exception('WLSDPLY-12574',
                                                           ssl_conn_properties[DRIVER_PARAMS_TRUSTSTORE_PROPERTY],
                                                           DRIVER_PARAMS_TRUSTSTORE_PROPERTY)
+            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
+
+        if not ssl_conn_properties:
+            ssl_conn_properties = None
+
+        # don't log the dictionary being returned since it may contain keystore passwords
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return ssl_conn_properties
+
+    def _get_extra_rcu_args_map(self, rcu_db_info):
+        _method_name = '_get_extra_rcu_args_map'
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        extra_rcu_args = dict()
+        tablespace = rcu_db_info.get_rcu_default_tablespace()
+        temp_tablespace = rcu_db_info.get_rcu_temp_tablespace()
+        comp_info_xml_location = self.__extract_rcu_xml_file(RCU_COMP_INFO, rcu_db_info.get_comp_info_location())
+        storage_xml_location = self.__extract_rcu_xml_file(RCU_STG_INFO, rcu_db_info.get_storage_location())
+        rcu_variables = rcu_db_info.get_rcu_variables()
+        rcu_edition = rcu_db_info.get_rcu_edition()
+        rcu_unicode_support = rcu_db_info.get_rcu_unicode_support()
+
+        if not string_utils.is_empty(tablespace):
+            extra_rcu_args[TABLESPACE_SWITCH] = tablespace
+
+        if not string_utils.is_empty(temp_tablespace):
+            extra_rcu_args[TEMP_TABLESPACE_SWITCH] = temp_tablespace
+
+        if not string_utils.is_empty(comp_info_xml_location):
+            extra_rcu_args[COMPONENT_INFO_LOCATION_SWITCH] = comp_info_xml_location
+
+        if not string_utils.is_empty(storage_xml_location):
+            extra_rcu_args[STORAGE_LOCATION_SWITCH] = storage_xml_location
+
+        if not string_utils.is_empty(rcu_variables):
+            extra_rcu_args[VARIABLES_SWITCH] = rcu_variables
+
+        if not string_utils.is_empty(rcu_edition):
+            extra_rcu_args[EDITION_SWITCH] = rcu_edition
+
+        if not string_utils.is_empty(rcu_unicode_support):
+            extra_rcu_args[UNICODE_SUPPORT] = rcu_unicode_support
+
+        if not extra_rcu_args:
+            extra_rcu_args = None
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=extra_rcu_args)
+        return extra_rcu_args
 
     def __run_post_create_rcu_schemas_script(self):
         _method_name = '__run_post_create_rcu_schemas_script'
@@ -425,7 +475,7 @@ class DomainCreator(Creator):
         """
         _method_name = '__fail_mt_1221_domain_creation'
 
-        if self.wls_helper.is_mt_offline_provisioning_supported() and self.wls_helper.is_mt_provisioning_supported():
+        if self.wls_helper.is_mt_offline_provisioning_supported():
             return
 
         resources_dict = self.model.get_model_resources()
@@ -1058,108 +1108,6 @@ class DomainCreator(Creator):
         else:
             return {property_name: property_value}
 
-    def __validate_and_get_atp_rcudbinfo(self, rcu_db_info, check_admin_pwd=False):
-        """
-        Check and return atp connection info and make sure atp rcudb info is complete
-        :raises: CreateException: if an error occurs
-        """
-        _method_name = '__validate_and_get_atp_rcudbinfo'
-
-        tns_admin = rcu_db_info.get_tns_admin()
-        rcu_database = rcu_db_info.get_rcu_regular_db_conn()
-
-        if rcu_database is None:
-            if tns_admin is None or not os.path.exists(tns_admin + os.sep + "tnsnames.ora"):
-                ex = exception_helper.create_create_exception('WLSDPLY-12562')
-                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                raise ex
-
-            if rcu_db_info.get_tns_entry() is None:
-                ex = exception_helper.create_create_exception('WLSDPLY-12413','tns.alias',
-                                                              "['tns.alias','javax.net.ssl.keyStorePassword',"
-                                                              "'javax.net.ssl.trustStorePassword']")
-                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                raise ex
-
-            rcu_database, error = atp_helper.get_atp_connect_string(tns_admin + os.sep + 'tnsnames.ora',
-                                                                    rcu_db_info.get_tns_entry())
-        #
-        keystore_pwd = rcu_db_info.get_keystore_password()
-        truststore_pwd = rcu_db_info.get_truststore_password()
-
-        truststore_type = rcu_db_info.get_truststore_type()
-        keystore_type = rcu_db_info.get_keystore_type()
-        truststore = rcu_db_info.get_truststore()
-        keystore = rcu_db_info.get_keystore()
-        if keystore_pwd is None and keystore_type != 'SSO':
-            ex = exception_helper.create_create_exception('WLSDPLY-12413','javax.net.ssl.keyStorePassword',
-                                                          "['tns.alias','javax.net.ssl.keyStorePassword',"
-                                                          "'javax.net.ssl.trustStorePassword']")
-            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-
-        if truststore_pwd is None and truststore_type != 'SSO':
-            ex = exception_helper.create_create_exception('WLSDPLY-12413','javax.net.ssl.trustStorePassword',
-                                                          "['tns.alias','javax.net.ssl.keyStorePassword',"
-                                                          "'javax.net.ssl.trustStorePassword']")
-            raise ex
-
-        if check_admin_pwd:
-            admin_pwd = rcu_db_info.get_admin_password()
-            if admin_pwd is None:
-                ex = exception_helper.create_create_exception('WLSDPLY-12413','rcu_admin_password',
-                                                              "['rcu_prefix','rcu_schema_password',"
-                                                              "'rcu_admin_password']")
-                raise ex
-
-        return tns_admin, rcu_database, truststore_pwd, truststore_type, truststore, keystore_pwd, keystore_type, \
-            keystore
-
-    def __validate_and_get_ssl_rcudbinfo(self, rcu_db_info, check_admin_pwd=False):
-        """
-        Check and return ssl connection info and make sure ssl rcudb info is complete
-        :raises: CreateException: if an error occurs
-        """
-        _method_name = '__validate_and_get_ssl_rcudbinfo'
-
-        tns_admin = rcu_db_info.get_tns_admin()
-        truststore = rcu_db_info.get_truststore()
-
-        rcu_database = rcu_db_info.get_rcu_regular_db_conn()
-        # If user specify connect string, no need to fetch from tnsnames.ora
-
-        if rcu_database is None:
-            if tns_admin is None or not os.path.exists(tns_admin + os.sep + "tnsnames.ora") \
-             or not os.path.exists(tns_admin + os.sep + truststore):
-                ex = exception_helper.create_create_exception('WLSDPLY-12562')
-                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                raise ex
-
-            if rcu_db_info.get_tns_entry() is None:
-                ex = exception_helper.create_create_exception('WLSDPLY-12413','tns.alias',
-                                                              "['tns.alias','javax.net.ssl.keyStorePassword',"
-                                                              "'javax.net.ssl.trustStorePassword']")
-                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                raise ex
-            rcu_database, error = ssl_helper.get_ssl_connect_string(tns_admin + os.sep + 'tnsnames.ora',
-                                                             rcu_db_info.get_tns_entry())
-        truststore = rcu_db_info.get_truststore()
-        truststore_type = rcu_db_info.get_truststore_type()
-        truststore_pwd = rcu_db_info.get_truststore_password()
-        keystore = rcu_db_info.get_keystore()
-        keystore_type = rcu_db_info.get_keystore_type()
-        keystore_pwd = rcu_db_info.get_keystore_password()
-
-        if check_admin_pwd:
-            admin_pwd = rcu_db_info.get_admin_password()
-            if admin_pwd is None:
-                ex = exception_helper.create_create_exception('WLSDPLY-12413','rcu_admin_password',
-                                                              "['rcu_prefix','rcu_schema_password',"
-                                                              "'rcu_admin_password']")
-                raise ex
-
-        return tns_admin, rcu_database, truststore_pwd, truststore_type, truststore, keystore_pwd, keystore_type, keystore
-
     def __configure_fmw_infra_database(self):
         """
         Configure the FMW Infrastructure DataSources.
@@ -1183,12 +1131,14 @@ class DomainCreator(Creator):
           Setting the rcu default datasources connection parameters by looping through th default list of datasrouces
           from the template instead of using getDatabaseDefaults()
         :param rcu_db_info:   RCUDbInfo this has been either provided by the model or populated from command line
-        :return:
         """
-        _method_name = 'set_rcu_datasource_parameters'
+        _method_name = '__set_rcu_datasource_parameters_without_shadow_table'
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
 
-        fmw_database, is_atp_ds, is_ssl_ds, keystore, keystore_pwd, keystore_type, rcu_prefix, rcu_schema_pwd, \
-            tns_admin, truststore, truststore_pwd, truststore_type = self.get_rcu_basic_connection_info(rcu_db_info)
+        tns_admin, rcu_prefix, data_source_conn_string, rcu_schema_pwd = \
+            self.get_rcu_datasource_basic_connection_info(rcu_db_info)
+        keystore, keystore_type, keystore_pwd, truststore, truststore_type, truststore_pwd = \
+            self.get_rcu_datasource_ssl_connection_info(rcu_db_info)
 
         location = LocationContext()
         location.append_location(JDBC_SYSTEM_RESOURCE)
@@ -1196,23 +1146,28 @@ class DomainCreator(Creator):
         self.wlst_helper.cd(folder_path)
         ds_names = self.wlst_helper.lsc()
         self.__fmw_template_default_data_sources_names = ds_names
+        rcu_database_type = rcu_db_info.get_rcu_database_type()
+        jdbc_driver_class_name = self.get_jdbc_driver_class_name(rcu_database_type)
 
         for ds_name in ds_names:
             # Set the driver params
-            actual_url = self.__set_datasource_url(ds_name, fmw_database)
+            actual_url = self.__set_datasource_driver_and_url(ds_name, rcu_database_type,
+                                                              jdbc_driver_class_name, data_source_conn_string)
             self.__set_datasource_password(ds_name, rcu_schema_pwd)
             actual_schema = self.__reset_datasource_template_userid(ds_name, rcu_prefix)
-            pset = None
-            if is_atp_ds:
-                pset = self.__set_atp_standard_conn_properties(ds_name, tns_admin, truststore, truststore_pwd, truststore_type,
-                                                        keystore_pwd, keystore_type, keystore)
-            elif is_ssl_ds:
-                pset = self.__set_ssl_standard_conn_properties(ds_name, tns_admin, truststore, truststore_pwd, truststore_type,
-                                keystore_pwd, keystore_type, keystore)
 
-            self.logger.info('WLSDPLY_12575', ds_name, actual_url, actual_schema, pset,
+            property_set = None
+            if rcu_db_info.is_use_atp() or rcu_db_info.is_use_ssl():
+                is_atp = rcu_db_info.is_use_atp()
+                property_set = \
+                    self.__set_rcu_datasource_ssl_connection_properties(ds_name, is_atp, tns_admin,
+                                                                        truststore, truststore_type, truststore_pwd,
+                                                                        keystore, keystore_type, keystore_pwd)
+
+            self.logger.info('WLSDPLY-12575', ds_name, actual_url, actual_schema, property_set,
                              class_name=self.__class_name, method_name=_method_name)
 
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def __reset_datasource_template_userid(self, datasource_name, rcu_prefix):
         location = deployer_utils.get_jdbc_driver_params_location(datasource_name, self.aliases)
@@ -1239,83 +1194,109 @@ class DomainCreator(Creator):
                                                            rcu_schema_pwd, masked=True)
         self.wlst_helper.set_if_needed(wlst_name, wlst_value, masked=True)
 
-    def __set_datasource_url(self, datasource_name, url_string):
+    def __set_datasource_driver_and_url(self, datasource_name, database_type, driver_class_name, url):
         location = deployer_utils.get_jdbc_driver_params_location(datasource_name, self.aliases)
 
         wlst_path = self.aliases.get_wlst_attributes_path(location)
         self.wlst_helper.cd(wlst_path)
-        url = self.wls_helper.get_jdbc_url_from_rcu_connect_string(url_string)
+        self.__set_datasource_driver(datasource_name, database_type, location)
+
         wlst_name, wlst_value = \
             self.aliases.get_wlst_attribute_name_and_value(location, URL, url)
         self.wlst_helper.set_if_needed(wlst_name, wlst_value)
+
         return wlst_value
 
-    def __get_store_path(self, tns_admin, store):
-        result = store
-        if (not os.path.isabs(store)) and tns_admin:
-            result = tns_admin + os.sep + store
+    def __set_datasource_driver(self, datasource_name, database_type, location):
+        _method_name = '__set_datasource_driver'
+        if database_type != ORACLE_DB_TYPE and database_type != EBR_DB_TYPE:
+            wlst_driver_name, __ = self.aliases.get_wlst_attribute_name_and_value(location, DRIVER_NAME, 'dummy')
+            driver_params = self.wlst_helper.lsa()
+
+            current_driver_name = dictionary_utils.get_element(driver_params, wlst_driver_name)
+            if current_driver_name == 'oracle.jdbc.xa.client.OracleXADataSource':
+                new_driver_name = self.get_jdbc_driver_class_name(database_type, is_xa=True)
+            else:
+                new_driver_name = self.get_jdbc_driver_class_name(database_type, is_xa=False)
+
+            self.logger.fine('WLSDPLY-12578', datasource_name, database_type, new_driver_name,
+                             class_name=self.__class_name, method_name=_method_name)
+
+            wlst_name, wlst_value = \
+                self.aliases.get_wlst_attribute_name_and_value(location, DRIVER_NAME, new_driver_name)
+            self.wlst_helper.set_if_needed(wlst_name, wlst_value)
+
+    def __get_tns_admin_path(self, tns_admin):
+        _method_name = '__get_tns_admin_path'
+        self.logger.entering(tns_admin, class_name=self.__class_name, method_name=_method_name)
+
+        result = tns_admin
+        if deployer_utils.is_path_into_archive(tns_admin) or \
+                (not string_utils.is_empty(tns_admin) and not os.path.isabs(tns_admin)):
+            result = os.path.join(self.model_context.get_domain_home(), tns_admin)
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result
 
-    def __set_ssl_standard_conn_properties(self, datasource_name, tns_admin, truststore, truststore_pwd,
-                                           truststore_type, keystore_pwd, keystore_type, keystore):
-        location = deployer_utils.get_jdbc_driver_params_properties_location(datasource_name, self.aliases)
+    def __get_store_path(self, tns_admin, store):
+        _method_name = '__get_store_path'
+        self.logger.entering(tns_admin, store, class_name=self.__class_name, method_name=_method_name)
+
+        result = store
+        if not string_utils.is_empty(store):
+            if deployer_utils.is_path_into_archive(store):
+                result = os.path.join(self.model_context.get_domain_home(), store)
+            elif not string_utils.is_empty(tns_admin) and not os.path.isabs(store) and not store.startswith(tns_admin):
+                result = os.path.join(tns_admin, store)
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
+    def __set_rcu_datasource_ssl_connection_properties(self, ds_name, is_atp_db, tns_admin, truststore, truststore_type,
+                                                       truststore_pwd, keystore, keystore_type, keystore_pwd):
+        _method_name = '__set_rcu_datasource_ssl_connection_properties'
+        self.logger.entering(ds_name, is_atp_db, tns_admin, truststore, truststore_type,
+                             get_logged_value(truststore_pwd), keystore, keystore_type, get_logged_value(keystore_pwd),
+                             class_name=self.__class_name, method_name=_method_name)
+
+        location = deployer_utils.get_jdbc_driver_params_properties_location(ds_name, self.aliases)
         properties_set = []
 
         # Should always have trust store
         self.__set_connection_property_info(location, DRIVER_PARAMS_TRUSTSTORE_PROPERTY,
-                                       self.__get_store_path(tns_admin, truststore), properties_set)
+                                            self.__get_store_path(tns_admin, truststore), properties_set)
 
         self.__set_connection_property_info(location, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY,
-                                       truststore_type, properties_set)
+                                            truststore_type, properties_set)
 
-        # if not sso type then user must provide pwd
-        if truststore_pwd is not None and truststore_pwd != 'None':
+        if not string_utils.is_empty(truststore_pwd):
             self.__set_connection_property_info(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd,
                                                 properties_set, encrypted=True)
 
-        if keystore_pwd is not None and keystore_pwd != 'None':
-            self.__set_connection_property_info(location, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_pwd,
-                                                properties_set, encrypted=True)
-
-        # if it is 2 ways SSL
-        if keystore is not None and keystore != 'None':
+        # if it is 2 way SSL
+        if not string_utils.is_empty(keystore):
             self.__set_connection_property_info(location, DRIVER_PARAMS_KEYSTORE_PROPERTY,
-                                           self.__get_store_path(tns_admin, keystore), properties_set)
+                                                self.__get_store_path(tns_admin, keystore), properties_set)
 
-        if keystore_type is not None and keystore_type != 'None':
+        if not string_utils.is_empty(keystore_type):
             self.__set_connection_property_info(location, DRIVER_PARAMS_KEYSTORETYPE_PROPERTY, keystore_type,
                                                 properties_set)
-        return properties_set
 
-    def __set_atp_standard_conn_properties(self, datasource_name, tns_admin, truststore, truststore_pwd,
-                                           truststore_type, keystore_pwd, keystore_type, keystore):
-        location = deployer_utils.get_jdbc_driver_params_properties_location(datasource_name, self.aliases)
-        keystore, keystore_type, truststore, truststore_type = atp_helper.fix_store_type_and_default_value(keystore,
-                                                                    keystore_type, truststore, truststore_type,
-                                                                    truststore_pwd, keystore_pwd)
-
-        properties_set = []
-        self.__set_connection_property_info(location, DRIVER_PARAMS_KEYSTORE_PROPERTY, self.__get_store_path(tns_admin,
-                                        keystore), properties_set)
-
-        self.__set_connection_property_info(location, DRIVER_PARAMS_KEYSTORETYPE_PROPERTY, keystore_type, properties_set)
-
-        if keystore_pwd:
+        if not string_utils.is_empty(keystore_pwd):
             self.__set_connection_property_info(location, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_pwd,
-                 properties_set, encrypted=True)
-        self.__set_connection_property_info(location, DRIVER_PARAMS_TRUSTSTORE_PROPERTY, self.__get_store_path(tns_admin,
-                                       truststore), properties_set)
-        self.__set_connection_property_info(location, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY, truststore_type,
-                                            properties_set)
-        if truststore_pwd:
-            self.__set_connection_property_info(location, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_pwd,
-                 properties_set, encrypted=True)
-        self.__set_connection_property_info(location, DRIVER_PARAMS_NET_SSL_VERSION,
-                                            DRIVER_PARAMS_NET_SSL_VERSION_VALUE , properties_set)
-        self.__set_connection_property_info(location, DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY, 'true', properties_set)
-        self.__set_connection_property_info(location, DRIVER_PARAMS_NET_TNS_ADMIN, tns_admin, properties_set)
-        self.__set_connection_property_info(location, DRIVER_PARAMS_NET_FAN_ENABLED, 'false', properties_set)
+                                                properties_set, encrypted=True)
 
+        if not string_utils.is_empty(tns_admin):
+            self.__set_connection_property_info(location, DRIVER_PARAMS_NET_TNS_ADMIN, tns_admin, properties_set)
+
+        if is_atp_db:
+            self.__set_connection_property_info(location, DRIVER_PARAMS_NET_SSL_VERSION,
+                                                DRIVER_PARAMS_NET_SSL_VERSION_VALUE, properties_set)
+            self.__set_connection_property_info(location, DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY,
+                                                'true', properties_set)
+            self.__set_connection_property_info(location, DRIVER_PARAMS_NET_FAN_ENABLED, 'false', properties_set)
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=properties_set)
         return properties_set
 
     def __set_app_dir(self):
@@ -1609,110 +1590,116 @@ class DomainCreator(Creator):
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-    def get_rcu_basic_connection_info(self, rcu_db_info):
-
-        _method_name = 'get_rcu_basic_connection_info'
-
-        keystore = None
-        keystore_pwd = None
-        keystore_type = None
-        tns_admin = None
-        truststore = None
-        truststore_pwd = None
-        truststore_type = None
+    def get_rcu_datasource_basic_connection_info(self, rcu_db_info):
+        _method_name = 'get_rcu_datasource_basic_connection_info'
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
 
         rcu_prefix = rcu_db_info.get_rcu_prefix()
         rcu_schema_pwd = rcu_db_info.get_rcu_schema_password()
-        if rcu_prefix is None:
-            ex = exception_helper.create_create_exception('WLSDPLY-12413', 'rcu_prefix',
-                                                          "['rcu_prefix','rcu_schema_password']")
-            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-        if rcu_schema_pwd is None:
-            ex = exception_helper.create_create_exception('WLSDPLY-12413', 'rcu_schema_password',
-                                                          "['rcu_prefix','rcu_schema_password']")
-            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
 
         # For ATP databases :  we need to set all the property for each datasource
         # load atp connection properties from properties file
         # HANDLE ATP case
 
-        is_atp_ds = rcu_db_info.is_use_atp()
-        is_ssl_ds = rcu_db_info.is_use_ssl()
-        if is_atp_ds:
-            tns_admin, rcu_database, truststore_pwd, truststore_type, \
-                truststore, keystore_pwd, keystore_type, keystore = self.__validate_and_get_atp_rcudbinfo(rcu_db_info)
-        elif is_ssl_ds:
-            tns_admin, rcu_database, truststore_pwd, truststore_type, \
-                truststore, keystore_pwd, keystore_type, keystore = self.__validate_and_get_ssl_rcudbinfo(rcu_db_info)
-        else:
-            rcu_database = rcu_db_info.get_rcu_regular_db_conn()
-        if rcu_database is None:
+        tns_admin, rcu_db_conn_string = self.__get_rcu_db_connect_string(rcu_db_info)
+        if rcu_db_conn_string is None:
             ex = exception_helper.create_create_exception('WLSDPLY-12564')
+            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
         # Need to set for the connection property for each datasource
-        fmw_database = self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_database)
-        self.logger.fine('WLSDPLY-12221', fmw_database, class_name=self.__class_name, method_name=_method_name)
+        rcu_database_type = rcu_db_info.get_rcu_database_type()
+        data_source_conn_string = \
+            self.wls_helper.get_jdbc_url_from_rcu_connect_string(rcu_db_conn_string, rcu_database_type)
+        self.logger.fine('WLSDPLY-12221', data_source_conn_string, class_name=self.__class_name, method_name=_method_name)
 
-        return fmw_database, is_atp_ds, is_ssl_ds, keystore, keystore_pwd, keystore_type, rcu_prefix, rcu_schema_pwd, \
-            tns_admin, truststore, truststore_pwd, truststore_type
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name,
+                            result=[tns_admin, rcu_prefix, data_source_conn_string, rcu_schema_pwd])
+        return tns_admin, rcu_prefix, data_source_conn_string, rcu_schema_pwd
 
-    def get_ssl_standard_conn_properties(self, tns_admin, truststore, truststore_pwd,
-                                         truststore_type, keystore_pwd, keystore_type, keystore):
+    def get_rcu_datasource_ssl_connection_info(self, rcu_db_info):
+        _method_name = 'get_rcu_datasource_ssl_connection_info'
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        keystore = None
+        keystore_type = None
+        keystore_pwd = None
+        truststore = None
+        truststore_type = None
+        truststore_pwd = None
+
+        if rcu_db_info.is_use_atp() or rcu_db_info.is_use_ssl():
+            keystore = rcu_db_info.get_keystore()
+            keystore_type = rcu_db_info.get_keystore_type()
+            keystore_pwd = rcu_db_info.get_keystore_password()
+            truststore = rcu_db_info.get_truststore()
+            truststore_type = rcu_db_info.get_truststore_type()
+            truststore_pwd = rcu_db_info.get_truststore_password()
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name,
+                            result=[keystore, keystore_type, get_logged_value(keystore_pwd),
+                                    truststore, truststore_type, get_logged_value(truststore_pwd)])
+        return keystore, keystore_type, keystore_pwd, truststore, truststore_type, truststore_pwd
+
+    def get_jdbc_ssl_connection_properties(self, tns_admin, is_atp, rcu_db_info):
+        _method_name = 'get_jdbc_ssl_connection_properties'
+        self.logger.entering(tns_admin, is_atp, class_name=self.__class_name, method_name=_method_name)
+
+        keystore, keystore_type, keystore_pwd, truststore, truststore_type, truststore_pwd = \
+            self.get_rcu_datasource_ssl_connection_info(rcu_db_info)
+
         properties_set = []
-
-        # Should always have trust store
-        properties_set.append({DRIVER_PARAMS_TRUSTSTORE_PROPERTY: self.__get_store_path(tns_admin, truststore)})
-
-        properties_set.append({DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY: truststore_type})
-
-        # if not sso type then user must provide pwd
-        if truststore_pwd is not None and truststore_pwd != 'None':
-            properties_set.append({DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY: truststore_pwd})
-
-        if keystore_pwd is not None and keystore_pwd != 'None':
-            properties_set.append({DRIVER_PARAMS_KEYSTOREPWD_PROPERTY: keystore_pwd})
-
-        # if it is 2 ways SSL
-        if keystore is not None and keystore != 'None':
-            properties_set.append({DRIVER_PARAMS_KEYSTORE_PROPERTY: self.__get_store_path(tns_admin, keystore)})
-
-        if keystore_type is not None and keystore_type != 'None':
+        if not string_utils.is_empty(keystore):
+            properties_set.append({DRIVER_PARAMS_KEYSTORE_PROPERTY: keystore})
+        if not string_utils.is_empty(keystore_type):
             properties_set.append({DRIVER_PARAMS_KEYSTORETYPE_PROPERTY: keystore_type})
-
-        return properties_set
-
-    def get_atp_standard_conn_properties(self, tns_admin, truststore, truststore_pwd,
-                                         truststore_type, keystore_pwd, keystore_type, keystore):
-
-        keystore, keystore_type, truststore, truststore_type = atp_helper.fix_store_type_and_default_value(keystore,
-                                                                       keystore_type, truststore, truststore_type,
-                                                                        truststore_pwd, keystore_pwd)
-
-        properties_set = []
-
-        properties_set.append({DRIVER_PARAMS_KEYSTORE_PROPERTY: self.__get_store_path(tns_admin,
-                                                                                     keystore)})
-
-        properties_set.append({DRIVER_PARAMS_KEYSTORETYPE_PROPERTY: keystore_type})
-
-        if keystore_pwd:
+        if not string_utils.is_empty(keystore_pwd):
             properties_set.append({DRIVER_PARAMS_KEYSTOREPWD_PROPERTY: keystore_pwd})
-
-        properties_set.append({DRIVER_PARAMS_TRUSTSTORE_PROPERTY: self.__get_store_path(tns_admin,
-                                                                                       truststore)})
-
-        properties_set.append({DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY: truststore_type})
-
-        if truststore_pwd:
+        if not string_utils.is_empty(truststore):
+            properties_set.append({DRIVER_PARAMS_TRUSTSTORE_PROPERTY: truststore})
+        if not string_utils.is_empty(truststore_type):
+            properties_set.append({DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY: truststore_type})
+        if not string_utils.is_empty(truststore_pwd):
             properties_set.append({DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY: truststore_pwd})
+        if not string_utils.is_empty(tns_admin):
+            properties_set.append({DRIVER_PARAMS_NET_TNS_ADMIN: tns_admin})
 
-        properties_set.append({DRIVER_PARAMS_NET_SSL_VERSION: DRIVER_PARAMS_NET_SSL_VERSION_VALUE})
+        if is_atp:
+            properties_set.append({DRIVER_PARAMS_NET_SSL_VERSION: DRIVER_PARAMS_NET_SSL_VERSION_VALUE})
+            properties_set.append({DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY: 'true'})
+            properties_set.append({DRIVER_PARAMS_NET_FAN_ENABLED: 'false'})
 
-        properties_set.append({DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY: 'true'})
-        properties_set.append({DRIVER_PARAMS_NET_TNS_ADMIN: tns_admin})
-        properties_set.append({DRIVER_PARAMS_NET_FAN_ENABLED: 'false'})
-
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return properties_set
+
+    def get_jdbc_driver_class_name(self, rcu_database_type, is_xa=False):
+        _method_name = 'get_jdbc_driver_class_name'
+        self.logger.entering(rcu_database_type, is_xa, class_name=self.__class_name, method_name=_method_name)
+
+        if rcu_database_type == ORACLE_DB_TYPE or rcu_database_type == EBR_DB_TYPE:
+            if is_xa:
+                driver_name = 'oracle.jdbc.xa.client.OracleXADataSource'
+            else:
+                driver_name = 'oracle.jdbc.OracleDriver'
+        elif rcu_database_type == SQLSERVER_DB_TYPE:
+            if is_xa:
+                driver_name = 'weblogic.jdbcx.sqlserver.SQLServerDataSource'
+            else:
+                driver_name = 'weblogic.jdbc.sqlserver.SQLServerDriver'
+        elif rcu_database_type == DB2_DB_TYPE:
+            if is_xa:
+                driver_name = 'weblogic.jdbcx.db2.DB2DataSource'
+            else:
+                driver_name = 'weblogic.jdbc.db2.DB2Driver'
+        elif rcu_database_type == MYSQL_DB_TYPE:
+            if is_xa:
+                driver_name = 'com.mysql.cj.jdbc.MysqlXADataSource'
+            else:
+                driver_name = 'com.mysql.cj.jdbc.Driver'
+        else:
+            ex = exception_helper.create_create_exception('WLSDPLY-12220', rcu_database_type)
+            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=driver_name)
+        return driver_name

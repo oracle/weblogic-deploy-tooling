@@ -24,8 +24,8 @@ APP_DEPLOYMENTS = 'appDeployments'
 APP_DIR = 'AppDir'
 APPEND = 'append'
 APPLICATION = 'Application'
-ATP_DEFAULT_TABLESPACE = 'atp.default.tablespace'
-ATP_TEMPORARY_TABLESPACE = 'atp.temp.tablespace'
+ATP_DEFAULT_TABLESPACE = 'atp.default.tablespace'  # deprecated field name in 4.0
+ATP_TEMPORARY_TABLESPACE = 'atp.temp.tablespace'  # deprecated field name in 4.0
 AUDITOR = 'Auditor'
 AUTHENTICATION_PROVIDER = 'AuthenticationProvider'
 AUTHORIZER = 'Authorizer'
@@ -75,7 +75,10 @@ CREDENTIAL_MAPPER = 'CredentialMapper'
 CROSS_DOMAIN = 'CrossDomain'
 CUSTOM_DBMS_AUTHENTICATOR = 'CustomDBMSAuthenticator'
 DATA_SOURCE = 'DataSource'
+
+# Deprecated in WDT 4.0.0
 DATABASE_TYPE = 'databaseType'
+
 DEFAULT_ADJUDICATOR = 'DefaultAdjudicator'
 DEFAULT_ADMIN_SERVER_NAME = 'AdminServer'
 DEFAULT_AUDITOR = 'DefaultAuditor'
@@ -204,6 +207,7 @@ OPSS_INITIALIZATION = 'OPSSInitialization'
 # deprecated field name in 4.0
 OPSS_SECRETS = 'OPSSSecrets'
 OPSS_WALLET_PASSPHRASE = 'OPSSWalletPassphrase'
+ORACLE_DATABASE_CONNECTION_TYPE = 'oracle_database_connection_type'
 ORACLE_OID_AUTHENTICATOR = 'OracleInternetDirectoryAuthenticator'
 ORACLE_OUD_AUTHENTICATOR = 'OracleUnifiedDirectoryAuthenticator'
 ORACLE_OVD_AUTHENTICATOR = 'OracleVirtualDirectoryAuthenticator'
@@ -233,13 +237,16 @@ RECOVER_ONLY_ONCE = 'RecoverOnlyOnce'
 RCU_ADMIN_PASSWORD = 'rcu_admin_password'
 RCU_ADMIN_USER = 'rcu_admin_user'
 RCU_COMP_INFO = 'compInfoXMLLocation'
-RCU_DB_CONN = 'rcu_db_conn_string'
+RCU_DATABASE_TYPE = 'rcu_database_type'
+RCU_DB_CONN_STRING = 'rcu_db_conn_string'
 RCU_DB_INFO = 'RCUDbInfo'
 RCU_DEFAULT_TABLESPACE = 'rcu_default_tablespace'
+RCU_EDITION = 'rcu_edition'
 RCU_PREFIX = 'rcu_prefix'
 RCU_SCHEMA_PASSWORD = 'rcu_schema_password'
 RCU_STG_INFO = 'storageXMLLocation'
 RCU_TEMP_TBLSPACE = 'rcu_temp_tablespace'
+RCU_UNICODE_SUPPORT = 'rcu_unicode_support'
 RCU_VARIABLES = 'rcu_variables'
 REMOTE_CONSOLE_HELPER = 'RemoteConsoleHelper'
 REMOTE_DOMAIN = 'RemoteDomain'
@@ -471,7 +478,7 @@ DRIVER_PARAMS_PATH_PROPERTIES = [
 ]
 
 # Model Path constants
-PATH_TO_RCU_DB_CONN = '%s:/%s/%s' % (DOMAIN_INFO, RCU_DB_INFO, RCU_DB_CONN)
+PATH_TO_RCU_DB_CONN = '%s:/%s/%s' % (DOMAIN_INFO, RCU_DB_INFO, RCU_DB_CONN_STRING)
 PATH_TO_RCU_PREFIX = '%s:/%s/%s' % (DOMAIN_INFO, RCU_DB_INFO, RCU_PREFIX)
 PATH_TO_RCU_ADMIN_PASSWORD = '%s:/%s/%s' % (DOMAIN_INFO, RCU_DB_INFO, RCU_ADMIN_PASSWORD)
 PATH_TO_RCU_SCHEMA_PASSWORD = '%s:/%s/%s' % (DOMAIN_INFO, RCU_DB_INFO, RCU_SCHEMA_PASSWORD)

@@ -8,17 +8,9 @@ from oracle.weblogic.deploy.util import WLSDeployArchive
 import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
-from wlsdeploy.aliases.model_constants import DYNAMIC_CLUSTER_SERVER_GROUP_TARGETING_LIMITS
-from wlsdeploy.aliases.model_constants import KNOWN_TOPLEVEL_MODEL_SECTIONS
 from wlsdeploy.aliases.model_constants import MASKED_PASSWORD
-from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
-from wlsdeploy.aliases.model_constants import SERVER_GROUP_TARGETING_LIMITS
-from wlsdeploy.aliases.model_constants import WLS_POLICIES
-from wlsdeploy.aliases.model_constants import WLS_ROLES
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.create import wlspolicies_helper
-from wlsdeploy.tool.create import wlsroles_helper
 from wlsdeploy.tool.validate import validation_utils
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import path_helper
@@ -76,56 +68,6 @@ class ModelValidator(object):
         self._name_tokens_location.add_name_token('DOMAIN', 'base_domain')
 
         self._model_file_name = self._model_context.get_model_file()
-
-    ####################################################################################
-    #
-    # Private methods, private inner classes and static methods only, beyond here please
-    #
-    ####################################################################################
-
-    def __get_attribute_log_value(self, attribute_name, attribute_value, attribute_infos):
-        """
-        Get the log output for an attribute value to protect sensitive data
-        """
-        result = attribute_value
-        if attribute_name in attribute_infos:
-            expected_data_type = dictionary_utils.get_element(attribute_infos, attribute_name)
-            if expected_data_type == 'password':
-                result = '<masked>'
-        return result
-
-    def validate_root_level(self, model_dict):
-        _method_name = 'validate_root_level'
-
-        # Get list of root level keys from model_dict
-        valid_root_level_keys = KNOWN_TOPLEVEL_MODEL_SECTIONS
-        model_root_level_keys = model_dict.keys()
-        self._logger.entering(model_root_level_keys, valid_root_level_keys,
-                              class_name=_class_name, method_name=_method_name)
-
-        if not model_root_level_keys:
-            if self._validation_mode == _ValidationModes.STANDALONE:
-                # The model_dict didn't have any top level keys, so record it
-                # as a INFO message in the validate results and bail.
-                self._logger.info('WLSDPLY-05006', self._model_file_name, class_name=_class_name,
-                                  method_name=_method_name)
-            else:
-                # The model_dict didn't have any top level keys, so record it
-                # as a ERROR message in the validate results and bail.
-                self._logger.severe('WLSDPLY-05006', self._model_file_name, class_name=_class_name,
-                                    method_name=_method_name)
-            return
-
-        # Loop through model_root_level_keys
-        for key in model_root_level_keys:
-            if key not in valid_root_level_keys:
-                # Found a model_root_level_keys key that isn't in
-                # valid_root_level_keys, so log it at the ERROR level
-                self._logger.severe('WLSDPLY-05007', self._model_file_name, key,
-                                    '%s' % ', '.join(valid_root_level_keys), class_name=_class_name,
-                                    method_name=_method_name)
-
-        self._logger.exiting(class_name=_class_name, method_name=_method_name)
 
     def validate_model_section(self, model_section_key, model_dict, valid_section_folders):
         """
@@ -185,9 +127,6 @@ class ModelValidator(object):
                 self._validate_attribute(section_dict_key, section_dict_value, valid_attr_infos,
                                          path_tokens_attr_keys, model_folder_path, attribute_location)
 
-                # Some top-level attributes have additional validation
-                self.__validate_top_field_extended(section_dict_key, section_dict_value, model_folder_path)
-
             elif section_dict_key in valid_section_folders:
                 # section_dict_key is a folder under the model section
 
@@ -197,13 +136,10 @@ class ModelValidator(object):
                                     class_name=_class_name, method_name=_method_name)
 
                 # Call self.__validate_section_folder() passing in section_dict_value as the model_node to process
-                self.__validate_section_folder(section_dict_value, validation_location)
-
-                # Some top-level folders have additional validation
-                self.__validate_top_field_extended(section_dict_key, section_dict_value, model_folder_path)
+                self._validate_folder(section_dict_value, validation_location)
 
             else:
-                # It's not one of the section's folders and it's not an attribute of the section.
+                # It's not one of the section's folders, and it's not an attribute of the section.
                 # Record this as a validate ERROR in the validate results.
                 if isinstance(section_dict_value, dict):
                     result, message = self._aliases.is_valid_model_folder_name(validation_location,
@@ -230,8 +166,14 @@ class ModelValidator(object):
                                         '%s' % ', '.join(valid_attr_infos), class_name=_class_name,
                                         method_name=_method_name)
 
-    def __validate_section_folder(self, model_node, validation_location):
-        _method_name = '__validate_section_folder'
+    def _validate_folder(self, model_node, validation_location):
+        """
+        Validate a model folder that may contain named child folders (Server, Application),
+        artificial folders (security providers), or attributes and sub-folders (JTA, WebAppContainer).
+        :param model_node: the model node dictionary
+        :param validation_location: the alias location for the folder
+        """
+        _method_name = '_validate_folder'
 
         result, message = self._aliases.is_version_valid_location(validation_location)
         if result == ValidationCodes.CONTEXT_INVALID:
@@ -282,7 +224,7 @@ class ModelValidator(object):
 
                 value_dict = model_node[name]
 
-                self._process_model_node(value_dict, new_location)
+                self._validate_folder_content(value_dict, new_location)
 
         elif self._aliases.requires_artificial_type_subfolder_handling(validation_location):
             self._logger.finer('model_node_type={0}',
@@ -311,7 +253,7 @@ class ModelValidator(object):
 
                 value_dict = model_node[name]
 
-                self._process_model_node(value_dict, new_location)
+                self._validate_folder_content(value_dict, new_location)
 
         else:
             self._logger.finer('model_node_type={0}',
@@ -334,10 +276,16 @@ class ModelValidator(object):
                 self._logger.finest('validation_location={0}', validation_location,
                                     class_name=_class_name, method_name=_method_name)
 
-            self._process_model_node(model_node, validation_location)
+            self._validate_folder_content(model_node, validation_location)
 
-    def _process_model_node(self, model_node, validation_location):
-        _method_name = '_process_model_node'
+    def _validate_folder_content(self, model_node, validation_location):
+        """
+        Validate a model folder that contains attributes and sub-folders.
+        This model folder is below the named or artificial folders.
+        :param model_node: the model node dictionary
+        :param validation_location: the alias location for the folder
+        """
+        _method_name = '_validate_folder_content'
         self._logger.entering(str_helper.to_string(validation_location),
                               class_name=_class_name, method_name=_method_name)
 
@@ -382,9 +330,9 @@ class ModelValidator(object):
                                         class_name=_class_name, method_name=_method_name)
                     valid_attr_infos = self._aliases.get_model_attribute_names_and_types(new_location)
 
-                    self.__validate_attributes(value, valid_attr_infos, new_location)
+                    self._validate_attributes(value, valid_attr_infos, new_location)
                 else:
-                    self.__validate_section_folder(value, new_location)
+                    self._validate_folder(value, new_location)
             elif attribute_validation_code == ValidationCodes.VALID:
                 # aliases.get_model_attribute_names_and_types(location) filters out
                 # attributes that ARE NOT valid in the wlst_version being used, so if
@@ -439,8 +387,8 @@ class ModelValidator(object):
                                             '%s' % ', '.join(valid_attr_infos), class_name=_class_name,
                                             method_name=_method_name)
 
-    def __validate_attributes(self, attributes_dict, valid_attr_infos, validation_location):
-        _method_name = '__validate_attributes'
+    def _validate_attributes(self, attributes_dict, valid_attr_infos, validation_location):
+        _method_name = '_validate_attributes'
 
         self._logger.finest('validation_location={0}', str_helper.to_string(validation_location),
                             class_name=_class_name, method_name=_method_name)
@@ -649,101 +597,6 @@ class ModelValidator(object):
                     self._logger.info('WLSDPLY-05031', attribute_name, model_folder_path, path,
                                       class_name=_class_name, method_name=_method_name)
 
-    def __validate_top_field_extended(self, field_key, field_value, model_folder_path):
-        """
-        Perform additional validation on some top-level fields.
-        :param field_key: the name of the field
-        :param field_value: the value of the field
-        :param model_folder_path: the model folder path, for logging
-        :return:
-        """
-        if field_key == SERVER_GROUP_TARGETING_LIMITS or field_key == DYNAMIC_CLUSTER_SERVER_GROUP_TARGETING_LIMITS:
-            self.__validate_server_group_targeting_limits(field_key, field_value, model_folder_path)
-
-        elif field_key == WLS_ROLES:
-            self.__validate_wlsroles_section(field_value)
-        elif field_key == WLS_POLICIES:
-            self.__validate_wlspolicies_section(field_value)
-
-
-    def __validate_server_group_targeting_limits(self, attribute_key, attribute_value, model_folder_path):
-        """
-        Verify that entries in the ServerGroupTargetingLimits and DynamicClusterServerGroupTargetingLimits are
-        the correct types, and do not use tokens.
-        :param attribute_key: the name of the attribute
-        :param attribute_value: the value of the attribute
-        :param model_folder_path: the model folder path, for logging
-        """
-        __method_name = '__validate_server_group_targeting_limits'
-        self._logger.entering(attribute_key, attribute_value, model_folder_path, class_name=_class_name,
-                              method_name=__method_name)
-
-        if attribute_value is not None:
-            if not isinstance(attribute_value, dict):
-                self._logger.severe('WLSDPLY-05032', attribute_key, model_folder_path,
-                                    str_helper.to_string(type(attribute_value)),
-                                    class_name=_class_name, method_name=__method_name)
-            else:
-                model_folder_path += '/' + attribute_key
-                for key, value in attribute_value.iteritems():
-                    if not isinstance(key, basestring):
-                        # Force the key to a string for any value validation issues reported below
-                        key = str_helper.to_string(key)
-                        self._logger.severe('WLSDPLY-05033', str_helper.to_string, model_folder_path,
-                                            str_helper.to_string(type(key)),
-                                            class_name=_class_name, method_name=__method_name)
-                    else:
-                        if variables.has_variables(key):
-                            self._report_unsupported_variable_usage(key, model_folder_path)
-
-                    if isinstance(value, basestring) and MODEL_LIST_DELIMITER in value:
-                        value = value.split(MODEL_LIST_DELIMITER)
-
-                    if type(value) is list:
-                        for element in value:
-                            self._validate_single_server_group_target_limits_value(key, element,
-                                                                                   model_folder_path)
-                    elif isinstance(value, basestring):
-                        self._validate_single_server_group_target_limits_value(key, value, model_folder_path)
-                    else:
-                        self._logger.severe('WLSDPLY-05034', key, model_folder_path,
-                                            str_helper.to_string(type(value)),
-                                            class_name=_class_name, method_name=__method_name)
-
-        self._logger.exiting(class_name=_class_name, method_name=__method_name)
-
-    def _validate_single_server_group_target_limits_value(self, key, value, model_folder_path):
-        _method_name = '_validate_single_server_group_target_limits_value'
-
-        if type(value) in [unicode, str]:
-            if variables.has_variables(str_helper.to_string(value)):
-                self._report_unsupported_variable_usage(str_helper.to_string(value), model_folder_path)
-        else:
-            self._logger.severe('WLSDPLY-05035', key, str_helper.to_string(value), model_folder_path,
-                                str_helper.to_string(type(value)),
-                                class_name=_class_name, method_name=_method_name)
-
-    def __validate_wlspolicies_section(self, attribute_value):
-        __method_name = '__validate_wlspolicies_section'
-        self._logger.entering(class_name=_class_name, method_name=__method_name)
-
-        # Validate WebLogic policy content using WLSPolicies helper
-        wlspolicies_validator = \
-            wlspolicies_helper.get_wls_policies_validator(attribute_value, self._model_context, self._logger)
-        wlspolicies_validator.validate_policies()
-
-        self._logger.exiting(class_name=_class_name, method_name=__method_name)
-
-    def __validate_wlsroles_section(self, attribute_value):
-        __method_name = '__validate_wlsroles_section'
-        self._logger.entering(class_name=_class_name, method_name=__method_name)
-
-        # Validate WebLogic role content using WLSRoles helper
-        wlsroles_validator = wlsroles_helper.get_wls_roles_validator(attribute_value, self._logger)
-        wlsroles_validator.validate_roles()
-
-        self._logger.exiting(class_name=_class_name, method_name=__method_name)
-
     def _report_unsupported_variable_usage(self, tokenized_value, model_folder_path):
         _method_name = '_report_unsupported_variable_usage'
         tokens = variables.get_variable_names(tokenized_value)
@@ -760,3 +613,20 @@ class ModelValidator(object):
         if self._validate_configuration.allow_version_invalid_attributes():
             log_method = self._logger.info
         log_method('WLSDPLY-05027', message, class_name=_class_name, method_name=method_name)
+
+    ####################################################################################
+    #
+    # Private methods, private inner classes and static methods only, beyond here please
+    #
+    ####################################################################################
+
+    def __get_attribute_log_value(self, attribute_name, attribute_value, attribute_infos):
+        """
+        Get the log output for an attribute value to protect sensitive data
+        """
+        result = attribute_value
+        if attribute_name in attribute_infos:
+            expected_data_type = dictionary_utils.get_element(attribute_infos, attribute_name)
+            if expected_data_type == 'password':
+                result = '<masked>'
+        return result

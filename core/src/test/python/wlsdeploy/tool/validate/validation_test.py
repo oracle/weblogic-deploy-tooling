@@ -17,8 +17,6 @@ from wlsdeploy.aliases import alias_constants
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.create import wlspolicies_helper
-from wlsdeploy.tool.create import wlsroles_helper
 from wlsdeploy.tool.validate import validation_utils
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import env_helper
@@ -201,66 +199,6 @@ class ValidationTestCase(BaseTestCase):
 
         self.assertEqual(return_code, Validator.ReturnCode.STOP)
 
-    def test_wls_policies_validation(self):
-        """
-        Run the validation portion of the WLSPolicies helper and check for expected results.
-        """
-        wls_policies_dict = {
-            'BuiltinPolicy': {
-                'ResourceID': 'type=<jms>',
-                'Policy': 'Grp(Monitors)'
-            },
-            'MissingResourceIDPolicy': {
-                'Policy': 'Grp(Administrators)'
-            },
-            'MissingPolicyPolicy': {
-                'ResourceID': 'type=<jms>, application=MyJmsModule, destinationType=queue, resource=MyQueue, action=browse'
-            },
-            'MyQueueBrowsePolicy': {
-                'ResourceID': 'type=<jms>, application=MyJmsModule, destinationType=queue, resource=MyQueue, action=browse',
-                'Policy': 'Grp(Administrators)'
-            }
-        }
-
-        wls_policies_validator = wlspolicies_helper.get_wls_policies_validator(wls_policies_dict, None, self._logger)
-        wls_policies_validator.validate_policies()
-
-        handler = self._summary_handler
-        self.assertNotEqual(handler, None, "Summary handler is not present")
-
-        # Verify only 3 errors resulted
-        self.assertEqual(handler.getMessageCount(Level.SEVERE), 3)
-        self.assertEqual(handler.getMessageCount(Level.WARNING), 0)
-
-    def testWLSRolesValidation(self):
-        """
-        Run the validation portion of the WLSRoles helper and check for expected results.
-        """
-        _method_name = 'testWLSRolesValidation'
-
-        wlsroles_dict = {'Admin':     {'UpdateMode': 'append',
-                                       'Expression': 'Grp(AppAdmin)'},
-                         'Deployer':  {'UpdateMode': 'prepend',
-                                       'Expression': 'Grp(AppDeployer)'},
-                         'Tester':    {'Expression': 'Grp(AppTester)'},
-                         'MyEmpty':   { },
-                         'MyTester':  {'UpdateMode': 'append',
-                                       'Expression': 'Grp(MyTester)'},
-                         'MyTester2': {'UpdateMode': 'replace',
-                                       'Expression': 'Grp(MyTester2)'},
-                         'MyTester3': {'UpdateMode': 'bad',
-                                       'Expression': 'Grp(MyTester3)'}}
-
-        wlsroles_validator = wlsroles_helper.get_wls_roles_validator(wlsroles_dict, self._logger)
-        wlsroles_validator.validate_roles()
-
-        handler = self._summary_handler
-        self.assertNotEqual(handler, None, "Summary handler is not present")
-
-        # Verify only warnings resulted
-        self.assertEqual(handler.getMessageCount(Level.SEVERE), 0)
-        self.assertEqual(handler.getMessageCount(Level.WARNING), 3)
-
     def testFilterInvokedOnModelValidation(self):
         """
         Verify filter was run and changes are persisted to model file
@@ -290,43 +228,6 @@ class ValidationTestCase(BaseTestCase):
         # assert the validate filter made modifications and was persisted
         self.assertEquals('gumby1234', model_dictionary['domainInfo']['AdminPassword'],
                           "Expected validate filter to have changed AdminPassword to 'gumby1234'")
-
-    def testDeploymentValidation(self):
-        """
-        Test for bad directory names in archive paths.
-        """
-        _method_name = 'testDeploymentValidation'
-
-        model_dict = {
-            'appDeployments': {
-                'Application': {
-                    'myApp': {
-                        'SourcePath' : 'wlsdeploy/applicationsBad/abc.war'
-                    }
-                },
-                'Library': {
-                    'myLib': {
-                        'SourcePath' : 'wlsdeploy/sharedLibrariesBad/abc.war'
-                    }
-                }
-            }
-        }
-
-        args_map = {
-            '-oracle_home': '/oracle'
-        }
-        model_context = ModelContext(self._class_name, args_map)
-        aliases = Aliases(model_context, wls_version=self._wls_version)
-
-        validator = Validator(model_context, aliases)
-        validator.validate_in_standalone_mode(model_dict, {})
-
-        handler = self._summary_handler
-        self.assertNotEqual(handler, None, "Summary handler is not present")
-
-        # Verify 4 errors were logged, 2 directory names are bad, and 2 paths aren't in archive
-        self.assertEqual(handler.getMessageCount(Level.SEVERE), 4)
-        self.assertEqual(handler.getMessageCount(Level.WARNING), 0)
 
 if __name__ == '__main__':
     unittest.main()

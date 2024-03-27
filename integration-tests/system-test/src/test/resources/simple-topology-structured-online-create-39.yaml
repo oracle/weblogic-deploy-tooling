@@ -2,7 +2,7 @@ domainInfo:
   AdminUserName: weblogic
   AdminPassword: welcome1
 topology:
-  Name: domain37
+  Name: domain39
   AdminServerName: '@@PROP:ADMIN_NAME@@'
   ProductionModeEnabled: '@@PROP:PRODUCTION_MODE_ENABLED@@'
   Cluster:

@@ -27,4 +27,5 @@
       </variable-assignment>
     </module-descriptor>
   </module-override>
+  <config-root>wlsdeploy/structuredApplications/MyWebServicesApp/plan</config-root>
 </deployment-plan>

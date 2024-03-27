@@ -8,7 +8,7 @@ from oracle.weblogic.deploy.logging import WLSDeployLogEndHandler
 from oracle.weblogic.deploy.util import VariableException
 
 from wlsdeploy.aliases.location_context import LocationContext
-from wlsdeploy.aliases.model_constants import DOMAIN_INFO
+from wlsdeploy.aliases.model_constants import KNOWN_TOPLEVEL_MODEL_SECTIONS
 from wlsdeploy.aliases.model_constants import NAME
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.wlst_modes import WlstModes
@@ -18,6 +18,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.archive_helper import ArchiveList
 from wlsdeploy.tool.validate.crd_sections_validator import CrdSectionsValidator
 from wlsdeploy.tool.validate.deployments_validator import DeploymentsValidator
+from wlsdeploy.tool.validate.domain_info_validator import DomainInfoValidator
 from wlsdeploy.tool.validate.model_validator import ModelValidator
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model
@@ -216,13 +217,15 @@ class Validator(object):
             # not going to validate the structure and only validate things referenced by the model, then no
             # need to load the archive_entries variable because it is not being used.
 
+        self.__validate_root_level(model_dict)
+
+        domain_info_validator = DomainInfoValidator(variables_map, self._archive_helper, self._validation_mode,
+                                                    self._model_context, self._aliases, self._wlst_mode)
+
+        domain_info_validator.validate(model_dict)
+
         base_validator = ModelValidator(variables_map, self._archive_helper, self._validation_mode,
                                         self._model_context, self._aliases, self._wlst_mode)
-
-        base_validator.validate_root_level(model_dict)
-
-        base_validator.validate_model_section(model.get_model_domain_info_key(), model_dict,
-                                              self._aliases.get_model_section_top_level_folder_names(DOMAIN_INFO))
 
         base_validator.validate_model_section(model.get_model_topology_key(), model_dict,
                                               self._aliases.get_model_topology_top_level_folder_names())
@@ -238,6 +241,39 @@ class Validator(object):
         if self._validate_crd_sections:
             k8s_validator = CrdSectionsValidator(self._model_context)
             k8s_validator.validate_model(model_dict)
+
+        self._logger.exiting(class_name=_class_name, method_name=_method_name)
+
+    def __validate_root_level(self, model_dict):
+        _method_name = '__validate_root_level'
+
+        # Get list of root level keys from model_dict
+        valid_root_level_keys = KNOWN_TOPLEVEL_MODEL_SECTIONS
+        model_root_level_keys = model_dict.keys()
+        self._logger.entering(model_root_level_keys, valid_root_level_keys,
+                              class_name=_class_name, method_name=_method_name)
+
+        if not model_root_level_keys:
+            if self._validation_mode == _ValidationModes.STANDALONE:
+                # The model_dict didn't have any top level keys, so record it
+                # as a INFO message in the validate results and bail.
+                self._logger.info('WLSDPLY-05006', self._model_file_name, class_name=_class_name,
+                                  method_name=_method_name)
+            else:
+                # The model_dict didn't have any top level keys, so record it
+                # as a ERROR message in the validate results and bail.
+                self._logger.severe('WLSDPLY-05006', self._model_file_name, class_name=_class_name,
+                                    method_name=_method_name)
+            return
+
+        # Loop through model_root_level_keys
+        for key in model_root_level_keys:
+            if key not in valid_root_level_keys:
+                # Found a model_root_level_keys key that isn't in
+                # valid_root_level_keys, so log it at the ERROR level
+                self._logger.severe('WLSDPLY-05007', self._model_file_name, key,
+                                    '%s' % ', '.join(valid_root_level_keys), class_name=_class_name,
+                                    method_name=_method_name)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
 

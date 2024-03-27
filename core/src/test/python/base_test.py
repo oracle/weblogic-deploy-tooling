@@ -89,6 +89,12 @@ class BaseTestCase(unittest.TestCase):
             value = value[arg]
         return value
 
+    def _validate_message_key(self, test_summary_handler, level, key, expected_count):
+        key_count = test_summary_handler.getMessageKeyCount(level, key)
+        self.assertEqual(expected_count, key_count,
+                         str(level) + " message " + str(key) + " should have occurred " + str(expected_count)
+                         + " time(s), and occurred " + str(key_count) + " time(s)")
+
     def _establish_injector_config(self, config_dir):
         """
         Copy injector configuration items from the installer module.
