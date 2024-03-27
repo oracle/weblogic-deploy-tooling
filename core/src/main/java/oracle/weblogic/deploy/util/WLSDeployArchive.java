@@ -3841,7 +3841,7 @@ public class WLSDeployArchive {
      * If that archive path contains a single zip (a wallet zip), return the entries from that zip.
      */
     public List<String> getDatabaseWalletEntries(String walletPath) throws WLSDeployArchiveIOException {
-        final String METHOD = "getWalletEntries";
+        final String METHOD = "getDatabaseWalletEntries";
         LOGGER.entering(CLASS, METHOD);
 
         List<String> walletEntries = new ArrayList<>();
