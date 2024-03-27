@@ -541,6 +541,32 @@ class ArchiveList(object):
             return wallet_path
         return None
 
+    def has_rcu_wallet_path(self):
+        """
+        Determine if any archive contains an RCU wallet path.
+        :return: True if an RCU wallet path is found, False otherwise
+        """
+        for archive_file in self.__archive_files:
+            if (archive_file.containsPath(WLSDeployArchive.DEFAULT_RCU_WALLET_PATH)
+                    or archive_file.containsPath(WLSDeployArchive.DEPRECATED_RCU_WALLET_PATH)):
+                return True
+
+    def get_wallet_entries(self, wallet_path):
+        _method_name = 'get_wallet_entries'
+        self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        archive = None
+        entries = []
+        for archive_file in self.__archive_files[::-1]:
+            wallet_entries = archive_file.getWalletEntries(wallet_path)
+            if wallet_entries:
+                archive = archive_file
+                entries = wallet_entries
+                break
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=(archive, entries))
+        return archive, entries
+
     def extract_opss_wallet(self):
         """
         Extract the and unzip the OPSS wallet, if present, and return the path to the wallet directory.

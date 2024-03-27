@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+ * Copyright (c) 2017, 2024, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
@@ -73,6 +73,7 @@ public class WLSDeployArchive {
      * Default, top-level archive subdirectory where the database wallet for the RCU database is stored.
      */
     public static final String DEFAULT_RCU_WALLET_PATH = ARCHIVE_DB_WALLETS_DIR + ZIP_SEP + DEFAULT_RCU_WALLET_NAME;
+    public static final String DEPRECATED_RCU_WALLET_PATH = DEPRECATED_DB_WALLETS_DIR + ZIP_SEP + DEFAULT_RCU_WALLET_NAME;
 
     /**
      * Top-level archive subdirectory where the opss wallet is stored.
@@ -3833,6 +3834,54 @@ public class WLSDeployArchive {
 
         LOGGER.exiting(CLASS, METHOD, results);
         return new ArrayList<>(results);
+    }
+
+    /**
+     * Return the wallet entry names at the specified path in the archive, if any.
+     * If that archive path contains a single zip (a wallet zip), return the entries from that zip.
+     */
+    public List<String> getDatabaseWalletEntries(String walletPath) throws WLSDeployArchiveIOException {
+        final String METHOD = "getWalletEntries";
+        LOGGER.entering(CLASS, METHOD);
+
+        List<String> walletEntries = new ArrayList<>();
+
+        if(containsPath(walletPath)) {
+            String walletPrefix = walletPath + ZIP_SEP;
+            List<String> allEntries = new ArrayList<>();  // all entries excluding the directory entry
+            List<String> zipEntries = getZipFile().listZipEntries();
+            for (String zipEntry : zipEntries) {
+                if (zipEntry.startsWith(walletPrefix) && !zipEntry.equals(walletPrefix)) {
+                    allEntries.add(zipEntry);
+                }
+            }
+
+            String firstEntry = allEntries.isEmpty() ? null : allEntries.get(0);
+            if((firstEntry != null) && firstEntry.toLowerCase().endsWith(".zip")) {
+                try (ZipInputStream zipStream = new ZipInputStream(getZipFile().getZipEntry(firstEntry))) {
+                    ZipEntry zipEntry;
+                    while ((zipEntry = zipStream.getNextEntry()) != null) {
+                        walletEntries.add(zipEntry.getName());
+                        zipStream.closeEntry();
+                    }
+
+                } catch(IOException e) {
+                    WLSDeployArchiveIOException aioe = new WLSDeployArchiveIOException("WLSDPLY-01467", firstEntry,
+                            getArchiveFileName(), e.getLocalizedMessage());
+                    LOGGER.throwing(aioe);
+                    throw aioe;
+                }
+            } else {
+                // just return the entry names that were found in the archive directory
+                for(String entry: allEntries) {
+                    String entryName = entry.substring(walletPath.length() + 1);
+                    walletEntries.add(entryName);
+                }
+            }
+        }
+
+        LOGGER.exiting(CLASS, METHOD, walletEntries);
+        return walletEntries;
     }
 
     /**
