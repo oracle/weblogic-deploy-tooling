@@ -5,7 +5,16 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 import os
 from xml.dom.minidom import parse
 
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORE_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTOREPWD_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORETYPE_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_SSL_VERSION
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_SSL_VERSION_VALUE
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
 from wlsdeploy.logging.platform_logger import get_logged_value
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import string_utils
@@ -69,19 +78,19 @@ class JpsConfigHelper(object):
 
         for prop in props:
             if prop.getAttribute('name') == 'props.db.1':
-                self.__set_property(dom_tree, prop, 'oracle.net.ssl_server_dn_match', 'true')
-                self.__set_property(dom_tree, prop, 'oracle.net.ssl_version', DRIVER_PARAMS_NET_SSL_VERSION_VALUE)
-                self.__set_property(dom_tree, prop, 'oracle.net.tns_admin', tns_admin)
-                self.__set_property(dom_tree, prop, 'javax.net.ssl.trustStoreType', truststore_type)
-                self.__set_property(dom_tree, prop, 'javax.net.ssl.keyStoreType', keystore_type)
-                self.__set_property(dom_tree, prop, 'javax.net.ssl.keyStore', keystore)
-                self.__set_property(dom_tree, prop, 'javax.net.ssl.trustStore', truststore)
+                self.__set_property(dom_tree, prop, DRIVER_PARAMS_NET_SERVER_DN_MATCH_PROPERTY, 'true')
+                self.__set_property(dom_tree, prop, DRIVER_PARAMS_NET_SSL_VERSION, DRIVER_PARAMS_NET_SSL_VERSION_VALUE)
+                self.__set_property(dom_tree, prop, DRIVER_PARAMS_NET_TNS_ADMIN, tns_admin)
+                self.__set_property(dom_tree, prop, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY, truststore_type)
+                self.__set_property(dom_tree, prop, DRIVER_PARAMS_KEYSTORETYPE_PROPERTY, keystore_type)
+                self.__set_property(dom_tree, prop, DRIVER_PARAMS_KEYSTORE_PROPERTY, keystore)
+                self.__set_property(dom_tree, prop, DRIVER_PARAMS_TRUSTSTORE_PROPERTY, truststore)
 
                 if keystore_type != 'SSO':
-                    self.__set_property(dom_tree, prop, 'javax.net.ssl.keyStorePassword', keystore_password, True)
+                    self.__set_property(dom_tree, prop, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_password, True)
 
                 if truststore_type != 'SSO':
-                    self.__set_property(dom_tree, prop, 'javax.net.ssl.trustStorePassword', truststore_password, True)
+                    self.__set_property(dom_tree, prop, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_password, True)
 
                 # Persist the changes in the xml file
                 file_handle = None

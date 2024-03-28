@@ -45,7 +45,9 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPER
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
+from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS_PROPERTIES
+from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
 from wlsdeploy.aliases.model_constants import RCU_COMP_INFO
@@ -228,9 +230,9 @@ class RCUHelper(object):
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
         domain_typename = self._model_context.get_domain_typedef().get_domain_type()
+
         rcu_prefix = self._rcu_db_info.get_rcu_prefix()
         schema_name = None
-
         user_name = None
         if not string_utils.is_empty(rcu_prefix):
             user_name = self._model_context.get_weblogic_helper().get_stb_user_name(rcu_prefix)
@@ -263,6 +265,10 @@ class RCUHelper(object):
 
             props.put('user', user_name)
             props.put('password', rcu_schema_pwd)
+
+            # Pick up any values overridden by any model resources section overrides for the STB datasource.
+            jdbc_driver_name, jdbc_conn_string = \
+                self.__update_precheck_from_model_data_source(jdbc_driver_name, jdbc_conn_string, props)
 
             # Force the driver to be loaded and registered...
             JClass.forName(jdbc_driver_name)
@@ -839,3 +845,32 @@ class RCUHelper(object):
 
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=driver_name)
         return driver_name
+
+    def __update_precheck_from_model_data_source(self, jdbc_driver_name, jdbc_conn_string, props):
+        _method_name = '__update_precheck_from_model_data_source'
+        self.__logger.entering(jdbc_driver_name, jdbc_conn_string,
+                               class_name=self.__class_name, method_name=_method_name)
+
+        model_resources_dict = self._model_object.get_model_resources()
+        data_source_name = self._model_context.get_weblogic_helper().get_jrf_service_table_datasource_name()
+        data_sources_dict = dictionary_utils.get_dictionary_element(model_resources_dict, JDBC_SYSTEM_RESOURCE)
+        model_data_source_dict = dictionary_utils.get_dictionary_element(data_sources_dict, data_source_name)
+        model_jdbc_resource_dict = dictionary_utils.get_dictionary_element(model_data_source_dict, JDBC_RESOURCE)
+        model_driver_params_dict = dictionary_utils.get_dictionary_element(model_jdbc_resource_dict, JDBC_DRIVER_PARAMS)
+        model_properties_dict = \
+            dictionary_utils.get_dictionary_element(model_driver_params_dict, JDBC_DRIVER_PARAMS_PROPERTIES)
+
+        new_jdbc_driver_name = dictionary_utils.get_element(model_driver_params_dict, DRIVER_NAME, jdbc_driver_name)
+        new_jdbc_conn_string = dictionary_utils.get_element(model_driver_params_dict, URL, jdbc_conn_string)
+
+        new_password = dictionary_utils.get_element(model_driver_params_dict, PASSWORD_ENCRYPTED)
+        if new_password is not None:
+            new_password = self._aliases.decrypt_password(new_password)
+            props.set('password', new_password)
+
+        for prop_key, prop_value in model_properties_dict.iteritems():
+            props.set(prop_key, prop_value)
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name,
+                              result=[new_jdbc_driver_name, new_jdbc_conn_string])
+        return new_jdbc_driver_name, new_jdbc_conn_string
