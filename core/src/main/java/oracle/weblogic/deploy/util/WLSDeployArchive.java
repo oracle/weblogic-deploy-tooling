@@ -3837,6 +3837,54 @@ public class WLSDeployArchive {
     }
 
     /**
+     * Return the wallet entry names at the specified path in the archive, if any.
+     * If that archive path contains a single zip (a wallet zip), return the entries from that zip.
+     */
+    public List<String> getDatabaseWalletEntries(String walletPath) throws WLSDeployArchiveIOException {
+        final String METHOD = "getDatabaseWalletEntries";
+        LOGGER.entering(CLASS, METHOD);
+
+        List<String> walletEntries = new ArrayList<>();
+
+        if(containsPath(walletPath)) {
+            String walletPrefix = walletPath + ZIP_SEP;
+            List<String> allEntries = new ArrayList<>();  // all entries excluding the directory entry
+            List<String> zipEntries = getZipFile().listZipEntries();
+            for (String zipEntry : zipEntries) {
+                if (zipEntry.startsWith(walletPrefix) && !zipEntry.equals(walletPrefix)) {
+                    allEntries.add(zipEntry);
+                }
+            }
+
+            String firstEntry = allEntries.isEmpty() ? null : allEntries.get(0);
+            if((firstEntry != null) && firstEntry.toLowerCase().endsWith(".zip")) {
+                try (ZipInputStream zipStream = new ZipInputStream(getZipFile().getZipEntry(firstEntry))) {
+                    ZipEntry zipEntry;
+                    while ((zipEntry = zipStream.getNextEntry()) != null) {
+                        walletEntries.add(zipEntry.getName());
+                        zipStream.closeEntry();
+                    }
+
+                } catch(IOException e) {
+                    WLSDeployArchiveIOException aioe = new WLSDeployArchiveIOException("WLSDPLY-01467", firstEntry,
+                            getArchiveFileName(), e.getLocalizedMessage());
+                    LOGGER.throwing(aioe);
+                    throw aioe;
+                }
+            } else {
+                // just return the entry names that were found in the archive directory
+                for(String entry: allEntries) {
+                    String entryName = entry.substring(walletPath.length() + 1);
+                    walletEntries.add(entryName);
+                }
+            }
+        }
+
+        LOGGER.exiting(CLASS, METHOD, walletEntries);
+        return walletEntries;
+    }
+
+    /**
      * Add a database wallet to the archive.
      *
      * @param walletName     the name for this database wallet (used to segregate wallets)

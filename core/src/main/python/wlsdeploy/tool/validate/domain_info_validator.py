@@ -27,6 +27,7 @@ WALLET_PATH_ATTRIBUTES = [
     DRIVER_PARAMS_TRUSTSTORE_PROPERTY
 ]
 
+
 class DomainInfoValidator(ModelValidator):
     """
     Class for validating the domainInfo section of a model file
@@ -85,8 +86,7 @@ class DomainInfoValidator(ModelValidator):
         Extend this method to allow wallet paths to be in a wallet zip in the archive.
         """
         if attribute_name in WALLET_PATH_ATTRIBUTES:
-            if WLSDeployArchive.isPathIntoArchive(path):
-                # TODO: check inside the wallet zip
+            if self.__is_path_in_zipped_archive_wallet(path):
                 return
 
         ModelValidator._validate_single_path_in_archive(self, path, attribute_name, model_folder_path)
@@ -168,3 +168,20 @@ class DomainInfoValidator(ModelValidator):
             self._logger.severe('WLSDPLY-05035', key, str_helper.to_string(value), model_folder_path,
                                 str_helper.to_string(type(value)),
                                 class_name=_class_name, method_name=_method_name)
+
+    def __is_path_in_zipped_archive_wallet(self, path):
+        if not WLSDeployArchive.isPathIntoArchive(path) or not self._archive_helper:
+            return False
+
+        if self._archive_helper.contains_file(path):
+            # the file is directly in the archive, return for regular validation
+            return False
+
+        last_slash = path.rfind('/')
+        wallet_path = ''
+        if last_slash != -1:
+            wallet_path = path[:last_slash]
+        file_name = path[last_slash + 1:]
+        archive, entries = self._archive_helper.get_wallet_entries(wallet_path)
+
+        return file_name in entries
