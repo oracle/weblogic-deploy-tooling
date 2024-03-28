@@ -236,7 +236,7 @@ def __update_offline(model_deployer, model, model_context, aliases):
 
     # update rcu schema password must happen before updating a jrf domain
     if model_context.get_update_rcu_schema_pass() is True:
-        rcu_helper = RCUHelper(model, model_context, aliases)
+        rcu_helper = RCUHelper(model, None, model_context, aliases, exception_type=ExceptionType.DEPLOY)
         rcu_helper.update_rcu_password()
 
     __update_offline_domain()
