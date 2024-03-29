@@ -2,6 +2,8 @@
 Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+import os
+
 from oracle.weblogic.deploy.create.RCURunner import DB2_DB_TYPE
 from oracle.weblogic.deploy.create.RCURunner import EBR_DB_TYPE
 from oracle.weblogic.deploy.create.RCURunner import MYSQL_DB_TYPE
@@ -44,7 +46,7 @@ from wlsdeploy.aliases.model_constants import USE_SSL
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import dictionary_utils
-
+from wlsdeploy.util import string_utils
 
 _class_name = 'rcudbinfo_helper'
 
@@ -138,6 +140,13 @@ class RcuDbInfo(object):
     def get_keystore(self):
         return self._get_dictionary_path_value(DRIVER_PARAMS_KEYSTORE_PROPERTY)
 
+    def get_qualified_keystore_path(self):
+        """
+        Prepend the TNS admin path to keystore if keystore is a relative path and not in archive.
+        :return: the derived keystore path
+        """
+        return self.__get_qualified_store_path(self.get_keystore())
+
     def get_keystore_type(self):
         return self._get_dictionary_element_value(DRIVER_PARAMS_KEYSTORETYPE_PROPERTY)
 
@@ -147,6 +156,13 @@ class RcuDbInfo(object):
 
     def get_truststore(self):
         return self._get_dictionary_path_value(DRIVER_PARAMS_TRUSTSTORE_PROPERTY)
+
+    def get_qualified_truststore_path(self):
+        """
+        Prepend the TNS admin path to truststore if truststore is a relative path and not in archive.
+        :return: the derived truststore path
+        """
+        return self.__get_qualified_store_path(self.get_truststore())
 
     def get_truststore_type(self):
         return self._get_dictionary_element_value(DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY)
@@ -273,6 +289,17 @@ class RcuDbInfo(object):
                 result = use_ssl == 'SSL'
 
         return result
+
+    def __get_qualified_store_path(self, store_value):
+        return get_qualified_store_path(self.get_tns_admin(), store_value)
+
+
+# "static" method for validation, etc.
+def get_qualified_store_path(tns_admin, store_value):
+    if not string_utils.is_empty(store_value) and not string_utils.is_empty(tns_admin) and \
+            not os.path.isabs(store_value) and not WLSDeployArchive.isPathIntoArchive(store_value):
+        store_value = tns_admin + WLSDeployArchive.ZIP_SEP + store_value
+    return store_value
 
 
 def create(model_dictionary, model_context, aliases):
