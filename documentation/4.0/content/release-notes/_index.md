@@ -27,7 +27,7 @@ pre = "<b> </b>"
           with online Update Domain and Deploy Applications tools.  For non-archive applications/libraries, online deployment of
           binaries outside of the archive will always assume that the binaries are available to the Administration Server at the
           model-specified paths.  Neither the `-remote` or SSH options will attempt to upload the non-archived binaries.
-- #1654, #1655, #1656, #1658, #1659, #1660 - Overhaul of the Create Domain Tool's support for running RCU and applying
+- #1654, #1655, #1656, #1658, #1659, #1661 - Overhaul of the Create Domain Tool's support for running RCU and applying
           RCU-related changes to the RCU Data Sources.
 
 #### Other Changes
@@ -95,6 +95,8 @@ pre = "<b> </b>"
           Source overrides for the STB data source set in the model.
 - #1659 - Fixed an issue with the Create Domain Tool where it was ignoring any Data Source overrides for the OPSS data
           source set in the model when fixing the jps-copfig.xml and jps-config-jse.xml files.
+- #1660 - Fixed an issue with the Update Domain Tool running in online mode against a JRF domain that was causing extra
+          analysis of applications and libraries that the JRF domain typedef declares as filtered.
 
 #### Known Issues
 - SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
