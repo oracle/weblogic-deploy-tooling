@@ -2,20 +2,33 @@
 Copyright (c) 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+from oracle.weblogic.deploy.create import RCURunner
 from oracle.weblogic.deploy.util import WLSDeployArchive
 
+from wlsdeploy.aliases.model_constants import ATP_DEFAULT_TABLESPACE
+from wlsdeploy.aliases.model_constants import ATP_TEMPORARY_TABLESPACE
+from wlsdeploy.aliases.model_constants import DATABASE_TYPE
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORETYPE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORE_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import DYNAMIC_CLUSTER_SERVER_GROUP_TARGETING_LIMITS
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
+from wlsdeploy.aliases.model_constants import ORACLE_DATABASE_CONNECTION_TYPE
+from wlsdeploy.aliases.model_constants import RCU_DATABASE_TYPE
+from wlsdeploy.aliases.model_constants import RCU_DB_INFO
+from wlsdeploy.aliases.model_constants import RCU_DEFAULT_TABLESPACE
+from wlsdeploy.aliases.model_constants import RCU_TEMP_TBLSPACE
 from wlsdeploy.aliases.model_constants import SERVER_GROUP_TARGETING_LIMITS
+from wlsdeploy.aliases.model_constants import STORE_TYPE_SSO
 from wlsdeploy.aliases.model_constants import WLS_POLICIES
 from wlsdeploy.aliases.model_constants import WLS_ROLES
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create import wlspolicies_helper
 from wlsdeploy.tool.create import wlsroles_helper
 from wlsdeploy.tool.validate.model_validator import ModelValidator
+from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import unicode_helper as str_helper
 from wlsdeploy.util import variables
 
@@ -25,6 +38,31 @@ _logger = PlatformLogger('wlsdeploy.validate')
 WALLET_PATH_ATTRIBUTES = [
     DRIVER_PARAMS_KEYSTORE_PROPERTY,
     DRIVER_PARAMS_TRUSTSTORE_PROPERTY
+]
+
+ALL_DB_TYPES = [
+    RCURunner.ORACLE_DB_TYPE,
+    RCURunner.EBR_DB_TYPE,
+    RCURunner.SQLSERVER_DB_TYPE,
+    RCURunner.DB2_DB_TYPE,
+    RCURunner.MYSQL_DB_TYPE
+]
+
+ORACLE_DB_CONNECTION_TYPES = [
+    RCURunner.ORACLE_ATP_DB_TYPE,
+    RCURunner.ORACLE_SSL_DB_TYPE
+]
+
+STORE_TYPES = [
+    STORE_TYPE_SSO,
+    'PKCS12',
+    'JKS'
+]
+
+DEPRECATED_DB_TYPES = [
+    RCURunner.ORACLE_DB_TYPE,
+    RCURunner.ORACLE_ATP_DB_TYPE,
+    RCURunner.ORACLE_SSL_DB_TYPE
 ]
 
 
@@ -54,6 +92,10 @@ class DomainInfoValidator(ModelValidator):
         self.validate_model_section(DOMAIN_INFO, model_dict,
                                     self._aliases.get_model_section_top_level_folder_names(DOMAIN_INFO))
 
+    ####################
+    # OVERRIDE METHODS
+    ####################
+
     # Override
     def _validate_folder(self, model_node, location):
         """
@@ -67,6 +109,8 @@ class DomainInfoValidator(ModelValidator):
             self.__validate_wlsroles_section(model_node)
         elif folder_name == WLS_POLICIES:
             self.__validate_wlspolicies_section(model_node)
+        elif folder_name == RCU_DB_INFO:
+            self.__validate_rcu_db_info_section(model_node)
 
     # Override
     def _validate_attribute(self, attribute_name, attribute_value, valid_attr_infos, path_tokens_attr_keys,
@@ -91,6 +135,10 @@ class DomainInfoValidator(ModelValidator):
 
         ModelValidator._validate_single_path_in_archive(self, path, attribute_name, model_folder_path)
 
+    ####################
+    # PRIVATE METHODS
+    ####################
+
     def __validate_wlspolicies_section(self, policies_dict):
         __method_name = '__validate_wlspolicies_section'
         self._logger.entering(class_name=_class_name, method_name=__method_name)
@@ -111,6 +159,46 @@ class DomainInfoValidator(ModelValidator):
         wlsroles_validator.validate_roles()
 
         self._logger.exiting(class_name=_class_name, method_name=__method_name)
+
+    def __validate_rcu_db_info_section(self, info_dict):
+        _method_name = '__validate_rcu_db_info_section'
+
+        # This method validates fields that can be checked in an unmerged model,
+        # such as deprecations and value ranges.
+        # Checks that must be done on a merged model are done in create_content_validator.py .
+
+        self._check_deprecated_field(DATABASE_TYPE, info_dict, RCU_DB_INFO, ORACLE_DATABASE_CONNECTION_TYPE)
+        self._check_deprecated_field(ATP_DEFAULT_TABLESPACE, info_dict, RCU_DB_INFO, RCU_DEFAULT_TABLESPACE)
+        self._check_deprecated_field(ATP_TEMPORARY_TABLESPACE, info_dict, RCU_DB_INFO, RCU_TEMP_TBLSPACE)
+
+        # deprecated DATABASE_TYPE, must be ORACLE, ATP, or SSL if specified
+        old_database_type = dictionary_utils.get_element(info_dict, DATABASE_TYPE)
+        if old_database_type and old_database_type not in DEPRECATED_DB_TYPES:
+            self._logger.severe(
+                'WLSDPLY-05302', old_database_type, RCU_DB_INFO, DATABASE_TYPE,
+                ', '.join(DEPRECATED_DB_TYPES), class_name=_class_name, method_name=_method_name)
+
+        # RCU_DATABASE_TYPE must be one of allowed types if specified
+        database_type = dictionary_utils.get_element(info_dict, RCU_DATABASE_TYPE)
+        if database_type and database_type not in ALL_DB_TYPES:
+            self._logger.severe(
+                'WLSDPLY-05302', database_type, RCU_DB_INFO, RCU_DATABASE_TYPE,
+                ', '.join(ALL_DB_TYPES), class_name=_class_name, method_name=_method_name)
+
+        # ORACLE_DATABASE_CONNECTION_TYPE must be one of allowed types if specified
+        connection_type = dictionary_utils.get_element(info_dict, ORACLE_DATABASE_CONNECTION_TYPE)
+        if connection_type and connection_type not in ORACLE_DB_CONNECTION_TYPES:
+            self._logger.severe(
+                'WLSDPLY-05302', connection_type, RCU_DB_INFO, ORACLE_DATABASE_CONNECTION_TYPE,
+                ', '.join(ORACLE_DB_CONNECTION_TYPES), class_name=_class_name, method_name=_method_name)
+
+        # *StoreType must be one of allowed types if specified
+        for type_field in [DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY, DRIVER_PARAMS_KEYSTORETYPE_PROPERTY]:
+            type_value = dictionary_utils.get_element(info_dict, type_field)
+            if type_value and type_value.upper() not in STORE_TYPES:
+                self._logger.severe(
+                    'WLSDPLY-05302', type_value, RCU_DB_INFO, type_field,
+                    ', '.join(STORE_TYPES), class_name=_class_name, method_name=_method_name)
 
     def __validate_server_group_targeting_limits(self, attribute_key, attribute_value, model_folder_path):
         """
@@ -185,3 +273,9 @@ class DomainInfoValidator(ModelValidator):
         archive, entries = self._archive_helper.get_wallet_entries(wallet_path)
 
         return file_name in entries
+
+    def _check_deprecated_field(self, field_name, info_dict, folder_name, new_field_name):
+        _method_name = '_check_deprecated_field'
+        if dictionary_utils.get_element(info_dict, field_name):
+            self._logger.deprecation('WLSDPLY-05303', folder_name, field_name, new_field_name,
+                                     class_name=_class_name, method_name=_method_name)

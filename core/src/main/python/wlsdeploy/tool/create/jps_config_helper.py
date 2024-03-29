@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -15,9 +15,11 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
+from wlsdeploy.aliases.model_constants import STORE_TYPE_SSO
 from wlsdeploy.logging.platform_logger import get_logged_value
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import string_utils
+
 
 class JpsConfigHelper(object):
     _logger = PlatformLogger('wlsdeploy.create')
@@ -68,9 +70,9 @@ class JpsConfigHelper(object):
         :param keystore_password:       The identity store keystore/wallet passphrase, if set
         """
         _method_name = '__set_ssl_properties'
-        self._logger.entering(xml_doc, tns_admin, truststore, truststore_type, get_logged_value(truststore_password),
-                              keystore, keystore_type, get_logged_value(keystore_password),
-                              class_name=self._class_name, method_name=_method_name)
+        self._logger.entering(xml_doc, tns_admin, truststore, truststore_type,
+                              get_logged_value(truststore_password), keystore, keystore_type,
+                              get_logged_value(keystore_password), class_name=self._class_name, method_name=_method_name)
 
         dom_tree = parse(xml_doc)
         collection = dom_tree.documentElement
@@ -86,10 +88,10 @@ class JpsConfigHelper(object):
                 self.__set_property(dom_tree, prop, DRIVER_PARAMS_KEYSTORE_PROPERTY, keystore)
                 self.__set_property(dom_tree, prop, DRIVER_PARAMS_TRUSTSTORE_PROPERTY, truststore)
 
-                if keystore_type != 'SSO':
+                if keystore_type != STORE_TYPE_SSO:
                     self.__set_property(dom_tree, prop, DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, keystore_password, True)
 
-                if truststore_type != 'SSO':
+                if truststore_type != STORE_TYPE_SSO:
                     self.__set_property(dom_tree, prop, DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, truststore_password, True)
 
                 # Persist the changes in the xml file
