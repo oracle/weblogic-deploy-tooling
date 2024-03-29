@@ -15,20 +15,30 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
+from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
+from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS_PROPERTIES
+from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
+from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import STORE_TYPE_SSO
 from wlsdeploy.logging.platform_logger import get_logged_value
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import string_utils
+
+OPSS_DATA_SOURCE_NAME = 'opss-data-source'
 
 
 class JpsConfigHelper(object):
     _logger = PlatformLogger('wlsdeploy.create')
     _class_name = 'JpsConfigHelper'
 
-    def __init__(self, model_context, rcu_db_info):
+    def __init__(self, model_object, model_context, rcu_db_info):
+        self._model_object = model_object
         self._model_context = model_context
         self._rcu_db_info = rcu_db_info
         self._use_ssl = rcu_db_info.is_use_atp() or rcu_db_info.is_use_ssl()
+        self._opss_data_source_model_props = self.__get_opss_data_source_model_properties()
 
     def fix_jps_config(self):
         _method_name = 'fix_jps_config'
@@ -121,12 +131,35 @@ class JpsConfigHelper(object):
         else:
             self._logger.entering(name, value, logMask, class_name=self._class_name, method_name=_method_name)
 
-        if not string_utils.is_empty(value):
+        value_to_set = dictionary_utils.get_element(self._opss_data_source_model_props, name, value)
+        if not string_utils.is_empty(value_to_set):
             property_element = dom_tree.createElement('property')
             property_element.setAttribute("name", name)
-            property_element.setAttribute("value", value)
+            property_element.setAttribute("value", value_to_set)
             prop.appendChild(property_element)
             newline = dom_tree.createTextNode('\n')
             prop.appendChild(newline)
 
         self._logger.exiting(class_name=self._class_name, method_name=_method_name)
+
+    def __get_opss_data_source_model_properties(self):
+        _method_name = '__get_opss_data_source_model_properties'
+        self._logger.entering(class_name=self._class_name, method_name=_method_name)
+
+        model_resources_dict = self._model_object.get_model_resources()
+        model_data_sources_dict = dictionary_utils.get_dictionary_element(model_resources_dict, JDBC_SYSTEM_RESOURCE)
+        model_opss_data_source_dict = \
+            dictionary_utils.get_dictionary_element(model_data_sources_dict, OPSS_DATA_SOURCE_NAME)
+        model_jdbc_resource_dict = dictionary_utils.get_dictionary_element(model_opss_data_source_dict, JDBC_RESOURCE)
+        model_driver_params_dict = dictionary_utils.get_dictionary_element(model_jdbc_resource_dict, JDBC_DRIVER_PARAMS)
+        model_driver_props_dict = \
+            dictionary_utils.get_dictionary_element(model_driver_params_dict, JDBC_DRIVER_PARAMS_PROPERTIES)
+
+        opss_model_props = dict()
+        for prop_key, prop_value in model_driver_props_dict.iteritems():
+            if prop_key == DRIVER_PARAMS_USER_PROPERTY:
+                continue
+            opss_model_props[prop_key] = prop_value
+
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name)
+        return opss_model_props

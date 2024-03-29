@@ -218,7 +218,7 @@ class RCUHelper(object):
 
     def fix_jps_config(self):
         if self._model_context.get_domain_typedef().requires_rcu():
-            jps_config_helper = JpsConfigHelper(self._model_context, self._rcu_db_info)
+            jps_config_helper = JpsConfigHelper(self._model_object, self._model_context, self._rcu_db_info)
             jps_config_helper.fix_jps_config()
 
     ####################
