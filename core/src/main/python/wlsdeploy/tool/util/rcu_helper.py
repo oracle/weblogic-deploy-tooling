@@ -10,6 +10,7 @@ from java.io import File
 from java.lang import Class as JClass
 from java.lang import Exception as JException
 from java.lang import IllegalArgumentException
+from java.lang import System
 from java.sql import DriverManager
 from java.util import Properties
 from oracle.weblogic.deploy.create import CreateDomainLifecycleHookScriptRunner
@@ -101,6 +102,14 @@ class RCUHelper(object):
     ####################
 
     def check_or_run_rcu(self):
+        # This squelches the following error during JRF domain creation with an ATP database.
+        #
+        # ####<Mar 29, 2024 3:19:53 PM> <SEVERE> <FanManager> <configure> <> <attempt to configure
+        # ONS in FanManager failed with oracle.ons.NoServersAvailable: Subscription time out>
+        #
+        if self._rcu_db_info.is_use_atp():
+            System.setProperty('oracle.jdbc.fanEnabled', 'false')
+
         if self._model_context.get_domain_typedef().requires_rcu():
             if self._model_context.is_run_rcu():
                 self.__run_rcu()
