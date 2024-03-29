@@ -13,13 +13,17 @@ from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
-from wlsdeploy.aliases.model_constants import ATP_DEFAULT_TABLESPACE
-from wlsdeploy.aliases.model_constants import ATP_TEMPORARY_TABLESPACE
 from wlsdeploy.aliases.model_constants import DATABASE_TYPE
 from wlsdeploy.aliases.model_constants import DEFAULT_REALM
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTOREPWD_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORETYPE_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import ORACLE_DATABASE_CONNECTION_TYPE
 from wlsdeploy.aliases.model_constants import PASSWORD
 from wlsdeploy.aliases.model_constants import PASSWORD_VALIDATOR
@@ -27,13 +31,12 @@ from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_DATABASE_TYPE
 from wlsdeploy.aliases.model_constants import RCU_DB_CONN_STRING
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
-from wlsdeploy.aliases.model_constants import RCU_DEFAULT_TABLESPACE
 from wlsdeploy.aliases.model_constants import RCU_PREFIX
 from wlsdeploy.aliases.model_constants import RCU_SCHEMA_PASSWORD
-from wlsdeploy.aliases.model_constants import RCU_TEMP_TBLSPACE
 from wlsdeploy.aliases.model_constants import REALM
 from wlsdeploy.aliases.model_constants import SECURITY
 from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
+from wlsdeploy.aliases.model_constants import STORE_TYPE_SSO
 from wlsdeploy.aliases.model_constants import SYSTEM_PASSWORD_VALIDATOR
 from wlsdeploy.aliases.model_constants import TNS_ENTRY
 from wlsdeploy.aliases.model_constants import TOPOLOGY
@@ -43,29 +46,16 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.validate.content_validator import ContentValidator
 from wlsdeploy.util import dictionary_utils
 
-ALL_DB_TYPES = [
-    RCURunner.ORACLE_DB_TYPE,
-    RCURunner.EBR_DB_TYPE,
-    RCURunner.SQLSERVER_DB_TYPE,
-    RCURunner.DB2_DB_TYPE,
-    RCURunner.MYSQL_DB_TYPE
-]
-
 ORACLE_DB_TYPES = [
     RCURunner.ORACLE_DB_TYPE,
     RCURunner.EBR_DB_TYPE
 ]
 
-ORACLE_DB_CONNECTION_TYPES = [
+ORACLE_DB_SSL_CONNECTION_TYPES = [
     RCURunner.ORACLE_ATP_DB_TYPE,
     RCURunner.ORACLE_SSL_DB_TYPE
 ]
 
-DEPRECATED_DB_TYPES = [
-    RCURunner.ORACLE_DB_TYPE,
-    RCURunner.ORACLE_ATP_DB_TYPE,
-    RCURunner.ORACLE_SSL_DB_TYPE
-]
 
 class CreateDomainContentValidator(ContentValidator):
     """
@@ -114,6 +104,10 @@ class CreateDomainContentValidator(ContentValidator):
         _method_name = '__validate_rcu_db_info_section'
         self._logger.entering(class_name=self._class_name, method_name=_method_name)
 
+        # This method validates fields that can only be checked in a merged model.
+        # Simple checks that apply to an unmerged model, such as deprecations and value ranges,
+        # are done in domain_info_validator.py .
+
         if not self._model_context.get_domain_typedef().requires_rcu():
             return
 
@@ -129,31 +123,21 @@ class CreateDomainContentValidator(ContentValidator):
 
         self.__validate_rcu_connection_string(info_dict)
 
-        # deprecated fields
-        self._check_deprecated_field(DATABASE_TYPE, info_dict, RCU_DB_INFO, ORACLE_DATABASE_CONNECTION_TYPE)
-        self._check_deprecated_field(ATP_DEFAULT_TABLESPACE, info_dict, RCU_DB_INFO, RCU_DEFAULT_TABLESPACE)
-        self._check_deprecated_field(ATP_TEMPORARY_TABLESPACE, info_dict, RCU_DB_INFO, RCU_TEMP_TBLSPACE)
+        # ATP and SSL connection types must have TRUSTSTORE
+        for field in [ORACLE_DATABASE_CONNECTION_TYPE, DATABASE_TYPE]:
+            connection_type = dictionary_utils.get_element(info_dict, field)
+            if connection_type and connection_type in ORACLE_DB_SSL_CONNECTION_TYPES:
+                truststore = dictionary_utils.get_element(info_dict, DRIVER_PARAMS_TRUSTSTORE_PROPERTY)
+                if not truststore:
+                    self._logger.severe(
+                        'WLSDPLY-05308', field, connection_type, RCU_DB_INFO,
+                        DRIVER_PARAMS_TRUSTSTORE_PROPERTY, class_name=self._class_name, method_name=_method_name)
 
-        # deprecated DATABASE_TYPE, must be ORACLE, ATP, or SSL if specified
-        old_database_type = dictionary_utils.get_element(info_dict, DATABASE_TYPE)
-        if old_database_type and old_database_type not in DEPRECATED_DB_TYPES:
-            self._logger.severe(
-                'WLSDPLY-05302', old_database_type, RCU_DB_INFO, DATABASE_TYPE,
-                ', '.join(DEPRECATED_DB_TYPES), class_name=self._class_name, method_name=_method_name)
+        self.__validate_store_property(DRIVER_PARAMS_TRUSTSTORE_PROPERTY, DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY,
+                                       DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY, info_dict)
 
-        # RCU_DATABASE_TYPE must be one of allowed types if specified
-        database_type = dictionary_utils.get_element(info_dict, RCU_DATABASE_TYPE)
-        if database_type and database_type not in ALL_DB_TYPES:
-            self._logger.severe(
-                'WLSDPLY-05302', database_type, RCU_DB_INFO, RCU_DATABASE_TYPE,
-                ', '.join(ALL_DB_TYPES), class_name=self._class_name, method_name=_method_name)
-
-        # ORACLE_DATABASE_CONNECTION_TYPE must be one of allowed types if specified
-        connection_type = dictionary_utils.get_element(info_dict, ORACLE_DATABASE_CONNECTION_TYPE)
-        if connection_type and connection_type not in ORACLE_DB_CONNECTION_TYPES:
-            self._logger.severe(
-                'WLSDPLY-05302', connection_type, RCU_DB_INFO, ORACLE_DATABASE_CONNECTION_TYPE,
-                ', '.join(ORACLE_DB_CONNECTION_TYPES), class_name=self._class_name, method_name=_method_name)
+        self.__validate_store_property(DRIVER_PARAMS_KEYSTORE_PROPERTY, DRIVER_PARAMS_KEYSTORETYPE_PROPERTY,
+                                       DRIVER_PARAMS_KEYSTOREPWD_PROPERTY, info_dict)
 
         if self._model_context.is_run_rcu():
             admin_password = dictionary_utils.get_element(info_dict, RCU_ADMIN_PASSWORD)
@@ -189,6 +173,22 @@ class CreateDomainContentValidator(ContentValidator):
                     'WLSDPLY-05301', RCU_DB_INFO, RCU_DB_CONN_STRING, RCURunner.ORACLE_DB_TYPE,
                     class_name=self._class_name, method_name=_method_name)
 
+    def __validate_store_property(self, store_property, type_property, pwd_property, rcu_info_dict):
+        _method_name = '__validate_store_property'
+        store_value = dictionary_utils.get_element(rcu_info_dict, store_property)
+        if store_value:
+            type_value = dictionary_utils.get_element(rcu_info_dict, type_property)
+            if not type_value:
+                self._logger.severe(
+                    'WLSDPLY-05310', RCU_DB_INFO, type_property, store_property,
+                    class_name=self._class_name, method_name=_method_name)
+
+            elif type_value.upper() != STORE_TYPE_SSO:
+                # types other than store must have password
+                if not dictionary_utils.get_element(rcu_info_dict, pwd_property):
+                    self._logger.severe(
+                        'WLSDPLY-05309', RCU_DB_INFO, pwd_property, type_property, type_value,
+                        class_name=self._class_name, method_name=_method_name)
 
     def __has_tns_path(self, rcu_info_dict):
         """
@@ -362,13 +362,6 @@ class CreateDomainContentValidator(ContentValidator):
 
         self._logger.exiting(class_name=self._class_name, method_name=_method_name)
         return users_folder
-
-    def _check_deprecated_field(self, field_name, info_dict, folder_name, new_field_name):
-        _method_name = '_check_deprecated_field'
-        if dictionary_utils.get_element(info_dict, field_name):
-            self._logger.deprecation(
-                'WLSDPLY-05303', folder_name, field_name, new_field_name,
-                class_name=self._class_name, method_name=_method_name)
 
 
 def _get_system_password_validator_location():

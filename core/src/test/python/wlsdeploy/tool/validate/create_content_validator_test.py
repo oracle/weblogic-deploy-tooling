@@ -13,6 +13,9 @@ from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORETYPE_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORE_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import RCU_ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import RCU_DATABASE_TYPE
 from wlsdeploy.aliases.model_constants import RCU_DB_CONN_STRING
@@ -133,6 +136,37 @@ class CreateContentValidatorTest(BaseTestCase):
 
         # no connection string and not ORACLE db
         self._validate_message_key(handler, Level.SEVERE, 'WLSDPLY-05301', 1)
+
+    def test_store_type_validation(self):
+        """
+        Store type is required, and must be a valid value.
+        """
+        model_dict = self._build_model_from_rcu_db_info({
+            RCU_PREFIX: 'WDT',
+            RCU_SCHEMA_PASSWORD: 'password',
+            RCU_DB_CONN_STRING: 'somedb.example.com:1234/orclpdb',
+
+            DRIVER_PARAMS_TRUSTSTORE_PROPERTY: 'trust.jks',
+
+            DRIVER_PARAMS_KEYSTORE_PROPERTY: 'key.jks',
+            DRIVER_PARAMS_KEYSTORETYPE_PROPERTY: 'JKS'
+        })
+
+        validator = self.create_validator()
+        validator.validate_model_content(model_dict)
+
+        handler = self._summary_handler
+        self.assertNotEqual(handler, None, "Summary handler is not present")
+
+        # Verify 2 errors, no warnings
+        self.assertEqual(handler.getMessageCount(Level.SEVERE), 2)
+        self.assertEqual(handler.getMessageCount(Level.WARNING), 0)
+
+        # keystore has type JKS and no password
+        self._validate_message_key(handler, Level.SEVERE, 'WLSDPLY-05309', 1)
+
+        # truststore has no type value
+        self._validate_message_key(handler, Level.SEVERE, 'WLSDPLY-05310', 1)
 
     def create_validator(self, run_rcu=False, requires_rcu=True):
         # create a model context to simulate running RCU for JRF

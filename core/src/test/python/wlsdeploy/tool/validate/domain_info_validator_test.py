@@ -10,7 +10,11 @@ from oracle.weblogic.deploy.logging import WLSDeployLogEndHandler
 
 from base_test import BaseTestCase
 from wlsdeploy.aliases.aliases import Aliases
+from wlsdeploy.aliases.model_constants import DATABASE_TYPE
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
+from wlsdeploy.aliases.model_constants import ORACLE_DATABASE_CONNECTION_TYPE
+from wlsdeploy.aliases.model_constants import RCU_DATABASE_TYPE
+from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import WLS_POLICIES
 from wlsdeploy.aliases.model_constants import WLS_ROLES
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -132,6 +136,25 @@ class DomainInfoValidatorTest(BaseTestCase):
 
         # MyTester3 has invalid update mode
         self._validate_message_key(handler, Level.WARNING, 'WLSDPLY-12503', 1)
+
+    def test_rcu_db_info_validation(self):
+        model_dict = {
+            DOMAIN_INFO: {
+                RCU_DB_INFO: {
+                    DATABASE_TYPE: 'ATPx',
+                    RCU_DATABASE_TYPE: 'SQLSERVERx',
+                    ORACLE_DATABASE_CONNECTION_TYPE: 'SSLx'
+                }
+            }
+        }
+
+        self.validator.validate_in_standalone_mode(model_dict, {})
+
+        handler = self._summary_handler
+        self.assertNotEqual(handler, None, "Summary handler is not present")
+
+        # three fields have invalid values
+        self._validate_message_key(handler, Level.SEVERE, 'WLSDPLY-05302', 3)
 
 
 if __name__ == '__main__':
