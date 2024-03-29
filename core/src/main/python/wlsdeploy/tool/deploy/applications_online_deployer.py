@@ -199,7 +199,11 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
 
         for app in apps:
             if running_apps is not None and app in running_apps:
+                if self.model_context.get_domain_typedef().is_filtered(location, app):
+                    continue
+
                 app_location = LocationContext(location).add_name_token(token_name, app)
+
                 wlst_attributes_path = self.aliases.get_wlst_attributes_path(app_location)
                 self.wlst_helper.cd(wlst_attributes_path)
                 attributes_map = self.wlst_helper.lsa()
@@ -244,7 +248,7 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
             self.wlst_helper.domain_runtime()
             libs = self.wlst_helper.get_existing_object_list(library_runtime_path)
             for lib in libs:
-                if lib in internal_skip_list:
+                if lib in internal_skip_list or self.model_context.get_domain_typedef().is_filtered(location, lib):
                     continue
                 self.__get_library_reference_attributes(existing_libraries, lib, library_runtime_path, location,
                                                         token_name)
