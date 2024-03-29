@@ -6,6 +6,7 @@ from java.lang import Boolean
 from java.lang import Integer
 from java.util import HashMap
 from oracle.weblogic.deploy.create import RCURunner
+from oracle.weblogic.deploy.util import WLSDeployArchive
 from oracle.weblogic.deploy.validate import PasswordValidator
 from oracle.weblogic.deploy.validate import ValidateException
 
@@ -43,6 +44,8 @@ from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.model_constants import USER
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.create import rcudbinfo_helper
+from wlsdeploy.tool.util.archive_helper import ArchiveList
 from wlsdeploy.tool.validate.content_validator import ContentValidator
 from wlsdeploy.util import dictionary_utils
 
@@ -68,7 +71,7 @@ class CreateDomainContentValidator(ContentValidator):
 
     def __init__(self, model_context, archive_helper, aliases):
         ContentValidator.__init__(self, model_context, aliases)
-        self._archive_helper = archive_helper
+        self._archive_helper = archive_helper  # type: ArchiveList
 
     # Override
     def validate_model_content(self, model_dict):
@@ -189,6 +192,17 @@ class CreateDomainContentValidator(ContentValidator):
                     self._logger.severe(
                         'WLSDPLY-05309', RCU_DB_INFO, pwd_property, type_property, type_value,
                         class_name=self._class_name, method_name=_method_name)
+
+            # check if the qualified path should be in the archive
+            tns_admin = dictionary_utils.get_element(rcu_info_dict, DRIVER_PARAMS_NET_TNS_ADMIN)
+            qualified_path = rcudbinfo_helper.get_qualified_store_path(tns_admin, store_value)
+            if WLSDeployArchive.isPathIntoArchive(qualified_path):
+                if not self._archive_helper:
+                    self._logger.severe('WLSDPLY-05311', qualified_path, RCU_DB_INFO, store_property,
+                                        class_name=self._class_name, method_name=_method_name)
+                elif not self.__is_path_in_archive_wallet(qualified_path):
+                    self._logger.severe('WLSDPLY-05312', qualified_path, RCU_DB_INFO, store_property,
+                                        class_name=self._class_name, method_name=_method_name)
 
     def __has_tns_path(self, rcu_info_dict):
         """
@@ -362,6 +376,24 @@ class CreateDomainContentValidator(ContentValidator):
 
         self._logger.exiting(class_name=self._class_name, method_name=_method_name)
         return users_folder
+
+    def __is_path_in_archive_wallet(self, path):
+        """
+        Check if path is in an archive, or in a zipped wallet in an archive.
+        :param path: the path to be checked.
+        :return: True if the path was found, false otherwise
+        """
+        if self._archive_helper.contains_file(path):
+            return True
+
+        last_slash = path.rfind('/')
+        wallet_path = ''
+        if last_slash != -1:
+            wallet_path = path[:last_slash]
+        file_name = path[last_slash + 1:]
+        archive, entries = self._archive_helper.get_wallet_entries(wallet_path)
+
+        return file_name in entries
 
 
 def _get_system_password_validator_location():

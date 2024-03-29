@@ -46,11 +46,14 @@ class JpsConfigHelper(object):
 
         if self._use_ssl:
             tns_admin = self._rcu_db_info.get_tns_admin()
-            keystore = self._rcu_db_info.get_keystore()
+
+            # OPSS wants keystore path relative to domain home, or absolute
+            keystore = self._rcu_db_info.get_qualified_keystore_path()
             keystore_type = self._rcu_db_info.get_keystore_type()
             keystore_password = self._rcu_db_info.get_keystore_password()
 
-            truststore = self._rcu_db_info.get_truststore()
+            # OPSS wants truststore path relative to domain home, or absolute
+            truststore = self._rcu_db_info.get_qualified_truststore_path()
             truststore_type = self._rcu_db_info.get_truststore_type()
             truststore_password = self._rcu_db_info.get_truststore_password()
 

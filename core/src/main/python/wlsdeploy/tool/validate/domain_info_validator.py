@@ -129,9 +129,11 @@ class DomainInfoValidator(ModelValidator):
         """
         Extend this method to allow wallet paths to be in a wallet zip in the archive.
         """
+        # avoid INFO WLSDPLY-05031 - *Store paths may be relative to oracle.net.tns_admin,
+        # or in a zipped wallet in the archive.
+        # these cases are checked using the merged model in create_content_validator.
         if attribute_name in WALLET_PATH_ATTRIBUTES:
-            if self.__is_path_in_zipped_archive_wallet(path):
-                return
+            return
 
         ModelValidator._validate_single_path_in_archive(self, path, attribute_name, model_folder_path)
 
@@ -256,23 +258,6 @@ class DomainInfoValidator(ModelValidator):
             self._logger.severe('WLSDPLY-05035', key, str_helper.to_string(value), model_folder_path,
                                 str_helper.to_string(type(value)),
                                 class_name=_class_name, method_name=_method_name)
-
-    def __is_path_in_zipped_archive_wallet(self, path):
-        if not WLSDeployArchive.isPathIntoArchive(path) or not self._archive_helper:
-            return False
-
-        if self._archive_helper.contains_file(path):
-            # the file is directly in the archive, return for regular validation
-            return False
-
-        last_slash = path.rfind('/')
-        wallet_path = ''
-        if last_slash != -1:
-            wallet_path = path[:last_slash]
-        file_name = path[last_slash + 1:]
-        archive, entries = self._archive_helper.get_wallet_entries(wallet_path)
-
-        return file_name in entries
 
     def _check_deprecated_field(self, field_name, info_dict, folder_name, new_field_name):
         _method_name = '_check_deprecated_field'
