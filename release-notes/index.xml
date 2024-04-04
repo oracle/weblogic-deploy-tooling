@@ -6,7 +6,17 @@
     <description>Recent content in Release Notes on WebLogic Deploy Tooling</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 22 Feb 2019 15:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 09 Jan 2024 18:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Release 3.5.4</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.5.4/</link>
+      <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.5.4/</guid>
+      <description>Changes in Release 3.5.4  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes  #1600 - Added alias updates to support the Jan 2024 PSUs.  Bug Fixes  #1607 - Fixed an issue with assigning groups to parent groups. #1620 - Fixed an issue that caused an attribute with the WLST value none to be interpreted as a Python None. #1635 - Fixed an issue with the ResourceManagement attribute in WebLogic Server 14.</description>
+    </item>
+    
     <item>
       <title>Release 3.5.3</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.5.3/</link>

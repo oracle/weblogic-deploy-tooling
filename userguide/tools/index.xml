@@ -33,7 +33,8 @@ $ weblogic-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_type WLS
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/deploy/</guid>
-      <description>The Deploy Applications Tool uses a model, the archive, and WLST to deploy applications and resources into an existing WebLogic Server domain in either WLST online or offline mode. When deploying applications and resources from a model, the Deploy Applications Tool focuses primarily on the resources and appDeployments sections of the model. There are exceptions for the domainInfo and topology sections, where those configuration elements are deemed to be &amp;ldquo;application-related.&amp;rdquo; For example, the servers&#39; ServerStart folder has an Arguments and a ClassPath attribute that change the server environment (when started by the Node Manager) that applications may rely on to function properly.</description>
+      <description>The Deploy Applications Tool is deprecated in WDT 4.0.0. For comparable functionality and more, use the Update Domain Tool.
+ The Deploy Applications Tool uses a model, the archive, and WLST to deploy applications and resources into an existing WebLogic Server domain in either WLST online or offline mode. When deploying applications and resources from a model, the Deploy Applications Tool focuses primarily on the resources and appDeployments sections of the model.</description>
     </item>
     
     <item>
@@ -91,7 +92,8 @@ To use the Compare Model Tool, simply run the compareModel shell script with the
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/kubernetes/</guid>
       <description>Using WDT with WebLogic Kubernetes Operator You can use the Extract Domain Resource Tool to create resource files for use with the WebLogic Kubernetes Operator or Verrazzano. This allows the domain configuration and the Kubernetes container configuration to be specified in a single model file.
-This is especially useful when making configuration changes to the domain that also need to be reflected in the resource file. For example, adding a cluster to the domain only requires that it be added to the topology section of the WDT model, then a new resource file can be generated to apply to Kubernetes.</description>
+NOTE: Verrazzano support is deprecated in WDT 4.0.0.
+This is especially useful when making configuration changes to the domain that also need to be reflected in the resource file.</description>
     </item>
     
     <item>
@@ -100,8 +102,9 @@ This is especially useful when making configuration changes to the domain that a
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/variable_injection/</guid>
-      <description>The Variable Injector Tool is used to tokenize a model with variables. The values for these variables are assigned using an external property file. This facilitates using the same domain model to create new domains in different environments. The Variable Injector Tool can be run as an option in the Discover Domain Tool, or from the standalone command-line interface.
-To enable the Variable Injector Tool during the Discover Domain Tool run, create a variable injector configuration by placing a JSON file named model_variable_injector.</description>
+      <description>The Variable Injector Tool is a standalone tool used to tokenize a model with variables. The values for these variables are written to an external variable properties file. This facilitates using the same domain model to create new domains in different environments.
+The Variable Injector Tool uses the default configuration for variable injectors. For more details about this configuration, see Variable Injectors.
+In addition to variable injector processing, the tool will automatically tokenize any credential attributes found in the model.</description>
     </item>
     
     <item>
@@ -111,8 +114,9 @@ To enable the Variable Injector Tool during the Discover Domain Tool run, create
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/model_help/</guid>
       <description>The Model Help Tool provides information about the folders and attributes that are valid for sections and folders of a domain model. This is useful when creating a new domain model, or expanding an existing model, including discovered models.
-The Model Help Tool is new in WebLogic Deploy Tooling 1.8. The -model_sample argument is deprecated starting with WebLogic Deploy Tooling 1.9.2, when model sample became the default output format.
- Here is a simple example using the Model Help Tool:</description>
+Here is a simple example using the Model Help Tool:
+$ &amp;lt;wls-deploy-home&amp;gt;/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/JDBCSystemResource This will result in the following output:
+Attributes and sub-folders for resources:/JDBCSystemResource resources: JDBCSystemResource: &amp;#39;JDBC-1&amp;#39;: CompatibilityName: # string * DeploymentOrder: # integer (default=100) * DeploymentPrincipalName: # string * DescriptorFileName: # string * ModuleType: # string * Notes: # string * SourcePath: # string * Target: # delimited_string * JdbcResource: # see /JDBCSystemResource/JdbcResource SubDeployment: &amp;#39;SubDeployment-1&amp;#39;: # see /JDBCSystemResource/SubDeployment This bean defines a system-level JDBC resource.</description>
     </item>
     
     <item>
@@ -124,6 +128,16 @@ The Model Help Tool is new in WebLogic Deploy Tooling 1.8. The -model_sample arg
       <description>With the Archive Helper Tool, you can display the contents of an archive file, add, update, extract, and remove files, as needed.
 Use the Archive Helper Tool -help option to display its commands. Each command takes a subcommand, which may require one or more command-line options.
 archiveHelper commands    Command Description     add Add items to the archive file.   extract Extract items from the archive file.</description>
+    </item>
+    
+    <item>
+      <title>Verify SSH Tool</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/verify_ssh/</link>
+      <pubDate>Tue, 02 Jan 2024 09:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/verify_ssh/</guid>
+      <description>With the Verify SSH Tool, you can verify that an SSH connection can be successfully established by WDT and optionally, if files can be transferred between the machines using the provided arguments. Before running the Verify SSH Tool, you must ensure you have performed the SSH Prerequisites.
+Public/private key authentication To verify SSH connectivity using a user&amp;rsquo;s public/private key for authentication, simply provide the user name on the remote machine and the user&amp;rsquo;s private key file, as needed.</description>
     </item>
     
   </channel>

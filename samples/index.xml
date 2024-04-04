@@ -78,13 +78,12 @@ domainInfo: AdminUserName: &amp;#39;@@PROP:adminUser@@&amp;#39; AdminPassword: &
     </item>
     
     <item>
-      <title>Modeling WebLogic users, groups, and roles</title>
+      <title>Modeling WebLogic users, groups, roles, and policies</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/samples/usersgroups-model/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/usersgroups-model/</guid>
-      <description>WebLogic Server has the ability to establish a set of users, groups, and global roles as part of the WebLogic domain creation. The WebLogic global roles become part of the WebLogic role mapper (for example, XACMLRoleMapper) and are specified under domainInfo in the WLSRoles section. The users and groups become part of the Embedded LDAP server (for example, DefaultAuthenticator) and are specified under topology in the Security section.
-WebLogic global roles The model allows for the definition of WebLogic roles that can augment the well known WebLogic global roles (for example, Admin, Deployer, Monitor, &amp;hellip;) in addition to defining new roles.</description>
+      <description>WebLogic Server has the ability to establish a set of users, groups, global roles, and policies as part of the WebLogic domain creation. The users and groups become part of the Embedded LDAP server (for example, DefaultAuthenticator) and are specified under topology in the Security section. The WebLogic global roles become part of the WebLogic role mapper (for example, XACMLRoleMapper) and are specified under domainInfo in the WLSRoles section. The WebLogic policies become part of the WebLogic authorizer (that is, XACMLAuthorizer).</description>
     </item>
     
     <item>
@@ -103,8 +102,7 @@ domainInfo: WLSUserPasswordCredentialMappings: CrossDomain: map1: RemoteDomain: 
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/odl-model/</guid>
-      <description>Oracle Diagnostic Logging (ODL) can be configured and updated with Create Domain, Update Domain, and Deploy Applications Tools, starting with WDT release 1.5.2. ODL configuration is supported only for offline mode in WDT. ODL configuration is not added when a model is created using the Discover Domain Tool. This example shows how some common configuration elements can be represented in the model.
-resources: ODLConfiguration: config1: Servers: m1, m2 AddJvmNumber: true HandlerDefaults: abc: r123 xyz: k890 Handler: my-handler: Class: com.</description>
+      <description>Oracle Diagnostic Logging (ODL) can be configured and updated with Create Domain, Update Domain, and Deploy Applications Tools, starting with WDT release 1.5.2. ODL configuration is supported only for offline mode in WDT. ODL configuration is not added when a model is created using the Discover Domain Tool. This example shows how some common configuration elements can be represented in the model. NOTE: The Deploy Applications Tool is deprecated in WDT 4.</description>
     </item>
     
     <item>
@@ -113,9 +111,8 @@ resources: ODLConfiguration: config1: Servers: m1, m2 AddJvmNumber: true Handler
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/samples/ohs-model/</guid>
-      <description>Starting with WDT 1.8.0, you can configure and update Oracle HTTP Server (OHS) using the Create Domain, Update Domain, and Deploy Applications Tools, in offline mode only. To discover the OHS configuration, use the Discover Domain Tool, in offline mode only.
-Prerequisites In order to configure and use OHS, it must be installed in the Oracle Home directory used to create the domain. You can download OHS here.
-The OHS template must be present in the WDT domain type definition file used to create or update the domain.</description>
+      <description>Starting with WDT 1.8.0, you can configure and update Oracle HTTP Server (OHS) using the Create Domain, Update Domain, and Deploy Applications Tools, in offline mode only. To discover the OHS configuration, use the Discover Domain Tool, in offline mode only. NOTE: The Deploy Applications Tool is deprecated in WDT 4.0.0.
+Prerequisites In order to configure and use OHS, it must be installed in the Oracle Home directory used to create the domain.</description>
     </item>
     
     <item>

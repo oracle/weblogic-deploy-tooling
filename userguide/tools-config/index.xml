@@ -57,5 +57,15 @@ Log file By default, WDT tools write their log files to the $WDT_HOME/logs direc
 If a property is removed from the file, or a property value is incorrectly formatted, a WARNING message is logged and an internal default value used instead of the missing or bad value.</description>
     </item>
     
+    <item>
+      <title>Variable injectors</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/variable_injectors/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/variable_injectors/</guid>
+      <description>Variable injectors are used to tokenize a model by substituting variable keys in place of attribute values, and creating a separate property file containing the variable values. This facilitates using the same domain model to create new domains in different environments. WebLogic Deploy Tooling includes several built-in injector directive files that can be used as-is or with modifications, and allows for creation of custom injector files.
+Variable injectors are used by the Discover Domain Tool, the Prepare Model Tool, and the standalone Variable Injector Tool to tokenize the models they produce.</description>
+    </item>
+    
   </channel>
 </rss>

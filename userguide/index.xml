@@ -29,13 +29,14 @@ You can download binary distributions of the weblogic-deploy.zip installer from 
     </item>
     
     <item>
-      <title>Connect to a Database</title>
+      <title>Connect to a database</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/database/connect-db/</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/database/connect-db/</guid>
-      <description>Specifying RCU connection information in the model When creating a JRF domain, you can provide all the RCU connection information in a section RCUDbInfo under the domainInfo section in the model. It provides you with more flexibility over the basic command-line arguments of -rcu_db and -rcu_prefix. Use this when the connection string is more complex and requires extra options.
-Background on JRF domain RCU tables A JRF domain creates several data sources from the JRF domain template.</description>
+      <description>Specifying RCU connection information in the model When creating a JRF domain, you can provide all the RCU connection information in a section RCUDbInfo under the domainInfo section in the model.
+Background on JRF domain RCU tables A JRF domain creates several data sources from the JRF domain template.
+   Data source name JNDI name Schema Target     WLSSchemaDataSource jdbc/WLSSchemaDataSource prefix_WLS_RUNTIME None   LocalSvcTblDataSource jdbc/WLSSchemaDataSource prefix_STB admin server   opss-data-source jdbc/OpssDataSource prefix_OPSS admin server and cluster   opss-audit-viewDS jdbc/AuditViewDataSource prefix_IAU_VIEWER admin server and cluster   opss-audit-DBDS jdbc/AuditAppendDataSource prefix_IAU_APPEND admin server and cluster   mds-owsm jdbc/mds/owsm prefix_MDS admin server and cluster    By default, the JRF domain template data source has only the default information such as URL and schema with the default prefix DEV.</description>
     </item>
     
     <item>
@@ -45,7 +46,8 @@ Background on JRF domain RCU tables A JRF domain creates several data sources fr
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/</guid>
       <description>The following sections describe known limitations for WebLogic Deploy Tooling. Each issue may contain a workaround or an associated issue number.
-Discover Domain Tool SEVERE messages ISSUE: The discoverDomain STDOUT contains many SEVERE messages about cd() and ls() when it is run against a 12.2.1.0 domain. The Discover Domain Tool navigates through the domain MBeans using WLST to determine which MBeans are present in a domain. When it tests an MBean that is not present, an error message is logged by WLST.</description>
+WebLogic Kubernetes Operator Model-in-Image domains fail when using WebLogic Deploy Tooling 4.0.0 (and newer) ISSUE: Deploy a WebLogic Kubernetes Operator domain with Model-in-Image (MII) produces introspector failures.
+ACTION: WDT 4.0 made significant changes to archive file path handling that required changes in WebLogic Kubernetes Operator, which became available starting in WebLogic Kubernetes Operator 4.</description>
     </item>
     
   </channel>

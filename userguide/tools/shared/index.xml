@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Shared functionality on WebLogic Deploy Tooling</title>
+    <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/shared/</link>
+    <description>Recent content in Shared functionality on WebLogic Deploy Tooling</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 23 Feb 2019 17:19:24 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/shared/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Online operations</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/shared/online/</link>
+      <pubDate>Fri, 22 Dec 2023 09:36:00 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/shared/online/</guid>
+      <description>WebLogic Deploy Tooling supports online operations against running WebLogic Server-based domains. By definition, this means that WDT is acting as a remote client to the domain&amp;rsquo;s admin server&amp;ndash;even if the WDT tool is running on the same machine as the admin server. The main point being that WDT and the server may or may not be using the same Oracle Home. This becomes an even more likely scenario when using the -remote option or when using SSH-based remote access.</description>
+    </item>
+    
+    <item>
+      <title>SSH support</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/shared/ssh/</link>
+      <pubDate>Fri, 22 Dec 2023 09:36:00 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/shared/ssh/</guid>
+      <description>WDT 4.0 introduces the ability to perform online operations remotely using SSH to provide access to the remote server&amp;rsquo;s file system. SSH support is provided by the SSHJ Java library and is integrated in a way intended to support a both user/password-based and private/public key-based authentication, a wide variety of key encryption formats, and a reasonable set of defaults to minimize the number of inputs required for typical usage scenarios.</description>
+    </item>
+    
+  </channel>
+</rss>
