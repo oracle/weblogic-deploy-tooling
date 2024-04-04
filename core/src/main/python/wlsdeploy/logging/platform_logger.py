@@ -20,6 +20,13 @@ import wlsdeploy.exception.exception_helper as exception_helper
 import wlsdeploy.util.unicode_helper as str_helper
 
 
+def get_logged_value(password):
+    if password is None or len(password) == 0:
+        return password
+    else:
+        return '********'
+
+
 class PlatformLogger(object):
     """
     A Python implementation of the platform logger wrapper around java.util.logging.Logger.

@@ -1,0 +1,10 @@
+appDeployments:
+  Application:
+    MyWebServicesApp:
+      SourcePath: wlsdeploy/structuredApplications/MyWebServicesApp/app/MyWebServicesApp.war
+      PlanDir: wlsdeploy/structuredApplications/MyWebServicesApp/plan
+      PlanPath: Plan.xml
+      Target: '@@PROP:ADMIN_NAME@@,@@PROP:CLUSTER_NAME@@'
+      ModuleType: war
+      StagingMode: nostage
+      PlanStagingMode: nostage

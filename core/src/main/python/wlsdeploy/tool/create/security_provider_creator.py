@@ -1,19 +1,23 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
 from oracle.weblogic.deploy.exception import BundleAwareException
 
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import AUTHENTICATION_PROVIDER
+from wlsdeploy.aliases.model_constants import DEFAULT_AUTHENTICATOR
+from wlsdeploy.aliases.model_constants import DEFAULT_REALM
+from wlsdeploy.aliases.model_constants import PASSWORD_DIGEST_ENABLED
 from wlsdeploy.aliases.model_constants import REALM
 from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
+from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.create.creator import Creator
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.util import dictionary_utils
 import wlsdeploy.util.unicode_helper as str_helper
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
 class SecurityProviderCreator(Creator):
@@ -54,7 +58,7 @@ class SecurityProviderCreator(Creator):
 
         self._topology = self.model.get_model_topology()
         self._domain_typedef = self.model_context.get_domain_typedef()
-        self._wls_helper = WebLogicHelper(self.logger)
+        self._wls_helper = model_context.get_weblogic_helper()
 
     def create_security_configuration(self, location):
         """
@@ -140,6 +144,13 @@ class SecurityProviderCreator(Creator):
 
             model_type_subfolder_name = list(model_node.keys())[0]
             child_nodes = dictionary_utils.get_dictionary_element(model_node, model_type_subfolder_name)
+            folder_validation_code, folder_validation_message = \
+                self.aliases.is_valid_model_folder_name(location, model_type_subfolder_name)
+            if folder_validation_code == ValidationCodes.CONTEXT_INVALID:
+                ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-12144', type_name,
+                                                       model_type_subfolder_name, folder_validation_message)
+                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
 
             # custom providers require special processing, they are not described in alias framework
             if allow_custom and (model_type_subfolder_name not in known_providers):
@@ -319,3 +330,48 @@ class SecurityProviderCreator(Creator):
 
     def is_adjudicator_changeable(self):
         return self._wls_helper.is_weblogic_version_or_above('12.2.1.4')
+
+    def is_default_authenticator_password_digest_enabled(self):
+        _method_name = 'is_default_authenticator_password_digest_enabled'
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        is_password_digest_enabled = False
+        if self._topology:
+            security_configuration = dictionary_utils.get_dictionary_element(self._topology, SECURITY_CONFIGURATION)
+            realm = dictionary_utils.get_dictionary_element(security_configuration, REALM)
+            realm_name = self.__get_default_realm_name()
+            realm = dictionary_utils.get_dictionary_element(realm, realm_name)
+            authenticators = dictionary_utils.get_dictionary_element(realm, AUTHENTICATION_PROVIDER)
+            for atn_name, atn_dict in authenticators.iteritems():
+                if DEFAULT_AUTHENTICATOR in atn_dict:
+                    default_authenticator = atn_dict[DEFAULT_AUTHENTICATOR]
+                    is_password_digest_enabled = \
+                        dictionary_utils.get_boolean_element(default_authenticator, PASSWORD_DIGEST_ENABLED)
+                    break
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=is_password_digest_enabled)
+        return is_password_digest_enabled
+
+    def __get_default_realm_name(self):
+        _method_name = '__get_default_realm_name'
+        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        location = LocationContext()
+        name_token = self.aliases.get_name_token(location)
+        location.add_name_token(name_token, self.model_context.get_domain_name())
+        security_configuration_wlst_path = self.aliases.get_wlst_attributes_path(location)
+
+        pwd = self.wlst_helper.get_pwd()
+
+        self.wlst_helper.cd(security_configuration_wlst_path)
+        security_configuration = self.wlst_helper.lsa()
+        default_realm_wlst_name = self.aliases.get_wlst_attribute_name(location, DEFAULT_REALM)
+        if default_realm_wlst_name in security_configuration:
+            default_realm_name = security_configuration[DEFAULT_REALM]
+        else:
+            default_realm_name = 'myrealm'
+
+        self.wlst_helper.cd(pwd)
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=default_realm_name)
+        return default_realm_name

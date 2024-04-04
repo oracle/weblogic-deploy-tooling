@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem compareModel.cmd
 @rem
-@rem Copyright (c) 2020, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -15,12 +15,6 @@
 @rem
 @rem JAVA_HOME             - The location of the JDK to use.  The caller must set
 @rem                         this variable to a valid Java 7 (or later) JDK.
-@rem
-@rem WLSDEPLOY_HOME        - The location of the WLS Deploy installation.
-@rem                         If the caller sets this, the callers location will be
-@rem                         honored provided it is an existing directory.
-@rem                         Otherwise, the location will be calculated from the
-@rem                         location of this script.
 @rem
 @rem WLSDEPLOY_PROPERTIES  - Extra system properties to pass to Java.  The caller
 @rem                         can use this environment variable to add additional

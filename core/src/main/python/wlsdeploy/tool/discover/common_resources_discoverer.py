@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os.path
@@ -13,6 +13,7 @@ from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PATH_PROPERTIES
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -122,7 +123,7 @@ class CommonResourcesDiscoverer(Discoverer):
         return model_top_folder_name, result
 
     def _collect_jdbc_driver_wallet(self, datasource, collected_wallet, driver_params):
-        if not self._model_context.skip_archive() and \
+        if not self._model_context.is_skip_archive() and \
                 (isinstance(driver_params, dict) or isinstance(driver_params, OrderedDict)) and \
                 model_constants.JDBC_DRIVER_PARAMS_PROPERTIES in driver_params:
             properties = driver_params[model_constants.JDBC_DRIVER_PARAMS_PROPERTIES]
@@ -130,16 +131,25 @@ class CommonResourcesDiscoverer(Discoverer):
 
     def _update_wallet_property_and_collect_files(self, collected_wallet, datasource, properties):
         _method_name = '_update_wallet_property_and_collect_files'
-        for connection_property in [model_constants.DRIVER_PARAMS_KEYSTORE_PROPERTY,
-                                    model_constants.DRIVER_PARAMS_TRUSTSTORE_PROPERTY,
-                                    model_constants.DRIVER_PARAMS_NET_TNS_ADMIN]:
+        for connection_property in DRIVER_PARAMS_PATH_PROPERTIES:
             if connection_property in properties:
                 qualified_property_value = properties[connection_property]['Value']
                 if qualified_property_value:
-                    if qualified_property_value.startswith(WLSDeployArchive.WLSDPLY_ARCHIVE_BINARY_DIR
-                                                           + WLSDeployArchive.ZIP_SEP):
-                        qualified_property_value = os.path.join(self._model_context.get_domain_home()
-                                                                , qualified_property_value)
+                    if WLSDeployArchive.isPathIntoArchive(qualified_property_value):
+                        qualified_property_value = self.path_helper.local_join(self._model_context.get_domain_home(),
+                                                                               qualified_property_value)
+                    if self._model_context.is_ssh():
+                        qualified_property_value = self.download_deployment_from_remote_server(qualified_property_value,
+                                                                                       self.download_temporary_dir,
+                                                                                       "dbWallets-" + datasource)
+                    if self.path_helper.is_relative_local_path(qualified_property_value):
+                        #
+                        # if the property value is a relative path at this point, it is relative to the
+                        # domain home.  If this path is absolute already, get_local_canonical_path is a no-op.
+                        #
+                        qualified_property_value = \
+                            self.path_helper.get_local_canonical_path(qualified_property_value,
+                                                                      self._model_context.get_domain_home())
                     if os.path.exists(qualified_property_value):
                         fixed_path = self._add_wallet_directory_to_archive(datasource, collected_wallet,
                                                                            qualified_property_value)
@@ -147,12 +157,9 @@ class CommonResourcesDiscoverer(Discoverer):
                                      class_name=_class_name, method_name=_method_name)
                         properties[connection_property]['Value'] = fixed_path
                     else:
-                        _logger.severe('WLSDPLY-06370', datasource, connection_property,
-                                       properties[connection_property]['Value'])
                         de = exception_helper.create_discover_exception('WLSDPLY-06370', datasource,
                                                                         connection_property,
-                                                                        properties[connection_property][
-                                                                            'Value'])
+                                                                        properties[connection_property]['Value'])
                         _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
                         raise de
 
@@ -177,12 +184,13 @@ class CommonResourcesDiscoverer(Discoverer):
         if onprem_wallet_parent_path not in collected_wallet_dictionary:
             if onprem_wallet_dir_is_not_flat:
                 # collect the specific file
-                fixed_path = archive_file.addDatabaseWallet(wallet_name, os.path.abspath(property_value))
+                # 
+                fixed_path = archive_file.addDatabaseWallet(wallet_name, property_value)
                 path_into_archive = os.path.dirname(fixed_path)
             else:
                 fixed_path = archive_file.addDatabaseWallet(wallet_name, onprem_wallet_parent_path)
                 path_into_archive = fixed_path
-                fixed_path = os.path.join(fixed_path, os.path.basename(property_value))
+                fixed_path = self.path_helper.local_join(fixed_path, self.path_helper.local_basename(property_value))
 
             collected_wallet_dictionary[onprem_wallet_parent_path] = \
                 {'wallet_name' : wallet_name, 'path_into_archive': path_into_archive}
@@ -191,7 +199,7 @@ class CommonResourcesDiscoverer(Discoverer):
             # check for the wallet to see if the file has already been collected on prem and add only the file
             check_path = os.path.join(
                 collected_wallet_dictionary[onprem_wallet_parent_path]['path_into_archive'],
-                os.path.basename(property_value))
+                self.path_helper.local_basename(property_value))
             if check_path not in archive_file.getArchiveEntries() and os.path.isfile(property_value):
                 # only case is it is not flat directory if the particular file has not been collected before, add
                 # it to the previous wallet
@@ -203,7 +211,7 @@ class CommonResourcesDiscoverer(Discoverer):
                     fixed_path = collected_wallet_dictionary[onprem_wallet_parent_path]['path_into_archive']
                 else:
                     fixed_path = os.path.join(collected_wallet_dictionary[onprem_wallet_parent_path]['path_into_archive'],
-                                              os.path.basename(property_value))
+                                              self.path_helper.local_basename(property_value))
 
         return fixed_path
 
@@ -339,8 +347,13 @@ class CommonResourcesDiscoverer(Discoverer):
                     new_name = WLSDeployArchive.getFileStoreArchivePath(file_store_name)
                     self.add_to_remote_map(file_store_name, new_name,
                                            WLSDeployArchive.ArchiveEntryType.FILE_STORE.name())
-                elif not self._model_context.skip_archive():
+                elif not self._model_context.is_skip_archive():
                     try:
+                        if self._model_context.is_ssh():
+                            file_store_name = self.download_deployment_from_remote_server(file_store_name,
+                                                                                     self.download_temporary_dir,
+                                                                                     "fileStore")
+
                         new_source_name = archive_file.addFileStoreDirectory(file_store_name)
                     except WLSDeployArchiveIOException, wioe:
                         de = exception_helper.create_discover_exception('WLSDPLY-06348', file_store_name, directory,
@@ -397,6 +410,11 @@ class CommonResourcesDiscoverer(Discoverer):
             file_name = self._convert_path(jdbc_store_dictionary[model_constants.CREATE_TABLE_DDL_FILE])
             _logger.info('WLSDPLY-06352', jdbc_store_name, file_name, class_name=_class_name, method_name=_method_name)
             try:
+                if self._model_context.is_ssh():
+                    file_name = self.download_deployment_from_remote_server(file_name,
+                                                                                   self.download_temporary_dir,
+                                                                                   "jdbcScript")
+
                 new_source_name = archive_file.addScript(file_name)
             except IllegalArgumentException, iae:
                 _logger.warning('WLSDPLY-06353', jdbc_store_name, file_name,
@@ -529,7 +547,17 @@ class CommonResourcesDiscoverer(Discoverer):
             # Set model_value to None if unable to add it to archive file
             modified_name = None
             try:
-                modified_name = archive_file.addScript(file_name)
+                if self._model_context.is_remote():
+                    new_file_name = WLSDeployArchive.getScriptArchivePath(file_name)
+                    self.add_to_remote_map(file_name, new_file_name,
+                                           WLSDeployArchive.ArchiveEntryType.SCRIPT.name())
+                else:
+                    if self._model_context.is_ssh():
+                        file_name = self.download_deployment_from_remote_server(file_name,
+                                                                                 self.download_temporary_dir,
+                                                                                 "wldfScript")
+
+                    modified_name = archive_file.addScript(file_name)
             except IllegalArgumentException, iae:
                 _logger.warning('WLSDPLY-06360', self._aliases.get_model_folder_path(location), file_name,
                                 iae.getLocalizedMessage(), class_name=_class_name,

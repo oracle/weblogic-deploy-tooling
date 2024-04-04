@@ -1,15 +1,16 @@
 """
-Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
 from java.io import IOException
+from java.lang import Boolean
 from java.lang import Long
 from java.lang import NumberFormatException
 from java.lang import System
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.util import path_utils
+from wlsdeploy.util import path_helper
 from wlsdeploy.util import string_utils
 
 TOOL_PROPERTIES_FILE_NAME = 'tool.properties'
@@ -25,6 +26,8 @@ CONNECT_TIMEOUT_PROP = 'connect.timeout'
 CONNECT_TIMEOUT_DEFAULT = '120000'
 ACTIVATE_TIMEOUT_PROP = 'activate.timeout'
 ACTIVATE_TIMEOUT_DEFAULT = '180000'
+ARCHIVE_CUSTOM_FOLDER_SIZE_LIMIT_PROP = 'archive.custom.folder.size.limit'
+ARCHIVE_CUSTOM_FOLDER_SIZE_LIMIT_DEFAULT = '1048576' # 1 MB
 DEPLOY_TIMEOUT_PROP = 'deploy.timeout'
 DEPLOY_TIMEOUT_DEFAULT = '180000'
 REDEPLOY_TIMEOUT_PROP = 'redeploy.timeout'
@@ -51,6 +54,12 @@ DISABLE_RCU_DROP_SCHEMA_PROP='disable.rcu.drop.schema'
 DISABLE_RCU_DROP_SCHEMA_DEFAULT='false'
 ENABLE_CREATE_DOMAIN_PASSWORD_VALIDATION_PROP = 'enable.create.domain.password.validation'
 ENABLE_CREATE_DOMAIN_PASSWORD_VALIDATION_DEFAULT = 'true'
+SSH_DEFAULT_PRIVATE_KEY_FILE_NAME_PROP='ssh.private.key.default.file.name'
+SSH_DEFAULT_PRIVATE_KEY_FILE_NAME_DEFAULT='id_rsa'
+USE_SSH_COMPRESSION_PROP='use.ssh.compression'
+USE_SSH_COMPRESSION_DEFAULT='true'
+USE_SERVER_VERSION_FOR_ONLINE_OPERATIONS_PROP='use.server.version.for.online.operations'
+USE_SERVER_VERSION_FOR_ONLINE_OPERATIONS_DEFAULT='true'
 
 # System Property overrides for WLST timeout properties
 SYS_PROP_PREFIX = 'wdt.config.'
@@ -184,6 +193,36 @@ class ModelConfiguration(object):
         return self._get_from_dict(ENABLE_CREATE_DOMAIN_PASSWORD_VALIDATION_PROP,
                                    ENABLE_CREATE_DOMAIN_PASSWORD_VALIDATION_DEFAULT)
 
+    def get_ssh_private_key_default_file_name(self):
+        """
+        Return the default file name for the SSH private key when using a passphrase
+        :return: the default file name for the private key when using a passphrase
+        """
+        return self._get_from_dict(SSH_DEFAULT_PRIVATE_KEY_FILE_NAME_PROP, SSH_DEFAULT_PRIVATE_KEY_FILE_NAME_DEFAULT)
+
+    def use_ssh_compression(self):
+        """
+        Return whether to use SSH compression.
+        :return: whether to use SSH compression
+        """
+        return self._get_from_dict_as_boolean(USE_SSH_COMPRESSION_PROP, USE_SSH_COMPRESSION_DEFAULT)
+
+    def use_server_version_for_online_operations(self):
+        """
+        Return whether online operations should use the server version for loading the aliases.
+        :return: true if using the server version, false otherwise
+        """
+        return self._get_from_dict_as_boolean(USE_SERVER_VERSION_FOR_ONLINE_OPERATIONS_PROP,
+                                              USE_SERVER_VERSION_FOR_ONLINE_OPERATIONS_DEFAULT)
+
+    def get_archive_custom_folder_size_limit(self):
+        """
+        Return the recommended limit for the size of the archive custom folder contents.
+        :return: the recommended limit
+        """
+        return self._get_from_dict_as_long(ARCHIVE_CUSTOM_FOLDER_SIZE_LIMIT_PROP,
+                                           ARCHIVE_CUSTOM_FOLDER_SIZE_LIMIT_DEFAULT)
+
     def _get_from_dict(self, name, default_value=None):
         _method_name = '_get_from_dict'
         _logger.entering(name, default_value, class_name=_class_name, method_name=_method_name)
@@ -207,6 +246,11 @@ class ModelConfiguration(object):
             result = Long(default_value).longValue()
         return result
 
+    def _get_from_dict_as_boolean(self, name, default_value=None):
+        _method_name = '_get_from_dict_as_boolean'
+        result = self._get_from_dict(name, default_value)
+        return Boolean.parseBoolean(result)
+
 
 def _load_properties_file():
     """
@@ -215,19 +259,21 @@ def _load_properties_file():
     """
     _method_name = 'load_properties_file'
     _logger.entering(class_name=_class_name, method_name=_method_name)
-    wlsdeploy_path = path_utils.find_config_path(TOOL_PROPERTIES_FILE_NAME)
+    _path_helper = path_helper.get_path_helper()
+    tool_properties_path = _path_helper.find_local_config_path(TOOL_PROPERTIES_FILE_NAME)
+
     result = None
     try:
-        result = string_utils.load_properties(wlsdeploy_path)
+        result = string_utils.load_properties(tool_properties_path)
     except IOException, ioe:
-        _logger.warning('WLSDPLY-01570', wlsdeploy_path, ioe.getMessage(),
+        _logger.warning('WLSDPLY-01570', tool_properties_path, ioe.getMessage(),
                         class_name=_class_name, method_name=_method_name)
 
         # Return an empty dict so that failing to load the tool.properties file does
         # not prevent the code above from working using the default values.  The WLST
         # unit tests depend on this behavior until they are refactored to all
         # copy the tool.properties file into the target/unit_tests/config directory
-        # and setting the WDT_CUSTOM_CONFIG environment variable to point to it.
+        # and setting the WLSDEPLOY_CUSTOM_CONFIG environment variable to point to it.
         #
         result = dict()
     _logger.exiting(class_name=_class_name, method_name=_method_name)

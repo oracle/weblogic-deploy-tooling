@@ -15,6 +15,7 @@ ExceptionType = Enum([
     'JSON',
     'PREPARE',
     'PY_WLST',
+    'SSH',
     'TRANSLATE',
     'VALIDATE',
     'VARIABLE',

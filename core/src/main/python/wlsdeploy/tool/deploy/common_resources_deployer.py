@@ -19,7 +19,6 @@ from wlsdeploy.aliases.model_constants import WEBAPP_CONTAINER
 from wlsdeploy.aliases.model_constants import WTC_SERVER
 from wlsdeploy.aliases.model_constants import SINGLETON_SERVICE
 from wlsdeploy.aliases.model_constants import SYSTEM_COMPONENT
-from wlsdeploy.aliases.model_constants import MIME_MAPPING_FILE
 
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.tool.deploy.deployer import Deployer
@@ -170,11 +169,7 @@ class CommonResourcesDeployer(Deployer):
         web_app_container = dictionary_utils.get_dictionary_element(parent_dict, WEBAPP_CONTAINER)
         if len(web_app_container) != 0:
             self._add_model_elements(WEBAPP_CONTAINER, web_app_container, location)
-            if self.archive_helper is not None:
-                if MIME_MAPPING_FILE in web_app_container:
-                    file_path = web_app_container[MIME_MAPPING_FILE]
-                    if self.archive_helper.contains_file(file_path):
-                        self.archive_helper.extract_file(file_path)
+            # No need to extract file again
 
     def add_wtc_servers(self, parent_dict, location):
         """

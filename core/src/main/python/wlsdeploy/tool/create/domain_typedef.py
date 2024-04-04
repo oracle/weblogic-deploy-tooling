@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -16,7 +16,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.targeting_types import TargetingType
 from wlsdeploy.tool.util.topology_profiles import TopologyProfile
 from wlsdeploy.util import dictionary_utils
-from wlsdeploy.util import path_utils
+from wlsdeploy.util import path_helper
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
@@ -61,21 +61,28 @@ class DomainTypedef(object):
         'wldf': '/WLDFSystemResource'
     }
 
-    def __init__(self, program_name, domain_type):
+    def __init__(self, program_name, domain_type, exit_context=False):
         """
         The DomainTypedef constructor.
         :param program_name: the name of the program create this object
         :param domain_type: the domain type
+        :param exit_context: if the typedef is being created only in the context of the
+            exit model_context where the actual domain type is not yet known and has been
+            defaulted to WLS.  In this situation, we should suppress logging about the
+            domain type.
         """
         _method_name = '__init__'
 
         self._logger = PlatformLogger(_get_logger_name(program_name))
         self._program_name = program_name
         self._domain_type = domain_type
-        self.wls_helper = WebLogicHelper(self._logger)
+        self._initialization_finished = False
+        self.wls_helper = None
 
         file_name = domain_type + self.__domain_typedef_extension
-        self._domain_typedef_filename = path_utils.find_config_path(os.path.join('typedefs', file_name))
+        _path_helper = path_helper.get_path_helper()
+        self._domain_typedef_filename = \
+            _path_helper.find_local_config_path(_path_helper.local_join('typedefs', file_name))
 
         # No need to explicitly validate the filename since the JsonToPython constructor does that...
         try:
@@ -99,55 +106,87 @@ class DomainTypedef(object):
         self._version_typedef_name = None
         self._paths_resolved = False
         self._model_context = None
+        self._offline_wls_version = None
 
-        self._domain_typedef = self.__get_version_typedef()
-        self._targeting_type = self._resolve_targeting_type()
+        self._domain_typedef = None
+        self._targeting_type = None
+        self._post_create_rcu_schemas_script_dict = None
+        self._post_create_domain_script_dict = None
+        self._excluded_locations_binaries_to_archive = list()
+        self._discover_filters = {}
+        self._topology_profile = None
 
-        if 'postCreateRcuSchemasScript' in self._domain_typedef:
-            if 'rcuSchemas' in self._domain_typedef and len(self._domain_typedef['rcuSchemas']) > 0:
-                self._logger.info('WLSDPLY-12326', domain_type, self._domain_typedef_filename, self._version_typedef_name,
-                                  class_name=self.__class_name, method_name=_method_name)
-                self._post_create_rcu_schemas_script_dict = self._domain_typedef['postCreateRcuSchemasScript']
-            else:
-                self._logger.info('WLSDPLY-12327', domain_type, self._domain_typedef_filename, self._version_typedef_name,
-                                  class_name=self.__class_name, method_name=_method_name)
-                self._post_create_rcu_schemas_script_dict = None
-        else:
-            self._logger.info('WLSDPLY-12328', domain_type, self._domain_typedef_filename, self._version_typedef_name,
-                              class_name=self.__class_name, method_name=_method_name)
-            self._post_create_rcu_schemas_script_dict = None
+        if exit_context:
+            self._initialization_finished = True
+        elif program_name == 'createDomain':
+            # createDomain needs access to the rcuSchemas list from the typedef during process_args.
+            # Since createDomain is always a local operation, just set the wls_helper and call the
+            # code needed to prepare the typedef enough for process_args to complete successfully.
+            # tool_main will force re-initialization after process_args completes.
+            self.wls_helper = WebLogicHelper(self._logger)
+            self._domain_typedef = self.__get_version_typedef()
 
+        # else: caller is responsible for calling finish_initialization() once the model_context
+        # object has the remote server's version.  This is typically handled by the
+        # model_context object's complete_initialization() method.
 
-        if 'postCreateDomainScript' in self._domain_typedef:
-            self._logger.info('WLSDPLY-12320', domain_type, self._domain_typedef_filename, self._version_typedef_name,
-                              class_name=self.__class_name, method_name=_method_name)
-            self._post_create_domain_script_dict = self._domain_typedef['postCreateDomainScript']
-        else:
-            self._logger.info('WLSDPLY-12321', domain_type, self._domain_typedef_filename, self._version_typedef_name,
-                              class_name=self.__class_name, method_name=_method_name)
-            self._post_create_domain_script_dict = None
-
-        if 'discover-filters' in self._domain_typedefs_dict:
-            if 'system-elements' in self._domain_typedefs_dict:
-                self._logger.notification('WLSDPLY-12317', self._domain_typedef_filename)
-            self._discover_filters = self._domain_typedefs_dict['discover-filters']
-        elif 'system-elements' in self._domain_typedefs_dict:
-            self._logger.deprecation('WLSDPLY-12318', self._domain_typedef_filename)
-            self._discover_filters = self._translate_system_elements(self._domain_typedefs_dict['system-elements'])
-        else:
-            self._discover_filters = {}
-
-        self._topology_profile = self._resolve_topology_profile()
-
-    def set_model_context(self, model_context):
-        """
-        Set the model context object.
-        :param model_context: the model context object to use
-        :raises: CreateException: if an error occurs resolving the paths
-        """
-        if self._model_context is None:
+    def finish_initialization(self, model_context):
+        _method_name = '__finish_initialization'
+        if not self._initialization_finished:
             self._model_context = model_context
+            self.wls_helper = self._model_context.get_weblogic_helper()
+            self._domain_typedef = self.__get_version_typedef()
+            self._targeting_type = self._resolve_targeting_type()
             self.__resolve_paths()
+
+            if 'postCreateRcuSchemasScript' in self._domain_typedef:
+                if 'rcuSchemas' in self._domain_typedef and len(self._domain_typedef['rcuSchemas']) > 0:
+                    self._logger.info('WLSDPLY-12326', self._domain_type, self._domain_typedef_filename,
+                                      self._version_typedef_name, class_name=self.__class_name, method_name=_method_name)
+                    self._post_create_rcu_schemas_script_dict = self._domain_typedef['postCreateRcuSchemasScript']
+                else:
+                    self._logger.info('WLSDPLY-12327', self._domain_type, self._domain_typedef_filename,
+                                      self._version_typedef_name, class_name=self.__class_name, method_name=_method_name)
+
+            else:
+                self._logger.info('WLSDPLY-12328', self._domain_type, self._domain_typedef_filename,
+                                  self._version_typedef_name, class_name=self.__class_name, method_name=_method_name)
+                self._post_create_rcu_schemas_script_dict = None
+
+
+            if 'postCreateDomainScript' in self._domain_typedef:
+                self._logger.info('WLSDPLY-12320', self._domain_type, self._domain_typedef_filename,
+                                  self._version_typedef_name, class_name=self.__class_name, method_name=_method_name)
+                self._post_create_domain_script_dict = self._domain_typedef['postCreateDomainScript']
+            else:
+                self._logger.info('WLSDPLY-12321', self._domain_type, self._domain_typedef_filename,
+                                  self._version_typedef_name, class_name=self.__class_name, method_name=_method_name)
+                self._post_create_domain_script_dict = None
+
+            if 'discoverExcludedBinariesList' in self._domain_typedef and \
+                    len(self._domain_typedef['discoverExcludedBinariesList']) > 0:
+                self._logger.info('WLSDPLY-12330', self._domain_type, self._domain_typedef_filename,
+                                  self._version_typedef_name, len(self._domain_typedef['discoverExcludedBinariesList']),
+                                  class_name=self.__class_name, method_name=_method_name)
+                self._excluded_locations_binaries_to_archive = self._domain_typedef['discoverExcludedBinariesList']
+            else:
+                self._logger.info('WLSDPLY-12331', self._domain_type, self._domain_typedef_filename,
+                                  self._version_typedef_name, class_name=self.__class_name, method_name=_method_name)
+                self._excluded_locations_binaries_to_archive = list()
+
+            if 'discover-filters' in self._domain_typedefs_dict:
+                if 'system-elements' in self._domain_typedefs_dict:
+                    self._logger.notification('WLSDPLY-12317', self._domain_typedef_filename)
+                self._discover_filters = self._domain_typedefs_dict['discover-filters']
+            elif 'system-elements' in self._domain_typedefs_dict:
+                # Leave this until at least WDT 5.0 - rpatrick
+                self._logger.deprecation('WLSDPLY-12318', self._domain_typedef_filename)
+                self._discover_filters = self._translate_system_elements(self._domain_typedefs_dict['system-elements'])
+            else:
+                self._discover_filters = {}
+
+            self._topology_profile = self._resolve_topology_profile()
+            self._initialization_finished = True
 
     def get_domain_type(self):
         """
@@ -353,6 +392,14 @@ class DomainTypedef(object):
         self._logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result
 
+    def should_archive_excluded_app(self, source_path):
+        """
+        Whether the source_path is listed in the discoverExcludedBinariesList list
+        :param source_path: the source_path from the app, which typically will be tokenized
+        :return: True, if the source path is included in the discoverExcludedBinariesList; False otherwise
+        """
+        return source_path in self._excluded_locations_binaries_to_archive
+
     def is_filtered(self, location, name=None):
         """
         Determine if the named object at the specified location is filtered.
@@ -501,8 +548,12 @@ class DomainTypedef(object):
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
-        wls_version = self.wls_helper.get_actual_weblogic_version()
-        self._logger.fine('WLSDPLY-12310', wls_version, class_name=self.__class_name, method_name=_method_name)
+        if self._model_context is not None:
+            wls_version = self._model_context.get_effective_wls_version()
+        else:
+            wls_version = self.wls_helper.get_weblogic_version()
+        self._logger.fine('WLSDPLY-12310', wls_version,
+                          class_name=self.__class_name, method_name=_method_name)
 
         result = None
         if wls_version in versions_dict:

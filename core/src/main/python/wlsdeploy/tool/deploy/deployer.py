@@ -2,12 +2,16 @@
 Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+from array import array
 import os
 import copy
 
-from array import array
+from java.io import IOException
 from java.lang import Class
+
+from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyWLSTException
+
 from wlsdeploy.aliases.model_constants import ABSOLUTE_PLAN_PATH
 from wlsdeploy.aliases.model_constants import ABSOLUTE_SOURCE_PATH
 from wlsdeploy.aliases.model_constants import APP_DEPLOYMENTS
@@ -21,15 +25,15 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
-from wlsdeploy.util import model_helper
 from wlsdeploy.tool.deploy import log_helper
-from wlsdeploy.tool.util.archive_helper import ArchiveHelper
+from wlsdeploy.tool.util.archive_helper import ArchiveList
 from wlsdeploy.tool.util.attribute_setter import AttributeSetter
 from wlsdeploy.tool.util.topology_helper import TopologyHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
-import wlsdeploy.util.dictionary_utils as dictionary_utils
+from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util import model_helper
+from wlsdeploy.util import path_helper
 import wlsdeploy.util.unicode_helper as str_helper
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
 class Deployer(object):
@@ -45,22 +49,34 @@ class Deployer(object):
     _list_interface = Class.forName('java.util.List')
 
     def __init__(self, model, model_context, aliases, wlst_mode=WlstModes.OFFLINE):
+        _method_name = '__init__'
+
         self.name = self._class_name
         self.model = model
         self.wlst_mode = wlst_mode
         self.model_context = model_context
         self.aliases = aliases
         self.logger = PlatformLogger('wlsdeploy.deploy')
-        self.wls_helper = WebLogicHelper(self.logger)
+        self.wls_helper = model_context.get_weblogic_helper()
         self.wlst_helper = WlstHelper(ExceptionType.DEPLOY)
         self.attribute_setter = AttributeSetter(model_context, self.aliases, ExceptionType.DEPLOY, wlst_mode=wlst_mode)
         self.topology_helper = TopologyHelper(self.aliases, ExceptionType.DEPLOY, self.logger)
+        self.path_helper = path_helper.get_path_helper()
 
         self.archive_helper = None
         archive_file_name = self.model_context.get_archive_file_name()
         if archive_file_name is not None:
-            self.archive_helper = ArchiveHelper(archive_file_name, self.model_context.get_domain_home(), self.logger,
-                                                exception_helper.ExceptionType.DEPLOY)
+            self.archive_helper = ArchiveList(archive_file_name, self.model_context,
+                                              exception_helper.ExceptionType.DEPLOY)
+        self.upload_temporary_dir = None
+        if model_context.is_remote() or model_context.is_ssh():
+            try:
+                self.upload_temporary_dir = FileUtils.createTempDirectory("wdt-uploadtemp").getAbsolutePath()
+            except IOException, e:
+                ex = exception_helper.create_deploy_exception('WLSDPLY-09340', e.getLocalizedMessage(), error=e)
+                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
+
 
     def _add_named_elements(self, type_name, model_nodes, location, delete_now=True):
         """
@@ -79,7 +95,7 @@ class Deployer(object):
 
         parent_type, parent_name = self.get_location_type_and_name(location)
         location = LocationContext(location).append_location(type_name)
-        if not self._check_location(location):
+        if not self.aliases.is_model_location_valid(location):
             return
 
         deployer_utils.check_flattened_folder(location, self.aliases)
@@ -98,10 +114,16 @@ class Deployer(object):
 
             if token is not None:
                 location.add_name_token(token, name)
-            deployer_utils.create_and_cd(location, existing_names, self.aliases)
+            self._create_and_cd(location, existing_names)
 
             child_nodes = dictionary_utils.get_dictionary_element(model_nodes, name)
             self._set_attributes_and_add_subfolders(location, child_nodes)
+
+    #
+    # This method exists purely to allow subclasses to override how an mbean is created.
+    #
+    def _create_and_cd(self, location, existing_names):
+        deployer_utils.create_and_cd(location, existing_names, self.aliases)
 
     def _add_subfolders(self, model_nodes, location, excludes=None):
         """
@@ -135,7 +157,7 @@ class Deployer(object):
 
         parent_type, parent_name = self.get_location_type_and_name(location)
         location = LocationContext(location).append_location(type_name)
-        if not self._check_location(location):
+        if not self.aliases.is_model_location_valid(location):
             return
 
         deployer_utils.check_flattened_folder(location, self.aliases)
@@ -182,7 +204,10 @@ class Deployer(object):
                 value = model_nodes[key]
                 if key in uses_path_tokens_attribute_names:
                     value = deployer_utils.extract_from_uri(self.model_context, value)
-                    self._extract_from_archive_if_needed(location, key, value)
+
+                    # value may change if archive extract path changes.
+                    # example: wlsdeploy/config/x may become config/wlsdeploy/config/x
+                    value = self._extract_from_archive_if_needed(location, key, value)
 
                 wlst_merge_value = None
                 if key in merge_attribute_names:
@@ -314,45 +339,52 @@ class Deployer(object):
 
         return False
 
-    def _check_location(self, location):
-        """
-        Verify that the specified location in valid for the current WLS version.
-        Validation has already logged a WARNING or INFO message if the location was not valid.
-        :param location: the location to be checked
-        :return: True if the location is valid, False otherwise
-        """
-        _method_name = '_check_location'
-        if self.aliases.get_wlst_mbean_type(location) is None:
-            return False
-        return True
-
     def _extract_from_archive_if_needed(self, location, key, value):
         """
         Extract the file from the archive, if needed.
         :param location: the location
         :param key: the attribute name
         :param value: the attribute value
-        :return: True if the file/directory was extracted, False otherwise
+        :return: the path value for use in the model (possibly changed from value argument)
         :raise: DeployException: if an error occurs
         """
         _method_name = '_extract_from_archive_if_needed'
         self.logger.entering(str_helper.to_string(location), key, value,
                              class_name=self._class_name, method_name=_method_name)
 
-        result = False
-        short_value = deployer_utils.get_rel_path_from_uri(self.model_context, value)
-        if deployer_utils.is_path_into_archive(short_value):
+        result = value
+        relative_path_in_archive = deployer_utils.get_rel_path_from_uri(self.model_context, value)
+        if deployer_utils.is_path_into_archive(relative_path_in_archive):
             if self.archive_helper is not None:
-                result = self.__process_archive_entry(location, key, short_value)
+                # archive entries using deprecated archive locations may be changed to config/wlsdeploy/...
+                extract_path = self.topology_helper.get_archive_extract_path(relative_path_in_archive, location, key)
+                result = extract_path
+
+                # we need to know where to extract to
+                if self.model_context.is_ssh():
+                    # for ssh extract to temporary location
+                    extract_location = self.upload_temporary_dir
+                else:
+                    extract_location = self.topology_helper.get_archive_extract_directory(extract_path,
+                        self.model_context.get_domain_home())
+
+                self.__process_archive_entry(location, key, relative_path_in_archive, extract_location,
+                                             self.model_context.is_ssh())
+
+                if not relative_path_in_archive.endswith('/') and result and self.model_context.is_ssh():
+                    # upload to remote
+                    source_path = self.path_helper.local_join(self.upload_temporary_dir, relative_path_in_archive)
+                    target_path = self.path_helper.remote_join(self.model_context.get_domain_home(), extract_path)
+                    self.upload_specific_file_to_remote_server(source_path, target_path)
             else:
                 path = self.aliases.get_model_folder_path(location)
-                ex = exception_helper.create_deploy_exception('WLSDPLY-09110', key, path, value)
+                ex = exception_helper.create_deploy_exception('WLSDPLY-09209', key, path, value)
                 self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
         return result
 
-    def __process_archive_entry(self, location, key, value):
+    def __process_archive_entry(self, location, key, value, extract_location, is_ssh=False):
         """
         Extract the archive entry, if needed.  Note that this method assumes the path has already been
         tested to verify that it points into the archive.
@@ -366,39 +398,49 @@ class Deployer(object):
                              class_name=self._class_name, method_name=_method_name)
 
         result = False
-        fullpath = os.path.join(self.model_context.get_domain_home(), value)
+
+        # setting this to make sure the file is extracted with relative path intact
+        if is_ssh:
+            strip_leading_path = False
+        else:
+            strip_leading_path = True
+
+        full_path_into_domain = self.path_helper.local_join(self.model_context.get_domain_home(), value)
+
         if self.archive_helper.contains_file(value):
             if self.wlst_mode == WlstModes.OFFLINE:
                 if value.endswith('/'):
-                    result = self.__process_directory_entry(fullpath)
+                    result = self.__process_directory_entry(full_path_into_domain)
                 else:
                     # In offline mode, just overwrite any existing file.
-                    self.archive_helper.extract_file(value)
+                    self.archive_helper.extract_file(value, location=extract_location,
+                                                     strip_leading_path=strip_leading_path)
                     result = True
             else:
                 if value.endswith('/'):
-                    result = self.__process_directory_entry(fullpath)
+                    result = self.__process_directory_entry(full_path_into_domain)
                 else:
-                    if os.path.isfile(fullpath):
-                        # If the file already exists in the file system,
-                        # compare the hash values to determine if it needs
-                        # to be extracted.
+                    # if this path exists and not ssh, just in case if the user created the same remote domain home local
+                    if os.path.isfile(full_path_into_domain) and not self.model_context.is_ssh():
                         archive_hash = self.archive_helper.get_file_hash(value)
-                        file_hash = deployer_utils.get_file_hash(fullpath)
+                        file_hash = deployer_utils.get_file_hash(full_path_into_domain)
                         if archive_hash != file_hash:
-                            self.archive_helper.extract_file(value)
-                            result = True
+                            self.archive_helper.extract_file(value, location=extract_location,
+                                                             strip_leading_path=strip_leading_path)
+                        result = True
                     else:
                         # The file does not exist so extract it from the archive.
-                        self.archive_helper.extract_file(value)
+                        self.archive_helper.extract_file(value, location=extract_location,
+                                                         strip_leading_path=strip_leading_path)
                         result = True
         elif self.archive_helper.contains_path(value):
             # contents should have been extracted elsewhere, such as for apps and shared libraries
-            result = self.archive_helper.extract_directory(value)
+            # ssh deploy app/libs doesn't use this code path
+            result = self.archive_helper.extract_directory(value, location=extract_location)
         elif value.endswith('/'):
             # If the path is a directory in the wlsdeploy directory tree
             # but not in the archive, just create it to help the user.
-            result = self.__process_directory_entry(fullpath)
+            result = self.__process_directory_entry(full_path_into_domain)
         else:
             path = self.aliases.get_model_folder_path(location)
             ex = exception_helper.create_deploy_exception('WLSDPLY-09204', key, path, value,
@@ -407,6 +449,19 @@ class Deployer(object):
             raise ex
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
         return result
+
+    def upload_deployment_to_remote_server(self, source_path, upload_remote_directory):
+        upload_srcpath = self.path_helper.local_join(upload_remote_directory, source_path)
+        upload_targetpath = self.path_helper.remote_join(self.model_context.get_domain_home(), source_path)
+        remote_dirname = self.path_helper.get_remote_parent_directory(upload_targetpath)
+        self.model_context.get_ssh_context().create_directories_if_not_exist(self.path_helper.remote_join(
+            self.model_context.get_domain_home(), remote_dirname))
+        self.model_context.get_ssh_context().upload(upload_srcpath, upload_targetpath)
+
+    def upload_specific_file_to_remote_server(self, source_path, upload_targetpath):
+        self.model_context.get_ssh_context().create_directories_if_not_exist(
+            self.path_helper.get_remote_parent_directory(upload_targetpath))
+        self.model_context.get_ssh_context().upload(source_path, upload_targetpath)
 
     def add_application_attributes_online(self, model, location):
         """
@@ -440,7 +495,6 @@ class Deployer(object):
         """
         _method_name = '__process_directory_entry'
         self.logger.entering(str_helper.to_string(path), class_name=self._class_name, method_name=_method_name)
-
         result = False
         if not os.path.isdir(path):
             # No real need to extract directory, just make the directories

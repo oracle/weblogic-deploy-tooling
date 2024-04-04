@@ -238,13 +238,14 @@ class ModelComparer(object):
                 if key in attribute_names:
                     self._compare_attribute(current_value, past_value, attributes_location, key, change_folder)
 
-                else:
+                else:  # could be a folder
                     next_location, next_attributes_location = self._get_next_location(location, key)
-                    next_change = self._compare_folders(current_value, past_value, next_location,
-                                                        next_attributes_location)
+                    if self._aliases.is_model_location_valid(next_location):
+                        next_change = self._compare_folders(current_value, past_value, next_location,
+                                                            next_attributes_location)
 
-                    if next_change:
-                        change_folder[key] = next_change
+                        if next_change:
+                            change_folder[key] = next_change
 
             else:
                 # key is present the current folder, not in the past folder.
@@ -262,17 +263,18 @@ class ModelComparer(object):
                     change_path = self._aliases.get_model_folder_path(location) + "/" + key
                     self._messages.add(('WLSDPLY-05701', change_path))
 
-                else:
-                    # if a folder was deleted, keep recursing through the past model.
-                    # there may be named elements underneath that need to be deleted.
-                    current_value = PyOrderedDict()
-                    past_value = past_folder[key]
+                else:  # could be a folder
                     next_location, next_attributes_location = self._get_next_location(location, key)
-                    next_change = self._compare_folders(current_value, past_value, next_location,
-                                                        next_attributes_location)
+                    if self._aliases.is_model_location_valid(next_location):
+                        # if a folder was deleted, keep recursing through the past model.
+                        # there may be named elements underneath that need to be deleted.
+                        current_value = PyOrderedDict()
+                        past_value = past_folder[key]
+                        next_change = self._compare_folders(current_value, past_value, next_location,
+                                                            next_attributes_location)
 
-                    if next_change:
-                        change_folder[key] = next_change
+                        if next_change:
+                            change_folder[key] = next_change
 
         self._finalize_folder(current_folder, past_folder, change_folder, location)
         return change_folder

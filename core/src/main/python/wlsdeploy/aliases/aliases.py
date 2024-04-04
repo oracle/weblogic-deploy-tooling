@@ -77,13 +77,19 @@ class Aliases(object):
         :param wls_version: the WLS version to use, default is to Oracle Home version
         :param exception_type: the exception type to be thrown
         """
+        _method_name = '__init__'
+
         self._model_context = model_context
         self._wlst_mode = wlst_mode
         self._exception_type = exception_type
         self._logger = PlatformLogger('wlsdeploy.aliases')
 
         if wls_version is None:
-            self._wls_version = self._model_context.get_target_wls_version()
+            if self._model_context.get_model_config().use_server_version_for_online_operations():
+                self._wls_version = self._model_context.get_effective_wls_version()
+            else:
+                self._logger.fine('WLSDPLY-19051', class_name=self._class_name, method_name=_method_name)
+                self._wls_version = self._model_context.get_local_wls_version()
         else:
             self._wls_version = wls_version
 
@@ -91,6 +97,8 @@ class Aliases(object):
         self._production_mode_enabled = False
         self._secure_mode_enabled = False
         alias_utils._wlst_mode = wlst_mode
+        self._logger.info('WLSDPLY-19052', self._wls_version, WlstModes.from_value(wlst_mode),
+                          class_name=self._class_name, method_name=_method_name)
 
     def set_production_mode(self, production_mode_enabled):
         _method_name = 'set_production_mode'
@@ -734,19 +742,35 @@ class Aliases(object):
             self._raise_exception(ae, _method_name, 'WLSDPLY-19022', wlst_subfolder_name, location.get_folder_path(),
                                   ae.getLocalizedMessage())
 
+    def is_model_location_valid(self, location):
+        """
+        Verify Verify that the specified location is valid for the WLS version
+        and WLST mode being used.
+        :param location: the location to be checked
+        :return: True if the location is valid, False otherwise
+        :raises: Tool-specific exception type if an error occurs
+        """
+        _method_name = 'is_model_location_valid'
+
+        try:
+            return self._alias_entries.is_model_location_valid(location)
+        except AliasException, ae:
+            self._raise_exception(ae, _method_name, 'WLSDPLY-19033', location.get_folder_path(),
+                                  ae.getLocalizedMessage())
+
     def is_version_valid_location(self, location):
         """
         Verify that the specified location is valid for the WLS version
-        being used.
+        and WLST_MODE being used.
 
         Caller needs to determine what action (e.g. log, raise exception,
         continue processing, record validation item, etc.) to take, when
-        return code is VERSION_INVALID.
+        return code is CONTEXT_INVALID.
 
         :param location: the location to be checked
-        :return: A ValidationCodes Enum value of either VERSION_INVALID or VALID
-        :return: A message saying which WLS version location is valid in, if
-                return code is VERSION_INVALID
+        :return: A ValidationCodes Enum value of VALID, CONTEXT_INVALID or INVALID
+        :return: A message appropriate for the ValidationCode returned
+        :raises: Tool-specific exception type if an error occurs
         """
         _method_name = 'is_version_valid_location'
 
@@ -758,7 +782,7 @@ class Aliases(object):
 
     def is_valid_model_folder_name(self, location, model_folder_name):
         """
-        Return whether or not location's model folders list has a subfolder
+        Return whether the location's model folders list has a subfolder
         with the name assigned to the model_folder_name parameter.
 
         :param location: the location
@@ -770,7 +794,7 @@ class Aliases(object):
         self._logger.entering(str_helper.to_string(location), model_folder_name,
                               class_name=self._class_name, method_name=_method_name)
         try:
-            result, valid_version_range = \
+            result, valid_version_range, valid_mode = \
                 self._alias_entries.is_valid_model_folder_name_for_location(location, model_folder_name)
 
             if result == ValidationCodes.VALID:
@@ -778,12 +802,18 @@ class Aliases(object):
                                                        location.get_folder_path(), self._wls_version)
             elif result == ValidationCodes.INVALID:
                 message = exception_helper.get_message('WLSDPLY-08404', model_folder_name,
-                                                       location.get_folder_path(), self._wls_version)
+                                                       location.get_folder_path())
             elif result == ValidationCodes.VERSION_INVALID:
+                result = ValidationCodes.CONTEXT_INVALID
                 message = \
                     VersionUtils.getValidFolderVersionRangeMessage(model_folder_name, location.get_folder_path(),
                                                                    self._wls_version, valid_version_range,
                                                                    WlstModes.from_value(self._wlst_mode))
+            elif result == ValidationCodes.MODE_INVALID:
+                result = ValidationCodes.CONTEXT_INVALID
+                message = exception_helper.get_message('WLSDPLY-08412', model_folder_name,
+                                                       location.get_folder_path(), self._wls_version,
+                                                       WlstModes.from_value(self._wlst_mode), valid_mode)
             else:
                 ex = exception_helper.create_alias_exception('WLSDPLY-08405', model_folder_name,
                                                              location.get_folder_path(), self._wls_version,
@@ -878,15 +908,15 @@ class Aliases(object):
 
         return lsa_required_attribute_names
 
-    def model_mbean_has_set_mbean_type_attribute_name(self, location, model_name):
+    def model_attribute_has_set_method(self, location, model_name):
         """
-        Determine if the attribute for model_name has the set_mbean type value.
+        Determine if the attribute for model_name has the set_method type value.
         :param location: the location
         :param model_name: the attribute name
         :return: True if the attribute has the set method value
         :raises: Tool type exception: if an error occurs
         """
-        _method_name = 'model_mbean_has_set_mbean_type_attribute_name'
+        _method_name = 'model_attribute_has_set_method'
 
         try:
             module_folder = self._alias_entries.get_dictionary_for_location(location, resolve=False)
@@ -895,14 +925,13 @@ class Aliases(object):
                 self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
 
-            set_mbean_type = False
+            has_set_method = False
 
             if model_name in module_folder[ATTRIBUTES] and \
-                SET_MBEAN_TYPE in module_folder[ATTRIBUTES][model_name]:
+                SET_METHOD in module_folder[ATTRIBUTES][model_name]:
+                    has_set_method = True
 
-                    set_mbean_type = True
-
-            return set_mbean_type
+            return has_set_method
         except AliasException, ae:
 
             self._raise_exception(ae, _method_name, 'WLSDPLY-19017', location.get_folder_path(),
@@ -1207,13 +1236,14 @@ class Aliases(object):
 
     def is_valid_model_attribute_name(self, location, model_attribute_name):
         """
-        Return whether or not location's model folders list has an attribute
+        Return whether location's model folders list has an attribute
         with the name assigned to the model_attribute_name parameter.
 
-        If so, it returns True and a message stating that value assigned to
-        model_attribute_name parameter is supported in the specified WLST
-        version. Otherwise, it returns False and a message stating which, if
-        any, WLST version(s) the value assigned to the model_attribute_name
+        If so, it returns the VALID validation code and a message stating
+        that value assigned to model_attribute_name parameter is supported
+        in the specified WLST version. Otherwise, it returns a different
+        validation code and a message indicating which, if any, WLST
+        version(s) the value assigned to the model_attribute_name
         parameter is supported in.
 
         :param location: the location
@@ -1226,30 +1256,18 @@ class Aliases(object):
                               class_name=self._class_name, method_name=_method_name)
 
         try:
-            result, valid_version_range = \
+            result, message = \
                 self._alias_entries.is_valid_model_attribute_name_for_location(location, model_attribute_name)
 
-            path = self.get_model_folder_path(location)
-            if result == ValidationCodes.VALID:
-                message = exception_helper.get_message('WLSDPLY-08407', model_attribute_name, path, self._wls_version)
-            elif result == ValidationCodes.INVALID:
-                message = exception_helper.get_message('WLSDPLY-08408', model_attribute_name, path, self._wls_version)
-            elif result == ValidationCodes.VERSION_INVALID:
-                message = \
-                    VersionUtils.getValidAttributeVersionRangeMessage(model_attribute_name, path,
-                                                                      self._wls_version, valid_version_range,
-                                                                      WlstModes.from_value(self._wlst_mode))
-            else:
-                ex = exception_helper.create_alias_exception('WLSDPLY-08405', model_attribute_name, path,
-                                                             self._wls_version, ValidationCodes.from_value(result))
-                self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-                raise ex
-
-            self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
-            return result, message
         except AliasException, ae:
-            self._raise_exception(ae, _method_name, 'WLSDPLY-19031', model_attribute_name, location.get_folder_path(),
-                                  ae.getLocalizedMessage())
+            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-19031',
+                model_attribute_name, location.get_folder_path(), ae.getLocalizedMessage(), error=ae)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result, message
+
 
     def get_model_attribute_type(self, location, model_attribute_name):
         """

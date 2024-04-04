@@ -55,10 +55,8 @@ class WkoFilterTestCase(BaseTestCase):
         model = translator.parse()
 
         # Apply the filter
-        self._suspend_logs('wlsdeploy.tool.util')
         model_context = ModelContext(self._program_name, {})
         wko_final_filter.filter_final_model(model, model, model_context)
-        self._restore_logs()
 
         # Write the result for test debugging
         target_file = os.path.join(self.FILTER_OUTPUT_DIR, 'wko-filter-2.yaml')
@@ -76,10 +74,8 @@ class WkoFilterTestCase(BaseTestCase):
         model = translator.parse()
 
         # Apply the filter
-        self._suspend_logs('wlsdeploy.tool.util')
         model_context = ModelContext(self._program_name, {})
         wko_final_filter.filter_final_model_for_wko3(model, model, model_context)
-        self._restore_logs()
 
         # Write the result for test debugging
         target_file = os.path.join(self.FILTER_OUTPUT_DIR, 'wko-filter-3.yaml')
@@ -119,10 +115,8 @@ class WkoFilterTestCase(BaseTestCase):
 
         # Apply the filter
 
-        self._suspend_logs('wlsdeploy.tool.util')
         model_context = ModelContext(self._program_name, {})
         wko_filter.filter_model(model, model_context)
-        self._restore_logs()
 
         # Machine and virtual target elements should be removed from the model
 

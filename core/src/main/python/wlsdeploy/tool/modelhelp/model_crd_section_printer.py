@@ -12,6 +12,8 @@ import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.exit_code import ExitCode
 
+DESCRIPTION_LINE_LENGTH_LIMIT = 80
+
 
 class ModelCrdSectionPrinter(object):
     """
@@ -20,37 +22,49 @@ class ModelCrdSectionPrinter(object):
     _class_name = "ModelCrdSectionPrinter"
     _logger = PlatformLogger('wlsdeploy.modelhelp')
 
-    def __init__(self, model_context):
+    def __init__(self, model_context, output_buffer):
         self._crd_helper = model_crd_helper.get_helper(model_context)
         self._target = model_context.get_target()
+        self._output_buffer = output_buffer
 
-    def print_model_sample(self, model_path_tokens, control_option):
+    def print_model_sample(self, model_path_tokens, control_option, path_option):
         """
         Prints out a model sample for the given model path tokens.
         :param model_path_tokens: a list of folder tokens indicating a model location
         :param control_option: a command-line switch that controls what is output
+        :param path_option: used to interpret the path as a folder, attribute, or either
         :raises CLAException: if a problem is encountered
         """
         section_name = model_path_tokens[0]
         if section_name != self._crd_helper.get_model_section():
-            print("")
-            print(exception_helper.get_message('WLSDPLY-10113', section_name))
+            self._output_buffer.add_output("")
+            self._output_buffer.add_output(exception_helper.get_message('WLSDPLY-10113', section_name))
             return
 
         if len(model_path_tokens) == 1:
-            self._print_model_section_sample(section_name, control_option)
+            self._print_model_section_sample(section_name, control_option, path_option)
         else:
-            self._print_model_folder_sample(section_name, model_path_tokens, control_option)
+            self._print_model_folder_sample(section_name, model_path_tokens, control_option, path_option)
 
-    def _print_model_section_sample(self, section_name, control_option):
+    def _print_model_section_sample(self, section_name, control_option, path_option):
         """
         Prints a model sample for a section of a model, when just the section_name[:] is provided
         :param section_name: the name of the model section
         :param control_option: A command-line switch that controls what is output to STDOUT
+        :param path_option: used to interpret the path as a folder, attribute, or either
         """
-        print("")
+        _method_name = '_print_model_section_sample'
+
+        self._output_buffer.add_output()
         path = section_name + ":"
-        _print_indent(path, 0)
+        self._print_indent(path, 0)
+
+        # if path options requires an attribute, this path is not valid
+        if model_help_utils.requires_attribute_path(path_option):
+            ex = exception_helper.create_cla_exception(
+                ExitCode.ARG_VALIDATION_ERROR, "WLSDPLY-05046", path)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
 
         # examine model folders directly under kubernetes
 
@@ -61,10 +75,10 @@ class ModelCrdSectionPrinter(object):
 
             if crd_folder.has_model_key():
                 if control_option != ControlOptions.RECURSIVE:
-                    print("")
+                    self._output_buffer.add_output()
 
                 model_key = crd_folder.get_model_key()
-                _print_indent(model_key + ':', indent)
+                self._print_indent(model_key + ':', indent)
                 show_children = control_option == ControlOptions.RECURSIVE
                 folder_path = path + '/' + model_key
                 indent = indent + 1
@@ -79,24 +93,25 @@ class ModelCrdSectionPrinter(object):
                 if model_help_utils.show_folders(control_option):
                     self._print_subfolders_sample(schema, control_option, indent, folder_path, in_array)
             else:
-                _print_indent("# see " + folder_path, indent)
+                self._print_indent("# see " + folder_path, indent)
 
-    def _print_model_folder_sample(self, section_name, model_path_tokens, control_option):
+    def _print_model_folder_sample(self, section_name, model_path_tokens, control_option, path_option):
         """
         Prints a model sample for a folder in a model, when more than just the section_name[:] is provided.
         :param section_name: the name of the model section
         :param model_path_tokens: a Python list of path elements built from model path
         :param control_option: A command-line switch that controls what is output to STDOUT
+        :param path_option: used to interpret the path as a folder, attribute, or either
         """
         _method_name = '_print_model_folder_sample'
 
-        print("")
+        self._output_buffer.add_output()
 
         # write the parent folders leading up to the specified folder.
         # include any name folders.
 
         indent = 0
-        _print_indent(section_name + ":", indent)
+        self._print_indent(section_name + ":", indent)
         indent += 1
 
         in_object_array = False
@@ -117,7 +132,7 @@ class ModelCrdSectionPrinter(object):
                 raise ex
 
             model_key = crd_folder.get_model_key()
-            _print_indent(model_key + ":", indent, in_object_array)
+            self._print_indent(model_key + ":", indent, in_object_array)
             model_path += '/' + model_key
             token_index += 1
             indent += 1
@@ -140,35 +155,63 @@ class ModelCrdSectionPrinter(object):
             properties = _get_properties(current_folder)
 
             valid_subfolder_keys = _get_folder_names(properties)
-            if lookup_token not in valid_subfolder_keys:
-                ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
-                                                           "WLSDPLY-10111", model_path, lookup_token,
-                                                           ', '.join(valid_subfolder_keys))
+            valid_attribute_keys = _get_attribute_names(properties)
+            is_last_token = token == model_path_tokens[-1]
+
+            if lookup_token in valid_subfolder_keys:
+                current_folder = properties[lookup_token]
+
+                # find matching option if folder has multiple options, such as (verrazzano/.../trait#MetricsTrait)
+                token_suffix = ''
+                folder_options = schema_helper.get_one_of_options(current_folder)
+                if folder_options and option_key is not None:
+                    token_suffix = '  # ' + option_key
+                    current_folder = self._find_folder_option(folder_options, option_key,
+                                                              model_path + '/' + lookup_token)
+
+                self._print_indent(lookup_token + ":" + token_suffix, indent, in_object_array)
+                indent += 1
+
+                # apply to the next folder in the path
+                in_object_array = schema_helper.is_object_array(current_folder)
+                model_path = model_path + "/" + token
+
+            elif is_last_token and model_help_utils.allow_attribute_path(path_option):
+                # the last token might be an attribute name
+                if lookup_token in valid_attribute_keys:
+                    label = _get_attribute_type_label(properties[lookup_token])
+                    line = _format_attribute(lookup_token, 1, label)
+                    self._print_indent(line, indent, in_object_array)
+                    self._print_attribute_details(lookup_token, properties[lookup_token])
+                    return
+
+                else:
+                    ex = exception_helper.create_cla_exception(
+                        ExitCode.ARG_VALIDATION_ERROR, "WLSDPLY-10137", model_path, lookup_token,
+                        ', '.join(valid_subfolder_keys), ', '.join(valid_attribute_keys))
+                    self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                    raise ex
+
+            else:
+                ex = exception_helper.create_cla_exception(
+                    ExitCode.ARG_VALIDATION_ERROR, "WLSDPLY-10111", model_path, lookup_token,
+                    ', '.join(valid_subfolder_keys))
                 self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
 
-            current_folder = properties[lookup_token]
-
-            # find matching option if folder has multiple options, such as (verrazzano/.../trait#MetricsTrait)
-            token_suffix = ''
-            folder_options = schema_helper.get_one_of_options(current_folder)
-            if folder_options and option_key is not None:
-                token_suffix = '  # ' + option_key
-                current_folder = self._find_folder_option(folder_options, option_key, model_path + '/' + lookup_token)
-
-            _print_indent(lookup_token + ":" + token_suffix, indent, in_object_array)
-            indent += 1
-
-            # apply to the next folder in the path
-            in_object_array = schema_helper.is_object_array(current_folder)
-            model_path = model_path + "/" + token
-
         # finished writing the parent folders
+
+        # if path options requires an attribute, none was found in the path
+        if model_help_utils.requires_attribute_path(path_option):
+            ex = exception_helper.create_cla_exception(
+                ExitCode.ARG_VALIDATION_ERROR, "WLSDPLY-05046", model_path)
+            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
 
         # if this is a folder with multiple options, list the options and return
         folder_options = schema_helper.get_one_of_options(current_folder)
         if folder_options:
-            print_folder_options(folder_options, model_path, indent)
+            self._print_folder_options(folder_options, model_path, indent)
             return
 
         # list the attributes and folders, as specified
@@ -211,9 +254,9 @@ class ModelCrdSectionPrinter(object):
             folder_info = folder_map[key]
 
             if control_option != ControlOptions.RECURSIVE:
-                print("")
+                self._output_buffer.add_output()
 
-            _print_indent(key + ":", indent_level, in_object_array)
+            self._print_indent(key + ":", indent_level, in_object_array)
             in_object_array = False
 
             child_level = indent_level + 1
@@ -225,7 +268,7 @@ class ModelCrdSectionPrinter(object):
                 self._print_subfolders_sample(folder_info, control_option, child_level, path,
                                               child_in_object_array)
             else:
-                _print_indent("# see " + next_path, child_level)
+                self._print_indent("# see " + next_path, child_level)
 
         return in_object_array
 
@@ -243,20 +286,8 @@ class ModelCrdSectionPrinter(object):
         for key in properties:
             property_map = properties[key]
             if property_map is not None:
-                if schema_helper.is_simple_map(property_map):
-                    # map of key / value pairs
-                    attribute_map[key] = 'properties'
-
-                elif schema_helper.is_simple_array(property_map):
-                    # array of simple type
-                    attribute_map[key] = 'list of ' + schema_helper.get_array_element_type(property_map)
-
-                elif not schema_helper.is_object_type(property_map):
-                    type_text = schema_helper.get_type(property_map)
-                    enum_values = schema_helper.get_enum_values(property_map)
-                    if enum_values:
-                        type_text += ' (' + ', '.join(enum_values) + ')'
-                    attribute_map[key] = type_text
+                if not schema_helper.is_object_type(property_map):
+                    attribute_map[key] = _get_attribute_type_label(property_map)
 
         if attribute_map:
             attr_list = attribute_map.keys()
@@ -267,13 +298,12 @@ class ModelCrdSectionPrinter(object):
                 if len(name) > maxlen:
                     maxlen = len(name)
 
-            format_string = '%-' + str_helper.to_string(maxlen + 1) + 's # %s'
             for attr_name in attr_list:
-                line = format_string % (attr_name + ":", attribute_map[attr_name])
-                _print_indent(line, indent_level, in_object_array)
+                line = _format_attribute(attr_name, maxlen, attribute_map[attr_name])
+                self._print_indent(line, indent_level, in_object_array)
                 in_object_array = False
         else:
-            _print_indent("# no attributes", indent_level)
+            self._print_indent("# no attributes", indent_level)
 
         return in_object_array
 
@@ -304,6 +334,57 @@ class ModelCrdSectionPrinter(object):
         self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
         raise ex
 
+    def _print_folder_options(self, folder_options, model_path, indent_level):
+        """
+        Print messages for a folder that has multiple content options.
+        :param folder_options: the options to be printed
+        :param model_path: the model path to be included in the output
+        :param indent_level: the level to indent by, before printing output
+        :return: the matching option, or None
+        """
+        self._print_indent("# " + exception_helper.get_message('WLSDPLY-10114', len(folder_options)), indent_level)
+        for index, one_of_option in enumerate(folder_options):
+            key = _get_kind_value(one_of_option) or index
+            self._output_buffer.add_output()
+            self._print_indent("# see " + model_path + "#" + str_helper.to_string(key), indent_level)
+
+    def _print_attribute_details(self, name, properties):
+        description = dictionary_utils.get_dictionary_element(properties, "description")
+        if description:
+            self._output_buffer.add_output('')
+
+            words = []
+            line_length = 0
+            for word in description.split():
+                if len(word) + line_length + 1 <= DESCRIPTION_LINE_LENGTH_LIMIT:
+                    words.append(word)
+                    line_length += len(word) + 1
+                else:
+                    self._output_buffer.add_output(' '.join(words))
+                    words = [word]
+                    line_length = len(word) + 1
+
+            if len(words):
+                self._output_buffer.add_output(' '.join(words))
+
+    def _print_indent(self, msg, level=1, first_in_list_object=False):
+        """
+        Print a message at the specified indent level.
+        :param msg: the message to be printed
+        :param level: the indent level
+        :param first_in_list_object: True if this is the first property of an object in a list
+        """
+        result = ''
+        i = 0
+        while i < level:
+            result += '    '
+            i += 1
+
+        if first_in_list_object:
+            result = result[:-2] + "- "
+
+        self._output_buffer.add_output('%s%s' % (result, msg))
+
 
 def _get_properties(schema_folder):
     # in array elements, the properties are under "items"
@@ -329,19 +410,19 @@ def _get_folder_names(schema_properties):
     return folder_names
 
 
-def print_folder_options(folder_options, model_path, indent_level):
+def _get_attribute_names(schema_properties):
     """
-    Print messages for a folder that has multiple content options.
-    :param folder_options: the options to be printed
-    :param model_path: the model path to be included in the output
-    :param indent_level: the level to indent by, before printing output
-    :return: the matching option, or None
+    Return the object keys (single or array) described by the schema properties.
+    :param schema_properties: the properties to be examined
+    :return: a list of folder names
     """
-    _print_indent("# " + exception_helper.get_message('WLSDPLY-10114', len(folder_options)), indent_level)
-    for index, one_of_option in enumerate(folder_options):
-        key = _get_kind_value(one_of_option) or index
-        print("")
-        _print_indent("# see " + model_path + "#" + str_helper.to_string(key), indent_level)
+    attribute_names = []
+    for key in schema_properties:
+        property_map = schema_properties[key]
+        if property_map is not None:
+            if not schema_helper.is_object_type(property_map):
+                attribute_names.append(key)
+    return attribute_names
 
 
 def _get_kind_value(folder_option):
@@ -358,20 +439,23 @@ def _get_kind_value(folder_option):
         return enum[0]
 
 
-def _print_indent(msg, level=1, first_in_list_object=False):
-    """
-    Print a message at the specified indent level.
-    :param msg: the message to be printed
-    :param level: the indent level
-    :param first_in_list_object: True if this is the first property of an object in a list
-    """
-    result = ''
-    i = 0
-    while i < level:
-        result += '    '
-        i += 1
+def _get_attribute_type_label(property_map):
+    if schema_helper.is_simple_map(property_map):
+        # map of key / value pairs
+        return 'properties'
 
-    if first_in_list_object:
-        result = result[:-2] + "- "
+    elif schema_helper.is_simple_array(property_map):
+        # array of simple type
+        return 'list of ' + schema_helper.get_array_element_type(property_map)
 
-    print('%s%s' % (result, msg))
+    else:
+        type_text = schema_helper.get_type(property_map)
+        enum_values = schema_helper.get_enum_values(property_map)
+        if enum_values:
+            type_text += ' (' + ', '.join(enum_values) + ')'
+        return type_text
+
+
+def _format_attribute(name, min_name_length, value_text):
+    format_string = '%-' + str_helper.to_string(min_name_length) + 's: # %s'
+    return format_string % (name, value_text)

@@ -2,7 +2,7 @@
 # *****************************************************************************
 # deployApps.sh
 #
-# Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+# Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -16,12 +16,6 @@
 #
 # JAVA_HOME             - The location of the JDK to use.  The caller must set
 #                         this variable to a valid Java 7 (or later) JDK.
-#
-# WLSDEPLOY_HOME        - The location of the WLS Deploy installation.
-#                         If the caller sets this, the callers location will be
-#                         honored provided it is an existing directory.
-#                         Otherwise, the location will be calculated from the
-#                         location of this script.
 #
 # WLSDEPLOY_PROPERTIES  - Extra system properties to pass to WLST.  The caller
 #                         can use this environment variable to add additional
@@ -49,6 +43,13 @@ usage() {
   echo "           -admin_pass_env <admin_pass_env> | -admin_pass_file <admin_pass_file>"
   echo "           [-remote]"
   echo "          ]"
+  echo "          [-ssh_host <ssh_host>"
+  echo "           -ssh_port <ssh_port>"
+  echo "           -ssh_user <ssh_user>"
+  echo "           -ssh_pass_env <ssh_pass_env> | -ssh_pass_file <ssh_pass_file> | -ssh_pass_prompt"
+  echo "           -ssh_private_key <ssh_private_key>"
+  echo "           -ssh_private_key_pass_env <ssh_private_key_pass_env> | -ssh_private_key_pass_file <ssh_private_key_pass_file> | -ssh_private_key_pass_prompt"
+  echo "          ]"
   echo ""
   echo "    where:"
   echo "        oracle_home     - the existing Oracle Home directory for the domain."
@@ -56,7 +57,7 @@ usage() {
   echo "                          environment variable is set."
   echo ""
   echo "        domain_home     - the domain home directory.  This argument is"
-  echo "                          required if -remote option is not specified"
+  echo "                          required if running in offline mode."
   echo ""
   echo "        model_file      - the location of the model file to use.  This can also"
   echo "                          be specified as a comma-separated list of model"
@@ -86,7 +87,7 @@ usage() {
   echo "                          string value which WDT will read to retrieve the"
   echo "                          passphrase."
   echo ""
-  echo "        wlst_path       - the Oracle Home subdirectory of the wlst.cmd"
+  echo "        wlst_path       - the Oracle Home subdirectory of the wlst.sh"
   echo "                          script to use (e.g., <ORACLE_HOME>/soa)."
   echo ""
   echo "        output_dir      - if specified, files containing restart information"
@@ -106,6 +107,33 @@ usage() {
   echo "                          prompt. The value is the name of a file with a"
   echo "                          string value which WDT will read to retrieve the"
   echo "                          password."
+  echo ""
+  echo "        ssh_host        - the host name for admin server when SSH protocol is used to collect resources"
+  echo "                          from the admin server host."
+  echo ""
+  echo "        ssh_port        - the SSH port number for the admin server host."
+  echo ""
+  echo "        ssh_user        - the SSH user name for the admin server host."
+  echo ""
+  echo "        ssh_pass_env    - An alternative to entering the SSH password at the prompt.  The value is specified"
+  echo "                          in an ENVIRONMENT VARIABLE name that WDT will use to retrieve the password"
+  echo ""
+  echo "        ssh_pass_file   - An alternative to entering the SSH password at the prompt.  The value is the name of"
+  echo "                          a file with a string value which WDT will read to retrieve the password."
+  echo ""
+  echo "        ssh_pass_prompt - Prompt for the SSH password."
+  echo ""
+  echo "        ssh_private_key - the private key to use for connecting to the admin server host using SSH."
+  echo ""
+  echo "        ssh_private_key_pass_env - An alternative to entering the SSH private keystore password at the prompt."
+  echo "                                   The value is specified in an ENVIRONMENT VARIABLE name that WDT will use"
+  echo "                                   to retrieve the password"
+  echo ""
+  echo "        ssh_private_key_pass_file - An alternative to entering the SSH private keystore password at the prompt."
+  echo "                                    The value is the name of a file with a string value which WDT will read"
+  echo "                                    to retrieve the password."
+  echo ""
+  echo "        ssh_private_key_pass_prompt - Prompt for the SSH private keystore password."
   echo ""
   echo "    The -use_encryption switch tells the program that one or more of the"
   echo "    passwords in the model or variables files are encrypted.  The program will"

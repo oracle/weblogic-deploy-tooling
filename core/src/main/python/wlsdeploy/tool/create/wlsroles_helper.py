@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.io import File
@@ -55,7 +55,7 @@ class WLSRoles(object):
         if self._wls_roles_map is not None:
             # Process the WLSRoles section after checking for proper version support
             if self._wls_helper is not None and not self._wls_helper.is_weblogic_version_or_above('12.2.1'):
-                self.logger.warning('WLSDPLY-12504', self._wls_helper.get_actual_weblogic_version(), class_name=self.__class_name, method_name=_method_name)
+                self.logger.warning('WLSDPLY-12504', self._wls_helper.get_weblogic_version(), class_name=self.__class_name, method_name=_method_name)
             else:
                 role_expressions = self._process_roles_map(self._wls_roles_map)
                 if role_expressions is not None and len(role_expressions) > 0:
@@ -174,7 +174,7 @@ class WLSRoles(object):
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
 
-def validator(roles_map, logger):
+def get_wls_roles_validator(roles_map, logger):
     """
     Obtain a WLSRoles helper only for the validation of the WLSRoles section
     """

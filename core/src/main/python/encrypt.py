@@ -4,7 +4,6 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The main module for the WLSDeploy tool to encrypt passwords.
 """
-import exceptions
 import sys
 
 from java.io import IOException

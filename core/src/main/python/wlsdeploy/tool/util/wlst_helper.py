@@ -3,8 +3,6 @@ Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
-import types
-
 from java.io import PrintStream
 from java.lang import System
 from java.lang import Throwable
@@ -31,7 +29,54 @@ class WlstHelper(object):
 
     def __init__(self, exception_type):
         self.__exception_type = exception_type
-        return
+
+    def get_online_server_version_data(self, username, password, url, timeout):
+        """
+        Get the WebLogic Server version and Patch List data from the running server.
+        :param username: WebLogic Server username
+        :param password: WebLogic Server password
+        :param url: WebLogic Server URL
+        :param timeout: Connect timeout
+        :return: The raw data from the serverRuntime attributes, which may be None.  It will require parsing to extract
+            a meaningful version.
+        :raises: Exception for the specified tool type: if a WLST error occurs
+        """
+        _method_name = 'get_online_server_version_data'
+        self.__logger.entering(username, url, timeout, class_name=self.__class_name, method_name=_method_name)
+
+        self.connect(username, password, url, timeout)
+        pwd = None
+        version_string = None
+        patch_list_array = None
+        remote_oracle_home = None
+        try:
+            try:
+                pwd = self.get_pwd()
+                self.__load_global('serverRuntime')()
+
+                # The PatchLevel attribute was not present in older versions so
+                # use ls('a') to determine whether it is present or not...
+                #
+                lsa_dict = self.lsa()
+                if 'WeblogicVersion' in lsa_dict:
+                    version_string = lsa_dict['WeblogicVersion']
+                if 'PatchList' in lsa_dict:
+                    patch_list_array = self.get('PatchList')
+                if 'OracleHome' in lsa_dict:
+                    remote_oracle_home = self.get('OracleHome')
+            except self.__load_global('WLSTException'), e:
+                pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00133', url,
+                                                        self.__get_exception_mode(e), _format_exception(e), error=e)
+                self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+                raise pwe
+        finally:
+            if pwd is not None:
+                self.cd(pwd)
+            self.disconnect()
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name,
+                              result=(version_string, patch_list_array, remote_oracle_home))
+        return version_string, patch_list_array, remote_oracle_home
 
     def assign(self, source_type, source_name, target_type, target_name):
         """
@@ -117,7 +162,7 @@ class WlstHelper(object):
         mbean_path = self.get_pwd()
 
         try:
-            mbean = self.get_mbean_for_wlst_path(mbean_path)
+            mbean = self.get_mbean(mbean_path)
             if 'isSet' not in dir(mbean):
                 return True
 
@@ -167,7 +212,7 @@ class WlstHelper(object):
             self.__load_global('set')(attribute, value)
         except (self.__load_global('WLSTException'), offlineWLSTException), e:
             path = self.get_pwd()
-            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-0100', attribute, path,
+            ex = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00100', attribute, path,
                                                    log_value, _format_exception(e), error=e)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
@@ -543,7 +588,7 @@ class WlstHelper(object):
             nbr_names = 0
             if name_list is not None:
                 nbr_names = len(name_list)
-            if not nbr_names == 1:
+            if nbr_names != 1:
                 pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00031',
                                                         print_path, nbr_names, name_list)
                 self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
@@ -555,12 +600,7 @@ class WlstHelper(object):
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=mbean_name)
         return mbean_name
 
-    # FIXME - This code below is busted.
-    # - It ignores the path passed in when cd'ing (to where we already are) and getting the cmo the first time
-    # - It also only cd's back to the original location if there was no path passed in (so it never left the
-    #   current location in the first place).
-    #
-    def get_mbean(self, wlst_path):
+    def get_mbean(self, wlst_path=None):
         """
         Return the current CMO or the proxy instance for the MBean of the current folder.
         There are certain directories in offline that will not deliver a cmo, but will
@@ -572,43 +612,23 @@ class WlstHelper(object):
         _method_name = 'get_mbean'
         self.__logger.entering(wlst_path, class_name=self.__class_name, method_name=_method_name)
         current_dir = self.get_pwd()
-        mbean_path = wlst_path
-        if mbean_path is None:
+
+        if wlst_path is not None:
+            mbean_path = wlst_path
+            cmo = self.cd(mbean_path)
+            self.cd(current_dir)
+        else:
             mbean_path = current_dir
+            cmo = self.get_cmo()
         self.__logger.finest('WLSDPLY-00097', mbean_path, class_name=self.__class_name, method_name=_method_name)
-        self.cd(current_dir)
-        cmo = self.get_cmo()
-        if cmo is None:
-            cmo = self.get_mbean_for_wlst_path(mbean_path)
+
         if cmo is None:
             pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00096', mbean_path)
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
-        if wlst_path is None:
-            self.cd(current_dir)
 
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=cmo)
         return cmo
-
-    # TODO - It feels like the only reason for this method is because the one above is broken
-    #        when the path is not empty.
-    #
-    def get_mbean_for_wlst_path(self, path):
-        """
-        Return the mbean object for the provided path.
-        :param path: to return mbean object
-        :return: mbean object
-        :raises: Exception for the specified tool type: if a WLST error occurs
-        """
-        _method_name = 'get_mbean_for_wlst_path'
-        self.__logger.finest(path, class_name=self.__class_name, method_name=_method_name)
-
-        current_dir = self.get_pwd()
-        the_object = self.cd(path)
-        self.cd(current_dir)
-
-        self.__logger.finest(self.__class_name, _method_name, the_object)
-        return the_object
 
     def read_template(self, template):
         """
@@ -1007,12 +1027,20 @@ class WlstHelper(object):
         """
         _method_name = 'start_application'
         self.__logger.entering(application_name, args, kwargs, class_name=self.__class_name, method_name=_method_name)
-
+        start_error = None
+        sostream = None
         try:
+            self.enable_stdout()
+            sostream = StringOutputStream()
+            System.setOut(PrintStream(sostream))
             result = self.__load_global('startApplication')(application_name, *args, **kwargs)
+            self.silence()
         except self.__load_global('WLSTException'), e:
+            if sostream:
+                start_error = sostream.get_string()
+            self.silence()
             pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00056', application_name,
-                                                    args, kwargs, _format_exception(e), error=e)
+                                                    args, kwargs, _format_exception(e), start_error, error=e)
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
@@ -1029,12 +1057,52 @@ class WlstHelper(object):
         """
         _method_name = 'stop_application'
         self.__logger.entering(application_name, args, kwargs, class_name=self.__class_name, method_name=_method_name)
+        stop_error = None
+        sostream = None
 
         try:
+            self.enable_stdout()
+            sostream = StringOutputStream()
+            System.setOut(PrintStream(sostream))
             result = self.__load_global('stopApplication')(application_name, *args, **kwargs)
+            self.silence()
         except self.__load_global('WLSTException'), e:
+            if sostream:
+                stop_error = sostream.get_string()
+            self.silence()
             pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00057', application_name,
-                                                    args, kwargs, _format_exception(e), error=e)
+                                                    args, kwargs, _format_exception(e), stop_error, error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
+    def distribute_application(self, application_name, *args, **kwargs):
+        """
+        Deploy the application in the connected domain.
+        :param application_name: the application name
+        :param args: the positional arguments to the WLST function
+        :param kwargs: the keyword arguments to the WLST function
+        :return: progress object (depends on whether it is blocked)
+        :raises: Exception for the specified tool type: if a WLST error occurs
+        """
+        _method_name = 'distribute_application'
+        self.__logger.entering(application_name, args, kwargs, class_name=self.__class_name, method_name=_method_name)
+        deploy_error = None
+        sostream = None
+
+        try:
+            self.enable_stdout()
+            sostream = StringOutputStream()
+            System.setOut(PrintStream(sostream))
+            result = self.__load_global('distributeApplication')(application_name, *args, **kwargs)
+            self.silence()
+        except self.__load_global('WLSTException'), e:
+            if sostream:
+                deploy_error = sostream.get_string()
+            self.silence()
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00134', application_name,
+                                                    args, kwargs, _format_exception(e), deploy_error, error=e)
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
@@ -1362,7 +1430,7 @@ class WlstHelper(object):
         _method_name = 'current_tree'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
-        current_tree = None;
+        current_tree = None
         try:
             current_tree = self.__load_global('currentTree')()
         except self.__load_global('WLSTException'), e:
@@ -1587,7 +1655,7 @@ class WlstHelper(object):
         result = name
         if name is not None and '/' in name:
             result = '(' + name + ')'
-        self.__logger.finest('WLSDPLY-0098', class_name=self.__class_name, method_name=_method_name)
+        self.__logger.finest('WLSDPLY-00098', class_name=self.__class_name, method_name=_method_name)
         return result
 
     def get_server_runtimes(self):
@@ -1735,7 +1803,7 @@ def _format_exception(e):
     :param e: the exception
     :return: the formatted exception message
     """
-    if isinstance(e, offlineWLSTException):
+    if isinstance(e, offlineWLSTException) or _is_wlst_online_exception(e):
         message = e.getLocalizedMessage()
         #
         # Try to find a message that is not empty
@@ -1747,3 +1815,11 @@ def _format_exception(e):
                 cause = cause.getCause()
         return str_helper.to_string(message)
     return str_helper.to_string(e)
+
+
+def _is_wlst_online_exception(e):
+    result = False
+    if wlst_functions is not None and 'WLSTException' in wlst_functions:
+        wlst_online_exception = wlst_functions['WLSTException']
+        result = isinstance(e, wlst_online_exception)
+    return result

@@ -4,9 +4,11 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The entry point for the updateDomain tool.
 """
+import exceptions
 import os
 import sys
 
+from java.lang import Exception as JException
 from oracle.weblogic.deploy.deploy import DeployException
 from oracle.weblogic.deploy.exception import BundleAwareException
 from oracle.weblogic.deploy.validate import ValidateException
@@ -19,12 +21,11 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
-from wlsdeploy.tool.deploy import model_deployer
+from wlsdeploy.tool.deploy.model_deployer import ModelDeployer
 from wlsdeploy.tool.deploy.topology_updater import TopologyUpdater
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util import results_file
 from wlsdeploy.tool.util import wlst_helper
-from wlsdeploy.tool.util.archive_helper import ArchiveHelper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.util.rcu_helper import RCUHelper
 from wlsdeploy.util import cla_helper
@@ -32,7 +33,6 @@ from wlsdeploy.util import tool_main
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model import Model
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.tool.validate.validator import Validator
 
 
@@ -41,7 +41,6 @@ wlst_helper.wlst_functions = globals()
 _program_name = 'updateDomain'
 _class_name = 'update'
 __logger = PlatformLogger('wlsdeploy.update')
-__wls_helper = WebLogicHelper(__logger)
 __wlst_helper = WlstHelper(ExceptionType.DEPLOY)
 __wlst_mode = WlstModes.OFFLINE
 
@@ -69,8 +68,20 @@ __optional_arguments = [
     CommandLineArgUtil.OUTPUT_DIR_SWITCH,
     CommandLineArgUtil.UPDATE_RCU_SCHEMA_PASS_SWITCH,
     CommandLineArgUtil.DISCARD_CURRENT_EDIT_SWITCH,
+    CommandLineArgUtil.WAIT_FOR_EDIT_LOCK_SWITCH,
     CommandLineArgUtil.REMOTE_SWITCH,
-    CommandLineArgUtil.WAIT_FOR_EDIT_LOCK_SWITCH
+    CommandLineArgUtil.SSH_HOST_SWITCH,
+    CommandLineArgUtil.SSH_PORT_SWITCH,
+    CommandLineArgUtil.SSH_USER_SWITCH,
+    CommandLineArgUtil.SSH_PASS_SWITCH,
+    CommandLineArgUtil.SSH_PASS_ENV_SWITCH,
+    CommandLineArgUtil.SSH_PASS_FILE_SWITCH,
+    CommandLineArgUtil.SSH_PASS_PROMPT_SWITCH,
+    CommandLineArgUtil.SSH_PRIVATE_KEY_SWITCH,
+    CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_SWITCH,
+    CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_ENV_SWITCH,
+    CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_FILE_SWITCH,
+    CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH
 ]
 
 
@@ -89,9 +100,8 @@ def __process_args(args):
     cla_helper.validate_optional_archive(_program_name, argument_map)
     cla_helper.validate_required_model(_program_name, argument_map)
     cla_helper.validate_variable_file_exists(_program_name, argument_map)
-    cla_helper.validate_if_domain_home_required(_program_name, argument_map)
-
     __wlst_mode = cla_helper.process_online_args(argument_map)
+    cla_helper.validate_if_domain_home_required(_program_name, argument_map, __wlst_mode)
     cla_helper.process_encryption_args(argument_map)
 
     return model_context_helper.create_context(_program_name, argument_map)
@@ -105,19 +115,23 @@ def __update(model, model_context, aliases):
     :param aliases: the aliases
     :raises DeployException: if an error occurs
     """
+    model_deployer = ModelDeployer(model, model_context, aliases, wlst_mode=__wlst_mode)
+
     if __wlst_mode == WlstModes.ONLINE:
-        ret_code = __update_online(model, model_context, aliases)
+        ret_code = __update_online(model_deployer, model, model_context, aliases)
     else:
-        ret_code = __update_offline(model, model_context, aliases)
+        model_deployer.extract_early_archive_files()
+        ret_code = __update_offline(model_deployer, model, model_context, aliases)
 
     results_file.check_and_write(model_context, ExceptionType.DEPLOY)
 
     return ret_code
 
 
-def __update_online(model, model_context, aliases):
+def __update_online(model_deployer, model, model_context, aliases):
     """
     Online update orchestration
+    :param model_deployer: ModelDeployer object
     :param model: the model
     :param model_context: the model context
     :param aliases: the aliases object
@@ -145,10 +159,11 @@ def __update_online(model, model_context, aliases):
 
         __wlst_helper.connect(admin_user, admin_pwd, admin_url, timeout)
 
-        # -remote does not have domain home set, so get it from online wlst after connect
-        model_context.set_domain_home_name_if_remote(__wlst_helper.get_domain_home_online(),
+        # All online operations do not have domain home set, so get it from online wlst after connect
+        model_context.set_domain_home_name_if_online(__wlst_helper.get_domain_home_online(),
                                                      __wlst_helper.get_domain_name_online())
 
+        model_deployer.extract_early_archive_files()
         deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions(skip_edit_session_check)
         __wlst_helper.edit()
         __logger.fine("WLSDPLY-09019", edit_lock_acquire_timeout, edit_lock_release_timeout, edit_lock_exclusive)
@@ -164,36 +179,30 @@ def __update_online(model, model_context, aliases):
     __logger.info("WLSDPLY-09007", admin_url, method_name=_method_name, class_name=_class_name)
 
     topology_updater = TopologyUpdater(model, model_context, aliases, wlst_mode=WlstModes.ONLINE)
-    jdbc_names = None
     try:
         jdbc_names = topology_updater.update_machines_clusters_and_servers(delete_now=False)
         topology_updater.warn_set_server_groups()
-    except DeployException, de:
-        deployer_utils.release_edit_session_and_disconnect()
-        raise de
 
-    # Server or Cluster may be added, this is to make sure they are targeted properly
-    try:
+        # Server or Cluster may be added, this is to make sure they are targeted properly
         topology_updater.set_server_groups()
-    except BundleAwareException, ex:
-        deployer_utils.release_edit_session_and_disconnect()
-        raise ex
 
-    try:
         topology_updater.clear_placeholder_targeting(jdbc_names)
         topology_updater.update()
-        model_deployer.deploy_resources(model, model_context, aliases, wlst_mode=__wlst_mode)
-        deployer_utils.delete_online_deployment_targets(model, aliases, __wlst_mode)
-        model_deployer.deploy_app_attributes_online(model, model_context, aliases)
-    except DeployException, de:
+        model_deployer.deploy_resources()
+        model_deployer.distribute_database_wallets_online()
+        model_deployer.deploy_app_attributes_online()
+
+    except (DeployException, exceptions.Exception, JException), ex:
+        # release the edit session, and raise the exception for tool_main to handle
         deployer_utils.release_edit_session_and_disconnect()
-        raise de
+        raise ex
 
     exit_code = deployer_utils.online_check_save_activate(model_context)
     # if user requested cancel changes if restart required stops
 
     if exit_code != ExitCode.CANCEL_CHANGES_IF_RESTART:
-        model_deployer.deploy_applications(model, model_context, aliases, wlst_mode=__wlst_mode)
+        is_restart_required = exit_code == ExitCode.RESTART_REQUIRED
+        model_deployer.deploy_applications(is_restart_required=is_restart_required)
 
     try:
         __wlst_helper.disconnect()
@@ -205,9 +214,10 @@ def __update_online(model, model_context, aliases):
     return exit_code
 
 
-def __update_offline(model, model_context, aliases):
+def __update_offline(model_deployer, model, model_context, aliases):
     """
     Offline update orchestration
+    :param model_deployer: ModelDeployer object
     :param model: the model
     :param model_context: the model context
     :param aliases: the aliases object
@@ -226,11 +236,8 @@ def __update_offline(model, model_context, aliases):
 
     # update rcu schema password must happen before updating a jrf domain
     if model_context.get_update_rcu_schema_pass() is True:
-        rcu_helper = RCUHelper(model, model_context, aliases)
+        rcu_helper = RCUHelper(model, None, model_context, aliases, exception_type=ExceptionType.DEPLOY)
         rcu_helper.update_rcu_password()
-
-    # Unzip any database wallet files before updating a jrf domain
-    topology_updater.extract_database_wallets()
 
     __update_offline_domain()
 
@@ -239,11 +246,11 @@ def __update_offline(model, model_context, aliases):
     topology_updater.update()
 
     # Add resources after server groups are established to prevent auto-renaming
-    model_deployer.deploy_model_offline(model, model_context, aliases, wlst_mode=__wlst_mode)
+    model_deployer.deploy_model_offline()
 
     __update_offline_domain()
 
-    model_deployer.deploy_model_after_update(model, model_context, aliases, wlst_mode=__wlst_mode)
+    model_deployer.deploy_model_after_update()
 
     try:
         __wlst_helper.close_domain()
@@ -295,15 +302,6 @@ def main(model_context):
         model_dictionary = cla_helper.load_model(_program_name, model_context, aliases, "update", __wlst_mode,
                                                  validate_crd_sections=False)
         model = Model(model_dictionary)
-
-        archive_file_name = model_context.get_archive_file_name()
-        if archive_file_name:
-            domain_path = model_context.get_domain_home()
-            archive_helper = ArchiveHelper(archive_file_name, domain_path, __logger, ExceptionType.CREATE)
-            if archive_helper:
-                archive_helper.extract_all_database_wallets()
-                archive_helper.extract_custom_directory()
-                archive_helper.extract_weblogic_remote_console_extension()
 
         _exit_code = __update(model, model_context, aliases)
     except DeployException, ex:

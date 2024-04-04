@@ -1,5 +1,5 @@
 """
-Copyright (c) 2018, 2023, Oracle and/or its affiliates.
+Copyright (c) 2018, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -10,7 +10,6 @@ import shutil
 import java.io.FileInputStream as FileInputStream
 import java.io.FileOutputStream as FileOutputStream
 import java.io.IOException as IOException
-import java.lang.Boolean as Boolean
 import java.lang.IllegalArgumentException as IllegalArgumentException
 import java.util.Properties as Properties
 
@@ -21,32 +20,30 @@ import oracle.weblogic.deploy.util.VariableException as VariableException
 import wlsdeploy.tool.util.variable_injector_functions as variable_injector_functions
 import wlsdeploy.util.model as model_sections
 import wlsdeploy.util.variables as variables
-from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.validation_codes import ValidationCodes
-from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.util import path_utils
+from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util import path_helper
 import wlsdeploy.util.unicode_helper as str_helper
 
 WEBLOGIC_DEPLOY_HOME_TOKEN = '@@WLSDEPLOY@@'
 
 VARIABLE_INJECTOR_FILE_NAME = 'model_variable_injector.json'
-VARIABLE_KEYWORDS_FILE_NAME = 'variable_keywords.json'
 
 VARIABLE_FILE_APPEND = 'append'
 VARIABLE_FILE_UPDATE = 'update'
 VARIABLE_FILE_APPEND_VALS = [VARIABLE_FILE_APPEND, VARIABLE_FILE_UPDATE]
 
-# custom keyword in model injector file
-CUSTOM_KEYWORD = 'CUSTOM'
-KEYWORD_FILES = 'file-list'
+# keys in injector configuration file
+INJECTOR_CONFIG_INJECTORS = 'injectors'
+INJECTOR_CONFIG_KEYS = [INJECTOR_CONFIG_INJECTORS]
 
-# location for model injector file, keyword file and injector files
+# location for injector files
 INJECTORS_LOCATION = 'injectors'
 
-# should these injector json keywords be included in the keyword file
+# injector file json keywords
 REGEXP = 'regexp'
 REGEXP_SUFFIX = 'suffix'
 REGEXP_PATTERN = 'pattern'
@@ -80,31 +77,21 @@ _logger = PlatformLogger('wlsdeploy.tool.util')
 
 class VariableInjector(object):
 
-    def __init__(self, program_name, model, model_context, version=None, variable_dictionary=None):
+    def __init__(self, program_name, model_context, aliases, variable_dictionary=None):
         """
         Construct an instance of the injector with the model and information used by the injector.
         :param program_name: name of the calling tool
-        :param model: to be updated with variables
         :param model_context: context with command line information
-        :param version: of model if model context is not provided
+        :param aliases: the aliases to use for injection
         :param variable_dictionary: optional, a pre-populated map of variables
         """
         self.__program_name = program_name
-        self.__original = copy.deepcopy(model)
-        self.__model = model
-        self.__model_context = model_context
-        if self.__model_context:
-            self.__wlst_mode = self.__model_context.get_target_wlst_mode()
-        else:
-            self.__wlst_mode = WlstModes.OFFLINE
+        self._model_context = model_context
+        self._aliases = aliases
         self.__section_keys = model_sections.get_model_top_level_keys()
         self.__section_keys.remove(model_sections.get_model_domain_info_key())
-
-        if version:
-            self.__aliases = Aliases(model_context, wlst_mode=self.__wlst_mode, wls_version=version)
-        else:
-            self.__aliases = Aliases(model_context)
         self.__variable_dictionary = variable_dictionary
+        self.__path_helper = path_helper.get_path_helper()
 
     def get_variable_cache(self):
         """
@@ -117,13 +104,6 @@ class VariableInjector(object):
             # ordered dictionary required to keep a multi-part variable in correct order for tokenizing
             self.__variable_dictionary = OrderedDict()
         return self.__variable_dictionary
-
-    def get_aliases(self):
-        """
-        Get the aliases object
-        :return: the aliases object
-        """
-        return self.__aliases
 
     def add_to_cache(self, dictionary=None, token_name=None, token_value=None):
         """
@@ -164,7 +144,7 @@ class VariableInjector(object):
         """
         Used by external processes to add to the  variable cache prior to persisting to the variables file. A token
         or tokens are created for the attribute based on the language provided in the injector values.
-        The resulting variable name and value value is placed into the cache, and the model has the token injected
+        The resulting variable name and value is placed into the cache, and the model has the token injected
         into the attribute value.
         :param model: to tokenize attribute values with a token and extracting the attribute value
         :param attribute: name of the attribute to tokenize in the model
@@ -176,84 +156,63 @@ class VariableInjector(object):
             variable_dictionary = self._add_variable_info(model, attribute, location, injector_values)
             self.add_to_cache(dictionary=variable_dictionary)
 
-    def inject_variables_keyword_file(self, append_option=None):
+    def inject_variables_from_configuration(self, model_dictionary, append_option=None):
         """
         Replace attribute values with variables and generate a variable dictionary.
-        The variable replacement is driven from the values in the model variable helper file.
-        This file can either contain the name of a replacement file, or a list of pre-defined
-        keywords for canned replacement files.
+        The variable replacement is driven by the model variable configuration file.
+        This file contains a list of names that correspond to injector files.
         Return the variable dictionary with the variable name inserted into the model, and the value
         that the inserted variable replaced.
+        :param model_dictionary: the dictionary to be updated with variables
         :param append_option: 'append', 'update', or None
         :return: flag indicating insertion, the revised model, and variable file path
         """
-        _method_name = 'inject_variables_keyword_file'
+        _method_name = 'inject_variables_from_configuration'
         _logger.entering(class_name=_class_name, method_name=_method_name)
 
-        if self.__model_context.is_targetted_config():
-            # this is mostly used for logging, so put the target config path here
-            variable_injector_location_file = self.__model_context.get_target_configuration_file()
-        else:
-            # check for file location overrides from command line
-            injector_file_override = self.__model_context.get_variable_injector_file()
-            if injector_file_override is not None:
-                variable_injector_location_file = injector_file_override
-                _logger.info('WLSDPLY-19600', injector_file_override, class_name=_class_name, method_name=_method_name)
-            else:
-                variable_injector_location_file = path_utils.find_config_path(VARIABLE_INJECTOR_FILE_NAME)
+        injector_file_list, injector_config_location = self._load_injector_file_list()
 
-        keywords_file_override = self.__model_context.get_variable_keywords_file()
-        if keywords_file_override is not None:
-            variable_keywords_location_file = keywords_file_override
-            _logger.info('WLSDPLY-19601', keywords_file_override, class_name=_class_name, method_name=_method_name)
-        else:
-            variable_keywords_location_file = path_utils.find_config_path(VARIABLE_KEYWORDS_FILE_NAME)
-
-        # discover may have passed -variable_file; inject variables may have passed -variable_properties_file
-        variable_file_override = self.__model_context.get_variable_file()
-        properties_file_override = self.__model_context.get_variable_properties_file()
+        # discover or injector tool may have passed -variable_file
+        variable_file_override = self._model_context.get_variable_file()
 
         if variable_file_override is not None:
             variable_file_location = variable_file_override
-        elif properties_file_override is not None:
-            variable_file_location = properties_file_override
-            _logger.info('WLSDPLY-19602', properties_file_override, class_name=_class_name, method_name=_method_name)
+            _logger.info('WLSDPLY-19602', variable_file_override,
+                         class_name=_class_name, method_name=_method_name)
         else:
-            variable_file_location = variables.get_default_variable_file_name(self.__model_context)
+            variable_file_location = variables.get_default_variable_file_name(self._model_context)
 
         if variable_file_location:
             variable_file_location = self._replace_tokens(variable_file_location)
 
-        variables_injector_dictionary = self._load_variable_injector_file(variable_injector_location_file)
-        keywords_dictionary = _load_keywords_file(variable_keywords_location_file)
-
-        return_model = self.__original
+        return_model = copy.deepcopy(model_dictionary)
         variables_inserted = False
+
         if not variable_file_location:
-            _logger.warning('WLSDPLY-19520', variable_injector_location_file, class_name=_class_name,
+            _logger.warning('WLSDPLY-19520', injector_config_location, class_name=_class_name,
                             method_name=_method_name)
         else:
             append, stage_dictionary = _load_variable_file(variable_file_location, append_option)
             self.add_to_cache(stage_dictionary)
-            if variables_injector_dictionary and keywords_dictionary:
-                _logger.info('WLSDPLY-19533', variable_injector_location_file, class_name=_class_name,
+            if injector_file_list:
+                _logger.info('WLSDPLY-19533', injector_config_location, class_name=_class_name,
                              method_name=_method_name)
 
-                injector_file_list = _create_injector_file_list(variables_injector_dictionary, keywords_dictionary)
-
                 # perform the actual replacement of value with token variables
-                variables_file_dictionary = self.inject_variables_keyword_dictionary(injector_file_list)
+                variables_file_dictionary = self._inject_variables_from_injector_list(model_dictionary,
+                                                                                      injector_file_list)
                 if variables_file_dictionary:
                     self.add_to_cache(variables_file_dictionary)
             else:
-                _logger.fine('WLSDPLY-19532', variable_injector_location_file, class_name=_class_name,
+                _logger.fine('WLSDPLY-19532', injector_config_location, class_name=_class_name,
                              method_name=_method_name)
 
+            # the cache could have content from constructor, even if no injection
             variable_dictionary = self.get_variable_cache()
             if variable_dictionary is not None and len(variable_dictionary) > 0:
                 # change variable_file_location to output_dir for target operation
-                if self.__model_context.get_target() is not None:
-                    new_variable_file_location = os.path.join(self.__model_context.get_output_dir(),
+                if self._model_context.get_target() is not None:
+                    new_variable_file_location = os.path.join(self._model_context.get_output_dir(),
                                                               os.path.basename(variable_file_location))
                     if variable_file_location is not None and os.path.exists(variable_file_location):
                         # copy the original file first
@@ -267,7 +226,7 @@ class VariableInjector(object):
             if variables_inserted:
                 _logger.info('WLSDPLY-19518', variable_file_location, class_name=_class_name,
                              method_name=_method_name)
-                return_model = self.__model
+                return_model = model_dictionary
             else:
                 _logger.info('WLSDPLY-19519', class_name=_class_name, method_name=_method_name)
                 variable_file_location = None
@@ -303,44 +262,45 @@ class VariableInjector(object):
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
 
-    def inject_variables_keyword_dictionary(self, injector_file_list):
+    def _inject_variables_from_injector_list(self, model_dictionary, injector_file_list):
         """
-        Takes a variable keyword dictionary and returns a variables for file in a dictionary
+        Updates the specified model from a list of injector names, and returns a variables dictionary
+        :param model_dictionary: the dictionary to be updated with variables
         :param injector_file_list: list of injector files for processing variable injection
         :return: variables_dictionary containing the variable properties to persist to the variable file
         """
-        _method_name = 'inject_variables_keyword_dictionary'
+        _method_name = '_inject_variables_from_injector_list'
         _logger.entering(injector_file_list, class_name=_class_name, method_name=_method_name)
         variable_dictionary = OrderedDict()
         for filename in injector_file_list:
             injector_dictionary = _load_injector_file(self._replace_tokens(filename))
-            entries = self.inject_variables(injector_dictionary)
+            entries = self.inject_variables(model_dictionary, injector_dictionary)
             if entries:
                 _logger.finer('WLSDPLY-19513', filename, class_name=_class_name, method_name=_method_name)
                 variable_dictionary.update(entries)
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=variable_dictionary)
         return variable_dictionary
 
-    def inject_variables(self, injector_dictionary):
+    def inject_variables(self, model_dictionary, injector_dictionary):
         """
-        Iterate through the injector dictionary that was loaded from the file for the model
-        injector file keyword.
+        Iterate through the injector dictionary that was loaded from the file for the model injector.
+        :param model_dictionary: the dictionary to be updated with variables
         :param injector_dictionary:
         :return: variable dictionary containing the variable string and model value entries
         """
         variable_dict = OrderedDict()
         if injector_dictionary:
             location = LocationContext()
-            domain_token = self.__aliases.get_name_token(location)
+            domain_token = self._aliases.get_name_token(location)
             location.add_name_token(domain_token, variable_injector_functions.FAKE_NAME_MARKER)
             for injector, injector_values in injector_dictionary.iteritems():
-                entries_dict = self.__inject_variable(location, injector, injector_values)
+                entries_dict = self.__inject_variable(model_dictionary, location, injector, injector_values)
                 if len(entries_dict) > 0:
                     variable_dict.update(entries_dict)
 
         return variable_dict
 
-    def __inject_variable(self, location, injector, injector_values):
+    def __inject_variable(self, model_dictionary, location, injector, injector_values):
         _method_name = '__inject_variable'
         _logger.entering(injector, class_name=_class_name, method_name=_method_name)
         variable_dict = OrderedDict()
@@ -349,16 +309,16 @@ class VariableInjector(object):
         def _traverse_variables(model_section, mbean_list):
             if mbean_list:
                 mbean = mbean_list.pop(0)
-                mbean, mbean_name_list = self._find_special_name(mbean)
+                mbean, mbean_name_list = self._find_special_name(model_dictionary, mbean)
                 _logger.finer('WLSDPLY-19523', mbean, location.get_folder_path(), class_name=_class_name,
                               method_name=_method_name)
                 if mbean in model_section:
                     _logger.finest('WLSDPLY-19514', mbean, class_name=_class_name, method_name=_method_name)
                     next_model_section = model_section[mbean]
                     location.append_location(mbean)
-                    name_token = self.__aliases.get_name_token(location)
+                    name_token = self._aliases.get_name_token(location)
                     if not mbean_name_list:
-                        if self.__aliases.supports_multiple_mbean_instances(location):
+                        if self._aliases.supports_multiple_mbean_instances(location):
                             mbean_name_list = next_model_section
                         else:
                             self._check_name_token(location, name_token)
@@ -389,17 +349,17 @@ class VariableInjector(object):
                                   class_name=_class_name, method_name=_method_name)
             return True
 
-        section = self.__model
+        section = model_dictionary
         if start_mbean_list:
             # Find out in what section is the mbean top folder so can move to that section in the model
-            top_mbean, __ = self._find_special_name(start_mbean_list[0])
+            top_mbean, __ = self._find_special_name(model_dictionary, start_mbean_list[0])
             for entry in self.__section_keys:
-                if entry in self.__model and top_mbean in self.__model[entry]:
-                    section = self.__model[entry]
+                if entry in model_dictionary and top_mbean in model_dictionary[entry]:
+                    section = model_dictionary[entry]
                     break
         else:
             # This is a domain attribute
-            section = self.__model[model_sections.get_model_topology_key()]
+            section = model_dictionary[model_sections.get_model_topology_key()]
         # if it wasn't found, will log appropriately in the called method
         # This also will allow someone to put the section in the injector string
         _traverse_variables(section, start_mbean_list)
@@ -415,7 +375,7 @@ class VariableInjector(object):
         :return: Short name, or None if no short name
         """
         _method_name = 'get_folder_short_name'
-        short_name = self.__aliases.get_folder_short_name(location)
+        short_name = self._aliases.get_folder_short_name(location)
         if short_name is not None:
             _logger.finer('WLSDPLY-19546', location.get_folder_path(), short_name,
                           class_name=_class_name, method_name=_method_name)
@@ -471,7 +431,7 @@ class VariableInjector(object):
         :param suffix: optional suffix for name
         :return: the derived name, such as JDBC.Generic1.PasswordEncrypted
         """
-        path = variable_injector_functions.format_variable_name(location, attribute, self.__aliases)
+        path = variable_injector_functions.format_variable_name(location, attribute, self._aliases)
         if suffix:
             return path + SUFFIX_SEP + suffix
         return path
@@ -521,14 +481,6 @@ class VariableInjector(object):
             _logger.finer('WLSDPLY-19529', variable_name, attribute_value, attribute, variable_value,
                           class_name=_class_name, method_name=_method_name)
             model[attribute] = attribute_value
-        # elif replace_if_nosegment:
-        #     check_value = model[attribute]
-        #     if not _already_property(check_value):
-        #         variable_value = check_value
-        #         variable_name = self.__format_variable_name(location, attribute)
-        #         model[attribute] = _format_as_property(variable_name)
-        #         _logger.finer('WLSDPLY-19530', attribute, model[attribute], class_name=_class_name,
-        #                       method_name=_method_name)
         else:
             _logger.finer('WLSDPLY-19524', pattern, attribute, model[attribute],
                           location.get_folder_path, class_name=_class_name,
@@ -637,23 +589,23 @@ class VariableInjector(object):
         return variable_name, variable_value
 
     def _check_name_token(self, location, name_token):
-        if self.__aliases.requires_unpredictable_single_name_handling(location):
+        if self._aliases.requires_unpredictable_single_name_handling(location):
             location.add_name_token(name_token, variable_injector_functions.FAKE_NAME_MARKER)
 
     def _replace_tokens(self, path_string):
         result = path_string
         if path_string.startswith(WEBLOGIC_DEPLOY_HOME_TOKEN):
-            wlsdeploy_location = path_utils.get_wls_deploy_path()
+            wlsdeploy_location = self.__path_helper.get_wls_deploy_path()
             result = path_string.replace(WEBLOGIC_DEPLOY_HOME_TOKEN, wlsdeploy_location)
-        elif path_string and self.__model_context:
-            result = self.__model_context.replace_token_string(path_string)
+        elif path_string and self._model_context:
+            result = self._model_context.replace_token_string(path_string)
         return result
 
     def _log_mbean_not_found(self, mbean, replacement, location):
         _method_name = '_log_mbean_not_found'
         code = ValidationCodes.INVALID
         try:
-            code, __ = self.__aliases.is_valid_model_folder_name(location, mbean)
+            code, __ = self._aliases.is_valid_model_folder_name(location, mbean)
         except AliasException:
             pass
         if code == ValidationCodes.INVALID:
@@ -678,7 +630,7 @@ class VariableInjector(object):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=written)
         return written
 
-    def _find_special_name(self, mbean):
+    def _find_special_name(self, model_dictionary, mbean):
         mbean_name = mbean
         mbean_name_list = []
         name_list = _find_special_names_pattern.split(mbean)
@@ -692,7 +644,7 @@ class VariableInjector(object):
                     _logger.fine('WLSDPLY-19538', entry, mbean)
                     try:
                         method = getattr(variable_injector_functions, USER_KEYWORD_DICT[entry])
-                        append_list = method(self.__model)
+                        append_list = method(model_dictionary)
                         new_list.extend(append_list)
                     except AttributeError, e:
                         _logger.warning('WLSDPLY-19539', entry, USER_KEYWORD_DICT[entry], e)
@@ -705,21 +657,21 @@ class VariableInjector(object):
 
     def _check_insert_attribute_model(self, location, model_section, attribute, injector_values):
         _method_name = '_check_insert_attribute_model'
-        if attribute not in model_section and (FORCE in injector_values and Boolean(injector_values[FORCE])):
-            value = self.__aliases.get_model_attribute_default_value(location, attribute)
+        if attribute not in model_section and dictionary_utils.get_boolean_element(injector_values, FORCE):
+            value = self._aliases.get_model_attribute_default_value(location, attribute)
             _logger.fine('WLSDPLY-19540', attribute, location.get_folder_path(), value,
                          class_name=_class_name, method_name=_method_name)
             model_section[attribute] = value
 
     def _check_replace_variable_value(self, location, attribute, variable_value, injector_values):
-        _method_name = '_format_variable_value'
+        _method_name = '_check_replace_variable_value'
         value = variable_value
         if VARIABLE_VALUE in injector_values:
             value = injector_values[VARIABLE_VALUE]
             # might add code to call a method to populate the replacement value
             try:
-                wlst_attribute_name = self.__aliases.get_wlst_attribute_name(location, attribute)
-                __, check = self.__aliases.get_model_attribute_name_and_value(location, wlst_attribute_name, value)
+                wlst_attribute_name = self._aliases.get_wlst_attribute_name(location, attribute)
+                __, check = self._aliases.get_model_attribute_name_and_value(location, wlst_attribute_name, value)
                 if check is not None:
                     value = check
                 _logger.finer('WLSDPLY-19542', value, variable_value, attribute, location.get_folder_path(),
@@ -729,26 +681,70 @@ class VariableInjector(object):
                               class_name=_class_name, method_name=_method_name)
         return value
 
-    def _load_variable_injector_file(self, variable_injector_location):
-        _method_name = '_load_variable_injector_file'
-        _logger.entering(variable_injector_location, class_name=_class_name, method_name=_method_name)
-        variables_dictionary = None
+    def _load_injector_file_list(self):
+        """
+        Create a list of injector files from the target configuration, or from injector configuration.
+        :return: a list of injector files, and the location they were read from
+        """
+        _method_name = '_load_injector_file_list'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
 
-        # If -target is presence, it take precedence
+        injector_name_list = None
+        injector_config_location = None
 
-        if self.__model_context is not None and self.__model_context.is_targetted_config():
-            variables_dictionary = self.__model_context.get_target_configuration().get_variable_injectors()
+        if self._model_context.is_targeted_config():
+            # variable injector list is in the target configuration
+            injector_name_list = self._model_context.get_target_configuration().get_variable_injectors()
+            injector_config_location = self._model_context.get_target_configuration_file()
         else:
-            if os.path.isfile(variable_injector_location):
-                try:
-                    variables_dictionary = JsonToPython(variable_injector_location).parse()
-                    _logger.fine('WLSDPLY-19500', variable_injector_location, class_name=_class_name, method_name=_method_name)
-                except (IllegalArgumentException, JsonException), e:
-                    _logger.warning('WLSDPLY-19502', variable_injector_location, e.getLocalizedMessage(),
-                                    class_name=_class_name, method_name=_method_name)
+            # check for file location overrides from command line
+            injector_config_file = None
+            injector_config_file_override = self._model_context.get_variable_injector_file()
+            if injector_config_file_override is not None:
+                injector_config_file = injector_config_file_override
+                _logger.info('WLSDPLY-19600', injector_config_file_override, class_name=_class_name,
+                             method_name=_method_name)
+            else:
+                config_file_path = self.__path_helper.find_local_config_path(VARIABLE_INJECTOR_FILE_NAME)
+                if os.path.exists(config_file_path):
+                    injector_config_file = config_file_path
 
-        _logger.exiting(class_name=_class_name, method_name=_method_name, result=variables_dictionary)
-        return variables_dictionary
+            if injector_config_file:
+                try:
+                    config_dictionary = JsonToPython(injector_config_file).parse()
+                    _logger.fine('WLSDPLY-19500', injector_config_file, class_name=_class_name,
+                                 method_name=_method_name)
+
+                    # warn about any unrecognized keys in the configuration.
+                    # if they are from old-style configuration (pre-WDT 4.0), those injectors will not be applied.
+                    for config_key in config_dictionary:
+                        if config_key not in INJECTOR_CONFIG_KEYS:
+                            _logger.warning('WLSDPLY-19547', config_key, injector_config_file,
+                                            ",".join(INJECTOR_CONFIG_KEYS), class_name=_class_name,
+                                            method_name=_method_name)
+
+                    injector_name_list = dictionary_utils.get_element(config_dictionary, INJECTOR_CONFIG_INJECTORS)
+                    injector_config_location = injector_config_file
+
+                except (IllegalArgumentException, JsonException), e:
+                    _logger.warning('WLSDPLY-19502', injector_config_file,
+                                    e.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
+
+        injector_file_list = []
+
+        if injector_name_list:
+            for name in injector_name_list:
+                file_name = name + '.json'
+                if file_name not in injector_file_list:
+                    if not os.path.isabs(file_name):
+                        file_name = self.__path_helper.find_local_config_path(self.__path_helper.local_join(
+                            INJECTORS_LOCATION, file_name))
+                    injector_file_list.append(file_name)
+                    _logger.finer('WLSDPLY-19508', file_name, name, class_name=_class_name,
+                                  method_name=_method_name)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=injector_file_list)
+        return injector_file_list, injector_config_location
 
 
 def _load_variable_file(variable_file_location, append_option):
@@ -775,49 +771,6 @@ def _load_variable_file(variable_file_location, append_option):
         else:
             _logger.fine('WLSDPLY-19535', variable_file_location, class_name=_class_name, method_name=_method_name)
     return append, variable_dictionary
-
-
-def _load_keywords_file(variable_keywords_location):
-    _method_name = '_load_keywords_file'
-    _logger.entering(variable_keywords_location, class_name=_class_name, method_name=_method_name)
-    keywords_dictionary = None
-    if os.path.isfile(variable_keywords_location):
-        try:
-            keywords_dictionary = JsonToPython(variable_keywords_location).parse()
-            _logger.finer('WLSDPLY-19504', variable_keywords_location, class_name=_class_name, method_name=_method_name)
-        except (IllegalArgumentException, JsonException), e:
-            _logger.warning('WLSDPLY-19505', variable_keywords_location, e.getLocalizedMessage(),
-                            class_name=_class_name, method_name=_method_name)
-
-    _logger.exiting(class_name=_class_name, method_name=_method_name, result=keywords_dictionary)
-    return keywords_dictionary
-
-
-def _create_injector_file_list(variables_dictionary, keyword_dictionary):
-    _method_name = '_create_file_dictionary'
-    injector_file_list = []
-
-    if CUSTOM_KEYWORD in variables_dictionary:
-        if KEYWORD_FILES in variables_dictionary[CUSTOM_KEYWORD]:
-            injector_file_list = variables_dictionary[CUSTOM_KEYWORD][KEYWORD_FILES]
-            if type(injector_file_list) != list:
-                injector_file_list = injector_file_list.split(',')
-            _logger.fine('WLSDPLY-19501', injector_file_list, class_name=_class_name, method_name=_method_name)
-        else:
-            _logger.info('WLSDPLY-19512', class_name=_class_name, method_name=_method_name)
-        del variables_dictionary[CUSTOM_KEYWORD]
-
-    for keyword in variables_dictionary:
-        if keyword in keyword_dictionary:
-            filename = keyword_dictionary[keyword]
-            if filename and filename not in injector_file_list:
-                if not os.path.isabs(filename):
-                    filename = path_utils.find_config_path(os.path.join(INJECTORS_LOCATION, filename))
-                injector_file_list.append(filename)
-                _logger.finer('WLSDPLY-19508', filename, keyword, class_name=_class_name, method_name=_method_name)
-        else:
-            _logger.warning('WLSDPLY-19503', keyword, class_name=_class_name, method_name=_method_name)
-    return injector_file_list
 
 
 def _load_injector_file(injector_file_name):

@@ -19,12 +19,6 @@
 @rem JAVA_HOME             - The location of the JDK to use.  The caller must set
 @rem                         this variable to a valid Java 7 (or later) JDK.
 @rem
-@rem WLSDEPLOY_HOME        - The location of the WLS Deploy installation.
-@rem                         If the caller sets this, the callers location will be
-@rem                         honored provided it is an existing directory.
-@rem                         Otherwise, the location will be calculated from the
-@rem                         location of this script.
-@rem
 @rem WLSDEPLOY_PROPERTIES  - Extra system properties to pass to Java.  The caller
 @rem                         can use this environment variable to add additional
 @rem                         system properties to the Java environment.
@@ -70,8 +64,8 @@ ECHO Usage: %SCRIPT_NAME%
 ECHO         [-help]
 ECHO         [-oracle_home ^<oracle_home^>]
 ECHO         [-target ^<target^>]
-ECHO         [-attributes_only ^| -folders_only ^| -recursive ^| -interactive]
-ECHO         ^<model_path^>
+ECHO         [-attributes_only ^| -folders_only ^| -recursive]
+ECHO         [^<model_path^>]
 ECHO.
 ECHO     where:
 ECHO         oracle_home - an existing Oracle Home directory.  This is required
@@ -96,8 +90,7 @@ ECHO     The -recursive switch will cause the tool to list only the folders
 ECHO     for the specified model path, and recursively include the folders below
 ECHO     that path.
 ECHO.
-ECHO     The -interactive switch will cause the tool to enter an interactive
-ECHO     command line with the specified model path as your initial location.
+ECHO     If no model path is specified, the tool will enter an interactive mode.
 ECHO.
 ECHO     model_path examples:
 ECHO         resources:/JDBCSystemResource/JdbcResource

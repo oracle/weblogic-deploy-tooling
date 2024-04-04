@@ -24,6 +24,7 @@ import oracle.weblogic.deploy.json.JsonException as JJsonException
 import oracle.weblogic.deploy.prepare.PrepareException as PrepareException
 import oracle.weblogic.deploy.util.CLAException as JCLAException
 import oracle.weblogic.deploy.util.PyWLSTException as PyWLSTException
+import oracle.weblogic.deploy.util.SSHException as SSHException
 import oracle.weblogic.deploy.util.TranslateException as JTranslateException
 import oracle.weblogic.deploy.util.VariableException as JVariableException
 import oracle.weblogic.deploy.util.WLSDeployArchiveIOException as JWLSDeployArchiveIOException
@@ -32,10 +33,11 @@ import oracle.weblogic.deploy.yaml.YamlException as JYamlException
 
 from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.util import unicode_helper as str_helper
+from wlsdeploy.util.exit_code import ExitCode
 
 _EXCEPTION_TYPE_MAP = {
     ExceptionType.ALIAS:                 'create_alias_exception',
-    ExceptionType.CLA:                   'create_cla_exception',
+    ExceptionType.CLA:                   '_create_cla_type_exception',
     ExceptionType.COMPARE:               'create_compare_exception',
     ExceptionType.CREATE:                'create_create_exception',
     ExceptionType.DEPLOY:                'create_deploy_exception',
@@ -44,6 +46,7 @@ _EXCEPTION_TYPE_MAP = {
     ExceptionType.JSON:                  'create_json_exception',
     ExceptionType.PREPARE:               'create_prepare_exception',
     ExceptionType.PY_WLST:               'create_pywlst_exception',
+    ExceptionType.SSH:                   'create_ssh_exception',
     ExceptionType.TRANSLATE:             'create_translate_exception',
     ExceptionType.VALIDATE:              'create_validate_exception',
     ExceptionType.VARIABLE:              'create_variable_exception',
@@ -51,6 +54,28 @@ _EXCEPTION_TYPE_MAP = {
     ExceptionType.YAML:                  'create_yaml_exception'
 }
 
+_PROGRAM_NAME_TO_EXCEPTION_TYPE_MAP = {
+    'compareModel':          ExceptionType.COMPARE,
+    'createDomain':          ExceptionType.CREATE,
+    'deployApps':            ExceptionType.DEPLOY,
+    'discoverDomain':        ExceptionType.DISCOVER,
+    'encryptModel':          ExceptionType.ENCRYPTION,
+    'extractDomainResource': ExceptionType.DEPLOY,
+    'injectVariables':       ExceptionType.TRANSLATE,
+    'modelHelp':             ExceptionType.CLA,
+    'prepareModel':          ExceptionType.PREPARE,
+    'updateDomain':          ExceptionType.DEPLOY,
+    'validateModel':         ExceptionType.VALIDATE,
+    'verifySSH':             ExceptionType.SSH
+}
+
+
+def get_exception_type_from_program_name(program_name):
+    if program_name in _PROGRAM_NAME_TO_EXCEPTION_TYPE_MAP:
+        exception_type = _PROGRAM_NAME_TO_EXCEPTION_TYPE_MAP[program_name]
+    else:
+        raise TypeError(str_helper.to_string('Unknown program name: %s' % program_name))
+    return exception_type
 
 def get_exception_class(exception_type):
     ex = create_exception(exception_type, 'Find the class')
@@ -96,7 +121,7 @@ def create_create_exception(key, *args, **kwargs):
     arg_list, error = _return_exception_params(*args, **kwargs)
     arg_len = len(arg_list)
     if error is not None:
-        if isinstance(error, JThrowable) is False:
+        if not isinstance(error, JThrowable):
             error = convert_error_to_exception()
         if arg_len > 0:
             # Jython 2.7.1 in 14.1.1 is broken when it comes to binding varargs
@@ -326,6 +351,33 @@ def create_pywlst_exception(key, *args, **kwargs):
     return ex
 
 
+def create_ssh_exception(key, *args, **kwargs):
+    """
+    Create a Java SSHException from a message id, list of message parameters and Throwable error.
+    :param key: key to the message in resource bundler or the message itself
+    :param args: list of parameters for the parameters or empty if none needed for the message
+    :param kwargs: contains Throwable or instance if present
+    :return: SSHException encapsulating the exception information
+    """
+    arg_list, error = _return_exception_params(*args, **kwargs)
+    if error is not None:
+        if len(arg_list) > 0:
+            # Jython 2.7.1 in 14.1.1 is broken when it comes to binding varargs
+            # Java methods.  Calling the SSHException(key, error, arg_list) is
+            # binding to the SSHException(String key, Object... params) constructor
+            # instead of SSHException(String key, Throwable cause, Object...params).
+            #
+            ex = SSHException(key, arg_list)
+            ex.initCause(error)
+        else:
+            ex = SSHException(key, error)
+    elif len(arg_list) > 0:
+        ex = SSHException(key, arg_list)
+    else:
+        ex = SSHException(key)
+    return ex
+
+
 def create_yaml_exception(key, *args, **kwargs):
     """
     Create a Java YamlException from a message id, list of message parameters and Throwable error.
@@ -405,6 +457,18 @@ def create_translate_exception(key, *args, **kwargs):
     else:
         ex = JTranslateException(key)
     return ex
+
+
+def _create_cla_type_exception(key, *args, **kwargs):
+    """
+    Create a Java CLAException from a message id, list of message parameters and Throwable error.
+    This internal wrapper method provides a matching signature for _EXCEPTION_TYPE_MAP.
+    :param key: key to the message in resource bundle or the message itself
+    :param args: list of parameters for the message or empty if none needed
+    :param kwargs: contains Throwable or instance if present
+    :return: CLAException encapsulating the exception information
+    """
+    return create_cla_exception(ExitCode.ERROR, key, *args, **kwargs)
 
 
 def create_cla_exception(exit_code, key, *args, **kwargs):

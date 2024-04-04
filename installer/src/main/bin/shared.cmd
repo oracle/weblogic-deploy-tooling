@@ -185,16 +185,8 @@ GOTO :EOF
 :variableSetup
     @REM set up variables for WLST or Jython execution
 
-    @REM set the WLSDEPLOY_HOME variable. if it was already set, verify that it is valid
-
-    IF NOT DEFINED WLSDEPLOY_HOME (
-      SET "WLSDEPLOY_HOME=%SCRIPT_PATH%\.."
-    ) ELSE (
-      IF NOT EXIST "%WLSDEPLOY_HOME%" (
-        ECHO Specified WLSDEPLOY_HOME of "%WLSDEPLOY_HOME%" does not exist >&2
-        EXIT /B 2
-      )
-    )
+    @REM set the WLSDEPLOY_HOME variable, ignoring any previous value
+    SET "WLSDEPLOY_HOME=%SCRIPT_PATH%\.."
     FOR %%i IN ("%WLSDEPLOY_HOME%") DO SET WLSDEPLOY_HOME=%%~fsi
     IF %WLSDEPLOY_HOME:~-1%==\ SET WLSDEPLOY_HOME=%WLSDEPLOY_HOME:~0,-1%
 

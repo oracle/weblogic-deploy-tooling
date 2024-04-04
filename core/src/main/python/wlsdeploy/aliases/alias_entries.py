@@ -10,19 +10,18 @@ from oracle.weblogic.deploy.json import JsonException
 from oracle.weblogic.deploy.json import JsonStreamTranslator
 from oracle.weblogic.deploy.util import FileUtils
 
-import wlsdeploy.aliases.alias_utils as alias_utils
+from wlsdeploy.aliases import alias_utils
+from wlsdeploy.aliases.alias_utils import UnresolvedAttributeData
 from wlsdeploy.aliases import password_utils
 from wlsdeploy.aliases.alias_constants import ATTRIBUTES
 from wlsdeploy.aliases.alias_constants import CHILD_FOLDERS_TYPE
 from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
 from wlsdeploy.aliases.alias_constants import CONTAINS
 from wlsdeploy.aliases.alias_constants import DEFAULT_NAME_VALUE
-from wlsdeploy.aliases.alias_constants import DEFAULT_VALUE
 from wlsdeploy.aliases.alias_constants import FLATTENED_FOLDER_DATA
 from wlsdeploy.aliases.alias_constants import FOLDER_ORDER
 from wlsdeploy.aliases.alias_constants import FOLDER_PARAMS
 from wlsdeploy.aliases.alias_constants import FOLDERS
-from wlsdeploy.aliases.alias_constants import GET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import GET_METHOD
 from wlsdeploy.aliases.alias_constants import MODEL_NAME
 from wlsdeploy.aliases.alias_constants import NAME_VALUE
@@ -69,6 +68,7 @@ from wlsdeploy.aliases.model_constants import RESOURCE_MANAGER
 from wlsdeploy.aliases.model_constants import RESOURCES
 from wlsdeploy.aliases.model_constants import SYSTEM_COMPONENT
 from wlsdeploy.aliases.model_constants import TOPOLOGY
+from wlsdeploy.aliases.model_constants import WLS_POLICIES
 from wlsdeploy.aliases.model_constants import WLS_ROLES
 from wlsdeploy.aliases.model_constants import WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
 from wlsdeploy.aliases.model_constants import WTC_SERVER
@@ -168,6 +168,7 @@ class AliasEntries(object):
     __domain_info_top_level_folders = [
         OPSS_INITIALIZATION,
         RCU_DB_INFO,
+        WLS_POLICIES,
         WLS_ROLES,
         WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
     ]
@@ -213,8 +214,7 @@ class AliasEntries(object):
         self._wlst_mode = wlst_mode
         if wls_version is None:
             from wlsdeploy.util.weblogic_helper import WebLogicHelper
-            self._wls_helper = WebLogicHelper(_logger)
-            self._wls_version = self._wls_helper.get_actual_weblogic_version()
+            self._wls_version = WebLogicHelper(_logger).get_weblogic_version()
         else:
             self._wls_version = wls_version
 
@@ -435,10 +435,11 @@ class AliasEntries(object):
                                 the alias data for the location is bad
         """
         _method_name = 'get_wlst_list_path_for_location'
-
         _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
+
         tokenized_path = self.__get_path_for_location(location, WLST_LIST_PATH)
         result = alias_utils.replace_tokens_in_path(location, tokenized_path)
+
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return result
 
@@ -567,11 +568,8 @@ class AliasEntries(object):
             # just return %DOMAIN% for the name token
             return self.__domain_name_token
 
-        # Use get_wlst_mbean_type_for_location(location) call
-        # to determine if location is VERSION_INVALID, or not.
-        if self.get_wlst_mbean_type_for_location(location) is None:
-            # This means location is VERSION_INVALID, so just return
-            # None for the name_token
+        if not self.is_model_location_valid(location):
+            # This means location is not valid , so just return None for the name_token
             return result
 
         folder_dict = self.__get_dictionary_for_location(location, False)
@@ -597,13 +595,21 @@ class AliasEntries(object):
             err_location = LocationContext(location)
             if not err_location.is_empty():
                 folder_name = err_location.pop_location()
-                code, message = self.is_valid_model_folder_name_for_location(err_location, folder_name)
+                code, valid_version_range, valid_mode = \
+                    self.is_valid_model_folder_name_for_location(err_location, folder_name)
                 if code == ValidationCodes.VERSION_INVALID:
                     ex = exception_helper.create_alias_exception('WLSDPLY-08130', path,
                                                                  self._wls_version,
-                                                                 message)
+                                                                 valid_version_range)
                     _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                     raise ex
+                elif code == ValidationCodes.MODE_INVALID:
+                    ex = exception_helper.create_alias_exception('WLSDPLY-08138', path,
+                                                                 self._wls_version, self._wlst_mode,
+                                                                 valid_mode)
+                    _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                    raise ex
+
             ex = exception_helper.create_alias_exception('WLSDPLY-08131', path, self._wls_version)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
@@ -662,8 +668,6 @@ class AliasEntries(object):
         _method_name = 'get_wlst_mbean_type_for_location'
         _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
 
-        # some callers use this method to check for location valid.
-        # they should call is_model_location_valid(location) directly instead.
         if not self.is_model_location_valid(location):
             return None
 
@@ -804,7 +808,8 @@ class AliasEntries(object):
         :param location: the location of the folder's parent
         :param model_folder_name: the model folder name
         :return: the ValidationCode that specifies whether the folder is valid or not.  If the folder is valid
-                 but not with in this WLS version and WLST mode, the valid version range is also returned
+                 but not with in this WLS version and WLST mode, the valid version range and/or valid_mode is
+                 also returned
         :raises: AliasException: if an error occurs
         """
         _method_name = 'is_valid_model_folder_name_for_location'
@@ -812,14 +817,17 @@ class AliasEntries(object):
                          class_name=_class_name, method_name=_method_name)
 
         valid_version_range = None
+        valid_mode = None
         if len(location.get_model_folders()) == 0 and model_folder_name in self.get_model_domain_subfolder_names():
             sub_location = LocationContext(location).append_location(model_folder_name)
             folder_dict = self.__get_dictionary_for_location(sub_location, False)
             if folder_dict is None:
                 if UNRESOLVED_FOLDERS_MAP in self._category_dict and \
                         model_folder_name in self._category_dict[UNRESOLVED_FOLDERS_MAP]:
-                    result = ValidationCodes.VERSION_INVALID
-                    valid_version_range = self._category_dict[UNRESOLVED_FOLDERS_MAP][model_folder_name]
+                    entry_tuple = self._category_dict[UNRESOLVED_FOLDERS_MAP][model_folder_name]
+                    result = entry_tuple[0]
+                    valid_version_range = entry_tuple[1]
+                    valid_mode = entry_tuple[2]
                 else:
                     result = ValidationCodes.INVALID
             else:
@@ -827,26 +835,27 @@ class AliasEntries(object):
         else:
             folder_dict = self.__get_dictionary_for_location(location, False)
 
+            path = self.get_model_folder_path_for_location(location)
             if folder_dict is None:
-                ex = exception_helper.create_alias_exception('WLSDPLY-08113', model_folder_name,
-                                                             location.get_folder_path())
+                ex = exception_helper.create_alias_exception('WLSDPLY-08113', model_folder_name, path)
                 _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
             elif FOLDERS not in folder_dict:
-                ex = exception_helper.create_alias_exception('WLSDPLY-08114', model_folder_name,
-                                                             location.get_folder_path())
+                ex = exception_helper.create_alias_exception('WLSDPLY-08114', model_folder_name, path)
                 _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
 
             if model_folder_name in folder_dict[FOLDERS]:
                 result = ValidationCodes.VALID
             elif UNRESOLVED_FOLDERS_MAP in folder_dict and model_folder_name in folder_dict[UNRESOLVED_FOLDERS_MAP]:
-                result = ValidationCodes.VERSION_INVALID
-                valid_version_range = folder_dict[UNRESOLVED_FOLDERS_MAP][model_folder_name]
+                entry_tuple = folder_dict[UNRESOLVED_FOLDERS_MAP][model_folder_name]
+                result = entry_tuple[0]
+                valid_version_range = entry_tuple[1]
+                valid_mode = entry_tuple[2]
             else:
                 result = ValidationCodes.INVALID
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=[result, valid_version_range])
-        return result, valid_version_range
+        return result, valid_version_range, valid_mode
 
     def is_version_valid_location(self, location):
         """
@@ -855,27 +864,49 @@ class AliasEntries(object):
 
         Caller needs to determine what action (e.g. log, raise exception,
         continue processing, record validation item, etc.) to take, when
-        return code is VERSION_INVALID.
+        return code is CONTEXT_INVALID.
 
         :param location: the location to be checked
-        :return: A ValidationCodes Enum value of either VERSION_INVALID or VALID
-        :return: A message saying which WLS version location is valid in, if
-                return code is VERSION_INVALID
+        :return: A ValidationCodes Enum value of VALID, CONTEXT_INVALID or INVALID
+        :return: A message appropriate for the ValidationCode being returned
+        :raises: AliasException: if an error occurs
         """
         _method_name = 'is_version_valid_location'
 
         _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
 
-        code = ValidationCodes.VALID
-        message = ''
-        if self.get_wlst_mbean_type_for_location(location) is None:
-            model_folder_path = self.get_model_folder_path_for_location(location)
-            message = exception_helper.get_message('WLSDPLY-08138', model_folder_path,
-                                                   self._wls_version)
-            code = ValidationCodes.VERSION_INVALID
+        if location.is_empty():
+            path = self.get_model_folder_path_for_location(location)
+            message = exception_helper.get_message('WLSDPLY-08417', path, self._wls_version)
+            _logger.exiting(class_name=_class_name, method_name=_method_name, result=[ValidationCodes.VALID, message])
+            return ValidationCodes.VALID, message
+
+        parent_location = LocationContext(location)
+        model_folder_name = parent_location.pop_location()
+        code, valid_version_range, valid_mode = \
+            self.is_valid_model_folder_name_for_location(parent_location, model_folder_name)
+        parent_path = self.get_model_folder_path_for_location(parent_location)
+        if code == ValidationCodes.VALID:
+            path = self.get_model_folder_path_for_location(location)
+            message = exception_helper.get_message('WLSDPLY-08417', path, self._wls_version)
+        elif code == ValidationCodes.VERSION_INVALID:
+            code = ValidationCodes.CONTEXT_INVALID
+            message = \
+                VersionUtils.getValidFolderVersionRangeMessage(model_folder_name, parent_path,
+                    self._wls_version, valid_version_range, WlstModes.from_value(self._wlst_mode))
+        elif code == ValidationCodes.MODE_INVALID:
+            code = ValidationCodes.CONTEXT_INVALID
+            message = exception_helper.get_message('WLSDPLY-08412', model_folder_name, parent_path,
+                self._wls_version, WlstModes.from_value(self._wlst_mode), valid_mode)
+        elif code == ValidationCodes.INVALID:
+            message = exception_helper.get_message('WLSDPLY-08404', model_folder_name, parent_path)
+        else:
+            ex = exception_helper.create_alias_exception('WLSDPLY-08405', model_folder_name,
+                parent_path, self._wls_version, ValidationCodes.from_value(code))
+            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=[code, message])
-
         return code, message
 
     def is_valid_model_attribute_name_for_location(self, location, model_attribute_name):
@@ -891,23 +922,52 @@ class AliasEntries(object):
         _logger.entering(str_helper.to_string(location), model_attribute_name,
                          class_name=_class_name, method_name=_method_name)
 
-        folder_dict = self.__get_dictionary_for_location(location, True)
-        valid_version_range = None
+        folder_dict = self.__get_dictionary_for_location(location, False)
         if folder_dict is None:
             result = ValidationCodes.VERSION_INVALID
-            valid_version_range = self.__get_valid_version_range_for_folder(location)
+            message = self._get_invalid_folder_for_is_valid_model_attribute_message(location, model_attribute_name)
         elif ATTRIBUTES in folder_dict:
+            path = self.get_model_folder_path_for_location(location)
             if model_attribute_name in folder_dict[ATTRIBUTES]:
                 result = ValidationCodes.VALID
+                message = exception_helper.get_message('WLSDPLY-08407', model_attribute_name,
+                                                       path, self._wls_version)
             elif model_attribute_name in folder_dict[UNRESOLVED_ATTRIBUTES_MAP]:
-                result = ValidationCodes.VERSION_INVALID
-                valid_version_range = folder_dict[UNRESOLVED_ATTRIBUTES_MAP][model_attribute_name]
+                unresolved_attribute_data = folder_dict[UNRESOLVED_ATTRIBUTES_MAP][model_attribute_name]
+                valid_wlst_mode = unresolved_attribute_data.get_invalid_wlst_mode_name()
+                if valid_wlst_mode is not None:
+                    result = ValidationCodes.CONTEXT_INVALID
+                    message = exception_helper.get_message('WLSDPLY-08413', model_attribute_name, path,
+                                                           self._wls_version, WlstModes.from_value(self._wlst_mode),
+                                                           valid_wlst_mode)
+                else:
+                    result = ValidationCodes.CONTEXT_INVALID
+                    wlst_mode = WlstModes.from_value(self._wlst_mode)
+                    valid_version_range_high, valid_wlst_mode_high = \
+                        unresolved_attribute_data.get_closest_version_range_above()
+                    valid_version_range_low, valid_wlst_mode_low = \
+                        unresolved_attribute_data.get_closest_version_range_below()
+                    try:
+                        message = VersionUtils.getValidAttributeVersionRangeMessage(model_attribute_name, path,
+                            self._wls_version, wlst_mode, valid_version_range_high, valid_wlst_mode_high,
+                            valid_version_range_low, valid_wlst_mode_low)
+                    except VersionException, ve:
+                        ex = exception_helper.create_alias_exception("WLSDPLY-08416", model_attribute_name,
+                                                                     path, ve.getLocalizedMessage(), error=ve)
+                        _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                        raise ex
             else:
                 result = ValidationCodes.INVALID
+                message = exception_helper.get_message("WLSDPLY-08414", model_attribute_name, path)
         else:
             result = ValidationCodes.INVALID
-        _logger.exiting(class_name=_class_name, method_name=_method_name, result=[result, valid_version_range])
-        return result, valid_version_range
+            path = self.get_model_folder_path_for_location(location)
+            alias_path = location.get_folder_path()
+            message = exception_helper.get_message("WLSDPLY-08415", model_attribute_name, path, alias_path)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name,
+                        result=[result, message])
+        return result, message
 
     def is_model_location_valid(self, location):
         """
@@ -919,7 +979,7 @@ class AliasEntries(object):
         if len(location.get_model_folders()) > 0:
             parent_location = LocationContext(location)
             folder = parent_location.pop_location()
-            code, message = self.is_valid_model_folder_name_for_location(parent_location, folder)
+            code, _, _ = self.is_valid_model_folder_name_for_location(parent_location, folder)
             if code != ValidationCodes.VALID:
                 return False
         return True
@@ -972,7 +1032,7 @@ class AliasEntries(object):
         :return: short name or model_folder name if not short named assigned
         """
         _method_name = 'get_folder_short_name_for_location'
-        _logger.entering(location.get_folder_path(), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
         folder_dict = self.__get_dictionary_for_location(location, False)
         result = ''
         if SHORT_NAME in folder_dict:
@@ -1014,13 +1074,14 @@ class AliasEntries(object):
         """
         Get the dictionary for a location with or without path tokens resolved
         :param location: the location
-        :param resolve_path_tokens: whether or not to resolve path tokens
+        :param resolve_path_tokens: whether to resolve path tokens
         :return: the dictionary
         :raises: AliasException: if an error occurs
         """
         _method_name = '__get_dictionary_for_location'
 
-        _logger.entering(str_helper.to_string(location), class_name=_class_name, method_name=_method_name)
+        _logger.entering(str_helper.to_string(location), resolve_path_tokens,
+                         class_name=_class_name, method_name=_method_name)
         if location is None:
             ex = exception_helper.create_alias_exception('WLSDPLY-08115')
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -1037,7 +1098,10 @@ class AliasEntries(object):
                 raise ex
 
         category_dict = self.__get_category_dictionary(model_category_name)
-        if category_dict is not None and len(location_folders) > 0:
+        if category_dict is None:
+            # This happens if the entire category is not version and/or mode appropriate...
+            resolved_dict = None
+        elif len(location_folders) > 0:
             path_name = '/' + location_folders[0]
             location_subfolders = list(location_folders[1:])
             child_dict = category_dict
@@ -1127,7 +1191,7 @@ class AliasEntries(object):
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
-        _logger.exiting(class_name=_class_name, method_name=_method_name)
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return result
 
     def __load_contains_categories(self, model_category_name, raw_model_dict, base_path=""):
@@ -1270,10 +1334,10 @@ class AliasEntries(object):
 
             model_attrs = alias_dict[ATTRIBUTES]
             for model_attr in model_attrs:
-                model_attr_dict, unresolved_version_range = \
+                model_attr_dict, unresolved_attribute_data = \
                     self.__resolve_attribute_by_wlst_context(path_name, model_attr, model_attrs)
-                if model_attr_dict is None:
-                    unresolved_attrs[model_attr] = unresolved_version_range
+                if model_attr_dict is None and unresolved_attribute_data is not None:
+                    unresolved_attrs[model_attr] = unresolved_attribute_data
                     continue
 
                 #
@@ -1354,8 +1418,8 @@ class AliasEntries(object):
             dict_wlst_mode = 'Both'
 
         if is_mode:
-            _logger.finer('WLSDPLY-08133', path_name, dict_wlst_mode, class_name=_class_name,
-                          method_name=_method_name)
+            _logger.finer('WLSDPLY-08133', path_name, dict_wlst_mode, self._wls_version,
+                          class_name=_class_name, method_name=_method_name)
         return is_mode
 
     def __test_dictionary(self, path_name, alias_dict):
@@ -1364,10 +1428,14 @@ class AliasEntries(object):
     def __use_alias_dict(self, path_name, alias_dict, parent_dict):
 
         if not self.__is_version(path_name, alias_dict):
-            _add_to_unresolved_folders(path_name, parent_dict, alias_utils.get_dictionary_version(alias_dict))
+            _add_to_unresolved_folders(path_name, parent_dict, ValidationCodes.VERSION_INVALID,
+                                       alias_utils.get_dictionary_version(alias_dict),
+                                       alias_utils.get_dictionary_mode(alias_dict))
             return False
         if not self.__is_wlst_mode(path_name, alias_dict):
-            _add_to_unresolved_folders(path_name, parent_dict, alias_utils.get_dictionary_version(alias_dict))
+            _add_to_unresolved_folders(path_name, parent_dict, ValidationCodes.MODE_INVALID,
+                                       alias_utils.get_dictionary_version(alias_dict),
+                                       alias_utils.get_dictionary_mode(alias_dict))
             return False
 
         return True
@@ -1396,6 +1464,11 @@ class AliasEntries(object):
                 raise ex
 
             if folder_params:
+                #
+                # Pick a default add_entry in case none of the entries match.
+                # The fact that the folder doesn't match the version or wlst_mode
+                # is caught by the caller after this method returns
+                #
                 add_entry = folder_params[0]
                 for folder_set in folder_params:
                     if self.__test_dictionary(path_name, folder_set):
@@ -1406,7 +1479,8 @@ class AliasEntries(object):
                     if key not in [ATTRIBUTES, FOLDERS]:
                         alias_dict[key] = value
                     else:
-                        _logger.fine('WLSDPLY-08136', value, class_name=_class_name, method_name=_method_name)
+                        _logger.notification('WLSDPLY-08136', path_name, key, value,
+                                             class_name=_class_name, method_name=_method_name)
 
     def __resolve_attribute_by_wlst_context(self, path_name, attr_name, attrs_dict):
         """
@@ -1416,7 +1490,7 @@ class AliasEntries(object):
         :param attr_name: the model attribute name
         :param attrs_dict: the attributes dictionary
         :return: the matched and unmatched attribute dictionaries, one of which will always be None
-                 depending on whether or not a match was found.
+                 depending on whether a match was found.
         :raises: AliasException: if an error occurs
         """
         _method_name = '__resolve_attribute_by_wlst_context'
@@ -1425,7 +1499,8 @@ class AliasEntries(object):
         attr_array = attrs_dict[attr_name]
         matches = list()
 
-        version_range_dict = dict()
+        unresolved_attribute_data = \
+            UnresolvedAttributeData(attr_name, self._wls_version, WlstModes.from_value(self._wlst_mode).lower())
         for attr_dict in attr_array:
             if WLST_MODE not in attr_dict:
                 ex = exception_helper.create_alias_exception('WLSDPLY-08129', attr_name, path_name, attr_dict)
@@ -1438,16 +1513,16 @@ class AliasEntries(object):
 
             attr_dict_wlst_mode = attr_dict[WLST_MODE]
             attr_dict_version_range = attr_dict[VERSION_RANGE]
-            alias_utils.update_version_range_dict(version_range_dict, attr_dict_wlst_mode, attr_dict_version_range)
-
-            if not self.__wlst_mode_matches(attr_dict_wlst_mode):
-                continue
-
             try:
                 _logger.finer('Testing {0}/{1} with {2}', path_name, attr_name, attr_dict_version_range,
                               class_name=_class_name, method_name=_method_name)
                 if self.__version_in_range(attr_dict_version_range):
-                    matches.append(attr_dict)
+                    if self.__wlst_mode_matches(attr_dict_wlst_mode):
+                        matches.append(attr_dict)
+                    else:
+                        unresolved_attribute_data.add_invalid_wlst_mode(attr_dict_wlst_mode)
+                else:
+                    unresolved_attribute_data.process_new_invalid_version_range(attr_dict_version_range, attr_dict_wlst_mode)
             except VersionException, ve:
                 ex = exception_helper.create_alias_exception('WLSDPLY-08217', attr_name, path_name,
                                                              attr_dict_version_range, ve.getLocalizedMessage(),
@@ -1461,10 +1536,9 @@ class AliasEntries(object):
             matched_attr = matches[0]
             matched_attr = self.__resolve_attribute(matched_attr)
         elif len(matches) == 0:
-            unmatched_attr = self.__get_unmatched_attribute_version_range(version_range_dict)
+            unmatched_attr = unresolved_attribute_data
             _logger.finer('WLSDPLY-08140', attr_name, path_name, self._wls_version,
-                          WlstModes.from_value(self._wlst_mode), unmatched_attr,
-                          class_name=_class_name, method_name=_method_name)
+                          WlstModes.from_value(self._wlst_mode), class_name=_class_name, method_name=_method_name)
         else:
             ex = exception_helper.create_alias_exception('WLSDPLY-08141', attr_name, path_name, self._wls_version,
                                                          WlstModes.from_value(self._wlst_mode))
@@ -1508,7 +1582,7 @@ class AliasEntries(object):
                 if key in NULL_VALUE_KEY_FIELDS and result[key] == NULL_VALUE_KEY:
                     result[key] = None
 
-        for key in [GET_METHOD, SET_METHOD, GET_MBEAN_TYPE, SET_MBEAN_TYPE]:
+        for key in [GET_METHOD, SET_METHOD, SET_MBEAN_TYPE]:
             if key in result and len(result[key]) == 0:
                 del result[key]
         return result
@@ -1579,7 +1653,8 @@ class AliasEntries(object):
                 raise ex
 
         if version_range is None:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08143', location.get_folder_path(), self._wls_version)
+            path = self.get_model_folder_path_for_location(location)
+            ex = exception_helper.create_alias_exception('WLSDPLY-08143', path, self._wls_version)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=version_range)
@@ -1618,17 +1693,52 @@ class AliasEntries(object):
             num_dirs_to_strip = alias_utils.get_number_of_directories_to_strip(path_type, WLST_ATTRIBUTES_PATH)
             tokenized_path = alias_utils.strip_trailing_folders_in_path(tokenized_attr_path, num_dirs_to_strip)
         else:
-            ex = exception_helper.create_alias_exception('WLSDPLY-08144', location.get_folder_path(),
-                                                         WLST_ATTRIBUTES_PATH)
+            path = self.get_model_folder_path_for_location(location)
+            ex = exception_helper.create_alias_exception('WLSDPLY-08144', path, WLST_ATTRIBUTES_PATH)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=tokenized_path)
         return tokenized_path
 
+    def _get_invalid_folder_for_is_valid_model_attribute_message(self, location, model_attribute_name):
+        clone_location = LocationContext(location)
+        while True:
+            last_folder = clone_location.pop_location()
+            folder_dict = self.__get_dictionary_for_location(clone_location)
+            if folder_dict is not None:
+                break
+            if clone_location.is_empty():
+                break
 
-def _add_to_unresolved_folders(path_name, parent_dict, unresolved):
+        model_path = self.get_model_folder_path_for_location(clone_location)
+        clone_location.append_location(last_folder)
+        valid_version_range = self.__get_valid_version_range_for_folder(clone_location)
+
+        if valid_version_range is not None:
+            suffix = VersionUtils.getValidFolderVersionRangeMessage(last_folder, model_path, self._wls_version,
+                                                                    valid_version_range,
+                                                                    WlstModes.from_value(self._wlst_mode))
+        else:
+            suffix = exception_helper.get_message('WLSDPLY-08146', last_folder, model_path,
+                                                  self._wls_version, WlstModes.from_value(self._wlst_mode))
+
+        message = exception_helper.get_message('WLSDPLY-08147', model_attribute_name,
+                                               self.get_model_folder_path_for_location(location), suffix)
+        return message
+
+
+def _add_to_unresolved_folders(path_name, parent_dict, error_code, version_spec, mode_spec):
+    _method_name = '_add_to_unresolved_folders'
+    _logger.entering(path_name, error_code, version_spec, mode_spec,
+                     class_name=_class_name, method_name=_method_name)
+
     if UNRESOLVED_FOLDERS_MAP not in parent_dict:
         parent_dict[UNRESOLVED_FOLDERS_MAP] = dict()
+
+    if mode_spec is not None:
+        wlst_mode = mode_spec.upper()
+    else:
+        wlst_mode = 'Both'
     alias_dict_folder_name = alias_utils.compute_folder_name_from_path(path_name)
-    parent_dict[UNRESOLVED_FOLDERS_MAP][alias_dict_folder_name] = unresolved
+    parent_dict[UNRESOLVED_FOLDERS_MAP][alias_dict_folder_name] = (error_code, version_spec, wlst_mode)

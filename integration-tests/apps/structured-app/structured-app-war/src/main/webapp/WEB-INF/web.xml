@@ -1,0 +1,21 @@
+<!--
+    Copyright 2024, Oracle Corporation and/or its affiliates.
+    Licensed under the Universal Permissive License v 1.0 as shown at http://oss.oracle.com/licenses/upl.
+ -->
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         id="WebApp_ID" version="3.1">
+    <servlet>
+        <servlet-name>oracle.weblogic.deploy.tests.integration.MyWebServicesApp</servlet-name>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>oracle.weblogic.deploy.tests.integration.MyWebServicesApp</servlet-name>
+        <url-pattern>/api/*</url-pattern>
+    </servlet-mapping>
+    <env-entry>
+        <env-entry-name>myValue</env-entry-name>
+        <env-entry-type>java.lang.String</env-entry-type>
+        <env-entry-value>original</env-entry-value>
+    </env-entry>
+</web-app>

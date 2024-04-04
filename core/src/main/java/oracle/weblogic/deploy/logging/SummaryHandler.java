@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2022, Oracle Corporation and/or its affiliates.
+ * Copyright (c) 2018, 2024, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.logging;
@@ -142,7 +142,7 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
             }
         }
         summaryTail(outputTargetHandler);
-        summaryToDo(outputTargetHandler, todoHandler);
+        summaryToDo(outputTargetHandler, todoHandler, modelContext.getProgramName(), modelContext.isRemote());
         LOGGER.exiting(CLASS, METHOD);
     }
 
@@ -222,8 +222,20 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
     }
 
     private void summaryHead(Handler handler) {
-        handler.publish(getLogRecord("WLSDPLY-21003", context.getProgramName(),
-            WebLogicDeployToolingVersion.getVersion(), context.getVersion(), context.getWlstMode()));
+        LogRecord logRecord;
+        String wdtVersion = WebLogicDeployToolingVersion.getVersion();
+        if (context.isRemote()) {
+            String remoteVersion = context.getRemoteVersion();
+            if (StringUtils.isEmpty(remoteVersion)) {
+                remoteVersion = "UNKNOWN";
+            }
+            logRecord = getLogRecord("WLSDPLY-21004", context.getProgramName(), wdtVersion,
+                context.getVersion(), context.getWlstMode(), remoteVersion);
+        } else {
+            logRecord = getLogRecord("WLSDPLY-21003", context.getProgramName(), wdtVersion,
+                context.getVersion(), context.getWlstMode());
+        }
+        handler.publish(logRecord);
     }
 
     private void summaryTail(Handler handler) {
@@ -248,11 +260,17 @@ public class SummaryHandler extends WLSDeployLogEndHandler {
         handler.publish(getLogRecord("WLSDPLY-21002", buffer));
     }
 
-    private void summaryToDo(Handler handler, LevelHandler todoHandler) {
+    private void summaryToDo(Handler handler, LevelHandler todoHandler, String programName, boolean isRemote) {
         if (todoHandler == null || todoHandler.getTotalRecords() == 0) {
             return;
         }
-        handler.publish(getLogRecord("WLSDPLY-06031"));
+        if ("updateDomain".equals(programName) && isRemote) {
+            handler.publish(getLogRecord("WLSDPLY-06045"));
+        } else if ("deployApps".equals(programName) && isRemote) {
+            handler.publish(getLogRecord("WLSDPLY-06046"));
+        } else {
+            handler.publish(getLogRecord("WLSDPLY-06031"));
+        }
         todoHandler.push();
     }
 

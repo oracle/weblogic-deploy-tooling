@@ -11,14 +11,14 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create.custom_folder_helper import CustomFolderHelper
+from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.util.attribute_setter import AttributeSetter
+from wlsdeploy.tool.util.topology_helper import TopologyHelper
+from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import model_helper
-from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util.model import Model
 import wlsdeploy.util.unicode_helper as str_helper
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
-from wlsdeploy.tool.deploy import deployer_utils
 
 
 class Creator(object):
@@ -36,9 +36,10 @@ class Creator(object):
         self.wlst_helper = WlstHelper(exception_type)
         self.model = Model(model)
         self.model_context = model_context
-        self.wls_helper = WebLogicHelper(self.logger)
+        self.wls_helper = model_context.get_weblogic_helper()
         self.attribute_setter = AttributeSetter(self.model_context, self.aliases, exception_type)
         self.custom_folder_helper = CustomFolderHelper(self.aliases, self.logger, self.model_context, exception_type)
+        self.topology_helper = TopologyHelper(self.aliases, ExceptionType.CREATE, self.logger)
 
         # Must be initialized by the subclass since only it has
         # the knowledge required to compute the domain name.
@@ -109,7 +110,7 @@ class Creator(object):
         :param type_name: the model folder type
         :param model_nodes: the model dictionary of the specified model folder type
         :param base_location: the base location object to use to create the MBean
-        :param log_created: whether or not to log created at INFO level, by default it is logged at the FINE level
+        :param log_created: whether log created at INFO level, by default it is logged at the FINE level
         :raises: CreateException: if an error occurs
         """
         _method_name = '_create_mbean'
@@ -124,7 +125,7 @@ class Creator(object):
 
         location = LocationContext(base_location).append_location(type_name)
         result, message = self.aliases.is_version_valid_location(location)
-        if result == ValidationCodes.VERSION_INVALID:
+        if result == ValidationCodes.CONTEXT_INVALID:
             self.logger.warning('WLSDPLY-12123', message,
                                 class_name=self.__class_name, method_name=_method_name)
             return
@@ -308,7 +309,9 @@ class Creator(object):
         """
         _method_name = '_set_attribute'
         if (model_name in uses_path_tokens_names) and (model_value is not None):
+            # extract path(s) may be different from original model value
             self._extract_archive_files(location, model_name, model_value)
+            model_value = self.topology_helper.get_archive_extract_path(model_value, location, model_name)
 
         wlst_name, wlst_value = self.aliases.get_wlst_attribute_name_and_value(location, model_name, model_value)
 
@@ -382,13 +385,13 @@ class Creator(object):
         :return: True if the location is valid, False otherwise
         :raises: CreateException: if an error occurs
         """
-        _method_name = '_check_location'
+        _method_name = '_is_type_valid'
 
         code, message = self.aliases.is_valid_model_folder_name(location, type_name)
         result = False
         if code == ValidationCodes.VALID:
             result = True
-        elif code == ValidationCodes.VERSION_INVALID:
+        elif code == ValidationCodes.CONTEXT_INVALID:
             path = self._format_model_path(location, type_name)
             self.logger.warning('WLSDPLY-12108', path, message,
                                 class_name=self.__class_name, method_name=_method_name)

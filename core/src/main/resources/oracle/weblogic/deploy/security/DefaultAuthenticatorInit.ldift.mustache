@@ -1,0 +1,39 @@
+{{#existingEntries}}
+{{#existingLines}}
+{{{existingText}}}
+{{/existingLines}}
+
+{{/existingEntries}}
+{{#group}}
+dn: cn={{{name}}},ou=groups,ou=@realm@,dc=@domain@
+memberURL: ldap:///ou=people,ou=@realm@,dc=@domain@??sub?(&(objectclass=person)(wlsMemberOf=cn={{{name}}},ou=groups,ou=@realm@,dc=@domain@))
+description: {{{description}}}
+objectclass: top
+objectclass: groupOfURLs
+objectclass: groupOfUniqueNames
+cn: {{{name}}}
+{{#childGroups}}
+uniquemember: cn={{{childGroupName}}},ou=groups,ou=@realm@,dc=@domain@
+{{/childGroups}}
+
+{{/group}}
+{{#user}}
+dn: uid={{{name}}},ou=people,ou=@realm@,dc=@domain@
+description: {{{description}}}
+objectclass: inetOrgPerson
+objectclass: organizationalPerson
+objectclass: person
+objectclass: top
+cn: {{{name}}}
+sn: {{{name}}}
+userpassword: {{{password}}}
+uid: {{{name}}}
+objectclass: wlsUser
+{{#userGroups}}
+wlsMemberOf: cn={{{userGroupName}}},ou=groups,ou=@realm@,dc=@domain@
+{{/userGroups}}
+{{#userAttributes}}
+{{{key}}}={{{value}}}
+{{/userAttributes}}
+
+{{/user}}

@@ -173,7 +173,7 @@ class Verifier(object):
         self._model_context = model_context
         self._alias_helper = AliasHelper(model_context)
         self._results = \
-            VerifierResult(verify_utils.get_wlst_mode_as_string(model_context), model_context.get_target_wls_version())
+            VerifierResult(verify_utils.get_wlst_mode_as_string(model_context), model_context.get_local_wls_version())
 
     def verify(self):
         """

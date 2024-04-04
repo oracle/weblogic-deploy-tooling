@@ -13,7 +13,7 @@ from oracle.weblogic.deploy.deploy import DeployException
 # imports from local packages start here
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.exception import exception_helper
+
 from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.extract.domain_resource_extractor import DomainResourceExtractor
@@ -25,12 +25,10 @@ from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.cla_utils import TOOL_TYPE_EXTRACT
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model import Model
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 _program_name = 'extractDomainResource'
 _class_name = 'extract_resource'
 __logger = PlatformLogger('wlsdeploy.extract')
-__wls_helper = WebLogicHelper(__logger)
 __wlst_mode = WlstModes.OFFLINE
 
 __required_arguments = [

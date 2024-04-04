@@ -2,7 +2,7 @@
 # *****************************************************************************
 # shared.sh
 #
-# Copyright (c) 2020, 2023, Oracle Corporation and/or its affiliates.
+# Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -149,17 +149,12 @@ checkJythonArgs() {
 variableSetup() {
     # set up variables for WLST or Jython execution
 
-    # set the WLSDEPLOY_HOME variable. if it was already set, verify that it is valid
+    # set the WLSDEPLOY_HOME variable, ignoring any value that was already set
 
-    if [ -z "${WLSDEPLOY_HOME}" ]; then
-        SCRIPT_DIR="`dirname "$0"`"
-        BASEDIR="`cd "${SCRIPT_DIR}" && pwd `"
-        WLSDEPLOY_HOME="`cd "${BASEDIR}/.." ; pwd`"
-        export WLSDEPLOY_HOME
-    elif [ ! -d "${WLSDEPLOY_HOME}" ]; then
-        echo "Specified WLSDEPLOY_HOME of ${WLSDEPLOY_HOME} does not exist" >&2
-        exit 2
-    fi
+    SCRIPT_DIR="`dirname "$0"`"
+    BASEDIR="`cd "${SCRIPT_DIR}" && pwd `"
+    WLSDEPLOY_HOME="`cd "${BASEDIR}/.." ; pwd`"
+    export WLSDEPLOY_HOME
 
     # set up logger configuration, see WLSDeployLoggingConfig.java
 

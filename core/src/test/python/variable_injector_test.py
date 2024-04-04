@@ -1,5 +1,5 @@
 """
-Copyright (c) 2018, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2018, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -10,10 +10,12 @@ import wlsdeploy.tool.util.variable_injector as variable_injector
 import wlsdeploy.util.variables as variables
 from base_test import BaseTestCase
 from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
+from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.tool.util.variable_injector import STANDARD_PASSWORD_INJECTOR
 from wlsdeploy.tool.util.variable_injector import VariableInjector
+from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
 from wlsdeploy.util.model_translator import FileToPython
 
@@ -26,14 +28,17 @@ class VariableFileHelperTest(BaseTestCase):
         self.CONFIG_RESOURCES_DIR = os.path.join(self.RESOURCES_DIR, 'config')
         self._model_file = os.path.join(self.RESOURCES_DIR, 'variable_insertion.yaml')
         self.OUTPUT_DIR = os.path.join(self.TEST_OUTPUT_DIR, 'injector')
-        self._variable_file = os.path.join(self.OUTPUT_DIR + 'variable.injector.test.properties')
+        self._variable_file = os.path.join(self.OUTPUT_DIR, 'variable.injector.test.properties')
 
     def setUp(self):
         BaseTestCase.setUp(self)
         self.name = 'VariableFileHelperTest'
         self._model = FileToPython(self._model_file).parse()
-        self._model_context = ModelContext(self.name, {})
-        self._helper = VariableInjector(self.name, self._model, self._model_context, '12.2.1.3')
+        self._model_context = ModelContext(self.name, {
+            CommandLineArgUtil.VARIABLE_FILE_SWITCH: self._variable_file
+        })
+        aliases = Aliases(self._model_context, wls_version='12.2.1.3')
+        self._helper = VariableInjector(self.name, self._model_context, aliases)
 
     def testSingleVariableReplacement(self):
         BaseTestCase.tearDown(self)
@@ -43,7 +48,7 @@ class VariableFileHelperTest(BaseTestCase):
         short_name = self._helper.get_folder_short_name(LocationContext().append_location('Machine'))
         name = short_name + '.machine1.ListenAddress'
         expected[name] = '127.0.0.1'
-        actual = self._helper.inject_variables(replacement_dict)
+        actual = self._helper.inject_variables(self._model, replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
 
     def testMultiplesReplacement(self):
@@ -64,21 +69,21 @@ class VariableFileHelperTest(BaseTestCase):
         replacement_dict['JMSSystemResource.JmsResource.ForeignServer.ConnectionURL'] = dict()
         replacement_dict['JMSSystemResource.JmsResource.ForeignServer.ForeignDestination.LocalJNDIName'] = dict()
         replacement_dict['Server.SSL.ListenPort'] = dict()
-        actual = self._helper.inject_variables(replacement_dict)
+        actual = self._helper.inject_variables(self._model, replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
 
     def testInvalidMBeanNameNoException(self):
         expected = dict()
         replacement_dict = dict()
         replacement_dict['JmsSystemResource.Notes'] = dict()
-        actual = self._helper.inject_variables(replacement_dict)
+        actual = self._helper.inject_variables(self._model, replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
 
     def testInvalidAttributeName(self):
         expected = dict()
         replacement_dict = dict()
         replacement_dict['Server.listenaddress'] = dict()
-        actual = self._helper.inject_variables(replacement_dict)
+        actual = self._helper.inject_variables(self._model, replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
 
     def testDomainAttributeReplacementAndModel(self):
@@ -87,7 +92,7 @@ class VariableFileHelperTest(BaseTestCase):
         expected_replacement = '@@PROP:Notes@@'
         replacement_dict = dict()
         replacement_dict['Notes'] = dict()
-        actual = self._helper.inject_variables(replacement_dict)
+        actual = self._helper.inject_variables(self._model, replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
         self.assertEqual(expected_replacement, self._model['topology']['Notes'])
 
@@ -106,7 +111,7 @@ class VariableFileHelperTest(BaseTestCase):
         list_entry2[variable_injector.REGEXP_SUFFIX] = 'Host'
         replacement_dict['JDBCSystemResource.JdbcResource.JDBCDriverParams.URL'][variable_injector.REGEXP] = [
             list_entry1, list_entry2]
-        actual = self._helper.inject_variables(replacement_dict)
+        actual = self._helper.inject_variables(self._model, replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
         db2 = 'jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)' \
               '(HOST=@@PROP:' + short_name + '.Database2.URL--Host@@)' \
@@ -134,7 +139,7 @@ class VariableFileHelperTest(BaseTestCase):
         list_entry2[variable_injector.REGEXP_PATTERN] = 'mail.imap.host'
         list_entry2[variable_injector.REGEXP_SUFFIX] = 'ImapHost'
         replacement_dict['MailSession.Properties'][variable_injector.REGEXP] = [list_entry1, list_entry2]
-        actual = self._helper.inject_variables(replacement_dict)
+        actual = self._helper.inject_variables(self._model, replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
         self.assertEqual('@@PROP:' + short_name + '.MyMailSession.Properties--SmtpHost@@',
                          self._model['resources']['MailSession']['MyMailSession']['Properties']['mail.smtp.host'])
@@ -152,7 +157,7 @@ class VariableFileHelperTest(BaseTestCase):
         list_entry[variable_injector.REGEXP_PATTERN] = '(?<=\w.)host'
         list_entry[variable_injector.REGEXP_SUFFIX] = 'Host'
         replacement_dict['MailSession.Properties'][variable_injector.REGEXP] = [list_entry]
-        actual = self._helper.inject_variables(replacement_dict)
+        actual = self._helper.inject_variables(self._model, replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
         self.assertEqual('@@PROP:' + short_name + '.MyMailSession.Properties--Host@@',
                          self._model['resources']['MailSession']['MyMailSession']['Properties']['mail.imap.host'])
@@ -172,7 +177,7 @@ class VariableFileHelperTest(BaseTestCase):
         list_entry[variable_injector.REGEXP_PATTERN] = 'OracleHome'
         replacement_dict['WLDFSystemResource.WLDFResource.Harvester.HarvestedType.HarvestedAttribute'][
             variable_injector.REGEXP] = [list_entry]
-        actual = self._helper.inject_variables(replacement_dict)
+        actual = self._helper.inject_variables(self._model, replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
         wldf_list = self._model['resources']['WLDFSystemResource']['MyWldfModule']['WLDFResource']['Harvester'][
             'HarvestedType']['weblogic.management.runtime.ServerRuntimeMBean']['HarvestedAttribute']
@@ -196,7 +201,7 @@ class VariableFileHelperTest(BaseTestCase):
         list_entry[variable_injector.REGEXP_SUFFIX] = 'ManagedServer'
         replacement_dict['WLDFSystemResource.WLDFResource.Harvester.HarvestedType.HarvestedInstance'][
             variable_injector.REGEXP] = [list_entry]
-        actual = self._helper.inject_variables(replacement_dict)
+        actual = self._helper.inject_variables(self._model, replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
         wldf_list = self._model['resources']['WLDFSystemResource']['MyWldfModule']['WLDFResource']['Harvester'][
             'HarvestedType']['weblogic.management.runtime.ServerRuntimeMBean']['HarvestedInstance']
@@ -216,7 +221,7 @@ class VariableFileHelperTest(BaseTestCase):
         expected[short_name + '.Database1.user.Value'] = 'admin'
         replacement_dict = dict()
         replacement_dict['JDBCSystemResource.JdbcResource.JDBCDriverParams.Properties[user].Value'] = dict()
-        actual = self._helper.inject_variables(replacement_dict)
+        actual = self._helper.inject_variables(self._model, replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
 
     def testWithListMBeanName(self):
@@ -226,7 +231,7 @@ class VariableFileHelperTest(BaseTestCase):
         expected[short_name + '.m2.SSL.Enabled'] = 'true'
         replacement_dict = dict()
         replacement_dict['Server[m1,m2].SSL.Enabled'] = dict()
-        actual = self._helper.inject_variables(replacement_dict)
+        actual = self._helper.inject_variables(self._model, replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
 
     def testWithManagedServerKeyword(self):
@@ -236,7 +241,7 @@ class VariableFileHelperTest(BaseTestCase):
         expected[short_name + '.m2.SSL.Enabled'] = 'true'
         replacement_dict = dict()
         replacement_dict['Server[MANAGED_SERVERS].SSL.Enabled'] = dict()
-        actual = self._helper.inject_variables(replacement_dict)
+        actual = self._helper.inject_variables(self._model, replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
 
     def testWithMultiKeyword(self):
@@ -246,7 +251,7 @@ class VariableFileHelperTest(BaseTestCase):
         expected['Server.m2.SSL.Enabled'] = 'true'
         replacement_dict = dict()
         replacement_dict['Server[MANAGED_SERVERS,ADMIN_SERVER].SSL.Enabled'] = dict()
-        actual = self._helper.inject_variables(replacement_dict)
+        actual = self._helper.inject_variables(self._model, replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
 
     def testWithVariableHelperKeywords(self):
@@ -260,24 +265,19 @@ class VariableFileHelperTest(BaseTestCase):
         expected[short_name + '.m1.ListenPort'] = '9003'
         short_name = self._helper.get_folder_short_name(LocationContext().append_location('Machine'))
         expected[short_name + '.machine1.ListenPort'] = '5557'
-        expected[short_name + '.machine1.PasswordEncrypted'] = '--FIX ME--'
-        expected[short_name + '.machine1.UserName'] = 'admin'
 
         self._establish_directory(self.OUTPUT_DIR)
-        self._model_context._variable_properties_file = self._variable_file
 
         # Define custom configuration path for WDT, with custom injector files
         config_dir = self._set_custom_config_dir('injector-wdt-config')
         injector_config_file = os.path.join(self.CONFIG_RESOURCES_DIR, 'model_variable_injector.json')
         shutil.copy(injector_config_file, config_dir)
-        keywords_file = os.path.join(self.CONFIG_RESOURCES_DIR, 'variable_keywords.json')
-        shutil.copy(keywords_file, config_dir)
         injectors_target_dir = os.path.join(config_dir, 'injectors')
         shutil.rmtree(injectors_target_dir)
         injectors_dir = os.path.join(self.CONFIG_RESOURCES_DIR, 'injectors')
         shutil.copytree(injectors_dir, injectors_target_dir)
 
-        inserted, model, variable_file_name = self._helper.inject_variables_keyword_file()
+        inserted, model, variable_file_name = self._helper.inject_variables_from_configuration(self._model)
 
         self._clear_custom_config_dir()
 
@@ -295,7 +295,7 @@ class VariableFileHelperTest(BaseTestCase):
         replacement_dict = dict()
         replacement_dict['Server.SSL.HostnameVerificationIgnored'] = dict()
         replacement_dict['Server.SSL.HostnameVerificationIgnored'][variable_injector.FORCE] = True
-        actual = self._helper.inject_variables(replacement_dict)
+        actual = self._helper.inject_variables(self._model, replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
 
     def testForceAttributeWithTwoDefaults(self):
@@ -305,7 +305,7 @@ class VariableFileHelperTest(BaseTestCase):
         replacement_dict = dict()
         replacement_dict['JMSSystemResource.JmsResource.Template.MaximumMessageSize'] = dict()
         replacement_dict['JMSSystemResource.JmsResource.Template.MaximumMessageSize'][variable_injector.FORCE] = True
-        actual = self._helper.inject_variables(replacement_dict)
+        actual = self._helper.inject_variables(self._model, replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
 
     def testReplaceVariableValueAttribute(self):
@@ -318,7 +318,7 @@ class VariableFileHelperTest(BaseTestCase):
         replacement_dict['JMSSystemResource.JmsResource.ForeignServer.'
                          'JNDIProperty[java.naming.security.principal].Value'][
             variable_injector.VARIABLE_VALUE] = 'k8s'
-        actual = self._helper.inject_variables(replacement_dict)
+        actual = self._helper.inject_variables(self._model, replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
 
     def testReplaceVariableValueSegmentInString(self):
@@ -335,7 +335,7 @@ class VariableFileHelperTest(BaseTestCase):
             variable_injector.REGEXP] = [list_entry]
         replacement_dict['JDBCSystemResource[Database2].JdbcResource.JDBCDriverParams.URL'][
             variable_injector.VARIABLE_VALUE] = 'den00chv'
-        actual = self._helper.inject_variables(replacement_dict)
+        actual = self._helper.inject_variables(self._model, replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
 
     def testReplaceVariableValueSegmentInDictionary(self):
@@ -350,7 +350,7 @@ class VariableFileHelperTest(BaseTestCase):
         list_entry[variable_injector.REGEXP_SUFFIX] = 'SmtpHost'
         replacement_dict['MailSession.Properties'][variable_injector.REGEXP] = [list_entry]
         replacement_dict['MailSession.Properties'][variable_injector.VARIABLE_VALUE] = 'localhost'
-        actual = self._helper.inject_variables(replacement_dict)
+        actual = self._helper.inject_variables(self._model, replacement_dict)
         self._compare_to_expected_dictionary(expected, actual)
 
     def testCustomPasswordInjection(self):

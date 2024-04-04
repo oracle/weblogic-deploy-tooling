@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os, shutil
@@ -104,7 +104,7 @@ class CoherenceResourcesDeployer(Deployer):
             if runtime_cache_config_uri is not None:
                 # Use case 1
                 domain_home = self.model_context.get_domain_home()
-                result[COHERENCE_RUNTIME_CACHE_CONFIG_URI] = os.path.join(domain_home, runtime_cache_config_uri)
+                result[COHERENCE_RUNTIME_CACHE_CONFIG_URI] = self.path_helper.join(domain_home, runtime_cache_config_uri)
                 use_cache_config_file = False
 
         if use_cache_config_file:
@@ -117,7 +117,7 @@ class CoherenceResourcesDeployer(Deployer):
                                          class_name=self._class_name, method_name=_method_name)
                 self.logger.exiting(class_name=self._class_name, method_name=_method_name)
                 return cache_config_dict
-            elif os.path.isabs(cache_configuration_file):
+            elif self.path_helper.is_absolute_path(cache_configuration_file):
                 value_to_use = cache_configuration_file
                 self.logger.fine('WLSDPLY-09419', cluster_name, cache_config_name, cache_configuration_file,
                                  class_name=self._class_name, method_name=_method_name)
@@ -171,6 +171,7 @@ class CoherenceResourcesDeployer(Deployer):
 
         _method_name = '_make_coh_cluster_custom_config_available'
         domain_home = self.model_context.get_domain_home()
+
         for coherence_cluster_name in coherence_clusters:
             cluster_dict = coherence_clusters[coherence_cluster_name]
             use_custom_config = dictionary_utils.get_boolean_element(cluster_dict, COHERENCE_USE_CUSTOM_CLUSTER_CONFIG)
@@ -189,63 +190,83 @@ class CoherenceResourcesDeployer(Deployer):
 
         coh_resource = dictionary_utils.get_dictionary_element(cluster_dict, COHERENCE_RESOURCE)
         if coh_resource:
-            custom_path = dictionary_utils.get_element(coh_resource, COHERENCE_CUSTOM_CLUSTER_CONFIGURATION)
+            model_path = dictionary_utils.get_element(coh_resource, COHERENCE_CUSTOM_CLUSTER_CONFIGURATION)
 
-            if custom_path is not None:
-                coh_cluster_config_path = os.path.join(domain_home, 'config', 'coherence', coherence_cluster_name)
-                self.logger.fine("WLSDPLY-09407", custom_path, coh_cluster_config_path,
-                                 class_name=self._class_name, method_name=_method_name)
-                if not os.path.exists(coh_cluster_config_path):
-                    self.logger.finer("WLSDPLY-09408", coh_cluster_config_path,
-                                      class_name=self._class_name, method_name=_method_name)
-                    os.mkdir(coh_cluster_config_path)
+            if isinstance(model_path, (str, unicode)) and len(model_path) > 0:
+                coh_cluster_config_path = \
+                    self.path_helper.join(domain_home, 'config', 'coherence', coherence_cluster_name)
+                if self.model_context.is_ssh():
+                    self.logger.fine("WLSDPLY-09425", model_path, coh_cluster_config_path,
+                                     class_name=self._class_name, method_name=_method_name)
+                else:
+                    self.logger.fine("WLSDPLY-09407", model_path, coh_cluster_config_path,
+                                     class_name=self._class_name, method_name=_method_name)
+                    if not os.path.exists(coh_cluster_config_path):
+                        self.logger.finer("WLSDPLY-09408", coh_cluster_config_path,
+                                          class_name=self._class_name, method_name=_method_name)
+                        os.mkdir(coh_cluster_config_path)
 
                 config_filepath = \
-                    self._get_custom_cluster_config_filepath(custom_path, coh_cluster_config_path, domain_home)
-                self._move_custom_cluster_config_file(custom_path, config_filepath, coh_cluster_config_path)
+                    self._get_custom_cluster_config_filepath(model_path, coh_cluster_config_path, domain_home)
+                self._move_custom_cluster_config_file(model_path, config_filepath, coh_cluster_config_path)
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 
-    def _get_custom_cluster_config_filepath(self, custom_path, coh_cluster_config_path, domain_home):
+    def _get_custom_cluster_config_filepath(self, model_path, coh_cluster_config_path, domain_home):
         _method_name = '_get_custom_cluster_config_filepath'
-        self.logger.entering(custom_path, coh_cluster_config_path, domain_home,
+        self.logger.entering(model_path, coh_cluster_config_path, domain_home,
                              class_name=self._class_name, method_name=_method_name)
 
-        if self.archive_helper.is_path_into_archive(custom_path):
+        if self.archive_helper.is_path_into_archive(model_path):
             # this is the extracted path from the archive
-            config_filepath = os.path.join(domain_home, custom_path)
-        elif os.path.isabs(custom_path):
+            if self.model_context.is_ssh():
+                config_filepath = self.path_helper.local_join(self.upload_temporary_dir, model_path)
+            else:
+                config_filepath = self.path_helper.local_join(domain_home, model_path)
+        elif self.path_helper.is_absolute_local_path(model_path):
             # absolute path
-            config_filepath = custom_path
+            config_filepath = model_path
         else:
             # what to do with a relative path that is not in the exploded Archive location?
-            coh_domain_config_path_prefix = os.path.join(domain_home, 'config')
-            self.logger.info("WLSDPLY-09411", custom_path, coh_domain_config_path_prefix,
+            coh_domain_config_path_prefix = self.path_helper.local_join(domain_home, 'config')
+            self.logger.info("WLSDPLY-09411", model_path, coh_domain_config_path_prefix,
                              class_name=self._class_name, method_name=_method_name)
-            config_filepath = os.path.join(coh_domain_config_path_prefix, custom_path)
+            config_filepath = self.path_helper.local_join(coh_domain_config_path_prefix, model_path)
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=config_filepath)
         return config_filepath
 
-    def _move_custom_cluster_config_file(self, custom_path, config_filepath, coh_cluster_config_path):
+    def _move_custom_cluster_config_file(self, model_path, config_filepath, coh_cluster_config_path):
+        """
+        Move the Coherence custom cluster config file into place.
+
+        :param model_path:              the path from the model
+        :param config_filepath:         the local path to the file
+        :param coh_cluster_config_path: the target directory
+        """
         _method_name = '_move_custom_cluster_config_file'
-        self.logger.entering(custom_path, config_filepath, coh_cluster_config_path,
+        self.logger.entering(model_path, config_filepath, coh_cluster_config_path,
                              class_name=self._class_name, method_name=_method_name)
 
         if os.path.exists(config_filepath):
-            if config_filepath.startswith(coh_cluster_config_path + "/"):
+            if self.model_context.is_ssh():
+                self.logger.info("WLSDPLY-09424", config_filepath, coh_cluster_config_path,
+                                 class_name=self._class_name, method_name=_method_name)
+                self.model_context.get_ssh_context().create_directories_if_not_exist(coh_cluster_config_path)
+                self.model_context.get_ssh_context().upload(config_filepath, coh_cluster_config_path)
+            elif config_filepath.startswith(coh_cluster_config_path + "/"):
                 self.logger.info("WLSDPLY-09412", config_filepath, coh_cluster_config_path,
                                  class_name=self._class_name, method_name=_method_name)
             else:
                 self.logger.fine("WLSDPLY-09409", config_filepath, coh_cluster_config_path,
                                  class_name=self._class_name, method_name=_method_name)
                 shutil.copy(config_filepath, coh_cluster_config_path)
-                if self.archive_helper.is_path_into_archive(custom_path):
+                if self.archive_helper.is_path_into_archive(model_path):
                     self.logger.info("WLSDPLY-09410", config_filepath, coh_cluster_config_path,
                                      class_name=self._class_name, method_name=_method_name)
                     os.remove(config_filepath)
         else:
-            self.logger.warning("WLSDPLY-09413", custom_path, config_filepath,
-                        class_name=self._class_name, method_name=_method_name)
+            self.logger.warning("WLSDPLY-09413", model_path, config_filepath,
+                                class_name=self._class_name, method_name=_method_name)
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)

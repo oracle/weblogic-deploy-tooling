@@ -1,20 +1,50 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+import os
+import re
+
 import java.lang.Exception as JException
 
 import weblogic.management.provider.ManagementServiceClient as ManagementServiceClient
 import weblogic.security.internal.SerializedSystemIni as SerializedSystemIni
 import weblogic.security.internal.encryption.ClearOrEncryptedService as ClearOrEncryptedService
-import weblogic.version as version_helper
 
+from oracle.weblogic.deploy.create.RCURunner import DB2_DB_TYPE
+from oracle.weblogic.deploy.create.RCURunner import EBR_DB_TYPE
+from oracle.weblogic.deploy.create.RCURunner import MYSQL_DB_TYPE
+from oracle.weblogic.deploy.create.RCURunner import ORACLE_DB_TYPE
+from oracle.weblogic.deploy.create.RCURunner import SQLSERVER_DB_TYPE
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.util import string_utils
 import wlsdeploy.util.unicode_helper as str_helper
 
-import os
-import re
+
+def get_local_weblogic_version():
+    import weblogic.version as version_helper
+    return str_helper.to_string(version_helper.getReleaseBuildVersion())
+
+
+def get_weblogic_home(oracle_home, version):
+    wl_home = None
+    if oracle_home is not None:
+        if string_utils.is_weblogic_version_or_above(version, '12.1.2'):
+            wl_home = oracle_home + '/wlserver'
+        elif string_utils.is_weblogic_version_or_above(version, '12.1.1'):
+            wl_home = oracle_home + '/wlserver_12.1'
+        else:
+            wl_home = oracle_home + '/wlserver_10.3'
+
+        # if the path is not a valid directory, try to infer it from the pattern
+        if os.path.isdir(oracle_home) and not os.path.isdir(wl_home):
+            dirs = [f for f in os.listdir(oracle_home) if re.match(r'wlserver.*', f)]
+            if len(dirs) > 0:
+                wl_home = oracle_home + '/' + dirs[0]
+            else:
+                wl_home = None
+
+    return wl_home
 
 
 class WebLogicHelper(object):
@@ -34,9 +64,9 @@ class WebLogicHelper(object):
         self.logger = logger
         if wls_version is not None:
             self.wl_version = str_helper.to_string(wls_version)
-            self.wl_version_actual = str_helper.to_string(version_helper.getReleaseBuildVersion())
+            self.wl_version_actual = get_local_weblogic_version()
         else:
-            self.wl_version = str_helper.to_string(version_helper.getReleaseBuildVersion())
+            self.wl_version = get_local_weblogic_version()
             self.wl_version_actual = self.wl_version
 
     def get_actual_weblogic_version(self):
@@ -67,12 +97,11 @@ class WebLogicHelper(object):
         Is MultiTenant offline provisioning supported?
         :return: true if MT offline provisioning is supported; false otherwise
         """
-        return (self.is_weblogic_version_or_above('12.2.1.1') or not self.is_weblogic_version_or_above('12.2.1')) and \
-            not self.is_weblogic_version_or_above('14.1.1')
+        return self.is_weblogic_version_or_above('12.2.1.1') and not self.is_weblogic_version_or_above('14.1.1')
 
     def is_mt_provisioning_supported(self):
         """
-        Is MultiTenant offline provisioning in a version that is still supports MT?
+        Is MultiTenant online provisioning in a version that is still supports MT?
         :return: true if MT provisioning is supported; false otherwise
         """
         return self.is_weblogic_version_or_above('12.2.1') and not self.is_weblogic_version_or_above('14.1.1')
@@ -126,6 +155,13 @@ class WebLogicHelper(object):
         """
         return self.is_weblogic_version_or_above('12.2.1')
 
+    def is_db_client_data_distribution_supported(self):
+        """
+        Is database client data distribution supported?
+        :return: true if version is within the range supporting distribution, false otherwise
+        """
+        return self.is_weblogic_version_or_above('14.1.2')
+
     def is_wrc_domain_extension_supported(self):
         """
         Is the WebLogic Remote Console domain-level extension supported?
@@ -133,31 +169,61 @@ class WebLogicHelper(object):
         """
         return self.is_weblogic_version_or_above('12.2.1.3') and not self.is_weblogic_version_or_above('14.1.2')
 
-    def get_jdbc_url_from_rcu_connect_string(self, rcu_connect_string):
+    def get_jdbc_url_from_rcu_connect_string(self, rcu_connect_string, rcu_database_type='ORACLE'):
         """
         Get the JDBC URL from the RCU connect string.
         :param rcu_connect_string: the RCU connect string
         :return: the JDBC URL
         """
-        jdbc_url = rcu_connect_string
-        if not rcu_connect_string.startswith('jdbc:oracle:'):
-            if rcu_connect_string.startswith('('):
-                # Long format
-                jdbc_url = 'jdbc:oracle:thin:@' + rcu_connect_string
-            elif rcu_connect_string.rfind('/') != -1:
-                # host:port/service format
-                jdbc_url = 'jdbc:oracle:thin:@//' + rcu_connect_string
-            else:
-                # host:port:sid format
-                jdbc_url = 'jdbc:oracle:thin:@' + rcu_connect_string
-        return jdbc_url
+        _method_name = 'get_jdbc_url_from_rcu_connect_string'
+        self.logger.entering(rcu_connect_string, rcu_database_type,
+                             class_name=self._class_name, method_name=_method_name)
 
-    def get_stb_data_source_jdbc_driver_name(self):
-        """
-        Get the Service Table JDBC Driver class name.
-        :return: the Service Table JDBC Driver class name
-        """
-        return 'oracle.jdbc.OracleDriver'
+        jdbc_url = rcu_connect_string
+        if rcu_database_type == ORACLE_DB_TYPE or rcu_database_type == EBR_DB_TYPE:
+            if not rcu_connect_string.startswith('jdbc:oracle:'):
+                if rcu_connect_string.startswith('('):
+                    # Long format
+                    jdbc_url = 'jdbc:oracle:thin:@' + rcu_connect_string
+                elif rcu_connect_string.rfind('/') != -1:
+                    # host:port/service format
+                    jdbc_url = 'jdbc:oracle:thin:@//' + rcu_connect_string
+                else:
+                    # host:port:sid format
+                    jdbc_url = 'jdbc:oracle:thin:@' + rcu_connect_string
+        elif rcu_database_type == SQLSERVER_DB_TYPE:
+            if not rcu_connect_string.startswith('jdbc:weblogic:sqlserver://'):
+                if rcu_connect_string.count(':') == 2:
+                    rcu_connect_string_components = rcu_connect_string.split(':')
+                    rcu_connect_string = '%s:%s;DatabaseName=%s' % (
+                        rcu_connect_string_components[0],
+                        rcu_connect_string_components[1],
+                        rcu_connect_string_components[2]
+                    )
+                jdbc_url = 'jdbc:weblogic:sqlserver://' + rcu_connect_string
+        elif rcu_database_type == DB2_DB_TYPE:
+            if not rcu_connect_string.startswith('jdbc:weblogic:db2://'):
+                if rcu_connect_string.count(':') == 2:
+                    rcu_connect_string_components = rcu_connect_string.split(':')
+                    rcu_connect_string = '%s:%s;DatabaseName=%s' % (
+                        rcu_connect_string_components[0],
+                        rcu_connect_string_components[1],
+                        rcu_connect_string_components[2]
+                    )
+                jdbc_url = 'jdbc:weblogic:db2://' + rcu_connect_string
+        elif rcu_database_type == MYSQL_DB_TYPE:
+            if not rcu_connect_string.startswith('jdbc:mysql://'):
+                if rcu_connect_string.count(':') == 2:
+                    rcu_connect_string_components = rcu_connect_string.split(':')
+                    rcu_connect_string = '%s:%s/%s' % (
+                        rcu_connect_string_components[0],
+                        rcu_connect_string_components[1],
+                        rcu_connect_string_components[2]
+                    )
+                jdbc_url = 'jdbc:mysql://' + rcu_connect_string
+
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=jdbc_url)
+        return jdbc_url
 
     def get_stb_user_name(self, rcu_prefix):
         """
@@ -228,24 +294,7 @@ class WebLogicHelper(object):
         :param oracle_home: for the current wlst (is there a way to get oracle home from wlst?)
         :return: weblogic home path for the wlst version and oracle home
         """
-        wl_home = None
-        if oracle_home is not None:
-            if self.is_weblogic_version_or_above('12.1.2'):
-                wl_home = oracle_home + '/wlserver'
-            elif self.is_weblogic_version_or_above('12.1.1'):
-                wl_home = oracle_home + '/wlserver_12.1'
-            else:
-                wl_home = oracle_home + '/wlserver_10.3'
-
-            # if the path is not a valid directory, try to infer it from the pattern
-            if os.path.isdir(oracle_home) and not os.path.isdir(wl_home):
-                dirs = [f for f in os.listdir(oracle_home) if re.match(r'wlserver.*', f)]
-                if len(dirs) > 0:
-                    wl_home = oracle_home + '/' + dirs[0]
-                else:
-                    wl_home = None
-
-        return wl_home
+        return get_weblogic_home(oracle_home, self.wl_version)
 
     def is_weblogic_version_or_above(self, str_version, use_actual_version=False):
         """

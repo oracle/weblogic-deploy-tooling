@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023 Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import imp
@@ -10,7 +10,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.filters import wko_filter
 from wlsdeploy.tool.util.filters import wko_final_filter
 from wlsdeploy.util import dictionary_utils
-from wlsdeploy.util import path_utils
+from wlsdeploy.util import path_helper
 from wlsdeploy.util.model_translator import FileToPython
 import wlsdeploy.util.unicode_helper as str_helper
 
@@ -59,12 +59,13 @@ def apply_filters(model, tool_type, model_context):
 
     try:
         filters_dictionary = {}
+        _path_helper = path_helper.get_path_helper()
 
         # if target specified in model context, use the filters from target config
         if model_context and model_context.get_target():
             __filter_file_location = model_context.get_target_configuration_file()
             filters_dictionary = model_context.get_target_configuration().get_model_filters()
-            target_path = os.path.join('targets', model_context.get_target())
+            target_path = _path_helper.local_join('targets', model_context.get_target())
 
             # Fix the tokenized path in the filter path
             for filter_list in filters_dictionary:
@@ -72,10 +73,10 @@ def apply_filters(model, tool_type, model_context):
                     filter_path = dictionary_utils.get_element(current_filter, 'path')
                     if (filter_path is not None) and filter_path.startswith(TARGET_CONFIG_TOKEN):
                         filter_path = target_path + filter_path.replace(TARGET_CONFIG_TOKEN, '')
-                        current_filter['path'] = path_utils.find_config_path(filter_path)
+                        current_filter['path'] = _path_helper.find_local_config_path(filter_path)
 
         else:
-            __filter_file_location = path_utils.find_config_path('model_filters.json')
+            __filter_file_location = _path_helper.find_local_config_path('model_filters.json')
             if os.path.isfile(__filter_file_location):
                 filters_dictionary = FileToPython(__filter_file_location).parse()
             else:

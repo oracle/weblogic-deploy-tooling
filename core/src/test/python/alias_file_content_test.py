@@ -1,8 +1,7 @@
 """
-Copyright (c) 2023, Oracle and/or its affiliates.
+Copyright (c) 2023, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-import pprint
 import re
 import unittest
 
@@ -21,8 +20,7 @@ from wlsdeploy.aliases.alias_constants import WLST_MODE
 from wlsdeploy.aliases.alias_constants import WLST_PATHS
 from wlsdeploy.aliases.alias_constants import WLST_TYPE
 from wlsdeploy.aliases.alias_entries import AliasEntries
-from wlsdeploy.aliases.model_constants import ATP_ADMIN_USER
-from wlsdeploy.aliases.model_constants import RCU_DB_USER
+from wlsdeploy.aliases.model_constants import OPSS_SECRETS
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import unicode_helper
@@ -32,8 +30,7 @@ class AliasFileContentTestCase(unittest.TestCase):
     _resources_dir = '../../test-classes/'
     _token_pattern = re.compile("^%([\\w-]+)%$")
     _base_wlst_path_name = 'WP001'
-    _credential_exceptions = [ unicode_helper.to_string(ATP_ADMIN_USER), unicode_helper.to_string(RCU_DB_USER) ]
-
+    _credential_exceptions = [ unicode_helper.to_string(OPSS_SECRETS) ]
     def setUp(self):
         self.alias_entries = AliasEntries(wls_version='12.2.1.3')
         self.online_alias_entries = AliasEntries(wls_version='12.2.1.3', wlst_mode=WlstModes.ONLINE)

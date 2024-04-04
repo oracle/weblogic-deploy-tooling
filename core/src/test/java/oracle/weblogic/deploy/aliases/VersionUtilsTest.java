@@ -1,9 +1,14 @@
 /*
- * Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2023, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.aliases;
 
+import java.util.logging.Level;
+
+import oracle.weblogic.deploy.logging.PlatformLogger;
+import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -11,6 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class VersionUtilsTest {
+    private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.versions");
+
     private static final String VERSION_1033 = "10.3.3.0";
     private static final String VERSION_1036 = "10.3.6.0";
     private static final String VERSION_1211 = "12.1.1.0";
@@ -27,6 +34,45 @@ public class VersionUtilsTest {
     private static final String RANGE_1036_AND_NEWER = "[10.3.6,)";
     private static final String RANGE_LESS_THAN_1212 = "[10,12.1.2)";
     private static final String RANGE_BETWEEN_1212_AND_12213 = "(12.1.1,12.2.1.3]";
+
+    private static final String WLS_1213_VERSION_DESCRIPTION =
+        "WebLogic Server 12.1.3.0.0  Wed May 21 18:53:34 PDT 2014 1604337";
+    private static final String WLS_1213_VERSION_RESULT = "12.1.3.0.0";
+    private static final String WLS_12214_VERSION_DESCRIPTION =
+        "WebLogic Server 12.2.1.4.0";
+    private static final String WLS_12214_VERSION_RESULT = "12.2.1.4.0";
+
+    private static final String PSU_EXCEPTION_8_DIGIT_DESCRIPTION =
+        "WLS PATCH SET UPDATE 12.2.1.3.0(ID:20190522.070630)";
+    private static final String PSU_EXCEPTION_8_DIGIT_RESULT = "190522";
+    private static final String PSU_EXCEPTION_6_DIGIT_DESCRIPTION = "WLS PATCH SET UPDATE 12.2.1.3.0(ID:191217.1425)";
+    private static final String PSU_EXCEPTION_6_DIGIT_RESULT = "191217";
+    private static final String PSU_EXCEPTION_UNKNOWN_NUM_DIGITS_DESCRIPTION =
+        "WLS PATCH SET UPDATE 12.2.1.3.0(ID:12345.6789)";
+    private static final String PSU_EXCEPTION_UNKNOWN_NUM_DIGITS_RESULT = null;
+    private static final String PSU_NEW_FORMAT_DESCRIPTION  = "WLS PATCH SET UPDATE 12.2.1.4.220329";
+    private static final String PSU_NEW_FORMAT_RESULT = "220329";
+    private static final String PSU_OLD_FORMAT_DESCRIPTION =
+        "WebLogic Server 12.1.3.0.2 PSU Patch for BUG19637454 THU NOV 27 10:54:42 IST 2014";
+    private static final String PSU_OLD_FORMAT_RESULT = "2";
+    private static final String[] PSU_NEW_FORMAT_LIST = new String[] {
+        "33678734;24551257;Thu Jan 13 09:14:57 CST 2022;SOA Bundle Patch 12.2.1.4.211216",
+        "32230661;24024338;Thu Jan 13 08:49:21 CST 2022;One-off",
+        "33416868;24444013;Thu Jan 13 08:47:29 CST 2022;WLS PATCH SET UPDATE 12.2.1.4.210930",
+        "33313802;24409663;Thu Jan 13 08:38:53 CST 2022;ADF BUNDLE PATCH 12.2.1.4.210903",
+        "1221411;24406034;Thu Jan 13 08:33:17 CST 2022;Bundle patch for Oracle Coherence Version 12.2.1.4.11",
+        "33093748;24325771;Thu Jan 13 08:31:11 CST 2022;One-off",
+        "32905339;24240122;Thu Jan 13 08:29:00 CST 2022;OWSM BUNDLE PATCH 12.2.1.4.210520",
+        "32880070;24228725;Thu Jan 13 08:26:19 CST 2022;One-off",
+        "32784652;24182560;Thu Jan 13 08:11:55 CST 2022;OPSS Bundle Patch 12.2.1.4.210418",
+        "30613424;24331010;Thu Jan 13 08:07:07 CST 2022;One-off"
+    };
+    private static final String PSU_NEW_FORMAT_LIST_RESULT = "210930";
+
+    @BeforeAll
+    static void initialize() {
+        LOGGER.setLevel(Level.OFF);
+    }
 
     @Test
     public void testClientGreaterThanServer() throws Exception {
@@ -289,6 +335,54 @@ public class VersionUtilsTest {
 
         // range2 has no upper limit, and is not adjacent to range1
         checkVersionRange("[12.1.2,12.1.3]", "[12.1.3,)", true);
+    }
+
+    @Test
+    void testGetWebLogicVersion1213Description() {
+        String actual = VersionUtils.getWebLogicVersion(WLS_1213_VERSION_DESCRIPTION);
+        assertEquals(WLS_1213_VERSION_RESULT, actual);
+    }
+
+    @Test
+    void testGetWebLogicVersion12214Description() {
+        String actual = VersionUtils.getWebLogicVersion(WLS_12214_VERSION_DESCRIPTION);
+        assertEquals(WLS_12214_VERSION_RESULT, actual);
+    }
+
+    @Test
+    void testPSUExceptionWith8Digits() {
+        String actual = VersionUtils.getPSUVersion(PSU_EXCEPTION_8_DIGIT_DESCRIPTION);
+        assertEquals(PSU_EXCEPTION_8_DIGIT_RESULT, actual);
+    }
+
+    @Test
+    void testPSUExceptionWith6Digits() {
+        String actual = VersionUtils.getPSUVersion(PSU_EXCEPTION_6_DIGIT_DESCRIPTION);
+        assertEquals(PSU_EXCEPTION_6_DIGIT_RESULT, actual);
+    }
+
+    @Test
+    void testPSUExceptionWithUnknownNumberOfDigits() {
+        String actual = VersionUtils.getPSUVersion(PSU_EXCEPTION_UNKNOWN_NUM_DIGITS_DESCRIPTION);
+        assertEquals(PSU_EXCEPTION_UNKNOWN_NUM_DIGITS_RESULT, actual);
+    }
+
+    @Test
+    void testNewPsuFormat() {
+        String actual = VersionUtils.getPSUVersion(PSU_NEW_FORMAT_DESCRIPTION);
+        assertEquals(PSU_NEW_FORMAT_RESULT, actual);
+    }
+
+    @Test
+    void testOldPsuFormat() {
+        String actual = VersionUtils.getPSUVersion(PSU_OLD_FORMAT_DESCRIPTION);
+        assertEquals(PSU_OLD_FORMAT_RESULT, actual);
+    }
+
+    @Test
+    void testNewPSUList() {
+        String actual = VersionUtils.getPSUVersion(PSU_NEW_FORMAT_LIST);
+        assertEquals(PSU_NEW_FORMAT_LIST_RESULT, actual);
     }
 
     private void checkVersionRange(String range1, String range2, boolean expected) throws VersionException {

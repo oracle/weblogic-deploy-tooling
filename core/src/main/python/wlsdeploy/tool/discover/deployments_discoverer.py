@@ -1,12 +1,11 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
 
 from java.io import BufferedReader
 from java.io import BufferedWriter
-from java.io import File
 from java.io import FileReader
 from java.io import FileWriter
 from java.lang import IllegalArgumentException
@@ -22,13 +21,19 @@ from oracle.weblogic.deploy.util import WLSDeployArchive
 from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import PLAN_DIR
+from wlsdeploy.aliases.model_constants import PLAN_PATH
+from wlsdeploy.aliases.model_constants import SOURCE_PATH
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
+from wlsdeploy.tool.util import structured_apps_helper
 from wlsdeploy.util import dictionary_utils
-from wlsdeploy.util import path_utils
+from wlsdeploy.util import path_helper
+from wlsdeploy.util import string_utils
 
 _class_name = 'DeploymentsDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
@@ -114,7 +119,7 @@ class DeploymentsDiscoverer(Discoverer):
                 file_name_path = file_name
                 if not self._model_context.is_remote():
                     file_name_path = self._convert_path(file_name)
-                if self._is_oracle_home_file(file_name_path):
+                if self._is_file_to_exclude_from_archive(file_name_path):
                     _logger.info('WLSDPLY-06383', library_name, class_name=_class_name, method_name=_method_name)
                 else:
                     new_source_name = None
@@ -122,10 +127,16 @@ class DeploymentsDiscoverer(Discoverer):
                         new_source_name = WLSDeployArchive.getSharedLibraryArchivePath(file_name_path)
                         self.add_to_remote_map(file_name_path, new_source_name,
                                            WLSDeployArchive.ArchiveEntryType.SHARED_LIBRARY.name())
-                    elif not self._model_context.skip_archive():
+                    elif not self._model_context.is_skip_archive():
                         _logger.info('WLSDPLY-06384', library_name, file_name_path, class_name=_class_name,
                                      method_name=_method_name)
                         try:
+
+                            if self._model_context.is_ssh():
+                                file_name_path = self.download_deployment_from_remote_server(file_name_path,
+                                                                                            self.download_temporary_dir,
+                                                                                            "sharedLibraries")
+
                             new_source_name = archive_file.addSharedLibrary(file_name_path)
                         except IllegalArgumentException, iae:
                             if model_constants.TARGET in library_dict:
@@ -189,8 +200,13 @@ class DeploymentsDiscoverer(Discoverer):
             new_plan_name = WLSDeployArchive.getShLibArchivePath(plan_path)
             self.add_to_remote_map(plan_path, new_plan_name,
                                    WLSDeployArchive.ArchiveEntryType.SHLIB_PLAN.name())
-        elif not self._model_context.skip_archive():
+        elif not self._model_context.is_skip_archive():
             try:
+                if self._model_context.is_ssh():
+                    plan_file_name = self.download_deployment_from_remote_server(plan_file_name,
+                                                                              self.download_temporary_dir,
+                                                                              "sharedLibraries")
+
                 new_plan_name = archive_file.addApplicationDeploymentPlan(plan_file_name,
                                                                           _generate_new_plan_name(
                                                                               library_source_name,
@@ -216,6 +232,7 @@ class DeploymentsDiscoverer(Discoverer):
         """
         _method_name = 'get_applications'
         _logger.entering(class_name=_class_name, method_name=_method_name)
+
         result = OrderedDict()
         model_top_folder_name = model_constants.APPLICATION
         location = LocationContext(self._base_location)
@@ -288,42 +305,48 @@ class DeploymentsDiscoverer(Discoverer):
         _logger.entering(application_name, class_name=_class_name, method_name=_method_name)
 
         archive_file = self._model_context.get_archive_file()
-        if model_constants.SOURCE_PATH in application_dict:
-            file_name = application_dict[model_constants.SOURCE_PATH]
-            if file_name:
-                file_name_path = file_name
-                if not self._model_context.is_remote():
-                    file_name_path = self._convert_path(file_name)
-                if self._is_oracle_home_file(file_name_path):
-                    _logger.info('WLSDPLY-06393', application_name, class_name=_class_name, method_name=_method_name)
-                else:
-                    new_source_name = None
-                    if self._model_context.is_remote():
-                        new_source_name = WLSDeployArchive.getApplicationArchivePath(file_name_path)
-                        self.add_to_remote_map(file_name_path, new_source_name,
-                                               WLSDeployArchive.ArchiveEntryType.APPLICATION.name())
-                    elif not self._model_context.skip_archive():
-                        _logger.info('WLSDPLY-06394', application_name, file_name_path, class_name=_class_name,
-                                     method_name=_method_name)
-                        try:
-                            new_source_name = archive_file.addApplication(file_name_path)
-                            module_type = dictionary_utils.get_dictionary_element(application_dict,
-                                                                                  model_constants.MODULE_TYPE)
-                            if module_type == 'jdbc':
-                                self._jdbc_password_fix(new_source_name)
+        file_name = self._get_dictionary_attribute_with_path_tokens_replaced(application_dict, SOURCE_PATH)
+        if file_name is not None:
+            file_name_path = file_name
+            if not self._model_context.is_remote():
+                file_name_path = self._convert_path(file_name)
+            if self._is_file_to_exclude_from_archive(file_name_path):
+                _logger.info('WLSDPLY-06393', application_name,
+                             class_name=_class_name, method_name=_method_name)
+            else:
+                new_source_name = None
+                if self._model_context.is_remote():
+                    new_source_name = WLSDeployArchive.getApplicationArchivePath(file_name_path)
+                    self.add_to_remote_map(file_name_path, new_source_name,
+                                           WLSDeployArchive.ArchiveEntryType.APPLICATION.name())
+                elif not self._model_context.is_skip_archive():
+                    _logger.info('WLSDPLY-06394', application_name, file_name_path,
+                                 class_name=_class_name, method_name=_method_name)
+                    try:
+                        if self._model_context.is_ssh():
+                            file_name_path = \
+                                self.download_deployment_from_remote_server(file_name_path,
+                                                                            self.download_temporary_dir,
+                                                                            "applications")
 
-                        except IllegalArgumentException, iae:
-                            self._disconnect_target(application_name, application_dict, iae.getLocalizedMessage())
-                        except WLSDeployArchiveIOException, wioe:
-                            de = exception_helper.create_discover_exception('WLSDPLY-06397', application_name,
-                                                                        file_name_path, wioe.getLocalizedMessage())
-                            _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
-                            raise de
-                    if new_source_name is not None:
-                        _logger.finer('WLSDPLY-06398', application_name, new_source_name, class_name=_class_name,
-                                      method_name=_method_name)
-                        application_dict[model_constants.SOURCE_PATH] = new_source_name
-                    self.add_application_plan_to_archive(application_name, application_dict)
+                        new_source_name = archive_file.addApplication(file_name_path)
+                        module_type = dictionary_utils.get_dictionary_element(application_dict,
+                                                                              model_constants.MODULE_TYPE)
+                        if module_type == 'jdbc':
+                            self._jdbc_password_fix(new_source_name)
+
+                    except IllegalArgumentException, iae:
+                        self._disconnect_target(application_name, application_dict, iae.getLocalizedMessage())
+                    except WLSDeployArchiveIOException, wioe:
+                        de = exception_helper.create_discover_exception('WLSDPLY-06397', application_name,
+                                                                    file_name_path, wioe.getLocalizedMessage())
+                        _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+                        raise de
+                if new_source_name is not None:
+                    _logger.finer('WLSDPLY-06398', application_name, new_source_name, class_name=_class_name,
+                                  method_name=_method_name)
+                    application_dict[model_constants.SOURCE_PATH] = new_source_name
+                self.add_application_plan_to_archive(application_name, application_dict)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
@@ -339,9 +362,17 @@ class DeploymentsDiscoverer(Discoverer):
         _method_name = 'add_application_plan_to_archive'
         _logger.entering(application_name, class_name=_class_name, method_name=_method_name)
         archive_file = self._model_context.get_archive_file()
-        if model_constants.PLAN_PATH in application_dict:
-            app_source_name = application_dict[model_constants.SOURCE_PATH]
-            plan_path = application_dict[model_constants.PLAN_PATH]
+
+        model_plan_path = self._get_dictionary_attribute_with_path_tokens_replaced(application_dict, PLAN_PATH)
+        if model_plan_path is not None:
+            app_source_name = self._get_dictionary_attribute_with_path_tokens_replaced(application_dict, SOURCE_PATH)
+            model_plan_dir = self._get_dictionary_attribute_with_path_tokens_replaced(application_dict, PLAN_DIR)
+
+            if model_plan_dir is not None and self.path_helper.is_relative_path(model_plan_path):
+                plan_path = self.path_helper.join(model_plan_dir, model_plan_path)
+            else:
+                plan_path = model_plan_path
+
             if plan_path:
                 if not self._model_context.is_remote():
                     plan_path = self._convert_path(plan_path)
@@ -356,7 +387,8 @@ class DeploymentsDiscoverer(Discoverer):
 
     def _add_structured_application_to_archive(self, application_name, application_dict, location, install_root):
         _method_name = '_add_structured_application_to_archive'
-        _logger.entering(application_name, location, install_root, class_name=_class_name, method_name=_method_name)
+        _logger.entering(application_name, location, install_root,
+                         class_name=_class_name, method_name=_method_name)
         archive_file = self._model_context.get_archive_file()
 
         install_root_path = install_root
@@ -364,14 +396,18 @@ class DeploymentsDiscoverer(Discoverer):
             if not self._model_context.is_remote():
                 install_root_path = self._convert_path(install_root)
 
-            if not self._is_oracle_home_file(install_root_path):
+            if not self._is_file_to_exclude_from_archive(install_root_path):
                 new_install_root_path = None
                 if self._model_context.is_remote():
                     new_install_root_path = WLSDeployArchive.getStructuredApplicationArchivePath(install_root_path)
                     self.add_to_remote_map(install_root_path, new_install_root_path,
                                            WLSDeployArchive.ArchiveEntryType.STRUCTURED_APPLICATION.name())
-                elif not self._model_context.skip_archive():
+                elif not self._model_context.is_skip_archive():
                     try:
+                        if self._model_context.is_ssh():
+                            install_root_path = self.download_deployment_from_remote_server(install_root_path,
+                                                                                          self.download_temporary_dir,
+                                                                                          "applications")
                         new_install_root_path = archive_file.addStructuredApplication(install_root_path)
                     except IllegalArgumentException, iae:\
                         self._disconnect_target(application_name, application_dict, iae.getLocalizedMessage())
@@ -386,54 +422,94 @@ class DeploymentsDiscoverer(Discoverer):
                         self._aliases.get_model_uses_path_tokens_attribute_names(location, only_readable=True)
                     for key, value in application_dict.iteritems():
                         if key in path_attributes:
+                            # In the SSH case, the install_root_path and value do not share a common path.
+                            #
+                            if self._model_context.is_ssh():
+                                value = self._convert_value_to_ssh_download_location(key, value, install_root_path)
                             application_dict[key] = \
                                 WLSDeployArchive.getStructuredApplicationArchivePath(install_root_path,
                                                                                      new_install_root_path, value)
             else:
                 _logger.info('WLSDPLY-06393', application_name, class_name=_class_name, method_name=_method_name)
 
-
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
     def _is_structured_app(self, application_name, application_dict):
-        _method_name = 'is_structured_app'
-
+        _method_name = '_is_structured_app'
         _logger.entering(application_dict, class_name=_class_name, method_name=_method_name)
 
-        source_path = None
-        plan_dir = None
-        plan_path = None
+        source_path = self._get_dictionary_attribute_with_path_tokens_replaced(application_dict, SOURCE_PATH)
+        plan_dir = self._get_dictionary_attribute_with_path_tokens_replaced(application_dict, PLAN_DIR)
+        plan_path = self._get_dictionary_attribute_with_path_tokens_replaced(application_dict, PLAN_PATH)
 
-        if 'SourcePath' in application_dict:
-            source_path = application_dict['SourcePath']
-        if 'PlanDir' in application_dict:
-            plan_dir = application_dict['PlanDir']
-        if 'PlanPath' in application_dict:
-            plan_path = application_dict['PlanPath']
+        _logger.finer('WLSDPLY-06405', application_name, source_path, plan_dir, plan_path,
+                      class_name=_class_name, method_name=_method_name)
 
-        if source_path is None:
+        if string_utils.is_empty(source_path):
             de = exception_helper.create_discover_exception('WLSDPLY-06404', application_name)
             _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
             raise de
-        if plan_path is None or plan_dir is None:
+        if string_utils.is_empty(plan_path):
             _logger.exiting(class_name=_class_name, method_name=_method_name, result=[False, None])
             return False, None
 
-        source_path_file = File(source_path)
-        source_path_parent_file = source_path_file.getParentFile()
-        if source_path_parent_file is None or \
-                source_path_parent_file.getName() != 'app' or \
-                source_path_parent_file.getParentFile() is None:
-            _logger.exiting(class_name=_class_name, method_name=_method_name, result=[False, None])
-            return False, None
-
-        install_root_dir = FileUtils.getCommonRootDirectory(source_path_file, File(plan_dir))
+        install_root_dir = self._get_structured_app_install_root(application_name, source_path, plan_dir, plan_path)
         if install_root_dir is not None:
             _logger.exiting(class_name=_class_name, method_name=_method_name, result=[True, install_root_dir])
             return True, install_root_dir
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=[False, None])
         return False, None
+
+    def _convert_value_to_ssh_download_location(self, key, value, install_root_path):
+        _method_name = '_convert_value_to_ssh_download_location'
+        _logger.entering(key, value, install_root_path, class_name=_class_name, method_name=_method_name)
+
+        new_value = value
+        if not StringUtils.isEmpty(value):
+            # strip off any trailing separator so that Jython basename works properly...
+            if install_root_path.endswith('/') or install_root_path.endswith('\\'):
+                install_root_path = install_root_path[0:-1]
+            install_directory_name = self.path_helper.local_basename(install_root_path)
+
+            add_trailing_slash = False
+            if value.endswith('/') or value.endswith('\\'):
+                add_trailing_slash = True
+                new_value = value[0:-1]
+
+            trailing_path_components = list()
+            value_path, value_current_dir_name = self.path_helper.remote_split(new_value)
+
+            # Skip over the first occurrence in case it is an exploded app directory
+            # (e.g., servers/AdminServer/upload/OtdApp/app/OtdApp)
+            #
+            if value_current_dir_name == install_directory_name:
+                trailing_path_components.append(value_current_dir_name)
+                value_path, value_current_dir_name = self.path_helper.remote_split(value_path)
+
+            found_match = False
+            while not StringUtils.isEmpty(value_current_dir_name):
+                if value_current_dir_name == install_directory_name:
+                    found_match = True
+                    break
+                elif StringUtils.isEmpty(value_path):
+                    break
+                else:
+                    trailing_path_components.append(value_current_dir_name)
+
+                value_path, value_current_dir_name = self.path_helper.remote_split(value_path)
+
+            if found_match:
+                trailing_path_components.append(install_root_path)
+                trailing_path_components.reverse()
+                new_value = self.path_helper.local_join(*trailing_path_components)
+                if add_trailing_slash:
+                    new_value += os.sep
+            else:
+                new_value = value
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_value)
+        return new_value
 
     def _jdbc_password_fix(self, source_name):
         """
@@ -494,8 +570,7 @@ class DeploymentsDiscoverer(Discoverer):
 
     def _get_pass_replacement(self, jdbc_file, name, type, properties=None, username=''):
         if self._credential_injector is not None:
-            head, tail = os.path.split(jdbc_file)
-            token = tail[:len(tail) - len('.xml')]
+            token = self.path_helper.get_local_filename_no_ext_from_path(jdbc_file)
             token = token + name
             if properties is not None:
                 self._extra_tokens[token] = properties
@@ -529,8 +604,13 @@ class DeploymentsDiscoverer(Discoverer):
             new_plan_name = WLSDeployArchive.getApplicationPlanArchivePath(plan_file_name)
             self.add_to_remote_map(plan_path, new_plan_name,
                                    WLSDeployArchive.ArchiveEntryType.APPLICATION_PLAN.name())
-        elif not self._model_context.skip_archive():
+        elif not self._model_context.is_skip_archive():
             try:
+                if self._model_context.is_ssh():
+                    plan_file_name = self.download_deployment_from_remote_server(plan_file_name,
+                                                                                  self.download_temporary_dir,
+                                                                                  "applications")
+
                 new_plan_name = archive_file.addApplicationDeploymentPlan(plan_file_name,
                                                                           _generate_new_plan_name(
                                                                               app_source_name,
@@ -563,8 +643,56 @@ class DeploymentsDiscoverer(Discoverer):
                 relative_to = plan_dir
             else:
                 relative_to = self._model_context.get_domain_home()
-            return discoverer.convert_to_absolute_path(relative_to, plan_path)
+            return self.path_helper.get_canonical_path(plan_path, relative_to=relative_to)
         return plan_path
+
+    def _get_structured_app_install_root(self, app_name, source_path, plan_dir, plan_path):
+        """
+        This method tries to determine if this is a structured application and if so, returns the
+        install root directory.
+
+        :param app_name:    The application name
+        :param source_path: The application source path (already validated as not None)
+        :param plan_dir:    The application plan directory, if set
+        :param plan_path:   The application plan path (already validated as not None)
+        :return: The structured application install root directory or None, if it is not a structured application
+        """
+        _method_name = '_get_structured_app_install_root'
+        _logger.entering(app_name, source_path, plan_dir, plan_path,
+                         class_name=_class_name, method_name=_method_name)
+
+        full_source_path = source_path
+        if self.path_helper.is_relative_path(source_path):
+            full_source_path = self.path_helper.join(self._model_context.get_domain_home(), source_path)
+            full_source_path = self.path_helper.get_canonical_path(full_source_path)
+
+        full_plan_path = plan_path
+        if string_utils.is_empty(plan_dir):
+            if self.path_helper.is_relative_path(plan_path):
+                full_plan_path = self.path_helper.join(self._model_context.get_domain_home(), plan_path)
+                full_plan_path = self.path_helper.get_canonical_path(full_plan_path)
+        else:
+            full_plan_path = self.path_helper.join(plan_dir, plan_path)
+            if self.path_helper.is_relative_path(full_plan_path):
+                full_plan_path = self.path_helper.join(self._model_context.get_domain_home(), full_plan_path)
+                full_plan_path = self.path_helper.get_canonical_path(full_plan_path)
+
+        install_root = structured_apps_helper.get_structured_app_install_root(app_name, full_source_path,
+                                                                              full_plan_path, ExceptionType.DISCOVER)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=install_root)
+        return install_root
+
+    def _get_dictionary_attribute_with_path_tokens_replaced(self, model_dict, attribute_name):
+        _method_name = '_get_dictionary_attribute_with_path_tokens_replaced'
+        _logger.entering(model_dict, attribute_name, class_name=_class_name, method_name=_method_name)
+
+        result = dictionary_utils.get_element(model_dict, attribute_name)
+        if result is not None:
+            result = self._model_context.replace_token_string(result)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
+        return result
 
 
 def _generate_new_plan_name(binary_path, plan_path):
@@ -577,8 +705,9 @@ def _generate_new_plan_name(binary_path, plan_path):
     :param plan_path: path of the plan from the domain
     :return: newly generated plan name for the archive file
     """
-    new_name = path_utils.get_filename_from_path(plan_path)
+    _path_helper = path_helper.get_path_helper()
+    new_name = _path_helper.get_filename_from_path(plan_path)
     if binary_path is not None:
-        prefix = path_utils.get_filename_no_ext_from_path(binary_path)
+        prefix = _path_helper.get_filename_no_ext_from_path(binary_path)
         new_name = prefix + '-' + new_name
     return new_name

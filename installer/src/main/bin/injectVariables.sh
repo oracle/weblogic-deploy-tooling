@@ -2,7 +2,7 @@
 # *****************************************************************************
 # injectVariables.sh
 #
-# Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+# Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 #     NAME
@@ -19,12 +19,6 @@
 # JAVA_HOME             - The location of the JDK to use.  The caller must set
 #                         this variable to a valid Java 7 (or later) JDK.
 #
-# WLSDEPLOY_HOME        - The location of the WLS Deploy installation.
-#                         If the caller sets this, the callers location will be
-#                         honored provided it is an existing directory.
-#                         Otherwise, the location will be calculated from the
-#                         location of this script.
-#
 # WLSDEPLOY_PROPERTIES  - Extra system properties to pass to Java.  The caller
 #                         can use this environment variable to add additional
 #                         system properties to the Java environment.
@@ -36,7 +30,6 @@ usage() {
   echo "          [-oracle_home <oracle_home>]"
   echo "          -model_file <model_file>"
   echo "          [-variable_injector_file <variable_injector_file>]"
-  echo "          [-variable_keywords_file <variable_keywords_file>]"
   echo "          [-variable_properties_file <variable_file>]"
   echo ""
   echo "    where:"
@@ -53,21 +46,13 @@ usage() {
   echo "                          the model_variable_injector.json file must exist in"
   echo "                          the lib directory in the WLSDEPLOY_HOME location."
   echo ""
-  echo "        variable_keywords_file - this argument overrides the INSTALLED version"
-  echo "                          of the allowed variable keywords for the variable"
-  echo "                          injector. This argument is for advanced usage only."
-  echo "                          The installed keywords file is located in the lib"
-  echo "                          directory of WLSDEPLOY_HOME location."
-  echo ""
   echo "        variable_file   - the location of the property file in which to store"
-  echo "                          any variable names injected into the model. This"
-  echo "                          argument overrides the value in the model injector"
-  echo "                          file.  If the variable file is not listed in the"
-  echo "                          model injector file, and this command-line argument"
-  echo "                          is not used, the variable properties will be located"
-  echo "                          and named based on the model file or archive file name"
-  echo "                          and location.  If the variable file exists, new"
-  echo "                          variable values will be appended to the file."
+  echo "                          any variable names injected into the model."
+  echo "                          If this command-line argument is not used,"
+  echo "                          the variable properties will be located and named"
+  echo "                          based on the model file name and location."
+  echo "                          If the variable file exists, new variable values"
+  echo "                          will be appended to the file."
   echo ""
 }
 

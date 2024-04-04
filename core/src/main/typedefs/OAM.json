@@ -1,0 +1,32 @@
+{
+        "copyright": "Copyright (c) 2023, 2024, Oracle and/or its affiliates.",
+        "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
+        "name": "OAM",
+        "description": "Oracle Access Manager domain definition",
+        "versions": {
+                "12.2.1.4": "OAM_12CR2"
+        },
+        "definitions": {
+                "OAM_12CR2": {
+                        "baseTemplate": "Basic WebLogic Server Domain",
+                        "extensionTemplates": [
+                                "Oracle Access Management Suite"
+                        ],
+                        "serverGroupsToTarget": [
+                                "OAM-MGD-SVRS",
+                                "OAM-POLICY-MANAGED-SERVER",
+                                "JRF-MAN-SVR"
+                        ],
+                        "rcuSchemas": [
+                                "STB",
+                                "WLS",
+                                "MDS",
+                                "IAU",
+                                "IAU_VIEWER",
+                                "IAU_APPEND",
+                                "OPSS",
+                                "OAM"
+                        ]
+                }
+        }
+}

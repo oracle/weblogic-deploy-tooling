@@ -7,7 +7,7 @@
   "final_filters" : [
     { "id": "wko3_final_filter" }
   ],
-  "variable_injectors" : {"PORT": {},"HOST": {},"URL": {}},
+  "variable_injectors" : ["port", "host", "url"],
   "validation_method" : "lax",
   "domain_home_source_type" : "pv",
   "exclude_domain_bin_contents": true,

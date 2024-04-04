@@ -51,13 +51,12 @@ from wlsdeploy.util import cla_helper
 from wlsdeploy.util import cla_utils
 from wlsdeploy.util import env_helper
 from wlsdeploy.util import model_translator
-from wlsdeploy.util import path_utils
+from wlsdeploy.util import path_helper
 from wlsdeploy.util import tool_main
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.cla_utils import TOOL_TYPE_DISCOVER
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model import Model
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 from wlsdeploy.util import target_configuration_helper
 
 wlst_helper.wlst_functions = globals()
@@ -90,7 +89,19 @@ __optional_arguments = [
     CommandLineArgUtil.TARGET_MODE_SWITCH,
     CommandLineArgUtil.OUTPUT_DIR_SWITCH,
     CommandLineArgUtil.TARGET_SWITCH,
-    CommandLineArgUtil.REMOTE_SWITCH
+    CommandLineArgUtil.REMOTE_SWITCH,
+    CommandLineArgUtil.SSH_HOST_SWITCH,
+    CommandLineArgUtil.SSH_PORT_SWITCH,
+    CommandLineArgUtil.SSH_USER_SWITCH,
+    CommandLineArgUtil.SSH_PASS_SWITCH,
+    CommandLineArgUtil.SSH_PASS_ENV_SWITCH,
+    CommandLineArgUtil.SSH_PASS_FILE_SWITCH,
+    CommandLineArgUtil.SSH_PASS_PROMPT_SWITCH,
+    CommandLineArgUtil.SSH_PRIVATE_KEY_SWITCH,
+    CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_SWITCH,
+    CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_ENV_SWITCH,
+    CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_FILE_SWITCH,
+    CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH
 ]
 
 
@@ -106,7 +117,7 @@ def __process_args(args):
     argument_map = cla_util.process_args(args, TOOL_TYPE_DISCOVER)
 
     __wlst_mode = cla_helper.process_online_args(argument_map)
-    cla_helper.validate_if_domain_home_required(_program_name, argument_map)
+    cla_helper.validate_if_domain_home_required(_program_name, argument_map, __wlst_mode)
     target_configuration_helper.process_target_arguments(argument_map)
     __process_model_arg(argument_map)
     __process_archive_filename_arg(argument_map)
@@ -125,7 +136,8 @@ def __process_model_arg(argument_map):
     _method_name = '__process_model_arg'
 
     model_file_name = argument_map[CommandLineArgUtil.MODEL_FILE_SWITCH]
-    model_dir_name = path_utils.get_parent_directory(model_file_name)
+    path_helper_obj = path_helper.get_path_helper()
+    model_dir_name = path_helper_obj.get_local_parent_directory(model_file_name)
     if os.path.exists(model_dir_name) is False:
         ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                    'WLSDPLY-06037', model_file_name)
@@ -156,12 +168,22 @@ def __process_archive_filename_arg(argument_map):
         raise ex
     else:
         archive_file_name = argument_map[CommandLineArgUtil.ARCHIVE_FILE_SWITCH]
-        archive_dir_name = path_utils.get_parent_directory(archive_file_name)
-        if os.path.exists(archive_dir_name) is False:
+        path_helper_obj = path_helper.get_path_helper()
+        archive_dir_name = path_helper_obj.get_local_parent_directory(archive_file_name)
+        if not os.path.exists(archive_dir_name):
             ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
                                                        'WLSDPLY-06026', archive_file_name)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
+
+        # Delete any existing archive file for discoverDomain so that we always start with a fresh zip file.
+        archive_file_obj = FileUtils.getCanonicalFile(archive_file_name)
+        if archive_file_obj.exists() and not archive_file_obj.delete():
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,'WLSDPLY-06047',
+                                                       _program_name, archive_file_name)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
+
         try:
             archive_file = WLSDeployArchive(archive_file_name)
         except (IllegalArgumentException, IllegalStateException), ie:
@@ -175,23 +197,28 @@ def __process_archive_filename_arg(argument_map):
 
 def __process_variable_filename_arg(optional_arg_map):
     """
-    If the variable filename argument is present, the required model variable injector json file must exist in
-    the WLSDEPLOY lib directory.
+    Validate the variable filename argument if present.
     :param optional_arg_map: containing the variable file name
-    :raises: CLAException: if this argument is present but the model variable injector json does not exist
+    :raises: CLAException: if this argument is present but fails validation
     """
     _method_name = '__process_variable_filename_arg'
 
     if CommandLineArgUtil.VARIABLE_FILE_SWITCH in optional_arg_map:
-        variable_injector_file_name = optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH]
-        try:
-            FileUtils.validateWritableFile(variable_injector_file_name)
-        except IllegalArgumentException, ie:
+        variable_file_name = optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH]
+        path_helper_obj = path_helper.get_path_helper()
+        variable_dir_name = path_helper_obj.get_local_parent_directory(variable_file_name)
+
+        if not os.path.exists(variable_dir_name):
             ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
-                                                       'WLSDPLY-06021',
-                                                       optional_arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH],
-                                                       variable_injector_file_name,
-                                                       ie.getLocalizedMessage(), error=ie)
+                                                       'WLSDPLY-06048', variable_file_name)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
+
+        # Delete any existing variable file for discoverDomain so that we always start with a fresh file.
+        variable_file_obj = FileUtils.getCanonicalFile(variable_file_name)
+        if variable_file_obj.exists() and not variable_file_obj.delete():
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,'WLSDPLY-06049',
+                                                       _program_name, variable_file_name)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
@@ -214,17 +241,16 @@ def __process_java_home(optional_arg_map):
 
 
 def __process_domain_home(arg_map, wlst_mode):
-    domain_home = None
     if CommandLineArgUtil.DOMAIN_HOME_SWITCH not in arg_map:
         return
     domain_home = arg_map[CommandLineArgUtil.DOMAIN_HOME_SWITCH]
-    skip_archive = False
-    if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH in arg_map or CommandLineArgUtil.REMOTE_SWITCH in arg_map:
-        skip_archive = True
-    if wlst_mode == WlstModes.OFFLINE or not skip_archive:
+    perform_domain_home_validation = True
+    if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH in arg_map:
+        # No need to validate the domain home in offline mode when the user specifies -skip_archive
+        perform_domain_home_validation = False
+    if wlst_mode == WlstModes.OFFLINE and perform_domain_home_validation:
         full_path = cla_utils.validate_domain_home_arg(domain_home)
         arg_map[CommandLineArgUtil.DOMAIN_HOME_SWITCH] = full_path
-
 
 def __discover(model_context, aliases, credential_injector, helper, extra_tokens):
     """
@@ -257,7 +283,7 @@ def __discover(model_context, aliases, credential_injector, helper, extra_tokens
                               extra_tokens=extra_tokens).discover()
         __discover_multi_tenant(model, model_context, base_location, aliases, credential_injector)
     except AliasException, ae:
-        wls_version = WebLogicHelper(__logger).get_actual_weblogic_version()
+        wls_version = model_context.get_effective_wls_version()
         wlst_mode = WlstModes.from_value(__wlst_mode)
         ex = exception_helper.create_discover_exception('WLSDPLY-06000', model_context.get_domain_name(),
                                                         model_context.get_domain_home(), wls_version, wlst_mode,
@@ -282,7 +308,7 @@ def _add_domain_name(location, aliases, helper):
         location.add_name_token(aliases.get_name_token(location), domain_name)
         __logger.info('WLSDPLY-06022', domain_name, class_name=_class_name, method_name=_method_name)
     else:
-        de = exception_helper.create_discover_exception('WLSDPLY-WLSDPLY-06023')
+        de = exception_helper.create_discover_exception('WLSDPLY-06023')
         __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
         raise de
 
@@ -365,7 +391,8 @@ def __connect_to_domain(model_context, helper):
             helper.connect(model_context.get_admin_user(), model_context.get_admin_password(),
                            model_context.get_admin_url(), model_context.get_model_config().get_connect_timeout())
 
-            model_context.set_domain_home_name_if_remote(helper.get_domain_home_online(),
+            # All online operations do not have domain home set, so get it from online wlst after connect
+            model_context.set_domain_home_name_if_online(helper.get_domain_home_online(),
                                                          helper.get_domain_name_online())
 
         except PyWLSTException, wlst_ex:
@@ -378,7 +405,7 @@ def __connect_to_domain(model_context, helper):
         try:
             helper.read_domain(model_context.get_domain_home())
         except PyWLSTException, wlst_ex:
-            wls_version = WebLogicHelper(__logger).get_actual_weblogic_version()
+            wls_version = model_context.get_effective_wls_version()
             ex = exception_helper.create_discover_exception('WLSDPLY-06002', model_context.get_domain_home(),
                                                             wls_version, wlst_ex.getLocalizedMessage(), error=wlst_ex)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -398,7 +425,7 @@ def __clear_archive_file(model_context):
 
     archive_file = model_context.get_archive_file()
 
-    if not model_context.skip_archive() and not model_context.is_remote():
+    if not model_context.is_skip_archive() and not model_context.is_remote():
         if archive_file is not None:
             try:
                 archive_file.removeAllBinaries()
@@ -473,12 +500,22 @@ def __persist_model(model, model_context):
 
     __logger.entering(class_name=_class_name, method_name=_method_name)
 
+    global __wlst_mode
+
     # add model comments to dictionary extracted from the Model object
     model_dict = model.get_model()
     message_1 = exception_helper.get_message('WLSDPLY-06039', WebLogicDeployToolingVersion.getVersion(), _program_name)
     model_dict.addComment(DOMAIN_INFO, message_1)
-    message_2 = exception_helper.get_message('WLSDPLY-06040', WlstModes.values()[__wlst_mode],
-                                             model_context.get_target_wls_version())
+    if __wlst_mode == WlstModes.ONLINE:
+        remote_wls_version = model_context.get_remote_wls_version()
+        if remote_wls_version is None:
+            remote_wls_version = 'UNKNOWN'
+
+        message_2 = exception_helper.get_message('WLSDPLY-06043', model_context.get_local_wls_version(),
+                                                 WlstModes.from_value(__wlst_mode), remote_wls_version)
+    else:
+        message_2 = exception_helper.get_message('WLSDPLY-06040', WlstModes.from_value(__wlst_mode),
+                                                 model_context.get_local_wls_version())
     model_dict.addComment(DOMAIN_INFO, message_2)
     model_dict.addComment(DOMAIN_INFO, '')
 
@@ -524,12 +561,11 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
     # Apply the injectors specified in model_variable_injector.json, or in the target configuration.
     # Include the variable mappings that were collected in credential_cache.
 
-    variable_injector = VariableInjector(_program_name, model.get_model(), model_context,
-                                         WebLogicHelper(__logger).get_actual_weblogic_version(), credential_cache)
+    variable_injector = VariableInjector(_program_name, model_context, aliases, variable_dictionary=credential_cache)
 
     variable_injector.add_to_cache(dictionary=extra_tokens)
 
-    inserted, variable_model, variable_file_name = variable_injector.inject_variables_keyword_file()
+    inserted, variable_model, variable_file_name = variable_injector.inject_variables_from_configuration(model.get_model())
 
     if inserted:
         model = Model(variable_model)
@@ -601,8 +637,7 @@ def main(model_context):
         aliases = Aliases(model_context, wlst_mode=__wlst_mode, exception_type=ExceptionType.DISCOVER)
         credential_injector = None
         if model_context.get_variable_file() is not None or model_context.get_target() is not None:
-            credential_injector = CredentialInjector(_program_name, dict(), model_context,
-                                                     WebLogicHelper(__logger).get_actual_weblogic_version())
+            credential_injector = CredentialInjector(_program_name, model_context, aliases)
 
             __logger.info('WLSDPLY-06025', class_name=_class_name, method_name=_method_name)
         else:

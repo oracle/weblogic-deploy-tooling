@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem injectVariables.cmd
 @rem
-@rem Copyright (c) 2018, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2018, 2024, Oracle and/or its affiliates.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -18,12 +18,6 @@
 @rem
 @rem JAVA_HOME            - The location of the JDK to use.  The caller must set
 @rem                        this variable to a valid Java 7 (or later) JDK.
-@rem
-@rem WLSDEPLOY_HOME        - The location of the WLS Deploy installation.
-@rem                         If the caller sets this, the callers location will be
-@rem                         honored provided it is an existing directory.
-@rem                         Otherwise, the location will be calculated from the
-@rem                         location of this script.
 @rem
 @rem WLSDEPLOY_PROPERTIES  - Extra system properties to pass to Java.  The caller
 @rem                         can use this environment variable to add additional
@@ -70,7 +64,6 @@ ECHO Usage: %SCRIPT_NAME% [-help]
 ECHO              [-oracle_home ^<oracle_home^>]
 ECHO              -model_file ^<model_file^>
 ECHO              [-variable_injector_file ^<variable_injector_file^>]
-ECHO              [-variable_keywords_file ^<variable_keywords_file^>]
 ECHO              [-variable_properties_file ^<variable_file^>]
 ECHO.
 ECHO     where:
@@ -87,21 +80,13 @@ ECHO                           model injection run. If this argument is not prov
 ECHO                           the model_variable_injector.json file must exist in
 ECHO                           the lib directory in the WLSDEPLOY_HOME location.
 ECHO.
-ECHO         variable_keywords_file - this argument overrides the INSTALLED version
-ECHO                           of the allowed variable keywords for the variable
-ECHO                           injector. This argument is for advanced usage only.
-ECHO                           The installed keywords file is located in the lib
-ECHO                           directory of WLSDEPLOY_HOME location.
-ECHO.
 ECHO         variable_file   - the location of the property file in which to store
-ECHO                           any variable names injected into the model. This
-ECHO                           argument overrides the value in the model injector
-ECHO                           file.  If the variable file is not listed in the
-ECHO                           model injector file, and this command-line argument
-ECHO                           is not used, the variable properties will be located
-ECHO                           and named based on the model file or archive file name
-ECHO                           and location.  If the variable file exists, new
-ECHO                           variable values will be appended to the file.
+ECHO                           any variable names injected into the model.
+ECHO                           If this command-line argument is not used,
+ECHO                           the variable properties will be located and named
+ECHO                           based on the model file name and location.
+ECHO                           If the variable file exists, new variable values
+ECHO                           will be appended to the file.
 ECHO.
 
 :exit_script

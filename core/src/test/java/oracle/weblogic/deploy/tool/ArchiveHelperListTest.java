@@ -241,7 +241,7 @@ public class ArchiveHelperListTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testListAll_ReturnedExceptedNames() {
+    void testListAll_ReturnedExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -258,7 +258,6 @@ public class ArchiveHelperListTest {
             actual = ArchiveHelper.executeCommand(out, err, args);
         }
         String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
-
         assertEquals(0, actual, "expected command to exit with exit code 0");
         assertListsHaveSameElements(expectedPaths, outputLines, "all");
     }

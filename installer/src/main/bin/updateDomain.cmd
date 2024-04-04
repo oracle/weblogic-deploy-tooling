@@ -2,7 +2,7 @@
 @rem **************************************************************************
 @rem updateDomain.cmd
 @rem
-@rem Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+@rem Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 @rem Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 @rem
 @rem     NAME
@@ -16,12 +16,6 @@
 @rem
 @rem JAVA_HOME             - The location of the JDK to use.  The caller must set
 @rem                         this variable to a valid Java 7 (or later) JDK.
-@rem
-@rem WLSDEPLOY_HOME        - The location of the WLS Deploy installation.
-@rem                         If the caller sets this, the callers location will be
-@rem                         honored provided it is an existing directory.
-@rem                         Otherwise, the location will be calculated from the
-@rem                         location of this script.
 @rem
 @rem WLSDEPLOY_PROPERTIES  - Extra system properties to pass to WLST.  The caller
 @rem                         can use this environment variable to add additional
@@ -87,6 +81,13 @@ ECHO               -admin_user ^<admin_user^>
 ECHO               -admin_pass_env ^<admin_pass_env^> ^| -admin_pass_file ^<admin_pass_file^>
 ECHO               [-remote]
 ECHO              ]
+ECHO              [-ssh_host ^<ssh_host^>
+ECHO               -ssh_port ^<ssh_port^>
+ECHO               -ssh_user ^<ssh_user^>
+ECHO               -ssh_pass_env ^<ssh_pass_env^> ^| -ssh_pass_file ^<ssh_pass_file^> ^| -ssh_pass_prompt
+ECHO               -ssh_private_key ^<ssh_private_key^>
+ECHO               -ssh_private_key_pass_env ^<ssh_private_key_pass_env^> ^| -ssh_private_key_pass_file ^<ssh_private_key_pass_file^> ^| -ssh_private_key_pass_prompt
+ECHO            ]
 ECHO.
 ECHO     where:
 ECHO         oracle_home     - the existing Oracle Home directory for the domain.
@@ -94,7 +95,7 @@ ECHO                           This argument is required unless the ORACLE_HOME
 ECHO                           environment variable is set.
 ECHO.
 ECHO         domain_home     - the domain home directory.  This argument is
-ECHO                           required if -remote option is not specified.
+ECHO                           required if running in offline mode.
 ECHO.
 ECHO         model_file      - the location of the model file to use.  This can also
 ECHO                           be specified as a comma-separated list of model
@@ -144,6 +145,33 @@ ECHO         admin_pass_file - An alternative to entering the admin password at 
 ECHO                           prompt. The value is a the name of a file with a
 ECHO                           string value which WDT will read to retrieve the
 ECHO                           password.
+ECHO.
+ECHO          ssh_host        - the host name for admin server when SSH protocol is used to collect resources
+ECHO                            from the admin server host.
+ECHO.
+ECHO          ssh_port        - the SSH port number for the admin server host.
+ECHO.
+ECHO          ssh_user        - the SSH user name for the admin server host.
+ECHO.
+ECHO          ssh_pass_env    - An alternative to entering the SSH password at the prompt.  The value is specified
+ECHO                            in an ENVIRONMENT VARIABLE name that WDT will use to retrieve the password
+ECHO.
+ECHO          ssh_pass_file   - An alternative to entering the SSH password at the prompt.  The value is the name of a
+ECHO                            file with a string value which WDT will read to retrieve the password.
+ECHO.
+ECHO          ssh_pass_prompt - Prompt for the SSH password.
+ECHO.
+ECHO          ssh_private_key - the private key to use for connecting to the admin server host using SSH.
+ECHO.
+ECHO          ssh_private_key_pass_env - An alternative to entering the SSH private keystore password at the prompt.
+ECHO                                     The value is specified in an ENVIRONMENT VARIABLE name that WDT will use
+ECHO                                     to retrieve the password
+ECHO.
+ECHO          ssh_private_key_pass_file - An alternative to entering the SSH private keystore password at the prompt.
+ECHO                                      The value is the name of a file with a string value which WDT will read
+ECHO                                      to retrieve the password.
+ECHO.
+ECHO          ssh_private_key_pass_prompt - Prompt for the SSH private keystore password.
 ECHO.
 ECHO    The -use_encryption switch tells the program that one or more of the
 ECHO    passwords in the model or variables files are encrypted.  The program will

@@ -1,0 +1,3 @@
+/tmp/help
+weblogic-deploy/
+weblogic-deploy.zip

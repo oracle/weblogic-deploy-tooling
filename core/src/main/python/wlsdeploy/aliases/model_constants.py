@@ -24,9 +24,8 @@ APP_DEPLOYMENTS = 'appDeployments'
 APP_DIR = 'AppDir'
 APPEND = 'append'
 APPLICATION = 'Application'
-ATP_DEFAULT_TABLESPACE = 'atp.default.tablespace'
-ATP_TEMPORARY_TABLESPACE = 'atp.temp.tablespace'
-ATP_ADMIN_USER = 'atp.admin.user' # deprecated
+ATP_DEFAULT_TABLESPACE = 'atp.default.tablespace'  # deprecated field name in 4.0
+ATP_TEMPORARY_TABLESPACE = 'atp.temp.tablespace'  # deprecated field name in 4.0
 AUDITOR = 'Auditor'
 AUTHENTICATION_PROVIDER = 'AuthenticationProvider'
 AUTHORIZER = 'Authorizer'
@@ -76,7 +75,10 @@ CREDENTIAL_MAPPER = 'CredentialMapper'
 CROSS_DOMAIN = 'CrossDomain'
 CUSTOM_DBMS_AUTHENTICATOR = 'CustomDBMSAuthenticator'
 DATA_SOURCE = 'DataSource'
+
+# Deprecated in WDT 4.0.0
 DATABASE_TYPE = 'databaseType'
+
 DEFAULT_ADJUDICATOR = 'DefaultAdjudicator'
 DEFAULT_ADMIN_SERVER_NAME = 'AdminServer'
 DEFAULT_AUDITOR = 'DefaultAuditor'
@@ -104,7 +106,6 @@ DOMAIN_INFO_ALIAS = 'DomainInfo'
 DOMAIN_LIBRARIES = 'domainLibraries'
 DOMAIN_SCRIPTS = 'domainBin'
 DYNAMIC_CLUSTER_SERVER_GROUP_TARGETING_LIMITS = 'DynamicClusterServerGroupTargetingLimits'
-DYNAMIC_CLUSTER_SIZE = 'DynamicClusterSize'
 DOMAIN_VERSION = 'DomainVersion'
 DYNAMIC_SERVERS = 'DynamicServers'
 EMBEDDED_LDAP = 'EmbeddedLDAP'
@@ -173,6 +174,7 @@ LOG = 'Log'
 LOG_FILTER = 'LogFilter'
 LOG_ACTION = 'LogAction'
 MACHINE = 'Machine'
+MACHINES = 'Machines'
 MAIL_SESSION = 'MailSession'
 MAIL_SESSION_OVERRIDE = 'MailSessionOverride'
 MAIL_SESSION_PROPERTIES = 'Properties'
@@ -202,7 +204,10 @@ ODL_CONFIGURATION = 'ODLConfiguration'
 OHS = 'OHS'
 OPEN_LDAP_AUTHENTICATOR = 'OpenLDAPAuthenticator'
 OPSS_INITIALIZATION = 'OPSSInitialization'
+# deprecated field name in 4.0
 OPSS_SECRETS = 'OPSSSecrets'
+OPSS_WALLET_PASSPHRASE = 'OPSSWalletPassphrase'
+ORACLE_DATABASE_CONNECTION_TYPE = 'oracle_database_connection_type'
 ORACLE_OID_AUTHENTICATOR = 'OracleInternetDirectoryAuthenticator'
 ORACLE_OUD_AUTHENTICATOR = 'OracleUnifiedDirectoryAuthenticator'
 ORACLE_OVD_AUTHENTICATOR = 'OracleVirtualDirectoryAuthenticator'
@@ -211,6 +216,7 @@ PARTITION = 'Partition'
 PARTITION_SYSTEM_FILE = 'SystemFileSystem'
 PARTITION_USER_FILE = 'UserFileSystem'
 PARTITION_WORK_MANAGER = 'PartitionWorkManager'
+PASSWORD_DIGEST_ENABLED = 'PasswordDigestEnabled'
 PASSWORD_VALIDATOR = 'PasswordValidator'
 PATH = 'Path'
 PATH_SERVICE = 'PathService'
@@ -219,6 +225,7 @@ PERSISTENT_STORE = 'PersistentStore'
 PKI_CREDENTIAL_MAPPER = 'PKICredentialMapper'
 PLAN_DIR = 'PlanDir'
 PLAN_PATH = 'PlanPath'
+POLICY = 'Policy'
 PREPEND = 'prepend'
 PROPERTIES = 'Properties'
 PRODUCTION_MODE_ENABLED = 'ProductionModeEnabled'
@@ -230,14 +237,16 @@ RECOVER_ONLY_ONCE = 'RecoverOnlyOnce'
 RCU_ADMIN_PASSWORD = 'rcu_admin_password'
 RCU_ADMIN_USER = 'rcu_admin_user'
 RCU_COMP_INFO = 'compInfoXMLLocation'
-RCU_DB_CONN = 'rcu_db_conn_string'
+RCU_DATABASE_TYPE = 'rcu_database_type'
+RCU_DB_CONN_STRING = 'rcu_db_conn_string'
 RCU_DB_INFO = 'RCUDbInfo'
-RCU_DB_USER = 'rcu_db_user' # deprecated
-RCU_DEFAULT_TBLSPACE = 'rcu_default_tablespace'
+RCU_DEFAULT_TABLESPACE = 'rcu_default_tablespace'
+RCU_EDITION = 'rcu_edition'
 RCU_PREFIX = 'rcu_prefix'
 RCU_SCHEMA_PASSWORD = 'rcu_schema_password'
 RCU_STG_INFO = 'storageXMLLocation'
 RCU_TEMP_TBLSPACE = 'rcu_temp_tablespace'
+RCU_UNICODE_SUPPORT = 'rcu_unicode_support'
 RCU_VARIABLES = 'rcu_variables'
 REMOTE_CONSOLE_HELPER = 'RemoteConsoleHelper'
 REMOTE_DOMAIN = 'RemoteDomain'
@@ -248,6 +257,7 @@ REMOTE_USER = 'RemoteUser'
 REPLACE = 'replace'
 RESOURCE_GROUP = 'ResourceGroup'
 RESOURCE_GROUP_TEMPLATE = 'ResourceGroupTemplate'
+RESOURCE_ID = 'ResourceID'
 RESOURCES = 'resources'
 RESOURCE_MANAGEMENT = 'ResourceManagement'
 RESOURCE_MANAGER = 'ResourceManager'
@@ -346,6 +356,7 @@ WORK_MANAGER = "WorkManager"
 WLDF_INSTRUMENTATION_MONITOR = "WLDFInstrumentationMonitor"
 WLDF_RESOURCE = "WLDFResource"
 WLDF_SYSTEM_RESOURCE = "WLDFSystemResource"
+WLS_POLICIES = "WLSPolicies"
 WLS_ROLES = "WLSRoles"
 WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS = 'WLSUserPasswordCredentialMappings'
 WLS_DEFAULT_AUTHENTICATION = 'WLSDefaultAuthentication'
@@ -436,6 +447,9 @@ DEFAULT_PASSWORD_VALIDATOR_TYPE = SYSTEM_PASSWORD_VALIDATOR
 DEFAULT_ROLE_MAPPER_NAME = 'XACMLRoleMapper'
 DEFAULT_ROLE_MAPPER_TYPE = XACML_ROLE_MAPPER
 
+# SSL store types
+STORE_TYPE_SSO = 'SSO'
+
 KNOWN_TOPLEVEL_MODEL_SECTIONS = [
     DOMAIN_INFO,
     TOPOLOGY,
@@ -458,6 +472,16 @@ CREATE_ONLY_DOMAIN_ATTRIBUTES = [
     ADMIN_SERVER_NAME
 ]
 
+# these JDBC driver param properties are paths, and may reference the archive.
+# there is special processing to discover and deploy them.
+DRIVER_PARAMS_PATH_PROPERTIES = [
+    DRIVER_PARAMS_KEYSTORE_PROPERTY,
+    DRIVER_PARAMS_NET_TNS_ADMIN,
+    DRIVER_PARAMS_TRUSTSTORE_PROPERTY
+]
+
 # Model Path constants
-PATH_TO_RCU_DB_CONN = '%s:/%s/%s' % (DOMAIN_INFO, RCU_DB_INFO, RCU_DB_CONN)
+PATH_TO_RCU_DB_CONN = '%s:/%s/%s' % (DOMAIN_INFO, RCU_DB_INFO, RCU_DB_CONN_STRING)
 PATH_TO_RCU_PREFIX = '%s:/%s/%s' % (DOMAIN_INFO, RCU_DB_INFO, RCU_PREFIX)
+PATH_TO_RCU_ADMIN_PASSWORD = '%s:/%s/%s' % (DOMAIN_INFO, RCU_DB_INFO, RCU_ADMIN_PASSWORD)
+PATH_TO_RCU_SCHEMA_PASSWORD = '%s:/%s/%s' % (DOMAIN_INFO, RCU_DB_INFO, RCU_SCHEMA_PASSWORD)

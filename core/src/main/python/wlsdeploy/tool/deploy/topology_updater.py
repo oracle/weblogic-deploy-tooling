@@ -46,7 +46,8 @@ class TopologyUpdater(Deployer):
                                                                   self._exception_type, self.logger)
 
         self.library_helper = LibraryHelper(self.model, self.model_context, self.aliases,
-                                            model_context.get_domain_home(), self._exception_type, self.logger)
+                                            model_context.get_domain_home(), self._exception_type, self.logger,
+                                            self.upload_temporary_dir)
 
         self.target_helper = TargetHelper(self.model, self.model_context, self.aliases, self._exception_type,
                                           self.logger)
@@ -82,6 +83,20 @@ class TopologyUpdater(Deployer):
         # check for file paths that need to be qualified
         self._topology_helper.qualify_nm_properties(type_name, model_nodes, location, self.model_context,
                                                     self.attribute_setter)
+
+    # Override
+    def _create_and_cd(self, location, existing_names):
+        _method_name = '_create_and_cd'
+
+        self.logger.entering(str_helper.to_string(location), existing_names,
+                             class_name=self._class_name, method_name=_method_name)
+        mbean_type = location.get_current_model_folder()
+        if mbean_type == UNIX_MACHINE and self.wlst_mode == WlstModes.ONLINE:
+            deployer_utils.create_and_cd(location, existing_names, self.aliases, MACHINE)
+        else:
+            deployer_utils.create_and_cd(location, existing_names, self.aliases)
+
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 
     def update(self):
         """
@@ -127,9 +142,8 @@ class TopologyUpdater(Deployer):
         self.library_helper.extract_classpath_libraries()
         self.library_helper.install_domain_scripts()
 
-        domain_home = self.model_context.get_domain_home()
-        saml2_security_helper = Saml2SecurityHelper(domain_home, self._exception_type)
-        saml2_security_helper.extract_initialization_files(self.archive_helper)
+        saml2_security_helper = Saml2SecurityHelper(self.model_context, self._exception_type)
+        saml2_security_helper.extract_initialization_files(self.archive_helper, self)
 
     def update_machines_clusters_and_servers(self, delete_now=True):
         """
@@ -226,10 +240,6 @@ class TopologyUpdater(Deployer):
 
     def is_online_with_ext_templates(self):
         return self.model_context.is_wlst_online() and self.model_context.get_domain_typedef().has_extension_templates()
-
-    def extract_database_wallets(self):
-        if self.archive_helper is not None:
-            self.archive_helper.extract_all_database_wallets()
 
     def _check_for_online_setservergroups_issue(self, existing_list, new_list):
         _method_name = '_check_for_online_setservergroups_issue'

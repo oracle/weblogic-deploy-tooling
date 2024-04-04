@@ -1,15 +1,16 @@
 """
-Copyright (c) 2021, 2023, Oracle and/or its affiliates.
+Copyright (c) 2021, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
 import shutil
 import unittest
 
-from java.util.logging import Level
+from java.io import File
 
-from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.util import env_helper
+from wlsdeploy.util import path_helper
 
 
 class BaseTestCase(unittest.TestCase):
@@ -17,6 +18,7 @@ class BaseTestCase(unittest.TestCase):
     Base class for unit tests.
     Provides helper functions for working with test directories, testing dictionary structures, etc.
     """
+    ALIAS_WLS_VERSION = '12.2.1.3'
 
     def __init__(self, *args):
         unittest.TestCase.__init__(self, *args)
@@ -25,11 +27,13 @@ class BaseTestCase(unittest.TestCase):
         self.TEST_CONFIG_DIR = os.path.join(self.TEST_OUTPUT_DIR, 'wdt-config')
         self.log_levels = {}
 
-        self.original_config_dir = env_helper.getenv('WDT_CUSTOM_CONFIG', self.TEST_CONFIG_DIR)
+        self.original_config_dir = env_helper.getenv('WLSDEPLOY_CUSTOM_CONFIG', self.TEST_CONFIG_DIR)
         # config items may need to be copied from here
         self.INSTALLER_LIB_DIR = os.path.abspath(os.path.join(self.TEST_CLASSES_DIR, '../../../installer/src/main/lib'))
 
     def setUp(self):
+        path_helper.initialize_path_helper(ExceptionType.ALIAS, unit_test_force=True, unit_test_is_windows=File.separator == '\\')
+        self.path_helper = path_helper.get_path_helper()
         # subclasses should call this
         self._establish_directory(self.TEST_OUTPUT_DIR)
 
@@ -44,11 +48,11 @@ class BaseTestCase(unittest.TestCase):
             shutil.rmtree(config_dir)
         shutil.copytree(self.original_config_dir, config_dir)
 
-        os.environ['WDT_CUSTOM_CONFIG'] = str(config_dir)
+        os.environ['WLSDEPLOY_CUSTOM_CONFIG'] = str(config_dir)
         return config_dir
 
     def _clear_custom_config_dir(self):
-        os.environ['WDT_CUSTOM_CONFIG'] = self.original_config_dir
+        os.environ['WLSDEPLOY_CUSTOM_CONFIG'] = self.original_config_dir
 
     def _establish_directory(self, name):
         """
@@ -56,23 +60,6 @@ class BaseTestCase(unittest.TestCase):
         """
         if not os.path.isdir(name):
             os.mkdir(name)
-
-    def _suspend_logs(self, *args):
-        """
-        Disable the specified log names, and store their previous levels
-        """
-        for name in args:
-            logger = PlatformLogger(name)
-            self.log_levels[name] = logger.get_level()
-            logger.set_level(Level.OFF)
-
-    def _restore_logs(self):
-        """
-        Restore suspended logs to their original levels
-        """
-        for key in self.log_levels:
-            logger = PlatformLogger(key)
-            logger.set_level(self.log_levels[key])
 
     def _match(self, value, dictionary, *args):
         dictionary_value = self._traverse(dictionary, *args)
@@ -102,6 +89,12 @@ class BaseTestCase(unittest.TestCase):
             value = value[arg]
         return value
 
+    def _validate_message_key(self, test_summary_handler, level, key, expected_count):
+        key_count = test_summary_handler.getMessageKeyCount(level, key)
+        self.assertEqual(expected_count, key_count,
+                         str(level) + " message " + str(key) + " should have occurred " + str(expected_count)
+                         + " time(s), and occurred " + str(key_count) + " time(s)")
+
     def _establish_injector_config(self, config_dir):
         """
         Copy injector configuration items from the installer module.
@@ -118,8 +111,3 @@ class BaseTestCase(unittest.TestCase):
                 if not os.path.exists(test_file):
                     injector_file = os.path.join(injectors_dir, injector_name)
                     shutil.copy(injector_file, test_file)
-
-        test_keywords_file = os.path.join(config_dir, 'variable_keywords.json')
-        if not os.path.exists(test_keywords_file):
-            keywords_file = os.path.join(self.INSTALLER_LIB_DIR, 'variable_keywords.json')
-            shutil.copy(keywords_file, test_keywords_file)

@@ -1317,7 +1317,8 @@ public class ArchiveHelperAddTest {
         }
 
         assertEquals(ExitCode.OK, actual, "expected command to exit with exit code " + ExitCode.OK);
-        assertEquals("wlsdeploy/dbWallets/wallet1/atpwallet.zip", outStringWriter.toString().trim());
+        assertEquals(WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR + "/wallet1/atpwallet.zip",
+                outStringWriter.toString().trim());
     }
 
     @Test
@@ -1385,7 +1386,8 @@ public class ArchiveHelperAddTest {
         }
 
         assertEquals(ExitCode.OK, actual, "expected command to exit with exit code " + ExitCode.OK);
-        assertEquals("wlsdeploy/dbWallets/wallet1/atpwallet.zip", outStringWriter.toString().trim());
+        assertEquals(WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR + "/wallet1/atpwallet.zip",
+                outStringWriter.toString().trim());
     }
 
     @Test
@@ -1452,7 +1454,8 @@ public class ArchiveHelperAddTest {
         }
 
         assertEquals(ExitCode.OK, actual, "expected command to exit with exit code " + ExitCode.OK);
-        assertEquals("wlsdeploy/dbWallets/wallet1/atpwallet(1).zip", outStringWriter.toString().trim());
+        assertEquals(WLSDeployArchive.ARCHIVE_DB_WALLETS_DIR + "/wallet1/atpwallet(1).zip",
+                outStringWriter.toString().trim());
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

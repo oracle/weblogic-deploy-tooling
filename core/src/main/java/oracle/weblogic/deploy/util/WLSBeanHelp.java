@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Oracle Corporation and/or its affiliates.
+ * Copyright (c) 2022, 2024, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
@@ -8,10 +8,8 @@ import java.beans.BeanDescriptor;
 import java.beans.BeanInfo;
 import java.beans.FeatureDescriptor;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 
 /**
@@ -57,7 +55,7 @@ public class WLSBeanHelp {
       if (limits.length() > 0) limits += EOL;
     }
 
-    return limits + prettyHTML(ds, width);
+    return limits + prettyHTML(ds, width).trim();
   }
 
   public static String get(String beanName, int width) {

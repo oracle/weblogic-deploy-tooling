@@ -1,5 +1,5 @@
 <!--
-    Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+    Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
     The Universal Permissive License (UPL), Version 1.0
 -->
 <assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
@@ -41,6 +41,7 @@
             <outputDirectory>lib/targets</outputDirectory>
             <includes>
                 <include>**/*.json</include>
+                <include>**/*.mustache</include>
                 <include>**/*.py</include>
                 <include>**/*.yaml</include>
             </includes>
@@ -113,6 +114,16 @@
                 <include>org.antlr:antlr4-runtime</include>
                 <include>org.yaml:snakeyaml</include>
                 <include>info.picocli:picocli</include>
+                <include>com.hierynomus:sshj</include>
+                <include>com.hierynomus:asn-one</include>
+                <include>net.i2p.crypto:eddsa</include>
+                <include>org.slf4j:slf4j-jdk14</include>
+                <include>org.slf4j:slf4j-api</include>
+                <include>com.jcraft:jzlib</include>
+                <include>org.jline:jline-reader</include>
+                <include>org.jline:jline-terminal</include>
+                <include>org.jline:jline-terminal-jansi</include>
+                <include>org.fusesource.jansi:jansi</include>
             </includes>
         </dependencySet>
     </dependencySets>

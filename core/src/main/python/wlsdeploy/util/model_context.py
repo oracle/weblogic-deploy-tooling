@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -8,6 +8,7 @@ import os
 import re
 import tempfile
 
+import java.lang.System as System
 import java.net.URI as URI
 
 from oracle.weblogic.deploy.util import XPathUtil
@@ -17,7 +18,7 @@ from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging import platform_logger
 from wlsdeploy.util import validate_configuration
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
-from wlsdeploy.util import path_utils
+from wlsdeploy.util import path_helper
 from wlsdeploy.util import string_utils
 from wlsdeploy.util import model_config
 from wlsdeploy.util.target_configuration import TargetConfiguration
@@ -42,8 +43,6 @@ class ModelContext(object):
     CURRENT_DIRECTORY_TOKEN = '@@PWD@@'
     TEMP_DIRECTORY_TOKEN = '@@TMP@@'
 
-    RCU_ADMIN_USER_DEFAULT = 'SYS'
-
     def __init__(self, program_name, arg_map=None):
         """
         Create a new model context instance.
@@ -54,8 +53,15 @@ class ModelContext(object):
         """
         self._program_name = program_name
         self._logger = platform_logger.PlatformLogger('wlsdeploy.util')
-        self._wls_helper = WebLogicHelper(self._logger)
+        #
+        # We are using late initialization of the wls_helper to accommodate
+        # basing it on the remote version, if applicable.
+        #
+        self._initialization_complete = False
+        self._wls_helper = None
+        self.string_utils = None
         self._model_config = model_config.get_model_config(self._program_name)
+        self._ssh_context = None
 
         self._oracle_home = None
         self._wl_home = ""
@@ -73,19 +79,14 @@ class ModelContext(object):
         self._model_file = None
         self._variable_file_name = None
         self._run_rcu = False
-        self._rcu_admin_user = self.RCU_ADMIN_USER_DEFAULT
-        self._rcu_database = None
-        self._rcu_prefix = None
-        self._rcu_sys_pass = None
-        self._rcu_schema_pass = None
         self._encryption_passphrase = None
         self._encrypt_manual = False
         self._encrypt_one_pass = None
         self._use_encryption = False
         self._wl_version = None
+        self._remote_wl_version = None
         self._wlst_mode = None
         self._recursive = False
-        self._interactive_mode = False
         self._attributes_only = False
         self._folders_only = False
         self._opss_wallet_passphrase = None
@@ -98,17 +99,31 @@ class ModelContext(object):
         self._target = None
         self._target_configuration = None  # lazy load
         self._variable_injector_file = None
-        self._variable_keywords_file = None
-        self._variable_properties_file = None
         self._discard_current_edit = False
         self._wait_for_edit_lock = False
         self._remote = False
         self._skip_archive = False
+        self._ssh_host = None
+        self._ssh_port = None
+        self._ssh_user = System.getProperty('user.name')
+        self._ssh_pass = None
+        self._ssh_pass_prompt = False
+        self._ssh_private_key = None
+        self._ssh_private_key_passphrase = None
+        self._ssh_private_key_passphrase_prompt = False
+        self._remote_oracle_home = None
+        self._remote_wl_home = None
+        self._remote_test_file = None
+        self._local_test_file = None
+        self._remote_output_dir = None
+        self._local_output_dir = None
+        self._path_helper = path_helper.get_path_helper()
 
         self._trailing_args = []
 
         if self._wl_version is None:
-            self._wl_version = self._wls_helper.get_actual_weblogic_version()
+            from wlsdeploy.util import weblogic_helper
+            self._wl_version = weblogic_helper.get_local_weblogic_version()
 
 
         if self._wlst_mode is None:
@@ -122,6 +137,11 @@ class ModelContext(object):
         #
         if arg_map is not None:
             self.__copy_from_args(arg_map)
+            if self._admin_url is None:
+                self.complete_initialization()
+        else:
+            self._initialization_complete = True
+
 
     def __copy_from_args(self, arg_map):
         _method_name = '__copy_from_args'
@@ -140,14 +160,15 @@ class ModelContext(object):
 
             self._logger.info('WLSDPLY-01050', self._wl_version, class_name=self._class_name,
                               method_name=_method_name)
-            self._wl_home = self._wls_helper.get_weblogic_home(self._oracle_home)
+            from wlsdeploy.util import weblogic_helper
+            self._wl_home = weblogic_helper.get_weblogic_home(self._oracle_home, self._wl_version)
 
         if CommandLineArgUtil.JAVA_HOME_SWITCH in arg_map:
             self._java_home = arg_map[CommandLineArgUtil.JAVA_HOME_SWITCH]
 
         if CommandLineArgUtil.DOMAIN_HOME_SWITCH in arg_map:
             self._domain_home = arg_map[CommandLineArgUtil.DOMAIN_HOME_SWITCH]
-            self._domain_name = os.path.basename(self._domain_home)
+            self._domain_name = self._path_helper.local_basename(self._domain_home)
 
         if CommandLineArgUtil.DOMAIN_PARENT_SWITCH in arg_map:
             self._domain_parent_dir = arg_map[CommandLineArgUtil.DOMAIN_PARENT_SWITCH]
@@ -185,9 +206,6 @@ class ModelContext(object):
         if CommandLineArgUtil.RECURSIVE_SWITCH in arg_map:
             self._recursive = arg_map[CommandLineArgUtil.RECURSIVE_SWITCH]
 
-        if CommandLineArgUtil.INTERACTIVE_MODE_SWITCH in arg_map:
-            self._interactive_mode = arg_map[CommandLineArgUtil.INTERACTIVE_MODE_SWITCH]
-
         if CommandLineArgUtil.VARIABLE_FILE_SWITCH in arg_map:
             self._variable_file_name = arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH]
 
@@ -197,26 +215,45 @@ class ModelContext(object):
         if CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH in arg_map:
             self._skip_archive = arg_map[CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH]
 
+        if CommandLineArgUtil.SSH_HOST_SWITCH in arg_map:
+            self._ssh_host = arg_map[CommandLineArgUtil.SSH_HOST_SWITCH]
+
+        if CommandLineArgUtil.SSH_PORT_SWITCH in arg_map:
+            self._ssh_port = arg_map[CommandLineArgUtil.SSH_PORT_SWITCH]
+
+        if CommandLineArgUtil.SSH_USER_SWITCH in arg_map:
+            self._ssh_user = arg_map[CommandLineArgUtil.SSH_USER_SWITCH]
+
+        if CommandLineArgUtil.SSH_PASS_SWITCH in arg_map:
+            self._ssh_pass = arg_map[CommandLineArgUtil.SSH_PASS_SWITCH]
+
+        if CommandLineArgUtil.SSH_PASS_PROMPT_SWITCH in arg_map:
+            self._ssh_pass_prompt = arg_map[CommandLineArgUtil.SSH_PASS_PROMPT_SWITCH]
+
+        if CommandLineArgUtil.SSH_PRIVATE_KEY_SWITCH in arg_map:
+            self._ssh_private_key = arg_map[CommandLineArgUtil.SSH_PRIVATE_KEY_SWITCH]
+
+        if CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_SWITCH in arg_map:
+            self._ssh_private_key_passphrase = arg_map[CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_SWITCH]
+
+        if CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH in arg_map:
+            self._ssh_private_key_passphrase_prompt = \
+                arg_map[CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH]
+
+        if CommandLineArgUtil.REMOTE_TEST_FILE_SWITCH in arg_map:
+            self._remote_test_file = arg_map[CommandLineArgUtil.REMOTE_TEST_FILE_SWITCH]
+
+        if CommandLineArgUtil.LOCAL_TEST_FILE_SWITCH in arg_map:
+            self._local_test_file = arg_map[CommandLineArgUtil.LOCAL_TEST_FILE_SWITCH]
+
+        if CommandLineArgUtil.REMOTE_OUTPUT_DIR_SWITCH in arg_map:
+            self._remote_output_dir = arg_map[CommandLineArgUtil.REMOTE_OUTPUT_DIR_SWITCH]
+
+        if CommandLineArgUtil.LOCAL_OUTPUT_DIR_SWITCH in arg_map:
+            self._local_output_dir = arg_map[CommandLineArgUtil.LOCAL_OUTPUT_DIR_SWITCH]
+
         if CommandLineArgUtil.RUN_RCU_SWITCH in arg_map:
             self._run_rcu = arg_map[CommandLineArgUtil.RUN_RCU_SWITCH]
-
-        # deprecated command-line arg
-        if CommandLineArgUtil.RCU_DB_SWITCH in arg_map:
-            self._rcu_database = arg_map[CommandLineArgUtil.RCU_DB_SWITCH]
-
-        # deprecated command-line arg
-        if CommandLineArgUtil.RCU_PREFIX_SWITCH in arg_map:
-            self._rcu_prefix = arg_map[CommandLineArgUtil.RCU_PREFIX_SWITCH]
-
-        if CommandLineArgUtil.RCU_SYS_PASS_SWITCH in arg_map:
-            self._rcu_sys_pass = arg_map[CommandLineArgUtil.RCU_SYS_PASS_SWITCH]
-
-        # deprecated command-line arg
-        if CommandLineArgUtil.RCU_DB_USER_SWITCH in arg_map:
-            self._rcu_admin_user = arg_map[CommandLineArgUtil.RCU_DB_USER_SWITCH]
-
-        if CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH in arg_map:
-            self._rcu_schema_pass = arg_map[CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH]
 
         if CommandLineArgUtil.DOMAIN_TYPEDEF in arg_map:
             self._domain_typedef = arg_map[CommandLineArgUtil.DOMAIN_TYPEDEF]
@@ -276,12 +313,6 @@ class ModelContext(object):
         if CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH in arg_map:
             self._variable_injector_file = arg_map[CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH]
 
-        if CommandLineArgUtil.VARIABLE_KEYWORDS_FILE_SWITCH in arg_map:
-            self._variable_keywords_file = arg_map[CommandLineArgUtil.VARIABLE_KEYWORDS_FILE_SWITCH]
-
-        if CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH in arg_map:
-            self._variable_properties_file = arg_map[CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH]
-
     def __copy__(self):
         arg_map = dict()
         if self._oracle_home is not None:
@@ -310,12 +341,37 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.FOLDERS_ONLY_SWITCH] = self._folders_only
         if self._recursive is not None:
             arg_map[CommandLineArgUtil.RECURSIVE_SWITCH] = self._recursive
-        if self._interactive_mode is not None:
-            arg_map[CommandLineArgUtil.INTERACTIVE_MODE_SWITCH] = self._interactive_mode
         if self._remote is not None:
             arg_map[CommandLineArgUtil.REMOTE_SWITCH] = self._remote
         if self._skip_archive is not None:
             arg_map[CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH] = self._skip_archive
+        if self._ssh_host is not None:
+            arg_map[CommandLineArgUtil.SSH_HOST_SWITCH] = self._ssh_host
+        if self._ssh_port is not None:
+            arg_map[CommandLineArgUtil.SSH_PORT_SWITCH] = self._ssh_port
+        if self._ssh_user is not None:
+            arg_map[CommandLineArgUtil.SSH_USER_SWITCH] = self._ssh_user
+        if self._ssh_pass is not None:
+            arg_map[CommandLineArgUtil.SSH_PASS_SWITCH] = self._ssh_pass
+        if self._ssh_pass_prompt is not None:
+            arg_map[CommandLineArgUtil.SSH_PASS_PROMPT_SWITCH] = self._ssh_pass_prompt
+        if self._ssh_private_key is not None:
+            arg_map[CommandLineArgUtil.SSH_PRIVATE_KEY_SWITCH] = self._ssh_private_key
+        if self._ssh_private_key_passphrase is not None:
+            arg_map[CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_SWITCH] = self._ssh_private_key_passphrase
+        if self._ssh_private_key_passphrase_prompt is not None:
+            arg_map[CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH] = \
+                self._ssh_private_key_passphrase_prompt
+        if self._remote_oracle_home is not None:
+            arg_map[CommandLineArgUtil.REMOTE_ORACLE_HOME_SWITCH] = self._remote_oracle_home
+        if self._remote_test_file is not None:
+            arg_map[CommandLineArgUtil.REMOTE_TEST_FILE_SWITCH] = self._remote_test_file
+        if self._local_test_file is not None:
+            arg_map[CommandLineArgUtil.LOCAL_TEST_FILE_SWITCH] = self._local_test_file
+        if self._remote_output_dir is not None:
+            arg_map[CommandLineArgUtil.REMOTE_OUTPUT_DIR_SWITCH] = self._remote_output_dir
+        if self._local_output_dir is not None:
+            arg_map[CommandLineArgUtil.LOCAL_OUTPUT_DIR_SWITCH] = self._local_output_dir
         if self._variable_file_name is not None:
             arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = self._variable_file_name
         if self._run_rcu is not None:
@@ -324,16 +380,6 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.DISCARD_CURRENT_EDIT_SWITCH] = self._discard_current_edit
         if self._wait_for_edit_lock is not None:
             arg_map[CommandLineArgUtil.WAIT_FOR_EDIT_LOCK_SWITCH] = self._wait_for_edit_lock
-        if self._rcu_database is not None:
-            arg_map[CommandLineArgUtil.RCU_DB_SWITCH] = self._rcu_database
-        if self._rcu_prefix is not None:
-            arg_map[CommandLineArgUtil.RCU_PREFIX_SWITCH] = self._rcu_prefix
-        if self._rcu_sys_pass is not None:
-            arg_map[CommandLineArgUtil.RCU_SYS_PASS_SWITCH] = self._rcu_sys_pass
-        if self._rcu_admin_user is not None:
-            arg_map[CommandLineArgUtil.RCU_DB_USER_SWITCH] = self._rcu_admin_user
-        if self._rcu_schema_pass is not None:
-            arg_map[CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH] = self._rcu_schema_pass
         if self._domain_typedef is not None:
             arg_map[CommandLineArgUtil.DOMAIN_TYPEDEF] = self._domain_typedef
         if self._encryption_passphrase is not None:
@@ -368,12 +414,43 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.OUTPUT_DIR_SWITCH] = self._output_dir
         if self._variable_injector_file is not None:
             arg_map[CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH] = self._variable_injector_file
-        if self._variable_keywords_file is not None:
-            arg_map[CommandLineArgUtil.VARIABLE_KEYWORDS_FILE_SWITCH] = self._variable_keywords_file
-        if self._variable_properties_file is not None:
-            arg_map[CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH] = self._variable_properties_file
 
-        return ModelContext(self._program_name, arg_map)
+        new_context = ModelContext(self._program_name, arg_map)
+        if not new_context.is_initialization_complete():
+            new_context.complete_initialization(self._remote_wl_version)
+
+        return new_context
+
+    def is_initialization_complete(self):
+        return self._initialization_complete
+
+    def complete_initialization(self, remote_wl_version = None, remote_oracle_home = None):
+        """
+        Set the remote version when running in online mode.
+        :param remote_wl_version: the version of the online server
+        :param remote_oracle_home: the directory location of the Oracle Home on the online server
+        """
+        if not self._initialization_complete:
+            self._remote_wl_version = remote_wl_version
+            self._remote_oracle_home = remote_oracle_home
+            path_helper.set_remote_file_system_from_oracle_home(remote_oracle_home)
+
+            self._wls_helper = WebLogicHelper(self._logger, remote_wl_version)
+            if self._remote_oracle_home is not None:
+                # If we couldn't determine the remote version, just use the local version and hope for the best.
+                from wlsdeploy.util import weblogic_helper
+                self._remote_wl_home = \
+                    weblogic_helper.get_weblogic_home(self._remote_oracle_home, self.get_effective_wls_version())
+            if self._domain_typedef is not None:
+                self._domain_typedef.finish_initialization(self)
+            self._initialization_complete = True
+
+    def get_weblogic_helper(self):
+        """
+        Return the encapsulated WebLogicHelper instance
+        :return: the encapsulated WebLogicHelper instance
+        """
+        return self._wls_helper
 
     def get_model_config(self):
         """
@@ -396,12 +473,40 @@ class ModelContext(object):
         """
         return self._oracle_home
 
+    def get_effective_oracle_home(self):
+        """
+        Get the effective Oracle Home.
+        :return: the Oracle Home
+        """
+        if self.is_ssh():
+            return self._remote_oracle_home
+        else:
+            return self._oracle_home
+
     def get_wl_home(self):
         """
         Get the WebLogic Home.
         :return: the WebLogic Home
         """
         return self._wl_home
+
+    def get_remote_wl_home(self):
+        """
+        Get the Remote WebLogic Home.  Note that this assumes that the local
+        and remote Oracle Homes have a similar version of WebLogic Server installed.
+        :return: the remote WebLogic Home
+        """
+        return self._remote_wl_home
+
+    def get_effective_wl_home(self):
+        """
+        Get the effective WebLogic Home.
+        :return: the WebLogic Home
+        """
+        if self.is_ssh():
+            return self._remote_wl_home
+        else:
+            return self._wl_home
 
     def get_java_home(self):
         """
@@ -439,10 +544,10 @@ class ModelContext(object):
         """
         if self._domain_home is None and domain_home is not None and len(domain_home) > 0:
             self._domain_home = domain_home
-            self._domain_name = os.path.basename(self._domain_home)
+            self._domain_name = self._path_helper.local_basename(self._domain_home)
 
-    def set_domain_home_name_if_remote(self, domain_home, domain_name):
-        if self.is_remote():
+    def set_domain_home_name_if_online(self, domain_home, domain_name):
+        if self._wlst_mode == WlstModes.ONLINE:
             self.set_domain_home(domain_home)
             self.set_domain_name(domain_name)
 
@@ -601,13 +706,6 @@ class ModelContext(object):
         """
         return self._recursive
 
-    def get_interactive_mode_option(self):
-        """
-        Get the -interactive command-line switch for model help tool.
-        :return: the -interactive command-line switch
-        """
-        return self._interactive_mode
-
     def get_variable_file(self):
         """
         Get the variable file.
@@ -617,45 +715,10 @@ class ModelContext(object):
 
     def is_run_rcu(self):
         """
-        Get whether or not to run RCU.
-        :return: whether or not to run RCU
+        Get whether to run RCU.
+        :return: whether to run RCU
         """
         return self._run_rcu
-
-    def get_rcu_database(self):
-        """
-        Get the RCU database connect string.
-        :return: the RCU database connect string
-        """
-        return self._rcu_database
-
-    def get_rcu_prefix(self):
-        """
-        Get the RCU prefix.
-        :return: the RCU prefix
-        """
-        return self._rcu_prefix
-
-    def get_rcu_admin_user(self):
-        """
-        Get the RCU DB user.
-        :return: the RCU dbUser
-        """
-        return self._rcu_admin_user
-
-    def get_rcu_sys_pass(self):
-        """
-        Get the RCU database SYS user password.
-        :return: the RCU database SYS user password
-        """
-        return self._rcu_sys_pass
-
-    def get_rcu_schema_pass(self):
-        """
-        Get the RCU schema users' password.
-        :return: the RCU schema users' password
-        """
-        return self._rcu_schema_pass
 
     def get_encryption_passphrase(self):
         """
@@ -694,23 +757,23 @@ class ModelContext(object):
     def get_target_configuration_file(self):
         if self._target:
             target_path = os.path.join('targets', self._target, 'target.json')
-            return path_utils.find_config_path(target_path)
+            return self._path_helper.find_local_config_path(target_path)
         return None
 
     def get_target(self):
         return self._target
 
-    def is_targetted_config(self):
+    def is_targeted_config(self):
         """
-        Return the output directory for generated k8s target.
-        :return: output directory
+        Determine if target configuration is used.
+        :return: True if target configuration is used
         """
         return self._target is not None
 
     def is_encryption_manual(self):
         """
-        Get whether or not the user selected to do manual encryption.
-        :return: whether or not the user selected to do manual encryption
+        Get whether the user selected to do manual encryption.
+        :return: whether the user selected to do manual encryption
         """
         return self._encrypt_manual
 
@@ -723,17 +786,34 @@ class ModelContext(object):
 
     def is_using_encryption(self):
         """
-        Get whether or not the model is using encryption.
-        :return: whether or not the model is using encryption
+        Get whether the model is using encryption.
+        :return: whether the model is using encryption
         """
         return self._use_encryption
 
-    def get_target_wls_version(self):
+    def get_local_wls_version(self):
         """
-        Get the target WebLogic version.
-        :return: the target WebLogic version
+        Get the local WebLogic version.
+        :return: the local WebLogic version
         """
         return self._wl_version
+
+    def get_remote_wls_version(self):
+        """
+        Get the remote WebLogic version.
+        :return: the remote WebLogic version or None
+        """
+        return self._remote_wl_version
+
+    def get_effective_wls_version(self):
+        """
+        Get the WebLogic version for the domain.
+        :return: the WebLogic version for the domain
+        """
+        if self._remote_wl_version is not None:
+            return self._remote_wl_version
+        else:
+            return self._wl_version
 
     def get_target_wlst_mode(self):
         """
@@ -749,19 +829,12 @@ class ModelContext(object):
         """
         return self._variable_injector_file
 
-    def get_variable_keywords_file(self):
+    def get_trailing_arguments(self):
         """
-        Get the variable keywords file override.
-        :return: the variable keywords file
+        Return an array of trailing arguments.
+        :return: the trailing arguments
         """
-        return self._variable_keywords_file
-
-    def get_variable_properties_file(self):
-        """
-        Get the variable properties file override.
-        :return: the variable properties file
-        """
-        return self._variable_properties_file
+        return self._trailing_args
 
     def get_trailing_argument(self, index):
         """
@@ -792,12 +865,166 @@ class ModelContext(object):
         """
         return self._remote
 
-    def skip_archive(self):
+    def is_skip_archive(self):
         """
         Determine if the tool has the -skip_archive switch
         :return: True if the skip archive switch is set
         """
         return self._skip_archive
+
+    def is_ssh(self):
+        """
+        Determine if the tool is running in SSH mode
+        :return:True if running in SSH mode
+        """
+        return self._ssh_context is not None
+
+    def is_ssh_user_pass_auth(self):
+        """
+        Determine if the SSH authentication mechanism is using username/password authentication.
+        :return: True, if using username/password authentication
+        """
+        return self._ssh_pass is not None or self._ssh_pass_prompt
+
+    def is_ssh_public_key_auth(self):
+        """
+        Determine if the SSH authentication mechanism is using public key-based authentication
+        :return: True, if not using username/password authentication
+        """
+        return not self.is_ssh_user_pass_auth()
+
+    def is_ssh_default_private_key(self):
+        """
+        Determine if the user has specified a private key.
+        :return: true if the private key file was not specified, false otherwise
+        """
+        return self._ssh_private_key is None
+
+    def is_ssh_private_key_encrypted(self):
+        """
+        Determine if the user's private key has a passphrase.
+        :return: True, if the user's private key has a passphrase
+        """
+        return self._ssh_private_key_passphrase is not None
+
+    def get_ssh_host(self):
+        """
+        Get the specified SSH host name or IP address.
+        :return: SSH host name or IP address or None
+        """
+        return self._ssh_host
+
+    def get_ssh_port(self):
+        """
+        Get the specified SSH port number, if any.
+        :return: the SSH port number or None
+        """
+        return self._ssh_port
+
+    def get_ssh_user(self):
+        """
+        Get the specified SSH username, if any.
+        :return: the SSH username or None
+        """
+        return self._ssh_user
+
+    def get_ssh_pass(self):
+        """
+        Get the specified SSH password, if any.
+        :return: the SSH user's password or None
+        """
+        return self._ssh_pass
+
+    def set_ssh_pass(self, ssh_pass):
+        """
+        Set the SSH user's password.
+        :param ssh_pass: the SSH user's password
+        """
+        self._ssh_pass = ssh_pass
+
+    def is_ssh_pass_prompt(self):
+        """
+        Whether prompting is needed for the SSH user's password.
+        :return: true if prompting is needed, false otherwise
+        """
+        return self._ssh_pass_prompt
+
+    def get_ssh_private_key(self):
+        """
+        Get the specified SSH private key file, if any.
+        :return: the SSH private key file or None
+        """
+        return self._ssh_private_key
+
+    def get_ssh_private_key_passphrase(self):
+        """
+        Get the specified SSH private key passphrase, if any.
+        :return: the SSH private key passphrase or None
+        """
+        return self._ssh_private_key_passphrase
+
+    def set_ssh_private_key_passphrase(self, passphrase):
+        """
+        Set the SSH private key passphrase.
+        :param passphrase: the SSH private key passphrase
+        """
+        self._ssh_private_key_passphrase = passphrase
+
+    def is_ssh_private_key_passphrase_prompt(self):
+        """
+        Whether prompting is needed for the SSH private key passphrase.
+        :return: true if prompting is needed, false otherwise
+        """
+        return self._ssh_private_key_passphrase_prompt
+
+    def get_remote_test_file(self):
+        """
+        Get the location of the test file or directory to download from the remote machine.
+        :return: the absolute path to the test file or directory
+        """
+        return self._remote_test_file
+
+    def get_local_test_file(self):
+        """
+        Get the location of the test file or directory to upload to the remote machine.
+        :return: the path to the test file or directory
+        """
+        return self._local_test_file
+
+    def get_remote_output_dir(self):
+        """
+        Get the location of the directory to which to upload on the remote machine.
+        :return: the absolute path on the remote machine
+        """
+        return self._remote_output_dir
+
+    def get_local_output_dir(self):
+        """
+        Get the location of the directory to which to download on the local machine.
+        :return: the path to the local directory
+        """
+        return self._local_output_dir
+
+    def get_remote_oracle_home(self):
+        """
+        Get the location of the Oracle Home on the remote machine.
+        :return: the location of the remote Oracle Home or None
+        """
+        return self._remote_oracle_home
+
+    def get_ssh_context(self):
+        """
+        Get the SSH context object.
+        :return: the SSH context object
+        """
+        return self._ssh_context
+
+    def set_ssh_context(self, ssh_context):
+        """
+        Set the SSH context object
+        :param ssh_context: the new SSH context object
+        """
+        self._ssh_context = ssh_context
 
     def replace_tokens_in_path(self, attribute_name, resource_dict):
         """
@@ -853,16 +1080,17 @@ class ModelContext(object):
         if uri_scheme is not None and str_helper.to_string(uri_scheme).startswith('file'):
             attribute_value = uri.getPath()
 
-        message = "Replacing {0} in {1} {2} {3} with {4}"
+        # TODO - the last three tokens will not work properly for an SSH context
+        message = 'WLSDPLY-01057'
         if attribute_value.startswith(self.ORACLE_HOME_TOKEN):
             self._logger.fine(message, self.ORACLE_HOME_TOKEN, resource_type, resource_name, attribute_name,
-                              self.get_oracle_home(), class_name=self._class_name, method_name='_replace_tokens')
+                              self.get_effective_oracle_home(), class_name=self._class_name, method_name='_replace_tokens')
             resource_dict[attribute_name] = attribute_value.replace(self.ORACLE_HOME_TOKEN,
-                                                                    self.get_oracle_home())
+                                                                    self.get_effective_oracle_home())
         elif attribute_value.startswith(self.WL_HOME_TOKEN):
             self._logger.fine(message, self.WL_HOME_TOKEN, resource_type, resource_name, attribute_name,
-                              self.get_wl_home(), class_name=self._class_name, method_name='_replace_tokens')
-            resource_dict[attribute_name] = attribute_value.replace(self.WL_HOME_TOKEN, self.get_wl_home())
+                              self.get_effective_wl_home(), class_name=self._class_name, method_name='_replace_tokens')
+            resource_dict[attribute_name] = attribute_value.replace(self.WL_HOME_TOKEN, self.get_effective_wl_home())
         elif attribute_value.startswith(self.DOMAIN_HOME_TOKEN):
             self._logger.fine(message, self.DOMAIN_HOME_TOKEN, resource_type, resource_name, attribute_name,
                               self.get_domain_home(), class_name=self._class_name, method_name='_replace_tokens')
@@ -874,12 +1102,12 @@ class ModelContext(object):
             resource_dict[attribute_name] = attribute_value.replace(self.JAVA_HOME_TOKEN,
                                                                     self.get_java_home())
         elif attribute_value.startswith(self.CURRENT_DIRECTORY_TOKEN):
-            cwd = path_utils.fixup_path(os.getcwd())
+            cwd = self._path_helper.fixup_local_path(os.getcwd())
             self._logger.fine(message, self.CURRENT_DIRECTORY_TOKEN, resource_type, resource_name,
                               attribute_name, cwd, class_name=self._class_name, method_name='_replace_tokens')
             resource_dict[attribute_name] = attribute_value.replace(self.CURRENT_DIRECTORY_TOKEN, cwd)
         elif attribute_value.startswith(self.TEMP_DIRECTORY_TOKEN):
-            temp_dir = path_utils.fixup_path(tempfile.gettempdir())
+            temp_dir = self._path_helper.fixup_local_path(tempfile.gettempdir())
             self._logger.fine(message, self.TEMP_DIRECTORY_TOKEN, resource_type, resource_name, attribute_name,
                               temp_dir, class_name=self._class_name, method_name='_replace_tokens')
             resource_dict[attribute_name] = attribute_value.replace(self.TEMP_DIRECTORY_TOKEN, temp_dir)
@@ -890,20 +1118,23 @@ class ModelContext(object):
         :param string_value: the value on which to perform token replacement
         :return: the detokenized value, or the original value if there were no tokens
         """
+        # TODO - the last three tokens will not work properly for an SSH context
         if string_value is None:
             result = None
         elif string_value.startswith(self.ORACLE_HOME_TOKEN):
-            result = _replace(string_value, self.ORACLE_HOME_TOKEN, self.get_oracle_home())
+            result = _replace(string_value, self.ORACLE_HOME_TOKEN, self.get_effective_oracle_home())
         elif string_value.startswith(self.WL_HOME_TOKEN):
-            result = _replace(string_value, self.WL_HOME_TOKEN, self.get_wl_home())
+            result = _replace(string_value, self.WL_HOME_TOKEN, self.get_effective_wl_home())
         elif string_value.startswith(self.DOMAIN_HOME_TOKEN):
             result = _replace(string_value, self.DOMAIN_HOME_TOKEN, self.get_domain_home())
         elif string_value.startswith(self.JAVA_HOME_TOKEN):
             result = _replace(string_value, self.JAVA_HOME_TOKEN, self.get_java_home())
         elif string_value.startswith(self.CURRENT_DIRECTORY_TOKEN):
-            result = _replace(string_value, self.CURRENT_DIRECTORY_TOKEN, path_utils.fixup_path(os.getcwd()))
+            result = _replace(string_value, self.CURRENT_DIRECTORY_TOKEN,
+                              self._path_helper.fixup_local_path(os.getcwd()))
         elif string_value.startswith(self.TEMP_DIRECTORY_TOKEN):
-            result = _replace(string_value, self.TEMP_DIRECTORY_TOKEN, path_utils.fixup_path(tempfile.gettempdir()))
+            result = _replace(string_value, self.TEMP_DIRECTORY_TOKEN,
+                              self._path_helper.fixup_local_path(tempfile.gettempdir()))
         else:
             result = string_value
 
@@ -917,13 +1148,14 @@ class ModelContext(object):
         :param path: to check for directories to be tokenized
         :return: tokenized path or original path
         """
-        my_path = path_utils.fixup_path(path)
-        wl_home = path_utils.fixup_path(self.get_wl_home())
-        domain_home = path_utils.fixup_path(self.get_domain_home())
-        oracle_home = path_utils.fixup_path(self.get_oracle_home())
-        java_home = path_utils.fixup_path(self.get_java_home())
-        tmp_dir = path_utils.fixup_path(tempfile.gettempdir())
-        cwd = path_utils.fixup_path(os.path.dirname(os.path.abspath(__file__)))
+        my_path = self._path_helper.fixup_path(path)
+        wl_home = self._path_helper.fixup_path(self.get_effective_wl_home())
+        domain_home = self._path_helper.fixup_path(self.get_domain_home())
+        oracle_home = self._path_helper.fixup_path(self.get_effective_oracle_home())
+        # TODO - these last three tokens will not work properly for a remote/SSH context
+        java_home = self._path_helper.fixup_local_path(self.get_java_home())
+        tmp_dir = self._path_helper.fixup_local_path(tempfile.gettempdir())
+        cwd = self._path_helper.fixup_local_path(os.getcwd())
 
         # decide later what is required to be in context home for appropriate exception prevention
         result = my_path
@@ -954,7 +1186,7 @@ class ModelContext(object):
         for index, value in enumerate(cp_elements):
             path_is_windows = '\\' in value or re.match('^[a-zA-Z][:]', value)
             if path_is_windows:
-                value = path_utils.fixup_path(value)
+                value = self._path_helper.fixup_path(value)
             cp_elements[index] = self.tokenize_path(value)
 
         return MODEL_LIST_DELIMITER.join(cp_elements)
@@ -974,6 +1206,8 @@ class ModelContext(object):
     def copy(self, arg_map):
         model_context_copy = copy.copy(self)
         model_context_copy.__copy_from_args(arg_map)
+        if not model_context_copy.is_initialization_complete():
+            model_context_copy.complete_initialization(self.get_remote_wls_version())
         return model_context_copy
 
     # private methods
@@ -993,4 +1227,3 @@ def _replace(string_value, token, replace_token_string):
     else:
         result = string_value.replace(token, replace_token_string)
     return result
-

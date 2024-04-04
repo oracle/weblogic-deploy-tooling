@@ -72,8 +72,8 @@ class ModelTraverse:
             self.traverse_node(model_node, model_location)
 
     def traverse_node(self, model_node, model_location):
-        result, message = self._aliases.is_version_valid_location(model_location)
-        if result == ValidationCodes.VERSION_INVALID:
+        result, _ = self._aliases.is_version_valid_location(model_location)
+        if result == ValidationCodes.CONTEXT_INVALID:
             return
         valid_folder_names = self._aliases.get_model_subfolder_names(model_location)
         valid_attribute_names = self._aliases.get_model_attribute_names(model_location)

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import exceptions
@@ -9,6 +9,7 @@ import traceback
 from java.lang import Exception as JException
 from java.util.logging import Level as JLevel
 
+from oracle.weblogic.deploy.aliases import VersionUtils
 from oracle.weblogic.deploy.logging import DeprecationLevel
 from oracle.weblogic.deploy.logging import WLSDeployLoggingConfig
 from oracle.weblogic.deploy.logging import WLSDeployLogEndHandler
@@ -19,11 +20,15 @@ from oracle.weblogic.deploy.util import WLSDeployContext
 import oracle.weblogic.deploy.util.WLSDeployContext.WLSTMode as JWLSTMode
 
 from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.exception import exception_helper
+from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.util import cla_helper
+from wlsdeploy.util import path_helper
 import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.exit_code import ExitCode
 
+_class_name = 'tool_main'
 
 def run_tool(main, process_args, args, program_name, class_name, logger):
     """
@@ -46,9 +51,11 @@ def run_tool(main, process_args, args, program_name, class_name, logger):
         logger.finer('sys.argv[{0}] = {1}', str_helper.to_string(index), str_helper.to_string(arg),
                      class_name=class_name, method_name=_method_name)
 
+    __initialize_path_helper(program_name)
     model_context_obj = model_context_helper.create_exit_context(program_name)
     try:
         model_context_obj = process_args(args)
+        __update_model_context(model_context_obj, logger)
         exit_code = main(model_context_obj)
     except CLAException, ex:
         exit_code = ex.getExitCode()
@@ -67,6 +74,52 @@ def run_tool(main, process_args, args, program_name, class_name, logger):
     __exit_tool(model_context_obj, exit_code)
 
 
+def __initialize_path_helper(program_name):
+    path_helper.initialize_path_helper(exception_helper.get_exception_type_from_program_name(program_name))
+
+
+def __update_model_context(model_context, logger):
+    if not model_context.is_initialization_complete():
+        remote_version, remote_oracle_home = __get_remote_server_version_and_oracle_home(model_context, logger)
+        model_context.complete_initialization(remote_version, remote_oracle_home)
+    elif model_context.get_program_name() == 'createDomain':
+        # createDomain needs access to the rcuSchemas list from the typedef during process_args.
+        # Since createDomain is always a local operation, re-initialization after process_args completes.
+        model_context.get_domain_typedef().finish_initialization(model_context)
+
+
+def __get_remote_server_version_and_oracle_home(model_context, logger):
+    _method_name = '__check_remote_server_version'
+    logger.entering(class_name=_class_name, method_name=_method_name)
+
+    admin_url = model_context.get_admin_url()
+    result = None
+    remote_oracle_home = None
+    if admin_url is not None:
+        admin_user = model_context.get_admin_user()
+        admin_pass = model_context.get_admin_password()
+        timeout = model_context.get_model_config().get_connect_timeout()
+
+        from wlsdeploy.tool.util.wlst_helper import WlstHelper
+        wlst_helper = WlstHelper(ExceptionType.CLA)
+        wlst_helper.silence()
+        version_string, patch_list_array, remote_oracle_home = \
+            wlst_helper.get_online_server_version_data(admin_user, admin_pass, admin_url, timeout)
+        result = VersionUtils.getWebLogicVersion(version_string)
+        logger.fine('WLSDPLY-20023', result, version_string, class_name=_class_name, method_name=_method_name)
+        if result is not None:
+            if patch_list_array is not None:
+                psu = VersionUtils.getPSUVersion(patch_list_array)
+                logger.fine('WLSDPLY-20039', psu, ",".join(patch_list_array),
+                            class_name=_class_name, method_name=_method_name)
+                if psu is not None:
+                    result = "%s.%s" % (result, psu)
+
+    if result is not None:
+        logger.info('WLSDPLY-20040', result, class_name=_class_name, method_name=_method_name)
+    logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
+    return result, remote_oracle_home
+
 def __exit_tool(model_context, exit_code):
     """
     Private method for use only within this module.
@@ -78,16 +131,20 @@ def __exit_tool(model_context, exit_code):
     version = None
     use_deprecation_exit_code = None
     tool_mode = JWLSTMode.OFFLINE
+    is_remote = False
+    remote_wl_version = None
     if model_context:
         program = model_context.get_program_name()
-        version = model_context.get_target_wls_version()
+        version = model_context.get_local_wls_version()
         use_deprecation_exit_code = model_context.get_model_config().get_use_deprecation_exit_code()
         if model_context.get_target_wlst_mode() == WlstModes.ONLINE:
             tool_mode = JWLSTMode.ONLINE
+            is_remote = True
+            remote_wl_version = model_context.get_remote_wls_version()
 
     exit_code = __get_summary_handler_exit_code(exit_code, use_deprecation_exit_code)
 
-    WLSDeployExit.exit(WLSDeployContext(program, version, tool_mode), exit_code)
+    WLSDeployExit.exit(WLSDeployContext(program, version, tool_mode, is_remote, remote_wl_version), exit_code)
 
 
 def __handle_unexpected_exception(ex, model_context, class_name, method_name, logger):

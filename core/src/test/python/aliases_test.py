@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from org.python.modules import jarray
@@ -21,7 +21,9 @@ import wlsdeploy.aliases.model_constants as FOLDERS
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
+from wlsdeploy.exception.exception_types import ExceptionType
 import wlsdeploy.logging.platform_logger as platform_logger
+from wlsdeploy.util import path_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.model_context import ModelContext
 
@@ -39,6 +41,7 @@ class AliasesTestCase(unittest.TestCase):
     }
 
     logger = platform_logger.PlatformLogger('wlsdeploy.unittest')
+    path_helper.initialize_path_helper(ExceptionType.ALIAS, unit_test_force=True)
     model_context = ModelContext("test", arg_map)
 
     # create a set of aliases for use with WLST
@@ -420,7 +423,7 @@ class AliasesTestCase(unittest.TestCase):
         location = get_jdbc_driver_params_location('my-datasource', self.aliases)
         model_attribute_name = 'QosDegradationAllowed'
         path = self.aliases.get_model_folder_path(location)
-        expected = exception_helper.get_message('WLSDPLY-08408', model_attribute_name, path, wls_version)
+        expected = exception_helper.get_message('WLSDPLY-08414', model_attribute_name, path)
         result, message = online_aliases.is_valid_model_attribute_name(location, model_attribute_name)
         self.assertEqual(result, ValidationCodes.INVALID)
         self.assertEqual(message, expected)
@@ -445,9 +448,8 @@ class AliasesTestCase(unittest.TestCase):
         expected = exception_helper.get_message('WLSDPLY-08207', model_attribute_name, path,
                                                 wls_version, earliest_version)
         result, message = online_aliases.is_valid_model_attribute_name(location, model_attribute_name)
-        self.assertEqual(result, ValidationCodes.VERSION_INVALID)
+        self.assertEqual(result, ValidationCodes.CONTEXT_INVALID)
         self.assertEqual(message, expected)
-        return
 
     def testIsPSUMatch(self):
         wls_version = '12.2.1.3.0.210929'
@@ -458,7 +460,6 @@ class AliasesTestCase(unittest.TestCase):
         }
 
         this_model_context = ModelContext("test", arg_map)
-
         online_aliases = Aliases(this_model_context, WlstModes.ONLINE, wls_version)
         location = LocationContext()
         location.append_location('SecurityConfiguration')
@@ -467,7 +468,7 @@ class AliasesTestCase(unittest.TestCase):
         model_attribute_name = 'RemoteAnonymousRmiiiopEnabled'
         value, message = online_aliases.is_valid_model_attribute_name(location, model_attribute_name)
 
-        self.assertEqual(value, 2)
+        self.assertEqual(value, ValidationCodes.VALID)
 
         wls_version = '12.2.1.4.0'
         arg_map = {
@@ -477,7 +478,6 @@ class AliasesTestCase(unittest.TestCase):
         }
 
         this_model_context = ModelContext("test", arg_map)
-
         online_aliases = Aliases(this_model_context, WlstModes.ONLINE, wls_version)
         location = LocationContext()
         location.append_location('SecurityConfiguration')
@@ -736,11 +736,12 @@ class AliasesTestCase(unittest.TestCase):
         self.assertEqual(result, list_expected)
         result = aliases.get_wlst_create_path(location)
         self.assertEqual(result, create_expected)
-        return
 
-    def testChildNodeTypes(self):
+    def test_child_node_types(self):
         location = LocationContext()
         location.append_location(FOLDERS.SELF_TUNING)
+        name_token = self.aliases.get_name_token(location)
+        location.add_name_token(name_token, 'SelfTuning-0')
 
         result = self.aliases.requires_unpredictable_single_name_handling(location)
         self.assertEqual(result, True)
@@ -784,7 +785,6 @@ class AliasesTestCase(unittest.TestCase):
         location = LocationContext().append_location(FOLDERS.SECURITY, FOLDERS.GROUP, DOMAIN='mydomain')
         result = self.aliases.supports_multiple_mbean_instances(location)
         self.assertEqual(result, True)
-        return
 
     def testFlattenedFolders(self):
         location = get_jdbc_params_properties_location('my-datasource', self.aliases)
@@ -858,7 +858,7 @@ class AliasesTestCase(unittest.TestCase):
         this_model_context = ModelContext("test", arg_map)
         aliases = Aliases(this_model_context, wls_version='12.1.1')
         result, message = aliases.is_valid_model_folder_name(location, 'ServerTemplate')
-        self.assertEqual(result, ValidationCodes.VERSION_INVALID)
+        self.assertEqual(result, ValidationCodes.CONTEXT_INVALID)
 
         result, message = self.aliases.is_valid_model_folder_name(location, 'ServerTemplates')
         self.assertEqual(result, ValidationCodes.INVALID)
@@ -867,7 +867,7 @@ class AliasesTestCase(unittest.TestCase):
 
         for folder in top_level_topology_folders:
             result, message = self.aliases.is_valid_model_folder_name(location, folder)
-            self.assertEqual(result == ValidationCodes.VALID or result == ValidationCodes.VERSION_INVALID, True)
+            self.assertEqual(result == ValidationCodes.VALID or result == ValidationCodes.CONTEXT_INVALID, True)
 
     def testBooleanDefaultValues(self):
         location = LocationContext().append_location(FOLDERS.RESTFUL_MANAGEMENT_SERVICES, DOMAIN='mydomain')
@@ -1057,6 +1057,8 @@ class AliasesTestCase(unittest.TestCase):
         token = self.aliases.get_name_token(location)
         location.add_name_token(token, 'WLDFSystemResource-0')
         location.append_location(FOLDERS.WLDF_RESOURCE)
+        token = self.aliases.get_name_token(location)
+        location.add_name_token(token, 'WLDFResource-0')
         location.append_location(FOLDERS.WATCH_NOTIFICATION)
         token = self.aliases.get_name_token(location)
         location.add_name_token(token, 'WatchNotification-0')
@@ -1250,7 +1252,7 @@ class AliasesTestCase(unittest.TestCase):
         wlst_list_path = self.aliases.get_wlst_list_path(location)
         self.assertEqual(wlst_list_path, expected)
 
-        # NMProperties is an offline only folder and the get_model_attribute_default_value will throw and exception
+        # NMProperties is an offline only folder and the get_model_attribute_default_value will throw an exception
         model_attribute_name = 'weblogic.StartScriptName'
 
         self.assertRaises(AliasException, getattr(self.online_aliases, 'get_model_attribute_default_value'),

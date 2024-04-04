@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -429,15 +429,19 @@ def replace_tokens_in_path(location, path):
     :raises: AliasException: if an error occurs while processing the path tokens
     """
     _method_name = 'replace_tokens_in_path'
-
     _logger.entering(str_helper.to_string(location), path, class_name=_class_name, method_name=_method_name)
+
     name_tokens = location.get_name_tokens()
     new_path = path
     if name_tokens:
         for key, value in name_tokens.iteritems():
-            if '/' in value and _wlst_mode == WlstModes.OFFLINE:
-                value = '(%s)' % value
-            new_path = new_path.replace('%s%s%s' % ('%', key, '%'), value)
+            if isinstance(value, (str, unicode)):
+                if '/' in value and _wlst_mode == WlstModes.OFFLINE:
+                    value = '(%s)' % value
+                new_path = new_path.replace('%s%s%s' % ('%', key, '%'), value)
+            else:
+                _logger.finer('WLSDPLY-08028', key, value, str_helper.to_string(location),
+                              class_name=_class_name, method_name=_method_name)
 
     missing_name_token = get_missing_name_tokens(new_path)
 
@@ -445,6 +449,7 @@ def replace_tokens_in_path(location, path):
         ex = exception_helper.create_alias_exception('WLSDPLY-08014', new_path, missing_name_token)
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
+
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_path)
     return new_path
 
@@ -1154,3 +1159,164 @@ def _create_mbean_array(iterable, subtype):
         myarray[idx] = element
         idx += 1
     return myarray
+
+class InvalidVersionData(object):
+    def __init__(self, version_to_compare, valid_version_range):
+        self.version_to_compare = version_to_compare
+        self.valid_version_range = valid_version_range
+
+    def get_version_to_compare(self):
+        return self.version_to_compare
+
+    def get_valid_version_range(self):
+        return self.valid_version_range
+
+
+class InvalidVersionAndModeData(InvalidVersionData):
+    def __init__(self, version_to_compare, valid_version_range, valid_wlst_mode):
+        InvalidVersionData.__init__(self, version_to_compare, valid_version_range)
+        self.valid_wlst_mode = valid_wlst_mode
+
+    def get_valid_wlst_mode(self):
+        return self.valid_wlst_mode
+
+
+class UnresolvedAttributeData(object):
+    _class_name = 'UnresolvedAttributeData'
+    def __init__(self, attr_name, wls_version, wlst_mode):
+        self.attr_name = attr_name
+        self.wls_version = wls_version
+        self.wlst_mode = wlst_mode
+        self.invalid_mode = None
+        self.invalid_version_low = None
+        self.invalid_version_mode_low = None
+        self.invalid_version_high = None
+        self.invalid_version_mode_high = None
+
+    def __deepcopy__(self, memo):
+        copy = UnresolvedAttributeData(self.attr_name, self.wls_version, self.wlst_mode)
+        copy.invalid_mode = self.invalid_mode
+        if self.invalid_version_low is not None:
+            data = self.invalid_version_low
+            copy.invalid_version_low = InvalidVersionData(data.version_to_compare, data.valid_version_range)
+        if self.invalid_version_mode_low is not None:
+            data = self.invalid_version_mode_low
+            copy.invalid_version_mode_low = \
+                InvalidVersionAndModeData(data.version_to_compare, data.valid_version_range, data.valid_wlst_mode)
+        if self.invalid_version_high is not None:
+            data = self.invalid_version_high
+            copy.invalid_version_high = InvalidVersionData(data.version_to_compare, data.valid_version_range)
+        if self.invalid_version_mode_high is not None:
+            data = self.invalid_version_mode_high
+            copy.invalid_version_mode_high = \
+                InvalidVersionAndModeData(data.version_to_compare, data.valid_version_range, data.valid_wlst_mode)
+        return copy
+
+    def add_invalid_wlst_mode(self, wlst_mode):
+        self.invalid_mode = wlst_mode
+
+    def process_new_invalid_version_range(self, new_range, wlst_mode):
+        _method_name = 'process_new_invalid_version_range'
+        _logger.entering(new_range, wlst_mode, class_name=self._class_name, method_name=_method_name)
+
+        low_range_version, high_range_version = _get_low_and_high_version_from_range(new_range)
+        _logger.finer('WLSDPLY-08023', self.attr_name, new_range, low_range_version, high_range_version,
+                      class_name=self._class_name, method_name=_method_name)
+        if self._range_is_below(high_range_version, new_range):
+            if self._use_low_range(high_range_version, wlst_mode):
+                _logger.finer('WLSDPLY-08024', self.attr_name, new_range,
+                              class_name=self._class_name, method_name=_method_name)
+                self._replace_low_range(high_range_version, new_range, wlst_mode)
+        elif self._range_is_above(low_range_version, new_range):
+            if self._use_high_range(low_range_version, wlst_mode):
+                _logger.finer('WLSDPLY-08025', self.attr_name, new_range,
+                              class_name=self._class_name, method_name=_method_name)
+                self._replace_high_range(low_range_version, new_range, wlst_mode)
+        else:
+            ex = exception_helper.create_alias_exception('WLSDPLY-08026', self.attr_name,
+                                                         new_range, self.wls_version)
+            _logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+
+    def get_invalid_wlst_mode_name(self):
+        mode = None
+        if self.invalid_mode is not None:
+            mode = self.invalid_mode.upper()
+        return mode
+
+    def get_closest_version_range_above(self):
+        return _get_closest_version_range(self.invalid_version_high, self.invalid_version_mode_high)
+
+    def get_closest_version_range_below(self):
+        return _get_closest_version_range(self.invalid_version_low, self.invalid_version_mode_low)
+
+    def _range_is_below(self, high_range_version, new_range):
+        is_inclusive = not new_range.endswith(')')
+        if high_range_version is not None and len(high_range_version) > 0:
+            result = VersionUtils.compareVersions(self.wls_version, high_range_version)
+            return (result > 0) or (result == 0 and not is_inclusive)
+        return False
+
+    def _range_is_above(self, low_range_version, new_range):
+        is_inclusive = not new_range.startswith('(')
+        if low_range_version is not None and len(low_range_version) > 0:
+            result = VersionUtils.compareVersions(self.wls_version, low_range_version)
+            return  (result < 0) or (result == 0 and not is_inclusive)
+        return False
+
+    def _use_low_range(self, high_range_version, wlst_mode):
+        _method_name = '_use_low_range'
+        _logger.entering(high_range_version, wlst_mode, class_name=self._class_name, method_name=_method_name)
+
+        if self.wlst_mode == wlst_mode:
+            current_invalid_version = self.invalid_version_low
+        else:
+            current_invalid_version = self.invalid_version_mode_low
+
+        result = True
+        if current_invalid_version is not None:
+            result = \
+                VersionUtils.compareVersions(high_range_version, current_invalid_version.get_version_to_compare()) > 0
+
+        _logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
+
+    def _use_high_range(self, low_range_version, wlst_mode):
+        _method_name = '_use_high_range'
+        _logger.entering(low_range_version, wlst_mode, class_name=self._class_name, method_name=_method_name)
+
+        if self.wlst_mode == wlst_mode:
+            current_invalid_version = self.invalid_version_high
+        else:
+            current_invalid_version = self.invalid_version_mode_high
+
+        result = True
+        if current_invalid_version is not None:
+            result = \
+                VersionUtils.compareVersions(low_range_version, current_invalid_version.get_version_to_compare()) < 0
+
+        _logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
+
+    def _replace_low_range(self, high_range_version, new_range, wlst_mode):
+        if self.wlst_mode == wlst_mode:
+            self.invalid_version_low = InvalidVersionData(high_range_version, new_range)
+        else:
+            self.invalid_version_mode_low = InvalidVersionAndModeData(high_range_version, new_range, wlst_mode)
+
+    def _replace_high_range(self, low_range_version, new_range, wlst_mode):
+        if self.wlst_mode == wlst_mode:
+            self.invalid_version_high = InvalidVersionData(low_range_version, new_range)
+        else:
+            self.invalid_version_mode_high = InvalidVersionAndModeData(low_range_version, new_range, wlst_mode)
+
+def _get_closest_version_range(invalid_version_data, invalid_version_mode_data):
+    version_range = None
+    wlst_mode = None
+    if invalid_version_data is not None:
+        version_range = invalid_version_data.get_valid_version_range()
+    elif invalid_version_mode_data is not None:
+        version_range = invalid_version_mode_data.get_valid_version_range()
+        wlst_mode = invalid_version_mode_data.get_valid_wlst_mode().upper()
+    return version_range, wlst_mode
+

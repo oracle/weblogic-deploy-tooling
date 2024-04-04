@@ -1,30 +1,31 @@
 """
-Copyright (c) 2018, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2018, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the injectVariables tool.
 """
+import os
 import sys
 
 from java.io import File
-from java.lang import IllegalArgumentException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import TranslateException
-from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 # Jython tools don't require sys.path modification
 
 import wlsdeploy.tool.util.variable_injector as variable_injector
+from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import model_context_helper
+from wlsdeploy.tool.util.credential_injector import CredentialInjector
 from wlsdeploy.tool.util.variable_injector import VariableInjector
 from wlsdeploy.util import model_translator, cla_helper, tool_main
+from wlsdeploy.util import path_helper
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model import Model
 from wlsdeploy.util.model_translator import FileToPython
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 _program_name = 'injectVariables'
 _class_name = 'variable_inject'
@@ -38,8 +39,7 @@ __required_arguments = [
 
 __optional_arguments = [
     CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH,
-    CommandLineArgUtil.VARIABLE_KEYWORDS_FILE_SWITCH,
-    CommandLineArgUtil.VARIABLE_PROPERTIES_FILE_SWITCH,
+    CommandLineArgUtil.VARIABLE_FILE_SWITCH,
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH
 ]
 
@@ -56,8 +56,24 @@ def __process_args(args):
     argument_map = cla_util.process_args(args)
 
     cla_helper.validate_required_model(_program_name, argument_map)
+    __process_variable_filename_arg(argument_map)
 
     return model_context_helper.create_context(_program_name, argument_map)
+
+
+def __process_variable_filename_arg(argument_map):
+    _method_name = '__process_variable_filename_arg'
+
+    if CommandLineArgUtil.VARIABLE_FILE_SWITCH in argument_map:
+        variable_file_name = argument_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH]
+        path_helper_obj = path_helper.get_path_helper()
+        variable_dir_name = path_helper_obj.get_local_parent_directory(variable_file_name)
+        if not os.path.exists(variable_dir_name):
+            ex = exception_helper.create_cla_exception(
+                ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-19606', CommandLineArgUtil.VARIABLE_FILE_SWITCH,
+                variable_dir_name)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
 
 
 def __inject(model, model_context):
@@ -66,11 +82,17 @@ def __inject(model, model_context):
     :param model_context: the model context
     :return: True if variables were inserted into model: The updated model
     """
-    version = WebLogicHelper(__logger).get_actual_weblogic_version()
-    injector = VariableInjector(_program_name, model, model_context, version)
+    wlst_mode = model_context.get_target_wlst_mode()
+    aliases = Aliases(model_context, wlst_mode)
+
+    credential_injector = CredentialInjector(_program_name, model_context, aliases)
+
+    credential_injector.inject_model_variables(model)
+
+    injector = VariableInjector(_program_name, model_context, aliases, credential_injector.get_variable_cache())
 
     inserted, variable_model, variable_file_name =\
-        injector.inject_variables_keyword_file(append_option=variable_injector.VARIABLE_FILE_UPDATE)
+        injector.inject_variables_from_configuration(model, append_option=variable_injector.VARIABLE_FILE_UPDATE)
 
     if inserted:
         model = Model(variable_model)

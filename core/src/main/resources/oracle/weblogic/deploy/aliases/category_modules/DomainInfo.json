@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2019, 2023, Oracle and/or its affiliates.",
+    "copyright": "Copyright (c) 2019, 2024, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "DomainInfo",
     "folders": { },
@@ -8,6 +8,7 @@
         "AdminUserName":                            [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "AdminUserName",                            "wlst_path": "WP001", "default_value": "weblogic", "wlst_type": "credential" } ],
         "AppDir":                                   [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "AppDir",                                   "wlst_path": "WP001", "default_value": null,       "wlst_type": "string",    "uses_path_tokens": "true" } ],
         "OPSSSecrets":                              [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "OPSSSecrets",                              "wlst_path": "WP001", "default_value": null,       "wlst_type": "password",  "secret_suffix": "opsssecrets", "secret_key": "walletPassword" } ],
+        "OPSSWalletPassphrase":                     [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "OPSSWalletPassphrase",                     "wlst_path": "WP001", "default_value": null,       "wlst_type": "password",  "secret_suffix": "opsssecrets", "secret_key": "walletPassword" } ],
         "ServerGroupTargetingLimits":               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ServerGroupTargetingLimits",               "wlst_path": "WP001", "default_value": null,       "wlst_type": "dict"       } ],
         "DynamicClusterServerGroupTargetingLimits": [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "dynamicClusterServerGroupTargetingLimits", "wlst_path": "WP001", "default_value": null,       "wlst_type": "dict"       } ],
         "ServerStartMode":                          [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ServerStartMode",                          "wlst_path": "WP001", "default_value": null,       "wlst_type": "string"     } ],

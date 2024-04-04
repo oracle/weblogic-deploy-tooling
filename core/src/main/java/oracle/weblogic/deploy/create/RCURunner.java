@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+ * Copyright (c) 2017, 2024, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.create;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,8 +19,8 @@ import oracle.weblogic.deploy.util.FileUtils;
 import oracle.weblogic.deploy.util.ScriptRunner;
 import oracle.weblogic.deploy.util.ScriptRunnerException;
 import oracle.weblogic.deploy.util.StringUtils;
-
 import org.python.core.PyDictionary;
+import org.python.core.PyObject;
 import org.python.core.PyString;
 
 import static oracle.weblogic.deploy.create.ValidationUtils.validateExistingDirectory;
@@ -30,6 +31,29 @@ import static oracle.weblogic.deploy.create.ValidationUtils.validateExistingExec
  * This class does all the work to drop and recreate the RCU schemas based on the domain type definition.
  */
 public class RCURunner {
+    public static final String ORACLE_DB_TYPE = "ORACLE";
+    public static final String EBR_DB_TYPE = "EBR";
+    public static final String SQLSERVER_DB_TYPE = "SQLSERVER";
+    public static final String DB2_DB_TYPE = "IBMDB2";
+    public static final String MYSQL_DB_TYPE = "MYSQL";
+
+    public static final String ORACLE_ATP_DB_TYPE = "ATP";
+    public static final String ORACLE_SSL_DB_TYPE = "SSL";
+
+    public static final String TABLESPACE_SWITCH = "-tablespace";
+    public static final String TEMP_TABLESPACE_SWITCH = "-tempTablespace";
+    public static final String VARIABLES_SWITCH =  "-variables";
+    public static final String COMPONENT_INFO_LOCATION_SWITCH = "-compInfoXMLLocation";
+    public static final String STORAGE_LOCATION_SWITCH = "-storageXMLLocation";
+    public static final String EDITION_SWITCH = "-edition";
+    public static final String UNICODE_SUPPORT = "-unicodeSupport";
+
+    // Any args passed to the constructor in the extraRcuArgsMap will be used
+    // for both dropRepository and createRepository unless added to this list.
+    //
+    public static final List<String> CREATE_ONLY_EXTRA_RCU_ARGS =
+        Arrays.asList(TABLESPACE_SWITCH, TEMP_TABLESPACE_SWITCH);
+
     private static final String CLASS = RCURunner.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.create");
     private static final String MASK = "********";
@@ -43,191 +67,71 @@ public class RCURunner {
     private static final String DROP_REPO_SWITCH = "-dropRepository";
     private static final String CREATE_REPO_SWITCH = "-createRepository";
     private static final String DB_TYPE_SWITCH = "-databaseType";
-    private static final String ORACLE_DB_TYPE = "ORACLE";
     private static final String USER_SAME_PWD_FOR_ALL ="-useSamePasswordForAllSchemaUsers";
     private static final String DB_CONNECT_SWITCH = "-connectString";
     private static final String DB_USER_SWITCH = "-dbUser";
-    private static final String DB_USER = "SYS";
     private static final String DB_ROLE_SWITCH = "-dbRole";
-    private static final String DB_ROLE = "SYSDBA";
+    private static final String ORACLE_DB_ROLE = "SYSDBA";
     private static final String SCHEMA_PREFIX_SWITCH = "-schemaPrefix";
     private static final String COMPONENT_SWITCH = "-component";
-    private static final String TABLESPACE_SWITCH = "-tablespace";
-    private static final String TEMPTABLESPACE_SWITCH = "-tempTablespace";
-    private static final String RCU_VARIABLES_SWITCH =  "-variables";
     private static final String READ_STDIN_SWITCH = "-f";
     private static final String USE_SSL_SWITCH = "-useSSL";
     private static final String SERVER_DN_SWITCH = "-serverDN";
     private static final String SSLARGS = "-sslArgs";
-    private static final String COMPONENT_INFO_LOCATION_SWITCH = "-compInfoXMLLocation";
-    private static final String STORAGE_LOCATION_SWITCH = "-storageXMLLocation";
 
     private static final Pattern SCHEMA_DOES_NOT_EXIST_PATTERN = Pattern.compile("(ORA-01918|RCU-6013[^0-9])");
     private static final Pattern SCHEMA_ALREADY_EXISTS_PATTERN = Pattern.compile("RCU-6016[^0-9]");
 
     private final File oracleHome;
     private final File javaHome;
-    private final String rcuDb;
-    private final String rcuPrefix;
-    private final List<String> rcuSchemas;
-    private final String rcuVariables;
-
-    private boolean atpDB = false;
-    private boolean sslDB = false;
- 
-    private String sslArgs = null;
-    private String atpAdminUser = null;
-    private String rcuAdminUser = DB_USER;
-    private String atpDefaultTablespace = null;
-    private String atpTemporaryTablespace = null;
-    private String componentInfoLocation = null;
-    private String storageLocation = null;
+    private final String databaseType;
+    private final String connectString;
+    private final String schemaPrefix;
+    private final String dbUser;
+    private final String dbRole;
+    private final List<String> componentsList;
+    private final PyDictionary extraRcuArgsMap;
+    private final PyDictionary sslArgsProperties;
+    private final boolean sslDB;
+    private final boolean atpDB;
 
     /**
-     * The private constructor. Callers should use static methods createRunner and createAtpRunner
-     * to construct the correct type.
+     * The constructor.
      *
-     * @param domainType the domain type
-     * @param oracleHome the ORACLE_HOME location
-     * @param javaHome   the JAVA_HOME location
-     * @param rcuDb      the RCU database connect string
-     * @param rcuPrefix  the RCU prefix to use
-     * @param rcuSchemas the list of RCU schemas to create (this list should not include STB)
-     * @param rcuVariables a comma separated list of key=value variables
-     * @throws CreateException if a parameter validation error occurs
+     * @param oracleHome        the ORACLE_HOME location
+     * @param javaHome          the JAVA_HOME location
+     * @param databaseType      the databaseType argument for RCU (ORACLE|SQLSERVER|IBMDB2|MYSQL|EBR)
+     * @param connectString     the database connect string
+     * @param schemaPrefix      the schema prefix
+     * @param dbUser            the database administrator user name
+     * @param componentsList    the list of RCU schemas
+     * @param extraRcuArgsMap   any extra RCU arguments map
+     * @param sslArgsProperties the SSL-related arguments map
+     * @throws CreateException  if a parameter validation error occurs
      */
-    @SuppressWarnings("unused")
-    private RCURunner(String domainType, String oracleHome, String javaHome, String rcuDb, String rcuPrefix,
-        List<String> rcuSchemas, String rcuVariables) throws CreateException {
+    public RCURunner(String oracleHome, String javaHome, String databaseType, String oracleDatabaseConnectionType,
+                     String connectString, String schemaPrefix, String dbUser, List<String> componentsList,
+                     PyDictionary extraRcuArgsMap, PyDictionary sslArgsProperties)
+        throws CreateException {
 
         this.oracleHome = validateExistingDirectory(oracleHome, "ORACLE_HOME");
         this.javaHome = validateExistingDirectory(javaHome, "JAVA_HOME");
 
-        // The rcu_db string could be in the long format so quote the argument to prevent the shell
-        // from trying to interpret the parens...
+        this.databaseType = validateNonEmptyString(databaseType, "rcu_database_type");
+        this.sslDB = ORACLE_SSL_DB_TYPE.equals(oracleDatabaseConnectionType);
+        this.atpDB = ORACLE_ATP_DB_TYPE.equals(oracleDatabaseConnectionType);
+
+        // The rcu_db_conn_string could be in the long format so quote the argument
+        // to prevent the shell from trying to interpret the parens...
         //
-        this.rcuDb = quoteStringForCommandLine(rcuDb, "rcu_db");
-        this.rcuPrefix = validateNonEmptyString(rcuPrefix, "rcu_prefix");
-        this.rcuSchemas = validateNonEmptyListOfStrings(rcuSchemas, "rcu_schema_list");
-        this.rcuVariables = rcuVariables;
-    }
+        this.connectString = quoteStringForCommandLine(connectString, "rcu_db_conn_string");
 
-    /**
-     * Build an RCU runner for a standard database.
-     *
-     * @param domainType the domain type
-     * @param oracleHome the ORACLE_HOME location
-     * @param javaHome   the JAVA_HOME location
-     * @param rcuDb      the RCU database connect string
-     * @param rcuPrefix  the RCU prefix to use
-     * @param rcuSchemas the list of RCU schemas to create (this list should not include STB)
-     * @param rcuVariables a comma separated list of key=value variables
-     * @throws CreateException if a parameter validation error occurs
-     */
-    public static RCURunner createRunner(String domainType, String oracleHome, String javaHome, String rcuDb,
-                                         String rcuPrefix, List<String> rcuSchemas,
-                                         String rcuVariables) throws CreateException {
-
-        return new RCURunner(domainType, oracleHome, javaHome, rcuDb, rcuPrefix, rcuSchemas, rcuVariables);
-    }
-
-    /**
-     * Build an RCU runner for an ATP database.
-     *
-     * @param domainType the domain type
-     * @param oracleHome the ORACLE_HOME location
-     * @param javaHome   the JAVA_HOME location
-     * @param rcuSchemas the list of RCU schemas to create (this list should not include STB)
-     * @param rcuVariables a comma separated list of key=value variables
-     * @param sslConnectionProperties dictionary of ATP specific arguments
-     * @throws CreateException if a parameter validation error occurs
-     */
-    public static RCURunner createAtpRunner(String domainType, String oracleHome, String javaHome, String rcuDb,
-                                            List<String> rcuSchemas, String rcuPrefix, String rcuVariables,
-                                            String databaseType, PyDictionary runnerMap,
-                                            PyDictionary sslConnectionProperties) throws CreateException {
-
-        RCURunner runner = new RCURunner(domainType, oracleHome, javaHome, rcuDb, rcuPrefix, rcuSchemas, rcuVariables);
-
-        StringBuilder sslArgs = getSSLArgsStringBuilder(sslConnectionProperties);
-
-        addExtraSSLPropertyFromMap(runnerMap, sslConnectionProperties, sslArgs, "javax.net.ssl.keyStorePassword");
-        addExtraSSLPropertyFromMap(runnerMap, sslConnectionProperties, sslArgs, "javax.net.ssl.trustStorePassword");
-
-        runner.atpDB = true; // "ATP".equals(databaseType);  // or scan if there are any 'ssl' in properties ?
-        runner.sslArgs = sslArgs.toString();
-
-        runner.atpAdminUser = get(runnerMap, "atp.admin.user");
-        runner.atpDefaultTablespace = get(runnerMap, "atp.default.tablespace");
-        runner.atpTemporaryTablespace = get(runnerMap, "atp.temp.tablespace");
-
-        return runner;
-    }
-
-    private static StringBuilder getSSLArgsStringBuilder(PyDictionary connectionProperties) {
-        StringBuilder sslArgs = new StringBuilder();
-
-        for (Object connectionProperty: connectionProperties.keys()) {
-            if (sslArgs.length() != 0) {
-                sslArgs.append(',');
-            }
-            String key = connectionProperty.toString();
-            sslArgs.append(key);
-            sslArgs.append('=');
-            sslArgs.append(get(connectionProperties, key));
-        }
-        return sslArgs;
-    }
-
-    private static void addExtraSSLPropertyFromMap(PyDictionary runnerMap, PyDictionary connectionProperties,
-                                                   StringBuilder sslArgs, String key) {
-        if (!connectionProperties.has_key(new PyString(key)) &&
-            !get(runnerMap, key).equals("None")) {
-            sslArgs.append(",");
-            sslArgs.append(key);
-            sslArgs.append(get(runnerMap, key));
-        }
-    }
-
-    /**
-     * Build an RCU runner for an SSL database.
-     *
-     * @param domainType the domain type
-     * @param oracleHome the ORACLE_HOME location
-     * @param javaHome   the JAVA_HOME location
-     * @param rcuDb The URL of the database
-     * @param rcuPrefix The prefix used for the tablespaces
-     * @param rcuSchemas the list of RCU schemas to create (this list should not include STB)
-     * @param rcuVariables a comma separated list of key=value variables
-     * @param rcuProperties dictionary of SSL specific arguments
-     * @throws CreateException if a parameter validation error occurs
-     */
-    public static RCURunner createSslRunner(String domainType, String oracleHome, String javaHome, String rcuDb,
-                                            String rcuPrefix, List<String> rcuSchemas, String rcuVariables,
-                                            PyDictionary rcuProperties,
-                                            PyDictionary sslConnectionProperties) throws CreateException {
-
-
-        RCURunner runner = new RCURunner(domainType, oracleHome, javaHome, rcuDb, rcuPrefix, rcuSchemas, rcuVariables);
-
-        StringBuilder sslArgs = getSSLArgsStringBuilder(sslConnectionProperties);
-
-        runner.sslDB = true;
-        runner.sslArgs = sslArgs.toString();
-        return runner;
-    }
-
-    public void setRCUAdminUser(String rcuDBUser) {
-        rcuAdminUser = rcuDBUser;
-    }
-
-    public String getRCUAdminUser() {
-        return rcuAdminUser;
-    }
-
-    public void setXmlLocations(String componentInfoLocation, String storageLocation) {
-        this.componentInfoLocation = componentInfoLocation;
-        this.storageLocation = storageLocation;
+        this.schemaPrefix = validateNonEmptyString(schemaPrefix, "rcu_prefix");
+        this.dbUser = validateNonEmptyString(dbUser, "rcu_admin_user");
+        this.dbRole = computeDbRole();
+        this.componentsList = validateNonEmptyListOfStrings(componentsList, "rcu_schema_list");
+        this.extraRcuArgsMap = extraRcuArgsMap;
+        this.sslArgsProperties = sslArgsProperties;
     }
 
     /**
@@ -244,7 +148,7 @@ public class RCURunner {
         File rcuScript = FileUtils.getCanonicalFile(new File(rcuBinDir, RCU_SCRIPT_NAME));
 
         validateExistingExecutableFile(rcuScript, RCU_SCRIPT_NAME);
-        validateNonEmptyString(rcuSysPass, "rcu_sys_password", true);
+        validateNonEmptyString(rcuSysPass, "rcu_admin_password", true);
         validateNonEmptyString(rcuSchemaPass, "rcu_schema_password", true);
 
         if (!disableRcuDropSchema) {
@@ -283,7 +187,7 @@ public class RCURunner {
         }
         if (exitCode != 0) {
             if (disableRcuDropSchema && isSchemaAlreadyExistsError(runner)) {
-                CreateException ce = new CreateException("WLSDPLY-12010", CLASS, rcuPrefix, runner.getStdoutFileName());
+                CreateException ce = new CreateException("WLSDPLY-12010", CLASS, schemaPrefix, runner.getStdoutFileName());
                 LOGGER.throwing(CLASS, METHOD, ce);
                 throw ce;
             } else {
@@ -298,24 +202,61 @@ public class RCURunner {
     // Private helper methods                                                //
     ///////////////////////////////////////////////////////////////////////////
 
-    private void addATPEnv(Map<String, String> env) {
-        if (atpDB || sslDB) {
-            env.put("RCU_SSL_MODE", "true");
-            env.put("SKIP_CONNECTSTRING_VALIDATION", "true");
-            env.put("RCU_SKIP_PRE_REQS", "ALL");
-        }
+    private boolean isOracleDatabase() {
+        return ORACLE_DB_TYPE.equals(this.databaseType) || EBR_DB_TYPE.equals(this.databaseType);
     }
 
+    private String computeDbRole() {
+        String dbRole = null;
+        if (isOracleDatabase() && !this.atpDB) {
+            dbRole = ORACLE_DB_ROLE;
+        }
+        return dbRole;
+    }
 
     private Map<String, String> getRcuDropEnv() {
         Map<String, String> env = new HashMap<>(1);
         env.put("JAVA_HOME", this.javaHome.getAbsolutePath());
-        addATPEnv(env);
+        addOracleDatabaseSSLEnv(env);
         return env;
     }
 
     private Map<String, String> getRcuCreateEnv() {
         return getRcuDropEnv();
+    }
+
+    private void addOracleDatabaseSSLEnv(Map<String, String> env) {
+        if (isOracleDatabase()) {
+            if (atpDB || sslDB) {
+                env.put("RCU_SSL_MODE", "true");
+                env.put("SKIP_CONNECTSTRING_VALIDATION", "true");
+                env.put("RCU_SKIP_PRE_REQS", "ALL");
+            }
+        }
+    }
+
+    private String getSSLArgs() {
+        String result = null;
+        if (this.sslArgsProperties != null) {
+            StringBuilder sslArgs = new StringBuilder();
+
+            for (Object connectionProperty : this.sslArgsProperties.keys()) {
+                if (sslArgs.length() > 0) {
+                    sslArgs.append(',');
+                }
+                String key = connectionProperty.toString();
+                String value = get(this.sslArgsProperties, key);
+                if (!StringUtils.isEmpty(value)) {
+                    sslArgs.append(key);
+                    sslArgs.append('=');
+                    sslArgs.append(value);
+                }
+            }
+            if (sslArgs.length() > 0) {
+                result = sslArgs.toString();
+            }
+        }
+        return result;
     }
 
     /**
@@ -330,68 +271,71 @@ public class RCURunner {
         arguments.add(SILENT_SWITCH);
         arguments.add(operationSwitch);
 
-        if (this.componentInfoLocation != null) {
-            arguments.add(COMPONENT_INFO_LOCATION_SWITCH);
-            arguments.add(this.componentInfoLocation);
-        }
-
-        if (this.storageLocation != null) {
-            arguments.add(STORAGE_LOCATION_SWITCH);
-            arguments.add(this.storageLocation);
-        }
-
         arguments.add(DB_TYPE_SWITCH);
-        arguments.add(ORACLE_DB_TYPE);
+        arguments.add(this.databaseType);
 
-        if(isCreate) {
+        if (isCreate) {
             arguments.add(USER_SAME_PWD_FOR_ALL);
             arguments.add("true");
         }
 
         arguments.add(DB_CONNECT_SWITCH);
-        arguments.add(rcuDb);
+        arguments.add(this.connectString);
+        arguments.add(DB_USER_SWITCH);
+        arguments.add(this.dbUser);
+        if (this.dbRole != null) {
+            arguments.add(DB_ROLE_SWITCH);
+            arguments.add(this.dbRole);
+        }
+
+        if (this.atpDB || this.sslDB) {
+            arguments.add(USE_SSL_SWITCH);
+            arguments.add(SSLARGS);
+            arguments.add(getSSLArgs());
+        }
 
         if (atpDB) {
-            arguments.add(DB_USER_SWITCH);
-            arguments.add(this.atpAdminUser);
-            arguments.add(USE_SSL_SWITCH);
-            arguments.add("true");
             arguments.add(SERVER_DN_SWITCH);
             arguments.add("CN=ignored");
-            arguments.add(SSLARGS);
-            arguments.add(sslArgs);
-        } else if (sslDB) {
-            arguments.add(USE_SSL_SWITCH);
-            arguments.add(SSLARGS);
-            arguments.add(sslArgs);
-            arguments.add(DB_ROLE_SWITCH);
-            arguments.add(DB_ROLE);
-            arguments.add(DB_USER_SWITCH);
-            arguments.add(getRCUAdminUser());
-        } else {
-            arguments.add(DB_USER_SWITCH);
-            arguments.add(getRCUAdminUser());
-            arguments.add(DB_ROLE_SWITCH);
-            arguments.add(DB_ROLE);
         }
 
         arguments.add(SCHEMA_PREFIX_SWITCH);
-        arguments.add(rcuPrefix);
+        arguments.add(schemaPrefix);
 
-        for (String rcuSchema : rcuSchemas) {
+        String tablespace = isCreate ? get(this.extraRcuArgsMap, TABLESPACE_SWITCH) : null;
+        String tempTablespace = isCreate ? get(this.extraRcuArgsMap, TEMP_TABLESPACE_SWITCH) : null;
+        List<String> extraArgsAlreadyProcessed =
+            new ArrayList<>(Arrays.asList(TABLESPACE_SWITCH, TEMP_TABLESPACE_SWITCH));
+        for (String rcuSchema : componentsList) {
             arguments.add(COMPONENT_SWITCH);
             arguments.add(rcuSchema);
-            if (atpDB && isCreate) {
-                arguments.add(TABLESPACE_SWITCH);
-                arguments.add(this.atpDefaultTablespace);
-                arguments.add(TEMPTABLESPACE_SWITCH);
-                arguments.add(this.atpTemporaryTablespace);
+            if (isCreate) {
+                if (!StringUtils.isEmpty(tablespace)) {
+                    arguments.add(TABLESPACE_SWITCH);
+                    arguments.add(tablespace);
+                }
+                if (!StringUtils.isEmpty(tempTablespace)) {
+                    arguments.add(TEMP_TABLESPACE_SWITCH);
+                    arguments.add(tempTablespace);
+                }
             }
         }
 
-        if ((rcuVariables != null) && isCreate) {
-            arguments.add(RCU_VARIABLES_SWITCH);
-            arguments.add(this.rcuVariables);
+        if (this.extraRcuArgsMap != null) {
+            for (Object rcuArgsKeyObject : this.extraRcuArgsMap.keys()) {
+                String key = rcuArgsKeyObject.toString();
+                if (extraArgsAlreadyProcessed.contains(key)) {
+                    continue;
+                } else if (!isCreate && CREATE_ONLY_EXTRA_RCU_ARGS.contains(key)) {
+                    continue;
+                }
+
+                String value = get(this.extraRcuArgsMap, key);
+                if (!StringUtils.isEmpty(value)) {
+                    arguments.add(key);
+                    arguments.add(value);
+                }
+            }
         }
 
         arguments.add(READ_STDIN_SWITCH);
@@ -497,7 +441,17 @@ public class RCURunner {
      * Extract the specified string from the specified python dictionary.
      */
     private static String get(PyDictionary dictionary, String key) {
-        return dictionary.get(new PyString(key)).toString();
+        String result = null;
+        if (dictionary.has_key(new PyString(key))) {
+            PyObject value = dictionary.get(new PyString(key));
+            if (value != null) {
+                result = value.toString();
+                if (result.equals("None")) {
+                    result = null;
+                }
+            }
+        }
+        return result;
     }
 
     /**

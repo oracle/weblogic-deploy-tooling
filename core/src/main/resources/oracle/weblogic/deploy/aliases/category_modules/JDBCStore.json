@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
+    "copyright": "Copyright (c) 2017, 2023, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "JDBCStore${:s}",
     "online_bean": "weblogic.management.configuration.JDBCStoreMBean",
@@ -8,8 +8,8 @@
     "attributes": {
         "ConnectionPool":                       [ {"version": "[10,12.2.1)", "wlst_mode": "offline", "wlst_name": "ConnectionPool",                      "wlst_path": "WP001", "default_value": null,      "wlst_type": "string"           } ],
         "ConnectionCachingPolicy":              [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "ConnectionCachingPolicy",             "wlst_path": "WP001", "default_value": "${__NULL__:DEFAULT}", "wlst_type": "string",  "restart_required": "true"  } ],
-        "CreateTableDDLFile":                   [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "CreateTableDDLFile",                  "wlst_path": "WP001", "default_value": null,      "wlst_type": "string",          "restart_required": "true" } ],
-        "DataSource":                           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "DataSource",                          "wlst_path": "WP001", "default_value": null,      "wlst_type": "string",          "get_method": "${LSA:GET}", "get_mbean_type": "${:JDBCSystemResourceMBean}", "set_method": "${:MBEAN.set_data_source_mbean}", "set_mbean_type": "${:weblogic.management.configuration.JDBCSystemResourceMBean}", "restart_required": "true"} ],
+        "CreateTableDDLFile":                   [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "CreateTableDDLFile",                  "wlst_path": "WP001", "default_value": null,      "wlst_type": "string",          "restart_required": "true", "uses_path_tokens": "true" } ],
+        "DataSource":                           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "DataSource",                          "wlst_path": "WP001", "default_value": null,      "wlst_type": "string",          "get_method": "${LSA:GET}", "set_method": "MBEAN.set_data_source_mbean", "set_mbean_type": "weblogic.management.configuration.JDBCSystemResourceMBean", "restart_required": "true"} ],
         "DeletesPerBatchMaximum":               [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "DeletesPerBatchMaximum",              "wlst_path": "WP001", "default_value": 20,        "wlst_type": "integer",         "restart_required": "true" } ],
         "DeletesPerStatementMaximum":           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "DeletesPerStatementMaximum",          "wlst_path": "WP001", "default_value": 20,        "wlst_type": "integer",         "restart_required": "true" } ],
         "DeploymentOrder":                      [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "DeploymentOrder",                     "wlst_path": "WP001", "default_value": 1000,      "wlst_type": "integer"          } ],

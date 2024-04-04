@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Utility CLS methods shared by multiple tools.
@@ -23,11 +23,11 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_utils
+from wlsdeploy.util import env_helper
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import model_helper
 from wlsdeploy.util import model_translator
-from wlsdeploy.util import path_utils
-from wlsdeploy.util import env_helper
+from wlsdeploy.util import path_helper
 
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -124,14 +124,18 @@ def validate_variable_file_exists(program_name, argument_map):
         argument_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = ",".join(result_files)
 
 
-def validate_if_domain_home_required(program_name, argument_map):
-    method_name = 'validate_if_remote_options'
-    if CommandLineArgUtil.REMOTE_SWITCH not in argument_map and \
-            CommandLineArgUtil.DOMAIN_HOME_SWITCH not in argument_map:
-        ex = create_cla_exception(ExitCode.USAGE_ERROR, 'WLSDPLY-20005',
-                                  program_name, CommandLineArgUtil.DOMAIN_HOME_SWITCH)
-        __logger.throwing(ex, class_name=_class_name, method_name=method_name)
-        raise ex
+def validate_if_domain_home_required(program_name, argument_map, wlst_mode):
+    method_name = 'validate_if_domain_home_required'
+    if CommandLineArgUtil.DOMAIN_HOME_SWITCH not in argument_map:
+        if wlst_mode == WlstModes.OFFLINE:
+            ex = create_cla_exception(ExitCode.USAGE_ERROR, 'WLSDPLY-20005',
+                                      program_name, CommandLineArgUtil.DOMAIN_HOME_SWITCH)
+            __logger.throwing(ex, class_name=_class_name, method_name=method_name)
+            raise ex
+    else:
+        if wlst_mode == WlstModes.ONLINE:
+            __logger.notification('WLSDPLY-20041', program_name, CommandLineArgUtil.DOMAIN_HOME_SWITCH,
+                                  class_name=_class_name, method_name=method_name)
 
 
 def process_encryption_args(optional_arg_map):
@@ -407,17 +411,18 @@ def persist_model(model_context, model_dictionary):
     if check_persist_model():
         store_value = env_helper.getenv(_store_environment_variable)
 
-        if os.path.isabs(store_value):
+        _path_helper = path_helper.get_path_helper()
+        if _path_helper.is_absolute_local_path(store_value):
             file_path = store_value
         elif model_context.get_domain_home() is not None:
-            file_path = model_context.get_domain_home() + os.sep + 'wlsdeploy' + os.sep + 'domain_model.json'
+            file_path = _path_helper.local_join(model_context.get_domain_home(), 'wlsdeploy', 'domain_model.json')
         else:
             file_dir = FileUtils.createTempDirectory('wlsdeploy')
             file_path = File(file_dir, 'domain_model.json').getAbsolutePath()
 
         __logger.info('WLSDPLY-01650', file_path, class_name=_class_name, method_name=_method_name)
 
-        persist_dir = path_utils.get_parent_directory(file_path)
+        persist_dir = _path_helper.get_local_parent_directory(file_path)
         if not os.path.exists(persist_dir):
             os.makedirs(persist_dir)
 

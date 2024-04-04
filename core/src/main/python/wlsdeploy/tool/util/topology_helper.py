@@ -1,8 +1,9 @@
 """
-Copyright (c) 2017, 2022, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
+import os
 import wlsdeploy.tool.deploy.deployer_utils as deployer_utils
 import wlsdeploy.util.dictionary_utils as dictionary_utils
 from oracle.weblogic.deploy.util import WLSDeployArchive
@@ -17,7 +18,7 @@ from wlsdeploy.aliases.model_constants import NM_PROPERTIES
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.util import model_helper
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
+from wlsdeploy.util import path_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 
 
@@ -31,8 +32,8 @@ class TopologyHelper(object):
         self.logger = logger
         self.aliases = aliases
         self.wlst_helper = WlstHelper(exception_type)
-        self.wl_helper = WebLogicHelper(self.logger)
         self._coherence_cluster_elements = [CLUSTER, SERVER, SERVER_TEMPLATE]
+        self.path_helper = path_helper.get_path_helper()
 
     def check_coherence_cluster_references(self, type_name, model_nodes):
         """
@@ -119,7 +120,7 @@ class TopologyHelper(object):
         original_location = self.wlst_helper.get_pwd()
         resource_location = LocationContext(location).append_location(model_type)
 
-        if self.aliases.get_wlst_mbean_type(resource_location) is not None:
+        if self.aliases.is_model_location_valid(resource_location):
             existing_names = deployer_utils.get_existing_object_list(resource_location, self.aliases)
 
             name_nodes = dictionary_utils.get_dictionary_element(model_nodes, model_type)
@@ -179,8 +180,37 @@ class TopologyHelper(object):
             resource_location.add_name_token(token, name)
             wlst_path = self.aliases.get_wlst_attributes_path(resource_location)
             if self.wlst_helper.path_exists(wlst_path):
-                mbean = self.wlst_helper.get_mbean_for_wlst_path(wlst_path)
+                mbean = self.wlst_helper.get_mbean(wlst_path)
                 mbean.setTargets(None)
+
+    def get_archive_extract_path(self, archive_path, location=None, attribute_name=None):
+        """
+        Return the extract path for the specified archive path.
+        These can differ in cases where file in wlsdeploy/* are deployed to config/wlsdeploy/* .
+        If location is specified, a deprecation message is logged with the corrected archive path.
+        :param archive_path: the archive path to be examined
+        :param location: (optional) the alias location (used for logging)
+        :param attribute_name: (optional) the attribute name (used for logging)
+        :return:
+        """
+        extract_path = WLSDeployArchive.getExtractPath(archive_path)
+        if (extract_path != archive_path) and location:
+            location_text = self.aliases.get_model_folder_path(location)
+            self.logger.deprecation("WLSDPLY-09210", attribute_name, location_text, archive_path, extract_path)
+        return extract_path
+
+    def get_archive_extract_directory(self, extract_path, domain_home):
+        """
+        Return the extract directory for the specified extract path and domain home.
+        The directory is created if it does not exist.
+        :param extract_path: the path to be extracted (including the file name)
+        :param domain_home: the domain home being deployed (or the SSH temporary upload directory)
+        """
+        destination_file = self.path_helper.local_join(domain_home, extract_path)
+        extract_directory = os.path.dirname(destination_file)
+        if not os.path.exists(extract_directory):
+            os.makedirs(extract_directory)
+        return extract_directory
 
     def qualify_nm_properties(self, type_name, model_nodes, base_location, model_context, attribute_setter):
         """
@@ -195,17 +225,7 @@ class TopologyHelper(object):
             location = LocationContext(base_location).append_location(type_name)
             keystore_file = dictionary_utils.get_element(model_nodes, CUSTOM_IDENTITY_KEYSTORE_FILE)
             if keystore_file and WLSDeployArchive.isPathIntoArchive(keystore_file):
+                # don't pass location here, any deprecations were logged previously
+                keystore_file = self.get_archive_extract_path(keystore_file)
                 value = model_context.get_domain_home() + "/" + keystore_file
                 attribute_setter.set_attribute(location, CUSTOM_IDENTITY_KEYSTORE_FILE, value)
-
-    def is_clustered_server(self, server_name, servers_dictionary):
-        """
-        Return true if the server's Cluster attribute is set.
-        :param server_name: name of the server in the dictionary
-        :param servers_dictionary: model topology section of servers
-        :return: True if a clustered server
-        """
-        server_dictionary = dictionary_utils.get_dictionary_element(servers_dictionary, server_name)
-        if dictionary_utils.is_empty_dictionary_element(server_dictionary, CLUSTER):
-            return False
-        return True

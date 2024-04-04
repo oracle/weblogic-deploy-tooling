@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.
+Copyright (c) 2017, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 These constants are internal to the aliases module and should not be used, as they are not part of the public API.
@@ -18,7 +18,6 @@ FLATTENED_FOLDER_DATA = 'flattened_folder_data'
 FOLDERS = 'folders'
 FOLDER_ORDER = 'folder_order'
 FOLDER_PARAMS = 'folder_params'
-GET_MBEAN_TYPE = 'get_mbean_type'
 GET_METHOD = 'get_method'
 MERGE = 'merge'
 MODEL_NAME = 'model_name'

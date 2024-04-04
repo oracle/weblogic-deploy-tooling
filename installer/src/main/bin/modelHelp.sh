@@ -19,12 +19,6 @@
 # JAVA_HOME             - The location of the JDK to use.  The caller must set
 #                         this variable to a valid Java 7 (or later) JDK.
 #
-# WLSDEPLOY_HOME        - The location of the WLS Deploy installation.
-#                         If the caller sets this, the callers location will be
-#                         honored provided it is an existing directory.
-#                         Otherwise, the location will be calculated from the
-#                         location of this script.
-#
 # WLSDEPLOY_PROPERTIES  - Extra system properties to pass to Java.  The caller
 #                         can use this environment variable to add additional
 #                         system properties to the Java environment.
@@ -35,8 +29,8 @@ usage() {
   echo "Usage: $1 [-help]"
   echo "          [-oracle_home <oracle_home>]"
   echo "          [-target <target>]"
-  echo "          [-attributes_only | -folders_only | -recursive | -interactive]"
-  echo "          <model_path>"
+  echo "          [-attributes_only | -folders_only | -recursive]"
+  echo "          [<model_path>]"
   echo ""
   echo "    where:"
   echo "        oracle_home - an existing Oracle Home directory.  This is required"
@@ -61,8 +55,7 @@ usage() {
   echo "    for the specified model path, and recursively include the folders below"
   echo "    that path."
   echo ""
-  echo "    The -interactive switch will cause the tool to enter an interactive"
-  echo "    mode with the specified model path as your initial location."
+  echo "    If no model path is specified, the tool to enter an interactive mode."
   echo ""
   echo "    model_path examples:"
   echo "        resources:/JDBCSystemResource/JdbcResource"

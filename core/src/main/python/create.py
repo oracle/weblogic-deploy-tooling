@@ -6,43 +6,33 @@ The main module for the WLSDeploy tool to create empty domains.
 """
 import os
 import sys
-import exceptions
 
-from java.lang import Exception as JException
 from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import String
-from java.lang import System
-import java.sql.DriverManager as DriverManager
-import java.util.Properties as Properties
-
 from oracle.weblogic.deploy.create import CreateException
 from oracle.weblogic.deploy.deploy import DeployException
-from oracle.weblogic.deploy.validate import ValidateException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
+from oracle.weblogic.deploy.validate import ValidateException
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(sys.argv[0])))
 
 # imports from local packages start here
 from wlsdeploy.aliases.aliases import Aliases
-from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.model_constants import DEFAULT_WLS_DOMAIN_NAME
 from wlsdeploy.aliases.model_constants import DOMAIN_NAME
-from wlsdeploy.aliases.model_constants import PATH_TO_RCU_DB_CONN
-from wlsdeploy.aliases.model_constants import PATH_TO_RCU_PREFIX
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
-from wlsdeploy.tool.create.rcudbinfo_helper import RcuDbInfo
 from wlsdeploy.tool.create.domain_creator import DomainCreator
 from wlsdeploy.tool.util import model_context_helper
-from wlsdeploy.tool.util.archive_helper import ArchiveHelper
+from wlsdeploy.tool.util.archive_helper import ArchiveList
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.util import wlst_helper
-from wlsdeploy.tool.validate.content_validator import CreateDomainContentValidator
+from wlsdeploy.tool.validate.create_content_validator import CreateDomainContentValidator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import env_helper
 from wlsdeploy.util import getcreds
@@ -50,10 +40,6 @@ from wlsdeploy.util import tool_main
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.cla_utils import TOOL_TYPE_CREATE
 from wlsdeploy.util.exit_code import ExitCode
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
-from wlsdeploy.tool.create import atp_helper
-from wlsdeploy.tool.create import ssl_helper
-import wlsdeploy.tool.create.rcudbinfo_helper as rcudbinfo_helper
 
 wlst_helper.wlst_functions = globals()
 
@@ -62,7 +48,6 @@ _program_name = 'createDomain'
 _class_name = 'create'
 __logger = PlatformLogger('wlsdeploy.create')
 __wlst_mode = WlstModes.OFFLINE
-__version = WebLogicHelper(__logger).get_actual_weblogic_version()
 
 __required_arguments = [
     CommandLineArgUtil.MODEL_FILE_SWITCH,
@@ -76,11 +61,6 @@ __optional_arguments = [
     CommandLineArgUtil.DOMAIN_TYPE_SWITCH,
     CommandLineArgUtil.JAVA_HOME_SWITCH,
     CommandLineArgUtil.RUN_RCU_SWITCH,
-    CommandLineArgUtil.RCU_SYS_PASS_SWITCH,
-    CommandLineArgUtil.RCU_DB_SWITCH,
-    CommandLineArgUtil.RCU_DB_USER_SWITCH,
-    CommandLineArgUtil.RCU_PREFIX_SWITCH,
-    CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH,
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,
     CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
     CommandLineArgUtil.PASSPHRASE_SWITCH,
@@ -171,51 +151,15 @@ def __process_rcu_args(optional_arg_map, domain_type, domain_typedef):
     :param optional_arg_map: the optional arguments map
     :param domain_type:      the domain type
     :param domain_typedef:   the domain_typedef data structure
-    :raises CLAException:    if an error occurs getting the passwords from the user or arguments are missing
     """
     _method_name = '__process_rcu_args'
 
     rcu_schema_count = len(domain_typedef.get_rcu_schemas())
-    run_rcu = False
     if CommandLineArgUtil.RUN_RCU_SWITCH in optional_arg_map:
-        run_rcu = optional_arg_map[CommandLineArgUtil.RUN_RCU_SWITCH]
         if rcu_schema_count == 0:
             __logger.info('WLSDPLY-12402', _program_name, CommandLineArgUtil.RUN_RCU_SWITCH, domain_type)
             del optional_arg_map[CommandLineArgUtil.RUN_RCU_SWITCH]
             return
-
-    if rcu_schema_count > 0:
-        if CommandLineArgUtil.RCU_DB_SWITCH in optional_arg_map:
-            if CommandLineArgUtil.RCU_PREFIX_SWITCH in optional_arg_map:
-                if run_rcu and CommandLineArgUtil.RCU_SYS_PASS_SWITCH not in optional_arg_map:
-                    try:
-                        password = getcreds.getpass('WLSDPLY-12403')
-                    except IOException, ioe:
-                        ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
-                                                                   'WLSDPLY-12404', ioe.getLocalizedMessage(),
-                                                                   error=ioe)
-                        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                        raise ex
-                    optional_arg_map[CommandLineArgUtil.RCU_SYS_PASS_SWITCH] = str(String(password))
-                if CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH not in optional_arg_map:
-                    try:
-                        password = getcreds.getpass('WLSDPLY-12405')
-                    except IOException, ioe:
-                        ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
-                                                                   'WLSDPLY-12406', ioe.getLocalizedMessage(),
-                                                                   error=ioe)
-                        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                        raise ex
-                    optional_arg_map[CommandLineArgUtil.RCU_SCHEMA_PASS_SWITCH] = str(String(password))
-            else:
-                ex = exception_helper.create_cla_exception(ExitCode.USAGE_ERROR,
-                                                           'WLSDPLY-12407', _program_name,
-                                                           CommandLineArgUtil.RCU_DB_SWITCH,
-                                                           CommandLineArgUtil.RCU_PREFIX_SWITCH)
-                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                raise ex
-
-        # Delay the checking later for rcu related parameters
 
 
 def __process_opss_args(optional_arg_map):
@@ -238,55 +182,6 @@ def __process_opss_args(optional_arg_map):
         optional_arg_map[CommandLineArgUtil.OPSS_WALLET_PASSPHRASE] = str(String(passphrase))
 
 
-def validate_rcu_args_and_model(model_context, model, archive_helper, aliases):
-    _method_name = 'validate_rcu_args_and_model'
-
-    has_atpdbinfo = 0
-    has_ssldbinfo = 0
-
-    if model_constants.DOMAIN_INFO in model and model_constants.RCU_DB_INFO in model[model_constants.DOMAIN_INFO]:
-        rcu_db_info = RcuDbInfo(model_context, aliases, model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO])
-        has_tns_admin = rcu_db_info.has_tns_admin()
-        is_regular_db = rcu_db_info.is_regular_db()
-        has_atpdbinfo = rcu_db_info.has_atpdbinfo()
-        has_ssldbinfo = rcu_db_info.has_ssldbinfo()
-
-        _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin, model)
-    else:
-        if model_context.get_domain_typedef().requires_rcu():
-            if not model_context.get_rcu_database() or not model_context.get_rcu_prefix():
-                __logger.severe('WLSDPLY-12408', model_context.get_domain_type(), PATH_TO_RCU_DB_CONN,
-                                PATH_TO_RCU_PREFIX, class_name=_class_name, method_name=_method_name)
-                ex = exception_helper.create_create_exception('WLSDPLY-12408', model_context.get_domain_type(),
-                                                              PATH_TO_RCU_DB_CONN, PATH_TO_RCU_PREFIX)
-                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                raise ex
-
-    return has_atpdbinfo, has_ssldbinfo
-
-
-def _validate_atp_wallet_in_archive(archive_helper, is_regular_db, has_tns_admin, model):
-    _method_name = '_validate_atp_wallet_in_archive'
-    if archive_helper and not is_regular_db:
-        # 1. If it does not have the oracle.net.tns_admin specified, then extract to domain/atpwallet
-        # 2. If it is plain old regular oracle db, do nothing
-        # 3. If it deos not have tns_admin in the model, then the wallet must be in the archive
-        if not has_tns_admin:
-            wallet_path = archive_helper.extract_database_wallet()
-            if wallet_path:
-                # update the model to add the tns_admin
-                model[model_constants.DOMAIN_INFO][model_constants.RCU_DB_INFO][
-                    model_constants.DRIVER_PARAMS_NET_TNS_ADMIN] = wallet_path
-            else:
-                __logger.severe('WLSDPLY-12411', class_name=_class_name, method_name=_method_name)
-                ex = exception_helper.create_create_exception('WLSDPLY-12411')
-                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                raise ex
-
-    if not is_regular_db:
-        System.setProperty('oracle.jdbc.fanEnabled', 'false')
-
-
 def _get_domain_path(model_context, model):
     """
     Returns the domain home path.
@@ -302,54 +197,6 @@ def _get_domain_path(model_context, model):
     else:
         return domain_parent + os.sep + DEFAULT_WLS_DOMAIN_NAME
 
-
-def _precheck_rcu_connectivity(model_context, creator, rcu_db_info):
-
-    _method_name = '_precheck_rcu_connectivity'
-    domain_typename = model_context.get_domain_typedef().get_domain_type()
-
-    if model_context.get_domain_typedef().requires_rcu() and not model_context.is_run_rcu() and 'STB' in \
-            model_context.get_domain_typedef().get_rcu_schemas():
-        # how to create rcu_db_info ?
-        db_conn_props = None
-        fmw_database, is_atp_ds, is_ssl_ds, keystore, keystore_pwd, keystore_type, rcu_prefix, rcu_schema_pwd, \
-            tns_admin, truststore, truststore_pwd, \
-            truststore_type = creator.get_rcu_basic_connection_info(rcu_db_info)
-
-        if is_atp_ds:
-            db_conn_props = creator.get_atp_standard_conn_properties(tns_admin, truststore, truststore_pwd,
-                                                                     truststore_type, keystore_pwd, keystore_type,
-                                                                     keystore)
-        elif is_ssl_ds:
-            db_conn_props = creator.get_ssl_standard_conn_properties(tns_admin, truststore, truststore_pwd,
-                                                                     truststore_type, keystore_pwd, keystore_type,
-                                                                     keystore)
-
-        try:
-            props = Properties()
-            if db_conn_props is not None:
-                for item in db_conn_props:
-                    for key in item.keys():
-                        props.put(key, item[key])
-
-            __logger.info('WLSDPLY_12575', 'test datasource', fmw_database, rcu_prefix + "_STB", props,
-                           class_name=_class_name, method_name=_method_name)
-
-            props.put('user', rcu_prefix + "_STB")
-            props.put('password', rcu_schema_pwd)
-
-            DriverManager.getConnection(fmw_database, props)
-
-        except (exceptions.Exception, JException), e:
-            __logger.severe('WLSDPLY-12505', domain_typename, e.getClass().getName(), e.getLocalizedMessage())
-            ex = exception_helper.create_create_exception('WLSDPLY-12505', domain_typename, e.getClass().getName(),
-                                                          e.getLocalizedMessage(), error=e)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-        except ee:  # FIXME - WLSDPLY-12506 only has one placeholder so ee gets dropped on the floor.
-            ex = exception_helper.create_create_exception('WLSDPLY-12506', domain_typename, ee)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
 
 def main(model_context):
     """
@@ -369,39 +216,29 @@ def main(model_context):
         model_dictionary = cla_helper.load_model(_program_name, model_context, aliases, "create", __wlst_mode,
                                                  validate_crd_sections=False)
 
-        # check for any content problems in the merged, substituted model
-        content_validator = CreateDomainContentValidator(model_context, aliases)
-        content_validator.validate_model(model_dictionary)
+        # set domain home result in model context, for use by deployers and helpers
+        model_context.set_domain_home(_get_domain_path(model_context, model_dictionary))
 
         archive_helper = None
         archive_file_name = model_context.get_archive_file_name()
         if archive_file_name:
+            archive_helper = ArchiveList(archive_file_name, model_context, ExceptionType.CREATE)
+
+        # check for any content problems in the merged, substituted model
+        content_validator = CreateDomainContentValidator(model_context, archive_helper, aliases)
+        content_validator.validate_model(model_dictionary)
+
+        if archive_helper:
             domain_path = _get_domain_path(model_context, model_dictionary)
-            archive_helper = ArchiveHelper(archive_file_name, domain_path, __logger, ExceptionType.CREATE)
-            if archive_helper:
-                if not os.path.exists(os.path.abspath(domain_path)):
-                    os.mkdir(os.path.abspath(domain_path))
+            if not os.path.exists(os.path.abspath(domain_path)):
+                os.mkdir(os.path.abspath(domain_path))
 
-                archive_helper.extract_all_database_wallets()
-                archive_helper.extract_custom_directory()
-                archive_helper.extract_weblogic_remote_console_extension()
-
-        has_atp, has_ssl = validate_rcu_args_and_model(model_context, model_dictionary, archive_helper, aliases)
+            archive_helper.extract_all_database_wallets()
+            archive_helper.extract_custom_directory()
+            archive_helper.extract_weblogic_remote_console_extension()
 
         creator = DomainCreator(model_dictionary, model_context, aliases)
-
-        rcu_db_info = rcudbinfo_helper.create(model_dictionary, model_context, aliases)
-
-        # JRF domain pre-check connectivity
-        _precheck_rcu_connectivity(model_context, creator, rcu_db_info)
-
         creator.create()
-
-        if model_context.get_domain_typedef().requires_rcu():
-            if has_atp:
-                atp_helper.fix_jps_config(rcu_db_info, model_context)
-            elif has_ssl:
-                ssl_helper.fix_jps_config(rcu_db_info, model_context)
 
     except WLSDeployArchiveIOException, ex:
         _exit_code = ExitCode.ERROR

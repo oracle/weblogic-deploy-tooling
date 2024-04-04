@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.",
+    "copyright": "Copyright (c) 2020, 2023, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "SystemComponent${:s}",
     "version": "[12.1.2,)",
@@ -30,7 +30,7 @@
     "attributes": {
         "AutoRestart":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "AutoRestart",                   "wlst_path": "WP001", "default_value": true,    "wlst_type": "boolean"  } ],
         "ComponentType":                 [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ComponentType",                 "wlst_path": "WP001", "default_value": null,    "wlst_type": "string"  } ],
-        "Machine":                       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Machine",                       "wlst_path": "WP001", "default_value": null,    "wlst_type": "string", "get_method": "LSA", "set_method":"${:MBEAN.set_machine_mbean}", "set_mbean_type": "${:weblogic.management.configuration.MachineMBean}" } ],
+        "Machine":                       [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Machine",                       "wlst_path": "WP001", "default_value": null,    "wlst_type": "string", "get_method": "LSA", "set_method":"MBEAN.set_machine_mbean", "set_mbean_type": "weblogic.management.configuration.MachineMBean" } ],
         "NMSocketCreateTimeoutInMillis": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "NMSocketCreateTimeoutInMillis", "wlst_path": "WP001", "default_value": 180000,  "wlst_type": "integer" } ],
         "Notes":                         [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                         "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
         "RestartDelaySeconds":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "RestartDelaySeconds",           "wlst_path": "WP001", "default_value": 0,       "wlst_type": "integer" } ],

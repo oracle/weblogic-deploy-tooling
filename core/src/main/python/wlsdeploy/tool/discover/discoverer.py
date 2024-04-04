@@ -3,12 +3,14 @@ Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
+
+from java.io import IOException
 from java.net import MalformedURLException
 from java.net import URI
 from java.net import URISyntaxException
 from oracle.weblogic.deploy.discover import DiscoverException
+from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
-from oracle.weblogic.deploy.util import StringUtils
 
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
@@ -21,9 +23,8 @@ from wlsdeploy.tool.discover.custom_folder_helper import CustomFolderHelper
 from wlsdeploy.tool.util.mbean_utils import MBeanUtils
 from wlsdeploy.tool.util.mbean_utils import get_interface_name
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
-from wlsdeploy.util import path_utils
+from wlsdeploy.util import path_helper
 import wlsdeploy.util.unicode_helper as str_helper
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
 _DISCOVER_LOGGER_NAME = 'wlsdeploy.discover'
@@ -48,6 +49,7 @@ class Discoverer(object):
         :param aliases: optional, aliases object to use
         :param credential_injector: optional, injector to collect credentials
         """
+        _method_name = '__init__'
         self._model_context = model_context
         self._base_location = base_location
         self._wlst_mode = wlst_mode
@@ -60,17 +62,24 @@ class Discoverer(object):
         self._att_handler_map = OrderedDict()
         self._custom_folder = CustomFolderHelper(self._aliases, _logger, self._model_context, ExceptionType.DISCOVER,
                                                  self._credential_injector)
-        self._weblogic_helper = WebLogicHelper(_logger)
+        self._weblogic_helper = model_context.get_weblogic_helper()
         self._wlst_helper = WlstHelper(ExceptionType.DISCOVER)
         self._mbean_utils = MBeanUtils(self._model_context, self._aliases, ExceptionType.DISCOVER)
-        self._wls_version = self._weblogic_helper.get_actual_weblogic_version()
+        self._wls_version = model_context.get_effective_wls_version()
+        self.path_helper = path_helper.get_path_helper()
+
+        if model_context.is_ssh():
+            try:
+                self.download_temporary_dir = FileUtils.createTempDirectory("wdt-downloadtemp").getAbsolutePath()
+            except IOException, e:
+                ex = exception_helper.create_discover_exception('WLSDPLY-06161', e.getLocalizedMessage(), error=e)
+                _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
 
     def add_to_remote_map(self, local_name, archive_name, file_type):
-        if not os.path.isabs(local_name):
-            local_name = os.path.join(self._model_context.get_domain_home(), local_name)
-        # we don't know the remote machine type, so automatically turn into forward
-        # slashes.
-        local_name = local_name.replace('\\', '/')
+        # we don't know the remote machine type, so automatically
+        # turn into forward slashes.
+        local_name = self.path_helper.fixup_path(local_name, self._model_context.get_domain_home())
         remote_dict[local_name] = OrderedDict()
         remote_dict[local_name][REMOTE_TYPE] = file_type
         remote_dict[local_name][REMOTE_ARCHIVE_PATH] = archive_name
@@ -110,28 +119,35 @@ class Discoverer(object):
         :return: dictionary of model attribute name and wlst value
         """
         _method_name = '_populate_model_parameters'
+        _logger.entering(dictionary, str_helper.to_string(location),
+                              class_name=_class_name, method_name=_method_name)
+
         wlst_path = self._aliases.get_wlst_attributes_path(location)
         _logger.finer('WLSDPLY-06100', wlst_path, class_name=_class_name, method_name=_method_name)
 
         if not self.wlst_cd(wlst_path, location):
+            _logger.exiting(class_name=_class_name, method_name=_method_name, result=None)
             return
 
         wlst_lsa_params = self._get_attributes_for_current_location(location)
         wlst_did_get = list()
-        _logger.finest('WLSDPLY-06102', self._wlst_helper.get_pwd(), wlst_lsa_params, class_name=_class_name,
-                       method_name=_method_name)
+        _logger.finest('WLSDPLY-06102', self._wlst_helper.get_pwd(), wlst_lsa_params,
+                       class_name=_class_name, method_name=_method_name)
         wlst_get_params = self._get_required_attributes(location)
         _logger.finest('WLSDPLY-06103', str_helper.to_string(location), wlst_get_params,
                        class_name=_class_name, method_name=_method_name)
         if wlst_lsa_params is not None:
             for wlst_lsa_param in wlst_lsa_params:
                 if wlst_lsa_param in wlst_get_params:
+                    _logger.finest('WLSDPLY-06132', wlst_lsa_param,
+                                   class_name=_class_name, method_name=_method_name)
                     success, wlst_value = self._get_attribute_value_with_get(wlst_lsa_param, wlst_path)
                     wlst_did_get.append(wlst_lsa_param)
                     if not success:
                         continue
                 else:
-                    _logger.finer('WLSDPLY-06131', wlst_lsa_param, class_name=_class_name, method_name=_method_name)
+                    _logger.finest('WLSDPLY-06131', wlst_lsa_param,
+                                   class_name=_class_name, method_name=_method_name)
                     wlst_value = wlst_lsa_params[wlst_lsa_param]
 
                 # if attribute was never set (online only), don't add to the model
@@ -151,9 +167,13 @@ class Discoverer(object):
         # Find the attributes that are not in the LSA wlst map but are in the alias definitions with GET access
         get_attributes = [get_param for get_param in wlst_get_params if not get_param in wlst_did_get]
         for get_attribute in get_attributes:
+            _logger.finest('WLSDPLY-06133', get_attribute,
+                           class_name=_class_name, method_name=_method_name)
             success, wlst_value = self._get_attribute_value_with_get(get_attribute, wlst_path)
             if success:
                 self._add_to_dictionary(dictionary, location, get_attribute, wlst_value, wlst_path)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name)
 
     def _omit_from_model(self, location, wlst_lsa_param):
         """
@@ -309,8 +329,7 @@ class Discoverer(object):
         """
         _method_name = '_find_names_in_folder'
         names = None
-        mbean_type = self._aliases.get_wlst_mbean_type(location)
-        if mbean_type is None:
+        if not self._aliases.is_model_location_valid(location):
             _logger.fine('WLSDPLY-06110', location.get_model_folders()[-1], location.get_folder_path(),
                          class_name=_class_name, method_name=_method_name)
         else:
@@ -637,13 +656,14 @@ class Discoverer(object):
         # exception thrown. The get_model_subfolder_name does not throw an exception if the alias
         # does not exist. We do not want an exception if the folder is just not available for the version
         # Update 05/21/20 - does not make sense to stop discover because of missing alias definition.
+
         try:
-            mbean_type = self._aliases.get_wlst_mbean_type(location)
-        except DiscoverException:
+            location_is_valid = self._aliases.is_model_location_valid(location)
+        except DiscoverException, ex:
             _logger.warning('WLSDPLY-06156', str_helper.to_string(location),
                             class_name=_class_name, method_name=_method_name)
-            mbean_type = None
-        if mbean_type:
+            location_is_valid = False
+        if location_is_valid:
             model_name = self._aliases.get_model_subfolder_name(location, wlst_name)
             _logger.finest('WLSDPLY-06118', model_name, wlst_name, class_name=_class_name, method_name=_method_name)
             if model_name is None:
@@ -682,25 +702,47 @@ class Discoverer(object):
 
     def _convert_path(self, file_name, relative_to_config=False):
         file_name_resolved = self._model_context.replace_token_string(file_name)
-        if path_utils.is_relative_path(file_name_resolved):
+        if self.path_helper.is_relative_path(file_name_resolved):
             relative_to_dir = self._model_context.get_domain_home()
             if relative_to_config:
-                relative_to_dir = os.path.join(self._model_context.get_domain_home(), 'config')
-            return convert_to_absolute_path(relative_to_dir, file_name_resolved)
+                relative_to_dir = self.path_helper.join(self._model_context.get_domain_home(), 'config')
+            return self.path_helper.get_canonical_path(file_name_resolved, relative_to_dir)
         return file_name_resolved
 
-    def _is_oracle_home_file(self, file_name):
+    def _is_file_to_exclude_from_archive(self, file_name):
         """
-        Determine if the absolute file name starts with an oracle home. Disregard if the application is
-        located in the domain home.
+        Determine if the absolute file name is one that should be excluded from the archive file.
 
         :param file_name: to check for oracle home or weblogic home
-        :return: true if in oracle home location
+        :return: true if the file should not be added to the archive
         """
-        py_str = path_utils.fixup_path(str_helper.to_string(file_name))
-        return (not py_str.startswith(self._model_context.get_domain_home())) and \
-            (py_str.startswith(self._model_context.get_oracle_home()) or
-             py_str.startswith(self._model_context.get_wl_home()))
+        _method_name = '_is_file_to_exclude_from_archive'
+        _logger.entering(file_name, class_name=_class_name, method_name=_method_name)
+
+        py_str = self.path_helper.fixup_path(str_helper.to_string(file_name))
+        domain_home = self.path_helper.fixup_path(self._model_context.get_domain_home())
+        wl_home = self.path_helper.fixup_path(self._model_context.get_effective_wl_home())
+        oracle_home = self.path_helper.fixup_path(self._model_context.get_effective_oracle_home())
+        _logger.finer('WLSDPLY-06162', py_str, domain_home, oracle_home, wl_home,
+                      class_name=_class_name, method_name=_method_name)
+
+        if py_str.startswith(domain_home):
+            result = False
+        elif not py_str.startswith(wl_home) and not py_str.startswith(oracle_home):
+            result = False
+        else:
+            # We expect entries in the typedef's discoverExcludedLocationsBinariesToArchive
+            # list to normally be tokenized but let's check both just in case...
+            tokenized_py_str = self._model_context.tokenize_path(py_str)
+            typedef = self._model_context.get_domain_typedef()
+            result = not typedef.should_archive_excluded_app(tokenized_py_str)
+            _logger.finer('WLSDPLY-06163', py_str, tokenized_py_str, result,
+                          class_name=_class_name, method_name=_method_name)
+            if result and py_str != tokenized_py_str:
+                result = not typedef.should_archive_excluded_app(py_str)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
+        return result
 
     def _get_wlst_mode_string(self):
         """
@@ -863,6 +905,10 @@ class Discoverer(object):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=(success, url, path))
         return success, url, path
 
+    def download_deployment_from_remote_server(self, source_path, local_download_root, file_type):
+        return self.path_helper.download_file_from_remote_server(self._model_context, source_path,
+                                                                 local_download_root, file_type)
+
 
 def add_to_model_if_not_empty(dictionary, entry_name, entry_value):
     """
@@ -886,18 +932,6 @@ def add_to_model(dictionary, entry_name, entry_value):
     :param entry_value: dictionary to add
     """
     dictionary[entry_name] = entry_value
-
-def convert_to_absolute_path(relative_to, file_name):
-    """
-    Transform the path by joining the relative_to before the file_name and converting the resulting path name to
-    an absolute path name.
-    :param relative_to: prefix of the path
-    :param file_name: name of the file
-    :return: absolute path of the relative_to and file_name
-    """
-    if not StringUtils.isEmpty(relative_to) and not StringUtils.isEmpty(file_name):
-        file_name = os.path.join(relative_to, file_name)
-    return file_name
 
 
 def _is_containment(mbean_attribute_info):

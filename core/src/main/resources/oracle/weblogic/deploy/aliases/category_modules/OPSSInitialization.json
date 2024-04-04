@@ -2,6 +2,7 @@
     "copyright": "Copyright (c) 2023, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "OPSSInitialization",
+    "default_name_value": "NO_FOLDER",
     "short_name": "OPSS",
     "folders": {
         "Credential": {
@@ -33,6 +34,6 @@
     "attributes": {},
     "wlst_attributes_path": "WP001",
     "wlst_paths": {
-        "WP001": "/NO_FOLDER"
+        "WP001": "/NO_FOLDER/%OPSSINITIALIZATION%"
     }
 }

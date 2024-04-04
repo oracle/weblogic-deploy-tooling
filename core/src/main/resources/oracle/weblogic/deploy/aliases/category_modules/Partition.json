@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
+    "copyright": "Copyright (c) 2017, 2023, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "Partition${:s}",
     "online_bean": "weblogic.management.configuration.PartitionMBean",
@@ -583,7 +583,7 @@
         "AvailableTargets":                      [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "AvailableTargets",                        "wlst_path": "WP001", "default_value": null,              "wlst_type": "jarray",           "preferred_model_type": "delimited_string", "get_method": "${LSA:GET}", "wlst_read_type": "delimited_string", "set_method": "MBEAN.set_mt_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean" } ],
         "BatchJobsDataSourceJndiName":           [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "BatchJobsDataSourceJndiName",             "wlst_path": "WP001", "default_value": null,              "wlst_type": "string"            } ],
         "BatchJobsExecutorServiceName":          [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "BatchJobsExecutorServiceName",            "wlst_path": "WP001", "default_value": null,              "wlst_type": "string"            } ],
-        "DataSourceForJobScheduler":             [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "DataSourceForJobScheduler",               "wlst_path": "WP001", "default_value": null,              "wlst_type": "string",           "set_method": "${:MBEAN.set_data_source_mbean}", "set_mbean_type": "${:weblogic.management.configuration.JDBCSystemResourceMBean}" } ],
+        "DataSourceForJobScheduler":             [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "DataSourceForJobScheduler",               "wlst_path": "WP001", "default_value": null,              "wlst_type": "string",           "set_method": "MBEAN.set_data_source_mbean", "set_mbean_type": "weblogic.management.configuration.JDBCSystemResourceMBean" } ],
         "DefaultTargets":                        [
             {"version": "[12.2.1,12.2.1.1)", "wlst_mode": "offline", "wlst_name": "DefaultTargets",  "wlst_path": "WP001", "default_value": null, "wlst_type": "jarray",           "preferred_model_type": "delimited_string",  "get_method": "GET", "set_method": "MBEAN.set_mt_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean" },
             {"version": "[12.2.1.1,)",       "wlst_mode": "offline", "wlst_name": "DefaultTargets",  "wlst_path": "WP001", "default_value": null, "wlst_type": "list",             "preferred_model_type": "delimited_string",  "get_method": "LSA", "wlst_read_type": "delimited_string" },

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -26,7 +26,6 @@ from wlsdeploy.aliases.alias_constants import FOLDERS
 from wlsdeploy.aliases.alias_constants import FOLDER_ORDER
 from wlsdeploy.aliases.alias_constants import FOLDER_PARAMS
 from wlsdeploy.aliases.alias_constants import GET
-from wlsdeploy.aliases.alias_constants import GET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import GET_METHOD
 from wlsdeploy.aliases.alias_constants import LSA
 from wlsdeploy.aliases.alias_constants import MERGE
@@ -115,7 +114,6 @@ class AliasFileSyntaxTestCase(unittest.TestCase):
         ACCESS,
         COMMENT,
         DERIVED_DEFAULT,
-        GET_MBEAN_TYPE,
         GET_METHOD,
         MERGE,
         PREFERRED_MODEL_TYPE,
@@ -511,14 +509,6 @@ class AliasFileSyntaxTestCase(unittest.TestCase):
         if type(alias_attribute_value) is not str:
             message = self._get_invalid_attribute_string_type_message(folder_name, attribute_name,
                                                                       COMMENT, alias_attribute_value)
-            result.append(message)
-        return result
-
-    def _verify_attribute_get_mbean_type_attribute_value(self, folder_name, attribute_name, alias_attribute_value):
-        result = []
-        if type(alias_attribute_value) is not str:
-            message = self._get_invalid_attribute_string_type_message(folder_name, attribute_name,
-                                                                      GET_MBEAN_TYPE, alias_attribute_value)
             result.append(message)
         return result
 

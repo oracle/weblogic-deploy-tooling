@@ -4,6 +4,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 
 The entry point for the deployApps tool.
 """
+import exceptions
 import os
 import sys
 
@@ -18,7 +19,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
-from wlsdeploy.tool.deploy import model_deployer
+from wlsdeploy.tool.deploy.model_deployer import ModelDeployer
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util import wlst_helper
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
@@ -28,7 +29,6 @@ from wlsdeploy.util import tool_main
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model import Model
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 wlst_helper.wlst_functions = globals()
 
@@ -36,7 +36,6 @@ wlst_helper.wlst_functions = globals()
 _program_name = 'deployApps'
 _class_name = 'deploy'
 __logger = PlatformLogger('wlsdeploy.deploy')
-__wls_helper = WebLogicHelper(__logger)
 __wlst_helper = WlstHelper(ExceptionType.DEPLOY)
 __wlst_mode = WlstModes.OFFLINE
 
@@ -63,7 +62,19 @@ __optional_arguments = [
     CommandLineArgUtil.OUTPUT_DIR_SWITCH,
     CommandLineArgUtil.DISCARD_CURRENT_EDIT_SWITCH,
     CommandLineArgUtil.CANCEL_CHANGES_IF_RESTART_REQ_SWITCH,
-    CommandLineArgUtil.REMOTE_SWITCH
+    CommandLineArgUtil.REMOTE_SWITCH,
+    CommandLineArgUtil.SSH_HOST_SWITCH,
+    CommandLineArgUtil.SSH_PORT_SWITCH,
+    CommandLineArgUtil.SSH_USER_SWITCH,
+    CommandLineArgUtil.SSH_PASS_SWITCH,
+    CommandLineArgUtil.SSH_PASS_ENV_SWITCH,
+    CommandLineArgUtil.SSH_PASS_FILE_SWITCH,
+    CommandLineArgUtil.SSH_PASS_PROMPT_SWITCH,
+    CommandLineArgUtil.SSH_PRIVATE_KEY_SWITCH,
+    CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_SWITCH,
+    CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_ENV_SWITCH,
+    CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_FILE_SWITCH,
+    CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH
 ]
 
 
@@ -83,9 +94,8 @@ def __process_args(args):
     cla_helper.validate_optional_archive(_program_name, argument_map)
     cla_helper.validate_required_model(_program_name, argument_map)
     cla_helper.validate_variable_file_exists(_program_name, argument_map)
-    cla_helper.validate_if_domain_home_required(_program_name, argument_map)
-
     __wlst_mode = cla_helper.process_online_args(argument_map)
+    cla_helper.validate_if_domain_home_required(_program_name, argument_map, __wlst_mode)
     cla_helper.process_encryption_args(argument_map)
 
     return model_context_helper.create_context(_program_name, argument_map)
@@ -99,22 +109,24 @@ def __deploy(model, model_context, aliases):
     :param aliases: the aliases
     :raises DeployException: if an error occurs
     """
+    model_deployer = ModelDeployer(model, model_context, aliases, wlst_mode=__wlst_mode)
+
     if __wlst_mode == WlstModes.ONLINE:
-        ret_code = __deploy_online(model, model_context, aliases)
+        ret_code = __deploy_online(model_deployer, model_context)
     else:
-        ret_code = __deploy_offline(model, model_context, aliases)
+        model_deployer.extract_early_archive_files()
+        ret_code = __deploy_offline(model_deployer, model_context)
 
     results_file.check_and_write(model_context, ExceptionType.DEPLOY)
 
     return ret_code
 
 
-def __deploy_online(model, model_context, aliases):
+def __deploy_online(model_deployer, model_context):
     """
     Online deployment orchestration
-    :param model: the model
+    :param model_deployer: ModelDeployer object
     :param model_context: the model context
-    :param aliases: the aliases object
     :raises: DeployException: if an error occurs
     """
     _method_name = '__deploy_online'
@@ -132,9 +144,11 @@ def __deploy_online(model, model_context, aliases):
 
     __wlst_helper.connect(admin_user, admin_pwd, admin_url, timeout)
 
-    model_context.set_domain_home_name_if_remote(__wlst_helper.get_domain_home_online(),
+    # All online operations do not have domain home set, so get it from online wlst after connect
+    model_context.set_domain_home_name_if_online(__wlst_helper.get_domain_home_online(),
                                                  __wlst_helper.get_domain_name_online())
 
+    model_deployer.extract_early_archive_files()
     deployer_utils.ensure_no_uncommitted_changes_or_edit_sessions(skip_edit_session_check)
     __wlst_helper.edit()
     __logger.fine("WLSDPLY-09019", edit_lock_acquire_timeout, edit_lock_release_timeout, edit_lock_exclusive)
@@ -146,17 +160,18 @@ def __deploy_online(model, model_context, aliases):
     __logger.info("WLSDPLY-09007", admin_url, method_name=_method_name, class_name=_class_name)
 
     try:
-        model_deployer.deploy_resources(model, model_context, aliases, wlst_mode=__wlst_mode)
-        deployer_utils.delete_online_deployment_targets(model, aliases, __wlst_mode)
-        model_deployer.deploy_app_attributes_online(model, model_context, aliases)
-    except DeployException, de:
+        model_deployer.deploy_resources()
+        model_deployer.distribute_database_wallets_online()
+        model_deployer.deploy_app_attributes_online()
+    except (DeployException, exceptions.Exception, JException), ex:
+        # release the edit session, and raise the exception for tool_main to handle
         deployer_utils.release_edit_session_and_disconnect()
-        raise de
+        raise ex
 
     exit_code = deployer_utils.online_check_save_activate(model_context)
 
     if exit_code != ExitCode.CANCEL_CHANGES_IF_RESTART:
-        model_deployer.deploy_applications(model, model_context, aliases, wlst_mode=__wlst_mode)
+        model_deployer.deploy_applications()
 
     try:
         __wlst_helper.disconnect()
@@ -168,12 +183,11 @@ def __deploy_online(model, model_context, aliases):
     return exit_code
 
 
-def __deploy_offline(model, model_context, aliases):
+def __deploy_offline(model_deployer, model_context):
     """
     Offline deployment orchestration
-    :param model: the model
+    :param model_deployer: ModelDeployer object
     :param model_context: the model context
-    :param aliases: the aliases object
     :raises: DeployException: if an error occurs
     """
     _method_name = '__deploy_offline'
@@ -183,7 +197,7 @@ def __deploy_offline(model, model_context, aliases):
 
     __wlst_helper.read_domain(domain_home)
 
-    model_deployer.deploy_model_offline(model, model_context, aliases, wlst_mode=__wlst_mode)
+    model_deployer.deploy_model_offline()
 
     try:
         __wlst_helper.update_domain()
@@ -191,7 +205,7 @@ def __deploy_offline(model, model_context, aliases):
         __close_domain_on_error()
         raise ex
 
-    model_deployer.deploy_model_after_update(model, model_context, aliases, wlst_mode=__wlst_mode)
+    model_deployer.deploy_model_after_update()
 
     try:
         __wlst_helper.close_domain()
@@ -226,6 +240,9 @@ def main(model_context):
     """
     _method_name = 'main'
     __logger.entering(class_name=_class_name, method_name=_method_name)
+
+    __logger.deprecation('WLSDPLY-09020', _program_name, 'updateDomain', class_name=_class_name,
+                         method_name=_method_name)
 
     __wlst_helper.silence()
     _exit_code = ExitCode.OK

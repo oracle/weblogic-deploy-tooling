@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2023, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -185,7 +185,7 @@ def get_output_file_name(model_context, mode_type):
     :param mode_type: 'Offline', 'Online', or 'SC'
     :return: full path to the output file
     """
-    file_name = 'generated%s-%s.json' % (mode_type, model_context.get_target_wls_version())
+    file_name = 'generated%s-%s.json' % (mode_type, model_context.get_local_wls_version())
     return os.path.join(model_context.get_output_dir(), file_name)
 
 
@@ -346,7 +346,10 @@ def _reorder_top_level_info_map(info_map):
 
 class GenerateModelContext(ModelContext):
     def __init__(self, program_name, arg_map):
-        super(GenerateModelContext, self).__init__(program_name, arg_map)
+        ModelContext.__init__(self, program_name, arg_map)
+        if not self.is_initialization_complete():
+            self.complete_initialization()
+
         self._output_dir = arg_map[OUTPUT_DIR_SWITCH]
 
     def get_output_dir(self):

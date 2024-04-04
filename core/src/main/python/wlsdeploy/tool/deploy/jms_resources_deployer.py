@@ -118,7 +118,7 @@ class JmsResourcesDeployer(Deployer):
             return
 
         location = LocationContext(location).append_location(JMS_RESOURCE)
-        if not self._check_location(location):
+        if not self.aliases.is_model_location_valid(location):
             return
         deployer_utils.set_single_folder_token(location, self.aliases)
 

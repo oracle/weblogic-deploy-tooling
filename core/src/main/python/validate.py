@@ -33,13 +33,11 @@ from wlsdeploy.util import validate_configuration
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
-from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 
 _program_name = 'validateModel'
 _class_name = 'validate'
 __logger = PlatformLogger('wlsdeploy.validate')
-__wls_helper = WebLogicHelper(__logger)
 __wlst_mode = WlstModes.OFFLINE
 
 __required_arguments = [

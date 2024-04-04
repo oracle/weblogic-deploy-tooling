@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2024, Oracle and/or its affiliates.
 The Universal Permissive License (UPL), Version 1.0
 """
 
