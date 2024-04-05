@@ -143,6 +143,7 @@ class AliasEntries(object):
         'MessagingBridge',
         ODL_CONFIGURATION,
         OHS,
+        'OptionalFeatureDeployment',
         'Partition',
         'PartitionWorkManager',
         'PathService',

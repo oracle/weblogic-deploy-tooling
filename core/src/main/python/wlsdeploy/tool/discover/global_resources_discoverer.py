@@ -57,6 +57,8 @@ class GlobalResourcesDiscoverer(Discoverer):
         discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, jolt_pools)
         model_top_folder_name, wtc_servers = self.get_wtc_servers()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, wtc_servers)
+        model_top_folder_name, optional_feature_deployment = self.get_optional_feature_deployment()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, optional_feature_deployment)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary
@@ -147,7 +149,7 @@ class GlobalResourcesDiscoverer(Discoverer):
         Discover the WebAppContainer global resource settings
         :return: model name for the folder: dictionary containing the discovered WebAppContainer
         """
-        _method_name = '_get_webapp_container'
+        _method_name = 'get_webapp_container'
         _logger.entering(class_name=_class_name, method_name=_method_name)
         model_top_folder_name = model_constants.WEBAPP_CONTAINER
         result = OrderedDict()
@@ -155,7 +157,7 @@ class GlobalResourcesDiscoverer(Discoverer):
         location.append_location(model_top_folder_name)
         webapp_container = self._find_singleton_name_in_folder(location)
         if webapp_container is not None:
-            _logger.info('WLSDPLY-06615', class_name=_class_name, method_name=_method_name)
+            _logger.info('WLSDPLY-06676', class_name=_class_name, method_name=_method_name)
             location.add_name_token(self._aliases.get_name_token(location), webapp_container)
             self._populate_model_parameters(result, location)
             self._discover_subfolders(result, location)
@@ -286,4 +288,25 @@ class GlobalResourcesDiscoverer(Discoverer):
                     location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
+        return model_top_folder_name, result
+
+    def get_optional_feature_deployment(self):
+        """
+        Discover the OptionalFeatureDeployment global resource settings
+        :return: model name for the folder: dictionary containing the discovered OptionalFeatureDeployment
+        """
+        _method_name = 'get_optional_feature_deployment'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+        model_top_folder_name = model_constants.OPTIONAL_FEATURE_DEPLOYMENT
+        result = OrderedDict()
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        optional_feature_deployment = self._find_singleton_name_in_folder(location)
+        if optional_feature_deployment is not None:
+            _logger.info('WLSDPLY-06677', class_name=_class_name, method_name=_method_name)
+            location.add_name_token(self._aliases.get_name_token(location), optional_feature_deployment)
+            self._populate_model_parameters(result, location)
+            self._discover_subfolders(result, location)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
