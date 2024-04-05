@@ -207,6 +207,8 @@ OPSS_INITIALIZATION = 'OPSSInitialization'
 # deprecated field name in 4.0
 OPSS_SECRETS = 'OPSSSecrets'
 OPSS_WALLET_PASSPHRASE = 'OPSSWalletPassphrase'
+OPTIONAL_FEATURE = 'OptionalFeature'
+OPTIONAL_FEATURE_DEPLOYMENT = 'OptionalFeatureDeployment'
 ORACLE_DATABASE_CONNECTION_TYPE = 'oracle_database_connection_type'
 ORACLE_OID_AUTHENTICATOR = 'OracleInternetDirectoryAuthenticator'
 ORACLE_OUD_AUTHENTICATOR = 'OracleUnifiedDirectoryAuthenticator'
