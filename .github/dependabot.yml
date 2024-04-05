@@ -17,3 +17,6 @@ updates:
       - dependency-name: org.antlr:antlr4-maven-plugin
         versions:
           - ">=4.10"
+      - dependency-name: javax:javaee-api
+        versions:
+          - ">7.0"
