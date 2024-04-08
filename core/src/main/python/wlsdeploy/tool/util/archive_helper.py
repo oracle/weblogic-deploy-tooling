@@ -360,6 +360,10 @@ class ArchiveList(object):
                     entries = \
                         archive_file.getArchiveEntries(archive_entry_type)
                     for entry in entries:
+                        # Skip directory entries, if they exist.
+                        if entry.endswith(WLSDeployArchive.ZIP_SEP):
+                            continue
+
                         current_entry = entry
 
                         if not target_location.exists() and not target_location.mkdirs():
