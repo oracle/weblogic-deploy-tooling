@@ -125,7 +125,7 @@ public class WLSDeployArchive {
      * subdirectory to which they will be extracted.
      */
     public static final String ARCHIVE_CUSTOM_TARGET_DIR = WLSDPLY_ARCHIVE_CONFIG_DIR_PREFIX + "custom";
-    public static final String DEPRECATED_CUSTOM_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP + "custom";
+    public static final String NON_REPLICABLE_CUSTOM_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP + "custom";
 
     /**
      * Top-level archive subdirectory where the $DOMAIN_HOME/bin scripts are stored.
@@ -2366,20 +2366,22 @@ public class WLSDeployArchive {
     /**
      * Add a custom file or directory to the archive.
      *
-     * @param customEntryPath the file system path to the custom file/directory to add
-     * @param relativePath    the relative archive path name to prepend to the file or directory being added, if any
+     * @param customEntryPath      the file system path to the custom file/directory to add
+     * @param relativePath         the relative archive path name to prepend to the file or directory being added, if any
+     * @param useNonReplicablePath use the older wlsdeploy/custom path
      * @return the relative path where the custom file/directory is stored within the archive
      * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
      * @throws IllegalArgumentException    if the file or directory passed in does not exist
      */
-    public String addCustomEntry(String customEntryPath, String relativePath) throws WLSDeployArchiveIOException {
+    public String addCustomEntry(String customEntryPath, String relativePath, boolean useNonReplicablePath)
+        throws WLSDeployArchiveIOException {
         final String METHOD = "addCustomEntry";
-        LOGGER.entering(CLASS, METHOD, customEntryPath, relativePath);
+        LOGGER.entering(CLASS, METHOD, customEntryPath, relativePath, useNonReplicablePath);
 
         File filePath = new File(customEntryPath);
         validateExistingFile(filePath, "customEntryPath", getArchiveFileName(), METHOD, true);
 
-        String newName = addItemToZip(getCustomArchivePath(relativePath), filePath);
+        String newName = addItemToZip(getCustomArchivePath(relativePath, useNonReplicablePath), filePath);
 
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
@@ -2388,25 +2390,36 @@ public class WLSDeployArchive {
     /**
      * Replace a custom file/directory in the archive.
      *
-     * @param customEntryPath the custom file/directory name or the path within the archive to replace
-     * @param sourceLocation  the file system location of the new custom file/directory to replace the existing one
+     * @param customEntryPath      the custom file/directory name or the path within the archive to replace
+     * @param sourceLocation       the file system location of the new custom file/directory to replace the existing one
+     * @param useNonReplicablePath use the older wlsdeploy/custom path
      * @return the archive path of the new custom file/directory
      * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
      * @throws IllegalArgumentException    if the file or directory passed in does not exist
      */
-    public String replaceCustomEntry(String customEntryPath, String sourceLocation) throws WLSDeployArchiveIOException {
+    public String replaceCustomEntry(String customEntryPath, String sourceLocation, boolean useNonReplicablePath)
+        throws WLSDeployArchiveIOException {
         final String METHOD = "replaceCustomEntry";
-        LOGGER.entering(CLASS, METHOD, customEntryPath, sourceLocation);
+        LOGGER.entering(CLASS, METHOD, customEntryPath, sourceLocation, useNonReplicablePath);
 
         String archivePath;
-        if (customEntryPath.startsWith(ARCHIVE_CUSTOM_TARGET_DIR + ZIP_SEP)) {
-            archivePath = customEntryPath;
+        if (useNonReplicablePath) {
+            if (customEntryPath.startsWith(NON_REPLICABLE_CUSTOM_TARGET_DIR + ZIP_SEP)) {
+                archivePath = customEntryPath;
+            } else {
+                archivePath = NON_REPLICABLE_CUSTOM_TARGET_DIR + ZIP_SEP + customEntryPath;
+            }
         } else {
-            archivePath = ARCHIVE_CUSTOM_TARGET_DIR + ZIP_SEP + customEntryPath;
+            if (customEntryPath.startsWith(ARCHIVE_CUSTOM_TARGET_DIR + ZIP_SEP)) {
+                archivePath = customEntryPath;
+            } else {
+                archivePath = ARCHIVE_CUSTOM_TARGET_DIR + ZIP_SEP + customEntryPath;
+            }
         }
 
         getZipFile().removeZipEntries(archivePath);
-        String newName = addCustomEntry(sourceLocation, getCustomArchivePathForReplace(customEntryPath));
+        String newName =
+            addCustomEntry(sourceLocation, getCustomArchivePathForReplace(customEntryPath), useNonReplicablePath);
 
         LOGGER.exiting(CLASS, METHOD, newName);
         return newName;
@@ -2423,13 +2436,50 @@ public class WLSDeployArchive {
         LOGGER.entering(CLASS, METHOD);
 
         List<String> allPaths = new ArrayList<>();
-        List<String> customFilePaths = Arrays.asList(ARCHIVE_CUSTOM_TARGET_DIR, DEPRECATED_CUSTOM_TARGET_DIR);
+        List<String> customFilePaths = Arrays.asList(ARCHIVE_CUSTOM_TARGET_DIR, NON_REPLICABLE_CUSTOM_TARGET_DIR);
         for(String customFilePath: customFilePaths) {
             if(containsPath(customFilePath)) {
                 allPaths.addAll(getZipFile().listZipEntries(customFilePath));
                 // Remove the top-level directory entry from the list...
                 allPaths.remove(customFilePath + ZIP_SEP);
             }
+        }
+
+        LOGGER.exiting(CLASS, METHOD, allPaths);
+        return allPaths;
+    }
+
+    public List<String> listCustomEntries(boolean useNonReplicablePath) throws WLSDeployArchiveIOException {
+        final String METHOD = "listCustomEntries";
+        LOGGER.entering(CLASS, METHOD, useNonReplicablePath);
+
+        List<String> allPaths = new ArrayList<>();
+        String customFilePath = useNonReplicablePath ? NON_REPLICABLE_CUSTOM_TARGET_DIR : ARCHIVE_CUSTOM_TARGET_DIR;
+        if (containsPath(customFilePath)) {
+            allPaths.addAll(getZipFile().listZipEntries(customFilePath));
+        }
+
+        LOGGER.exiting(CLASS, METHOD, allPaths);
+        return allPaths;
+    }
+
+    public List<String> listCustomEntries(String name, boolean useNonReplicablePath)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "listCustomEntries";
+        LOGGER.entering(CLASS, METHOD, name, useNonReplicablePath);
+
+        validateNonEmptyString(name, "name", METHOD);
+
+        List<String> allPaths = new ArrayList<>();
+        String customFilePath = useNonReplicablePath ? NON_REPLICABLE_CUSTOM_TARGET_DIR : ARCHIVE_CUSTOM_TARGET_DIR;
+        if (name.startsWith(ZIP_SEP)) {
+            customFilePath += name;
+        } else {
+            customFilePath += ZIP_SEP + name;
+        }
+
+        if (containsFileOrPath(customFilePath)) {
+            allPaths.addAll(getZipFile().listZipEntries(customFilePath));
         }
 
         LOGGER.exiting(CLASS, METHOD, allPaths);
@@ -2453,10 +2503,10 @@ public class WLSDeployArchive {
             extractDirectoryFromZip(ARCHIVE_CUSTOM_TARGET_DIR, domainHome);
         }
 
-        if(containsPath(DEPRECATED_CUSTOM_TARGET_DIR)) {
+        if(containsPath(NON_REPLICABLE_CUSTOM_TARGET_DIR)) {
             // log that this location is deprecated, but don't use new location for extraction
-            LOGGER.deprecation("WLSDPLY-01463", DEPRECATED_CUSTOM_TARGET_DIR, ARCHIVE_CUSTOM_TARGET_DIR);
-            extractDirectoryFromZip(DEPRECATED_CUSTOM_TARGET_DIR, domainHome);
+            LOGGER.deprecation("WLSDPLY-01463", NON_REPLICABLE_CUSTOM_TARGET_DIR, ARCHIVE_CUSTOM_TARGET_DIR);
+            extractDirectoryFromZip(NON_REPLICABLE_CUSTOM_TARGET_DIR, domainHome);
         }
 
         LOGGER.exiting(CLASS, METHOD);
@@ -2466,21 +2516,29 @@ public class WLSDeployArchive {
      * Extract the named custom file/directory from the archive into the domain home directory,
      * preserving the archive directory structure.
      *
-     * @param entryPath   the name of the custom file/directory in the archive.
-     * @param domainHome  the existing domain home directory
+     * @param entryPath            the name of the custom file/directory in the archive.
+     * @param domainHome           the existing domain home directory
+     * @param useNonReplicablePath use the older wlsdeploy/custom path
      * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
      * @throws IllegalArgumentException    if the domainHome directory does not exist or the entryPath is empty
      */
-    public void extractCustomEntry(String entryPath, File domainHome) throws WLSDeployArchiveIOException {
+    public void extractCustomEntry(String entryPath, File domainHome, boolean useNonReplicablePath)
+        throws WLSDeployArchiveIOException {
         final String METHOD = "extractCustomEntry";
-        LOGGER.entering(CLASS, METHOD, entryPath, domainHome);
+        LOGGER.entering(CLASS, METHOD, entryPath, domainHome, useNonReplicablePath);
 
         validateNonEmptyString(entryPath, "entryPath", METHOD);
         validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
 
         String archivePath = entryPath;
-        if (!entryPath.startsWith(ARCHIVE_CUSTOM_TARGET_DIR + ZIP_SEP)) {
-            archivePath = ARCHIVE_CUSTOM_TARGET_DIR + ZIP_SEP + entryPath;
+        if (useNonReplicablePath) {
+            if (!entryPath.startsWith(NON_REPLICABLE_CUSTOM_TARGET_DIR + ZIP_SEP)) {
+                archivePath = NON_REPLICABLE_CUSTOM_TARGET_DIR + ZIP_SEP + entryPath;
+            }
+        } else {
+            if (!entryPath.startsWith(ARCHIVE_CUSTOM_TARGET_DIR + ZIP_SEP)) {
+                archivePath = ARCHIVE_CUSTOM_TARGET_DIR + ZIP_SEP + entryPath;
+            }
         }
         archivePath = fixupPathForDirectories(archivePath);
 
@@ -2499,13 +2557,14 @@ public class WLSDeployArchive {
      *
      * @param entryPath The custom file/directory name (e.g., mydir/foo.properties) or the archive path
      *                  to it (e.g., wlsdeploy/custom/mydir/foo.properties)
+     * @param useNonReplicablePath use the older wlsdeploy/custom path
      * @return the number of zip entries removed from the archive
      * @throws WLSDeployArchiveIOException  if the custom file/directory is not present or an IOException
      *                                      occurred while reading the archive or writing the file
      * @throws IllegalArgumentException     if the entryPath is null or empty
      */
-    public int removeCustomEntry(String entryPath) throws WLSDeployArchiveIOException {
-        return removeCustomEntry(entryPath, false);
+    public int removeCustomEntry(String entryPath, boolean useNonReplicablePath) throws WLSDeployArchiveIOException {
+        return removeCustomEntry(entryPath, useNonReplicablePath, false);
     }
 
     /**
@@ -2514,6 +2573,7 @@ public class WLSDeployArchive {
      *
      * @param entryPath The custom file/directory name (e.g., mydir/foo.properties) or the archive path
      *                  to it (e.g., wlsdeploy/custom/mydir/foo.properties)
+     * @param useNonReplicablePath use the older wlsdeploy/custom path
      * @param silent    If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
      * @return the number of zip entries removed from the archive
      * @throws WLSDeployArchiveIOException  if the custom file/directory is not present (and silent = false) or
@@ -2521,24 +2581,25 @@ public class WLSDeployArchive {
      * @throws IllegalArgumentException     if the entryPath is null or empty
      */
     @SuppressWarnings("java:S2259")
-    public int removeCustomEntry(String entryPath, boolean silent) throws WLSDeployArchiveIOException {
+    public int removeCustomEntry(String entryPath, boolean useNonReplicablePath, boolean silent)
+        throws WLSDeployArchiveIOException {
         final String METHOD = "removeCustomEntry";
-        LOGGER.entering(CLASS, METHOD, entryPath, silent);
+        LOGGER.entering(CLASS, METHOD, entryPath, useNonReplicablePath, silent);
 
         validateNonEmptyString(entryPath, "entryPath", METHOD);
 
         String archivePath;
         String appName;
-        if (entryPath.startsWith(ARCHIVE_CUSTOM_TARGET_DIR + ZIP_SEP)) {
+        String baseLocation = useNonReplicablePath ? NON_REPLICABLE_CUSTOM_TARGET_DIR : ARCHIVE_CUSTOM_TARGET_DIR;
+        if (entryPath.startsWith(baseLocation + ZIP_SEP)) {
             archivePath = entryPath;
-            appName = getNameFromPath(archivePath, ARCHIVE_CUSTOM_TARGET_DIR.length() + 2);
+            appName = getNameFromPath(archivePath, baseLocation.length() + 2);
         } else {
-            archivePath = ARCHIVE_CUSTOM_TARGET_DIR + ZIP_SEP + entryPath;
+            archivePath = baseLocation + ZIP_SEP + entryPath;
             appName = entryPath;
         }
 
-        List<String> zipEntries = getArchiveEntries(ArchiveEntryType.CUSTOM, appName);
-
+        List<String> zipEntries = getZipListEntries(baseLocation, appName, FileOrDirectoryType.EITHER);
         if (!silent && zipEntries.isEmpty()) {
             WLSDeployArchiveIOException ex =
                 new WLSDeployArchiveIOException("WLSDPLY-01448", appName, getArchiveFileName(), archivePath);
@@ -5478,11 +5539,14 @@ public class WLSDeployArchive {
         return result;
     }
 
-    private String getCustomArchivePath(String relativePath) {
+    private String getCustomArchivePath(String relativePath, boolean useNonReplicablePath) {
         final String METHOD = "getCustomArchivePath";
-        LOGGER.entering(CLASS, METHOD, relativePath);
+        LOGGER.entering(CLASS, METHOD, relativePath, useNonReplicablePath);
 
         String archivePath = ARCHIVE_CUSTOM_TARGET_DIR;
+        if (useNonReplicablePath) {
+            archivePath = NON_REPLICABLE_CUSTOM_TARGET_DIR;
+        }
         if (!StringUtils.isEmpty(relativePath)) {
             if (!relativePath.startsWith(ZIP_SEP)) {
                 archivePath += ZIP_SEP;

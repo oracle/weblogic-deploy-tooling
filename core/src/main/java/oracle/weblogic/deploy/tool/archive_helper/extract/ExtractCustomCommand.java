@@ -33,6 +33,11 @@ public class ExtractCustomCommand extends ExtractTypeCommandBase {
     )
     private String name;
 
+    @Option(
+        names = {"-use_non_replicable_location"},
+        description = "Extract the contents from the wlsdeploy/custom location instead of the default config/wlsdeploy/custom location"
+    )
+    private boolean useNonReplicableLocation;
 
     @Override
     public CommandResponse call() throws Exception {
@@ -43,7 +48,7 @@ public class ExtractCustomCommand extends ExtractTypeCommandBase {
         try {
             initializeOptions();
 
-            this.archive.extractCustomEntry(this.name, this.targetDirectory);
+            this.archive.extractCustomEntry(this.name, this.targetDirectory, useNonReplicableLocation);
             response = new CommandResponse(ExitCode.OK, "WLSDPLY-30046", TYPE, this.name,
                 this.archiveFilePath, this.targetDirectory.getPath());
         } catch (ArchiveHelperException ex) {
