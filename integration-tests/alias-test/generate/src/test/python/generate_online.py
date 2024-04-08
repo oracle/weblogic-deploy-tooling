@@ -18,7 +18,9 @@ sys.path.append(os.path.dirname(os.path.realpath(sys.argv[0])))
 print sys.path
 
 from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.util import path_helper
 
 import aliastest.generate.generator_wlst as generator_wlst
 import aliastest.generate.utils as generator_utils
@@ -55,6 +57,7 @@ def main(args):
     _method_name = 'main'
 
     generator_wlst.wlst_functions = globals()
+    path_helper.initialize_path_helper(ExceptionType.ALIAS)
     generate_args = generator_utils.get_generate_args_map(args)
     online_model_context = generator_utils.get_model_context('generate_online', WlstModes.ONLINE, generate_args)
 

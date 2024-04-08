@@ -41,7 +41,32 @@ file in the specified location, and will be deployed to that directory in the do
 
 These are the paths within the archive that are used for different types of resources. You can create further
 directory structures underneath some of these locations to organize the files and directories as you see fit.  The
-Archive Helper Tool makes it easy to add, update, and remove entries from the archive file.
+Archive Helper Tool makes it easy to add, update, and remove entries from the archive file.  
+
+#### Why are there two separate directory structures?
+
+Starting in WDT 4.0, some types previously stored under the top-level `wlsdeploy` directory have been moved to the
+`config/wlsdeploy` directory.  Anything stored in the archive under a location that begins with `config/wlsdeploy` will
+end up inside the `$DOMAIN_HOME/config/wlsdeploy` directory.  This allows the files to benefit from standard WebLogic
+Server behavior:
+
+- The `pack` tool will include these files in the managed server template so that managed server directories created
+  with the `unpack` tools will contain these files.
+- On managed server startup, WebLogic Server will replicate any new/changed/removed files from the Administration
+  Server to the managed server.
+
+Because this file replication happens during managed server startup, that means placing very large files that are updated
+under this location can slow down managed server startup times.  Most file types placed in this new `config/wlsdeploy` 
+location are, by definition, small; for example, database wallets generally contain small text files like `tnsnames.ora`
+and small binary files like `keystore.jks`.  The `custom` type is the only one that requires some thought and allows the
+user to choose between the `config/wlsdeploy/custom` and `wlsdeploy/custom` locations.  
+
+- The `config/wlsdeploy/custom` location allows the file or directory to be replicated to all managed servers.  This
+  is ideal for situations like handling files that live outside an application or dynamically deploying custom security
+  provider-related JAR files, which tend to be not be updated frequently.
+- The `wlsdeploy/custom` location does not support replication of the contents.  This is ideal for storing large files
+  that do not need to be included in `pack`-created templates or to be replicated to the managed servers, such as
+  when deploying in Kubernetes with WebLogic Kubernetes Operator.
 
 #### `config/wlsdeploy/coherence`
 The root directory under which Coherence config files and/or empty directories for Coherence persistent stores.

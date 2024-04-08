@@ -32,6 +32,12 @@ public class RemoveCustomCommand extends RemoveTypeCommandBase {
     )
     private String name;
 
+    @Option(
+        names = {"-use_non_replicable_location"},
+        description = "List the contents of the wlsdeploy/custom location instead of the default config/wlsdeploy/custom location"
+    )
+    private boolean useNonReplicableLocation;
+
     @Override
     public CommandResponse call() throws Exception {
         final String METHOD = "call";
@@ -43,9 +49,9 @@ public class RemoveCustomCommand extends RemoveTypeCommandBase {
 
             int entriesRemoved;
             if (this.force) {
-                entriesRemoved = this.archive.removeCustomEntry(name, true);
+                entriesRemoved = this.archive.removeCustomEntry(name, useNonReplicableLocation, true);
             } else {
-                entriesRemoved = this.archive.removeCustomEntry(name);
+                entriesRemoved = this.archive.removeCustomEntry(name, useNonReplicableLocation);
             }
             response = new CommandResponse(ExitCode.OK, "WLSDPLY-30026", TYPE, this.name,
                 entriesRemoved, this.archiveFilePath);

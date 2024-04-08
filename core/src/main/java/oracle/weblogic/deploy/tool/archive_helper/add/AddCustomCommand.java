@@ -38,11 +38,17 @@ public class AddCustomCommand extends AddTypeCommandBase {
     private String sourcePath;
 
     @Option(
+        names = {"-use_non_replicable_location"},
+        description = "Place the content into the wlsdeploy/custom location instead of the default config/wlsdeploy/custom location"
+    )
+    private boolean useNonReplicableLocation;
+
+    @Option(
         names = {"-path"},
         paramLabel = "<archive-path>",
         description = "Relative archive path from custom to the parent directory to use to add the file or directory, if any"
     )
-    private String archivePath = null;
+    private String archivePath;
 
     @Override
     public CommandResponse call() throws Exception {
@@ -57,16 +63,18 @@ public class AddCustomCommand extends AddTypeCommandBase {
             String resultName;
             if (this.overwrite) {
                 String archiveReplacementPath = "";
-                if (!StringUtils.isEmpty(archivePath)) {
+                if (!StringUtils.isEmpty(this.archivePath)) {
                     archiveReplacementPath = this.archivePath;
                     if (!archiveReplacementPath.endsWith(ZIP_SEP)) {
                         archiveReplacementPath += ZIP_SEP;
                     }
                 }
                 archiveReplacementPath += sourceFile.getName();
-                resultName = this.archive.replaceCustomEntry(archiveReplacementPath, sourceFile.getPath());
+                resultName = this.archive.replaceCustomEntry(archiveReplacementPath, sourceFile.getPath(),
+                    this.useNonReplicableLocation);
             } else {
-                resultName = this.archive.addCustomEntry(sourceFile.getPath(), this.archivePath);
+                resultName =
+                    this.archive.addCustomEntry(sourceFile.getPath(), this.archivePath, this.useNonReplicableLocation);
             }
             response = new CommandResponse(ExitCode.OK, resultName);
         } catch (ArchiveHelperException ex) {
