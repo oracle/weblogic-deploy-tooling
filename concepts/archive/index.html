@@ -12,20 +12,20 @@
     <title>Archive File :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1712546363" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1712546363" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1712546363" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1712546363" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1712546363" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1712546363" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1712546363" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1712546363" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1712546363" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1712546363" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1712590864" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1712590864" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1712590864" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1712590864" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1712590864" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1712590864" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1712590864" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1712590864" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1712590864" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1712590864" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1712546363"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1712590864"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1712546363"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1712546363"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1712590864"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1712590864"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1712546363"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1712590864"></script>
 
     
   </div>
@@ -2003,6 +2003,30 @@ file in the specified location, and will be deployed to that directory in the do
 <p>These are the paths within the archive that are used for different types of resources. You can create further
 directory structures underneath some of these locations to organize the files and directories as you see fit.  The
 Archive Helper Tool makes it easy to add, update, and remove entries from the archive file.</p>
+<h4 id="why-are-there-two-separate-directory-structures">Why are there two separate directory structures?</h4>
+<p>Starting in WDT 4.0, some types previously stored under the top-level <code>wlsdeploy</code> directory have been moved to the
+<code>config/wlsdeploy</code> directory.  Anything stored in the archive under a location that begins with <code>config/wlsdeploy</code> will
+end up inside the <code>$DOMAIN_HOME/config/wlsdeploy</code> directory.  This allows the files to benefit from standard WebLogic
+Server behavior:</p>
+<ul>
+<li>The <code>pack</code> tool will include these files in the managed server template so that managed server directories created
+with the <code>unpack</code> tools will contain these files.</li>
+<li>On managed server startup, WebLogic Server will replicate any new/changed/removed files from the Administration
+Server to the managed server.</li>
+</ul>
+<p>Because this file replication happens during managed server startup, that means placing very large files that are updated
+under this location can slow down managed server startup times.  Most file types placed in this new <code>config/wlsdeploy</code>
+location are, by definition, small; for example, database wallets generally contain small text files like <code>tnsnames.ora</code>
+and small binary files like <code>keystore.jks</code>.  The <code>custom</code> type is the only one that requires some thought and allows the
+user to choose between the <code>config/wlsdeploy/custom</code> and <code>wlsdeploy/custom</code> locations.</p>
+<ul>
+<li>The <code>config/wlsdeploy/custom</code> location allows the file or directory to be replicated to all managed servers.  This
+is ideal for situations like handling files that live outside an application or dynamically deploying custom security
+provider-related JAR files, which tend to be not be updated frequently.</li>
+<li>The <code>wlsdeploy/custom</code> location does not support replication of the contents.  This is ideal for storing large files
+that do not need to be included in <code>pack</code>-created templates or to be replicated to the managed servers, such as
+when deploying in Kubernetes with WebLogic Kubernetes Operator.</li>
+</ul>
 <h4 id="configwlsdeploycoherence"><code>config/wlsdeploy/coherence</code></h4>
 <p>The root directory under which Coherence config files and/or empty directories for Coherence persistent stores.</p>
 <h4 id="configwlsdeployconfig"><code>config/wlsdeploy/config</code></h4>
@@ -3461,19 +3485,19 @@ overwriting any overlapping files.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1712546363"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1712546363"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1712546363"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1712546363"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1712546363"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1712546363"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1712590864"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1712590864"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1712590864"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1712590864"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1712590864"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1712590864"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1712546363"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1712546363"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1712546363"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1712590864"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1712590864"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1712590864"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1712546363"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1712590864"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
