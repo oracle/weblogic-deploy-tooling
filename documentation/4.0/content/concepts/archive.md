@@ -79,6 +79,8 @@ This is the root directory where your custom files and directories can be stored
 files are not collected by the Discover Domain Tool.   Every file resource under this directory is extracted during
 `createDomain`, `updateDomain`, and `deployApps`.
 
+Some custom files may belong in `wlsdeploy/custom`. To determine which location is preferable for your files, see [Why are there two separate directory structures?]({{< relref "#why-are-there-two-separate-directory-structures" >}}).
+
 This location is particularly useful when handling files that live outside an application; for example, a property
 file used to configure the application.  The general steps to make applications that use such files work when
 provisioning them with WDT are:
@@ -129,6 +131,13 @@ wlsdeploy/applications/myApp/WEB-INF/weblogic.xml
 #### `wlsdeploy/classpathLibraries`
 The root directory under which JARs/directories used for server classpaths are stored. Every file resource under this
 directory is extracted, even those not referenced in the model.
+
+#### `wlsdeploy/custom`
+This is the root directory where your custom files and directories can be stored and extracted from the archive. These
+files are not collected by the Discover Domain Tool.   Every file resource under this directory is extracted during
+`createDomain`, `updateDomain`, and `deployApps`.
+
+Some custom files may belong in `config/wlsdeploy/custom`. To determine which location is preferable for your files, see [Why are there two separate directory structures?]({{< relref "#why-are-there-two-separate-directory-structures" >}}).
 
 #### `wlsdeploy/domainBin`
 The root directory under which `$DOMAIN_HOME/bin` scripts are stored. Only scripts referenced in the

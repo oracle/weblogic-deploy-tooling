@@ -2499,14 +2499,20 @@ public class WLSDeployArchive {
 
         validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
 
-        if(containsPath(ARCHIVE_CUSTOM_TARGET_DIR)) {
+        boolean hasReplicable = containsPath(ARCHIVE_CUSTOM_TARGET_DIR);
+        if(hasReplicable) {
             extractDirectoryFromZip(ARCHIVE_CUSTOM_TARGET_DIR, domainHome);
         }
 
-        if(containsPath(NON_REPLICABLE_CUSTOM_TARGET_DIR)) {
-            // log that this location is deprecated, but don't use new location for extraction
-            LOGGER.deprecation("WLSDPLY-01463", NON_REPLICABLE_CUSTOM_TARGET_DIR, ARCHIVE_CUSTOM_TARGET_DIR);
+        boolean hasNonReplicable = containsPath(NON_REPLICABLE_CUSTOM_TARGET_DIR);
+        if(hasNonReplicable) {
             extractDirectoryFromZip(NON_REPLICABLE_CUSTOM_TARGET_DIR, domainHome);
+        }
+
+        if(hasNonReplicable && !hasReplicable) {
+            // users of older WDT versions may not know about the replicable location.
+            // log a notification that this option is available.
+            LOGGER.notification("WLSDPLY-01463", NON_REPLICABLE_CUSTOM_TARGET_DIR, ARCHIVE_CUSTOM_TARGET_DIR);
         }
 
         LOGGER.exiting(CLASS, METHOD);
