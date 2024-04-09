@@ -254,7 +254,7 @@ resources: SelfTuning: Capacity: capacity40: Target: cluster-1 Count: 40 MaxThre
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/tool_prop/</guid>
-      <description>You can configure or tune WebLogic Deploy Tooling tools using the tool property file. This property file is installed as &amp;lt;weblogic-deploy&amp;gt;/lib/tool.properties. You may change the value of any of the properties in this file to tune the WDT tool. Another option is to configure the tool properties in a Custom Configuration directory. Create the tool.properties file in the $WDT_CUSTOM_CONFIG directory.
+      <description>You can configure or tune WebLogic Deploy Tooling tools using the tool property file. This property file is installed as &amp;lt;weblogic-deploy&amp;gt;/lib/tool.properties. To tune the WDT tool, you may change the value of any of the properties in this file. Another option is to configure the tool properties in a Custom Configuration directory. For this option, create the tool.properties file in the $WDT_CUSTOM_CONFIG directory.
 If a property is removed from the file, or a property value is incorrectly formatted, a WARNING message is logged and an internal default value used instead of the missing or bad value.</description>
     </item>
     

@@ -12,20 +12,20 @@
     <title>Tool property file :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1712632793" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1712632793" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1712632793" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1712632793" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1712632793" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1712632793" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1712632793" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1712632793" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1712632793" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1712632793" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1712672117" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1712672117" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1712672117" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1712672117" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1712672117" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1712672117" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1712672117" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1712672117" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1712672117" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1712672117" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1712632793"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1712672117"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1712632793"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1712632793"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1712672117"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1712672117"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1712632793"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1712672117"></script>
 
     
   </div>
@@ -1972,7 +1972,7 @@
         
 
 
-<p>You can configure or tune WebLogic Deploy Tooling tools using the tool property file. This property file is installed as <code>&lt;weblogic-deploy&gt;/lib/tool.properties</code>. You may change the value of any of the properties in this file to tune the WDT tool. Another option is to configure the tool properties in a Custom Configuration directory. Create the <code>tool.properties</code> file in the <code>$WDT_CUSTOM_CONFIG</code> directory.</p>
+<p>You can configure or tune WebLogic Deploy Tooling tools using the tool property file. This property file is installed as <code>&lt;weblogic-deploy&gt;/lib/tool.properties</code>. To tune the WDT tool, you may change the value of any of the properties in this file. Another option is to configure the tool properties in a <a href="/weblogic-deploy-tooling/userguide/tools-config/custom_config/">Custom Configuration</a> directory. For this option, create the <code>tool.properties</code> file in the <code>$WDT_CUSTOM_CONFIG</code> directory.</p>
 <p>If a property is removed from the file, or a property value is incorrectly formatted, a <code>WARNING</code> message is logged and an internal default value used instead of the missing or bad value.</p>
 <table>
 <thead>
@@ -1983,56 +1983,20 @@
 </thead>
 <tbody>
 <tr>
-<td><code>connect.timeout</code></td>
-<td>The number of milliseconds that WLST waits for the online <code>connect</code> command to complete. A value of 0 means the operation will not timeout.</td>
-</tr>
-<tr>
 <td><code>activate.timeout</code></td>
 <td>The number of milliseconds that WLST waits for the activation of configuration changes to complete. A value of -1 means the operation will not timeout.</td>
 </tr>
 <tr>
+<td><code>archive.custom.folder.size.limit</code></td>
+<td>The size limit for the replicable custom files archive folder <code>config/wlsdeploy/custom</code> above which extracting the folder will generate a warning (default is <code>1048576</code>, which is 1 MB).</td>
+</tr>
+<tr>
+<td><code>connect.timeout</code></td>
+<td>The number of milliseconds that WLST waits for the online <code>connect</code> command to complete. A value of zero (0) means the operation will not timeout.</td>
+</tr>
+<tr>
 <td><code>deploy.timeout</code></td>
-<td>The number of milliseconds that WLST waits for the undeployment process to complete. A value of 0 means the operation will not timeout.</td>
-</tr>
-<tr>
-<td><code>redeploy.timeout</code></td>
-<td>The number of milliseconds that WLST waits for the redeployment process to complete. A value of 0 means the operation will not timeout.</td>
-</tr>
-<tr>
-<td><code>undeploy.timeout</code></td>
-<td>The number of milliseconds that WLST waits for the undeployment process to complete. A value of 0 means the operation will not timeout.</td>
-</tr>
-<tr>
-<td><code>start.application.timeout</code></td>
-<td>The number of milliseconds that WLST waits for the start application process to complete. A value of 0 means the operation will not timeout.</td>
-</tr>
-<tr>
-<td><code>stop.application.timeout</code></td>
-<td>The number of milliseconds that WLST waits for the stop application process to complete. A value of 0 means the operation will not timeout.</td>
-</tr>
-<tr>
-<td><code>set.server.groups.timeout</code></td>
-<td>Specifies the amount of time the set server groups connection can be inactive before the connection times out.</td>
-</tr>
-<tr>
-<td><code>wlst.edit.lock.acquire.timeout</code></td>
-<td>Specifies the amount of time in milliseconds the WLST online <code>startEdit</code> command will wait trying to acquire the edit lock before it times out.</td>
-</tr>
-<tr>
-<td><code>wlst.edit.lock.release.timeout</code></td>
-<td>Specifies the amount of time in milliseconds the WLST online <code>startEdit</code> command will wait for the edit lock to be released before releasing it automatically.</td>
-</tr>
-<tr>
-<td><code>wlst.edit.lock.exclusive</code></td>
-<td>Specifies whether the edit lock acquired by <code>startEdit</code> should be exclusive or shared (default is <code>shared</code>).</td>
-</tr>
-<tr>
-<td><code>yaml.max.file.size</code></td>
-<td>The maximum size of the YAML model file that the WDT SnakeYAML parser will allow.  The default value of <code>0</code> uses the SnakeYAML default setting of <code>3145728</code> (i.e., 3 MB).</td>
-</tr>
-<tr>
-<td><code>use.deprecation.exit.code</code></td>
-<td>Whether deprecation messages should cause WDT tools to exit with a non-zero exit code (default is <code>false</code>).</td>
+<td>The number of milliseconds that WLST waits for the undeployment process to complete. A value of zero (0) means the operation will not timeout.</td>
 </tr>
 <tr>
 <td><code>disable.rcu.drop.schema</code></td>
@@ -2043,20 +2007,56 @@
 <td>Whether Create Domain should try to validate user passwords using the SystemPasswordValidator settings in the model (default is <code>true</code>).</td>
 </tr>
 <tr>
-<td><code>archive.custom.folder.size.limit</code></td>
-<td>The size limit for the custom folder above which extracting the folder will generate a warning (default is <code>1048576</code>, which is 1 MB).</td>
+<td><code>redeploy.timeout</code></td>
+<td>The number of milliseconds that WLST waits for the redeployment process to complete. A value of zero (0) means the operation will not timeout.</td>
+</tr>
+<tr>
+<td><code>set.server.groups.timeout</code></td>
+<td>Specifies the amount of time the set server groups connection can be inactive before the connection times out.</td>
 </tr>
 <tr>
 <td><code>ssh.private.key.default.file.name</code></td>
 <td>The default file name of the SSH private key file (default is <code>id_rsa</code>).</td>
 </tr>
 <tr>
-<td><code>use.ssh.compression</code></td>
-<td>Whether to use SSH compression for all SSH operations (default is <code>true</code>).</td>
+<td><code>start.application.timeout</code></td>
+<td>The number of milliseconds that WLST waits for the start application process to complete. A value of zero (0) means the operation will not timeout.</td>
+</tr>
+<tr>
+<td><code>stop.application.timeout</code></td>
+<td>The number of milliseconds that WLST waits for the stop application process to complete. A value of zero (0) means the operation will not timeout.</td>
+</tr>
+<tr>
+<td><code>undeploy.timeout</code></td>
+<td>The number of milliseconds that WLST waits for the undeployment process to complete. A value of zero (0) means the operation will not timeout.</td>
+</tr>
+<tr>
+<td><code>use.deprecation.exit.code</code></td>
+<td>Whether deprecation messages should cause WDT tools to exit with a non-zero exit code (default is <code>false</code>).</td>
 </tr>
 <tr>
 <td><code>use.server.version.for.online.operation</code></td>
 <td>Whether to use the server&rsquo;s WebLogic Server version and patch level to initialize the aliases for WDT online operations (default is <code>true</code>).</td>
+</tr>
+<tr>
+<td><code>use.ssh.compression</code></td>
+<td>Whether to use SSH compression for all SSH operations (default is <code>true</code>).</td>
+</tr>
+<tr>
+<td><code>wlst.edit.lock.acquire.timeout</code></td>
+<td>Specifies the amount of time in milliseconds the WLST online <code>startEdit</code> command will wait trying to acquire the edit lock before it times out.</td>
+</tr>
+<tr>
+<td><code>wlst.edit.lock.exclusive</code></td>
+<td>Specifies whether the edit lock acquired by <code>startEdit</code> should be exclusive or shared (default is <code>shared</code>).</td>
+</tr>
+<tr>
+<td><code>wlst.edit.lock.release.timeout</code></td>
+<td>Specifies the amount of time in milliseconds the WLST online <code>startEdit</code> command will wait for the edit lock to be released before releasing it automatically.</td>
+</tr>
+<tr>
+<td><code>yaml.max.file.size</code></td>
+<td>The maximum size of the YAML model file that the WDT SnakeYAML parser will allow.  The default value of zero (0) uses the SnakeYAML default setting of <code>3145728</code> (i.e., 3 MB).</td>
 </tr>
 </tbody>
 </table>
@@ -3419,19 +3419,19 @@ $WLSDEPLOY_HOME/bin/createDomain.sh ...
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1712632793"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1712632793"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1712632793"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1712632793"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1712632793"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1712632793"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1712672117"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1712672117"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1712672117"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1712672117"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1712672117"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1712672117"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1712632793"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1712632793"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1712632793"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1712672117"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1712672117"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1712672117"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1712632793"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1712672117"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
