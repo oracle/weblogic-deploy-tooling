@@ -88,25 +88,7 @@ The following environment variables may be set.
 Please provide the `STDOUT` and `STDERR` log streams in the GitHub Issue. If the summary is not listed (unhandled exception stack trace occurs), be sure and include the Oracle and WDT installation versions and whether the tool was run in online or offline WLST mode. If possible, provide the model, variable and archive files, and the log file, `discoverDomain.log`, from location `<install home>\weblogic-deploy\log`.
 
 ### Parameter table for `discoverDomain`
-<<<<<<< HEAD:documentation/3.0/content/userguide/tools/discover.md
-| Parameter | Definition | Default |
-| ---- | ---- | ---- |
-| `-archive_file` | The path to the archive file. |    |
-| `-admin_pass_env` | An alternative to entering the admin password at a prompt. The value is an environment variable name that WDT will use to retrieve the password. |    |
-| `-admin_pass_file` | An alternative to entering the admin password at a prompt. The value is a the name of a file that contains a password string that the tool will read to retrieve the password. |    |
-| `-admin_url` | The admin server URL used for online discovery. |    |
-| `-admin_user` | The admin user used for online discovery. |    |
-| `-domain_home` | (Required). The location of the existing domain home. |    |
-| `-domain_type` | The type of domain.  (for example, `WLS`, `JRF`) | `WLS` |
-| `-java_home` | Overrides the `JAVA_HOME`  value when discovering domain values to be replaced with the Java home global token. |    |
-| `-model_file` | The path to the model file. If not present, model file will be stored in archive file. |    |
-| `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set. |    |
-| `-output_dir` | Output directory required for `-target`. |    |
-| `-skip_archive` | Do not generate an archive file. The `-archive_file` option will be ignored. |    |
-| `-target` | The target output type. The default is `wko`. For more information about target types, see [Target Environments]({{< relref "userguide/target_env" >}}). |    |
-| `-remote` | Update the domain from a remote machine.                                                                                                                                                                                                                                                              |    |
-=======
-| Parameter                      | Definition                                                                                                                                                                     | Default                                    |
+ Parameter                      | Definition                                                                                                                                                                     | Default                                    |
 |--------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------|
 | `-archive_file`                | The path to the archive file.                                                                                                                                                  |                                            |
 | `-admin_pass_env`              | An alternative to entering the admin password at a prompt. The value is an environment variable name that WDT will use to retrieve the password.                               |                                            |
@@ -132,5 +114,4 @@ Please provide the `STDOUT` and `STDERR` log streams in the GitHub Issue. If the
 | `-ssh_private_key_pass_env`    | The environment variable name to use to retrieve user's private key passphrase when authenticating with a public/private key pair.                                             |                                            |
 | `-ssh_private_key_pass_file`   | The file name of a file that contains the user's private key passphrase string when authenticating with a public/private key pair.                                             |                                            |
 | `-ssh_private_key_pass_prompt` | A flag to force the tool to prompt the user to provide their private key passphrase through standard input when authenticating with a public/private key pair.                 | Do not prompt or read from standard input. |
->>>>>>> develop-4.0:documentation/4.0/content/userguide/tools/discover.md
 | `-variable_file`               | The path to the variable property file.                                                                                                                                        |                                            |
