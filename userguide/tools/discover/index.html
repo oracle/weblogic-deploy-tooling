@@ -12,20 +12,20 @@
     <title>Discover Domain Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1712719185" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1712719185" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1712719185" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1712719185" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1712719185" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1712719185" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1712719185" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1712719185" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1712719185" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1712719185" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1712791586" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1712791586" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1712791586" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1712791586" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1712791586" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1712791586" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1712791586" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1712791586" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1712791586" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1712791586" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1712719185"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1712791586"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1712719185"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1712719185"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1712791586"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1712791586"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1712719185"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1712791586"></script>
 
     
   </div>
@@ -2074,88 +2074,6 @@ Total:       WARNING :     1    SEVERE :     0
 </tr>
 <tr>
 <td><code>-domain_home</code></td>
-<td>(Required). The location of the existing domain home.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-domain_type</code></td>
-<td>The type of domain.  (for example, <code>WLS</code>, <code>JRF</code>)</td>
-<td><code>WLS</code></td>
-</tr>
-<tr>
-<td><code>-java_home</code></td>
-<td>Overrides the <code>JAVA_HOME</code>  value when discovering domain values to be replaced with the Java home global token.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-model_file</code></td>
-<td>The path to the model file. If not present, model file will be stored in archive file.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-oracle_home</code></td>
-<td>Home directory of the Oracle WebLogic installation. Required if the <code>ORACLE_HOME</code> environment variable is not set.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-output_dir</code></td>
-<td>Output directory required for <code>-target</code>.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-skip_archive</code></td>
-<td>Do not generate an archive file. The <code>-archive_file</code> option will be ignored.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-target</code></td>
-<td>The target output type. The default is <code>wko</code>. For more information about target types, see <a href="/weblogic-deploy-tooling/userguide/target_env/">Target Environments</a>.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-remote</code></td>
-<td>Update the domain from a remote machine.</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h1 id="-headdocumentation30contentuserguidetoolsdiscovermd">&laquo;&laquo;&laquo;&lt; HEAD:documentation/3.0/content/userguide/tools/discover.md</h1>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Definition</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>-archive_file</code></td>
-<td>The path to the archive file.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-admin_pass_env</code></td>
-<td>An alternative to entering the admin password at a prompt. The value is an environment variable name that WDT will use to retrieve the password.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-admin_pass_file</code></td>
-<td>An alternative to entering the admin password at a prompt. The value is a the name of a file that contains a password string that the tool will read to retrieve the password.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-admin_url</code></td>
-<td>The admin server URL used for online discovery.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-admin_user</code></td>
-<td>The admin user used for online discovery.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-domain_home</code></td>
 <td>(Required for offline operation).  The location of the existing domain home.</td>
 <td>For online mode, the server&rsquo;s value.</td>
 </tr>
@@ -2249,24 +2167,13 @@ Total:       WARNING :     1    SEVERE :     0
 <td>A flag to force the tool to prompt the user to provide their private key passphrase through standard input when authenticating with a public/private key pair.</td>
 <td>Do not prompt or read from standard input.</td>
 </tr>
+<tr>
+<td><code>-variable_file</code></td>
+<td>The path to the variable property file.</td>
+<td></td>
+</tr>
 </tbody>
 </table>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<blockquote>
-<p>develop-4.0:documentation/4.0/content/userguide/tools/discover.md
-| <code>-variable_file</code>               | The path to the variable property file.                                                                                                                                        |                                            |</p>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
-</blockquote>
 
 
 <footer class="footline">
@@ -3620,19 +3527,19 @@ Total:       WARNING :     1    SEVERE :     0
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1712719185"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1712719185"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1712719185"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1712719185"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1712719185"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1712719185"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1712791586"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1712791586"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1712791586"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1712791586"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1712791586"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1712791586"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1712719185"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1712719185"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1712719185"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1712791586"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1712791586"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1712791586"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1712719185"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1712791586"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
