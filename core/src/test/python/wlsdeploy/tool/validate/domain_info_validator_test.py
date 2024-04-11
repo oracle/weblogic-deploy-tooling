@@ -85,14 +85,11 @@ class DomainInfoValidatorTest(BaseTestCase):
         self.assertNotEqual(handler, None, "Summary handler is not present")
 
         # Verify only 3 errors resulted
-        self.assertEqual(handler.getMessageCount(Level.SEVERE), 3)
+        self.assertEqual(handler.getMessageCount(Level.SEVERE), 2)
         self.assertEqual(handler.getMessageCount(Level.WARNING), 0)
 
         # MissingPolicyPolicy and MissingResourceIDPolicy are missing required attributes
         self._validate_message_key(handler, Level.SEVERE, 'WLSDPLY-12600', 2)
-
-        # BuiltinPolicy policy matches a global policy
-        self._validate_message_key(handler, Level.SEVERE, 'WLSDPLY-12601', 1)
 
     def test_wls_roles_validation(self):
         """

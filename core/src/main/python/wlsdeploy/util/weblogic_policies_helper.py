@@ -3,26 +3,29 @@ Copyright (c) 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
-import shutil
 
+from com.bea.common.security.utils.encoders import BASE64Encoder
+from com.bea.common.security.xacml import DocumentParseException
+from com.bea.common.security.xacml import URISyntaxException
+from com.bea.security.providers.xacml.entitlement import EntitlementConverter
+from com.bea.security.xacml.cache.resource import ResourcePolicyIdUtil
 from java.io import File
 from java.lang import String
 
 from wlsdeploy.aliases.model_constants import POLICY
 from wlsdeploy.aliases.model_constants import RESOURCE_ID
+from wlsdeploy.aliases.model_constants import WLS_POLICIES
 from wlsdeploy.exception import exception_helper
-import wlsdeploy.util.unicode_helper as str_helper
-
-import com.bea.common.security.utils.encoders.BASE64Encoder as BASE64Encoder
-import com.bea.common.security.xacml.DocumentParseException as DocumentParseException
-import com.bea.common.security.xacml.URISyntaxException as URISyntaxException
-import com.bea.security.providers.xacml.entitlement.EntitlementConverter as EntitlementConverter
-import com.bea.security.xacml.cache.resource.ResourcePolicyIdUtil as ResourcePolicyIdUtil
+from wlsdeploy.tool.util import ldif_entry
+from wlsdeploy.tool.util.ldif_entry import LDIFEntry
+from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util import unicode_helper as str_helper
 
 _DOMAIN_SECURITY_SUBDIR = 'security'
 _WLS_XACML_AUTHORIZER_LDIFT_FILENAME = 'XACMLAuthorizerInit.ldift'
 _WL_HOME_AUTHORIZER_LDIFT_FILE = os.path.join('server', 'lib', _WLS_XACML_AUTHORIZER_LDIFT_FILENAME)
-_WLS_POLICY_DN_TEMPLATE = 'dn: cn=%s+xacmlVersion=1.0,ou=Policies,ou=XACMLAuthorization,ou=@realm@,dc=@domain@\n'
+_WLS_POLICY_DN_TEMPLATE = 'dn: cn=%s+xacmlVersion=1.0,ou=Policies,ou=XACMLAuthorization,ou=@realm@,dc=@domain@'
+
 
 class WebLogicPoliciesHelper(object):
     """
@@ -50,7 +53,6 @@ class WebLogicPoliciesHelper(object):
             self._target_xacml_authorizer_ldift_dir = os.path.join(domain_home, _DOMAIN_SECURITY_SUBDIR)
             self._target_xacml_authorizer_ldift_file = \
                 os.path.join(self._target_xacml_authorizer_ldift_dir, _WLS_XACML_AUTHORIZER_LDIFT_FILENAME)
-            self._target_xacml_authorizer_ldift_temp_file = '%s.new' % self._target_xacml_authorizer_ldift_file
         else:
             ex = exception_helper.create_exception(exception_type, 'WLSDPLY-02001')
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
@@ -69,8 +71,7 @@ class WebLogicPoliciesHelper(object):
             return
 
         self._ensure_source_file_and_target_dir()
-        policy_entries_map = self._create_xacml_authorizer_entries(model_policies_dict)
-        self._update_xacml_authorizer_ldift(policy_entries_map)
+        self._update_xacml_authorizer_ldift(model_policies_dict)
         self._logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def _ensure_source_file_and_target_dir(self):
@@ -90,94 +91,133 @@ class WebLogicPoliciesHelper(object):
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
-        try:
-            shutil.copyfile(self._source_xacml_authorizer_ldift_file, self._target_xacml_authorizer_ldift_temp_file)
-        except IOError, ioe:
-            error = exception_helper.convert_error_to_exception()
-            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-02003',
-                                                   self._target_xacml_authorizer_ldift_dir, error.getLocalizedMssage(),
-                                                   error=error)
-            self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-            raise ex
-
         self._logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-    def _create_xacml_authorizer_entries(self, model_policies_map):
-        _method_name = '_create_xacml_authorizer_entries'
-        self._logger.entering(class_name=self.__class_name, method_name=_method_name)
-
-        entries = dict()
-        if model_policies_map is not None:
-            for model_policy_name, model_policy_dict in model_policies_map.iteritems():
-                model_policy_resource_id = model_policy_dict[RESOURCE_ID]
-                model_policy_policy = model_policy_dict[POLICY]
-                try:
-                    policy = self._converter.convertResourceExpression(model_policy_resource_id, model_policy_policy)
-                    scope = self._escaper.escapeString(String(model_policy_resource_id))
-                    cn = self._escaper.escapeString(policy.getId().toString())
-                    xacml = self._b64encoder.encodeBuffer(String(policy.toString()).getBytes('UTF-8'))
-                    entry = [
-                        _WLS_POLICY_DN_TEMPLATE % cn,
-                        'objectclass: top\n',
-                        'objectclass: xacmlEntry\n',
-                        'objectclass: xacmlAuthorizationPolicy\n',
-                        'objectclass: xacmlResourceScoping\n',
-                        'cn: %s\n' % cn,
-                        'xacmlResourceScope: %s\n' % scope,
-                        'xacmlVersion: 1.0\n',
-                        'xacmlStatus: 3\n',
-                        'xacmlDocument:: %s\n' % xacml
-                    ]
-                    entries[model_policy_name] = entry
-                except DocumentParseException, dpe:
-                    ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-02004', model_policy_name,
-                                                           RESOURCE_ID, model_policy_resource_id, POLICY,
-                                                           model_policy_policy, dpe.getLocalizedMessage(), error=dpe)
-                    self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                    raise ex
-                except URISyntaxException, use:
-                    ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-02005', model_policy_name,
-                                                           RESOURCE_ID, model_policy_resource_id, POLICY,
-                                                           model_policy_policy, use.getLocalizedMessage(), error=use)
-                    self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                    raise ex
-
-        self._logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return entries
-
-    def _update_xacml_authorizer_ldift(self, policy_entries_map):
+    def _update_xacml_authorizer_ldift(self, model_policies_dict):
         _method_name = '_update_xacml_authorizer_ldift'
         self._logger.entering(class_name=self.__class_name, method_name=_method_name)
 
-        self._logger.finer('WLSDPLY-02006', self._target_xacml_authorizer_ldift_temp_file,
+        self._logger.finer('WLSDPLY-02006', self._target_xacml_authorizer_ldift_file,
                            class_name=self.__class_name, method_name=_method_name)
-        ldift_temp_file = None
+
+        target_ldift_file = None
         try:
             try:
-                ldift_temp_file = open(self._target_xacml_authorizer_ldift_temp_file, 'a')
-                for model_policy_name, ldift_lines in policy_entries_map.iteritems():
-                    self._logger.finer('WLSDPLY-02007', model_policy_name,
-                                       class_name=self.__class_name, method_name=_method_name)
-                    ldift_temp_file.write('\n')
-                    ldift_temp_file.writelines(ldift_lines)
+                existing_policies = ldif_entry.read_entries(File(self._source_xacml_authorizer_ldift_file))
+
+                # build a map of resource IDs to existing policies
+                existing_policy_map = {}
+                for policy in existing_policies:
+                    cn = policy.get_single_value('cn')
+                    if cn:
+                        policy_id = self._escaper.unescapeString(cn)
+                        resource_id = ResourcePolicyIdUtil.getResourceId(policy_id)
+                        resource_key = _get_resource_key(resource_id)
+                        existing_policy_map[resource_key] = policy
+
+                # for each model policy, update an existing policy, or add a new one
+                new_policies = []
+                for model_policy_name, model_policy_dict in model_policies_dict.iteritems():
+                    model_resource_id = model_policy_dict[RESOURCE_ID]
+                    model_policy = model_policy_dict[POLICY]
+                    resource_key = _get_resource_key(model_resource_id)
+                    existing_policy = dictionary_utils.get_element(existing_policy_map, resource_key)  # type: LDIFEntry
+                    if existing_policy:
+                        self._update_policy_from_model(existing_policy, model_policy, model_policy_name)
+                    else:
+                        new_policy = self._create_policy_from_model(model_resource_id, model_policy, model_policy_name)
+                        new_policies.append(new_policy)
+
+                target_ldift_file = open(self._target_xacml_authorizer_ldift_file, 'w')
+                first = True
+                all_policies = existing_policies + new_policies
+                for policy in all_policies:
+                    if not first:
+                        target_ldift_file.write('\n')
+                    lines_text = '\n'.join(policy.get_assignment_lines()) + '\n'
+                    target_ldift_file.writelines(lines_text)
+                    first = False
+
             except (ValueError,IOError,OSError), error:
                 ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-02008',
                                                        str_helper.to_string(error), error=error)
                 self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
         finally:
-            if ldift_temp_file is not None:
-                ldift_temp_file.close()
+            if target_ldift_file is not None:
+                target_ldift_file.close()
 
-        # Rename the temp file
+        self._logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def _update_policy_from_model(self, policy_entry, model_policy, model_policy_name):
+        _method_name = '_update_policy_from_model'
+
+        self._logger.info('WLSDPLY-02010', model_policy_name, class_name=self.__class_name, method_name=_method_name)
+
+        self._logger.notification('WLSDPLY-02011', WLS_POLICIES, model_policy_name,
+                                  class_name=self.__class_name, method_name=_method_name)
+
+        scope = policy_entry.get_single_value('xacmlResourceScope')
+        resource_id = self._escaper.unescapeString(scope)
+        policy = self._convert_resource_expression(resource_id, model_policy, model_policy_name)
+        xacml = self._b64encoder.encodeBuffer(String(policy.toString()).getBytes('UTF-8'))
+
+        policy_entry.update_single_field('xacmlDocument:', xacml)  # double colon assignment
+
+    def _create_policy_from_model(self, model_resource_id, model_policy, model_policy_name):
+        _method_name = '_create_policy_from_model'
+
+        self._logger.info('WLSDPLY-02007', model_policy_name, class_name=self.__class_name, method_name=_method_name)
+
+        policy = self._convert_resource_expression(model_resource_id, model_policy, model_policy_name)
+        scope = self._escaper.escapeString(String(model_resource_id))
+        cn = self._escaper.escapeString(policy.getId().toString())
+        xacml = self._b64encoder.encodeBuffer(String(policy.toString()).getBytes('UTF-8'))
+
+        policy_entry = LDIFEntry()
+        policy_entry.add_assignment_line(_WLS_POLICY_DN_TEMPLATE % cn)
+        policy_entry.add_assignment('objectclass', 'top')
+        policy_entry.add_assignment('objectclass', 'xacmlEntry')
+        policy_entry.add_assignment('objectclass', 'xacmlAuthorizationPolicy')
+        policy_entry.add_assignment('objectclass', 'xacmlResourceScoping')
+        policy_entry.add_assignment('cn', cn)
+        policy_entry.add_assignment('xacmlResourceScope', scope)
+        policy_entry.add_assignment('xacmlVersion', '1.0')
+        policy_entry.add_assignment('xacmlStatus', 3)
+        policy_entry.add_assignment('xacmlDocument:', xacml)  # double colon assignment
+        return policy_entry
+
+    def _convert_resource_expression(self, model_resource_id, model_policy, model_policy_name):
+        _method_name = '_convert_resource_expression'
+
         try:
-            os.rename(self._target_xacml_authorizer_ldift_temp_file, self._target_xacml_authorizer_ldift_file)
-        except OSError, ose:
-            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-02009',
-                                                   self._target_xacml_authorizer_ldift_temp_file,
-                                                   self._target_xacml_authorizer_ldift_file,
-                                                   str_helper.to_string(ose), error=ose)
+            return self._converter.convertResourceExpression(model_resource_id, model_policy)
+
+        except DocumentParseException, dpe:
+            ex = exception_helper.create_exception(
+                self._exception_type, 'WLSDPLY-02004', model_policy_name, RESOURCE_ID,
+                model_resource_id, POLICY, model_policy, dpe.getLocalizedMessage(), error=dpe)
+            self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        except URISyntaxException, use:
+            ex = exception_helper.create_exception(
+                self._exception_type, 'WLSDPLY-02005', model_policy_name, RESOURCE_ID,
+                model_resource_id, POLICY, model_policy, use.getLocalizedMessage(), error=use)
             self._logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
-        self._logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+def _get_resource_key(resource_id):
+    """
+    Create a key from the specified resource ID that can be used for comparison,
+    accounting for differences in spaces and ordering.
+    *** This key is for comparison and lookup only, don't use it as resource ID ***
+    :param resource_id: the resource ID for the key
+    :return: the resulting key
+    """
+    parts = resource_id.split(', ')  # don't split path={weblogic,common,T3Services}
+    just_parts = []
+    for part in parts:
+        just_parts.append(part.strip())  # clear any whitespace around the assignment
+    just_parts.sort()  # put assignments in alpha order in the key only
+    return ', '.join(just_parts)
