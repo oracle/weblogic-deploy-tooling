@@ -11,25 +11,9 @@ from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util.weblogic_policies_helper import WebLogicPoliciesHelper
 
-_BUILTIN_POLICIES = {
-    'type=<adm>': 'Rol(Admin)',
-    'type=<ejb>': 'Grp(everyone)',
-    'type=<jdbc>': 'Grp(everyone)',
-    'type=<jms>': 'Grp(everyone)',
-    'type=<jmx>': 'Rol(Admin)',
-    'type=<jndi>': 'Grp(everyone)',
-    'type=<eis>': 'Grp(everyone)',
-    'type=<svr>': 'Rol(Admin) | Rol(Operator)',
-    'type=<url>': 'Grp(everyone)',
-    'type=<webservices>': 'Grp(everyone)',
-    'type=<workcontext>': 'Grp(everyone)',
-    'type=<adm>, category=Configuration': 'Rol(Admin) | Rol(Deployer) | Rol(Operator) | Rol(Monitor)',
-    'type=<adm>, category=FileDownload': 'Rol(Admin) | Rol(Operator)',
-    'type=<adm>, category=FileUpload': 'Rol(Admin) | Rol(Deployer)',
-    'type=<adm>, category=ViewLog': 'Rol(Admin) | Rol(Deployer) | Rol(Operator) | Rol(Monitor)'
-}
 _DOMAIN_SECURITY_SUBDIR = 'security'
 _WL_HOME_AUTHORIZER_LDIFT_FILE = os.path.join('server', 'lib', 'XACMLAuthorizerInit.ldift')
+
 
 class WLSPolicies(object):
     __class_name = 'WLSPolicies'
@@ -58,10 +42,7 @@ class WLSPolicies(object):
                     continue
 
                 resource_id = dictionary_utils.get_element(value, RESOURCE_ID)
-                if resource_id in _BUILTIN_POLICIES:
-                    self._logger.severe('WLSDPLY-12601', key, RESOURCE_ID, resource_id, _BUILTIN_POLICIES[resource_id],
-                                        class_name=self.__class_name, method_name=_method_name)
-                elif resource_id in policy_resource_map:
+                if resource_id in policy_resource_map:
                     self._logger.severe('WLSDPLY-12602', key, RESOURCE_ID, resource_id, policy_resource_map[resource_id],
                                         class_name=self.__class_name, method_name=_method_name)
                 else:
