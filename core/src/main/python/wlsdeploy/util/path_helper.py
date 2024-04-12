@@ -410,9 +410,12 @@ class PathHelper(object):
         self._logger.entering(path, class_name=self._class_name, method_name=_method_name)
 
         file_name = None
+
+        # posixpath.isfile() seems to not work in Jython 2.2.1 even though os.path.isfile() does...
         if not string_utils.is_empty(path) and \
-                (not self._local_path_module.exists(path) or self._local_path_module.isfile(path)):
+                (not self._local_path_module.exists(path) or os.path.isfile(path)):
             __, file_name = self._local_path_module.split(path)
+            self._logger.fine('file_name returned %s' % file_name, class_name=self._class_name, method_name=_method_name)
             if string_utils.is_empty(file_name):
                 file_name = None
 
@@ -444,8 +447,9 @@ class PathHelper(object):
         self._logger.entering(path, class_name=self._class_name, method_name=_method_name)
 
         file_path = None
+        # posixpath.isfile() seems to not work in Jython 2.2.1 even though os.path.isfile() does...
         if not string_utils.is_empty(path) and \
-                (not self._local_path_module.exists(path) or self._local_path_module.isfile(path)):
+                (not self._local_path_module.exists(path) or os.path.isfile(path)):
             file_path, __ = self._local_path_module.split(path)
             if string_utils.is_empty(file_path):
                 file_path = None
