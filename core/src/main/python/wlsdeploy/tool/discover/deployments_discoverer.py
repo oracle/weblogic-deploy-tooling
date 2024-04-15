@@ -611,10 +611,9 @@ class DeploymentsDiscoverer(Discoverer):
                                                                                   self.download_temporary_dir,
                                                                                   "applications")
 
-                new_plan_name = archive_file.addApplicationDeploymentPlan(plan_file_name,
-                                                                          _generate_new_plan_name(
-                                                                              app_source_name,
-                                                                              plan_file_name))
+                new_plan_name = _generate_new_plan_name(app_source_name, plan_file_name)
+                if new_plan_name is not None:
+                    new_plan_name = archive_file.addApplicationDeploymentPlan(plan_file_name, new_plan_name)
             except IllegalArgumentException, iae:
                 _logger.warning('WLSDPLY-06395', application_name, plan_file_name,
                                 iae.getLocalizedMessage(), class_name=_class_name,
@@ -706,8 +705,10 @@ def _generate_new_plan_name(binary_path, plan_path):
     :return: newly generated plan name for the archive file
     """
     _path_helper = path_helper.get_path_helper()
-    new_name = _path_helper.get_filename_from_path(plan_path)
-    if binary_path is not None:
-        prefix = _path_helper.get_filename_no_ext_from_path(binary_path)
-        new_name = prefix + '-' + new_name
+    new_name = None
+    if not string_utils.is_empty(plan_path):
+        new_name = _path_helper.get_filename_from_path(plan_path)
+        if binary_path is not None and new_name is not None:
+            prefix = _path_helper.get_filename_no_ext_from_path(binary_path)
+            new_name = prefix + '-' + new_name
     return new_name
