@@ -484,6 +484,15 @@ Public/private key authentication To verify SSH connectivity using a user&amp;rs
     </item>
     
     <item>
+      <title>Release 4.0.0</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.0.0/</link>
+      <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.0.0/</guid>
+      <description>Changes in Release 4.0.0  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features  #1481 - Added new Verify SSH Tool to support testing an environment for using the new SSH support. #1516 - Added SSH support for Discover Domain, Update Domain, and Deploy Apps Tools that will allow these tools to work against a WebLogic domain running on a remote machine. #1548, #1553, #1556 - Revamped the Model Help Tool to improve the semantics and behavior of interactive mode.</description>
+    </item>
+    
+    <item>
       <title>Release 3.5.4</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.5.4/</link>
       <pubDate>Fri, 22 Feb 2019 15:27:38 -0500</pubDate>

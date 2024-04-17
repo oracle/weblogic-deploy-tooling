@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Install WDT :: WebLogic Deploy Tooling</title>
+    <title>Release 4.0.0 :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1713318020" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/userguide/install/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-4.0.0/">
     <nav id="sidebar" class="">
 
 
@@ -170,7 +170,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/" title="User Guide" class="dd-item
-        parent
+        
         
         
         ">
@@ -198,7 +198,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/userguide/install/" title="Install WDT" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/install/" title="Install WDT" class="dd-item ">
         <a href="/weblogic-deploy-tooling/userguide/install/">
         Install WDT
         
@@ -1329,7 +1329,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
-        
+        parent
         
         
         ">
@@ -1355,7 +1355,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.0.0/" title="Release 4.0.0" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.0.0/" title="Release 4.0.0" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-4.0.0/">
         <b> </b>Release 4.0.0
         
@@ -1951,7 +1951,7 @@
             
           
           
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/userguide/'>User Guide</a> > Install WDT
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release 4.0.0
           
         
           
@@ -1968,7 +1968,7 @@
   <ul>
     <li>
       <ul>
-        <li></li>
+        <li><a href="#changes-in-release-400">Changes in Release 4.0.0</a></li>
       </ul>
     </li>
   </ul>
@@ -1988,82 +1988,124 @@
           
             <h1>
               
-              Install WDT
+              Release 4.0.0
             </h1>
           
 
         
 
 
-<h4 id="download-and-install-the-software">Download and install the software</h4>
-<p>The WebLogic Deploy Tooling project repository is located at <a href="https://github.com/oracle/weblogic-deploy-tooling"><code>https://github.com/oracle/weblogic-deploy-tooling</code></a>.<br>
-You can download binary distributions of the <code>weblogic-deploy.zip</code> installer from the <a href="https://github.com/oracle/weblogic-deploy-tooling/releases">GitHub Releases page</a>.</p>
-<ol>
-<li>To install the software, simply unzip the <code>weblogic-deploy.zip</code> installer on a machine that has the desired versions of WebLogic Server installed.</li>
-<li>After being unzipped, the software is ready to use, just set the <code>JAVA_HOME</code> environment variable to point to a Java 7 or higher JDK  and the shell scripts are ready to run.</li>
-</ol>
-<h4 id="supported-wls-versions">Supported WLS versions</h4>
-<p>The following table specifies the supported WebLogic Server versions, along with the JDK versions, that must be used to run the WDT tool. You must set the <code>JAVA_HOME</code> environment variable to specify a JDK version different from the system default version.</p>
-<p>To create a domain with the proper JDK (particularly if the <code>JAVA_HOME</code> is different from the one which will be used by the target domain), set the domain <code>JavaHome</code> attribute in the domain model.</p>
-
-<div class="notices note" ><p>The Encryption Model Tool used to encrypt and decrypt clear-text passwords in the model and variable files, requires WDT to run with a minimum JDK version of 1.8.</p>
-</div>
-
-<table>
-<thead>
-<tr>
-<th>WebLogic Server Version</th>
-<th>Tool JDK Version</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>10.3.6</td>
-<td>1.7</td>
-</tr>
-<tr>
-<td>12.1.1</td>
-<td>1.7, 1.8</td>
-</tr>
-<tr>
-<td>12.1.2 <!-- raw HTML omitted -->[1]<!-- raw HTML omitted --><!-- raw HTML omitted -->[2]<!-- raw HTML omitted --></td>
-<td>1.7, 1.8</td>
-</tr>
-<tr>
-<td>12.1.3</td>
-<td>1.7, 1.8</td>
-</tr>
-<tr>
-<td>12.2.1 <!-- raw HTML omitted -->[3]<!-- raw HTML omitted --></td>
-<td>1.8</td>
-</tr>
-<tr>
-<td>12.2.1.1 <!-- raw HTML omitted -->[4]<!-- raw HTML omitted --></td>
-<td>1.8</td>
-</tr>
-<tr>
-<td>12.2.1.2</td>
-<td>1.8</td>
-</tr>
-<tr>
-<td>12.2.1.3</td>
-<td>1.8</td>
-</tr>
-<tr>
-<td>12.2.1.4 <!-- raw HTML omitted -->[5]<!-- raw HTML omitted --></td>
-<td>1.8</td>
-</tr>
-<tr>
-<td>14.1.1</td>
-<td>1.8, 1.11</td>
-</tr>
-</tbody>
-</table>
-<p><em><strong>1</strong></em> First release dynamic clusters are supported<br>
-<em><strong>2</strong></em> First release Coherence clusters are supported<br>
-<em><strong>3</strong></em> First release WLS roles are supported<br>
-<em><strong>4</strong></em> First release multitenancy is supported<br>
-<em><strong>5</strong></em> Last release multitenancy is supported</p>
+<h3 id="changes-in-release-400">Changes in Release 4.0.0</h3>
+<ul>
+<li><a href="#major-new-features">Major New Features</a></li>
+<li><a href="#other-changes">Other Changes</a></li>
+<li><a href="#bug-fixes">Bugs Fixes</a></li>
+<li><a href="#known-issues">Known Issues</a></li>
+</ul>
+<h4 id="major-new-features">Major New Features</h4>
+<ul>
+<li>#1481 - Added new Verify SSH Tool to support testing an environment for using the new SSH support.</li>
+<li>#1516 - Added SSH support for Discover Domain, Update Domain, and Deploy Apps Tools that will allow
+these tools to work against a WebLogic domain running on a remote machine.</li>
+<li>#1548, #1553, #1556 - Revamped the Model Help Tool to improve the semantics and behavior of interactive mode.
+Added online mode support.  Fixed CRDs to work consistently with alias folders and attributes.</li>
+<li>#1550 - Refactored the archive file and moved content extraction into <code>$DOMAIN_HOME/config/wlsdeploy</code> for some types
+to take advantage of existing Pack/Unpack behavior and admin server to managed server replications capabilities.</li>
+<li>#1584 - Added support for creating WebLogic authorization policies during domain creation (GitHub issue #1496).</li>
+<li>#1641, #1643, #1644, #1645, #1646, #1647, #1648, #1650 - Overhauled Application and Library provisioning.  As part of
+this overhaul, we have tried to define the semantics for non-archived application deployments, particularly
+with online Update Domain and Deploy Applications tools.  For non-archive applications/libraries, online deployment of
+binaries outside of the archive will always assume that the binaries are available to the Administration Server at the
+model-specified paths.  Neither the <code>-remote</code> or SSH options will attempt to upload the non-archived binaries.</li>
+<li>#1654, #1655, #1656, #1658, #1659, #1661 - Overhaul of the Create Domain Tool&rsquo;s support for running RCU and applying
+RCU-related changes to the RCU Data Sources.</li>
+</ul>
+<h4 id="other-changes">Other Changes</h4>
+<ul>
+<li>#1544 - Consolidated multiple internal WLST helper methods to get an MBean.</li>
+<li>#1552 - Added typedef support for <code>discoverExcludedBinariesList</code> to allow OIG to add a custom application in the
+Oracle Home to the archive file.</li>
+<li>#1564 - Added Discover Domain Tool support for discovering the WebLogic Remote Console domain extension.</li>
+<li>#1568 - Added the ability to remove MBean assignments in the model by setting them to null or empty (GitHub issue #1483).</li>
+<li>#1569 - Improved version handling for online operations to always use the server&rsquo;s WebLogic Server version.</li>
+<li>#1572 - Enhanced the <code>wlsdeploy.debugToStdout</code> system property to also include exception stacktraces when set to <code>true</code>.
+This will help WebLogic Kubernetes Operator users running into WDT issues to see the details normally hidden in
+the log files.</li>
+<li>#1583 - Eliminated the <code>-domain_home</code> argument from tools running in online mode.</li>
+<li>#1586 - Simplified variable injector configuration and customization.</li>
+<li>#1587 - Removed deprecated RCU-related command-line arguments from the Create Domain Tool.</li>
+<li>#1588 - Deprecated the <code>domainInfo</code> section&rsquo;s <code>OPSSSecrets</code> attribute and replaced it with <code>OPSSWalletPassphrase</code> to
+better represent the purpose of the attribute.</li>
+<li>#1592 - Deprecated Verrazzano support.</li>
+<li>#1598 - Added support for online wallet distribution to managed servers in 14.1.2.</li>
+<li>#1599 - Added support for the 12.2.1.4 and 14.1.1 January 2024 PSUs.</li>
+<li>#1605 - Deprecated the Deploy Applications Tool.  The intention going forward is that users should be able to use
+the Update Domain Tool, which already does everything that the Deploy Applications Tool does and more.</li>
+<li>#1613 - Added ability to use variable tokens in the SAML 2 data initialization property files that will be replaced
+during domain creation or update processing.</li>
+<li>#1614 - Updated Discover Domain Tool to overwrite existing variable and archive files if they already exist.</li>
+<li>#1616 - Improved <code>RCUDbInfo</code> validation in Create Domain tool.</li>
+<li>#1630 - Replaced the <code>-variable_property_file</code> argument in the Inject Variables tool with <code>-variable_file</code></li>
+<li>#1653 - Added support for creating a domain with password digests enabled and users that are properly provisioned so
+that you do not need to delete and recreate the users after the server is started.</li>
+<li>#1654 - Added <code>OAM</code> and <code>OIG</code> domain typedefs to support the Oracle Identity Management team&rsquo;s Kubernetes offering.
+Please be aware that these are not intended to be general-purpose, WDT typedefs and are only supported by
+the Oracle Identity Management team in the context of their Kubernetes offering!</li>
+<li>#1654 - Deprecated the <code>RCUDbInfo</code> section&rsquo;s <code>databaseType</code> attribute and replaced it
+with <code>oracle_database_connection_type</code>.</li>
+</ul>
+<h4 id="bug-fixes">Bug Fixes</h4>
+<ul>
+<li>#1555 - Fixed issues with creating and discovering <code>UnixMachine</code> objects in online mode.</li>
+<li>#1562 - Added missing default values for <code>RCUDbInfo</code> attributes.</li>
+<li>#1563 - Fixed an issue with Compare Model where it was trying to compare an invalid field.</li>
+<li>#1565 - Suppressed logging of domain typedef information by the exit context used to handle unexpected errors.</li>
+<li>#1575 - Added support for storing the <code>CreateTableDDLFile</code> script referenced by the <code>TransactionLogJDBCStore</code> in the
+archive file.</li>
+<li>#1579 - Fixed an issue that limited the number of secret keys that could be referenced by the model.</li>
+<li>#1584 - Fixed an issue where online updates that required restarts were using a 12.2.1+ API even with older versions.</li>
+<li>#1603 - Fixed a bug related to online WLST error message formatting.</li>
+<li>#1608 - Fixed a bug in creating Security groups that are members of another group.</li>
+<li>#1610 - Fixed a bug where the Create Domain and Update Domain Tools were trying to create a security provider that
+is not valid in the current WebLogic Server version.</li>
+<li>#1615 - Fixed an issue where certain errors during online update or deploy operations could leave a pending edit
+state that caused subsequent invocations to fail due to the pending edit state.</li>
+<li>#1619 - Fixed a bug that was causing offline discovery to omit the <code>LogRotation</code> attribute when the value was set to <code>none</code>.</li>
+<li>#1631 - Fixed an issue where the Update Domain and the Deploy Applications Tools running in online mode were trying to
+call start on an application when earlier changes required a server restart.</li>
+<li>#1634 - Fixed an issue with the <code>ResourceManagement</code> MBean when running the Discover Domain Tool in online mode with
+WebLogic Server 14.1.1 and newer.</li>
+<li>#1636 - Fixed an issue with Update Domain and Deploy Applications Tools when using the <code>-remote</code> option that was
+causing a TODO message to be generated when there was nothing for the user to do.</li>
+<li>#1638 - Fixed an issue with the Update Domain and Deploy Applications Tools where the application specified a
+<code>PlanDir</code> and a <code>PlanPath</code> but the online deployment was ignoring the <code>PlanDir</code>, resulting in a file does
+not exist error when attempting to deploy the application.</li>
+<li>#1642 - Fixed deployment issues with deploying applications not included in an archive file.</li>
+<li>#1643 - Fixed an issue with Discover Domain where application/library path tokenization was preventing adding
+deployments to the archive file.</li>
+<li>#1657 - Fixed an issue with the JRF pre-check functionality of the Create Domain Tool where it was ignoring any Data
+Source overrides for the STB data source set in the model.</li>
+<li>#1659 - Fixed an issue with the Create Domain Tool where it was ignoring any Data Source overrides for the OPSS data
+source set in the model when fixing the jps-copfig.xml and jps-config-jse.xml files.</li>
+<li>#1660 - Fixed an issue with the Update Domain Tool running in online mode against a JRF domain that was causing extra
+analysis of applications and libraries that the JRF domain typedef declares as filtered.</li>
+</ul>
+<h4 id="known-issues">Known Issues</h4>
+<ul>
+<li>
+<p>SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
+the 12.2.1.4.0 GA release fails with the following error, as mentioned at <a href="https://github.com/hierynomus/sshj/issues/895">https://github.com/hierynomus/sshj/issues/895</a>.
+Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">SEVERE Messages:
+        1. WLSDPLY-20008: verifySSH argument processing failed: Failed to initialize SSH context: Failed to SSH connect to host myhost.oracle.com: no such algorithm: X25519 <span style="color:#66d9ef">for</span> provider BC
+</code></pre></div></li>
+<li>
+<p>SSH support for the Update Domain Tool and Deploy Apps Tool do not work when using an archive file and the remote
+WebLogic Server is running on Windows using the optional, Windows-provided, OpenSSH component.  This is due to an
+issue with the SSHJ library WDT is using.  See <a href="https://github.com/hierynomus/sshj/issues/929">https://github.com/hierynomus/sshj/issues/929</a> for more information.</p>
+</li>
+</ul>
+<p>See <a href="https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/">https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/</a> for the current set of known limitations.</p>
 
 
 <footer class="footline">
@@ -2152,7 +2194,6 @@ You can download binary distributions of the <code>weblogic-deploy.zip</code> in
             
                 
                     
-                    
                 
                 
 
@@ -2167,7 +2208,6 @@ You can download binary distributions of the <code>weblogic-deploy.zip</code> in
             
             
                 
-                    
                     
                 
                 
@@ -2184,9 +2224,6 @@ You can download binary distributions of the <code>weblogic-deploy.zip</code> in
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2977,6 +3014,7 @@ You can download binary distributions of the <code>weblogic-deploy.zip</code> in
             
                 
                     
+                    
                 
                 
 
@@ -2989,6 +3027,7 @@ You can download binary distributions of the <code>weblogic-deploy.zip</code> in
             
             
                 
+                    
                     
                 
                 
@@ -3005,6 +3044,9 @@ You can download binary distributions of the <code>weblogic-deploy.zip</code> in
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -3413,10 +3455,10 @@ You can download binary distributions of the <code>weblogic-deploy.zip</code> in
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/userguide/" title="User Guide"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/tools/" title="WDT Tools" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-3.5.4/" title="Release 3.5.4" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
