@@ -308,7 +308,7 @@ def _substitute(text, variables, model_context, error_info, attribute_name=None)
             #
             env_var_name = str_helper.to_string(key)
             is_windows = System.getProperty('os.name').startswith('Windows')
-            if is_windows and not env_helper.has_env(env_var_name) and env_var_name.has_env(env_var_name.upper()):
+            if is_windows and not env_helper.has_env(env_var_name) and env_helper.has_env(env_var_name.upper()):
                 env_var_name = env_var_name.upper()
 
             if not env_helper.has_env(env_var_name):
