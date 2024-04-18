@@ -60,6 +60,8 @@ USE_SSH_COMPRESSION_PROP='use.ssh.compression'
 USE_SSH_COMPRESSION_DEFAULT='true'
 USE_SERVER_VERSION_FOR_ONLINE_OPERATIONS_PROP='use.server.version.for.online.operations'
 USE_SERVER_VERSION_FOR_ONLINE_OPERATIONS_DEFAULT='true'
+STORE_DISCOVERED_PASSWORDS_IN_CLEAR_TEXT_PROP='store.discovered.passwords.in.clear.text'
+STORE_DISCOVERED_PASSWORDS_IN_CLEAR_TEXT_DEFAULT='false'
 
 # System Property overrides for WLST timeout properties
 SYS_PROP_PREFIX = 'wdt.config.'
@@ -222,6 +224,14 @@ class ModelConfiguration(object):
         """
         return self._get_from_dict_as_long(ARCHIVE_CUSTOM_FOLDER_SIZE_LIMIT_PROP,
                                            ARCHIVE_CUSTOM_FOLDER_SIZE_LIMIT_DEFAULT)
+
+    def get_store_discovered_passwords_in_clear_text(self):
+        """
+        Whether to store discovered passwords in clear text in the model
+        :return: True, if passwords should be stored in clear text; False otherwise
+        """
+        return self._get_from_dict_as_boolean(STORE_DISCOVERED_PASSWORDS_IN_CLEAR_TEXT_PROP,
+                                              STORE_DISCOVERED_PASSWORDS_IN_CLEAR_TEXT_DEFAULT)
 
     def _get_from_dict(self, name, default_value=None):
         _method_name = '_get_from_dict'

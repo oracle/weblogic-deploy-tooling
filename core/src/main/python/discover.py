@@ -88,6 +88,10 @@ __optional_arguments = [
     CommandLineArgUtil.ADMIN_PASS_ENV_SWITCH,
     CommandLineArgUtil.TARGET_MODE_SWITCH,
     CommandLineArgUtil.OUTPUT_DIR_SWITCH,
+    CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH,
+    CommandLineArgUtil.PASSPHRASE_SWITCH,
+    CommandLineArgUtil.PASSPHRASE_ENV_SWITCH,
+    CommandLineArgUtil.PASSPHRASE_FILE_SWITCH,
     CommandLineArgUtil.TARGET_SWITCH,
     CommandLineArgUtil.REMOTE_SWITCH,
     CommandLineArgUtil.SSH_HOST_SWITCH,
@@ -125,7 +129,9 @@ def __process_args(args):
     __process_java_home(argument_map)
     __process_domain_home(argument_map, __wlst_mode)
 
-    return model_context_helper.create_context(_program_name, argument_map)
+    model_context = model_context_helper.create_context(_program_name, argument_map)
+    __validate_discover_passwords_args(model_context, argument_map)
+    return model_context
 
 
 def __process_model_arg(argument_map):
@@ -251,6 +257,50 @@ def __process_domain_home(arg_map, wlst_mode):
     if wlst_mode == WlstModes.OFFLINE and perform_domain_home_validation:
         full_path = cla_utils.validate_domain_home_arg(domain_home)
         arg_map[CommandLineArgUtil.DOMAIN_HOME_SWITCH] = full_path
+
+
+def __validate_discover_passwords_args(model_context, argument_map):
+    _method_name = '__validate_discover_passwords_args'
+    if model_context.is_discover_passwords():
+        if model_context.is_remote():
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-06050',
+                                                       _program_name, CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH,
+                                                       CommandLineArgUtil.REMOTE_SWITCH)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
+        if model_context.is_encrypt_discovered_passwords():
+            if model_context.get_encryption_passphrase() is None:
+                ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-06051',
+                    _program_name, CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH,
+                    CommandLineArgUtil.PASSPHRASE_ENV_SWITCH, CommandLineArgUtil.PASSPHRASE_FILE_SWITCH)
+                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
+        else:
+            if model_context.get_encryption_passphrase() is not None:
+                if CommandLineArgUtil.PASSPHRASE_ENV_SWITCH in argument_map:
+                    bad_arg = CommandLineArgUtil.PASSPHRASE_ENV_SWITCH
+                elif CommandLineArgUtil.PASSPHRASE_FILE_SWITCH in argument_map:
+                    bad_arg = CommandLineArgUtil.PASSPHRASE_FILE_SWITCH
+                else:
+                    bad_arg = CommandLineArgUtil.PASSPHRASE_SWITCH
+
+                ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-06052',
+                    _program_name, CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH, bad_arg)
+                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
+    else:
+        if model_context.get_encryption_passphrase() is not None:
+            if CommandLineArgUtil.PASSPHRASE_ENV_SWITCH in argument_map:
+                bad_arg = CommandLineArgUtil.PASSPHRASE_ENV_SWITCH
+            elif CommandLineArgUtil.PASSPHRASE_FILE_SWITCH in argument_map:
+                bad_arg = CommandLineArgUtil.PASSPHRASE_FILE_SWITCH
+            else:
+                bad_arg = CommandLineArgUtil.PASSPHRASE_SWITCH
+
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-06056',
+                _program_name, bad_arg, CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
 
 def __discover(model_context, aliases, credential_injector, helper, extra_tokens):
     """
@@ -636,12 +686,19 @@ def main(model_context):
     if _exit_code == ExitCode.OK:
         aliases = Aliases(model_context, wlst_mode=__wlst_mode, exception_type=ExceptionType.DISCOVER)
         credential_injector = None
+
         if model_context.get_variable_file() is not None or model_context.get_target() is not None:
             credential_injector = CredentialInjector(_program_name, model_context, aliases)
-
-            __logger.info('WLSDPLY-06025', class_name=_class_name, method_name=_method_name)
+            if model_context.is_discover_passwords():
+                password_key = 'WLSDPLY-06055'
+            else:
+                password_key = 'WLSDPLY-06025'
         else:
-            __logger.info('WLSDPLY-06024', class_name=_class_name, method_name=_method_name)
+            if model_context.is_discover_passwords():
+                password_key = 'WLSDPLY-06054'
+            else:
+                password_key = 'WLSDPLY-06024'
+        __logger.info(password_key, class_name=_class_name, method_name=_method_name)
 
         extra_tokens = {}
         try:

@@ -85,7 +85,10 @@ ECHO               -ssh_user ^<ssh_user^>
 ECHO               -ssh_pass_env ^<ssh_pass_env^> ^| -ssh_pass_file ^<ssh_pass_file^> ^| -ssh_pass_prompt
 ECHO               -ssh_private_key ^<ssh_private_key^>
 ECHO               -ssh_private_key_pass_env ^<ssh_private_key_pass_env^> ^| -ssh_private_key_pass_file ^<ssh_private_key_pass_file^> ^| -ssh_private_key_pass_prompt
-ECHO            ]
+ECHO              ]
+ECHO              [ -discover_passwords
+ECHO                -passphrase_env ^<passphrase_env^> ^| -passphrase_file ^<passphrase_file^>
+ECHO              ]
 ECHO.
 ECHO     where:
 ECHO         oracle_home     - the existing Oracle Home directory for the domain.
@@ -132,32 +135,51 @@ ECHO                           prompt. The value is the name of a file with a
 ECHO                           string value which WDT will read to retrieve the
 ECHO                           password.
 ECHO.
-ECHO         ssh_host        - the host name for admin server when SSH protocol is used to collect resources
-ECHO                           from the admin server host.
+ECHO         ssh_host        - the host name for admin server when SSH protocol
+ECHO                           is used to collect resources from the admin server
+ECHO                           host.
 ECHO.
 ECHO         ssh_port        - the SSH port number for the admin server host.
 ECHO.
 ECHO         ssh_user        - the SSH user name for the admin server host.
 ECHO.
-ECHO         ssh_pass_env    - An alternative to entering the SSH password at the prompt.  The value is specified
-ECHO                           in an ENVIRONMENT VARIABLE name that WDT will use to retrieve the password
+ECHO         ssh_pass_env    - An alternative to entering the SSH password at
+ECHO                           the prompt.  The value is specified in an ENVIRONMENT
+ECHO                           VARIABLE name that WDT will use to retrieve the
+ECHO                           password.
 ECHO.
-ECHO         ssh_pass_file   - An alternative to entering the SSH password at the prompt.  The value is the name of a
-ECHO                           file with a string value which WDT will read to retrieve the password.
+ECHO         ssh_pass_file   - An alternative to entering the SSH password at the
+ECHO                           prompt.  The value is the name of a file with a
+ECHO                           string value which WDT will read to retrieve the
+ECHO                           password.
 ECHO.
 ECHO         ssh_pass_prompt - Prompt for the SSH password.
 ECHO.
-ECHO         ssh_private_key - the private key to use for connecting to the admin server host using SSH.
+ECHO         ssh_private_key - the private key to use for connecting to the admin
+ECHO                           server host using SSH.
 ECHO.
-ECHO         ssh_private_key_pass_env - An alternative to entering the SSH private keystore password at the prompt.
-ECHO                                    The value is specified in an ENVIRONMENT VARIABLE name that WDT will use
-ECHO                                    to retrieve the password
+ECHO         ssh_private_key_pass_env - An alternative to entering the SSH private
+ECHO                           keystore password at the prompt.  The value is
+ECHO                           specified in an ENVIRONMENT VARIABLE name that WDT
+ECHO                           will use to retrieve the password.
 ECHO.
-ECHO         ssh_private_key_pass_file - An alternative to entering the SSH private keystore password at the prompt.
-ECHO                                     The value is the name of a file with a string value which WDT will read
-ECHO                                     to retrieve the password.
+ECHO         ssh_private_key_pass_file - An alternative to entering the SSH private
+ECHO                           keystore password at the prompt.  The value is the
+ECHO                           name of a file with a string value which WDT will
+ECHO                           read to retrieve the password.
 ECHO.
-ECHO         ssh_private_key_pass_prompt - Prompt for the SSH private keystore password.
+ECHO         ssh_private_key_pass_prompt - Prompt for the SSH private keystore
+ECHO                           password.
+ECHO.
+ECHO         passphrase_env  - An alternative to entering the model encryption
+ECHO                           passphrase at the prompt.  The value is specified
+ECHO                           in an ENVIRONMENT VARIABLE name that WDT will use
+ECHO                           to retrieve the passphrase.
+ECHO.
+ECHO         passphrase_file - An alternative to entering the model encryption
+ECHO                           passphrase at the prompt.  The value is the
+ECHO                           name of a file with a string value which WDT will
+ECHO                           read to retrieve the passphrase.
 ECHO.
 ECHO    The -skip_archive argument suppresses the generation of the archive file.
 ECHO    If present, the -archive_file argument will be ignored and the file

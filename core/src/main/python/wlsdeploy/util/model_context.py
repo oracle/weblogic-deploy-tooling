@@ -117,6 +117,7 @@ class ModelContext(object):
         self._local_test_file = None
         self._remote_output_dir = None
         self._local_output_dir = None
+        self._discover_passwords = False
         self._path_helper = path_helper.get_path_helper()
 
         self._trailing_args = []
@@ -313,6 +314,9 @@ class ModelContext(object):
         if CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH in arg_map:
             self._variable_injector_file = arg_map[CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH]
 
+        if CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH in arg_map:
+            self._discover_passwords = arg_map[CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH]
+
     def __copy__(self):
         arg_map = dict()
         if self._oracle_home is not None:
@@ -374,7 +378,7 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.LOCAL_OUTPUT_DIR_SWITCH] = self._local_output_dir
         if self._variable_file_name is not None:
             arg_map[CommandLineArgUtil.VARIABLE_FILE_SWITCH] = self._variable_file_name
-        if self._run_rcu is not None:
+        if self._run_rcu:
             arg_map[CommandLineArgUtil.RUN_RCU_SWITCH] = self._run_rcu
         if self._discard_current_edit is not None:
             arg_map[CommandLineArgUtil.DISCARD_CURRENT_EDIT_SWITCH] = self._discard_current_edit
@@ -414,6 +418,8 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.OUTPUT_DIR_SWITCH] = self._output_dir
         if self._variable_injector_file is not None:
             arg_map[CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH] = self._variable_injector_file
+        if self._discover_passwords:
+            arg_map[CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH] = self._discover_passwords
 
         new_context = ModelContext(self._program_name, arg_map)
         if not new_context.is_initialization_complete():
@@ -1202,6 +1208,19 @@ class ModelContext(object):
             result = self.SECRET_REGEX.search(password) is not None or self.ENV_REGEX.search(password) is not None
         return result
 
+    def is_discover_passwords(self):
+        """
+        Whether to discover domain-encrypted passwords or not.
+        :return: True, if domain-encrypted passwords should be discovered; False otherwise
+        """
+        return self._discover_passwords
+
+    def is_encrypt_discovered_passwords(self):
+        """
+        Whether to encrypt discovered passwords
+        :return:
+        """
+        return not self._model_config.get_store_discovered_passwords_in_clear_text()
 
     def copy(self, arg_map):
         model_context_copy = copy.copy(self)

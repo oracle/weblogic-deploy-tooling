@@ -1,4 +1,4 @@
-# Copyright (c) 2020, 2023, Oracle and/or its affiliates.
+# Copyright (c) 2020, 2024, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 # Shared methods for using target environments (-target abc).
@@ -60,6 +60,9 @@ ADMIN_PASSWORD_KEY = ADMIN_PASSWORD.lower()
 ADMINUSER_PLACEHOLDER = "weblogic"
 PASSWORD_PLACEHOLDER = "password1"
 USERNAME_PLACEHOLDER = "username"
+
+# list of normal secret keys that are password fields
+PASSWORD_SECRET_KEY_NAMES = [ 'password' ]
 
 # recognize these to apply special override secret
 ADMIN_USER_SECRET_NAMES = [
@@ -123,7 +126,6 @@ def generate_all_output_files(model, aliases, credential_injector, model_context
 
 
 def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
-
     # determine the domain name and UID
     domain_name = k8s_helper.get_domain_name(model_dictionary)
     domain_uid = k8s_helper.get_domain_uid(domain_name)
@@ -147,7 +149,10 @@ def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
             if secret_name not in secret_map:
                 secret_map[secret_name] = {}
             secret_keys = secret_map[secret_name]
-            secret_keys[secret_key] = value
+            if secret_key in PASSWORD_SECRET_KEY_NAMES:
+                secret_keys[secret_key] = None
+            else:
+                secret_keys[secret_key] = value
 
     # update the secrets hash
 
@@ -262,7 +267,10 @@ def _build_json_secrets_result(model_context, token_dictionary):
                 secrets_map[secret_name] = {'keys': {}}
 
             secret_keys = secrets_map[secret_name]['keys']
-            secret_keys[secret_key] = value
+            if secret_key in PASSWORD_SECRET_KEY_NAMES:
+                secret_keys[secret_key] = ''
+            else:
+                secret_keys[secret_key] = value
 
     # runtime encryption key is not included in token_dictionary
     target_config = model_context.get_target_configuration()

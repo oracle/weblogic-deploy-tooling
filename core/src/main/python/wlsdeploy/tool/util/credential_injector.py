@@ -46,8 +46,17 @@ class CredentialInjector(VariableInjector):
     # used for user token search
     JDBC_PROPERTIES_PATH = '%s.%s.%s.%s' % (JDBC_SYSTEM_RESOURCE, JDBC_RESOURCE, JDBC_DRIVER_PARAMS, PROPERTIES)
 
-    # regex for tokenizing MailSession.Properties passwords (blank the value)
+    # regex for tokenizing MailSession.Properties passwords and retaining the value
     PASSWORD_COMMANDS = {
+        REGEXP: [
+            {REGEXP_PATTERN: "mail.imap.password", REGEXP_SUFFIX: "imap.password"},
+            {REGEXP_PATTERN: "mail.pop3.password", REGEXP_SUFFIX: "pop3.password"},
+            {REGEXP_PATTERN: "mail.smtp.password", REGEXP_SUFFIX: "smtp.password"}
+        ]
+    }
+
+    # regex for tokenizing MailSession.Properties passwords and removing the value
+    EMPTY_PASSWORD_COMMANDS = {
         VARIABLE_VALUE: '',
         REGEXP: [
             {REGEXP_PATTERN: "mail.imap.password", REGEXP_SUFFIX: "imap.password"},
@@ -101,8 +110,13 @@ class CredentialInjector(VariableInjector):
             self.custom_injection(model_dict, attribute, location, injector_commands)
 
         elif attribute_type == PASSWORD:
-            # STANDARD_PASSWORD_INJECTOR provides an empty value for the mapping
-            self.custom_injection(model_dict, attribute, location, STANDARD_PASSWORD_INJECTOR)
+            if self._model_context.is_discover_passwords():
+                injector_commands = OrderedDict()
+                injector_commands.update({VARIABLE_VALUE: model_value})
+            else:
+                # STANDARD_PASSWORD_INJECTOR provides an empty value for the mapping
+                injector_commands = STANDARD_PASSWORD_INJECTOR
+            self.custom_injection(model_dict, attribute, location, injector_commands)
 
         elif folder_path.endswith(self.JDBC_PROPERTIES_PATH):
             token = self._aliases.get_name_token(location)
@@ -129,7 +143,11 @@ class CredentialInjector(VariableInjector):
                     model_dict[attribute][halves[0]] = halves[1]
 
             self.custom_injection(model_dict, attribute, location, self.USER_COMMANDS)
-            self.custom_injection(model_dict, attribute, location, self.PASSWORD_COMMANDS)
+            if self._model_context.is_discover_passwords():
+                injector_commands = self.PASSWORD_COMMANDS
+            else:
+                injector_commands = self.EMPTY_PASSWORD_COMMANDS
+            self.custom_injection(model_dict, attribute, location, injector_commands)
 
             if is_string:
                 properties = model_dict[attribute]
