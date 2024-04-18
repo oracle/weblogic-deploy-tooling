@@ -1,12 +1,12 @@
 +++
-title = "Release Notes"
+title = "Release 4.0.1"
 date = 2024-01-09T18:27:38-05:00
-weight = 72
+weight = 73
 pre = "<b> </b>"
 +++
 
 
-### Changes in Release 4.0.2
+### Changes in Release 4.0.1
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -17,10 +17,19 @@ pre = "<b> </b>"
 None
 
 #### Other Changes
-- #1668 - Added new discover passwords feature that allows the user to discover passwords and store them in the model in encrypted format.
+- #1664 - Added support for the `OptionalFeatureDeployment` top-level folder.
+- #1665, #1667 - Formalized support for both the replicated `config/wlsdeploy/custom/` and non-replicated 
+          `wlsdeploy/custom` locations.  Added support in the Archive Helper Tool and tweaked the validation message
+          to only notify the user if they are only using the non-replicated location.
+- #1669 - Enhanced the WLS Policy support to allow users to modify built-in policies.
+- #1674 - Added 12.2.1.4 and 14.1.1 April 2024 PSU support.
 
 #### Bug Fixes
-- #1675 - Fixed a bug with replacing environment variable tokens on Windows.
+- #1666 - Fixed a bug with extracting the WebLogic Remote Console extension that caused an error if the archive file
+          includes a directory entry.
+- #1670 - Worked around a Jython 2.2.1 bug with `posixpath.isfile()` where it was returning `False` when the answer
+          should have been `True`.
+- #1672 - Added None checks around plan file name calculations.
 
 #### Known Issues
 - SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
