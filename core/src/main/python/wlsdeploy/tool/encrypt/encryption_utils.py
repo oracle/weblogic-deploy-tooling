@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2020, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.lang import String
@@ -216,4 +216,4 @@ def encrypt_one_password(passphrase, text):
     :return: the encrypted text
     :raises EncryptionException if an error occurs
     """
-    return EncryptionUtils.encryptString(text, passphrase.toCharArray())
+    return EncryptionUtils.encryptString(text, String(passphrase).toCharArray())

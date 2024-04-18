@@ -110,6 +110,7 @@ class CommandLineArgUtil(object):
     SSH_PRIVATE_KEY_PASSPHRASE_ENV_SWITCH    = '-ssh_private_key_pass_env'
     SSH_PRIVATE_KEY_PASSPHRASE_FILE_SWITCH   = '-ssh_private_key_pass_file'
     SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH = '-ssh_private_key_pass_prompt'
+    DISCOVER_PASSWORDS_SWITCH  = '-discover_passwords'
 
     # arguments that are true if specified, false if not
     BOOLEAN_SWITCHES = [
@@ -126,7 +127,8 @@ class CommandLineArgUtil(object):
         REMOTE_SWITCH,
         WAIT_FOR_EDIT_LOCK_SWITCH,
         SSH_PASS_PROMPT_SWITCH,
-        SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH
+        SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH,
+        DISCOVER_PASSWORDS_SWITCH
     ]
 
     # a slot to stash the parsed domain typedef dictionary

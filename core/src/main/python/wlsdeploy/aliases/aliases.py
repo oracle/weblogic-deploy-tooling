@@ -2,6 +2,8 @@
 Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+import array
+
 from java.lang import String
 from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.aliases import TypeUtils
@@ -31,7 +33,6 @@ from wlsdeploy.aliases.alias_constants import MBEAN
 from wlsdeploy.aliases.alias_constants import MERGE
 from wlsdeploy.aliases.alias_constants import MODEL_NAME
 from wlsdeploy.aliases.alias_constants import PASSWORD
-from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases.alias_constants import PREFERRED_MODEL_TYPE
 from wlsdeploy.aliases.alias_constants import PRODUCTION_DEFAULT
 from wlsdeploy.aliases.alias_constants import PROPERTIES
@@ -706,6 +707,51 @@ class Aliases(object):
             self._raise_exception(ae, _method_name, 'WLSDPLY-19046', location.get_current_model_folder(),
                                   location.get_folder_path(), ae.getLocalizedMessage())
 
+    def get_wlst_attribute_type(self, location, wlst_attribute_name):
+        """
+        Get the wlst_type from the alias for the specified WLST attribute.
+        :param location:            model folder location
+        :param wlst_attribute_name: WLST attribute name
+        :return: the wlst_type from the alias entry or None if the attribute is not in the aliases
+        """
+        _method_name = 'get_wlst_attribute_type'
+        self._logger.entering(str_helper.to_string(location), wlst_attribute_name,
+                              class_name=self._class_name, method_name=_method_name)
+
+        result = None
+        if wlst_attribute_name not in AliasEntries.IGNORE_FOR_MODEL_LIST:
+            # WLST online has dual attributes for passwords of the form Foo and FooEncrypted.
+            # Since the aliases don't include the Foo form, allow this method to return None
+            # for the type, which indicates that the attribute was not found in the aliases.
+            #
+            module_folder = dict()
+            try:
+                module_folder = self._alias_entries.get_dictionary_for_location(location)
+            except AliasException, ae:
+                self._raise_exception(ae, _method_name, 'WLSDPLY-19046',
+                                      location.get_current_model_folder(), location.get_folder_path(),
+                                      ae.getLocalizedMessage())
+
+            if ATTRIBUTES not in module_folder:
+                ex = exception_helper.create_alias_exception('WLSDPLY-08418', wlst_attribute_name,
+                                                             location.get_folder_path())
+                self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
+
+            for key, value in module_folder[ATTRIBUTES].iteritems():
+                if WLST_NAME in value and value[WLST_NAME] == wlst_attribute_name:
+                    if WLST_TYPE in value:
+                        result = value[WLST_TYPE]
+                    else:
+                        ex = exception_helper.create_alias_exception('WLSDPLY-08419',location.get_folder_path(),
+                                                                     wlst_attribute_name, WLST_TYPE)
+                        self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                        raise ex
+                    break
+
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
+        return result
+
     ###########################################################################
     #                    Model folder-related methods                         #
     ###########################################################################
@@ -1064,6 +1110,9 @@ class Aliases(object):
             self._raise_exception(ae, _method_name, 'WLSDPLY-19030', location.get_current_model_folder(),
                                   location.get_folder_path(), ae.getLocalizedMessage())
 
+    # Although the wlst_attribute_value may be a password field, logging it is probably OK since the password is
+    # encrypted, just like it is in config.xml.
+    #
     def get_model_attribute_name_and_value(self, location, wlst_attribute_name, wlst_attribute_value):
         """
         Returns the model attribute name and value for the specified WLST attribute name and value.
@@ -1114,10 +1163,14 @@ class Aliases(object):
                     default_value = alias_utils.replace_tokens_in_path(location, default_value)
 
                 if model_type == 'password':
+                    # WDT doesn't really understand PyArray so convert it to a string before proceeding.
+                    if isinstance(wlst_attribute_value, array.array):
+                        wlst_attribute_value = wlst_attribute_value.tostring()
+
                     if string_utils.is_empty(wlst_attribute_value) or converted_value == default_value:
                         model_attribute_value = None
                     else:
-                        model_attribute_value = PASSWORD_TOKEN
+                        model_attribute_value = wlst_attribute_value
 
                 elif model_type == 'boolean':
                     # some boolean attributes have WLST value of null until they are set

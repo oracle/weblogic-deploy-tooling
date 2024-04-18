@@ -300,7 +300,7 @@ class CommonResourcesDiscoverer(Discoverer):
                     mail_session_result = result[mail_session]
                     location.add_name_token(name_token, mail_session)
                     self._populate_model_parameters(mail_session_result, location)
-                    _fix_passwords_in_mail_session_properties(mail_session_result)
+                    self._fix_passwords_in_mail_session_properties(mail_session_result)
                     location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
@@ -605,18 +605,18 @@ class CommonResourcesDiscoverer(Discoverer):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
 
-
-def _fix_passwords_in_mail_session_properties(mail_session_dict):
-    """
-    Look for password properties in the mail session properties string, and replace the password with a fix me token.
-    :param mail_session_dict: containing the discovered mail session attributes
-    """
-    match_pattern = r'mail\.\w*\.?password'
-    if model_constants.MAIL_SESSION_PROPERTIES in mail_session_dict:
-        # alias framework has converted properties to a dictionary by this point
-        properties_dict = mail_session_dict[model_constants.MAIL_SESSION_PROPERTIES]
-        for property_name in properties_dict:
-            property_value = properties_dict[property_name]
-            is_tokenized = property_value.startswith('@@')
-            if StringUtils.matches(match_pattern, property_name) and not is_tokenized:
-                properties_dict[property_name] = PASSWORD_TOKEN
+    def _fix_passwords_in_mail_session_properties(self, mail_session_dict):
+        """
+        Look for password properties in the mail session properties string, and replace the password with a fix me token.
+        :param mail_session_dict: containing the discovered mail session attributes
+        """
+        match_pattern = r'mail\.\w*\.?password'
+        if model_constants.MAIL_SESSION_PROPERTIES in mail_session_dict and \
+                not self._model_context.is_discover_passwords():
+            # alias framework has converted properties to a dictionary by this point
+            properties_dict = mail_session_dict[model_constants.MAIL_SESSION_PROPERTIES]
+            for property_name in properties_dict:
+                property_value = properties_dict[property_name]
+                is_tokenized = property_value.startswith('@@')
+                if StringUtils.matches(match_pattern, property_name) and not is_tokenized:
+                    properties_dict[property_name] = PASSWORD_TOKEN

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import re
@@ -25,6 +25,7 @@ _type_list = "<type 'list'>"
 _type_dict = "<type 'dict'>"
 _type_py_ordered_dict = "<type 'PyOrderedDict'>"
 _type_orcl_py_ordered_dict = "<type 'oracle.weblogic.deploy.util.PyOrderedDict'>"
+_type_py_array = "<type 'array.array'>"
 
 def extract_path_tokens(tokenized_value):
     """
@@ -147,7 +148,9 @@ def is_compatible_data_type(expected_data_type, actual_data_type):
         retval = (actual_data_type in [_type_py_ordered_dict, _type_orcl_py_ordered_dict, _type_dict, _type_str])
     elif 'list' in expected_data_type:
         retval = (actual_data_type in [_type_list, _type_str, _type_unicode])
-    elif expected_data_type in ['password', 'credential', 'jarray']:
+    elif expected_data_type in ['password']:
+        retval = (actual_data_type in [_type_str, _type_unicode, _type_py_array])
+    elif expected_data_type in ['credential', 'jarray']:
         retval = (actual_data_type in [_type_str, _type_unicode])
     elif 'delimited_' in expected_data_type:
         retval = (actual_data_type in [_type_str, _type_list, _type_unicode])

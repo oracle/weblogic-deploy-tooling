@@ -2,28 +2,33 @@
 Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-import os
+import array
 
 from java.io import IOException
 from java.net import MalformedURLException
 from java.net import URI
 from java.net import URISyntaxException
+from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.discover import DiscoverException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 
+from wlsdeploy.aliases import alias_constants
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import MASKED_PASSWORD
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.discover.custom_folder_helper import CustomFolderHelper
+from wlsdeploy.tool.encrypt import encryption_utils
 from wlsdeploy.tool.util.mbean_utils import MBeanUtils
 from wlsdeploy.tool.util.mbean_utils import get_interface_name
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import path_helper
+from wlsdeploy.util import string_utils
 import wlsdeploy.util.unicode_helper as str_helper
 
 
@@ -36,6 +41,8 @@ remote_dict = OrderedDict()
 REMOTE_TYPE = 'Type'
 REMOTE_ARCHIVE_PATH = 'ArchivePath'
 
+_ssh_download_dir = None
+
 class Discoverer(object):
     """
     Discoverer contains the private methods used to facilitate discovery of the domain information by its subclasses.
@@ -43,13 +50,15 @@ class Discoverer(object):
 
     def __init__(self, model_context, base_location, wlst_mode, aliases=None, credential_injector=None):
         """
-        :param model_context: context about the model for this instance of discover domain
-        :param base_location: to look for common weblogic resources. By default this is the global path or '/'
+        :param model_context: context about the model for this instance of discoverDomain
+        :param base_location: to look for common WebLogic resources. By default, this is the global path or '/'
         :param wlst_mode: offline or online
         :param aliases: optional, aliases object to use
         :param credential_injector: optional, injector to collect credentials
         """
         _method_name = '__init__'
+        global _ssh_download_dir
+
         self._model_context = model_context
         self._base_location = base_location
         self._wlst_mode = wlst_mode
@@ -69,12 +78,23 @@ class Discoverer(object):
         self.path_helper = path_helper.get_path_helper()
 
         if model_context.is_ssh():
-            try:
-                self.download_temporary_dir = FileUtils.createTempDirectory("wdt-downloadtemp").getAbsolutePath()
-            except IOException, e:
-                ex = exception_helper.create_discover_exception('WLSDPLY-06161', e.getLocalizedMessage(), error=e)
-                _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                raise ex
+            if _ssh_download_dir is None:
+                try:
+                    download_dir_file = FileUtils.createTempDirectory('wdt-downloadtemp')
+                    download_dir_file.deleteOnExit()
+                except IOException, e:
+                    ex = exception_helper.create_discover_exception('WLSDPLY-06161',
+                                                                    e.getLocalizedMessage(), error=e)
+                    _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                    raise ex
+
+                _ssh_download_dir = download_dir_file.getAbsolutePath()
+                if self._model_context.is_discover_passwords():
+                    remote_ssi_dat = self.path_helper.remote_join(self._model_context.get_domain_home(), 'security',
+                                                                  'SerializedSystemIni.dat')
+                    self.download_deployment_from_remote_server(remote_ssi_dat, _ssh_download_dir, 'security')
+
+            self.download_temporary_dir = _ssh_download_dir
 
     def add_to_remote_map(self, local_name, archive_name, file_type):
         # we don't know the remote machine type, so automatically
@@ -205,13 +225,48 @@ class Discoverer(object):
 
     def _add_to_dictionary(self, dictionary, location, wlst_param, wlst_value, wlst_path):
         _method_name = '_add_to_dictionary'
-        _logger.finer('WLSDPLY-06105', wlst_param, wlst_value, wlst_path, class_name=_class_name,
-                      method_name=_method_name)
+
         try:
-            model_param, model_value = self._aliases.get_model_attribute_name_and_value(location,
-                                                                                        wlst_param,
-                                                                                        wlst_value)
-        except DiscoverException, de:
+            wlst_type = self._aliases.get_wlst_attribute_type(location, wlst_param)
+
+            logged_value = wlst_value
+            if wlst_value is not None and wlst_type == alias_constants.PASSWORD:
+                logged_value = MASKED_PASSWORD
+
+            _logger.finer('WLSDPLY-06105', wlst_param, logged_value, wlst_path,
+                          class_name=_class_name, method_name=_method_name)
+
+            model_param, model_value = \
+                self._aliases.get_model_attribute_name_and_value(location, wlst_param, wlst_value)
+
+            if wlst_type == alias_constants.PASSWORD:
+                if not string_utils.is_empty(model_value):
+                    if self._model_context.is_discover_passwords():
+                        if isinstance(model_value, array.array):
+                            password_encrypted_string = model_value.tostring()
+                        elif isinstance(model_value, (str, unicode)):
+                            password_encrypted_string = model_value
+                        else:
+                            ex = exception_helper.create_discover_exception('WLSDPLY-06053', model_param,
+                                                                            location.get_folder_path(), type(model_value))
+                            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                            raise ex
+
+                        base_dir = self._model_context.get_domain_home()
+                        if self._model_context.is_ssh():
+                            base_dir = self.download_temporary_dir
+
+                        model_value = self._weblogic_helper.decrypt(password_encrypted_string, base_dir)
+
+                        if self._model_context.is_encrypt_discovered_passwords():
+                            model_value = \
+                                encryption_utils.encrypt_one_password(self._model_context.get_encryption_passphrase(),
+                                                                      model_value)
+                    else:
+                        model_value = alias_constants.PASSWORD_TOKEN
+                else:
+                    model_value = None
+        except (AliasException, DiscoverException), de:
             _logger.info('WLSDPLY-06106', wlst_param, wlst_path, de.getLocalizedMessage(),
                          class_name=_class_name, method_name=_method_name)
             return
