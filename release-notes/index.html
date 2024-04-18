@@ -12,20 +12,20 @@
     <title>Release Notes :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1713443422" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1713443422" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1713443422" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1713443422" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1713443422" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1713443422" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1713443422" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1713443422" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1713443422" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1713443422" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1713481212" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1713481212" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1713481212" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1713481212" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1713481212" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1713481212" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1713481212" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1713481212" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1713481212" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1713481212" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1713443422"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1713481212"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1713443422"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1713443422"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1713481212"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1713481212"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1713443422"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1713481212"></script>
 
     
   </div>
@@ -1355,6 +1355,27 @@
  
   
     
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.0.1/" title="Release 4.0.1" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-4.0.1/">
+        <b> </b>Release 4.0.1
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
       <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.0.0/" title="Release 4.0.0" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-4.0.0/">
         <b> </b>Release 4.0.0
@@ -1962,7 +1983,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#changes-in-release-401">Changes in Release 4.0.1</a></li>
+        <li><a href="#changes-in-release-410">Changes in Release 4.1.0</a></li>
       </ul>
     </li>
   </ul>
@@ -1990,7 +2011,7 @@
 
 
 
-	<h3 id="changes-in-release-401">Changes in Release 4.0.1</h3>
+	<h3 id="changes-in-release-410">Changes in Release 4.1.0</h3>
 <ul>
 <li><a href="#major-new-features">Major New Features</a></li>
 <li><a href="#other-changes">Other Changes</a></li>
@@ -2001,20 +2022,11 @@
 <p>None</p>
 <h4 id="other-changes">Other Changes</h4>
 <ul>
-<li>#1664 - Added support for the <code>OptionalFeatureDeployment</code> top-level folder.</li>
-<li>#1665, #1667 - Formalized support for both the replicated <code>config/wlsdeploy/custom/</code> and non-replicated
-<code>wlsdeploy/custom</code> locations.  Added support in the Archive Helper Tool and tweaked the validation message
-to only notify the user if they are only using the non-replicated location.</li>
-<li>#1669 - Enhanced the WLS Policy support to allow users to modify built-in policies.</li>
-<li>#1674 - Added 12.2.1.4 and 14.1.1 April 2024 PSU support.</li>
+<li>#1668 - Added new discover passwords feature that allows the user to discover passwords and store them in the model in encrypted format.</li>
 </ul>
 <h4 id="bug-fixes">Bug Fixes</h4>
 <ul>
-<li>#1666 - Fixed a bug with extracting the WebLogic Remote Console extension that caused an error if the archive file
-includes a directory entry.</li>
-<li>#1670 - Worked around a Jython 2.2.1 bug with <code>posixpath.isfile()</code> where it was returning <code>False</code> when the answer
-should have been <code>True</code>.</li>
-<li>#1672 - Added None checks around plan file name calculations.</li>
+<li>#1675 - Fixed a bug with replacing environment variable tokens on Windows.</li>
 </ul>
 <h4 id="known-issues">Known Issues</h4>
 <ul>
@@ -3371,6 +3383,22 @@ issue with the SSHJ library WDT is using.  See <a href="https://github.com/hiery
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -3386,7 +3414,7 @@ issue with the SSHJ library WDT is using.  See <a href="https://github.com/hiery
 			<a class="nav nav-prev" href="/weblogic-deploy-tooling/developer/contribute/" title="Contribute to WDT"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-4.0.0/" title="Release 4.0.0" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-4.0.1/" title="Release 4.0.1" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -3396,19 +3424,19 @@ issue with the SSHJ library WDT is using.  See <a href="https://github.com/hiery
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1713443422"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1713443422"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1713443422"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1713443422"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1713443422"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1713443422"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1713481212"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1713481212"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1713481212"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1713481212"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1713481212"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1713481212"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1713443422"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1713443422"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1713443422"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1713481212"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1713481212"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1713481212"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1713443422"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1713481212"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

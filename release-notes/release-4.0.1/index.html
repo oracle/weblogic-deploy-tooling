@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>WDT project release process :: WebLogic Deploy Tooling</title>
+    <title>Release 4.0.1 :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1713481212" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/developer/releaseprocess/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-4.0.1/">
     <nav id="sidebar" class="">
 
 
@@ -1148,7 +1148,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/developer/" title="Developer Guide" class="dd-item
-        parent
+        
         
         
         ">
@@ -1279,7 +1279,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/developer/releaseprocess/" title="WDT project release process" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/developer/releaseprocess/" title="WDT project release process" class="dd-item ">
         <a href="/weblogic-deploy-tooling/developer/releaseprocess/">
         WDT project release process
         
@@ -1329,7 +1329,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
-        
+        parent
         
         
         ">
@@ -1355,7 +1355,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.0.1/" title="Release 4.0.1" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.0.1/" title="Release 4.0.1" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-4.0.1/">
         <b> </b>Release 4.0.1
         
@@ -1972,7 +1972,7 @@
             
           
           
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/developer/'>Developer Guide</a> > WDT project release process
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release 4.0.1
           
         
           
@@ -1989,9 +1989,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#software-release-process">Software release process</a></li>
-        <li><a href="#github-release-process">GitHub release process</a></li>
+        <li><a href="#changes-in-release-401">Changes in Release 4.0.1</a></li>
       </ul>
     </li>
   </ul>
@@ -2011,76 +2009,55 @@
           
             <h1>
               
-              WDT project release process
+              Release 4.0.1
             </h1>
           
 
         
 
 
-<p>This document describes the process that should be followed to create a WebLogic Deploy Tooling (WDT) release.</p>
-<h3 id="prerequisites">Prerequisites</h3>
+<h3 id="changes-in-release-401">Changes in Release 4.0.1</h3>
 <ul>
-<li>A local installation of WebLogic Server 12.2.1.x must be available.</li>
-<li>The person running the release process must have admin privileges on the <a href="https://github.com/oracle/weblogic-deploy-tooling">WebLogic Deploy Tooling GitHub repo</a> because the release process pushes to the master branch directly.</li>
-<li>The person running the release process needs to create a GitHub Personal Access Token for the repository with (at least) the <code>repo:status</code>, <code>repo_deployment</code>, <code>public_repo</code>, and <code>security_events</code> privileges.</li>
-<li>The person running the release process needs a server added to their Maven <code>settings.xml</code> file, where the GitHub Personal Access Token is stored, as shown below.  Note that this token can either be stored in plain text or encrypted using <a href="https://maven.apache.org/guides/mini/guide-encryption.html">Maven password encryption</a>.</li>
+<li><a href="#major-new-features">Major New Features</a></li>
+<li><a href="#other-changes">Other Changes</a></li>
+<li><a href="#bug-fixes">Bugs Fixes</a></li>
+<li><a href="#known-issues">Known Issues</a></li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml">  <span style="color:#f92672">&lt;servers&gt;</span>
-    <span style="color:#f92672">&lt;server&gt;</span>
-      <span style="color:#f92672">&lt;id&gt;</span>github<span style="color:#f92672">&lt;/id&gt;</span>
-      <span style="color:#f92672">&lt;passphrase&gt;</span>store plain text or encrypted token here<span style="color:#f92672">&lt;/passphrase&gt;</span>
-    <span style="color:#f92672">&lt;/server&gt;</span>
-  <span style="color:#f92672">&lt;/servers&gt;</span>
-</code></pre></div><ul>
-<li>If the machine from which the release process is being run requires a proxy server to access the Internet, the person running the release process needs an active proxy configured in their Maven <code>settings.xml</code> file.</li>
-</ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-xml" data-lang="xml">  <span style="color:#f92672">&lt;proxies&gt;</span>
-    <span style="color:#f92672">&lt;proxy&gt;</span>
-      <span style="color:#f92672">&lt;active&gt;</span>true<span style="color:#f92672">&lt;/active&gt;</span>
-      <span style="color:#f92672">&lt;id&gt;</span>my-proxy<span style="color:#f92672">&lt;/id&gt;</span>
-      <span style="color:#f92672">&lt;protocol&gt;</span>http<span style="color:#f92672">&lt;/protocol&gt;</span>
-      <span style="color:#f92672">&lt;host&gt;</span>proxy server DNS name<span style="color:#f92672">&lt;/host&gt;</span>
-      <span style="color:#f92672">&lt;port&gt;</span>proxy server port<span style="color:#f92672">&lt;/port&gt;</span>
-      <span style="color:#f92672">&lt;nonProxyHosts&gt;</span>list of DNS names/patterns separated by |<span style="color:#f92672">&lt;/nonProxyHosts&gt;</span>
-    <span style="color:#f92672">&lt;/proxy&gt;</span>
-  <span style="color:#f92672">&lt;/proxies&gt;</span>
-</code></pre></div><h3 id="software-release-process">Software release process</h3>
-<p>The best practice is to write the release notes that will be published to GitHub prior to starting the steps below.</p>
-<ol>
-<li>
-<p>Set (and export) the following environment variables:</p>
+<h4 id="major-new-features">Major New Features</h4>
+<p>None</p>
+<h4 id="other-changes">Other Changes</h4>
 <ul>
-<li><code>WLST_DIR</code> - set to <code>$MW_HOME/oracle_common/common/bin</code>, where <code>$MW_HOME</code> is the path to a WLS 12.2.1.x or newer installation directory.</li>
-<li><code>WDT_SCM_REPO_URL</code> - set to the browsable URL to the project (e.g., <code>https://github.com/oracle/weblogic-deploy-tooling</code>)</li>
-<li><code>WDT_SCM_REPO_CONN</code> - set to the clonable URL for the project (e.g., <code>git@github.com:oracle/weblogic-deploy-tooling.git</code>)</li>
+<li>#1664 - Added support for the <code>OptionalFeatureDeployment</code> top-level folder.</li>
+<li>#1665, #1667 - Formalized support for both the replicated <code>config/wlsdeploy/custom/</code> and non-replicated
+<code>wlsdeploy/custom</code> locations.  Added support in the Archive Helper Tool and tweaked the validation message
+to only notify the user if they are only using the non-replicated location.</li>
+<li>#1669 - Enhanced the WLS Policy support to allow users to modify built-in policies.</li>
+<li>#1674 - Added 12.2.1.4 and 14.1.1 April 2024 PSU support.</li>
 </ul>
-</li>
-<li>
-<p>In the <code>weblogic-deploy-tooling</code> project directory, run the <code>mvn -B release:prepare release:perform</code> command.</p>
+<h4 id="bug-fixes">Bug Fixes</h4>
 <ul>
-<li>If the next development version is changing the major or minor version, override the default <code>developmentVersion</code>
-property on the command line.  For example,<br>
-<code>mvn -B -DdevelopmentVersion=3.2.0-SNAPSHOT release:prepare release:perform</code>.</li>
-<li>If your SSH private key has a passphrase, watch the build closely because it will prompt for your passphrase multiple times.
-Failure to enter it in a timely manner may result in a failure.</li>
+<li>#1666 - Fixed a bug with extracting the WebLogic Remote Console extension that caused an error if the archive file
+includes a directory entry.</li>
+<li>#1670 - Worked around a Jython 2.2.1 bug with <code>posixpath.isfile()</code> where it was returning <code>False</code> when the answer
+should have been <code>True</code>.</li>
+<li>#1672 - Added None checks around plan file name calculations.</li>
 </ul>
-</li>
+<h4 id="known-issues">Known Issues</h4>
+<ul>
 <li>
-<p>If the build fails, run the <code>mvn -B release:rollback</code> command to undo it and start over from Step 2., after correcting the issue.</p>
-</li>
+<p>SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
+the 12.2.1.4.0 GA release fails with the following error, as mentioned at <a href="https://github.com/hierynomus/sshj/issues/895">https://github.com/hierynomus/sshj/issues/895</a>.
+Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">SEVERE Messages:
+        1. WLSDPLY-20008: verifySSH argument processing failed: Failed to initialize SSH context: Failed to SSH connect to host myhost.oracle.com: no such algorithm: X25519 <span style="color:#66d9ef">for</span> provider BC
+</code></pre></div></li>
 <li>
-<p>After the software has been released, move on to the GitHub Release Process.</p>
+<p>SSH support for the Update Domain Tool and Deploy Apps Tool do not work when using an archive file and the remote
+WebLogic Server is running on Windows using the optional, Windows-provided, OpenSSH component.  This is due to an
+issue with the SSHJ library WDT is using.  See <a href="https://github.com/hierynomus/sshj/issues/929">https://github.com/hierynomus/sshj/issues/929</a> for more information.</p>
 </li>
-</ol>
-<h3 id="github-release-process">GitHub release process</h3>
-<p>Note that this process relies on the WDT installers being in your local Maven repository.  As such, it is critical for
-the same user to run these steps on the same machine as the steps from the previous section!</p>
-<ol>
-<li>Save the release notes in the file <code>&lt;wdt-project-directory&gt;/target/ReleaseNotes.md</code>.</li>
-<li>Run the command <code>mvn -f github-release.xml -DreleaseVersion=&lt;release version number&gt; verify</code> to create the draft GitHub Release.</li>
-<li>Log into <a href="https://github.com/oracle/weblogic-deploy-tooling">GitHub</a>, go to the Releases page, review/edit the draft release, and then publish the release.</li>
-</ol>
+</ul>
+<p>See <a href="https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/">https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/</a> for the current set of known limitations.</p>
 
 
 <footer class="footline">
@@ -2861,7 +2838,6 @@ the same user to run these steps on the same machine as the steps from the previ
             
                 
                     
-                    
                 
                 
 
@@ -2875,8 +2851,21 @@ the same user to run these steps on the same machine as the steps from the previ
             
                 
                     
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
                         
-                        
+            
+            
+                
                     
                 
                 
@@ -2958,26 +2947,6 @@ the same user to run these steps on the same machine as the steps from the previ
             
                 
                     
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
-                    
                 
                 
 
@@ -2997,6 +2966,7 @@ the same user to run these steps on the same machine as the steps from the previ
             
                 
                     
+                    
                 
                 
 
@@ -3009,6 +2979,7 @@ the same user to run these steps on the same machine as the steps from the previ
             
             
                 
+                    
                     
                 
                 
@@ -3025,6 +2996,9 @@ the same user to run these steps on the same machine as the steps from the previ
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -3449,10 +3423,10 @@ the same user to run these steps on the same machine as the steps from the previ
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/developer/crd-schemas/" title="Building CRD schemas"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/developer/contribute/" title="Contribute to WDT" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-4.0.0/" title="Release 4.0.0" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

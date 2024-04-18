@@ -8,6 +8,16 @@
     <language>en-us</language>
     <lastBuildDate>Tue, 09 Jan 2024 18:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Release 4.0.1</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.0.1/</link>
+      <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.0.1/</guid>
+      <description>Changes in Release 4.0.1  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes  #1664 - Added support for the OptionalFeatureDeployment top-level folder. #1665, #1667 - Formalized support for both the replicated config/wlsdeploy/custom/ and non-replicated wlsdeploy/custom locations. Added support in the Archive Helper Tool and tweaked the validation message to only notify the user if they are only using the non-replicated location. #1669 - Enhanced the WLS Policy support to allow users to modify built-in policies.</description>
+    </item>
+    
+    <item>
       <title>Release 4.0.0</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.0.0/</link>
       <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>
