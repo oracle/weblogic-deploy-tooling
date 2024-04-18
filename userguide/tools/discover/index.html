@@ -12,20 +12,20 @@
     <title>Discover Domain Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1713410339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1713410339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1713410339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1713410339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1713410339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1713410339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1713410339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1713410339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1713410339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1713410339" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1713443422" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1713443422" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1713443422" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1713443422" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1713443422" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1713443422" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1713443422" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1713443422" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1713443422" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1713443422" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1713410339"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1713443422"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1713410339"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1713410339"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1713443422"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1713443422"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1713410339"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1713443422"></script>
 
     
   </div>
@@ -2057,7 +2057,7 @@ Total:       WARNING :     1    SEVERE :     0
 <li><code>WLSDEPLOY_PROPERTIES</code>  System properties that will be passed to WLST.</li>
 </ul>
 <h3 id="opening-an-issue-against-discover-domain">Opening an issue against Discover Domain</h3>
-<p>Please provide the <code>STDOUT</code> and <code>STDERR</code> log streams in the GitHub Issue. If the summary is not listed (unhandled exception stack trace occurs), be sure and include the Oracle and WDT installation versions and whether the tool was run in online or offline WLST mode. If possible, provide the model, variable and archive files, and the log file, <code>discoverDomain.log</code>, from location <code>&lt;install home&gt;\weblogic-deploy\log</code>.</p>
+<p>Please provide the <code>STDOUT</code> and <code>STDERR</code> log streams in the GitHub Issue. If the summary is not listed (unhandled exception stack trace occurs), be sure and include the Oracle and WDT installation versions and whether the tool was run in online or offline WLST mode. If possible, provide the model, variable and archive files, and the log file, <code>discoverDomain.log</code>, from location <code>&lt;install home&gt;/weblogic-deploy/log</code>.</p>
 <h3 id="parameter-table-for-discoverdomain">Parameter table for <code>discoverDomain</code></h3>
 <table>
 <thead>
@@ -2094,13 +2094,18 @@ Total:       WARNING :     1    SEVERE :     0
 <td></td>
 </tr>
 <tr>
+<td><code>-discover_passwords</code></td>
+<td>Whether to discover passwords from the target domain.</td>
+<td></td>
+</tr>
+<tr>
 <td><code>-domain_home</code></td>
-<td>(Required for offline operation).  The location of the existing domain home.</td>
+<td>Used only for offline operation.  The location of the existing domain home.</td>
 <td>For online mode, the server&rsquo;s value.</td>
 </tr>
 <tr>
 <td><code>-domain_type</code></td>
-<td>The type of domain.  (for example, <code>WLS</code>, <code>JRF</code>)</td>
+<td>The type of domain (for example, <code>WLS</code>, <code>JRF</code>).</td>
 <td><code>WLS</code></td>
 </tr>
 <tr>
@@ -2121,6 +2126,16 @@ Total:       WARNING :     1    SEVERE :     0
 <tr>
 <td><code>-output_dir</code></td>
 <td>Output directory required for <code>-target</code>.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-passphrase_env</code></td>
+<td>An alternative to entering the encryption passphrase at a prompt when discovering passwords. The value is an environment variable name that WDT will use to retrieve the passphrase.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-passphrase_file</code></td>
+<td>An alternative to entering the encryption passphrase at a prompt when discovering passwords. The value is the name of a file with a string value which WDT will read to retrieve the passphrase.</td>
 <td></td>
 </tr>
 <tr>
@@ -2145,7 +2160,7 @@ Total:       WARNING :     1    SEVERE :     0
 </tr>
 <tr>
 <td><code>-ssh_port</code></td>
-<td>The TCP port on the remote host where the sshd daemon is listening for connection requests.</td>
+<td>The TCP port on the remote host where the SSH daemon is listening for connection requests.</td>
 <td><code>22</code></td>
 </tr>
 <tr>
@@ -3564,19 +3579,19 @@ Total:       WARNING :     1    SEVERE :     0
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1713410339"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1713410339"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1713410339"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1713410339"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1713410339"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1713410339"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1713443422"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1713443422"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1713443422"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1713443422"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1713443422"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1713443422"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1713410339"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1713410339"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1713410339"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1713443422"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1713443422"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1713443422"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1713410339"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1713443422"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
