@@ -33,7 +33,7 @@ objectclass: wlsUser
 wlsMemberOf: cn={{{userGroupName}}},ou=groups,ou=@realm@,dc=@domain@
 {{/userGroups}}
 {{#userAttributes}}
-{{{key}}}={{{value}}}
+{{{key}}}: {{{value}}}
 {{/userAttributes}}
 
 {{/user}}
