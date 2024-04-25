@@ -143,8 +143,8 @@
                     "default_name_value": "${NO_NAME_0:%CLUSTER%}",
                     "folders" : {},
                     "attributes" : {
-                        "HeapDumpingOnDeadlock":          [ {"version": "[14.1.2,)",       "wlst_mode": "online",  "wlst_name": "HeapDumpingOnDeadlock",          "wlst_path": "WP001", "default_value": false,    "wlst_type": "boolean"  } ],
-                        "HeapDumpingOnMaxStuckThread":    [ {"version": "[14.1.2,)",       "wlst_mode": "online",  "wlst_name": "HeapDumpingOnMaxStuckThread",    "wlst_path": "WP001", "default_value": false,    "wlst_type": "boolean"  } ],
+                        "HeapDumpingOnDeadlock":          [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "HeapDumpingOnDeadlock",          "wlst_path": "WP001", "default_value": false,    "wlst_type": "boolean"  } ],
+                        "HeapDumpingOnMaxStuckThread":    [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "HeapDumpingOnMaxStuckThread",    "wlst_path": "WP001", "default_value": false,    "wlst_type": "boolean"  } ],
                         "MaxStuckThreadTime":             [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "MaxStuckThreadTime",             "wlst_path": "WP001", "default_value": 600,      "wlst_type": "integer" } ],
                         "StuckThreadCount":               [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "StuckThreadCount",               "wlst_path": "WP001", "default_value": 0,        "wlst_type": "integer", "get_method": "GET" } ],
                         "Notes":                          [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "Notes",                          "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"  } ]

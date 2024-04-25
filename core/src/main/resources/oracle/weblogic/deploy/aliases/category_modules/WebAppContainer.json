@@ -29,20 +29,14 @@
             "default_name_value": "${NO_NAME_0:%DOMAIN%}",
             "folders": {},
             "attributes": {
-                "FrameCountLimitResetInterval":        [
-                    {"version": "[14.1.1.0.0.240328,14.1.2)", "wlst_mode": "both",     "wlst_name": "FrameCountLimitResetInterval",  "wlst_path": "WP001", "default_value": 60,         "wlst_type": "integer"           },
-                    {"version": "[14.1.2,)",                  "wlst_mode": "online",   "wlst_name": "FrameCountLimitResetInterval",  "wlst_path": "WP001", "default_value": 60,         "wlst_type": "integer"           }
-                ],
-                "HeaderTableSize":                     [ {"version": "[14.1.1,)",       "wlst_mode": "both",    "wlst_name": "HeaderTableSize",                    "wlst_path": "WP001", "default_value": 4096,       "wlst_type": "integer"           } ],
-                "InitialWindowSize":                   [ {"version": "[14.1.1,)",       "wlst_mode": "both",    "wlst_name": "InitialWindowSize",                  "wlst_path": "WP001", "default_value": 65535,      "wlst_type": "integer"           } ],
-                "MaxConcurrentStreams":                [ {"version": "[14.1.1,)",       "wlst_mode": "both",    "wlst_name": "MaxConcurrentStreams",               "wlst_path": "WP001", "default_value": 300,        "wlst_type": "integer"           } ],
-                "MaxFrameSize":                        [ {"version": "[14.1.1,)",       "wlst_mode": "both",    "wlst_name": "MaxFrameSize",                       "wlst_path": "WP001", "default_value": 16384,      "wlst_type": "integer"           } ],
-                "MaxHeaderListSize":                   [ {"version": "[14.1.1,)",       "wlst_mode": "both",    "wlst_name": "MaxHeaderListSize",                  "wlst_path": "WP001", "default_value": 2147483647, "wlst_type": "integer"           } ],
-                "MaxStreamResets":                     [
-                    {"version": "[14.1.1.0.0.240328,14.1.2)", "wlst_mode": "offline",  "wlst_name": "MaxStreamResets",               "wlst_path": "WP001", "default_value": 0,          "derived_default": "${:true}",   "wlst_type": "integer"        },
-                    {"version": "[14.1.1.0.0.240328,)",       "wlst_mode": "online",   "wlst_name": "MaxStreamResets",               "wlst_path": "WP001", "default_value": 400,        "derived_default": "${:true}",   "wlst_type": "integer"        }
-                ],
-                "Notes":                               [ {"version": "[14.1.1,)",       "wlst_mode": "both",    "wlst_name": "Notes",                              "wlst_path": "WP001", "default_value": null,       "wlst_type": "string"            } ]
+                "FrameCountLimitResetInterval":        [ {"version": "[14.1.1.0.0.240328,)", "wlst_mode": "both",    "wlst_name": "FrameCountLimitResetInterval",  "wlst_path": "WP001", "default_value": 60,         "wlst_type": "integer"          } ],
+                "HeaderTableSize":                     [ {"version": "[14.1.1,)",            "wlst_mode": "both",    "wlst_name": "HeaderTableSize",               "wlst_path": "WP001", "default_value": 4096,       "wlst_type": "integer"          } ],
+                "InitialWindowSize":                   [ {"version": "[14.1.1,)",            "wlst_mode": "both",    "wlst_name": "InitialWindowSize",             "wlst_path": "WP001", "default_value": 65535,      "wlst_type": "integer"          } ],
+                "MaxConcurrentStreams":                [ {"version": "[14.1.1,)",            "wlst_mode": "both",    "wlst_name": "MaxConcurrentStreams",          "wlst_path": "WP001", "default_value": 300,        "wlst_type": "integer"          } ],
+                "MaxFrameSize":                        [ {"version": "[14.1.1,)",            "wlst_mode": "both",    "wlst_name": "MaxFrameSize",                  "wlst_path": "WP001", "default_value": 16384,      "wlst_type": "integer"          } ],
+                "MaxHeaderListSize":                   [ {"version": "[14.1.1,)",            "wlst_mode": "both",    "wlst_name": "MaxHeaderListSize",             "wlst_path": "WP001", "default_value": 2147483647, "wlst_type": "integer"          } ],
+                "MaxStreamResets":                     [ {"version": "[14.1.1.0.0.240328,)", "wlst_mode": "both",    "wlst_name": "MaxStreamResets",               "wlst_path": "WP001", "default_value": 0,          "derived_default": "${:true}",  "wlst_type": "integer"       } ],
+                "Notes":                               [ {"version": "[14.1.1,)",            "wlst_mode": "both",    "wlst_name": "Notes",                         "wlst_path": "WP001", "default_value": null,       "wlst_type": "string"           } ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
