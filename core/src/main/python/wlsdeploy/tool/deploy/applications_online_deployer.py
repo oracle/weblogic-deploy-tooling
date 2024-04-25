@@ -58,7 +58,7 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         :raises: DeployException: if an error occurs
         """
         _method_name = 'deploy'
-        self.logger.entering(self._parent_name, self._parent_type,
+        self.logger.entering(self._parent_name, self._parent_type, is_restart_required,
                              class_name=self._class_name, method_name=_method_name)
 
         # Make copies of the model dictionary since we are going
@@ -1229,6 +1229,12 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         self.logger.entering(deployed_app_list, str_helper.to_string(base_location), is_restart_required,
                              class_name=self._class_name, method_name=_method_name)
 
+        if is_restart_required:
+            for app in deployed_app_list:
+                self.logger.notification('WLSDPLY-09800', app, class_name=self._class_name, method_name=_method_name)
+            self.logger.exiting(class_name=self._class_name, method_name=_method_name)
+            return
+
         temp_app_dict = OrderedDict()
         location = LocationContext(base_location).append_location(APPLICATION)
         token_name = self.aliases.get_name_token(location)
@@ -1246,10 +1252,7 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
 
         start_order = self.__get_deployment_ordering(temp_app_dict)
         for app in start_order:
-            if is_restart_required:
-                self.logger.notification('WLSDPLY-09800', app, class_name=self._class_name, method_name=_method_name)
-            else:
-                self.__start_app(app)
+            self.__start_app(app)
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 
