@@ -122,6 +122,8 @@ def __process_args(args):
 
     __wlst_mode = cla_helper.process_online_args(argument_map)
     cla_helper.validate_if_domain_home_required(_program_name, argument_map, __wlst_mode)
+    cla_helper.validate_ssh_is_supported(_program_name, argument_map)
+
     target_configuration_helper.process_target_arguments(argument_map)
     __process_model_arg(argument_map)
     __process_archive_filename_arg(argument_map)

@@ -13,11 +13,6 @@ import java.lang.Exception as JException
 import java.lang.String as JString
 import java.lang.System as JSystem
 
-from net.schmizz.sshj import SSHClient
-import net.schmizz.sshj.common.SSHException as SSHJException
-from net.schmizz.sshj.transport import TransportException
-from net.schmizz.sshj.userauth import UserAuthException
-
 from oracle.weblogic.deploy.exception import BundleAwareException
 from oracle.weblogic.deploy.util import SSHException
 from oracle.weblogic.deploy.util import StringUtils
@@ -30,6 +25,7 @@ from wlsdeploy.util import getcreds
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util import path_helper
+from wlsdeploy.util import string_utils
 from wlsdeploy.util.ssh_command_line_helper import SSHUnixCommandLineHelper
 from wlsdeploy.util.ssh_command_line_helper import SSHWindowsCommandLineHelper
 
@@ -44,10 +40,15 @@ def initialize_ssh(model_context, argument_map, exception_type=ExceptionType.SSH
         __logger.finest('WLSDPLY-32007', class_name=__class_name, method_name=_method_name)
         __logger.exiting(class_name=__class_name, method_name=_method_name)
         return
+    elif not string_utils.is_java_version_or_above('1.8.0'):
+        __logger.fine('WLSDPLY-32041', class_name=__class_name, method_name=_method_name)
+        __logger.exiting(class_name=__class_name, method_name=_method_name)
+        return
 
     __validate_ssh_arguments(argument_map, model_context)
     __ensure_ssh_credentials(model_context)
 
+    import net.schmizz.sshj.common.SSHException as SSHJException
     try:
         ssh_context = SSHContext(model_context, exception_type)
     except (SSHException, SSHJException, JException),err:
@@ -404,6 +405,8 @@ class SSHContext(object):
         _method_name = '_connect'
         self._logger.entering(class_name=self._class_name, method_name=_method_name)
 
+        from net.schmizz.sshj import SSHClient
+
         ssh_client = SSHClient()
         if self._model_context.get_model_config().use_ssh_compression():
             ssh_client.useCompression()
@@ -485,6 +488,8 @@ class SSHContext(object):
         _method_name = '_username_password_auth'
         self._logger.entering(class_name=self._class_name, method_name=_method_name)
 
+        from net.schmizz.sshj.transport import TransportException
+        from net.schmizz.sshj.userauth import UserAuthException
         user = self._model_context.get_ssh_user()
         passwd = self._model_context.get_ssh_pass()
         try:
@@ -535,6 +540,7 @@ class SSHContext(object):
         _method_name = '_get_private_key_provider'
         self._logger.entering(key_path, class_name=self._class_name, method_name=_method_name)
 
+        import net.schmizz.sshj.common.SSHException as SSHJException
         try:
             if passphrase is not None:
                 key_provider = self._ssh_client.loadKeys(key_path, passphrase)
@@ -553,6 +559,8 @@ class SSHContext(object):
         _method_name = '_do_public_key_auth'
         self._logger.entering(user, key_arg, class_name=self._class_name, method_name=_method_name)
 
+        from net.schmizz.sshj.transport import TransportException
+        from net.schmizz.sshj.userauth import UserAuthException
         try:
             if key_arg is not None:
                 self._ssh_client.authPublickey(user, [ key_arg ])
