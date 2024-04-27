@@ -96,6 +96,7 @@ def __process_args(args):
     cla_helper.validate_variable_file_exists(_program_name, argument_map)
     __wlst_mode = cla_helper.process_online_args(argument_map)
     cla_helper.validate_if_domain_home_required(_program_name, argument_map, __wlst_mode)
+    cla_helper.validate_ssh_is_supported(_program_name, argument_map)
     cla_helper.process_encryption_args(argument_map)
 
     return model_context_helper.create_context(_program_name, argument_map)

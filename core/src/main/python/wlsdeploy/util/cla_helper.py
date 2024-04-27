@@ -28,6 +28,7 @@ from wlsdeploy.util import getcreds
 from wlsdeploy.util import model_helper
 from wlsdeploy.util import model_translator
 from wlsdeploy.util import path_helper
+from wlsdeploy.util import string_utils
 
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -294,6 +295,16 @@ def process_online_args(optional_arg_map):
         mode = WlstModes.ONLINE
         optional_arg_map[CommandLineArgUtil.TARGET_MODE_SWITCH] = 'online'
     return mode
+
+
+def validate_ssh_is_supported(program_name, argument_map):
+    _method_name = 'validate_ssh_is_supported'
+
+    if CommandLineArgUtil.SSH_HOST_SWITCH in argument_map and not string_utils.is_java_version_or_above('1.8.0'):
+        tool_exception = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-20042',
+                                                               program_name, CommandLineArgUtil.SSH_HOST_SWITCH)
+        __logger.throwing(tool_exception, class_name=_class_name, method_name=_method_name)
+        raise tool_exception
 
 
 def clean_up_temp_files():

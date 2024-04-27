@@ -1,12 +1,13 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 This module provides string manipulation helper methods that are not found in the WLST version of Jython
 """
-import java.util.Properties as Properties
 import java.io.FileInputStream as FileInputStream
 import java.io.IOException as IOException
+from java.lang import System
+from java.util import Properties
 
 from oracle.weblogic.deploy.aliases import VersionUtils
 import wlsdeploy.exception.exception_helper as exception_helper
@@ -116,3 +117,18 @@ def is_weblogic_version_or_above(wls_version, str_version):
      by the str_version argument, False otherwise
     """
     return VersionUtils.compareVersions(wls_version, str_version) >= 0
+
+
+def is_java_version_or_above(str_version):
+    """
+    Is the current Java version number equal to or greater than the str_version.
+    :param str_version: the string representation of the version to be compared to the actual java version
+    :return: True if the actual Java version is equal or greater than the version represented
+     by the str_version argument, False otherwise
+    """
+    java_version = System.getProperty('java.version')
+    # strip off the _###
+    if '_' in java_version:
+        idx = java_version.index('_')
+        java_version = java_version[0:idx]
+    return VersionUtils.compareVersions(java_version, str_version) >= 0
