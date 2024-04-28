@@ -172,27 +172,22 @@ class XacmlAuthorizerLdift(LdiftBase):
         _logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return self.__DEFAULT_POLICIES_DICT
 
+    # This function is potentially called thousands of times in 14.1.2+
+    # so don't log unless the FINEST level is enabled.
+    #
     def _is_default_policy(self, policy_dict):
         _method_name = '_is_default_policy'
-        _logger.entering(policy_dict, class_name=self.__class_name, method_name=_method_name)
+        if _logger.is_finest_enabled():
+            _logger.entering(policy_dict, class_name=self.__class_name, method_name=_method_name)
 
         result = False
         defaults = self._get_default_policies()
         if policy_dict[RESOURCE_ID] in defaults:
-            _logger.finer('Policy ResourceID {0} found in defaults', policy_dict[RESOURCE_ID],
-                          class_name=self.__class_name, method_name=_method_name)
+            _logger.finest('WLSDPLY-07108', RESOURCE_ID, policy_dict[RESOURCE_ID],
+                           class_name=self.__class_name, method_name=_method_name)
             if defaults[policy_dict[RESOURCE_ID]] == policy_dict[POLICY]:
-                _logger.finer('Policy value for ResourceID {0} matches the one found in defaults: {0}',
-                              policy_dict[RESOURCE_ID], policy_dict[POLICY],
-                              class_name=self.__class_name, method_name=_method_name)
                 result = True
-            else:
-                _logger.finer('Policy value {0} does not match the one found in defaults: {1}',
-                              policy_dict[POLICY], defaults[policy_dict[RESOURCE_ID]],
-                              class_name=self.__class_name, method_name=_method_name)
-        else:
-            _logger.finer('Policy ResourceID {0} not found in defaults', policy_dict[RESOURCE_ID],
-                          class_name=self.__class_name, method_name=_method_name)
 
-        _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        if _logger.is_finest_enabled():
+            _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result
