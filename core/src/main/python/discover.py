@@ -39,6 +39,7 @@ from wlsdeploy.tool.discover.deployments_discoverer import DeploymentsDiscoverer
 from wlsdeploy.tool.discover.domain_info_discoverer import DomainInfoDiscoverer
 from wlsdeploy.tool.discover.multi_tenant_discoverer import MultiTenantDiscoverer
 from wlsdeploy.tool.discover.resources_discoverer import ResourcesDiscoverer
+from wlsdeploy.tool.discover.security_provider_data_discoverer import SecurityProviderDataDiscoverer
 from wlsdeploy.tool.discover.topology_discoverer import TopologyDiscoverer
 from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.util import model_context_helper
@@ -92,6 +93,7 @@ __optional_arguments = [
     CommandLineArgUtil.PASSPHRASE_SWITCH,
     CommandLineArgUtil.PASSPHRASE_ENV_SWITCH,
     CommandLineArgUtil.PASSPHRASE_FILE_SWITCH,
+    CommandLineArgUtil.DISCOVER_SECURITY_PROVIDER_DATA_SWITCH,
     CommandLineArgUtil.TARGET_SWITCH,
     CommandLineArgUtil.REMOTE_SWITCH,
     CommandLineArgUtil.SSH_HOST_SWITCH,
@@ -326,13 +328,17 @@ def __discover(model_context, aliases, credential_injector, helper, extra_tokens
 
         DomainInfoDiscoverer(model_context, model.get_model_domain_info(), base_location, wlst_mode=__wlst_mode,
                              aliases=aliases, credential_injector=credential_injector).discover()
-        TopologyDiscoverer(model_context, model.get_model_topology(), base_location, wlst_mode=__wlst_mode,
-                           aliases=aliases, credential_injector=credential_injector).discover()
+        topology_discoverer = \
+            TopologyDiscoverer(model_context, model.get_model_topology(), base_location, wlst_mode=__wlst_mode,
+                               aliases=aliases, credential_injector=credential_injector)
+        __, security_provider_map = topology_discoverer.discover()
         ResourcesDiscoverer(model_context, model.get_model_resources(), base_location, wlst_mode=__wlst_mode,
                             aliases=aliases, credential_injector=credential_injector).discover()
         DeploymentsDiscoverer(model_context, model.get_model_app_deployments(), base_location, wlst_mode=__wlst_mode,
                               aliases=aliases, credential_injector=credential_injector,
                               extra_tokens=extra_tokens).discover()
+        SecurityProviderDataDiscoverer(model_context, model, base_location, wlst_mode=__wlst_mode, aliases=aliases,
+                                       credential_injector=credential_injector).discover(security_provider_map)
         __discover_multi_tenant(model, model_context, base_location, aliases, credential_injector)
     except AliasException, ae:
         wls_version = model_context.get_effective_wls_version()

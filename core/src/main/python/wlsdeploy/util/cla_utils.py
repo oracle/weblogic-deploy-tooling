@@ -19,6 +19,8 @@ import oracle.weblogic.deploy.aliases.VersionUtils as JVersionUtils
 import oracle.weblogic.deploy.util.FileUtils as JFileUtils
 import oracle.weblogic.deploy.util.StringUtils as JStringUtils
 
+from wlsdeploy.aliases.model_constants import DISCOVER_SECURITY_PROVIDER_TYPES
+from wlsdeploy.aliases.model_constants import DISCOVER_SECURITY_PROVIDER_TYPES_LOWER_CASE
 from wlsdeploy.exception.exception_helper import create_cla_exception
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -111,6 +113,7 @@ class CommandLineArgUtil(object):
     SSH_PRIVATE_KEY_PASSPHRASE_FILE_SWITCH   = '-ssh_private_key_pass_file'
     SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH = '-ssh_private_key_pass_prompt'
     DISCOVER_PASSWORDS_SWITCH  = '-discover_passwords'
+    DISCOVER_SECURITY_PROVIDER_DATA_SWITCH = '-discover_security_provider_data'
 
     # arguments that are true if specified, false if not
     BOOLEAN_SWITCHES = [
@@ -385,6 +388,10 @@ class CommandLineArgUtil(object):
                 value, idx = self._get_arg_value(args, idx)
                 value = self._validate_ssh_private_key_passphrase_file_arg(value)
                 self._add_arg(self.get_ssh_private_key_passphrase_switch(), value)
+            elif self.is_discover_security_provider_data_switch(key):
+                value, idx = self._get_arg_value(args, idx)
+                value = self._validate_discover_security_provider_data_arg(value)
+                self._add_arg(key, value)
             else:
                 ex = create_cla_exception(ExitCode.USAGE_ERROR, 'WLSDPLY-01601', self._program_name, key)
                 _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
@@ -1194,6 +1201,41 @@ class CommandLineArgUtil(object):
     def _validate_ssh_private_key_passphrase_file_arg(self, value):
         method_name = '_validate_ssh_private_key_passphrase_file_arg'
         return self._get_password_from_file(value, method_name, 'WLSDPLY-00907', 'WLSDPLY-00908', 'WLSDPLY-00909')
+
+    def is_discover_security_provider_data_switch(self, key):
+        return key == self.DISCOVER_SECURITY_PROVIDER_DATA_SWITCH
+
+    def _validate_discover_security_provider_data_arg(self, value):
+        method_name = '_validate_discover_security_provider_data_arg'
+
+        if JStringUtils.isEmpty(value):
+            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-00915')
+            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        else:
+            new_values = []
+            invalid_values = []
+            scopes = value.split(',')
+            for scope in scopes:
+                # trim any leading/trailing whitespace
+                provider_scope = scope.strip()
+                # allow case mismatches
+                if provider_scope.lower() not in DISCOVER_SECURITY_PROVIDER_TYPES_LOWER_CASE:
+                    invalid_values.append(provider_scope)
+                else:
+                    # ensure returned value is case-standardized
+                    idx = DISCOVER_SECURITY_PROVIDER_TYPES_LOWER_CASE.index(provider_scope.lower())
+                    new_values.append(DISCOVER_SECURITY_PROVIDER_TYPES[idx])
+
+            if len(invalid_values) > 0:
+                ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-00916',
+                                          value, str_helper.to_string(invalid_values))
+                _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+                raise ex
+
+            new_value = ','.join(new_values)
+
+        return new_value
 
     ###########################################################################
     # Helper methods                                                          #

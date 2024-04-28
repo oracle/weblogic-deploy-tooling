@@ -12,7 +12,13 @@ import java.lang.System as System
 import java.net.URI as URI
 
 from oracle.weblogic.deploy.util import XPathUtil
+
+from wlsdeploy.aliases.model_constants import ALL
+from wlsdeploy.aliases.model_constants import DEFAULT_AUTHENTICATOR
+from wlsdeploy.aliases.model_constants import DEFAULT_CREDENTIAL_MAPPER
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
+from wlsdeploy.aliases.model_constants import XACML_AUTHORIZER
+from wlsdeploy.aliases.model_constants import XACML_ROLE_MAPPER
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging import platform_logger
@@ -118,6 +124,7 @@ class ModelContext(object):
         self._remote_output_dir = None
         self._local_output_dir = None
         self._discover_passwords = False
+        self._discover_security_provider_data = None
         self._path_helper = path_helper.get_path_helper()
 
         self._trailing_args = []
@@ -317,6 +324,10 @@ class ModelContext(object):
         if CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH in arg_map:
             self._discover_passwords = arg_map[CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH]
 
+        if CommandLineArgUtil.DISCOVER_SECURITY_PROVIDER_DATA_SWITCH in arg_map:
+            self._discover_security_provider_data = \
+                arg_map[CommandLineArgUtil.DISCOVER_SECURITY_PROVIDER_DATA_SWITCH].split(',')
+
     def __copy__(self):
         arg_map = dict()
         if self._oracle_home is not None:
@@ -420,6 +431,10 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH] = self._variable_injector_file
         if self._discover_passwords:
             arg_map[CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH] = self._discover_passwords
+        if self._discover_security_provider_data is not None:
+            # Make a copy of the list...
+            arg_map[CommandLineArgUtil.DISCOVER_SECURITY_PROVIDER_DATA_SWITCH] = \
+                list(self._discover_security_provider_data)
 
         new_context = ModelContext(self._program_name, arg_map)
         if not new_context.is_initialization_complete():
@@ -1221,6 +1236,28 @@ class ModelContext(object):
         :return:
         """
         return not self._model_config.get_store_discovered_passwords_in_clear_text()
+
+    def is_discover_security_provider_data(self):
+        return self._discover_security_provider_data is not None and len(self._discover_security_provider_data) > 0
+
+    def is_discover_default_authenticator_data(self):
+        return self._is_discover_security_provider_data_type(DEFAULT_AUTHENTICATOR)
+
+    def is_discover_default_credential_mapper_data(self):
+        return self._is_discover_security_provider_data_type(DEFAULT_CREDENTIAL_MAPPER)
+
+    def is_discover_xacml_authorizer_data(self):
+        return self._is_discover_security_provider_data_type(XACML_AUTHORIZER)
+
+    def is_discover_xacml_role_mapper_data(self):
+        return self._is_discover_security_provider_data_type(XACML_ROLE_MAPPER)
+
+    def _is_discover_security_provider_data_type(self, scope):
+        result = False
+        if self.is_discover_security_provider_data():
+            if ALL in self._discover_security_provider_data or scope in self._discover_security_provider_data:
+                result = True
+        return result
 
     def copy(self, arg_map):
         model_context_copy = copy.copy(self)
