@@ -1,0 +1,26 @@
+{
+  "AdminChannelUsers": {
+    "Description": "AdminChannelUsers can access the admin channel."
+  },
+  "Administrators": {
+    "Description": "Administrators can view and modify all resource attributes and start and stop servers."
+  },
+  "AppTesters": {
+    "Description": "AppTesters group."
+  },
+  "CrossDomainConnectors": {
+    "Description": "CrossDomainConnectors can make inter-domain calls from foreign domains."
+  },
+  "Deployers": {
+    "Description": "Deployers can view all resource attributes and deploy applications."
+  },
+  "Monitors": {
+    "Description": "Monitors can view and modify all resource attributes and perform operations not restricted by roles."
+  },
+  "Operators": {
+    "Description": "Operators can view and modify all resource attributes and perform server lifecycle operations."
+  },
+  "OracleSystemGroup": {
+    "Description": "Oracle application software system group."
+  }
+}

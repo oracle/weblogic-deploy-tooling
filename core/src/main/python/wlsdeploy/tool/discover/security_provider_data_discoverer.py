@@ -15,9 +15,12 @@ from wlsdeploy.aliases.model_constants import CREDENTIAL_MAPPER
 from wlsdeploy.aliases.model_constants import DEFAULT_AUTHENTICATOR
 from wlsdeploy.aliases.model_constants import DEFAULT_CREDENTIAL_MAPPER
 from wlsdeploy.aliases.model_constants import DEFAULT_REALM
+from wlsdeploy.aliases.model_constants import GROUP
 from wlsdeploy.aliases.model_constants import REALM
 from wlsdeploy.aliases.model_constants import ROLE_MAPPER
+from wlsdeploy.aliases.model_constants import SECURITY
 from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
+from wlsdeploy.aliases.model_constants import USER
 from wlsdeploy.aliases.model_constants import WLS_POLICIES
 from wlsdeploy.aliases.model_constants import XACML_AUTHORIZER
 from wlsdeploy.aliases.model_constants import XACML_ROLE_MAPPER
@@ -28,6 +31,7 @@ from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
 from wlsdeploy.util import unicode_helper as str_helper
+from wlsdeploy.util.default_authenticator_ldift_helper import DefaultAuthenticatorLdift
 from wlsdeploy.util.xacml_authorization_ldift_helper import XacmlAuthorizerLdift
 
 _class_name = 'SecurityProviderDataDiscoverer'
@@ -124,11 +128,29 @@ class SecurityProviderDataDiscoverer(Discoverer):
         _logger.info('WLSDPLY-06902', provider_name, self._default_realm_name,
                      class_name=_class_name, method_name=_method_name)
         provider_mbean = self._get_provider_mbean(location)
-        export_file = \
-            self.path_helper.join(self._export_tmp_directory, 'DefaultAuthenticator_%s_Export.ldift' % provider_name)
+        provider_file_name = 'DefaultAuthenticator_%s_Export.ldift' % provider_name
+        export_file = self.path_helper.join(self._export_tmp_directory, provider_file_name)
         self._export_provider_data(provider_name, AUTHENTICATION_PROVIDER, DEFAULT_AUTHENTICATOR, provider_mbean,
                                    'DefaultAtn', export_file, props)
-        # FIXME parse file, add to model
+
+        if self._model_context.is_ssh():
+            self.download_deployment_from_remote_server(export_file, self.download_temporary_dir, 'security')
+            local_file = self.path_helper.local_join(self.download_temporary_dir, 'security', provider_file_name)
+        else:
+            local_file = export_file
+
+        default_authenticator = \
+            DefaultAuthenticatorLdift(local_file, self._model_context, exception_type=ExceptionType.DISCOVER)
+        users = default_authenticator.get_users_dictionary()
+        groups = default_authenticator.get_groups_dictionary()
+        if users or groups:
+            if SECURITY not in self._topology_dictionary:
+                self._topology_dictionary[SECURITY] = dict()
+
+            if users:
+                self._topology_dictionary[SECURITY][USER] = users
+            if groups:
+                self._topology_dictionary[SECURITY][GROUP] = groups
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 

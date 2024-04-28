@@ -499,3 +499,26 @@ DISCOVER_SECURITY_PROVIDER_TYPES = [
 DISCOVER_SECURITY_PROVIDER_TYPES_LOWER_CASE = []
 for type in DISCOVER_SECURITY_PROVIDER_TYPES:
     DISCOVER_SECURITY_PROVIDER_TYPES_LOWER_CASE.append(type.lower())
+
+DEFAULT_AUTHENTICATOR_USER_ATTRIBUTE_KEYS = [
+    'c',
+    'departmentnumber',
+    'displayname',
+    'employeenumber',
+    'employeetype',
+    'facsimiletelephonenumber',
+    'givenname',
+    'homephone',
+    'homepostaladdress',
+    'l',
+    'mail',
+    'mobile',
+    'pager',
+    'postaladdress',
+    'postofficebox',
+    'preferredlanguage',
+    'st',
+    'street',
+    'telephonenumber',
+    'title'
+]

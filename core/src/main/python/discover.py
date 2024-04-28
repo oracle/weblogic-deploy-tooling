@@ -711,7 +711,6 @@ def main(model_context):
         extra_tokens = {}
         try:
             model = __discover(model_context, aliases, credential_injector, helper, extra_tokens)
-
             model = __check_and_customize_model(model, model_context, aliases, credential_injector, extra_tokens)
 
             __generate_remote_report_json(model_context)

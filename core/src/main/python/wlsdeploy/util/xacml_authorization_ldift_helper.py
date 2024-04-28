@@ -106,12 +106,12 @@ class XacmlAuthorizerLdift(LdiftBase):
         entries = list()
         string_entries = LdiftBase.read_ldift_file(self, ldift_file_name)
         for string_entry in string_entries:
-            entries.append(XacmlAuthorizerLdiftEntry(string_entry))
+            entries.append(XacmlAuthorizerLdiftEntry(string_entry, self._exception_type))
 
         _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=entries)
         return entries
 
-    def get_policies_dictionary(self):
+    def get_policies_dictionary(self, filter_defaults=True):
         _method_name = 'get_policies_dictionary'
         _logger.entering(class_name=self.__class_name, method_name=_method_name)
 
@@ -123,12 +123,16 @@ class XacmlAuthorizerLdift(LdiftBase):
                 policy = OrderedDict()
                 policy[RESOURCE_ID] = ldift_entry.get_resource_id()
                 policy[POLICY] = ldift_entry.get_entitlement_policy()
-                if not self._is_default_policy(policy):
+                if filter_defaults:
+                    if not self._is_default_policy(policy):
+                        result[policy_name] = policy
+                        count += 1
+                    else:
+                        _logger.fine('WLSDPLY-07104', RESOURCE_ID, policy[RESOURCE_ID], POLICY,
+                                     policy[POLICY], class_name=self.__class_name, method_name=_method_name)
+                else:
                     result[policy_name] = policy
                     count += 1
-                else:
-                    _logger.fine('WLSDPLY-07104', RESOURCE_ID, policy[RESOURCE_ID], POLICY,
-                                 policy[POLICY], class_name=self.__class_name, method_name=_method_name)
 
         _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result
