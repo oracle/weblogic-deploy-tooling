@@ -60,6 +60,13 @@ class WlstHelper(object):
                 lsa_dict = self.lsa()
                 if 'WeblogicVersion' in lsa_dict:
                     version_string = lsa_dict['WeblogicVersion']
+                #
+                # Prior to 12.2.1, the lsa_dict does not include the WeblogicVersion attribute
+                # even though it exists so use get() instead.
+                #
+                if version_string is None:
+                    version_string = self.get('WeblogicVersion')
+
                 if 'PatchList' in lsa_dict:
                     patch_list_array = self.get('PatchList')
                 if 'OracleHome' in lsa_dict:
