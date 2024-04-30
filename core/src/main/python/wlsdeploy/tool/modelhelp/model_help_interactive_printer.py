@@ -1,21 +1,19 @@
 """
-Copyright (c) 2020, 2023, Oracle and/or its affiliates.
+Copyright (c) 2020, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import re
+import sys
 
-from org.jline.terminal import TerminalBuilder
-from org.jline.reader import LineReaderBuilder
-from org.jline.reader.impl.completer import StringsCompleter
 from oracle.weblogic.deploy.util import CLAException
 
-# Jython tools don't require sys.path modification
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.modelhelp.model_help_printer import ModelHelpPrinter
 from wlsdeploy.tool.modelhelp.model_help_utils import ControlOptions
 from wlsdeploy.tool.modelhelp.model_help_utils import PathOptions
-from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util import model
+from wlsdeploy.util import string_utils
+from wlsdeploy.util.exit_code import ExitCode
 
 _class_name = 'ModelHelpInteractivePrinter'
 SIMPLE_COMMAND_REGEX = re.compile(r'^top$|^(cd|ls|cat)(?:\s+(\.\.(?:/[a-zA-Z0-9#.]+)*/?))?$')
@@ -43,13 +41,23 @@ class ModelHelpInteractivePrinter(ModelHelpPrinter):
         self._output_buffer.add_output()
         self._output_buffer.add_message('WLSDPLY-10119', model_path)
 
-        completer = StringsCompleter(['cat', 'cd', 'ls', 'top', 'exit'])
-        terminal = TerminalBuilder.terminal()
-        reader = LineReaderBuilder.builder().terminal(terminal).completer(completer).build()
+        # JLine requires Java 1.8.0
+        reader = None
+        if string_utils.is_java_version_or_above('1.8.0'):
+            from org.jline.terminal import TerminalBuilder
+            from org.jline.reader import LineReaderBuilder
+            from org.jline.reader.impl.completer import StringsCompleter
+
+            completer = StringsCompleter(['cat', 'cd', 'ls', 'top', 'exit'])
+            terminal = TerminalBuilder.terminal()
+            reader = LineReaderBuilder.builder().terminal(terminal).completer(completer).build()
+
         while True:
             if command_str == 'exit':
                 break
-            reader.getHistory().add(command_str)
+
+            if reader:
+                reader.getHistory().add(command_str)
 
             # the "process command" prints the help (or error) for the command_str
             # plus appends a new path to the history if the str specifies a successful directory change
@@ -280,13 +288,21 @@ class ModelHelpInteractivePrinter(ModelHelpPrinter):
 
 def _interactive_help_prompt(model_path, reader):
     """
-    Gets the next command from stdin or a file.
+    Gets the next command from stdin or using JLine.
     :param model_path: a current model path
-    :param reader: JLine reader
-    :param printer: a model help printer
+    :param reader: JLine reader, or None if JLine not supported
     :return: returns when user types 'exit'
     """
-    command_str = reader.readLine('[%s] --> ' % model_path)
+    prompt = '[%s] --> ' % model_path
+
+    if reader:
+        command_str = reader.readLine(prompt)
+    else:
+        # prompt using sys.stdout.write to avoid newline
+        sys.stdout.write(prompt)
+        sys.stdout.flush()
+        command_str = raw_input('') # get command from stdin
+
     command_str = ' '.join(command_str.split()) # remove extra white-space
     return command_str
 
