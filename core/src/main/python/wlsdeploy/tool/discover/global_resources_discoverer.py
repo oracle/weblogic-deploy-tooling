@@ -9,10 +9,12 @@ from oracle.weblogic.deploy.util import WLSDeployArchive
 
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import OPTIONAL_FEATURE
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
+from wlsdeploy.util import dictionary_utils
 
 _class_name = 'GlobalResourcesDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
@@ -307,6 +309,12 @@ class GlobalResourcesDiscoverer(Discoverer):
             location.add_name_token(self._aliases.get_name_token(location), optional_feature_deployment)
             self._populate_model_parameters(result, location)
             self._discover_subfolders(result, location)
+
+        # remove entries with no attributes
+        features_dict = dictionary_utils.get_dictionary_element(result, OPTIONAL_FEATURE)
+        for key in list(features_dict.keys()):
+            if not features_dict[key]:
+                del features_dict[key]
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
