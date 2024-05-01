@@ -32,6 +32,7 @@ public class PasswordValidator {
     public static final String MIN_UPPERCASE_CHARACTERS = "MinUppercaseCharacters";
     public static final String REJECT_EQUAL_OR_CONTAIN_REVERSE_USERNAME = "RejectEqualOrContainReverseUsername";
     public static final String REJECT_EQUAL_OR_CONTAIN_USERNAME = "RejectEqualOrContainUsername";
+    public static final String OLD_PASSWORD_ENCODING_MARKER = "{ssha}";
     public static final String PASSWORD_ENCODING_MARKER = "{ssha256}";
     public static final String WDT_PASSWORD_ENCRYPTION_MARKER = "{AES}";
 
@@ -286,7 +287,7 @@ public class PasswordValidator {
         LOGGER.entering(CLASS, METHOD, user);
 
         boolean foundErrors = false;
-        if (!pass.startsWith(PASSWORD_ENCODING_MARKER) && !pass.startsWith(WDT_PASSWORD_ENCRYPTION_MARKER)) {
+        if (!isPasswordEncoded(pass)) {
             char startChar = pass.charAt(0);
             for (char c : DISALLOWED_PASSWORD_START_CHARACTERS) {
                 if (startChar == c) {
@@ -298,6 +299,17 @@ public class PasswordValidator {
 
         LOGGER.exiting(CLASS, METHOD, foundErrors);
         return foundErrors;
+    }
+
+    private boolean isPasswordEncoded(String pass) {
+        final String METHOD = "isPasswordEncoded";
+        LOGGER.entering(CLASS, METHOD);
+
+        boolean isEncoded = pass.startsWith(PASSWORD_ENCODING_MARKER) ||
+            pass.startsWith(OLD_PASSWORD_ENCODING_MARKER) || pass.startsWith(WDT_PASSWORD_ENCRYPTION_MARKER);
+
+        LOGGER.exiting(CLASS, METHOD, isEncoded);
+        return isEncoded;
     }
 
     private int getIntegerFieldConfiguration(String fieldName) {

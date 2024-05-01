@@ -348,6 +348,7 @@ class DomainCreator(Creator):
             self.wlst_helper.add_template(custom_template)
 
         topology_folder_list = self.aliases.get_model_topology_top_level_folder_names()
+        topology_folder_list.remove(SECURITY)
 
         resources_dict = self.model.get_model_resources()
         jdbc_names = self.topology_helper.create_placeholder_jdbc_resources(resources_dict)
@@ -375,6 +376,7 @@ class DomainCreator(Creator):
         # as it would require a updatedomain and reopen. If reported, revisit this
         # known issue
         self.__apply_base_domain_config(topology_folder_list, fmw_ds_names, delete=True)
+        self.__create_security_folder()
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def __create_base_domain_with_select_template(self, domain_home):
