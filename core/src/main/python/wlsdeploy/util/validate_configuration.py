@@ -1,5 +1,5 @@
 """
-Copyright (c) 2022, 2023, Oracle and/or its affiliates.
+Copyright (c) 2022, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -31,6 +31,7 @@ class ValidateConfiguration(object):
         self._allow_unresolved_secret_tokens = False
         self._allow_unresolved_variable_tokens = False
         self._allow_version_invalid_attributes = True  # Jira WDT-724
+        self._disregard_version_invalid_elements = False
 
         if key == LAX_METHOD:
             # almost no checks on archive, tokens, etc.
@@ -94,7 +95,16 @@ class ValidateConfiguration(object):
         """
         return self._allow_version_invalid_attributes
 
+    def disregard_version_invalid_attributes(self):
+        """
+        Returns True if version-invalid folders and attributes should be completely overlooked during validation.
+        Callers should not log messages at any level.
+        """
+        return self._disregard_version_invalid_elements
+
+    #################################
     # set methods - use with caution
+    #################################
 
     def set_allow_unresolved_archive_references(self, allow):
         """
@@ -102,3 +112,10 @@ class ValidateConfiguration(object):
         For use by tools that use non-lax validation mode, but don't consider archive files.
         """
         self._allow_unresolved_archive_references = allow
+
+    def set_disregard_version_invalid_elements(self, disregard):
+        """
+        Override the pre-defined setting to disregard version-invalid folders and attributes.
+        For use by tools that don't require this check, such as discover.
+        """
+        self._disregard_version_invalid_elements = disregard

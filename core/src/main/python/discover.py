@@ -139,6 +139,7 @@ def __process_args(args):
 
     model_context = model_context_helper.create_context(_program_name, argument_map)
     __validate_discover_passwords_and_security_data_args(model_context, argument_map)
+    model_context.get_validate_configuration().set_disregard_version_invalid_elements(True)
     return model_context
 
 
