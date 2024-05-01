@@ -4,8 +4,15 @@ Licensed under the Universal Permissive License v1.0 as shown at https://oss.ora
 
 Module that contains the class for working with DefaultAuthenticator LDIFT files.
 """
+import os
+
+from java.lang import String
+
+from oracle.weblogic.deploy.encrypt import EncryptionException
+from oracle.weblogic.deploy.encrypt import EncryptionUtils
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 
+from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases.model_constants import DEFAULT_AUTHENTICATOR
 from wlsdeploy.aliases.model_constants import DEFAULT_AUTHENTICATOR_USER_ATTRIBUTE_KEYS
 from wlsdeploy.aliases.model_constants import DESCRIPTION
@@ -15,6 +22,7 @@ from wlsdeploy.aliases.model_constants import USER_ATTRIBUTES
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.util import path_helper
 from wlsdeploy.util import string_utils
 from wlsdeploy.util import unicode_helper as str_helper
 from wlsdeploy.util.ldift_helper import LdiftBase
@@ -188,14 +196,17 @@ class DefaultAuthenticatorLdiftEntry(object):
 class DefaultAuthenticatorLdift(LdiftBase):
     __class_name = 'DefaultAuthenticatorLdift'
     __DEFAULT_GROUPS_DICT = None
+    __DEFAULT_USER_LIST = [ 'weblogic', 'OracleSystemUser', 'LCMUser' ]
+    __WLS_ENCRYPTION_MARKERS = [ '{AES}', '{AES256}' ]
 
-    def __init__(self, ldift_file_name, model_context, exception_type=ExceptionType.DISCOVER):
+    def __init__(self, ldift_file_name, model_context, exception_type=ExceptionType.DISCOVER, download_temporary_dir=None):
         LdiftBase.__init__(self, exception_type)
 
         self._ldift_file_name = ldift_file_name
         self._model_context = model_context
         self._weblogic_helper = model_context.get_weblogic_helper()
         self._ldift_entries = self.read_ldift_file(ldift_file_name)
+        self._download_temporary_dir = download_temporary_dir
 
 
     # Override
@@ -211,8 +222,7 @@ class DefaultAuthenticatorLdift(LdiftBase):
         _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=entries)
         return entries
 
-    # Cannot filter built-in users because of their passwords...
-    def get_users_dictionary(self):
+    def get_users_dictionary(self, filter_defaults=False):
         _method_name = 'get_users_dictionary'
         _logger.entering(class_name=self.__class_name, method_name=_method_name)
 
@@ -220,7 +230,10 @@ class DefaultAuthenticatorLdift(LdiftBase):
         for ldift_entry in self._ldift_entries:
             if ldift_entry.is_user_entry():
                 user_name = ldift_entry.get_user_name()
-                user_password = ldift_entry.get_user_password()
+                if filter_defaults and user_name in self.__DEFAULT_USER_LIST:
+                    continue
+
+                user_password = self._get_encrypted_password(user_name, ldift_entry.get_user_password())
                 user_description = ldift_entry.get_user_description()
                 user_groups_names = ldift_entry.get_user_group_memberships().keys()
                 user_attributes_dict = ldift_entry.get_user_attributes()
@@ -342,3 +355,66 @@ class DefaultAuthenticatorLdift(LdiftBase):
 
         _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result
+
+    def _get_encrypted_password(self, user_name, password):
+        _method_name = '_get_new_encrypted_password'
+        _logger.entering(user_name, class_name=self.__class_name, method_name=_method_name)
+
+        result = password
+        if self._is_encrypted_password(password):
+            wdt_encryption_passphrase = self._model_context.get_encryption_passphrase()
+            store_in_cipher_text = self._model_context.is_encrypt_discovered_passwords()
+            if wdt_encryption_passphrase is not None or not store_in_cipher_text:
+                base_dir = self._get_domain_decryption_base_dir()
+                result = self._weblogic_helper.decrypt(password, base_dir)
+                if store_in_cipher_text:
+                    encryption_passphrase = String(wdt_encryption_passphrase).toCharArray()
+                    try:
+                        result = EncryptionUtils.encryptString(result, encryption_passphrase)
+                    except EncryptionException,ee:
+                        ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-07115',
+                                                               user_name, ee.getLocalizedMessage(), error=ee)
+                        _logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                        raise ex
+            else:
+                _logger.warning('WLSDPLY-07114', user_name, PASSWORD_TOKEN,
+                                class_name=self.__class_name, method_name=_method_name)
+                result = PASSWORD_TOKEN
+
+        _logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return result
+
+    def _is_encrypted_password(self, password):
+        result = False
+        for encryption_marker in self.__WLS_ENCRYPTION_MARKERS:
+            if password.startswith(encryption_marker):
+                result = True
+                break
+        return result
+
+    def _get_domain_decryption_base_dir(self):
+        _method_name = '_get_domain_decryption_base_dir'
+        _logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        if self._model_context.is_ssh():
+            base_dir = self._download_temporary_dir
+            # need to download the SSI.dat file to support decryption
+            self._ensure_salt_file_downloaded(base_dir)
+        else:
+            base_dir = self._model_context.get_domain_home()
+
+        _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=base_dir)
+        return base_dir
+
+    def _ensure_salt_file_downloaded(self, base_dir):
+        _method_name = '_ensure_salt_file_downloaded'
+        _logger.entering(base_dir, class_name=self.__class_name, method_name=_method_name)
+
+        helper = path_helper.get_path_helper()
+        domain_home = self._model_context.get_domain_home()
+        local_salt_file_name = helper.local_join(base_dir, 'security', 'SerializedSystemIni.dat')
+        remote_salt_file_name = helper.remote_join(domain_home, 'security', 'SerializedSystemIni.dat')
+        if not os.path.exists(local_salt_file_name):
+            helper.download_file_from_remote_server(self._model_context, remote_salt_file_name, base_dir, 'security')
+
+        _logger.exiting(class_name=self.__class_name, method_name=_method_name)

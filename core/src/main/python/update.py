@@ -60,10 +60,10 @@ __optional_arguments = [
     CommandLineArgUtil.ADMIN_PASS_SWITCH,
     CommandLineArgUtil.ADMIN_PASS_FILE_SWITCH,
     CommandLineArgUtil.ADMIN_PASS_ENV_SWITCH,
-    CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
     CommandLineArgUtil.PASSPHRASE_SWITCH,
     CommandLineArgUtil.PASSPHRASE_ENV_SWITCH,
     CommandLineArgUtil.PASSPHRASE_FILE_SWITCH,
+    CommandLineArgUtil.PASSPHRASE_PROMPT_SWITCH,
     CommandLineArgUtil.CANCEL_CHANGES_IF_RESTART_REQ_SWITCH,
     CommandLineArgUtil.OUTPUT_DIR_SWITCH,
     CommandLineArgUtil.UPDATE_RCU_SCHEMA_PASS_SWITCH,
@@ -82,6 +82,8 @@ __optional_arguments = [
     CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_ENV_SWITCH,
     CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_FILE_SWITCH,
     CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH
+    # deprecated in 4.2.0
+    CommandLineArgUtil.USE_ENCRYPTION_SWITCH
 ]
 
 

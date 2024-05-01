@@ -148,7 +148,7 @@ def process_encryption_args(optional_arg_map):
     """
     _method_name = '__process_encryption_args'
 
-    if CommandLineArgUtil.USE_ENCRYPTION_SWITCH in optional_arg_map and \
+    if CommandLineArgUtil.PASSPHRASE_PROMPT_SWITCH in optional_arg_map and \
             CommandLineArgUtil.PASSPHRASE_SWITCH not in optional_arg_map:
         try:
             passphrase = getcreds.getpass('WLSDPLY-20002')

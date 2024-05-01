@@ -72,10 +72,12 @@ class CommandLineArgUtil(object):
     PASSPHRASE_SWITCH          = '-passphrase'
     PASSPHRASE_ENV_SWITCH      = '-passphrase_env'
     PASSPHRASE_FILE_SWITCH     = '-passphrase_file'
+    PASSPHRASE_PROMPT_SWITCH   = '-passphrase_prompt'
     ENCRYPT_MANUAL_SWITCH      = '-manual'
     # phony arg used as a key to store the password
     ONE_PASS_SWITCH            = '-password'
     CANCEL_CHANGES_IF_RESTART_REQ_SWITCH = '-cancel_changes_if_restart_required'
+    # deprecated in 4.2.0 and replaced with -passphrase_prompt
     USE_ENCRYPTION_SWITCH      = '-use_encryption'
     RUN_RCU_SWITCH             = '-run_rcu'
     TARGET_VERSION_SWITCH      = '-target_version'
@@ -126,12 +128,14 @@ class CommandLineArgUtil(object):
         RUN_RCU_SWITCH,
         UPDATE_RCU_SCHEMA_PASS_SWITCH,
         DISCARD_CURRENT_EDIT_SWITCH,
-        USE_ENCRYPTION_SWITCH,
         REMOTE_SWITCH,
         WAIT_FOR_EDIT_LOCK_SWITCH,
         SSH_PASS_PROMPT_SWITCH,
         SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH,
-        DISCOVER_PASSWORDS_SWITCH
+        DISCOVER_PASSWORDS_SWITCH,
+        PASSPHRASE_PROMPT_SWITCH,
+        # deprecated in 4.2.0
+        USE_ENCRYPTION_SWITCH
     ]
 
     # a slot to stash the parsed domain typedef dictionary
@@ -319,7 +323,13 @@ class CommandLineArgUtil(object):
                 full_path = self._validate_variable_injector_file_arg(value)
                 self._add_arg(key, full_path, True)
             elif self.is_boolean_switch(key):
-                self._add_arg(key, True)
+                if key == CommandLineArgUtil.USE_ENCRYPTION_SWITCH:
+                    _logger.deprecation('WLSDPLY-22000', CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
+                                        CommandLineArgUtil.PASSPHRASE_PROMPT_SWITCH,
+                                        class_name=self._class_name, method_name=method_name)
+                    self._add_arg(CommandLineArgUtil.PASSPHRASE_PROMPT_SWITCH, True)
+                else:
+                    self._add_arg(key, True)
             elif self.is_compare_model_output_dir_switch(key):
                 value, idx = self._get_arg_value(args, idx)
                 full_path = self._validate_compare_model_output_dir_arg(value)

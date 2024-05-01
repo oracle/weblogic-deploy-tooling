@@ -86,9 +86,9 @@ class ModelContext(object):
         self._variable_file_name = None
         self._run_rcu = False
         self._encryption_passphrase = None
+        self._encryption_passphrase_prompt = False
         self._encrypt_manual = False
         self._encrypt_one_pass = None
-        self._use_encryption = False
         self._wl_version = None
         self._remote_wl_version = None
         self._wlst_mode = None
@@ -269,6 +269,9 @@ class ModelContext(object):
         if CommandLineArgUtil.PASSPHRASE_SWITCH in arg_map:
             self._encryption_passphrase = arg_map[CommandLineArgUtil.PASSPHRASE_SWITCH]
 
+        if CommandLineArgUtil.PASSPHRASE_PROMPT_SWITCH in arg_map:
+            self._encryption_passphrase_prompt = arg_map[CommandLineArgUtil.PASSPHRASE_PROMPT_SWITCH]
+
         if CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH in arg_map:
             self._encrypt_manual = arg_map[CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH]
 
@@ -277,9 +280,6 @@ class ModelContext(object):
 
         if CommandLineArgUtil.CANCEL_CHANGES_IF_RESTART_REQ_SWITCH in arg_map:
             self._cancel_changes_if_restart_required = arg_map[CommandLineArgUtil.CANCEL_CHANGES_IF_RESTART_REQ_SWITCH]
-
-        if CommandLineArgUtil.USE_ENCRYPTION_SWITCH in arg_map:
-            self._use_encryption = arg_map[CommandLineArgUtil.USE_ENCRYPTION_SWITCH]
 
         if CommandLineArgUtil.ARCHIVE_FILE in arg_map:
             self._archive_file = arg_map[CommandLineArgUtil.ARCHIVE_FILE]
@@ -399,14 +399,14 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.DOMAIN_TYPEDEF] = self._domain_typedef
         if self._encryption_passphrase is not None:
             arg_map[CommandLineArgUtil.PASSPHRASE_SWITCH] = self._encryption_passphrase
+        if self._encryption_passphrase_prompt is not None:
+            arg_map[CommandLineArgUtil.PASSPHRASE_PROMPT_SWITCH] = self._encryption_passphrase_prompt
         if self._encrypt_manual is not None:
             arg_map[CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH] = self._encrypt_manual
         if self._encrypt_one_pass is not None:
             arg_map[CommandLineArgUtil.ONE_PASS_SWITCH] = self._encrypt_one_pass
         if self._cancel_changes_if_restart_required is not None:
             arg_map[CommandLineArgUtil.CANCEL_CHANGES_IF_RESTART_REQ_SWITCH] = self._cancel_changes_if_restart_required
-        if self._use_encryption is not None:
-            arg_map[CommandLineArgUtil.USE_ENCRYPTION_SWITCH] = self._use_encryption
         if self._archive_file is not None:
             arg_map[CommandLineArgUtil.ARCHIVE_FILE] = self._archive_file
         if self._opss_wallet_passphrase is not None:
@@ -810,7 +810,7 @@ class ModelContext(object):
         Get whether the model is using encryption.
         :return: whether the model is using encryption
         """
-        return self._use_encryption
+        return self._encryption_passphrase is not None
 
     def get_local_wls_version(self):
         """

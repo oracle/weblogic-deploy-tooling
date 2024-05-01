@@ -69,7 +69,8 @@ class SecurityProviderDataDiscoverer(Discoverer):
         _method_name = 'discover'
         _logger.entering(security_provider_map, class_name=_class_name, method_name=_method_name)
 
-        if self._wlst_mode == WlstModes.OFFLINE or not self._model_context.is_discover_security_provider_data() or \
+        if self._wlst_mode == WlstModes.OFFLINE or self._model_context.is_remote() or \
+                not self._model_context.is_discover_security_provider_data() or \
                 security_provider_map is None:
             _logger.exiting(class_name=_class_name, method_name=_method_name)
             return
@@ -105,7 +106,10 @@ class SecurityProviderDataDiscoverer(Discoverer):
 
         if default_authentication_provider_names is not None:
             props = Properties()
-            props.setProperty('passwords', 'cleartext')
+            # Do not set the passwords property to cleartext since there is a bug in every pre-14.1.2
+            # version that will make this generate bad hashed passwords.
+            #
+            # props.setProperty('passwords', 'cleartext')
 
             location = LocationContext(self._default_realm_location)
             location.append_location(AUTHENTICATION_PROVIDER)
@@ -139,8 +143,14 @@ class SecurityProviderDataDiscoverer(Discoverer):
         else:
             local_file = export_file
 
-        default_authenticator = \
-            DefaultAuthenticatorLdift(local_file, self._model_context, exception_type=ExceptionType.DISCOVER)
+        if self._model_context.is_ssh():
+            default_authenticator = \
+                DefaultAuthenticatorLdift(local_file, self._model_context, exception_type=ExceptionType.DISCOVER,
+                                          ssh_download_dir=self.download_temporary_dir)
+        else:
+            default_authenticator = \
+                DefaultAuthenticatorLdift(local_file, self._model_context, exception_type=ExceptionType.DISCOVER)
+
         users = default_authenticator.get_users_dictionary()
         groups = default_authenticator.get_groups_dictionary()
         if users or groups:
@@ -360,7 +370,7 @@ class SecurityProviderDataDiscoverer(Discoverer):
             try:
                 export_dir_file = FileUtils.createTempDirectory('wdt_export_temp')
                 # comment out this line to see exported files...
-                export_dir_file.deleteOnExit()
+                # export_dir_file.deleteOnExit()
             except IOException, e:
                 ex = exception_helper.create_discover_exception('WLSDPLY-06903',
                                                                 e.getLocalizedMessage(), error=e)
