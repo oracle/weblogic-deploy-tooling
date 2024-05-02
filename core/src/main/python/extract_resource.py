@@ -53,10 +53,11 @@ __optional_arguments = [
 ]
 
 
-def __process_args(args):
+def __process_args(args, is_encryption_supported):
     """
     Process the command-line arguments and prompt the user for any missing information
     :param args: the command-line arguments list
+    :param is_encryption_supported: whether WDT encryption is supported by the JVM
     :raises CLAException: if an error occurs while validating and processing the command-line arguments
     """
     _method_name = '__process_args'
@@ -72,7 +73,7 @@ def __process_args(args):
 
     cla_helper.validate_required_model(_program_name, argument_map)
     cla_helper.validate_variable_file_exists(_program_name, argument_map)
-    cla_helper.process_encryption_args(argument_map)
+    cla_helper.process_encryption_args(argument_map, is_encryption_supported)
 
     # allow unresolved tokens and entries
     argument_map[CommandLineArgUtil.VALIDATION_METHOD] = validate_configuration.LAX_METHOD

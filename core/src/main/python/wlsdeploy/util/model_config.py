@@ -62,6 +62,8 @@ USE_SERVER_VERSION_FOR_ONLINE_OPERATIONS_PROP='use.server.version.for.online.ope
 USE_SERVER_VERSION_FOR_ONLINE_OPERATIONS_DEFAULT='true'
 STORE_DISCOVERED_PASSWORDS_IN_CLEAR_TEXT_PROP='store.discovered.passwords.in.clear.text'
 STORE_DISCOVERED_PASSWORDS_IN_CLEAR_TEXT_DEFAULT='false'
+STORE_DISCOVER_ADMIN_CREDENTIALS_PROP='store.discover.admin_credentials'
+STORE_DISCOVER_ADMIN_CREDENTIALS_DEFAULT='true'
 
 # System Property overrides for WLST timeout properties
 SYS_PROP_PREFIX = 'wdt.config.'
@@ -232,6 +234,15 @@ class ModelConfiguration(object):
         """
         return self._get_from_dict_as_boolean(STORE_DISCOVERED_PASSWORDS_IN_CLEAR_TEXT_PROP,
                                               STORE_DISCOVERED_PASSWORDS_IN_CLEAR_TEXT_DEFAULT)
+
+    def get_store_discover_admin_credentials(self):
+        """
+        When performing online discovery of security provider data, should the
+        model's admin credentials be populated from supplied command-line arguments?
+        :return:
+        """
+        return self._get_from_dict_as_boolean(STORE_DISCOVER_ADMIN_CREDENTIALS_PROP,
+                                              STORE_DISCOVER_ADMIN_CREDENTIALS_DEFAULT)
 
     def _get_from_dict(self, name, default_value=None):
         _method_name = '_get_from_dict'

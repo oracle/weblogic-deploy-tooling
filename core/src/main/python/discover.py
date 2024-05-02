@@ -10,6 +10,7 @@ import sys
 from java.io import File
 from java.lang import IllegalArgumentException
 from java.lang import IllegalStateException
+from java.lang import System
 from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.discover import DiscoverException
 from oracle.weblogic.deploy.json import JsonException
@@ -53,7 +54,6 @@ from wlsdeploy.util import cla_utils
 from wlsdeploy.util import env_helper
 from wlsdeploy.util import model_translator
 from wlsdeploy.util import path_helper
-from wlsdeploy.util import string_utils
 from wlsdeploy.util import tool_main
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.cla_utils import TOOL_TYPE_DISCOVER
@@ -113,10 +113,11 @@ __optional_arguments = [
 ]
 
 
-def __process_args(args):
+def __process_args(args, is_encryption_supported):
     """
     Process the command-line arguments and prompt the user for any missing information
     :param args: the command-line arguments list
+    :param is_encryption_supported: whether WDT encryption is supported by the JVM
     :raises CLAException: if an error occurs while validating and processing the command-line arguments
     """
     global __wlst_mode
@@ -128,7 +129,7 @@ def __process_args(args):
     cla_helper.validate_if_domain_home_required(_program_name, argument_map, __wlst_mode)
     cla_helper.validate_ssh_is_supported(_program_name, argument_map)
     if __wlst_mode == WlstModes.ONLINE:
-        cla_helper.process_encryption_args(argument_map)
+        cla_helper.process_encryption_args(argument_map, is_encryption_supported)
 
     target_configuration_helper.process_target_arguments(argument_map)
     __process_model_arg(argument_map)
@@ -138,7 +139,7 @@ def __process_args(args):
     __process_domain_home(argument_map, __wlst_mode)
 
     model_context = model_context_helper.create_context(_program_name, argument_map)
-    __validate_discover_passwords_and_security_data_args(model_context, argument_map)
+    __validate_discover_passwords_and_security_data_args(model_context, argument_map, is_encryption_supported)
     model_context.get_validate_configuration().set_disregard_version_invalid_elements(True)
     return model_context
 
@@ -268,7 +269,7 @@ def __process_domain_home(arg_map, wlst_mode):
         arg_map[CommandLineArgUtil.DOMAIN_HOME_SWITCH] = full_path
 
 
-def __validate_discover_passwords_and_security_data_args(model_context, argument_map):
+def __validate_discover_passwords_and_security_data_args(model_context, argument_map, is_encryption_supported):
     _method_name = '__validate_discover_passwords_and_security_data_args'
     if model_context.is_discover_passwords():
         # -remote cannot be supported because we need access to SSI.dat
@@ -286,7 +287,7 @@ def __validate_discover_passwords_and_security_data_args(model_context, argument
                                                        CommandLineArgUtil.REMOTE_SWITCH)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
-    elif model_context.get_get_encryption_passphrase() is not None:
+    elif model_context.get_encryption_passphrase() is not None:
         # Don't allow the passphrase arg unless we are discovering passwords or security provider data.
         if CommandLineArgUtil.PASSPHRASE_ENV_SWITCH in argument_map:
             bad_arg = CommandLineArgUtil.PASSPHRASE_ENV_SWITCH
@@ -306,9 +307,10 @@ def __validate_discover_passwords_and_security_data_args(model_context, argument
 
     if model_context.is_discover_passwords() and model_context.is_encrypt_discovered_passwords():
         # With -discover_passwords, we always need the WDT encryption passphrase and JDK8 or above.
-        if not string_utils.is_java_version_or_above('1.8.0'):
+        if not is_encryption_supported:
             ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-06057',
-                                                       _program_name, CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH)
+                                                       _program_name, CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH,
+                                                       System.getProperty('java.version'))
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 

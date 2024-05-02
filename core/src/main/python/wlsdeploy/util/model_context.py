@@ -85,6 +85,7 @@ class ModelContext(object):
         self._model_file = None
         self._variable_file_name = None
         self._run_rcu = False
+        self._is_encryption_supported = True
         self._encryption_passphrase = None
         self._encryption_passphrase_prompt = False
         self._encrypt_manual = False
@@ -805,12 +806,18 @@ class ModelContext(object):
         """
         return self._encrypt_one_pass
 
+    def is_encryption_supported(self):
+        return self._is_encryption_supported
+
+    def set_encryption_supported(self, is_encryption_supported):
+        self._is_encryption_supported = is_encryption_supported
+
     def is_using_encryption(self):
         """
         Get whether the model is using encryption.
         :return: whether the model is using encryption
         """
-        return self._encryption_passphrase is not None
+        return self.is_encryption_supported() and self._encryption_passphrase is not None
 
     def get_local_wls_version(self):
         """
@@ -1235,7 +1242,7 @@ class ModelContext(object):
         Whether to encrypt discovered passwords
         :return:
         """
-        return not self._model_config.get_store_discovered_passwords_in_clear_text()
+        return self.is_encryption_supported() and not self._model_config.get_store_discovered_passwords_in_clear_text()
 
     def is_discover_security_provider_data(self):
         return self._discover_security_provider_data is not None and len(self._discover_security_provider_data) > 0

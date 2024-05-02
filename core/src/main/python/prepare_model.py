@@ -1,11 +1,9 @@
-# Copyright (c) 2020, 2023, Oracle and/or its affiliates.
-# Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
-#
-# ------------
-# Description:
-# ------------
-#
-#   This code prepare a list of models for deploying to WebLogic Kubernetes Operator Environment.
+"""
+Copyright (c) 2020, 2024, Oracle and/or its affiliates.
+Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
+
+This code prepare a list of models for deploying to WebLogic Kubernetes Operator Environment.
+"""
 
 import sys
 
@@ -39,10 +37,11 @@ __optional_arguments = [
 ]
 
 
-def __process_args(args):
+def __process_args(args, is_encryption_supported):
     """
     Process the command-line arguments.
     :param args: the command-line arguments list
+    :param is_encryption_supported: whether WDT encryption is supported by the JVM
     :raises CLAException: if an error occurs while validating and processing the command-line arguments
     """
     _method_name = '__process_args'

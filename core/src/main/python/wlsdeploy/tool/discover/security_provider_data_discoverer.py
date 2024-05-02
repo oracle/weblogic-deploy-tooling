@@ -8,7 +8,10 @@ from java.util import Properties
 from oracle.weblogic.deploy.discover import DiscoverException
 from oracle.weblogic.deploy.util import FileUtils
 
+from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
+from wlsdeploy.aliases.model_constants import ADMIN_USERNAME
 from wlsdeploy.aliases.model_constants import AUTHENTICATION_PROVIDER
 from wlsdeploy.aliases.model_constants import AUTHORIZER
 from wlsdeploy.aliases.model_constants import CREDENTIAL_MAPPER
@@ -30,6 +33,8 @@ from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.discoverer import Discoverer
+from wlsdeploy.tool.encrypt import encryption_utils
+from wlsdeploy.util import string_utils
 from wlsdeploy.util import unicode_helper as str_helper
 from wlsdeploy.util.default_authenticator_ldift_helper import DefaultAuthenticatorLdift
 from wlsdeploy.util.xacml_authorization_ldift_helper import XacmlAuthorizerLdift
@@ -88,6 +93,7 @@ class SecurityProviderDataDiscoverer(Discoverer):
         finally:
             self._clean_up_tmp_directories()
 
+        self._populate_admin_user_and_password()
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
     def _discover_default_authenticator_data(self):
@@ -311,6 +317,26 @@ class SecurityProviderDataDiscoverer(Discoverer):
         self._export_provider_data(provider_name, CREDENTIAL_MAPPER, DEFAULT_CREDENTIAL_MAPPER, provider_mbean,
                                    'DefaultCreds', export_file, props)
         # FIXME parse file, add to model
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+    def _populate_admin_user_and_password(self):
+        _method_name = '_populate_admin_user_and_password'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+
+        if self._model_context.get_model_config().get_store_discover_admin_credentials():
+            self._domain_info_dictionary[ADMIN_USERNAME] = self._model_context.get_admin_user()
+
+            if self._model_context.is_encrypt_discovered_passwords():
+                passphrase = self._model_context.get_encryption_passphrase()
+                if not string_utils.is_empty(passphrase):
+                    self._domain_info_dictionary[ADMIN_PASSWORD] = \
+                        encryption_utils.encrypt_one_password(passphrase, self._model_context.get_admin_password())
+                else:
+                    _logger.warning('WLSDPLY-06915', ADMIN_PASSWORD, PASSWORD_TOKEN,
+                                    class_name=_class_name, method_name=_method_name)
+            else:
+                self._domain_info_dictionary[ADMIN_PASSWORD] = self._model_context.get_admin_password()
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
