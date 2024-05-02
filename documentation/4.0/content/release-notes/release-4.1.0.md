@@ -1,12 +1,12 @@
 +++
-title = "Release Notes"
+title = "Release 4.1.0"
 date = 2024-01-09T18:27:38-05:00
-weight = 71
+weight = 72
 pre = "<b> </b>"
 +++
 
 
-### Changes in Release 4.1.1
+### Changes in Release 4.1.0
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -17,19 +17,10 @@ pre = "<b> </b>"
 None
 
 #### Other Changes
-- #1685 - Filtered out the default `OptionalFeatures` folders when they have no attributes so that they do not show up
-          in the online discovered model.
+- #1668 - Added new discover passwords feature that allows the user to discover passwords and store them in the model in encrypted format.
 
 #### Bug Fixes
-- #1677 - Fixed a bug where creating a user with extra attributes would result in invalid LDIFT entries.
-- #1678 - Fixed a bug that was causing errors when deploying a new application and the server required a restart.
-- #1679 - Fixed a bug where the SSHJ libraries (that only work with JDK 8 and above) were causing the tools to fail
-          when running with JDK 7.
-- #1680 - Fixed the `DataSourceLogFile` and `WebServerLog` folders default value for the `DateFormatPattern` attribute
-          for WLS versions prior to 12.2.1 so that they no longer show up in the online discovered model.
-- #1681 - Worked around a pre-12.2.1 WLST bug that was preventing the online tools from determining the server's WLS version.
-- #1683 - Fixed a bug with the Model Help Tool where our use of JLine libraries (that only work with JDK 8 and above)
-          were causing the Model Help tool to fail when run with JDK 7.
+- #1675 - Fixed a bug with replacing environment variable tokens on Windows.
 
 #### Known Issues
 - SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
