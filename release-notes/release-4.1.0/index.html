@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Hugo 0.82.0" />
-    <meta name="description" content="A model for configuring Oracle HTTP Server (OHS).">
+    <meta name="description" content="">
 
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Configuring Oracle HTTP Server :: WebLogic Deploy Tooling</title>
+    <title>Release 4.1.0 :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1714612671" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/samples/ohs-model/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-4.1.0/">
     <nav id="sidebar" class="">
 
 
@@ -841,7 +841,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/samples/" title="Samples" class="dd-item
-        parent
+        
         
         
         ">
@@ -1077,7 +1077,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/samples/ohs-model/" title="Configuring Oracle HTTP Server" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/samples/ohs-model/" title="Configuring Oracle HTTP Server" class="dd-item ">
         <a href="/weblogic-deploy-tooling/samples/ohs-model/">
         Configuring Oracle HTTP Server
         
@@ -1329,7 +1329,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
-        
+        parent
         
         
         ">
@@ -1355,7 +1355,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.1.0/" title="Release 4.1.0" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.1.0/" title="Release 4.1.0" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-4.1.0/">
         <b> </b>Release 4.1.0
         
@@ -1993,7 +1993,7 @@
             
           
           
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/samples/'>Samples</a> > Configuring Oracle HTTP Server
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release 4.1.0
           
         
           
@@ -2010,7 +2010,7 @@
   <ul>
     <li>
       <ul>
-        <li></li>
+        <li><a href="#changes-in-release-410">Changes in Release 4.1.0</a></li>
       </ul>
     </li>
   </ul>
@@ -2030,43 +2030,47 @@
           
             <h1>
               
-              Configuring Oracle HTTP Server
+              Release 4.1.0
             </h1>
           
 
         
 
 
-<p>Starting with WDT 1.8.0, you can configure and update Oracle HTTP Server (OHS) using the Create Domain, Update Domain, and Deploy Applications Tools, in offline mode only. To discover the OHS configuration, use the Discover Domain Tool, in offline mode only. <strong>NOTE</strong>: The Deploy Applications Tool is deprecated in WDT 4.0.0.</p>
-<h4 id="prerequisites">Prerequisites</h4>
-<p>In order to configure and use OHS, it must be installed in the Oracle Home directory used to create the domain. You can download OHS <a href="https://www.oracle.com/middleware/technologies/webtier-downloads.html">here</a>.</p>
-<p>The OHS template must be present in the WDT domain type definition file used to create or update the domain. For more information on creating a custom definition, see <a href="/weblogic-deploy-tooling/userguide/tools-config/domain_def/">Domain type definitions</a>.</p>
-<p>You create a copy of an existing domain type definition file, add the template to that file, and then reference that file on the WDT command line. For example, if you want to create a domain with Oracle HTTP Server based on a Restricted JRF domain, then you would first create a copy of the file <code>WLSDEPLOY_HOME/lib/typedefs/RestrictedJRF.json</code> in the same directory, such as <code>WLSDEPLOY_HOME/lib/typedefs/HttpServer.json</code>. In this example, you would change the existing <code>extensionTemplates</code> section to include the additional OHS template. The original value is:</p>
-<pre><code>&quot;extensionTemplates&quot;: [ &quot;Oracle Restricted JRF&quot;, &quot;Oracle Enterprise Manager-Restricted JRF&quot; ],
-</code></pre><p>The revised value would be:</p>
-<pre><code>&quot;extensionTemplates&quot;: [ &quot;Oracle Restricted JRF&quot;, &quot;Oracle Enterprise Manager-Restricted JRF&quot;, &quot;Oracle HTTP Server (Restricted JRF)&quot; ],
-</code></pre><p>The file name of this new domain type (without the <code>.json</code> extension) is used with the <code>-domain_type</code> argument on the WDT command line. For example, the command line to create a domain using the <code>HttpServer.json</code> file from the previous steps would look like:</p>
-<pre><code>$ WLSDEPLOY_HOME/bin/createDomain -oracle_home /etc/oracle ... -domain_type HttpServer
-</code></pre><h4 id="configuring-the-model">Configuring the model</h4>
-<p>Configuring OHS typically involves adding two top-level folders to the <code>resources</code> section of the model, <code>SystemComponent</code> and <code>OHS</code>. Here is an example:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">resources</span>:
-    <span style="color:#f92672">SystemComponent</span>:
-        <span style="color:#f92672">my-ohs</span>:
-            <span style="color:#f92672">ComponentType</span>: <span style="color:#ae81ff">OHS</span>
-            <span style="color:#f92672">Machine</span>: <span style="color:#ae81ff">my-machine</span>
-    <span style="color:#f92672">OHS</span>:
-        <span style="color:#f92672">my-ohs</span>:
-            <span style="color:#f92672">AdminHost</span>: <span style="color:#ae81ff">127.0.0.1</span>
-            <span style="color:#f92672">AdminPort</span>: <span style="color:#ae81ff">9324</span>
-            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">127.0.0.1</span>
-            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">7323</span>
-            <span style="color:#f92672">SSLListenPort</span>: <span style="color:#ae81ff">4323</span>
-            <span style="color:#f92672">ServerName</span>: <span style="color:#ae81ff">http://localhost:7323</span>
-</code></pre></div><p>Each name under the <code>OHS</code> folder must match a name under the <code>SystemComponent</code> folder in the model, or the name of a <code>SystemComponent</code> element that has been previously created. In this example, the name <code>my-ohs</code> is in both places.</p>
-<p>The <code>ComponentType</code> field of the <code>SystemComponent</code> element must be set to <code>OHS</code> in order to allow configuration of the corresponding <code>OHS</code> folders.</p>
-<p>You can use the <a href="/weblogic-deploy-tooling/userguide/tools/model_help/">Model Help Tool</a> to determine the complete list of folders and attributes that can be used in these sections of the model. For example, this command will list the attributes in the <code>OHS</code> folder:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#e6db74">${</span>WDT_HOME<span style="color:#e6db74">}</span>/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/OHS
-</code></pre></div>
+<h3 id="changes-in-release-410">Changes in Release 4.1.0</h3>
+<ul>
+<li><a href="#major-new-features">Major New Features</a></li>
+<li><a href="#other-changes">Other Changes</a></li>
+<li><a href="#bug-fixes">Bugs Fixes</a></li>
+<li><a href="#known-issues">Known Issues</a></li>
+</ul>
+<h4 id="major-new-features">Major New Features</h4>
+<p>None</p>
+<h4 id="other-changes">Other Changes</h4>
+<ul>
+<li>#1668 - Added new discover passwords feature that allows the user to discover passwords and store them in the model in encrypted format.</li>
+</ul>
+<h4 id="bug-fixes">Bug Fixes</h4>
+<ul>
+<li>#1675 - Fixed a bug with replacing environment variable tokens on Windows.</li>
+</ul>
+<h4 id="known-issues">Known Issues</h4>
+<ul>
+<li>
+<p>SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
+the 12.2.1.4.0 GA release fails with the following error, as mentioned at <a href="https://github.com/hierynomus/sshj/issues/895">https://github.com/hierynomus/sshj/issues/895</a>.
+Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">SEVERE Messages:
+        1. WLSDPLY-20008: verifySSH argument processing failed: Failed to initialize SSH context: Failed to SSH connect to host myhost.oracle.com: no such algorithm: X25519 <span style="color:#66d9ef">for</span> provider BC
+</code></pre></div></li>
+<li>
+<p>SSH support for the Update Domain Tool and Deploy Apps Tool do not work when using an archive file and the remote
+WebLogic Server is running on Windows using the optional, Windows-provided, OpenSSH component.  This is due to an
+issue with the SSHJ library WDT is using.  See <a href="https://github.com/hierynomus/sshj/issues/929">https://github.com/hierynomus/sshj/issues/929</a> for more information.</p>
+</li>
+</ul>
+<p>See <a href="https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/">https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/</a> for the current set of known limitations.</p>
+
 
 <footer class="footline">
 	
@@ -2622,7 +2626,6 @@
             
                 
                     
-                    
                 
                 
 
@@ -2635,9 +2638,6 @@
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2799,7 +2799,6 @@
             
                 
                     
-                    
                 
                 
 
@@ -2815,9 +2814,6 @@
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2982,6 +2978,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -2994,6 +2991,7 @@
             
             
                 
+                    
                     
                 
                 
@@ -3010,6 +3008,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -3450,10 +3451,10 @@
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/samples/odl-model/" title="Configuring Oracle Diagnostic Logging"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/samples/targetservers-model/" title="Targeting server groups" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-4.0.1/" title="Release 4.0.1" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

@@ -484,6 +484,16 @@ Public/private key authentication To verify SSH connectivity using a user&amp;rs
     </item>
     
     <item>
+      <title>Release 4.1.0</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.1.0/</link>
+      <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.1.0/</guid>
+      <description>Changes in Release 4.1.0  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes  #1668 - Added new discover passwords feature that allows the user to discover passwords and store them in the model in encrypted format.  Bug Fixes  #1675 - Fixed a bug with replacing environment variable tokens on Windows.  Known Issues   SSH support requires a reasonably recent version of Bouncy Castle.</description>
+    </item>
+    
+    <item>
       <title>Release 4.0.1</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.0.1/</link>
       <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>
