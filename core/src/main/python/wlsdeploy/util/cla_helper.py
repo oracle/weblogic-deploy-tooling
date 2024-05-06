@@ -139,16 +139,19 @@ def validate_if_domain_home_required(program_name, argument_map, wlst_mode):
                                   class_name=_class_name, method_name=method_name)
 
 
-def process_encryption_args(optional_arg_map):
+def process_encryption_args(optional_arg_map, is_encryption_supported):
     """
     If the user is using model encryption, get the passphrase from stdin, and put it in the argument map.
     If the passphrase switch was specified in the arg map, just use it directly.
     :param optional_arg_map: the optional arguments map
+    :param is_encryption_supported: is the JVM supported the necessary encryption algorithms
     :raises CLAException: if an error occurs reading the passphrase input from the user
     """
     _method_name = '__process_encryption_args'
 
-    if CommandLineArgUtil.USE_ENCRYPTION_SWITCH in optional_arg_map and \
+
+    if is_encryption_supported and \
+            CommandLineArgUtil.PASSPHRASE_PROMPT_SWITCH in optional_arg_map and \
             CommandLineArgUtil.PASSPHRASE_SWITCH not in optional_arg_map:
         try:
             passphrase = getcreds.getpass('WLSDPLY-20002')

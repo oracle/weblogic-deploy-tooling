@@ -1449,7 +1449,7 @@ class Aliases(object):
         :return: the clear text
         :raises EncryptionException: if an error occurs while decrypting the password
         """
-        if text is None or len(str_helper.to_string(text)) == 0 or \
+        if string_utils.is_empty(text) or \
                 (self._model_context and not self._model_context.is_using_encryption()) or \
                 not EncryptionUtils.isEncryptedString(text):
 

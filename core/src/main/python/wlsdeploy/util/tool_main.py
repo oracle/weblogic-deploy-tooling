@@ -7,9 +7,11 @@ import sys
 import traceback
 
 from java.lang import Exception as JException
+from java.lang import System as JSystem
 from java.util.logging import Level as JLevel
 
 from oracle.weblogic.deploy.aliases import VersionUtils
+from oracle.weblogic.deploy.encrypt import EncryptionUtils
 from oracle.weblogic.deploy.logging import DeprecationLevel
 from oracle.weblogic.deploy.logging import WLSDeployLoggingConfig
 from oracle.weblogic.deploy.logging import WLSDeployLogEndHandler
@@ -29,6 +31,10 @@ import wlsdeploy.util.unicode_helper as str_helper
 from wlsdeploy.util.exit_code import ExitCode
 
 _class_name = 'tool_main'
+_java_version = JSystem.getProperty('java.version')
+_os_name = JSystem.getProperty('os.name')
+_os_arch = JSystem.getProperty('os.arch')
+_os_version = JSystem.getProperty('os.version')
 
 def run_tool(main, process_args, args, program_name, class_name, logger):
     """
@@ -45,17 +51,25 @@ def run_tool(main, process_args, args, program_name, class_name, logger):
 
     WebLogicDeployToolingVersion.logVersionInfo(program_name)
     WLSDeployLoggingConfig.logLoggingDirectory(program_name)
+    logger.info('WLSDPLY-20043', args[0], _java_version, __format_os_version(),
+                class_name=class_name, method_name=_method_name)
 
     logger.entering(args[0], class_name=class_name, method_name=_method_name)
     for index, arg in enumerate(args):
         logger.finer('sys.argv[{0}] = {1}', str_helper.to_string(index), str_helper.to_string(arg),
                      class_name=class_name, method_name=_method_name)
 
+    is_encryption_supported = EncryptionUtils.isEncryptionSupported()
+    if is_encryption_supported:
+        logger.info('WLSDPLY-20044', args[0], class_name=class_name, method_name=_method_name)
+    else:
+        logger.info('WLSDPLY-20045', args[0], class_name=class_name, method_name=_method_name)
+
     __initialize_path_helper(program_name)
     model_context_obj = model_context_helper.create_exit_context(program_name)
     try:
-        model_context_obj = process_args(args)
-        __update_model_context(model_context_obj, logger)
+        model_context_obj = process_args(args, is_encryption_supported=is_encryption_supported)
+        __update_model_context(model_context_obj, logger, is_encryption_supported)
         exit_code = main(model_context_obj)
     except CLAException, ex:
         exit_code = ex.getExitCode()
@@ -73,12 +87,15 @@ def run_tool(main, process_args, args, program_name, class_name, logger):
     cla_helper.clean_up_temp_files()
     __exit_tool(model_context_obj, exit_code)
 
+def __format_os_version():
+    return '%s %s (%s)' % (_os_name, _os_version, _os_arch)
+
 
 def __initialize_path_helper(program_name):
     path_helper.initialize_path_helper(exception_helper.get_exception_type_from_program_name(program_name))
 
 
-def __update_model_context(model_context, logger):
+def __update_model_context(model_context, logger, encryption_supported):
     if not model_context.is_initialization_complete():
         remote_version, remote_oracle_home = __get_remote_server_version_and_oracle_home(model_context, logger)
         model_context.complete_initialization(remote_version, remote_oracle_home)
@@ -86,7 +103,7 @@ def __update_model_context(model_context, logger):
         # createDomain needs access to the rcuSchemas list from the typedef during process_args.
         # Since createDomain is always a local operation, re-initialization after process_args completes.
         model_context.get_domain_typedef().finish_initialization(model_context)
-
+    model_context.set_encryption_supported(encryption_supported)
 
 def __get_remote_server_version_and_oracle_home(model_context, logger):
     _method_name = '__check_remote_server_version'

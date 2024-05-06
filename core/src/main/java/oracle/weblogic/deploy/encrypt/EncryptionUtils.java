@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2019, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2017, 2024, Oracle Corporation and/or its affiliates.  All rights reserved.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.encrypt;
@@ -35,6 +35,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * This class provides basic encryption/decryption capabilities.
  */
 public final class EncryptionUtils {
+    public static final String JAVA_VERSION = System.getProperty("java.version");
+
     private static final String CLASS = EncryptionUtils.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.encrypt");
 
@@ -59,6 +61,23 @@ public final class EncryptionUtils {
 
     private EncryptionUtils() {
         // hide the constructor for this utility class
+    }
+
+    public static boolean isEncryptionSupported() {
+        final String METHOD = "isEncryptionSupported";
+        LOGGER.entering(CLASS, METHOD);
+
+        boolean result = true;
+        final String dummyPassphrase = "This is a test passphrase";
+        final String dummyPassword = "This is a test password";
+        try {
+            encryptString(dummyPassword, dummyPassphrase.toCharArray());
+        } catch (EncryptionException e) {
+            result = false;
+        }
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
     }
 
     /**
@@ -105,7 +124,8 @@ public final class EncryptionUtils {
                 } catch (InvalidAlgorithmParameterException | InvalidKeyException |
                     IllegalBlockSizeException | BadPaddingException ex) {
 
-                    EncryptionException ee = new EncryptionException("WLSDPLY-04001", ex, ex.getLocalizedMessage());
+                    EncryptionException ee =
+                        new EncryptionException("WLSDPLY-04001", ex, JAVA_VERSION, ex.getLocalizedMessage());
                     LOGGER.throwing(CLASS, METHOD, ee);
                     throw ee;
                 }
@@ -147,7 +167,8 @@ public final class EncryptionUtils {
             } catch (InvalidKeyException | InvalidAlgorithmParameterException |
                      IllegalBlockSizeException | BadPaddingException ex) {
 
-                EncryptionException ee = new EncryptionException("WLSDPLY-04002", ex, ex.getLocalizedMessage());
+                EncryptionException ee =
+                    new EncryptionException("WLSDPLY-04002", ex, JAVA_VERSION, ex.getLocalizedMessage());
                 LOGGER.throwing(CLASS, METHOD, ee);
                 throw ee;
             }
@@ -162,7 +183,8 @@ public final class EncryptionUtils {
         try {
             factory = SecretKeyFactory.getInstance(SECRET_KEY_FACTORY_ALGORITHM);
         } catch (NoSuchAlgorithmException nsae) {
-            EncryptionException ee = new EncryptionException("WLSDPLY-04003", nsae, nsae.getLocalizedMessage());
+            EncryptionException ee =
+                new EncryptionException("WLSDPLY-04003", nsae, JAVA_VERSION, nsae.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, ee);
             throw ee;
         }
@@ -173,7 +195,8 @@ public final class EncryptionUtils {
             SecretKey tmp = factory.generateSecret(spec);
             result = new SecretKeySpec(tmp.getEncoded(), SECRET_KEY_SPEC_ALGORITHM);
         } catch (InvalidKeySpecException ikse) {
-            EncryptionException ee = new EncryptionException("WLSDPLY-04004", ikse, ikse.getLocalizedMessage());
+            EncryptionException ee =
+                new EncryptionException("WLSDPLY-04004", ikse, JAVA_VERSION, ikse.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, ee);
             throw ee;
         }
@@ -187,7 +210,8 @@ public final class EncryptionUtils {
         try {
             cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         } catch (NoSuchPaddingException | NoSuchAlgorithmException ex) {
-            EncryptionException ee = new EncryptionException("WLSDPLY-04005", ex, ex.getLocalizedMessage());
+            EncryptionException ee =
+                new EncryptionException("WLSDPLY-04005", ex, JAVA_VERSION, ex.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, ee);
             throw ee;
         }

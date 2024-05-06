@@ -1702,7 +1702,7 @@ class WlstHelper(object):
                 self.__load_global('enableJTATLogDBPersistence')(True)
 
         except self.__load_global('WLSTException'), e:
-            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDEPY-00132',
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00132',
                                                     _format_exception(e), error=e)
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
@@ -1721,8 +1721,22 @@ class WlstHelper(object):
                 self.__load_global('enableJMSStoreDBPersistence')(True)
 
         except self.__load_global('WLSTException'), e:
-            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDEPY-00131',
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00131',
                                                     _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def export_security_provider_data(self, provider_mbean, export_format, export_file, export_constraints):
+        _method_name = 'export_security_provider_data'
+        self.__logger.entering(provider_mbean, export_format, export_file, export_constraints,
+                               class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            provider_mbean.exportData(export_format, export_file, export_constraints)
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00135', export_format,
+                                                    export_file, _format_exception(e), error=e)
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)

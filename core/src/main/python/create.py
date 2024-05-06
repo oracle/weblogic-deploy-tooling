@@ -62,7 +62,6 @@ __optional_arguments = [
     CommandLineArgUtil.JAVA_HOME_SWITCH,
     CommandLineArgUtil.RUN_RCU_SWITCH,
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,
-    CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
     CommandLineArgUtil.PASSPHRASE_SWITCH,
     CommandLineArgUtil.PASSPHRASE_ENV_SWITCH,
     CommandLineArgUtil.PASSPHRASE_FILE_SWITCH,
@@ -70,14 +69,18 @@ __optional_arguments = [
     CommandLineArgUtil.OPSS_WALLET_PASSPHRASE,
     CommandLineArgUtil.OPSS_WALLET_FILE_PASSPHRASE,
     CommandLineArgUtil.OPSS_WALLET_ENV_PASSPHRASE,
-    CommandLineArgUtil.UPDATE_RCU_SCHEMA_PASS_SWITCH
+    CommandLineArgUtil.UPDATE_RCU_SCHEMA_PASS_SWITCH,
+    CommandLineArgUtil.PASSPHRASE_PROMPT_SWITCH,
+    # deprecated in 4.2.0
+    CommandLineArgUtil.USE_ENCRYPTION_SWITCH
 ]
 
 
-def __process_args(args):
+def __process_args(args, is_encryption_supported):
     """
     Process the command-line arguments and prompt the user for any missing information
     :param args: the command-line arguments list
+    :param is_encryption_supported: whether WDT encryption is supported by the JVM
     :raises CLAException: if an error occurs while validating and processing the command-line arguments
     """
     cla_util = CommandLineArgUtil(_program_name, __required_arguments, __optional_arguments)
@@ -97,7 +100,7 @@ def __process_args(args):
     domain_typedef = model_context_helper.create_typedef(_program_name, argument_map)
 
     __process_rcu_args(argument_map, domain_typedef.get_domain_type(), domain_typedef)
-    cla_helper.process_encryption_args(argument_map)
+    cla_helper.process_encryption_args(argument_map, is_encryption_supported)
     __process_opss_args(argument_map)
 
     return model_context_helper.create_context(_program_name, argument_map, domain_typedef)

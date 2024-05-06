@@ -2,14 +2,14 @@
 Copyright (c) 2021, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-import re
-
 from java.io import File
 
 from com.octetstring.vde.util import PasswordEncryptor
 from com.bea.security.xacml.cache.resource import ResourcePolicyIdUtil
 from oracle.weblogic.deploy.aliases import TypeUtils
 from oracle.weblogic.deploy.create import CreateException
+from oracle.weblogic.deploy.validate.PasswordValidator import OLD_PASSWORD_ENCODING_MARKER
+from oracle.weblogic.deploy.validate.PasswordValidator import PASSWORD_ENCODING_MARKER
 
 from wlsdeploy.aliases.model_constants import DESCRIPTION
 from wlsdeploy.aliases.model_constants import GROUP
@@ -192,7 +192,6 @@ class DefaultAuthenticatorHelper(object):
 
         password = self._get_required_attribute(user_mapping_section, PASSWORD, USER, name)
         password = self._aliases.decrypt_password(password)
-
         password_encoded = self._encode_password(name, password)
         hash_entry[HASH_USER_PASSWORD] = password_encoded
 
@@ -250,9 +249,8 @@ class DefaultAuthenticatorHelper(object):
                               class_name=self._class_name, method_name=_method_name)
 
             model_password = dictionary_utils.get_element(model_user_dictionary, PASSWORD)
-            if model_password:
-                model_password = self._encode_password(name, model_password)
-                existing_user.update_single_field(LDIFT_PASSWORD, model_password)
+            model_password = self._encode_password(name, model_password)
+            existing_user.update_single_field(LDIFT_PASSWORD, model_password)
 
             model_description = dictionary_utils.get_element(model_user_dictionary, DESCRIPTION)
             if model_description:
@@ -304,17 +302,35 @@ class DefaultAuthenticatorHelper(object):
         :return: the encoded password
         """
         _method_name = '_encode_password'
-        try:
-            if self._using_password_digest:
-                encrypted_pass = self._weblogic_helper.encrypt(password, self._model_context.get_domain_home())
-            else:
-                encrypted_pass = PasswordEncryptor.doSSHA256(password)
-                encrypted_pass = "{ssha256}" + encrypted_pass
-        except Exception, e:
-            ex = exception_helper.create_create_exception('WLSDPLY-01901',user, e.getLocalizedMessage(),
-                                                          error=e)
-            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-            raise ex
+        encrypted_pass = password
+
+        if not password.startswith(PASSWORD_ENCODING_MARKER) and not password.startswith(OLD_PASSWORD_ENCODING_MARKER):
+            try:
+                if self._using_password_digest:
+                    encrypted_pass = self._weblogic_helper.encrypt(password, self._model_context.get_domain_home())
+                else:
+                    encrypted_pass = self._hash_password_for_ldift(password)
+            except Exception, e:
+                ex = exception_helper.create_create_exception('WLSDPLY-01901',user, e.getLocalizedMessage(),
+                                                              error=e)
+                self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
+        return encrypted_pass
+
+    def _hash_password_for_ldift(self, password):
+        """
+        This method abstracts out the differences between older and newer WebLogic releases.
+        :param password: the clear-text password to hash
+        :return: the hashed password string ready to put into the LDIFT file
+        """
+        _method_name = '_hash_password_for_ldift'
+
+        if self._weblogic_helper.is_weblogic_version_or_above('12.2.1'):
+            encrypted_pass = PasswordEncryptor.doSSHA256(password)
+            encrypted_pass = '%s%s' % (PASSWORD_ENCODING_MARKER, encrypted_pass)
+        else:
+            encrypted_pass = PasswordEncryptor.doSSHA(password)
+            encrypted_pass = '%s%s' % (OLD_PASSWORD_ENCODING_MARKER, encrypted_pass)
         return encrypted_pass
 
     def _get_required_attribute(self, dictionary, name, mapping_type, mapping_name):
