@@ -181,6 +181,8 @@ class DefaultAuthenticatorHelper(object):
         :return: template hash map
         :raises: CreateException if the user's password cannot be encoded
         """
+        _method_name = '_build_user_template_hash'
+
         hash_entry = dict()
         hash_entry[HASH_NAME] = name
         group_attributes = user_mapping_section
@@ -249,6 +251,7 @@ class DefaultAuthenticatorHelper(object):
                               class_name=self._class_name, method_name=_method_name)
 
             model_password = dictionary_utils.get_element(model_user_dictionary, PASSWORD)
+            model_password = self._aliases.decrypt_password(model_password)
             model_password = self._encode_password(name, model_password)
             existing_user.update_single_field(LDIFT_PASSWORD, model_password)
 
@@ -302,8 +305,9 @@ class DefaultAuthenticatorHelper(object):
         :return: the encoded password
         """
         _method_name = '_encode_password'
-        encrypted_pass = password
+        self._logger.entering(user,  class_name=self._class_name, method_name=_method_name)
 
+        encrypted_pass = password
         if not password.startswith(PASSWORD_ENCODING_MARKER) and not password.startswith(OLD_PASSWORD_ENCODING_MARKER):
             try:
                 if self._using_password_digest:
@@ -315,6 +319,8 @@ class DefaultAuthenticatorHelper(object):
                                                               error=e)
                 self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
+
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name)
         return encrypted_pass
 
     def _hash_password_for_ldift(self, password):
