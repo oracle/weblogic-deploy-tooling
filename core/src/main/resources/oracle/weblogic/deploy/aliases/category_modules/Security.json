@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
+    "copyright": "Copyright (c) 2017, 2024, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "Security",
     "default_name_value": "%DOMAIN%",
@@ -9,9 +9,9 @@
             "child_folders_type": "multiple",
             "folders": { },
             "attributes": {
-                "Description": [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "Description", "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",   "get_method": "NONE" } ],
+                "Description":    [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "Description",    "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",           "get_method": "NONE" } ],
                 "GroupMemberOf":  [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "GroupMemberOf",  "wlst_path": "WP001", "default_value": null,    "wlst_type": "delimited_string", "get_method": "NONE" } ],
-                "Name":        [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "Name",        "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",   "get_method": "NONE" } ]
+                "Name":           [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "Name",           "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",           "get_method": "NONE" } ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
@@ -33,7 +33,7 @@
                         "departmentnumber":          [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "departmentnumber",         "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",           "get_method": "NONE" } ],
                         "displayname":               [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "displayname",              "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",           "get_method": "NONE" } ],
                         "employeenumber":            [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "employeenumber",           "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",           "get_method": "NONE" } ],
-                        "employeetype":              [  {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "employeetype",            "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",           "get_method": "NONE" } ],
+                        "employeetype":              [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "employeetype",             "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",           "get_method": "NONE" } ],
                         "facsimiletelephonenumber":  [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "facsimiletelephonenumber", "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",           "get_method": "NONE" } ],
                         "givenname":                 [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "givenname",                "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",           "get_method": "NONE" } ],
                         "homephone":                 [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "homephone",                "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",           "get_method": "NONE" } ],

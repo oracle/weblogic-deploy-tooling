@@ -22,46 +22,48 @@ _config_object = None
 # Tool Properties for configuration and default values if properties not loaded
 
 # WLST TIMEOUT PROPERTIES
-CONNECT_TIMEOUT_PROP = 'connect.timeout'
-CONNECT_TIMEOUT_DEFAULT = '120000'
 ACTIVATE_TIMEOUT_PROP = 'activate.timeout'
 ACTIVATE_TIMEOUT_DEFAULT = '180000'
 ARCHIVE_CUSTOM_FOLDER_SIZE_LIMIT_PROP = 'archive.custom.folder.size.limit'
 ARCHIVE_CUSTOM_FOLDER_SIZE_LIMIT_DEFAULT = '1048576' # 1 MB
+CONNECT_TIMEOUT_PROP = 'connect.timeout'
+CONNECT_TIMEOUT_DEFAULT = '120000'
 DEPLOY_TIMEOUT_PROP = 'deploy.timeout'
 DEPLOY_TIMEOUT_DEFAULT = '180000'
-REDEPLOY_TIMEOUT_PROP = 'redeploy.timeout'
-REDEPLOY_TIMEOUT_DEFAULT = '180000'
-UNDEPLOY_TIMEOUT_PROP = 'undeploy.timeout'
-UNDEPLOY_TIMEOUT_DEFAULT = '180000'
-START_APP_TIMEOUT_PROP = 'start.application.timeout'
-START_APP_TIMEOUT_DEFAULT = '180000'
-STOP_APP_TIMEOUT_PROP = 'stop.application.timeout'
-STOP_APP_TIMEOUT_DEFAULT = '180000'
-SET_SERVER_GRPS_TIMEOUT_PROP = 'set.server.groups.timeout'
-SET_SERVER_GRPS_TIMEOUT_DEFAULT = '30000'
-WLST_EDIT_LOCK_ACQUIRE_TIMEOUT_PROP = 'wlst.edit.lock.acquire.timeout'
-WLST_EDIT_LOCK_ACQUIRE_TIMEOUT_DEFAULT = '0'
-WLST_EDIT_LOCK_RELEASE_TIMEOUT_PROP = 'wlst.edit.lock.release.timeout'
-WLST_EDIT_LOCK_RELEASE_TIMEOUT_DEFAULT = '-1'
-WLST_EDIT_LOCK_EXCLUSIVE_PROP = 'wlst.edit.lock.exclusive'
-WLST_EDIT_LOCK_EXCLUSIVE_DEFAULT = 'false'
-YAML_FILE_MAX_CODE_POINTS_PROP = 'yaml.max.file.size'
-YAML_FILE_MAX_CODE_POINTS_DEFAULT = '0'
-USE_DEPRECATION_EXIT_CODE_PROP='use.deprecation.exit.code'
-USE_DEPRECATION_EXIT_CODE_DEFAULT='false'
 DISABLE_RCU_DROP_SCHEMA_PROP='disable.rcu.drop.schema'
 DISABLE_RCU_DROP_SCHEMA_DEFAULT='false'
 ENABLE_CREATE_DOMAIN_PASSWORD_VALIDATION_PROP = 'enable.create.domain.password.validation'
 ENABLE_CREATE_DOMAIN_PASSWORD_VALIDATION_DEFAULT = 'true'
+REDEPLOY_TIMEOUT_PROP = 'redeploy.timeout'
+REDEPLOY_TIMEOUT_DEFAULT = '180000'
+SET_SERVER_GRPS_TIMEOUT_PROP = 'set.server.groups.timeout'
+SET_SERVER_GRPS_TIMEOUT_DEFAULT = '30000'
 SSH_DEFAULT_PRIVATE_KEY_FILE_NAME_PROP='ssh.private.key.default.file.name'
 SSH_DEFAULT_PRIVATE_KEY_FILE_NAME_DEFAULT='id_rsa'
-USE_SSH_COMPRESSION_PROP='use.ssh.compression'
-USE_SSH_COMPRESSION_DEFAULT='true'
-USE_SERVER_VERSION_FOR_ONLINE_OPERATIONS_PROP='use.server.version.for.online.operations'
-USE_SERVER_VERSION_FOR_ONLINE_OPERATIONS_DEFAULT='true'
+START_APP_TIMEOUT_PROP = 'start.application.timeout'
+START_APP_TIMEOUT_DEFAULT = '180000'
+STOP_APP_TIMEOUT_PROP = 'stop.application.timeout'
+STOP_APP_TIMEOUT_DEFAULT = '180000'
+STORE_DISCOVER_ADMIN_CREDENTIALS_PROP='store.discover.admin_credentials'
+STORE_DISCOVER_ADMIN_CREDENTIALS_DEFAULT='true'
 STORE_DISCOVERED_PASSWORDS_IN_CLEAR_TEXT_PROP='store.discovered.passwords.in.clear.text'
 STORE_DISCOVERED_PASSWORDS_IN_CLEAR_TEXT_DEFAULT='false'
+UNDEPLOY_TIMEOUT_PROP = 'undeploy.timeout'
+UNDEPLOY_TIMEOUT_DEFAULT = '180000'
+USE_DEPRECATION_EXIT_CODE_PROP='use.deprecation.exit.code'
+USE_DEPRECATION_EXIT_CODE_DEFAULT='false'
+USE_SERVER_VERSION_FOR_ONLINE_OPERATIONS_PROP='use.server.version.for.online.operations'
+USE_SERVER_VERSION_FOR_ONLINE_OPERATIONS_DEFAULT='true'
+USE_SSH_COMPRESSION_PROP='use.ssh.compression'
+USE_SSH_COMPRESSION_DEFAULT='true'
+WLST_EDIT_LOCK_ACQUIRE_TIMEOUT_PROP = 'wlst.edit.lock.acquire.timeout'
+WLST_EDIT_LOCK_ACQUIRE_TIMEOUT_DEFAULT = '0'
+WLST_EDIT_LOCK_EXCLUSIVE_PROP = 'wlst.edit.lock.exclusive'
+WLST_EDIT_LOCK_EXCLUSIVE_DEFAULT = 'false'
+WLST_EDIT_LOCK_RELEASE_TIMEOUT_PROP = 'wlst.edit.lock.release.timeout'
+WLST_EDIT_LOCK_RELEASE_TIMEOUT_DEFAULT = '-1'
+YAML_FILE_MAX_CODE_POINTS_PROP = 'yaml.max.file.size'
+YAML_FILE_MAX_CODE_POINTS_DEFAULT = '0'
 
 # System Property overrides for WLST timeout properties
 SYS_PROP_PREFIX = 'wdt.config.'
@@ -232,6 +234,15 @@ class ModelConfiguration(object):
         """
         return self._get_from_dict_as_boolean(STORE_DISCOVERED_PASSWORDS_IN_CLEAR_TEXT_PROP,
                                               STORE_DISCOVERED_PASSWORDS_IN_CLEAR_TEXT_DEFAULT)
+
+    def get_store_discover_admin_credentials(self):
+        """
+        When performing online discovery of security provider data, should the
+        model's admin credentials be populated from supplied command-line arguments?
+        :return:
+        """
+        return self._get_from_dict_as_boolean(STORE_DISCOVER_ADMIN_CREDENTIALS_PROP,
+                                              STORE_DISCOVER_ADMIN_CREDENTIALS_DEFAULT)
 
     def _get_from_dict(self, name, default_value=None):
         _method_name = '_get_from_dict'

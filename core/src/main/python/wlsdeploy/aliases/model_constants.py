@@ -83,12 +83,10 @@ DEFAULT_ADJUDICATOR = 'DefaultAdjudicator'
 DEFAULT_ADMIN_SERVER_NAME = 'AdminServer'
 DEFAULT_AUDITOR = 'DefaultAuditor'
 DEFAULT_AUTHENTICATOR = 'DefaultAuthenticator'
-DEFAULT_AUTHORIZER = 'DefaultAuthorizer'
 DEFAULT_CREDENTIAL_MAPPER = 'DefaultCredentialMapper'
 DEFAULT_DELIVERY_PARAMS = 'DefaultDeliveryParams'
 DEFAULT_IDENTITY_ASSERTER = 'DefaultIdentityAsserter'
 DEFAULT_REALM = 'DefaultRealm'
-DEFAULT_ROLE_MAPPER = 'DefaultRoleMapper'
 DEFAULT_WLS_DOMAIN_NAME = 'base_domain'
 DELIVERY_FAILURE_PARAMS = 'DeliveryFailureParams'
 DELIVERY_PARAMS_OVERRIDES = 'DeliveryParamsOverrides'
@@ -255,6 +253,7 @@ REMOTE_DOMAIN = 'RemoteDomain'
 REMOTE_HOST = 'RemoteHost'
 REMOTE_PASSWORD = 'RemotePassword'
 REMOTE_PORT = 'RemotePort'
+REMOTE_RESOURCE = 'RemoteResource'
 REMOTE_USER = 'RemoteUser'
 REPLACE = 'replace'
 RESOURCE_GROUP = 'ResourceGroup'
@@ -487,3 +486,40 @@ PATH_TO_RCU_DB_CONN = '%s:/%s/%s' % (DOMAIN_INFO, RCU_DB_INFO, RCU_DB_CONN_STRIN
 PATH_TO_RCU_PREFIX = '%s:/%s/%s' % (DOMAIN_INFO, RCU_DB_INFO, RCU_PREFIX)
 PATH_TO_RCU_ADMIN_PASSWORD = '%s:/%s/%s' % (DOMAIN_INFO, RCU_DB_INFO, RCU_ADMIN_PASSWORD)
 PATH_TO_RCU_SCHEMA_PASSWORD = '%s:/%s/%s' % (DOMAIN_INFO, RCU_DB_INFO, RCU_SCHEMA_PASSWORD)
+
+# Constants to define the scope of discovering security provider data
+ALL = 'ALL'
+DISCOVER_SECURITY_PROVIDER_TYPES = [
+    ALL,
+    DEFAULT_AUTHENTICATOR,
+    DEFAULT_CREDENTIAL_MAPPER,
+    XACML_AUTHORIZER,
+    XACML_ROLE_MAPPER
+]
+
+DISCOVER_SECURITY_PROVIDER_TYPES_LOWER_CASE = []
+for type in DISCOVER_SECURITY_PROVIDER_TYPES:
+    DISCOVER_SECURITY_PROVIDER_TYPES_LOWER_CASE.append(type.lower())
+
+DEFAULT_AUTHENTICATOR_USER_ATTRIBUTE_KEYS = [
+    'c',
+    'departmentnumber',
+    'displayname',
+    'employeenumber',
+    'employeetype',
+    'facsimiletelephonenumber',
+    'givenname',
+    'homephone',
+    'homepostaladdress',
+    'l',
+    'mail',
+    'mobile',
+    'pager',
+    'postaladdress',
+    'postofficebox',
+    'preferredlanguage',
+    'st',
+    'street',
+    'telephonenumber',
+    'title'
+]

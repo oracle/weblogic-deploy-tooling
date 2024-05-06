@@ -143,7 +143,7 @@ class TopologyDiscoverer(Discoverer):
         saml2_security_helper.discover_initialization_files(self._model_context.get_archive_file(), self)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
-        return self._dictionary
+        return self._dictionary, self._security_provider_map
 
     def get_callouts(self):
         """

@@ -609,6 +609,9 @@ class ModelValidator(object):
         Log a message indicating that an attribute is not valid for the current WLS version and WLST mode.
         Log INFO or WARNING, depending on validation mode.
         """
+        if self._validate_configuration.disregard_version_invalid_attributes():
+            return
+
         log_method = self._logger.warning
         if self._validate_configuration.allow_version_invalid_attributes():
             log_method = self._logger.info

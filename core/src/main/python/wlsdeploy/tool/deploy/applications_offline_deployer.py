@@ -26,7 +26,7 @@ class OfflineApplicationsDeployer(ApplicationsDeployer):
 
     def deploy(self, _is_restart_required):
         _method_name = 'deploy'
-        self.logger.entering(self._parent_name, self._parent_type,
+        self.logger.entering(self._parent_name, self._parent_type, _is_restart_required,
                              class_name=self._class_name, method_name=_method_name)
 
         self.__deploy_shared_libraries()
