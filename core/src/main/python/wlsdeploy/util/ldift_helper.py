@@ -174,31 +174,30 @@ class LdiftBase(object):
 
         result = PASSWORD_TOKEN
         if not string_utils.is_empty(password):
-            if self._is_hashed_password(password):
-                result = password
-            else:
-                # Only proceed if either WDT encryption is supported or the user has
-                # specified to not encrypt passwords in the model
-                if self._model_context.is_encryption_supported() or not self._model_context.is_encrypt_discovered_passwords():
-                    decrypted_password = self._decrypt_password(password)
+            # Only proceed if either WDT encryption is supported or the user has
+            # specified to not encrypt passwords in the model
+            if self._model_context.is_encryption_supported() or not self._model_context.is_encrypt_discovered_passwords():
+                decrypted_password = self._decrypt_password(password)
 
-                    store_in_cipher_text = self._model_context.is_encrypt_discovered_passwords()
-                    if self._model_context.is_encryption_supported():
-                        if store_in_cipher_text:
-                            wdt_encryption_passphrase = self._model_context.get_encryption_passphrase()
-                            encryption_passphrase = String(wdt_encryption_passphrase).toCharArray()
-                            result = EncryptionUtils.encryptString(result, encryption_passphrase)
-                        else:
-                            result = decrypted_password
+                store_in_cipher_text = self._model_context.is_encrypt_discovered_passwords()
+                if decrypted_password == PASSWORD_TOKEN:
+                    result = PASSWORD_TOKEN
+                elif self._model_context.is_encryption_supported():
+                    if store_in_cipher_text:
+                        wdt_encryption_passphrase = self._model_context.get_encryption_passphrase()
+                        encryption_passphrase = String(wdt_encryption_passphrase).toCharArray()
+                        result = EncryptionUtils.encryptString(decrypted_password, encryption_passphrase)
                     else:
-                        if not store_in_cipher_text:
-                            result = decrypted_password
-                        else:
-                            _logger.warning('WLSDPLY-07114', PASSWORD_TOKEN,
-                                            class_name=self.__class_name, method_name=_method_name)
+                        result = decrypted_password
                 else:
-                    _logger.warning('WLSDPLY-07114', PASSWORD_TOKEN,
-                                    class_name=self.__class_name, method_name=_method_name)
+                    if not store_in_cipher_text:
+                        result = decrypted_password
+                    else:
+                        _logger.warning('WLSDPLY-07114', PASSWORD_TOKEN,
+                                        class_name=self.__class_name, method_name=_method_name)
+            else:
+                _logger.warning('WLSDPLY-07114', PASSWORD_TOKEN,
+                                class_name=self.__class_name, method_name=_method_name)
 
         _logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return result
@@ -214,14 +213,6 @@ class LdiftBase(object):
             result = password
 
         _logger.exiting(class_name=self.__class_name, method_name=_method_name)
-        return result
-
-    def _is_hashed_password(self, password):
-        result = False
-        for encoding_marker in self.__LDIFT_HASHING_MARKERS:
-            if password.startswith(encoding_marker):
-                result = True
-                break
         return result
 
     def _is_encrypted_password(self, password):
