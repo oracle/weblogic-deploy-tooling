@@ -167,7 +167,7 @@ Other Changes  #1475 - Added support for upcoming SAML2 data initialization file
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.1/</guid>
       <description>Changes in Release 3.2.1  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
-Other Changes  #1465 - Initial, limited i18n translation bundles added.  Bug Fixes  #1466 - Updated Server and ServerTemplate aliases to add new 14.1.2 offline attributes. #1467 - Updated CoherenceSystemResource aliases to add new 14.1.2 SecuredProduction online attribute. #1468 - Fixed an error related to tool initialization with WebLogic Server versions earlier than 12.</description>
+Other Changes  #1465 - Initial, limited i18n translation bundles added.  Bug Fixes  #1466 - Updated Server and ServerTemplate aliases to add new offline attributes in upcoming versions of WebLogic Server. #1467 - Updated CoherenceSystemResource aliases to add SecuredProduction online attribute used in upcoming versions of WebLogic Server. #1468 - Fixed an error related to tool initialization with WebLogic Server versions earlier than 12.</description>
     </item>
     
     <item>
@@ -177,7 +177,7 @@ Other Changes  #1465 - Initial, limited i18n translation bundles added.  Bug Fix
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.2.0/</guid>
       <description>Changes in Release 3.2.0  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
-Other Changes  #1450 - Added alias updates for April 2023 PSUs for 12.2.1.3, 12.2.1.4, and 14.1.1. #1454 - Added aliases for new fields introduced 14.1.2. #1457 - Deprecated system-elements section of typedef files and replaced it with a new discover-filters section that supports filtering named elements in most top-level folders. #1458 - Updated Model and Archive documentation to reflect the current state of the code.</description>
+Other Changes  #1450 - Added alias updates for April 2023 PSUs for 12.2.1.3, 12.2.1.4, and 14.1.1. #1454 - Added aliases for new fields introduced in upcoming versions of WebLogic Server. #1457 - Deprecated system-elements section of typedef files and replaced it with a new discover-filters section that supports filtering named elements in most top-level folders.</description>
     </item>
     
     <item>
