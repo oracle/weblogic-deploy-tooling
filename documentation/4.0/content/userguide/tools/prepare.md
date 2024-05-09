@@ -17,14 +17,15 @@ The Prepare Model Tool prepares WDT model files for deploying to specific target
 - Generating any additional configuration files to configure the target environment
 
 
-To use the Prepare Model Tool, simply run the `prepareModel` shell script with the correct arguments.  To see the list of valid arguments, simply run the shell script with the `-help` option (or with no arguments) for usage information.
+To use the Prepare Model Tool, simply run the `prepareModel` shell script with the correct arguments.  To see the list
+of valid arguments, simply run the shell script with the `-help` option (or with no arguments) for usage information.
 
 For example, to prepare model files for use with WebLogic Kubernetes Operator, run the tool with `-target wko` as follows:
-```
-$ $WLSDEPLOY_HOME/bin/prepareModel.sh -oracle_home /u01/wls12213 -model_file model1.yaml, model2.yaml -target wko -output_dir $HOME/wko-output
-```
+
+    $ weblogic-deploy/bin/prepareModel.sh -oracle_home /u01/wls12213 -model_file model1.yaml,model2.yaml -target wko -output_dir $HOME/wko-output
 
 In the output directory, you will find:
+
 ```
 model1.yaml
 model2.yaml
@@ -33,17 +34,16 @@ create_k8s_secrets.sh
 wko-domain.yaml
 ```
 
-
-You can then customize the `wko_variable.properties` and `create_k8s_secrets.sh` to provide environment-specific values.
-
+You should customize the `wko_variable.properties`, `create_k8s_secrets.sh`, and `wko-domain.yaml` files to provide
+environment-specific values that are appropriate for the target environment.
 
 For more information about additional target environments and options, see [Target environments]({{< relref "/userguide/target_env.md" >}}).
 
 ### Parameter table for `prepareModel`
-| Parameter | Definition | Default |
-| ---- | ---- | ---- |
-| `-model_file` | (Required). Location of the model file. This can also be specified as a comma-separated list of models, where each successive model layers on top of the previous ones. |    |
-| `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set. |    |
-| `-output_dir` | (Required) Location where to write the output files. |    |
-| `-target` | (Required) Name of the target configuration such as `wko`, `vz`, `k8s`. For more information about target types, see [Target Environments]({{< relref "userguide/target_env" >}}). |    |
-| `-variable_file` | The location of the property file containing the values for variables used in the model. This can also be specified as a comma-separated list of property files, where each successive set of properties layers on top of the previous ones. |    |
+| Parameter        | Definition                                                                                                                                                                                                                                   | Default |
+|------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------|
+| `-model_file`    | (Required). Location of the model file. This can also be specified as a comma-separated list of models, where each successive model layers on top of the previous ones.                                                                      |         |
+| `-oracle_home`   | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set.                                                                                                                           |         |
+| `-output_dir`    | (Required) Location where to write the output files.                                                                                                                                                                                         |         |
+| `-target`        | (Required) Name of the target configuration such as `wko`, `vz`, `k8s`. For more information about target types, see [Target Environments]({{< relref "userguide/target_env" >}}).                                                           |         |
+| `-variable_file` | The location of the property file containing the values for variables used in the model. This can also be specified as a comma-separated list of property files, where each successive set of properties layers on top of the previous ones. |         |

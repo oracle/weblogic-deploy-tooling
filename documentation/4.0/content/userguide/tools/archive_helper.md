@@ -7,18 +7,20 @@ description: "Helps you create and modify archive files."
 ---
 
 
-With the Archive Helper Tool, you can display the contents of an archive file, add, update, extract, and remove files, as needed.
+With the Archive Helper Tool, you can display the contents of an archive file, add, update, extract, and remove files,
+as needed.
 
-Use the Archive Helper Tool `-help` option to display its commands. Each command takes a subcommand, which may require one or more command-line options.
+Use the Archive Helper Tool `-help` option to display its commands.
 
 ### `archiveHelper` commands
-| Command | Description |
-| ---- | ---- |
-| `add` | Add items to the archive file. |
+| Command   | Description                          |
+|-----------|--------------------------------------|
+| `add`     | Add items to the archive file.       |
 | `extract` | Extract items from the archive file. |
-| `list` | List contents of the archive file. |
-| `remove` | Remove items to the archive file. |
+| `list`    | List contents of the archive file.   |
+| `remove`  | Remove items to the archive file.    |
 
+Each command takes a subcommand, which may require one or more command-line options.
 For each command, use the `-help` option for usage information about its subcommands.
 
 For example, to display the subcommands of the `archiveHelper` `add` command:
@@ -83,6 +85,10 @@ Command-line options:
 Note: If using an Application Installation Directory, please see the
 archiveHelper add structuredApplication command.
 ```
+
+For more information about the archive file and its structure, please refer to the [Archive File]
+({{< relref "/concepts/archive.md" >}}) page.
+
 ### Usage scenarios
 
 - `list application`: List the applications in the archive file.
@@ -95,3 +101,11 @@ archiveHelper add structuredApplication command.
    $ <wls-deploy-home>/bin/archiveHelper.sh add application -archive_file=C:\temp\archive-helper-test.zip -source=C:\temp\my-app.war -overwrite
    ```
    **NOTE**: Without the `-overwrite` option, the application gets added to the archive with a numerical suffix.
+
+### Environment variables
+The following environment variables may be set.
+
+-  `JAVA_HOME`             The location of the JDK. This must be a valid Java 7 or later JDK.
+
+Since the Archive Helper Tool is written in Java without using WLST, the `JAVA_HOME` will be the JDK used to execute
+the command (unlike other tools that use WLST).
