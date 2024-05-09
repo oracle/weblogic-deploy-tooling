@@ -182,7 +182,7 @@ been processed. To force the server to reload a SAML2 partner data file, remove 
 file, and restart the server to reinitialize the SAML2 partner data.
 
 Note that this functionality is only present starting in the October 2023 PSUs for WebLogic Server 12.2.1.4 and 14.1.1,
-and WebLogic Server 14.1.2 or newer.
+and future versions of WebLogic Server.
 
 #### `wlsdeploy/sharedLibraries`
 The root directory under which shared libraries and their deployment plans are stored. Shared libraries can be stored

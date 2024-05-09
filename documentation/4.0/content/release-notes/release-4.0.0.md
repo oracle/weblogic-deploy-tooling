@@ -46,7 +46,7 @@ pre = "<b> </b>"
 - #1588 - Deprecated the `domainInfo` section's `OPSSSecrets` attribute and replaced it with `OPSSWalletPassphrase` to
           better represent the purpose of the attribute.
 - #1592 - Deprecated Verrazzano support.
-- #1598 - Added support for online wallet distribution to managed servers in 14.1.2.
+- #1598 - Added support for online wallet distribution to managed servers in upcoming versions of WebLogic Server.
 - #1599 - Added support for the 12.2.1.4 and 14.1.1 January 2024 PSUs.
 - #1605 - Deprecated the Deploy Applications Tool.  The intention going forward is that users should be able to use
           the Update Domain Tool, which already does everything that the Deploy Applications Tool does and more.
