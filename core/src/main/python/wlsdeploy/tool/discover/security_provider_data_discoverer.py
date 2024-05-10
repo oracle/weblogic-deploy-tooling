@@ -20,6 +20,7 @@ from wlsdeploy.aliases.model_constants import CROSS_DOMAIN
 from wlsdeploy.aliases.model_constants import DEFAULT_AUTHENTICATOR
 from wlsdeploy.aliases.model_constants import DEFAULT_CREDENTIAL_MAPPER
 from wlsdeploy.aliases.model_constants import DEFAULT_REALM
+from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import GROUP
 from wlsdeploy.aliases.model_constants import REALM
 from wlsdeploy.aliases.model_constants import REMOTE_RESOURCE
@@ -157,7 +158,8 @@ class SecurityProviderDataDiscoverer(Discoverer):
             local_file = export_file
 
         default_authenticator = \
-            DefaultAuthenticatorLdift(local_file, self._model_context, exception_type=ExceptionType.DISCOVER,
+            DefaultAuthenticatorLdift(local_file, self._model_context, self._aliases, self._credential_injector,
+                                      exception_type=ExceptionType.DISCOVER,
                                       download_temporary_dir=self._local_tmp_directory)
 
         users = default_authenticator.get_users_dictionary()
@@ -337,7 +339,8 @@ class SecurityProviderDataDiscoverer(Discoverer):
             local_file = export_file
 
         credential_mapper = \
-            DefaultCredentialMapperLdift(local_file, self._model_context, exception_type=ExceptionType.DISCOVER,
+            DefaultCredentialMapperLdift(local_file, self._model_context, self._aliases, self._credential_injector,
+                                         exception_type=ExceptionType.DISCOVER,
                                          download_temporary_dir=self._local_tmp_directory)
         cross_domain_credential_mappings_dict = credential_mapper.get_cross_domain_dictionary()
         remote_resource_credential_mapping_dict = credential_mapper.get_remote_resource_dictionary()
@@ -373,6 +376,11 @@ class SecurityProviderDataDiscoverer(Discoverer):
                                     class_name=_class_name, method_name=_method_name)
             else:
                 self._domain_info_dictionary[ADMIN_PASSWORD] = self._model_context.get_admin_password()
+
+            if self._credential_injector is not None:
+                location = self._aliases.get_model_section_attribute_location(DOMAIN_INFO)
+                self._credential_injector.check_and_tokenize(self._domain_info_dictionary, ADMIN_USERNAME, location)
+                self._credential_injector.check_and_tokenize(self._domain_info_dictionary, ADMIN_PASSWORD, location)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
