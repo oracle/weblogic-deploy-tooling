@@ -517,9 +517,11 @@ class WlstHelper(object):
         Return a map of WebLogic attributes found at the wlst path or the current path.
 
         In online mode, clean up the return values to strip off trailing spaces and
-        convert the string 'null' into None.
+        convert the string 'null' into None.  Also check for online bug where operations are
+        returned and strip them out.
+
         :param path: for which to return a map of attributes. If None, the current path is searched
-        :param log_throwing: whether or not to log the throwing message if the path location is not found
+        :param log_throwing: whether to log the throwing message if the path location is not found
         :return: map of WebLogic attributes
         :raises: Exception for the specified tool type: if a WLST error occurs
         """
@@ -527,18 +529,22 @@ class WlstHelper(object):
         result = self.__ls(_method_name, 'a', path, log_throwing)
         make_dict = dict()
         if result and len(result) > 0:
-            for entry in result.entrySet():
-                key = entry.getKey()
-                value = entry.getValue()
-                if value and type(value) in [str, unicode]:
-                    new_value = value.rstrip()
-                    # 'none' was previously mapped to None, interfered with RotationType 'none'
-                    if new_value == 'null':
-                        make_dict[key] = None
+            # WLST can return an ArrayList of the child folders
+            # if the location has no attributes
+            #
+            if 'ArrayList' not in str_helper.to_string(type(result)):
+                for entry in result.entrySet():
+                    key = entry.getKey()
+                    value = entry.getValue()
+                    if value and type(value) in [str, unicode]:
+                        new_value = value.rstrip()
+                        # 'none' was previously mapped to None, interfered with RotationType 'none'
+                        if new_value == 'null':
+                            make_dict[key] = None
+                        else:
+                            make_dict[key] = new_value
                     else:
-                        make_dict[key] = new_value
-                else:
-                    make_dict[key] = value
+                        make_dict[key] = value
         return make_dict
 
     def lsc(self, path=None, log_throwing=True):
@@ -1741,13 +1747,27 @@ class WlstHelper(object):
             raise pwe
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
+    def export_encryption_key(self, jps_config_file, output_dir, passphrase):
+        _method_name = 'export_encryption_key'
+        self.__logger.entering(jps_config_file, output_dir, class_name=self.__class_name, method_name=_method_name)
+
+        from oracle.security.jps.internal.tools.utility.cskey import ImportExportKeyException
+        try:
+            self.__load_global('exportEncryptionKey')(jps_config_file, output_dir, passphrase)
+        except (ImportExportKeyException, self.__load_global('WLSTException')), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00136', jps_config_file,
+                                                    output_dir, _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
     def __ls(self, method_name, ls_type, path=None, log_throwing=True):
         """
         Private helper method shared by various API methods
         :param method_name: calling method name
         :param ls_type: the WLST return type requested
         :param path: if not None the path (default is the current path)
-        :param log_throwing: whether or not to log the throwing message if the path location is not found
+        :param log_throwing: whether to log the throwing message if the path location is not found
         :return: the result of the WLST ls(returnMap='true') call
         :raises: Exception for the specified tool type: if a WLST error occurs
         """
@@ -1756,13 +1776,14 @@ class WlstHelper(object):
                              class_name=self.__class_name, method_name=_method_name)
 
         load_ls = self.__load_global('ls')
+        current_path = self.get_pwd()
         if path is not None:
-            # ls(path, returnMap='true') is busted in earlier versions of WLST so go ahead and
-            # change directories to the specified path to workaround this
-            current_path = self.get_pwd()
+            # Since ls(path, returnType='a') is broken, change directories to the specified
+            # path and pass the returnType value as the first unnamed argument.
+            #
             self.cd(path)
             try:
-                result = load_ls(ls_type, returnMap='true', returnType=ls_type)
+                result = load_ls(ls_type, returnMap='true')
             except (self.__load_global('WLSTException'), offlineWLSTException), e:
                 pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00029', path, ls_type,
                                                         self.__get_exception_mode(e), _format_exception(e), error=e)
@@ -1772,9 +1793,10 @@ class WlstHelper(object):
                 raise pwe
             self.cd(current_path)
         else:
-            current_path = self.get_pwd()
+            # Since ls(returnType='a') is broken, pass the returnType value as the first unnamed argument.
+            #
             try:
-                result = load_ls(ls_type, returnMap='true', returnType=ls_type)
+                result = load_ls(ls_type, returnMap='true')
             except (self.__load_global('WLSTException'), offlineWLSTException), e:
                 pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00029', current_path, ls_type,
                                                         self.__get_exception_mode(e), _format_exception(e), error=e)

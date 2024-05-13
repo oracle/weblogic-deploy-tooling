@@ -39,12 +39,9 @@ if %RETURN_CODE% NEQ 0 (
   GOTO done
 )
 
+@rem required Java version and patch level is dependent on use of encryption.
+@rem later versions of JDK 7 support encryption so let WDT figure it out.
 SET MIN_JDK_VERSION=7
-if "%USE_ENCRYPTION%" == "true" (
-  SET MIN_JDK_VERSION=8
-)
-
-@rem required Java version is dependent on use of encryption
 call "%SCRIPT_PATH%\shared.cmd" :javaSetup %MIN_JDK_VERSION%
 SET RETURN_CODE=%ERRORLEVEL%
 if %RETURN_CODE% NEQ 0 (
@@ -87,7 +84,14 @@ ECHO               -ssh_private_key ^<ssh_private_key^>
 ECHO               -ssh_private_key_pass_env ^<ssh_private_key_pass_env^> ^| -ssh_private_key_pass_file ^<ssh_private_key_pass_file^> ^| -ssh_private_key_pass_prompt
 ECHO              ]
 ECHO              [ -discover_passwords
-ECHO                -passphrase_env ^<passphrase_env^> ^| -passphrase_file ^<passphrase_file^>
+ECHO                -passphrase_env ^<passphrase_env^> ^| -passphrase_file ^<passphrase_file^> ^| -passphrase_prompt
+ECHO              ]
+ECHO              [ -discover_security_provider_data ^<discover_security_provider_scope^>
+ECHO                -passphrase_env ^<passphrase_env^> ^| -passphrase_file ^<passphrase_file^> ^| -passphrase_prompt
+ECHO              ]
+ECHO              [ -discover_opss_wallet
+ECHO                [-opss_wallet_passphrase_env ^<opss_wallet_passphrase_env^> ^| -opss_wallet_passphrase_file ^<opss_wallet_passphrase_file^>]
+ECHO                -passphrase_env ^<passphrase_env^> ^| -passphrase_file ^<passphrase_file^> ^| -passphrase_prompt
 ECHO              ]
 ECHO.
 ECHO     where:
@@ -180,6 +184,22 @@ ECHO         passphrase_file - An alternative to entering the model encryption
 ECHO                           passphrase at the prompt.  The value is the
 ECHO                           name of a file with a string value which WDT will
 ECHO                           read to retrieve the passphrase.
+ECHO.
+ECHO         discover_security_provider_scope - Which providers to discover.
+ECHO                           Legal values are ALL, DefaultAuthenticator,
+ECHO                           XACMLAuthorizer, XACMLRoleMapper, and
+ECHO                           DefaultCredentialMapper.  Use a comma to separate
+ECHO                           providers to discover.
+ECHO.
+ECHO         opss_wallet_passphrase_env - An alternative to entering the OPSS
+ECHO                           wallet passphrase at the prompt.  The value is
+ECHO                           specified in an ENVIRONMENT VARIABLE name that
+ECHO                           WDT will use to retrieve the passphrase.
+ECHO.
+ECHO         opss_wallet_passphrase_file - An alternative to entering the OPSS
+ECHO                           wallet passphrase at the prompt.  The value is
+ECHO                           the name of a file with a string value which WDT
+ECHO                           will read to retrieve the passphrase.
 ECHO.
 ECHO    The -skip_archive argument suppresses the generation of the archive file.
 ECHO    If present, the -archive_file argument will be ignored and the file

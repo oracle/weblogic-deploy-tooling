@@ -66,9 +66,9 @@ __optional_arguments = [
     CommandLineArgUtil.PASSPHRASE_ENV_SWITCH,
     CommandLineArgUtil.PASSPHRASE_FILE_SWITCH,
     CommandLineArgUtil.OPSS_WALLET_SWITCH,
-    CommandLineArgUtil.OPSS_WALLET_PASSPHRASE,
-    CommandLineArgUtil.OPSS_WALLET_FILE_PASSPHRASE,
-    CommandLineArgUtil.OPSS_WALLET_ENV_PASSPHRASE,
+    CommandLineArgUtil.OPSS_WALLET_PASSPHRASE_SWITCH,
+    CommandLineArgUtil.OPSS_WALLET_PASSPHRASE_FILE_SWITCH,
+    CommandLineArgUtil.OPSS_WALLET_PASSPHRASE_ENV_SWITCH,
     CommandLineArgUtil.UPDATE_RCU_SCHEMA_PASS_SWITCH,
     CommandLineArgUtil.PASSPHRASE_PROMPT_SWITCH,
     # deprecated in 4.2.0
@@ -174,7 +174,7 @@ def __process_opss_args(optional_arg_map):
     _method_name = '__process_opss_args'
 
     if CommandLineArgUtil.OPSS_WALLET_SWITCH in optional_arg_map and \
-            CommandLineArgUtil.OPSS_WALLET_PASSPHRASE not in optional_arg_map:
+            CommandLineArgUtil.OPSS_WALLET_PASSPHRASE_SWITCH not in optional_arg_map:
         try:
             passphrase = getcreds.getpass('WLSDPLY-20027')
         except IOException, ioe:
@@ -182,7 +182,7 @@ def __process_opss_args(optional_arg_map):
                                                        'WLSDPLY-20028', ioe.getLocalizedMessage(), error=ioe)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
-        optional_arg_map[CommandLineArgUtil.OPSS_WALLET_PASSPHRASE] = str(String(passphrase))
+        optional_arg_map[CommandLineArgUtil.OPSS_WALLET_PASSPHRASE_SWITCH] = str(String(passphrase))
 
 
 def _get_domain_path(model_context, model):

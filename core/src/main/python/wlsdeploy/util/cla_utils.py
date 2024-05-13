@@ -64,9 +64,9 @@ class CommandLineArgUtil(object):
     MODEL_FILE_SWITCH          = '-model_file'
     DISCARD_CURRENT_EDIT_SWITCH   = '-discard_current_edit'
     OPSS_WALLET_SWITCH         = '-opss_wallet'
-    OPSS_WALLET_PASSPHRASE     = '-opss_wallet_passphrase'
-    OPSS_WALLET_FILE_PASSPHRASE = '-opss_wallet_passphrase_file'
-    OPSS_WALLET_ENV_PASSPHRASE  = '-opss_wallet_passphrase_env'
+    OPSS_WALLET_PASSPHRASE_SWITCH     = '-opss_wallet_passphrase'
+    OPSS_WALLET_PASSPHRASE_FILE_SWITCH = '-opss_wallet_passphrase_file'
+    OPSS_WALLET_PASSPHRASE_ENV_SWITCH  = '-opss_wallet_passphrase_env'
     VARIABLE_FILE_SWITCH       = '-variable_file'
     # phony arg used as a key to store the encryption passphrase
     PASSPHRASE_SWITCH          = '-passphrase'
@@ -116,6 +116,7 @@ class CommandLineArgUtil(object):
     SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH = '-ssh_private_key_pass_prompt'
     DISCOVER_PASSWORDS_SWITCH  = '-discover_passwords'
     DISCOVER_SECURITY_PROVIDER_DATA_SWITCH = '-discover_security_provider_data'
+    DISCOVER_OPSS_WALLET_SWITCH = '-discover_opss_wallet'
 
     # arguments that are true if specified, false if not
     BOOLEAN_SWITCHES = [
@@ -134,6 +135,7 @@ class CommandLineArgUtil(object):
         SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH,
         DISCOVER_PASSWORDS_SWITCH,
         PASSPHRASE_PROMPT_SWITCH,
+        DISCOVER_OPSS_WALLET_SWITCH,
         # deprecated in 4.2.0
         USE_ENCRYPTION_SWITCH
     ]
@@ -752,19 +754,19 @@ class CommandLineArgUtil(object):
         return CommandLineArgUtil.ARCHIVE_FILES_SEPARATOR.join(result_archive_files)
 
     def get_opss_passphrase_key(self):
-        return self.OPSS_WALLET_PASSPHRASE
+        return self.OPSS_WALLET_PASSPHRASE_SWITCH
 
     def is_opss_passphrase_key(self, key):
 
-        return self.OPSS_WALLET_PASSPHRASE == key
+        return self.OPSS_WALLET_PASSPHRASE_SWITCH == key
 
     def is_opss_passphrase_env(self, key):
 
-        return self.OPSS_WALLET_ENV_PASSPHRASE == key
+        return self.OPSS_WALLET_PASSPHRASE_ENV_SWITCH == key
 
     def is_opss_passphrase_file(self, key):
 
-        return self.OPSS_WALLET_FILE_PASSPHRASE == key
+        return self.OPSS_WALLET_PASSPHRASE_FILE_SWITCH == key
 
     def _validate_opss_passphrase_arg(self, value):
         method_name = '_validate_opss_passphrase_arg'

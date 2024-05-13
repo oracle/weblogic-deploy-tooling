@@ -126,6 +126,7 @@ class ModelContext(object):
         self._local_output_dir = None
         self._discover_passwords = False
         self._discover_security_provider_data = None
+        self._discover_opss_wallet = False
         self._path_helper = path_helper.get_path_helper()
 
         self._trailing_args = []
@@ -285,8 +286,8 @@ class ModelContext(object):
         if CommandLineArgUtil.ARCHIVE_FILE in arg_map:
             self._archive_file = arg_map[CommandLineArgUtil.ARCHIVE_FILE]
 
-        if CommandLineArgUtil.OPSS_WALLET_PASSPHRASE in arg_map:
-            self._opss_wallet_passphrase = arg_map[CommandLineArgUtil.OPSS_WALLET_PASSPHRASE]
+        if CommandLineArgUtil.OPSS_WALLET_PASSPHRASE_SWITCH in arg_map:
+            self._opss_wallet_passphrase = arg_map[CommandLineArgUtil.OPSS_WALLET_PASSPHRASE_SWITCH]
 
         if CommandLineArgUtil.OPSS_WALLET_SWITCH in arg_map:
             self._opss_wallet = arg_map[CommandLineArgUtil.OPSS_WALLET_SWITCH]
@@ -328,6 +329,9 @@ class ModelContext(object):
         if CommandLineArgUtil.DISCOVER_SECURITY_PROVIDER_DATA_SWITCH in arg_map:
             self._discover_security_provider_data = \
                 arg_map[CommandLineArgUtil.DISCOVER_SECURITY_PROVIDER_DATA_SWITCH].split(',')
+
+        if CommandLineArgUtil.DISCOVER_OPSS_WALLET_SWITCH in arg_map:
+            self._discover_opss_wallet = arg_map[CommandLineArgUtil.DISCOVER_OPSS_WALLET_SWITCH]
 
     def __copy__(self):
         arg_map = dict()
@@ -411,7 +415,7 @@ class ModelContext(object):
         if self._archive_file is not None:
             arg_map[CommandLineArgUtil.ARCHIVE_FILE] = self._archive_file
         if self._opss_wallet_passphrase is not None:
-            arg_map[CommandLineArgUtil.OPSS_WALLET_PASSPHRASE] = self._opss_wallet_passphrase
+            arg_map[CommandLineArgUtil.OPSS_WALLET_PASSPHRASE_SWITCH] = self._opss_wallet_passphrase
         if self._opss_wallet is not None:
             arg_map[CommandLineArgUtil.OPSS_WALLET_SWITCH] = self._opss_wallet
         if self._update_rcu_schema_pass is not None:
@@ -436,6 +440,8 @@ class ModelContext(object):
             # Make a copy of the list...
             arg_map[CommandLineArgUtil.DISCOVER_SECURITY_PROVIDER_DATA_SWITCH] = \
                 list(self._discover_security_provider_data)
+        if self._discover_opss_wallet:
+            arg_map[CommandLineArgUtil.DISCOVER_OPSS_WALLET_SWITCH] = self._discover_opss_wallet
 
         new_context = ModelContext(self._program_name, arg_map)
         if not new_context.is_initialization_complete():
@@ -656,6 +662,9 @@ class ModelContext(object):
         :return: the wallet passphrase
         """
         return self._opss_wallet_passphrase
+
+    def set_opss_wallet_passphrase(self, opss_wallet_passphrase):
+        self._opss_wallet_passphrase = opss_wallet_passphrase
 
     def get_update_rcu_schema_pass(self):
         """
@@ -1265,6 +1274,9 @@ class ModelContext(object):
             if ALL in self._discover_security_provider_data or scope in self._discover_security_provider_data:
                 result = True
         return result
+
+    def is_discover_opss_wallet(self):
+        return self._discover_opss_wallet
 
     def copy(self, arg_map):
         model_context_copy = copy.copy(self)

@@ -38,12 +38,9 @@ if %RETURN_CODE% NEQ 0 (
   GOTO done
 )
 
+@rem required Java version and patch level is dependent on use of encryption.
+@rem later versions of JDK 7 support encryption so let WDT figure it out.
 SET MIN_JDK_VERSION=7
-if "%USE_ENCRYPTION%" == "true" (
-  SET MIN_JDK_VERSION=8
-)
-
-@rem required Java version is dependent on use of encryption
 call "%SCRIPT_PATH%\shared.cmd" :javaSetup %MIN_JDK_VERSION%
 SET RETURN_CODE=%ERRORLEVEL%
 if %RETURN_CODE% NEQ 0 (
@@ -72,6 +69,7 @@ ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-domain_type ^<domain_type^>]
 ECHO              [-passphrase_env ^<passphrase_env^>]
 ECHO              [-passphrase_file ^<passphrase_file^>]
+ECHO              [-passphrase_prompt]
 ECHO              [-wlst_path ^<wlst_path^>]
 ECHO              [-cancel_changes_if_restart_required]
 ECHO              [-discard_current_edit]
@@ -173,11 +171,6 @@ ECHO                                      The value is the name of a file with a
 ECHO                                      to retrieve the password. 
 ECHO.
 ECHO          ssh_private_key_pass_prompt - Prompt for the SSH private keystore password.
-ECHO.
-ECHO    The -use_encryption switch tells the program that one or more of the
-ECHO    passwords in the model or variables files are encrypted.  The program will
-ECHO    prompt for the decryption passphrase to use to decrypt the passwords.
-ECHO    Please note that Java 8 or higher is required when using this feature.
 ECHO.
 ECHO    The -cancel_changes_if_restart_required switch tells the program to cancel
 ECHO    the changes if the update requires domain restart.
