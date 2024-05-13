@@ -9,6 +9,7 @@ from oracle.weblogic.deploy.encrypt import EncryptionException
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 
 from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
+from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import CROSS_DOMAIN
 from wlsdeploy.aliases.model_constants import METHOD
 from wlsdeploy.aliases.model_constants import PATH
@@ -20,6 +21,7 @@ from wlsdeploy.aliases.model_constants import REMOTE_PORT
 from wlsdeploy.aliases.model_constants import REMOTE_RESOURCE
 from wlsdeploy.aliases.model_constants import REMOTE_USER
 from wlsdeploy.aliases.model_constants import USER
+from wlsdeploy.aliases.model_constants import WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
 from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import string_utils
@@ -190,10 +192,14 @@ class DefaultCredentialMapperLdiftEntry(object):
 class DefaultCredentialMapperLdift(LdiftBase):
     __class_name = 'DefaultCredentialMapperLdift'
 
-    def __init__(self, ldift_file_name, model_context, exception_type=ExceptionType.DISCOVER, download_temporary_dir=None):
+    def __init__(self, ldift_file_name, model_context, aliases, credential_injector,
+                 exception_type=ExceptionType.DISCOVER, download_temporary_dir=None):
+
         LdiftBase.__init__(self, model_context, exception_type, download_temporary_dir=download_temporary_dir)
 
         self._ldift_file_name = ldift_file_name
+        self._aliases = aliases
+        self._credential_injector = credential_injector
         self._credential_map_ldift_entries, self._resource_map_ldift_entries = self.read_ldift_file(ldift_file_name)
 
     # Override
@@ -229,8 +235,8 @@ class DefaultCredentialMapperLdift(LdiftBase):
                 continue
 
             resource_map_entries = self._find_resource_map_entries_for_credential_map_entry(credential_map_entry)
-            entry_name = 'CrossDomainCredentialMap-%s' % count
-            entry_payload = self._get_cross_domain_model_entry(credential_map_entry, resource_map_entries)
+            entry_name = 'Map-%s' % count
+            entry_payload = self._get_cross_domain_model_entry(credential_map_entry, resource_map_entries, entry_name)
             result[entry_name] = entry_payload
             count += 1
 
@@ -248,8 +254,8 @@ class DefaultCredentialMapperLdift(LdiftBase):
                 continue
 
             resource_map_entries = self._find_resource_map_entries_for_credential_map_entry(credential_map_entry)
-            entry_name = 'RemoteResourceCredentialMap-%s' % count
-            entry_payload = self._get_remote_resource_model_entry(credential_map_entry, resource_map_entries)
+            entry_name = 'Map-%s' % count
+            entry_payload = self._get_remote_resource_model_entry(credential_map_entry, resource_map_entries, entry_name)
             result[entry_name] = entry_payload
             count += 1
 
@@ -270,7 +276,7 @@ class DefaultCredentialMapperLdift(LdiftBase):
         _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=resource_map_ldift_entries)
         return resource_map_ldift_entries
 
-    def _get_cross_domain_model_entry(self, credential_map_ldift_entry, resource_map_ldift_entries):
+    def _get_cross_domain_model_entry(self, credential_map_ldift_entry, resource_map_ldift_entries, entry_name):
         _method_name = '_get_cross_domain_model_entry'
         _logger.entering(credential_map_ldift_entry, resource_map_ldift_entries,
                          class_name=self.__class_name, method_name=_method_name)
@@ -291,10 +297,18 @@ class DefaultCredentialMapperLdift(LdiftBase):
         result[REMOTE_USER] = remote_user
         result[REMOTE_PASSWORD] = remote_password
 
+        if self._credential_injector is not None:
+            location = LocationContext().append_location(WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS) \
+                .append_location(CROSS_DOMAIN)
+            name_token = self._aliases.get_name_token(location)
+            location.add_name_token(name_token, entry_name)
+            self._credential_injector.check_and_tokenize(result, REMOTE_USER, location)
+            self._credential_injector.check_and_tokenize(result, REMOTE_PASSWORD, location)
+
         _logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return result
 
-    def _get_remote_resource_model_entry(self, credential_map_ldift_entry, resource_map_ldift_entries):
+    def _get_remote_resource_model_entry(self, credential_map_ldift_entry, resource_map_ldift_entries, entry_name):
         _method_name = '_get_remote_resource_model_entry'
         _logger.entering(credential_map_ldift_entry, resource_map_ldift_entries,
                          class_name=self.__class_name, method_name=_method_name)
@@ -326,6 +340,14 @@ class DefaultCredentialMapperLdift(LdiftBase):
         result[USER] = user
         result[REMOTE_USER] = remote_user
         result[REMOTE_PASSWORD] = remote_password
+
+        if self._credential_injector is not None:
+            location = LocationContext().append_location(WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS) \
+                .append_location(REMOTE_RESOURCE)
+            name_token = self._aliases.get_name_token(location)
+            location.add_name_token(name_token, entry_name)
+            self._credential_injector.check_and_tokenize(result, REMOTE_USER, location)
+            self._credential_injector.check_and_tokenize(result, REMOTE_PASSWORD, location)
 
         _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result

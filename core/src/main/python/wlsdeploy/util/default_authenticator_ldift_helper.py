@@ -8,11 +8,14 @@ from oracle.weblogic.deploy.encrypt import EncryptionException
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 
 from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
+from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import DEFAULT_AUTHENTICATOR
 from wlsdeploy.aliases.model_constants import DEFAULT_AUTHENTICATOR_USER_ATTRIBUTE_KEYS
 from wlsdeploy.aliases.model_constants import DESCRIPTION
 from wlsdeploy.aliases.model_constants import GROUP_MEMBER_OF
 from wlsdeploy.aliases.model_constants import PASSWORD
+from wlsdeploy.aliases.model_constants import SECURITY
+from wlsdeploy.aliases.model_constants import USER
 from wlsdeploy.aliases.model_constants import USER_ATTRIBUTES
 from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
@@ -191,10 +194,14 @@ class DefaultAuthenticatorLdift(LdiftBase):
     __DEFAULT_GROUPS_DICT = None
     __DEFAULT_USER_LIST = [ 'weblogic', 'OracleSystemUser', 'LCMUser' ]
 
-    def __init__(self, ldift_file_name, model_context, exception_type=ExceptionType.DISCOVER, download_temporary_dir=None):
+    def __init__(self, ldift_file_name, model_context, aliases, credential_injector,
+                 exception_type=ExceptionType.DISCOVER, download_temporary_dir=None):
+
         LdiftBase.__init__(self, model_context, exception_type, download_temporary_dir=download_temporary_dir)
 
         self._ldift_file_name = ldift_file_name
+        self._aliases = aliases
+        self._credential_injector = credential_injector
         self._ldift_entries = self.read_ldift_file(ldift_file_name)
 
 
@@ -229,6 +236,13 @@ class DefaultAuthenticatorLdift(LdiftBase):
 
                 user_entry = OrderedDict()
                 user_entry[PASSWORD] = user_password
+
+                if self._credential_injector is not None:
+                    location = LocationContext().append_location(SECURITY).append_location(USER)
+                    name_token = self._aliases.get_name_token(location)
+                    location.add_name_token(name_token, user_name)
+                    self._credential_injector.check_and_tokenize(user_entry, PASSWORD, location)
+
                 if not string_utils.is_empty(user_description):
                     user_entry[DESCRIPTION] = user_description
                 if len(user_groups_names) > 0:

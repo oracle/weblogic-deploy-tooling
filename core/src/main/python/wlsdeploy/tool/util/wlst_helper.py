@@ -1762,7 +1762,7 @@ class WlstHelper(object):
             current_path = self.get_pwd()
             self.cd(path)
             try:
-                result = load_ls(returnMap='true', returnType=ls_type)
+                result = load_ls(ls_type, returnMap='true', returnType=ls_type)
             except (self.__load_global('WLSTException'), offlineWLSTException), e:
                 pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00029', path, ls_type,
                                                         self.__get_exception_mode(e), _format_exception(e), error=e)

@@ -9,9 +9,9 @@
             "child_folders_type": "multiple",
             "folders": { },
             "attributes": {
-                "Description":    [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "Description",    "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",           "get_method": "NONE" } ],
-                "GroupMemberOf":  [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "GroupMemberOf",  "wlst_path": "WP001", "default_value": null,    "wlst_type": "delimited_string", "get_method": "NONE" } ],
-                "Name":           [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "Name",           "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",           "get_method": "NONE" } ]
+                "Description":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Description",    "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",           "get_method": "NONE" } ],
+                "GroupMemberOf":  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "GroupMemberOf",  "wlst_path": "WP001", "default_value": null,    "wlst_type": "delimited_string", "get_method": "NONE" } ],
+                "Name":           [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Name",           "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",           "get_method": "NONE" } ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
@@ -57,11 +57,11 @@
                 }
             },
             "attributes": {
-                "Description":               [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "Description",              "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",           "get_method": "NONE" } ],
-                "GroupMemberOf":             [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "GroupMemberOf",            "wlst_path": "WP001", "default_value": null,    "wlst_type": "delimited_string", "get_method": "NONE" } ],
-                "IsDefaultAdmin":            [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "IsDefaultAdmin",           "wlst_path": "WP001", "default_value": false,   "wlst_type": "boolean",          "get_method": "NONE" } ],
-                "Name":                      [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "Name",                     "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",           "get_method": "NONE" } ],
-                "Password":                  [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "Password",                 "wlst_path": "WP001", "default_value": null,    "wlst_type": "password",         "get_method": "NONE" } ]
+                "Description":               [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Description",              "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",           "get_method": "NONE" } ],
+                "GroupMemberOf":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "GroupMemberOf",            "wlst_path": "WP001", "default_value": null,    "wlst_type": "delimited_string", "get_method": "NONE" } ],
+                "IsDefaultAdmin":            [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "IsDefaultAdmin",           "wlst_path": "WP001", "default_value": false,   "wlst_type": "boolean",          "get_method": "NONE" } ],
+                "Name":                      [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Name",                     "wlst_path": "WP001", "default_value": null,    "wlst_type": "string",           "get_method": "NONE" } ],
+                "Password":                  [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Password",                 "wlst_path": "WP001", "default_value": null,    "wlst_type": "password",         "get_method": "NONE" } ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
