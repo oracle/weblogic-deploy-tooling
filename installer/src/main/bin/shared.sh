@@ -84,7 +84,6 @@ checkArgs() {
 checkJythonArgs() {
     # verify that ORACLE_HOME is set, or -oracle_home is provided.
     # if -help is provided, display usage.
-    # if -use_encryption is provided, set USE_ENCRYPTION to true
     # if -wlst_path is provided, set WLST_PATH_DIR
     # the calling script must have a usage() method.
 
@@ -111,9 +110,6 @@ checkJythonArgs() {
             -wlst_path)
             WLST_PATH_DIR="$2"
             shift
-            ;;
-            -use_encryption)
-            USE_ENCRYPTION="true"
             ;;
             *)
             # unknown option
