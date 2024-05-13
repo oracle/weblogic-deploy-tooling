@@ -437,7 +437,7 @@ class DomainCreator(Creator):
         fmw_ds_names = []
         if len(extension_templates) > 0:
             fmw_ds_names = self.rcu_helper.configure_fmw_infra_database()
-            self.__configure_opss_secrets()
+            self.__configure_opss_wallet_and_passphrase()
 
         topology_folder_list = self.aliases.get_model_topology_top_level_folder_names()
         topology_folder_list.remove(SECURITY)
@@ -1055,30 +1055,50 @@ class DomainCreator(Creator):
         self.logger.info('WLSDPLY-12576', script, class_name=self.__class_name, method_name=_method_name)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-    def __configure_opss_secrets(self):
-        _method_name = '__configure_opss_secrets'
+    def __configure_opss_wallet_and_passphrase(self):
+        _method_name = '__configure_opss_wallet_and_passphrase'
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
 
         if not self._domain_typedef.has_jrf_with_database_store():
             return
 
-        domain_info = self._domain_info
+        # Check the model for the OPSS wallet passphrase first
+        key = 'WLSDPLY-12579'
         opss_wallet_password = None
-        if OPSS_WALLET_PASSPHRASE in domain_info:
-            opss_wallet_password = domain_info[OPSS_WALLET_PASSPHRASE]
-        elif OPSS_SECRETS in domain_info:
+        if OPSS_WALLET_PASSPHRASE in self._domain_info:
+            opss_wallet_password = self.aliases.decrypt_password(self._domain_info[OPSS_WALLET_PASSPHRASE])
+        elif OPSS_SECRETS in self._domain_info:
             self.logger.deprecation('WLSDPLY-22000', OPSS_SECRETS, OPSS_WALLET_PASSPHRASE,
                                     class_name=self.__class_name, method_name=_method_name)
-            opss_wallet_password = domain_info[OPSS_SECRETS]
+            opss_wallet_password = self.aliases.decrypt_password(self._domain_info[OPSS_SECRETS])
 
-        if opss_wallet_password is not None:
-            if self.archive_helper and opss_wallet_password:
-                extract_path = self.archive_helper.extract_opss_wallet()
-                self.wlst_helper.set_shared_secret_store_with_password(extract_path, opss_wallet_password)
-        else:
-            opss_wallet_password = self.model_context.get_opss_wallet_passphrase()
-            opss_wallet = self.model_context.get_opss_wallet()
-            if opss_wallet is not None and opss_wallet_password is not None:
+        # Check the command-line args for the OPSS wallet passphrase
+        # and give it preference over the one in the model.
+        cla_passphrase = self.model_context.get_opss_wallet_passphrase()
+        if not string_utils.is_empty(cla_passphrase):
+            opss_wallet_password = cla_passphrase
+            key = 'WLSDPLY-12580'
+
+        if not string_utils.is_empty(opss_wallet_password):
+            opss_wallet = None
+
+            # Check the archive for the OPSS wallet and extract it, if present
+            if self.archive_helper:
+                opss_wallet = self.archive_helper.extract_opss_wallet()
+
+            # Check the OPSS wallet in the command-line args and give it
+            # preference over the one in the archive.
+            cla__wallet = self.model_context.get_opss_wallet()
+            if not string_utils.is_empty(cla__wallet):
+                opss_wallet = cla__wallet
+
+            if not string_utils.is_empty(opss_wallet):
                 self.wlst_helper.set_shared_secret_store_with_password(opss_wallet, opss_wallet_password)
+            else:
+                # It seems like the user wanted to create a domain with
+                # RCU schemas and attach to the existing RCU schemas.
+                ex = exception_helper.create_create_exception(key)
+                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)

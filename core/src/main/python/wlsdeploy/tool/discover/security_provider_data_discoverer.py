@@ -75,8 +75,6 @@ class SecurityProviderDataDiscoverer(Discoverer):
         self._security_provider_map = None
         self._default_realm_name = None
         self._default_realm_location = None
-        self._export_tmp_directory = None
-        self._local_tmp_directory = None
 
     def discover(self, security_provider_map):
         _method_name = 'discover'
@@ -91,7 +89,7 @@ class SecurityProviderDataDiscoverer(Discoverer):
             self._security_provider_map = security_provider_map
 
         self._find_default_realm()
-        self._export_tmp_directory, self._local_tmp_directory = self._create_tmp_directories()
+        self._export_tmp_directory, self._local_tmp_directory = self._create_tmp_directories('WDT-06903')
 
         try:
             self._discover_default_authenticator_data()
@@ -99,7 +97,7 @@ class SecurityProviderDataDiscoverer(Discoverer):
             self._discover_xacml_role_mapper_data()
             self._discover_default_credential_mapper_data()
         finally:
-            self._clean_up_tmp_directories()
+            self._clean_up_tmp_directories('WDT-06904')
 
         self._populate_admin_user_and_password()
         _logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -422,54 +420,6 @@ class SecurityProviderDataDiscoverer(Discoverer):
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=realm_name)
         return realm_name
-
-    def _create_tmp_directories(self):
-        """
-        Create the temporary directory(ies) required for exporting the data files and reading the data files.
-        In the case of SSH, the export directory is remote and the read directory is local.  Otherwise, they are
-        the same.
-        :return:
-        """
-        _method_name = '_create_tmp_directories'
-        _logger.entering(class_name=_class_name, method_name=_method_name)
-        if self._model_context.is_ssh():
-            export_tmp_directory = \
-                self._model_context.get_ssh_context().create_temp_directory_for_security_data_export()
-            local_tmp_directory = self.download_temporary_dir
-        else:
-            try:
-                export_dir_file = FileUtils.createTempDirectory('wdt_export_temp')
-                # comment out this line to see exported files...
-                export_dir_file.deleteOnExit()
-            except IOException, e:
-                ex = exception_helper.create_discover_exception('WLSDPLY-06903',
-                                                                e.getLocalizedMessage(), error=e)
-                _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                raise ex
-            export_tmp_directory = export_dir_file.getAbsolutePath()
-            local_tmp_directory = self._export_tmp_directory
-
-        _logger.exiting(class_name=_class_name, method_name=_method_name,
-                        result=[export_tmp_directory, local_tmp_directory])
-        return export_tmp_directory, local_tmp_directory
-
-    def _clean_up_tmp_directories(self):
-        _method_name = '_clean_up_tmp_directories'
-        _logger.entering(class_name=_class_name, method_name=_method_name)
-
-        # local directory in both SSH and non-SSH case is already set with java.io.File.deleteOnExit() so
-        # the only cleanup needed is the temp directory on the SSH host machine, if applicable.
-        if self._model_context.is_ssh():
-            ssh_helper = self._model_context.get_ssh_context()
-            try:
-                if ssh_helper.does_directory_exist(self._export_tmp_directory):
-                    ssh_helper.remove_file_or_directory(self._export_tmp_directory)
-            except DiscoverException, de:
-                # Best effort to remove.  If remove fails, log a warning and continue...
-                _logger.warning('WLSDPLY-06904', self._export_tmp_directory, self._model_context.get_ssh_host(),
-                                de.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
-
-        _logger.exiting(class_name=_class_name, method_name=_method_name)
 
     def _get_provider_mbean(self, location):
         _method_name = '_get_provider_mbean'

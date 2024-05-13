@@ -40,12 +40,9 @@ if %RETURN_CODE% NEQ 0 (
   GOTO done
 )
 
+@rem required Java version and patch level is dependent on use of encryption.
+@rem later versions of JDK 7 support encryption so let WDT figure it out.
 SET MIN_JDK_VERSION=7
-if "%USE_ENCRYPTION%" == "true" (
-  SET MIN_JDK_VERSION=8
-)
-
-@rem required Java version is dependent on use of encryption
 call "%SCRIPT_PATH%\shared.cmd" :javaSetup %MIN_JDK_VERSION%
 SET RETURN_CODE=%ERRORLEVEL%
 if %RETURN_CODE% NEQ 0 (
@@ -75,6 +72,7 @@ ECHO              [-archive_file ^<archive_file^>]
 ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-passphrase_env ^<passphrase_env^>]
 ECHO              [-passphrase_file ^<passphrase_file^>]
+ECHO              [-passphrase_prompt]
 ECHO              [-opss_wallet] ^<opss_wallet_file^>]
 ECHO              [-opss_wallet_passphrase_env ^<opss_wallet_passphrase_env^>]
 ECHO              [-opss_wallet_passphrase_file ^<opss_wallet_passphrase_file^>]
@@ -148,11 +146,6 @@ ECHO                           retrieve the passphrase.
 ECHO.
 ECHO         wlst_path       - the Oracle Home subdirectory of the wlst.cmd
 ECHO                           script to use (e.g., ^<ORACLE_HOME^>\soa).
-ECHO.
-ECHO    The -use_encryption switch tells the program that one or more of the
-ECHO    passwords in the model or variables files are encrypted.  The program will
-ECHO    prompt for the decryption passphrase to use to decrypt the passwords.
-ECHO    Please note that Java 8 or higher is required when using this feature.
 ECHO.
 ECHO    The -run_rcu switch tells the program to run RCU to create the database
 ECHO    schemas specified by the domain type using the specified RCU prefix.

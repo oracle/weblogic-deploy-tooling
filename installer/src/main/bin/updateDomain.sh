@@ -33,6 +33,7 @@ usage() {
   echo "          [-domain_type <domain_type>]"
   echo "          [-passphrase_env <passphrase_env>]"
   echo "          [-passphrase_file <passphrase_file>]"
+  echo "          [-passphrase_prompt]"
   echo "          [-wlst_path <wlst_path>]"
   echo "          [-cancel_changes_if_restart_required]"
   echo "          [-discard_current_edit]"
@@ -135,11 +136,6 @@ usage() {
   echo ""
   echo "        ssh_private_key_pass_prompt - Prompt for the SSH private keystore password."
   echo ""
-  echo "    The -use_encryption switch tells the program that one or more of the"
-  echo "    passwords in the model or variables files are encrypted.  The program will"
-  echo "    prompt for the decryption passphrase to use to decrypt the passwords."
-  echo "    Please note that Java 8 or higher is required when using this feature."
-  echo ""
   echo "    The -cancel_changes_if_restart_required switch tells the program to cancel"
   echo "    the changes if the update requires domain restart."
   echo ""
@@ -162,12 +158,9 @@ umask 27
 
 checkArgs "$@"
 
+# required Java version and patch level is dependent on use of encryption.
+# later versions of JDK 7 support encryption so let WDT figure it out.
 minJdkVersion=7
-if [ "$USE_ENCRYPTION" = "true" ]; then
-  minJdkVersion=8
-fi
-
-# required Java version is dependent on use of encryption
 javaSetup $minJdkVersion
 
 runWlst update.py "$@"

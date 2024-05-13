@@ -8,8 +8,10 @@ import os
 import sys
 
 from java.io import File
+from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import IllegalStateException
+from java.lang import String
 from java.lang import System
 from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.discover import DiscoverException
@@ -39,6 +41,7 @@ from wlsdeploy.tool.discover import discoverer
 from wlsdeploy.tool.discover.deployments_discoverer import DeploymentsDiscoverer
 from wlsdeploy.tool.discover.domain_info_discoverer import DomainInfoDiscoverer
 from wlsdeploy.tool.discover.multi_tenant_discoverer import MultiTenantDiscoverer
+from wlsdeploy.tool.discover.opss_wallet_discoverer import OpssWalletDiscoverer
 from wlsdeploy.tool.discover.resources_discoverer import ResourcesDiscoverer
 from wlsdeploy.tool.discover.security_provider_data_discoverer import SecurityProviderDataDiscoverer
 from wlsdeploy.tool.discover.topology_discoverer import TopologyDiscoverer
@@ -52,6 +55,7 @@ from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import cla_utils
 from wlsdeploy.util import env_helper
+from wlsdeploy.util import getcreds
 from wlsdeploy.util import model_translator
 from wlsdeploy.util import path_helper
 from wlsdeploy.util import tool_main
@@ -60,6 +64,7 @@ from wlsdeploy.util.cla_utils import TOOL_TYPE_DISCOVER
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model import Model
 from wlsdeploy.util import target_configuration_helper
+from wlsdeploy.util import unicode_helper as str_helper
 
 wlst_helper.wlst_functions = globals()
 
@@ -96,6 +101,10 @@ __optional_arguments = [
     CommandLineArgUtil.PASSPHRASE_FILE_SWITCH,
     CommandLineArgUtil.PASSPHRASE_PROMPT_SWITCH,
     CommandLineArgUtil.DISCOVER_SECURITY_PROVIDER_DATA_SWITCH,
+    CommandLineArgUtil.DISCOVER_OPSS_WALLET_SWITCH,
+    CommandLineArgUtil.OPSS_WALLET_PASSPHRASE_SWITCH,
+    CommandLineArgUtil.OPSS_WALLET_PASSPHRASE_ENV_SWITCH,
+    CommandLineArgUtil.OPSS_WALLET_PASSPHRASE_FILE_SWITCH,
     CommandLineArgUtil.TARGET_SWITCH,
     CommandLineArgUtil.REMOTE_SWITCH,
     CommandLineArgUtil.SSH_HOST_SWITCH,
@@ -140,6 +149,7 @@ def __process_args(args, is_encryption_supported):
 
     model_context = model_context_helper.create_context(_program_name, argument_map)
     __validate_discover_passwords_and_security_data_args(model_context, argument_map, is_encryption_supported)
+    __validate_discover_opss_wallet_args(model_context, argument_map, is_encryption_supported)
     model_context.get_validate_configuration().set_disregard_version_invalid_elements(True)
     return model_context
 
@@ -280,6 +290,12 @@ def __validate_discover_passwords_and_security_data_args(model_context, argument
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
     elif model_context.is_discover_security_provider_data():
+        if model_context.get_target_wlst_mode() == WlstModes.OFFLINE:
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-06059',_program_name,
+                                                       CommandLineArgUtil.DISCOVER_SECURITY_PROVIDER_DATA_SWITCH)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
+
         # -remote cannot be supported because we need access to the exported data files and possibly SSI.dat.
         if model_context.is_remote():
             ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-06058',_program_name,
@@ -287,6 +303,9 @@ def __validate_discover_passwords_and_security_data_args(model_context, argument
                                                        CommandLineArgUtil.REMOTE_SWITCH)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
+    elif model_context.is_discover_opss_wallet():
+        # Allow the encryption passphrase
+        pass
     elif model_context.get_encryption_passphrase() is not None:
         # Don't allow the passphrase arg unless we are discovering passwords or security provider data.
         if CommandLineArgUtil.PASSPHRASE_ENV_SWITCH in argument_map:
@@ -323,7 +342,8 @@ def __validate_discover_passwords_and_security_data_args(model_context, argument
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
-    if model_context.is_discover_passwords() or model_context.is_discover_security_provider_data():
+    if model_context.is_discover_passwords() or model_context.is_discover_security_provider_data() or \
+            model_context.is_discover_opss_wallet():
         if not model_context.is_encrypt_discovered_passwords() and model_context.get_encryption_passphrase() is not None:
             # don't allow turning off encryption and supplying an encryption passphrase
             if model_context.is_discover_passwords():
@@ -344,6 +364,36 @@ def __validate_discover_passwords_and_security_data_args(model_context, argument
                                                        _program_name, arg, bad_arg)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
+
+
+def __validate_discover_opss_wallet_args(model_context, argument_map, is_encryption_supported):
+    _method_name = '__validate_discover_opss_wallet_args'
+
+    if CommandLineArgUtil.DISCOVER_OPSS_WALLET_SWITCH in argument_map:
+        if model_context.get_target_wlst_mode() == WlstModes.OFFLINE:
+            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-06060',_program_name,
+                                                       CommandLineArgUtil.DISCOVER_OPSS_WALLET_SWITCH)
+            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
+
+        # Cannot verify that JRF is installed because the model_content is not fully
+        # initialized at this point so the domain typedef is not available.
+        if model_context.get_opss_wallet_passphrase() is None:
+            try:
+                passphrase_char_array = getcreds.getpass('WLSDPLY-06061')
+            except IOException, ioe:
+                ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,'WLSDPLY-06062',
+                                                           ioe.getLocalizedMessage(), error=ioe)
+                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
+
+            if passphrase_char_array is not None:
+                opss_wallet_passphrase = str_helper.to_string(String(passphrase_char_array))
+                model_context.set_opss_wallet_passphrase(opss_wallet_passphrase)
+            else:
+                ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,'WLSDPLY-06063')
+                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
 
 def __discover(model_context, aliases, credential_injector, helper, extra_tokens):
     """
@@ -378,6 +428,8 @@ def __discover(model_context, aliases, credential_injector, helper, extra_tokens
                               extra_tokens=extra_tokens).discover()
         SecurityProviderDataDiscoverer(model_context, model, base_location, wlst_mode=__wlst_mode, aliases=aliases,
                                        credential_injector=credential_injector).discover(security_provider_map)
+        OpssWalletDiscoverer(model_context, model.get_model_domain_info(), base_location, wlst_mode=__wlst_mode,
+                             aliases=aliases, credential_injector=credential_injector).discover()
         __discover_multi_tenant(model, model_context, base_location, aliases, credential_injector)
     except AliasException, ae:
         wls_version = model_context.get_effective_wls_version()
