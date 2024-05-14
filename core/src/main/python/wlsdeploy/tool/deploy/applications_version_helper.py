@@ -119,8 +119,15 @@ class ApplicationsVersionHelper(object):
                         self.logger.info('WLSDPLY-09328', model_name, versioned_name,
                                          class_name=self._class_name, method_name=_method_name)
 
-            except (IOException, FileNotFoundException, ZipException, IllegalStateException), e:
-                ex = exception_helper.create_deploy_exception('WLSDPLY-09329', model_name, source_path,
+            except (IOException, ZipException, IllegalStateException), e:
+                # The SourcePath may be a path into the archive or an absolute path to
+                # the application that was not in the archive file.
+                if self.archive_helper and self.archive_helper.is_path_into_archive(source_path):
+                    key = 'WLSDPLY-09329'
+                else:
+                    key = 'WLSDPLY-09354'
+
+                ex = exception_helper.create_deploy_exception(key, model_name, source_path,
                                                               str_helper.to_string(e), error=e)
                 self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
