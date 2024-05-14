@@ -1,5 +1,5 @@
 """
-Copyright (c) 2021, 2023, Oracle and/or its affiliates.
+Copyright (c) 2021, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -44,12 +44,12 @@ class ExtractTest(BaseTestCase):
         are incorporated into the resulting domain resource file.
         """
         # Configure the target to set cluster replicas
-        target_path = os.path.join(self.config_dir, 'targets', 'wko', 'target.json')
+        target_path = os.path.join(self.config_dir, 'targets', 'wko3', 'target.json')
         config = JsonToPython(target_path).parse()
         config['set_cluster_replicas'] = True
         PythonToJson(config).write_to_json_file(target_path)
 
-        documents = self._extract_resource_documents('1', 'wko', 'wko-domain.yaml')
+        documents = self._extract_resource_documents('1', 'wko3', 'wko-domain.yaml')
         resource = documents[0]
 
         # clusters from topology should be in the domain resource file
@@ -71,7 +71,7 @@ class ExtractTest(BaseTestCase):
         Test that fields from the kubernetes section of the model
         are transferred to the resulting domain resource file
         """
-        documents = self._extract_resource_documents('2', 'wko', 'wko-domain.yaml')
+        documents = self._extract_resource_documents('2', 'wko3', 'wko-domain.yaml')
         resource = documents[0]
 
         # clusters from kubernetes section should be in the domain resource file
