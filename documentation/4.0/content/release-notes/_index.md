@@ -1,12 +1,12 @@
 +++
 title = "Release Notes"
 date = 2024-01-09T18:27:38-05:00
-weight = 71
+weight = 70
 pre = "<b> </b>"
 +++
 
 
-### Changes in Release 4.1.1
+### Changes in Release 4.2.0
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -17,19 +17,32 @@ pre = "<b> </b>"
 None
 
 #### Other Changes
-- #1685 - Filtered out the default `OptionalFeatures` folders when they have no attributes so that they do not show up
-          in the online discovered model.
+- #1682 - Added support for discovering built-in security provider data in online mode.  This includes
+  DefaultAuthenticator users and groups, XACMLAuthorizer policies, XACMLRoleMapper roles, and DefaultCredentialMapper
+  user/password credential mappings. As with other discovery features, default values are filtered out and will not
+  appear in the model.  By default, discovering users and credential mappings require the use of WDT encryption so that
+  no clear text passwords are stored in the model or variable files.
+- #1682 - Normalized XACMLRoleMapper role handling by removing the previous discovery of XACMLRoleMapper roles (that was
+  not working with newer versions of WebLogic anyway) and removing version limitations during provisioning.
+- #1682 - Deprecated the `-use_encryption` command-line argument and replaced it with `-passphrase_prompt` to make the
+  purpose of the argument clearer.
+- #1682 - Relaxed the JDK 8 requirement to use WDT encryption.  Later versions of JDK 7 have the necessary algorithm
+  support so now WDT determines at startup whether the underlying JDK supports WDT encryption or not.
+- #1682 - Used the values of the `-admin_user` and provided password are used to
+  populate the `domainInfo:/AdminUserName` and `domainInfo:/AdminPassword` fields when discovering security provider
+  data.
+- #1688 - Enhanced variable tokenization support to include passwords in discovered security provider data. 
+- #1689 - Added the ability to discover the OPSS wallet when running in online mode.
+- #1693 - Changed the wko, wko-dii (deprecated), and wko-pv target values to refer to the latest versions instead of
+  WebLogic Kubernetes Operator 3 versions.  Added wko3, wko3-dii, and wko3-pv to accommodate users that still require
+  the ability to use these older versions.
 
 #### Bug Fixes
-- #1677 - Fixed a bug where creating a user with extra attributes would result in invalid LDIFT entries.
-- #1678 - Fixed a bug that was causing errors when deploying a new application and the server required a restart.
-- #1679 - Fixed a bug where the SSHJ libraries (that only work with JDK 8 and above) were causing the tools to fail
-          when running with JDK 7.
-- #1680 - Fixed the `DataSourceLogFile` and `WebServerLog` folders default value for the `DateFormatPattern` attribute
-          for WLS versions prior to 12.2.1 so that they no longer show up in the online discovered model.
-- #1681 - Worked around a pre-12.2.1 WLST bug that was preventing the online tools from determining the server's WLS version.
-- #1683 - Fixed a bug with the Model Help Tool where our use of JLine libraries (that only work with JDK 8 and above)
-          were causing the Model Help tool to fail when run with JDK 7.
+- #1687 - Fixed a problem with the Discover Domain Tool not properly handling Data Source user names with spaces with
+  older versions of WebLogic Server.
+- #1690 - Fixed a problem with determining the default security realm name that caused it to always be `myrealm`.
+- #1692 - Fixed a misleading error message when the model points to an application outside of the archive file that
+  does not exist.
 
 #### Known Issues
 - SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,

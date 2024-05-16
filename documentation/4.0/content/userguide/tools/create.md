@@ -187,7 +187,7 @@ except for the WLST offline validation of the domain's administrative password.
 
 ### Using an encrypted model
 
-If the model or variables file contains passwords encrypted with the WDT Encryption tool, you must provide the 
+If the model or variables file contains passwords encrypted with the WDT Encrypt Model Tool, you must provide the 
 WDT encryption passphrase used to encrypt the model so that the Create Domain Tool can decrypt them.  To do this,
 provide one of the following command-line arguments: 
 
@@ -227,6 +227,7 @@ domainInfo:
 topology:
     Name: my-domain
 ```
+
 ### Environment variables
 The following environment variables may be set.
 
@@ -241,7 +242,7 @@ install WebLogic Server.
 {{% /notice %}}
 
 
-### Opening an issue against Create Domain
+### Opening an issue against the Create Domain Tool
 
 Please provide the full console output of the tool (that is, what is printed to stdout and stderr) and the log file,
 `createDomain.log`, which is typically found in the `<install home>/weblogic-deploy/logs` directory.  If possible,

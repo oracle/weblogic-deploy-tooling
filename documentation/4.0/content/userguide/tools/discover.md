@@ -23,7 +23,7 @@ populated model that is usable by the other tools without editing the model file
 more information.
 
 The Discover Domain tool can be run in either offline or online mode, and each mode has some options that control its
-behavior.  
+behavior.
 
 - offline mode - Offline mode uses WLST offline to read the domain configuration from the domain home directory.  This
   means that the tool must run on the same host as the domain's Administration Server and that the user running the
@@ -261,7 +261,7 @@ install WebLogic Server.
 {{% /notice %}}
 
 
-### Opening an issue against Discover Domain
+### Opening an issue against the Discover Domain Tool
 
 Please provide the full console output of the tool (that is, what is printed to stdout and stderr) and the log file,
 `discoverDomain.log`, which is typically found in the `<install home>/weblogic-deploy/logs` directory.  If possible,
