@@ -5,6 +5,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util import path_helper
 from wlsdeploy.util.validate_configuration import VALIDATION_METHODS
 from wlsdeploy.tool.util.targets import model_crd_helper
 
@@ -52,6 +53,9 @@ CREDENTIALS_METHODS = [
     SECRETS_METHOD,
     CONFIG_OVERRIDES_SECRETS_METHOD
 ]
+
+# wko and wko_* targets are translated to current version
+WKO_DEFAULT_PREFIX = 'wko4'
 
 # domain home source types and names
 DOMAIN_IN_IMAGE_SOURCE_TYPE = 'dii'
@@ -328,3 +332,21 @@ class TargetConfiguration(object):
                                                        value, key, ', '.join(valid_values))
             self._logger.throwing(ex, class_name=self._class_name, method_name=method_name)
             raise ex
+
+
+def get_target_configuration_path(target_name):
+    _path_helper = path_helper.get_path_helper()
+    directory_name = get_target_configuration_key(target_name)
+    target_config_path = _path_helper.local_join('targets', directory_name, 'target.json')
+    return _path_helper.find_local_config_path(target_config_path)
+
+
+def get_target_configuration_key(target_name):
+    target_key = target_name
+    if target_name == 'wko':
+        target_key = WKO_DEFAULT_PREFIX
+
+    if target_name.startswith('wko-'):
+        target_key = WKO_DEFAULT_PREFIX + target_name[3:]
+
+    return target_key

@@ -22,6 +22,7 @@ from wlsdeploy.aliases.model_constants import XACML_ROLE_MAPPER
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging import platform_logger
+from wlsdeploy.util import target_configuration
 from wlsdeploy.util import validate_configuration
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util import path_helper
@@ -787,8 +788,7 @@ class ModelContext(object):
 
     def get_target_configuration_file(self):
         if self._target:
-            target_path = os.path.join('targets', self._target, 'target.json')
-            return self._path_helper.find_local_config_path(target_path)
+            return target_configuration.get_target_configuration_path(self._target)
         return None
 
     def get_target(self):
