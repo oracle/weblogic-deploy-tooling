@@ -39,6 +39,7 @@ usage() {
   echo "          [-opss_wallet_passphrase_file <opss_wallet_passphrase_file>]"
   echo "          [-passphrase_env <passphrase_env>]"
   echo "          [-passphrase_file <passphrase_file>]"
+  echo "          [-passphrase_prompt]"
   echo "          [-wlst_path <wlst_path>]"
   echo ""
   echo "    where:"
@@ -110,11 +111,6 @@ usage() {
   echo "        wlst_path       - the Oracle Home subdirectory of the wlst.sh"
   echo "                          script to use (e.g., <ORACLE_HOME>/soa)."
   echo ""
-  echo "    The -use_encryption switch tells the program that one or more of the"
-  echo "    passwords in the model or variables files are encrypted.  The program will"
-  echo "    prompt for the decryption passphrase to use to decrypt the passwords."
-  echo "    Please note that Java 8 or higher is required when using this feature."
-  echo ""
   echo "    The -run_rcu switch tells the program to run RCU to create the database"
   echo "    schemas specified by the domain type using the specified RCU prefix."
   echo "    Running RCU will drop any existing schemas with the same RCU prefix"
@@ -133,12 +129,9 @@ umask 27
 
 checkArgs "$@"
 
+# required Java version and patch level is dependent on use of encryption.
+# later versions of JDK 7 support encryption so let WDT figure it out.
 minJdkVersion=7
-if [ "$USE_ENCRYPTION" = "true" ]; then
-  minJdkVersion=8
-fi
-
-# required Java version is dependent on use of encryption
 javaSetup $minJdkVersion
 
 runWlst create.py "$@"

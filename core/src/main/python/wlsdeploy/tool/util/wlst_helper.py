@@ -518,8 +518,9 @@ class WlstHelper(object):
 
         In online mode, clean up the return values to strip off trailing spaces and
         convert the string 'null' into None.
+
         :param path: for which to return a map of attributes. If None, the current path is searched
-        :param log_throwing: whether or not to log the throwing message if the path location is not found
+        :param log_throwing: whether to log the throwing message if the path location is not found
         :return: map of WebLogic attributes
         :raises: Exception for the specified tool type: if a WLST error occurs
         """
@@ -1702,7 +1703,7 @@ class WlstHelper(object):
                 self.__load_global('enableJTATLogDBPersistence')(True)
 
         except self.__load_global('WLSTException'), e:
-            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDEPY-00132',
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00132',
                                                     _format_exception(e), error=e)
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
@@ -1721,8 +1722,36 @@ class WlstHelper(object):
                 self.__load_global('enableJMSStoreDBPersistence')(True)
 
         except self.__load_global('WLSTException'), e:
-            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDEPY-00131',
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00131',
                                                     _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def export_security_provider_data(self, provider_mbean, export_format, export_file, export_constraints):
+        _method_name = 'export_security_provider_data'
+        self.__logger.entering(provider_mbean, export_format, export_file, export_constraints,
+                               class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            provider_mbean.exportData(export_format, export_file, export_constraints)
+        except self.__load_global('WLSTException'), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00135', export_format,
+                                                    export_file, _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+
+    def export_encryption_key(self, jps_config_file, output_dir, passphrase):
+        _method_name = 'export_encryption_key'
+        self.__logger.entering(jps_config_file, output_dir, class_name=self.__class_name, method_name=_method_name)
+
+        from oracle.security.jps.internal.tools.utility.cskey import ImportExportKeyException
+        try:
+            self.__load_global('exportEncryptionKey')(jps_config_file, output_dir, passphrase)
+        except (ImportExportKeyException, self.__load_global('WLSTException')), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00136', jps_config_file,
+                                                    output_dir, _format_exception(e), error=e)
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
@@ -1733,7 +1762,7 @@ class WlstHelper(object):
         :param method_name: calling method name
         :param ls_type: the WLST return type requested
         :param path: if not None the path (default is the current path)
-        :param log_throwing: whether or not to log the throwing message if the path location is not found
+        :param log_throwing: whether to log the throwing message if the path location is not found
         :return: the result of the WLST ls(returnMap='true') call
         :raises: Exception for the specified tool type: if a WLST error occurs
         """
@@ -1742,10 +1771,11 @@ class WlstHelper(object):
                              class_name=self.__class_name, method_name=_method_name)
 
         load_ls = self.__load_global('ls')
+        current_path = self.get_pwd()
         if path is not None:
-            # ls(path, returnMap='true') is busted in earlier versions of WLST so go ahead and
-            # change directories to the specified path to workaround this
-            current_path = self.get_pwd()
+            # Since ls(path, returnType='a') is broken, change directories to the specified
+            # path and pass the returnType value as the first unnamed argument.
+            #
             self.cd(path)
             try:
                 result = load_ls(ls_type, returnMap='true', returnType=ls_type)
@@ -1758,7 +1788,8 @@ class WlstHelper(object):
                 raise pwe
             self.cd(current_path)
         else:
-            current_path = self.get_pwd()
+            # Since ls(returnType='a') is broken, pass the returnType value as the first unnamed argument.
+            #
             try:
                 result = load_ls(ls_type, returnMap='true', returnType=ls_type)
             except (self.__load_global('WLSTException'), offlineWLSTException), e:

@@ -43,8 +43,10 @@ if %RETURN_CODE% NEQ 0 (
   GOTO done
 )
 
-@rem Java 8 is required for encryption library
-call "%SCRIPT_PATH%\shared.cmd" :javaSetup 8
+@rem required Java version and patch level is dependent on use of encryption.
+@rem later versions of JDK 7 support encryption so let WDT figure it out.
+SET MIN_JDK_VERSION=7
+call "%SCRIPT_PATH%\shared.cmd" :javaSetup %MIN_JDK_VERSION%
 SET RETURN_CODE=%ERRORLEVEL%
 if %RETURN_CODE% NEQ 0 (
   GOTO done
@@ -69,6 +71,7 @@ ECHO              [-model_file ^<model_file^>]
 ECHO              [-variable_file ^<variable_file^>]
 ECHO              [-passphrase_env ^<passphrase_env^>]
 ECHO              [-passphrase_file ^<passphrase_file^>]
+ECHO              [-passphrase_prompt]
 ECHO.
 ECHO     where:
 ECHO         oracle_home     - the existing Oracle Home directory for the domain.
@@ -95,8 +98,6 @@ ECHO                           passphrase.
 ECHO.
 ECHO     The -manual switch can be used to run the tool without a model and get
 ECHO     the encrypted value for a single password.
-ECHO.
-ECHO     NOTE: This tool requires the use of JDK version 1.8 or higher.
 ECHO.
 
 :exit_script

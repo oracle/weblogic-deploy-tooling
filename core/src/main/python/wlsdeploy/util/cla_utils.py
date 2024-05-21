@@ -19,12 +19,15 @@ import oracle.weblogic.deploy.aliases.VersionUtils as JVersionUtils
 import oracle.weblogic.deploy.util.FileUtils as JFileUtils
 import oracle.weblogic.deploy.util.StringUtils as JStringUtils
 
+from wlsdeploy.aliases.model_constants import DISCOVER_SECURITY_PROVIDER_TYPES
+from wlsdeploy.aliases.model_constants import DISCOVER_SECURITY_PROVIDER_TYPES_LOWER_CASE
 from wlsdeploy.exception.exception_helper import create_cla_exception
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.targets.model_crd_helper import VERRAZZANO_PRODUCT_KEY
 from wlsdeploy.util import path_helper
-import wlsdeploy.util.unicode_helper as str_helper
+from wlsdeploy.util import target_configuration as target_config_module
+from wlsdeploy.util import unicode_helper as str_helper
 from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.target_configuration import TargetConfiguration
 from wlsdeploy.util.validate_configuration import VALIDATION_METHODS
@@ -62,18 +65,20 @@ class CommandLineArgUtil(object):
     MODEL_FILE_SWITCH          = '-model_file'
     DISCARD_CURRENT_EDIT_SWITCH   = '-discard_current_edit'
     OPSS_WALLET_SWITCH         = '-opss_wallet'
-    OPSS_WALLET_PASSPHRASE     = '-opss_wallet_passphrase'
-    OPSS_WALLET_FILE_PASSPHRASE = '-opss_wallet_passphrase_file'
-    OPSS_WALLET_ENV_PASSPHRASE  = '-opss_wallet_passphrase_env'
+    OPSS_WALLET_PASSPHRASE_SWITCH     = '-opss_wallet_passphrase'
+    OPSS_WALLET_PASSPHRASE_FILE_SWITCH = '-opss_wallet_passphrase_file'
+    OPSS_WALLET_PASSPHRASE_ENV_SWITCH  = '-opss_wallet_passphrase_env'
     VARIABLE_FILE_SWITCH       = '-variable_file'
     # phony arg used as a key to store the encryption passphrase
     PASSPHRASE_SWITCH          = '-passphrase'
     PASSPHRASE_ENV_SWITCH      = '-passphrase_env'
     PASSPHRASE_FILE_SWITCH     = '-passphrase_file'
+    PASSPHRASE_PROMPT_SWITCH   = '-passphrase_prompt'
     ENCRYPT_MANUAL_SWITCH      = '-manual'
     # phony arg used as a key to store the password
     ONE_PASS_SWITCH            = '-password'
     CANCEL_CHANGES_IF_RESTART_REQ_SWITCH = '-cancel_changes_if_restart_required'
+    # deprecated in 4.2.0 and replaced with -passphrase_prompt
     USE_ENCRYPTION_SWITCH      = '-use_encryption'
     RUN_RCU_SWITCH             = '-run_rcu'
     TARGET_VERSION_SWITCH      = '-target_version'
@@ -111,6 +116,8 @@ class CommandLineArgUtil(object):
     SSH_PRIVATE_KEY_PASSPHRASE_FILE_SWITCH   = '-ssh_private_key_pass_file'
     SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH = '-ssh_private_key_pass_prompt'
     DISCOVER_PASSWORDS_SWITCH  = '-discover_passwords'
+    DISCOVER_SECURITY_PROVIDER_DATA_SWITCH = '-discover_security_provider_data'
+    DISCOVER_OPSS_WALLET_SWITCH = '-discover_opss_wallet'
 
     # arguments that are true if specified, false if not
     BOOLEAN_SWITCHES = [
@@ -123,12 +130,15 @@ class CommandLineArgUtil(object):
         RUN_RCU_SWITCH,
         UPDATE_RCU_SCHEMA_PASS_SWITCH,
         DISCARD_CURRENT_EDIT_SWITCH,
-        USE_ENCRYPTION_SWITCH,
         REMOTE_SWITCH,
         WAIT_FOR_EDIT_LOCK_SWITCH,
         SSH_PASS_PROMPT_SWITCH,
         SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH,
-        DISCOVER_PASSWORDS_SWITCH
+        DISCOVER_PASSWORDS_SWITCH,
+        PASSPHRASE_PROMPT_SWITCH,
+        DISCOVER_OPSS_WALLET_SWITCH,
+        # deprecated in 4.2.0
+        USE_ENCRYPTION_SWITCH
     ]
 
     # a slot to stash the parsed domain typedef dictionary
@@ -316,7 +326,13 @@ class CommandLineArgUtil(object):
                 full_path = self._validate_variable_injector_file_arg(value)
                 self._add_arg(key, full_path, True)
             elif self.is_boolean_switch(key):
-                self._add_arg(key, True)
+                if key == CommandLineArgUtil.USE_ENCRYPTION_SWITCH:
+                    _logger.deprecation('WLSDPLY-22000', CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
+                                        CommandLineArgUtil.PASSPHRASE_PROMPT_SWITCH,
+                                        class_name=self._class_name, method_name=method_name)
+                    self._add_arg(CommandLineArgUtil.PASSPHRASE_PROMPT_SWITCH, True)
+                else:
+                    self._add_arg(key, True)
             elif self.is_compare_model_output_dir_switch(key):
                 value, idx = self._get_arg_value(args, idx)
                 full_path = self._validate_compare_model_output_dir_arg(value)
@@ -385,6 +401,10 @@ class CommandLineArgUtil(object):
                 value, idx = self._get_arg_value(args, idx)
                 value = self._validate_ssh_private_key_passphrase_file_arg(value)
                 self._add_arg(self.get_ssh_private_key_passphrase_switch(), value)
+            elif self.is_discover_security_provider_data_switch(key):
+                value, idx = self._get_arg_value(args, idx)
+                value = self._validate_discover_security_provider_data_arg(value)
+                self._add_arg(key, value)
             else:
                 ex = create_cla_exception(ExitCode.USAGE_ERROR, 'WLSDPLY-01601', self._program_name, key)
                 _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
@@ -735,19 +755,19 @@ class CommandLineArgUtil(object):
         return CommandLineArgUtil.ARCHIVE_FILES_SEPARATOR.join(result_archive_files)
 
     def get_opss_passphrase_key(self):
-        return self.OPSS_WALLET_PASSPHRASE
+        return self.OPSS_WALLET_PASSPHRASE_SWITCH
 
     def is_opss_passphrase_key(self, key):
 
-        return self.OPSS_WALLET_PASSPHRASE == key
+        return self.OPSS_WALLET_PASSPHRASE_SWITCH == key
 
     def is_opss_passphrase_env(self, key):
 
-        return self.OPSS_WALLET_ENV_PASSPHRASE == key
+        return self.OPSS_WALLET_PASSPHRASE_ENV_SWITCH == key
 
     def is_opss_passphrase_file(self, key):
 
-        return self.OPSS_WALLET_FILE_PASSPHRASE == key
+        return self.OPSS_WALLET_PASSPHRASE_FILE_SWITCH == key
 
     def _validate_opss_passphrase_arg(self, value):
         method_name = '_validate_opss_passphrase_arg'
@@ -995,10 +1015,14 @@ class CommandLineArgUtil(object):
     def _validate_target_arg(self, value):
         method_name = '_validate_target_arg'
 
+        # log if the target key was translated to a version-specific key
+        target_config_key = target_config_module.get_target_configuration_key(value)
+        if target_config_key != value:
+            _logger.info("WLSDPLY-00917", target_config_key, value)
+
         # Check if the target configuration file exists
         _path_helper = path_helper.get_path_helper()
-        target_configuration_file = \
-            _path_helper.find_local_config_path(_path_helper.local_join('targets', value, 'target.json'))
+        target_configuration_file = target_config_module.get_target_configuration_path(value)
         if not os.path.exists(target_configuration_file):
             ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-01643', value, target_configuration_file)
             _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
@@ -1194,6 +1218,41 @@ class CommandLineArgUtil(object):
     def _validate_ssh_private_key_passphrase_file_arg(self, value):
         method_name = '_validate_ssh_private_key_passphrase_file_arg'
         return self._get_password_from_file(value, method_name, 'WLSDPLY-00907', 'WLSDPLY-00908', 'WLSDPLY-00909')
+
+    def is_discover_security_provider_data_switch(self, key):
+        return key == self.DISCOVER_SECURITY_PROVIDER_DATA_SWITCH
+
+    def _validate_discover_security_provider_data_arg(self, value):
+        method_name = '_validate_discover_security_provider_data_arg'
+
+        if JStringUtils.isEmpty(value):
+            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-00915')
+            _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+            raise ex
+        else:
+            new_values = []
+            invalid_values = []
+            scopes = value.split(',')
+            for scope in scopes:
+                # trim any leading/trailing whitespace
+                provider_scope = scope.strip()
+                # allow case mismatches
+                if provider_scope.lower() not in DISCOVER_SECURITY_PROVIDER_TYPES_LOWER_CASE:
+                    invalid_values.append(provider_scope)
+                else:
+                    # ensure returned value is case-standardized
+                    idx = DISCOVER_SECURITY_PROVIDER_TYPES_LOWER_CASE.index(provider_scope.lower())
+                    new_values.append(DISCOVER_SECURITY_PROVIDER_TYPES[idx])
+
+            if len(invalid_values) > 0:
+                ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-00916',
+                                          value, str_helper.to_string(invalid_values))
+                _logger.throwing(ex, class_name=self._class_name, method_name=method_name)
+                raise ex
+
+            new_value = ','.join(new_values)
+
+        return new_value
 
     ###########################################################################
     # Helper methods                                                          #

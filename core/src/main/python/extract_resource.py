@@ -43,17 +43,21 @@ __optional_arguments = [
     CommandLineArgUtil.DOMAIN_HOME_SWITCH,
     CommandLineArgUtil.TARGET_SWITCH,
     CommandLineArgUtil.VARIABLE_FILE_SWITCH,
-    CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
     CommandLineArgUtil.PASSPHRASE_SWITCH,
     CommandLineArgUtil.PASSPHRASE_FILE_SWITCH,
     CommandLineArgUtil.PASSPHRASE_ENV_SWITCH,
+    CommandLineArgUtil.PASSPHRASE_PROMPT_SWITCH,
+    # deprecated in 4.2.0
+    CommandLineArgUtil.USE_ENCRYPTION_SWITCH
+
 ]
 
 
-def __process_args(args):
+def __process_args(args, is_encryption_supported):
     """
     Process the command-line arguments and prompt the user for any missing information
     :param args: the command-line arguments list
+    :param is_encryption_supported: whether WDT encryption is supported by the JVM
     :raises CLAException: if an error occurs while validating and processing the command-line arguments
     """
     _method_name = '__process_args'
@@ -69,7 +73,7 @@ def __process_args(args):
 
     cla_helper.validate_required_model(_program_name, argument_map)
     cla_helper.validate_variable_file_exists(_program_name, argument_map)
-    cla_helper.process_encryption_args(argument_map)
+    cla_helper.process_encryption_args(argument_map, is_encryption_supported)
 
     # allow unresolved tokens and entries
     argument_map[CommandLineArgUtil.VALIDATION_METHOD] = validate_configuration.LAX_METHOD

@@ -35,6 +35,7 @@ usage() {
   echo "          [-variable_file <variable_file>]"
   echo "          [-passphrase_env <passphrase_env>]"
   echo "          [-passphrase_file <passphrase_file>]"
+  echo "          [-passphrase_prompt]"
   echo ""
   echo "    where:"
   echo "        oracle_home     - the existing Oracle Home directory for the domain."
@@ -77,7 +78,9 @@ umask 27
 
 checkJythonArgs "$@"
 
-# Java 8 is required for encryption library
-javaSetup 8
+# required Java version and patch level is dependent on use of encryption.
+# later versions of JDK 7 support encryption so let WDT figure it out.
+minJdkVersion=7
+javaSetup $minJdkVersion
 
 runJython encrypt.py "$@"

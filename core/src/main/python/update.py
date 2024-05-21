@@ -60,10 +60,10 @@ __optional_arguments = [
     CommandLineArgUtil.ADMIN_PASS_SWITCH,
     CommandLineArgUtil.ADMIN_PASS_FILE_SWITCH,
     CommandLineArgUtil.ADMIN_PASS_ENV_SWITCH,
-    CommandLineArgUtil.USE_ENCRYPTION_SWITCH,
     CommandLineArgUtil.PASSPHRASE_SWITCH,
     CommandLineArgUtil.PASSPHRASE_ENV_SWITCH,
     CommandLineArgUtil.PASSPHRASE_FILE_SWITCH,
+    CommandLineArgUtil.PASSPHRASE_PROMPT_SWITCH,
     CommandLineArgUtil.CANCEL_CHANGES_IF_RESTART_REQ_SWITCH,
     CommandLineArgUtil.OUTPUT_DIR_SWITCH,
     CommandLineArgUtil.UPDATE_RCU_SCHEMA_PASS_SWITCH,
@@ -81,14 +81,17 @@ __optional_arguments = [
     CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_SWITCH,
     CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_ENV_SWITCH,
     CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_FILE_SWITCH,
-    CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH
+    CommandLineArgUtil.SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH,
+    # deprecated in 4.2.0
+    CommandLineArgUtil.USE_ENCRYPTION_SWITCH
 ]
 
 
-def __process_args(args):
+def __process_args(args, is_encryption_supported):
     """
     Process the command-line arguments and prompt the user for any missing information
     :param args: the command-line arguments list
+    :param is_encryption_supported: whether WDT encryption is supported by the JVM
     :raises CLAException: if an error occurs while validating and processing the command-line arguments
     """
     global __wlst_mode
@@ -103,7 +106,7 @@ def __process_args(args):
     __wlst_mode = cla_helper.process_online_args(argument_map)
     cla_helper.validate_if_domain_home_required(_program_name, argument_map, __wlst_mode)
     cla_helper.validate_ssh_is_supported(_program_name, argument_map)
-    cla_helper.process_encryption_args(argument_map)
+    cla_helper.process_encryption_args(argument_map, is_encryption_supported)
 
     return model_context_helper.create_context(_program_name, argument_map)
 

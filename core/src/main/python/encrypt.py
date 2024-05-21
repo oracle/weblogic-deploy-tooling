@@ -54,10 +54,11 @@ __optional_arguments = [
 ]
 
 
-def __process_args(args):
+def __process_args(args, is_encryption_supported):
     """
     Process the command-line arguments and prompt the user for any missing information
     :param args: the command-line arguments list
+    :param is_encryption_supported: whether WDT encryption is supported by the JVM
     :raises CLAException: if an error occurs while validating and processing the command-line arguments
     """
     _method_name = '__process_args'
@@ -215,7 +216,7 @@ def _process_request(args, model_context=None):
     __logger.entering(args[0], class_name=_class_name, method_name=_method_name)
     if model_context is None:
         try:
-            model_context = __process_args(args)
+            model_context = __process_args(args, True)
         except CLAException, ex:
             exit_code = ex.getExitCode()
             if exit_code != ExitCode.HELP:

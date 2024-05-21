@@ -1,0 +1,11 @@
+{
+  "Admin": "Grp(Administrators)",
+  "Monitor": "Grp(Monitors)",
+  "OracleSystemRole": "Grp(OracleSystemGroup)",
+  "AppTester": "Grp(AppTesters)",
+  "AdminChannelUser": "Grp(AdminChannelUsers)",
+  "CrossDomainConnector": "Grp(CrossDomainConnectors)",
+  "Operator": "Grp(Operators)",
+  "Deployer": "Grp(Deployers)",
+  "Anonymous": "Grp(everyone)"
+}

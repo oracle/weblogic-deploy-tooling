@@ -206,19 +206,19 @@ Copyright (c) 2000-2011 ymnk, JCraft,Inc. All rights reserved.
 org.antlr:antlr4-runtime:4.9.3
 Copyright (c) 2012-2022 The ANTLR Project. All rights reserved.
 
-org.jline:jline-native:3.24.1
+org.jline:jline-native:3.26.1
 Copyright (c) 2002-2023, the original author or authors.
 All rights reserved.
 
-org.jline:jline-reader:3.24.1
+org.jline:jline-reader:3.26.1
 Copyright (c) 2002-2023, the original author or authors.
 All rights reserved.
 
-org.jline:jline-terminal:3.24.1
+org.jline:jline-terminal:3.26.1
 Copyright (c) 2002-2023, the original author or authors.
 All rights reserved.
 
-org.jline:jline-terminal-jansi:3.24.1
+org.jline:jline-terminal-jansi:3.26.1
 Copyright (c) 2002-2023, the original author or authors.
 All rights reserved.
 
@@ -443,7 +443,7 @@ com.google.errorprone:error_prone_annotations:2.26.1
 com.google.guava:failureaccess:1.0.2
 Copyright (C) 2018 The Guava Authors
 
-com.google.guava:guava:33.1.0-jre
+com.google.guava:guava:33.2.0-jre
 Copyright (C) 2006-2024 The Guava Authors
 
 com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava

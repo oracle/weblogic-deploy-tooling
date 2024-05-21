@@ -374,6 +374,50 @@ class SSHContext(object):
         self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
         return result
 
+    def create_temp_directory_for_security_data_export(self):
+        _method_name = 'create_temp_directory_for_security_data_export'
+        self._logger.entering(class_name=self._class_name, method_name=_method_name)
+
+        user_name = JSystem.getProperty('user.name')
+        ssh_user = self._model_context.get_ssh_user()
+        if ssh_user is not None and ssh_user != '':
+            user_name = ssh_user
+
+        if self._is_windows():
+            env_var = 'TEMP'
+        else:
+            env_var = 'TMPDIR'
+        command = self._os_helper.get_environment_variable_command(env_var)
+        exit_code, output_lines = self._run_exec_command(command)
+        if exit_code == 0:
+            result = self._os_helper.get_environment_variable_value(output_lines, env_var)
+        else:
+            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32042', env_var,
+                command, self._ssh_client.getRemoteHostname(), self._join_lines(output_lines))
+            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+
+        if self._is_windows():
+            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32043', user_name, env_var,
+                                                   self._ssh_client.getRemoteHostname())
+            self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+            raise ex
+        else:
+            if result is None or result == '':
+                result = '/tmp'
+
+        if self._is_windows():
+            remote_tmp_dir = '%s\\%s\\' % (result, 'wdt_export_temp')
+        else:
+            remote_tmp_dir = '%s/%s_%s/' % (result, 'wdt_export_temp', user_name)
+
+        if self.does_directory_exist(remote_tmp_dir):
+            self.remove_file_or_directory(remote_tmp_dir)
+        self.create_directories_if_not_exist(remote_tmp_dir)
+
+        self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=remote_tmp_dir)
+        return remote_tmp_dir
+
     def connect(self):
         _method_name = 'connect'
         self._logger.entering(class_name=self._class_name, method_name=_method_name)

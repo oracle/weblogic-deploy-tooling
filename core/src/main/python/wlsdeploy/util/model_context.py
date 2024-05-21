@@ -12,10 +12,17 @@ import java.lang.System as System
 import java.net.URI as URI
 
 from oracle.weblogic.deploy.util import XPathUtil
+
+from wlsdeploy.aliases.model_constants import ALL
+from wlsdeploy.aliases.model_constants import DEFAULT_AUTHENTICATOR
+from wlsdeploy.aliases.model_constants import DEFAULT_CREDENTIAL_MAPPER
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
+from wlsdeploy.aliases.model_constants import XACML_AUTHORIZER
+from wlsdeploy.aliases.model_constants import XACML_ROLE_MAPPER
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.json.json_translator import JsonToPython
 from wlsdeploy.logging import platform_logger
+from wlsdeploy.util import target_configuration
 from wlsdeploy.util import validate_configuration
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util import path_helper
@@ -79,10 +86,11 @@ class ModelContext(object):
         self._model_file = None
         self._variable_file_name = None
         self._run_rcu = False
+        self._is_encryption_supported = True
         self._encryption_passphrase = None
+        self._encryption_passphrase_prompt = False
         self._encrypt_manual = False
         self._encrypt_one_pass = None
-        self._use_encryption = False
         self._wl_version = None
         self._remote_wl_version = None
         self._wlst_mode = None
@@ -118,6 +126,8 @@ class ModelContext(object):
         self._remote_output_dir = None
         self._local_output_dir = None
         self._discover_passwords = False
+        self._discover_security_provider_data = None
+        self._discover_opss_wallet = False
         self._path_helper = path_helper.get_path_helper()
 
         self._trailing_args = []
@@ -262,6 +272,9 @@ class ModelContext(object):
         if CommandLineArgUtil.PASSPHRASE_SWITCH in arg_map:
             self._encryption_passphrase = arg_map[CommandLineArgUtil.PASSPHRASE_SWITCH]
 
+        if CommandLineArgUtil.PASSPHRASE_PROMPT_SWITCH in arg_map:
+            self._encryption_passphrase_prompt = arg_map[CommandLineArgUtil.PASSPHRASE_PROMPT_SWITCH]
+
         if CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH in arg_map:
             self._encrypt_manual = arg_map[CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH]
 
@@ -271,14 +284,11 @@ class ModelContext(object):
         if CommandLineArgUtil.CANCEL_CHANGES_IF_RESTART_REQ_SWITCH in arg_map:
             self._cancel_changes_if_restart_required = arg_map[CommandLineArgUtil.CANCEL_CHANGES_IF_RESTART_REQ_SWITCH]
 
-        if CommandLineArgUtil.USE_ENCRYPTION_SWITCH in arg_map:
-            self._use_encryption = arg_map[CommandLineArgUtil.USE_ENCRYPTION_SWITCH]
-
         if CommandLineArgUtil.ARCHIVE_FILE in arg_map:
             self._archive_file = arg_map[CommandLineArgUtil.ARCHIVE_FILE]
 
-        if CommandLineArgUtil.OPSS_WALLET_PASSPHRASE in arg_map:
-            self._opss_wallet_passphrase = arg_map[CommandLineArgUtil.OPSS_WALLET_PASSPHRASE]
+        if CommandLineArgUtil.OPSS_WALLET_PASSPHRASE_SWITCH in arg_map:
+            self._opss_wallet_passphrase = arg_map[CommandLineArgUtil.OPSS_WALLET_PASSPHRASE_SWITCH]
 
         if CommandLineArgUtil.OPSS_WALLET_SWITCH in arg_map:
             self._opss_wallet = arg_map[CommandLineArgUtil.OPSS_WALLET_SWITCH]
@@ -316,6 +326,13 @@ class ModelContext(object):
 
         if CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH in arg_map:
             self._discover_passwords = arg_map[CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH]
+
+        if CommandLineArgUtil.DISCOVER_SECURITY_PROVIDER_DATA_SWITCH in arg_map:
+            self._discover_security_provider_data = \
+                arg_map[CommandLineArgUtil.DISCOVER_SECURITY_PROVIDER_DATA_SWITCH].split(',')
+
+        if CommandLineArgUtil.DISCOVER_OPSS_WALLET_SWITCH in arg_map:
+            self._discover_opss_wallet = arg_map[CommandLineArgUtil.DISCOVER_OPSS_WALLET_SWITCH]
 
     def __copy__(self):
         arg_map = dict()
@@ -388,18 +405,18 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.DOMAIN_TYPEDEF] = self._domain_typedef
         if self._encryption_passphrase is not None:
             arg_map[CommandLineArgUtil.PASSPHRASE_SWITCH] = self._encryption_passphrase
+        if self._encryption_passphrase_prompt is not None:
+            arg_map[CommandLineArgUtil.PASSPHRASE_PROMPT_SWITCH] = self._encryption_passphrase_prompt
         if self._encrypt_manual is not None:
             arg_map[CommandLineArgUtil.ENCRYPT_MANUAL_SWITCH] = self._encrypt_manual
         if self._encrypt_one_pass is not None:
             arg_map[CommandLineArgUtil.ONE_PASS_SWITCH] = self._encrypt_one_pass
         if self._cancel_changes_if_restart_required is not None:
             arg_map[CommandLineArgUtil.CANCEL_CHANGES_IF_RESTART_REQ_SWITCH] = self._cancel_changes_if_restart_required
-        if self._use_encryption is not None:
-            arg_map[CommandLineArgUtil.USE_ENCRYPTION_SWITCH] = self._use_encryption
         if self._archive_file is not None:
             arg_map[CommandLineArgUtil.ARCHIVE_FILE] = self._archive_file
         if self._opss_wallet_passphrase is not None:
-            arg_map[CommandLineArgUtil.OPSS_WALLET_PASSPHRASE] = self._opss_wallet_passphrase
+            arg_map[CommandLineArgUtil.OPSS_WALLET_PASSPHRASE_SWITCH] = self._opss_wallet_passphrase
         if self._opss_wallet is not None:
             arg_map[CommandLineArgUtil.OPSS_WALLET_SWITCH] = self._opss_wallet
         if self._update_rcu_schema_pass is not None:
@@ -420,6 +437,12 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH] = self._variable_injector_file
         if self._discover_passwords:
             arg_map[CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH] = self._discover_passwords
+        if self._discover_security_provider_data is not None:
+            # Make a copy of the list...
+            arg_map[CommandLineArgUtil.DISCOVER_SECURITY_PROVIDER_DATA_SWITCH] = \
+                list(self._discover_security_provider_data)
+        if self._discover_opss_wallet:
+            arg_map[CommandLineArgUtil.DISCOVER_OPSS_WALLET_SWITCH] = self._discover_opss_wallet
 
         new_context = ModelContext(self._program_name, arg_map)
         if not new_context.is_initialization_complete():
@@ -641,6 +664,9 @@ class ModelContext(object):
         """
         return self._opss_wallet_passphrase
 
+    def set_opss_wallet_passphrase(self, opss_wallet_passphrase):
+        self._opss_wallet_passphrase = opss_wallet_passphrase
+
     def get_update_rcu_schema_pass(self):
         """
         Get the update rcu schema password flag
@@ -762,8 +788,7 @@ class ModelContext(object):
 
     def get_target_configuration_file(self):
         if self._target:
-            target_path = os.path.join('targets', self._target, 'target.json')
-            return self._path_helper.find_local_config_path(target_path)
+            return target_configuration.get_target_configuration_path(self._target)
         return None
 
     def get_target(self):
@@ -790,12 +815,18 @@ class ModelContext(object):
         """
         return self._encrypt_one_pass
 
+    def is_encryption_supported(self):
+        return self._is_encryption_supported
+
+    def set_encryption_supported(self, is_encryption_supported):
+        self._is_encryption_supported = is_encryption_supported
+
     def is_using_encryption(self):
         """
         Get whether the model is using encryption.
         :return: whether the model is using encryption
         """
-        return self._use_encryption
+        return self._encryption_passphrase is not None
 
     def get_local_wls_version(self):
         """
@@ -1221,6 +1252,31 @@ class ModelContext(object):
         :return:
         """
         return not self._model_config.get_store_discovered_passwords_in_clear_text()
+
+    def is_discover_security_provider_data(self):
+        return self._discover_security_provider_data is not None and len(self._discover_security_provider_data) > 0
+
+    def is_discover_default_authenticator_data(self):
+        return self._is_discover_security_provider_data_type(DEFAULT_AUTHENTICATOR)
+
+    def is_discover_default_credential_mapper_data(self):
+        return self._is_discover_security_provider_data_type(DEFAULT_CREDENTIAL_MAPPER)
+
+    def is_discover_xacml_authorizer_data(self):
+        return self._is_discover_security_provider_data_type(XACML_AUTHORIZER)
+
+    def is_discover_xacml_role_mapper_data(self):
+        return self._is_discover_security_provider_data_type(XACML_ROLE_MAPPER)
+
+    def _is_discover_security_provider_data_type(self, scope):
+        result = False
+        if self.is_discover_security_provider_data():
+            if ALL in self._discover_security_provider_data or scope in self._discover_security_provider_data:
+                result = True
+        return result
+
+    def is_discover_opss_wallet(self):
+        return self._discover_opss_wallet
 
     def copy(self, arg_map):
         model_context_copy = copy.copy(self)

@@ -50,7 +50,14 @@ usage() {
   echo "           -ssh_private_key_pass_env <ssh_private_key_pass_env> | -ssh_private_key_pass_file <ssh_private_key_pass_file> | -ssh_private_key_pass_prompt"
   echo "          ]"
   echo "          [ -discover_passwords"
-  echo "            -passphrase_env <passphrase_env> | -passphrase_file <passphrase_file>"
+   echo "            -passphrase_env <passphrase_env> | -passphrase_file <passphrase_file> | -passphrase_prompt"
+   echo "          ]"
+  echo "          [ -discover_security_provider_data <discover_security_provider_scope>"
+  echo "            -passphrase_env <passphrase_env> | -passphrase_file <passphrase_file> | -passphrase_prompt"
+   echo "          ]"
+  echo "          [ -discover_opss_wallet"
+  echo "            [-opss_wallet_passphrase_env <opss_wallet_passphrase_env> | -opss_wallet_passphrase_file <opss_wallet_passphrase_file>]"
+  echo "            -passphrase_env <passphrase_env> | -passphrase_file <passphrase_file> | -passphrase_prompt"
   echo "          ]"
   echo ""
   echo "    where:"
@@ -143,6 +150,22 @@ usage() {
   echo "                          name of a file with a string value which WDT will"
   echo "                          read to retrieve the password."
   echo ""
+  echo "        discover_security_provider_scope - Which providers to discover."
+  echo "                          Legal values are ALL, DefaultAuthenticator,"
+  echo "                          XACMLAuthorizer, XACMLRoleMapper, and"
+  echo "                          DefaultCredentialMapper.  Use a comma to separate"
+  echo "                          providers to discover."
+  echo ""
+  echo "        opss_wallet_passphrase_env - An alternative to entering the OPSS"
+  echo "                          wallet passphrase at the prompt.  The value is"
+  echo "                          specified in an ENVIRONMENT VARIABLE name that"
+  echo "                          WDT will use to retrieve the passphrase."
+  echo ""
+  echo "        opss_wallet_passphrase_file - An alternative to entering the OPSS"
+  echo "                          wallet passphrase at the prompt.  The value is"
+  echo "                          the name of a file with a string value which WDT"
+  echo "                          will read to retrieve the passphrase."
+  echo ""
   echo "    The -skip_archive argument suppresses the generation of the archive file."
   echo "    If present, the -archive_file argument will be ignored and the file"
   echo "    references in the model will be the names from the discovered domain's"
@@ -170,12 +193,9 @@ umask 27
 
 checkArgs "$@"
 
+# required Java version and patch level is dependent on use of encryption.
+# later versions of JDK 7 support encryption so let WDT figure it out.
 minJdkVersion=7
-if [ "$USE_ENCRYPTION" = "true" ]; then
-  minJdkVersion=8
-fi
-
-# required Java version is dependent on use of encryption
 javaSetup $minJdkVersion
 
 runWlst discover.py "$@"

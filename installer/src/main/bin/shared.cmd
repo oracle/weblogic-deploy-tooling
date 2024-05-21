@@ -98,8 +98,6 @@ GOTO :ENDFUNCTIONS
             SET JVM_SUPPORTED=0
             IF %JVM_VERSION_PART_TWO% LSS 7 (
                 ECHO You are using an unsupported JDK version %JVM_FULL_VERSION% >&2
-            ) ELSE (
-                ECHO JDK version 1.8 or higher is required when using encryption >&2
             )
         )
     )
@@ -118,7 +116,6 @@ GOTO :EOF
 :checkJythonArgs
     @REM verify -oracle_home is provided, or ORACLE_HOME is set.
     @REM if -help is provided, return usage exit code.
-    @REM if -use_encryption is provided, set USE_ENCRYPTION to true
     @REM if -wlst_path is provided, set WLST_PATH_DIR
 
     @rem if no args were given and print the usage message
@@ -142,11 +139,6 @@ GOTO :EOF
     IF "%firstArg%" == "-oracle_home" (
       SET "ORACLE_HOME_ARG=%2"
       SHIFT
-      GOTO arg_continue
-    )
-
-    IF "%firstArg%" == "-use_encryption" (
-      SET USE_ENCRYPTION=true
       GOTO arg_continue
     )
 

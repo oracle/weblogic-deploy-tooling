@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
+    "copyright": "Copyright (c) 2017, 2024, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "JDBCSystemResource${:s}",
     "online_bean": "weblogic.management.configuration.JDBCSystemResourceMBean",
@@ -109,7 +109,10 @@
                             "folders": { },
                             "attributes": {
                                 "EncryptedValueEncrypted":  [ {"version": "[12.1.3,)", "wlst_mode": "both",    "wlst_name": "EncryptedValueEncrypted",   "wlst_path": "WP001", "default_value": null,     "wlst_type": "password", "get_method": "GET"} ],
-                                "Value":                    [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "Value",                     "wlst_path": "WP001", "default_value": "",       "wlst_type": "string"    } ],
+                                "Value": [
+                                    {"version": "[10,12.2.1)", "wlst_mode": "both", "wlst_name": "Value", "wlst_path": "WP001", "default_value": "", "wlst_type": "string", "get_method": "GET", "comment": "older versions don't include in ls map if spaces present"},
+                                    {"version": "[12.2.1,)",   "wlst_mode": "both", "wlst_name": "Value", "wlst_path": "WP001", "default_value": "", "wlst_type": "string"}
+                                ],
                                 "SysPropValue":             [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "SysPropValue",              "wlst_path": "WP001", "default_value": "",       "wlst_type": "string"    } ]
                             },
                             "wlst_attributes_path": "WP001",

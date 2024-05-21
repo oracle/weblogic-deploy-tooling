@@ -1,0 +1,12 @@
+{
+  "Admin": "?weblogic.entitlement.rules.AdministrativeGroup(Administrators)",
+  "Monitor": "?weblogic.entitlement.rules.AdministrativeGroup(Monitors)",
+  "OracleSystemRole": "Grp(OracleSystemGroup)",
+  "AppTester": "?weblogic.entitlement.rules.OwnerIDDGroup(AppTesters)",
+  "AdminChannelUser": "?weblogic.entitlement.rules.OwnerIDDGroup(AdminChannelUsers)",
+  "CrossDomainConnector": "?weblogic.entitlement.rules.OwnerIDDGroup(CrossDomainConnectors)",
+  "Operator": "?weblogic.entitlement.rules.AdministrativeGroup(Operators)",
+  "Deployer": "?weblogic.entitlement.rules.AdministrativeGroup(Deployers)",
+  "Anonymous": "Grp(everyone)",
+  "**": "Grp(users)|Usr(users)"
+}

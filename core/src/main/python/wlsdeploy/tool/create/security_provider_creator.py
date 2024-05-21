@@ -46,8 +46,8 @@ class SecurityProviderCreator(Creator):
     5. All 11g and 12c versions less than 12.2.1.2 cannot perform a delete on an Adjudicator object.
 
     The SecurityConfiguration is added if it does not exist. The default realm is added if it does not exist.
-    If the model provides a user defined realm, the default realm is not removed. 
-    
+    If the model provides a user defined realm, the default realm is not removed.
+
     """
     __class_name = 'SecurityProviderCreator'
     __adjudicator_type = 'Adjudicator'
@@ -63,11 +63,11 @@ class SecurityProviderCreator(Creator):
     def create_security_configuration(self, location):
         """
         Create the /SecurityConfiguration folder objects, if any.
-        
+
         The SecurityConfiguration should already be configured by create domain, but
         allow the method to create the default security configuration with the default realm if for some reason
-        it does not exist.  
-        
+        it does not exist.
+
         :param location: the location to use
         :raises: BundleAwareException of the specified type: if an error occurs
         """
@@ -338,8 +338,10 @@ class SecurityProviderCreator(Creator):
         is_password_digest_enabled = False
         if self._topology:
             security_configuration = dictionary_utils.get_dictionary_element(self._topology, SECURITY_CONFIGURATION)
+            realm_name = dictionary_utils.get_element(security_configuration, DEFAULT_REALM)
+            realm_name = realm_name or 'myrealm'
+
             realm = dictionary_utils.get_dictionary_element(security_configuration, REALM)
-            realm_name = self.__get_default_realm_name()
             realm = dictionary_utils.get_dictionary_element(realm, realm_name)
             authenticators = dictionary_utils.get_dictionary_element(realm, AUTHENTICATION_PROVIDER)
             for atn_name, atn_dict in authenticators.iteritems():
@@ -351,27 +353,3 @@ class SecurityProviderCreator(Creator):
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=is_password_digest_enabled)
         return is_password_digest_enabled
-
-    def __get_default_realm_name(self):
-        _method_name = '__get_default_realm_name'
-        self.logger.entering(class_name=self.__class_name, method_name=_method_name)
-
-        location = LocationContext()
-        name_token = self.aliases.get_name_token(location)
-        location.add_name_token(name_token, self.model_context.get_domain_name())
-        security_configuration_wlst_path = self.aliases.get_wlst_attributes_path(location)
-
-        pwd = self.wlst_helper.get_pwd()
-
-        self.wlst_helper.cd(security_configuration_wlst_path)
-        security_configuration = self.wlst_helper.lsa()
-        default_realm_wlst_name = self.aliases.get_wlst_attribute_name(location, DEFAULT_REALM)
-        if default_realm_wlst_name in security_configuration:
-            default_realm_name = security_configuration[DEFAULT_REALM]
-        else:
-            default_realm_name = 'myrealm'
-
-        self.wlst_helper.cd(pwd)
-
-        self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=default_realm_name)
-        return default_realm_name

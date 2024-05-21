@@ -20,8 +20,8 @@ None
 - #1465 - Initial, limited i18n translation bundles added.
 
 #### Bug Fixes
-- #1466 - Updated `Server` and `ServerTemplate` aliases to add new 14.1.2 offline attributes.
-- #1467 - Updated `CoherenceSystemResource` aliases to add new 14.1.2 `SecuredProduction` online attribute.
+- #1466 - Updated `Server` and `ServerTemplate` aliases to add new offline attributes in upcoming versions of WebLogic Server.
+- #1467 - Updated `CoherenceSystemResource` aliases to add `SecuredProduction` online attribute used in upcoming versions of WebLogic Server.
 - #1468 - Fixed an error related to tool initialization with WebLogic Server versions earlier than 12.2.1 (Issue #1466).
 - #1469 - Corrected method names used for logging so that they are the same as the actual method name in which they are
           being used.

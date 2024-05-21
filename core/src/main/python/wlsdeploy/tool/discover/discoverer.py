@@ -60,6 +60,7 @@ class Discoverer(object):
         global _ssh_download_dir
 
         self._model_context = model_context
+        self._security_provider_map = None
         self._base_location = base_location
         self._wlst_mode = wlst_mode
         if aliases:
@@ -76,6 +77,8 @@ class Discoverer(object):
         self._mbean_utils = MBeanUtils(self._model_context, self._aliases, ExceptionType.DISCOVER)
         self._wls_version = model_context.get_effective_wls_version()
         self.path_helper = path_helper.get_path_helper()
+        self._export_tmp_directory = None
+        self._local_tmp_directory = None
 
         if model_context.is_ssh():
             if _ssh_download_dir is None:
@@ -94,7 +97,7 @@ class Discoverer(object):
                                                                   'SerializedSystemIni.dat')
                     self.download_deployment_from_remote_server(remote_ssi_dat, _ssh_download_dir, 'security')
 
-            self.download_temporary_dir = _ssh_download_dir
+        self.download_temporary_dir = _ssh_download_dir
 
     def add_to_remote_map(self, local_name, archive_name, file_type):
         # we don't know the remote machine type, so automatically
@@ -514,7 +517,7 @@ class Discoverer(object):
         :param check_order: if true, check the subfolders for order
         :return: dictionary containing the discovered folder attributes
         """
-        _method_name = '_discover_artifical_folder'
+        _method_name = '_discover_artificial_folder'
         _logger.entering(model_subfolder_type, str_helper.to_string(location), name_token,
                          class_name=_class_name, method_name=_method_name)
 
@@ -526,9 +529,8 @@ class Discoverer(object):
         if names is not None:
             for name in names:
                 location.add_name_token(name_token, name)
-                massaged = self._inspect_artificial_folder_name(name, location)
-                location.add_name_token(name_token, massaged)
-                # circumventing problems if the trust identity asserter schematype jar
+                self._validate_artificial_folder_name(name, location)
+                # circumventing problems if the trust identity asserter schema type jar
                 # is not in the oracle home. Force it to have the correct name.
                 if name == 'Trust Service Identity Asserter':
                     artificial = 'TrustServiceIdentityAsserter'
@@ -536,27 +538,31 @@ class Discoverer(object):
                     artificial = self._get_artificial_type(location)
                 if artificial is None:
                     if self._aliases.is_custom_folder_allowed(location):
-                        _logger.fine('WLSDPLY-06148', model_subfolder_type, massaged, location.get_folder_path(),
+                        _logger.fine('WLSDPLY-06148', model_subfolder_type, name, location.get_folder_path(),
                                      class_name=_class_name, method_name=_method_name)
                         # doesn't matter how many parameters, it is automatically a non-default name
-                        default_list.append(massaged)
-                        attr_map[massaged] = 0
+                        default_list.append(name)
+                        attr_map[name] = 0
                         subfolder_result.update(
-                            self._custom_folder.discover_custom_mbean(location, model_subfolder_type, massaged))
+                            self._custom_folder.discover_custom_mbean(location, model_subfolder_type, name))
                     else:
                         _logger.warning('WLSDPLY-06123', self._aliases.get_model_folder_path(location),
                                         class_name=_class_name, method_name=_method_name)
                 else:
-                    _logger.finer('WLSDPLY-06120', artificial, massaged, model_subfolder_type, class_name=_class_name,
+                    _logger.finer('WLSDPLY-06120', artificial, name, model_subfolder_type, class_name=_class_name,
                                   method_name=_method_name)
                     location.append_location(artificial)
-                    subfolder_result[massaged] = OrderedDict()
-                    subfolder_result[massaged][artificial] = OrderedDict()
-                    self._populate_model_parameters(subfolder_result[massaged][artificial], location)
+                    subfolder_result[name] = OrderedDict()
+                    subfolder_result[name][artificial] = OrderedDict()
+                    self._populate_model_parameters(subfolder_result[name][artificial], location)
                     default_list.append(artificial)
-                    attr_map[artificial] = len(subfolder_result[massaged][artificial])
+                    attr_map[artificial] = len(subfolder_result[name][artificial])
                     location.pop_location()
                 location.remove_name_token(name_token)
+
+        # check_order is True only when the realm is the default realm
+        if check_order:
+            self._collect_security_provider_types(model_subfolder_type, subfolder_result)
 
         # check to see if the order and number of the subfolder list is same as required order
         is_default = False
@@ -572,6 +578,29 @@ class Discoverer(object):
             subfolder_result = None
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=subfolder_result)
         return subfolder_result
+
+    def _collect_security_provider_types(self, provider_type, providers_dict):
+        _method_name = '_collect_security_provider_types'
+        _logger.entering(provider_type, providers_dict, class_name=_class_name, method_name=_method_name)
+
+        provider_subtype_map = None
+        if self._model_context.is_discover_security_provider_data():
+            provider_subtype_map = OrderedDict()
+            for provider_name, provider_dict in providers_dict.iteritems():
+                provider_subtypes = provider_dict.keys()
+                if len(provider_subtypes) != 1:
+                    _logger.warning('WLSDPLY-06165', provider_type, provider_name, provider_subtypes)
+                    continue
+                provider_subtype_map[provider_name] = provider_subtypes[0]
+            self._add_provider_data_to_cache(provider_type, provider_subtype_map)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=provider_subtype_map)
+
+    def _add_provider_data_to_cache(self, provider_type, provider_subtype_map):
+        if self._security_provider_map is None:
+            self._security_provider_map = dict()
+
+        self._security_provider_map[provider_type] = provider_subtype_map
 
     def _discover_subfolder_with_names(self, model_subfolder_name, location, name_token):
         """
@@ -867,7 +896,7 @@ class Discoverer(object):
     def wlst_cd(self, path, location):
         """
         Change to the directory specified in the path. If the wlst.cd() fails, assume something is wrong with the
-        construction of the path tokens: Log a message, and return a indication to the caller that it should
+        construction of the path tokens: Log a message, and return an indication to the caller that it should
         not continue on in this path.
         :param path: where to change directory
         :param location: context containing the current location information used to determine the path
@@ -882,23 +911,68 @@ class Discoverer(object):
                             class_name=_class_name, method_name=_method_name)
         return result
 
-    def _inspect_artificial_folder_name(self, folder_name, location):
+    def _create_tmp_directories(self, error_key):
         """
-        Perform any special handling for the folder or folder names.
-        :param location: current context of location
-        :return: Original name or processed name value
+        Create the temporary directory(ies) required for exporting the data files and reading the data files.
+        In the case of SSH, the export directory is remote and the read directory is local.  Otherwise, they are
+        the same.
+        :return:
         """
-        return self._inspect_security_folder_name(folder_name, location)
+        _method_name = '_create_tmp_directories'
+        _logger.entering(error_key, class_name=_class_name, method_name=_method_name)
+        if self._model_context.is_ssh():
+            export_tmp_directory = \
+                self._model_context.get_ssh_context().create_temp_directory_for_security_data_export()
+            local_tmp_directory = self.download_temporary_dir
+        else:
+            try:
+                export_dir_file = FileUtils.createTempDirectory('wdt_export_temp')
+                # comment out this line to see exported files...
+                export_dir_file.deleteOnExit()
+            except IOException, e:
+                ex = exception_helper.create_discover_exception(error_key,e.getLocalizedMessage(), error=e)
+                _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
+            export_tmp_directory = export_dir_file.getAbsolutePath()
+            local_tmp_directory = export_tmp_directory
 
-    def _inspect_security_folder_name(self, folder_name, location):
+        _logger.exiting(class_name=_class_name, method_name=_method_name,
+                        result=[export_tmp_directory, local_tmp_directory])
+        return export_tmp_directory, local_tmp_directory
+
+    def _clean_up_tmp_directories(self, error_key):
+        _method_name = '_clean_up_tmp_directories'
+        _logger.entering(class_name=_class_name, method_name=_method_name)
+
+        # local directory in both SSH and non-SSH case is already set with java.io.File.deleteOnExit() so
+        # the only cleanup needed is the temp directory on the SSH host machine, if applicable.
+        if self._model_context.is_ssh():
+            ssh_helper = self._model_context.get_ssh_context()
+            try:
+                if ssh_helper.does_directory_exist(self._export_tmp_directory):
+                    ssh_helper.remove_file_or_directory(self._export_tmp_directory)
+            except DiscoverException, de:
+                # Best effort to remove.  If remove fails, log a warning and continue...
+                _logger.warning(error_key, self._export_tmp_directory, self._model_context.get_ssh_host(),
+                                de.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
+
+        _logger.exiting(class_name=_class_name, method_name=_method_name)
+    def _validate_artificial_folder_name(self, folder_name, location):
+        """
+        Validate the folder name.
+        :param location: current context of location
+        """
+        self._validate_security_folder_name(folder_name, location)
+
+    def _validate_security_folder_name(self, folder_name, location):
         # This is clunky - Some security providers in 11g offline have the name "Provider", and cannot be discovered.
         # If found, log and throw an exception here, and the SecurityConfiguration will be omitted from the model.
-
+        _method_name = '_validate_security_folder_name'
         if (not self._weblogic_helper.is_version_in_12c()) and self._wlst_mode == WlstModes.OFFLINE and \
                 self._aliases.is_security_provider_type(location) and 'Provider' == folder_name:
-            raise exception_helper.create_discover_exception('WLSDPLY-06201', folder_name, location.get_folder_path())
-
-        return folder_name
+            ex = exception_helper.create_discover_exception('WLSDPLY-06201', folder_name, location.get_folder_path())
+            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+            raise ex
 
     def _get_credential_injector(self):
         """

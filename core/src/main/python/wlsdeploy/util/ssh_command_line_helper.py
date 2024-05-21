@@ -7,6 +7,8 @@ Module that handles OS-specifics for SSH.
 import re
 
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.util import string_utils
+from wlsdeploy.util import unicode_helper as str_helper
 
 __logger = PlatformLogger('wlsdeploy.util')
 
@@ -122,6 +124,25 @@ class SSHWindowsCommandLineHelper(SSHCommandLineHelper):
                     expecting_empty_line = True
         return current_directory_name, contents_dict
 
+    def get_environment_variable_command(self, env_var_name):
+        return str_helper.to_string('echo %s' % self._format_environment_variable_deference(env_var_name))
+
+    def get_environment_variable_value(self, output_lines, env_var_name):
+        env_var_value_when_not_set = self._format_environment_variable_deference(env_var_name)
+        result = None
+        for output_line in output_lines:
+            line = output_line.strip()
+            if line == env_var_value_when_not_set:
+                result = None
+                break
+            elif not string_utils.is_empty(line):
+                result = line
+                break
+        return result
+
+    def _format_environment_variable_deference(self, env_var_name):
+        return str_helper.to_string('%') + str_helper.to_string(env_var_name) + str_helper.to_string('%')
+
 
 class SSHUnixCommandLineHelper(SSHCommandLineHelper):
     __class_name = 'SSHUnixCommandLineHelper'
@@ -189,3 +210,14 @@ class SSHUnixCommandLineHelper(SSHCommandLineHelper):
 
         return current_directory_name, contents_dict
 
+    def get_environment_variable_command(self, env_var_name):
+        return str_helper.to_string('echo ${%s}' % env_var_name)
+
+    def get_environment_variable_value(self, output_lines, _):
+        result = None
+        for output_line in output_lines:
+            line = output_line.strip()
+            if not string_utils.is_empty(line):
+                result = line
+                break
+        return result

@@ -61,8 +61,6 @@ class DomainInfoDiscoverer(Discoverer):
         discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, result)
         model_top_folder_name, result = self.get_user_env_scripts()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, result)
-        model_top_folder_name, result = self.get_roles()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, result)
         self.get_wrc_extension()
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary
@@ -263,36 +261,3 @@ class DomainInfoDiscoverer(Discoverer):
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=entries)
         return model_constants.DOMAIN_SCRIPTS, entries
-
-    def get_roles(self):
-        _method_name = 'get_roles'
-        _logger.entering(class_name=_class_name, method_name=_method_name)
-        model = dict()
-        model_folder = model_constants.WLS_ROLES
-        if self._wlst_mode == WlstModes.ONLINE:
-            props=[]
-
-            cmo = self._wlst_helper.get_cmo()
-            realms = cmo.getSecurityConfiguration().getRealms()
-            for r in realms:
-                rms=r.getRoleMappers()
-                for rm in rms:
-                    if rm.getName() == 'XACMLRoleMapper':
-                        c=rm.listAllRoles(500)
-
-                        while rm.haveCurrent(c):
-                            props.append(rm.getCurrentProperties(c))
-                            rm.advance(c)
-                        rm.close(c)
-
-            for entry in props:
-                if 'RoleName' in entry and entry['RoleName'] != '**':
-                    role_name = entry['RoleName']
-                    role_expression = entry['Expression']
-                    if role_name not in ROLE_NAME_LIST or ROLE_NAME_LIST[role_name] != role_expression:
-                        # put it in the model
-                        model[role_name] = dict()
-                        model[role_name][model_constants.EXPRESSION] =  role_expression
-        _logger.exiting(class_name=_class_name, method_name=_method_name, result=model)
-        return model_folder, model
-
