@@ -55,13 +55,7 @@ class WLSPolicies(object):
         self._logger.entering(class_name=self.__class_name, method_name=_method_name)
 
         if self._wls_policies_map is not None:
-            wls_helper = self._model_context.get_weblogic_helper()
             self._weblogic_policy_helper.update_xacml_authorizer(self._wls_policies_map)
-            # if wls_helper is not None and wls_helper.is_weblogic_version_or_above('12.2.1'):
-            #     self._weblogic_policy_helper.update_xacml_authorizer(self._wls_policies_map)
-            # else:
-            #     self._logger.warning('WLSDPLY-12603', '12.2.1.0.0', self._model_context.get_local_wls_version(),
-            #                          class_name=self.__class_name, method_name=_method_name)
 
         self._logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
