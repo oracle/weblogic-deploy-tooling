@@ -7,6 +7,7 @@ import os
 import re
 
 from java.io import File
+from oracle.weblogic.deploy.encrypt import EncryptionUtils
 from oracle.weblogic.deploy.json import JsonException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyOrderedDict
@@ -23,6 +24,7 @@ from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.json.json_translator import PythonToJson
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.tool.encrypt import encryption_utils
 from wlsdeploy.tool.util import k8s_helper
 from wlsdeploy.tool.util import variable_injector_functions
 from wlsdeploy.tool.util.targets import additional_output_helper
@@ -77,6 +79,8 @@ JDBC_USER_REPLACEMENT = '.user-value'
 K8S_SCRIPT_NAME = 'create_k8s_secrets.sh'
 K8S_SCRIPT_RESOURCE_PATH = 'oracle/weblogic/deploy/k8s/' + K8S_SCRIPT_NAME + file_template_helper.MUSTACHE_SUFFIX
 RESULTS_FILE_NAME = 'results.json'
+
+PASSWORD_HASH_MARKER = "{ssha256}"
 
 
 def process_target_arguments(argument_map):
@@ -149,10 +153,7 @@ def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
             if secret_name not in secret_map:
                 secret_map[secret_name] = {}
             secret_keys = secret_map[secret_name]
-            if secret_key in PASSWORD_SECRET_KEY_NAMES:
-                secret_keys[secret_key] = None
-            else:
-                secret_keys[secret_key] = value
+            secret_keys[secret_key] = _get_output_value(secret_key, value, model_context)
 
     # update the secrets hash
 
@@ -267,10 +268,7 @@ def _build_json_secrets_result(model_context, token_dictionary):
                 secrets_map[secret_name] = {'keys': {}}
 
             secret_keys = secrets_map[secret_name]['keys']
-            if secret_key in PASSWORD_SECRET_KEY_NAMES:
-                secret_keys[secret_key] = ''
-            else:
-                secret_keys[secret_key] = value
+            secret_keys[secret_key] = _get_output_value(secret_key, value, model_context)
 
     # runtime encryption key is not included in token_dictionary
     target_config = model_context.get_target_configuration()
@@ -478,3 +476,24 @@ def _build_secret_hash(secret_name, secret_key_map):
         message = exception_helper.get_message("WLSDPLY-01683", secret_name, ', '.join(update_keys))
 
     return {'secretName': secret_name, 'secretPairs': secret_pairs_text, 'comments': [{'comment': message}]}
+
+
+def _get_output_value(secret_key, value, model_context):
+    """
+    Determine the secret value to be provided to the secrets script or results output JSON.
+    Exclude password values unless they are one-way hashed values, such as those in LDIF files.
+    :param secret_key: the key into the credentials map
+    :param value: the value to be examined
+    :param model_context: used to decrypt value
+    :return: the value to be provided
+    """
+    if secret_key in PASSWORD_SECRET_KEY_NAMES and value:
+        if EncryptionUtils.isEncryptedString(value):
+            value = encryption_utils.decrypt_one_password(model_context.get_encryption_passphrase(), value)
+
+        if value.startswith(PASSWORD_HASH_MARKER):
+            return value
+        else:
+            return None
+    else:
+        return value
