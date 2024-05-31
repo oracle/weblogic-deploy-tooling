@@ -26,6 +26,7 @@ public class XACMLUtil {
     private static final String CLASS = XACMLUtil.class.getName();
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.util");
     private static final String EXPRESSION_XPATH = "//Description/text()";
+    private static final String POLICY_ID_XPATH = "//@PolicyId";
 
     private static XPathFactory factory = null;
 
@@ -36,10 +37,34 @@ public class XACMLUtil {
         return factory;
     }
 
+    private String xacmlText;
     private Document xacmlDocument;
 
     public XACMLUtil(String xacmlText) throws XACMLException {
+        this.xacmlText = xacmlText;
         this.xacmlDocument = parseXACMLDocument(xacmlText);
+    }
+
+    public String getXACMLText() {
+        return this.xacmlText;
+    }
+
+    public String getPolicyId() throws XACMLException {
+        final String METHOD = "getPolicyId";
+        LOGGER.entering(CLASS, METHOD);
+
+        String policyId = null;
+        XPath xpath = factory().newXPath();
+        try {
+            policyId = (String)xpath.evaluate(POLICY_ID_XPATH, this.xacmlDocument, XPathConstants.STRING);
+        } catch (XPathExpressionException e) {
+            XACMLException ex = new XACMLException("WLSDPLY-07003", e, e.getLocalizedMessage());
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        LOGGER.exiting(CLASS, METHOD, policyId);
+        return policyId;
     }
 
     public String getPolicyEntitlementExpression() throws XACMLException {
@@ -71,7 +96,7 @@ public class XACMLUtil {
         try {
             expression = (String)xpath.evaluate(EXPRESSION_XPATH, this.xacmlDocument, XPathConstants.STRING);
         } catch (XPathExpressionException e) {
-            XACMLException ex = new XACMLException("WLSDPLY-07002", e, EXPRESSION_XPATH, e.getLocalizedMessage());
+            XACMLException ex = new XACMLException("WLSDPLY-07002", e, e.getLocalizedMessage());
             LOGGER.throwing(CLASS, METHOD, ex);
             throw ex;
         }

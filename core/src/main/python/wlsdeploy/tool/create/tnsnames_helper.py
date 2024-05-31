@@ -59,11 +59,11 @@ class TnsNamesHelper(object):
                 self._logger.exiting(class_name=self._class_name, method_name=_method_name, result=connect_string)
                 return connect_string
             else:
-                ex = exception_helper.create_create_exception("WLSDPLY-12563", tns_alias)
+                ex = exception_helper.create_create_exception("WLSDPLY-12263", tns_alias)
                 self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
         except (IOError, Exception), ex:
-            ex = exception_helper.create_create_exception("WLSDPLY-12570", str_helper.to_string(ex))
+            ex = exception_helper.create_create_exception("WLSDPLY-12270", str_helper.to_string(ex))
             self._logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 

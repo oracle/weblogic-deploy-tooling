@@ -495,6 +495,15 @@ class ModelContext(object):
         """
         return self._program_name
 
+    def is_discover_domain_tool(self):
+        return self._program_name == 'discoverDomain'
+
+    def is_create_domain_tool(self):
+        return self._program_name == 'createDomain'
+
+    def is_validate_domain_tool(self):
+        return self._program_name == 'validateModel'
+
     def get_oracle_home(self):
         """
         Get the Oracle Home.

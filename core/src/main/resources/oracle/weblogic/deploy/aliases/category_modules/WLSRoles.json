@@ -1,12 +1,14 @@
 {
-    "copyright": "Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.",
+    "copyright": "Copyright (c) 2019, 2024, Oracle Corporation and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "WLSRoles",
     "child_folders_type": "multiple",
     "folders": {},
     "attributes": {
-        "Expression": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Expression", "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
-        "UpdateMode": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UpdateMode", "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ]
+        "Expression":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Expression",    "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
+        "UpdateMode":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "UpdateMode",    "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
+        "XacmlDocument": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "XacmlDocument", "wlst_path": "WP001", "default_value": null,    "wlst_type": "string", "uses_path_tokens": true } ],
+        "XacmlStatus":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "XacmlStatus",   "wlst_path": "WP001", "default_value": 3,       "wlst_type": "integer" } ]
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {
