@@ -4,16 +4,23 @@ Licensed under the Universal Permissive License v1.0 as shown at https://oss.ora
 
 Module that contains the class for working with XACMLAuthorizer LDIFT files.
 """
+from java.lang import IllegalArgumentException
+
 from com.bea.security.xacml.cache.resource import ResourcePolicyIdUtil
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
+from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 from oracle.weblogic.deploy.util import XACMLException
 from oracle.weblogic.deploy.util import XACMLUtil
 
 from wlsdeploy.aliases.model_constants import POLICY
 from wlsdeploy.aliases.model_constants import RESOURCE_ID
 from wlsdeploy.aliases.model_constants import XACML_AUTHORIZER
+from wlsdeploy.aliases.model_constants import XACML_DOCUMENT
+from wlsdeploy.aliases.model_constants import XACML_STATUS
 from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.util import string_utils
+from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.ldift_helper import LdiftBase
 from wlsdeploy.util.ldift_helper import LdiftLine
 
@@ -57,10 +64,25 @@ class XacmlAuthorizerLdiftEntry(object):
         _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result
 
+    def get_xacml_status(self):
+        _method_name = 'get_xacml_status'
+        _logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        result = None
+        if not self._is_header_element:
+            for line in self._lines:
+                if line.get_key() == 'xacmlStatus':
+                    result = int(self.__escaper.unescapeString(line.get_value()))
+                    break
+
+        _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
     def get_entitlement_policy(self):
         _method_name = 'get_entitlement_policy'
         _logger.entering(class_name=self.__class_name, method_name=_method_name)
 
+        success = True
         result = None
         if not self._is_header_element:
             value = None
@@ -74,11 +96,37 @@ class XacmlAuthorizerLdiftEntry(object):
                     xacml_parser = XACMLUtil(value)
                     result = xacml_parser.getPolicyEntitlementExpression()
                 except XACMLException, xe:
-                    _logger.warning('WLSDPLY-07103',xe.getLocalizedMessage(), error=xe,
+                    _logger.warning('WLSDPLY-07103',POLICY, xe.getLocalizedMessage(), error=xe,
                                     class_name=self.__class_name, method_name=_method_name)
+                    success = False
 
-        _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
-        return result
+        _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=(success, result))
+        return success, result
+
+    def get_xacml_document(self, policy_name):
+        _method_name = 'get_xacml_document'
+        _logger.entering(policy_name, class_name=self.__class_name, method_name=_method_name)
+
+        success = True
+        result = None
+        if not self._is_header_element:
+            value = None
+            for line in self._lines:
+                if line.get_key() == 'xacmlDocument':
+                    value = line.get_value()
+                    break
+
+            if value is not None:
+                try:
+                    xacml_parser = XACMLUtil(value)
+                    result = xacml_parser.getXACMLText()
+                except XACMLException, xe:
+                    _logger.warning('WLSDPLY-07103',POLICY, xe.getLocalizedMessage(), error=xe,
+                                    class_name=self.__class_name, method_name=_method_name)
+                    success = False
+
+        _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=(success, result))
+        return success, result
 
 
 class XacmlAuthorizerLdift(LdiftBase):
@@ -124,21 +172,62 @@ class XacmlAuthorizerLdift(LdiftBase):
                                     class_name=self.__class_name, method_name=_method_name)
                     continue
 
-                policy[POLICY] = ldift_entry.get_entitlement_policy()
-                if policy[POLICY] is None:
-                    # warning logged inside get_entitlement_policy() function
+                policy[XACML_STATUS] = ldift_entry.get_xacml_status()
+                if policy[XACML_STATUS] is None:
+                    _logger.warning('WLSDPLY-07136', XACML_STATUS, policy_name,
+                                    class_name=self.__class_name, method_name=_method_name)
+                    policy[XACML_STATUS] = 3
+                if policy[XACML_STATUS] != 3:
+                    _logger.warning('WLSDPLY-07137', policy_name, XACML_STATUS, policy[XACML_STATUS],
+                                    class_name=self.__class_name, method_name=_method_name)
+
+                xacml_document = None
+                success, policy_expression = ldift_entry.get_entitlement_policy()
+                if not success:
+                    # warning already logged in get_entitlement_policy()
                     continue
 
-                if filter_defaults:
-                    if not self._is_default_policy(policy):
+                if string_utils.is_empty(policy_expression):
+                    # Get the XACML document since the description field was empty.
+                    success, xacml_document = ldift_entry.get_xacml_document()
+                    if not success:
+                        # warning already logged in get_xacml_document()
+                        continue
+
+                if not string_utils.is_empty(policy_expression):
+                    policy[POLICY] = policy_expression
+                    if filter_defaults:
+                        if not self._is_default_policy(policy):
+                            result[policy_name] = policy
+                            count += 1
+                        else:
+                            _logger.fine('WLSDPLY-07104', RESOURCE_ID, policy[RESOURCE_ID], POLICY,
+                                         policy[POLICY], class_name=self.__class_name, method_name=_method_name)
+                    else:
                         result[policy_name] = policy
                         count += 1
-                    else:
-                        _logger.fine('WLSDPLY-07104', RESOURCE_ID, policy[RESOURCE_ID], POLICY,
-                                     policy[POLICY], class_name=self.__class_name, method_name=_method_name)
+                elif not string_utils.is_empty(xacml_document):
+                    if self._model_context.is_skip_archive():
+                        _logger.notification('WLSDPLY-07130', policy[RESOURCE_ID],
+                                             CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH,
+                                             class_name=self.__class_name, method_name=_method_name )
+                        continue
+                    elif self._model_context.is_remote():
+                        _logger.todo('WLSDPLY-07131', '%s.xml' % policy_name, policy[RESOURCE_ID],
+                                     class_name=self.__class_name, method_name=_method_name)
+                        continue
+
+                    archive_file = self._model_context.get_archive_file()
+                    try:
+                        policy[XACML_DOCUMENT] = archive_file.addXACMLPolicyFromText(policy_name, xacml_document)
+                        # There is no filtering when using a XACML Document directly...
+                        result[policy_name] = policy
+                    except (WLSDeployArchiveIOException, IllegalArgumentException), aex:
+                        _logger.warning('WLSDPLY-07132', policy[RESOURCE_ID], aex.getLocalizedMessage(),
+                                        error=aex, class_name=self.__class_name, method_name=_method_name)
                 else:
-                    result[policy_name] = policy
-                    count += 1
+                    _logger.warning('WLSDPLY-07133', policy[RESOURCE_ID],
+                                    class_name=self.__class_name, method_name=_method_name)
 
         _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result

@@ -4,13 +4,17 @@
  */
 package oracle.weblogic.deploy.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -89,6 +93,18 @@ public class WLSDeployArchive {
      * Archive directory where SAML2 data load XML and property files are stored.
      */
     public static final String ARCHIVE_SAML2_PATH = ARCHIVE_SECURITY_PATH + ZIP_SEP + "saml2";
+
+    /**
+     * Archive Directory where XACMLAuthorizer XACML Documents that could not be converted to an
+     * Entitlenet expression are stored.
+     */
+    public static final String ARCHIVE_XACML_POLICIES_PATH = ARCHIVE_SECURITY_PATH + ZIP_SEP + "xacmlPolicies";
+
+    /**
+     * Archive Directory where XACMLRoleMapper XACML Documents that could not be converted to an
+     * Entitlenet expression are stored.
+     */
+    public static final String ARCHIVE_XACML_ROLES_PATH = ARCHIVE_SECURITY_PATH + ZIP_SEP + "xacmlRoles";
 
     /**
      * Top-level archive subdirectory where the applications are stored and the subdirectory to which
@@ -202,6 +218,8 @@ public class WLSDeployArchive {
         OPSS_WALLET,
         CUSTOM,
         SAML2_DATA,
+        XACML_ROLE,
+        XACML_POLICY,
         WEBLOGIC_REMOTE_CONSOLE_EXTENSION,
     }
 
@@ -384,6 +402,14 @@ public class WLSDeployArchive {
 
             case SAML2_DATA:
                 pathPrefix = ARCHIVE_SAML2_PATH + ZIP_SEP;
+                break;
+
+            case XACML_POLICY:
+                pathPrefix = ARCHIVE_XACML_POLICIES_PATH + ZIP_SEP;
+                break;
+
+            case XACML_ROLE:
+                pathPrefix = ARCHIVE_XACML_ROLES_PATH + ZIP_SEP;
                 break;
 
             case WEBLOGIC_REMOTE_CONSOLE_EXTENSION:
@@ -4563,7 +4589,563 @@ public class WLSDeployArchive {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
-    //                                 SAML2 Data methods                                        //
+    //                           XACML Role Mapper Data methods                                  //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Does the role have a corresponding archive entry?
+     *
+     * @param roleName The role name used to name the archive entry
+     * @return True if the entry exists; false otherwise
+     * @throws WLSDeployArchiveIOException if an error occurs reading the archive file
+     * @throws IllegalArgumentException    if the roleName is null or empty
+     */
+    public boolean isXACMLRoleInArchive(String roleName) throws WLSDeployArchiveIOException {
+        final String METHOD = "isXACMLRoleInArchive";
+        LOGGER.entering(CLASS, METHOD, roleName);
+
+        validateNonEmptyString(roleName, "roleName", METHOD);
+        String fileName = String.format("%s.xml", roleName);
+
+        String archivePath;
+        if (roleName.startsWith(ARCHIVE_XACML_ROLES_PATH + ZIP_SEP)) {
+            archivePath = fileName;
+        } else {
+            archivePath = ARCHIVE_XACML_ROLES_PATH + ZIP_SEP + fileName;
+        }
+        List<String> zipEntries = getZipFile().listZipEntries(ARCHIVE_XACML_ROLES_PATH + ZIP_SEP);
+        boolean result = zipListContainsPath(zipEntries, archivePath);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    /**
+     * Add the XACML Role Mapper role definition to the archive if it does not already exist.
+     *
+     * @param roleName  The role name used to name the archive file entry
+     * @param xacmlText The XACML content string
+     * @return the archive file entry path
+     * @throws WLSDeployArchiveIOException if an error occurs reading or writing the data
+     * @throws IllegalArgumentException    if the roleName or xacmlText is null or empty
+     */
+    public String addXACMLRoleFromText(String roleName, String xacmlText) throws WLSDeployArchiveIOException {
+        final String METHOD = "addXACMLRoleFromText";
+        LOGGER.entering(CLASS, METHOD, roleName, xacmlText);
+
+        validateNonEmptyString(roleName, "roleName", METHOD);
+        validateNonEmptyString(xacmlText, "xacmlText", METHOD);
+
+        String fileName = String.format("%s.xml", roleName);
+        String newName = addItemToZip(ARCHIVE_XACML_ROLES_PATH, fileName, xacmlText, false);
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    /**
+     * Read the content of the XACML Role Mapper role definition from the archive file.
+     *
+     * @param roleNameOrPath The role name used to name the archive file entry or the full archive path
+     * @return the XACML Role Mapper role definition in XACML
+     * @throws WLSDeployArchiveIOException if an error occurs reading the data
+     * @throws IllegalArgumentException    if the roleNameOrPath is null or empty
+     */
+    public String readXACMLRoleFromArchive(String roleNameOrPath) throws WLSDeployArchiveIOException {
+        final String METHOD = "readXACMLRoleFromArchive";
+        LOGGER.entering(CLASS, METHOD, roleNameOrPath);
+
+        validateNonEmptyString(roleNameOrPath, "roleNameOrPath", METHOD);
+
+        String archivePath;
+        if (roleNameOrPath.startsWith(ARCHIVE_XACML_ROLES_PATH + ZIP_SEP)) {
+            archivePath = roleNameOrPath;
+        } else {
+            String fileName = String.format("%s.xml", roleNameOrPath);
+            archivePath = ARCHIVE_XACML_ROLES_PATH + ZIP_SEP + fileName;
+        }
+
+        String content;
+        if (containsFile(archivePath)) {
+            content = readItemContentFromArchive(archivePath);
+        } else {
+            WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01474", roleNameOrPath,
+                archivePath, getArchiveFileName());
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        LOGGER.exiting(CLASS, METHOD, content);
+        return content;
+    }
+
+    /**
+     * Add the XACML Role Mapper role definition file to the archive if it does not already exist.
+     *
+     * @param xacmlRoleFileName the file to add
+     * @return the new location of the file to use in the model
+     * @throws WLSDeployArchiveIOException if an error occurs while archiving the file or the entry already exists
+     * @throws IllegalArgumentException    if the file does not exist or the xacmlRoleFileName is empty or null
+     */
+    public String addXACMLRoleFile(String xacmlRoleFileName) throws WLSDeployArchiveIOException {
+        return addXACMLRoleFile(xacmlRoleFileName, false);
+    }
+
+    /**
+     * Add the XACML Role Mapper role definition file to the archive.
+     *
+     * @param xacmlRoleFileName the file to add
+     * @param overwrite         whether to overwrite an existing archive entry or not
+     * @return the new location of the file to use in the model
+     * @throws WLSDeployArchiveIOException if an error occurs while archiving the file or the entry already exists
+     *                                     with override set to false
+     * @throws IllegalArgumentException    if the file does not exist or the xacmlRoleFileName is empty or null
+     */
+    public String addXACMLRoleFile(String xacmlRoleFileName, boolean overwrite)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "addXACMLRoleFile";
+        LOGGER.entering(CLASS, METHOD, xacmlRoleFileName, overwrite);
+
+        validateNonEmptyString(xacmlRoleFileName, "xacmlRoleFileName", METHOD);
+
+        File filePath = new File(xacmlRoleFileName);
+        validateExistingFile(filePath, "xacmlRoleFileName", getArchiveFileName(), METHOD);
+
+        String archivePath = getArchiveName(ARCHIVE_XACML_ROLES_PATH, xacmlRoleFileName, false);
+        List<String> zipEntries = getZipFile().listZipEntries(ARCHIVE_XACML_ROLES_PATH + ZIP_SEP);
+        boolean result = zipListContainsPath(zipEntries, archivePath);
+        if (result) {
+            if (overwrite) {
+                getZipFile().removeZipEntry(archivePath);
+            } else {
+                WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01468", xacmlRoleFileName,
+                    getArchiveFileName(), archivePath);
+                LOGGER.throwing(CLASS, METHOD, ex);
+                throw ex;
+            }
+        }
+
+        String newName = addItemToZip(ARCHIVE_XACML_ROLES_PATH + ZIP_SEP, filePath);
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    /**
+     * Replace the XACML Role Mapper role definition file in the archive.
+     *
+     * @param xacmlRolePath  the XACML Role Mapper file name or the path within the archive to replace
+     * @param sourceLocation the file system location of the new XACML Role Mapper file to replace the existing one
+     * @return the archive path of the new XACML Role Mapper file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
+     * @throws IllegalArgumentException    if the file or directory passed in does not exist
+     */
+    public String replaceXACMLRoleFile(String xacmlRolePath, String sourceLocation)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "replaceXACMLRoleFile";
+        LOGGER.entering(CLASS, METHOD, xacmlRolePath, sourceLocation);
+
+        validateNonEmptyString(xacmlRolePath, "xacmlRolePath", METHOD);
+
+        String archivePath;
+        if (xacmlRolePath.startsWith(ARCHIVE_XACML_ROLES_PATH + ZIP_SEP)) {
+            archivePath = xacmlRolePath;
+        } else {
+            archivePath = ARCHIVE_XACML_ROLES_PATH + ZIP_SEP + xacmlRolePath;
+        }
+
+        getZipFile().removeZipEntry(archivePath);
+        String newName = addXACMLRoleFile(sourceLocation);
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    /**
+     * Extract the XACML Role Mapper role definition file to the domain home location.
+     *
+     * @param xacmlRoleFile the name of the XACML Role Mapper role definition file to extract from the archive
+     * @param domainHome    the existing directory location to write the file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or the xacmlRoleFile is empty
+     */
+    public void extractXACMLRoleFile(String xacmlRoleFile, File domainHome) throws WLSDeployArchiveIOException {
+        extractXACMLRoleFile(xacmlRoleFile, domainHome, false);
+    }
+
+    /**
+     * Extract the XACML Role Mapper role definition file to the domain home location.
+     *
+     * @param xacmlRoleFile    the name of the XACML Role Mapper role definition file to extract from the archive
+     * @param domainHome       the existing directory location to write the file
+     * @param stripLeadingPath whether to remove the leading path in the archive
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or the xacmlRoleFile is empty
+     */
+    public void extractXACMLRoleFile(String xacmlRoleFile, File domainHome, boolean stripLeadingPath)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "extractXACMLRoleFile";
+        LOGGER.entering(CLASS, METHOD, xacmlRoleFile, domainHome);
+
+        validateNonEmptyString(xacmlRoleFile, "xacmlRoleFile", METHOD);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        String archivePath = xacmlRoleFile;
+        if (!xacmlRoleFile.startsWith(ARCHIVE_XACML_ROLES_PATH + ZIP_SEP)) {
+            archivePath = ARCHIVE_XACML_ROLES_PATH + ZIP_SEP + xacmlRoleFile;
+        }
+
+        if (stripLeadingPath) {
+            extractFileFromZip(archivePath, ARCHIVE_XACML_ROLES_PATH , "", domainHome);
+        } else {
+            extractFileFromZip(archivePath, domainHome);
+        }
+
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
+     * Remove the XACML Role Mapper role definition file from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param xacmlRoleFile  the name of the XACML Role Mapper role definition file
+     * @return               the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the XACML Role Mapper role definition is not present or an IOException
+     *                                      occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the xacmlRoleFile is null or empty
+     */
+    public int removeXACMLRoleFile(String xacmlRoleFile) throws WLSDeployArchiveIOException {
+        return removeXACMLRoleFile(xacmlRoleFile, false);
+    }
+
+    /**
+     * Remove the XACML Role Mapper role definition file from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param xacmlRoleFile  the name of the XACML Role Mapper role definition file
+     * @param silent         If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return               the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the XACML Role Mapper role definition file is not present
+     *                                      (and silent = false) or an IOException occurred while reading the
+     *                                      archive or writing the file
+     * @throws IllegalArgumentException     if the xacmlRoleFile is null or empty
+     */
+    public int removeXACMLRoleFile(String xacmlRoleFile, boolean silent)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "removeXACMLRoleMapperFile";
+        LOGGER.entering(CLASS, METHOD, xacmlRoleFile, silent);
+
+        validateNonEmptyString(xacmlRoleFile, "xacmlRoleFile", METHOD);
+
+        String archivePath;
+        String keystoreName;
+        if (xacmlRoleFile.startsWith(ARCHIVE_XACML_ROLES_PATH + ZIP_SEP)) {
+            archivePath = xacmlRoleFile;
+            keystoreName = getNameFromPath(xacmlRoleFile, ARCHIVE_XACML_ROLES_PATH.length() + 2);
+        } else {
+            archivePath = ARCHIVE_XACML_ROLES_PATH + ZIP_SEP + xacmlRoleFile;
+            keystoreName = xacmlRoleFile;
+        }
+
+        List<String> zipEntries = getArchiveEntries(ArchiveEntryType.XACML_ROLE, keystoreName);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01469", xacmlRoleFile,
+                getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyTypeDir(ArchiveEntryType.XACML_ROLE, ARCHIVE_XACML_ROLES_PATH + ZIP_SEP);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                            XACML Authorizer Data methods                                  //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Does the policy have a corresponding archive entry?
+     *
+     * @param policyName The policy name used to name the archive entry
+     * @return True if the entry exists; false otherwise
+     * @throws WLSDeployArchiveIOException if an error occurs reading the archive file
+     * @throws IllegalArgumentException    if the policyName is null or empty
+     */
+    public boolean isXACMLPolicyInArchive(String policyName) throws WLSDeployArchiveIOException {
+        final String METHOD = "isXACMLPolicyInArchive";
+        LOGGER.entering(CLASS, METHOD, policyName);
+
+        validateNonEmptyString(policyName, "policyName", METHOD);
+        String fileName = String.format("%s.xml", policyName);
+
+        String archivePath;
+        if (policyName.startsWith(ARCHIVE_XACML_POLICIES_PATH + ZIP_SEP)) {
+            archivePath = fileName;
+        } else {
+            archivePath = ARCHIVE_XACML_POLICIES_PATH + ZIP_SEP + fileName;
+        }
+        List<String> zipEntries = getZipFile().listZipEntries(ARCHIVE_XACML_POLICIES_PATH + ZIP_SEP);
+        boolean result = zipListContainsPath(zipEntries, archivePath);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    /**
+     * Add the XACML Authorizer policy definition to the archive if it does not already exist.
+     *
+     * @param policyName The policy name used to name the archive file entry
+     * @param xacmlText  The XACML content string
+     * @return the archive file entry path
+     * @throws WLSDeployArchiveIOException if an error occurs reading or writing the data
+     * @throws IllegalArgumentException    if the policyName or xacmlText is null or empty
+     */
+    public String addXACMLPolicyFromText(String policyName, String xacmlText) throws WLSDeployArchiveIOException {
+        final String METHOD = "addXACMLPolicyFromText";
+        LOGGER.entering(CLASS, METHOD, policyName, xacmlText);
+
+        validateNonEmptyString(policyName, "policyName", METHOD);
+        validateNonEmptyString(xacmlText, "xacmlText", METHOD);
+
+        String fileName = String.format("%s.xml", policyName);
+        String newName = addItemToZip(ARCHIVE_XACML_POLICIES_PATH, fileName, xacmlText, false);
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    /**
+     * Read the content of the XACML Authorizer policy definition from the archive file.
+     *
+     * @param policyNameOrPath The policy name used to name the archive file entry
+     * @return the XACML Authorizer policy definition in XACML
+     * @throws WLSDeployArchiveIOException if an error occurs reading the data
+     * @throws IllegalArgumentException    if the policyNameOrPath is null or empty
+     */
+    public String readXACMLPolicyFromArchive(String policyNameOrPath) throws WLSDeployArchiveIOException {
+        final String METHOD = "readXACMLPolicyFromArchive";
+        LOGGER.entering(CLASS, METHOD, policyNameOrPath);
+
+        validateNonEmptyString(policyNameOrPath, "policyNameOrPath", METHOD);
+
+        String archivePath;
+        if (policyNameOrPath.startsWith(ARCHIVE_XACML_POLICIES_PATH + ZIP_SEP)) {
+            archivePath = policyNameOrPath;
+        } else {
+            String fileName = String.format("%s.xml", policyNameOrPath);
+            archivePath = ARCHIVE_XACML_POLICIES_PATH + ZIP_SEP + fileName;
+        }
+
+        String content;
+        if (containsFile(archivePath)) {
+            content = readItemContentFromArchive(archivePath);
+        } else {
+            WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01475", policyNameOrPath,
+                archivePath, getArchiveFileName());
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        LOGGER.exiting(CLASS, METHOD, content);
+        return content;
+    }
+
+    /**
+     * Add the XACML Authorizer policy definition file to the archive if it does not already exist.
+     *
+     * @param xacmlPolicyFileName the file to add
+     * @return the new location of the file to use in the model
+     * @throws WLSDeployArchiveIOException if an error occurs while archiving the file or the entry already exists
+     * @throws IllegalArgumentException    if the file does not exist or the xacmlPolicyFileName is empty or null
+     */
+    public String addXACMLPolicyFile(String xacmlPolicyFileName) throws WLSDeployArchiveIOException {
+        return addXACMLPolicyFile(xacmlPolicyFileName, false);
+    }
+
+    /**
+     * Add the XACML Authorizer policy definition file to the archive.
+     *
+     * @param xacmlPolicyFileName the file to add
+     * @param overwrite           whether to overwrite an existing archive entry or not
+     * @return the new location of the file to use in the model
+     * @throws WLSDeployArchiveIOException if an error occurs while archiving the file or the entry already exists
+     *                                     with override set to false
+     * @throws IllegalArgumentException    if the file does not exist or the xacmlPolicyFileName is empty or null
+     */
+    public String addXACMLPolicyFile(String xacmlPolicyFileName, boolean overwrite)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "addXACMLPolicyFile";
+        LOGGER.entering(CLASS, METHOD, xacmlPolicyFileName, overwrite);
+
+        validateNonEmptyString(xacmlPolicyFileName, "xacmlPolicyFileName", METHOD);
+
+        File filePath = new File(xacmlPolicyFileName);
+        validateExistingFile(filePath, "xacmlPolicyFileName", getArchiveFileName(), METHOD);
+
+        String archivePath = getArchiveName(ARCHIVE_XACML_POLICIES_PATH, xacmlPolicyFileName, false);
+        List<String> zipEntries = getZipFile().listZipEntries(ARCHIVE_XACML_POLICIES_PATH + ZIP_SEP);
+        boolean result = zipListContainsPath(zipEntries, archivePath);
+        if (result) {
+            if (overwrite) {
+                getZipFile().removeZipEntry(archivePath);
+            } else {
+                WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01470", xacmlPolicyFileName,
+                    getArchiveFileName(), archivePath);
+                LOGGER.throwing(CLASS, METHOD, ex);
+                throw ex;
+            }
+        }
+
+        String newName = addItemToZip(ARCHIVE_XACML_POLICIES_PATH + ZIP_SEP, filePath);
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    /**
+     * Replace the XACML Authorizer policy definition file in the archive.
+     *
+     * @param xacmlPolicyPath  the XACML Authorizer policy file name or the path within the archive to replace
+     * @param sourceLocation   the file system location of the new XACML Role Mapper file to replace the existing one
+     * @return the archive path of the new XACML Authorizer policy file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
+     * @throws IllegalArgumentException    if the file or directory passed in does not exist
+     */
+    public String replaceXACMLPolicyFile(String xacmlPolicyPath, String sourceLocation)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "replaceXACMLPolicyFile";
+        LOGGER.entering(CLASS, METHOD, xacmlPolicyPath, sourceLocation);
+
+        validateNonEmptyString(xacmlPolicyPath, "xacmlPolicyPath", METHOD);
+
+        String archivePath;
+        if (xacmlPolicyPath.startsWith(ARCHIVE_XACML_POLICIES_PATH + ZIP_SEP)) {
+            archivePath = xacmlPolicyPath;
+        } else {
+            archivePath = ARCHIVE_XACML_POLICIES_PATH + ZIP_SEP + xacmlPolicyPath;
+        }
+
+        getZipFile().removeZipEntry(archivePath);
+        String newName = addXACMLPolicyFile(sourceLocation);
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    /**
+     * Extract the XACML Authorizer policy definition file to the domain home location.
+     *
+     * @param xacmlPolicyFile the name of the XACML Authorizer policy definition file to extract from the archive
+     * @param domainHome      the existing directory location to write the file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or the xacmlPolicyFile is empty
+     */
+    public void extractXACMLPolicyFile(String xacmlPolicyFile, File domainHome) throws WLSDeployArchiveIOException {
+        extractXACMLPolicyFile(xacmlPolicyFile, domainHome, false);
+    }
+
+    /**
+     * Extract the XACML Authorizer policy definition file to the domain home location.
+     *
+     * @param xacmlPolicyFile  the name of the XACML Authorizer policy definition file to extract from the archive
+     * @param domainHome       the existing directory location to write the file
+     * @param stripLeadingPath whether to remove the leading path in the archive
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or the xacmlPolicyFile is empty
+     */
+    public void extractXACMLPolicyFile(String xacmlPolicyFile, File domainHome, boolean stripLeadingPath)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "extractXACMLPolicyFile";
+        LOGGER.entering(CLASS, METHOD, xacmlPolicyFile, domainHome);
+
+        validateNonEmptyString(xacmlPolicyFile, "xacmlPolicyFile", METHOD);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        String archivePath = xacmlPolicyFile;
+        if (!xacmlPolicyFile.startsWith(ARCHIVE_XACML_POLICIES_PATH + ZIP_SEP)) {
+            archivePath = ARCHIVE_XACML_POLICIES_PATH + ZIP_SEP + xacmlPolicyFile;
+        }
+
+        if (stripLeadingPath) {
+            extractFileFromZip(archivePath, ARCHIVE_XACML_POLICIES_PATH , "", domainHome);
+        } else {
+            extractFileFromZip(archivePath, domainHome);
+        }
+
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
+     * Remove the XACML Authorizer policy definition file from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param xacmlPolicyFile the name of the XACML Authorizer policy definition file
+     * @return                the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the XACML Authorizer policy definition is not present or an IOException
+     *                                      occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the xacmlPolicyFile is null or empty
+     */
+    public int removeXACMLPolicyFile(String xacmlPolicyFile) throws WLSDeployArchiveIOException {
+        return removeXACMLPolicyFile(xacmlPolicyFile, false);
+    }
+
+    /**
+     * Remove the XACML Authorizer policy definition file from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param xacmlPolicyFile  the name of the XACML Authorizer policy definition file
+     * @param silent         If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return               the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the XACML Authorizer policy definition file is not present
+     *                                      (and silent = false) or an IOException occurred while reading the
+     *                                      archive or writing the file
+     * @throws IllegalArgumentException     if the xacmlPolicyFile is null or empty
+     */
+    public int removeXACMLPolicyFile(String xacmlPolicyFile, boolean silent)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "removeXACMLPolicyFile";
+        LOGGER.entering(CLASS, METHOD, xacmlPolicyFile, silent);
+
+        validateNonEmptyString(xacmlPolicyFile, "xacmlPolicyFile", METHOD);
+
+        String archivePath;
+        String keystoreName;
+        if (xacmlPolicyFile.startsWith(ARCHIVE_XACML_POLICIES_PATH + ZIP_SEP)) {
+            archivePath = xacmlPolicyFile;
+            keystoreName = getNameFromPath(xacmlPolicyFile, ARCHIVE_XACML_POLICIES_PATH.length() + 2);
+        } else {
+            archivePath = ARCHIVE_XACML_POLICIES_PATH + ZIP_SEP + xacmlPolicyFile;
+            keystoreName = xacmlPolicyFile;
+        }
+
+        List<String> zipEntries = getArchiveEntries(ArchiveEntryType.XACML_POLICY, keystoreName);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01471", xacmlPolicyFile,
+                getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyTypeDir(ArchiveEntryType.XACML_POLICY, ARCHIVE_XACML_POLICIES_PATH + ZIP_SEP);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                         WebLogic Remote Console Data methods                              //
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     public boolean isWrcExtensionFilePresent(String wrcExtensionFileName) throws WLSDeployArchiveIOException {
@@ -4649,6 +5231,8 @@ public class WLSDeployArchive {
         throws WLSDeployArchiveIOException {
         final String METHOD = "replaceWrcExtensionFile";
         LOGGER.entering(CLASS, METHOD, wrcExtensionPath, sourceLocation);
+
+        validateNonEmptyString(wrcExtensionPath, "wrcExtensionPath", METHOD);
 
         String archivePath;
         if (wrcExtensionPath.startsWith(ARCHIVE_WRC_EXTENSION_DIR + ZIP_SEP)) {
@@ -4874,6 +5458,25 @@ public class WLSDeployArchive {
         return newName;
     }
 
+    protected String addItemToZip(String zipPathPrefix, String preferredName, String content, boolean allowRename)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "addItemToZip";
+        LOGGER.entering(CLASS, METHOD, zipPathPrefix, preferredName, content, allowRename);
+
+        String newName = getArchiveName(zipPathPrefix, preferredName, true);
+        try (InputStream stream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8))) {
+            newName = addSingleStreamEntryToZip(stream, newName, allowRename);
+        } catch (IOException ioe) {
+            WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01472", ioe, preferredName,
+                zipPathPrefix, getArchiveFileName(), ioe.getLocalizedMessage());
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
     protected String addItemToZip(String zipPathPrefix, File itemToAdd) throws WLSDeployArchiveIOException {
         return addItemToZip(zipPathPrefix, itemToAdd, true);
     }
@@ -5016,6 +5619,34 @@ public class WLSDeployArchive {
 
         LOGGER.exiting(CLASS, METHOD, zipEntries);
         return zipEntries;
+    }
+
+    protected String readItemContentFromArchive(String archivePath) throws WLSDeployArchiveIOException {
+        final String METHOD = "readItemContentFromArchive";
+        LOGGER.entering(CLASS, METHOD, archivePath);
+
+        String result = null;
+        InputStream contentInputStream = getZipFile().getZipEntry(archivePath);
+        if (contentInputStream != null) {
+            try (Reader in = new InputStreamReader(contentInputStream, StandardCharsets.UTF_8)) {
+                int bufferSize = 1024;
+                char[] buffer = new char[bufferSize];
+                StringBuilder outBuilder = new StringBuilder();
+
+                for (int numCharsRead = 0; (numCharsRead = in.read(buffer, 0, buffer.length)) > 0; ) {
+                    outBuilder.append(buffer, 0, numCharsRead);
+                }
+                result = outBuilder.toString();
+            } catch (IOException ioe) {
+                WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01473", ioe, archivePath,
+                    getArchiveFileName(), ioe.getLocalizedMessage());
+                LOGGER.throwing(CLASS, METHOD, ex);
+                throw ex;
+            }
+        }
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
     }
 
     protected void extractWallet(File domainHome, String extractPath, List<String> zipEntries) throws WLSDeployArchiveIOException {
@@ -5341,6 +5972,17 @@ public class WLSDeployArchive {
                 }
             }
         }
+    }
+
+    private String addSingleStreamEntryToZip(InputStream contentToAdd, String preferredName, boolean allowRename)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "addSingleStreamEntryToZip";
+        LOGGER.entering(CLASS, METHOD, contentToAdd, preferredName, allowRename);
+
+        String newName = getZipFile().addZipEntry(preferredName, contentToAdd, allowRename);
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
     }
 
     private String addSingleFileToZip(File itemToAdd, String preferredName, String callingMethod)

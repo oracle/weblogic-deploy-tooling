@@ -32,7 +32,9 @@ import picocli.CommandLine.Option;
         ListServerKeystoreCommand.class,
         ListSharedLibraryCommand.class,
         ListStructuredApplicationCommand.class,
-        ListWebLogicRemoteConsoleExtensionCommand.class
+        ListWebLogicRemoteConsoleExtensionCommand.class,
+        ListXACMLPolicyCommand.class,
+        ListXACMLRoleCommand.class
     }
 )
 public class ListCommand {
