@@ -1,12 +1,11 @@
 """
-Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2019, 2024, Oracle Corporation and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
+
 from java.io import File
 from java.lang import String
-from wlsdeploy.exception import exception_helper
-import wlsdeploy.util.unicode_helper as str_helper
 
 import com.bea.common.security.utils.encoders.BASE64Encoder as BASE64Encoder
 import com.bea.common.security.xacml.DocumentParseException as DocumentParseException
@@ -14,7 +13,18 @@ import com.bea.common.security.xacml.URISyntaxException as URISyntaxException
 import com.bea.security.providers.xacml.entitlement.EntitlementConverter as EntitlementConverter
 import com.bea.security.xacml.cache.resource.ResourcePolicyIdUtil as ResourcePolicyIdUtil
 
-WLS_XACML_ROLE_MAPPER_LDIFT_FILENAME = 'XACMLRoleMapperInit.ldift' 
+from oracle.weblogic.deploy.util import XACMLException
+from oracle.weblogic.deploy.util import XACMLUtil
+
+from wlsdeploy.aliases.model_constants import EXPRESSION
+from wlsdeploy.aliases.model_constants import XACML_DOCUMENT
+from wlsdeploy.aliases.model_constants import XACML_STATUS
+from wlsdeploy.exception import exception_helper
+from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util import string_utils
+from wlsdeploy.util import unicode_helper as str_helper
+
+WLS_XACML_ROLE_MAPPER_LDIFT_FILENAME = 'XACMLRoleMapperInit.ldift'
 
 class WebLogicRolesHelper(object):
     """
@@ -30,54 +40,94 @@ class WebLogicRolesHelper(object):
         self._escaper = ResourcePolicyIdUtil.getEscaper()
         self._converter = EntitlementConverter(None)
 
-    def update_xacml_role_mapper(self, role_expressions_map):
+    def update_xacml_role_mapper(self, roles_provisioning_map):
         _method_name = 'update_xacml_role_mapper'
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
-        role_entries_map = self._create_xacml_role_mapper_entries(role_expressions_map)
+
+        role_entries_map = self._create_xacml_role_mapper_entries(roles_provisioning_map)
         self._update_xacml_role_mapper_ldift(role_entries_map)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
-    def _create_xacml_role_mapper_entries(self, role_expressions_map):
+    def _create_xacml_role_mapper_entries(self, roles_provisioning_map):
         _method_name = '_create_xacml_role_mapper_entries'
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
 
-        entries = {}
-        if role_expressions_map is not None:
-            try:
-                for role_name in role_expressions_map.keys():
-                    # Get the role expression
-                    role_expression = role_expressions_map[role_name]
-                    # Convert the role expression
-                    policy = self._converter.convertRoleExpression(None, role_name, role_expression, None)
-                    role = self._escaper.escapeString(role_name)
-                    cn = self._escaper.escapeString(policy.getId().toString())
-                    xacml = self._b64encoder.encodeBuffer(String(policy.toString()).getBytes("UTF-8"))
-                    # Setup the lines that make up the role entry
-                    entry = []
-                    entry.append('dn: cn=' + cn + '+xacmlVersion=1.0,ou=Policies,ou=XACMLRole,ou=@realm@,dc=@domain@\n')
-                    entry.append('objectclass: top\n')
-                    entry.append('objectclass: xacmlEntry\n')
-                    entry.append('objectclass: xacmlRoleAssignmentPolicy\n')
-                    entry.append('cn: ' + cn + '\n')
-                    entry.append('xacmlVersion: 1.0\n')
-                    entry.append('xacmlStatus: 3\n')
-                    entry.append('xacmlDocument:: ' + xacml + '\n')
-                    entry.append('xacmlRole: ' + role + '\n')
-                    entry.append('\n')
-                    # Add to the map of role entries
-                    entries[role] = entry
-
-            except DocumentParseException, dpe:
-                ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-01804', role_name, role_expression, dpe.getLocalizedMessage(), error=dpe)
-                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                raise ex
-            except URISyntaxException, use:
-                ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-01804', role_name, role_expression, use.getLocalizedMessage(), error=use)
-                self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
-                raise ex
+        entries = dict()
+        if roles_provisioning_map:
+            for role_name, role_dict in roles_provisioning_map.iteritems():
+                role, role_entry = self._get_role_entry(role_name, role_dict)
+                entries[role] = role_entry
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return entries
+
+    def _get_role_entry(self, role_name, role_dict):
+        _method_name = '_get_role_entry'
+        self.logger.entering(role_name, class_name=self.__class_name, method_name=_method_name)
+
+        role_expression = dictionary_utils.get_element(role_dict, EXPRESSION)
+        xacml_document = dictionary_utils.get_element(role_dict, XACML_DOCUMENT)
+        xacml_status = dictionary_utils.get_element(role_dict, XACML_STATUS, "3")
+
+        if not string_utils.is_empty(role_expression):
+            policy = self._get_xacml_policy(role_name, role_expression)
+            policy_id = policy.getId().toString()
+            xacml_string = policy.toString()
+        else:
+            policy_id = self._get_xacml_policy_id(role_name, xacml_document)
+            xacml_string = xacml_document
+
+        role = self._escaper.escapeString(role_name)
+        cn = self._escaper.escapeString(policy_id)
+        xacml = self._b64encoder.encodeBuffer(String(xacml_string).getBytes('UTF-8'))
+
+        # Setup the lines that make up the role entry
+        entry = []
+        entry.append('dn: cn=%s+xacmlVersion=1.0,ou=Policies,ou=XACMLRole,ou=@realm@,dc=@domain@\n' % cn)
+        entry.append('objectclass: top\n')
+        entry.append('objectclass: xacmlEntry\n')
+        entry.append('objectclass: xacmlRoleAssignmentPolicy\n')
+        entry.append('cn: %s\n' % cn)
+        entry.append('xacmlVersion: 1.0\n')
+        entry.append('xacmlStatus: %s\n' % xacml_status)
+        entry.append('xacmlDocument:: %s\n' % xacml)
+        entry.append('xacmlRole: %s\n' % role)
+        entry.append('\n')
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return role, entry
+
+    def _get_xacml_policy(self, role_name, role_expression):
+        _method_name = '_get_xacml_policy'
+        self.logger.entering(role_name, role_expression, class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            # Convert the role expression
+            policy = self._converter.convertRoleExpression(None, role_name, role_expression, None)
+        except (DocumentParseException, URISyntaxException), dpe:
+            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-01804', role_name,
+                                                   role_expression, dpe.getLocalizedMessage(), error=dpe)
+            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return policy
+
+    def _get_xacml_policy_id(self, role_name, xacml_document):
+        _method_name = '_get_xacml_policy_id'
+        self.logger.entering(role_name, class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            xacml_util = XACMLUtil(xacml_document)
+            policy_id = xacml_util.getPolicyId()
+        except XACMLException, xe:
+            ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-01806', role_name,
+                                                   xe.getLocalizedMessage(), error=xe)
+            self.logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        self.logger.exiting(class_name=self.__class_name, method_name=_method_name, result=policy_id)
+        return policy_id
 
     def _update_xacml_role_mapper_ldift(self, role_entries_map):
         _method_name = '_update_xacml_role_mapper_ldift'

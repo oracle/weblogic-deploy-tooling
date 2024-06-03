@@ -84,12 +84,12 @@ class DomainInfoValidatorTest(BaseTestCase):
         handler = self._summary_handler
         self.assertNotEqual(handler, None, "Summary handler is not present")
 
-        # Verify only 3 errors resulted
+        # Verify only 2 errors resulted
         self.assertEqual(handler.getMessageCount(Level.SEVERE), 2)
         self.assertEqual(handler.getMessageCount(Level.WARNING), 0)
 
-        # MissingPolicyPolicy and MissingResourceIDPolicy are missing required attributes
-        self._validate_message_key(handler, Level.SEVERE, 'WLSDPLY-12600', 2)
+        self._validate_message_key(handler, Level.SEVERE, 'WLSDPLY-12603', 1)
+        self._validate_message_key(handler, Level.SEVERE, 'WLSDPLY-12600', 1)
 
     def test_wls_roles_validation(self):
         """
@@ -121,18 +121,17 @@ class DomainInfoValidatorTest(BaseTestCase):
         handler = self._summary_handler
         self.assertNotEqual(handler, None, "Summary handler is not present")
 
-        # Verify only warnings resulted
-        self.assertEqual(handler.getMessageCount(Level.SEVERE), 0)
-        self.assertEqual(handler.getMessageCount(Level.WARNING), 3)
+        self.assertEqual(handler.getMessageCount(Level.SEVERE), 3)
+        self.assertEqual(handler.getMessageCount(Level.WARNING), 0)
 
         # MyEmpty has no expression value
-        self._validate_message_key(handler, Level.WARNING, 'WLSDPLY-12501', 1)
+        self._validate_message_key(handler, Level.SEVERE, 'WLSDPLY-12504', 1)
 
         # MyTester role is not a global role
-        self._validate_message_key(handler, Level.WARNING, 'WLSDPLY-12502', 1)
+        self._validate_message_key(handler, Level.SEVERE, 'WLSDPLY-12502', 1)
 
         # MyTester3 has invalid update mode
-        self._validate_message_key(handler, Level.WARNING, 'WLSDPLY-12503', 1)
+        self._validate_message_key(handler, Level.SEVERE, 'WLSDPLY-12505', 1)
 
     def test_rcu_db_info_validation(self):
         model_dict = {

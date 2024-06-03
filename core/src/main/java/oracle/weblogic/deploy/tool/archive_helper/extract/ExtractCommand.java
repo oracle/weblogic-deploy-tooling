@@ -35,7 +35,9 @@ import picocli.CommandLine.Option;
         ExtractSharedLibraryCommand.class,
         ExtractSharedLibraryPlanCommand.class,
         ExtractStructuredApplicationCommand.class,
-        ExtractWebLogicRemoteConsoleExtensionCommand.class
+        ExtractWebLogicRemoteConsoleExtensionCommand.class,
+        ExtractXACMLPolicyCommand.class,
+        ExtractXACMLRoleCommand.class
     }
 )
 public class ExtractCommand {

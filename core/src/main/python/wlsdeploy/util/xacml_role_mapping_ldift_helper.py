@@ -4,16 +4,23 @@ Licensed under the Universal Permissive License v1.0 as shown at https://oss.ora
 
 Module that contains the class for working with XACMLAuthorizer LDIFT files.
 """
+from java.lang import IllegalArgumentException
+
 from com.bea.security.xacml.cache.resource import ResourcePolicyIdUtil
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
+from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 from oracle.weblogic.deploy.util import XACMLException
 from oracle.weblogic.deploy.util import XACMLUtil
 
 from wlsdeploy.aliases.model_constants import EXPRESSION
 from wlsdeploy.aliases.model_constants import UPDATE_MODE
+from wlsdeploy.aliases.model_constants import XACML_DOCUMENT
 from wlsdeploy.aliases.model_constants import XACML_ROLE_MAPPER
+from wlsdeploy.aliases.model_constants import XACML_STATUS
 from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.util import string_utils
+from wlsdeploy.util.cla_utils import CommandLineArgUtil
 from wlsdeploy.util.ldift_helper import LdiftBase
 from wlsdeploy.util.ldift_helper import LdiftLine
 
@@ -53,10 +60,25 @@ class XacmlRoleMapperLdiftEntry(object):
         _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result
 
+    def get_xacml_status(self):
+        _method_name = 'get_xacml_status'
+        _logger.entering(class_name=self.__class_name, method_name=_method_name)
+
+        result = None
+        if not self._is_header_element:
+            for line in self._lines:
+                if line.get_key() == 'xacmlStatus':
+                    result = int(self.__escaper.unescapeString(line.get_value()))
+                    break
+
+        _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
     def get_role_mapping_expression(self, role_name):
         _method_name = 'get_role_mapping_expression'
         _logger.entering(role_name, class_name=self.__class_name, method_name=_method_name)
 
+        success = True
         result = None
         if not self._is_header_element:
             value = None
@@ -72,9 +94,35 @@ class XacmlRoleMapperLdiftEntry(object):
                 except XACMLException, xe:
                     _logger.warning('WLSDPLY-07116',role_name, xe.getLocalizedMessage(), error=xe,
                                     class_name=self.__class_name, method_name=_method_name)
+                    success = False
 
-        _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
-        return result
+        _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=(success, result))
+        return success, result
+
+    def get_xacml_document(self, role_name):
+        _method_name = 'get_xacml_document'
+        _logger.entering(role_name, class_name=self.__class_name, method_name=_method_name)
+
+        success = True
+        result = None
+        if not self._is_header_element:
+            value = None
+            for line in self._lines:
+                if line.get_key() == 'xacmlDocument':
+                    value = line.get_value()
+                    break
+
+            if value is not None:
+                try:
+                    xacml_parser = XACMLUtil(value)
+                    result = xacml_parser.getXACMLText()
+                except XACMLException, xe:
+                    _logger.warning('WLSDPLY-07116',role_name, xe.getLocalizedMessage(), error=xe,
+                                    class_name=self.__class_name, method_name=_method_name)
+                    success = False
+
+        _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=(success, result))
+        return success, result
 
 
 class XacmlRoleMapperLdift(LdiftBase):
@@ -114,22 +162,65 @@ class XacmlRoleMapperLdift(LdiftBase):
                     _logger.warning('WLSDPLY-07123', class_name=self.__class_name, method_name=_method_name)
                     continue
 
-                role_expression = ldift_entry.get_role_mapping_expression(role_name)
-                if role_expression is None:
-                    # warning logged inside get_role_mapping_expression() function
+                xacml_status = ldift_entry.get_xacml_status()
+                if xacml_status is None:
+                    _logger.warning('WLSDPLY-07134', XACML_STATUS, role_name,
+                                    class_name=self.__class_name, method_name=_method_name)
+                    xacml_status = 3
+                if xacml_status != 3:
+                    _logger.warning('WLSDPLY-07135', role_name, XACML_STATUS, xacml_status,
+                                    class_name=self.__class_name, method_name=_method_name)
+
+                xacml_document = None
+                success, role_expression = ldift_entry.get_role_mapping_expression(role_name)
+                if not success:
+                    # warning already logged in get_role_mapping_expression()
                     continue
 
-                role_mapping = OrderedDict()
-                role_mapping[EXPRESSION] = role_expression
-                role_mapping[UPDATE_MODE] = 'replace'
-                if filter_defaults:
-                    if not self._is_default_role_mapping(role_name, role_mapping):
-                        result[role_name] = role_mapping
+                if string_utils.is_empty(role_expression):
+                    # Get the XACML document since the description field was empty.
+                    success, xacml_document = ldift_entry.get_xacml_document(role_name)
+                    if not success:
+                        # warning already logged in get_xacml_document()
+                        continue
+
+                if not string_utils.is_empty(role_expression):
+                    role_mapping = OrderedDict()
+                    role_mapping[EXPRESSION] = role_expression
+                    role_mapping[UPDATE_MODE] = 'replace'
+                    role_mapping[XACML_STATUS] = xacml_status
+
+                    if filter_defaults:
+                        if not self._is_default_role_mapping(role_name, role_mapping):
+                            result[role_name] = role_mapping
+                        else:
+                            _logger.fine('WLSDPLY-07117', role_name, EXPRESSION, role_mapping[EXPRESSION],
+                                         class_name=self.__class_name, method_name=_method_name)
                     else:
-                        _logger.fine('WLSDPLY-07117', role_name, EXPRESSION, role_mapping[EXPRESSION],
+                        result[role_name] = role_mapping
+                elif not string_utils.is_empty(xacml_document):
+                    if self._model_context.is_skip_archive():
+                        _logger.notification('WLSDPLY-07126', role_name,
+                                             CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH,
+                                             class_name=self.__class_name, method_name=_method_name )
+                        continue
+                    elif self._model_context.is_remote():
+                        _logger.todo('WLSDPLY-07127', role_name, '%s.xml' % role_name,
                                      class_name=self.__class_name, method_name=_method_name)
+                        continue
+
+                    archive_file = self._model_context.get_archive_file()
+                    try:
+                        role_mapping = OrderedDict()
+                        role_mapping[XACML_DOCUMENT] = archive_file.addXACMLRoleFromText(role_name, xacml_document)
+                        role_mapping[XACML_STATUS] = xacml_status
+                        # There is no filtering when using a XACML Document directly...
+                        result[role_name] = role_mapping
+                    except (WLSDeployArchiveIOException, IllegalArgumentException), aex:
+                        _logger.warning('WLSDPLY-07128', role_name, aex.getLocalizedMessage(), error=aex,
+                                        class_name=self.__class_name, method_name=_method_name)
                 else:
-                    result[role_name] = role_mapping
+                    _logger.warning('WLSDPLY-07129', role_name, class_name=self.__class_name, method_name=_method_name)
 
         _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result

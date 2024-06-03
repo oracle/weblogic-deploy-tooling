@@ -118,7 +118,7 @@ class Creator(object):
                              class_name=self.__class_name, method_name=_method_name)
 
         if model_nodes is None or len(model_nodes) == 0:
-           self.logger.fine('WLSDPLY-12568', type_name, class_name=self.__class_name, method_name=_method_name)
+           self.logger.fine('WLSDPLY-12268', type_name, class_name=self.__class_name, method_name=_method_name)
 
         if not self._is_type_valid(base_location, type_name):
             return

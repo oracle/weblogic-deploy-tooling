@@ -2,11 +2,9 @@
 Copyright (c) 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-from java.io import IOException
 from java.util import Properties
 
 from oracle.weblogic.deploy.discover import DiscoverException
-from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 
 from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
@@ -280,8 +278,8 @@ class SecurityProviderDataDiscoverer(Discoverer):
         else:
             local_file = export_file
 
-        xacml_authorizer = XacmlRoleMapperLdift(local_file, self._model_context, exception_type=ExceptionType.DISCOVER)
-        role_mappings_dict = xacml_authorizer.get_role_mappings_dictionary()
+        xacml_role_mapper = XacmlRoleMapperLdift(local_file, self._model_context, exception_type=ExceptionType.DISCOVER)
+        role_mappings_dict = xacml_role_mapper.get_role_mappings_dictionary()
         if role_mappings_dict:
             self._domain_info_dictionary[WLS_ROLES] = role_mappings_dict
 

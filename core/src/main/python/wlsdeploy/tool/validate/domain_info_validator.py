@@ -157,7 +157,8 @@ class DomainInfoValidator(ModelValidator):
         self._logger.entering(class_name=_class_name, method_name=__method_name)
 
         # Validate WebLogic role content using WLSRoles helper
-        wlsroles_validator = wlsroles_helper.get_wls_roles_validator(roles_dict, self._logger)
+        wlsroles_validator = wlsroles_helper.get_wls_roles_validator(self._model_context, roles_dict, self._logger,
+                                                                     archive_helper=self._archive_helper)
         wlsroles_validator.validate_roles()
 
         self._logger.exiting(class_name=_class_name, method_name=__method_name)

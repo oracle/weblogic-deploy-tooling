@@ -2,7 +2,8 @@
 Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-import os, sets
+import os
+import sets
 import shutil
 
 from java.io import File
@@ -159,6 +160,38 @@ class ArchiveList(object):
                 raise ex
 
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
+        return result
+
+    def read_xacml_role_content(self, path):
+        _method_name = 'get_xacml_role_content'
+        self.__logger.entering(path, class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            archive_file = self._find_archive_for_path(path, True)
+            result = archive_file.readXACMLRoleFromArchive(path)
+        except (IllegalArgumentException, WLSDeployArchiveIOException), e:
+            ex = exception_helper.create_exception(self.__exception_type, "WLSDPLY-19318", path,
+                                                   self.__archive_files_text, e.getLocalizedMessage(), error=e)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+        return result
+
+    def read_xacml_policy_content(self, path):
+        _method_name = 'read_xacml_policy_content'
+        self.__logger.entering(path, class_name=self.__class_name, method_name=_method_name)
+
+        try:
+            archive_file = self._find_archive_for_path(path, True)
+            result = archive_file.readXACMLPolicyFromArchive(path)
+        except (IllegalArgumentException, WLSDeployArchiveIOException), e:
+            ex = exception_helper.create_exception(self.__exception_type, "WLSDPLY-19318", path,
+                                                   self.__archive_files_text, e.getLocalizedMessage(), error=e)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return result
 
     def extract_file(self, path, location=None, strip_leading_path=True):
