@@ -710,5 +710,6 @@ def _generate_new_plan_name(binary_path, plan_path):
         new_name = _path_helper.get_filename_from_path(plan_path)
         if binary_path is not None and new_name is not None:
             prefix = _path_helper.get_filename_no_ext_from_path(binary_path)
-            new_name = prefix + '-' + new_name
+            if prefix:
+                new_name = prefix + '-' + new_name
     return new_name
