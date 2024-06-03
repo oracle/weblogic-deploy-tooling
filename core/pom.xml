@@ -258,6 +258,7 @@
                                 <element>org.slf4j:slf4j-jdk14:jar</element>
                                 <element>org.slf4j:slf4j-api:jar</element>
                                 <element>com.jcraft:jzlib:jar</element>
+                                <element>${project.build.directory}/test-classes</element>
                             </wlstExtClasspath>
                             <systemProperties>
                                 <unit-test-wlst-dir>${unit-test-wlst-dir}</unit-test-wlst-dir>
