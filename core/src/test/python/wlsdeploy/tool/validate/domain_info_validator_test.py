@@ -12,11 +12,15 @@ from base_test import BaseTestCase
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.model_constants import DATABASE_TYPE
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
+from wlsdeploy.aliases.model_constants import METHOD
 from wlsdeploy.aliases.model_constants import ORACLE_DATABASE_CONNECTION_TYPE
+from wlsdeploy.aliases.model_constants import PROTOCOL
 from wlsdeploy.aliases.model_constants import RCU_DATABASE_TYPE
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
+from wlsdeploy.aliases.model_constants import REMOTE_RESOURCE
 from wlsdeploy.aliases.model_constants import WLS_POLICIES
 from wlsdeploy.aliases.model_constants import WLS_ROLES
+from wlsdeploy.aliases.model_constants import WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util.model_context import ModelContext
@@ -132,6 +136,36 @@ class DomainInfoValidatorTest(BaseTestCase):
 
         # MyTester3 has invalid update mode
         self._validate_message_key(handler, Level.SEVERE, 'WLSDPLY-12505', 1)
+
+    def test_wls_credential_mappings_section(self):
+        _method_name = 'test_wls_credential_mappings_section'
+
+        mappings_dict = {
+            REMOTE_RESOURCE: {
+                'map1': {
+                    # these 2 values are bad
+                    PROTOCOL: 'httpx',
+                    METHOD: 'SEND',
+                }
+            }
+        }
+
+        model_dict = {
+            DOMAIN_INFO: {
+                WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS: mappings_dict
+            }
+        }
+
+        self.validator.validate_in_standalone_mode(model_dict, {})
+
+        handler = self._summary_handler
+        self.assertNotEqual(handler, None, "Summary handler is not present")
+
+        self.assertEqual(handler.getMessageCount(Level.SEVERE), 2)
+        self.assertEqual(handler.getMessageCount(Level.WARNING), 0)
+
+        # PROTOCOL and METHOD have invalid values
+        self._validate_message_key(handler, Level.SEVERE, 'WLSDPLY-05313', 2)
 
     def test_rcu_db_info_validation(self):
         model_dict = {
