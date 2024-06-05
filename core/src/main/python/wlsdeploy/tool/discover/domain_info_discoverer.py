@@ -221,6 +221,8 @@ class DomainInfoDiscoverer(Discoverer):
             archive_file = self._model_context.get_archive_file()
             domain_bin = self._convert_path('bin')
             if not self._model_context.is_skip_archive():
+                file_list = None
+
                 if self._model_context.is_remote():
                     # Tell user we won't be able to find them
                     self.add_to_remote_map("setUserOverrides*.*", "<remote domain home bin>/setUserOverrides*.*",
