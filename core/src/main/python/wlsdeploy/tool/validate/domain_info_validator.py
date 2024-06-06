@@ -3,7 +3,6 @@ Copyright (c) 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from oracle.weblogic.deploy.create import RCURunner
-from oracle.weblogic.deploy.util import WLSDeployArchive
 
 from wlsdeploy.aliases.model_constants import ATP_DEFAULT_TABLESPACE
 from wlsdeploy.aliases.model_constants import ATP_TEMPORARY_TABLESPACE
@@ -14,16 +13,20 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import DYNAMIC_CLUSTER_SERVER_GROUP_TARGETING_LIMITS
+from wlsdeploy.aliases.model_constants import METHOD
 from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import ORACLE_DATABASE_CONNECTION_TYPE
+from wlsdeploy.aliases.model_constants import PROTOCOL
 from wlsdeploy.aliases.model_constants import RCU_DATABASE_TYPE
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RCU_DEFAULT_TABLESPACE
 from wlsdeploy.aliases.model_constants import RCU_TEMP_TBLSPACE
+from wlsdeploy.aliases.model_constants import REMOTE_RESOURCE
 from wlsdeploy.aliases.model_constants import SERVER_GROUP_TARGETING_LIMITS
 from wlsdeploy.aliases.model_constants import STORE_TYPE_SSO
 from wlsdeploy.aliases.model_constants import WLS_POLICIES
 from wlsdeploy.aliases.model_constants import WLS_ROLES
+from wlsdeploy.aliases.model_constants import WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create import wlspolicies_helper
 from wlsdeploy.tool.create import wlsroles_helper
@@ -57,6 +60,18 @@ STORE_TYPES = [
     STORE_TYPE_SSO,
     'PKCS12',
     'JKS'
+]
+
+RESOURCE_METHODS = [
+    'GET',
+    'POST'
+]
+
+RESOURCE_PROTOCOLS = [
+    'http',
+    'https',
+    't3',
+    't3s'
 ]
 
 DEPRECATED_DB_TYPES = [
@@ -109,6 +124,8 @@ class DomainInfoValidator(ModelValidator):
             self.__validate_wlsroles_section(model_node)
         elif folder_name == WLS_POLICIES:
             self.__validate_wlspolicies_section(model_node)
+        elif folder_name == WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS:
+            self.__validate_wls_credential_mappings_section(model_node)
         elif folder_name == RCU_DB_INFO:
             self.__validate_rcu_db_info_section(model_node)
 
@@ -162,6 +179,25 @@ class DomainInfoValidator(ModelValidator):
         wlsroles_validator.validate_roles()
 
         self._logger.exiting(class_name=_class_name, method_name=__method_name)
+
+    def __validate_wls_credential_mappings_section(self, mappings_dict):
+        # This method validates fields that can be checked in an unmerged model, such as value ranges.
+        # Checks for merged model (such as required/missing fields) are done in create_content_validator.py .
+        _method_name = '__validate_wls_credential_mappings_section'
+
+        # no field checks for cross-domain mappings
+
+        remote_resources_dict = dictionary_utils.get_dictionary_element(mappings_dict, REMOTE_RESOURCE)
+        for mapping_name, mapping_dict in remote_resources_dict.iteritems():
+            method = dictionary_utils.get_element(mapping_dict, METHOD)
+            if method and method not in RESOURCE_METHODS:
+                self._logger.severe('WLSDPLY-05313', method, REMOTE_RESOURCE, mapping_name, METHOD,
+                                    ', '.join(RESOURCE_METHODS), class_name=_class_name, method_name=_method_name)
+
+            protocol = dictionary_utils.get_element(mapping_dict, PROTOCOL)
+            if protocol and protocol not in RESOURCE_PROTOCOLS:
+                self._logger.severe('WLSDPLY-05313', protocol, REMOTE_RESOURCE, mapping_name, PROTOCOL,
+                                    ', '.join(RESOURCE_PROTOCOLS), class_name=_class_name, method_name=_method_name)
 
     def __validate_rcu_db_info_section(self, info_dict):
         _method_name = '__validate_rcu_db_info_section'

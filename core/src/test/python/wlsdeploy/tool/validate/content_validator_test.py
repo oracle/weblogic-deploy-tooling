@@ -10,9 +10,13 @@ from oracle.weblogic.deploy.logging import WLSDeployLogEndHandler
 from base_test import BaseTestCase
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.model_constants import CLUSTER
+from wlsdeploy.aliases.model_constants import CROSS_DOMAIN
+from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
+from wlsdeploy.aliases.model_constants import REMOTE_RESOURCE
 from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
 from wlsdeploy.aliases.model_constants import TOPOLOGY
+from wlsdeploy.aliases.model_constants import WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.validate.content_validator import ContentValidator
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -80,6 +84,43 @@ class ContentValidatorTest(BaseTestCase):
 
         # clusterOne and clusterTwo have the same server template
         self._validate_message_key(handler, Level.WARNING, 'WLSDPLY-05201', 1)
+
+    def test_wls_credential_mappings(self):
+        model_dict = {
+            DOMAIN_INFO: {
+                WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS: {
+                    CROSS_DOMAIN: {
+                        'map1': {
+                            # these 3 are required
+                            # 'RemoteDomain': 'otherDomain',
+                            # 'RemoteUser': 'otherUser',
+                            # 'RemotePassword': 'welcome1',
+                        }
+                    },
+                    REMOTE_RESOURCE: {
+                        'map2': {
+                            # these 3 are required
+                            # 'RemoteHost': 'otherHost',
+                            # 'RemoteUser': 'otherUser',
+                            # 'RemotePassword': 'welcome1',
+                        }
+                    }
+                }
+            }
+        }
+
+        validator = self.create_validator()
+        validator.validate_model_content(model_dict)
+
+        handler = self._summary_handler
+        self.assertNotEqual(handler, None, "Summary handler is not present")
+
+        # Verify 2 errors, no warnings
+        self.assertEqual(handler.getMessageCount(Level.SEVERE), 6)
+        self.assertEqual(handler.getMessageCount(Level.WARNING), 0)
+
+        # 6 missing attributes for mappings
+        self._validate_message_key(handler, Level.SEVERE, 'WLSDPLY-05210', 6)
 
     def create_validator(self):
         args_map = {
