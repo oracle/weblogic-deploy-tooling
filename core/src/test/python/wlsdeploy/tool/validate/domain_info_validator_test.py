@@ -12,11 +12,15 @@ from base_test import BaseTestCase
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.model_constants import DATABASE_TYPE
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
+from wlsdeploy.aliases.model_constants import METHOD
 from wlsdeploy.aliases.model_constants import ORACLE_DATABASE_CONNECTION_TYPE
+from wlsdeploy.aliases.model_constants import PROTOCOL
 from wlsdeploy.aliases.model_constants import RCU_DATABASE_TYPE
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
+from wlsdeploy.aliases.model_constants import REMOTE_RESOURCE
 from wlsdeploy.aliases.model_constants import WLS_POLICIES
 from wlsdeploy.aliases.model_constants import WLS_ROLES
+from wlsdeploy.aliases.model_constants import WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util.model_context import ModelContext
@@ -84,12 +88,12 @@ class DomainInfoValidatorTest(BaseTestCase):
         handler = self._summary_handler
         self.assertNotEqual(handler, None, "Summary handler is not present")
 
-        # Verify only 3 errors resulted
+        # Verify only 2 errors resulted
         self.assertEqual(handler.getMessageCount(Level.SEVERE), 2)
         self.assertEqual(handler.getMessageCount(Level.WARNING), 0)
 
-        # MissingPolicyPolicy and MissingResourceIDPolicy are missing required attributes
-        self._validate_message_key(handler, Level.SEVERE, 'WLSDPLY-12600', 2)
+        self._validate_message_key(handler, Level.SEVERE, 'WLSDPLY-12603', 1)
+        self._validate_message_key(handler, Level.SEVERE, 'WLSDPLY-12600', 1)
 
     def test_wls_roles_validation(self):
         """
@@ -121,18 +125,47 @@ class DomainInfoValidatorTest(BaseTestCase):
         handler = self._summary_handler
         self.assertNotEqual(handler, None, "Summary handler is not present")
 
-        # Verify only warnings resulted
-        self.assertEqual(handler.getMessageCount(Level.SEVERE), 0)
-        self.assertEqual(handler.getMessageCount(Level.WARNING), 3)
+        self.assertEqual(handler.getMessageCount(Level.SEVERE), 3)
+        self.assertEqual(handler.getMessageCount(Level.WARNING), 0)
 
         # MyEmpty has no expression value
-        self._validate_message_key(handler, Level.WARNING, 'WLSDPLY-12501', 1)
+        self._validate_message_key(handler, Level.SEVERE, 'WLSDPLY-12504', 1)
 
         # MyTester role is not a global role
-        self._validate_message_key(handler, Level.WARNING, 'WLSDPLY-12502', 1)
+        self._validate_message_key(handler, Level.SEVERE, 'WLSDPLY-12502', 1)
 
         # MyTester3 has invalid update mode
-        self._validate_message_key(handler, Level.WARNING, 'WLSDPLY-12503', 1)
+        self._validate_message_key(handler, Level.SEVERE, 'WLSDPLY-12505', 1)
+
+    def test_wls_credential_mappings_section(self):
+        _method_name = 'test_wls_credential_mappings_section'
+
+        mappings_dict = {
+            REMOTE_RESOURCE: {
+                'map1': {
+                    # these 2 values are bad
+                    PROTOCOL: 'httpx',
+                    METHOD: 'SEND',
+                }
+            }
+        }
+
+        model_dict = {
+            DOMAIN_INFO: {
+                WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS: mappings_dict
+            }
+        }
+
+        self.validator.validate_in_standalone_mode(model_dict, {})
+
+        handler = self._summary_handler
+        self.assertNotEqual(handler, None, "Summary handler is not present")
+
+        self.assertEqual(handler.getMessageCount(Level.SEVERE), 2)
+        self.assertEqual(handler.getMessageCount(Level.WARNING), 0)
+
+        # PROTOCOL and METHOD have invalid values
+        self._validate_message_key(handler, Level.SEVERE, 'WLSDPLY-05313', 2)
 
     def test_rcu_db_info_validation(self):
         model_dict = {

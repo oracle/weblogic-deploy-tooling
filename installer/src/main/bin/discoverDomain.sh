@@ -175,10 +175,7 @@ usage() {
   echo "    the domain from a remote server.  Since there is no access to the remote"
   echo "    server's file system, no archive file will be generated.  However, the file"
   echo "    references in the model will contain the values pointing into the archive"
-  echo "    file (which the user must construct separately).  With this option, the"
-  echo "    -remote_oracle_home value should be the remote server's Oracle home path.  This"
-  echo "    allows discover domain to tokenize any file system references containing"
-  echo "    the Oracle home path."
+  echo "    file (which the user must construct separately)."
   echo ""
 }
 

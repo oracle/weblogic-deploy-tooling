@@ -217,3 +217,14 @@ def encrypt_one_password(passphrase, text):
     :raises EncryptionException if an error occurs
     """
     return EncryptionUtils.encryptString(text, String(passphrase).toCharArray())
+
+
+def decrypt_one_password(passphrase, text):
+    """
+    Decrypt the text provided using the specified passphrase.
+    :param passphrase: the password to use for encryption
+    :param text: the text to decrypt
+    :return: the decrypted text
+    :raises EncryptionException if an error occurs
+    """
+    return str(String(EncryptionUtils.decryptString(text, String(passphrase).toCharArray())))

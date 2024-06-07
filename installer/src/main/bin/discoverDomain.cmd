@@ -210,10 +210,7 @@ ECHO    The -remote argument, which only works in online mode, tells WDT to disc
 ECHO    the domain from a remote server.  Since there is no access to the remote
 ECHO    server's file system, no archive file will be generated.  However, the file
 ECHO    references in the model will contain the values pointing into the archive
-ECHO    file (which the user must construct separately).  With this option, the
-ECHO    -remote_oracle_home value should be the remote server's Oracle home path.  This
-ECHO    allows discover domain to tokenize any file system references containing
-ECHO    the Oracle home path.
+ECHO    file (which the user must construct separately).
 ECHO.
 
 :exit_script

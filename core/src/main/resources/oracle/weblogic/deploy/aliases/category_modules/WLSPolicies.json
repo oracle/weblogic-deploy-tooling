@@ -5,8 +5,10 @@
     "child_folders_type": "multiple",
     "folders": {},
     "attributes": {
-        "ResourceID": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ResourceID", "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
-        "Policy":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Policy",     "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ]
+        "ResourceID":    [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "ResourceID",    "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
+        "Policy":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Policy",        "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
+        "XacmlDocument": [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "XacmlDocument", "wlst_path": "WP001", "default_value": null,    "wlst_type": "string", "uses_path_tokens": true } ],
+        "XacmlStatus":   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "XacmlStatus",   "wlst_path": "WP001", "default_value": 3,       "wlst_type": "integer" } ]
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {

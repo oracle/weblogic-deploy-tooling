@@ -197,12 +197,19 @@ class CreateDomainContentValidator(ContentValidator):
             tns_admin = dictionary_utils.get_element(rcu_info_dict, DRIVER_PARAMS_NET_TNS_ADMIN)
             qualified_path = rcudbinfo_helper.get_qualified_store_path(tns_admin, store_value)
             if WLSDeployArchive.isPathIntoArchive(qualified_path):
+                # log level depends on validate configuration
+                validate_configuration = self._model_context.get_validate_configuration()
+                if validate_configuration.allow_unresolved_archive_references():
+                    log_method = self._logger.info
+                else:
+                    log_method = self._logger.severe
+
                 if not self._archive_helper:
-                    self._logger.severe('WLSDPLY-05311', qualified_path, RCU_DB_INFO, store_property,
-                                        class_name=self._class_name, method_name=_method_name)
+                    log_method('WLSDPLY-05311', qualified_path, RCU_DB_INFO, store_property,
+                               class_name=self._class_name, method_name=_method_name)
                 elif not self.__is_path_in_archive_wallet(qualified_path):
-                    self._logger.severe('WLSDPLY-05312', qualified_path, RCU_DB_INFO, store_property,
-                                        class_name=self._class_name, method_name=_method_name)
+                    log_method('WLSDPLY-05312', qualified_path, RCU_DB_INFO, store_property,
+                               class_name=self._class_name, method_name=_method_name)
 
     def __has_tns_path(self, rcu_info_dict):
         """

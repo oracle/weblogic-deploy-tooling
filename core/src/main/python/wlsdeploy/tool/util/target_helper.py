@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -593,7 +593,7 @@ class TargetHelper(object):
         for cluster in cluster_map.iterkeys():
             wlst_attribute = self.__locate_dynamic_attribute(cluster)
             bug_map[cluster] = self.wlst_helper.get(wlst_attribute)
-            self.logger.finer('WLSDPLY-12560', cluster, bug_map[cluster],
+            self.logger.finer('WLSDPLY-12260', cluster, bug_map[cluster],
                               class_name=self.__class_name, method_name=_method_name)
         return bug_map
 
@@ -608,7 +608,7 @@ class TargetHelper(object):
             if attribute_value is not None:
                 wlst_attribute = self.__locate_dynamic_attribute(cluster)
                 self.wlst_helper.set(wlst_attribute, attribute_value)
-                self.logger.finer('WLSDPLY-12561', cluster, wlst_attribute,
+                self.logger.finer('WLSDPLY-12261', cluster, wlst_attribute,
                                   class_name=self.__class_name, method_name=_method_name)
 
     def __put_back_in_edit(self):

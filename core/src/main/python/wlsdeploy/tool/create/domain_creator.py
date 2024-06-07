@@ -134,9 +134,10 @@ class DomainCreator(Creator):
 
         self.rcu_helper = RCUHelper(self.model, self.archive_helper, self.model_context, self.aliases)
 
-        self.wlsroles_helper = WLSRoles(self._domain_info, self._domain_home, self.wls_helper,
-                                        ExceptionType.CREATE, self.logger)
-        self.wlspolicies_helper = WLSPolicies(self._domain_info, self.model_context, self.logger)
+        self.wls_roles_helper = WLSRoles(self._domain_info, self._domain_home, self.model_context,
+                                         ExceptionType.CREATE, self.logger, archive_helper=self.archive_helper)
+        self.wls_policies_helper = WLSPolicies(self._domain_info, self.model_context, self.logger,
+                                               archive_helper=self.archive_helper)
 
     def create(self):
         """
@@ -257,8 +258,8 @@ class DomainCreator(Creator):
         self.library_helper.install_domain_libraries()
         self.library_helper.extract_classpath_libraries()
         self.library_helper.install_domain_scripts()
-        self.wlsroles_helper.process_roles()
-        self.wlspolicies_helper.process_policies()
+        self.wls_roles_helper.process_roles()
+        self.wls_policies_helper.process_policies()
 
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return
@@ -391,7 +392,7 @@ class DomainCreator(Creator):
 
         topology_profile = self._domain_typedef.get_topology_profile()
         if topology_profile in TopologyProfile:
-            self.logger.info('WLSDPLY-12569', topology_profile, class_name=self.__class_name, method_name=_method_name)
+            self.logger.info('WLSDPLY-12269', topology_profile, class_name=self.__class_name, method_name=_method_name)
             self.wlst_helper.set_topology_profile(topology_profile)
 
         base_template = self._domain_typedef.get_base_template()
@@ -1052,7 +1053,7 @@ class DomainCreator(Creator):
                                                        POST_CREATE_DOMAIN_LOG_BASENAME, script, java_home, oracle_home,
                                                        self._domain_home, self._domain_name)
         runner.runScript()
-        self.logger.info('WLSDPLY-12576', script, class_name=self.__class_name, method_name=_method_name)
+        self.logger.info('WLSDPLY-12276', script, class_name=self.__class_name, method_name=_method_name)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def __configure_opss_wallet_and_passphrase(self):
@@ -1063,7 +1064,7 @@ class DomainCreator(Creator):
             return
 
         # Check the model for the OPSS wallet passphrase first
-        key = 'WLSDPLY-12579'
+        key = 'WLSDPLY-12279'
         opss_wallet_password = None
         if OPSS_WALLET_PASSPHRASE in self._domain_info:
             opss_wallet_password = self.aliases.decrypt_password(self._domain_info[OPSS_WALLET_PASSPHRASE])
@@ -1077,7 +1078,7 @@ class DomainCreator(Creator):
         cla_passphrase = self.model_context.get_opss_wallet_passphrase()
         if not string_utils.is_empty(cla_passphrase):
             opss_wallet_password = cla_passphrase
-            key = 'WLSDPLY-12580'
+            key = 'WLSDPLY-12280'
 
         if not string_utils.is_empty(opss_wallet_password):
             opss_wallet = None

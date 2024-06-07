@@ -269,7 +269,7 @@ class RCUHelper(object):
                     for key in item.keys():
                         props.put(key, item[key])
 
-            self.__logger.info('WLSDPLY_12575', 'test datasource', jdbc_conn_string, schema_name, props,
+            self.__logger.info('WLSDPLY_12275', 'test datasource', jdbc_conn_string, schema_name, props,
                                class_name=self.__class_name, method_name=_method_name)
 
             props.put('user', user_name)
@@ -284,12 +284,12 @@ class RCUHelper(object):
             DriverManager.getConnection(jdbc_conn_string, props)
 
         except (exceptions.Exception, JException), e:
-            ex = exception_helper.create_create_exception('WLSDPLY-12505', domain_typename,
+            ex = exception_helper.create_create_exception('WLSDPLY-12281', domain_typename,
                                                           e.getClass().getName(), e.getLocalizedMessage(), error=e)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
         except ee:
-            ex = exception_helper.create_create_exception('WLSDPLY-12506', domain_typename, error=ee)
+            ex = exception_helper.create_create_exception('WLSDPLY-12282', domain_typename, error=ee)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
@@ -343,7 +343,7 @@ class RCUHelper(object):
             rcu_db_conn_string, rcu_database_type)
 
         if rcu_db_conn_string is None:
-            ex = exception_helper.create_create_exception('WLSDPLY-12572')
+            ex = exception_helper.create_create_exception('WLSDPLY-12272')
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 
@@ -400,7 +400,7 @@ class RCUHelper(object):
                         os.path.join(self._model_context.get_domain_home(), *archive_elements)
 
             if string_utils.is_empty(tns_admin) or not os.path.exists(os.path.join(tns_admin, 'tnsnames.ora')):
-                ex = exception_helper.create_create_exception('WLSDPLY-12562')
+                ex = exception_helper.create_create_exception('WLSDPLY-12262')
                 self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
                 raise ex
 
@@ -446,7 +446,7 @@ class RCUHelper(object):
 
         if DRIVER_PARAMS_KEYSTORE_PROPERTY in ssl_conn_properties and \
                 not os.path.exists(ssl_conn_properties[DRIVER_PARAMS_KEYSTORE_PROPERTY]):
-            ex = exception_helper.create_create_exception('WLSDPLY-12574',
+            ex = exception_helper.create_create_exception('WLSDPLY-12274',
                                                           ssl_conn_properties[DRIVER_PARAMS_KEYSTORE_PROPERTY],
                                                           DRIVER_PARAMS_KEYSTORE_PROPERTY)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
@@ -454,7 +454,7 @@ class RCUHelper(object):
 
         if DRIVER_PARAMS_TRUSTSTORE_PROPERTY in ssl_conn_properties and \
                 not os.path.exists(ssl_conn_properties[DRIVER_PARAMS_TRUSTSTORE_PROPERTY]):
-            ex = exception_helper.create_create_exception('WLSDPLY-12574',
+            ex = exception_helper.create_create_exception('WLSDPLY-12274',
                                                           ssl_conn_properties[DRIVER_PARAMS_TRUSTSTORE_PROPERTY],
                                                           DRIVER_PARAMS_TRUSTSTORE_PROPERTY)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
@@ -524,7 +524,7 @@ class RCUHelper(object):
             oracle_home, self._model_context.get_domain_home(), self._model_context.get_domain_name())
 
         runner.runScript()
-        self.__logger.info('WLSDPLY-12577', script, class_name=self.__class_name, method_name=_method_name)
+        self.__logger.info('WLSDPLY-12277', script, class_name=self.__class_name, method_name=_method_name)
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def __set_connection_property_info(self, root_location, property_name, property_value, info_bucket, encrypted=False):
@@ -603,7 +603,7 @@ class RCUHelper(object):
                     ds_name, is_atp, tns_admin, truststore, truststore_type, truststore_pwd, keystore,
                     keystore_type, keystore_pwd)
 
-            self.__logger.info('WLSDPLY-12575', ds_name, actual_url, actual_schema, property_set,
+            self.__logger.info('WLSDPLY-12275', ds_name, actual_url, actual_schema, property_set,
                                class_name=self.__class_name, method_name=_method_name)
 
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=ds_names)
@@ -641,7 +641,7 @@ class RCUHelper(object):
             else:
                 new_driver_name = self.__get_jdbc_driver_class_name(database_type, is_xa=False)
 
-            self.__logger.fine('WLSDPLY-12578', datasource_name, database_type, new_driver_name,
+            self.__logger.fine('WLSDPLY-12278', datasource_name, database_type, new_driver_name,
                                class_name=self.__class_name, method_name=_method_name)
 
             wlst_name, wlst_value = \
@@ -752,7 +752,7 @@ class RCUHelper(object):
 
         tns_admin, rcu_db_conn_string = self.__get_rcu_db_connect_string()
         if rcu_db_conn_string is None:
-            ex = exception_helper.create_create_exception('WLSDPLY-12564')
+            ex = exception_helper.create_create_exception('WLSDPLY-12264')
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
             raise ex
 

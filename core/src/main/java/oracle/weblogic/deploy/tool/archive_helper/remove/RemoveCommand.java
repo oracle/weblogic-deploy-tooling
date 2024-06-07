@@ -34,7 +34,9 @@ import picocli.CommandLine.Option;
         RemoveSharedLibraryCommand.class,
         RemoveSharedLibraryPlanCommand.class,
         RemoveStructuredApplicationCommand.class,
-        RemoveWebLogicRemoteConsoleExtensionCommand.class
+        RemoveWebLogicRemoteConsoleExtensionCommand.class,
+        RemoveXACMLPolicyCommand.class,
+        RemoveXACMLRoleCommand.class
     }
 )
 public class RemoveCommand {

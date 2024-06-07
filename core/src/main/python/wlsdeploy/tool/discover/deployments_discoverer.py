@@ -696,7 +696,7 @@ class DeploymentsDiscoverer(Discoverer):
 
 def _generate_new_plan_name(binary_path, plan_path):
     """
-    Generate a new plan name from the plan path and binary path.
+    Generate a new plan name from the plan path and binary path.  This is always invoked using local file names.
 
     This is a private helper method.
 
@@ -704,11 +704,24 @@ def _generate_new_plan_name(binary_path, plan_path):
     :param plan_path: path of the plan from the domain
     :return: newly generated plan name for the archive file
     """
+    _method_name = '_generate_new_plan_name'
+    _logger.entering(binary_path, plan_path, class_name=_class_name, method_name=_method_name)
+
     _path_helper = path_helper.get_path_helper()
     new_name = None
     if not string_utils.is_empty(plan_path):
-        new_name = _path_helper.get_filename_from_path(plan_path)
+        new_name = _path_helper.get_local_filename_from_path(plan_path)
         if binary_path is not None and new_name is not None:
-            prefix = _path_helper.get_filename_no_ext_from_path(binary_path)
-            new_name = prefix + '-' + new_name
+            if os.path.isfile(binary_path):
+                prefix = _path_helper.get_local_filename_no_ext_from_path(binary_path)
+            else:
+                # Unlike the Unix shell, basename on a path that ends in a directory separator
+                # returns an empty string so remove them...
+                while binary_path.endswith('/') or binary_path.endswith('\\'):
+                    binary_path = binary_path[0:-1]
+                prefix = _path_helper.local_basename(binary_path)
+
+            new_name = '%s-%s' % (prefix, new_name)
+
+    _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
     return new_name
