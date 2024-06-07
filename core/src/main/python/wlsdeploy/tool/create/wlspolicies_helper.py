@@ -5,6 +5,8 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 import os
 import re
 
+from oracle.weblogic.deploy.util import WLSDeployArchive
+
 from wlsdeploy.aliases.model_constants import POLICY
 from wlsdeploy.aliases.model_constants import RESOURCE_ID
 from wlsdeploy.aliases.model_constants import WLS_POLICIES
@@ -99,12 +101,19 @@ class WLSPolicies(object):
             pass
         elif isinstance(xacml_document, (str, unicode)) and not string_utils.is_empty(xacml_document):
             # validate xacml_document
-            if self._archive_helper is not None and \
-                    self._archive_helper.is_path_into_archive(xacml_document) and \
-                    not  self._archive_helper.contains_file(xacml_document):
-                self._logger.severe('WLSDPLY-12601', policy_name, XACML_DOCUMENT, xacml_document,
-                                    class_name=self.__class_name, method_name=_method_name)
-                is_valid = False
+            if WLSDeployArchive.isPathIntoArchive(xacml_document) and \
+                    (self._archive_helper is None or not self._archive_helper.contains_file(xacml_document)):
+
+                # log level depends on validate configuration
+                validate_configuration = self._model_context.get_validate_configuration()
+                if validate_configuration.allow_unresolved_archive_references():
+                    log_method = self._logger.info
+                else:
+                    log_method = self._logger.severe
+                    is_valid = False
+
+                log_method('WLSDPLY-12601', policy_name, XACML_DOCUMENT, xacml_document,
+                           class_name=self.__class_name, method_name=_method_name)
         else:
             self._logger.severe('WLSDPLY-12603', policy_name, POLICY, XACML_DOCUMENT,
                                 class_name=self.__class_name, method_name=_method_name)
