@@ -36,6 +36,9 @@ None
 - #1693 - Changed the wko, wko-dii (deprecated), and wko-pv target values to refer to the latest versions instead of
   WebLogic Kubernetes Operator 3 versions.  Added wko3, wko3-dii, and wko3-pv to accommodate users that still require
   the ability to use these older versions.
+- #1697 - Added support for the Prepare Model Tool to preserve any one-way hashed passwords in the model. 
+- #1700 - Added support for storing XACML policy and role definitions that could not be converted to their original
+  policy and role expressions as XACML files in the archive file.
 
 #### Bug Fixes
 - #1687 - Fixed a problem with the Discover Domain Tool not properly handling Data Source user names with spaces with
@@ -43,6 +46,16 @@ None
 - #1690 - Fixed a problem with determining the default security realm name that caused it to always be `myrealm`.
 - #1692 - Fixed a misleading error message when the model points to an application outside of the archive file that
   does not exist.
+- #1695 - Fixed an issue where the WebLogic Kubernetes Operator domain.yaml was including a placeholder for the
+  `domainHome` attribute in all cases so that the WebLogic Image Tool could populate it when creating the image.
+  This was occurring even in use cases where the WebLogic Image Tool did not have this information.  WDT no longer does
+  this and will only include the `domainHome` in the case where the user has specified it on the command line.
+- #1698 - Fixed issues with the new messages related to the security provider data discovery features.
+- #1701 - Moved the TestSummaryHandler logging class out of the installer since it is only meant for supporting unit tests.
+- #1702 - Fixed a bug in deployment plan discovery for exploded applications.
+- #1703 - Fixed a bug in discovery of `domainBin` scripts.
+- #1705 - Added missing validation for the `WLSUserPasswordCredentialMappings` section.
+- #1706 - Fixed a validation bug that was causing lax validation to fail when archive entries were missing.
 
 #### Known Issues
 - SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,

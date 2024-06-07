@@ -207,12 +207,12 @@ The scope can be one of the following values or a list of some of these value:
 
 - `ALL` - discovers all 4 provider types
 - `DefaultAuthenticator` - discovers users and groups.
-- `XACMLAuthenticator` - discovers authorization policies.
+- `XACMLAuthorizer` - discovers authorization policies.
 - `XACMLRoleMapper` - discovers role definitions.
 - `DefaultCredentialMapper` - discovers credential mappings.
 
 The `ALL` scope is exactly the same as a scope value that lists each of the four provider types (for example,
-`DefaultAuthenticator,XACMLAuthenticator,XACMLRoleMapper,DefaultCredentialMapper`)
+`DefaultAuthenticator,XACMLAuthorizer,XACMLRoleMapper,DefaultCredentialMapper`)
 
 {{% notice note %}}Discovery filters out all security data that matches the defaults for the WLS version being used
 except for users, because WDT needs to discover the users' passwords to use when creating a new domain from the
@@ -228,6 +228,11 @@ result in the model password values being set to `-- FIX ME --`.
 in the model without being encrypted.  Oracle strongly recommends that you do not use this feature since not only will
 it result in passwords being stored in clear text in the model but also may result in passwords in the WDT log files.
 {{% /notice %}}
+
+When discovering the `XACMLAuthorizer` or the `XACMLRoleMapper`, WDT analyzes the XACML documents to try to determine
+the policy or expression from which the XACML was generated.  If this succeeds, the model will contain that policy or
+role.  If not, the XACML document will be added to the archive file and a reference to that document will be added to
+the model instead.
 
 #### Discovering the default administrator user name and password
 
