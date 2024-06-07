@@ -721,7 +721,9 @@ def _generate_new_plan_name(binary_path, plan_path):
                     binary_path = binary_path[0:-1]
                 prefix = _path_helper.local_basename(binary_path)
 
-            new_name = '%s-%s' % (prefix, new_name)
+            # don't bother changing the name if the name already matches the pattern <app-name>-<plan-name>
+            if not string_utils.is_empty(prefix) and not new_name.startswith('%s-' % prefix):
+                new_name = '%s-%s' % (prefix, new_name)
 
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
     return new_name
