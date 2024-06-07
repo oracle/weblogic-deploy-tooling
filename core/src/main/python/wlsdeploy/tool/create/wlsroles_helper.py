@@ -8,6 +8,7 @@ from java.io import File
 from oracle.weblogic.deploy.json import JsonException
 from oracle.weblogic.deploy.json import JsonStreamTranslator
 from oracle.weblogic.deploy.util import FileUtils
+from oracle.weblogic.deploy.util import WLSDeployArchive
 
 from wlsdeploy.aliases.model_constants import APPEND
 from wlsdeploy.aliases.model_constants import EXPRESSION
@@ -110,10 +111,15 @@ class WLSRoles(object):
                         self.logger.severe('WLSDPLY-12502', role_name, UPDATE_MODE, role_update_mode,
                                            class_name=self.__class_name, method_name=_method_name)
                 elif not string_utils.is_empty(xacml_document):
-                    if self._archive_helper is not None and \
-                            self._archive_helper.is_path_into_archive(xacml_document) and \
-                            not self._archive_helper.contains_file(xacml_document):
-                        self.logger.severe('WLSDPLY-12503', role_name, xacml_document,
+                    if WLSDeployArchive.isPathIntoArchive(xacml_document) and \
+                            (self._archive_helper is None or not self._archive_helper.contains_file(xacml_document)):
+                        validate_configuration = self._model_context.get_validate_configuration()
+                        if validate_configuration.allow_unresolved_archive_references():
+                            log_method = self.logger.info
+                        else:
+                            log_method = self.logger.severe
+
+                        log_method('WLSDPLY-12503', role_name, xacml_document,
                                    class_name=self.__class_name, method_name=_method_name)
                 else:
                     self.logger.severe('WLSDPLY-12504', role_name, EXPRESSION, XACML_DOCUMENT,
