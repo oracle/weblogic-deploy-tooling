@@ -69,7 +69,9 @@ For the simplest case, the Extract Domain Resource Tool will create resource fil
 to the `target` argument, using information from the command line and the domain sections of the model. Information
 about target types and templates can be found [Target environments]({{< relref "/userguide/target_env.md" >}}) page.
 
-The value of the optional `-domain_home` argument will be applied in the template output. Domain name and UID fields in the template will use the domain name in the topology section of the model, or the default `base_domain`. The cluster entries will be pulled from the topology section of the model; their replica counts will have been derived from the number of servers for each cluster.
+The value of the optional `-domain_home` argument will be applied to the corresponding field in the template output, if specified. As an alternative, the domain home value can be specified in the related section of the WDT model. 
+
+Domain name and UID fields in the template will use the domain name in the topology section of the model, or the default `base_domain`. The cluster entries will be pulled from the topology section of the model; their replica counts will have been derived from the number of servers for each cluster.
 
 The user is expected to fill in the image and secrets information identified by `--FIX ME--` in the resource output.
 

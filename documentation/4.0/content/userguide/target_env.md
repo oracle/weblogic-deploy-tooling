@@ -40,13 +40,15 @@ These target environment configurations are included in the WebLogic Deploy Tool
 
 #### The WebLogic Kubernetes Operator targets
 
-You can use these targets to customize the model and create a domain resource file for use with WebLogic Kubernetes Operator. There are three targets for specific [domain home source types](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/choosing-a-model/):
+You can use these targets to customize the model and create a domain resource file for use with WebLogic Kubernetes Operator (WKO). There are three targets for specific [domain home source types](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/choosing-a-model/):
 
-- `wko` and `wko4` for [Model in Image](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/model-in-image/) deployments
-- `wko-dii` and `wko4-dii` for Domain in Image deployments
-- `wko-pv`and `wko4-pv` for Domain in PV deployments
+- `wko` and `wko<version>` for [Model in Image](https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/model-in-image/) deployments
+- `wko-dii` and `wko<version>-dii` for Domain in Image deployments
+- `wko-pv`and `wko<version>-pv` for Domain in PV deployments
 
-Targets beginning with `wko` are for use with WebLogic Kubernetes Operator versions 3.*, and those beginning with `wko4` are for use with versions 4.0.0 and later.
+The value of `<version>` corresponds to a major version of WKO. For example the target `wko4-dii` would customize the model for a Domain in Image deployment for WKO version 4.0.0 and later.
+
+Targets without a version number, such as `wko-dii`, will customize the model for the current version of WKO. This association may change as new versions of WKO are released, so it is recommended to use target names with the intended WKO version.
 
 Each of these targets provides this additional processing:
 
