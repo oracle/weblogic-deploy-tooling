@@ -186,7 +186,7 @@ and future versions of WebLogic Server.
 
 #### `wlsdeploy/security/xacmlPolicies`
 The directory under which XACML Authorizer policies can be stored when defining policies directly in XACML.  The name of the
-policy file should match the name of the policy in the model.  For example, the following model entry will requires that the
+policy file should match the name of the policy in the model.  For example, the following model entry requires that the
 XACML policy file be stored in the archive at `wlsdeploy/security/xacmlPolicies/MyQueueSendPolicy.xml`.
 
 ```yqml
@@ -198,7 +198,7 @@ MyQueueSendPolicy:
 
 #### `wlsdeploy/security/xacmlRoles`
 The directory under which XACML Role Mapper role definitions can be stored when defining role directly in XACML.  The name
-of the role file should match the name of the role in the model.  For example, the following model entry will requires that the
+of the role file should match the name of the role in the model.  For example, the following model entry requires that the
 XACML role definition file be stored in the archive at `wlsdeploy/security/xacmlRoles/users.xml`.
 
 ```yqml

@@ -113,7 +113,7 @@ Server version independent.
 #### Running the tool in online mode
 
 To run the Discover Domain Tool in online mode, you have several options as described earlier.  In normal mode, WDT
-must be run on the same host as the Administration Server bny a user that has read access to the necessary directories
+must be run on the same host as the Administration Server by a user that has read access to the necessary directories
 (for example, the domain home directory) to collect the files to populate the archive file. Simply include the admin
 user name and admin URL on the command line. The tool will prompt for a password to be entered into STDIN. To bypass the
 prompt, you can use one of three options:

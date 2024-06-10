@@ -28,14 +28,13 @@ None
   purpose of the argument clearer.
 - #1682 - Relaxed the JDK 8 requirement to use WDT encryption.  Later versions of JDK 7 have the necessary algorithm
   support so now WDT determines at startup whether the underlying JDK supports WDT encryption or not.
-- #1682 - Used the values of the `-admin_user` and provided password are used to
-  populate the `domainInfo:/AdminUserName` and `domainInfo:/AdminPassword` fields when discovering security provider
-  data.
+- #1682 - Used the values of the `-admin_user` and provided password to populate the `domainInfo:/AdminUserName` and
+  `domainInfo:/AdminPassword` fields when discovering security provider data.
 - #1688 - Enhanced variable tokenization support to include passwords in discovered security provider data. 
 - #1689 - Added the ability to discover the OPSS wallet when running in online mode.
-- #1693 - Changed the wko, wko-dii (deprecated), and wko-pv target values to refer to the latest versions instead of
-  WebLogic Kubernetes Operator 3 versions.  Added wko3, wko3-dii, and wko3-pv to accommodate users that still require
-  the ability to use these older versions.
+- #1693 - Changed the `wko`, `wko-dii` (deprecated), and `wko-pv` target values to refer to the latest versions instead
+  of WebLogic Kubernetes Operator 3 versions.  Added `wko3`, `wko3-dii`, and `wko3-pv` to accommodate users that still
+  require the ability to use these older versions.
 - #1697 - Added support for the Prepare Model Tool to preserve any one-way hashed passwords in the model. 
 - #1700 - Added support for storing XACML policy and role definitions that could not be converted to their original
   policy and role expressions as XACML files in the archive file.
@@ -46,7 +45,7 @@ None
 - #1690 - Fixed a problem with determining the default security realm name that caused it to always be `myrealm`.
 - #1692 - Fixed a misleading error message when the model points to an application outside of the archive file that
   does not exist.
-- #1695 - Fixed an issue where the WebLogic Kubernetes Operator domain.yaml was including a placeholder for the
+- #1695 - Fixed an issue where the WebLogic Kubernetes Operator `domain.yaml` was including a placeholder for the
   `domainHome` attribute in all cases so that the WebLogic Image Tool could populate it when creating the image.
   This was occurring even in use cases where the WebLogic Image Tool did not have this information.  WDT no longer does
   this and will only include the `domainHome` in the case where the user has specified it on the command line.
