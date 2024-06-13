@@ -1284,6 +1284,15 @@ class ModelContext(object):
                 result = True
         return result
 
+    def is_discover_security_provider_passwords(self):
+        # These security providers have model passwords
+        return self.is_discover_default_authenticator_data() or self.is_discover_default_credential_mapper_data()
+
+    def get_discover_security_provider_data_types_label(self):
+        # Result should only be used for display or logging
+        data_types = self._discover_security_provider_data or []
+        return ','.join(data_types)
+
     def is_discover_opss_wallet(self):
         return self._discover_opss_wallet
 
