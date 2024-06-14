@@ -40,7 +40,7 @@ _secret_string_pattern = re.compile("^(@@SECRET:([\\w.-]+):([\\w.-]+)@@)$")
 # if this pattern is found, token substitution was incomplete
 _unresolved_token_pattern = re.compile("(@@(PROP|FILE|ENV|SECRET):)")
 
-_secret_dirs_variable = "WDT_MODEL_SECRETS_DIRS"
+SECRET_DIRS_VARIABLE = "WDT_MODEL_SECRETS_DIRS"
 _secret_dir_pairs_variable = "WDT_MODEL_SECRETS_NAME_DIR_PAIRS"
 
 _secret_token_map = None
@@ -444,12 +444,12 @@ def _init_secret_token_map(model_context):
 
     # add name/key pairs for files in sub-directories of directories in WDT_MODEL_SECRETS_DIRS.
 
-    locations = env_helper.getenv(str_helper.to_string(_secret_dirs_variable))
+    locations = env_helper.getenv(str_helper.to_string(SECRET_DIRS_VARIABLE))
     if locations is not None:
         for secret_dir in locations.split(","):
             if not os.path.isdir(secret_dir):
                 # log at WARN or INFO, but no exception is thrown
-                log_method('WLSDPLY-01738', _secret_dirs_variable, secret_dir, class_name=_class_name,
+                log_method('WLSDPLY-01738', SECRET_DIRS_VARIABLE, secret_dir, class_name=_class_name,
                            method_name=method_name)
                 continue
 
