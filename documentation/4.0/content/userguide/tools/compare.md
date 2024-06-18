@@ -7,12 +7,13 @@ description: "Compares two model files."
 ---
 
 
-When working with a domain model, sometimes it is useful to know the differences between different models.
+When working with domain models, sometimes it is useful to know the differences between different models.
  The Compare Model Tool compares two model files and generates a model that shows the differences between them.
 
-To use the Compare Model Tool, simply run the `compareModel` shell script with the correct arguments.  To see the list of valid arguments, simply run the shell script with the `-help` option (or with no arguments) for usage information.
+To use the Compare Model Tool, simply run the `compareModel` shell script with the correct arguments.  To see the list
+of valid arguments, simply run the shell script with the `-help` option (or with no arguments) for usage information.
 
-For example, comparing the following models.  
+For example, comparing the following models.
 
 #### New model
 
@@ -292,9 +293,18 @@ Comparing the new and old models:
     diffed_model.yaml
     compare_model_stdout
 
+### Environment variables
+The following environment variables may be set.
+
+-  `JAVA_HOME`             The location of the JDK. This must be a valid Java 7 or later JDK.
+-  `WLSDEPLOY_PROPERTIES`  System properties that will be passed to Java.
+
+Since the Compare Model Tool uses Jython directly without using WLST, the `JAVA_HOME` will be the JDK used to execute
+the command (unlike other tools that use WLST).
+
 ### Parameter table for `compareModel`
-| Parameter | Definition | Default |
-| --- | --- | --- |
-| `-oracle_home` | Home directory of the Oracle installation. Required if the `ORACLE_HOME` environment variable is not set. |    |
-| `-output_dir` | (Required) Directory in which to store the output. |    |
-| `-variable_file` | Variable file used for token substitution. |    |
+| Parameter        | Definition                                                                                                | Default |
+|------------------|-----------------------------------------------------------------------------------------------------------|---------|
+| `-oracle_home`   | Home directory of the Oracle installation. Required if the `ORACLE_HOME` environment variable is not set. |         |
+| `-output_dir`    | (Required) Directory in which to store the output.                                                        |         |
+| `-variable_file` | Variable file used for token substitution.                                                                |         |

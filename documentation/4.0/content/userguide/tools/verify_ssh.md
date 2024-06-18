@@ -68,6 +68,20 @@ To test file download, run `verifySSH` as shown.
 ./weblogic-deplog/bin/verifySSH.sh -oracle_home $MW_HOME -ssh_host remote-machine.mycorp.io -remote_test_file /path/to/remote/file.txt -local_output_dir /tmp
 ```
 
+### Environment variables
+The following environment variables may be set.
+
+-  `JAVA_HOME`             The location of the JDK. This must be a valid Java 7 or later JDK.
+-  `WLSDEPLOY_PROPERTIES`  System properties that will be passed to WLST.
+
+{{% notice warning %}}
+When running the Verify SSH Tool (and any other tool that use WLST), the actual JDK used to run the tool
+will be the JDK used to install WebLogic Server in the Oracle Home and not the one defined by the `JAVA_HOME`
+environment variable.  The best practice is to set `JAVA_HOME` to point to the same JDK installation that was used to
+install WebLogic Server.
+{{% /notice %}}
+
+
 ### Parameter table for `verifySSH`
 | Parameter                      | Definition                                                                                                                                                     | Default                                    |
 |--------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------|
