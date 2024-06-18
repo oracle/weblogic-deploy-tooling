@@ -55,6 +55,7 @@ None
 - #1703 - Fixed a bug in discovery of `domainBin` scripts.
 - #1705 - Added missing validation for the `WLSUserPasswordCredentialMappings` section.
 - #1706 - Fixed a validation bug that was causing lax validation to fail when archive entries were missing.
+- #1707 - Fixed a bug in the handling of the `ActiveContextHandlerEntry` attribute of an `Auditor` security provider.
 
 #### Known Issues
 - SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
@@ -66,7 +67,7 @@ None
           1. WLSDPLY-20008: verifySSH argument processing failed: Failed to initialize SSH context: Failed to SSH connect to host myhost.oracle.com: no such algorithm: X25519 for provider BC
   ```
 
-- SSH support for the Update Domain Tool and Deploy Apps Tool do not work when using an archive file and the remote 
+- SSH support for the Update Domain Tool and Deploy Apps Tool does not work when using an archive file and the remote 
   WebLogic Server is running on Windows using the optional, Windows-provided, OpenSSH component.  This is due to an
   issue with the SSHJ library WDT is using.  See https://github.com/hierynomus/sshj/issues/929 for more information.
 

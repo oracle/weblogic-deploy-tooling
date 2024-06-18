@@ -41,7 +41,7 @@ None
           1. WLSDPLY-20008: verifySSH argument processing failed: Failed to initialize SSH context: Failed to SSH connect to host myhost.oracle.com: no such algorithm: X25519 for provider BC
   ```
 
-- SSH support for the Update Domain Tool and Deploy Apps Tool do not work when using an archive file and the remote 
+- SSH support for the Update Domain Tool and Deploy Apps Tool does not work when using an archive file and the remote 
   WebLogic Server is running on Windows using the optional, Windows-provided, OpenSSH component.  This is due to an
   issue with the SSHJ library WDT is using.  See https://github.com/hierynomus/sshj/issues/929 for more information.
 
