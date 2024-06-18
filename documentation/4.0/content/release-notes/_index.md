@@ -48,7 +48,8 @@ None
 - #1695 - Fixed an issue where the WebLogic Kubernetes Operator `domain.yaml` was including a placeholder for the
   `domainHome` attribute in all cases so that the WebLogic Image Tool could populate it when creating the image.
   This was occurring even in use cases where the WebLogic Image Tool did not have this information.  WDT no longer does
-  this and will only include the `domainHome` in the case where the user has specified it on the command line.
+  this and will only include the `domainHome` in the case where the user has specified it on the command line,
+  or in the `kubernetes` section of the model.
 - #1698 - Fixed issues with the new messages related to the security provider data discovery features.
 - #1701 - Moved the TestSummaryHandler logging class out of the installer since it is only meant for supporting unit tests.
 - #1702 - Fixed a bug in deployment plan discovery for exploded applications.
