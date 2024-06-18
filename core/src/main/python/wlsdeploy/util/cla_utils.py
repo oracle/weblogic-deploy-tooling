@@ -264,7 +264,7 @@ class CommandLineArgUtil(object):
                 self._add_arg(self.get_admin_pass_key(), value)
             elif self.is_admin_pass_file_key(key):
                 file_var, idx = self._get_arg_value(args, idx)
-                value = self._get_from_file_value(file_var)
+                value = get_from_file_value(file_var)
                 self._add_arg(self.get_admin_pass_key(), value)
             elif self.is_archive_file_key(key):
                 value, idx = self._get_arg_value(args, idx)
@@ -276,7 +276,7 @@ class CommandLineArgUtil(object):
                 self._add_arg(self.get_opss_passphrase_key(), value)
             elif self.is_opss_passphrase_file(key):
                 file_var, idx = self._get_arg_value(args, idx)
-                value = self._get_from_file_value(file_var)
+                value = get_from_file_value(file_var)
                 self._add_arg(self.get_opss_passphrase_key(), value)
             elif self.is_opss_passphrase_key(key):
                 value, idx = self._get_arg_value(args, idx)
@@ -307,7 +307,7 @@ class CommandLineArgUtil(object):
                 self._add_arg(self.get_passphrase_switch(), value)
             elif self.is_passphrase_file_switch(key):
                 file_var, idx = self._get_arg_value(args, idx)
-                value = self._get_from_file_value(file_var)
+                value = get_from_file_value(file_var)
                 self._add_arg(self.get_passphrase_switch(), value)
             elif self.is_one_pass_switch(key):
                 value, idx = self._get_arg_value(args, idx)
@@ -874,24 +874,6 @@ class CommandLineArgUtil(object):
             raise ex
         return value
 
-    # TODO - Improve the error handling to give the user better error messages.
-    def _get_from_file_value(self, file_var):
-        _method_name = '_get_from_file_value'
-        ifile = None
-        try:
-            stream = JFileUtils.getFileAsStream(file_var)
-            ifile = BufferedReader(InputStreamReader(stream))
-            value = ifile.readLine()
-            ifile.close()
-            return value
-        except IOException,ioe:
-            if ifile:
-                ifile.close()
-            ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-01651', file_var,
-                                      ioe.getLocalizedMessage(), error=ioe)
-            _logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
-            raise ex
-
     def get_passphrase_switch(self):
         return self.PASSPHRASE_SWITCH
 
@@ -1378,3 +1360,21 @@ def validate_domain_home_arg(value):
 
     home_dir = JFile(value)
     return home_dir.getAbsolutePath()
+
+# TODO - Improve the error handling to give the user better error messages.
+def get_from_file_value(file_var):
+    _method_name = 'get_from_file_value'
+    ifile = None
+    try:
+        stream = JFileUtils.getFileAsStream(file_var)
+        ifile = BufferedReader(InputStreamReader(stream))
+        value = ifile.readLine()
+        ifile.close()
+        return value
+    except IOException,ioe:
+        if ifile:
+            ifile.close()
+        ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-01651', file_var,
+                                  ioe.getLocalizedMessage(), error=ioe)
+        _logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+        raise ex

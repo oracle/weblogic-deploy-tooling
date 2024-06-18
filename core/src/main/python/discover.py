@@ -324,18 +324,26 @@ def __validate_discover_passwords_and_security_data_args(model_context, argument
         __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
 
-    if model_context.is_discover_passwords() and model_context.is_encrypt_discovered_passwords():
-        # With -discover_passwords, we always need the WDT encryption passphrase and JDK8 or above.
+    # check if any argument requires password discovery
+    passwords_argument = None
+    if model_context.is_discover_passwords():
+        passwords_argument = CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH
+    elif model_context.is_discover_security_provider_passwords():
+        passwords_argument = CommandLineArgUtil.DISCOVER_SECURITY_PROVIDER_DATA_SWITCH + " " \
+                             + model_context.get_discover_security_provider_data_types_label()
+
+    if passwords_argument and model_context.is_encrypt_discovered_passwords():
+        # To discover encrypted passwords, we always need the WDT encryption passphrase and JDK8 or above.
         if not is_encryption_supported:
             ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-06057',
-                                                       _program_name, CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH,
+                                                       _program_name, passwords_argument,
                                                        System.getProperty('java.version'))
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
         if model_context.get_encryption_passphrase() is None:
             ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-06051',
-                                                       _program_name, CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH,
+                                                       _program_name, passwords_argument,
                                                        CommandLineArgUtil.PASSPHRASE_ENV_SWITCH,
                                                        CommandLineArgUtil.PASSPHRASE_FILE_SWITCH,
                                                        CommandLineArgUtil.PASSPHRASE_PROMPT_SWITCH)

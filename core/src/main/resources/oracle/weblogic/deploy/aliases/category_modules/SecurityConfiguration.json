@@ -117,7 +117,7 @@
                             "child_folders_type": "none",
                             "folders": {},
                             "attributes" : {
-                                "ActiveContextHandlerEntry":       [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ActiveContextHandlerEntr${y:ies}", "wlst_path": "WP001", "default_value": null,                      "wlst_type": "string"  } ],
+                                "ActiveContextHandlerEntry":       [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ActiveContextHandlerEntr${y:ies}", "wlst_path": "WP001", "default_value": null,                      "wlst_type": "${list:jarray}", "wlst_read_type": "delimited_string[semicolon]", "get_method": "${LSA:GET}", "preferred_model_type": "list" } ],
                                 "BeginMarker":                     [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "BeginMarker",                     "wlst_path": "WP001", "default_value": "#### Audit Record Begin",  "wlst_type": "string", "get_method": "${LSA:GET}"} ],
                                 "CompatibilityObjectName":         [ {"version": "[10,)",       "wlst_mode": "offline", "wlst_name": "CompatibilityObjectName",         "wlst_path": "WP001", "default_value": null,                       "wlst_type": "string"  } ],
                                 "Description":                     [ {"version": "[10,)",       "wlst_mode": "online",  "wlst_name": "Description",                     "wlst_path": "WP001", "default_value": null,                       "wlst_type": "string", "access": "IGNORED" } ],

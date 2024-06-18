@@ -10,6 +10,7 @@ from java.io import File
 from java.io import IOException
 from java.lang import IllegalArgumentException
 from java.lang import String
+from java.lang import System
 
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import TranslateException
@@ -25,10 +26,12 @@ from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_utils
 from wlsdeploy.util import env_helper
 from wlsdeploy.util import getcreds
+from wlsdeploy.util import model_config
 from wlsdeploy.util import model_helper
 from wlsdeploy.util import model_translator
 from wlsdeploy.util import path_helper
 from wlsdeploy.util import string_utils
+from wlsdeploy.util import unicode_helper as str_helper
 
 from wlsdeploy.util import variables
 from wlsdeploy.util.cla_utils import CommandLineArgUtil
@@ -36,6 +39,7 @@ from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model_translator import FileToPython
 from wlsdeploy.exception.exception_helper import create_cla_exception
 
+MODEL_ENCRYPTION_SECRET_KEY = 'passphrase'
 
 __logger = PlatformLogger('wlsdeploy.util')
 _class_name = 'cla_helper'
@@ -149,18 +153,42 @@ def process_encryption_args(optional_arg_map, is_encryption_supported):
     """
     _method_name = '__process_encryption_args'
 
+    if is_encryption_supported and CommandLineArgUtil.PASSPHRASE_SWITCH not in optional_arg_map:
+        if CommandLineArgUtil.PASSPHRASE_PROMPT_SWITCH in optional_arg_map:
+            try:
+                passphrase = getcreds.getpass('WLSDPLY-20002')
+            except IOException, ioe:
+                ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
+                                                           'WLSDPLY-20003', ioe.getLocalizedMessage(), error=ioe)
+                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
 
-    if is_encryption_supported and \
-            CommandLineArgUtil.PASSPHRASE_PROMPT_SWITCH in optional_arg_map and \
-            CommandLineArgUtil.PASSPHRASE_SWITCH not in optional_arg_map:
-        try:
-            passphrase = getcreds.getpass('WLSDPLY-20002')
-        except IOException, ioe:
-            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR,
-                                                       'WLSDPLY-20003', ioe.getLocalizedMessage(), error=ioe)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-        optional_arg_map[CommandLineArgUtil.PASSPHRASE_SWITCH] = String(passphrase)
+            optional_arg_map[CommandLineArgUtil.PASSPHRASE_SWITCH] = String(passphrase)
+            return
+
+        # the encryption passphrase may be in a secret specified by an environment variable.
+        # the variable uses the same naming prefix as tool.properties
+        env_variable_name = model_config.SYS_PROP_PREFIX + "model.encryption.secret"
+        secret_name = System.getProperty(env_variable_name, None)
+        if secret_name:
+            # we can't use similar methods in variable module, model context is not established,
+            # and we don't want to depend on strict/lax mode.
+            passphrase = None
+            locations = env_helper.getenv(str_helper.to_string(variables.SECRET_DIRS_VARIABLE))
+            if locations is not None:
+                for secret_dir in locations.split(","):
+                    secret_path = os.path.join(secret_dir, secret_name, MODEL_ENCRYPTION_SECRET_KEY)
+                    if os.path.isfile(secret_path):
+                        __logger.info('WLSDPLY-02300', secret_path)
+                        passphrase = cla_utils.get_from_file_value(secret_path)
+                        optional_arg_map[CommandLineArgUtil.PASSPHRASE_SWITCH] = passphrase
+                        break
+
+            if not passphrase:
+                ex = exception_helper.create_cla_exception(
+                    ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-02301', secret_name, locations)
+                __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                raise ex
 
 
 def validate_model(program_name, model_dictionary, model_context, aliases, wlst_mode,
