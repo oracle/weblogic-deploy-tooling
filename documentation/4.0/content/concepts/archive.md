@@ -184,6 +184,29 @@ file, and restart the server to reinitialize the SAML2 partner data.
 Note that this functionality is only present starting in the October 2023 PSUs for WebLogic Server 12.2.1.4 and 14.1.1,
 and future versions of WebLogic Server.
 
+#### `wlsdeploy/security/xacmlPolicies`
+The directory under which XACML Authorizer policies can be stored when defining policies directly in XACML.  The name of the
+policy file should match the name of the policy in the model.  For example, the following model entry requires that the
+XACML policy file be stored in the archive at `wlsdeploy/security/xacmlPolicies/MyQueueSendPolicy.xml`.
+
+```yqml
+MyQueueSendPolicy:
+    ResourceID: 'type=<jms>, application=MyJmsModule, destinationType=queue, resource=MyQueue, action=send'
+    XacmlDocument: wlsdeploy/security/xacmlPolicies/MyQueueSendPolicy.xml
+    XacmlStatus: 3
+```
+
+#### `wlsdeploy/security/xacmlRoles`
+The directory under which XACML Role Mapper role definitions can be stored when defining role directly in XACML.  The name
+of the role file should match the name of the role in the model.  For example, the following model entry requires that the
+XACML role definition file be stored in the archive at `wlsdeploy/security/xacmlRoles/users.xml`.
+
+```yqml
+users:
+    XacmlDocument: wlsdeploy/security/xacmlRoles/users.xml
+    XacmlStatus: 3
+```
+
 #### `wlsdeploy/sharedLibraries`
 The root directory under which shared libraries and their deployment plans are stored. Shared libraries can be stored
 in the archive as EAR, WAR, or JAR files, or as an exploded directory at this location.
