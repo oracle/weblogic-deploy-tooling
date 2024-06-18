@@ -12,20 +12,20 @@
     <title>Extract Domain Resource Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1718680811" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1718742525" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1718680811"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1718742525"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1718680811"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1718680811"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1718742525"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1718742525"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1718680811"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1718742525"></script>
 
     
   </div>
@@ -1355,6 +1355,27 @@
  
   
     
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.1.1/" title="Release 4.1.1" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-4.1.1/">
+        <b> </b>Release 4.1.1
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
       <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.1.0/" title="Release 4.1.0" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-4.1.0/">
         <b> </b>Release 4.1.0
@@ -2016,7 +2037,6 @@
   <ul>
     <li>
       <ul>
-        <li></li>
         <li><a href="#parameter-table-for-extractdomainresource">Parameter table for <code>extractDomainResource</code></a></li>
       </ul>
     </li>
@@ -2044,16 +2064,59 @@
         
 
 
-<h4 id="using-wdt-with-weblogic-kubernetes-operator">Using WDT with WebLogic Kubernetes Operator</h4>
-<p>You can use the Extract Domain Resource Tool to create resource files for use with the WebLogic Kubernetes Operator or Verrazzano. This allows the domain configuration and the Kubernetes container configuration to be specified in a single model file.</p>
-<p><strong>NOTE</strong>: Verrazzano support is deprecated in WDT 4.0.0.</p>
-<p>This is especially useful when making configuration changes to the domain that also need to be reflected in the resource file. For example, adding a cluster to the domain only requires that it be added to the <code>topology</code> section of the WDT model, then a new resource file can be generated to apply to Kubernetes.</p>
+<p>You can use the Extract Domain Resource Tool to create resource files for use with the WebLogic Kubernetes Operator
+or Verrazzano. This allows the Kubernetes resource definitions to be generated from a model file.  This is especially
+useful when making configuration changes to the domain that also need to be reflected in the resource file. For example,
+adding a cluster to the domain only requires that it be added to the <code>topology</code> section of the WDT model, then a new
+resource definition file can be generated that contains information pertaining to the new cluster to apply to Kubernetes.</p>
+
+<div class="notices note" ><p>Verrazzano support is deprecated in WDT 4.0.0 and will be removed in a future release.</p>
+</div>
+
+<p>By default, the resource file generated is pretty minimalistic and will always require editing.  For example, the Extract
+Domain Resource Tool run against a simple model with only an Administration Server will generate something the looks
+similar the one shown here.  Note that the <code>.spec.domainHome</code> attribute value was populated using the <code>-domain_home</code>
+command-line argument.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">weblogic.oracle/v9</span>
+<span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Domain</span>
+<span style="color:#f92672">metadata</span>:
+    <span style="color:#f92672">name</span>: <span style="color:#ae81ff">mydomain</span>
+    <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">mydomain</span>
+    <span style="color:#f92672">labels</span>:
+        <span style="color:#f92672">weblogic.domainUID</span>: <span style="color:#ae81ff">mydomain</span>
+<span style="color:#f92672">spec</span>:
+    <span style="color:#f92672">domainHome</span>: <span style="color:#ae81ff">/u01/domains/mydomain</span>
+    <span style="color:#f92672">domainHomeSourceType</span>: <span style="color:#ae81ff">FromModel</span>
+    <span style="color:#f92672">image</span>: <span style="color:#e6db74">&#39;{{{imageName}}}&#39;</span>
+    <span style="color:#75715e"># Add any credential secrets that are required to pull the image</span>
+    <span style="color:#f92672">imagePullSecrets</span>: []
+    <span style="color:#f92672">webLogicCredentialsSecret</span>:
+        <span style="color:#f92672">name</span>: <span style="color:#ae81ff">mydomain-weblogic-credentials</span>
+    <span style="color:#f92672">serverPod</span>:
+        <span style="color:#f92672">env</span>:
+          - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">JAVA_OPTIONS</span>
+            <span style="color:#f92672">value</span>: -<span style="color:#ae81ff">Dweblogic.StdoutDebugEnabled=false</span>
+          - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">USER_MEM_ARGS</span>
+            <span style="color:#f92672">value</span>: <span style="color:#e6db74">&#39;-Djava.security.egd=file:/dev/./urandom -Xms64m -Xmx256m &#39;</span>
+    <span style="color:#f92672">configuration</span>:
+        <span style="color:#f92672">introspectorJobActiveDeadlineSeconds</span>: <span style="color:#ae81ff">900</span>
+        <span style="color:#f92672">model</span>:
+            <span style="color:#f92672">domainType</span>: <span style="color:#ae81ff">WLS</span>
+            <span style="color:#f92672">modelHome</span>: <span style="color:#e6db74">&#39;{{{modelHome}}}&#39;</span>
+            <span style="color:#f92672">runtimeEncryptionSecret</span>: <span style="color:#ae81ff">mydomain-runtime-encryption-secret</span>
+</code></pre></div><p>To help make this tool more useful (and more automated), the model includes optional, top-level <code>kubernetes</code> and
+<code>verrazzano</code> sections that feed into the generated domain resource.  Looking at the previous example output, you see
+that the <code>.spec.image</code> and <code>.spec.configuration.model.modelHome</code> attributes are</p>
 <p>More information about the WebLogic Kubernetes Operator can be found <a href="https://oracle.github.io/weblogic-kubernetes-operator">here</a>.</p>
 <p>More information about Verrazzano can be found <a href="https://verrazzano.io/latest/docs/">here</a>.</p>
 <p>Here is an example command line for the Extract Domain Resource Tool:</p>
-<pre><code>$ &lt;wls-deploy-home&gt;/bin/extractDomainResource.sh -oracle_home /tmp/oracle -domain_home /u01/mydomain -model_file /tmp/mymodel.yaml -variable_file /tmp/my.properties -output_dir /tmp/resource -target wko
-</code></pre><p>For the simplest case, the Extract Domain Resource Tool will create resource files based on the templates corresponding to the <code>target</code> argument, using information from the command line and the domain sections of the model. Information about target types and templates can be found <a href="/weblogic-deploy-tooling/userguide/target_env/">here</a>.</p>
-<p>The value of the optional <code>-domain_home</code> argument will be applied in the template output. Domain name and UID fields in the template will use the domain name in the topology section of the model, or the default <code>base_domain</code>. The cluster entries will be pulled from the topology section of the model; their replica counts will have been derived from the number of servers for each cluster.</p>
+<pre><code>$ weblogic-deploy/bin/extractDomainResource.sh -model_file /tmp/mymodel.yaml -variable_file /tmp/my.properties -output_dir /tmp/resource -target wko -oracle_home /tmp/oracle -domain_home /u01/mydomain 
+</code></pre>
+<p>For the simplest case, the Extract Domain Resource Tool will create resource files based on the templates corresponding
+to the <code>target</code> argument, using information from the command line and the domain sections of the model. Information
+about target types and templates can be found <a href="/weblogic-deploy-tooling/userguide/target_env/">Target environments</a> page.</p>
+<p>The value of the optional <code>-domain_home</code> argument will be applied to the corresponding field in the template output, if specified. As an alternative, the domain home value can be specified in the related section of the WDT model.</p>
+<p>Domain name and UID fields in the template will use the domain name in the topology section of the model, or the default <code>base_domain</code>. The cluster entries will be pulled from the topology section of the model; their replica counts will have been derived from the number of servers for each cluster.</p>
 <p>The user is expected to fill in the image and secrets information identified by <code>--FIX ME--</code> in the resource output.</p>
 <p>For more advanced configurations, including pre-populating the <code>--FIX ME--</code> values, the user can populate the related section of the WDT model, and those values will appear in the resulting custom resource definition (CRD) resource files. In this example the <code>kubernetes</code> section of the model overrides and adds some values to the CRD generated for WebLogic Kubernetes Operator.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">kubernetes</span>:
@@ -3541,6 +3604,22 @@
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -3566,19 +3645,19 @@
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1718680811"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1718742525"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1718680811"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1718742525"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1718680811"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1718742525"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

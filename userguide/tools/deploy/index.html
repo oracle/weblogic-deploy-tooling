@@ -12,20 +12,20 @@
     <title>Deploy Applications Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1718680811" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1718742525" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1718680811"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1718742525"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1718680811"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1718680811"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1718742525"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1718742525"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1718680811"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1718742525"></script>
 
     
   </div>
@@ -1355,6 +1355,27 @@
  
   
     
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.1.1/" title="Release 4.1.1" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-4.1.1/">
+        <b> </b>Release 4.1.1
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
       <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.1.0/" title="Release 4.1.0" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-4.1.0/">
         <b> </b>Release 4.1.0
@@ -2016,9 +2037,11 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#using-output-files">Using output files</a></li>
+        <li></li>
         <li><a href="#using-an-encrypted-model">Using an encrypted model</a></li>
         <li><a href="#using-multiple-models">Using multiple models</a></li>
+        <li><a href="#environment-variables">Environment variables</a></li>
+        <li><a href="#opening-an-issue-against-the-deploy-applications-tool">Opening an issue against the Deploy Applications Tool</a></li>
         <li><a href="#parameter-table-for-deployapps">Parameter table for <code>deployApps</code></a></li>
       </ul>
     </li>
@@ -2047,49 +2070,150 @@
 
 
 
-<div class="notices note" ><p>The Deploy Applications Tool is deprecated in WDT 4.0.0. For comparable functionality and more, use the <a href="/weblogic-deploy-tooling/userguide/tools/update/">Update Domain Tool</a>.</p>
+<div class="notices note" ><p>The Deploy Applications Tool is deprecated in WDT 4.0.0. For comparable functionality and more, use the
+<a href="/weblogic-deploy-tooling/userguide/tools/update/">Update Domain Tool</a>.</p>
 </div>
 
-<p>The Deploy Applications Tool uses a model, the archive, and WLST to deploy applications and resources into an existing WebLogic Server domain in either WLST online or offline mode.  When deploying applications and resources from a model, the Deploy Applications Tool focuses primarily on the <code>resources</code> and <code>appDeployments</code> sections of the model.  There are exceptions for the <code>domainInfo</code> and <code>topology</code> sections, where those configuration elements are deemed to be &ldquo;application-related.&rdquo;  For example, the servers' <code>ServerStart</code> folder has an <code>Arguments</code> and a <code>ClassPath</code> attribute that change the server environment (when started by the Node Manager) that applications may rely on to function properly.  Likewise, the <code>domainInfo</code> section contains a list of JAR files that are to be placed in <code>&lt;DOMAIN_HOME&gt;/lib</code> which are relevant to applications for a similar reason.</p>
-<p>The Deploy Applications Tool will only add or update elements in the specified model. It will not attempt to remove any missing elements that were present in a previous model.</p>
-<p>In WLST online mode, the tool tries to minimize the need to redeploy the applications and shared libraries, and the need to restart the server.  It does this in a few ways:</p>
+<p>The Deploy Applications Tool uses a model, the archive, and WLST to deploy applications and resources into an existing
+WebLogic Server domain in either WLST online or offline mode.  When deploying applications and resources from a model,
+the Deploy Applications Tool focuses primarily on the <code>resources</code> and <code>appDeployments</code> sections of the model.
+There are exceptions for the <code>domainInfo</code> and <code>topology</code> sections, where those configuration elements are deemed to be
+&ldquo;application-related.&rdquo;  For example, the servers' <code>ServerStart</code> folder has an <code>Arguments</code> and a <code>ClassPath</code> attribute
+that change the server environment (when started by the Node Manager) that applications may rely on to function properly.
+Likewise, the <code>domainInfo</code> section contains a list of JAR files that are to be placed in <code>&lt;DOMAIN_HOME&gt;/lib</code> which are
+relevant to applications for a similar reason.</p>
+<p>Like the Update Domain Tool, the Deploy Applications Tool can be run in either offline or online mode, and online mode has
+some options that control its behavior.</p>
 <ul>
-<li>If the model references an application or shared library that is already deployed, the tool compares the binaries to determine whether redeployment is required.  Redeployment of shared libraries is particularly expensive since all applications using the shared library must be redeployed&ndash;even if the application has not changed.</li>
-<li>It looks at the knowledge base to determine which attributes require restart when they are changed.  If an attribute requires restart, the tool compares the current and model values to make sure that they are different before trying to apply a change.</li>
-</ul>
-<p>The goal is to make the tool both able to support iterative deployment and able to minimize service disruption while doing its work when working against a running domain.</p>
-<p>Running the Deploy Applications Tool in WLST offline mode is very similar to running the Create Domain Tool; simply provide the domain location and archive file, and separate model and variable files, if needed.  For example:</p>
-<pre><code>$ weblogic-deploy\bin\deployApps.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DemoDomain.zip -model_file DemoDomain.yaml -variable_file DemoDomain.properties
-</code></pre>
-<p>You can use online mode either on the admin server or from a remote machine.  If you are running from the admin server, you can specify domain home directory <code>-domain_home</code> location.</p>
-<p>If you are running from a remote machine with <code>-remote</code> option, then you do not need to specify the domain home directory <code>-domain_home</code> option.</p>
-<p>To run the tool in online mode, add the <code>-admin_url</code> and <code>-admin_user</code> arguments with the necessary values to connect to the WebLogic Server Administration Server. For example:</p>
-<pre><code>$ weblogic-deploy\bin\deployApps.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -archive_file DemoDomain.zip -model_file DemoDomain.yaml -variable_file DemoDomain.properties -admin_url t3://127.0.0.1:7001 -admin_user weblogic
-</code></pre>
-<p>or if running from a remote machine</p>
-<pre><code>$ weblogic-deploy\bin\deployApps.cmd -oracle_home c:\wls12213 -remote -archive_file DemoDomain.zip -model_file DemoDomain.yaml -variable_file DemoDomain.properties -admin_url t3://127.0.0.1:7001 -admin_user weblogic
-</code></pre>
-<p>If you are running from a remote machine, then you do not need to specify the domain home directory <code>-domain_home</code> option,  but there are limitations:</p>
+<li>offline mode - Offline mode uses WLST offline to read and update the domain configuration from the domain home
+directory.  This means that the tool must run on the same host as the domain&rsquo;s Administration Server and that the user
+running the tool needs full read and write access to the domain home directory structure.</li>
+<li>online mode - Online mode uses WLST online to read and update the domain configuration using the Administration
+Server&rsquo;s MBeans. The user running the tool needs to provide the administrative credentials and URL to connect to the
+Administration Server.  There are three options when running the tool:
 <ul>
-<li>Any attribute in the model that referenced a path into the archive file unless the path begins with <code>wlsdeploy/applications</code> or <code>wlsdeploy/sharedLibraries</code> will result in an error, as the tool cannot remotely
-create such directory or file.  For example, if you specify a <code>domainBin: [ wlsdeploy/domainBin/setUserOverrides.sh]</code> which references a file entry in the archive file <code>wlsdeploy/domainBin/setUserOverrides.sh</code>,
-the tool will fail with an error.</li>
-<li>Exploded format application specified in the archive is not supported</li>
-<li></li>
+<li>Normal mode (default) - In this mode, the tool must run on the same host as the domain&rsquo;s Administration Server
+and the user running the tool must have full read and write access to the domain home directory structure, and
+full read access to any other locations where domain-specific files are stored.</li>
+<li><code>-remote</code> mode - This mode allows the tool to be run from a host other than the host where the domain&rsquo;s
+Administration Server is located.  Since the tool has no direct access to the file system of the host where the
+Administration Server is running, there are limitations:
+<ul>
+<li>Any attribute in the model that referenced a path into the archive file unless the path begins with
+<code>wlsdeploy/applications</code> or <code>wlsdeploy/sharedLibraries</code> will result in an error, as the tool cannot remotely
+create such directory or file.  For example, if you specify a <code>domainBin: [ wlsdeploy/domainBin/setUserOverrides.sh ]</code>
+which references a file entry in the archive file <code>wlsdeploy/domainBin/setUserOverrides.sh</code>, the tool will fail
+with an error.</li>
+<li>Exploded format applications and shared libraries in the archive are not supported.  This is due to a limitation
+in the WebLogic Deploy subsystem where it only supports uploading a file, not a directory.</li>
 </ul>
-<p>As usual, the tool will prompt for the password (it can also be supplied by piping it to standard input of the tool). To bypass the prompt, you can use one of two options. Store the password in an environment variable, and use the variable name with command-line option <code>-admin_pass_env</code>. Store the password in a file. Provide the file name with command-line option <code>-admin_pass_file</code>.</p>
-<p>When running the tool in WLST online mode, the deploy operation may require server restarts or a domain restart to pick up the changes.  The deploy operation can also encounter situations where it cannot complete its operation until the domain is restarted.  To communicate these conditions to scripts that may be calling the Deploy Applications Tool, the shell scripts have three special, non-zero exit codes to communicate these states:</p>
+</li>
+<li>SSH mode - In this mode, the tool can be run from any host for which you have set up SSH connectivity between the
+host where WDT is running and the host where the Administration Server is running.  The <code>-ssh_user</code> (which, by
+default, is the same user running the tool) must have full read and write access to the domain home directory
+structure, and full read access to any other locations where domain-specific files are stored.  See the
+<a href="/weblogic-deploy-tooling/userguide/tools/shared/ssh/">SSH support</a> and
+<a href="/weblogic-deploy-tooling/userguide/tools/verify_ssh/">Verify SSH Tool</a> pages for more information about running in SSH
+mode.</li>
+</ul>
+</li>
+</ul>
+<p>The Deploy Applications Tool will only add or update elements in the specified model. It will not attempt to remove any
+missing elements that are already present in the domain.  The Update Domain Tool will not attempt to recreate or add
+schemas for the RCU database, for domain types that use RCU.</p>
+<p>In WLST online mode, the tool tries to minimize the need to redeploy the applications and shared libraries, and the need
+to restart the server.  It does this in a few ways:</p>
+<ul>
+<li>If the model references an application or shared library that is already deployed, the tool compares the binaries to
+determine whether redeployment is required.  Redeployment of shared libraries is particularly expensive since all
+applications using the shared library must be redeployed&ndash;even if the application has not changed.</li>
+<li>It looks at the knowledge base to determine which attributes require restart when they are changed.  If an attribute
+requires restart, the tool compares the current domain and model values to make sure that they are different before
+trying to apply a change.</li>
+</ul>
+<p>The goal is to make the tool both able to support iterative deployment and able to minimize service disruption while
+doing its work when working against a running domain.</p>
+<h4 id="online-update-for-shared-libraries">Online update for shared libraries</h4>
+<p>When updating shared library online, it is recommended to deploy a new version of the library by updating the version(s)
+in the MANIFEST.MF file and update the deployment descriptor of any application that wants to upgrade to use the new
+library, this avoids complicated issues like in-place update of shared library.</p>
+<p>In-place update of shared library online is not supported.  If you only update the library contents without updating the
+version(s) of the library in the MANIFEST.MF file.  You will get an error from WebLogic Server indicating the library is
+referenced by applications and cannot be undeployed. You must undeploy all applications referencing the shared library
+first before proceeding; this is the same behavior when using the WebLogic Server console. Also, a shared library can
+potentially be referenced by another shared library module which in turns used by other applications, currently there
+is no capability within WebLogic Server to handle automating undeploy and deploy of an application that uses shared
+library when the library is updated in-place.</p>
+<h4 id="using-output-files">Using output files</h4>
+<p>If the <code>-output_dir</code> command-line argument is specified, the tool will generate output files that provide information
+about servers and resources that need to be restarted. These files are only applicable for online deployments.</p>
+<p>For more information about these files, see <a href="/weblogic-deploy-tooling/userguide/tools/update/#using-output-files">Using output files</a>
+for the Update Domain Tool.</p>
+<h4 id="running-the-tool-in-offline-mode">Running the tool in offline mode</h4>
+<p>Running the Deploy Applications Tool in WLST offline mode is very similar to running the Update Domain Tool; simply
+provide the domain location and archive file, and separate model and variable files, if needed.  For example:</p>
+<pre><code>$ weblogic-deploy\bin\deployApps.cmd -oracle_home c:\wls12213 -domain_home domains\DemoDomain -model_file DemoDomain.yaml -variable_file DemoDomain.properties -archive_file DemoDomain.zip
+</code></pre>
+<h4 id="running-the-tool-in-online-mode">Running the tool in online mode</h4>
+<p>In WLST online mode, simply remove the <code>-domain_home</code> argument and add the information on how to connect to the WebLogic
+Server Administration Server.  Here is an example of running in online WLST mode from the admin server:</p>
+<pre><code>$ weblogic-deploy\bin\deployApps.cmd -admin_url t3://127.0.0.1:7001 -admin_user weblogic -oracle_home c:\wls12213≈ -model_file DemoDomain.yaml -variable_file DemoDomain.properties -archive_file DemoDomain.zip
+</code></pre>
+<p>Here is an example of running the tool in <code>-remote</code> mode:</p>
+<pre><code>$ weblogic-deploy\bin\deployApps.cmd -remote -admin_url t3://my.remote.machine:7001 -admin_user weblogic -oracle_home c:\wls12213 -model_file DemoDomain.yaml -variable_file DemoDomain.properties -archive_file DemoDomain.zip
+</code></pre>
+<p>Running in SSH mode looks very similar.  This example assumes that you have already set up and verified SSH connectivity
+from the host where WDT is running to the host where the domain&rsquo;s Administration Server is running.  It also assumes that
+the default values for the other SSH-related arguments are sufficient for your configuration.</p>
+<pre><code>$ weblogic-deploy\bin\deployApps.cmd -ssh_host my.remote.machine -admin_url t3://my.remote.machine:7001 -admin_user weblogic -oracle_home c:\wls12213 -model_file DemoDomain.yaml -variable_file DemoDomain.properties -archive_file DemoDomain.zip
+</code></pre>
+<p>As usual, the tool will prompt for the password (it can also be supplied by piping it to standard input of the tool).
+To bypass the prompt, you can use one of two options:</p>
+<ul>
+<li>Store the password in an environment variable, and use the variable name with command-line option <code>-admin_pass_env</code>.</li>
+<li>Store the password in a file. Provide the file name with command-line option <code>-admin_pass_file</code>.</li>
+</ul>
+<p>When running the tool in WLST online mode, the deploy operation may require server restarts or a domain restart to pick
+up the changes.  The deploy operation can also encounter situations where it cannot complete its operation until the
+domain is restarted.  To communicate these conditions to scripts that may be calling the Deploy Applications Tool, the
+shell scripts have two special, non-zero exit codes to communicate these states:</p>
 <ul>
 <li><code>103</code> - The entire domain needs to be restarted.</li>
 <li><code>104</code> - The domain changes have been canceled because the changes in the model requires a domain restart and <code>-cancel_changes_if_restart_required</code> is specified.</li>
 </ul>
-<h3 id="using-output-files">Using output files</h3>
-<p>If the <code>-output_dir</code> command-line argument is specified, the tool will generate output files that provide information about servers and resources that need to be restarted. These files are only applicable for online deployments.</p>
-<p>For more information about these files, see <a href="/weblogic-deploy-tooling/userguide/tools/update/#using-output-files">Using output files</a> for the Update Domain Tool.</p>
 <h3 id="using-an-encrypted-model">Using an encrypted model</h3>
-<p>If the model or variables file contains passwords encrypted with the WDT Encryption tool, decrypt the passwords during create with the <code>-use_encryption</code> flag on the command line to tell the Deploy Applications Tool that encryption is being used and to prompt for the encryption passphrase.  As with the database passwords, the tool can also read the passphrase from standard input (for example, <code>stdin</code>) to allow the tool to run without any user input. You can bypass the stdin prompt with two other options. Store the passphrase in an environment variable, and use the environment variable name with command-line option <code>-passphrase_env</code>. Another option is to create a file containing the passphrase value. Pass this filename using the command-line option <code>-passphrase_file</code>.</p>
+<p>If the model or variables file contains passwords encrypted with the WDT Encrypt Model Tool, you must provide the
+WDT encryption passphrase used to encrypt the model so that the Create Domain Tool can decrypt them.  To do this,
+provide one of the following command-line arguments:</p>
+<ul>
+<li><code>-passphrase_env &lt;ENV_VAR&gt;</code> - read the passphrase from the specified environment variable,</li>
+<li><code>-passphrase_file &lt;file-name&gt;</code> - read the passphrase from a file that contains the passphrase, or</li>
+<li><code>-passphrase_prompt</code> - have the tool read the passphrase from <code>stdin</code>, either by prompting or piping the value to
+the shell script&rsquo;s standard input.</li>
+</ul>
 <h3 id="using-multiple-models">Using multiple models</h3>
-<p>The Deploy Applications Tool supports the use of multiple models, as described in <a href="/weblogic-deploy-tooling/concepts/model/#using-multiple-models">Using multiple models</a>.</p>
+<p>The Deploy Applications Tool supports the use of multiple models, as described in
+<a href="/weblogic-deploy-tooling/concepts/model/#using-multiple-models">Using multiple models</a>.</p>
+<h3 id="environment-variables">Environment variables</h3>
+<p>The following environment variables may be set.</p>
+<ul>
+<li><code>JAVA_HOME</code>             The location of the JDK. This must be a valid Java 7 or later JDK.</li>
+<li><code>WLSDEPLOY_PROPERTIES</code>  System properties that will be passed to WLST.</li>
+</ul>
+
+<div class="notices warning" ><p>When running the Deploy Applications Tool (and any other tool that use WLST), the actual JDK used to run the tool
+will be the JDK used to install WebLogic Server in the Oracle Home and not the one defined by the <code>JAVA_HOME</code>
+environment variable.  The best practice is to set <code>JAVA_HOME</code> to point to the same JDK installation that was used to
+install WebLogic Server.</p>
+</div>
+
+<h3 id="opening-an-issue-against-the-deploy-applications-tool">Opening an issue against the Deploy Applications Tool</h3>
+<p>Please provide the full console output of the tool (that is, what is printed to stdout and stderr) and the log file,
+<code>deployApps.log</code>, which is typically found in the <code>&lt;install home&gt;/weblogic-deploy/logs</code> directory.  If possible,
+please provide the model, variable and archive files, and any other information that helps to understand the
+environment, what you are doing, and what is happening.  For example, when running in online mode and encountering an
+error deploying an application, the domain&rsquo;s Administration Server log file will often be the key to understanding
+the cause of the error.</p>
 <h3 id="parameter-table-for-deployapps">Parameter table for <code>deployApps</code></h3>
 <table>
 <thead>
@@ -2171,18 +2295,8 @@ the tool will fail with an error.</li>
 <td></td>
 </tr>
 <tr>
-<td><code>-use_encryption</code></td>
-<td>One or more of the passwords in the model or variables file(s) are encrypted and must be decrypted. Java 8 or later is required for this feature.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-variable_file</code></td>
-<td>The location of the property file containing the values for variables used in the model. This can also be specified as a comma-separated list of property files, where each successive set of properties layers on top of the previous ones.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-wait_for_edit_lock</code></td>
-<td>Skip checks for active edit sessions and pending changes before trying to acquire the WLST online edit lock to modify domain configuration.</td>
+<td><code>-passphrase_prompt</code></td>
+<td>Allow WDT to prompt for the encryption passphrase or read it from stdin.</td>
 <td></td>
 </tr>
 <tr>
@@ -2239,6 +2353,21 @@ the tool will fail with an error.</li>
 <td><code>-ssh_private_key_pass_prompt</code></td>
 <td>A flag to force the tool to prompt the user to provide their private key passphrase through standard input when authenticating with a public/private key pair.</td>
 <td>Do not prompt or read from standard input.</td>
+</tr>
+<tr>
+<td><code>-use_encryption</code></td>
+<td>(deprecated) Replaced by the <code>-passphrase_prompt</code> argument.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-variable_file</code></td>
+<td>The location of the property file containing the values for variables used in the model. This can also be specified as a comma-separated list of property files, where each successive set of properties layers on top of the previous ones.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-wait_for_edit_lock</code></td>
+<td>Skip checks for active edit sessions and pending changes before trying to acquire the WLST online edit lock to modify domain configuration.</td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -3618,6 +3747,22 @@ the tool will fail with an error.</li>
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -3643,19 +3788,19 @@ the tool will fail with an error.</li>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1718680811"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1718742525"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1718680811"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1718742525"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1718680811"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1718742525"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

@@ -12,20 +12,20 @@
     <title>Archive Helper Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1718680811" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1718742525" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1718680811"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1718742525"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1718680811"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1718680811"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1718742525"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1718742525"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1718680811"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1718742525"></script>
 
     
   </div>
@@ -1355,6 +1355,27 @@
  
   
     
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.1.1/" title="Release 4.1.1" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-4.1.1/">
+        <b> </b>Release 4.1.1
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
       <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.1.0/" title="Release 4.1.0" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-4.1.0/">
         <b> </b>Release 4.1.0
@@ -2018,6 +2039,7 @@
       <ul>
         <li><a href="#archivehelper-commands"><code>archiveHelper</code> commands</a></li>
         <li><a href="#usage-scenarios">Usage scenarios</a></li>
+        <li><a href="#environment-variables">Environment variables</a></li>
       </ul>
     </li>
   </ul>
@@ -2044,8 +2066,9 @@
         
 
 
-<p>With the Archive Helper Tool, you can display the contents of an archive file, add, update, extract, and remove files, as needed.</p>
-<p>Use the Archive Helper Tool <code>-help</code> option to display its commands. Each command takes a subcommand, which may require one or more command-line options.</p>
+<p>With the Archive Helper Tool, you can display the contents of an archive file, add, update, extract, and remove files,
+as needed.</p>
+<p>Use the Archive Helper Tool <code>-help</code> option to display its commands.</p>
 <h3 id="archivehelper-commands"><code>archiveHelper</code> commands</h3>
 <table>
 <thead>
@@ -2073,7 +2096,8 @@
 </tr>
 </tbody>
 </table>
-<p>For each command, use the <code>-help</code> option for usage information about its subcommands.</p>
+<p>Each command takes a subcommand, which may require one or more command-line options.
+For each command, use the <code>-help</code> option for usage information about its subcommands.</p>
 <p>For example, to display the subcommands of the <code>archiveHelper</code> <code>add</code> command:</p>
 <pre><code>$ &lt;wls-deploy-home&gt;/bin/archiveHelper.sh add -help
 </code></pre><p>This will result in the following output:</p>
@@ -2128,7 +2152,9 @@ Command-line options:
 
 Note: If using an Application Installation Directory, please see the
 archiveHelper add structuredApplication command.
-</code></pre><h3 id="usage-scenarios">Usage scenarios</h3>
+</code></pre><p>For more information about the archive file and its structure, please refer to the [Archive File]
+(/weblogic-deploy-tooling/concepts/archive/) page.</p>
+<h3 id="usage-scenarios">Usage scenarios</h3>
 <ul>
 <li>
 <p><code>list application</code>: List the applications in the archive file.</p>
@@ -2140,6 +2166,13 @@ archiveHelper add structuredApplication command.
 </code></pre><p><strong>NOTE</strong>: Without the <code>-overwrite</code> option, the application gets added to the archive with a numerical suffix.</p>
 </li>
 </ul>
+<h3 id="environment-variables">Environment variables</h3>
+<p>The following environment variables may be set.</p>
+<ul>
+<li><code>JAVA_HOME</code>             The location of the JDK. This must be a valid Java 7 or later JDK.</li>
+</ul>
+<p>Since the Archive Helper Tool is written in Java without using WLST, the <code>JAVA_HOME</code> will be the JDK used to execute
+the command (unlike other tools that use WLST).</p>
 
 
 <footer class="footline">
@@ -3516,6 +3549,22 @@ archiveHelper add structuredApplication command.
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -3541,19 +3590,19 @@ archiveHelper add structuredApplication command.
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1718680811"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1718742525"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1718680811"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1718742525"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1718680811"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1718742525"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

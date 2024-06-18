@@ -71,6 +71,9 @@
     <loc>https://oracle.github.io/weblogic-deploy-tooling/samples/</loc>
     <lastmod>2019-02-22T15:27:54-05:00</lastmod>
   </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/discover/</loc>
+    <lastmod>2024-05-07T13:30:00-05:00</lastmod>
+  </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/logging/</loc>
     <lastmod>2022-02-04T17:18:00-05:00</lastmod>
   </url><url>
@@ -78,9 +81,6 @@
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/developer/crd-schemas/</loc>
-    <lastmod>2019-02-23T17:19:24-05:00</lastmod>
-  </url><url>
-    <loc>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/discover/</loc>
     <lastmod>2019-02-23T17:19:24-05:00</lastmod>
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/samples/workmanager-model/</loc>
@@ -165,6 +165,9 @@
     <lastmod>2024-01-02T09:19:24-05:00</lastmod>
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/release-notes/</loc>
+    <lastmod>2024-01-09T18:27:38-05:00</lastmod>
+  </url><url>
+    <loc>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.1.1/</loc>
     <lastmod>2024-01-09T18:27:38-05:00</lastmod>
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.1.0/</loc>
@@ -252,7 +255,7 @@
     <lastmod>2022-11-02T15:27:38-05:00</lastmod>
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/</loc>
-    <lastmod>2024-01-09T18:27:38-05:00</lastmod>
+    <lastmod>2024-05-07T13:30:00-05:00</lastmod>
     <priority>0</priority>
   </url><url>
     <loc>https://oracle.github.io/weblogic-deploy-tooling/categories/</loc>

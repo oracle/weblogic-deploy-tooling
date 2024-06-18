@@ -12,20 +12,20 @@
     <title>Release Notes :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1718680811" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1718742525" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1718680811"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1718742525"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1718680811"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1718680811"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1718742525"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1718742525"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1718680811"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1718742525"></script>
 
     
   </div>
@@ -1355,6 +1355,27 @@
  
   
     
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.1.1/" title="Release 4.1.1" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-4.1.1/">
+        <b> </b>Release 4.1.1
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
       <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.1.0/" title="Release 4.1.0" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-4.1.0/">
         <b> </b>Release 4.1.0
@@ -2004,7 +2025,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#changes-in-release-411">Changes in Release 4.1.1</a></li>
+        <li><a href="#changes-in-release-420">Changes in Release 4.2.0</a></li>
       </ul>
     </li>
   </ul>
@@ -2032,7 +2053,7 @@
 
 
 
-	<h3 id="changes-in-release-411">Changes in Release 4.1.1</h3>
+	<h3 id="changes-in-release-420">Changes in Release 4.2.0</h3>
 <ul>
 <li><a href="#major-new-features">Major New Features</a></li>
 <li><a href="#other-changes">Other Changes</a></li>
@@ -2043,20 +2064,46 @@
 <p>None</p>
 <h4 id="other-changes">Other Changes</h4>
 <ul>
-<li>#1685 - Filtered out the default <code>OptionalFeatures</code> folders when they have no attributes so that they do not show up
-in the online discovered model.</li>
+<li>#1682 - Added support for discovering built-in security provider data in online mode.  This includes
+DefaultAuthenticator users and groups, XACMLAuthorizer policies, XACMLRoleMapper roles, and DefaultCredentialMapper
+user/password credential mappings. As with other discovery features, default values are filtered out and will not
+appear in the model.  By default, discovering users and credential mappings require the use of WDT encryption so that
+no clear text passwords are stored in the model or variable files.</li>
+<li>#1682 - Normalized XACMLRoleMapper role handling by removing the previous discovery of XACMLRoleMapper roles (that was
+not working with newer versions of WebLogic anyway) and removing version limitations during provisioning.</li>
+<li>#1682 - Deprecated the <code>-use_encryption</code> command-line argument and replaced it with <code>-passphrase_prompt</code> to make the
+purpose of the argument clearer.</li>
+<li>#1682 - Relaxed the JDK 8 requirement to use WDT encryption.  Later versions of JDK 7 have the necessary algorithm
+support so now WDT determines at startup whether the underlying JDK supports WDT encryption or not.</li>
+<li>#1682 - Used the values of the <code>-admin_user</code> and provided password to populate the <code>domainInfo:/AdminUserName</code> and
+<code>domainInfo:/AdminPassword</code> fields when discovering security provider data.</li>
+<li>#1688 - Enhanced variable tokenization support to include passwords in discovered security provider data.</li>
+<li>#1689 - Added the ability to discover the OPSS wallet when running in online mode.</li>
+<li>#1693 - Changed the <code>wko</code>, <code>wko-dii</code> (deprecated), and <code>wko-pv</code> target values to refer to the latest versions instead
+of WebLogic Kubernetes Operator 3 versions.  Added <code>wko3</code>, <code>wko3-dii</code>, and <code>wko3-pv</code> to accommodate users that still
+require the ability to use these older versions.</li>
+<li>#1697 - Added support for the Prepare Model Tool to preserve any one-way hashed passwords in the model.</li>
+<li>#1700 - Added support for storing XACML policy and role definitions that could not be converted to their original
+policy and role expressions as XACML files in the archive file.</li>
 </ul>
 <h4 id="bug-fixes">Bug Fixes</h4>
 <ul>
-<li>#1677 - Fixed a bug where creating a user with extra attributes would result in invalid LDIFT entries.</li>
-<li>#1678 - Fixed a bug that was causing errors when deploying a new application and the server required a restart.</li>
-<li>#1679 - Fixed a bug where the SSHJ libraries (that only work with JDK 8 and above) were causing the tools to fail
-when running with JDK 7.</li>
-<li>#1680 - Fixed the <code>DataSourceLogFile</code> and <code>WebServerLog</code> folders default value for the <code>DateFormatPattern</code> attribute
-for WLS versions prior to 12.2.1 so that they no longer show up in the online discovered model.</li>
-<li>#1681 - Worked around a pre-12.2.1 WLST bug that was preventing the online tools from determining the server&rsquo;s WLS version.</li>
-<li>#1683 - Fixed a bug with the Model Help Tool where our use of JLine libraries (that only work with JDK 8 and above)
-were causing the Model Help tool to fail when run with JDK 7.</li>
+<li>#1687 - Fixed a problem with the Discover Domain Tool not properly handling Data Source user names with spaces with
+older versions of WebLogic Server.</li>
+<li>#1690 - Fixed a problem with determining the default security realm name that caused it to always be <code>myrealm</code>.</li>
+<li>#1692 - Fixed a misleading error message when the model points to an application outside of the archive file that
+does not exist.</li>
+<li>#1695 - Fixed an issue where the WebLogic Kubernetes Operator <code>domain.yaml</code> was including a placeholder for the
+<code>domainHome</code> attribute in all cases so that the WebLogic Image Tool could populate it when creating the image.
+This was occurring even in use cases where the WebLogic Image Tool did not have this information.  WDT no longer does
+this and will only include the <code>domainHome</code> in the case where the user has specified it on the command line.</li>
+<li>#1698 - Fixed issues with the new messages related to the security provider data discovery features.</li>
+<li>#1701 - Moved the TestSummaryHandler logging class out of the installer since it is only meant for supporting unit tests.</li>
+<li>#1702 - Fixed a bug in deployment plan discovery for exploded applications.</li>
+<li>#1703 - Fixed a bug in discovery of <code>domainBin</code> scripts.</li>
+<li>#1705 - Added missing validation for the <code>WLSUserPasswordCredentialMappings</code> section.</li>
+<li>#1706 - Fixed a validation bug that was causing lax validation to fail when archive entries were missing.</li>
+<li>#1707 - Fixed a bug in the handling of the <code>ActiveContextHandlerEntry</code> attribute of an <code>Auditor</code> security provider.</li>
 </ul>
 <h4 id="known-issues">Known Issues</h4>
 <ul>
@@ -2068,7 +2115,7 @@ Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.</p>
         1. WLSDPLY-20008: verifySSH argument processing failed: Failed to initialize SSH context: Failed to SSH connect to host myhost.oracle.com: no such algorithm: X25519 <span style="color:#66d9ef">for</span> provider BC
 </code></pre></div></li>
 <li>
-<p>SSH support for the Update Domain Tool and Deploy Apps Tool do not work when using an archive file and the remote
+<p>SSH support for the Update Domain Tool and Deploy Apps Tool does not work when using an archive file and the remote
 WebLogic Server is running on Windows using the optional, Windows-provided, OpenSSH component.  This is due to an
 issue with the SSHJ library WDT is using.  See <a href="https://github.com/hierynomus/sshj/issues/929">https://github.com/hierynomus/sshj/issues/929</a> for more information.</p>
 </li>
@@ -3445,6 +3492,22 @@ issue with the SSHJ library WDT is using.  See <a href="https://github.com/hiery
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -3460,7 +3523,7 @@ issue with the SSHJ library WDT is using.  See <a href="https://github.com/hiery
 			<a class="nav nav-prev" href="/weblogic-deploy-tooling/developer/contribute/" title="Contribute to WDT"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-4.1.0/" title="Release 4.1.0" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-4.1.1/" title="Release 4.1.1" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -3470,19 +3533,19 @@ issue with the SSHJ library WDT is using.  See <a href="https://github.com/hiery
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1718680811"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1718742525"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1718680811"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1718742525"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1718680811"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1718742525"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

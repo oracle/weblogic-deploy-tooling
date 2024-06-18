@@ -8,6 +8,16 @@
     <language>en-us</language>
     <lastBuildDate>Tue, 09 Jan 2024 18:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Release 4.1.1</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.1.1/</link>
+      <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.1.1/</guid>
+      <description>Changes in Release 4.1.1  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes  #1685 - Filtered out the default OptionalFeatures folders when they have no attributes so that they do not show up in the online discovered model.  Bug Fixes  #1677 - Fixed a bug where creating a user with extra attributes would result in invalid LDIFT entries. #1678 - Fixed a bug that was causing errors when deploying a new application and the server required a restart.</description>
+    </item>
+    
+    <item>
       <title>Release 4.1.0</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.1.0/</link>
       <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>

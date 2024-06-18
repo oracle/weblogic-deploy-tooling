@@ -12,20 +12,20 @@
     <title>Encrypt Model Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1718680811" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1718742525" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1718680811"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1718742525"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1718680811"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1718680811"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1718742525"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1718742525"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1718680811"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1718742525"></script>
 
     
   </div>
@@ -1355,6 +1355,27 @@
  
   
     
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.1.1/" title="Release 4.1.1" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-4.1.1/">
+        <b> </b>Release 4.1.1
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
       <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.1.0/" title="Release 4.1.0" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-4.1.0/">
         <b> </b>Release 4.1.0
@@ -2016,6 +2037,7 @@
   <ul>
     <li>
       <ul>
+        <li><a href="#environment-variables">Environment variables</a></li>
         <li><a href="#parameter-table-for-encryptmodel">Parameter table for <code>encryptModel</code></a></li>
       </ul>
     </li>
@@ -2044,13 +2066,25 @@
 
 
 
-<div class="notices note" ><p>To meet Oracle&rsquo;s security standards, the encryption algorithms require JDK 8 to run.</p>
+<div class="notices note" ><p>To meet Oracle&rsquo;s security standards, the encryption algorithms require later versions of JDK 7,
+JDK 8, or newer to run.</p>
 </div>
 
-<p>Models contain WebLogic Server domain configuration.  Certain types of resources and other configurations require passwords; for example, a JDBC data source requires the password for the user establishing the database connection.  When creating or configuring a resource that requires a password, that password must be specified either in the model directly or in the variable file.  Clear-text passwords are not conducive to storing configurations as source, so the Encrypt Model Tool gives the model author the ability to encrypt the passwords in the model and variable file using passphrase-based, reversible encryption.  When using a tool with a model containing encrypted passwords, the encryption passphrase must be provided, so that the tool can decrypt the password in memory to set the necessary WebLogic Server configuration (which supports its own encryption mechanism based on a domain-specific key).  While there is no requirement to use the WebLogic Deploy Tooling encryption mechanism, it is highly recommended because storing clear-text passwords on disk is never a good idea.</p>
-<p>The Create, Update and Deploy tools can take a set of models. The Encrypt model will encrypt a set of models. Each model is encrypted using the same passphrase and written back to its original location.</p>
+<p>Models contain WebLogic Server domain configuration.  Certain types of resources and other configurations require
+passwords; for example, a JDBC data source requires the password for the user establishing the database connection.
+When creating or configuring a resource that requires a password, that password must be specified either in the model
+directly or in the variable file.  Clear-text passwords are not conducive to storing configurations as source, so the
+Encrypt Model Tool gives the model author the ability to encrypt the passwords in the model and variable file using
+passphrase-based, reversible encryption.  When using a tool with a model containing encrypted passwords, the encryption
+passphrase must be provided, so that the tool can decrypt the password in memory to set the necessary WebLogic Server
+configuration (which supports its own encryption mechanism based on a domain-specific key).  While there is no
+requirement to use the WebLogic Deploy Tooling encryption mechanism, it is highly recommended because storing
+clear-text passwords on disk is never a good idea.</p>
+<p>The Create Domain, Update Domain, and Deploy Applications Tools can take a set of models. The Encrypt model will encrypt
+a set of models. Each model is encrypted using the same passphrase and written back to its original location.</p>
 
-<div class="notices note" ><p>WebLogic Deploy Tooling also supports the use of domain-encrypted passwords directly in the model. The Encrypt Model Tool should not be used in tandem with this method.</p>
+<div class="notices note" ><p>WebLogic Deploy Tooling also supports the use of domain-encrypted passwords directly in the model. The Encrypt Model
+Tool cannot be used in tandem with this method.</p>
 </div>
 
 <p>Start with the following example model:</p>
@@ -2060,38 +2094,9 @@
     <span style="color:#f92672">ServerStartMode</span>: <span style="color:#ae81ff">prod</span>
 <span style="color:#f92672">topology</span>:
     <span style="color:#f92672">Name</span>: <span style="color:#ae81ff">DemoDomain</span>
-    <span style="color:#f92672">AdminServerName</span>: <span style="color:#ae81ff">AdminServer</span>
-    <span style="color:#f92672">Cluster</span>:
-        <span style="color:#f92672">mycluster</span>:
-    <span style="color:#f92672">Server</span>:
-        <span style="color:#f92672">AdminServer</span>:
-            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">192.168.1.50</span>
-            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">7001</span>
-            <span style="color:#f92672">Machine</span>: <span style="color:#ae81ff">machine1</span>
-        <span style="color:#f92672">m1</span>:
-            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">192.168.1.50</span>
-            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">8001</span>
-            <span style="color:#f92672">Cluster</span>: <span style="color:#ae81ff">mycluster</span>
-            <span style="color:#f92672">Machine</span>: <span style="color:#ae81ff">machine1</span>
-        <span style="color:#f92672">m2</span>:
-            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">192.168.1.51</span>
-            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">8001</span>
-            <span style="color:#f92672">Cluster</span>: <span style="color:#ae81ff">mycluster</span>
-            <span style="color:#f92672">Machine</span>: <span style="color:#ae81ff">machine2</span>
-    <span style="color:#f92672">Machine</span>:
-        <span style="color:#f92672">machine1</span>:
-            <span style="color:#f92672">NodeManager</span>:
-                <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">192.168.1.50</span>
-                <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">5556</span>
-        <span style="color:#f92672">machine2</span>:
-            <span style="color:#f92672">NodeManager</span>:
-                <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">192.168.1.51</span>
-                <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">5556</span>
     <span style="color:#f92672">SecurityConfiguration</span>:
         <span style="color:#f92672">NodeManagerUsername</span>: <span style="color:#ae81ff">weblogic</span>
         <span style="color:#f92672">NodeManagerPasswordEncrypted</span>: <span style="color:#ae81ff">welcome1</span>
-    <span style="color:#f92672">RestfulManagementServices</span>:
-        <span style="color:#f92672">Enabled</span>: <span style="color:#66d9ef">true</span>
     <span style="color:#f92672">Security</span>:
         <span style="color:#f92672">Group</span>:
             <span style="color:#f92672">FriscoGroup</span>:
@@ -2121,45 +2126,20 @@
 </code></pre></div><p>To run the Encrypt Model Tool on the model, run the following command:</p>
 <pre><code>$ weblogic-deploy\bin\encryptModel.cmd -oracle_home c:\wls12213 -model_file UnencryptedDemoDomain.yaml
 </code></pre>
-<p>The tool will prompt for the encryption passphrase twice and then encrypt any passwords it finds in the model, skipping any password fields that have variable values, to produce a result that looks like the following model. You can bypass the stdin prompt with two other options. Store the passphrase in an environment variable, and use the environment variable name with command-line option <code>-passphrase_env</code>. Another option is to create a file containing the passphrase value. Pass this filename using the command-line option <code>-passphrase_file</code>.</p>
+<p>The tool will prompt for the encryption passphrase twice and then encrypt any passwords it finds in the model, skipping
+any password fields that have variable values, to produce a result that looks like the following model. You can bypass
+the stdin prompt with two other options. Store the passphrase in an environment variable, and use the environment
+variable name with command-line option <code>-passphrase_env</code>. Another option is to create a file containing the passphrase
+value. Pass this filename using the command-line option <code>-passphrase_file</code>.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
     <span style="color:#f92672">AdminUserName</span>: <span style="color:#ae81ff">weblogic</span>
     <span style="color:#f92672">AdminPassword</span>: <span style="color:#e6db74">&#39;{AES}a0dacEQ4Q2JnTmI4VHp5NjIzVHNPRFg5ZjRiVDJ4NzU6T1M0SGYwM2xBeHdRdHFWVTpWZEh6bkd4NzZSQT0=&#39;</span>
     <span style="color:#f92672">ServerStartMode</span>: <span style="color:#ae81ff">prod</span>
 <span style="color:#f92672">topology</span>:
     <span style="color:#f92672">Name</span>: <span style="color:#ae81ff">DemoDomain</span>
-    <span style="color:#f92672">AdminServerName</span>: <span style="color:#ae81ff">AdminServer</span>
-    <span style="color:#f92672">Cluster</span>:
-        <span style="color:#f92672">mycluster</span>:
-    <span style="color:#f92672">Server</span>:
-        <span style="color:#f92672">AdminServer</span>:
-            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">192.168.1.50</span>
-            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">7001</span>
-            <span style="color:#f92672">Machine</span>: <span style="color:#ae81ff">machine1</span>
-        <span style="color:#f92672">m1</span>:
-            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">192.168.1.50</span>
-            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">8001</span>
-            <span style="color:#f92672">Cluster</span>: <span style="color:#ae81ff">mycluster</span>
-            <span style="color:#f92672">Machine</span>: <span style="color:#ae81ff">machine1</span>
-        <span style="color:#f92672">m2</span>:
-            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">192.168.1.51</span>
-            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">8001</span>
-            <span style="color:#f92672">Cluster</span>: <span style="color:#ae81ff">mycluster</span>
-            <span style="color:#f92672">Machine</span>: <span style="color:#ae81ff">machine2</span>
-    <span style="color:#f92672">Machine</span>:
-        <span style="color:#f92672">machine1</span>:
-            <span style="color:#f92672">NodeManager</span>:
-                <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">192.168.1.50</span>
-                <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">5556</span>
-        <span style="color:#f92672">machine2</span>:
-            <span style="color:#f92672">NodeManager</span>:
-                <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">192.168.1.51</span>
-                <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">5556</span>
     <span style="color:#f92672">SecurityConfiguration</span>:
         <span style="color:#f92672">NodeManagerUsername</span>: <span style="color:#ae81ff">weblogic</span>
         <span style="color:#f92672">NodeManagerPasswordEncrypted</span>: <span style="color:#e6db74">&#39;{AES}WndJQWNySWpoY0VEbFpmR2V1RFhvamVFdGwzandtaFU6L1d4V0dPRFpsaXJIUkl2djpQdUdLaTloR1IxTT0=&#39;</span>
-    <span style="color:#f92672">RestfulManagementServices</span>:
-        <span style="color:#f92672">Enabled</span>: <span style="color:#66d9ef">true</span>
     <span style="color:#f92672">Security</span>:
         <span style="color:#f92672">Group</span>:
             <span style="color:#f92672">FriscoGroup</span>:
@@ -2241,6 +2221,14 @@ db.url=mydb.example.com:1539/PDBORCL
 db.password={AES}czFXMkNFWNG9jNTNYd0hRL2R1anBnb0hDUlp4K1liQWFBdVM4UTlvMnE0NU1aMUZ5UVhiK25oaWFBc2lIQ20\=
 mymailsession.password={AES}RW9nRnUzcE41WGNMdnEzNDdRQVVNWm1LMGhidkFBVXg6OUN3aXcyci82cmh3cnpNQTpmY2UycUp5YWl4UT0\=
 </code></pre>
+<h3 id="environment-variables">Environment variables</h3>
+<p>The following environment variables may be set.</p>
+<ul>
+<li><code>JAVA_HOME</code>             The location of the JDK. This must be a valid JDK that has support for the WDT encryption algorithms.</li>
+<li><code>WLSDEPLOY_PROPERTIES</code>  System properties that will be passed to Java.</li>
+</ul>
+<p>Since the Encrypt Model Tool uses Jython directly without using WLST, the <code>JAVA_HOME</code> will be the JDK used to execute
+the command (unlike other tools that use WLST).</p>
 <h3 id="parameter-table-for-encryptmodel">Parameter table for <code>encryptModel</code></h3>
 <table>
 <thead>
@@ -2274,6 +2262,11 @@ mymailsession.password={AES}RW9nRnUzcE41WGNMdnEzNDdRQVVNWm1LMGhidkFBVXg6OUN3aXcy
 <tr>
 <td><code>-passphrase_file</code></td>
 <td>An alternative to entering the encryption passphrase at a prompt. The value is a the name of a file with a string value which WDT will read to retrieve the passphrase.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-passphrase_prompt</code></td>
+<td>Allow WDT to prompt for the encryption passphrase or read it from stdin.</td>
 <td></td>
 </tr>
 <tr>
@@ -3659,6 +3652,22 @@ mymailsession.password={AES}RW9nRnUzcE41WGNMdnEzNDdRQVVNWm1LMGhidkFBVXg6OUN3aXcy
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -3684,19 +3693,19 @@ mymailsession.password={AES}RW9nRnUzcE41WGNMdnEzNDdRQVVNWm1LMGhidkFBVXg6OUN3aXcy
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1718680811"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1718742525"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1718680811"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1718742525"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1718680811"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1718742525"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

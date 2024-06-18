@@ -12,20 +12,20 @@
     <title>Limitations :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1718680811" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1718742525" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1718680811"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1718742525"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1718680811"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1718680811"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1718742525"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1718742525"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1718680811"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1718742525"></script>
 
     
   </div>
@@ -1355,6 +1355,27 @@
  
   
     
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.1.1/" title="Release 4.1.1" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-4.1.1/">
+        <b> </b>Release 4.1.1
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
       <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.1.0/" title="Release 4.1.0" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-4.1.0/">
         <b> </b>Release 4.1.0
@@ -2049,38 +2070,42 @@ which became available starting in WebLogic Kubernetes Operator 4.2.0.  Upgrade 
 to resolve the issue.</p>
 <h4 id="discover-domain-tool-severe-messages">Discover Domain Tool <code>SEVERE</code> messages</h4>
 <p><strong>ISSUE</strong>:
-The <code>discoverDomain</code> STDOUT contains many SEVERE messages about <code>cd()</code> and <code>ls()</code> when it is run against a 12.2.1.0 domain. The Discover Domain Tool navigates through the domain MBeans using WLST to determine which MBeans are present in a domain. When it tests an MBean that is not present, an error message is logged by WLST. There is no 12.2.1.0 PSU available to address this WLST problem. It is resolved in 12.2.1.1.</p>
+The <code>discoverDomain</code> STDOUT contains many SEVERE messages about <code>cd()</code> and <code>ls()</code> when it is run against a 12.2.1.0
+domain. The Discover Domain Tool navigates through the domain MBeans using WLST to determine which MBeans are present
+in a domain. When it tests an MBean that is not present, an error message is logged by WLST. There is no 12.2.1.0 PSU
+available to address this WLST problem. It is resolved in 12.2.1.1.</p>
 <p><strong>ACTION</strong>:
 Ignore the following messages logged during discovery of a 12.2.1.0 domain.</p>
 <pre><code>&lt;Jan 14, 2019 1:14:21 PM&gt; &lt;SEVERE&gt; &lt;CommandExceptionHandler&gt; &lt;handleException&gt; &lt;&gt; &lt;Error: cd() failed.&gt;
 &lt;Jan 14, 2019 1:14:21 PM&gt; &lt;SEVERE&gt; &lt;CommandExceptionHandler&gt; &lt;handleException&gt; &lt;&gt; &lt;Error: ls() failed.&gt;
 </code></pre><h4 id="create-domain-tool-with-11g-jrf-domains">Create Domain Tool with 11g JRF domains</h4>
 <p><strong>ISSUE</strong>:
-The Create Domain Tool cannot initialize RCU for 11g JRF domains. The tool will issue error messages in the log and terminate the create process.</p>
+The Create Domain Tool cannot initialize RCU for 11g JRF domains. The tool will issue error messages in the log and
+terminate the create process.</p>
 <p><strong>ACTION</strong>:
 Run the WLS <code>rcu</code> command before executing <code>createDomain</code> for JRF domains</p>
 <h4 id="credential-in-security-configuration">Credential in security configuration</h4>
-<p><strong>ISSUE</strong>: For WLS versions prior to 14.1.1, there is a problem setting the <code>CredentialEncrypted</code> attribute in the <code>topology/SecurityConfiguration</code> folder. The value is not encrypted properly in the configuration and the domain will fail to start with the error:</p>
+<p><strong>ISSUE</strong>: For WLS versions prior to 14.1.1, there is a problem setting the <code>CredentialEncrypted</code> attribute in the
+<code>topology/SecurityConfiguration</code> folder. The value is not encrypted properly in the configuration and the domain will
+fail to start with the error:</p>
 <pre><code>java.lang.IllegalArgumentException: In production mode, it's not allowed to set a clear text value to the property: CredentialEncrypted of SecurityConfigurationMBean
 </code></pre><p><strong>ACTION</strong>: Contact Oracle Support to obtain the patch for bug number 30874677 for your WebLogic Server version before running the tool.</p>
 <h4 id="problems-setting-rotatelogonstartup-attribute">Problems setting <code>RotateLogOnStartup</code> attribute</h4>
-<p><strong>ISSUE</strong>: For existing WLS versions, there is a problem setting the <code>RotateLogOnStartup</code> attribute in various log file folders. The value is not persisted correctly, and the assignment will not be present when the domain is started.</p>
+<p><strong>ISSUE</strong>: For existing WLS versions, there is a problem setting the <code>RotateLogOnStartup</code> attribute in various log file
+folders. The value is not persisted correctly, and the assignment will not be present when the domain is started.</p>
 <p><strong>ACTION</strong>: Contact Oracle Support to obtain the patch for bug number 29547985 for your WebLogic Server version before running the tool.</p>
 <h4 id="discover-domain-tool-does-not-discover-users-or-groups">Discover Domain tool does not discover users or groups</h4>
 <p><strong>ISSUE</strong>: Discovering a domain does not attempt to discover users and groups defined in any configured Authentication Provider type.</p>
 <p><strong>ACTION</strong>: This should only be an issue for the domains using the DefaultAuthenticator, which uses the Embedded LDAP
-server that runs inside WebLogic Server as its user and group store.  Oracle recommends using an authentication provider
-with an external user and group store for managing users and groups.  For example, a Microsoft Active Directory server
-with the LDAP Authenticator or a database server with the SQL Authenticator.  This allows any domain created using the
-discovered model to use the same user and group store so that there is no need to export/import users and groups.  If a
-new user and group store is desired, these external stores natively provide export and import mechanisms for moving
-users and groups.  If this is not an option, then the user will need to hand-edit the discovered model file to add any
-users and groups not created by default.</p>
+server that runs inside WebLogic Server as its user and group store.  To discover the users and groups in the
+DefaultAuthenticator, use the <code>-discover_security_provider_data</code> switch with an argument that includes the
+DefaultAuthenticator (e.g., <code>ALL</code> or a comma-separated list of provider types like <code>DefaultAuthenticator,DefaultCredentialMapper</code>).</p>
 <h4 id="jrf-domain-configuration-files-containing-clear-text-password">JRF Domain configuration files containing clear text password</h4>
 <p><strong>ISSUE</strong>: After a JRF domain is created, the <code>jps-config.xml</code> and <code>jps-config-jse.xml</code> files contain clear text password for the key store.</p>
-<p><strong>ACTION</strong>: You will need to create a key store using Oracle Wallet and change the key store provider priority in the JVM. See Oracle Support Doc ID 2215283.1 for details.
-If you are creating a JRF domain using Oracle Autonomous Transaction Database, you can use the SSO key stores instead of JKS key stores,<br>
-the generated <code>jps-config.xml</code> and <code>jps-config-jse.xml</code> files will then use the SSO key stores without any clear text password.</p>
+<p><strong>ACTION</strong>: You will need to create a key store using Oracle Wallet and change the key store provider priority in the
+JVM. See Oracle Support Doc ID 2215283.1 for details. If you are creating a JRF domain using Oracle Autonomous
+Transaction Database, you can use the SSO key stores instead of JKS key stores, the generated <code>jps-config.xml</code> and
+<code>jps-config-jse.xml</code> files will then use the SSO key stores without any clear text password.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
     <span style="color:#f92672">RCUDbInfo</span>:
      <span style="color:#f92672">databaseType </span>: <span style="color:#ae81ff">ATP</span>
@@ -3477,6 +3502,22 @@ to supply &ldquo;remote&rdquo; values for these paths.</p>
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -3502,19 +3543,19 @@ to supply &ldquo;remote&rdquo; values for these paths.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1718680811"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1718742525"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1718680811"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1718742525"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1718680811"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1718742525"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

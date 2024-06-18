@@ -12,20 +12,20 @@
     <title>Install WDT :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1718680811" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1718680811" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1718742525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1718742525" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1718680811"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1718742525"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1718680811"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1718680811"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1718742525"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1718742525"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1718680811"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1718742525"></script>
 
     
   </div>
@@ -1355,6 +1355,27 @@
  
   
     
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.1.1/" title="Release 4.1.1" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-4.1.1/">
+        <b> </b>Release 4.1.1
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
       <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.1.0/" title="Release 4.1.0" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-4.1.0/">
         <b> </b>Release 4.1.0
@@ -2041,14 +2062,21 @@
 <p>The WebLogic Deploy Tooling project repository is located at <a href="https://github.com/oracle/weblogic-deploy-tooling"><code>https://github.com/oracle/weblogic-deploy-tooling</code></a>.<br>
 You can download binary distributions of the <code>weblogic-deploy.zip</code> installer from the <a href="https://github.com/oracle/weblogic-deploy-tooling/releases">GitHub Releases page</a>.</p>
 <ol>
-<li>To install the software, simply unzip the <code>weblogic-deploy.zip</code> installer on a machine that has the desired versions of WebLogic Server installed.</li>
-<li>After being unzipped, the software is ready to use, just set the <code>JAVA_HOME</code> environment variable to point to a Java 7 or higher JDK  and the shell scripts are ready to run.</li>
+<li>To install the software, simply unzip the <code>weblogic-deploy.zip</code> installer on a machine that has the desired versions
+of WebLogic Server installed.</li>
+<li>After being unzipped, the software is ready to use, just set the <code>JAVA_HOME</code> environment variable to point to a
+Java 7 or higher JDK and the shell scripts are ready to run.</li>
 </ol>
 <h4 id="supported-wls-versions">Supported WLS versions</h4>
-<p>The following table specifies the supported WebLogic Server versions, along with the JDK versions, that must be used to run the WDT tool. You must set the <code>JAVA_HOME</code> environment variable to specify a JDK version different from the system default version.</p>
-<p>To create a domain with the proper JDK (particularly if the <code>JAVA_HOME</code> is different from the one which will be used by the target domain), set the domain <code>JavaHome</code> attribute in the domain model.</p>
+<p>The following table specifies the supported WebLogic Server versions, along with the JDK versions, that must be used to
+run the WDT tool. You must set the <code>JAVA_HOME</code> environment variable to specify a JDK version different from the system
+default version.</p>
+<p>To create a domain with the proper JDK (particularly if the <code>JAVA_HOME</code> is different from the one which will be used
+by the target domain), set the domain <code>JavaHome</code> attribute in the domain model.</p>
 
-<div class="notices note" ><p>The Encryption Model Tool used to encrypt and decrypt clear-text passwords in the model and variable files, requires WDT to run with a minimum JDK version of 1.8.</p>
+<div class="notices note" ><p>The Encryption Model Tool used to encrypt and decrypt clear-text passwords in the model and variable
+files, requires WDT to run with JDK version that supports the necessary encryption algorithms.  This means later
+versions of JDK 7 and all versions of JDK 8 and 11.</p>
 </div>
 
 <table>
@@ -2076,11 +2104,11 @@ You can download binary distributions of the <code>weblogic-deploy.zip</code> in
 <td>1.7, 1.8</td>
 </tr>
 <tr>
-<td>12.2.1 <!-- raw HTML omitted -->[3]<!-- raw HTML omitted --></td>
+<td>12.2.1</td>
 <td>1.8</td>
 </tr>
 <tr>
-<td>12.2.1.1 <!-- raw HTML omitted -->[4]<!-- raw HTML omitted --></td>
+<td>12.2.1.1 <!-- raw HTML omitted -->[3]<!-- raw HTML omitted --></td>
 <td>1.8</td>
 </tr>
 <tr>
@@ -2092,7 +2120,7 @@ You can download binary distributions of the <code>weblogic-deploy.zip</code> in
 <td>1.8</td>
 </tr>
 <tr>
-<td>12.2.1.4 <!-- raw HTML omitted -->[5]<!-- raw HTML omitted --></td>
+<td>12.2.1.4 <!-- raw HTML omitted -->[4]<!-- raw HTML omitted --></td>
 <td>1.8</td>
 </tr>
 <tr>
@@ -2103,9 +2131,8 @@ You can download binary distributions of the <code>weblogic-deploy.zip</code> in
 </table>
 <p><em><strong>1</strong></em> First release dynamic clusters are supported<br>
 <em><strong>2</strong></em> First release Coherence clusters are supported<br>
-<em><strong>3</strong></em> First release WLS roles are supported<br>
-<em><strong>4</strong></em> First release multitenancy is supported<br>
-<em><strong>5</strong></em> Last release multitenancy is supported</p>
+<em><strong>3</strong></em> First release multitenancy is supported<br>
+<em><strong>4</strong></em> Last release multitenancy is supported</p>
 
 
 <footer class="footline">
@@ -3475,6 +3502,22 @@ You can download binary distributions of the <code>weblogic-deploy.zip</code> in
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -3500,19 +3543,19 @@ You can download binary distributions of the <code>weblogic-deploy.zip</code> in
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1718680811"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1718742525"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1718680811"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1718680811"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1718742525"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1718742525"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1718680811"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1718742525"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

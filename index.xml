@@ -6,7 +6,7 @@
     <description>Recent content on WebLogic Deploy Tooling</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 09 Jan 2024 18:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 07 May 2024 13:30:00 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Customizing the Administration Server</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/samples/adminserver-model/</link>
@@ -93,8 +93,8 @@ Note that file resources that already exist on the target system need not be inc
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/create/</guid>
       <description>The Create Domain Tool uses a model and WLST offline to create a domain. To use the tool, at a minimum, the model must specify the domain&amp;rsquo;s administrative password in the domainInfo section of the model, as shown below.
-domainInfo: AdminPassword: welcome1 Using the model above, simply run the createDomain tool, specifying the type of domain to create and where to create it.
-$ weblogic-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_type WLS -domain_parent d:\demo\domains -model_file MinimalDemoDomain.</description>
+domainInfo: AdminPassword: welcome1 Using the model above, simply run the createDomain tool, specifying where to create the WebLogic Server domain.
+$ weblogic-deploy\bin\createDomain.cmd -oracle_home c:\wls12213 -domain_parent d:\demo\domains -model_file MinimalDemoDomain.yaml  Clearly, creating an empty domain with only the template-defined servers is not very interesting, but this example just reinforces how sparse the model can be.</description>
     </item>
     
     <item>
@@ -133,7 +133,8 @@ topology: Cluster: cluster-1: ClientCertProxyEnabled: true AutoMigrationTableNam
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/update/</guid>
-      <description>The Update Domain Tool uses a model, the archive, and WLST to update the configuration of an existing WebLogic Server domain, and to deploy applications and resources into the domain in either WLST online or offline mode. The Update Domain Tool will add or re-configure elements from the topology section of the model, and deploy applications and resources from the resources and appDeployments sections, as described in the Deploy Applications Tool.</description>
+      <description>The Update Domain Tool uses a model, the archive, and WLST to update the configuration of an existing WebLogic Server domain, and to deploy applications and resources into the domain in either WLST online or offline mode. The Update Domain Tool will add or re-configure elements from the topology section of the model, and deploy applications and resources from the resources and appDeployments sections.
+Like the Discover Domain Tool, the Update Domain Tool can be run in either offline or online mode, and online mode has some options that control its behavior.</description>
     </item>
     
     <item>
@@ -187,6 +188,16 @@ resources: JDBCSystemResource: datasource-1: Target: AdminServer,cluster-1 JdbcR
     </item>
     
     <item>
+      <title>Discover Domain Tool</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/discover/</link>
+      <pubDate>Tue, 07 May 2024 13:30:00 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/discover/</guid>
+      <description>The Discover Domain Tool provides a bootstrapping mechanism to creating a model and archive file by inspecting an existing domain and gathering configuration and binaries from it.
+By default, the model file produced by the tool is not directly usable by the Create Domain, Update Domain or the Deploy Applications Tools because the Discover Domain Tool does not discover the passwords from the existing domain. Instead, it puts a --FIX ME-- placeholder for passwords it finds.</description>
+    </item>
+    
+    <item>
       <title>Logging</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools-config/logging/</link>
       <pubDate>Fri, 04 Feb 2022 17:18:00 -0500</pubDate>
@@ -217,15 +228,6 @@ The WLST directory can be specified in one of two ways:
       <description>The structure of the kubernetes and verrazzano sections of the WDT model are described by schemas based on the Custom Resource Definitions (CRDs) for those products. This is different from other sections of the model that use the alias framework to describe their structures.
 NOTE: Verrazzano support is deprecated in WDT 4.0.0.
 These schemas are used during model validation to check that folder and attribute names are valid. The Model Help Tool uses them to list the contents of folders and details about their attributes.</description>
-    </item>
-    
-    <item>
-      <title>Discover Domain Tool</title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/discover/</link>
-      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
-      
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/discover/</guid>
-      <description>The Discover Domain Tool provides a bootstrapping mechanism to creating a model and archive file by inspecting an existing domain and gathering configuration and binaries from it. Note that the model file produced by the tool is not directly usable by the Create Domain Tool or the Deploy Applications Tool because the Discover Domain Tool does not discover the passwords from the existing domain. Instead, it puts a --FIX ME-- placeholder for passwords it finds.</description>
     </item>
     
     <item>
@@ -275,7 +277,7 @@ Background on JRF domain RCU tables A JRF domain creates several data sources fr
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/encrypt/</guid>
-      <description>To meet Oracle&amp;rsquo;s security standards, the encryption algorithms require JDK 8 to run.
+      <description>To meet Oracle&amp;rsquo;s security standards, the encryption algorithms require later versions of JDK 7, JDK 8, or newer to run.
  Models contain WebLogic Server domain configuration. Certain types of resources and other configurations require passwords; for example, a JDBC data source requires the password for the user establishing the database connection. When creating or configuring a resource that requires a password, that password must be specified either in the model directly or in the variable file.</description>
     </item>
     
@@ -345,7 +347,7 @@ domainInfo: AdminUserName: &amp;#39;@@PROP:adminUser@@&amp;#39; AdminPassword: &
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/compare/</guid>
-      <description>When working with a domain model, sometimes it is useful to know the differences between different models. The Compare Model Tool compares two model files and generates a model that shows the differences between them.
+      <description>When working with domain models, sometimes it is useful to know the differences between different models. The Compare Model Tool compares two model files and generates a model that shows the differences between them.
 To use the Compare Model Tool, simply run the compareModel shell script with the correct arguments. To see the list of valid arguments, simply run the shell script with the -help option (or with no arguments) for usage information.</description>
     </item>
     
@@ -405,9 +407,7 @@ Prerequisites In order to configure and use OHS, it must be installed in the Ora
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/kubernetes/</guid>
-      <description>Using WDT with WebLogic Kubernetes Operator You can use the Extract Domain Resource Tool to create resource files for use with the WebLogic Kubernetes Operator or Verrazzano. This allows the domain configuration and the Kubernetes container configuration to be specified in a single model file.
-NOTE: Verrazzano support is deprecated in WDT 4.0.0.
-This is especially useful when making configuration changes to the domain that also need to be reflected in the resource file.</description>
+      <description>You can use the Extract Domain Resource Tool to create resource files for use with the WebLogic Kubernetes Operator or Verrazzano. This allows the Kubernetes resource definitions to be generated from a model file. This is especially useful when making configuration changes to the domain that also need to be reflected in the resource file. For example, adding a cluster to the domain only requires that it be added to the topology section of the WDT model, then a new resource definition file can be generated that contains information pertaining to the new cluster to apply to Kubernetes.</description>
     </item>
     
     <item>
@@ -449,7 +449,7 @@ Variable injectors are used by the Discover Domain Tool, the Prepare Model Tool,
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/model_help/</guid>
       <description>The Model Help Tool provides information about the folders and attributes that are valid for sections and folders of a domain model. This is useful when creating a new domain model, or expanding an existing model, including discovered models.
 Here is a simple example using the Model Help Tool:
-$ &amp;lt;wls-deploy-home&amp;gt;/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/JDBCSystemResource This will result in the following output:
+$ weblogic-deploy/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/JDBCSystemResource  This will result in the following output:
 Attributes and sub-folders for resources:/JDBCSystemResource resources: JDBCSystemResource: &amp;#39;JDBC-1&amp;#39;: CompatibilityName: # string * DeploymentOrder: # integer (default=100) * DeploymentPrincipalName: # string * DescriptorFileName: # string * ModuleType: # string * Notes: # string * SourcePath: # string * Target: # delimited_string * JdbcResource: # see /JDBCSystemResource/JdbcResource SubDeployment: &amp;#39;SubDeployment-1&amp;#39;: # see /JDBCSystemResource/SubDeployment This bean defines a system-level JDBC resource.</description>
     </item>
     
@@ -469,8 +469,8 @@ Attributes and sub-folders for resources:/JDBCSystemResource resources: JDBCSyst
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/archive_helper/</guid>
       <description>With the Archive Helper Tool, you can display the contents of an archive file, add, update, extract, and remove files, as needed.
-Use the Archive Helper Tool -help option to display its commands. Each command takes a subcommand, which may require one or more command-line options.
-archiveHelper commands    Command Description     add Add items to the archive file.   extract Extract items from the archive file.</description>
+Use the Archive Helper Tool -help option to display its commands.
+archiveHelper commands    Command Description     add Add items to the archive file.   extract Extract items from the archive file.   list List contents of the archive file.   remove Remove items to the archive file.</description>
     </item>
     
     <item>
@@ -481,6 +481,16 @@ archiveHelper commands    Command Description     add Add items to the archive f
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/verify_ssh/</guid>
       <description>With the Verify SSH Tool, you can verify that an SSH connection can be successfully established by WDT and optionally, if files can be transferred between the machines using the provided arguments. Before running the Verify SSH Tool, you must ensure you have performed the SSH Prerequisites.
 Public/private key authentication To verify SSH connectivity using a user&amp;rsquo;s public/private key for authentication, simply provide the user name on the remote machine and the user&amp;rsquo;s private key file, as needed.</description>
+    </item>
+    
+    <item>
+      <title>Release 4.1.1</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.1.1/</link>
+      <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.1.1/</guid>
+      <description>Changes in Release 4.1.1  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes  #1685 - Filtered out the default OptionalFeatures folders when they have no attributes so that they do not show up in the online discovered model.  Bug Fixes  #1677 - Fixed a bug where creating a user with extra attributes would result in invalid LDIFT entries. #1678 - Fixed a bug that was causing errors when deploying a new application and the server required a restart.</description>
     </item>
     
     <item>
