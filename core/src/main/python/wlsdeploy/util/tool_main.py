@@ -16,6 +16,7 @@ from oracle.weblogic.deploy.logging import DeprecationLevel
 from oracle.weblogic.deploy.logging import WLSDeployLoggingConfig
 from oracle.weblogic.deploy.logging import WLSDeployLogEndHandler
 from oracle.weblogic.deploy.util import CLAException
+from oracle.weblogic.deploy.util import ExitCode
 from oracle.weblogic.deploy.util import WebLogicDeployToolingVersion
 from oracle.weblogic.deploy.util import WLSDeployExit
 from oracle.weblogic.deploy.util import WLSDeployContext
@@ -36,6 +37,8 @@ _os_name = JSystem.getProperty('os.name')
 _os_arch = JSystem.getProperty('os.arch')
 _os_version = JSystem.getProperty('os.version')
 
+_wdt_log_config_class_name = 'oracle.weblogic.deploy.logging.WLSDeployLoggingConfig'
+
 def run_tool(main, process_args, args, program_name, class_name, logger):
     """
     The standardized entry point into each tool.
@@ -48,6 +51,8 @@ def run_tool(main, process_args, args, program_name, class_name, logger):
     :param logger: the logger configured for the tool
     """
     _method_name = 'main'
+
+    __assertWebLogicDeployToolingLoggingIsConfigured(program_name)
 
     WebLogicDeployToolingVersion.logVersionInfo(program_name)
     WLSDeployLoggingConfig.logLoggingDirectory(program_name)
@@ -86,6 +91,22 @@ def run_tool(main, process_args, args, program_name, class_name, logger):
 
     cla_helper.clean_up_temp_files()
     __exit_tool(model_context_obj, exit_code)
+
+def __assertWebLogicDeployToolingLoggingIsConfigured(program_name):
+    log_config_class_name = JSystem.getProperty('java.util.logging.config.class')
+
+    err_message = None
+    if log_config_class_name is None:
+        err_message = 'The WebLogic Deploy Tooling logging configuration class was not defined...%s will exit' \
+                      % program_name
+    elif str_helper.to_string(log_config_class_name) != _wdt_log_config_class_name:
+        err_message = 'The WebLogic Deploy Tooling logging configuration class was overridden with %s...%s will exit' \
+                      % (log_config_class_name, program_name)
+
+    if err_message is not None:
+        JSystem.err.println(err_message)
+        JSystem.exit(ExitCode.ERROR)
+
 
 def __format_os_version():
     return '%s %s (%s)' % (_os_name, _os_version, _os_arch)
