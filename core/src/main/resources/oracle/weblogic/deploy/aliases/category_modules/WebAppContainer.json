@@ -29,6 +29,7 @@
             "default_name_value": "${NO_NAME_0:%DOMAIN%}",
             "folders": {},
             "attributes": {
+                "ContinuationFramesLimit":             [ {"version": "[14.1.2,)",            "wlst_mode": "online",  "wlst_name": "ContinuationFramesLimit",       "wlst_path": "WP001", "default_value": 10,         "derived_default": "${:true}",  "wlst_type": "integer", "get_method": "GET" } ],
                 "FrameCountLimitResetInterval":        [ {"version": "[14.1.1.0.0.240328,)", "wlst_mode": "both",    "wlst_name": "FrameCountLimitResetInterval",  "wlst_path": "WP001", "default_value": 60,         "wlst_type": "integer"          } ],
                 "HeaderTableSize":                     [ {"version": "[14.1.1,)",            "wlst_mode": "both",    "wlst_name": "HeaderTableSize",               "wlst_path": "WP001", "default_value": 4096,       "wlst_type": "integer"          } ],
                 "InitialWindowSize":                   [ {"version": "[14.1.1,)",            "wlst_mode": "both",    "wlst_name": "InitialWindowSize",             "wlst_path": "WP001", "default_value": 65535,      "wlst_type": "integer"          } ],
@@ -47,7 +48,7 @@
     "attributes": {
         "AllowAllRoles":                       [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "AllowAllRoles",                      "wlst_path": "WP001", "default_value": false,                               "wlst_type": "boolean"           } ],
         "AuthCookieEnabled":                   [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "AuthCookieEnabled",                  "wlst_path": "WP001", "default_value": true,                                "wlst_type": "boolean"           } ],
-        "ChangeSessionIDOnAuthentication":     [ {"version": "[10,12.1.3)", "wlst_mode": "both",    "wlst_name": "ChangeSessionI${d:D}OnAuthentication","wlst_path": "WP001", "default_value": true,                              "wlst_type": "boolean"           } ,
+        "ChangeSessionIDOnAuthentication":     [ {"version": "[10,12.1.3)", "wlst_mode": "both",    "wlst_name": "ChangeSessionI${d:D}OnAuthentication","wlst_path": "WP001", "default_value": true,                               "wlst_type": "boolean"           } ,
                                                  {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "ChangeSessionIDOnAuthentication",    "wlst_path": "WP001", "default_value": true,                                "wlst_type": "boolean"           } ],
         "ClientCertProxyEnabled":              [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ClientCertProxyEnabled",             "wlst_path": "WP001", "default_value": false,                               "wlst_type": "boolean"           } ],
         "FilterDispatchedRequestsEnabled":     [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "FilterDispatchedRequestsEnabled",    "wlst_path": "WP001", "default_value": false,                               "wlst_type": "boolean"           } ],
