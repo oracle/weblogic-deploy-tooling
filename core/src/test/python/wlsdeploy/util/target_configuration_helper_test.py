@@ -94,8 +94,8 @@ class TargetConfigurationTests(unittest.TestCase):
         # domainInfo:/OPSSSecrets has a secret key "walletPassword"
         info_location = LocationContext()
         info_att_location = LocationContext().append_location(DOMAIN_INFO_ALIAS)
-        self.assertEqual('opsssecrets:walletPassword', HELPER.get_secret_path(info_location, info_att_location,
-                                                                              OPSS_WALLET_PASSPHRASE, self.aliases))
+        self.assertEqual('opsswallet:passphrase', HELPER.get_secret_path(info_location, info_att_location,
+                                                                         OPSS_WALLET_PASSPHRASE, self.aliases))
 
         # domainInfo:/RCUDbInfo/javax.net.ssl.keyStorePassword has dots in the name
         rcu_location = LocationContext().append_location(RCU_DB_INFO)
