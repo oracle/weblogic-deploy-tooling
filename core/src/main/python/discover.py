@@ -328,6 +328,8 @@ def __validate_discover_passwords_and_security_data_args(model_context, argument
     passwords_argument = None
     if model_context.is_discover_passwords():
         passwords_argument = CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH
+    elif model_context.is_discover_opss_wallet():
+        passwords_argument = CommandLineArgUtil.DISCOVER_OPSS_WALLET_SWITCH
     elif model_context.is_discover_security_provider_passwords():
         passwords_argument = CommandLineArgUtil.DISCOVER_SECURITY_PROVIDER_DATA_SWITCH + " " \
                              + model_context.get_discover_security_provider_data_types_label()
@@ -350,15 +352,9 @@ def __validate_discover_passwords_and_security_data_args(model_context, argument
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 
-    if model_context.is_discover_passwords() or model_context.is_discover_security_provider_data() or \
-            model_context.is_discover_opss_wallet():
+    if passwords_argument:
         if not model_context.is_encrypt_discovered_passwords() and model_context.get_encryption_passphrase() is not None:
             # don't allow turning off encryption and supplying an encryption passphrase
-            if model_context.is_discover_passwords():
-                arg = CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH
-            else:
-                arg = CommandLineArgUtil.DISCOVER_SECURITY_PROVIDER_DATA_SWITCH
-
             if CommandLineArgUtil.PASSPHRASE_ENV_SWITCH in argument_map:
                 bad_arg = CommandLineArgUtil.PASSPHRASE_ENV_SWITCH
             elif CommandLineArgUtil.PASSPHRASE_FILE_SWITCH in argument_map:
@@ -369,7 +365,7 @@ def __validate_discover_passwords_and_security_data_args(model_context, argument
                 bad_arg = CommandLineArgUtil.PASSPHRASE_SWITCH
 
             ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-06052',
-                                                       _program_name, arg, bad_arg)
+                                                       _program_name, passwords_argument, bad_arg)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
 

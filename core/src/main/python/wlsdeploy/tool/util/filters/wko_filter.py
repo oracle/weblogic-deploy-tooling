@@ -17,7 +17,6 @@ from wlsdeploy.aliases.model_constants import CANDIDATE_MACHINES_FOR_MIGRATABLE_
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import CLUSTER_MESSAGING_MODE
 from wlsdeploy.aliases.model_constants import DATABASE_LESS_LEASING_BASIS
-from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
 from wlsdeploy.aliases.model_constants import LISTEN_PORT
 from wlsdeploy.aliases.model_constants import MACHINE
@@ -25,8 +24,6 @@ from wlsdeploy.aliases.model_constants import MIGRATION_BASIS
 from wlsdeploy.aliases.model_constants import NM_PROPERTIES
 from wlsdeploy.aliases.model_constants import NODE_MANAGER_PW_ENCRYPTED
 from wlsdeploy.aliases.model_constants import NODE_MANAGER_USER_NAME
-from wlsdeploy.aliases.model_constants import OPSS_SECRETS
-from wlsdeploy.aliases.model_constants import OPSS_WALLET_PASSPHRASE
 from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PARTITION_WORK_MANAGER
 from wlsdeploy.aliases.model_constants import RESOURCES
@@ -149,24 +146,14 @@ def check_clustered_server_ports(model, _model_context):
                 server_port_map[server_cluster] = {"firstServer": server_name, "serverPort": server_port_text}
 
 
-def filter_domain_info(model, _model_context):
+def filter_domain_info(_model, _model_context):
     """
     Remove elements from the domainInfo section of the model that are not relevant in a Kubernetes environment.
-    This may include references to OPSS secret elements.
-    :param model: the model to be updated
-    :param _model_context: used to get target configuration
+    Currently, there are no items to be removed.
+    :param _model: the model to be updated
+    :param _model_context: unused, passed by filter_helper if called independently
     """
     _method_name = 'filter_domain_info'
-
-    target_configuration = _model_context.get_target_configuration()
-    if not target_configuration.uses_opss_secrets():
-        domain_info = dictionary_utils.get_dictionary_element(model, DOMAIN_INFO)
-        for delete_key in [OPSS_WALLET_PASSPHRASE, OPSS_SECRETS]:
-            if delete_key in domain_info:
-                source_name = target_configuration.get_domain_home_source_name()
-                _logger.info('WLSDPLY-20208', delete_key, DOMAIN_INFO, source_name,
-                             class_name=_class_name, method_name=_method_name)
-                del domain_info[delete_key]
 
 
 def filter_topology(model, _model_context):

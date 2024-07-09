@@ -8,6 +8,7 @@ from oracle.weblogic.deploy.encrypt import EncryptionUtils
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 
 from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
+from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import OPSS_WALLET_PASSPHRASE
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
@@ -30,7 +31,7 @@ class OpssWalletDiscoverer(Discoverer):
         """
         The constructor
         :param model_context:
-        :param model:
+        :param domain_info:
         :param base_location:
         :param wlst_mode:
         :param aliases:
@@ -92,6 +93,11 @@ class OpssWalletDiscoverer(Discoverer):
 
         self._domain_info_dictionary[OPSS_WALLET_PASSPHRASE] = \
             self._get_opss_wallet_passphrase_for_model(opss_wallet_passphrase)
+
+        if self._credential_injector is not None:
+            location = self._aliases.get_model_section_attribute_location(DOMAIN_INFO)
+            self._credential_injector.check_and_tokenize(self._domain_info_dictionary, OPSS_WALLET_PASSPHRASE,
+                                                         location)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
