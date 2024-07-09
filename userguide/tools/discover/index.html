@@ -12,20 +12,20 @@
     <title>Discover Domain Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1720495221" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1720495221" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1720495221" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1720495221" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1720495221" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1720495221" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1720495221" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1720495221" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1720495221" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1720495221" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1720562502" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1720562502" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1720562502" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1720562502" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1720562502" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1720562502" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1720562502" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1720562502" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1720562502" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1720562502" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1720495221"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1720562502"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1720495221"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1720495221"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1720562502"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1720562502"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1720495221"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1720562502"></script>
 
     
   </div>
@@ -2340,8 +2340,18 @@ environment, what you are doing, and what is happening.</p>
 <td></td>
 </tr>
 <tr>
+<td><code>-discover_opss_wallet</code></td>
+<td>Whether to discover the OPSS wallet from the target domain.</td>
+<td></td>
+</tr>
+<tr>
 <td><code>-discover_passwords</code></td>
 <td>Whether to discover passwords from the target domain.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-discover_security_provider_data</code></td>
+<td>Whether to discover security provider data from the target domain.</td>
 <td></td>
 </tr>
 <tr>
@@ -2362,6 +2372,16 @@ environment, what you are doing, and what is happening.</p>
 <tr>
 <td><code>-model_file</code></td>
 <td>The path to the model file.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-opss_wallet_passphrase_env</code></td>
+<td>An alternative to entering the OPSS wallet passphrase at a prompt when discovering the OPSS wallet. The value is an environment variable name that WDT will use to retrieve the passphrase.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>-opss_wallet_passphrase_file</code></td>
+<td>An alternative to entering the OPSS wallet passphrase at a prompt when discovering the OPSS wallet. The value is the name of a file with a string value which WDT will read to retrieve the passphrase.</td>
 <td></td>
 </tr>
 <tr>
@@ -3878,19 +3898,19 @@ environment, what you are doing, and what is happening.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1720495221"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1720495221"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1720495221"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1720495221"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1720495221"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1720495221"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1720562502"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1720562502"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1720562502"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1720562502"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1720562502"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1720562502"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1720495221"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1720495221"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1720495221"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1720562502"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1720562502"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1720562502"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1720495221"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1720562502"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
