@@ -153,7 +153,7 @@ def _prepare_k8s_secrets(model_context, token_dictionary, model_dictionary):
             if secret_name not in secret_map:
                 secret_map[secret_name] = {}
             secret_keys = secret_map[secret_name]
-            secret_keys[secret_key] = _get_output_value(secret_key, value, model_context)
+            secret_keys[secret_key] = _get_output_value(secret_key, value, model_context, False)
 
     # update the secrets hash
 
@@ -268,7 +268,7 @@ def _build_json_secrets_result(model_context, token_dictionary):
                 secrets_map[secret_name] = {'keys': {}}
 
             secret_keys = secrets_map[secret_name]['keys']
-            secret_keys[secret_key] = _get_output_value(secret_key, value, model_context)
+            secret_keys[secret_key] = _get_output_value(secret_key, value, model_context, True)
 
     # runtime encryption key is not included in token_dictionary
     target_config = model_context.get_target_configuration()
@@ -478,17 +478,20 @@ def _build_secret_hash(secret_name, secret_key_map):
     return {'secretName': secret_name, 'secretPairs': secret_pairs_text, 'comments': [{'comment': message}]}
 
 
-def _get_output_value(secret_key, value, model_context):
+def _get_output_value(secret_key, value, model_context, include_encrypted_passwords):
     """
     Determine the secret value to be provided to the secrets script or results output JSON.
     Exclude password values unless they are one-way hashed values, such as those in LDIF files.
     :param secret_key: the key into the credentials map
     :param value: the value to be examined
     :param model_context: used to decrypt value
+    :param include_encrypted_passwords: whether to return encrypted passwords
     :return: the value to be provided
     """
     if secret_key in PASSWORD_SECRET_KEY_NAMES and value:
         if EncryptionUtils.isEncryptedString(value):
+            if include_encrypted_passwords:
+                return value
             value = encryption_utils.decrypt_one_password(model_context.get_encryption_passphrase(), value)
 
         if value.startswith(PASSWORD_HASH_MARKER):
