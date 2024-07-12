@@ -348,6 +348,7 @@ class DefaultCredentialMapperLdift(LdiftBase):
             location.add_name_token(name_token, entry_name)
             self._credential_injector.check_and_tokenize(result, REMOTE_USER, location)
             self._credential_injector.check_and_tokenize(result, REMOTE_PASSWORD, location)
+            self._credential_injector.check_and_tokenize(result, USER, location)
 
         _logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return result

@@ -18,6 +18,9 @@ from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import MAIL_SESSION
 from wlsdeploy.aliases.model_constants import PROPERTIES
+from wlsdeploy.aliases.model_constants import REMOTE_RESOURCE
+from wlsdeploy.aliases.model_constants import USER
+from wlsdeploy.aliases.model_constants import WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.variable_injector import REGEXP
 from wlsdeploy.tool.util.variable_injector import REGEXP_PATTERN
@@ -45,6 +48,7 @@ class CredentialInjector(VariableInjector):
 
     # used for user token search
     JDBC_PROPERTIES_PATH = '%s.%s.%s.%s' % (JDBC_SYSTEM_RESOURCE, JDBC_RESOURCE, JDBC_DRIVER_PARAMS, PROPERTIES)
+    REMOTE_CREDENTIAL_MAPPING_PATH = '%s.%s' % (WLS_USER_PASSWORD_CREDENTIAL_MAPPINGS, REMOTE_RESOURCE)
 
     # regex for tokenizing MailSession.Properties passwords and retaining the value
     PASSWORD_COMMANDS = {
@@ -125,6 +129,15 @@ class CredentialInjector(VariableInjector):
                 injector_commands = OrderedDict()
                 injector_commands.update({VARIABLE_VALUE: model_value})
                 self.custom_injection(model_dict, attribute, location, injector_commands)
+
+        elif folder_path.endswith(self.REMOTE_CREDENTIAL_MAPPING_PATH) and (attribute == USER):
+            # this attribute is a list type, it needs to be tokenized as a comma-separated string
+            value = model_dict[attribute]
+            if isinstance(value, list):
+                value = ','.join(value)
+            variable_name = self.get_variable_name(location, attribute)
+            model_dict[attribute] = self.get_variable_token(attribute, variable_name)
+            self.add_to_cache(dictionary={variable_name: value})
 
         elif folder_path.endswith(MAIL_SESSION) and (attribute == PROPERTIES):
             # users and passwords are property assignments
