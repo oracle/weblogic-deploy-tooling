@@ -191,6 +191,7 @@ def __update_online(model_deployer, model, model_context, aliases):
         topology_updater.set_server_groups()
 
         topology_updater.clear_placeholder_targeting(jdbc_names)
+        topology_updater.update_nm_properties()  # alias will skip for online, but log the omission
         topology_updater.update()
         model_deployer.deploy_resources()
         model_deployer.distribute_database_wallets_online()
@@ -242,6 +243,9 @@ def __update_offline(model_deployer, model, model_context, aliases):
     if model_context.get_update_rcu_schema_pass() is True:
         rcu_helper = RCUHelper(model, None, model_context, aliases, exception_type=ExceptionType.DEPLOY)
         rcu_helper.update_rcu_password()
+
+    # this needs to be before first updateDomain for NativeVersionEnabled=true to update correctly
+    topology_updater.update_nm_properties()
 
     __update_offline_domain()
 

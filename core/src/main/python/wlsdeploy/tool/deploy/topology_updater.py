@@ -10,6 +10,7 @@ from wlsdeploy.aliases.model_constants import CREATE_ONLY_DOMAIN_ATTRIBUTES
 from wlsdeploy.aliases.model_constants import FRONTEND_HOST
 from wlsdeploy.aliases.model_constants import MACHINE
 from wlsdeploy.aliases.model_constants import MIGRATABLE_TARGET
+from wlsdeploy.aliases.model_constants import NM_PROPERTIES
 from wlsdeploy.aliases.model_constants import SECURITY
 from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
 from wlsdeploy.aliases.model_constants import SERVER
@@ -114,6 +115,9 @@ class TopologyUpdater(Deployer):
         # /Security cannot be updated on existing domain
         folder_list.remove(SECURITY)
 
+        # /NMProperties were handled before first updateDomain
+        folder_list.remove(NM_PROPERTIES)
+
         self._security_provider_creator.create_security_configuration(location)
         folder_list.remove(SECURITY_CONFIGURATION)
 
@@ -186,6 +190,16 @@ class TopologyUpdater(Deployer):
 
     def clear_placeholder_targeting(self, jdbc_names):
         self.topology_helper.clear_jdbc_placeholder_targeting(jdbc_names)
+
+    def update_nm_properties(self):
+        """
+        The NMProperties section has to be done before the first WLST updateDomain() call in offline WLST.
+        If it is done after, NativeVersionEnabled=true will not update correctly.
+        """
+        domain_token = deployer_utils.get_domain_token(self.aliases)
+        location = LocationContext()
+        location.add_name_token(domain_token, self.model_context.get_domain_name())
+        self._process_section(self._topology, [], NM_PROPERTIES, location)
 
     def warn_set_server_groups(self):
         # For issue in setServerGroups in online mode (new configured clusters and stand-alone managed servers
