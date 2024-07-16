@@ -5,6 +5,7 @@ Licensed under the Universal Permissive License v1.0 as shown at https://oss.ora
 import exceptions
 import os
 import re
+import sys
 
 from java.io import File
 from java.lang import Class as JClass
@@ -69,6 +70,7 @@ from wlsdeploy.tool.deploy.datasource_deployer import DatasourceDeployer
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import string_utils
+from wlsdeploy.util import unicode_helper as str_helper
 from wlsdeploy.util.model_context import ModelContext
 
 POST_CREATE_RCU_SCHEMA_LOG_BASENAME = 'postCreateRcuSchemasScript'
@@ -283,7 +285,14 @@ class RCUHelper(object):
             JClass.forName(jdbc_driver_name)
             DriverManager.getConnection(jdbc_conn_string, props)
 
-        except (exceptions.Exception, JException), e:
+        except exceptions.Exception, e:
+            exc_type, exc_obj, _exc_tb = sys.exc_info()
+            ex = exception_helper.create_create_exception('WLSDPLY-12281', domain_typename,
+                                                          str_helper.to_string(exc_type),
+                                                          str_helper.to_string(exc_obj), error=e)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+        except JException, e:
             ex = exception_helper.create_create_exception('WLSDPLY-12281', domain_typename,
                                                           e.getClass().getName(), e.getLocalizedMessage(), error=e)
             self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
