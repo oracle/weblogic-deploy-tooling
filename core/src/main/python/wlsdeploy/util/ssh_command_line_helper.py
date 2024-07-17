@@ -178,7 +178,7 @@ class SSHUnixCommandLineHelper(SSHCommandLineHelper):
     def get_directory_contents_command(self, directory_path):
         path = self._get_directory_path(directory_path)
         # We need the first line of the output to be the path since ls doesn't return the directory path
-        command = 'echo "%s"; ls /p %s | cat' % (path, path)
+        command = 'echo "%s"; ls -p %s | cat' % (path, path)
         return command
 
     def get_directory_contents(self, output_lines, files_only, pattern_to_match=None):
