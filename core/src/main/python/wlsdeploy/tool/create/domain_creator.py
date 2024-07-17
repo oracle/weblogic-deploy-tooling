@@ -590,10 +590,14 @@ class DomainCreator(Creator):
         self.logger.entering(class_name=self.__class_name, method_name=_method_name)
         security_folder = dictionary_utils.get_dictionary_element(self._topology, SECURITY)
         if security_folder is not None:
+            admin_credentials = {
+                'user': dictionary_utils.get_element(self._domain_info, ADMIN_USERNAME),
+                'password': dictionary_utils.get_element(self._domain_info, ADMIN_PASSWORD)
+            }
             using_password_digests = self.security_provider_creator.is_default_authenticator_password_digest_enabled()
             helper = DefaultAuthenticatorHelper(self.model_context, self.aliases, ExceptionType.CREATE,
                                                 using_password_digests)
-            helper.create_default_init_file(security_folder)
+            helper.create_default_init_file(security_folder, admin_credentials)
         self.logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def __create_log_filters(self, location):

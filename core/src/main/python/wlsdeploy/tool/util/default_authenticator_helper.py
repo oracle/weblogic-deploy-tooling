@@ -11,10 +11,13 @@ from oracle.weblogic.deploy.create import CreateException
 from oracle.weblogic.deploy.validate.PasswordValidator import OLD_PASSWORD_ENCODING_MARKER
 from oracle.weblogic.deploy.validate.PasswordValidator import PASSWORD_ENCODING_MARKER
 
+from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import DESCRIPTION
+from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import GROUP
 from wlsdeploy.aliases.model_constants import GROUP_MEMBER_OF
 from wlsdeploy.aliases.model_constants import PASSWORD
+from wlsdeploy.aliases.model_constants import SECURITY
 from wlsdeploy.aliases.model_constants import USER
 from wlsdeploy.aliases.model_constants import USER_ATTRIBUTES
 from wlsdeploy.exception import exception_helper
@@ -69,19 +72,20 @@ class DefaultAuthenticatorHelper(object):
         self._resource_escaper = ResourcePolicyIdUtil.getEscaper()
         self._using_password_digest = using_password_digest
 
-    def create_default_init_file(self, security_mapping_nodes):
+    def create_default_init_file(self, security_mapping_nodes, admin_credentials):
         """
         Use the security information to write user/groups to the DefaultAuthenticatorInit.ldift file.
         This file must exist before writing the data. Build a hash map from the model data and
         append to the file using the template file for structure.
         :param security_mapping_nodes: the Security elements from the model
+        :param admin_credentials: admin credentials from the DomainInfo section of the model
         """
         _method_name = 'create_default_init_file'
 
         output_dir = File(self._model_context.get_domain_home(), SECURITY_SUBDIR)
         init_file = File(output_dir, DEFAULT_AUTH_INIT_FILE)
 
-        template_hash = self._build_default_template_hash(security_mapping_nodes, init_file)
+        template_hash = self._build_default_template_hash(security_mapping_nodes, admin_credentials, init_file)
         template_path = TEMPLATE_PATH + '/' + DEFAULT_AUTH_INIT_FILE + file_template_helper.MUSTACHE_SUFFIX
 
         self._logger.info('WLSDPLY-01900', init_file,
@@ -89,11 +93,12 @@ class DefaultAuthenticatorHelper(object):
 
         file_template_helper.create_file_from_resource(template_path, template_hash, init_file, self._exception_type)
 
-    def _build_default_template_hash(self, model_security_dict, init_file):
+    def _build_default_template_hash(self, model_security_dict, admin_credentials, init_file):
         """
         Create a dictionary of substitution values to apply to the default authenticator template.
         :param model_security_dict: the security elements from the model
         :param init_file: java.io.File containing original LDIFT entries
+        :param admin_credentials: admin credentials from the DomainInfo section of the model
         :return: the template hash dictionary
         """
         _method_name = '_build_default_template_hash'
@@ -119,8 +124,9 @@ class DefaultAuthenticatorHelper(object):
             user_mapping_nodes = model_security_dict[USER]
             for name in user_mapping_nodes:
                 try:
-                    if not self._update_existing_user(name, user_mapping_nodes[name], existing_entries):
-                        user_hash = self._build_user_template_hash(user_mapping_nodes[name], name)
+                    if not self._update_existing_user(name, user_mapping_nodes[name], admin_credentials,
+                                                      existing_entries):
+                        user_hash = self._build_user_template_hash(user_mapping_nodes[name], name, admin_credentials)
                         users_hash.append(user_hash)
                 except CreateException, ce:
                     self._logger.warning('WLSDPLY-01902', name, ce.getLocalizedMessage(),
@@ -172,12 +178,13 @@ class DefaultAuthenticatorHelper(object):
 
         return hash_entry
 
-    def _build_user_template_hash(self, user_mapping_section, name):
+    def _build_user_template_hash(self, user_mapping_section, name, admin_credentials):
         """
         Build a template hash map from the security user data from the model.
         This includes encoding the required password.
         :param user_mapping_section: The security user section from the model
         :param name: name of the user for the user section
+        :param admin_credentials: admin credentials from the DomainInfo section of the model
         :return: template hash map
         :raises: CreateException if the user's password cannot be encoded
         """
@@ -193,8 +200,7 @@ class DefaultAuthenticatorHelper(object):
             hash_entry[HASH_DESCRIPTION] = ''
 
         password = self._get_required_attribute(user_mapping_section, PASSWORD, USER, name)
-        password = self._aliases.decrypt_password(password)
-        password_encoded = self._encode_password(name, password)
+        password_encoded = self._get_encoded_user_password(password, name, admin_credentials)
         hash_entry[HASH_USER_PASSWORD] = password_encoded
 
         groups = dictionary_utils.get_element(group_attributes, GROUP_MEMBER_OF)
@@ -235,11 +241,12 @@ class DefaultAuthenticatorHelper(object):
     # Update existing users and groups from the original LDIFT file
     #################################################################
 
-    def _update_existing_user(self, name, model_user_dictionary, existing_entries):
+    def _update_existing_user(self, name, model_user_dictionary, admin_credentials, existing_entries):
         """
         Update the specified user if it existed in the original LDIFT file.
         :param name: the name of the user
         :param model_user_dictionary: the model dictionary for the user
+        :param admin_credentials: admin credentials from the DomainInfo section of the model
         :param existing_entries: existing entries from the LDIFT file
         :return: True if an existing user was updated, False otherwise
         """
@@ -251,9 +258,8 @@ class DefaultAuthenticatorHelper(object):
                               class_name=self._class_name, method_name=_method_name)
 
             model_password = dictionary_utils.get_element(model_user_dictionary, PASSWORD)
-            model_password = self._aliases.decrypt_password(model_password)
-            model_password = self._encode_password(name, model_password)
-            existing_user.update_single_field(LDIFT_PASSWORD, model_password)
+            password_encoded = self._get_encoded_user_password(model_password, name, admin_credentials)
+            existing_user.update_single_field(LDIFT_PASSWORD, password_encoded)
 
             model_description = dictionary_utils.get_element(model_user_dictionary, DESCRIPTION)
             if model_description:
@@ -296,6 +302,32 @@ class DefaultAuthenticatorHelper(object):
             # child groups are handled separately in _build_default_template_hash()
             return True
         return False
+
+    def _get_encoded_user_password(self, model_password, user_name, admin_credentials):
+        """
+        Encode the model password for use in the template hash.
+        If the username matches the admin user from the DomainInfo section, override the password value.
+        :param model_password: the password from the model
+        :param user_name: the username from the model
+        :param admin_credentials: the admin credentials from DomainInfo
+        :return: the encoded password value
+        """
+        _method_name = '_get_encoded_user_password'
+
+        admin_user = dictionary_utils.get_element(admin_credentials, 'user')
+        if user_name == admin_user:
+            admin_password = dictionary_utils.get_element(admin_credentials, 'password')
+            if admin_password:
+                model_password = admin_password
+                security_location = LocationContext().append_location(SECURITY)
+                security_location.add_name_token(self._aliases.get_name_token(security_location), 'X')
+                security_location.append_location(USER)
+                security_path = self._aliases.get_model_folder_path(security_location)
+                self._logger.notification('WLSDPLY-01905', user_name, DOMAIN_INFO, security_path,
+                                          class_name=self._class_name, method_name=_method_name)
+
+        model_password = self._aliases.decrypt_password(model_password)
+        return self._encode_password(user_name, model_password)
 
     def _encode_password(self, user, password):
         """

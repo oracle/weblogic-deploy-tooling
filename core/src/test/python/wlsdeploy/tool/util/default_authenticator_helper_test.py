@@ -51,7 +51,7 @@ class DefaultAuthenticatorHelperTest(BaseTestCase):
 
         ldift_name = 'DefaultAuthenticatorInit.ldift'
         source_ldift = File(self.MODELS_DIR, ldift_name)
-        template_hash = helper._build_default_template_hash(security_dict, source_ldift)
+        template_hash = helper._build_default_template_hash(security_dict, {}, source_ldift)
 
         template_file_name = ldift_name + file_template_helper.MUSTACHE_SUFFIX
         template_path = os.path.join(self.SECURITY_RESOURCES_DIR, template_file_name)
