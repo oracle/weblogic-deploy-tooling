@@ -267,8 +267,8 @@ class CreateDomainContentValidator(ContentValidator):
                         self._logger.notification('WLSDPLY-05208', user_name,
                                                   class_name=self._class_name, method_name=_method_name)
                 except ValidateException, ex:
-                    _logger.severe('WLSDPLY-05204', user_name, ex.getLocalizedMessage(),
-                                    error=ex, class_name=self._class_name, method_name=_method_name)
+                    self._logger.severe('WLSDPLY-05204', user_name, ex.getLocalizedMessage(),
+                                        error=ex, class_name=self._class_name, method_name=_method_name)
 
         if found_errors:
             ce = exception_helper.create_validate_exception('WLSDPLY-05205')
