@@ -2625,7 +2625,7 @@ public class WLSDeployArchive {
         String baseLocation = useNonReplicablePath ? NON_REPLICABLE_CUSTOM_TARGET_DIR : ARCHIVE_CUSTOM_TARGET_DIR;
         if (entryPath.startsWith(baseLocation + ZIP_SEP)) {
             archivePath = entryPath;
-            appName = getNameFromPath(archivePath, baseLocation.length() + 2);
+            appName = getNameFromPath(archivePath, baseLocation.length() + 1);
         } else {
             archivePath = baseLocation + ZIP_SEP + entryPath;
             appName = entryPath;
