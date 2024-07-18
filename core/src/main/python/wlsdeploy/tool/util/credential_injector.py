@@ -114,7 +114,11 @@ class CredentialInjector(VariableInjector):
             self.custom_injection(model_dict, attribute, location, injector_commands)
 
         elif attribute_type == PASSWORD:
-            if self._model_context.is_discover_passwords():
+            # if results.json file is used, include passwords mappings in the cache.
+            # these will be filtered and included in the result only as allowed.
+            uses_results_file = self._model_context.get_target_configuration().generate_results_file()
+
+            if self._model_context.is_discover_passwords() or uses_results_file:
                 injector_commands = OrderedDict()
                 injector_commands.update({VARIABLE_VALUE: model_value})
             else:
