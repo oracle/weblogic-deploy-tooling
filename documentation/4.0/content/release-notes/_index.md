@@ -33,6 +33,8 @@ None
   the Update Domain Tool.
 - #1720 - Fixed an issue with RCU pre-check error handling that was causing an unhandled Jython error.
 - #1721 - Fixed a bug in the SSH directory listing command for a remote Unix machine.
+- #1724 - Fixed an off-by-one error when using the Archive Helper Tool's `remove custom` command with a name that starts
+  with `wlsdeploy/custom/` or `config/wlsdeploy/custom/` that was causing the specified location to not be removed.
 
 #### Known Issues
 - SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
