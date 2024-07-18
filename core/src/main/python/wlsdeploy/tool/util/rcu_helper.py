@@ -884,10 +884,10 @@ class RCUHelper(object):
         new_password = dictionary_utils.get_element(model_driver_params_dict, PASSWORD_ENCRYPTED)
         if new_password is not None:
             new_password = self._aliases.decrypt_password(new_password)
-            props.set('password', new_password)
+            props.put('password', new_password)
 
         for prop_key, prop_value in model_properties_dict.iteritems():
-            props.set(prop_key, prop_value)
+            props.put(prop_key, prop_value)
 
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name,
                               result=[new_jdbc_driver_name, new_jdbc_conn_string])
