@@ -35,6 +35,9 @@ None
 - #1721 - Fixed a bug in the SSH directory listing command for a remote Unix machine.
 - #1724 - Fixed an off-by-one error when using the Archive Helper Tool's `remove custom` command with a name that starts
   with `wlsdeploy/custom/` or `config/wlsdeploy/custom/` that was causing the specified location to not be removed.
+- #1727 - Fixed an issue with Create Domain Tool's RCU pre-check functionality that was causing a Jython 
+  AttributeException for `set` when the STB DataSource was defined in the `resources:/JDBCSystemResource` section of the
+  model and specifying one or more JDBC driver properties.
 
 #### Known Issues
 - SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
