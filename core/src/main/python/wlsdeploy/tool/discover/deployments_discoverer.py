@@ -94,14 +94,14 @@ class DeploymentsDiscoverer(Discoverer):
                     location.add_name_token(name_token, library)
                     result[library] = OrderedDict()
                     self._populate_model_parameters(result[library], location)
-                    self._add_shared_libraries_to_archive(library, result[library])
+                    self._add_shared_library_to_archive(library, result[library])
                     self._discover_subfolders(result[library], location)
                     location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
 
-    def _add_shared_libraries_to_archive(self, library_name, library_dict):
+    def _add_shared_library_to_archive(self, library_name, library_dict):
         """
         Add the binary or directory referenced by the shared library to the archive file.
         If the binary can not be located and added to the archive file, un-target the library and log the problem.
@@ -109,7 +109,7 @@ class DeploymentsDiscoverer(Discoverer):
         :param library_dict: containing the shared library information
         :raise DiscoverException: An unexpected exception occurred trying to write the library to the archive
         """
-        _method_name = 'add_shared_library_to_archive'
+        _method_name = '_add_shared_library_to_archive'
         _logger.entering(library_name, class_name=_class_name, method_name=_method_name)
 
         archive_file = self._model_context.get_archive_file()
@@ -156,11 +156,13 @@ class DeploymentsDiscoverer(Discoverer):
                         library_dict[model_constants.SOURCE_PATH] = new_source_name
                         _logger.finer('WLSDPLY-06388', library_name, new_source_name, class_name=_class_name,
                                       method_name=_method_name)
-                    self._add_shared_libray_plan_to_archive(library_name, library_dict)
+
+                # plan may need to go into archive, even if source path was excluded
+                self._add_shared_library_plan_to_archive(library_name, library_dict)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
-    def _add_shared_libray_plan_to_archive(self, library_name, library_dict):
+    def _add_shared_library_plan_to_archive(self, library_name, library_dict):
         """
         Add the shared library deployment plan to the archive file. Create a unique name for the deployment plan from
         the library binary name and the plan name. If the plan cannot be added to the archive file, the plan
@@ -169,7 +171,7 @@ class DeploymentsDiscoverer(Discoverer):
         :param library_dict: containing the library information
         :raise: DiscoverException: An unexpected exception occurred trying to write the plan to the archive file
         """
-        _method_name = 'add_application_plan_to_archive'
+        _method_name = '_add_shared_library_plan_to_archive'
         _logger.entering(library_name, class_name=_class_name, method_name=_method_name)
         archive_file = self._model_context.get_archive_file()
         if model_constants.PLAN_PATH in library_dict:
@@ -207,10 +209,9 @@ class DeploymentsDiscoverer(Discoverer):
                                                                               self.download_temporary_dir,
                                                                               "sharedLibraries")
 
-                new_plan_name = archive_file.addApplicationDeploymentPlan(plan_file_name,
-                                                                          _generate_new_plan_name(
-                                                                              library_source_name,
-                                                                              plan_file_name))
+                new_plan_name = archive_file.addSharedLibraryDeploymentPlan(
+                    plan_file_name, _generate_new_plan_name(library_source_name, plan_file_name))
+
             except IllegalArgumentException, iae:
                 _logger.warning('WLSDPLY-06385', library_source_name, plan_file_name,
                                 iae.getLocalizedMessage(), class_name=_class_name,
@@ -346,7 +347,9 @@ class DeploymentsDiscoverer(Discoverer):
                     _logger.finer('WLSDPLY-06398', application_name, new_source_name, class_name=_class_name,
                                   method_name=_method_name)
                     application_dict[model_constants.SOURCE_PATH] = new_source_name
-                self.add_application_plan_to_archive(application_name, application_dict)
+
+            # plan may need to go into archive, even if source path was excluded
+            self.add_application_plan_to_archive(application_name, application_dict)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
