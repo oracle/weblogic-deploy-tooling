@@ -43,6 +43,7 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_SSL_VERSION_VALU
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE_ENCRYPTED
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_SYS_PROP_VALUE
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
@@ -887,7 +888,55 @@ class RCUHelper(object):
             props.put('password', new_password)
 
         for prop_key, prop_value in model_properties_dict.iteritems():
-            props.put(prop_key, prop_value)
+            if isinstance(prop_value, dict):
+                if DRIVER_PARAMS_PROPERTY_VALUE in prop_value:
+                    props.put(prop_key, prop_value[DRIVER_PARAMS_PROPERTY_VALUE])
+                elif DRIVER_PARAMS_PROPERTY_SYS_PROP_VALUE in prop_value:
+                    sys_prop_name = prop_value[DRIVER_PARAMS_PROPERTY_SYS_PROP_VALUE]
+                    sys_prop_value = None
+                    if sys_prop_name is not None:
+                        sys_prop_value = System.getProperty(sys_prop_name)
+
+                    if sys_prop_value is not None:
+                        props.put(prop_key, sys_prop_value)
+                    else:
+                        if sys_prop_name is None:
+                            self.__logger.warning('WLSDPLY-12271', data_source_name, prop_key,
+                                                  DRIVER_PARAMS_PROPERTY_SYS_PROP_VALUE,
+                                                  class_name=self.__class_name, method_name=_method_name)
+                        else:
+                            # The system property specified might be something like "weblogic.Name", which
+                            # will be set for the actual DataSource inside the server but typically won't
+                            # be set in a WDT createDomain environment so log as info instead of warning
+                            # so that createDomain doesn't exit with a non-zero exit code.
+                            #
+                            self.__logger.info('WLSDPLY-12273', data_source_name, prop_key,
+                                               DRIVER_PARAMS_PROPERTY_SYS_PROP_VALUE, sys_prop_name,
+                                               class_name=self.__class_name, method_name=_method_name)
+                else:
+                    unhandled_field_name = None
+                    if DRIVER_PARAMS_PROPERTY_VALUE_ENCRYPTED in prop_value:
+                        unhandled_field_name = DRIVER_PARAMS_PROPERTY_VALUE_ENCRYPTED
+
+                    if unhandled_field_name is not None:
+                        ex = exception_helper.create_create_exception('WLSDPLY-12265', data_source_name,
+                                                                      prop_key, DRIVER_PARAMS_PROPERTY_VALUE,
+                                                                      unhandled_field_name)
+                        self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                        raise ex
+                    else:
+                        unhandled_field_names = prop_value.keys()
+                        if len(unhandled_field_names) > 0:
+                            # This should never happen since validation should catch unsupported fields
+                            unhandled_field_name = unhandled_field_names.join(',')
+                            ex = exception_helper.create_create_exception('WLSDPLY-12266', data_source_name,
+                                                                          prop_key, DRIVER_PARAMS_PROPERTY_VALUE,
+                                                                          unhandled_field_name)
+                        else:
+                            ex = exception_helper.create_create_exception('WLSDPLY-12267', data_source_name,
+                                                                          prop_key, DRIVER_PARAMS_PROPERTY_VALUE)
+                        self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                        raise ex
 
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name,
                               result=[new_jdbc_driver_name, new_jdbc_conn_string])
