@@ -8,6 +8,16 @@
     <language>en-us</language>
     <lastBuildDate>Tue, 09 Jan 2024 18:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Release 4.2.0</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.2.0/</link>
+      <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.2.0/</guid>
+      <description>Changes in Release 4.2.0  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes  #1682 - Added support for discovering built-in security provider data in online mode. This includes DefaultAuthenticator users and groups, XACMLAuthorizer policies, XACMLRoleMapper roles, and DefaultCredentialMapper user/password credential mappings. As with other discovery features, default values are filtered out and will not appear in the model. By default, discovering users and credential mappings require the use of WDT encryption so that no clear text passwords are stored in the model or variable files.</description>
+    </item>
+    
+    <item>
       <title>Release 4.1.1</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.1.1/</link>
       <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>

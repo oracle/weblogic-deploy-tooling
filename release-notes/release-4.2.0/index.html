@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Hugo 0.82.0" />
-    <meta name="description" content="Prepares model files for deploying to WebLogic Kubernetes Operator environment.">
+    <meta name="description" content="">
 
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Prepare Model Tool :: WebLogic Deploy Tooling</title>
+    <title>Release 4.2.0 :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1721688813" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/userguide/tools/prepare/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-4.2.0/">
     <nav id="sidebar" class="">
 
 
@@ -170,7 +170,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/" title="User Guide" class="dd-item
-        parent
+        
         
         
         ">
@@ -220,7 +220,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/" title="WDT Tools" class="dd-item
-        parent
+        
         
         
         ">
@@ -473,7 +473,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/prepare/" title="Prepare Model Tool" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/prepare/" title="Prepare Model Tool" class="dd-item ">
         <a href="/weblogic-deploy-tooling/userguide/tools/prepare/">
         Prepare Model Tool
         
@@ -1329,7 +1329,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
-        
+        parent
         
         
         ">
@@ -1355,7 +1355,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.2.0/" title="Release 4.2.0" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.2.0/" title="Release 4.2.0" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-4.2.0/">
         <b> </b>Release 4.2.0
         
@@ -2035,13 +2035,7 @@
             
           
           
-            
-            
-          
-          
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/userguide/'>User Guide</a> > <a href='/weblogic-deploy-tooling/userguide/tools/'>WDT Tools</a> > Prepare Model Tool
-          
-        
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release 4.2.0
           
         
           
@@ -2058,7 +2052,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#parameter-table-for-preparemodel">Parameter table for <code>prepareModel</code></a></li>
+        <li><a href="#changes-in-release-420">Changes in Release 4.2.0</a></li>
       </ul>
     </li>
   </ul>
@@ -2078,74 +2072,82 @@
           
             <h1>
               
-              Prepare Model Tool
+              Release 4.2.0
             </h1>
           
 
         
 
 
-<p>The Prepare Model Tool prepares WDT model files for deploying to specific target environments. These customizations include:</p>
+<h3 id="changes-in-release-420">Changes in Release 4.2.0</h3>
 <ul>
-<li>Removing sections from the model that are not compatible with the environment</li>
-<li>Removing files from the archive that are not compatible with the environment</li>
-<li>Updating model file(s) to set parameters required by the environment</li>
-<li>Replacing credential and attribute values with WDT macros</li>
-<li>Generating a UNIX shell script that will help with creating any required Kubernetes secrets</li>
-<li>Generating a variable properties file to customize attribute values</li>
-<li>Generating any additional configuration files to configure the target environment</li>
+<li><a href="#major-new-features">Major New Features</a></li>
+<li><a href="#other-changes">Other Changes</a></li>
+<li><a href="#bug-fixes">Bugs Fixes</a></li>
+<li><a href="#known-issues">Known Issues</a></li>
 </ul>
-<p>To use the Prepare Model Tool, simply run the <code>prepareModel</code> shell script with the correct arguments.  To see the list
-of valid arguments, simply run the shell script with the <code>-help</code> option (or with no arguments) for usage information.</p>
-<p>For example, to prepare model files for use with WebLogic Kubernetes Operator, run the tool with <code>-target wko</code> as follows:</p>
-<pre><code>$ weblogic-deploy/bin/prepareModel.sh -oracle_home /u01/wls12213 -model_file model1.yaml,model2.yaml -target wko -output_dir $HOME/wko-output
-</code></pre>
-<p>In the output directory, you will find:</p>
-<pre><code>model1.yaml
-model2.yaml
-wko_variable.properties
-create_k8s_secrets.sh
-wko-domain.yaml
-</code></pre><p>You should customize the <code>wko_variable.properties</code>, <code>create_k8s_secrets.sh</code>, and <code>wko-domain.yaml</code> files to provide
-environment-specific values that are appropriate for the target environment.</p>
-<p>For more information about additional target environments and options, see <a href="/weblogic-deploy-tooling/userguide/target_env/">Target environments</a>.</p>
-<h3 id="parameter-table-for-preparemodel">Parameter table for <code>prepareModel</code></h3>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Definition</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>-model_file</code></td>
-<td>(Required). Location of the model file. This can also be specified as a comma-separated list of models, where each successive model layers on top of the previous ones.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-oracle_home</code></td>
-<td>Home directory of the Oracle WebLogic installation. Required if the <code>ORACLE_HOME</code> environment variable is not set.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-output_dir</code></td>
-<td>(Required) Location where to write the output files.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-target</code></td>
-<td>(Required) Name of the target configuration such as <code>wko</code>, <code>vz</code>, <code>k8s</code>. For more information about target types, see <a href="/weblogic-deploy-tooling/userguide/target_env/">Target Environments</a>.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-variable_file</code></td>
-<td>The location of the property file containing the values for variables used in the model. This can also be specified as a comma-separated list of property files, where each successive set of properties layers on top of the previous ones.</td>
-<td></td>
-</tr>
-</tbody>
-</table>
+<h4 id="major-new-features">Major New Features</h4>
+<p>None</p>
+<h4 id="other-changes">Other Changes</h4>
+<ul>
+<li>#1682 - Added support for discovering built-in security provider data in online mode.  This includes
+DefaultAuthenticator users and groups, XACMLAuthorizer policies, XACMLRoleMapper roles, and DefaultCredentialMapper
+user/password credential mappings. As with other discovery features, default values are filtered out and will not
+appear in the model.  By default, discovering users and credential mappings require the use of WDT encryption so that
+no clear text passwords are stored in the model or variable files.</li>
+<li>#1682 - Normalized XACMLRoleMapper role handling by removing the previous discovery of XACMLRoleMapper roles (that was
+not working with newer versions of WebLogic anyway) and removing version limitations during provisioning.</li>
+<li>#1682 - Deprecated the <code>-use_encryption</code> command-line argument and replaced it with <code>-passphrase_prompt</code> to make the
+purpose of the argument clearer.</li>
+<li>#1682 - Relaxed the JDK 8 requirement to use WDT encryption.  Later versions of JDK 7 have the necessary algorithm
+support so now WDT determines at startup whether the underlying JDK supports WDT encryption or not.</li>
+<li>#1682 - Used the values of the <code>-admin_user</code> and provided password to populate the <code>domainInfo:/AdminUserName</code> and
+<code>domainInfo:/AdminPassword</code> fields when discovering security provider data.</li>
+<li>#1688 - Enhanced variable tokenization support to include passwords in discovered security provider data.</li>
+<li>#1689 - Added the ability to discover the OPSS wallet when running in online mode.</li>
+<li>#1693 - Changed the <code>wko</code>, <code>wko-dii</code> (deprecated), and <code>wko-pv</code> target values to refer to the latest versions instead
+of WebLogic Kubernetes Operator 3 versions.  Added <code>wko3</code>, <code>wko3-dii</code>, and <code>wko3-pv</code> to accommodate users that still
+require the ability to use these older versions.</li>
+<li>#1697 - Added support for the Prepare Model Tool to preserve any one-way hashed passwords in the model.</li>
+<li>#1700 - Added support for storing XACML policy and role definitions that could not be converted to their original
+policy and role expressions as XACML files in the archive file.</li>
+</ul>
+<h4 id="bug-fixes">Bug Fixes</h4>
+<ul>
+<li>#1687 - Fixed a problem with the Discover Domain Tool not properly handling Data Source user names with spaces with
+older versions of WebLogic Server.</li>
+<li>#1690 - Fixed a problem with determining the default security realm name that caused it to always be <code>myrealm</code>.</li>
+<li>#1692 - Fixed a misleading error message when the model points to an application outside of the archive file that
+does not exist.</li>
+<li>#1695 - Fixed an issue where the WebLogic Kubernetes Operator <code>domain.yaml</code> was including a placeholder for the
+<code>domainHome</code> attribute in all cases so that the WebLogic Image Tool could populate it when creating the image.
+This was occurring even in use cases where the WebLogic Image Tool did not have this information.  WDT no longer does
+this and will only include the <code>domainHome</code> in the case where the user has specified it on the command line,
+or in the <code>kubernetes</code> section of the model.</li>
+<li>#1698 - Fixed issues with the new messages related to the security provider data discovery features.</li>
+<li>#1701 - Moved the TestSummaryHandler logging class out of the installer since it is only meant for supporting unit tests.</li>
+<li>#1702 - Fixed a bug in deployment plan discovery for exploded applications.</li>
+<li>#1703 - Fixed a bug in discovery of <code>domainBin</code> scripts.</li>
+<li>#1705 - Added missing validation for the <code>WLSUserPasswordCredentialMappings</code> section.</li>
+<li>#1706 - Fixed a validation bug that was causing lax validation to fail when archive entries were missing.</li>
+<li>#1707 - Fixed a bug in the handling of the <code>ActiveContextHandlerEntry</code> attribute of an <code>Auditor</code> security provider.</li>
+</ul>
+<h4 id="known-issues">Known Issues</h4>
+<ul>
+<li>
+<p>SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
+the 12.2.1.4.0 GA release fails with the following error, as mentioned at <a href="https://github.com/hierynomus/sshj/issues/895">https://github.com/hierynomus/sshj/issues/895</a>.
+Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">SEVERE Messages:
+        1. WLSDPLY-20008: verifySSH argument processing failed: Failed to initialize SSH context: Failed to SSH connect to host myhost.oracle.com: no such algorithm: X25519 <span style="color:#66d9ef">for</span> provider BC
+</code></pre></div></li>
+<li>
+<p>SSH support for the Update Domain Tool and Deploy Apps Tool does not work when using an archive file and the remote
+WebLogic Server is running on Windows using the optional, Windows-provided, OpenSSH component.  This is due to an
+issue with the SSHJ library WDT is using.  See <a href="https://github.com/hierynomus/sshj/issues/929">https://github.com/hierynomus/sshj/issues/929</a> for more information.</p>
+</li>
+</ul>
+<p>See <a href="https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/">https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/</a> for the current set of known limitations.</p>
 
 
 <footer class="footline">
@@ -2234,7 +2236,6 @@ environment-specific values that are appropriate for the target environment.</p>
             
                 
                     
-                    
                 
                 
 
@@ -2249,9 +2250,6 @@ environment-specific values that are appropriate for the target environment.</p>
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2269,7 +2267,6 @@ environment-specific values that are appropriate for the target environment.</p>
             
                 
                     
-                    
                 
                 
 
@@ -2284,9 +2281,6 @@ environment-specific values that are appropriate for the target environment.</p>
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2448,7 +2442,6 @@ environment-specific values that are appropriate for the target environment.</p>
             
                 
                     
-                    
                 
                 
 
@@ -2464,9 +2457,6 @@ environment-specific values that are appropriate for the target environment.</p>
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -3066,6 +3056,7 @@ environment-specific values that are appropriate for the target environment.</p>
             
                 
                     
+                    
                 
                 
 
@@ -3078,6 +3069,7 @@ environment-specific values that are appropriate for the target environment.</p>
             
             
                 
+                    
                     
                 
                 
@@ -3094,6 +3086,9 @@ environment-specific values that are appropriate for the target environment.</p>
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -3566,10 +3561,10 @@ environment-specific values that are appropriate for the target environment.</p>
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/userguide/tools/compare/" title="Compare Model Tool"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/tools/kubernetes/" title="Extract Domain Resource Tool" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-4.1.1/" title="Release 4.1.1" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

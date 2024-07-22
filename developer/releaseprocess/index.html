@@ -12,20 +12,20 @@
     <title>WDT project release process :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1721618409" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1721618409" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1721618409" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1721618409" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1721618409" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1721618409" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1721618409" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1721618409" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1721618409" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1721618409" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1721688813" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1721688813" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1721688813" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1721688813" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1721688813" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1721688813" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1721688813" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1721688813" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1721688813" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1721688813" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1721618409"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1721688813"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1721618409"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1721618409"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1721688813"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1721688813"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1721618409"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1721688813"></script>
 
     
   </div>
@@ -1355,6 +1355,27 @@
  
   
     
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.2.0/" title="Release 4.2.0" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-4.2.0/">
+        <b> </b>Release 4.2.0
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
       <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.1.1/" title="Release 4.1.1" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-4.1.1/">
         <b> </b>Release 4.1.1
@@ -2099,6 +2120,10 @@
 </ul>
 </li>
 <li>
+<p>When releasing as part of the Oracle infrastructure, you <em>must</em> make sure to wait until all Jenkins build activity
+associated with the <code>main</code> branch is complete prior to starting the release process.</p>
+</li>
+<li>
 <p>In the <code>weblogic-deploy-tooling</code> project directory, run the <code>mvn -B release:prepare release:perform</code> command.</p>
 <ul>
 <li>If the next development version is changing the major or minor version, override the default <code>developmentVersion</code>
@@ -2119,6 +2144,7 @@ Failure to enter it in a timely manner may result in a failure.</li>
 <p>Note that this process relies on the WDT installers being in your local Maven repository.  As such, it is critical for
 the same user to run these steps on the same machine as the steps from the previous section!</p>
 <ol>
+<li>Prior to starting the GitHub release, you <em>must</em> wait until all Jenkins activity triggered by the release is complete.</li>
 <li>Save the release notes in the file <code>&lt;wdt-project-directory&gt;/target/ReleaseNotes.md</code>.</li>
 <li>Run the command <code>mvn -f github-release.xml -DreleaseVersion=&lt;release version number&gt; verify</code> to create the draft GitHub Release.</li>
 <li>Log into <a href="https://github.com/oracle/weblogic-deploy-tooling">GitHub</a>, go to the Releases page, review/edit the draft release, and then publish the release.</li>
@@ -3511,6 +3537,22 @@ the same user to run these steps on the same machine as the steps from the previ
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -3536,19 +3578,19 @@ the same user to run these steps on the same machine as the steps from the previ
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1721618409"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1721618409"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1721618409"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1721618409"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1721618409"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1721618409"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1721688813"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1721688813"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1721688813"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1721688813"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1721688813"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1721688813"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1721618409"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1721618409"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1721618409"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1721688813"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1721688813"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1721688813"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1721618409"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1721688813"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
