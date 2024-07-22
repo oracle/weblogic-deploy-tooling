@@ -1,12 +1,12 @@
 +++
 title = "Release Notes"
 date = 2024-01-09T18:27:38-05:00
-weight = 70
+weight = 69
 pre = "<b> </b>"
 +++
 
 
-### Changes in Release 4.2.0
+### Changes in Release 4.2.1
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -17,46 +17,29 @@ pre = "<b> </b>"
 None
 
 #### Other Changes
-- #1682 - Added support for discovering built-in security provider data in online mode.  This includes
-  DefaultAuthenticator users and groups, XACMLAuthorizer policies, XACMLRoleMapper roles, and DefaultCredentialMapper
-  user/password credential mappings. As with other discovery features, default values are filtered out and will not
-  appear in the model.  By default, discovering users and credential mappings require the use of WDT encryption so that
-  no clear text passwords are stored in the model or variable files.
-- #1682 - Normalized XACMLRoleMapper role handling by removing the previous discovery of XACMLRoleMapper roles (that was
-  not working with newer versions of WebLogic anyway) and removing version limitations during provisioning.
-- #1682 - Deprecated the `-use_encryption` command-line argument and replaced it with `-passphrase_prompt` to make the
-  purpose of the argument clearer.
-- #1682 - Relaxed the JDK 8 requirement to use WDT encryption.  Later versions of JDK 7 have the necessary algorithm
-  support so now WDT determines at startup whether the underlying JDK supports WDT encryption or not.
-- #1682 - Used the values of the `-admin_user` and provided password to populate the `domainInfo:/AdminUserName` and
-  `domainInfo:/AdminPassword` fields when discovering security provider data.
-- #1688 - Enhanced variable tokenization support to include passwords in discovered security provider data. 
-- #1689 - Added the ability to discover the OPSS wallet when running in online mode.
-- #1693 - Changed the `wko`, `wko-dii` (deprecated), and `wko-pv` target values to refer to the latest versions instead
-  of WebLogic Kubernetes Operator 3 versions.  Added `wko3`, `wko3-dii`, and `wko3-pv` to accommodate users that still
-  require the ability to use these older versions.
-- #1697 - Added support for the Prepare Model Tool to preserve any one-way hashed passwords in the model. 
-- #1700 - Added support for storing XACML policy and role definitions that could not be converted to their original
-  policy and role expressions as XACML files in the archive file.
+- #1717, #1728 - Extended the API integration between WebLogic Kubernetes Toolkit UI and WDT to pass back the encrypted
+  passwords when running the Prepare Model Tool from the WebLogic Kubernetes Toolkit UI.
+- #1722 - Added logic to detect a situation where the user specified in `domainInfo:/AdminUserName` is also listed in
+  the `topology:/Security/User` list of users and update the `topology:/Security/User` user's `Password` field to be
+  the same as that specified in `domainInfo:/AdminPassword`.
+- #1723 - Added support for the WebLogic Server 12.2.1.4 and 14.1.1 July 2024 PSUs.
 
 #### Bug Fixes
-- #1687 - Fixed a problem with the Discover Domain Tool not properly handling Data Source user names with spaces with
-  older versions of WebLogic Server.
-- #1690 - Fixed a problem with determining the default security realm name that caused it to always be `myrealm`.
-- #1692 - Fixed a misleading error message when the model points to an application outside of the archive file that
-  does not exist.
-- #1695 - Fixed an issue where the WebLogic Kubernetes Operator `domain.yaml` was including a placeholder for the
-  `domainHome` attribute in all cases so that the WebLogic Image Tool could populate it when creating the image.
-  This was occurring even in use cases where the WebLogic Image Tool did not have this information.  WDT no longer does
-  this and will only include the `domainHome` in the case where the user has specified it on the command line,
-  or in the `kubernetes` section of the model.
-- #1698 - Fixed issues with the new messages related to the security provider data discovery features.
-- #1701 - Moved the TestSummaryHandler logging class out of the installer since it is only meant for supporting unit tests.
-- #1702 - Fixed a bug in deployment plan discovery for exploded applications.
-- #1703 - Fixed a bug in discovery of `domainBin` scripts.
-- #1705 - Added missing validation for the `WLSUserPasswordCredentialMappings` section.
-- #1706 - Fixed a validation bug that was causing lax validation to fail when archive entries were missing.
-- #1707 - Fixed a bug in the handling of the `ActiveContextHandlerEntry` attribute of an `Auditor` security provider.
+- #1713 - Added logic at startup to detect when WDT logging is not properly configured.
+- #1715 - Fixed a bug where the `domainInfo:/OPSSWalletPassphrase` field was not properly handled when using the
+  Prepare Model Tool or when using the Discover Domain Tool with the `-target` argument.
+- #1716 - Fixed the Discover Domain Tool documentation to add missing command-line arguments.
+- #1718 - Fixed an issue with the `NativeVersionEnabled` attribute of `NMProperties` not working correctly when running
+  the Update Domain Tool.
+- #1720 - Fixed an issue with RCU pre-check error handling that was causing an unhandled Jython error.
+- #1721 - Fixed a bug in the SSH directory listing command for a remote Unix machine.
+- #1724 - Fixed an off-by-one error when using the Archive Helper Tool's `remove custom` command with a name that starts
+  with `wlsdeploy/custom/` or `config/wlsdeploy/custom/` that was causing the specified location to not be removed.
+- #1727, #1729 - Fixed an issue with Create Domain Tool's RCU pre-check functionality that was causing a Jython 
+  AttributeException for `set` when the STB DataSource was defined in the `resources:/JDBCSystemResource` section of the
+  model and specifying one or more JDBC driver properties.
+- #1730 - Fixed an issue where an application or library deployment plan was not being collected when the `SourcePath`
+  contained an excluded location like `@@ORACLE_HOME@@`.
 
 #### Known Issues
 - SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,

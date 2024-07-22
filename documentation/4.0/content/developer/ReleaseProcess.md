@@ -46,7 +46,10 @@ The best practice is to write the release notes that will be published to GitHub
     - `WDT_SCM_REPO_URL` - set to the browsable URL to the project (e.g., `https://github.com/oracle/weblogic-deploy-tooling`)
     - `WDT_SCM_REPO_CONN` - set to the clonable URL for the project (e.g., `git@github.com:oracle/weblogic-deploy-tooling.git`)
 
-2. In the `weblogic-deploy-tooling` project directory, run the `mvn -B release:prepare release:perform` command.
+2. When releasing as part of the Oracle infrastructure, you *must* make sure to wait until all Jenkins build activity
+   associated with the `main` branch is complete prior to starting the release process.
+
+3. In the `weblogic-deploy-tooling` project directory, run the `mvn -B release:prepare release:perform` command.
 
    - If the next development version is changing the major or minor version, override the default `developmentVersion` 
      property on the command line.  For example,  
@@ -54,13 +57,14 @@ The best practice is to write the release notes that will be published to GitHub
    - If your SSH private key has a passphrase, watch the build closely because it will prompt for your passphrase multiple times.
      Failure to enter it in a timely manner may result in a failure.
 
-3. If the build fails, run the `mvn -B release:rollback` command to undo it and start over from Step 2., after correcting the issue. 
-4. After the software has been released, move on to the GitHub Release Process.
+4. If the build fails, run the `mvn -B release:rollback` command to undo it and start over from Step 2., after correcting the issue. 
+5. After the software has been released, move on to the GitHub Release Process.
 
 ### GitHub release process
 Note that this process relies on the WDT installers being in your local Maven repository.  As such, it is critical for
 the same user to run these steps on the same machine as the steps from the previous section!
 
-1. Save the release notes in the file `<wdt-project-directory>/target/ReleaseNotes.md`.
-2. Run the command `mvn -f github-release.xml -DreleaseVersion=<release version number> verify` to create the draft GitHub Release.
-3. Log into [GitHub](https://github.com/oracle/weblogic-deploy-tooling), go to the Releases page, review/edit the draft release, and then publish the release.
+1. Prior to starting the GitHub release, you *must* wait until all Jenkins activity triggered by the release is complete.
+2. Save the release notes in the file `<wdt-project-directory>/target/ReleaseNotes.md`.
+3. Run the command `mvn -f github-release.xml -DreleaseVersion=<release version number> verify` to create the draft GitHub Release.
+4. Log into [GitHub](https://github.com/oracle/weblogic-deploy-tooling), go to the Releases page, review/edit the draft release, and then publish the release.
