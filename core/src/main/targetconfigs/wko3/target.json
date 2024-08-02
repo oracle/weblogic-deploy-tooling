@@ -12,7 +12,7 @@
   "validation_method" : "lax",
   "domain_home_source_type" : "mii",
   "credentials_method" : "secrets",
-  "exclude_domain_bin_contents": true,
+  "exclude_domain_bin_contents": false,
   "wls_credentials_name" : "__weblogic-credentials__",
   "additional_secrets": "runtime-encryption-secret",
   "additional_output" : "wko-domain.yaml"
