@@ -102,11 +102,9 @@ class WlstHelper(object):
         try:
             self.__load_global('assign')(source_type, source_name, target_type, target_name)
         except (self.__load_global('WLSTException'), offlineWLSTException), e:
-            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00002', source_type, source_name,
+            raise exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00008', source_type, source_name,
                                                     target_type, target_name, self.__get_exception_mode(e),
                                                     _format_exception(e), error=e)
-        self.__logger.finest('WLSDPLY-00003', source_type, source_name, target_type, target_name,
-                             class_name=self.__class_name, method_name=_method_name)
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
 
     def cd(self, path):
