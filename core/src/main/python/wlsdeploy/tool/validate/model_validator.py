@@ -617,6 +617,25 @@ class ModelValidator(object):
             log_method = self._logger.info
         log_method('WLSDPLY-05027', message, class_name=_class_name, method_name=method_name)
 
+    def _get_validation_value(self, model_dict, attribute_name):
+        """
+        Get the derived value of the specified attribute, de-tokenizing as needed.
+        If unresolved tokens remain in the value, None is returned to prevent further checks.
+        Validation has already checked for unresolved variables, depending on validation mode.
+        :param model_dict: the dictionary containing the value to be examined
+        :param attribute_name: the name of the attribute to be examined
+        :return: the value to use for additional validation checks
+        """
+        value = dictionary_utils.get_element(model_dict, attribute_name)
+        if isinstance(value, (str, unicode)) and variables.has_tokens(value):
+            value = variables.substitute_attribute(value, self._variable_properties, self._model_context,
+                                                   attribute_name=attribute_name)
+            if variables.has_tokens(value):
+                # avoid further checks if unresolved tokens remain.
+                # validation has already checked if unresolved tokens are errors.
+                return None
+        return value
+
     ####################################################################################
     #
     # Private methods, private inner classes and static methods only, beyond here please

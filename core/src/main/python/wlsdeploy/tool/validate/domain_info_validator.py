@@ -189,12 +189,12 @@ class DomainInfoValidator(ModelValidator):
 
         remote_resources_dict = dictionary_utils.get_dictionary_element(mappings_dict, REMOTE_RESOURCE)
         for mapping_name, mapping_dict in remote_resources_dict.iteritems():
-            method = dictionary_utils.get_element(mapping_dict, METHOD)
+            method = self._get_validation_value(mapping_dict, METHOD)
             if method and method not in RESOURCE_METHODS:
                 self._logger.severe('WLSDPLY-05313', method, REMOTE_RESOURCE, mapping_name, METHOD,
                                     ', '.join(RESOURCE_METHODS), class_name=_class_name, method_name=_method_name)
 
-            protocol = dictionary_utils.get_element(mapping_dict, PROTOCOL)
+            protocol = self._get_validation_value(mapping_dict, PROTOCOL)
             if protocol and protocol not in RESOURCE_PROTOCOLS:
                 self._logger.severe('WLSDPLY-05313', protocol, REMOTE_RESOURCE, mapping_name, PROTOCOL,
                                     ', '.join(RESOURCE_PROTOCOLS), class_name=_class_name, method_name=_method_name)
@@ -211,21 +211,21 @@ class DomainInfoValidator(ModelValidator):
         self._check_deprecated_field(ATP_TEMPORARY_TABLESPACE, info_dict, RCU_DB_INFO, RCU_TEMP_TBLSPACE)
 
         # deprecated DATABASE_TYPE, must be ORACLE, ATP, or SSL if specified
-        old_database_type = dictionary_utils.get_element(info_dict, DATABASE_TYPE)
+        old_database_type = self._get_validation_value(info_dict, DATABASE_TYPE)
         if old_database_type and old_database_type not in DEPRECATED_DB_TYPES:
             self._logger.severe(
                 'WLSDPLY-05302', old_database_type, RCU_DB_INFO, DATABASE_TYPE,
                 ', '.join(DEPRECATED_DB_TYPES), class_name=_class_name, method_name=_method_name)
 
         # RCU_DATABASE_TYPE must be one of allowed types if specified
-        database_type = dictionary_utils.get_element(info_dict, RCU_DATABASE_TYPE)
+        database_type = self._get_validation_value(info_dict, RCU_DATABASE_TYPE)
         if database_type and database_type not in ALL_DB_TYPES:
             self._logger.severe(
                 'WLSDPLY-05302', database_type, RCU_DB_INFO, RCU_DATABASE_TYPE,
                 ', '.join(ALL_DB_TYPES), class_name=_class_name, method_name=_method_name)
 
         # ORACLE_DATABASE_CONNECTION_TYPE must be one of allowed types if specified
-        connection_type = dictionary_utils.get_element(info_dict, ORACLE_DATABASE_CONNECTION_TYPE)
+        connection_type = self._get_validation_value(info_dict, ORACLE_DATABASE_CONNECTION_TYPE)
         if connection_type and connection_type not in ORACLE_DB_CONNECTION_TYPES:
             self._logger.severe(
                 'WLSDPLY-05302', connection_type, RCU_DB_INFO, ORACLE_DATABASE_CONNECTION_TYPE,
@@ -233,7 +233,7 @@ class DomainInfoValidator(ModelValidator):
 
         # *StoreType must be one of allowed types if specified
         for type_field in [DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY, DRIVER_PARAMS_KEYSTORETYPE_PROPERTY]:
-            type_value = dictionary_utils.get_element(info_dict, type_field)
+            type_value = self._get_validation_value(info_dict, type_field)
             if type_value and type_value.upper() not in STORE_TYPES:
                 self._logger.severe(
                     'WLSDPLY-05302', type_value, RCU_DB_INFO, type_field,

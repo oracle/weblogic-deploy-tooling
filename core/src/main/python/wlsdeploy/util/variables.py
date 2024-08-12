@@ -565,6 +565,18 @@ def substitute_key(text, variables):
 
     return text
 
+def substitute_attribute(text, variables, model_context, attribute_name=None):
+    """
+    Return the de-tokenized value of the specified text.
+    Follow the rules of the configured validation mode.
+    :param text: the text to be evaluated
+    :param variables: the variable map
+    :param model_context: used to determine the validation mode
+    :param attribute_name: the name of the attribute
+    :return: the de-tokenized text value
+    """
+    error_info = {'errorCount': 0}
+    return _substitute(text, variables, model_context, error_info, attribute_name)
 
 def has_variables(text):
     """
@@ -575,6 +587,9 @@ def has_variables(text):
     matches = _property_pattern.findall(text)
     return len(matches) > 0
 
+def has_tokens(text):
+    matches = _unresolved_token_pattern.findall(text)
+    return len(matches) > 0
 
 def get_variable_matches(text):
     """
