@@ -47,7 +47,7 @@
         <asn.one.version>0.6.0</asn.one.version>
         <jline.version>3.26.3</jline.version>
         <jansi.version>2.4.1</jansi.version>
-        <junit.version>5.10.3</junit.version>
+        <junit.version>5.11.0</junit.version>
         <wdt.scm.repo.url>${env.WDT_SCM_REPO_URL}</wdt.scm.repo.url>
         <wdt.scm.repo.conn>${env.WDT_SCM_REPO_CONN}</wdt.scm.repo.conn>
 
