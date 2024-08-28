@@ -65,7 +65,10 @@
           "KeyStoresLocation":                   [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "KeyStoresLocation",                   "wlst_path": "WP001", "default_value": "${__NULL__:Custom Stores}",    "wlst_type": "string",               "get_method": "${LSA:GET}"  } ],
           "MaxEncryptBits":                      [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "MaxEncryptBits",                      "wlst_path": "WP001", "default_value": "${__NULL__:128}",          "wlst_type": "string"                } ],
           "MaxRetries":                          [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "MaxRetries",                          "wlst_path": "WP001", "default_value": 9223372036854775807,        "wlst_type": "long",                 "get_method": "GET"  } ],
-          "MinEncryptBits":                      [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "MinEncryptBits",                      "wlst_path": "WP001", "default_value": "${__NULL__:0}",            "wlst_type": "string"                } ],
+          "MinEncryptBits":                      [
+            {"version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "MinEncryptBits", "wlst_path": "WP001", "default_value": "${__NULL__:0}", "wlst_type": "string"},
+            {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "MinEncryptBits", "wlst_path": "WP001", "default_value": "0",             "wlst_type": "string"}
+          ],
           "NWAddr":                              [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "NWAddr",                              "wlst_path": "WP001", "default_value": "//localhost:8901",         "wlst_type": "string"                } ],
           "Notes":                               [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Notes",                               "wlst_path": "WP001", "default_value": null,                       "wlst_type": "string"                } ],
           "PrivateKeyAlias":                     [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "PrivateKeyAlias",                     "wlst_path": "WP001", "default_value": null,                       "wlst_type": "string"                } ],
@@ -129,7 +132,10 @@
         "LocalAccessPoint":                    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "LocalAccessPoint",                    "wlst_path": "WP001", "default_value": "myLAP",                    "wlst_type": "string"                } ],
         "MaxEncryptBits":                      [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "MaxEncryptBits",                      "wlst_path": "WP001", "default_value": "${__NULL__:128}",          "wlst_type": "string"                } ],
         "MaxRetries":                          [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "MaxRetries",                          "wlst_path": "WP001", "default_value": -1,                         "wlst_type": "long"                  } ],
-        "MinEncryptBits":                      [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "MinEncryptBits",                      "wlst_path": "WP001", "default_value": "${__NULL__:0}",            "wlst_type": "string"                } ],
+        "MinEncryptBits":                      [
+          {"version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "MinEncryptBits", "wlst_path": "WP001", "default_value": "${__NULL__:0}", "wlst_type": "string"},
+          {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "MinEncryptBits", "wlst_path": "WP001", "default_value": "0",             "wlst_type": "string"}
+        ],
         "NWAddr":                              [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "NWAddr",                              "wlst_path": "WP001", "default_value": "//localhost:8902",         "wlst_type": "string"                } ],
         "Notes":                               [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Notes",                               "wlst_path": "WP001", "default_value": null,                       "wlst_type": "string"                } ],
         "RetryInterval":                       [ {"version": "[10,12.2.1)",       "wlst_mode": "both",   "wlst_name": "RetryInterval",                       "wlst_path": "WP001", "default_value": -1,                         "wlst_type": "${integer:long}",      "get_method": "${LSA:GET}"          } ,
