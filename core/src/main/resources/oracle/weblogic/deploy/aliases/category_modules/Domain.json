@@ -18,7 +18,10 @@
         "BatchJobsExecutorServiceName":                    [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "BatchJobsExecutorServiceName",                     "wlst_path": "WP001", "default_value": null,           "wlst_type": "string"   } ],
         "ClusterConstraintsEnabled":                       [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "ClusterConstraintsEnabled",                        "wlst_path": "WP001", "default_value": "false",        "wlst_type": "boolean"  } ],
         "ConfigBackupEnabled":                             [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "ConfigBackupEnabled",                              "wlst_path": "WP001", "default_value": "false",        "wlst_type": "boolean"  } ],
-        "ConfigurationAuditType":                          [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "ConfigurationAuditType",                           "wlst_path": "WP001", "default_value": "${__NULL__:none}", "wlst_type": "string"   } ],
+        "ConfigurationAuditType":                          [
+            {"version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "ConfigurationAuditType", "wlst_path": "WP001", "default_value": "${__NULL__:none}", "wlst_type": "string" },
+            {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "ConfigurationAuditType", "wlst_path": "WP001", "default_value": "none",             "wlst_type": "string" }
+        ],
         "ConfigurationVersion":                            [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "ConfigurationVersion",                             "wlst_path": "WP001", "default_value": null,           "wlst_type": "string",  "access": "IGNORED" } ],
         "ConsoleContextPath":                              [
                                                              {"version": "[10,14.1.2)",       "wlst_mode": "both",    "wlst_name": "ConsoleContextPath",                               "wlst_path": "WP001", "default_value": "console",         "wlst_type": "string", "uses_path_tokens": "true"  },
