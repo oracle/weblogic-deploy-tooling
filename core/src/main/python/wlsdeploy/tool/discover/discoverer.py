@@ -262,9 +262,6 @@ class Discoverer(object):
             # we may reset the model value to None later if is_set() returns False.
             uses_is_set = self._uses_is_set(location, wlst_name)
 
-            if uses_is_set:  # RAK
-                print("\nUSES IS SET: " + wlst_name + ' ' + str(self._wlst_helper.is_set(wlst_name)))
-
             model_name, model_value = \
                 self._aliases.get_model_attribute_name_and_value(location, wlst_name, wlst_value,
                                                                  ignore_default_match=uses_is_set)
