@@ -1760,7 +1760,10 @@
                                                           {"version": "[12.2.1.1,)",     "wlst_mode": "both",    "wlst_name": "KeyStores",                                    "wlst_path": "WP001", "default_value": "${__NULL__:DemoIdentityAndDemoTrust}", "wlst_type": "string"  } ],
         "ListenAddress":                                [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "ListenAddress",                                "wlst_path": "WP001", "default_value": "${All Local Addresses:__NULL__}", "wlst_type": "string",  "get_method": "${LSA:GET}" } ],
         "ListenDelaySecs":                              [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "ListenDelaySecs",                              "wlst_path": "WP001", "default_value": 0,                     "wlst_type": "integer"          } ],
-        "ListenPort":                                   [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "ListenPort",                                   "wlst_path": "WP001", "default_value": 7001,                  "wlst_type": "integer"          } ],
+        "ListenPort": [
+            {"version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "ListenPort", "wlst_path": "WP001", "default_value": 7001, "wlst_type": "integer" },
+            {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "ListenPort", "wlst_path": "WP001", "default_value": 7001, "wlst_type": "integer", "derived_default": "${true:}" }
+        ],
         "ListenPortEnabled":                            [
             {"version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "ListenPortEnabled", "wlst_path": "WP001", "default_value": "true", "secure_default": "${__NULL__:false}", "wlst_type": "boolean"},
             {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "ListenPortEnabled", "wlst_path": "WP001", "default_value": "true", "secure_default": "${__NULL__:false}", "wlst_type": "boolean", "derived_default": "${:true}"}
