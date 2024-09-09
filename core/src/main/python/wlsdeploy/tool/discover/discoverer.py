@@ -190,16 +190,13 @@ class Discoverer(object):
     def _uses_is_set(self, location, wlst_param):
         """
         Determine if the specified attribute should call WLST.is_set() to be included in the model.
-        Avoid calling wlst_helper.is_set() if possible, it slows down the online discovery process.
+        Attributes with derived defaults need to call is_set(), since their values are dynamic.
+        Avoid calling wlst_helper.is_set() unless derived, it slows down online discovery,
+        and non-derived offline attributes will not return the correct values.
         :param location: the location of the attribute to be examined
         :param wlst_param: the name of the attribute to be examined
         :return: True if attribute should use WLST.is_set(), False otherwise
         """
-        # attributes with derived defaults need to call is_set(), since their value is dynamic.
-
-        # should we use WLST.is_set() for all online attributes if we are online + local?
-        # that would give a cleaner model for that specific scenario.
-
         return self._aliases.is_derived_default(location, wlst_param)
 
     def _get_attribute_value_with_get(self, wlst_get_param, wlst_path):
