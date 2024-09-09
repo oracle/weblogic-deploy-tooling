@@ -1201,7 +1201,7 @@ class Aliases(object):
 
         # tokenize model paths, such as "@@ORACLE_HOME@@/directory"
 
-        if self._model_context is not None and USES_PATH_TOKENS in attribute_info:
+        if converted_value and (USES_PATH_TOKENS in attribute_info):
             if attribute_info[WLST_TYPE] == STRING:
                 converted_value = self._model_context.tokenize_path(converted_value)
             else:
