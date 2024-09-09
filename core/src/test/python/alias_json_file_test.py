@@ -149,6 +149,11 @@ class AliasFileSyntaxTestCase(unittest.TestCase):
         'online'
     ]
 
+    _known_boolean_attribute_values = [
+        'true',
+        'false'
+    ]
+
     _folder_attributes_invalid_in_folder_params = [
         ATTRIBUTES,
         FOLDERS
@@ -614,7 +619,7 @@ class AliasFileSyntaxTestCase(unittest.TestCase):
         return []
 
     def _verify_attribute_derived_default_attribute_value(self, folder_name, attribute_name, alias_attribute_value):
-        return []
+        return self._verify_boolean_value(folder_name, attribute_name, DERIVED_DEFAULT, alias_attribute_value)
 
     def _verify_attribute_production_default_attribute_value(self, folder_name, attribute_name, alias_attribute_value):
         # nothing to verify - production_default can be any type or null
@@ -693,21 +698,20 @@ class AliasFileSyntaxTestCase(unittest.TestCase):
 
     def _verify_boolean_value(self, folder_name, attribute_name, alias_attribute_name, alias_attribute_value):
         result = []
-        constrained_string_values = ['true', 'false']
         if isinstance(alias_attribute_value, basestring):
-            if alias_attribute_value.lower() not in constrained_string_values:
-                result.append(self._get_invalid_attribute_boolean_string_value_message(folder_name, attribute_name,
-                                                                                       alias_attribute_name,
-                                                                                       alias_attribute_value))
-            else:
-                pass
+            result.extend(
+                self._verify_constrained_values(
+                    folder_name, attribute_name, alias_attribute_name, alias_attribute_value,
+                    self._known_boolean_attribute_values
+                )
+            )
         elif type(alias_attribute_value) is bool:
             pass
         elif isinstance(alias_attribute_value, PyRealBoolean):
             pass
         else:
-            result.append(self._get_invalid_attribute_boolean_type_message(folder_name, attribute_name,
-                                                                           alias_attribute_name, alias_attribute_value))
+            result.append(self._get_invalid_attribute_boolean_type_message(
+                folder_name, attribute_name, alias_attribute_name, alias_attribute_value))
         return result
 
     def _verify_constrained_values(self, folder_name, attribute_name, alias_attribute_name,
@@ -816,14 +820,6 @@ class AliasFileSyntaxTestCase(unittest.TestCase):
                'be a boolean or a string but it was a %s instead'
 
         return  text % (folder_name, attribute_name, alias_attribute_name, str(type(alias_attribute_value)))
-
-    def _get_invalid_attribute_boolean_string_value_message(self, folder_name, attribute_name,
-                                                            alias_attribute_name, alias_attribute_value):
-        text = 'Folder at path %s has a defined attribute %s with alias attribute %s that is expected to ' \
-               'be a boolean but its string value %s is not a valid boolean value'
-
-        return  text % (folder_name, attribute_name, alias_attribute_name, alias_attribute_value)
-
 
     def _get_invalid_wlst_mode_message(self, folder_name, alias_attribute_name):
         text = 'Folder at path %s has invalid wlst mode type of %s'
