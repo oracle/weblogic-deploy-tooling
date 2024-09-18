@@ -21,7 +21,7 @@ UNKNOWN = generator_utils.UNKNOWN
 
 
 class MBeanMethodHelper(object):
-    
+
     __logger = PlatformLogger('test.aliases.generate.mbean.method')
 
     def __init__(self, mbean_instance, mbean_path, mbean_type=None):
@@ -294,6 +294,15 @@ class MBeanMethodAttributeHelper(object):
         return attr_type
 
     def derived_default_value(self):
+        return None
+
+    def computed_default_value(self):
+        return None
+
+    def secure_default_value(self):
+        return None
+
+    def production_default_value(self):
         return None
 
     def default_value(self):

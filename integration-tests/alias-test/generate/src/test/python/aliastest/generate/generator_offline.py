@@ -347,7 +347,7 @@ class OfflineGenerator(GeneratorBase):
                     dict_name = attribute
                     holder = PyOrderedDict()
                     self.add_default_value(holder, lsa_map, attribute_helper, method_attribute_helper)
-                    self.add_derived_default(holder, attribute_helper, attribute)
+                    self.add_computed_defaults(holder, attribute_helper, attribute)
                     attribute_helper.generate_attribute(holder)
                     _add_restart_value(holder)
                     attribute_map[dict_name] = generator_utils.sort_dict(holder)
@@ -368,7 +368,7 @@ class OfflineGenerator(GeneratorBase):
                     holder = PyOrderedDict()
                     self.add_default_value(holder, lsa_map, attribute_helper, method_attribute_helper,
                                            attribute_name=dict_name)
-                    self.add_derived_default(holder, attribute_helper, dict_name)
+                    self.add_computed_defaults(holder, attribute_helper, dict_name)
                     attribute_helper.generate_attribute(holder)
                     _add_restart_value(holder)
                     attribute_map[dict_name] = generator_utils.sort_dict(holder)
@@ -395,7 +395,7 @@ class OfflineGenerator(GeneratorBase):
                 holder = PyOrderedDict()
                 self.add_default_value(holder, lsa_map, attribute_helper, method_attribute_helper,
                                        attribute_name=lsa_only)
-                self.add_derived_default(holder, attribute_helper, lsa_only)
+                self.add_computed_defaults(holder, attribute_helper, lsa_only)
                 method_attribute_helper.generate_attribute(holder)
                 _add_restart_value(holder)
                 attribute_map[lsa_only] = generator_utils.sort_dict(holder)
@@ -551,7 +551,7 @@ class OfflineGenerator(GeneratorBase):
 
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=result)
         return found, result
-    
+
     def __get_mbean_name_list(self, mbean_type, try_special=False):
         _method_name = '__get_mbean_name_list'
         self.__logger.entering(mbean_type, class_name=self.__class_name, method_name=_method_name)
@@ -562,7 +562,7 @@ class OfflineGenerator(GeneratorBase):
 
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=mbean_name_list)
         return mbean_type, mbean_name_list
-    
+
     def __check_how_implemented(self, mbean_proxy, search_mbean):
         _method_name = '__check_how_implemented'
         self.__logger.entering(search_mbean, class_name=self.__class_name, method_name=_method_name)
@@ -576,10 +576,10 @@ class OfflineGenerator(GeneratorBase):
                     get_method = True
                 elif name.startswith('create') or name.startswith('add') or name.startswith('set'):
                     add_method = True
-    
+
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
         return get_method, add_method
-    
+
     def __create_offline_mbean(self, mbean_type, folder_type):
         _method_name = '__create_offline_mbean'
         self.__logger.entering(mbean_type, class_name=self.__class_name, method_name=_method_name)
@@ -598,14 +598,14 @@ class OfflineGenerator(GeneratorBase):
 
         self.__logger.exiting(result=converted, class_name=self.__class_name, method_name=_method_name)
         return converted
-    
+
     def __find_with_special_case(self, mbean_type, folder_type):
         if mbean_type == 'CoherenceClusterResource':
             return True, 'CoherenceResource'
         if mbean_type == 'DatabaseLessLeasingBasis':
             return True, '(DatabaseLessLeasingBasis)'
         return False, mbean_type
-    
+
     def __find_with_case(self, mbean_type, folder_type):
         try_case, case_fixed = self.__fix_case(mbean_type)
         if try_case:
@@ -613,7 +613,7 @@ class OfflineGenerator(GeneratorBase):
                 return self.__find_with_singular(case_fixed, folder_type)
             return True, case_fixed
         return False, mbean_type
-    
+
     def __find_with_singular(self, mbean_type, folder_type):
         try_ies, converted = _fix_plural_with_ies(mbean_type)
         if try_ies:

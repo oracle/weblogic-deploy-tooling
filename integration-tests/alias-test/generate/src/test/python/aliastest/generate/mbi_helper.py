@@ -297,6 +297,19 @@ class MBIAttributeHelper(object):
     def derived_default_value(self):
         return self.__get_descriptor_value('restDerivedDefault')
 
+    def computed_default_value(self):
+        return self.__get_descriptor_value('computed')
+
+    def secure_default_value(self):
+        value = None
+        doc_only = self.__get_descriptor_value('secureValueDocOnly')
+        if not doc_only:
+            value = self.__get_descriptor_value('secureValue')
+        return value
+
+    def production_default_value(self):
+        return self.__get_descriptor_value('restProductionModeDefault')
+
     def default_value(self):
         _method_name = 'default_value'
         self.__logger.entering(class_name=self.__class_name__, method_name=_method_name)
