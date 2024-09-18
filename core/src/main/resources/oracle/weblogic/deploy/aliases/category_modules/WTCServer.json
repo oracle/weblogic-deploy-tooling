@@ -1,5 +1,5 @@
 {
-  "copyright": "Copyright (c) 2020, 2023, Oracle and/or its affiliates.",
+  "copyright": "Copyright (c) 2020, 2024, Oracle and/or its affiliates.",
   "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
   "wlst_type": "WTCServer${:s}",
   "online_bean": "weblogic.management.configuration.WTCServerMBean",
@@ -75,7 +75,10 @@
           "PrivateKeyPassPhraseEncrypted":       [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "PrivateKeyPassPhraseEncrypted",       "wlst_path": "WP001", "default_value": null,                       "wlst_type": "password",             "get_method": "GET", "secret_suffix": "privatekey" } ],
           "RetryInterval":                       [ {"version": "[10,12.2.1)",       "wlst_mode": "both",   "wlst_name": "RetryInterval",                       "wlst_path": "WP001", "default_value": 60,                         "wlst_type": "${integer:long}",      "get_method": "${LSA:GET}"   } ,
                                                    {"version": "[12.2.1,)",         "wlst_mode": "both",   "wlst_name": "RetryInterval",                       "wlst_path": "WP001", "default_value": 60,                         "wlst_type": "long",                 "get_method": "GET"          } ],
-          "Security":                            [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "Security",                            "wlst_path": "WP001", "default_value": "${__NULL__:NONE}",         "wlst_type": "string"                } ],
+          "Security": [
+            {"version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "Security", "wlst_path": "WP001", "default_value": "${__NULL__:NONE}", "wlst_type": "string" },
+            {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "Security", "wlst_path": "WP001", "default_value": "NONE",             "wlst_type": "string" }
+          ],
           "SslProtocolVersion":                  [ {"version": "[12.2.1.3,)",       "wlst_mode": "both",   "wlst_name": "S${sl:SL}ProtocolVersion",            "wlst_path": "WP001", "default_value": "${__NULL__:TLSv1.2}",      "wlst_type": "string"                } ],
           "TrustKeyStoreFileName":               [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TrustKeyStoreFileName",               "wlst_path": "WP001", "default_value": null,                       "wlst_type": "string"                } ],
           "TrustKeyStorePassPhraseEncrypted":    [ {"version": "[10,)",             "wlst_mode": "both",   "wlst_name": "TrustKeyStorePassPhraseEncrypted",    "wlst_path": "WP001", "default_value": null,                       "wlst_type": "password",             "get_method": "GET", "secret_suffix": "trustkeystore" } ],
