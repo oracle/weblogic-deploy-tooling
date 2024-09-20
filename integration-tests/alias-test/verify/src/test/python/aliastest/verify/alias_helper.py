@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2021, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import java.util.logging.Level as Level
@@ -147,9 +147,14 @@ class AliasHelper(object):
     def get_wlst_read_type(self, location, model_name):
         return self.__aliases.get_wlst_read_type(location, model_name)
 
+    def get_production_default(self, location, model_name):
+        return self.__aliases.get_production_default(location, model_name)
+
+    def get_secure_default(self, location, model_name):
+        return self.__aliases.get_secure_default(location, model_name)
+
     def is_derived_default(self, location, model_name):
         return self.__aliases.is_derived_default(location, model_name)
 
     def get_wlst_access_ro_attribute_names(self, location):
         return self.__aliases.get_wlst_access_ro_attribute_names(location)
-  

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2021, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2021, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -267,7 +267,7 @@ class OnlineGenerator(GeneratorBase):
                         mbean_type, attribute, mbean_path, class_name=self.__class_name, method_name=_method_name)
                     holder = PyOrderedDict()
                     self.add_default_value(holder, lsa_map, attribute_helper, method_helper)
-                    self.add_computed_defaults(holder, attribute_helper, attribute)
+                    self.add_computed_defaults(holder, info_attribute_helper, attribute)
                     attribute_helper.generate_attribute(holder)
                     attributes[attribute] = generator_utils.sort_dict(holder)
             else:

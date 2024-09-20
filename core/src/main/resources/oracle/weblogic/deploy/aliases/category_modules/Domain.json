@@ -11,7 +11,7 @@
         "AdministrationPort":                              [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "AdministrationPort",                               "wlst_path": "WP001", "default_value": 9002,           "wlst_type": "integer"  } ],
         "AdministrationPortEnabled": [
             {"version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "AdministrationPortEnabled", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean" },
-            {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "AdministrationPortEnabled", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "derived_default": "${true:}" }
+            {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "AdministrationPortEnabled", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "derived_default": "${true:}", "secure_default": "${__NULL__:true}" }
         ],
         "AdministrationProtocol":                          [ {"version": "[10,12.1.2)",       "wlst_mode": "both",    "wlst_name": "AdministrationProtocol",                           "wlst_path": "WP001", "default_value": "${__NULL__:t3s}",  "wlst_type": "string",  "restart_required": "true" } ,
                                                              {"version": "[12.1.2,)",         "wlst_mode": "both",    "wlst_name": "AdministrationProtocol",                           "wlst_path": "WP001", "default_value": "t3s",          "wlst_type": "string",  "restart_required": "true" } ],
@@ -23,7 +23,7 @@
         "ConfigBackupEnabled":                             [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "ConfigBackupEnabled",                              "wlst_path": "WP001", "default_value": "false",        "wlst_type": "boolean"  } ],
         "ConfigurationAuditType":                          [
             {"version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "ConfigurationAuditType", "wlst_path": "WP001", "default_value": "${__NULL__:none}", "wlst_type": "string" },
-            {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "ConfigurationAuditType", "wlst_path": "WP001", "default_value": "none",             "wlst_type": "string", "derived_default": "${true:}" }
+            {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "ConfigurationAuditType", "wlst_path": "WP001", "default_value": "none",             "wlst_type": "string", "derived_default": "${true:}", "secure_default": "${__NULL__:audit}" }
         ],
         "ConfigurationVersion":                            [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "ConfigurationVersion",                             "wlst_path": "WP001", "default_value": null,           "wlst_type": "string",  "access": "IGNORED" } ],
         "ConsoleContextPath":                              [

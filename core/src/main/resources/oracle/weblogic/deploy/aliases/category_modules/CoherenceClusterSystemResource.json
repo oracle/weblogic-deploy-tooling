@@ -26,7 +26,7 @@
                     {"version": "[14.1.1.0.0.231220,)",       "wlst_mode": "both",    "wlst_name": "RuntimeCacheConfigurationUri", "wlst_path": "WP001", "default_value": null,   "wlst_type": "string", "uses_path_tokens": "true", "access": "${:RO}" }
                 ],
                 "Target":                        [ {"version": "[12.1.2,)",     "wlst_mode": "offline", "wlst_name": "Target",                       "wlst_path": "WP001", "default_value": null,   "wlst_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans" },
-                                                   {"version": "[12.1.2,)",     "wlst_mode": "online",  "wlst_name": "Targets",                      "wlst_path": "WP002", "default_value": null,   "wlst_type": "jarray", "get_method": "GET", "preferred_model_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ]
+                                                   {"version": "[12.1.2,)",     "wlst_mode": "online",  "wlst_name": "Targets",                      "wlst_path": "WP002", "default_value": null,   "wlst_type": "jarray", "get_method": "GET", "derived_default": true, "preferred_model_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
@@ -187,7 +187,7 @@
                         "IgnoreHostnameVerification":       [ {"version": "[14.1.2,)",          "wlst_mode": "online",  "wlst_name": "IgnoreHostnameVerification", "wlst_path": "WP001", "default_value": false,                 "wlst_type": "boolean"   } ],
                         "MulticastListenAddress":           [ {"version": "[12.1.2,)",          "wlst_mode": "both",    "wlst_name": "MulticastListenAddress",     "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string"    } ],
                         "MulticastListenPort":              [ {"version": "[12.1.2,)",          "wlst_mode": "both",    "wlst_name": "MulticastListenPort",        "wlst_path": "WP001", "default_value": "${__NULL__:33387}",   "wlst_type": "integer",  "get_method": "LSA"} ],
-                        "SecuredProduction":                [ {"version": "[14.1.2,)",          "wlst_mode": "both",    "wlst_name": "SecuredProduction",          "wlst_path": "WP001", "default_value": "${__NULL__:false}",   "wlst_type": "boolean",  "get_method": "LSA"} ],
+                        "SecuredProduction":                [ {"version": "[14.1.2,)",          "wlst_mode": "both",    "wlst_name": "SecuredProduction",          "wlst_path": "WP001", "default_value": "${__NULL__:false}",   "wlst_type": "boolean",  "get_method": "LSA", "secure_default": "${__NULL__:true}" } ],
                         "SecurityFrameworkEnabled":         [ {"version": "[12.1.2,)",          "wlst_mode": "both",    "wlst_name": "SecurityFrameworkEnabled",   "wlst_path": "WP001", "default_value": "${__NULL__:false}",   "wlst_type": "boolean",  "get_method": "LSA"} ],
                         "TimeToLive":                       [ {"version": "[12.1.2,)",          "wlst_mode": "both",    "wlst_name": "TimeToLive",                 "wlst_path": "WP001", "default_value": "${__NULL__:4}",       "wlst_type": "integer",  "get_method": "LSA"} ],
                         "Transport":                        [
@@ -293,7 +293,7 @@
                 "ModuleType":            [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "ModuleType",            "wlst_path": "WP001", "default_value": null,        "wlst_type": "string"           } ],
                 "Notes":                 [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "Notes",                 "wlst_path": "WP001", "default_value": null,        "wlst_type": "string"           } ],
                 "Target":                [ {"version": "[12.1.2,)",   "wlst_mode": "offline", "wlst_name": "Target",                "wlst_path": "WP001", "default_value": null,        "wlst_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans" },
-                                           {"version": "[12.1.2,)",   "wlst_mode": "online",  "wlst_name": "Targets",               "wlst_path": "WP002", "default_value": null,        "wlst_type": "jarray",          "preferred_model_type": "delimited_string", "get_method": "GET", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ],
+                                           {"version": "[12.1.2,)",   "wlst_mode": "online",  "wlst_name": "Targets",               "wlst_path": "WP002", "default_value": null,        "wlst_type": "jarray", "derived_default": true, "preferred_model_type": "delimited_string", "get_method": "GET", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ],
                 "Untargeted":            [ {"version": "[12.2.1,)",   "wlst_mode": "both",    "wlst_name": "Untargeted",            "wlst_path": "WP001", "default_value": "false",     "wlst_type": "boolean"           } ]
             },
             "wlst_attributes_path": "WP001",

@@ -1488,6 +1488,20 @@ class Aliases(object):
 
         return rtnval
 
+    def get_production_default(self, location, model_attribute):
+        result = None
+        attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute)
+        if attribute_info is not None and PRODUCTION_DEFAULT in attribute_info:
+            result = attribute_info[PRODUCTION_DEFAULT]
+        return result
+
+    def get_secure_default(self, location, model_attribute):
+        result = None
+        attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute)
+        if attribute_info is not None and SECURE_DEFAULT in attribute_info:
+            result = attribute_info[SECURE_DEFAULT]
+        return result
+
     def is_derived_default(self, location, model_attribute):
         """
         Return whether the default is derived by WLST.
