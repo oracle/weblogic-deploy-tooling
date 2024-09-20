@@ -1715,7 +1715,7 @@
             {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "AdministrationPort", "wlst_path": "WP001", "default_value": 9002, "derived_default": true,       "wlst_type": "integer" }
         ],
         "AdministrationPortEnabled":                    [
-            {"version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "AdministrationPortEnabled", "wlst_path": "WP001", "default_value": "false", "secure_default": "${__NULL__:true}", "wlst_type": "boolean", "get_method": "${LSA:GET}" },
+            {"version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "AdministrationPortEnabled", "wlst_path": "WP001", "default_value": "false", "secure_default": "${__NULL__:true}", "wlst_type": "boolean", "get_method": "${LSA:GET}", "derived_default": "${:true}" },
             {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "AdministrationPortEnabled", "wlst_path": "WP001", "default_value": "false", "secure_default": "${__NULL__:true}", "wlst_type": "boolean", "get_method": "${LSA:GET}", "derived_default": true }
         ],
         "AdministrationProtocol":                       [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "AdministrationProtocol",                       "wlst_path": "WP001", "default_value": "${__NULL__:t3s}", "derived_default": "${:true}", "wlst_type": "string",          "restart_required": "true" } ],
@@ -1852,7 +1852,10 @@
         "ListenersBindEarly":                           [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "ListenersBindEarly",                           "wlst_path": "WP001", "default_value": "false",               "wlst_type": "boolean"          } ],
         "LoadStubUsingContextClassLoader":              [ {"version": "[10,)",           "wlst_mode": "offline", "wlst_name": "LoadStubUsingContextClassLoader",              "wlst_path": "WP001", "default_value": "false",               "wlst_type": "boolean",         "get_method": "LSA"} ],
         "LogCriticalRemoteExceptionsEnabled":           [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "LogCriticalRemoteExceptionsEnabled",           "wlst_path": "WP001", "default_value": "false", "secure_default": "${__NULL__:true}", "wlst_type": "boolean", "derived_default": "${true:}" } ],
-        "LogRemoteExceptionsEnabled":                   [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "LogRemoteExceptionsEnabled",                   "wlst_path": "WP001", "default_value": "false",               "wlst_type": "boolean"          } ],
+        "LogRemoteExceptionsEnabled":                   [
+            {"version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "LogRemoteExceptionsEnabled", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "secure_default": "${__NULL__:true}" },
+            {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "LogRemoteExceptionsEnabled", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean" }
+        ],
         "LoginTimeoutMillis":                           [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "LoginTimeoutMillis",                           "wlst_path": "WP001", "default_value": 5000,                  "wlst_type": "integer"          } ],
         "LowMemoryGCThreshold":                         [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "LowMemoryGCThreshold",                         "wlst_path": "WP001", "default_value": 5,                     "wlst_type": "integer"          } ],
         "LowMemoryGranularityLevel":                    [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "LowMemoryGranularityLevel",                    "wlst_path": "WP001", "default_value": 5,                     "wlst_type": "integer"          } ],
@@ -1908,7 +1911,7 @@
         "SelfTuningThreadPoolSizeMax":                  [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "SelfTuningThreadPoolSizeMax",                  "wlst_path": "WP001", "default_value": 400,                   "wlst_type": "integer",         "get_method": "${LSA:GET}" } ],
         "SelfTuningThreadPoolSizeMin":                  [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "SelfTuningThreadPoolSizeMin",                  "wlst_path": "WP001", "default_value": 1,                     "wlst_type": "integer",         "get_method": "${LSA:GET}" } ],
         "ServerLifeCycleTimeoutVal":                    [
-            {"version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "ServerLifeCycleTimeoutVal", "wlst_path": "WP001", "default_value": 30, "production_default": "${__NULL__:120}", "wlst_type": "integer" },
+            {"version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "ServerLifeCycleTimeoutVal", "wlst_path": "WP001", "default_value": 30, "production_default": "${__NULL__:120}", "wlst_type": "integer", "secure_default": "${__NULL__:120}" },
             {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "ServerLifeCycleTimeoutVal", "wlst_path": "WP001", "default_value": 30, "production_default": "${__NULL__:120}", "wlst_type": "integer", "derived_default": "${true:}", "secure_default": "${__NULL__:120}" }
         ],
         "ServerTemplate":                               [ {"version": "[12.1.2,)",       "wlst_mode": "both",    "wlst_name": "ServerTemplate",                               "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string",          "set_method": "MBEAN.set_server_template_mbean", "set_mbean_type": "weblogic.management.configuration.ServerTemplateMBean" } ],
