@@ -169,9 +169,9 @@ LIST_TYPE_MATCH_EXCEPTIONS = [
     '/ServerTemplate/SingleSignOnServices/ServiceProviderSingleLogoutRedirectURIs'
 ]
 
-COMPUTED_VALUE_MATCH_EXCEPTIONS = [
+ALTERNATE_DEFAULT_MATCH_EXCEPTIONS = [
     # these attributes are explicitly set in config.xml during domain creation.
-    # the aliases reflect the deployed values, and don't match WLS annotations.
+    # the aliases reflect the deployed values, and don't match WLS secure/production default annotations.
     '/SecurityConfiguration/Realm/PasswordValidator/SystemPasswordValidator/MinNumericOrSpecialCharacters',
     '/SecurityConfiguration/Realm/PasswordValidator/SystemPasswordValidator/MinPasswordLength'
 ]
@@ -836,12 +836,6 @@ class Verifier(object):
                 # get_model_attribute_name_and_value() will expect resolved tokens for comparison
                 model_name = self._alias_helper.get_model_attribute_name(location, generated_attribute)
 
-                match_path = location.get_folder_path() + '/' + generated_attribute
-                if match_path in COMPUTED_VALUE_MATCH_EXCEPTIONS:
-                    _logger.finest('excluding path from default value check "{0}"', match_path,
-                                   class_name=CLASS_NAME, method_name=_method_name)
-                    return True, model_name, None
-
                 path_token_attributes = self._alias_helper.get_model_uses_path_tokens_attribute_names(location)
                 generated_default_value = generated_default
                 if model_name in path_token_attributes:
@@ -887,8 +881,16 @@ class Verifier(object):
                     _logger.finest('WLS Attribute has no ' + computed_key + ' information',
                                    class_name=CLASS_NAME, method_name=_method_name)
 
+                # don't check alt defaults if attribute is in the exception list
+                check_alternate_defaults = True
+                match_path = location.get_folder_path() + '/' + generated_attribute
+                if match_path in ALTERNATE_DEFAULT_MATCH_EXCEPTIONS:
+                    _logger.finest('excluding path from alternate default value check "{0}"', match_path,
+                                   class_name=CLASS_NAME, method_name=_method_name)
+                    check_alternate_defaults = False
+
                 # don't check alt defaults if derived/computed default, the values aren't used in WDT
-                if not alias_is_computed:
+                if check_alternate_defaults and not alias_is_computed:
                     # check production defaults
 
                     wls_prod_default = None  # prod defaults are not returned in offline WLST
