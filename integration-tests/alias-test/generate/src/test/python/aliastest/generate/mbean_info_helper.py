@@ -28,7 +28,7 @@ class MBeanInfoHelper(object):
     The information provided in this class is retrieved from the MBeanInfo descriptors for the MBean
     encapsulated in an instance.
     """
-    
+
     __logger = PlatformLogger('test.aliases.generate.mbean.info')
 
     def __init__(self, mbean_instance, mbean_path, mbean_type=None):
@@ -55,7 +55,7 @@ class MBeanInfoHelper(object):
         """
         Return a dictionary of (specific) attributes for the encapsulated MBean, along with an attribute helper
         instance.
-        :return: 
+        :return:
         """
         _method_name = 'get_attributes'
         if self.__attribute_mbean_helpers is None:
@@ -352,9 +352,29 @@ class MBeanInfoAttributeHelper(object):
         if self.__attribute_info is None:
             return None
         value = self.__attribute_info.getValue('restDerivedDefault')
+        # return False if attribute info found, but no derived default annotation
         if value is None:
             value = False
         return value
+
+    def computed_default_value(self):
+        if self.__attribute_info is None:
+            return None
+        value = self.__attribute_info.getValue('computed')
+        # return False if attribute info found, but no computed annotation
+        if value is None:
+            value = False
+        return value
+
+    def secure_default_value(self):
+        value = None
+        doc_only = self.__get_descriptor_value('secureValueDocOnly')
+        if not doc_only:
+            value = self.__get_descriptor_value('secureValue')
+        return value
+
+    def production_default_value(self):
+        return self.__get_descriptor_value('restProductionModeDefault')
 
     def attribute_value(self):
         if self.is_valid_getter():
@@ -461,7 +481,7 @@ class MBeanInfoAttributeHelper(object):
                 a_type = ' '
         return self.__class_name__ + ' MBean type ' + str(self.get_mbean_type()) + \
             a_type + 'attribute ' + self.get_name()
-    
+
 
 def _check_version(version_string):
     return version_string is not None and version_string != 'null' and len(version_string) > 1

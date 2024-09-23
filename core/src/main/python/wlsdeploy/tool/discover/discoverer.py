@@ -173,17 +173,6 @@ class Discoverer(object):
                                    class_name=_class_name, method_name=_method_name)
                     wlst_value = wlst_lsa_params[wlst_lsa_param]
 
-                # if attribute was never set (online only), don't add to the model
-                try:
-                    if self._omit_from_model(location, wlst_lsa_param):
-                        _logger.finest('WLSDPLY-06157', wlst_lsa_param, str_helper.to_string(location),
-                                       class_name=_class_name, method_name=_method_name)
-                        continue
-                except DiscoverException, de:
-                    _logger.info("WLSDPLY-06158", wlst_lsa_param, str_helper.to_string(location),
-                                 de.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
-                    continue
-
                 self._add_to_dictionary(dictionary, location, wlst_lsa_param, wlst_value, wlst_path)
 
         # These will come after the lsa params in the ordered dictionary
@@ -198,20 +187,17 @@ class Discoverer(object):
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
-    def _omit_from_model(self, location, wlst_lsa_param):
+    def _uses_is_set(self, location, wlst_param):
         """
-        Determine if the specified attribute should be omitted from the model.
-        Avoid calling wlst_helper.is_set() if possible, it slows down the online discovery process.
+        Determine if the specified attribute should call WLST.is_set() to be included in the model.
+        Attributes with derived defaults need to call is_set(), since their values are dynamic.
+        Avoid calling wlst_helper.is_set() unless derived, it slows down online discovery,
+        and non-derived offline attributes will not return the correct values.
         :param location: the location of the attribute to be examined
-        :param wlst_lsa_param: the name of the attribute to be examined
-        :return: True if attribute should be omitted, False otherwise
+        :param wlst_param: the name of the attribute to be examined
+        :return: True if attribute should use WLST.is_set(), False otherwise
         """
-        # attributes with derived defaults need to call is_set(), since their value is dynamic.
-        # don't call is_set() if the -remote command-line argument is used.
-        if self._aliases.is_derived_default(location, wlst_lsa_param) or not self._model_context.is_remote():
-            # wlst_helper.is_set already checks for offline / online
-            return not self._wlst_helper.is_set(wlst_lsa_param)
-        return False
+        return self._aliases.is_derived_default(location, wlst_param)
 
     def _get_attribute_value_with_get(self, wlst_get_param, wlst_path):
         _method_name = '_get_attribute_value_with_get'
@@ -227,54 +213,20 @@ class Discoverer(object):
         return success, wlst_value
 
     def _add_to_dictionary(self, dictionary, location, wlst_param, wlst_value, wlst_path):
+        """
+        Add an assignment for the specified attribute to the specified dictionary.
+        The assignment may not be added if its value matches the default value.
+        :param dictionary: the dictionary for the attribute assignment
+        :param location: the current location information
+        :param wlst_param: the name of the WLST attribute
+        :param wlst_value: the value of the WLST attribute
+        :param wlst_path: the WLST path of the attribute, used for logging
+        :return: a tuple with the model name and value
+        """
         _method_name = '_add_to_dictionary'
 
-        try:
-            wlst_type = self._aliases.get_wlst_attribute_type(location, wlst_param)
+        model_param, model_value = self._get_model_name_and_value(location, wlst_param, wlst_value, wlst_path)
 
-            logged_value = wlst_value
-            if wlst_value is not None and wlst_type == alias_constants.PASSWORD:
-                logged_value = MASKED_PASSWORD
-
-            _logger.finer('WLSDPLY-06105', wlst_param, logged_value, wlst_path,
-                          class_name=_class_name, method_name=_method_name)
-
-            model_param, model_value = \
-                self._aliases.get_model_attribute_name_and_value(location, wlst_param, wlst_value)
-
-            if wlst_type == alias_constants.PASSWORD:
-                if not string_utils.is_empty(model_value):
-                    if self._model_context.is_discover_passwords():
-                        if isinstance(model_value, array.array):
-                            password_encrypted_string = model_value.tostring()
-                        elif isinstance(model_value, (str, unicode)):
-                            password_encrypted_string = model_value
-                        else:
-                            ex = exception_helper.create_discover_exception('WLSDPLY-06053', model_param,
-                                                                            location.get_folder_path(), type(model_value))
-                            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-                            raise ex
-
-                        base_dir = self._model_context.get_domain_home()
-                        if self._model_context.is_ssh():
-                            base_dir = self.download_temporary_dir
-
-                        model_value = self._weblogic_helper.decrypt(password_encrypted_string, base_dir)
-
-                        if self._model_context.is_encrypt_discovered_passwords():
-                            model_value = \
-                                encryption_utils.encrypt_one_password(self._model_context.get_encryption_passphrase(),
-                                                                      model_value)
-                    else:
-                        model_value = alias_constants.PASSWORD_TOKEN
-                else:
-                    model_value = None
-        except (AliasException, DiscoverException), de:
-            _logger.info('WLSDPLY-06106', wlst_param, wlst_path, de.getLocalizedMessage(),
-                         class_name=_class_name, method_name=_method_name)
-            return
-
-        model_value = self._check_attribute(model_param, model_value, location)
         if model_value is not None:
             _logger.finer('WLSDPLY-06107', model_param, model_value, class_name=_class_name,
                           method_name=_method_name)
@@ -285,7 +237,94 @@ class Discoverer(object):
                 self._credential_injector.check_and_tokenize(dictionary, model_param, location)
 
         elif model_param is None:
-            _logger.finest('WLSDPLY-06108', model_param, class_name=_class_name, method_name=_method_name)
+            _logger.finest('WLSDPLY-06108', model_param, class_name=_class_name,
+                           method_name=_method_name)
+
+    def _get_model_name_and_value(self, location, wlst_name, wlst_value, wlst_path):
+        """
+        Get the model name and value for the attribute identified by the arguments.
+        The model value None is returned if the attribute should be omitted from the model.
+        :param location: the current location information
+        :param wlst_name: the name of the WLST attribute
+        :param wlst_value: the value of the WLST attribute
+        :param wlst_path: the WLST path of the attribute, used for logging
+        :return: a tuple with the model name and value
+        """
+        _method_name = '_get_model_name_and_value'
+
+        model_name = None
+        model_value = None
+        try:
+            # if this attribute uses WLST is_set, ignore a matching default value.
+            # we may reset the model value to None later if is_set() returns False.
+            uses_is_set = self._uses_is_set(location, wlst_name)
+
+            model_name, model_value = \
+                self._aliases.get_model_attribute_name_and_value(location, wlst_name, wlst_value,
+                                                                 ignore_default_match=uses_is_set)
+
+            wlst_type = self._aliases.get_wlst_attribute_type(location, wlst_name)
+
+            logged_value = wlst_value
+            if wlst_value is not None and wlst_type == alias_constants.PASSWORD:
+                logged_value = MASKED_PASSWORD
+            _logger.finer('WLSDPLY-06105', wlst_name, logged_value, wlst_path,
+                          class_name=_class_name, method_name=_method_name)
+
+            if wlst_type == alias_constants.PASSWORD:
+                model_value = self._get_model_password_value(location, model_name, model_value)
+
+            model_value = self._check_attribute(model_name, model_value, location)
+
+            # reset the model value to None if is_set is used, and is_set() returns False
+            if uses_is_set and not self._wlst_helper.is_set(wlst_name):
+                model_value = None
+
+        except (AliasException, DiscoverException), de:
+            _logger.info('WLSDPLY-06106', wlst_name, wlst_path, de.getLocalizedMessage(),
+                         class_name=_class_name, method_name=_method_name)
+
+        return  model_name, model_value
+
+    def _get_model_password_value(self, location, model_name, model_value):
+        """
+        Get the password value to be used for the model for the specified attribute.
+        This may be a re-encrypted or plain-text value, or --FIX ME-- .
+        The model value None is returned if the attribute should be omitted from the model.
+        :param location: the current location information (for logging)
+        :param model_name: the model name of the attribute (for logging)
+        :param model_value: the original model value
+        :return: the model password value
+        """
+        _method_name = '_get_model_password_value'
+
+        if not string_utils.is_empty(model_value):
+            if self._model_context.is_discover_passwords():
+                if isinstance(model_value, array.array):
+                    password_encrypted_string = model_value.tostring()
+                elif isinstance(model_value, (str, unicode)):
+                    password_encrypted_string = model_value
+                else:
+                    ex = exception_helper.create_discover_exception(
+                        'WLSDPLY-06053', model_name, location.get_folder_path(), type(model_value))
+                    _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+                    raise ex
+
+                base_dir = self._model_context.get_domain_home()
+                if self._model_context.is_ssh():
+                    base_dir = self.download_temporary_dir
+
+                model_value = self._weblogic_helper.decrypt(password_encrypted_string, base_dir)
+
+                if self._model_context.is_encrypt_discovered_passwords():
+                    model_value = encryption_utils.encrypt_one_password(
+                        self._model_context.get_encryption_passphrase(), model_value)
+            else:
+                model_value = alias_constants.PASSWORD_TOKEN
+        else:
+            model_value = None
+
+        return model_value
 
     def _get_attributes_for_current_location(self, location):
         """

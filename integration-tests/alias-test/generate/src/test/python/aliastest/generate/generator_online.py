@@ -1,5 +1,5 @@
 """
-Copyright (c) 2021, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2021, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -267,7 +267,7 @@ class OnlineGenerator(GeneratorBase):
                         mbean_type, attribute, mbean_path, class_name=self.__class_name, method_name=_method_name)
                     holder = PyOrderedDict()
                     self.add_default_value(holder, lsa_map, attribute_helper, method_helper)
-                    self.add_derived_default(holder, attribute_helper, attribute)
+                    self.add_computed_defaults(holder, info_attribute_helper, attribute)
                     attribute_helper.generate_attribute(holder)
                     attributes[attribute] = generator_utils.sort_dict(holder)
             else:
@@ -278,7 +278,7 @@ class OnlineGenerator(GeneratorBase):
                                         class_name=self.__class_name, method_name=_method_name)
                     holder = PyOrderedDict()
                     self.add_default_value(holder, lsa_map, attribute_helper, method_helper)
-                    self.add_derived_default(holder, info_attribute_helper, attribute)
+                    self.add_computed_defaults(holder, info_attribute_helper, attribute)
                     attribute_helper.generate_attribute(holder)
                     attributes[attribute] = generator_utils.sort_dict(holder)
 
@@ -297,7 +297,7 @@ class OnlineGenerator(GeneratorBase):
                                    class_name=self.__class_name, method_name=_method_name)
                 holder = PyOrderedDict()
                 self.add_default_value(holder, lsa_map, attribute_helper, method_helper)
-                self.add_derived_default(holder, info_attribute_helper, attribute)
+                self.add_computed_defaults(holder, info_attribute_helper, attribute)
                 attribute_helper.generate_attribute(holder)
                 attributes[attribute] = generator_utils.sort_dict(holder)
 
@@ -328,7 +328,7 @@ class OnlineGenerator(GeneratorBase):
                 # if to find attributes without a set method that CAN be set in offline.
                 # However, I suspect that if no set method, then cannot RW
                 self.add_default_value(holder, lsa_map, attribute_helper, method_helper)
-                self.add_derived_default(holder, info_attribute_helper, attribute)
+                self.add_computed_defaults(holder, info_attribute_helper, attribute)
                 if attribute_helper.is_attribute_found():
                     self.__logger.finer('MBean {0} attribute {1} in LSA map will generate attribute info '
                                         'from additional helper', mbean_type, lsa_only,

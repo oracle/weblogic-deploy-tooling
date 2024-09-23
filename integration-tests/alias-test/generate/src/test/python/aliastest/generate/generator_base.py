@@ -24,7 +24,10 @@ BAD_ATTR_ERR = 'Attribute {0} is not present in LSA map and both the wlst.get() 
                'This attribute should have been filtered out as it seems it is not valid'
 CMO_DEFAULT = 'cmo_default'
 CMO_TYPE = generator_utils.CMO_TYPE
+COMPUTED_DEFAULT = 'computed_default'
 DERIVED_DEFAULT = 'derived_default'
+SECURE_DEFAULT = 'secure_default'
+PRODUCTION_DEFAULT = 'production_default'
 FAIL = generator_utils.FAIL
 GET_DEFAULT = 'get_default'
 GET_TYPE = 'get_wlst_type'
@@ -77,23 +80,43 @@ class GeneratorBase(object):
             Aliases(model_context, model_context.get_target_wlst_mode(), model_context.get_local_wls_version())
         self._ignore_list = self._aliases.get_ignore_attribute_names()
 
-    def add_derived_default(self, dictionary, cmo_helper, attribute_name):
-        _method_name = "add_derived_default"
+    def add_computed_defaults(self, dictionary, cmo_helper, attribute_name):
+        _method_name = "add_computed_defaults"
         self.__logger.entering(attribute_name, class_name=self.__class_name, method_name=_method_name)
 
-        value = None
-        # Currently, there is no concept of derived default in WLST offline.
         # Early versions of WLST getMBI does not return derived default, so do not
         # put the derived default value into the json file
         if self._model_context.get_local_wls_version() in DERIVED_DEFAULT_DISMISS:
             return
-        if self._model_context.get_target_wlst_mode() == WlstModes.ONLINE:
-            if cmo_helper is not None:
-                value = cmo_helper.derived_default_value()
-            if value is not None:
-                dictionary[DERIVED_DEFAULT] = value
 
-        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result=value)
+        derived_default_value = None
+        production_default_value = None
+        secure_default_value = None
+
+        if cmo_helper is not None:
+            derived_default_value = cmo_helper.derived_default_value()
+            if derived_default_value is not None:  # None means no attribute info was found
+                dictionary[DERIVED_DEFAULT] = derived_default_value
+
+            computed_value = cmo_helper.computed_default_value()
+            if computed_value is not None:  # None means no attribute info was found
+                dictionary[COMPUTED_DEFAULT] = computed_value
+
+            production_default_value = cmo_helper.production_default_value()
+            if production_default_value is not None:
+                dictionary[PRODUCTION_DEFAULT] = self.convert_attribute(attribute_name, production_default_value,
+                                                                        value_type=dictionary[GET_TYPE])
+
+            secure_default_value = cmo_helper.secure_default_value()
+            if secure_default_value is not None:
+                dictionary[SECURE_DEFAULT] = self.convert_attribute(attribute_name, secure_default_value,
+                                                                    value_type=dictionary[GET_TYPE])
+
+        self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result={
+            DERIVED_DEFAULT: derived_default_value,
+            PRODUCTION_DEFAULT: production_default_value,
+            SECURE_DEFAULT: secure_default_value,
+        })
 
     def add_default_value(self, dictionary, lsa_map, cmo_helper, method_helper, attribute_name=None):
         """
