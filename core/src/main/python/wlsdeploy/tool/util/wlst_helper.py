@@ -152,37 +152,37 @@ class WlstHelper(object):
     def is_set(self, attribute):
         """
         Determine if the specified attribute has been set.
-        In online WLST, attributes may return values that did not originate in config.xml (not set).
-        For offline WLST, return True always.
+        In WLST, attributes may return values that did not originate in config.xml (not set).
+        If the is_set method is not available in offline, return True.
         :param attribute: name of the WLST attribute
-        :return: True if the value has been set or in offline mode, False otherwise
+        :return: True if the value has been set or is_set is not available, False otherwise
         :raises: Exception for the specified tool type: if a WLST error occurs
         """
         _method_name = 'is_set'
         self.__logger.finest('WLSDPLY-00124', attribute, class_name=self.__class_name, method_name=_method_name)
 
-        if not self.__check_online_connection():
-            return True
-
         mbean_path = self.get_pwd()
 
         try:
-            mbean = self.get_mbean(mbean_path)
-            if 'isSet' not in dir(mbean):
-                return True
+            if self.__check_online_connection():
+                mbean = self.get_mbean(mbean_path)
+                # we may call for every attribute for online + local
+                if 'isSet' not in dir(mbean):
+                    return True
+                result = mbean.isSet(attribute)
+            else:
+                result = self.__load_global('isSet')(attribute)
 
-            result = mbean.isSet(attribute)
         except (self.__load_global('WLSTException'), offlineWLSTException), e:
             pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00125', attribute,
                                                     self.__get_exception_mode(e), _format_exception(e), error=e)
             self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
             raise pwe
         except Throwable, e:
-            # isSet() throws a Java error for /ResourceManagement attribute in 14.1.1.
-            # in this case, return False to prevent further processing of this attribute.
-            self.__logger.info('WLSDPLY-00129', attribute, mbean_path, e, class_name=self.__class_name,
-                               method_name=_method_name)
-            return False
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00129', attribute,
+                                                    mbean_path, e, error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
 
         self.__logger.finest('WLSDPLY-00126', attribute, class_name=self.__class_name, method_name=_method_name)
         return result

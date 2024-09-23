@@ -12,12 +12,14 @@ from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.logging.platform_logger import PlatformLogger
+from wlsdeploy.util import dictionary_utils
 
 ADDITIONAL_RECHECK = "additional"
 ATTRIBUTES = 'attributes'
 CMO_DEFAULT = 'cmo_default'
 CMO_READ_TYPE = 'cmo_read_type'
 CMO_TYPE = 'cmo_wlst_type'
+COMPUTED_DEFAULT = 'computed_default'
 DEPRECATED = 'deprecated'
 DERIVED_DEFAULT = 'derived_default'
 GET_DEFAULT = 'get_default'
@@ -27,12 +29,14 @@ LSA_DEFAULT = 'lsa_default'
 LSA_TYPE = 'lsa_wlst_type'
 MULTIPLE = 'multiple'
 ONLINE_REFERENCE_ONLY = 'reference_only'
+PRODUCTION_DEFAULT = 'production_default'
 READ_ONLY = 'readonly'
 READ_TYPE = 'read_type'
 READ_WRITE = 'readwrite'
 RECHECK = 'recheck'
 RESTART = 'restart_required'
 RESTART_NO_CHECK = 'none'
+SECURE_DEFAULT = 'secure_default'
 SINCE_VERSION = 'since_version'
 SINGLE = 'single'
 SINGLE_NO_NAME = 'single_no_name'
@@ -59,8 +63,7 @@ WARN_MBEAN_NOT_NO_NAME_0 = 5101
 WARN_ATTRIBUTE_DEPRECATED = 5502
 WARN_ATTRIBUTE_HAS_UNKNOWN_TYPE = 5500
 WARN_ALIAS_FOLDER_NOT_IMPLEMENTED = 5501
-WARN_NO_DERIVED_DEFAULT_IN_GENERATED = 5502
-
+WARN_NO_DERIVED_DEFAULT_IN_GENERATED = 5503
 
 ERROR_FAILURE_ATTRIBUTE_LIST = 2000
 ERROR_FAILURE_ATTRIBUTE_UNEXPECTED = 2001
@@ -99,7 +102,10 @@ ERROR_ATTRIBUTE_PATH_TOKEN_REQUIRED = 4022
 ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE = 4023
 ERROR_ATTRIBUTE_MUST_BE_NO_NAME = 4024
 ERROR_FLATTENED_MBEAN_ATTRIBUTE_ERROR = 4025
-ERROR_DERIVED_DEFAULT_DOES_NOT_MATCH = 4026
+ERROR_ATTRIBUTE_SHOULD_BE_COMPUTED = 4026
+ERROR_ATTRIBUTE_SHOULD_NOT_BE_COMPUTED = 4027
+ERROR_ATTRIBUTE_WRONG_PROD_DEFAULT_VALUE = 4028
+ERROR_ATTRIBUTE_WRONG_SECURE_DEFAULT_VALUE = 4029
 
 MSG_MAP = {
     TESTED_MBEAN_FOLDER:                           'Verified',
@@ -122,7 +128,10 @@ MSG_MAP = {
     ERROR_ATTRIBUTE_NOT_READONLY_VERSION:          'Attribute is marked readonly or is invalid version range',
     ERROR_ATTRIBUTE_NOT_READONLY:                  'Attribute is not marked readwrite',
     ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE:           'Attribute wrong default value',
-    ERROR_DERIVED_DEFAULT_DOES_NOT_MATCH:          'Attribute does not match Alias derived_default',
+    ERROR_ATTRIBUTE_WRONG_PROD_DEFAULT_VALUE:      'Attribute has wrong production default value',
+    ERROR_ATTRIBUTE_WRONG_SECURE_DEFAULT_VALUE:    'Attribute has wrong secure default value',
+    ERROR_ATTRIBUTE_SHOULD_BE_COMPUTED:            'Attribute alias should indicate derived default',
+    ERROR_ATTRIBUTE_SHOULD_NOT_BE_COMPUTED:        'Attribute alias should not indicate derived default',
     ERROR_ATTRIBUTE_INVALID_VERSION:               'Attribute invalid version',
     ERROR_ATTRIBUTE_GET_REQUIRED:                  'Attribute requires GET',
     ERROR_ATTRIBUTE_LSA_REQUIRED:                  'Attribute requires LSA',
@@ -158,6 +167,13 @@ LIST_TYPE_MATCH_EXCEPTIONS = [
     '/Server/SingleSignOnServices/ServiceProviderSingleLogoutRedirectURIs',
     '/ServerTemplate/SingleSignOnServices/ServiceProviderSingleLogoutRedirectUri',
     '/ServerTemplate/SingleSignOnServices/ServiceProviderSingleLogoutRedirectURIs'
+]
+
+ALTERNATE_DEFAULT_MATCH_EXCEPTIONS = [
+    # these attributes are explicitly set in config.xml during domain creation.
+    # the aliases reflect the deployed values, and don't match WLS secure/production default annotations.
+    '/SecurityConfiguration/Realm/PasswordValidator/SystemPasswordValidator/MinNumericOrSpecialCharacters',
+    '/SecurityConfiguration/Realm/PasswordValidator/SystemPasswordValidator/MinPasswordLength'
 ]
 
 _logger = PlatformLogger('test.aliases.verify')
@@ -257,7 +273,7 @@ class Verifier(object):
                         elif SINCE_VERSION in generated_dictionary[entry]:
                             message = 'MBean since version ' + generated_dictionary[entry][SINCE_VERSION]
                         else:
-                            message = ''
+                            message = None
                         self._add_warning(location, WARN_ALIAS_FOLDER_NOT_IMPLEMENTED, message=message, attribute=entry)
                         continue
 
@@ -807,10 +823,10 @@ class Verifier(object):
 
         generated_default = _adjust_default_value_for_special_cases(generated_attribute, generated_attribute_info,
                                                                     generated_default_value)
-        match = True
+        match_defaults = True
         model_name = None
-        model_value = None
-        is_derived_default = False
+        generated_model_default = None
+        alias_is_computed = False
         if generated_default is not None:
             try:
                 _logger.finest('getting model name and value with generated_default ({0}) of "{1}"',
@@ -819,6 +835,7 @@ class Verifier(object):
 
                 # get_model_attribute_name_and_value() will expect resolved tokens for comparison
                 model_name = self._alias_helper.get_model_attribute_name(location, generated_attribute)
+
                 path_token_attributes = self._alias_helper.get_model_uses_path_tokens_attribute_names(location)
                 generated_default_value = generated_default
                 if model_name in path_token_attributes:
@@ -827,72 +844,126 @@ class Verifier(object):
                 # This code is sort of non-intuitive because the method was written for a different
                 # purpose.  This get_model_attribute_name_and_value() function compared the value
                 # we pass in with the alias default (accounting for type conversion).  If the value
-                # passed in matches the alias default value, it returns None for model_value.
+                # passed in matches the alias default value, it returns None for generated_model_default.
                 # Otherwise, it returns the passed in value converted to the alias type, if necessary.
                 #
-                model_name, model_value = \
+                model_name, generated_model_default = \
                     self._alias_helper.get_model_attribute_name_and_value(location, generated_attribute,
                                                                           generated_default_value)
 
-                _logger.finest('aliases returned model_name {0} and model_value ({1}) of "{2}"', model_name,
-                               type(model_value), model_value, class_name=CLASS_NAME, method_name=_method_name)
+                _logger.finest('aliases returned model_name {0} and generated_model_default ({1}) of "{2}"',
+                               model_name, type(generated_model_default), generated_model_default,
+                               class_name=CLASS_NAME, method_name=_method_name)
 
-                is_derived_default = self._alias_helper.is_derived_default(location, model_name)
-                if DERIVED_DEFAULT in generated_attribute_info:
-                    generated_derived = generated_attribute_info[DERIVED_DEFAULT]
-                    if isinstance(generated_derived, long):
-                        generated_derived = bool(generated_derived)
-                    elif not isinstance(generated_derived, bool):
-                        val = str(generated_derived)
-                        generated_derived = val.lower() == 'true'
+                alias_is_computed = self._alias_helper.is_derived_default(location, model_name)
+                # if no derived/computed information is found in the generated file,
+                # there were no WLS annotations, so assume the alias entry is correct.
+                generated_is_computed = alias_is_computed
+
+                computed_key = COMPUTED_DEFAULT
+                if self._model_context.is_wlst_online():
+                    computed_key = DERIVED_DEFAULT
+
+                if computed_key in generated_attribute_info:
+                    generated_is_computed = generated_attribute_info[computed_key]
+                    if isinstance(generated_is_computed, long):
+                        generated_is_computed = bool(generated_is_computed)
+                    elif not isinstance(generated_is_computed, bool):
+                        val = str(generated_is_computed)
+                        generated_is_computed = val.lower() == 'true'
+
+                    if generated_is_computed and not alias_is_computed:
+                        match_defaults = False
+                        message = 'WLS indicates ' + computed_key
+                        self._add_error(location, ERROR_ATTRIBUTE_SHOULD_BE_COMPUTED,
+                                        message=message, attribute=generated_attribute)
                 else:
-                    # The generator was unable to find the information about the derived default
-                    # so just assume that the alias is correct.
-                    #
-                    generated_derived = is_derived_default
-                    if self._model_context.get_target_wlst_mode() == WlstModes.ONLINE:
-                        _logger.finest('No information about derived_default in the generated file',
-                                       class_name=CLASS_NAME, method_name=_method_name)
-                        message = 'Alias %s' % str(is_derived_default)
-                        self._add_warning(location, WARN_NO_DERIVED_DEFAULT_IN_GENERATED,
-                                          message=message, attribute=generated_attribute)
+                    _logger.finest('WLS Attribute has no ' + computed_key + ' information',
+                                   class_name=CLASS_NAME, method_name=_method_name)
 
-                if is_derived_default != generated_derived:
-                    _logger.finest('derived default value mismatch', class_name=CLASS_NAME, method_name=_method_name)
-                    message = 'WLST: %s  :  Alias: %s' % (str(generated_derived), str(is_derived_default))
-                    self._add_error(location, ERROR_DERIVED_DEFAULT_DOES_NOT_MATCH,
+                # don't check alt defaults if attribute is in the exception list
+                check_alternate_defaults = True
+                match_path = location.get_folder_path() + '/' + generated_attribute
+                if match_path in ALTERNATE_DEFAULT_MATCH_EXCEPTIONS:
+                    _logger.finest('excluding path from alternate default value check "{0}"', match_path,
+                                   class_name=CLASS_NAME, method_name=_method_name)
+                    check_alternate_defaults = False
+
+                # don't check alt defaults if derived/computed default, the values aren't used in WDT
+                if check_alternate_defaults and not alias_is_computed:
+                    # check production defaults
+
+                    wls_prod_default = None  # prod defaults are not returned in offline WLST
+                    if self._model_context.is_wlst_online():
+                        wls_prod_default = dictionary_utils.get_element(generated_attribute_info, PRODUCTION_DEFAULT)
+                    _name, wls_prod_default_match = self._alias_helper.get_model_attribute_name_and_value(
+                        location, generated_attribute, wls_prod_default)
+
+                    if wls_prod_default is not None and wls_prod_default_match != generated_model_default:
+                        alias_prod_default = self._alias_helper.get_production_default(location, model_name)
+                        _name, alias_prod_default_match = self._alias_helper.get_model_attribute_name_and_value(
+                            location, generated_attribute, alias_prod_default)
+
+                        if wls_prod_default_match != alias_prod_default_match:
+                            match_defaults = False
+                            message = 'WLS: %s / Alias: %s' % (str(wls_prod_default), str(alias_prod_default))
+                            self._add_error(location, ERROR_ATTRIBUTE_WRONG_PROD_DEFAULT_VALUE,
+                                            message=message, attribute=generated_attribute)
+
+                    # check secure defaults
+
+                    wls_secure_default = None  # secure defaults are not returned in offline WLST
+                    if self._model_context.is_wlst_online():
+                        wls_secure_default = dictionary_utils.get_element(generated_attribute_info, SECURE_DEFAULT)
+                    _name, wls_secure_default_match = self._alias_helper.get_model_attribute_name_and_value(
+                        location, generated_attribute, wls_secure_default)
+
+                    if wls_secure_default is not None and wls_secure_default_match != generated_model_default:
+                        alias_secure_default = self._alias_helper.get_secure_default(location, model_name)
+                        _name, alias_secure_default_match = self._alias_helper.get_model_attribute_name_and_value(
+                            location, generated_attribute, alias_secure_default)
+
+                        if wls_secure_default_match != alias_secure_default_match:
+                            match_defaults = False
+                            message = 'WLS: %s / Alias: %s' % (str(wls_secure_default), str(alias_secure_default))
+                            self._add_error(location, ERROR_ATTRIBUTE_WRONG_SECURE_DEFAULT_VALUE,
+                                            message=message, attribute=generated_attribute)
+
+                if alias_is_computed and not generated_is_computed:
+                    message = 'WLS does not indicate ' + computed_key
+                    match_defaults = False
+                    self._add_error(location, ERROR_ATTRIBUTE_SHOULD_NOT_BE_COMPUTED,
                                     message=message, attribute=generated_attribute)
-                    match = False
 
             except TypeError, te:
                 self._add_error(location, ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE,
                                 message=te, attribute=generated_attribute)
-                match = False
+                match_defaults = False
             except (AliasException, IOException), ae:
                 self._add_error(location, ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE, message=ae.getLocalizedMessage(),
                                 attribute=generated_attribute)
-                match = False
+                match_defaults = False
         else:
-            model_value = model_default_value
+            generated_model_default = model_default_value
 
         # This if statement will be true if the default values do not match and the alias attribute
         # is not marked as a derived_default.
         #
-        if match and model_value is not None and not is_derived_default:
-            if not verify_utils.is_attribute_value_test_anomaly(self._model_context, location, model_name, model_value):
+        if match_defaults and generated_model_default is not None and not alias_is_computed:
+            if not verify_utils.is_attribute_value_test_anomaly(self._model_context, location, model_name, generated_model_default):
                 attr_type = type(generated_default)
                 if CMO_TYPE in generated_attribute_info and \
                         (generated_attribute_info[CMO_TYPE] == alias_constants.BOOLEAN or
                          generated_attribute_info[CMO_TYPE] == alias_constants.JAVA_LANG_BOOLEAN) and \
                         generated_default is not None and (attr_type in [str, unicode, int]):
                     generated_default = Boolean(generated_default)
-                message = 'WLST: %s / Alias: %s' % (str(generated_default), str(model_default_value))
+                message = 'WLS: %s / Alias: %s' % (str(generated_default), str(model_default_value))
                 self._add_error(location, ERROR_ATTRIBUTE_WRONG_DEFAULT_VALUE,
                                 message=message, attribute=generated_attribute)
-                match = False
+                match_defaults = False
 
-        _logger.exiting(result=verify_utils.bool_to_string(match), class_name=CLASS_NAME, method_name=_method_name)
-        return match, model_name, model_value
+        _logger.exiting(result=verify_utils.bool_to_string(match_defaults), class_name=CLASS_NAME, method_name=_method_name)
+        return match_defaults, model_name, generated_model_default
 
     def _is_valid_deprecated(self, location, generated_attribute, generated_attribute_info):
         """
@@ -1815,18 +1886,18 @@ def _add_message(msg_dict, location, msg_id, message=None, attribute=None):
     msg_list.append(typed_msg_dict)
 
 
-def _format_message(message_number, message_dict, location):
-    message = MSG_MAP[message_dict[MSG_ID]]
+def _format_message(message_number, message_dict, _location):
+    text = '%s.)' % message_number
 
     if ATTRIBUTE in message_dict:
-        attribute = message_dict[ATTRIBUTE]
-    else:
-        attribute = '<No Attribute>'
+      text += ' %s:' % message_dict[ATTRIBUTE]
+
+    message = MSG_MAP[message_dict[MSG_ID]]
+    text += ' %s' % message
 
     if MESSAGE in message_dict:
-        extra_message = message_dict[MESSAGE]
-    else:
-        extra_message = '<No Message>'
-    return '%s.) %s (attribute: %s, message: %s, location: %s)' % \
-           (message_number, message, attribute, extra_message, location)
+      text += ' (%s)' % message_dict[MESSAGE]
 
+    # location is established in prior messages
+
+    return text

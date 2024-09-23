@@ -1113,16 +1113,17 @@ class Aliases(object):
     # Although the wlst_attribute_value may be a password field, logging it is probably OK since the password is
     # encrypted, just like it is in config.xml.
     #
-    def get_model_attribute_name_and_value(self, location, wlst_attribute_name, wlst_attribute_value):
+    def get_model_attribute_name_and_value(self, location, wlst_attribute_name, wlst_attribute_value,
+                                           ignore_default_match=False):
         """
         Returns the model attribute name and value for the specified WLST attribute name and value.
-
-        model_attribute_value will be set to None, if value assigned to wlst_attribute_value arg
-        is the default value for model_attribute_name.
+        By default, the model value returned will be None if it matches the default value.
+        If ignore_default_match is True, the model value will be returned regardless of the default value.
         :param location: the location
         :param wlst_attribute_name: the WLST attribute name
         :param wlst_attribute_value: the WLST attribute value
-        :return: the name and value
+        :param ignore_default_match: if True, return the model value regardless of the default value
+        :return: the model attribute name and value
         :raises: Tool type exception: if an error occurs
         """
         _method_name = 'get_model_attribute_name_and_value'
@@ -1131,77 +1132,26 @@ class Aliases(object):
 
         try:
             model_attribute_name = None
-            # Assume wlst_attribute_value is the same as default value of model_attribute_name
             model_attribute_value = None
 
             attribute_info = self._alias_entries.get_alias_attribute_entry_by_wlst_name(location, wlst_attribute_name)
             if attribute_info is not None and not self.__is_model_attribute_ignored(location, attribute_info):
-                data_type, preferred_type, delimiter = \
-                    alias_utils.compute_read_data_type_for_wlst_and_delimiter_from_attribute_info(attribute_info,
-                                                                                                  wlst_attribute_value)
-                model_type = data_type
+                model_attribute_name = attribute_info[MODEL_NAME]
+
+                wlst_type, preferred_type, delimiter = \
+                    alias_utils.compute_read_data_type_for_wlst_and_delimiter_from_attribute_info(
+                        attribute_info, wlst_attribute_value)
+
+                model_type = wlst_type
                 if preferred_type:
                     model_type = preferred_type
 
-                converted_value = alias_utils.convert_to_model_type(model_type, wlst_attribute_value,
-                                                                    delimiter=delimiter)
+                default_value = None
+                if not ignore_default_match:
+                    default_value = self._get_model_attribute_default_value(location, attribute_info, model_type)
 
-                model_attribute_name = attribute_info[MODEL_NAME]
-                default_value = self._get_default_value_for_execution_mode(attribute_info)
-
-                #
-                # The logic below to compare the str() representation of the converted value and the default value
-                # only works for lists/maps if both the converted value and the default value are the same data type...
-                #
-                if (model_type in ALIAS_LIST_TYPES or model_type in ALIAS_MAP_TYPES) \
-                        and not (default_value == '[]' or default_value is None):
-                    # always the model delimiter
-                    default_value = alias_utils.convert_to_type(model_type, default_value,
-                                                                delimiter=MODEL_LIST_DELIMITER)
-
-                if attribute_info[WLST_TYPE] == STRING and default_value:
-                    default_value = alias_utils.replace_tokens_in_path(location, default_value)
-
-                if model_type == 'password':
-                    # WDT doesn't really understand PyArray so convert it to a string before proceeding.
-                    if isinstance(wlst_attribute_value, array.array):
-                        wlst_attribute_value = wlst_attribute_value.tostring()
-
-                    if string_utils.is_empty(wlst_attribute_value) or converted_value == default_value:
-                        model_attribute_value = None
-                    else:
-                        model_attribute_value = wlst_attribute_value
-
-                elif model_type == 'boolean':
-                    # some boolean attributes have WLST value of null until they are set
-                    wlst_boolean = _get_boolean_or_none(wlst_attribute_value)  # from unconverted value
-                    default_boolean = _get_boolean_or_none(default_value)
-                    if wlst_boolean == default_boolean:
-                        model_attribute_value = None
-                    else:
-                        model_attribute_value = converted_value
-
-                elif (model_type in ALIAS_LIST_TYPES or data_type in ALIAS_MAP_TYPES) and \
-                        (converted_value is None or len(converted_value) == 0):
-                    if default_value == '[]' or default_value is None:
-                        model_attribute_value = None
-
-                elif self._model_context is not None and USES_PATH_TOKENS in attribute_info:
-                    if attribute_info[WLST_TYPE] == STRING:
-                        model_attribute_value = self._model_context.tokenize_path(converted_value)
-                    else:
-                        model_attribute_value = self._model_context.tokenize_classpath(converted_value)
-                    if model_attribute_value == default_value:
-                        model_attribute_value = None
-
-                elif default_value is None:
-                    model_attribute_value = converted_value
-
-                elif str_helper.to_string(converted_value) != str_helper.to_string(default_value):
-                    if _strings_are_empty(converted_value, default_value):
-                        model_attribute_value = None
-                    else:
-                        model_attribute_value = converted_value
+                model_attribute_value = self._get_model_attribute_value(
+                    wlst_attribute_value, default_value, attribute_info, model_type, delimiter)
 
             self._logger.exiting(class_name=self._class_name, method_name=_method_name,
                                  result={model_attribute_name: model_attribute_value})
@@ -1210,6 +1160,82 @@ class Aliases(object):
         except AliasException, ae:
             self._raise_exception(ae, _method_name, 'WLSDPLY-19028', str_helper.to_string(location),
                                   ae.getLocalizedMessage())
+
+    def _get_model_attribute_default_value(self, location, attribute_info, model_type):
+        """
+        Returns the default value for the specified attribute_info and location.
+        The default value may need some adjustments to be used for comparison with the model value.
+        :param location: the location of the attribute
+        :param attribute_info: information about the attribute from the aliases
+        :param model_type: the model type to use for any conversion
+        :return: the default value
+        """
+        default_value = self._get_default_value_for_execution_mode(attribute_info)
+
+        # The compare logic compares the str() representation of the converted value and the default value
+        # only works for lists/maps if both the converted value and the default value are the same data type...
+        if (model_type in ALIAS_LIST_TYPES or model_type in ALIAS_MAP_TYPES) \
+                and not (default_value == '[]' or default_value is None):
+
+            default_value = alias_utils.convert_to_type(
+                model_type, default_value, delimiter=MODEL_LIST_DELIMITER)  # always the model delimiter
+
+        if attribute_info[WLST_TYPE] == STRING and default_value:
+            # the alias default may contain location tokens, such as "logs/%SERVERTEMPLATE%.log"
+            default_value = alias_utils.replace_tokens_in_path(location, default_value)
+
+        return default_value
+
+    def _get_model_attribute_value(self, wlst_value, default_value, attribute_info, model_type, delimiter):
+        """
+        Returns the model attribute value for the specified WLST value and default value.
+        The model value returned will be None if it matches the default model value.
+        :param wlst_value: the attribute value from WLST
+        :param default_value: the default value to use for comparison
+        :param attribute_info: information about the attribute from the aliases
+        :param model_type: the model type to use for any conversion
+        :param delimiter: the delimiter used for parsing the WLST value
+        :return: the value for use in the model
+        """
+        converted_value = alias_utils.convert_to_model_type(model_type, wlst_value, delimiter=delimiter)
+
+        # tokenize model paths, such as "@@ORACLE_HOME@@/directory"
+
+        if converted_value and (USES_PATH_TOKENS in attribute_info):
+            if attribute_info[WLST_TYPE] == STRING:
+                converted_value = self._model_context.tokenize_path(converted_value)
+            else:
+                converted_value = self._model_context.tokenize_classpath(converted_value)
+
+        # Compare model value with default
+
+        result_model_value = None
+
+        if model_type == 'boolean':
+            # some boolean attributes have WLST value of null until they are set
+            result_model_value = _get_boolean_or_none(wlst_value)  # from unconverted value
+            default_boolean = _get_boolean_or_none(default_value)
+            if result_model_value == default_boolean:
+                result_model_value = None
+            else:
+                result_model_value = converted_value
+
+        elif (model_type in ALIAS_LIST_TYPES or model_type in ALIAS_MAP_TYPES) and \
+                (converted_value is None or len(converted_value) == 0):
+            # match empty lists or maps to default values "[]" or None
+            if default_value == '[]' or default_value is None:
+                result_model_value = None
+
+        elif default_value is None:
+            result_model_value = converted_value
+
+        elif str_helper.to_string(converted_value) != str_helper.to_string(default_value):
+            if _strings_are_empty(converted_value, default_value):
+                result_model_value = None
+            else:
+                result_model_value = converted_value
+
+        return result_model_value
 
     def get_model_attribute_name(self, location, wlst_attribute_name, exclude_ignored=True):
         """
@@ -1461,6 +1487,20 @@ class Aliases(object):
                 rtnval = String.valueOf(rtnval)
 
         return rtnval
+
+    def get_production_default(self, location, model_attribute):
+        result = None
+        attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute)
+        if attribute_info is not None and PRODUCTION_DEFAULT in attribute_info:
+            result = attribute_info[PRODUCTION_DEFAULT]
+        return result
+
+    def get_secure_default(self, location, model_attribute):
+        result = None
+        attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute)
+        if attribute_info is not None and SECURE_DEFAULT in attribute_info:
+            result = attribute_info[SECURE_DEFAULT]
+        return result
 
     def is_derived_default(self, location, model_attribute):
         """

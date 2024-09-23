@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2023, Oracle and/or its affiliates.",
+    "copyright": "Copyright (c) 2017, 2024, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "Partition${:s}",
     "online_bean": "weblogic.management.configuration.PartitionMBean",
@@ -598,7 +598,7 @@
         "ParallelDeployApplicationModules":      [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "ParallelDeployApplicationModules",        "wlst_path": "WP001", "default_value": "false",           "wlst_type": "boolean"           } ],
         "ParallelDeployApplications":            [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "ParallelDeployApplications",              "wlst_path": "WP001", "default_value": "true",            "wlst_type": "boolean"           } ],
         "PartitionId":                           [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "Partition${Id:ID}",                       "wlst_path": "WP001", "default_value": null,              "wlst_type": "string",           "access": "${:IGNORED}"} ],
-        "PartitionLifeCycleTimeoutVal":          [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "PartitionLifeCycleTimeoutVal",            "wlst_path": "WP001", "default_value": 30, "production_default": "${__NULL__:120}", "wlst_type": "integer" } ],
+        "PartitionLifeCycleTimeoutVal":          [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "PartitionLifeCycleTimeoutVal",            "wlst_path": "WP001", "default_value": 30, "production_default": "${__NULL__:120}", "secure_default": "${__NULL__:120}", "wlst_type": "integer" } ],
         "PartitionWorkManagerRef":               [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "PartitionWorkManagerRef",                 "wlst_path": "WP001", "default_value": null,              "wlst_type": "string",           "get_method": "LSA", "set_method": "MBEAN.set_partition_work_manager_mbean", "set_mbean_type": "weblogic.management.configuration.PartitionWorkManagerMBean" } ],
         "PrimaryIdentityDomain":                 [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "PrimaryIdentityDomain",                   "wlst_path": "WP001", "default_value": null, "derived_default": "${:true}", "wlst_type": "string"            } ],
         "RCMHistoricalDataBufferLimit":          [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "RCMHistoricalDataBufferLimit",            "wlst_path": "WP001", "default_value": 250,               "wlst_type": "integer"           } ],
