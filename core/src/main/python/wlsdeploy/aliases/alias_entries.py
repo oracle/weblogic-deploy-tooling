@@ -66,6 +66,7 @@ from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import REMOTE_CONSOLE_HELPER
 from wlsdeploy.aliases.model_constants import RESOURCE_MANAGER
 from wlsdeploy.aliases.model_constants import RESOURCES
+from wlsdeploy.aliases.model_constants import SNMP_AGENT
 from wlsdeploy.aliases.model_constants import SYSTEM_COMPONENT
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.model_constants import WLS_POLICIES
@@ -154,6 +155,7 @@ class AliasEntries(object):
         'SelfTuning',
         'ShutdownClass',
         'SingletonService',
+        SNMP_AGENT,
         'StartupClass',
         SYSTEM_COMPONENT,
         'WebAppContainer',
