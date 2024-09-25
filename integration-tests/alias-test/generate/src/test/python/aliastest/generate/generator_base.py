@@ -55,6 +55,9 @@ DERIVED_DEFAULT_DISMISS = [
     '12.1.2.0.0',
     '12.1.3.0.0'
 ]
+SECURE_DEFAULT_DISMISS = [
+    '12.2.1.0.0'  # possible problems with @secureValueDocOnly
+]
 LSA_DEFAULT = 'lsa_default'
 LSA_TYPE = 'lsa_wlst_type'
 READ_ONLY = generator_utils.READ_ONLY
@@ -107,10 +110,11 @@ class GeneratorBase(object):
                 dictionary[PRODUCTION_DEFAULT] = self.convert_attribute(attribute_name, production_default_value,
                                                                         value_type=dictionary[GET_TYPE])
 
-            secure_default_value = cmo_helper.secure_default_value()
-            if secure_default_value is not None:
-                dictionary[SECURE_DEFAULT] = self.convert_attribute(attribute_name, secure_default_value,
-                                                                    value_type=dictionary[GET_TYPE])
+            if self._model_context.get_local_wls_version() not in SECURE_DEFAULT_DISMISS:
+                secure_default_value = cmo_helper.secure_default_value()
+                if secure_default_value is not None:
+                    dictionary[SECURE_DEFAULT] = self.convert_attribute(attribute_name, secure_default_value,
+                                                                        value_type=dictionary[GET_TYPE])
 
         self.__logger.exiting(class_name=self.__class_name, method_name=_method_name, result={
             DERIVED_DEFAULT: derived_default_value,
