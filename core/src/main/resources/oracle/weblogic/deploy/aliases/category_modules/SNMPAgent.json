@@ -14,7 +14,7 @@
                 "AttributeMBeanName":   [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "AttributeMBeanName",   "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
                 "AttributeMBeanType":   [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "AttributeMBeanType",   "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
                 "AttributeName":        [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "AttributeName",        "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
-                "EnabledServer":        [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "EnabledServer${:s}",   "wlst_path": "WP001", "default_value": null, "wlst_type": "delimited_string" } ],
+                "EnabledServer":        [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "EnabledServer${:s}",   "wlst_path": "WP001", "default_value": null, "wlst_type": "${delimited_string:jarray}", "preferred_model_type": "list", "get_method": "${LSA:GET}", "set_method": "MBEAN.set_server_mbeans", "set_mbean_type": "weblogic.management.configuration.ServerMBean" } ],
                 "Notes":                [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "Notes",                "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ]
             },
             "wlst_attributes_path": "WP001",
@@ -28,7 +28,15 @@
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {
-                "CacheTimeoutInterval":  [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "CacheTimeoutInterval", "wlst_path": "WP001", "default_value": -1, "wlst_type": "integer" } ]
+                "EnabledServer":          [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "EnabledServer${:s}",     "wlst_path": "WP001", "default_value": null, "wlst_type": "${delimited_string:jarray}", "preferred_model_type": "list", "get_method": "${LSA:GET}", "set_method": "MBEAN.set_server_mbeans", "set_mbean_type": "weblogic.management.configuration.ServerMBean" } ],
+                "Modulus":                [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Modulus",                "wlst_path": "WP001", "default_value": 0, "wlst_type": "long" } ],
+                "MonitoredAttributeName": [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "MonitoredAttributeName", "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "MonitoredMBeanName":     [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "MonitoredMBeanName",     "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "MonitoredMBeanType":     [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "MonitoredMBeanType",     "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "Notes":                  [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                  "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "Offset":                 [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Offset",                 "wlst_path": "WP001", "default_value": 0, "wlst_type": "long" } ],
+                "PollingInterval":        [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "PollingInterval",        "wlst_path": "WP001", "default_value": 10, "wlst_type": "integer" } ],
+                "Threshold":              [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Threshold",              "wlst_path": "WP001", "default_value": 0, "wlst_type": "long" } ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
@@ -41,7 +49,14 @@
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {
-                "CacheTimeoutInterval":  [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "CacheTimeoutInterval", "wlst_path": "WP001", "default_value": -1, "wlst_type": "integer" } ]
+                "EnabledServer":          [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "EnabledServer${:s}",     "wlst_path": "WP001", "default_value": null, "wlst_type": "${delimited_string:jarray}", "preferred_model_type": "list", "get_method": "${LSA:GET}", "set_method": "MBEAN.set_server_mbeans", "set_mbean_type": "weblogic.management.configuration.ServerMBean" } ],
+                "MonitoredAttributeName": [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "MonitoredAttributeName", "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "MonitoredMBeanName":     [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "MonitoredMBeanName",     "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "MonitoredMBeanType":     [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "MonitoredMBeanType",     "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "Notes":                  [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                  "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "PollingInterval":        [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "PollingInterval",        "wlst_path": "WP001", "default_value": 10, "wlst_type": "integer" } ],
+                "ThresholdHigh":          [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "ThresholdHigh",          "wlst_path": "WP001", "default_value": 0.0, "wlst_type": "double" } ],
+                "ThresholdLow":           [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "ThresholdLow",           "wlst_path": "WP001", "default_value": 0.0, "wlst_type": "double" } ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
@@ -54,7 +69,13 @@
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {
-                "CacheTimeoutInterval":  [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "CacheTimeoutInterval", "wlst_path": "WP001", "default_value": -1, "wlst_type": "integer" } ]
+                "EnabledServer":    [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "EnabledServer${:s}", "wlst_path": "WP001", "default_value": null, "wlst_type": "${delimited_string:jarray}", "preferred_model_type": "list", "get_method": "${LSA:GET}", "set_method": "MBEAN.set_server_mbeans", "set_mbean_type": "weblogic.management.configuration.ServerMBean" } ],
+                "MessageId":        [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageId${:s}",     "wlst_path": "WP001", "default_value": [], "wlst_type": "${delimited_string:jarray}", "get_method": "${LSA:GET}" } ],
+                "MessageSubstring": [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageSubstring",   "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "Notes":            [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",              "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "SeverityLevel":    [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "SeverityLevel",      "wlst_path": "WP001", "default_value": "Notice", "wlst_type": "string" } ],
+                "SubsystemName":    [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "SubsystemName${:s}", "wlst_path": "WP001", "default_value": [], "wlst_type": "${delimited_string:jarray}", "get_method": "${LSA:GET}" } ],
+                "UserId":           [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "UserId${:s}",        "wlst_path": "WP001", "default_value": [], "wlst_type": "${delimited_string:jarray}", "get_method": "${LSA:GET}" } ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
@@ -67,7 +88,20 @@
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {
-                "CacheTimeoutInterval":  [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "CacheTimeoutInterval", "wlst_path": "WP001", "default_value": -1, "wlst_type": "integer" } ]
+                "Community":     [
+                    { "version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "Community", "wlst_path": "WP001", "default_value": "public", "wlst_type": "string" },
+                    { "version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "Community", "wlst_path": "WP001", "default_value": "public", "wlst_type": "string", "derived_default": "${true:}" }
+                ],
+                "ListenAddress": [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "ListenAddress", "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "Notes":         [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",         "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "OidRoot":       [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "OidRoot",       "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "Port":          [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Port",          "wlst_path": "WP001", "default_value": 0, "wlst_type": "integer" } ],
+                "SecurityLevel": [
+                    { "version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "SecurityLevel", "wlst_path": "WP001", "default_value": "${__NULL__:noAuthNoPriv}", "wlst_type": "string", "production_default": "authNoPriv" },
+                    { "version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "SecurityLevel", "wlst_path": "WP001", "default_value": "noAuthNoPriv",             "wlst_type": "string", "production_default": "authNoPriv", "derived_default": "${true:}" }
+                ],
+                "SecurityName":  [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "SecurityName",  "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "Timeout":       [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Timeout",       "wlst_path": "WP001", "default_value": 5000, "wlst_type": "long" } ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
@@ -80,7 +114,15 @@
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {
-                "CacheTimeoutInterval":  [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "CacheTimeoutInterval", "wlst_path": "WP001", "default_value": -1, "wlst_type": "integer" } ]
+                "EnabledServer":          [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "EnabledServer${:s}",     "wlst_path": "WP001", "default_value": null, "wlst_type": "${delimited_string:jarray}", "preferred_model_type": "list", "get_method": "${LSA:GET}", "set_method": "MBEAN.set_server_mbeans", "set_mbean_type": "weblogic.management.configuration.ServerMBean" } ],
+                "MonitoredAttributeName": [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "MonitoredAttributeName", "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "MonitoredMBeanName":     [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "MonitoredMBeanName",     "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "MonitoredMBeanType":     [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "MonitoredMBeanType",     "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "Notes":                  [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                  "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "NotifyDiffer":           [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "NotifyDiffer",           "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" } ],
+                "NotifyMatch":            [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "NotifyMatch",            "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" } ],
+                "PollingInterval":        [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "PollingInterval",        "wlst_path": "WP001", "default_value": 10, "wlst_type": "integer" } ],
+                "StringToCompare":        [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "StringToCompare",        "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
@@ -93,7 +135,15 @@
             "child_folders_type": "multiple",
             "folders": {},
             "attributes": {
-                "CacheTimeoutInterval":  [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "CacheTimeoutInterval", "wlst_path": "WP001", "default_value": -1, "wlst_type": "integer" } ]
+                "Community":     [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Community",     "wlst_path": "WP001", "default_value": "public", "wlst_type": "string" } ],
+                "Host":          [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Host",          "wlst_path": "WP001", "default_value": "localhost", "wlst_type": "string" } ],
+                "Notes":         [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",         "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "Port":          [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Port",          "wlst_path": "WP001", "default_value": 162, "wlst_type": "integer" } ],
+                "SecurityLevel": [
+                    { "version": "[10,12.2.1.4)", "wlst_mode": "both", "wlst_name": "SecurityLevel", "wlst_path": "WP001", "default_value": "${__NULL__:noAuthNoPriv}", "wlst_type": "string" },
+                    { "version": "[12.2.1.4,)",   "wlst_mode": "both", "wlst_name": "SecurityLevel", "wlst_path": "WP001", "default_value": "${__NULL__:authNoPriv}",   "wlst_type": "string" }
+                ],
+                "SecurityName":  [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "SecurityName",  "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
@@ -109,6 +159,10 @@
         "CommunityBasedAccessEnabled": [
             {"version": "[10,12.2.1.4)", "wlst_mode": "both", "wlst_name": "CommunityBasedAccessEnabled", "wlst_path": "WP001", "default_value": true,  "wlst_type": "boolean" },
             {"version": "[12.2.1.4,)",   "wlst_mode": "both", "wlst_name": "CommunityBasedAccessEnabled", "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
+        ],
+        "CommunityPrefix":             [
+            {"version": "[10,12.2.1.4)", "wlst_mode": "both", "wlst_name": "CommunityPrefix", "wlst_path": "WP001", "default_value": "public", "wlst_type": "string" },
+            {"version": "[12.2.1.4,)",   "wlst_mode": "both", "wlst_name": "CommunityPrefix", "wlst_path": "WP001", "default_value": null,     "wlst_type": "string" }
         ],
         "Enabled":                     [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "Enabled",                     "wlst_path": "WP001", "default_value": false,   "wlst_type": "boolean" } ],
         "InformEnabled":               [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "InformEnabled",               "wlst_path": "WP001", "default_value": false,   "wlst_type": "boolean" } ],
