@@ -57,6 +57,8 @@ class CommonResourcesDiscoverer(Discoverer):
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self.get_foreign_jndi_providers()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+        model_folder_name, folder_result = self.discover_domain_mbean(model_constants.EJB_CONTAINER)
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self.get_mail_sessions()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self.get_file_stores()
@@ -64,6 +66,8 @@ class CommonResourcesDiscoverer(Discoverer):
         model_folder_name, folder_result = self.get_jdbc_stores()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self.get_path_services()
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
+        model_folder_name, folder_result = self.discover_domain_mbean(model_constants.SNMP_AGENT)
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         JmsResourcesDiscoverer(self._model_context, self._dictionary, self._base_location, wlst_mode=self._wlst_mode,
                                aliases=self._aliases, credential_injector=self._get_credential_injector()).discover()
@@ -184,7 +188,7 @@ class CommonResourcesDiscoverer(Discoverer):
         if onprem_wallet_parent_path not in collected_wallet_dictionary:
             if onprem_wallet_dir_is_not_flat:
                 # collect the specific file
-                # 
+                #
                 fixed_path = archive_file.addDatabaseWallet(wallet_name, property_value)
                 path_into_archive = os.path.dirname(fixed_path)
             else:
