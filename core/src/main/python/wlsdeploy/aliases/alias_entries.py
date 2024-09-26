@@ -68,6 +68,7 @@ from wlsdeploy.aliases.model_constants import REMOTE_CONSOLE_HELPER
 from wlsdeploy.aliases.model_constants import RESOURCE_MANAGER
 from wlsdeploy.aliases.model_constants import RESOURCES
 from wlsdeploy.aliases.model_constants import SNMP_AGENT
+from wlsdeploy.aliases.model_constants import SNMP_AGENT_DEPLOYMENT
 from wlsdeploy.aliases.model_constants import SYSTEM_COMPONENT
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.model_constants import WLS_POLICIES
@@ -158,6 +159,7 @@ class AliasEntries(object):
         'ShutdownClass',
         'SingletonService',
         SNMP_AGENT,
+        SNMP_AGENT_DEPLOYMENT,
         'StartupClass',
         SYSTEM_COMPONENT,
         'WebAppContainer',
