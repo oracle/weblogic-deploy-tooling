@@ -84,7 +84,7 @@
             "folders" : {
                 "JtaRemoteDomain": {
                     "wlst_type": "J${ta:TA}RemoteDomain${:s}",
-                    "online_bean": "weblogic.management.configuration.JtaRemoteDomainMBean",
+                    "online_bean": "weblogic.management.configuration.JTARemoteDomainMBean",
                     "version": "[14.1.2,)",
                     "child_folders_type": "multiple",
                     "folders": {},
