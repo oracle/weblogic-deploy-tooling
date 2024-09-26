@@ -604,7 +604,7 @@ class Verifier(object):
                 if LSA_DEFAULT not in generated_attribute_info:
                     message = 'Attribute is not found in LSA map'
                 elif SINCE_VERSION in generated_attribute_info:
-                    message = 'Since Version=' + generated_attribute_info[SINCE_VERSION]
+                    message = 'Attribute since version ' + generated_attribute_info[SINCE_VERSION]
 
                 if generated_attribute.lower() in lower_case_list:
                     expected_wlst_name = _get_dict_key_from_value(alias_name_map, generated_attribute.lower())
