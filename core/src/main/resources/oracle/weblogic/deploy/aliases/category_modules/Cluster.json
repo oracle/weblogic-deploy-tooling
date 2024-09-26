@@ -94,7 +94,7 @@
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {
-                        "WP001": "/Cluster/%CLUSTER%/JTACluster/%JTACLUSTER%/JtaRemoteDomain${:s}/%JTAREMOTEDOMAIN%"
+                        "WP001": "/Cluster${:s}/%CLUSTER%/JTACluster/%JTACLUSTER%/JtaRemoteDomain${:s}/%JTAREMOTEDOMAIN%"
                     }
                 }
             },
