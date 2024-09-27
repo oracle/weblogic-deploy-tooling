@@ -42,9 +42,9 @@ CREDENTIAL_FIELD_EXCEPTIONS = [
     'WarnOnUsernamePasswords'.lower()
 ]
 
-# PrefixName and UriPrefix are not file system paths, but needs tokenizing for cases like /VirtualTarget-12153
+# PrefixName, UriPrefix, EngineId are not file system paths, but need tokenizing for cases like /VirtualTarget-12153
 PATH_ATTRIBUTE_NAME_ENDINGS = ['File', 'Directory', 'FileName', 'Home', 'DirectoryName', 'Path', 'Dir', 'Root',
-                               'PrefixName', 'UriPrefix']
+                               'PrefixName', 'UriPrefix', 'EngineId']
 PATH_ATTRIBUTE_NAME_EXCEPTIONS = [
     'AcceptContextPathInGetRealPath',
     'BasePath',
