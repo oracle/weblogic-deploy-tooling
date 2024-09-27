@@ -42,9 +42,9 @@ CREDENTIAL_FIELD_EXCEPTIONS = [
     'WarnOnUsernamePasswords'.lower()
 ]
 
-# PrefixName and UriPrefix are not file system paths, but needs tokenizing for cases like /VirtualTarget-12153
+# PrefixName, UriPrefix, EngineId are not file system paths, but need tokenizing for cases like /VirtualTarget-12153
 PATH_ATTRIBUTE_NAME_ENDINGS = ['File', 'Directory', 'FileName', 'Home', 'DirectoryName', 'Path', 'Dir', 'Root',
-                               'PrefixName', 'UriPrefix']
+                               'PrefixName', 'UriPrefix', 'EngineId']
 PATH_ATTRIBUTE_NAME_EXCEPTIONS = [
     'AcceptContextPathInGetRealPath',
     'BasePath',
@@ -68,6 +68,7 @@ SERVER_TEMPLATE_NAME_PATTERN = r'ServerTemplate[s]?-\d{3,5}'
 JMS_SERVER_NAME_PATTERN = r'JMSServer[s]?-\d{3,5}'
 PARTITION_NAME_PATTERN = r'Partition[s]?-\d{3,5}'
 RESOURCE_GROUP_TEMPLATE_PATTERN = r'ResourceGroupTemplate[s]?-\d{3,5}'
+SNMP_AGENT_DEPLOYMENT_PATTERN = r'SNMPAgentDeployment[s]?-\d{3,5}'
 VIRTUAL_TARGET_NAME_PATTERN = r'VirtualTarget[s]?-\d{3,5}'
 
 DOMAIN_HOME_TOKEN = '@@DOMAIN_HOME@@'
@@ -618,6 +619,7 @@ def tokenize_path_value(model_context, attribute_name, attribute_value):
         result = re.sub(SERVER_TEMPLATE_NAME_PATTERN, '%SERVERTEMPLATE%', result)
         result = re.sub(PARTITION_NAME_PATTERN, '%PARTITION%', result)
         result = re.sub(RESOURCE_GROUP_TEMPLATE_PATTERN, '%RESOURCEGROUPTEMPLATE%', result)
+        result = re.sub(SNMP_AGENT_DEPLOYMENT_PATTERN, '%SNMPAGENTDEPLOYMENT%', result)
         result = re.sub(VIRTUAL_TARGET_NAME_PATTERN, '%VIRTUALTARGET%', result)
     else:
         __logger.warning('Attribute {0} value {1} is not a string', attribute_name, attribute_value,
