@@ -112,6 +112,14 @@ class Discoverer(object):
         else:
             _logger.todo('WLSDPLY-06041', file_type, local_name, archive_name)
 
+    def discover_domain_named_mbeans(self, model_top_folder_name, model_folder):
+        model_folder_name, folder_result = self._get_named_resources(model_top_folder_name)
+        add_to_model_if_not_empty(model_folder, model_folder_name, folder_result)
+
+    def discover_domain_single_mbean(self, model_top_folder_name, model_folder):
+        model_folder_name, folder_result = self.discover_domain_mbean(model_top_folder_name)
+        add_to_model_if_not_empty(model_folder, model_folder_name, folder_result)
+
     def discover_domain_mbean(self, model_top_folder_name):
         """
         Discover the domain specific MBean and its configuration attributes.
@@ -186,6 +194,39 @@ class Discoverer(object):
                 self._add_to_dictionary(dictionary, location, get_attribute, wlst_value, wlst_path)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
+
+    def _get_named_resources(self, folder_name):
+        """
+        Discover each resource of the specified type in the domain.
+        :return: model name and dictionary for the discovered resources
+        """
+        _method_name = '_get_named_resources'
+        _logger.entering(folder_name, class_name=_class_name, method_name=_method_name)
+
+        result = OrderedDict()
+        model_top_folder_name = folder_name
+        location = LocationContext(self._base_location)
+        location.append_location(model_top_folder_name)
+        resource_names = self._find_names_in_folder(location)
+        if resource_names is not None:
+            _logger.info('WLSDPLY-06364', len(resource_names), folder_name, class_name=_class_name,
+                         method_name=_method_name)
+            typedef = self._model_context.get_domain_typedef()
+            name_token = self._aliases.get_name_token(location)
+            for resource_name in resource_names:
+                if typedef.is_filtered(location, resource_name):
+                    _logger.info('WLSDPLY-06376', typedef.get_domain_type(), folder_name, resource_name,
+                                 class_name=_class_name, method_name=_method_name)
+                else:
+                    _logger.info('WLSDPLY-06365', folder_name, resource_name, class_name=_class_name,
+                                 method_name=_method_name)
+                    location.add_name_token(name_token, resource_name)
+                    result[resource_name] = OrderedDict()
+                    self._populate_model_parameters(result[resource_name], location)
+                    self._discover_subfolders(result[resource_name], location)
+                    location.remove_name_token(name_token)
+        _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
+        return model_top_folder_name, result
 
     def _uses_is_set(self, location, wlst_param):
         """

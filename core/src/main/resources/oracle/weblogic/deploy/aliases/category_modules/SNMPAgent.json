@@ -1,0 +1,198 @@
+{
+    "copyright": "Copyright (c) 2024, Oracle and/or its affiliates.",
+    "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
+    "wlst_type": "SNMPAgent",
+    "online_bean": "weblogic.management.configuration.SNMPAgentMBean",
+    "default_name_value": "${NO_NAME_0:%DOMAIN%}",
+    "folders": {
+        "SNMPAttributeChange": {
+            "wlst_type": "SNMPAttributeChange${:s}",
+            "online_bean": "weblogic.management.configuration.SNMPAttributeChangeMBean",
+            "child_folders_type": "multiple",
+            "folders": {},
+            "attributes": {
+                "AttributeMBeanName":   [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "AttributeMBeanName",   "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "AttributeMBeanType":   [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "AttributeMBeanType",   "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "AttributeName":        [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "AttributeName",        "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "EnabledServer":        [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "EnabledServer${:s}",   "wlst_path": "WP001", "default_value": null, "wlst_type": "${delimited_string:jarray}", "preferred_model_type": "list", "get_method": "${LSA:GET}", "set_method": "${:MBEAN.set_server_mbeans}", "set_mbean_type": "weblogic.management.configuration.ServerMBean" } ],
+                "Notes":                [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "Notes",                "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ]
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/SNMPAgent/%SNMPAGENT%/SNMPAttributeChange${:s}/%SNMPATTRIBUTECHANGE%"
+            }
+        },
+        "SNMPCounterMonitor": {
+            "wlst_type": "SNMPCounterMonitor${:s}",
+            "online_bean": "weblogic.management.configuration.SNMPCounterMonitorMBean",
+            "child_folders_type": "multiple",
+            "folders": {},
+            "attributes": {
+                "EnabledServer":          [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "EnabledServer${:s}",     "wlst_path": "WP001", "default_value": null, "wlst_type": "${delimited_string:jarray}", "preferred_model_type": "list", "get_method": "${LSA:GET}", "set_method": "${:MBEAN.set_server_mbeans}", "set_mbean_type": "weblogic.management.configuration.ServerMBean" } ],
+                "Modulus":                [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Modulus",                "wlst_path": "WP001", "default_value": 0, "wlst_type": "long" } ],
+                "MonitoredAttributeName": [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "MonitoredAttributeName", "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "MonitoredMBeanName":     [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "MonitoredMBeanName",     "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "MonitoredMBeanType":     [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "MonitoredMBeanType",     "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "Notes":                  [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                  "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "Offset":                 [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Offset",                 "wlst_path": "WP001", "default_value": 0, "wlst_type": "long" } ],
+                "PollingInterval":        [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "PollingInterval",        "wlst_path": "WP001", "default_value": 10, "wlst_type": "integer" } ],
+                "Threshold":              [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Threshold",              "wlst_path": "WP001", "default_value": 0, "wlst_type": "long" } ]
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/SNMPAgent/%SNMPAGENT%/SNMPCounterMonitor${:s}/%SNMPCOUNTERMONITOR%"
+            }
+        },
+        "SNMPGaugeMonitor": {
+            "wlst_type": "SNMPGaugeMonitor${:s}",
+            "online_bean": "weblogic.management.configuration.SNMPGaugeMonitorMBean",
+            "child_folders_type": "multiple",
+            "folders": {},
+            "attributes": {
+                "EnabledServer":          [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "EnabledServer${:s}",     "wlst_path": "WP001", "default_value": null, "wlst_type": "${delimited_string:jarray}", "preferred_model_type": "list", "get_method": "${LSA:GET}", "set_method": "${:MBEAN.set_server_mbeans}", "set_mbean_type": "weblogic.management.configuration.ServerMBean" } ],
+                "MonitoredAttributeName": [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "MonitoredAttributeName", "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "MonitoredMBeanName":     [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "MonitoredMBeanName",     "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "MonitoredMBeanType":     [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "MonitoredMBeanType",     "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "Notes":                  [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                  "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "PollingInterval":        [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "PollingInterval",        "wlst_path": "WP001", "default_value": 10, "wlst_type": "integer" } ],
+                "ThresholdHigh":          [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "ThresholdHigh",          "wlst_path": "WP001", "default_value": 0.0, "wlst_type": "double" } ],
+                "ThresholdLow":           [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "ThresholdLow",           "wlst_path": "WP001", "default_value": 0.0, "wlst_type": "double" } ]
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/SNMPAgent/%SNMPAGENT%/SNMPGaugeMonitor${:s}/%SNMPGAUGEMONITOR%"
+            }
+        },
+        "SNMPLogFilter": {
+            "wlst_type": "SNMPLogFilter${:s}",
+            "online_bean": "weblogic.management.configuration.SNMPLogFilterMBean",
+            "child_folders_type": "multiple",
+            "folders": {},
+            "attributes": {
+                "EnabledServer":    [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "EnabledServer${:s}", "wlst_path": "WP001", "default_value": null, "wlst_type": "${delimited_string:jarray}", "preferred_model_type": "list", "get_method": "${LSA:GET}", "set_method": "${:MBEAN.set_server_mbeans}", "set_mbean_type": "weblogic.management.configuration.ServerMBean" } ],
+                "MessageId":        [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageId${:s}",     "wlst_path": "WP001", "default_value": [], "wlst_type": "${delimited_string:jarray}", "get_method": "${LSA:GET}" } ],
+                "MessageSubstring": [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "MessageSubstring",   "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "Notes":            [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",              "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "SeverityLevel":    [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "SeverityLevel",      "wlst_path": "WP001", "default_value": "Notice", "wlst_type": "string" } ],
+                "SubsystemName":    [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "SubsystemName${:s}", "wlst_path": "WP001", "default_value": [], "wlst_type": "${delimited_string:jarray}", "get_method": "${LSA:GET}" } ],
+                "UserId":           [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "UserId${:s}",        "wlst_path": "WP001", "default_value": [], "wlst_type": "${delimited_string:jarray}", "get_method": "${LSA:GET}" } ]
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/SNMPAgent/%SNMPAGENT%/SNMPLogFilter${:s}/%SNMPLOGFILTER%"
+            }
+        },
+        "SNMPProxy": {
+            "wlst_type": "SNMPProx${y:ies}",
+            "online_bean": "weblogic.management.configuration.SNMPProxyMBean",
+            "child_folders_type": "multiple",
+            "folders": {},
+            "attributes": {
+                "Community":     [
+                    { "version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "Community", "wlst_path": "WP001", "default_value": "public", "wlst_type": "string" },
+                    { "version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "Community", "wlst_path": "WP001", "default_value": "public", "wlst_type": "string", "derived_default": "${true:}" }
+                ],
+                "ListenAddress": [ { "version": "[12.2.1.3,)", "wlst_mode": "both", "wlst_name": "ListenAddress", "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "Notes":         [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",         "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "OidRoot":       [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "OidRoot",       "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "Port":          [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Port",          "wlst_path": "WP001", "default_value": 0, "wlst_type": "integer" } ],
+                "SecurityLevel": [
+                    { "version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "SecurityLevel", "wlst_path": "WP001", "default_value": "${__NULL__:noAuthNoPriv}", "wlst_type": "string", "production_default": "authNoPriv" },
+                    { "version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "SecurityLevel", "wlst_path": "WP001", "default_value": "noAuthNoPriv",             "wlst_type": "string", "production_default": "authNoPriv", "derived_default": "${true:}" }
+                ],
+                "SecurityName":  [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "SecurityName",  "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "Timeout":       [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Timeout",       "wlst_path": "WP001", "default_value": 5000, "wlst_type": "long" } ]
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/SNMPAgent/%SNMPAGENT%/SNMPProx${y:ies}/%SNMPPROXY%"
+            }
+        },
+        "SNMPStringMonitor": {
+            "wlst_type": "SNMPStringMonitor${:s}",
+            "online_bean": "weblogic.management.configuration.SNMPStringMonitorMBean",
+            "child_folders_type": "multiple",
+            "folders": {},
+            "attributes": {
+                "EnabledServer":          [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "EnabledServer${:s}",     "wlst_path": "WP001", "default_value": null, "wlst_type": "${delimited_string:jarray}", "preferred_model_type": "list", "get_method": "${LSA:GET}", "set_method": "${:MBEAN.set_server_mbeans}", "set_mbean_type": "weblogic.management.configuration.ServerMBean" } ],
+                "MonitoredAttributeName": [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "MonitoredAttributeName", "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "MonitoredMBeanName":     [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "MonitoredMBeanName",     "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "MonitoredMBeanType":     [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "MonitoredMBeanType",     "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "Notes":                  [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                  "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "NotifyDiffer":           [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "NotifyDiffer",           "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" } ],
+                "NotifyMatch":            [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "NotifyMatch",            "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" } ],
+                "PollingInterval":        [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "PollingInterval",        "wlst_path": "WP001", "default_value": 10, "wlst_type": "integer" } ],
+                "StringToCompare":        [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "StringToCompare",        "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ]
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/SNMPAgent/%SNMPAGENT%/SNMPStringMonitor${:s}/%SNMPSTRINGMONITOR%"
+            }
+        },
+        "SNMPTrapDestination": {
+            "wlst_type": "SNMPTrapDestination${:s}",
+            "online_bean": "weblogic.management.configuration.SNMPTrapDestinationMBean",
+            "child_folders_type": "multiple",
+            "folders": {},
+            "attributes": {
+                "Community":     [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Community",     "wlst_path": "WP001", "default_value": "public", "wlst_type": "string" } ],
+                "Host":          [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Host",          "wlst_path": "WP001", "default_value": "localhost", "wlst_type": "string" } ],
+                "Notes":         [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",         "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "Port":          [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Port",          "wlst_path": "WP001", "default_value": 162, "wlst_type": "integer" } ],
+                "SecurityLevel": [
+                    { "version": "[10,12.2.1.4)", "wlst_mode": "both", "wlst_name": "SecurityLevel", "wlst_path": "WP001", "default_value": "${__NULL__:noAuthNoPriv}", "wlst_type": "string" },
+                    { "version": "[12.2.1.4,)",   "wlst_mode": "both", "wlst_name": "SecurityLevel", "wlst_path": "WP001", "default_value": "${__NULL__:authNoPriv}",   "wlst_type": "string" }
+                ],
+                "SecurityName":  [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "SecurityName",  "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ]
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/SNMPAgent/%SNMPAGENT%/SNMPTrapDestination${:s}/%SNMPTRAPDESTINATION%"
+            }
+        }
+    },
+    "attributes": {
+        "AuthenticationProtocol":      [
+            {"version": "[10,12.2.1.4)", "wlst_mode": "both",  "wlst_name": "AuthenticationProtocol", "wlst_path": "WP001", "default_value": "${__NULL__:noAuth}", "wlst_type": "string" },
+            {"version": "[12.2.1.4,)",   "wlst_mode": "both",  "wlst_name": "AuthenticationProtocol", "wlst_path": "WP001", "default_value": "${__NULL__:MD5}",    "wlst_type": "string" }
+        ],
+        "CommunityBasedAccessEnabled": [
+            {"version": "[10,12.2.1.4)", "wlst_mode": "both", "wlst_name": "CommunityBasedAccessEnabled", "wlst_path": "WP001", "default_value": true,  "wlst_type": "boolean" },
+            {"version": "[12.2.1.4,)",   "wlst_mode": "both", "wlst_name": "CommunityBasedAccessEnabled", "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" }
+        ],
+        "CommunityPrefix":             [
+            {"version": "[10,12.2.1.4)", "wlst_mode": "both", "wlst_name": "CommunityPrefix", "wlst_path": "WP001", "default_value": "public", "wlst_type": "string" },
+            {"version": "[12.2.1.4,)",   "wlst_mode": "both", "wlst_name": "CommunityPrefix", "wlst_path": "WP001", "default_value": null,     "wlst_type": "string" }
+        ],
+        "Enabled":                     [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "Enabled",                     "wlst_path": "WP001", "default_value": false,   "wlst_type": "boolean" } ],
+        "InformEnabled":               [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "InformEnabled",               "wlst_path": "WP001", "default_value": false,   "wlst_type": "boolean" } ],
+        "InformRetryInterval":         [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "InformRetryInterval",         "wlst_path": "WP001", "default_value": 10000,   "wlst_type": "integer" } ],
+        "ListenAddress":               [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "ListenAddress",            "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
+        "LocalizedKeyCacheInvalidationInterval":
+                                       [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "LocalizedKeyCacheInvalidationInterval", "wlst_path": "WP001", "default_value": "${0:3600000}", "wlst_type": "long" } ],
+        "MasterAgentXPort":            [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "MasterAgentXPort",            "wlst_path": "WP001", "default_value": 705,     "wlst_type": "integer" } ],
+        "MaxInformRetryCount":         [
+            {"version": "[10,12.2.1.3)", "wlst_mode": "online", "wlst_name": "MaxInformRetryCount", "wlst_path": "WP001", "default_value": 1, "wlst_type": "integer" },
+            {"version": "[12.2.1.3,)",   "wlst_mode": "both",   "wlst_name": "MaxInformRetryCount", "wlst_path": "WP001", "default_value": 1, "wlst_type": "integer" }
+        ],
+        "Notes":                       [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "Notes",                       "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
+        "PrivacyProtocol":             [
+            {"version": "[10,12.2.1.4)", "wlst_mode": "both", "wlst_name": "PrivacyProtocol", "wlst_path": "WP001", "default_value": "${__NULL__:noPriv}",  "wlst_type": "string" },
+            {"version": "[12.2.1.4,)",   "wlst_mode": "both", "wlst_name": "PrivacyProtocol", "wlst_path": "WP001", "default_value": "${__NULL__:AES_128}", "wlst_type": "string" }
+        ],
+        "SNMPPort":                    [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "SNMPPort",                    "wlst_path": "WP001", "default_value": 161,     "wlst_type": "integer" } ],
+        "SNMPTrapVersion":             [
+            {"version": "[10,12.2.1.4)", "wlst_mode": "both", "wlst_name": "SNMPTrapVersion", "wlst_path": "WP001", "default_value": "${0:1}", "wlst_type": "integer" },
+            {"version": "[12.2.1.4,)",   "wlst_mode": "both", "wlst_name": "SNMPTrapVersion", "wlst_path": "WP001", "default_value": "${0:3}", "wlst_type": "integer" }
+        ],
+        "SendAutomaticTrapsEnabled":   [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "SendAutomaticTrapsEnabled",   "wlst_path": "WP001", "default_value": true,    "wlst_type": "boolean" } ],
+        "SnmpAccessForUserMBeansEnabled":
+                                       [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "S${nmp:NMP}AccessForUserMBeansEnabled", "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" } ],
+        "SnmpEngineId":                [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "S${nmp:NMP}EngineId",         "wlst_path": "WP001", "default_value": "${__NULL__:%DOMAIN%}", "wlst_type": "string" } ],
+        "UserDefinedMib":              [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "UserDefinedMib",              "wlst_path": "WP001", "default_value": "na",    "wlst_type": "string" } ]
+    },
+    "wlst_attributes_path": "WP001",
+    "wlst_paths": {
+        "WP001": "/SNMPAgent/%SNMPAGENT%"
+    }
+}

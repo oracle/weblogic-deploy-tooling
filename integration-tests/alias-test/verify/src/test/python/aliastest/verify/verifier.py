@@ -304,8 +304,9 @@ class Verifier(object):
                     verify_utils.filter_generated_attributes(location, attributes)
                 self._verify_attributes_at_location(filtered_attributes, location)
                 subfolder_map = self._alias_helper.get_subfolder_map(location)
-                if subfolder_map:
-                    self._verify_aliases_at_location(this_dictionary, location, subfolder_map)
+
+                # check generated sub-folders, even if alias subfolder_map is empty:
+                self._verify_aliases_at_location(this_dictionary, location, subfolder_map)
                 self._clean_up_location(location)
 
         _logger.exiting(class_name=CLASS_NAME, method_name=_method_name)
@@ -473,7 +474,7 @@ class Verifier(object):
                                  unprocessed, location.get_folder_path(), class_name=CLASS_NAME,
                                  method_name=_method_name)
                 else:
-                    message = ''
+                    message = None
                     if verify_utils.is_clear_text_password(unprocessed):
                         message = 'This attribute is a clear text password'
                     self._add_error(location, ERROR_ATTRIBUTE_NOT_IN_WLST, message=message, attribute=unprocessed)
@@ -603,7 +604,7 @@ class Verifier(object):
                 if LSA_DEFAULT not in generated_attribute_info:
                     message = 'Attribute is not found in LSA map'
                 elif SINCE_VERSION in generated_attribute_info:
-                    message = 'Since Version=', generated_attribute_info[SINCE_VERSION]
+                    message = 'Attribute since version ' + generated_attribute_info[SINCE_VERSION]
 
                 if generated_attribute.lower() in lower_case_list:
                     expected_wlst_name = _get_dict_key_from_value(alias_name_map, generated_attribute.lower())
@@ -1194,17 +1195,17 @@ class Verifier(object):
                         self._add_warning(location, WARN_MBEAN_NOT_NO_NAME_0)
 
     def _add_invalid_type_error(self, location, generated_attribute, wlst_type, alias_type, get_required_attribute_list,
-                                extra_blurb=''):
+                                extra_blurb=None):
         _method_name = '_add_invalid_type_error'
 
-        if extra_blurb is None:
-            extra_blurb = ''
         if wlst_type == UNKNOWN:
             _logger.fine('Change caller to pass an attribute type other than unknown for attribute {0}',
                          generated_attribute, class_name=CLASS_NAME, method_name=_method_name)
-        if len(extra_blurb) == 0 and generated_attribute in get_required_attribute_list:
+        if extra_blurb is None and generated_attribute in get_required_attribute_list:
             extra_blurb = 'Alias has GET required'
-        message = 'WLST type: %s / Alias type: %s  (%s)' % (wlst_type, alias_type, extra_blurb)
+        message = 'WLS type: %s / Alias type: %s' % (wlst_type, alias_type)
+        if extra_blurb:
+            message = '%s -- %s' % (message, extra_blurb)
         self._add_error(location, ERROR_ATTRIBUTE_WRONG_TYPE, message=message, attribute=generated_attribute)
 
     def _validate_primitive_type(self, location, generated_attribute, generated_attribute_info,
@@ -1898,6 +1899,6 @@ def _format_message(message_number, message_dict, _location):
     if MESSAGE in message_dict:
       text += ' (%s)' % message_dict[MESSAGE]
 
-    # location is established in prior messages
+    # location is not output, it is established in prior messages
 
     return text

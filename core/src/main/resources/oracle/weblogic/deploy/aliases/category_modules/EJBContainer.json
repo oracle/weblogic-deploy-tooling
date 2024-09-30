@@ -1,0 +1,28 @@
+{
+    "copyright": "Copyright (c) 2024, Oracle and/or its affiliates.",
+    "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
+    "wlst_type": "EJBContainer",
+    "online_bean": "weblogic.management.configuration.EJBContainerMBean",
+    "default_name_value": "${NO_NAME_0:%DOMAIN%}",
+    "folders": {
+    },
+    "attributes": {
+        "ExtraEjbcOptions":            [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "ExtraEjbcOptions",            "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+        "ExtraRmicOptions":            [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "ExtraRmicOptions",            "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+        "ForceGeneration":             [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "ForceGeneration",             "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" } ],
+        "JavaCompiler":                [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "JavaCompiler",                "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+        "JavaCompilerPostClassPath":   [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "JavaCompilerPostClassPath",   "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+        "JavaCompilerPreClassPath":    [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "JavaCompilerPreClassPath",    "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+        "KeepGenerated":               [
+            { "version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "KeepGenerated", "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean" },
+            { "version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "KeepGenerated", "wlst_path": "WP001", "default_value": true, "wlst_type": "boolean", "derived_default": "${true:}" }
+        ],
+        "Notes":                       [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                       "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+        "TmpPath":                     [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "TmpPath",                     "wlst_path": "WP001", "default_value": "tmp_ejb", "wlst_type": "string", "uses_path_tokens": true } ],
+        "VerboseEJBDeploymentEnabled": [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "VerboseEJBDeploymentEnabled", "wlst_path": "WP001", "default_value": "false", "wlst_type": "string" } ]
+    },
+    "wlst_attributes_path": "WP001",
+    "wlst_paths": {
+        "WP001": "/EJBContainer/%EJBCONTAINER%"
+    }
+}
