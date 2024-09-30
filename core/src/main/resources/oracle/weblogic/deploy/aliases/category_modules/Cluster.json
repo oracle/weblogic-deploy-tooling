@@ -81,7 +81,23 @@
             "version": "[12.1.3,)",
             "child_folders_type": "single",
             "default_name_value": "${NO_NAME_0:%CLUSTER%}",
-            "folders" : {},
+            "folders" : {
+                "JtaRemoteDomain": {
+                    "wlst_type": "J${ta:TA}RemoteDomain${:s}",
+                    "online_bean": "weblogic.management.configuration.JTARemoteDomainMBean",
+                    "version": "[14.1.2,)",
+                    "child_folders_type": "multiple",
+                    "folders": {},
+                    "attributes": {
+                        "Notes": [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",     "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                        "Url":   [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "U${rl:RL}", "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ]
+                    },
+                    "wlst_attributes_path": "WP001",
+                    "wlst_paths": {
+                        "WP001": "/Cluster${:s}/%CLUSTER%/JTACluster/%JTACLUSTER%/JtaRemoteDomain${:s}/%JTAREMOTEDOMAIN%"
+                    }
+                }
+            },
             "attributes" : {
                 "AbandonTimeoutSeconds":                      [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "AbandonTimeoutSeconds",                      "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 86400,    "wlst_type": "integer" } ],
                 "BeforeCompletionIterationLimit":             [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "BeforeCompletionIterationLimit",             "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 10,       "wlst_type": "integer" } ],

@@ -56,6 +56,7 @@ from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import CALLOUT
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
+from wlsdeploy.aliases.model_constants import EJB_CONTAINER
 from wlsdeploy.aliases.model_constants import HEALTH_SCORE
 from wlsdeploy.aliases.model_constants import JOLT_CONNECTION_POOL
 from wlsdeploy.aliases.model_constants import JPA
@@ -66,6 +67,8 @@ from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import REMOTE_CONSOLE_HELPER
 from wlsdeploy.aliases.model_constants import RESOURCE_MANAGER
 from wlsdeploy.aliases.model_constants import RESOURCES
+from wlsdeploy.aliases.model_constants import SNMP_AGENT
+from wlsdeploy.aliases.model_constants import SNMP_AGENT_DEPLOYMENT
 from wlsdeploy.aliases.model_constants import SYSTEM_COMPONENT
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.model_constants import WLS_POLICIES
@@ -131,6 +134,7 @@ class AliasEntries(object):
 
     __resources_top_level_folders = [
         'CoherenceClusterSystemResource',
+        EJB_CONTAINER,
         'FileStore',
         'ForeignJNDIProvider',
         'JDBCStore',
@@ -154,6 +158,8 @@ class AliasEntries(object):
         'SelfTuning',
         'ShutdownClass',
         'SingletonService',
+        SNMP_AGENT,
+        SNMP_AGENT_DEPLOYMENT,
         'StartupClass',
         SYSTEM_COMPONENT,
         'WebAppContainer',

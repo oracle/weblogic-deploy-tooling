@@ -1,7 +1,8 @@
 """
-Copyright (c) 2017, 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.  All rights reserved.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+from wlsdeploy.aliases.model_constants import EJB_CONTAINER
 from wlsdeploy.aliases.model_constants import FILE_STORE
 from wlsdeploy.aliases.model_constants import FOREIGN_JNDI_PROVIDER
 from wlsdeploy.aliases.model_constants import JDBC_STORE
@@ -14,6 +15,8 @@ from wlsdeploy.aliases.model_constants import OHS
 from wlsdeploy.aliases.model_constants import PATH_SERVICE
 from wlsdeploy.aliases.model_constants import SAF_AGENT
 from wlsdeploy.aliases.model_constants import SELF_TUNING
+from wlsdeploy.aliases.model_constants import SNMP_AGENT
+from wlsdeploy.aliases.model_constants import SNMP_AGENT_DEPLOYMENT
 from wlsdeploy.aliases.model_constants import WORK_MANAGER
 from wlsdeploy.aliases.model_constants import WEBAPP_CONTAINER
 from wlsdeploy.aliases.model_constants import WTC_SERVER
@@ -59,6 +62,16 @@ class CommonResourcesDeployer(Deployer):
             return
 
         Deployer._add_subfolders(self, model_nodes, location, excludes=excludes)
+
+    def add_ejb_container(self, parent_dict, location):
+        """
+        Deploy the EJB container elements in the dictionary at the specified location.
+        :param parent_dict: the dictionary possibly containing EJB container elements
+        :param location: the location to deploy the elements
+        """
+        ejb_container = dictionary_utils.get_dictionary_element(parent_dict, EJB_CONTAINER)
+        if len(ejb_container) != 0:
+            self._add_model_elements(EJB_CONTAINER, ejb_container, location)
 
     def add_file_stores(self, parent_dict, location):
         """
@@ -149,6 +162,26 @@ class CommonResourcesDeployer(Deployer):
         """
         saf_agents = dictionary_utils.get_dictionary_element(parent_dict, SAF_AGENT)
         self._add_named_elements(SAF_AGENT, saf_agents, location)
+
+    def add_snmp_agent(self, parent_dict, location):
+        """
+        Deploy the SNMP agent elements in the dictionary at the specified location.
+        :param parent_dict: the dictionary possibly containing SNMP agent elements
+        :param location: the location to deploy the elements
+        """
+        snmp_agent = dictionary_utils.get_dictionary_element(parent_dict, SNMP_AGENT)
+        if len(snmp_agent) != 0:
+            self._add_model_elements(SNMP_AGENT, snmp_agent, location)
+
+    def add_snmp_agent_deployments(self, parent_dict, location):
+        """
+        Deploy the SNMP agent deployment elements in the dictionary at the specified location.
+        :param parent_dict: the dictionary possibly containing SNMP agent deployment elements
+        :param location: the location to deploy the elements
+        """
+        deployments = dictionary_utils.get_dictionary_element(parent_dict, SNMP_AGENT_DEPLOYMENT)
+        if len(deployments) != 0:
+            self._add_named_elements(SNMP_AGENT_DEPLOYMENT, deployments, location)
 
     def add_self_tuning(self, parent_dict, location):
         """

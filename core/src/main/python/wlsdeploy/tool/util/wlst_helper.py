@@ -171,6 +171,8 @@ class WlstHelper(object):
                     return True
                 result = mbean.isSet(attribute)
             else:
+                if not self.__has_global('isSet'):
+                    return True
                 result = self.__load_global('isSet')(attribute)
 
         except (self.__load_global('WLSTException'), offlineWLSTException), e:
@@ -1801,6 +1803,9 @@ class WlstHelper(object):
 
     def __check_online_connection(self):
         return self.__load_global('WLS_ON').isConnected()
+
+    def __has_global(self, global_name):
+        return wlst_functions is not None and global_name in wlst_functions
 
     def __load_global(self, global_name):
         """
