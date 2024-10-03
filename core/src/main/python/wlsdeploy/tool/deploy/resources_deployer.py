@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import wlsdeploy.util.dictionary_utils as dictionary_utils
@@ -66,6 +66,7 @@ class ResourcesDeployer(Deployer):
         self._add_startup_classes(location)
         self._add_shutdown_classes(location)
 
+        common_deployer.add_custom_resources(self._resources, location)
         common_deployer.add_ejb_container(self._resources, location)
         common_deployer.add_foreign_jndi_providers(self._resources, location)
         common_deployer.add_file_stores(self._resources, location)

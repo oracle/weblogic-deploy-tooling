@@ -114,15 +114,15 @@ class Deployer(object):
 
             if token is not None:
                 location.add_name_token(token, name)
-            self._create_and_cd(location, existing_names)
 
             child_nodes = dictionary_utils.get_dictionary_element(model_nodes, name)
+            self._create_and_cd(location, existing_names, child_nodes)
             self._set_attributes_and_add_subfolders(location, child_nodes)
 
     #
     # This method exists purely to allow subclasses to override how an mbean is created.
     #
-    def _create_and_cd(self, location, existing_names):
+    def _create_and_cd(self, location, existing_names, child_nodes):
         deployer_utils.create_and_cd(location, existing_names, self.aliases)
 
     def _add_subfolders(self, model_nodes, location, excludes=None):

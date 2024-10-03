@@ -55,9 +55,6 @@ class CommonResourcesDiscoverer(Discoverer):
         _logger.entering(class_name=_class_name, method_name=_method_name)
         model_folder_name, folder_result = self.get_datasources()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
-
-        self.discover_domain_single_mbean(model_constants.EJB_CONTAINER, self._dictionary)
-
         model_folder_name, folder_result = self.get_foreign_jndi_providers()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self.get_mail_sessions()
@@ -68,9 +65,6 @@ class CommonResourcesDiscoverer(Discoverer):
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
         model_folder_name, folder_result = self.get_path_services()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_folder_name, folder_result)
-
-        self.discover_domain_single_mbean(model_constants.SNMP_AGENT, self._dictionary)
-        self.discover_domain_named_mbeans(model_constants.SNMP_AGENT_DEPLOYMENT, self._dictionary)
 
         JmsResourcesDiscoverer(self._model_context, self._dictionary, self._base_location, wlst_mode=self._wlst_mode,
                                aliases=self._aliases, credential_injector=self._get_credential_injector()).discover()

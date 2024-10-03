@@ -378,6 +378,25 @@ class WlstHelper(object):
         self.__logger.exiting(result=result, class_name=self.__class_name, method_name=_method_name)
         return result
 
+    def create_custom_resource(self, name, resource_class, bean_descriptor_class, descriptor_file_name):
+        _method_name = 'create_custom_resource'
+        self.__logger.entering(name, resource_class, bean_descriptor_class, descriptor_file_name,
+                               class_name=self.__class_name, method_name=_method_name)
+        try:
+            cmo = self.get_mbean()
+            if descriptor_file_name:
+                resource = cmo.createCustomResource(name, resource_class, bean_descriptor_class, descriptor_file_name)
+            else:
+                resource = cmo.createCustomResource(name, resource_class, bean_descriptor_class)
+            self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
+            return resource
+        except (self.__load_global('WLSTException'), offlineWLSTException), e:
+            pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00137', name,
+                                                    resource_class, bean_descriptor_class, descriptor_file_name,
+                                                    _format_exception(e), error=e)
+            self.__logger.throwing(class_name=self.__class_name, method_name=_method_name, error=pwe)
+            raise pwe
+
     def delete(self, name, folder):
         """
         Delete an MBean of the specified name and type at the current location.
