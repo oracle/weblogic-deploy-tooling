@@ -1,7 +1,10 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.  All rights reserved.
+Copyright (c) 2017, 2024, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+from wlsdeploy.aliases.model_constants import CUSTOM_RESOURCE
+from wlsdeploy.aliases.model_constants import DESCRIPTOR_BEAN_CLASS
+from wlsdeploy.aliases.model_constants import DESCRIPTOR_FILE_NAME
 from wlsdeploy.aliases.model_constants import EJB_CONTAINER
 from wlsdeploy.aliases.model_constants import FILE_STORE
 from wlsdeploy.aliases.model_constants import FOREIGN_JNDI_PROVIDER
@@ -13,6 +16,7 @@ from wlsdeploy.aliases.model_constants import MAIL_SESSION
 from wlsdeploy.aliases.model_constants import MESSAGING_BRIDGE
 from wlsdeploy.aliases.model_constants import OHS
 from wlsdeploy.aliases.model_constants import PATH_SERVICE
+from wlsdeploy.aliases.model_constants import RESOURCE_CLASS
 from wlsdeploy.aliases.model_constants import SAF_AGENT
 from wlsdeploy.aliases.model_constants import SELF_TUNING
 from wlsdeploy.aliases.model_constants import SNMP_AGENT
@@ -24,6 +28,7 @@ from wlsdeploy.aliases.model_constants import SINGLETON_SERVICE
 from wlsdeploy.aliases.model_constants import SYSTEM_COMPONENT
 
 from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.exception import exception_helper
 from wlsdeploy.tool.deploy.deployer import Deployer
 from wlsdeploy.util import dictionary_utils
 
@@ -62,6 +67,27 @@ class CommonResourcesDeployer(Deployer):
             return
 
         Deployer._add_subfolders(self, model_nodes, location, excludes=excludes)
+
+    # Override
+    def _create_and_cd(self, location, existing_names, child_nodes):
+        """
+        Override the base method for custom resources.
+        These have to be created using cmo.createCustomResource(...) .
+        """
+        parent_type = self.get_location_type(location)
+        if parent_type == CUSTOM_RESOURCE and (self.wlst_mode == WlstModes.ONLINE):
+            self.__create_custom_resource_online_and_cd(location, existing_names, child_nodes)
+        else:
+            Deployer._create_and_cd(self, location, existing_names, child_nodes)
+
+    def add_custom_resources(self, parent_dict, location):
+        """
+        Deploy the custom resource elements in the dictionary at the specified location.
+        :param parent_dict: the dictionary possibly containing custom resource elements
+        :param location: the location to deploy the elements
+        """
+        resources = dictionary_utils.get_dictionary_element(parent_dict, CUSTOM_RESOURCE)
+        self._add_named_elements(CUSTOM_RESOURCE, resources, location)
 
     def add_ejb_container(self, parent_dict, location):
         """
@@ -180,8 +206,7 @@ class CommonResourcesDeployer(Deployer):
         :param location: the location to deploy the elements
         """
         deployments = dictionary_utils.get_dictionary_element(parent_dict, SNMP_AGENT_DEPLOYMENT)
-        if len(deployments) != 0:
-            self._add_named_elements(SNMP_AGENT_DEPLOYMENT, deployments, location)
+        self._add_named_elements(SNMP_AGENT_DEPLOYMENT, deployments, location)
 
     def add_self_tuning(self, parent_dict, location):
         """
@@ -244,3 +269,38 @@ class CommonResourcesDeployer(Deployer):
             self.logger.warning('WLSDPLY-09405', OHS, class_name=self._class_name, method_name=_method_name)
         else:
             self._add_named_elements(OHS, system_components, location)
+
+    def __create_custom_resource_online_and_cd(self, location, existing_names, child_nodes):
+        """
+        Create the custom resource at the specified location if it does not exist,
+        and change to the new directory.
+        :param location: the location of the custom resource to create
+        :param existing_names: existing names at the specified location
+        :param child_nodes: used to gather information to create
+        """
+        _method_name = '__create_custom_resource_online_and_cd'
+
+        mbean_name = self.aliases.get_wlst_mbean_name(location)
+        if mbean_name not in existing_names:
+            create_path = self.aliases.get_wlst_create_path(location)
+            self.wlst_helper.cd(create_path)
+            resource_class = dictionary_utils.get_element(child_nodes, RESOURCE_CLASS)
+            if not resource_class:
+                ex = exception_helper.create_deploy_exception(
+                    'WLSDPLY-09426', CUSTOM_RESOURCE, mbean_name, RESOURCE_CLASS)
+                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
+
+            bean_descriptor_class = dictionary_utils.get_element(child_nodes, DESCRIPTOR_BEAN_CLASS)
+            if not bean_descriptor_class:
+                ex = exception_helper.create_deploy_exception(
+                     'WLSDPLY-09426', CUSTOM_RESOURCE, mbean_name, DESCRIPTOR_BEAN_CLASS)
+                self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                raise ex
+
+            descriptor_file_name = dictionary_utils.get_element(child_nodes, DESCRIPTOR_FILE_NAME)
+            self.wlst_helper.create_custom_resource(mbean_name, resource_class, bean_descriptor_class,
+                                                    descriptor_file_name)
+
+        wlst_path = self.aliases.get_wlst_attributes_path(location)
+        self.wlst_helper.cd(wlst_path)

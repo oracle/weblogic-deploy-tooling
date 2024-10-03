@@ -54,6 +54,7 @@ from wlsdeploy.aliases.model_constants import ALLOW_LIST
 from wlsdeploy.aliases.model_constants import APP_DEPLOYMENTS
 from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import CALLOUT
+from wlsdeploy.aliases.model_constants import CUSTOM_RESOURCE
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
 from wlsdeploy.aliases.model_constants import EJB_CONTAINER
@@ -134,6 +135,7 @@ class AliasEntries(object):
 
     __resources_top_level_folders = [
         'CoherenceClusterSystemResource',
+        CUSTOM_RESOURCE,
         EJB_CONTAINER,
         'FileStore',
         'ForeignJNDIProvider',

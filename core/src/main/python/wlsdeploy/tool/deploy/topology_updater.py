@@ -86,7 +86,7 @@ class TopologyUpdater(Deployer):
                                                     self.attribute_setter)
 
     # Override
-    def _create_and_cd(self, location, existing_names):
+    def _create_and_cd(self, location, existing_names, child_nodes):
         _method_name = '_create_and_cd'
 
         self.logger.entering(str_helper.to_string(location), existing_names,

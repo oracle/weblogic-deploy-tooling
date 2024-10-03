@@ -1,0 +1,45 @@
+{
+    "copyright": "Copyright (c) 2024, Oracle and/or its affiliates.",
+    "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
+    "wlst_type": "CustomResource${:s}",
+    "online_bean": "weblogic.management.configuration.CustomResourceMBean",
+    "child_folders_type": "multiple",
+    "folders": {
+        "SubDeployment": {
+            "wlst_type": "SubDeployment${:s}",
+            "online_bean": "weblogic.management.configuration.SubDeploymentMBean",
+            "child_folders_type": "multiple",
+            "folders": {},
+            "attributes": {
+                "CompatibilityName": [ { "version": "[10,)",     "wlst_mode": "both",    "wlst_name": "CompatibilityName", "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "ModuleType":        [ { "version": "[10,)",     "wlst_mode": "both",    "wlst_name": "ModuleType",        "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "Notes":             [ { "version": "[10,)",     "wlst_mode": "both",    "wlst_name": "Notes",             "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+                "Target":            [ { "version": "[10,)",     "wlst_mode": "offline", "wlst_name": "Target",            "wlst_path": "WP001", "default_value": null, "wlst_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans" },
+                                       { "version": "[10,)",     "wlst_mode": "online",  "wlst_name": "Targets",           "wlst_path": "WP002", "default_value": null, "wlst_type": "jarray", "get_method": "GET", "derived_default": true, "preferred_model_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ],
+                "Untargeted":        [ { "version": "[12.2.1,)", "wlst_mode": "both",    "wlst_name": "Untargeted",        "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" } ]
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/CustomResource${:s}/%CUSTOMRESOURCE%/SubDeployment${:s}/%SUBDEPLOYMENT%",
+                "WP002": "/CustomResource${:s}/%CUSTOMRESOURCE%/SubDeployment${:s}/%SUBDEPLOYMENT%/Targets"
+            }
+        }
+    },
+    "attributes": {
+        "CompatibilityName":       [ { "version": "[10,)", "wlst_mode": "both",    "wlst_name": "CompatibilityName",       "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+        "DeploymentOrder":         [ { "version": "[10,)", "wlst_mode": "both",    "wlst_name": "DeploymentOrder",         "wlst_path": "WP001", "default_value": 100, "wlst_type": "integer" } ],
+        "DeploymentPrincipalName": [ { "version": "[10,)", "wlst_mode": "both",    "wlst_name": "DeploymentPrincipalName", "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+        "DescriptorBeanClass":     [ { "version": "[10,)", "wlst_mode": "both",    "wlst_name": "DescriptorBeanClass",     "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+        "ModuleType":              [ { "version": "[10,)", "wlst_mode": "both",    "wlst_name": "ModuleType",              "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+        "Notes":                   [ { "version": "[10,)", "wlst_mode": "both",    "wlst_name": "Notes",                   "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+        "ResourceClass":           [ { "version": "[10,)", "wlst_mode": "both",    "wlst_name": "ResourceClass",           "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+        "SourcePath":              [ { "version": "[10,)", "wlst_mode": "both",    "wlst_name": "SourcePath",              "wlst_path": "WP001", "default_value": null, "wlst_type": "string", "uses_path_tokens": true } ],
+        "Target":                  [ { "version": "[10,)", "wlst_mode": "offline", "wlst_name": "Target",                  "wlst_path": "WP001", "default_value": null, "wlst_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans" },
+                                     { "version": "[10,)", "wlst_mode": "online",  "wlst_name": "Targets",                 "wlst_path": "WP002", "default_value": null, "wlst_type": "jarray", "get_method": "GET", "derived_default": true, "preferred_model_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ]
+    },
+    "wlst_attributes_path": "WP001",
+    "wlst_paths": {
+        "WP001": "/CustomResource${:s}/%CUSTOMRESOURCE%",
+        "WP002": "/CustomResource${:s}/%CUSTOMRESOURCE%/Targets"
+    }
+}

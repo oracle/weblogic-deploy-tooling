@@ -6,8 +6,8 @@ import exceptions
 import sys
 import traceback
 
-from java.lang import Exception as JException
 from java.lang import System as JSystem
+from java.lang import Throwable as JThrowable
 from java.util.logging import Level as JLevel
 
 from oracle.weblogic.deploy.aliases import VersionUtils
@@ -85,7 +85,7 @@ def run_tool(main, process_args, args, program_name, class_name, logger):
     except exceptions.SystemExit, ex:
         cla_helper.clean_up_temp_files()
         raise ex
-    except (exceptions.Exception, JException), ex:
+    except (exceptions.Exception, JThrowable), ex:
         exit_code = ExitCode.ERROR
         __handle_unexpected_exception(ex, model_context_obj, class_name, _method_name, logger)
 

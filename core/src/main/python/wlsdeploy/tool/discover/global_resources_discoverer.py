@@ -62,6 +62,11 @@ class GlobalResourcesDiscoverer(Discoverer):
         model_top_folder_name, optional_feature_deployment = self.get_optional_feature_deployment()
         discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, optional_feature_deployment)
 
+        self.discover_domain_named_mbeans(model_constants.CUSTOM_RESOURCE, self._dictionary)
+        self.discover_domain_single_mbean(model_constants.EJB_CONTAINER, self._dictionary)
+        self.discover_domain_single_mbean(model_constants.SNMP_AGENT, self._dictionary)
+        self.discover_domain_named_mbeans(model_constants.SNMP_AGENT_DEPLOYMENT, self._dictionary)
+
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary
 
