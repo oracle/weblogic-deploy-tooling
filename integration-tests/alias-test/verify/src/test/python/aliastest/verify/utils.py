@@ -81,6 +81,10 @@ OFFLINE_TEST_ANOMALIES_MAP = {
         'ModuleType': 'war',
         'SourcePath': 'wlsdeploy/applications/get-listen-address-app.war'
     },
+    '/CustomResource': {
+        'DescriptorBeanClass': 'demo.customresource.DemoBean',
+        'ResourceClass': 'demo.customresource.DemoResource'
+    },
     '/Library': {
         'ModuleType': 'war',
         'SourcePath': 'wlsdeploy/sharedLibraries/jstl-1.2.war'
@@ -91,6 +95,10 @@ ONLINE_TEST_ANOMALIES_MAP = {
     '/Application': {
         'ModuleType': 'war',
         'SourcePath': 'wlsdeploy/applications/get-listen-address-app.war'
+    },
+    '/CustomResource': {
+        'DescriptorBeanClass': 'demo.customresource.DemoBean',
+        'ResourceClass': 'demo.customresource.DemoResource'
     },
     '/JMSSystemResource/JmsResource/ForeignServer/JNDIProperty': {
         'Key': 'JNDIProperties-\\d{3,5}'

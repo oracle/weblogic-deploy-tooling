@@ -1,12 +1,22 @@
 domainInfo:
     AdminUserName: weblogic
     AdminPassword: welcome1
+    domainLibraries:
+        - wlsdeploy/domainLibraries/DemoCustomResource.jar
 topology:
     Name: 'system_test_domain'
     AdminServerName: 'AdminServer'
     Server:
         AdminServer:
             ListenPort: 7001
+resources:
+    # CustomResource has to be created with legitimate class references
+    # to a resource jar in domain/lib (DemoCustomResource.jar above)
+    # for the domain to start cleanly.
+    CustomResource:
+        CustomResource-1:
+            DescriptorBeanClass: 'demo.customresource.DemoBean'
+            ResourceClass: 'demo.customresource.DemoResource'
 appDeployments:
     Library:
         'jstl#1.2@1.2.0.1':
