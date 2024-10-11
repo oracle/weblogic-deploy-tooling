@@ -225,7 +225,6 @@ runWlst() {
             CLASSPATH="${WLSDEPLOY_HOME}/lib/weblogic-deploy-core.jar"; export CLASSPATH
         fi
 
-
         if [ -z "${WLST}" ]; then
             echo "Unable to determine WLS version in ${ORACLE_HOME} to determine WLST shell script to call" >&2
             exit 98
@@ -234,6 +233,8 @@ runWlst() {
 
     WLST_PROPERTIES=-Dcom.oracle.cie.script.throwException=true
     WLST_PROPERTIES="${WLST_PROPERTIES} -Djava.util.logging.config.class=${LOG_CONFIG_CLASS}"
+    WLST_PROPERTIES="${WLST_PROPERTIES} -Dslf4j.provider=org.slf4j.jul.JULServiceProvider"
+    WLST_PROPERTIES="${WLST_PROPERTIES} -Dslf4j.internal.verbosity=ERROR"
     WLST_PROPERTIES="${WLST_PROPERTIES} ${WLSDEPLOY_PROPERTIES}"
     export WLST_PROPERTIES
 

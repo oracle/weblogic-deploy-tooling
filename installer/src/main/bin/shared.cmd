@@ -280,6 +280,8 @@ GOTO :EOF
 
     SET "WLST_PROPERTIES=-Dcom.oracle.cie.script.throwException=true"
     SET "WLST_PROPERTIES=%WLST_PROPERTIES% -Djava.util.logging.config.class=%LOG_CONFIG_CLASS%"
+    SET "WLST_PROPERTIES=%WLST_PROPERTIES% -Dslf4j.provider=org.slf4j.jul.JULServiceProvider"
+    SET "WLST_PROPERTIES=%WLST_PROPERTIES% -Dslf4j.internal.verbosity=ERROR"
     SET "WLST_PROPERTIES=%WLST_PROPERTIES% %WLSDEPLOY_PROPERTIES%"
 
     @REM print the configuration, and run the script
