@@ -701,7 +701,10 @@
                 "DebugEjbInvoke":                               [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "DebugEjbInvoke",                               "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugEjbLocking":                              [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "DebugEjbLocking",                              "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugEjbMdbConnection":                        [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "DebugEjbMdbConnection",                        "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
-                "DebugEjbMdbListener":                          [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "DebugEjbMdbListener",                          "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
+                "DebugEjbMdbListener":                          [
+                    {"version": "[12.2.1.4.0.240922,14.1.1)", "wlst_mode": "both", "wlst_name": "DebugEjbMdbListener", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"},
+                    {"version": "[14.1.1.0.0.240922,)",       "wlst_mode": "both", "wlst_name": "DebugEjbMdbListener", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"}
+                ],
                 "DebugEjbMetadata":                             [ {"version": "[12.1.2,)",       "wlst_mode": "both",    "wlst_name": "DebugEjbMetadata",                             "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugEjbPooling":                              [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "DebugEjbPooling",                              "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugEjbSecurity":                             [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "DebugEjbSecurity",                             "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
@@ -830,8 +833,14 @@
                 "DebugJdbcons":                                 [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "Debug${Jdbcons:JDBCONS}",                      "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugJdbcrac":                                 [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "Debug${Jdbcrac:JDBCRAC}",                      "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugJdbcucp":                                 [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "Debug${Jdbcucp:JDBCUCP}",                      "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
-                "DebugJmsClient":                               [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "DebugJ${ms:MS}Client",                         "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "get_method": "${LSA:GET}"} ],
-                "DebugJmsClientStackTrace":                     [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "DebugJ${ms:MS}ClientStackTrace",               "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "get_method": "${LSA:GET}"} ],
+                "DebugJmsClient":                               [
+                    {"version": "[12.2.1.4.0.240922,14.1.1)", "wlst_mode": "both", "wlst_name": "DebugJ${ms:MS}Client",           "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "get_method": "${LSA:GET}"},
+                    {"version": "[14.1.1.0.0.240922,)",       "wlst_mode": "both", "wlst_name": "DebugJ${ms:MS}Client",           "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "get_method": "${LSA:GET}"}
+                ],
+                "DebugJmsClientStackTrace":                     [
+                    {"version": "[12.2.1.4.0.240922,14.1.1)", "wlst_mode": "both", "wlst_name": "DebugJ${ms:MS}ClientStackTrace", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "get_method": "${LSA:GET}"},
+                    {"version": "[14.1.1.0.0.240922,)",       "wlst_mode": "both", "wlst_name": "DebugJ${ms:MS}ClientStackTrace", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "get_method": "${LSA:GET}"}
+                ],
                 "DebugJmsCrossDomainSecurity":                  [ {"version": "[12.2.1,)",       "wlst_mode": "both",    "wlst_name": "DebugJ${ms:MS}CrossDomainSecurity",            "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "get_method": "${LSA:GET}"} ],
                 "DebugJmsDispatcherProxy":                      [ {"version": "[12.2.1,)",       "wlst_mode": "both",    "wlst_name": "DebugJ${ms:MS}DispatcherProxy",                "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugJmsDispatcherUtilsVerbose":               [ {"version": "[12.2.1,)",       "wlst_mode": "both",    "wlst_name": "DebugJ${ms:MS}DispatcherUtilsVerbose",         "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "get_method": "${LSA:GET}"} ],
@@ -897,7 +906,10 @@
                 "DebugMessagingBridgeStartup":                  [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "DebugMessagingBridgeStartup",                  "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugMessagingKernel":                         [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "DebugMessagingKernel",                         "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugMessagingKernelBoot":                     [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "DebugMessagingKernelBoot",                     "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
-                "DebugMessagingKernelVerbose":                  [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "DebugMessagingKernelVerbose",                  "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
+                "DebugMessagingKernelVerbose":                  [
+                    {"version": "[12.2.1.4.0.240922,14.1.1)", "wlst_mode": "both", "wlst_name": "DebugMessagingKernelVerbose", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"},
+                    {"version": "[14.1.1.0.0.240922,)",       "wlst_mode": "both", "wlst_name": "DebugMessagingKernelVerbose", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"}
+                ],
                 "DebugMessagingOwnableLock":                    [ {"version": "[12.2.1,)",       "wlst_mode": "both",    "wlst_name": "DebugMessagingOwnableLock",                    "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugMigrationInfo":                           [ {"version": "[12.2.1,)",       "wlst_mode": "both",    "wlst_name": "DebugMigrationInfo",                           "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "get_method": "${LSA:GET}"} ],
                 "DebugMuxer":                                   [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "DebugMuxer",                                   "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
@@ -955,7 +967,10 @@
                 "DebugRestJersey2Integration":                  [ {"version": "[12.2.1,)",       "wlst_mode": "both",    "wlst_name": "DebugRestJersey2Integration",                  "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugRestNotifications":                       [ {"version": "[12.2.1,)",       "wlst_mode": "both",    "wlst_name": "Debug${Rest:REST}Notifications",               "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugRestartInPlace":                          [ {"version": "[12.2.1.2,)",     "wlst_mode": "both",    "wlst_name": "DebugRestartInPlace",                          "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
-                "DebugRjvmRequestResponse":                     [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "DebugR${jvm:JVM}RequestResponse",              "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "get_method": "${LSA:GET}"} ],
+                "DebugRjvmRequestResponse":                     [
+                    {"version": "[12.2.1.4.0.240922,14.1.1)", "wlst_mode": "both", "wlst_name": "DebugR${jvm:JVM}RequestResponse", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "get_method": "${LSA:GET}"},
+                    {"version": "[14.1.1.0.0.240922,)",       "wlst_mode": "both", "wlst_name": "DebugR${jvm:JVM}RequestResponse", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "get_method": "${LSA:GET}"}
+                ],
                 "DebugRmiDetailed":                             [ {"version": "[12.2.1,)",       "wlst_mode": "both",    "wlst_name": "DebugR${mi:MI}Detailed",                       "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "get_method": "${LSA:GET}"} ],
                 "DebugRmiRequestPerf":                          [ {"version": "[12.2.1,)",       "wlst_mode": "both",    "wlst_name": "DebugR${mi:MI}RequestPerf",                    "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "get_method": "${LSA:GET}", "restart_required": "true" } ],
                 "DebugRouting":                                 [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "DebugRouting",                                 "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
@@ -1085,7 +1100,11 @@
                     {"version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "DebugXMLRegistryUseShortClass", "wlst_path": "WP001", "default_value": "false", "secure_default": "${__NULL__:true}", "wlst_type": "boolean"},
                     {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "DebugXMLRegistryUseShortClass", "wlst_path": "WP001", "default_value": "false", "secure_default": "${__NULL__:true}", "wlst_type": "boolean", "derived_default": "${true:}"}
                 ],
-                "DefaultRjvmDiagMessages":                      [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "DefaultR${jvm:JVM}DiagMessages",               "wlst_path": "WP001", "default_value": false,   "wlst_type": "boolean"} ],
+                "DefaultRjvmDiagMessages":                      [
+                    {"version": "[12.2.1.4.0.240922,14.1.1)", "wlst_mode": "both", "wlst_name": "DefaultR${jvm:JVM}DiagMessages", "wlst_path": "WP001", "default_value": true,    "wlst_type": "boolean"},
+                    {"version": "[14.1.1.0.0.240922,14.1.2)", "wlst_mode": "both", "wlst_name": "DefaultR${jvm:JVM}DiagMessages", "wlst_path": "WP001", "default_value": true,    "wlst_type": "boolean"},
+                    {"version": "[14.1.2,)",                  "wlst_mode": "both", "wlst_name": "DefaultR${jvm:JVM}DiagMessages", "wlst_path": "WP001", "default_value": false,   "wlst_type": "boolean"}
+                ],
                 "DefaultStore":                                 [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "DefaultStore",                                 "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DeploymentState":                              [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "DeploymentState",                              "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "get_method": "${LSA:GET}"} ],
                 "DiagnosticContextDebugMode":                   [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "DiagnosticContextDebugMode",                   "wlst_path": "WP001", "default_value": "${__NULL__:Off}", "wlst_type": "string" } ],
