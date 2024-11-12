@@ -1,13 +1,18 @@
 {
-  "AppDeployment.Target": {},
+  "Application.SubDeployment.Target": {},
+  "Application.Target": {},
   "CoherenceClusterSystemResource.CoherenceCacheConfig.Target": {},
+  "CoherenceClusterSystemResource.SubDeployment.Target": {},
   "CoherenceClusterSystemResource.Target": {},
+  "CustomResource.SubDeployment.Target": {},
   "FileStore.Target": {},
   "ForeignJNDIProvider.Target": {},
   "JDBCStore.Target": {},
+  "JDBCSystemResource.SubDeployment.Target": {},
   "JDBCSystemResource.Target": {},
-  "JMSServer.SubDeployment.Target": {},
   "JMSServer.Target": {},
+  "JMSSystemResource.SubDeployment.Target": {},
+  "JMSSystemResource.Target": {},
   "Library.SubDeployment.Target": {},
   "Library.Target": {},
   "MailSession.Target": {},
@@ -36,5 +41,6 @@
   "VirtualHost.Target": {},
   "VirtualTarget.Target": {},
   "VirtualTarget.WebServer.Target": {},
+  "WLDFSystemResource.SubDeployment.Target": {},
   "WLDFSystemResource.Target": {}
 }
