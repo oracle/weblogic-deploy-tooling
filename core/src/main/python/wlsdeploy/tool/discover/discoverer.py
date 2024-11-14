@@ -1096,8 +1096,8 @@ class Discoverer(object):
         success = True
         url = None
         path = None
-        try:
-            uri = URI(file_name)
+        uri = self._get_uri(owner_name, file_name)
+        if uri is not None:
             if 'http' == uri.getScheme() or 'https' == uri.getScheme():
                 url = uri.toURL()
             elif 'file' == uri.getScheme() or uri.getScheme() is None:
@@ -1106,10 +1106,8 @@ class Discoverer(object):
                 success = False
                 _logger.warning('WLSDPLY-06160', owner_name, file_name, uri.getScheme(),
                                 class_name=_class_name, method_name=_method_name)
-        except (URISyntaxException, MalformedURLException), e:
+        else:
             success = False
-            _logger.warning('WLSDPLY-06321', owner_name, file_name, e.getLocalizedMessage,
-                            error=e, class_name=_class_name, method_name=_method_name)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=(success, url, path))
         return success, url, path
@@ -1117,6 +1115,16 @@ class Discoverer(object):
     def download_deployment_from_remote_server(self, source_path, local_download_root, file_type):
         return self.path_helper.download_file_from_remote_server(self._model_context, source_path,
                                                                  local_download_root, file_type)
+
+    def _get_uri(self, name, value):
+        _method_name = '_get_uri'
+        uri = None
+        try:
+            uri = URI(value)
+        except (URISyntaxException, MalformedURLException), e:
+            _logger.warning('WLSDPLY-06321', name, value, e.getLocalizedMessage,
+                            error=e, class_name=_class_name, method_name=_method_name)
+        return uri
 
 
 def add_to_model_if_not_empty(dictionary, entry_name, entry_value):
