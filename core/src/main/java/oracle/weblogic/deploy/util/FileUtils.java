@@ -104,9 +104,9 @@ public final class FileUtils {
         File canonicalFile = null;
         if (f != null) {
             try {
-                canonicalFile = f.getCanonicalFile();
-            } catch (IOException ioe) {
-                LOGGER.warning("WLSDPLY-01100", ioe, f.getPath(), ioe.getLocalizedMessage());
+                canonicalFile = f.toPath().toAbsolutePath().normalize().toFile();
+            } catch (Exception ex) {
+                LOGGER.warning("WLSDPLY-01100", ex, f.getPath(), ex.getLocalizedMessage());
                 canonicalFile = f.getAbsoluteFile();
             }
         }
@@ -683,7 +683,7 @@ public final class FileUtils {
     }
 
     private static File validatePathNameInternal(String pathName, String emptyErrorKey) {
-        final String METHOD = "validatePathyNameInternal";
+        final String METHOD = "validatePathNameInternal";
 
         LOGGER.entering(CLASS, METHOD, pathName, emptyErrorKey);
         if (StringUtils.isEmpty(pathName)) {
