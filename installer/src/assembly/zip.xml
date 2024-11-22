@@ -122,8 +122,7 @@
                 <include>com.jcraft:jzlib</include>
                 <include>org.jline:jline-reader</include>
                 <include>org.jline:jline-terminal</include>
-                <include>org.jline:jline-terminal-jansi</include>
-                <include>org.fusesource.jansi:jansi</include>
+                <include>org.jline:jline-terminal-jni</include>
             </includes>
         </dependencySet>
     </dependencySets>

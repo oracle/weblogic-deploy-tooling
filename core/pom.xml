@@ -66,12 +66,8 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.jansi</groupId>
-            <artifactId>jansi</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.jline</groupId>
-            <artifactId>jline-terminal-jansi</artifactId>
+            <artifactId>jline-terminal-jni</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jline</groupId>
@@ -217,7 +213,7 @@
                     <archive>
                         <manifestEntries>
                             <Multi-Release>true</Multi-Release>
-                            <Class-Path>antlr4-runtime-${antlr.version}.jar snakeyaml-${snakeyaml.version}.jar picocli-${picocli.version}.jar sshj-${sshj.version}.jar asn-one-${asn.one.version}.jar eddsa-${eddsa.version}.jar slf4j-jdk14-${slf4j.version}.jar slf4j-api-${slf4j.version}.jar jzlib-${jzlib.version}.jar jline-reader-${jline.version}.jar jline-terminal-${jline.version}.jar jline-terminal-jansi-${jline.version}.jar jansi-${jansi.version}.jar</Class-Path>
+                            <Class-Path>antlr4-runtime-${antlr.version}.jar snakeyaml-${snakeyaml.version}.jar picocli-${picocli.version}.jar sshj-${sshj.version}.jar asn-one-${asn.one.version}.jar eddsa-${eddsa.version}.jar slf4j-jdk14-${slf4j.version}.jar slf4j-api-${slf4j.version}.jar jzlib-${jzlib.version}.jar jline-reader-${jline.version}.jar jline-terminal-${jline.version}.jar jline-terminal-jni-${jline.version}.jar</Class-Path>
                         </manifestEntries>
                     </archive>
                 </configuration>
