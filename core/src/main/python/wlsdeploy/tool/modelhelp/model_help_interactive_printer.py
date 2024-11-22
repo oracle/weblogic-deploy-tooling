@@ -66,7 +66,7 @@ class ModelHelpInteractivePrinter(ModelHelpPrinter):
             self._output_buffer.add_output()
             self._output_buffer.print_output()
 
-            command_str = _interactive_help_prompt(history[-1], reader)
+            command_str = self._interactive_help_prompt(history[-1], reader)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
 
@@ -286,25 +286,32 @@ class ModelHelpInteractivePrinter(ModelHelpPrinter):
         self._output_buffer.add_output('%s%s%s' % (prefix, message, suffix))
 
 
-def _interactive_help_prompt(model_path, reader):
-    """
-    Gets the next command from stdin or using JLine.
-    :param model_path: a current model path
-    :param reader: JLine reader, or None if JLine not supported
-    :return: returns when user types 'exit'
-    """
-    prompt = '[%s] --> ' % model_path
+    def _interactive_help_prompt(self, model_path, reader):
+        """
+        Gets the next command from stdin or using JLine.
+        :param model_path: a current model path
+        :param reader: JLine reader, or None if JLine not supported
+        :return: returns when user types 'exit'
+        """
+        prompt = '[%s] --> ' % model_path
 
-    if reader:
-        command_str = reader.readLine(prompt)
-    else:
-        # prompt using sys.stdout.write to avoid newline
-        sys.stdout.write(prompt)
-        sys.stdout.flush()
-        command_str = raw_input('') # get command from stdin
+        if reader:
+            # reader is None if JLine is not loaded
+            from org.jline.reader import EndOfFileException
 
-    command_str = ' '.join(command_str.split()) # remove extra white-space
-    return command_str
+            try:
+                command_str = reader.readLine(prompt)
+            except EndOfFileException,ex:
+                self._logger.fine('WLSDPLY-10141', error=ex)
+                command_str = 'exit'
+        else:
+            # prompt using sys.stdout.write to avoid newline
+            sys.stdout.write(prompt)
+            sys.stdout.flush()
+            command_str = raw_input('') # get command from stdin
+
+        command_str = ' '.join(command_str.split()) # remove extra white-space
+        return command_str
 
 
 def _canonical_path_from_model_path(model_path):
