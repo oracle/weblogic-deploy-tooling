@@ -24,72 +24,50 @@ GOTO :ENDFUNCTIONS
     SET "QUIET_ARG=%2"
 
     IF NOT DEFINED JAVA_HOME (
-      ECHO Please set the JAVA_HOME environment variable to point to a Java 8 installation >&2
-      EXIT /B 2
+        ECHO Please set the JAVA_HOME environment variable to point to a Java %MIN_JDK_VERSION% or higher installation >&2
+        EXIT /B 2
     )
     FOR %%i IN ("%JAVA_HOME%") DO SET JAVA_HOME=%%~fsi
     IF %JAVA_HOME:~-1%==\ SET JAVA_HOME=%JAVA_HOME:~0,-1%
 
     IF NOT EXIST "%JAVA_HOME%" (
-      ECHO Your JAVA_HOME environment variable to points to a non-existent directory: %JAVA_HOME% >&2
-      EXIT /B 2
-    )
-
-    IF EXIST "%JAVA_HOME%\bin\java.exe" (
-      FOR %%i IN ("%JAVA_HOME%\bin\java.exe") DO SET JAVA_EXE=%%~fsi
-    ) ELSE (
-      ECHO Java executable does not exist at %JAVA_HOME%\bin\java.exe >&2
-      EXIT /B 2
-    )
-
-    SET OPEN_JDK=false
-    SET ORACLE_ONE=0
-    SET ORACLE_TWO=0
-    FOR /F "tokens=1,5" %%x IN ('%JAVA_EXE% -version 2^>^&1') DO (
-        IF "%%x" == "OpenJDK" (
-            SET OPEN_JDK=true
-            IF EXIST %ORACLE_HOME%\wlserver\server\lib\weblogic.jar (
-                FOR /F "tokens=1-3 delims= " %%A IN ('%JAVA_EXE% -cp %ORACLE_HOME%\wlserver\server\lib\weblogic.jar weblogic.version 2^>^&1') DO (
-                    IF "%%A" == "WebLogic" (
-                        FOR /F "tokens=1-5 delims=." %%j IN ('ECHO %%C') DO (
-                            SET "ORACLE_VERSION=%%j.%%k.%%l.%%m.%%n"
-                            SET "ORACLE_ONE=%%j"
-                            SET "ORACLE_TWO=%%l"
-                        )
-                    )
-                )
-                SET GRAALVM=false
-                IF "%%y" == "GraalVM" SET GRAALVM=true
-            ) ELSE (
-                  ECHO JAVA_HOME %JAVA_HOME% contains OpenJDK^, which is not supported >&2
-                  EXIT /B 2
-            )
-        )
-    )
-
-    SET NOT_VALID=false
-    IF "%OPEN_JDK%"=="true" (
-        IF "%GRAALVM%"=="false" SET NOT_VALID=true
-        IF %ORACLE_ONE% LSS 14 (
-            SET NOT_VALID=true
-        ) ELSE IF %ORACLE_ONE% EQU 14 IF %ORACLE_TWO% LSS 2 SET NOT_VALID=true
-        SET JAVA_VENDOR=GraalVM
-    )
-
-    IF "%NOT_VALID%"=="true" (
-        IF "%GRAALVM%"=="true" (
-            SET ORACLE_VERSION
-            ECHO JAVA_HOME %JAVA_HOME% contains GraalVM OpenJDK^, which is not supported in versions before 14.1.2 >&2
-            EXIT /B 2
-        )
-        ECHO JAVA_HOME %JAVA_HOME% contains OpenJDK^, which is not supported. >&2
+        ECHO Your JAVA_HOME environment variable to points to a non-existent directory: %JAVA_HOME% >&2
         EXIT /B 2
     )
 
+    IF EXIST "%JAVA_HOME%\bin\java.exe" (
+        FOR %%i IN ("%JAVA_HOME%\bin\java.exe") DO SET JAVA_EXE=%%~fsi
+    ) ELSE (
+        ECHO Java executable does not exist at %JAVA_HOME%\bin\java.exe >&2
+        EXIT /B 2
+    )
+
+    SET OPEN_JDK=false
+    SET GRAAL_VM=false
+    FOR /F "tokens=1,4,6" %%x IN ('%JAVA_EXE% -version 2^>^&1') DO (
+        IF "%%x" == "OpenJDK" (
+            SET OPEN_JDK=true
+        )
+        IF "%%y" == "GraalVM" (
+            SET GRAAL_VM=true
+        )
+        IF "%%z" == "GraalVM" (
+            SET GRAAL_VM=true
+        )
+    )
+
+    IF "%GRAAL_VM%" == "true" (
+        ECHO JAVA_HOME %JAVA_HOME% contains GraalVM^, which is not supported by WDT >&2
+        EXIT /B 2
+    )
+    IF "%OPEN_JDK%" == "true" (
+        ECHO JAVA_HOME %JAVA_HOME% contains OpenJDK^, which is not supported by WebLogic Server^, so use at your own risk^!
+    )
+
     FOR /F tokens^=2-5^ delims^=.-_^" %%j IN ('%JAVA_EXE% -fullversion 2^>^&1') DO (
-      SET "JVM_FULL_VERSION=%%j.%%k.%%l_%%m"
-      SET "JVM_VERSION_PART_ONE=%%j"
-      SET "JVM_VERSION_PART_TWO=%%k"
+        SET "JVM_FULL_VERSION=%%j.%%k.%%l_%%m"
+        SET "JVM_VERSION_PART_ONE=%%j"
+        SET "JVM_VERSION_PART_TWO=%%k"
     )
 
     SET JVM_SUPPORTED=1
@@ -103,12 +81,12 @@ GOTO :ENDFUNCTIONS
     )
 
     IF %JVM_SUPPORTED% NEQ 1 (
-      EXIT /B 2
+        EXIT /B 2
     ) ELSE (
-      IF NOT "%QUIET_ARG%"=="quiet" (
-        ECHO JDK version is %JVM_FULL_VERSION%, setting JAVA_VENDOR to Sun...
-      )
-      IF "%JAVA_VENDOR%"=="" SET JAVA_VENDOR=Sun
+        IF NOT "%QUIET_ARG%"=="quiet" (
+            ECHO JDK version is %JVM_FULL_VERSION%, setting JAVA_VENDOR to Sun...
+        )
+        IF "%JAVA_VENDOR%"=="" SET JAVA_VENDOR=Sun
     )
 GOTO :EOF
 
