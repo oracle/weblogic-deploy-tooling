@@ -163,7 +163,7 @@ def process_encryption_args(optional_arg_map, is_encryption_supported):
                 __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                 raise ex
 
-            optional_arg_map[CommandLineArgUtil.PASSPHRASE_SWITCH] = String(passphrase)
+            optional_arg_map[CommandLineArgUtil.PASSPHRASE_SWITCH] = str_helper.to_string(String(passphrase))
             return
 
         # the encryption passphrase may be in a secret specified by an environment variable.
