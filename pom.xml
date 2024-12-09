@@ -38,7 +38,7 @@
         <weblogic-deploy-installer-name>weblogic-deploy</weblogic-deploy-installer-name>
         <skipTests>false</skipTests>
         <antlr.version>4.9.3</antlr.version>
-        <snakeyaml.version>2.2</snakeyaml.version>
+        <snakeyaml.version>2.3</snakeyaml.version>
         <picocli.version>4.7.6</picocli.version>
         <sshj.version>0.38.0</sshj.version>
         <eddsa.version>0.3.0</eddsa.version>
