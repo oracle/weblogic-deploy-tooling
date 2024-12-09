@@ -20,3 +20,6 @@ updates:
       - dependency-name: javax:javaee-api
         versions:
           - ">7.0"
+      - dependency-name: org.python:jython
+        versions:
+          - ">2.2.1"
