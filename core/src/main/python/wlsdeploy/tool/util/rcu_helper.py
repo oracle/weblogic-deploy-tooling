@@ -48,6 +48,8 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPER
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
 from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
+from wlsdeploy.aliases.model_constants import JDBC_DATASOURCE_PARAMS
+from wlsdeploy.aliases.model_constants import JDBC_DATASOURCE_PARAMS_DATASOURCE_LIST
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS_PROPERTIES
 from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
@@ -105,11 +107,15 @@ class RCUHelper(object):
     ####################
 
     def check_or_run_rcu(self):
+
+        _method_name = 'check_or_run_rcu'
+
         # This squelches the following error during JRF domain creation with an ATP database.
         #
         # ####<Mar 29, 2024 3:19:53 PM> <SEVERE> <FanManager> <configure> <> <attempt to configure
         # ONS in FanManager failed with oracle.ons.NoServersAvailable: Subscription time out>
         #
+        
         if self._rcu_db_info.is_use_atp():
             System.setProperty('oracle.jdbc.fanEnabled', 'false')
 
@@ -117,7 +123,8 @@ class RCUHelper(object):
             if self._model_context.is_run_rcu():
                 self.__run_rcu()
             else:
-                self.__precheck_rcu_connectivity()
+                if not self._rcu_db_info.is_rcu_db_info_empty():
+                    self.__precheck_rcu_connectivity()
 
     def configure_fmw_infra_database(self):
         """
@@ -128,7 +135,6 @@ class RCUHelper(object):
         _method_name = 'configure_fmw_infra_database'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
-        # only continue with RCU configuration for domain type that requires RCU.
         if not self._domain_typedef.requires_rcu():
             self.__logger.finer('WLSDPLY-12249', class_name=self.__class_name, method_name=_method_name)
             return
@@ -237,15 +243,77 @@ class RCUHelper(object):
     # PRIVATE METHODS
     ####################
 
+    def __precheck_rcu_default_datasource_entries_for_norcu(self, default_ds_names):
+        _method_name = '__precheck_rcu_default_datasource_entries_for_norcu'
+
+        resources_dict = self._model_object.get_model_resources()
+
+        not_found_ds_names = []
+        if JDBC_SYSTEM_RESOURCE in resources_dict:
+            ds_dict = resources_dict[JDBC_SYSTEM_RESOURCE]
+
+            if len(ds_dict) == 0:
+                not_found_ds_names = default_ds_names
+            else:
+                for ds_name in default_ds_names:
+                    if ds_name not in ds_dict.keys():
+                        not_found_ds_names.append(ds_name)
+        else:
+            not_found_ds_names = default_ds_names
+
+        if len(not_found_ds_names) > 0:
+            ex = exception_helper.create_create_exception('WLSDPLY-12285', not_found_ds_names)
+            self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+            raise ex
+
+        # Try best effort to test connectivity
+        for ds_name in ds_dict.keys():
+            try:
+                datasource = ds_dict[ds_name]
+                ds_resource = dictionary_utils.get_element(datasource, JDBC_RESOURCE)
+                if ds_resource is None:
+                    continue
+                datasource_param = dictionary_utils.get_element(ds_resource, JDBC_DATASOURCE_PARAMS, None)
+                if datasource_param:
+                    source_list = dictionary_utils.get_element(datasource_param,
+                                                               JDBC_DATASOURCE_PARAMS_DATASOURCE_LIST, None)
+                    if source_list is not None:
+                            #  skip test for multi datasource
+                            continue
+
+                driver_param = dictionary_utils.get_element(ds_resource, JDBC_DRIVER_PARAMS)
+                if driver_param:
+                    jdbc_conn_string = dictionary_utils.get_element(driver_param, URL, None)
+                    model_ds_props = dictionary_utils.get_element(driver_param, JDBC_DRIVER_PARAMS_PROPERTIES, None)
+                    jdbc_driver_name = dictionary_utils.get_element(driver_param, DRIVER_NAME, None)
+                    conn_password = dictionary_utils.get_element(driver_param, PASSWORD_ENCRYPTED, None)
+                    props = Properties()
+                    if model_ds_props is not None:
+                        for item in model_ds_props.keys():
+                            props.put(item, model_ds_props[item]['Value'])
+                    if conn_password:
+                        props.put('password', conn_password)
+                    # skip test if they are none and let it fail during create with default value from the template
+                    if jdbc_driver_name and jdbc_conn_string and conn_password:
+                        self.__logger.fine("WLSDPLY-12288", ds_name)
+                        JClass.forName(jdbc_driver_name)
+                        DriverManager.getConnection(jdbc_conn_string, props)
+            except JException, e:
+                ex = exception_helper.create_create_exception("WLSDPLY-12286", ds_name,
+                                                              e.getLocalizedMessage(), error=e)
+                self.__logger.throwing(ex, class_name=self.__class_name, method_name=_method_name)
+                raise ex
+
+
     def __precheck_rcu_connectivity(self):
         _method_name = 'precheck_rcu_connectivity'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
         domain_typename = self._model_context.get_domain_typedef().get_domain_type()
 
-        rcu_prefix = self._rcu_db_info.get_rcu_prefix()
         schema_name = None
         user_name = None
+        rcu_prefix = self._rcu_db_info.get_rcu_prefix()
         if not string_utils.is_empty(rcu_prefix):
             user_name = self._model_context.get_weblogic_helper().get_stb_user_name(rcu_prefix)
             schema_name = user_name[len(rcu_prefix) + 1:]
@@ -323,6 +391,8 @@ class RCUHelper(object):
         if len(rcu_schemas) == 0:
             self.__logger.exiting(class_name=self.__class_name, method_name=_method_name)
             return
+
+        self.__logger.info("WLSDPLY-12287", class_name=self.__class_name, method_name=_method_name)
 
         rcu_db_info = self._rcu_db_info
         oracle_home = self._model_context.get_oracle_home()
@@ -585,16 +655,22 @@ class RCUHelper(object):
         _method_name = '__set_rcu_datasource_parameters_without_shadow_table'
         self.__logger.entering(class_name=self.__class_name, method_name=_method_name)
 
-        tns_admin, rcu_prefix, data_source_conn_string, rcu_schema_pwd = \
-            self.__get_rcu_datasource_basic_connection_info()
-        keystore, keystore_type, keystore_pwd, truststore, truststore_type, truststore_pwd = \
-            self.__get_rcu_datasource_ssl_connection_info()
-
         location = LocationContext()
         location.append_location(JDBC_SYSTEM_RESOURCE)
         folder_path = self._aliases.get_wlst_list_path(location)
         self._wlst_helper.cd(folder_path)
         ds_names = self._wlst_helper.lsc()
+
+        if self._rcu_db_info.is_rcu_db_info_empty():
+            self.__logger.fine("WLSDPLY-12284", class_name=self.__class_name, method_name=_method_name)
+            self.__precheck_rcu_default_datasource_entries_for_norcu(ds_names)
+            return ds_names
+
+        tns_admin, rcu_prefix, data_source_conn_string, rcu_schema_pwd = \
+            self.__get_rcu_datasource_basic_connection_info()
+        keystore, keystore_type, keystore_pwd, truststore, truststore_type, truststore_pwd = \
+            self.__get_rcu_datasource_ssl_connection_info()
+
 
         rcu_database_type = self._rcu_db_info.get_rcu_database_type()
         jdbc_driver_class_name = self.__get_jdbc_driver_class_name(rcu_database_type)

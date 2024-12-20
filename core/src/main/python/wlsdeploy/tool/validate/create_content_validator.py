@@ -114,6 +114,9 @@ class CreateDomainContentValidator(ContentValidator):
         if not self._model_context.get_domain_typedef().requires_rcu():
             return
 
+        if not self._model_context.is_run_rcu() and len(info_dict) == 0:
+           return
+
         rcu_prefix = dictionary_utils.get_element(info_dict, RCU_PREFIX)
         if not rcu_prefix:
             self._logger.severe('WLSDPLY-05304', RCU_DB_INFO, RCU_PREFIX,

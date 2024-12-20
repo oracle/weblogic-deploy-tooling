@@ -293,6 +293,10 @@ class RcuDbInfo(object):
     def __get_qualified_store_path(self, store_value):
         return get_qualified_store_path(self.get_tns_admin(), store_value)
 
+    def is_rcu_db_info_empty(self):
+        if self.rcu_properties_map is not None and len(self.rcu_properties_map) == 0:
+            return True
+        return False
 
 # "static" method for validation, etc.
 def get_qualified_store_path(tns_admin, store_value):
