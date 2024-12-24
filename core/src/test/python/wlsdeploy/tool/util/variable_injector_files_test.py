@@ -39,6 +39,12 @@ class VariableInjectorFilesTest(BaseTestCase):
                     elements = injector_path.split('.')
                     location = LocationContext()
                     for element in elements[:-1]:
+                        # skip the path if any subfolder is invalid for WLS version
+                        code, _message = self.aliases.is_valid_model_folder_name(location, element)
+                        if code == ValidationCodes.CONTEXT_INVALID:
+                            location = None
+                            break
+
                         location.append_location(element)
                         name_token = self.aliases.get_name_token(location)
                         if name_token is not None:
@@ -49,11 +55,12 @@ class VariableInjectorFilesTest(BaseTestCase):
                         self.assertEqual(is_valid, True, "Folder " + str(element) + " in path " + str(injector_path)
                                          + " in injector file " + str(file_name) + " is not valid")
 
-                    attribute_name = elements[-1]
-                    code, _message = self.aliases.is_valid_model_attribute_name(location, attribute_name)
-                    is_valid = code in self.VALID_CODES
-                    self.assertEqual(is_valid, True, "Attribute " + str(attribute_name) + " in path " +
-                                     str(injector_path) + " in injector file " + str(file_name) + " is not valid")
+                    if location:
+                        attribute_name = elements[-1]
+                        code, _message = self.aliases.is_valid_model_attribute_name(location, attribute_name)
+                        is_valid = code in self.VALID_CODES
+                        self.assertEqual(is_valid, True, "Attribute " + str(attribute_name) + " in path " +
+                                         str(injector_path) + " in injector file " + str(file_name) + " is not valid")
 
 
 if __name__ == '__main__':
