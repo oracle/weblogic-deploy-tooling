@@ -17,6 +17,7 @@ from oracle.weblogic.deploy.deploy import DeployException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import StringUtils
 from oracle.weblogic.deploy.util import PyWLSTException
+from oracle.weblogic.deploy.util import WdtJaxbException
 from oracle.weblogic.deploy.util import WLSDeployArchive
 
 from oracle.weblogic.deploy.exception import BundleAwareException
@@ -475,7 +476,7 @@ def get_file_hash(file_name):
     _logger.entering(file_name, class_name=_class_name, method_name=_method_name)
     try:
         result = FileUtils.computeHash(file_name)
-    except (IOException, NoSuchAlgorithmException), e:
+    except (IOException, NoSuchAlgorithmException, WdtJaxbException), e:
         ex = exception_helper.create_deploy_exception('WLSDPLY-09108', file_name, e.getLocalizedMessage(), error=e)
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex

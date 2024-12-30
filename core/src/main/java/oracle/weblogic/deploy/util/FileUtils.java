@@ -19,7 +19,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import javax.xml.bind.DatatypeConverter;
 
 import oracle.weblogic.deploy.exception.ExceptionHelper;
 import oracle.weblogic.deploy.logging.PlatformLogger;
@@ -477,7 +476,7 @@ public final class FileUtils {
      * @throws NoSuchAlgorithmException if an error occurs obtaining the hashing algorithm
      * @throws IllegalArgumentException if the file is not a valid, existing file
      */
-    public static String computeHash(String fileName) throws IOException, NoSuchAlgorithmException {
+    public static String computeHash(String fileName) throws IOException, NoSuchAlgorithmException, WdtJaxbException {
         final String METHOD = "computeHash";
 
         LOGGER.entering(CLASS, METHOD, fileName);
@@ -497,7 +496,7 @@ public final class FileUtils {
      * @throws NoSuchAlgorithmException if an error occurs obtaining the hashing algorithm
      * @throws IllegalArgumentException if the file is not a valid, existing file
      */
-    public static String computeHash(File file) throws IOException, NoSuchAlgorithmException {
+    public static String computeHash(File file) throws IOException, NoSuchAlgorithmException, WdtJaxbException {
         final String METHOD = "computeHash";
 
         LOGGER.entering(CLASS, METHOD, file);
@@ -516,10 +515,10 @@ public final class FileUtils {
      * @return the Base64-encoded hash
      * @throws NoSuchAlgorithmException if an error occurs obtaining the hashing algorithm
      */
-    public static String computeHash(byte[] bytes) throws NoSuchAlgorithmException {
+    public static String computeHash(byte[] bytes) throws NoSuchAlgorithmException, WdtJaxbException {
         MessageDigest messageDigest = MessageDigest.getInstance("SHA-512");
         byte[] hash = messageDigest.digest(bytes);
-        return DatatypeConverter.printBase64Binary(hash);
+        return JaxbDatatypeConverter.printBase64Binary(hash);
     }
 
     /**
