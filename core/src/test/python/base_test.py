@@ -4,9 +4,12 @@ Licensed under the Universal Permissive License v1.0 as shown at https://oss.ora
 """
 import os
 import shutil
+import sys
 import unittest
 
 from java.io import File
+
+sys.path.insert(0, os.path.realpath(os.path.join(os.getcwd(), '../../wlst-tests/main')))
 
 from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.util import env_helper

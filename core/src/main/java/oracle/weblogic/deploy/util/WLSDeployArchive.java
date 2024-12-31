@@ -933,7 +933,7 @@ public class WLSDeployArchive {
         String result;
         try {
             result = FileUtils.computeHash(fileBytes);
-        } catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException | WdtJaxbException e) {
             WLSDeployArchiveIOException aioe =
                 new WLSDeployArchiveIOException("WLSDPLY-01407", e, getArchiveFileName(), path,
                     e.getLocalizedMessage());

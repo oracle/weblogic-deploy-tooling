@@ -8,7 +8,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
-import javax.xml.bind.DatatypeConverter;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,6 +55,6 @@ public class SwapFilesTest {
     private String getMD5Hash(File f) throws Exception {
         byte[] b = Files.readAllBytes(Paths.get(f.getAbsolutePath()));
         byte[] hash = MessageDigest.getInstance("MD5").digest(b);
-        return DatatypeConverter.printHexBinary(hash);
+        return JaxbDatatypeConverter.printHexBinary(hash);
     }
 }

@@ -22,11 +22,12 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
 
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 import oracle.weblogic.deploy.util.StringUtils;
+import oracle.weblogic.deploy.util.JaxbDatatypeConverter;
+import oracle.weblogic.deploy.util.WdtJaxbException;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -165,7 +166,7 @@ public final class EncryptionUtils {
                 byte[] encrypted = cipher.doFinal(clearText.getBytes(UTF_8));
                 result = getEncryptedString(encrypted, nonce, salt);
             } catch (InvalidKeyException | InvalidAlgorithmParameterException |
-                     IllegalBlockSizeException | BadPaddingException ex) {
+                     IllegalBlockSizeException | BadPaddingException | WdtJaxbException ex) {
 
                 EncryptionException ee =
                     new EncryptionException("WLSDPLY-04002", ex, JAVA_VERSION, ex.getLocalizedMessage());
@@ -218,31 +219,38 @@ public final class EncryptionUtils {
         return cipher;
     }
 
-    private static String getEncryptedString(byte[] cipher, byte[] nonce, byte[] salt) {
-        String cipherEncoded = DatatypeConverter.printBase64Binary(cipher);
-        String nonceEncoded = DatatypeConverter.printBase64Binary(nonce);
-        String saltEncoded = DatatypeConverter.printBase64Binary(salt);
+    private static String getEncryptedString(byte[] cipher, byte[] nonce, byte[] salt) throws WdtJaxbException{
+        String cipherEncoded = JaxbDatatypeConverter.printBase64Binary(cipher);
+        String nonceEncoded = JaxbDatatypeConverter.printBase64Binary(nonce);
+        String saltEncoded = JaxbDatatypeConverter.printBase64Binary(salt);
         String all = cipherEncoded + SEP + nonceEncoded + SEP + saltEncoded;
-        String allEncoded = DatatypeConverter.printBase64Binary(all.getBytes(US_ASCII));
+        String allEncoded = JaxbDatatypeConverter.printBase64Binary(all.getBytes(US_ASCII));
         return CIPHER_TEXT_PREFIX + allEncoded;
     }
 
     private static List<byte[]> getCipherComponents(String text) throws EncryptionException {
         final String METHOD = "getCipherComponents";
+        LOGGER.entering(CLASS, METHOD);
 
         List<byte[]> result = new ArrayList<>();
         if (text.startsWith(CIPHER_TEXT_PREFIX) && text.length() > CIPHER_TEXT_PREFIX.length()) {
-            String all = text.substring(CIPHER_TEXT_PREFIX.length());
-            String allDecoded = new String(DatatypeConverter.parseBase64Binary(all), US_ASCII);
-            String[] parts = allDecoded.split(SEP);
-            if (parts.length != CIPHER_SECTIONS) {
-                EncryptionException ee = new EncryptionException("WLSDPLY-04006", parts.length);
+            try {
+                String all = text.substring(CIPHER_TEXT_PREFIX.length());
+                String allDecoded = new String(JaxbDatatypeConverter.parseBase64Binary(all), US_ASCII);
+                String[] parts = allDecoded.split(SEP);
+                if (parts.length != CIPHER_SECTIONS) {
+                    EncryptionException ee = new EncryptionException("WLSDPLY-04006", parts.length);
+                    LOGGER.throwing(CLASS, METHOD, ee);
+                    throw ee;
+                }
+                result.add(JaxbDatatypeConverter.parseBase64Binary(parts[PWD_POS]));
+                result.add(JaxbDatatypeConverter.parseBase64Binary(parts[NONCE_POS]));
+                result.add(JaxbDatatypeConverter.parseBase64Binary(parts[SALT_POS]));
+            } catch (WdtJaxbException ex) {
+                EncryptionException ee = new EncryptionException("WLSDPLY-04007", ex, ex.getLocalizedMessage());
                 LOGGER.throwing(CLASS, METHOD, ee);
                 throw ee;
             }
-            result.add(DatatypeConverter.parseBase64Binary(parts[PWD_POS]));
-            result.add(DatatypeConverter.parseBase64Binary(parts[NONCE_POS]));
-            result.add(DatatypeConverter.parseBase64Binary(parts[SALT_POS]));
         }
         return result;
     }

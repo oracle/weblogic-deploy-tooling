@@ -12,6 +12,7 @@ from java.io import IOException
 from java.security import NoSuchAlgorithmException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
+from oracle.weblogic.deploy.util import WdtJaxbException
 
 from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.location_context import LocationContext
@@ -644,7 +645,7 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
                 return None
 
             hash_value = FileUtils.computeHash(filename)
-        except (IOException, NoSuchAlgorithmException), e:
+        except (IOException, NoSuchAlgorithmException, WdtJaxbException), e:
             ex = exception_helper.create_deploy_exception('WLSDPLY-09309', filename, e.getLocalizedMessage(), error=e)
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
