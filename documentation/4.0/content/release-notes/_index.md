@@ -1,12 +1,12 @@
 +++
 title = "Release Notes"
 date = 2024-01-09T18:27:38-05:00
-weight = 69
+weight = 68
 pre = "<b> </b>"
 +++
 
 
-### Changes in Release 4.2.1
+### Changes in Release 4.3.0
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -17,29 +17,28 @@ pre = "<b> </b>"
 None
 
 #### Other Changes
-- #1717, #1728 - Extended the API integration between WebLogic Kubernetes Toolkit UI and WDT to pass back the encrypted
-  passwords when running the Prepare Model Tool from the WebLogic Kubernetes Toolkit UI.
-- #1722 - Added logic to detect a situation where the user specified in `domainInfo:/AdminUserName` is also listed in
-  the `topology:/Security/User` list of users and update the `topology:/Security/User` user's `Password` field to be
-  the same as that specified in `domainInfo:/AdminPassword`.
-- #1723 - Added support for the WebLogic Server 12.2.1.4 and 14.1.1 July 2024 PSUs.
+- #1731, #1735, #1736, #1738, #1743, #1748 - Updated aliases for WebLogic Server 14.1.2 GA release.
+- #1732 - Changed default value when using `-target` to include the domain's bin directory contents.
+- #1737 - Optimized offline discovery of default values in 14.1.2.
+- #1739 - Added aliases for `SNMPAgent`, `SNMPDeploymentAgent`, `EJBContainer`, and Cluster's `JtaRemoteDomain` folders.
+- #1741 - Added support for deploying and discovering customer resources.
+- #1746 - Added support for the WebLogic Server 12.2.1.4 and 14.1.1 October 2024 PSUs.
+- #1750 - Changed file path resolution to not convert symbolic links to the actual paths.
+- #1751 - Changed JDK validation to allow the user to run WDT tools with OpenJDK and removed broken support for GraalVM.
+- #1752 - Moved away from using jline's deprecated `jansi` provider to using the `jni` provider. 
+- #1758 - Enhanced Create Domain Tool to allow creating a JRF domain using fully specified RCU Data Sources
+          in the `resources:/JDBCSystemResource` section of the model without requiring the `domainInfo:/RCUDbInfo`
+          section.
+- #1760 - Modified WDT's usage of JAXB classes to prepare for supporting the Jakarta EE 9+ of JAXB runtime.
 
 #### Bug Fixes
-- #1713 - Added logic at startup to detect when WDT logging is not properly configured.
-- #1715 - Fixed a bug where the `domainInfo:/OPSSWalletPassphrase` field was not properly handled when using the
-  Prepare Model Tool or when using the Discover Domain Tool with the `-target` argument.
-- #1716 - Fixed the Discover Domain Tool documentation to add missing command-line arguments.
-- #1718 - Fixed an issue with the `NativeVersionEnabled` attribute of `NMProperties` not working correctly when running
-  the Update Domain Tool.
-- #1720 - Fixed an issue with RCU pre-check error handling that was causing an unhandled Jython error.
-- #1721 - Fixed a bug in the SSH directory listing command for a remote Unix machine.
-- #1724 - Fixed an off-by-one error when using the Archive Helper Tool's `remove custom` command with a name that starts
-  with `wlsdeploy/custom/` or `config/wlsdeploy/custom/` that was causing the specified location to not be removed.
-- #1727, #1729 - Fixed an issue with Create Domain Tool's RCU pre-check functionality that was causing a Jython 
-  AttributeException for `set` when the STB DataSource was defined in the `resources:/JDBCSystemResource` section of the
-  model and specifying one or more JDBC driver properties.
-- #1730 - Fixed an issue where an application or library deployment plan was not being collected when the `SourcePath`
-  contained an excluded location like `@@ORACLE_HOME@@`.
+- #1732 - Fixed bad error message when WLST assign() invocation fails.
+- #1734 - Fixed validation error caused by trying to validate prior to resolving tokens.
+- #1744 - Squelched SLF4J startup messages from printing to `stderr`.
+- #1748 - Fixed target injector paths causing discovery to fail with sub-deployments.
+- #1749 - Fixed JMS Foreign Server discovery issue when the URL is not using a `file`, `http`, or `https` protocol.
+- #1753 - Cleaned up exiting from the interactive Model Help Tool using Control-D.
+- #1755 - Fixed bug with command-line handling of the WDT encryption passphrase from `stdin`.
 
 #### Known Issues
 - SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,

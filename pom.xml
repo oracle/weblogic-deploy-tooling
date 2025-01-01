@@ -8,7 +8,7 @@
 
     <groupId>com.oracle.weblogic.lifecycle</groupId>
     <artifactId>weblogic-deploy</artifactId>
-    <version>4.2.2-SNAPSHOT</version>
+    <version>4.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Oracle WebLogic Server Deploy Tooling</name>
@@ -46,7 +46,7 @@
         <jzlib.version>1.1.3</jzlib.version>
         <asn.one.version>0.6.0</asn.one.version>
         <jline.version>3.28.0</jline.version>
-        <junit.version>5.11.3</junit.version>
+        <junit.version>5.11.4</junit.version>
         <wdt.scm.repo.url>${env.WDT_SCM_REPO_URL}</wdt.scm.repo.url>
         <wdt.scm.repo.conn>${env.WDT_SCM_REPO_CONN}</wdt.scm.repo.conn>
 
@@ -140,7 +140,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>33.3.1-jre</version>
+                <version>33.4.0-jre</version>
             </dependency>
             <dependency>
                 <groupId>javax.xml.bind</groupId>
@@ -318,12 +318,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
-                <configuration>
-                    <embedBuildProfileDependencies>true</embedBuildProfileDependencies>
-                    <pomElements>
-                        <repositories>flatten</repositories>
-                    </pomElements>
-                </configuration>
                 <executions>
                     <!-- enable flattening -->
                     <execution>
@@ -332,6 +326,12 @@
                         <goals>
                             <goal>flatten</goal>
                         </goals>
+                        <configuration>
+                            <embedBuildProfileDependencies>true</embedBuildProfileDependencies>
+                            <pomElements>
+                                <repositories>flatten</repositories>
+                            </pomElements>
+                        </configuration>
                     </execution>
                     <!-- ensure proper cleanup -->
                     <execution>
