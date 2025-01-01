@@ -484,6 +484,16 @@ Public/private key authentication To verify SSH connectivity using a user&amp;rs
     </item>
     
     <item>
+      <title>Release 4.2.1</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.2.1/</link>
+      <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.2.1/</guid>
+      <description>Changes in Release 4.2.1  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes  #1717, #1728 - Extended the API integration between WebLogic Kubernetes Toolkit UI and WDT to pass back the encrypted passwords when running the Prepare Model Tool from the WebLogic Kubernetes Toolkit UI. #1722 - Added logic to detect a situation where the user specified in domainInfo:/AdminUserName is also listed in the topology:/Security/User list of users and update the topology:/Security/User user&amp;rsquo;s Password field to be the same as that specified in domainInfo:/AdminPassword.</description>
+    </item>
+    
+    <item>
       <title>Release 4.2.0</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.2.0/</link>
       <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>

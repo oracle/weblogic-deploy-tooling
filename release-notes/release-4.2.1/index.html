@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Custom configuration :: WebLogic Deploy Tooling</title>
+    <title>Release 4.2.1 :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1735743723" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/userguide/tools-config/custom_config/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-4.2.1/">
     <nav id="sidebar" class="">
 
 
@@ -170,7 +170,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/" title="User Guide" class="dd-item
-        parent
+        
         
         
         ">
@@ -651,7 +651,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/" title="Tools configuration" class="dd-item
-        parent
+        
         
         
         ">
@@ -719,7 +719,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/custom_config/" title="Custom configuration" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/custom_config/" title="Custom configuration" class="dd-item ">
         <a href="/weblogic-deploy-tooling/userguide/tools-config/custom_config/">
         Custom configuration
         
@@ -1329,7 +1329,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
-        
+        parent
         
         
         ">
@@ -1355,7 +1355,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.2.1/" title="Release 4.2.1" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.2.1/" title="Release 4.2.1" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-4.2.1/">
         <b> </b>Release 4.2.1
         
@@ -2056,13 +2056,7 @@
             
           
           
-            
-            
-          
-          
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/userguide/'>User Guide</a> > <a href='/weblogic-deploy-tooling/userguide/tools-config/'>Tools configuration</a> > Custom configuration
-          
-        
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release 4.2.1
           
         
           
@@ -2079,7 +2073,7 @@
   <ul>
     <li>
       <ul>
-        <li></li>
+        <li><a href="#changes-in-release-421">Changes in Release 4.2.1</a></li>
       </ul>
     </li>
   </ul>
@@ -2099,48 +2093,66 @@
           
             <h1>
               
-              Custom configuration
+              Release 4.2.1
             </h1>
           
 
         
 
 
-<p>WDT allows you to create or extend the pre-installed type definitions, model filters, variable injectors, and target environments. Starting with WDT 1.10.0, these additional configuration files can be stored outside the <code>$WLSDEPLOY_HOME/lib</code> directory. This allows the files to remain in place if the WDT installation is moved or upgraded to a new version.</p>
-<p>To use a separate configuration directory, set the <code>WDT_CUSTOM_CONFIG</code> environment variable to the directory to be used for configuration. For example:</p>
-<pre><code>$ export WDT_CUSTOM_CONFIG=/etc/wdtconfig
-</code></pre><p>The customized configuration files should be named and organized the same way they would be under the <code>$WLSDEPLOY_HOME/lib</code> directory. For example:</p>
-<pre><code>/etc/wdtconfig
-    injectors
-        *.json  (injector files)
-    typedefs
-        *.json  (typedef files)
-    targets
-        my-target
-            target.json
-            *.py  (filter files)
-    model_filters.json
-    model_variable_injector.json
-</code></pre><p>This is a full set of files that can be configured. You will need only to add the files you have created or extended. Details for each configuration type are found at:</p>
+<h3 id="changes-in-release-421">Changes in Release 4.2.1</h3>
 <ul>
-<li><a href="/weblogic-deploy-tooling/userguide/tools-config/tool_prop/">Tool property file</a></li>
-<li><a href="/weblogic-deploy-tooling/userguide/tools-config/model_filters/">Model filters</a></li>
-<li><a href="/weblogic-deploy-tooling/userguide/tools-config/domain_def/">Type definitions</a> (See the following <a href="#example-extending-a-type-definition">Extending a type definition</a> example.)</li>
-<li><a href="/weblogic-deploy-tooling/userguide/tools-config/variable_injectors/">Variable injectors</a></li>
-<li><a href="/weblogic-deploy-tooling/userguide/tools/prepare/">The Prepare Model Tool</a>; see <a href="/weblogic-deploy-tooling/userguide/target_env/">Target environments</a>.</li>
+<li><a href="#major-new-features">Major New Features</a></li>
+<li><a href="#other-changes">Other Changes</a></li>
+<li><a href="#bug-fixes">Bugs Fixes</a></li>
+<li><a href="#known-issues">Known Issues</a></li>
 </ul>
-<p>The WDT tools will look for each configuration file under <code>$WDT_CUSTOM_CONFIG</code> if specified, then under <code>$WLSDEPLOY_HOME/lib</code>.</p>
-<h4 id="example-extending-a-type-definition">Example: Extending a type definition</h4>
-<p>To extend the <code>WLS</code> type definition, follow these steps:</p>
+<h4 id="major-new-features">Major New Features</h4>
+<p>None</p>
+<h4 id="other-changes">Other Changes</h4>
 <ul>
-<li>Create a directory to use for custom configurations, such as <code>/etc/wdtconfig</code>.</li>
-<li>Define the <code>WDT_CUSTOM_CONFIG</code> environment variable to point to that directory.</li>
-<li>Copy the file <code>$WLSDEPLOY_HOME/lib/typedefs/WLS.json</code> to the <code>$WDT_CUSTOM_CONFIG/typedefs</code> directory and rename it, for example <code>MY_WLS.json</code>.</li>
-<li>Edit <code>MY_WLS.json</code> with any required changes.</li>
-<li>Run the tool referencing the name of the new type definition, for example:</li>
+<li>#1717, #1728 - Extended the API integration between WebLogic Kubernetes Toolkit UI and WDT to pass back the encrypted
+passwords when running the Prepare Model Tool from the WebLogic Kubernetes Toolkit UI.</li>
+<li>#1722 - Added logic to detect a situation where the user specified in <code>domainInfo:/AdminUserName</code> is also listed in
+the <code>topology:/Security/User</code> list of users and update the <code>topology:/Security/User</code> user&rsquo;s <code>Password</code> field to be
+the same as that specified in <code>domainInfo:/AdminPassword</code>.</li>
+<li>#1723 - Added support for the WebLogic Server 12.2.1.4 and 14.1.1 July 2024 PSUs.</li>
 </ul>
-<pre><code>$ createDomain.cmd -oracle_home /wls12213 -domain_type MY_WLS ...
-</code></pre>
+<h4 id="bug-fixes">Bug Fixes</h4>
+<ul>
+<li>#1713 - Added logic at startup to detect when WDT logging is not properly configured.</li>
+<li>#1715 - Fixed a bug where the <code>domainInfo:/OPSSWalletPassphrase</code> field was not properly handled when using the
+Prepare Model Tool or when using the Discover Domain Tool with the <code>-target</code> argument.</li>
+<li>#1716 - Fixed the Discover Domain Tool documentation to add missing command-line arguments.</li>
+<li>#1718 - Fixed an issue with the <code>NativeVersionEnabled</code> attribute of <code>NMProperties</code> not working correctly when running
+the Update Domain Tool.</li>
+<li>#1720 - Fixed an issue with RCU pre-check error handling that was causing an unhandled Jython error.</li>
+<li>#1721 - Fixed a bug in the SSH directory listing command for a remote Unix machine.</li>
+<li>#1724 - Fixed an off-by-one error when using the Archive Helper Tool&rsquo;s <code>remove custom</code> command with a name that starts
+with <code>wlsdeploy/custom/</code> or <code>config/wlsdeploy/custom/</code> that was causing the specified location to not be removed.</li>
+<li>#1727, #1729 - Fixed an issue with Create Domain Tool&rsquo;s RCU pre-check functionality that was causing a Jython
+AttributeException for <code>set</code> when the STB DataSource was defined in the <code>resources:/JDBCSystemResource</code> section of the
+model and specifying one or more JDBC driver properties.</li>
+<li>#1730 - Fixed an issue where an application or library deployment plan was not being collected when the <code>SourcePath</code>
+contained an excluded location like <code>@@ORACLE_HOME@@</code>.</li>
+</ul>
+<h4 id="known-issues">Known Issues</h4>
+<ul>
+<li>
+<p>SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
+the 12.2.1.4.0 GA release fails with the following error, as mentioned at <a href="https://github.com/hierynomus/sshj/issues/895">https://github.com/hierynomus/sshj/issues/895</a>.
+Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">SEVERE Messages:
+        1. WLSDPLY-20008: verifySSH argument processing failed: Failed to initialize SSH context: Failed to SSH connect to host myhost.oracle.com: no such algorithm: X25519 <span style="color:#66d9ef">for</span> provider BC
+</code></pre></div></li>
+<li>
+<p>SSH support for the Update Domain Tool and Deploy Apps Tool does not work when using an archive file and the remote
+WebLogic Server is running on Windows using the optional, Windows-provided, OpenSSH component.  This is due to an
+issue with the SSHJ library WDT is using.  See <a href="https://github.com/hierynomus/sshj/issues/929">https://github.com/hierynomus/sshj/issues/929</a> for more information.</p>
+</li>
+</ul>
+<p>See <a href="https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/">https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/</a> for the current set of known limitations.</p>
+
 
 <footer class="footline">
 	
@@ -2228,7 +2240,6 @@
             
                 
                     
-                    
                 
                 
 
@@ -2243,9 +2254,6 @@
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2569,7 +2577,6 @@
             
                 
                     
-                    
                 
                 
 
@@ -2583,8 +2590,21 @@
             
                 
                     
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
                         
-                        
+            
+            
+                
                     
                 
                 
@@ -2617,26 +2637,6 @@
             
             
                 
-                    
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
                     
                 
                 
@@ -3060,6 +3060,7 @@
             
                 
                     
+                    
                 
                 
 
@@ -3072,6 +3073,7 @@
             
             
                 
+                    
                     
                 
                 
@@ -3088,6 +3090,9 @@
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -3576,10 +3581,10 @@
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/userguide/tools-config/domain_def/" title="Domain type definitions"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/tools-config/logging/" title="Logging" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-4.2.0/" title="Release 4.2.0" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
