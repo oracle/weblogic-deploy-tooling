@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import array
@@ -322,10 +322,29 @@ class Discoverer(object):
                 model_value = None
 
         except (AliasException, DiscoverException), de:
-            _logger.info('WLSDPLY-06106', wlst_name, wlst_path, de.getLocalizedMessage(),
-                         class_name=_class_name, method_name=_method_name)
+            if self._is_subfolder_attribute(location, wlst_name):
+                _logger.fine('WLSDPLY-06166', wlst_name, wlst_path,
+                             class_name=_class_name, method_name=_method_name)
+            else:
+                _logger.info('WLSDPLY-06106', wlst_name, wlst_path, de.getLocalizedMessage(),
+                             class_name=_class_name, method_name=_method_name)
 
         return  model_name, model_value
+
+    def _is_subfolder_attribute(self, location, wlst_attribute_name):
+        """
+        On rare occasions in online WLST, an attribute will appear using the same name
+        as a subfolder that has not been added. Detect this scenario to avoid error conditions
+        when the attribute does not have a corresponding alias.
+        :param location: the location of the attribute
+        :param wlst_attribute_name: tha attribute name
+        :return: True if the attribute name matches a subfolder name
+        """
+        try:
+            result = self._aliases.get_model_subfolder_name(location, wlst_attribute_name)
+            return result is not None
+        except (AliasException, DiscoverException), de:
+            return False
 
     def _get_model_password_value(self, location, model_name, model_value):
         """

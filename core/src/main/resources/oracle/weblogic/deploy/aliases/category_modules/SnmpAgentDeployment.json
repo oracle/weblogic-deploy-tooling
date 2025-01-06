@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2024, Oracle and/or its affiliates.",
+    "copyright": "Copyright (c) 2024, 2025, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "S${nmp:NMP}AgentDeployment${:s}",
     "online_bean": "weblogic.management.configuration.SNMPAgentDeploymentMBean",
@@ -164,6 +164,7 @@
             {"version": "[10,12.2.1.4)", "wlst_mode": "both", "wlst_name": "CommunityPrefix", "wlst_path": "WP001", "default_value": "public", "wlst_type": "string" },
             {"version": "[12.2.1.4,)",   "wlst_mode": "both", "wlst_name": "CommunityPrefix", "wlst_path": "WP001", "default_value": null,     "wlst_type": "string" }
         ],
+        "DebugLevel":                  [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "DebugLevel",                  "wlst_path": "WP001", "default_value": 0,       "wlst_type": "integer" } ],
         "DeploymentOrder":             [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "DeploymentOrder",             "wlst_path": "WP001", "default_value": 1000,    "wlst_type": "integer" } ],
         "Enabled":                     [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "Enabled",                     "wlst_path": "WP001", "default_value": false,   "wlst_type": "boolean" } ],
         "InformEnabled":               [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "InformEnabled",               "wlst_path": "WP001", "default_value": false,   "wlst_type": "boolean" } ],
@@ -176,6 +177,7 @@
             {"version": "[10,12.2.1.3)", "wlst_mode": "online", "wlst_name": "MaxInformRetryCount", "wlst_path": "WP001", "default_value": 1, "wlst_type": "integer" },
             {"version": "[12.2.1.3,)",   "wlst_mode": "both",   "wlst_name": "MaxInformRetryCount", "wlst_path": "WP001", "default_value": 1, "wlst_type": "integer" }
         ],
+        "MibDataRefreshInterval":      [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "MibDataRefreshInterval",      "wlst_path": "WP001", "default_value": 120,     "wlst_type": "integer" } ],
         "Notes":                       [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "Notes",                       "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
         "PrivacyProtocol":             [
             {"version": "[10,12.2.1.4)", "wlst_mode": "both", "wlst_name": "PrivacyProtocol", "wlst_path": "WP001", "default_value": "${__NULL__:noPriv}",  "wlst_type": "string" },
@@ -187,6 +189,8 @@
             {"version": "[12.2.1.4,)",   "wlst_mode": "both", "wlst_name": "SNMPTrapVersion", "wlst_path": "WP001", "default_value": "${0:3}", "wlst_type": "integer" }
         ],
         "SendAutomaticTrapsEnabled":   [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "SendAutomaticTrapsEnabled",   "wlst_path": "WP001", "default_value": true,    "wlst_type": "boolean" } ],
+        "ServerStatusCheckIntervalFactor":
+                                       [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "ServerStatusCheckIntervalFactor", "wlst_path": "WP001", "default_value": 1, "wlst_type": "integer" } ],
         "SnmpAccessForUserMBeansEnabled":
                                        [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "S${nmp:NMP}AccessForUserMBeansEnabled", "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" } ],
         "SnmpEngineId":                [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "S${nmp:NMP}EngineId",         "wlst_path": "WP001", "default_value": "${__NULL__:%SNMPAGENTDEPLOYMENT%}", "wlst_type": "string", "uses_path_tokens": "${:true}" } ],
