@@ -12,20 +12,20 @@
     <title>Limitations :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1736133697" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1736133697" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1736133697" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1736133697" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1736133697" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1736133697" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1736133697" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1736133697" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1736133697" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1736133697" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1736192333" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1736192333" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1736192333" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1736192333" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1736192333" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1736192333" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1736192333" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1736192333" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1736192333" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1736192333" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1736133697"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1736192333"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1736133697"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1736133697"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1736192333"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1736192333"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1736133697"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1736192333"></script>
 
     
   </div>
@@ -2076,6 +2076,7 @@
         <li></li>
         <li><a href="#ssh-usage">SSH usage</a></li>
         <li><a href="#production-redeployment-of-versioned-applications">Production Redeployment of Versioned Applications</a></li>
+        <li><a href="#online-update-domain-running-on-jdk-8">Online Update Domain running on JDK 8</a></li>
       </ul>
     </li>
   </ul>
@@ -2172,6 +2173,29 @@ to supply &ldquo;remote&rdquo; values for these paths.</p>
 <p><strong>ACTION</strong>: While we fully intend to resolve this issue in an upcoming release, the workaround for now is to use the
 <code>weblogic.Deployer</code> tool to redeploy the application pointing at the new source files, as described in the
 <a href="https://docs.oracle.com/en/middleware/fusion-middleware/weblogic-server/12.2.1.4/depgd/redeploy.html#GUID-2C0A6D50-3D20-4167-8091-4A5546DEFD6C">WebLogic Server documentation</a>.</p>
+<h3 id="online-update-domain-running-on-jdk-8">Online Update Domain running on JDK 8</h3>
+<p><strong>ISSUE</strong>: WDT Update Domain may fail if trying to update the values of <code>RemoteAnonymousRmiiiopEnabled</code> and
+<code>RemoteAnonymousRmit3Enabled</code> in the same Update Domain call.</p>
+<pre><code>####&lt;Jan 6, 2025 12:38:06 PM&gt; &lt;SEVERE&gt; &lt;update&gt; &lt;main&gt; &lt;WLSDPLY-09015&gt; &lt;updateDomain deployment failed: activate() failed: weblogic.rjvm.PeerGoneException: ; nested exception is: 
+	java.io.EOFException&gt;
+
+Issue Log for updateDomain version 4.3.0 running WebLogic version 12.2.1.4.0.240704 in online mode against server using WebLogic version 12.2.1.4.0.240704:
+
+WARNING Messages:
+
+        1. WLSDPLY-09012: While handling an error, failed to stop the current edit session and disconnect: undo() failed: None
+
+SEVERE Messages:
+
+        1. WLSDPLY-09015: updateDomain deployment failed: activate() failed: weblogic.rjvm.PeerGoneException: ; nested exception is: 
+	java.io.EOFException
+
+Total:   SEVERE :    1  WARNING :    1
+
+updateDomain.sh failed (exit code = 2)
+</code></pre><p><strong>ACTION</strong>: This is caused by WebLogic Server Bug 37443991.  To resolve this issue, please file an SR with Oracle Support
+and ask for a patch for Bug 37443991.  The only known workarounds are to either split these two updates into separate
+online Update Domain calls or use offline Update Domain.</p>
 
 
 <footer class="footline">
@@ -3617,19 +3641,19 @@ to supply &ldquo;remote&rdquo; values for these paths.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1736133697"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1736133697"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1736133697"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1736133697"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1736133697"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1736133697"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1736192333"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1736192333"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1736192333"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1736192333"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1736192333"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1736192333"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1736133697"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1736133697"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1736133697"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1736192333"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1736192333"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1736192333"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1736133697"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1736192333"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
