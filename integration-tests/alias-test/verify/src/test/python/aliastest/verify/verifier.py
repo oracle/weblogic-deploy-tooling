@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2024, Oracle and/or its affiliates.
+Copyright (c) 2020, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from aliastest.verify import utils as verify_utils
@@ -599,44 +599,41 @@ class Verifier(object):
         except AliasException, ae:
             exists = False
 
-            if DEPRECATED not in generated_attribute_info:
-                message = None
-                if LSA_DEFAULT not in generated_attribute_info:
-                    message = 'Attribute is not found in LSA map'
-                elif SINCE_VERSION in generated_attribute_info:
-                    message = 'Attribute since version ' + generated_attribute_info[SINCE_VERSION]
+            # we used to allow deprecated attributes to bypass these tests,
+            # and just log as FINE. They no longer bypass these tests.
+            message = None
+            if LSA_DEFAULT not in generated_attribute_info:
+                message = 'Attribute is not found in LSA map'
+            elif SINCE_VERSION in generated_attribute_info:
+                message = 'Attribute since version ' + generated_attribute_info[SINCE_VERSION]
 
-                if generated_attribute.lower() in lower_case_list:
-                    expected_wlst_name = _get_dict_key_from_value(alias_name_map, generated_attribute.lower())
-                    message = 'WLST name in aliases is %s' % expected_wlst_name
-                    self._add_error(location, ERROR_ATTRIBUTE_INCORRECT_CASE,
-                                    message=message, attribute=generated_attribute)
+            if generated_attribute.lower() in lower_case_list:
+                expected_wlst_name = _get_dict_key_from_value(alias_name_map, generated_attribute.lower())
+                message = 'WLST name in aliases is %s' % expected_wlst_name
+                self._add_error(location, ERROR_ATTRIBUTE_INCORRECT_CASE,
+                                message=message, attribute=generated_attribute)
 
-                ### we used to exempt these folders
+            ### we used to exempt these folders
+            #
+            # elif location.get_folder_path().startswith('/SecurityConfiguration/Realm'):
+            #     # We are not fully implementing Security Providers and only intend to
+            #     # add attributes as customers need them so make these warnings.
+            #     #
+            #     self._add_warning(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND,
+            #                       attribute=generated_attribute, message=message)
+
+            elif location.get_folder_path() == '/Security':
+                # We do not use Security folder attributes in aliases.
+                # flag these as informational.
                 #
-                # elif location.get_folder_path().startswith('/SecurityConfiguration/Realm'):
-                #     # We are not fully implementing Security Providers and only intend to
-                #     # add attributes as customers need them so make these warnings.
-                #     #
-                #     self._add_warning(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND,
-                #                       attribute=generated_attribute, message=message)
-
-                elif location.get_folder_path() == '/Security':
-                    # We do not use Security folder attributes in aliases.
-                    # flag these as informational.
-                    #
-                    self._add_info(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND,
-                                      attribute=generated_attribute, message=message)
-                elif self._is_generated_attribute_readonly(location, generated_attribute, generated_attribute_info):
-                    self._add_error(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND_IS_READONLY,
-                                    attribute=generated_attribute, message=message)
-                else:
-                    self._add_error(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND,
-                                    attribute=generated_attribute, message=message)
+                self._add_info(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND,
+                                  attribute=generated_attribute, message=message)
+            elif self._is_generated_attribute_readonly(location, generated_attribute, generated_attribute_info):
+                self._add_error(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND_IS_READONLY,
+                                attribute=generated_attribute, message=message)
             else:
-                _logger.fine('Attribute {0} was not found in aliases but is deprecated. From location {1}',
-                             generated_attribute, location.get_folder_path(),
-                             class_name=CLASS_NAME, method_name=_method_name)
+                self._add_error(location, ERROR_ATTRIBUTE_ALIAS_NOT_FOUND,
+                                attribute=generated_attribute, message=message)
 
         _logger.exiting(result=model_attribute, class_name=CLASS_NAME, method_name=_method_name)
         return exists,  model_attribute, rod
