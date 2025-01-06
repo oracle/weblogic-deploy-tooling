@@ -111,3 +111,32 @@ to supply "remote" values for these paths.
 **ACTION**: While we fully intend to resolve this issue in an upcoming release, the workaround for now is to use the
 `weblogic.Deployer` tool to redeploy the application pointing at the new source files, as described in the
 [WebLogic Server documentation](https://docs.oracle.com/en/middleware/fusion-middleware/weblogic-server/12.2.1.4/depgd/redeploy.html#GUID-2C0A6D50-3D20-4167-8091-4A5546DEFD6C).
+
+### Online Update Domain running on JDK 8
+
+**ISSUE**: WDT Update Domain may fail if trying to update the values of `RemoteAnonymousRmiiiopEnabled` and 
+`RemoteAnonymousRmit3Enabled` in the same Update Domain call.
+
+```
+####<Jan 6, 2025 12:38:06 PM> <SEVERE> <update> <main> <WLSDPLY-09015> <updateDomain deployment failed: activate() failed: weblogic.rjvm.PeerGoneException: ; nested exception is: 
+	java.io.EOFException>
+
+Issue Log for updateDomain version 4.3.0 running WebLogic version 12.2.1.4.0.240704 in online mode against server using WebLogic version 12.2.1.4.0.240704:
+
+WARNING Messages:
+
+        1. WLSDPLY-09012: While handling an error, failed to stop the current edit session and disconnect: undo() failed: None
+
+SEVERE Messages:
+
+        1. WLSDPLY-09015: updateDomain deployment failed: activate() failed: weblogic.rjvm.PeerGoneException: ; nested exception is: 
+	java.io.EOFException
+
+Total:   SEVERE :    1  WARNING :    1
+
+updateDomain.sh failed (exit code = 2)
+```
+
+**ACTION**: This is caused by WebLogic Server Bug 37443991.  To resolve this issue, please file an SR with Oracle Support
+and ask for a patch for Bug 37443991.  The only known workarounds are to either split these two updates into separate
+online Update Domain calls or use offline Update Domain.
