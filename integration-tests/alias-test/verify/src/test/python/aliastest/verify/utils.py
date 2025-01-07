@@ -41,6 +41,7 @@ ONLINE_ALIAS_ATTRIBUTE_IGNORE_MAP = {
         'ServerFailureTrigger'  # appears in attribute list until folder MBean is created
     ],
     '/Server': [
+        'ClusterRuntime',  # an MBean from older versions of WLS
         'JTAMigratableTarget'  # appears in attribute list until folder MBean is created
     ],
     '/Server/OverloadProtection': [

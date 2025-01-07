@@ -438,6 +438,11 @@ class Verifier(object):
 
             if generated_attributes:
                 for generated_attribute in generated_attributes:
+                    if verify_utils.is_alias_attribute_in_ignore_list(self._model_context, location, generated_attribute):
+                        # don't remove from the unprocessed alias list, process later from that list.
+                        # we don't need to omit these from the generated file any longer.
+                        continue
+
                     if generated_attribute in unprocessed_alias_list:
                         unprocessed_alias_list.remove(generated_attribute)
 
