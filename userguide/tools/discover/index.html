@@ -12,20 +12,20 @@
     <title>Discover Domain Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1736738513" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1736738513" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1736738513" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1736738513" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1736738513" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1736738513" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1736738513" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1736738513" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1736738513" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1736738513" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1736796573" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1736796573" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1736796573" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1736796573" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1736796573" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1736796573" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1736796573" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1736796573" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1736796573" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1736796573" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1736738513"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1736796573"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1736738513"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1736738513"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1736796573"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1736796573"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1736738513"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1736796573"></script>
 
     
   </div>
@@ -2126,23 +2126,31 @@ more information.</p>
 <p>The Discover Domain tool can be run in either offline or online mode, and each mode has some options that control its
 behavior.</p>
 <ul>
-<li>offline mode - Offline mode uses WLST offline to read the domain configuration from the domain home directory.  This
+<li>
+<p>offline mode - Offline mode uses WLST offline to read the domain configuration from the domain home directory.  This
 means that the tool must run on the same host as the domain&rsquo;s Administration Server and that the user running the
 tool needs full read access to the domain home directory structure.  By default, the tool will gather files referenced
 by the domain configuration (for example, applications, domain libraries) and store those files in a zip file known as
-the archive file.  To prevent the collection of these files, simply add the <code>-skip_archive</code> argument to the
-command-line use to invoke the tool.</li>
-<li>online mode - Online mode uses WLST online to read the domain configuration using the Administration Server&rsquo;s MBeans.
+the archive file.</p>
+<p>To prevent the collection of these files, simply add the <code>-skip_archive</code> argument to the
+command-line use to invoke the tool.  This will result in a model file that has the original paths to the files that
+could not be collected.</p>
+</li>
+<li>
+<p>online mode - Online mode uses WLST online to read the domain configuration using the Administration Server&rsquo;s MBeans.
 The user running the tool needs to provide the administrative credentials and URL to connect to the Administration
-Server.  There are four options when running the tool:
+Server.  There are four options when running the tool:</p>
 <ul>
 <li>Normal mode (default) - In this mode, the tool must run on the same host as the domain&rsquo;s Administration Server
 and the user running the tool must have full read access to the domain home directory structure and any other
 locations where domain-specific files are stored.</li>
-<li><code>-skip_archive</code> mode - In this mode, the tool can be run from anywhere since the archive file is not being created.</li>
+<li><code>-skip_archive</code> mode - In this mode, the tool can be run from anywhere since the archive file is not being created.
+As with offline mode, this will result in a model file that has the original paths to the files that
+could not be collected.</li>
 <li><code>-remote</code> mode - This mode is similar to <code>-skip_archive</code> mode except that the tool will generate a list of <code>TODO</code>
 messages that inform the user which artifacts needs to be gathered and added to an archive file in order to create
-a complete model of the domain.</li>
+a complete model of the domain.  The model file will be populated with the archive paths that need to be collected
+and added to an archive file to allow a new domain to be created.</li>
 <li>SSH mode - In this mode, the tool can be run from any host for which you have set up SSH connectivity between the
 host where WDT is running and the host where the Administration Server is running.  The <code>-ssh_user</code> (which, by
 default, is the same user running the tool) must have full read access to the domain home directory structure and
@@ -3972,19 +3980,19 @@ environment, what you are doing, and what is happening.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1736738513"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1736738513"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1736738513"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1736738513"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1736738513"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1736738513"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1736796573"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1736796573"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1736796573"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1736796573"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1736796573"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1736796573"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1736738513"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1736738513"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1736738513"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1736796573"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1736796573"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1736796573"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1736738513"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1736796573"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
