@@ -543,6 +543,10 @@ class DeploymentsDiscoverer(Discoverer):
     def _get_plan_path(self, plan_path, archive_file, source_name, deployment_type, deployment_name, deployment_dict):
         _method_name = '_get_plan_path'
 
+        if self._model_context.is_skip_archive():
+            # Just return None so that the model plan file stays the same.
+            return None
+
         plan_dir = None
         if model_constants.PLAN_DIR in deployment_dict:
             plan_dir = deployment_dict[model_constants.PLAN_DIR]
@@ -551,19 +555,21 @@ class DeploymentsDiscoverer(Discoverer):
 
         if deployment_type == model_constants.LIBRARY:
             archive_entry_type = WLSDeployArchive.ArchiveEntryType.SHLIB_PLAN
-            download_file_type = 'sharedLibraries'
             remote_archive_path = WLSDeployArchive.getShlibPlanArchivePath(plan_file_name)
-            archive_add_method = archive_file.addSharedLibraryDeploymentPlan
         else:
             archive_entry_type = WLSDeployArchive.ArchiveEntryType.APPLICATION_PLAN
-            download_file_type = 'applications'
             remote_archive_path = WLSDeployArchive.getApplicationPlanArchivePath(plan_file_name)
-            archive_add_method = archive_file.addApplicationDeploymentPlan
 
         if self._model_context.is_remote():
             new_plan_name = remote_archive_path
             self.add_to_remote_map(plan_path, new_plan_name, archive_entry_type.name())
-        elif not self._model_context.is_skip_archive():
+        else:
+            if deployment_type == model_constants.LIBRARY:
+                download_file_type = 'sharedLibraries'
+                archive_add_method = archive_file.addSharedLibraryDeploymentPlan
+            else:
+                download_file_type = 'applications'
+                archive_add_method = archive_file.addApplicationDeploymentPlan
             try:
                 if self._model_context.is_ssh():
                     plan_file_name = self.download_deployment_from_remote_server(
@@ -582,7 +588,7 @@ class DeploymentsDiscoverer(Discoverer):
                 _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
                 raise de
 
-            return new_plan_name
+        return new_plan_name
 
     def _resolve_deployment_plan_path(self, plan_dir, plan_path):
         """
