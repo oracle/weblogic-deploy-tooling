@@ -29,8 +29,11 @@ behavior.
   means that the tool must run on the same host as the domain's Administration Server and that the user running the
   tool needs full read access to the domain home directory structure.  By default, the tool will gather files referenced
   by the domain configuration (for example, applications, domain libraries) and store those files in a zip file known as
-  the archive file.  To prevent the collection of these files, simply add the `-skip_archive` argument to the
-  command-line use to invoke the tool.
+  the archive file.
+
+  To prevent the collection of these files, simply add the `-skip_archive` argument to the
+  command-line use to invoke the tool.  This will result in a model file that has the original paths to the files that
+  could not be collected.
 - online mode - Online mode uses WLST online to read the domain configuration using the Administration Server's MBeans.
   The user running the tool needs to provide the administrative credentials and URL to connect to the Administration
   Server.  There are four options when running the tool:
@@ -38,9 +41,12 @@ behavior.
     and the user running the tool must have full read access to the domain home directory structure and any other 
     locations where domain-specific files are stored.
   - `-skip_archive` mode - In this mode, the tool can be run from anywhere since the archive file is not being created.
+     As with offline mode, this will result in a model file that has the original paths to the files that
+     could not be collected.
   - `-remote` mode - This mode is similar to `-skip_archive` mode except that the tool will generate a list of `TODO`
      messages that inform the user which artifacts needs to be gathered and added to an archive file in order to create
-     a complete model of the domain.
+     a complete model of the domain.  The model file will be populated with the archive paths that need to be collected
+     and added to an archive file to allow a new domain to be created.
   - SSH mode - In this mode, the tool can be run from any host for which you have set up SSH connectivity between the
     host where WDT is running and the host where the Administration Server is running.  The `-ssh_user` (which, by
     default, is the same user running the tool) must have full read access to the domain home directory structure and
