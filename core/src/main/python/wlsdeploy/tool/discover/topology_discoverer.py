@@ -932,8 +932,6 @@ class TopologyDiscoverer(Discoverer):
                         file_name_path = self.download_deployment_from_remote_server(file_name_path,
                                                                                       self.download_temporary_dir,
                                                                                       "classPathLibraries")
-
-
                     new_source_name = archive_file.addClasspathLibrary(file_name_path)
                 except IllegalArgumentException, iae:
                     _logger.warning('WLSDPLY-06620', server_name, file_name_path, iae.getLocalizedMessage(),
@@ -943,6 +941,7 @@ class TopologyDiscoverer(Discoverer):
                                                                     wioe.getLocalizedMessage(), error=wioe)
                     _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
                     raise de
+
             if new_source_name is not None:
                 return_name = new_source_name
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=return_name)
@@ -959,15 +958,18 @@ class TopologyDiscoverer(Discoverer):
         _method_name = '_add_jdbc_transaction_log_create_table_ddl_file_to_archive'
         _logger.entering(model_name, model_value, str_helper.to_string(location),
                          class_name=_class_name, method_name=_method_name)
+
         new_name = None
         if not string_utils.is_empty(model_value):
             entity_type, entity_name = self._get_server_or_template_name_from_location(location)
             archive_file = self._model_context.get_archive_file()
 
-            if self._model_context.is_remote():
+            if self._model_context.is_skip_archive():
+                new_name = model_value
+            elif self._model_context.is_remote():
                 new_name = WLSDeployArchive.getScriptArchivePath(model_value)
                 self.add_to_remote_map(model_value, new_name, WLSDeployArchive.ArchiveEntryType.SCRIPT.name())
-            elif not self._model_context.is_skip_archive():
+            else:
                 file_path = self._convert_path(model_value)
                 try:
                     if self._model_context.is_ssh():

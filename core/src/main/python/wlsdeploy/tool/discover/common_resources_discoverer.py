@@ -408,28 +408,39 @@ class CommonResourcesDiscoverer(Discoverer):
         """
         _method_name = 'get_jdbc_create_script'
         _logger.entering(jdbc_store_name, class_name=_class_name, method_name=_method_name)
-        if model_constants.CREATE_TABLE_DDL_FILE in jdbc_store_dictionary:
-            archive_file = self._model_context.get_archive_file()
-            file_name = self._convert_path(jdbc_store_dictionary[model_constants.CREATE_TABLE_DDL_FILE])
-            _logger.info('WLSDPLY-06352', jdbc_store_name, file_name, class_name=_class_name, method_name=_method_name)
-            try:
-                if self._model_context.is_ssh():
-                    file_name = self.download_deployment_from_remote_server(file_name,
-                                                                                   self.download_temporary_dir,
-                                                                                   "jdbcScript")
 
-                new_source_name = archive_file.addScript(file_name)
-            except IllegalArgumentException, iae:
-                _logger.warning('WLSDPLY-06353', jdbc_store_name, file_name,
-                                iae.getLocalizedMessage(), class_name=_class_name,
-                                method_name=_method_name)
+        if model_constants.CREATE_TABLE_DDL_FILE in jdbc_store_dictionary:
+            if self._model_context.is_skip_archive():
                 _logger.exiting(class_name=_class_name, method_name=_method_name)
                 return
-            except WLSDeployArchiveIOException, wioe:
-                de = exception_helper.create_discover_exception('WLSDPLY-06354', jdbc_store_name, file_name,
-                                                                wioe.getLocalizedMessage())
-                _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
-                raise de
+
+            file_name = self._convert_path(jdbc_store_dictionary[model_constants.CREATE_TABLE_DDL_FILE])
+            if self._model_context.is_remote():
+                archive_entry_type = WLSDeployArchive.ArchiveEntryType.SCRIPT
+                new_source_name = WLSDeployArchive.getScriptArchivePath(file_name)
+                self.add_to_remote_map(file_name, new_source_name, archive_entry_type.name())
+            else:
+                archive_file = self._model_context.get_archive_file()
+                _logger.info('WLSDPLY-06352', jdbc_store_name, file_name,
+                             class_name=_class_name, method_name=_method_name)
+                try:
+                    if self._model_context.is_ssh():
+                        file_name = self.download_deployment_from_remote_server(file_name,
+                                                                                       self.download_temporary_dir,
+                                                                                       "jdbcScript")
+
+                    new_source_name = archive_file.addScript(file_name)
+                except IllegalArgumentException, iae:
+                    _logger.warning('WLSDPLY-06353', jdbc_store_name, file_name,
+                                    iae.getLocalizedMessage(), class_name=_class_name,
+                                    method_name=_method_name)
+                    _logger.exiting(class_name=_class_name, method_name=_method_name)
+                    return
+                except WLSDeployArchiveIOException, wioe:
+                    de = exception_helper.create_discover_exception('WLSDPLY-06354', jdbc_store_name, file_name,
+                                                                    wioe.getLocalizedMessage())
+                    _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+                    raise de
 
             if new_source_name is None:
                 new_source_name = file_name
