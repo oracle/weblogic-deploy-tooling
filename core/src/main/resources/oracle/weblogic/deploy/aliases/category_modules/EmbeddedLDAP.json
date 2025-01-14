@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.",
+    "copyright": "Copyright (c) 2019, 2025, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "EmbeddedLDAP",
     "online_bean": "weblogic.management.configuration.EmbeddedLDAPMBean",
@@ -14,7 +14,7 @@
         "CacheEnabled":            [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "CacheEnabled",            "wlst_path": "WP001", "default_value": "true",   "wlst_type": "boolean"   } ],
         "CacheSize":               [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "CacheSize",               "wlst_path": "WP001", "default_value": 32,       "wlst_type": "integer"   } ],
         "CacheTTL":                [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "CacheTTL",                "wlst_path": "WP001", "default_value": 60,       "wlst_type": "integer"   } ],
-        "CredentialEncrypted":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "CredentialEncrypted",     "wlst_path": "WP001", "default_value": null, "derived_default": "${:true}",  "wlst_type": "password", "get_method": "GET" } ],
+        "CredentialEncrypted":     [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "CredentialEncrypted",     "wlst_path": "WP001", "default_value": null,     "wlst_type": "password", "get_method": "GET" } ],
         "KeepAliveEnabled":        [ {"version": "[12.1.3,)", "wlst_mode": "both", "wlst_name": "KeepAliveEnabled",    "wlst_path": "WP001", "default_value": "false",  "wlst_type": "boolean"   } ],
         "MasterFirst":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "MasterFirst",             "wlst_path": "WP001", "default_value": "false",  "wlst_type": "boolean"   } ],
         "Notes":                   [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"    } ],

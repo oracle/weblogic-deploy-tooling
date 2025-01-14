@@ -1,5 +1,5 @@
 {
-  "copyright": "Copyright (c) 2020, 2024, Oracle and/or its affiliates.",
+  "copyright": "Copyright (c) 2020, 2025, Oracle and/or its affiliates.",
   "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
   "wlst_type": "JoltConnectionPool${:s}",
   "online_bean": "weblogic.management.configuration.JoltConnectionPoolMBean",
@@ -20,7 +20,7 @@
     "RecvTimeout":                                [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "RecvTimeout",                        "wlst_path": "WP001", "default_value": 0,                     "wlst_type": "integer"                         } ],
     "SecurityContextEnabled": [
       {"version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "SecurityContextEnabled", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "secure_default": "${__NULL__:true}" },
-      {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "SecurityContextEnabled", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "derived_default": "${true:}", "secure_default": "${__NULL__:true}" }
+      {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "SecurityContextEnabled", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "secure_default": true }
     ],
     "Target":                                     [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "Target${:s}",                        "wlst_path": "WP003", "default_value": null,                  "wlst_type": "${delimited_string:jarray}",    "preferred_model_type": "delimited_string", "get_method": "${LSA:GET}", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ],
     "TrustStoreName":                             [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "TrustStoreName",                     "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string"                          } ],

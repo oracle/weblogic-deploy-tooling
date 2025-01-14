@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.lang import IllegalArgumentException
@@ -35,6 +35,13 @@ import wlsdeploy.util.unicode_helper as str_helper
 _class_name = 'TopologyDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
 
+# these are used to correct unreliable isSet() results
+HANDLER_DEFAULTS = {
+    "/Server/ListenPort": 7001,
+    "/ServerTemplate/ListenPort": 7100,
+    "/Server/SSL/ListenPort": 7002,
+    "/ServerTemplate/SSL/ListenPort": 8100,
+}
 
 class TopologyDiscoverer(Discoverer):
     """
@@ -58,6 +65,9 @@ class TopologyDiscoverer(Discoverer):
                               self._add_jdbc_transaction_log_create_table_ddl_file_to_archive)
         self._add_att_handler(model_constants.CUSTOM_IDENTITY_KEYSTORE_FILE, self._add_keystore_file_to_archive)
         self._add_att_handler(model_constants.CUSTOM_TRUST_KEYSTORE_FILE, self._add_keystore_file_to_archive)
+
+        self._add_att_handler(model_constants.LISTEN_PORT, self._handle_revised_default)
+
         self._wlst_helper = WlstHelper(ExceptionType.DISCOVER)
 
     def discover(self):
@@ -1089,6 +1099,30 @@ class TopologyDiscoverer(Discoverer):
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
         return new_name
+
+    # _handle_* methods are att_handler method for correcting invalid isSet() results
+
+    def _handle_revised_default(self, model_name, model_value, location):
+        """
+        Handle attributes that need revised default values after using unreliable isS
+        :param model_name:
+        :param model_value:
+        :param location:
+        :return:
+        """
+        result = model_value
+        if self._needs_is_set_revision(location, model_name):
+            path = location.get_folder_path() + '/' + model_name
+            path_default = dictionary_utils.get_element(HANDLER_DEFAULTS, path)
+            if path_default is not None and model_value == path_default:
+                result = None
+        return result
+
+    def _handle_domain_default(self, model_name, model_value, location):
+        return 999
+
+    def _handle_domain_default(self, model_name, model_value, location):
+        return 999
 
     def _get_server_name_from_location(self, location):
         """
