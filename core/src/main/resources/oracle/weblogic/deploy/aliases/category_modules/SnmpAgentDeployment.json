@@ -90,7 +90,7 @@
             "attributes": {
                 "Community":     [
                     { "version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "Community", "wlst_path": "WP001", "default_value": "public", "wlst_type": "string" },
-                    { "version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "Community", "wlst_path": "WP001", "default_value": "public", "wlst_type": "string", "derived_default": "${true:}" }
+                    { "version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "Community", "wlst_path": "WP001", "default_value": "public", "wlst_type": "string", "derived_default": "${true:}", "comment": "secure_default is null" }
                 ],
                 "ListenAddress": [ { "version": "[12.2.1.3,)", "wlst_mode": "both", "wlst_name": "ListenAddress", "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
                 "Notes":         [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Notes",         "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
@@ -98,7 +98,7 @@
                 "Port":          [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Port",          "wlst_path": "WP001", "default_value": 0, "wlst_type": "integer" } ],
                 "SecurityLevel": [
                     { "version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "SecurityLevel", "wlst_path": "WP001", "default_value": "${__NULL__:noAuthNoPriv}", "wlst_type": "string", "production_default": "authNoPriv" },
-                    { "version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "SecurityLevel", "wlst_path": "WP001", "default_value": "noAuthNoPriv",             "wlst_type": "string", "production_default": "authNoPriv", "derived_default": "${true:}" }
+                    { "version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "SecurityLevel", "wlst_path": "WP001", "default_value": "noAuthNoPriv",             "wlst_type": "string", "production_default": "authNoPriv" }
                 ],
                 "SecurityName":  [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "SecurityName",  "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
                 "Timeout":       [ { "version": "[10,)", "wlst_mode": "both", "wlst_name": "Timeout",       "wlst_path": "WP001", "default_value": 5000, "wlst_type": "long" } ]
