@@ -190,7 +190,7 @@ class GlobalResourcesDiscoverer(Discoverer):
                     new_file_name = WLSDeployArchive.getMimeMappingArchivePath(file_path)
                     self.add_to_remote_map(file_path, new_file_name,
                                            WLSDeployArchive.ArchiveEntryType.MIME_MAPPING.name())
-                else:
+                elif not self._model_context.is_skip_archive():
                     if self._model_context.is_ssh():
                         file_path = self.download_deployment_from_remote_server(file_path, self.download_temporary_dir,
                                                                                 "mimeFile")

@@ -119,15 +119,18 @@ class DeploymentsDiscoverer(Discoverer):
                 file_name_path = file_name
                 if not self._model_context.is_remote():
                     file_name_path = self._convert_path(file_name)
+
                 if self._is_file_to_exclude_from_archive(file_name_path):
                     _logger.info('WLSDPLY-06383', library_name, class_name=_class_name, method_name=_method_name)
                 else:
                     new_source_name = None
-                    if self._model_context.is_remote():
+                    if self._model_context.is_skip_archive():
+                        new_source_name = file_name_path
+                    elif self._model_context.is_remote():
                         new_source_name = WLSDeployArchive.getSharedLibraryArchivePath(file_name_path)
                         self.add_to_remote_map(file_name_path, new_source_name,
                                            WLSDeployArchive.ArchiveEntryType.SHARED_LIBRARY.name())
-                    elif not self._model_context.is_skip_archive():
+                    else:
                         _logger.info('WLSDPLY-06384', library_name, file_name_path, class_name=_class_name,
                                      method_name=_method_name)
                         try:
@@ -152,6 +155,7 @@ class DeploymentsDiscoverer(Discoverer):
                                                                             wioe.getLocalizedMessage())
                             _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
                             raise de
+
                     if new_source_name is not None:
                         library_dict[model_constants.SOURCE_PATH] = new_source_name
                         _logger.finer('WLSDPLY-06388', library_name, new_source_name, class_name=_class_name,
@@ -249,16 +253,19 @@ class DeploymentsDiscoverer(Discoverer):
             file_name_path = file_name
             if not self._model_context.is_remote():
                 file_name_path = self._convert_path(file_name)
+
             if self._is_file_to_exclude_from_archive(file_name_path):
                 _logger.info('WLSDPLY-06393', application_name,
                              class_name=_class_name, method_name=_method_name)
             else:
                 new_source_name = None
-                if self._model_context.is_remote():
+                if self._model_context.is_skip_archive():
+                    new_source_name = file_name_path
+                elif self._model_context.is_remote():
                     new_source_name = WLSDeployArchive.getApplicationArchivePath(file_name_path)
                     self.add_to_remote_map(file_name_path, new_source_name,
                                            WLSDeployArchive.ArchiveEntryType.APPLICATION.name())
-                elif not self._model_context.is_skip_archive():
+                else:
                     _logger.info('WLSDPLY-06394', application_name, file_name_path,
                                  class_name=_class_name, method_name=_method_name)
                     try:
@@ -281,6 +288,7 @@ class DeploymentsDiscoverer(Discoverer):
                                                                     file_name_path, wioe.getLocalizedMessage())
                         _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
                         raise de
+
                 if new_source_name is not None:
                     _logger.finer('WLSDPLY-06398', application_name, new_source_name, class_name=_class_name,
                                   method_name=_method_name)
@@ -323,6 +331,7 @@ class DeploymentsDiscoverer(Discoverer):
                         plan_path = self._convert_path(plan_path)
                     _logger.info('WLSDPLY-06407', plan_path, deployment_type, deployment_name,
                                  class_name=_class_name, method_name=_method_name)
+
                     new_plan_name = self._get_plan_path(plan_path, archive_file, source_name, deployment_type,
                                                         deployment_name, deployment_dict)
                     if new_plan_name is not None:
