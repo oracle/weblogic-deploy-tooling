@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the discoverDomain tool.
@@ -140,6 +140,8 @@ def __process_args(args, is_encryption_supported):
     if __wlst_mode == WlstModes.ONLINE:
         cla_helper.process_encryption_args(argument_map, is_encryption_supported)
 
+    __validate_skip_archive_and_remote_args(argument_map, __wlst_mode)
+
     target_configuration_helper.process_target_arguments(argument_map)
     __process_model_arg(argument_map)
     __process_archive_filename_arg(argument_map)
@@ -152,6 +154,23 @@ def __process_args(args, is_encryption_supported):
     __validate_discover_opss_wallet_args(model_context, argument_map, is_encryption_supported)
     model_context.get_validate_configuration().set_disregard_version_invalid_elements(True)
     return model_context
+
+
+def __validate_skip_archive_and_remote_args(argument_map, wlst_mode):
+    _method_name = '__validate_skip_archive_and_remote_args'
+
+    if wlst_mode == WlstModes.OFFLINE and CommandLineArgUtil.REMOTE_SWITCH in argument_map:
+        ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-06064',
+                                                   _program_name, CommandLineArgUtil.REMOTE_SWITCH)
+        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
+
+    if CommandLineArgUtil.REMOTE_SWITCH in argument_map and CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH in argument_map:
+        ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-06065',
+                                                   _program_name, CommandLineArgUtil.REMOTE_SWITCH,
+                                                   CommandLineArgUtil.SKIP_ARCHIVE_FILE_SWITCH)
+        __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
+        raise ex
 
 
 def __process_model_arg(argument_map):
