@@ -228,17 +228,25 @@ class Discoverer(object):
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
 
-    def _uses_is_set(self, location, wlst_param):
+    def _uses_is_set(self, location, model_attribute):
         """
         Determine if the specified attribute should call WLST.is_set() to be included in the model.
         Attributes with derived defaults need to call is_set(), since their values are dynamic.
         Avoid calling wlst_helper.is_set() unless derived, it slows down online discovery,
         and non-derived offline attributes will not return the correct values.
         :param location: the location of the attribute to be examined
-        :param wlst_param: the name of the attribute to be examined
+        :param model_attribute: the name of the attribute to be examined
         :return: True if attribute should use WLST.is_set(), False otherwise
         """
-        return self._aliases.is_derived_default(location, wlst_param)
+        return self._aliases.is_derived_default(location, model_attribute)
+
+    def _needs_is_set_revision(self, location, model_attribute):
+        """
+        Determine if the attribute value needs revision because it uses the unreliable version of isSet()
+        :param location: the location of the attribute to be examined
+        :param model_attribute: the model name of the attribute to be examined
+        """
+        return self._uses_is_set(location, model_attribute) and self._wlst_helper.is_unreliable_is_set()
 
     def _get_attribute_value_with_get(self, wlst_get_param, wlst_path):
         _method_name = '_get_attribute_value_with_get'
@@ -298,7 +306,8 @@ class Discoverer(object):
         try:
             # if this attribute uses WLST is_set, ignore a matching default value.
             # we may reset the model value to None later if is_set() returns False.
-            uses_is_set = self._uses_is_set(location, wlst_name)
+            model_name = self._aliases.get_model_attribute_name(location, wlst_name)
+            uses_is_set = self._uses_is_set(location, model_name)
 
             model_name, model_value = \
                 self._aliases.get_model_attribute_name_and_value(location, wlst_name, wlst_value,

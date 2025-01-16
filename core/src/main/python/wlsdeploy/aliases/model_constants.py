@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -19,6 +19,9 @@ ALLOW_LIST = 'AllowList'
 ADMIN_CONSOLE = 'AdminConsole'
 ADMIN_PASSWORD = 'AdminPassword'
 ADMIN_SERVER_NAME = 'AdminServerName'
+ADMINISTRATION_PORT = 'AdministrationPort'
+ADMINISTRATION_PORT_ENABLED = 'AdministrationPortEnabled'
+ADMINISTRATION_PROTOCOL = 'AdministrationProtocol'
 ADMIN_USERNAME = 'AdminUserName'
 APP_DEPLOYMENTS = 'appDeployments'
 APP_DIR = 'AppDir'
@@ -170,6 +173,7 @@ KUBERNETES = 'kubernetes'
 LDAP_AUTHENTICATOR = 'LDAPAuthenticator'
 LDAP_X509_IDENTITY_ASSERTER = 'LDAPX509IdentityAsserter'
 LIBRARY = 'Library'
+LISTEN_PORT_ENABLED = "ListenPortEnabled"
 LOAD_BALANCING_PARAMS = 'LoadBalancingParams'
 LOG = 'Log'
 LOG_FILTER = 'LogFilter'

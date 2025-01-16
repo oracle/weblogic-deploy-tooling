@@ -6,6 +6,7 @@ from java.lang import IllegalArgumentException
 
 from oracle.weblogic.deploy.discover import DiscoverException
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
+from oracle.weblogic.deploy.util import PyRealBoolean
 from oracle.weblogic.deploy.util import PyWLSTException
 from oracle.weblogic.deploy.util import StringUtils
 from oracle.weblogic.deploy.util import WLSDeployArchive
@@ -35,6 +36,19 @@ import wlsdeploy.util.unicode_helper as str_helper
 _class_name = 'TopologyDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
 
+# these are used to correct unreliable isSet() results
+DOMAIN_INHERITED_DEFAULT_MAPPINGS = {
+    "/Server/AdministrationPort": "AdministrationPort",
+    "/Server/AdministrationPortEnabled": "AdministrationPortEnabled",
+    "/Server/AdministrationProtocol": "AdministrationProtocol",
+    "/Server/ListenPortEnabled": "ListenPortEnabled",
+    "/Server/SSL/Enabled": "SSLEnabled",
+    "/ServerTemplate/AdministrationPort": "AdministrationPort",
+    "/ServerTemplate/AdministrationPortEnabled": "AdministrationPortEnabled",
+    "/ServerTemplate/AdministrationProtocol": "AdministrationProtocol",
+    "/ServerTemplate/ListenPortEnabled": "ListenPortEnabled",
+    "/ServerTemplate/SSL/Enabled": "SSLEnabled",
+}
 
 class TopologyDiscoverer(Discoverer):
     """
@@ -58,7 +72,16 @@ class TopologyDiscoverer(Discoverer):
                               self._add_jdbc_transaction_log_create_table_ddl_file_to_archive)
         self._add_att_handler(model_constants.CUSTOM_IDENTITY_KEYSTORE_FILE, self._add_keystore_file_to_archive)
         self._add_att_handler(model_constants.CUSTOM_TRUST_KEYSTORE_FILE, self._add_keystore_file_to_archive)
+
+        self._add_att_handler(model_constants.ADMINISTRATION_PORT, self._handle_inherited_default)
+        self._add_att_handler(model_constants.ADMINISTRATION_PORT_ENABLED, self._handle_inherited_default)
+        self._add_att_handler(model_constants.ADMINISTRATION_PROTOCOL, self._handle_inherited_default)
+        self._add_att_handler(model_constants.LISTEN_PORT_ENABLED, self._handle_inherited_default)
+        self._add_att_handler(model_constants.ENABLED, self._handle_inherited_default)
+
         self._wlst_helper = WlstHelper(ExceptionType.DISCOVER)
+
+        self._domain_inherited_values = None  # lazy load if needed for unreliable isSet()
 
     def discover(self):
         """
@@ -1091,6 +1114,48 @@ class TopologyDiscoverer(Discoverer):
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
         return new_name
+
+    def _handle_inherited_default(self, model_name, model_value, location):
+        """
+        An att_handler that checks against defaults that are inherited from the domain level.
+        If the defaults match, None will be returned, and the attribute will be removed from the model.
+        This is only for cases where the results from WLST offline isSet() are unreliable (WLS 14.1.2).
+        :param model_name: the name of the attribute
+        :param model_value: the calculated value for the model
+        :param location: the location of the attribute
+        :return: the revised attribute for the model
+        """
+        _method_name = '_handle_inherited_default'
+        result = model_value
+        if self._needs_is_set_revision(location, model_name):
+            model_path = location.get_folder_path() + '/' + model_name
+            domain_attribute = dictionary_utils.get_element(DOMAIN_INHERITED_DEFAULT_MAPPINGS, model_path)
+            if domain_attribute is not None:
+                domain_values = self._get_domain_inherited_values()
+                domain_value = dictionary_utils.get_element(domain_values, domain_attribute)
+                if isinstance(model_value, PyRealBoolean):
+                    model_value = model_value.getValue()
+                if domain_value == model_value:
+                    _logger.info('WLSDPLY-06678', model_path, domain_attribute,
+                                 class_name=_class_name, method_name=_method_name)
+                    result = None  # remove from model
+        return result
+
+    def _get_domain_inherited_values(self):
+        """
+        Returns a map of domain attributes and their values for use as default values
+        to compare with attributes whose WLST offline isSet() values are unreliable (WLS 14.1.2).
+        Lazy load this map the first time this method is called.
+        :return: a map of domain attributes and their values
+        """
+        if not self._domain_inherited_values:
+            self._domain_inherited_values = {}
+            attribute_map = self._wlst_helper.lsa('/')
+            for domain_attribute in DOMAIN_INHERITED_DEFAULT_MAPPINGS.values():
+                if domain_attribute not in self._domain_inherited_values:
+                    attribute_value = dictionary_utils.get_element(attribute_map, domain_attribute)
+                    self._domain_inherited_values[domain_attribute] = attribute_value
+        return self._domain_inherited_values
 
     def _get_server_name_from_location(self, location):
         """

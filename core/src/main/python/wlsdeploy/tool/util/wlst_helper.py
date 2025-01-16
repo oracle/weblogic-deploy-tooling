@@ -1,5 +1,5 @@
 """
-Copyright (c) 2019, 2024, Oracle and/or its affiliates.
+Copyright (c) 2019, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -164,7 +164,10 @@ class WlstHelper(object):
         mbean_path = self.get_pwd()
 
         try:
-            if self.__check_online_connection():
+            if self.is_unreliable_is_set():
+                # put the value in the model; an att_handler may correct the value
+                result = True
+            elif self.__check_online_connection():
                 mbean = self.get_mbean(mbean_path)
                 # we may call for every attribute for online + local
                 if 'isSet' not in dir(mbean):
@@ -188,6 +191,16 @@ class WlstHelper(object):
 
         self.__logger.finest('WLSDPLY-00126', attribute, class_name=self.__class_name, method_name=_method_name)
         return result
+
+    def is_unreliable_is_set(self):
+        """
+        Determine if this WLS version's implementation of the WLST isSet() method
+        is not reliable for deciding to include an attribute value.
+        Currently, all offline WLS versions that use isSet() (14.1.2+) are not reliable.
+        Future WLS versions may support a more reliable version of isSet().
+        :return: True if the implementation of isSet() is unreliable
+        """
+        return not self.__check_online_connection()
 
     def set_if_needed(self, wlst_name, wlst_value, masked=False):
         """
