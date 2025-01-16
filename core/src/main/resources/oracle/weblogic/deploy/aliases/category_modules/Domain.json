@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2024, Oracle and/or its affiliates.",
+    "copyright": "Copyright (c) 2017, 2025, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "",
     "online_bean": "weblogic.management.configuration.DomainMBean",
@@ -11,7 +11,7 @@
         "AdministrationPort":                              [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "AdministrationPort",                               "wlst_path": "WP001", "default_value": 9002,           "wlst_type": "integer"  } ],
         "AdministrationPortEnabled": [
             {"version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "AdministrationPortEnabled", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "secure_default": "${__NULL__:true}" },
-            {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "AdministrationPortEnabled", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "derived_default": "${true:}", "secure_default": "${__NULL__:true}" }
+            {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "AdministrationPortEnabled", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "secure_default": true }
         ],
         "AdministrationProtocol":                          [ {"version": "[10,12.1.2)",       "wlst_mode": "both",    "wlst_name": "AdministrationProtocol",                           "wlst_path": "WP001", "default_value": "${__NULL__:t3s}",  "wlst_type": "string",  "restart_required": "true" } ,
                                                              {"version": "[12.1.2,)",         "wlst_mode": "both",    "wlst_name": "AdministrationProtocol",                           "wlst_path": "WP001", "default_value": "t3s",          "wlst_type": "string",  "restart_required": "true" } ],
@@ -23,7 +23,7 @@
         "ConfigBackupEnabled":                             [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "ConfigBackupEnabled",                              "wlst_path": "WP001", "default_value": "false",        "wlst_type": "boolean"  } ],
         "ConfigurationAuditType":                          [
             {"version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "ConfigurationAuditType", "wlst_path": "WP001", "default_value": "${__NULL__:none}", "wlst_type": "string", "secure_default": "${__NULL__:audit}" },
-            {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "ConfigurationAuditType", "wlst_path": "WP001", "default_value": "none",             "wlst_type": "string", "derived_default": "${true:}", "secure_default": "${__NULL__:audit}" }
+            {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "ConfigurationAuditType", "wlst_path": "WP001", "default_value": "none",             "wlst_type": "string", "secure_default": "audit" }
         ],
         "ConfigurationVersion":                            [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "ConfigurationVersion",                             "wlst_path": "WP001", "default_value": null,           "wlst_type": "string",  "access": "IGNORED" } ],
         "ConsoleContextPath":                              [
@@ -48,7 +48,7 @@
         "JavaServiceConsoleEnabled":                       [ {"version": "[12.1.2,)",         "wlst_mode": "both",    "wlst_name": "JavaServiceConsoleEnabled",                        "wlst_path": "WP001", "default_value": "false",                    "derived_default": "${:true}",      "wlst_type": "boolean"  } ],
         "JavaServiceEnabled":                              [ {"version": "[12.1.2,)",         "wlst_mode": "both",    "wlst_name": "JavaServiceEnabled",                               "wlst_path": "WP001", "default_value": "false",                    "wlst_type": "boolean", "restart_required": "true"  } ],
         "LastModificationTime":                            [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "LastModificationTime",                             "wlst_path": "WP001", "default_value": 0,                          "wlst_type": "long",    "access": "IGNORED"} ],
-        "ListenPortEnabled":                               [ {"version": "[14.1.2,)",         "wlst_mode": "both",    "wlst_name": "ListenPortEnabled",                                "wlst_path": "WP001", "default_value": true,                       "secure_default": "${__NULL__:false}", "wlst_type": "boolean", "derived_default": true } ],
+        "ListenPortEnabled":                               [ {"version": "[14.1.2,)",         "wlst_mode": "both",    "wlst_name": "ListenPortEnabled",                                "wlst_path": "WP001", "default_value": true,                       "secure_default": "${false:__NULL__}", "wlst_type": "boolean", "derived_default": "${:true}" } ],
         "LogFormatCompatibilityEnabled":                   [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "LogFormatCompatibilityEnabled",                    "wlst_path": "WP001", "default_value": "false",                    "wlst_type": "boolean", "restart_required": "true"  } ],
         "MaxConcurrentLongRunningRequests":                [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "MaxConcurrentLongRunningRequests",                 "wlst_path": "WP001", "default_value": 50,                         "wlst_type": "integer"  } ],
         "MaxConcurrentNewThreads":                         [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "MaxConcurrentNewThreads",                          "wlst_path": "WP001", "default_value": 50,                         "wlst_type": "integer"  } ],
@@ -65,7 +65,7 @@
         "RemoteConsoleHelperEnabled":                      [ {"version": "[14.1.2,)",         "wlst_mode": "both",    "wlst_name": "RemoteConsoleHelperEnabled",                       "wlst_path": "WP001", "default_value": "true",                     "wlst_type": "boolean"  } ],
         "ResourceManagement":                              [ {"version": "[14.1.1,)",         "wlst_mode": "online",  "wlst_name": "ResourceManagement",                               "wlst_path": "WP001", "default_value": null,                       "wlst_type": "string",   "access": "IGNORED", "comment": "Appears in attribute list since ResourceManagement folder is no longer created"} ],
         "RootDirectory":                                   [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "RootDirectory",                                    "wlst_path": "WP001", "default_value": null,                       "wlst_type": "string",   "access": "IGNORED", "uses_path_tokens": "true"} ],
-        "SSLEnabled":                                      [ {"version": "[14.1.2,)",         "wlst_mode": "both",    "wlst_name": "SSLEnabled",                                       "wlst_path": "WP001", "default_value": false,                      "secure_default": "${__NULL__:false}", "wlst_type": "boolean", "derived_default": true } ],
+        "SSLEnabled":                                      [ {"version": "[14.1.2,)",         "wlst_mode": "both",    "wlst_name": "SSLEnabled",                                       "wlst_path": "WP001", "default_value": false,                      "secure_default": "${true:__NULL__}", "wlst_type": "boolean", "derived_default": "${:true}" } ],
         "ServerMigrationHistorySize":                      [ {"version": "[12.1.2,12.2.1.1)", "wlst_mode": "both",    "wlst_name": "ServerMigrationHistorySize",                       "wlst_path": "WP001", "default_value": "-1",                       "wlst_type": "integer",  "restart_required": "true" },
                                                              {"version": "[12.2.1.1,12.2.1.3)","wlst_mode": "both",   "wlst_name": "ServerMigrationHistorySize",                       "wlst_path": "WP001", "default_value": "-1",                       "wlst_type": "integer"   } ,
                                                              {"version": "[12.2.1.3,)",       "wlst_mode": "both",    "wlst_name": "ServerMigrationHistorySize",                       "wlst_path": "WP001", "default_value": 100,                        "wlst_type": "integer"   } ],

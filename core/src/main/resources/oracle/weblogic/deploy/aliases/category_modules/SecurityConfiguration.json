@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2024, Oracle and/or its affiliates.",
+    "copyright": "Copyright (c) 2017, 2025, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "SecurityConfiguration",
     "online_bean": "weblogic.management.configuration.SecurityConfigurationMBean",
@@ -1678,7 +1678,10 @@
                 "CompatibilityObjectName":                  [ {"version": "[10,)",       "wlst_mode": "offline", "wlst_name": "CompatibilityObjectName",               "wlst_path": "WP001", "default_value": null,                        "wlst_type": "string"  } ],
                 "CredentialMapperTypes":                    [ {"version": "[10,)",       "wlst_mode": "online","wlst_name": "CredentialMapperTypes",                   "wlst_path": "WP001", "default_value": null,                        "wlst_type": "jarray", "get_method": "GET", "access": "IGNORED" } ],
                 "DefaultRealm":                             [ {"version": "[10,)",       "wlst_mode": "online", "wlst_name": "DefaultRealm",                           "wlst_path": "WP001", "default_value": "true",                      "wlst_type": "boolean" } ],
-                "DelegateMBeanAuthorization":               [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "DelegateMBeanAuthorization",               "wlst_path": "WP001", "default_value": "false", "secure_default": "${__NULL__:true}", "wlst_type": "boolean" } ],
+                "DelegateMBeanAuthorization":               [
+                    {"version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "DelegateMBeanAuthorization",               "wlst_path": "WP001", "default_value": "false", "secure_default": "${__NULL__:true}", "wlst_type": "boolean" },
+                    {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "DelegateMBeanAuthorization",               "wlst_path": "WP001", "default_value": "false", "secure_default": true,               "wlst_type": "boolean" }
+                ],
                 "DeployCredentialMappingIgnored":           [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "DeployCredentialMappingIgnored",           "wlst_path": "WP001", "default_value": "false",                     "wlst_type": "boolean" } ],
                 "DeployPolicyIgnored":                      [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "DeployPolicyIgnored",                      "wlst_path": "WP001", "default_value": "false",                     "wlst_type": "boolean" } ],
                 "DeployRoleIgnored":                        [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "DeployRoleIgnored",                        "wlst_path": "WP001", "default_value": "false",                     "wlst_type": "boolean" } ],
@@ -1718,7 +1721,7 @@
                                                  {"version": "[12.2.1.3,)",         "wlst_mode": "both", "wlst_name": "Restrictive${Jmx:JMX}Policies",      "wlst_path": "WP001", "default_value": "true",    "wlst_type": "boolean"  } ],
                 "SecureModeEnabled":           [ {"version": "[12.2.1.1,14.1.2)",   "wlst_mode": "offline", "wlst_name": "SecureModeEnabled",               "wlst_path": "WP001", "default_value": "false",   "wlst_type": "boolean", "restart_required": "true" },
                                                  {"version": "[12.2.1.1,14.1.2)",   "wlst_mode": "online",  "wlst_name": "SecureModeEnabled",               "wlst_path": "WP001", "default_value": "false",   "wlst_type": "boolean", "restart_required": "true" },
-                                                 {"version": "[14.1.2,)",           "wlst_mode": "both",    "wlst_name": "SecureModeEnabled",               "wlst_path": "WP001", "default_value": "true",    "wlst_type": "boolean", "restart_required": "true", "derived_default": true } ],
+                                                 {"version": "[14.1.2,)",           "wlst_mode": "both",    "wlst_name": "SecureModeEnabled",               "wlst_path": "WP001", "default_value": "false",   "wlst_type": "boolean", "restart_required": "true", "derived_default": "${:true}", "production_default": "${true:__NULL__}" } ],
                 "WarnOnAnonymousRequests":     [
                     {"version": "[12.2.1.3.0.210630,12.2.1.3.0.221013)", "wlst_mode": "online", "wlst_name": "WarnOnAnonymousRequests",   "wlst_path": "WP001", "default_value": "true", "wlst_type": "boolean", "restart_required": "true" },
                     {"version": "[12.2.1.4.0.210629,12.2.1.4.0.220929)", "wlst_mode": "online", "wlst_name": "WarnOnAnonymousRequests",   "wlst_path": "WP001", "default_value": "true", "wlst_type": "boolean", "restart_required": "true" },
@@ -1874,7 +1877,10 @@
         "PrincipalEqualsCompareDnAndGuid":       [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "PrincipalEqualsCompareDnAndGuid",       "wlst_path": "WP001", "default_value": "false",    "wlst_type": "boolean"          } ],
         "RealmBootStrapVersion":                 [ {"version": "[10,12.2.1)", "wlst_mode": "offline", "wlst_name": "RealmBootStrapVersion",              "wlst_path": "WP001", "default_value": null,       "wlst_type": "string",         "get_method": "GET", "derived_default": "${:true}", "restart_required": "true" } ,
                                                    {"version": "[10,)",       "wlst_mode": "online", "wlst_name": "RealmBootStrapVersion",               "wlst_path": "WP001", "default_value": "1",        "wlst_type": "string",         "get_method": "GET", "derived_default": "${:true}", "restart_required": "true" } ],
-        "RemoteAnonymousJndiEnabled":            [ {"version": "[12.2.1.3,)", "wlst_mode": "both", "wlst_name": "RemoteAnonymous${Jndi:JNDI}Enabled",    "wlst_path": "WP001", "default_value": "true", "secure_default": "${__NULL__:false}", "wlst_type": "boolean", "restart_required": "true"  } ],
+        "RemoteAnonymousJndiEnabled":            [
+            {"version": "[12.2.1.3,14.1.2)", "wlst_mode": "both", "wlst_name": "RemoteAnonymous${Jndi:JNDI}Enabled",    "wlst_path": "WP001", "default_value": "true", "secure_default": "${__NULL__:false}", "wlst_type": "boolean", "restart_required": "true"  },
+            {"version": "[14.1.2,)",         "wlst_mode": "both", "wlst_name": "RemoteAnonymous${Jndi:JNDI}Enabled",    "wlst_path": "WP001", "default_value": "true", "secure_default": false,               "wlst_type": "boolean", "restart_required": "true"  }
+        ],
         "RemoteAnonymousRmiiiopEnabled":         [
             {"version": "[12.2.1.3.0.210630,12.2.1.3.0.221013)",   "wlst_mode": "online", "wlst_name": "RemoteAnonymous${Rmiiiop:RMIIIOP}Enabled", "wlst_path": "WP001", "default_value": "true",  "wlst_type": "boolean" },
             {"version": "[12.2.1.4.0.210629,12.2.1.4.0.220929)",   "wlst_mode": "online", "wlst_name": "RemoteAnonymous${Rmiiiop:RMIIIOP}Enabled", "wlst_path": "WP001", "default_value": "true",  "wlst_type": "boolean" },
