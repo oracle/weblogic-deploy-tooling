@@ -437,7 +437,7 @@ def __discover(model_context, aliases, credential_injector, helper, extra_tokens
     try:
         _add_domain_name(base_location, aliases, helper)
         _establish_production_mode(aliases, helper)
-        _establish_secure_mode(aliases, base_location, helper)
+        _establish_secure_mode(aliases, base_location, helper, model_context)
 
         DomainInfoDiscoverer(model_context, model.get_model_domain_info(), base_location, wlst_mode=__wlst_mode,
                              aliases=aliases, credential_injector=credential_injector).discover()
@@ -504,16 +504,25 @@ def _establish_production_mode(aliases, helper):
         raise de
 
 
-def _establish_secure_mode(aliases, base_location, helper):
+def _establish_secure_mode(aliases, base_location, helper, model_context):
     """
     Determine if secure mode is enabled for the domain, and set it in the aliases.
     :param aliases: aliases instance for discover
     :param base_location: location of root directory in WLST
     :param helper: wlst_helper instance
+    :param model_context: used to check dependency
     :raises DiscoverException: if an error occurs during discovery
     """
     _method_name = '_establish_secure_mode'
     try:
+        if model_context.get_weblogic_helper().is_secure_mode_implied_by_production_mode():
+            # for 14.1.2, secure mode defaults to true if production mode is true.
+            # this may be overridden by the value of SecurityConfiguration/SecureMode/SecureModeEnabled.
+            helper.cd('/')
+            secure_mode_enabled = helper.get(model_constants.PRODUCTION_MODE_ENABLED)
+        else:
+            secure_mode_enabled = False
+
         secure_mode_location = LocationContext(base_location)
         secure_mode_location.append_location(model_constants.SECURITY_CONFIGURATION)
 
@@ -530,8 +539,10 @@ def _establish_secure_mode(aliases, base_location, helper):
                 secure_mode_location.add_name_token(aliases.get_name_token(secure_mode_location), secure_mode_token)
                 helper.cd(aliases.get_wlst_attributes_path(secure_mode_location))
                 secure_mode_enabled = helper.get(model_constants.SECURE_MODE_ENABLED)
-                aliases.set_secure_mode(secure_mode_enabled)
-                helper.cd(aliases.get_wlst_attributes_path(base_location))
+
+        aliases.set_secure_mode(secure_mode_enabled)
+        helper.cd(aliases.get_wlst_attributes_path(base_location))
+
     except PyWLSTException, pe:
         de = exception_helper.create_discover_exception('WLSDPLY-06038', pe.getLocalizedMessage())
         __logger.throwing(class_name=_class_name, method_name=_method_name, error=de)

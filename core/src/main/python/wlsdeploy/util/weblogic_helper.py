@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -168,6 +168,13 @@ class WebLogicHelper(object):
         :return: true if version is within the range using the domain-level extension. false otherwise
         """
         return self.is_weblogic_version_or_above('12.2.1.3') and not self.is_weblogic_version_or_above('14.1.2')
+
+    def is_secure_mode_implied_by_production_mode(self):
+        """
+        Is secure mode value true by default if production mode is set?
+        :return: true if version is within the range for this condition. false otherwise
+        """
+        return self.is_weblogic_version_or_above('14.1.2')
 
     def get_jdbc_url_from_rcu_connect_string(self, rcu_connect_string, rcu_database_type='ORACLE'):
         """
