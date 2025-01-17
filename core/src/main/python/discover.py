@@ -274,6 +274,7 @@ def __process_java_home(optional_arg_map):
         java_home_name = optional_arg_map[CommandLineArgUtil.JAVA_HOME_SWITCH]
     else:
         java_home_name = env_helper.getenv('JAVA_HOME')
+        optional_arg_map[CommandLineArgUtil.JAVA_HOME_SWITCH] = java_home_name
 
     try:
         FileUtils.validateExistingDirectory(java_home_name)

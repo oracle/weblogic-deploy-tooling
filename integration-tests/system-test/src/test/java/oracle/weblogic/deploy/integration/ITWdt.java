@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, 2024, Oracle and/or its affiliates.
+ * Copyright (c) 2019, 2025, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 */
 
@@ -1730,11 +1730,6 @@ public class ITWdt extends BaseTest {
         checkContents.add("    Name: domain2");
         checkContents.add("    AdminServerName: admin-server");
         checkContents.add("    ProductionModeEnabled: true");
-        checkContents.add("    NMProperties:");
-
-        // Don't include the JavaHome path in the check since it will vary when running system-tests locally...
-        //
-        checkContents.add("        JavaHome: ");
         checkContents.add("    Server:");
         checkContents.add("        admin-server: {}");
         checkContents.add("    SecurityConfiguration:");
