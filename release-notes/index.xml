@@ -8,6 +8,16 @@
     <language>en-us</language>
     <lastBuildDate>Tue, 09 Jan 2024 18:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Release 4.3.0</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.3.0/</link>
+      <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.3.0/</guid>
+      <description>Changes in Release 4.3.0  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes  #1731, #1735, #1736, #1738, #1743, #1748 - Updated aliases for WebLogic Server 14.1.2 GA release. #1732 - Changed default value when using -target to include the domain&amp;rsquo;s bin directory contents. #1737 - Optimized offline discovery of default values in 14.1.2. #1739 - Added aliases for SNMPAgent, SNMPDeploymentAgent, EJBContainer, and Cluster&amp;rsquo;s JtaRemoteDomain folders.</description>
+    </item>
+    
+    <item>
       <title>Release 4.2.1</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.2.1/</link>
       <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>

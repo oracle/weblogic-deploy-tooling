@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Target environments :: WebLogic Deploy Tooling</title>
+    <title>Release 4.3.0 :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1737492429" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/userguide/target_env/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-4.3.0/">
     <nav id="sidebar" class="">
 
 
@@ -170,7 +170,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/" title="User Guide" class="dd-item
-        parent
+        
         
         
         ">
@@ -608,7 +608,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/userguide/target_env/" title="Target environments" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/target_env/" title="Target environments" class="dd-item ">
         <a href="/weblogic-deploy-tooling/userguide/target_env/">
         Target environments
         
@@ -1329,7 +1329,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
-        
+        parent
         
         
         ">
@@ -1355,7 +1355,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.3.0/" title="Release 4.3.0" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.3.0/" title="Release 4.3.0" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-4.3.0/">
         <b> </b>Release 4.3.0
         
@@ -2077,7 +2077,7 @@
             
           
           
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/userguide/'>User Guide</a> > Target environments
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release 4.3.0
           
         
           
@@ -2094,13 +2094,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#contents">Contents</a></li>
-        <li><a href="#overview">Overview</a></li>
-        <li><a href="#specifying-a-target-environment">Specifying a target environment</a></li>
-        <li><a href="#pre-configured-target-environments">Pre-configured target environments</a></li>
-        <li><a href="#using-secret-credentials-in-the-model">Using secret credentials in the model</a></li>
-        <li><a href="#merging-content-from-the-wdt-model">Merging content from the WDT model</a></li>
-        <li><a href="#target-environment-configuration-files">Target environment configuration files</a></li>
+        <li><a href="#changes-in-release-430">Changes in Release 4.3.0</a></li>
       </ul>
     </li>
   </ul>
@@ -2120,216 +2114,64 @@
           
             <h1>
               
-              Target environments
+              Release 4.3.0
             </h1>
           
 
         
 
 
-<h3 id="contents">Contents</h3>
+<h3 id="changes-in-release-430">Changes in Release 4.3.0</h3>
 <ul>
-<li><a href="#overview">Overview</a></li>
-<li><a href="#specifying-a-target-environment">Specifying a target environment</a></li>
-<li><a href="#pre-configured-target-environments">Pre-configured target environments</a></li>
-<li><a href="#using-secret-credentials-in-the-model">Using secret credentials in the model</a></li>
-<li><a href="#merging-content-from-the-wdt-model">Merging content from the WDT model</a></li>
-<li><a href="#target-environment-configuration-files">Target configuration files</a></li>
+<li><a href="#major-new-features">Major New Features</a></li>
+<li><a href="#other-changes">Other Changes</a></li>
+<li><a href="#bug-fixes">Bugs Fixes</a></li>
+<li><a href="#known-issues">Known Issues</a></li>
 </ul>
-<h3 id="overview">Overview</h3>
-<p>The <a href="/weblogic-deploy-tooling/userguide/tools/discover/">Discover Domain</a> and <a href="/weblogic-deploy-tooling/userguide/tools/prepare/">Prepare Model</a> Tools allow you to customize the model and other files produced to be compatible with a specific target environment. Options for a target environment may include:</p>
+<h4 id="major-new-features">Major New Features</h4>
+<p>None</p>
+<h4 id="other-changes">Other Changes</h4>
 <ul>
-<li>Using model tokens for some attributes in the model. For more details, see <a href="/weblogic-deploy-tooling/concepts/model/#model-tokens">Model tokens</a>.</li>
-<li>Using Kubernetes secrets for credentials in the model. For more details, see <a href="#using-secret-credentials-in-the-model">Using secret credentials in the model</a>.</li>
-<li>Applying filters to the model. For more details, see <a href="/weblogic-deploy-tooling/userguide/tools-config/model_filters/">Model filters</a>.</li>
-<li>Creating additional configuration files for the target system.</li>
+<li>#1731, #1735, #1736, #1738, #1743, #1748 - Updated aliases for WebLogic Server 14.1.2 GA release.</li>
+<li>#1732 - Changed default value when using <code>-target</code> to include the domain&rsquo;s bin directory contents.</li>
+<li>#1737 - Optimized offline discovery of default values in 14.1.2.</li>
+<li>#1739 - Added aliases for <code>SNMPAgent</code>, <code>SNMPDeploymentAgent</code>, <code>EJBContainer</code>, and Cluster&rsquo;s <code>JtaRemoteDomain</code> folders.</li>
+<li>#1741 - Added support for deploying and discovering customer resources.</li>
+<li>#1746 - Added support for the WebLogic Server 12.2.1.4 and 14.1.1 October 2024 PSUs.</li>
+<li>#1750 - Changed file path resolution to not convert symbolic links to the actual paths.</li>
+<li>#1751 - Changed JDK validation to allow the user to run WDT tools with OpenJDK and removed broken support for GraalVM.</li>
+<li>#1752 - Moved away from using jline&rsquo;s deprecated <code>jansi</code> provider to using the <code>jni</code> provider.</li>
+<li>#1758 - Enhanced Create Domain Tool to allow creating a JRF domain using fully specified RCU Data Sources
+in the <code>resources:/JDBCSystemResource</code> section of the model without requiring the <code>domainInfo:/RCUDbInfo</code>
+section.</li>
+<li>#1760 - Modified WDT&rsquo;s usage of JAXB classes to prepare for supporting the Jakarta EE 9+ of JAXB runtime.</li>
 </ul>
-<h3 id="specifying-a-target-environment">Specifying a target environment</h3>
-<p>Each tool specifies a target environment using the command-line argument <code>-target &lt;target-name&gt;</code>, where <code>&lt;target-name&gt;</code> refers to a pre-configured target environment, or a user-defined environment. In addition, the <code>-output_dir &lt;output-directory&gt;</code> argument specifies where the files for the target environment will be stored.</p>
-<p>This command line shows how you can use these arguments with the Discover Domain Tool:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"> <span style="color:#ae81ff">$ $WLSDEPLOY_HOME/bin/discoverDomain.sh ... -target k8s -output_dir /etc/files</span>
-</code></pre></div><p>This example would apply the <code>k8s</code> target type to the discovery result, and place those files in <code>/etc/files</code>.</p>
-<p>If a variable file is specified on the tool&rsquo;s command line using the <code>-variable_file</code> argument, any injected variables will be added to that file. If no variable file is specified, injected variables will be written to the file <code>&lt;output-directory&gt;/&lt;target_name&gt;_variable.properties</code>.</p>
-<h3 id="pre-configured-target-environments">Pre-configured target environments</h3>
-<p>These target environment configurations are included in the WebLogic Deploy Tooling installation.</p>
-<h4 id="the-weblogic-kubernetes-operator-targets">The WebLogic Kubernetes Operator targets</h4>
-<p>You can use these targets to customize the model and create a domain resource file for use with WebLogic Kubernetes Operator (WKO). There are three targets for specific <a href="https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/choosing-a-model/">domain home source types</a>:</p>
+<h4 id="bug-fixes">Bug Fixes</h4>
 <ul>
-<li><code>wko</code> and <code>wko&lt;version&gt;</code> for <a href="https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/model-in-image/">Model in Image</a> deployments</li>
-<li><code>wko-dii</code> and <code>wko&lt;version&gt;-dii</code> for Domain in Image deployments</li>
-<li><code>wko-pv</code>and <code>wko&lt;version&gt;-pv</code> for Domain in PV deployments</li>
+<li>#1732 - Fixed bad error message when WLST assign() invocation fails.</li>
+<li>#1734 - Fixed validation error caused by trying to validate prior to resolving tokens.</li>
+<li>#1744 - Squelched SLF4J startup messages from printing to <code>stderr</code>.</li>
+<li>#1748 - Fixed target injector paths causing discovery to fail with sub-deployments.</li>
+<li>#1749 - Fixed JMS Foreign Server discovery issue when the URL is not using a <code>file</code>, <code>http</code>, or <code>https</code> protocol.</li>
+<li>#1753 - Cleaned up exiting from the interactive Model Help Tool using Control-D.</li>
+<li>#1755 - Fixed bug with command-line handling of the WDT encryption passphrase from <code>stdin</code>.</li>
 </ul>
-<p>The value of <code>&lt;version&gt;</code> corresponds to a major version of WKO. For example the target <code>wko4-dii</code> would customize the model for a Domain in Image deployment for WKO version 4.0.0 and later.</p>
-<p>Targets without a version number, such as <code>wko-dii</code>, will customize the model for the current version of WKO. This association may change as new versions of WKO are released, so it is recommended to use target names with the intended WKO version.</p>
-<p>Each of these targets provides this additional processing:</p>
+<h4 id="known-issues">Known Issues</h4>
 <ul>
-<li>The <code>wko_filter</code> filter will be applied to remove model elements that are not compatible with the Kubernetes environment, and adjust some attribute values</li>
-<li>Variables will be injected into the model for port, host, and URL attributes</li>
-<li><code>lax</code> validation will be applied for the resulting model</li>
-<li>An additional Kubernetes resource file, <code>wko-domain.yaml</code>, will be produced, with cluster and naming information derived from the model</li>
+<li>
+<p>SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
+the 12.2.1.4.0 GA release fails with the following error, as mentioned at <a href="https://github.com/hierynomus/sshj/issues/895">https://github.com/hierynomus/sshj/issues/895</a>.
+Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">SEVERE Messages:
+        1. WLSDPLY-20008: verifySSH argument processing failed: Failed to initialize SSH context: Failed to SSH connect to host myhost.oracle.com: no such algorithm: X25519 <span style="color:#66d9ef">for</span> provider BC
+</code></pre></div></li>
+<li>
+<p>SSH support for the Update Domain Tool and Deploy Apps Tool does not work when using an archive file and the remote
+WebLogic Server is running on Windows using the optional, Windows-provided, OpenSSH component.  This is due to an
+issue with the SSHJ library WDT is using.  See <a href="https://github.com/hierynomus/sshj/issues/929">https://github.com/hierynomus/sshj/issues/929</a> for more information.</p>
+</li>
 </ul>
-<p>In addition, the <code>wko</code> target will replace credentials in the model with references to Kubernetes secrets, and produce a script to create those secrets. The <code>wko-dii</code> and <code>wko-pv</code> targets will replace credentials in the model with variable references.</p>
-<h4 id="the-verrazzano-targets">The Verrazzano targets</h4>
-<p><strong>NOTE</strong>: Verrazzano support is deprecated in WDT 4.0.0.</p>
-<p>You can use these targets to customize the model and create a Kubernetes resource file for use with Verrazzano. There are three targets for specific <a href="https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/choosing-a-model/">domain home source types</a>:</p>
-<ul>
-<li><code>vz</code> for <a href="https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/model-in-image/">Model in Image</a> deployments</li>
-<li><code>vz-dii</code> for Domain in Image deployments</li>
-<li><code>vz-pv</code> for Domain in PV deployments</li>
-</ul>
-<p>Each of these targets provides this additional processing:</p>
-<ul>
-<li>The <code>vz_filter</code> filter will be applied to remove model elements that are not compatible with the Kubernetes environment, and adjust some attribute values</li>
-<li>Variables will be injected into the model for port, host, and URL attributes</li>
-<li><code>lax</code> validation will be applied for the resulting model</li>
-<li>An additional Kubernetes resource file, <code>vz-application.yaml</code>, will be produced, with cluster and data source information derived from the model</li>
-</ul>
-<p>In addition, the <code>vz</code> target will replace credentials in the model with references to Kubernetes secrets, and produce a script to create those secrets. The <code>vz-dii</code> and <code>vz-pv</code> targets will replace credentials in the model with variable references.</p>
-<h4 id="generic-kubernetes-target">Generic Kubernetes target</h4>
-<p>You can apply this target environment by providing the command-line argument <code>-target k8s</code>. It will provide this additional processing:</p>
-<ul>
-<li>The <code>k8s_filter</code> filter will be applied to remove model elements that are not compatible with the Kubernetes environment, and adjust some attribute values</li>
-<li>Variables will be injected into the model for port, host, and URL attributes</li>
-<li><code>lax</code> validation will be applied for the resulting model</li>
-<li>Credentials in the model will be replaced with references to Kubernetes secrets, and a script to create those secrets will be produced</li>
-</ul>
-<h3 id="using-secret-credentials-in-the-model">Using secret credentials in the model</h3>
-<p>If a target environment is configured to use Kubernetes secrets for credential attribute values, each of those values is replaced with a token using the format <code>@@SECRET:@@ENV:DOMAIN_UID@@&lt;secret-suffix&gt;:&lt;key&gt;</code>. For example:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">PasswordEncrypted</span>: <span style="color:#e6db74">&#39;@@SECRET:@@ENV:DOMAIN_UID@@-jdbc-generic1:password@@&#39;</span>
-</code></pre></div><p>When a domain is created or updated using a model with these tokens, the environment variable <code>DOMAIN_UID</code> should be set to the domain&rsquo;s UID, and secrets with corresponding names should have been created. For more details about using secret tokens, see <a href="/weblogic-deploy-tooling/concepts/model/#model-tokens">Model Tokens</a>.</p>
-<p>For some target environments, the WebLogic admin credentials use a variation of this token format. For example:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
-    <span style="color:#f92672">AdminUserName</span>: <span style="color:#e6db74">&#39;@@SECRET:__weblogic-credentials__:username@@&#39;</span>
-    <span style="color:#f92672">AdminPassword</span>: <span style="color:#e6db74">&#39;@@SECRET:__weblogic-credentials__:password@@&#39;</span>
-</code></pre></div><p>In this case, the token <code>__weblogic-credentials__</code> allows these attributes to reference secrets in a specific location. The <code>WDT_MODEL_SECRETS_NAME_DIR_PAIRS</code> environment variable should be set to associate <code>__weblogic-credentials__</code> to this location. For example:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">WDT_MODEL_SECRETS_NAME_DIR_PAIRS<span style="color:#f92672">=</span>__weblogic-credentials__<span style="color:#f92672">=</span>/etc/my-secrets
-</code></pre></div><p>For more details about using the <code>WDT_MODEL_SECRETS_NAME_DIR_PAIRS</code> environment variable, see <a href="/weblogic-deploy-tooling/concepts/model/#model-tokens">Model Tokens</a> .</p>
-<p>In WebLogic Kubernetes Operator <a href="https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/model-in-image/">Model in Image</a> environments, the environment variable <code>DOMAIN_UID</code> is automatically set from the value in the domain resource file. The variable <code>WDT_MODEL_SECRETS_NAME_DIR_PAIRS</code> is automatically set to the directory containing WebLogic admin credentials.</p>
-<h4 id="the-create-secrets-script">The create secrets script</h4>
-<p>For target environments that use Kubernetes secret tokens, a shell script is created to generate the required secrets. The script is named <code>create_k8s_secrets.sh</code>, and is created in the target output directory. The script has commands to create each secret, for example:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#75715e"># Update &lt;user&gt; and &lt;password&gt; for weblogic-credentials</span>
-create_paired_k8s_secret weblogic-credentials &lt;user&gt; &lt;password&gt;
-</code></pre></div><p>The script should be updated with correct <code>&lt;user&gt;</code> and <code>&lt;password&gt;</code> values as required. It may be necessary to change the <code>NAMESPACE</code> and <code>DOMAIN_UID</code> variables at the top of the script if they are different in the target environment.</p>
-<p>The script performs a check to determine if any generated secret names are more than 63 characters in length, because that will prevent them from being mounted correctly in the Kubernetes environment. If any secret names exceed this limit, they will need to be shortened in this script, in the model files, and in the Kubernetes resource file. Each shortened name should be distinct from other secret names.</p>
-<h3 id="merging-content-from-the-wdt-model">Merging content from the WDT model</h3>
-<p>When a Kubernetes custom resource definition (CRD) file is created for a target environment, content from the corresponding section of the WDT model will be merged into the resulting output, if that section is present.</p>
-<p>For example, when the <code>-target wko</code> option is used, content from the <code>kubernetes</code> section of the WDT model will be merged into the resulting CRD, if that section is present. For example, you can define this section in the model:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">kubernetes</span>:
-  <span style="color:#f92672">spec</span>:
-    <span style="color:#f92672">domainHome</span>: <span style="color:#ae81ff">/etc/domainHome</span>
-    <span style="color:#f92672">image</span>: <span style="color:#ae81ff">my-image</span>
-    <span style="color:#f92672">clusters</span>:
-    - <span style="color:#f92672">clusterName</span>: <span style="color:#ae81ff">my-cluster</span>
-      <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">4</span>
-    - <span style="color:#f92672">clusterName</span>: <span style="color:#ae81ff">other-cluster</span>
-      <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">6</span>
-</code></pre></div><p>These fields will override the values in the output file, and the file would be rewritten with the revised values. List values in the model will be combined with existing values in the output file. For example, if <code>my-cluster</code> was in the original output file, the model content for <code>my-cluster</code> would be merged with it, overriding the <code>replicas</code> value. If <code>my-cluster</code> was not in the original output file, it would be added to the list of clusters.</p>
-<p>When creating a resource file for WebLogic Kubernetes Operator version 4.0.0 and later, the <code>kubernetes</code> section of the model has to be structured differently. This is because there are multiple documents in the resource file for those versions. This example uses <code>domain</code> and <code>cluster</code> folders that will merge with the corresponding documents in the resource file:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">kubernetes</span>:
-  <span style="color:#f92672">domain</span>:
-    <span style="color:#f92672">spec</span>:
-      <span style="color:#f92672">domainHome</span>: <span style="color:#ae81ff">/etc/domainHome</span>
-      <span style="color:#f92672">image</span>: <span style="color:#ae81ff">my-image</span>
-  <span style="color:#f92672">clusters</span>:
-  - <span style="color:#f92672">spec</span>:
-      <span style="color:#f92672">clusterName</span>: <span style="color:#ae81ff">my-cluster</span>
-      <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">4</span>
-  - <span style="color:#f92672">spec</span>:
-      <span style="color:#f92672">clusterName</span>: <span style="color:#ae81ff">other-cluster</span>
-      <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">6</span>
-</code></pre></div><p>When creating a CRD for Verrazzano, content from the <code>verrazzano</code> section of the WDT model will be merged into the resulting output, similar to the previous examples. Each of the three subsections in the <code>verrazzano</code> section will be merged with the corresponding document in the CRD. This example shows the <code>verrazzano</code> section of the WDT model with its three subsections:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">verrazzano</span>:
-  <span style="color:#f92672">application</span>:
-    <span style="color:#f92672">spec</span>:
-      <span style="color:#f92672">components</span>:
-        - <span style="color:#f92672">componentName</span>: <span style="color:#ae81ff">mydomain-mycomponent</span>
-          <span style="color:#f92672">traits</span>:
-            - <span style="color:#f92672">trait</span>:
-                <span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">oam.verrazzano.io/v1alpha1</span>
-                <span style="color:#f92672">kind</span>: <span style="color:#ae81ff">LoggingTrait</span>
-                <span style="color:#f92672">spec</span>:
-                  <span style="color:#f92672">imagePullPolicy</span>: <span style="color:#ae81ff">NEVER</span>
-  <span style="color:#f92672">weblogic</span>:
-    <span style="color:#f92672">spec</span>:
-      <span style="color:#f92672">workload</span>:
-        <span style="color:#f92672">spec</span>:
-          <span style="color:#f92672">template</span>:
-            <span style="color:#f92672">spec</span>:
-              <span style="color:#f92672">domainHome</span>: <span style="color:#ae81ff">/u01/mydomain</span>
-              <span style="color:#f92672">clusters</span>:
-                - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">cluster2</span>
-          <span style="color:#f92672">clusters</span>:
-            - <span style="color:#f92672">spec</span>:
-                <span style="color:#f92672">clusterName</span>: <span style="color:#ae81ff">cluster2</span>
-                <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">1102</span>
-  <span style="color:#f92672">configmap</span>:
-    <span style="color:#f92672">spec</span>:
-      <span style="color:#f92672">workload</span>:
-        <span style="color:#f92672">data</span>:
-          <span style="color:#f92672">wdt_jdbc.yaml</span>: |<span style="color:#e6db74">
-</span><span style="color:#e6db74">            resources:
-</span><span style="color:#e6db74">              JDBCSystemResource:
-</span><span style="color:#e6db74">                myDs:
-</span><span style="color:#e6db74">                  JdbcResource:
-</span><span style="color:#e6db74">                    JDBCDriverParams:
-</span><span style="color:#e6db74">                      URL: &#34;jdbc:oracle:thin:@myhost:1521/pdborcl&#34;</span>            
-</code></pre></div><h3 id="target-environment-configuration-files">Target environment configuration files</h3>
-<p>A target environment is configured in a JSON file at this location:</p>
-<pre><code>$WLSDEPLOY_HOME/lib/targets/&lt;target-name&gt;/target.json
-</code></pre><p>The <code>&lt;target-name&gt;</code> value corresponds to the value of the <code>-target</code> argument on the tool&rsquo;s command line. The WLS installation includes pre-defined targets for these environments:</p>
-<ul>
-<li><a href="#the-weblogic-kubernetes-operator-targets">WebLogic Kubernetes Operator</a></li>
-<li><a href="#the-verrazzano-targets">Verrazzano</a></li>
-<li><a href="#generic-kubernetes-target">Kubernetes</a></li>
-</ul>
-<p>You can define a new or extended target environment with a new <code>target-name</code> in the above location, or using a <a href="/weblogic-deploy-tooling/userguide/tools-config/custom_config/">Custom configuration</a> directory, such as <code>$WDT_CUSTOM_CONFIG/target/&lt;my-target-name&gt;/target.json</code>.</p>
-<p>You can customize existing template files for specific environments. The recommended method is to copy the original template to a custom configuration directory as described above, such as <code>$WDT_CUSTOM_CONFIG/target/&lt;target-name&gt;/model.yaml</code>. The copied file can then be edited as needed, while maintaining the original for reference.</p>
-<p>Here is an example of a target environment file:</p>
-<pre><code>{
-    &quot;model_filters&quot; : {
-        &quot;discover&quot;: [
-            { &quot;name&quot;: &quot;vz_prep&quot;, &quot;path&quot;: &quot;@@TARGET_CONFIG_DIR@@/vz_filter.py&quot; },
-            { &quot;id&quot;: &quot;wko_filter&quot; }
-        ]
-    },
-    &quot;variable_injectors&quot; : {&quot;PORT&quot;: {},&quot;HOST&quot;: {},&quot;URL&quot;: {}},
-    &quot;validation_method&quot; : &quot;lax&quot;,
-    &quot;credentials_method&quot; : &quot;secrets&quot;,
-    &quot;exclude_domain_bin_contents&quot;: true,
-    &quot;wls_credentials_name&quot; : &quot;__weblogic-credentials__&quot;,
-    &quot;use_persistent_volume&quot; : true,
-    &quot;additional_secrets&quot;: &quot;runtime-encryption-secret&quot;,
-    &quot;additional_output&quot; : &quot;vz-application.yaml&quot;
-}
-</code></pre><p>Each of the fields in this example is optional, and you can customize them.</p>
-<h4 id="model_filters"><code>model_filters</code></h4>
-<p>This field specifies the filters to be applied to the resulting model. This follows the same format and rules as the <a href="/weblogic-deploy-tooling/userguide/tools-config/model_filters/">Model filters</a> configuration. The <code>discover</code> type should always be used here.</p>
-<p>You can use the <code>@@TARGET_CONFIG_DIR@@</code> token to indicate that the specified filter is in the same directory as the target configuration file.</p>
-<h4 id="variable_injectors"><code>variable_injectors</code></h4>
-<p>This field specifies the variable injectors to be applied to the resulting model. This follows the same format and rules as the <a href="/weblogic-deploy-tooling/userguide/tools-config/variable_injectors/">Variable injectors</a> configuration.</p>
-<h4 id="validation_method"><code>validation_method</code></h4>
-<p>You can use this field to set the validation level for the resulting model. Only the value <code>lax</code>is currently supported. With <code>lax</code> validation, variables and Kubernetes secrets referenced in the resulting model do not need to be available when the model is created.</p>
-<h4 id="credentials_method"><code>credentials_method</code></h4>
-<p>This field specifies how credentials in the model should be handled. There are two values available:</p>
-<ul>
-<li><code>secrets</code> - the credentials in the model are replaced with references to Kubernetes secrets, and a UNIX script to create those secrets is produced.</li>
-<li><code>config_override_secrets</code> - the credentials in the model are replaced with placeholder values, such as <code>password1</code>, and a UNIX script to create corresponding Kubernetes secrets is produced.</li>
-</ul>
-<p>In both these cases, the script to create the Kubernetes secrets is written to <code>&lt;output-directory&gt;/create_k8s_secrets.sh</code>. You will need to update this script with credential values before executing</p>
-<h4 id="exclude_domain_bin_contents"><code>exclude_domain_bin_contents</code></h4>
-<p>This field specifies how the domain&rsquo;s <code>bin</code> directory contents should be handled.  If set to <code>true</code>, then discovery will skip over the domain&rsquo;s <code>bin</code> directory resulting in a model and archive file without any references to any scripts that might typically be collected (for example, <code>setUserOverrides.sh</code>).</p>
-<h4 id="wls_credentials_name"><code>wls_credentials_name</code></h4>
-<p>This field specifies a name for use with the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable to identify administration credential Secrets for the domain. This is useful when those Secrets are stored in a directory that does not follow the <code>&lt;directory&gt;/&lt;name&gt;/&lt;key&gt;</code> convention. For more information about using the WDT_MODEL_SECRETS_NAME_DIR_PAIRS environment variable, see <a href="/weblogic-deploy-tooling/concepts/model/#model-tokens">Model tokens</a>.</p>
-<h4 id="use_persistent_volume"><code>use_persistent_volume</code></h4>
-<p>This field specifies if the domain is to be created for the Domain in PV <a href="https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/choosing-a-model/">domain home source type</a>. If set to <code>true</code>, volume information will be added to the Kubernetes resource file that is generated.</p>
-<h4 id="additional_secrets"><code>additional_secrets</code></h4>
-<p>This field specifies a comma-separated list of secret types that are to be included in the Kubernetes resource file and the create secrets script. There is one secret type available:</p>
-<ul>
-<li><code>runtime-encryption-secret</code> - this will add a <code>runtimeEncryptionSecret</code> attribute to the Kubernetes resource file with the value <code>&lt;DOMAIN_UID&gt;-runtime-encryption-secret</code>, and that secret name will be added to the <a href="#the-create-secrets-script">create secrets script</a>.</li>
-</ul>
-<h4 id="additional_output"><code>additional_output</code></h4>
-<p>You can use this field to create additional output for use in the target environment. The value is a comma-separated list of template files in the <code>$WLSDEPLOY_HOME/lib/targets/templates</code> directory. These templates are populated with information derived from the model, and written to a file with the same name in the specified output directory.</p>
-<p><strong>Note: Prior to release 2.0.1, template files were stored in the <code>$WLSDEPLOY_HOME/lib/targets/&lt;target-name&gt;</code> directory.</strong></p>
+<p>See <a href="https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/">https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/</a> for the current set of known limitations.</p>
 
 
 <footer class="footline">
@@ -2418,7 +2260,6 @@ create_paired_k8s_secret weblogic-credentials &lt;user&gt; &lt;password&gt;
             
                 
                     
-                    
                 
                 
 
@@ -2433,9 +2274,6 @@ create_paired_k8s_secret weblogic-credentials &lt;user&gt; &lt;password&gt;
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2727,7 +2565,6 @@ create_paired_k8s_secret weblogic-credentials &lt;user&gt; &lt;password&gt;
             
                 
                     
-                    
                 
                 
 
@@ -2743,9 +2580,6 @@ create_paired_k8s_secret weblogic-credentials &lt;user&gt; &lt;password&gt;
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -3246,6 +3080,7 @@ create_paired_k8s_secret weblogic-credentials &lt;user&gt; &lt;password&gt;
             
                 
                     
+                    
                 
                 
 
@@ -3258,6 +3093,7 @@ create_paired_k8s_secret weblogic-credentials &lt;user&gt; &lt;password&gt;
             
             
                 
+                    
                     
                 
                 
@@ -3274,6 +3110,9 @@ create_paired_k8s_secret weblogic-credentials &lt;user&gt; &lt;password&gt;
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -3778,10 +3617,10 @@ create_paired_k8s_secret weblogic-credentials &lt;user&gt; &lt;password&gt;
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/userguide/tools/verify_ssh/" title="Verify SSH Tool"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/database/connect-db/" title="Connect to a database" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-4.2.1/" title="Release 4.2.1" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
