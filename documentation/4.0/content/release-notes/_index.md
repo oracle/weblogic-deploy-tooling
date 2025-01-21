@@ -31,7 +31,7 @@ None
 - #1768 - Improved default value detection for Discover Domain when running against WebLogic Server 14.1.2.
 - #1769 - Cleaned up offline Discover Domain to exclude the `JavaHome` attribute in the `NMProperties` folder.
 - #1770 - Fixed secure mode detection to work properly in WebLogic Server 14.1.2.  This is critical to reducing the
-  number of attributes that show up in the model when using Discover Domain in offline mode. 
+  number of attributes that show up in the model when using Discover Domain in offline mode.
 
 #### Known Issues
 - SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
