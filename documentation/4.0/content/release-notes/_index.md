@@ -23,14 +23,14 @@ None
 - #1762, #1764 - Fixed issues with causing Discover Domain to generate attribute not supported log entries for
   deprecated attributes.
 - #1763 - Documented WebLogic Server Bug 37443991 as a known limitation.
-- #1765 - Fixing AttributeError when running Discover Domain with either `-skip_archive` or `-remote` (GitHub Issue 1607).
-- #1766 - Fixing AttributeError when running Discover Domain with either `-skip_archive` or `-remote`
+- #1765 - Fixed AttributeError when running Discover Domain with either `-skip_archive` or `-remote` (GitHub Issue 1607).
+- #1766 - Fixed AttributeError when running Discover Domain with either `-skip_archive` or `-remote`
   on different archive types (GitHub Issue 1608).
-- #1767 - Fixing Discover Domain command-line argument validation that allows both `-skip_archive` and `-remote` to be
+- #1767 - Fixed Discover Domain command-line argument validation that allows both `-skip_archive` and `-remote` to be
   specified when they are mutually exclusive.
 - #1768 - Improved default value detection for Discover Domain when running against WebLogic Server 14.1.2.
-- #1769 - Cleaning up offline Discover Domain to exclude the `JavaHome` attribute in the `NMProperties` folder.
-- #1770 - Fixing secure mode detection to work properly in WebLogic Server 14.1.2.  This is critical to reducing the
+- #1769 - Cleaned up offline Discover Domain to exclude the `JavaHome` attribute in the `NMProperties` folder.
+- #1770 - Fixed secure mode detection to work properly in WebLogic Server 14.1.2.  This is critical to reducing the
   number of attributes that show up in the model when using Discover Domain in offline mode. 
 
 #### Known Issues
