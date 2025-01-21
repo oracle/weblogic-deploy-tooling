@@ -1,12 +1,12 @@
 +++
 title = "Release Notes"
 date = 2024-01-09T18:27:38-05:00
-weight = 68
+weight = 67
 pre = "<b> </b>"
 +++
 
 
-### Changes in Release 4.3.0
+### Changes in Release 4.3.1
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -17,28 +17,21 @@ pre = "<b> </b>"
 None
 
 #### Other Changes
-- #1731, #1735, #1736, #1738, #1743, #1748 - Updated aliases for WebLogic Server 14.1.2 GA release.
-- #1732 - Changed default value when using `-target` to include the domain's bin directory contents.
-- #1737 - Optimized offline discovery of default values in 14.1.2.
-- #1739 - Added aliases for `SNMPAgent`, `SNMPDeploymentAgent`, `EJBContainer`, and Cluster's `JtaRemoteDomain` folders.
-- #1741 - Added support for deploying and discovering customer resources.
-- #1746 - Added support for the WebLogic Server 12.2.1.4 and 14.1.1 October 2024 PSUs.
-- #1750 - Changed file path resolution to not convert symbolic links to the actual paths.
-- #1751 - Changed JDK validation to allow the user to run WDT tools with OpenJDK and removed broken support for GraalVM.
-- #1752 - Moved away from using jline's deprecated `jansi` provider to using the `jni` provider. 
-- #1758 - Enhanced Create Domain Tool to allow creating a JRF domain using fully specified RCU Data Sources
-          in the `resources:/JDBCSystemResource` section of the model without requiring the `domainInfo:/RCUDbInfo`
-          section.
-- #1760 - Modified WDT's usage of JAXB classes to prepare for supporting the Jakarta EE 9+ of JAXB runtime.
+- #1771 - Added support for January 2025 PSUs for 12.2.1.4, 14.1.1, and 14.1.2.
 
 #### Bug Fixes
-- #1732 - Fixed bad error message when WLST assign() invocation fails.
-- #1734 - Fixed validation error caused by trying to validate prior to resolving tokens.
-- #1744 - Squelched SLF4J startup messages from printing to `stderr`.
-- #1748 - Fixed target injector paths causing discovery to fail with sub-deployments.
-- #1749 - Fixed JMS Foreign Server discovery issue when the URL is not using a `file`, `http`, or `https` protocol.
-- #1753 - Cleaned up exiting from the interactive Model Help Tool using Control-D.
-- #1755 - Fixed bug with command-line handling of the WDT encryption passphrase from `stdin`.
+- #1762, #1764 - Fixed issues with causing Discover Domain to generate attribute not supported log entries for
+  deprecated attributes.
+- #1763 - Documented WebLogic Server Bug 37443991 as a known limitation.
+- #1765 - Fixing AttributeError when running Discover Domain with either `-skip_archive` or `-remote` (GitHub Issue 1607).
+- #1766 - Fixing AttributeError when running Discover Domain with either `-skip_archive` or `-remote`
+  on different archive types (GitHub Issue 1608).
+- #1767 - Fixing Discover Domain command-line argument validation that allows both `-skip_archive` and `-remote` to be
+  specified when they are mutually exclusive.
+- #1768 - Improved default value detection for Discover Domain when running against WebLogic Server 14.1.2.
+- #1769 - Cleaning up offline Discover Domain to exclude the `JavaHome` attribute in the `NMProperties` folder.
+- #1770 - Fixing secure mode detection to work properly in WebLogic Server 14.1.2.  This is critical to reducing the
+  number of attributes that show up in the model when using Discover Domain in offline mode. 
 
 #### Known Issues
 - SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
