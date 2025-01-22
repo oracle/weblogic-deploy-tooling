@@ -1136,8 +1136,8 @@ class TopologyDiscoverer(Discoverer):
                 if isinstance(model_value, PyRealBoolean):
                     model_value = model_value.getValue()
                 if domain_value == model_value:
-                    _logger.info('WLSDPLY-06678', model_path, domain_attribute,
-                                 class_name=_class_name, method_name=_method_name)
+                    _logger.fine('WLSDPLY-06678', model_path, model_value, domain_attribute,
+                                 domain_value, class_name=_class_name, method_name=_method_name)
                     result = None  # remove from model
         return result
 
