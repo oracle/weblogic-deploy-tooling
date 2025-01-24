@@ -1036,6 +1036,7 @@ class TopologyDiscoverer(Discoverer):
                 file_path = model_value
                 if not self._model_context.is_remote():
                     file_path = self._convert_path(model_value)
+
                 if server_name:
                     new_name = self._add_server_keystore_file_to_archive(model_name, server_name, archive_file, file_path)
                 else:
@@ -1056,7 +1057,7 @@ class TopologyDiscoverer(Discoverer):
         _method_name = '_add_server_keystore_file_to_archive'
         _logger.entering(server_name, archive_file, file_path, class_name=_class_name, method_name=_method_name)
         _logger.finer('WLSDPLY-06623', file_path, server_name, class_name=_class_name, method_name=_method_name)
-        new_name = None
+        new_name = file_path
         if self._model_context.is_remote():
             new_name = WLSDeployArchive.getServerKeyStoreArchivePath(server_name, file_path)
             self.add_to_remote_map(file_path, new_name,
