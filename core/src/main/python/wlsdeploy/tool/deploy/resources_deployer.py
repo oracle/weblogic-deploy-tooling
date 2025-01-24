@@ -4,7 +4,7 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 import wlsdeploy.util.dictionary_utils as dictionary_utils
 from wlsdeploy.aliases.model_constants import MANAGED_EXECUTOR_SERVICE_TEMPLATE
-from wlsdeploy.aliases.model_constants import MANAGED_SCHEDULED_EXECUTOR_SERVICE
+from wlsdeploy.aliases.model_constants import MANAGED_SCHEDULED_EXECUTOR_SERVICE_TEMPLATE
 from wlsdeploy.aliases.model_constants import MANAGED_THREAD_FACTORY_TEMPLATE
 from wlsdeploy.aliases.model_constants import SHUTDOWN_CLASS
 from wlsdeploy.aliases.model_constants import STARTUP_CLASS
@@ -126,8 +126,8 @@ class ResourcesDeployer(Deployer):
         template_nodes = dictionary_utils.get_dictionary_element(self._resources, MANAGED_EXECUTOR_SERVICE_TEMPLATE)
         self._add_named_elements(MANAGED_EXECUTOR_SERVICE_TEMPLATE, template_nodes, location)
 
-        service_nodes = dictionary_utils.get_dictionary_element(self._resources, MANAGED_SCHEDULED_EXECUTOR_SERVICE)
-        self._add_named_elements(MANAGED_SCHEDULED_EXECUTOR_SERVICE, service_nodes, location)
+        template_nodes = dictionary_utils.get_dictionary_element(self._resources, MANAGED_SCHEDULED_EXECUTOR_SERVICE_TEMPLATE)
+        self._add_named_elements(MANAGED_SCHEDULED_EXECUTOR_SERVICE_TEMPLATE, template_nodes, location)
 
         template_nodes = dictionary_utils.get_dictionary_element(self._resources, MANAGED_THREAD_FACTORY_TEMPLATE)
         self._add_named_elements(MANAGED_THREAD_FACTORY_TEMPLATE, template_nodes, location)
