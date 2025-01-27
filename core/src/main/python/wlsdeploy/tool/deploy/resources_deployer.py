@@ -1,8 +1,11 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import wlsdeploy.util.dictionary_utils as dictionary_utils
+from wlsdeploy.aliases.model_constants import MANAGED_EXECUTOR_SERVICE_TEMPLATE
+from wlsdeploy.aliases.model_constants import MANAGED_SCHEDULED_EXECUTOR_SERVICE_TEMPLATE
+from wlsdeploy.aliases.model_constants import MANAGED_THREAD_FACTORY_TEMPLATE
 from wlsdeploy.aliases.model_constants import SHUTDOWN_CLASS
 from wlsdeploy.aliases.model_constants import STARTUP_CLASS
 from wlsdeploy.aliases.wlst_modes import WlstModes
@@ -97,6 +100,8 @@ class ResourcesDeployer(Deployer):
         common_deployer.add_system_components(self._resources, location)
         common_deployer.add_ohs_components(self._resources, location)
 
+        self._add_managed_folders(location)
+
     def _add_startup_classes(self, location):
         """
         Add startup class elements at the specified location.
@@ -112,3 +117,17 @@ class ResourcesDeployer(Deployer):
         """
         shutdown_nodes = dictionary_utils.get_dictionary_element(self._resources, SHUTDOWN_CLASS)
         self._add_named_elements(SHUTDOWN_CLASS, shutdown_nodes, location)
+
+    def _add_managed_folders(self, location):
+        """
+        Add managed folder elements at the specified location.
+        :param location: the location to deploy elements
+        """
+        template_nodes = dictionary_utils.get_dictionary_element(self._resources, MANAGED_EXECUTOR_SERVICE_TEMPLATE)
+        self._add_named_elements(MANAGED_EXECUTOR_SERVICE_TEMPLATE, template_nodes, location)
+
+        template_nodes = dictionary_utils.get_dictionary_element(self._resources, MANAGED_SCHEDULED_EXECUTOR_SERVICE_TEMPLATE)
+        self._add_named_elements(MANAGED_SCHEDULED_EXECUTOR_SERVICE_TEMPLATE, template_nodes, location)
+
+        template_nodes = dictionary_utils.get_dictionary_element(self._resources, MANAGED_THREAD_FACTORY_TEMPLATE)
+        self._add_named_elements(MANAGED_THREAD_FACTORY_TEMPLATE, template_nodes, location)

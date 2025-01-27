@@ -1,5 +1,5 @@
 {
-  "copyright": "Copyright (c) 2022, Oracle Corporation and/or its affiliates.",
+  "copyright": "Copyright (c) 2022, 2025, Oracle and/or its affiliates.",
   "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
   "wlst_type": "ManagedThreadFactoryTemplate${:s}",
   "child_folders_type": "multiple",
@@ -7,6 +7,7 @@
   "short_name": "ManagedThreadFactTemplate",
   "folders": {},
   "attributes": {
+    "DeploymentOrder":                     [ {"version": "[12.2.1,)",       "wlst_mode": "both",   "wlst_name": "DeploymentOrder",                   "wlst_path": "WP001",  "default_value": 1000,  "wlst_type": "integer"} ],
     "MaxConcurrentNewThreads":             [ {"version": "[12.2.1,)",       "wlst_mode": "both",   "wlst_name": "MaxConcurrentNewThreads",           "wlst_path": "WP001",  "default_value": 10,    "wlst_type": "integer"} ],
     "Notes":                               [ {"version": "[12.2.1,)",       "wlst_mode": "both",   "wlst_name": "Notes",                             "wlst_path": "WP001",  "default_value": null,   "wlst_type": "string"} ],
     "Priority":                            [ {"version": "[12.2.1,)",       "wlst_mode": "both",   "wlst_name": "Priority",                          "wlst_path": "WP001",  "default_value": 5,     "wlst_type": "integer"} ],

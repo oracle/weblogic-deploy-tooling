@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -61,6 +61,9 @@ from wlsdeploy.aliases.model_constants import EJB_CONTAINER
 from wlsdeploy.aliases.model_constants import HEALTH_SCORE
 from wlsdeploy.aliases.model_constants import JOLT_CONNECTION_POOL
 from wlsdeploy.aliases.model_constants import JPA
+from wlsdeploy.aliases.model_constants import MANAGED_EXECUTOR_SERVICE_TEMPLATE
+from wlsdeploy.aliases.model_constants import MANAGED_SCHEDULED_EXECUTOR_SERVICE_TEMPLATE
+from wlsdeploy.aliases.model_constants import MANAGED_THREAD_FACTORY_TEMPLATE
 from wlsdeploy.aliases.model_constants import ODL_CONFIGURATION
 from wlsdeploy.aliases.model_constants import OHS
 from wlsdeploy.aliases.model_constants import OPSS_INITIALIZATION
@@ -146,6 +149,9 @@ class AliasEntries(object):
         'JMSSystemResource',
         JOLT_CONNECTION_POOL,
         'MailSession',
+        MANAGED_EXECUTOR_SERVICE_TEMPLATE,
+        MANAGED_SCHEDULED_EXECUTOR_SERVICE_TEMPLATE,
+        MANAGED_THREAD_FACTORY_TEMPLATE,
         'MessagingBridge',
         ODL_CONFIGURATION,
         OHS,
