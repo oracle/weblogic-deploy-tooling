@@ -67,6 +67,10 @@ class GlobalResourcesDiscoverer(Discoverer):
         self.discover_domain_single_mbean(model_constants.SNMP_AGENT, self._dictionary)
         self.discover_domain_named_mbeans(model_constants.SNMP_AGENT_DEPLOYMENT, self._dictionary)
 
+        self.discover_domain_named_mbeans(model_constants.MANAGED_EXECUTOR_SERVICE_TEMPLATE, self._dictionary)
+        self.discover_domain_named_mbeans(model_constants.MANAGED_SCHEDULED_EXECUTOR_SERVICE_TEMPLATE, self._dictionary)
+        self.discover_domain_named_mbeans(model_constants.MANAGED_THREAD_FACTORY_TEMPLATE, self._dictionary)
+
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary
 
