@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -10,6 +10,7 @@ from oracle.weblogic.deploy.create import CreateDomainLifecycleHookScriptRunner
 from weblogic.security.internal import SerializedSystemIni
 from weblogic.security.internal.encryption import ClearOrEncryptedService
 
+from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ADMIN_PASSWORD
 from wlsdeploy.aliases.model_constants import ADMIN_SERVER_NAME
@@ -36,6 +37,8 @@ from wlsdeploy.aliases.model_constants import PASSWORD
 from wlsdeploy.aliases.model_constants import PRODUCTION_MODE_ENABLED
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
+from wlsdeploy.aliases.model_constants import SECURE_MODE
+from wlsdeploy.aliases.model_constants import SECURE_MODE_ENABLED
 from wlsdeploy.aliases.model_constants import SECURITY
 from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
 from wlsdeploy.aliases.model_constants import SERVER
@@ -551,6 +554,8 @@ class DomainCreator(Creator):
                 use_sample_db = str_helper.to_string(use_sample_db)
             self.wlst_helper.set_option_if_needed(USE_SAMPLE_DATABASE, use_sample_db)
 
+        self.__set_secure_and_production_modes()
+
         self.__set_domain_name()
         self.__set_admin_password()
         self.__set_admin_server_name()
@@ -946,6 +951,42 @@ class DomainCreator(Creator):
         else:
             self._admin_server_name = self.__default_admin_server_name
 
+    def __set_secure_and_production_modes(self):
+        """
+        Set secure and production mode enabled before initial writeDomain
+        """
+        root_location = LocationContext()
+        domain_name_token = self.aliases.get_name_token(root_location)
+        root_location.add_name_token(domain_name_token, self._domain_name)
+
+        production_mode_enabled = dictionary_utils.get_element(self._topology, PRODUCTION_MODE_ENABLED)
+        if production_mode_enabled is not None:
+            wlst_name = self.aliases.get_wlst_attribute_name(root_location, PRODUCTION_MODE_ENABLED)
+            production_mode_enabled = alias_utils.convert_boolean(production_mode_enabled)
+            self.wlst_helper.set(wlst_name, production_mode_enabled)
+
+        if production_mode_enabled:  # check for secure mode specified, may be disabled
+            security_config_folder = dictionary_utils.get_dictionary_element(self._topology, SECURITY_CONFIGURATION)
+            secure_mode_folder = dictionary_utils.get_dictionary_element(security_config_folder, SECURE_MODE)
+            secure_mode_enabled = dictionary_utils.get_element(secure_mode_folder, SECURE_MODE_ENABLED)
+            if secure_mode_enabled is not None:
+                secure_mode_enabled = alias_utils.convert_boolean(secure_mode_enabled)
+                secure_location = LocationContext(root_location)
+                secure_location.append_location(SECURITY_CONFIGURATION)
+
+                # secure mode doesn't exist in older WLS versions
+                code, message = self.aliases.is_valid_model_folder_name(secure_location, SECURE_MODE)
+                if code == ValidationCodes.VALID:
+                    existing_subfolder_names = deployer_utils.get_existing_object_list(secure_location, self.aliases)
+                    deployer_utils.create_and_cd(secure_location, existing_subfolder_names, self.aliases)
+                    secure_location.append_location(SECURE_MODE)
+                    existing_subfolder_names = deployer_utils.get_existing_object_list(secure_location, self.aliases)
+                    deployer_utils.create_and_cd(secure_location, existing_subfolder_names, self.aliases)
+
+                    wlst_name = self.aliases.get_wlst_attribute_name(secure_location, SECURE_MODE_ENABLED)
+                    self.wlst_helper.set(wlst_name, secure_mode_enabled)
+                    self.wlst_helper.cd('/')
+
     def __set_domain_attributes(self):
         """
         Set the Domain attributes
@@ -989,7 +1030,7 @@ class DomainCreator(Creator):
                 return
 
         if PRODUCTION_MODE_ENABLED in self._topology:
-            if string_utils.to_boolean(self._topology[PRODUCTION_MODE_ENABLED]):
+            if alias_utils.convert_boolean(self._topology[PRODUCTION_MODE_ENABLED]):
                 return
 
         system_ini = SerializedSystemIni.getEncryptionService(self._domain_home)

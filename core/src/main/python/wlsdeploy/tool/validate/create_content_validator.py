@@ -1,5 +1,5 @@
 """
-Copyright (c) 2023, 2024, Oracle and/or its affiliates.
+Copyright (c) 2023, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.lang import Boolean
@@ -35,13 +35,16 @@ from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import RCU_PREFIX
 from wlsdeploy.aliases.model_constants import RCU_SCHEMA_PASSWORD
 from wlsdeploy.aliases.model_constants import REALM
+from wlsdeploy.aliases.model_constants import SECURE_MODE
 from wlsdeploy.aliases.model_constants import SECURITY
 from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
+from wlsdeploy.aliases.model_constants import SERVER_START_MODE
 from wlsdeploy.aliases.model_constants import STORE_TYPE_SSO
 from wlsdeploy.aliases.model_constants import SYSTEM_PASSWORD_VALIDATOR
 from wlsdeploy.aliases.model_constants import TNS_ENTRY
 from wlsdeploy.aliases.model_constants import TOPOLOGY
 from wlsdeploy.aliases.model_constants import USER
+from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.create import rcudbinfo_helper
@@ -98,6 +101,17 @@ class CreateDomainContentValidator(ContentValidator):
                 self._model_context.get_model_file(), class_name=self._class_name, method_name=_method_name)
 
         domain_info_dict = dictionary_utils.get_dictionary_element(model_dict, DOMAIN_INFO)
+
+        # secure mode doesn't exist in older WLS versions.
+        # valid start mode values were already checked in regular validation.
+        server_start_mode = dictionary_utils.get_element(domain_info_dict, SERVER_START_MODE)
+        if server_start_mode == 'secure':
+            secure_location = LocationContext().append_location(SECURITY_CONFIGURATION)
+            code, _message = self._aliases.is_valid_model_folder_name(secure_location, SECURE_MODE)
+            if code != ValidationCodes.VALID:
+                self._logger.severe('WLSDPLY-05314', server_start_mode, DOMAIN_INFO, SERVER_START_MODE,
+                                    class_name=self._class_name, method_name=_method_name)
+
         rcu_info_dict = dictionary_utils.get_dictionary_element(domain_info_dict, RCU_DB_INFO)
         self.__validate_rcu_db_info_section(rcu_info_dict)
 

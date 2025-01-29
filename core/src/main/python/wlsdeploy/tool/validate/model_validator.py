@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -627,6 +627,17 @@ class ModelValidator(object):
         :return: the value to use for additional validation checks
         """
         value = dictionary_utils.get_element(model_dict, attribute_name)
+        return self._resolve_value(value, attribute_name)
+
+    def _resolve_value(self, value, attribute_name):
+        """
+        Get the resolved value of the specified attribute, de-tokenizing as needed.
+        If unresolved tokens remain in the value, None is returned to prevent further checks.
+        Validation has already checked for unresolved variables, depending on validation mode.
+        :param value: the value to be examined
+        :param attribute_name: the name of the attribute to be examined, for logging
+        :return: the value to use for additional validation checks
+        """
         if isinstance(value, (str, unicode)) and variables.has_tokens(value):
             value = variables.substitute_attribute(value, self._variable_properties, self._model_context,
                                                    attribute_name=attribute_name)

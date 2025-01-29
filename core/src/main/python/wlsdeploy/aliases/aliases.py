@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import array
@@ -535,7 +535,7 @@ class Aliases(object):
             if attribute_info and not self.__is_wlst_attribute_read_only_or_ignored(location, attribute_info):
                 wlst_attribute_name = attribute_info[WLST_NAME]
                 uses_path_tokens = USES_PATH_TOKENS in attribute_info and \
-                    string_utils.to_boolean(attribute_info[USES_PATH_TOKENS])
+                    alias_utils.convert_boolean(attribute_info[USES_PATH_TOKENS])
 
                 data_type = attribute_info[WLST_TYPE]
                 if data_type == 'password':
