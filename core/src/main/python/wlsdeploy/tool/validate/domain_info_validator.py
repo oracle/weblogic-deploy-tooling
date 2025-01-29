@@ -1,5 +1,5 @@
 """
-Copyright (c) 2024, Oracle and/or its affiliates.
+Copyright (c) 2024, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from oracle.weblogic.deploy.create import RCURunner
@@ -23,6 +23,7 @@ from wlsdeploy.aliases.model_constants import RCU_DEFAULT_TABLESPACE
 from wlsdeploy.aliases.model_constants import RCU_TEMP_TBLSPACE
 from wlsdeploy.aliases.model_constants import REMOTE_RESOURCE
 from wlsdeploy.aliases.model_constants import SERVER_GROUP_TARGETING_LIMITS
+from wlsdeploy.aliases.model_constants import SERVER_START_MODE
 from wlsdeploy.aliases.model_constants import STORE_TYPE_SSO
 from wlsdeploy.aliases.model_constants import WLS_POLICIES
 from wlsdeploy.aliases.model_constants import WLS_ROLES
@@ -72,6 +73,12 @@ RESOURCE_PROTOCOLS = [
     'https',
     't3',
     't3s'
+]
+
+SERVER_START_MODES = [
+    'dev',
+    'prod',
+    'secure'
 ]
 
 DEPRECATED_DB_TYPES = [
@@ -135,11 +142,20 @@ class DomainInfoValidator(ModelValidator):
         """
         Extend this method to perform additional validation of the targeting limits attributes.
         """
+        _method_name = "_validate_attribute"
         ModelValidator._validate_attribute(self, attribute_name, attribute_value, valid_attr_infos,
                                            path_tokens_attr_keys, model_folder_path, validation_location)
 
         if attribute_name in [SERVER_GROUP_TARGETING_LIMITS, DYNAMIC_CLUSTER_SERVER_GROUP_TARGETING_LIMITS]:
             self.__validate_server_group_targeting_limits(attribute_name, attribute_value, model_folder_path)
+
+        if attribute_name == SERVER_START_MODE:
+            # None is returned if tokens remain, already validated depending on validation mode
+            server_start_mode = self._resolve_value(attribute_value, SERVER_START_MODE)
+            if server_start_mode and (server_start_mode not in SERVER_START_MODES):
+                self._logger.severe(
+                    'WLSDPLY-05302', server_start_mode, DOMAIN_INFO, SERVER_START_MODE,
+                    ', '.join(SERVER_START_MODES), class_name=_class_name, method_name=_method_name)
 
     # Override
     def _validate_single_path_in_archive(self, path, attribute_name, model_folder_path):
