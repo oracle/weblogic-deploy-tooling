@@ -15,6 +15,7 @@ from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.string_output_stream import StringOutputStream
 import wlsdeploy.util.unicode_helper as str_helper
+from wlsdeploy.util.weblogic_helper import WebLogicHelper
 
 wlst_functions = None
 
@@ -29,6 +30,7 @@ class WlstHelper(object):
 
     def __init__(self, exception_type):
         self.__exception_type = exception_type
+        self.wls_helper = WebLogicHelper(self.__logger)
 
     def get_online_server_version_data(self, username, password, url, timeout):
         """
@@ -164,19 +166,17 @@ class WlstHelper(object):
         mbean_path = self.get_pwd()
 
         try:
-            if self.is_unreliable_is_set():
-                # put the value in the model; an att_handler may correct the value
-                result = True
-            elif self.__check_online_connection():
+            # if valid isSet method is not available, return True to include the attribute in the model.
+            # an att_handler may correct/remove the value after this point.
+            result = True
+
+            if self.__check_online_connection():
                 mbean = self.get_mbean(mbean_path)
-                # we may call for every attribute for online + local
-                if 'isSet' not in dir(mbean):
-                    return True
-                result = mbean.isSet(attribute)
-            else:
-                if not self.__has_global('isSet'):
-                    return True
-                result = self.__load_global('isSet')(attribute)
+                if 'isSet' in dir(mbean):
+                    result = mbean.isSet(attribute)
+            elif self.__uses_is_set_with_argument():
+                if self.__has_global('isSet'):
+                    result = self.__load_global('isSet')(attribute, isInConfig='true')
 
         except (self.__load_global('WLSTException'), offlineWLSTException), e:
             pwe = exception_helper.create_exception(self.__exception_type, 'WLSDPLY-00125', attribute,
@@ -192,15 +192,15 @@ class WlstHelper(object):
         self.__logger.finest('WLSDPLY-00126', attribute, class_name=self.__class_name, method_name=_method_name)
         return result
 
-    def is_unreliable_is_set(self):
+    def __uses_is_set_with_argument(self):
         """
         Determine if this WLS version's implementation of the WLST isSet() method
-        is not reliable for deciding to include an attribute value.
-        Currently, all offline WLS versions that use isSet() (14.1.2+) are not reliable.
-        Future WLS versions may support a more reliable version of isSet().
-        :return: True if the implementation of isSet() is unreliable
+        uses the isInConfig argument for deciding to include an attribute value in the model.
+        Currently, offline WLS version 15.1.1 and above use this argument.
+        :return: True if the implementation of isSet() uses the isInConfig argument
         """
-        return not self.__check_online_connection()
+        offline = not self.__check_online_connection()
+        return offline and self.wls_helper.uses_offline_is_set_with_argument()
 
     def set_if_needed(self, wlst_name, wlst_value, masked=False):
         """

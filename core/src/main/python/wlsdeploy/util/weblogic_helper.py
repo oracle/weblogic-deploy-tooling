@@ -176,6 +176,21 @@ class WebLogicHelper(object):
         """
         return self.is_weblogic_version_or_above('14.1.2')
 
+    def are_offline_inherited_defaults_calculated(self):
+        """
+        Determine if inherited default values need to be calculated.
+        This is needed for versions of WLS in which the isSet() method does not give a reliable result.
+        :return: true if version is within the range for this condition. false otherwise
+        """
+        return self.is_weblogic_version_or_above('14.1.2') and not self.uses_offline_is_set_with_argument()
+
+    def uses_offline_is_set_with_argument(self):
+        """
+        Does the offline WLST isSet() method use the argument isInConfig for consistent results?
+        :return: true if version is within the range for this condition. false otherwise
+        """
+        return self.is_weblogic_version_or_above('15.1.1')
+
     def get_jdbc_url_from_rcu_connect_string(self, rcu_connect_string, rcu_database_type='ORACLE'):
         """
         Get the JDBC URL from the RCU connect string.

@@ -1029,7 +1029,8 @@ class TopologyDiscoverer(Discoverer):
         """
         _method_name = '_handle_inherited_default'
         result = model_value
-        if self._needs_is_set_revision(location, model_name):
+        offline = self._wlst_mode == WlstModes.OFFLINE
+        if offline and self._weblogic_helper.are_offline_inherited_defaults_calculated():
             model_path = location.get_folder_path() + '/' + model_name
             domain_attribute = dictionary_utils.get_element(DOMAIN_INHERITED_DEFAULT_MAPPINGS, model_path)
             if domain_attribute is not None:

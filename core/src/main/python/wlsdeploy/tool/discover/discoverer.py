@@ -240,14 +240,6 @@ class Discoverer(object):
         """
         return self._aliases.is_derived_default(location, model_attribute)
 
-    def _needs_is_set_revision(self, location, model_attribute):
-        """
-        Determine if the attribute value needs revision because it uses the unreliable version of isSet()
-        :param location: the location of the attribute to be examined
-        :param model_attribute: the model name of the attribute to be examined
-        """
-        return self._uses_is_set(location, model_attribute) and self._wlst_helper.is_unreliable_is_set()
-
     def _get_attribute_value_with_get(self, wlst_get_param, wlst_path):
         _method_name = '_get_attribute_value_with_get'
         _logger.finest('WLSDPLY-06104', wlst_get_param, class_name=_class_name, method_name=_method_name)
