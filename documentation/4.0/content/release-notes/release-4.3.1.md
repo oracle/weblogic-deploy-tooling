@@ -1,12 +1,12 @@
 +++
-title = "Release Notes"
+title = "Release 4.3.1"
 date = 2024-01-09T18:27:38-05:00
-weight = 66
+weight = 67
 pre = "<b> </b>"
 +++
 
 
-### Changes in Release 4.3.2
+### Changes in Release 4.3.1
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -17,18 +17,21 @@ pre = "<b> </b>"
 None
 
 #### Other Changes
-- #1778 - Added preliminary support for using an enhanced offline `isSet()` method when determining whether to write
-  computed fields to the model during offline discovery.  Once the enhancement is available in a 14.1.2 PSU, we will
-  complete the support.
+- #1771 - Added support for January 2025 PSUs for 12.2.1.4, 14.1.1, and 14.1.2.
 
 #### Bug Fixes
-- #1773 - Reduced the logging level of a message about removing attributes from the model to reduce the
-  amount of noise on stdout.
-- #1775 - Fixed Discover Domain Tool handling of server keystore files when running with `-skip_archive`.
-- #1776 - Fixed issues with the `ManagedExecutorServiceTemplate`, `ManagedScheduledExecutorServiceTemplate`, and
-  `ManagedThreadFactoryTemplate` folders so that they can be used in models.
-- #1777 - Fixed Create Domain Tool so write the domain's mode-related attributes upfront before the initial call
-  to `writeDomain()` so that the dynamically computed fields are properly persisted in `config.xml`.
+- #1762, #1764 - Fixed issues with causing Discover Domain to generate attribute not supported log entries for
+  deprecated attributes.
+- #1763 - Documented WebLogic Server Bug 37443991 as a known limitation.
+- #1765 - Fixed AttributeError when running Discover Domain with either `-skip_archive` or `-remote` (GitHub Issue 1607).
+- #1766 - Fixed AttributeError when running Discover Domain with either `-skip_archive` or `-remote`
+  on different archive types (GitHub Issue 1608).
+- #1767 - Fixed Discover Domain command-line argument validation that allows both `-skip_archive` and `-remote` to be
+  specified when they are mutually exclusive.
+- #1768 - Improved default value detection for Discover Domain when running against WebLogic Server 14.1.2.
+- #1769 - Cleaned up offline Discover Domain to exclude the `JavaHome` attribute in the `NMProperties` folder.
+- #1770 - Fixed secure mode detection to work properly in WebLogic Server 14.1.2.  This is critical to reducing the
+  number of attributes that show up in the model when using Discover Domain in offline mode.
 
 #### Known Issues
 - SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
