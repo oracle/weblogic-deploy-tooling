@@ -98,15 +98,18 @@ class CommonResourcesDiscoverer(Discoverer):
         datasources = self._find_names_in_folder(location)
         collected_wallet = {}
         if datasources is not None:
-            _logger.info('WLSDPLY-06340', len(datasources), class_name=_class_name, method_name=_method_name)
+            _logger.info('WLSDPLY-06340', len(datasources), class_name=_class_name,
+                         method_name=_method_name)
             typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
             for datasource in datasources:
-                if typedef.is_filtered(location, datasource):
-                    _logger.info('WLSDPLY-06361', typedef.get_domain_type(), datasource, class_name=_class_name,
-                                 method_name=_method_name)
+                if (typedef.is_filtered(location, datasource) and
+                        not self._model_context.is_discover_rcu_datasources()):
+                    _logger.info('WLSDPLY-06361', typedef.get_domain_type(), datasource,
+                                 class_name=_class_name, method_name=_method_name)
                 else:
-                    _logger.info('WLSDPLY-06341', datasource, class_name=_class_name, method_name=_method_name)
+                    _logger.info('WLSDPLY-06341', datasource, class_name=_class_name,
+                                 method_name=_method_name)
                     result[datasource] = OrderedDict()
                     location.add_name_token(name_token, datasource)
                     self._populate_model_parameters(result[datasource], location)

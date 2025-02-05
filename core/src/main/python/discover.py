@@ -4,7 +4,7 @@ Licensed under the Universal Permissive License v1.0 as shown at https://oss.ora
 
 The entry point for the discoverDomain tool.
 """
-import os
+import os, re
 import sys
 
 from java.io import File
@@ -13,6 +13,7 @@ from java.lang import IllegalArgumentException
 from java.lang import IllegalStateException
 from java.lang import String
 from java.lang import System
+from java.util import HashSet
 from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.discover import DiscoverException
 from oracle.weblogic.deploy.json import JsonException
@@ -27,10 +28,10 @@ from oracle.weblogic.deploy.validate import ValidateException
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(sys.argv[0])))
 
+from wlsdeploy.aliases import alias_constants
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
-from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.validation_codes import ValidationCodes
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
@@ -45,6 +46,7 @@ from wlsdeploy.tool.discover.opss_wallet_discoverer import OpssWalletDiscoverer
 from wlsdeploy.tool.discover.resources_discoverer import ResourcesDiscoverer
 from wlsdeploy.tool.discover.security_provider_data_discoverer import SecurityProviderDataDiscoverer
 from wlsdeploy.tool.discover.topology_discoverer import TopologyDiscoverer
+from wlsdeploy.tool.encrypt import encryption_utils
 from wlsdeploy.tool.util import filter_helper
 from wlsdeploy.tool.util import model_context_helper
 from wlsdeploy.tool.util.credential_injector import CredentialInjector
@@ -54,6 +56,7 @@ from wlsdeploy.tool.util.wlst_helper import WlstHelper
 from wlsdeploy.tool.validate.validator import Validator
 from wlsdeploy.util import cla_helper
 from wlsdeploy.util import cla_utils
+from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import env_helper
 from wlsdeploy.util import getcreds
 from wlsdeploy.util import model_translator
@@ -65,6 +68,30 @@ from wlsdeploy.util.exit_code import ExitCode
 from wlsdeploy.util.model import Model
 from wlsdeploy.util import target_configuration_helper
 from wlsdeploy.util import unicode_helper as str_helper
+from wlsdeploy.aliases.model_constants import DOMAIN_INFO
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_USER_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORE_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORE_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTORETYPE_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_KEYSTOREPWD_PROPERTY
+from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_NET_TNS_ADMIN
+from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
+from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
+from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
+from wlsdeploy.aliases.model_constants import ORACLE_DATABASE_CONNECTION_TYPE
+from wlsdeploy.aliases.model_constants import PASSWORD_ENCRYPTED
+from wlsdeploy.aliases.model_constants import PROPERTIES
+from wlsdeploy.aliases.model_constants import RCU_DB_INFO
+from wlsdeploy.aliases.model_constants import RCU_DB_CONN_STRING
+from wlsdeploy.aliases.model_constants import RCU_PREFIX
+from wlsdeploy.aliases.model_constants import RCU_SCHEMA_PASSWORD
+from wlsdeploy.aliases.model_constants import RESOURCES
+from wlsdeploy.aliases.model_constants import URL
+
+
 
 wlst_helper.wlst_functions = globals()
 
@@ -101,6 +128,7 @@ __optional_arguments = [
     CommandLineArgUtil.PASSPHRASE_FILE_SWITCH,
     CommandLineArgUtil.PASSPHRASE_PROMPT_SWITCH,
     CommandLineArgUtil.DISCOVER_SECURITY_PROVIDER_DATA_SWITCH,
+    CommandLineArgUtil.DISCOVER_RCU_DATASOURCES_SWITCH,
     CommandLineArgUtil.DISCOVER_OPSS_WALLET_SWITCH,
     CommandLineArgUtil.OPSS_WALLET_PASSPHRASE_SWITCH,
     CommandLineArgUtil.OPSS_WALLET_PASSPHRASE_ENV_SWITCH,
@@ -326,6 +354,8 @@ def __validate_discover_passwords_and_security_data_args(model_context, argument
     elif model_context.is_discover_opss_wallet():
         # Allow the encryption passphrase
         pass
+    elif model_context.is_discover_rcu_datasources():
+        pass
     elif model_context.get_encryption_passphrase() is not None:
         # Don't allow the passphrase arg unless we are discovering passwords or security provider data.
         if CommandLineArgUtil.PASSPHRASE_ENV_SWITCH in argument_map:
@@ -394,11 +424,6 @@ def __validate_discover_opss_wallet_args(model_context, argument_map, is_encrypt
     _method_name = '__validate_discover_opss_wallet_args'
 
     if CommandLineArgUtil.DISCOVER_OPSS_WALLET_SWITCH in argument_map:
-        if model_context.get_target_wlst_mode() == WlstModes.OFFLINE:
-            ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-06060',_program_name,
-                                                       CommandLineArgUtil.DISCOVER_OPSS_WALLET_SWITCH)
-            __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
 
         # Cannot verify that JRF is installed because the model_content is not fully
         # initialized at this point so the domain typedef is not available.
@@ -727,6 +752,7 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
         __logger.info('WLSDPLY-06014', _class_name=_class_name, method_name=_method_name)
 
     filter_helper.apply_final_filters(model.get_model(), model.get_model(), model_context)
+    __fix_discovered_template_datasource(model, model_context)
 
     credential_cache = None
     if credential_injector is not None:
@@ -764,6 +790,183 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
     __logger.exiting(_class_name, _method_name)
     return model
 
+def __fix_discovered_template_datasource(model, model_context):
+    # fix the case for discovering template datasources.
+    # If all the template datasources use the dame passwords then generate the RUCDbInfo section
+    # and remove the template datasources from the model
+    # If not using the same passwords then do not generate RCUDbinfo,  need to go back to fix the password field value
+
+    _method_name = '__fix_discovered_template_datasource'
+    __logger.entering(class_name=_class_name, method_name=_method_name)
+
+    domain_typedef = model_context.get_domain_typedef()
+    if domain_typedef.requires_rcu() and model_context.is_discover_rcu_datasources():
+        resources = model.get_model_resources()
+        jdbc_system_resources = dictionary_utils.get_element(resources, JDBC_SYSTEM_RESOURCE)
+        discover_filters = domain_typedef._discover_filters
+        filtered_ds_patterns = dictionary_utils.get_element(discover_filters,'/JDBCSystemResource')
+        passwords = HashSet()
+        urls = HashSet()
+        prefixes = HashSet()
+        properties = __get_urls_and_passwords(model_context, jdbc_system_resources, filtered_ds_patterns,
+                                                                       urls, passwords, prefixes)
+        if _can_generate_rcudb_info(passwords, urls, prefixes):
+            __set_rcuinfo_in_model(model, properties,  urls[0], passwords[0])
+            __remove_discovered_template_datasource(jdbc_system_resources, filtered_ds_patterns, model)
+            __fix_rcudbinfo_passwords(model, model_context,  model_context.is_discover_passwords())
+        else:
+            __reset_password_to_regular_discovery(jdbc_system_resources, filtered_ds_patterns, model_context)
+
+    __logger.exiting(_class_name, _method_name)
+
+def _can_generate_rcudb_info(passwords, urls, prefixes):
+    return passwords.size() == 1 and urls.size() == 1 and prefixes.size() == 1
+
+def __get_urls_and_passwords(model_context, jdbc_system_resources, filtered_ds_patterns, urls, passwords, prefixes):
+    properties = None
+    for item in jdbc_system_resources:
+        if not __match_filtered_ds_name(item, filtered_ds_patterns):
+            continue
+        jdbc_system_resource = jdbc_system_resources[item]
+        jdbc_resource = dictionary_utils.get_element(jdbc_system_resource, JDBC_RESOURCE)
+        driver_params = dictionary_utils.get_element(jdbc_resource, JDBC_DRIVER_PARAMS)
+        properties = dictionary_utils.get_element(driver_params, PROPERTIES)
+        password_encrypted = dictionary_utils.get_element(driver_params, PASSWORD_ENCRYPTED)
+        passwords.add(password_encrypted)
+        schema_user = __get_driver_param_property_value(properties, DRIVER_PARAMS_USER_PROPERTY)
+        prefix = schema_user[0:schema_user.find('_')]
+        prefixes.add(prefix)
+        url = dictionary_utils.get_element(driver_params, URL)
+        urls.add(url)
+
+    return properties
+
+def __set_rcuinfo_in_model(model, properties, url, password_encrypted):
+    model_dict = model.get_model()
+    domain_info = dictionary_utils.get_element(model_dict, DOMAIN_INFO)
+    if domain_info is None:
+        model_dict[DOMAIN_INFO] = {}
+        domain_info = model_dict[DOMAIN_INFO]
+
+    schema_user = __get_driver_param_property_value(properties, DRIVER_PARAMS_USER_PROPERTY)
+
+    domain_info[RCU_DB_INFO] = {}
+    rcudb_info = domain_info[RCU_DB_INFO]
+    rcudb_info[RCU_DB_CONN_STRING] = url
+
+    rcudb_info[RCU_SCHEMA_PASSWORD] = password_encrypted
+    prefix = schema_user[0:schema_user.find('_')]
+    rcudb_info[RCU_PREFIX] = prefix
+
+    extra_properties = [DRIVER_PARAMS_TRUSTSTORE_PROPERTY,
+                        DRIVER_PARAMS_KEYSTORE_PROPERTY,
+                        DRIVER_PARAMS_TRUSTSTORETYPE_PROPERTY,
+                        DRIVER_PARAMS_KEYSTORETYPE_PROPERTY,
+                        DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY,
+                        DRIVER_PARAMS_KEYSTOREPWD_PROPERTY,
+                        DRIVER_PARAMS_NET_TNS_ADMIN
+                        ]
+
+    for property in extra_properties:
+        __set_rcu_property_ifnecessary(rcudb_info, properties, property)
+
+
+    # The ORACLE_DATABASE_CONNECTION_TYPE is only used by WDT for processing
+    atp_tns_alias = __find_atp_tns_alias(url)
+    if atp_tns_alias is not None:
+        # This is just based on the observed pattern in tnsnames.ora file for ATP.
+        # we don't set the actual tns.alias since the url format is subjected to change
+        rcudb_info[ORACLE_DATABASE_CONNECTION_TYPE] = 'ATP'
+    elif __test_if_ssl_properties_are_set(properties):
+        rcudb_info[ORACLE_DATABASE_CONNECTION_TYPE] = 'SSL'
+
+def __test_if_ssl_properties_are_set(properties):
+    keystore_property = __get_driver_param_property_value(properties, DRIVER_PARAMS_KEYSTORE_PROPERTY)
+    truststore_property = __get_driver_param_property_value(properties, DRIVER_PARAMS_TRUSTSTORE_PROPERTY)
+    if keystore_property is not None and truststore_property is not None:
+        return True
+    return False
+
+def __find_atp_tns_alias(url):
+    pattern = r'\(service_name=([a-zA-Z0-9]+)_([a-zA-Z0-9_]+)\.adb\.oraclecloud\.com\)'
+    match = re.search(pattern, url)
+    if match:
+        return match.group(2)
+    else:
+        return None
+
+def __set_rcu_property_ifnecessary(rcu_db_info, properties, name):
+    value = __get_driver_param_property_value(properties, name)
+    if value is not None:
+        rcu_db_info[name] = value
+
+def __get_driver_param_property_value(properties, name):
+    try:
+        prop = dictionary_utils.get_element(properties, name)
+        value = dictionary_utils.get_element(prop, DRIVER_PARAMS_PROPERTY_VALUE)
+        return value
+    except:
+        return None
+
+def __remove_discovered_template_datasource(jdbc_system_resources, filtered_ds_patterns, model):
+    remove_items = []
+    for item in jdbc_system_resources:
+        if not __match_filtered_ds_name(item, filtered_ds_patterns):
+            continue
+        remove_items.append(item)
+
+    for item in remove_items:
+        del jdbc_system_resources[item]
+
+    if len(jdbc_system_resources) == 0:
+        model_dict = model.get_model()
+        resources = model_dict[RESOURCES]
+        del resources[JDBC_SYSTEM_RESOURCE]
+        if len(resources) == 0:
+            del model_dict[RESOURCES]
+
+def __reset_password_to_regular_discovery(jdbc_system_resources, filtered_ds_patterns, model_context):
+    for item in jdbc_system_resources:
+        if not __match_filtered_ds_name(item, filtered_ds_patterns):
+            continue
+        jdbc_system_resource = jdbc_system_resources[item]
+        jdbc_resource = dictionary_utils.get_element(jdbc_system_resource, JDBC_RESOURCE)
+        driver_params = dictionary_utils.get_element(jdbc_resource, JDBC_DRIVER_PARAMS)
+        jdbc_ds_password = driver_params[PASSWORD_ENCRYPTED]
+        if model_context.is_discover_passwords():
+            encrypted_model_value = encryption_utils.encrypt_one_password(
+                model_context.get_encryption_passphrase(), jdbc_ds_password)
+            driver_params[PASSWORD_ENCRYPTED] = encrypted_model_value
+        else:
+            driver_params[PASSWORD_ENCRYPTED] = alias_constants.PASSWORD_TOKEN
+    return
+
+def __fix_rcudbinfo_passwords(model, model_context,  encrypt=False):
+
+    model_dict = model.get_model()
+    rcudb_info = model_dict[DOMAIN_INFO][RCU_DB_INFO]
+
+    possible_pwds = [
+        RCU_SCHEMA_PASSWORD,
+        DRIVER_PARAMS_TRUSTSTOREPWD_PROPERTY,
+        DRIVER_PARAMS_KEYSTOREPWD_PROPERTY
+    ]
+
+    for item in possible_pwds:
+        if item in rcudb_info:
+            if encrypt:
+                passwd = rcudb_info[item]
+                rcudb_info[item] = encryption_utils.encrypt_one_password(
+                    model_context.get_encryption_passphrase(), passwd)
+            else:
+                rcudb_info[item] = alias_constants.PASSWORD_TOKEN
+
+def __match_filtered_ds_name(name, patterns):
+    for pattern in patterns:
+        regex = re.compile(pattern)
+        if regex.match(name):
+            return True
+    return False
 
 def __generate_remote_report_json(model_context):
     _method_name = '__remote_report'

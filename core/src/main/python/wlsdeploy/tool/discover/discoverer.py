@@ -16,6 +16,7 @@ from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 from wlsdeploy.aliases import alias_constants
 from wlsdeploy.aliases.aliases import Aliases
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import MASKED_PASSWORD
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
@@ -371,21 +372,38 @@ class Discoverer(object):
                     _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
                     raise ex
 
-                base_dir = self._model_context.get_domain_home()
-                if self._model_context.is_ssh():
-                    base_dir = self.download_temporary_dir
-
-                model_value = self._weblogic_helper.decrypt(password_encrypted_string, base_dir)
-
-                if self._model_context.is_encrypt_discovered_passwords():
+                filtered_datasource, model_value = self._get_decrypted_password_and_is_filtered_datasource(location,
+                                                                                            password_encrypted_string)
+                
+                if self._model_context.is_encrypt_discovered_passwords() and not filtered_datasource:
                     model_value = encryption_utils.encrypt_one_password(
                         self._model_context.get_encryption_passphrase(), model_value)
             else:
-                model_value = alias_constants.PASSWORD_TOKEN
+                filtered_datasource, model_value = self._get_decrypted_password_and_is_filtered_datasource(location,
+                                                                                                           model_value)
+                temp_clear_pwd = self._model_context.is_discover_rcu_datasources() and filtered_datasource
+                if not temp_clear_pwd:
+                    model_value = alias_constants.PASSWORD_TOKEN
+
         else:
             model_value = None
 
         return model_value
+
+    def _get_decrypted_password_and_is_filtered_datasource(self, location, model_value):
+        # only do it for templated datasource
+        filtered_datasource = False
+        model_folders = location.get_model_folders()
+        if (model_folders[0] == JDBC_SYSTEM_RESOURCE):
+            loc = LocationContext()
+            loc.append_location(JDBC_SYSTEM_RESOURCE)
+            tokens = location.get_name_tokens()
+            filtered_datasource = self._model_context.get_domain_typedef().is_filtered(loc, tokens['DATASOURCE'])
+
+        base_dir = self._model_context.get_domain_home()
+        if self._model_context.is_ssh():
+            base_dir = self.download_temporary_dir
+        return filtered_datasource, self._weblogic_helper.decrypt(model_value, base_dir)
 
     def _get_attributes_for_current_location(self, location):
         """
