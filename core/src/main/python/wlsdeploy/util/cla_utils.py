@@ -116,6 +116,7 @@ class CommandLineArgUtil(object):
     SSH_PRIVATE_KEY_PASSPHRASE_FILE_SWITCH   = '-ssh_private_key_pass_file'
     SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH = '-ssh_private_key_pass_prompt'
     DISCOVER_PASSWORDS_SWITCH  = '-discover_passwords'
+    DISCOVER_RCU_DATASOURCES_SWITCH  = '-discover_rcu_datasources'
     DISCOVER_SECURITY_PROVIDER_DATA_SWITCH = '-discover_security_provider_data'
     DISCOVER_OPSS_WALLET_SWITCH = '-discover_opss_wallet'
 
@@ -135,6 +136,7 @@ class CommandLineArgUtil(object):
         SSH_PASS_PROMPT_SWITCH,
         SSH_PRIVATE_KEY_PASSPHRASE_PROMPT_SWITCH,
         DISCOVER_PASSWORDS_SWITCH,
+        DISCOVER_RCU_DATASOURCES_SWITCH,
         PASSPHRASE_PROMPT_SWITCH,
         DISCOVER_OPSS_WALLET_SWITCH,
         # deprecated in 4.2.0

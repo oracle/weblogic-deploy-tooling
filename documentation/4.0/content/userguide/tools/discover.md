@@ -258,6 +258,84 @@ will become the default administrator for the new domain.  Therefore, it is impo
 to invoke the Discover Domain Tool with this in mind.
 {{% /notice %}}
 
+#### Discovering RCU data sources
+
+Starting in 4.3.3, the Discover Domain Tool supports discovering `RCU` data sources from the domain configuration files
+by adding the `-discover_rcu_datasources` flag to the command-line. The `RCU` data sources are the standard data 
+sources from the domain such as a `JRF` domain or any domain that uses `RCU` schemas.
+
+If the `JDBCDriverParams: URL and PasswordEncrypted` are the same across all the `RCU` data sources, a `RCUDbInfo` 
+section is generated under the `domainInfo` section of the model.
+
+```
+    domainInfo:
+      RCUDbInfo:
+          rcu_db_conn_string: jdbc:oracle:thin:@//nuc:1521/orclpdb1
+          rcu_prefix: FMW21
+          rcu_schema_password: --FIX ME--
+```
+
+If the `JDBCDriverParams URL and PasswordEncrypted` are not the same across all the `RCU` data sources, then all of 
+them appears as regular data sources in the `resources` section and no `RCUDbInfo` section will be generated.
+
+```
+resources:
+    JDBCSystemResource:
+        WLSSchemaDataSource:
+            JdbcResource:
+                JDBCConnectionPoolParams:
+                    TestTableName: SQL ISVALID
+                    MaxCapacity: 75
+                JDBCDataSourceParams:
+                    GlobalTransactionsProtocol: None
+                    JNDIName: jdbc/WLSSchemaDataSource
+                JDBCDriverParams:
+                    URL: jdbc:oracle:thin:@//nuc:1521/orclpdb1
+                    PasswordEncrypted: --FIX ME--
+                    DriverName: oracle.jdbc.OracleDriver
+                    Properties:
+                        user:
+                            Value: FMW21_WLS_RUNTIME
+        LocalSvcTblDataSource:
+            Target: admin-server
+            JdbcResource:
+                JDBCConnectionPoolParams:
+                    InitialCapacity: 0
+                    CapacityIncrement: 1
+                    TestConnectionsOnReserve: true
+                    ConnectionCreationRetryFrequencySeconds: 10
+                    TestTableName: SQL ISVALID
+                    TestFrequencySeconds: 300
+                    SecondsToTrustAnIdlePoolConnection: 0
+                    MaxCapacity: 200
+                JDBCDataSourceParams:
+                    GlobalTransactionsProtocol: None
+                    JNDIName: jdbc/LocalSvcTblDataSource
+                JDBCDriverParams:
+                    URL: jdbc:oracle:thin:@//nuc:1521/anotherdb
+                    PasswordEncrypted: --FIX ME--
+                    DriverName: oracle.jdbc.OracleDriver
+                    Properties:
+                        user:
+                            Value: FMW21_STB
+                        oracle.net.CONNECT_TIMEOUT:
+                            Value: '10000'
+                        SendStreamAsBlob:
+                            Value: 'true'
+                        weblogic.jdbc.crossPartitionEnabled:
+                            Value: 'true'
+        ...
+```
+
+
+This feature works in both offline and online modes provided that WDT has access to the domain home
+directory (that is, it does not work with the online `-remote` argument).  By default, WDT will try to use
+WDT encryption to encrypt the passwords in the model using the WDT passphrase passed to the tool, which requires using
+one of the following command-line arguments: `-passphrase_env`, `-passphrase_file`, or `passphrase_prompt`.
+This allows the user to discover the passwords from a domain and securely store them in the model using technology
+that is not tied to the source domain.
+
+
 ### Environment variables
 The following environment variables may be set.
 

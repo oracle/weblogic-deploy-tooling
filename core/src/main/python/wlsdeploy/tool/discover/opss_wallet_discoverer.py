@@ -44,7 +44,7 @@ class OpssWalletDiscoverer(Discoverer):
         _method_name = 'discover'
         _logger.entering(class_name=_class_name, method_name=_method_name)
 
-        if self._wlst_mode == WlstModes.OFFLINE or not self._model_context.is_discover_opss_wallet():
+        if not self._model_context.is_discover_opss_wallet():
             _logger.exiting(class_name=_class_name, method_name=_method_name)
             return
 

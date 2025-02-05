@@ -126,6 +126,7 @@ class ModelContext(object):
         self._remote_output_dir = None
         self._local_output_dir = None
         self._discover_passwords = False
+        self._discover_rcu_datasources = False
         self._discover_security_provider_data = None
         self._discover_opss_wallet = False
         self._path_helper = path_helper.get_path_helper()
@@ -327,6 +328,9 @@ class ModelContext(object):
         if CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH in arg_map:
             self._discover_passwords = arg_map[CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH]
 
+        if CommandLineArgUtil.DISCOVER_RCU_DATASOURCES_SWITCH in arg_map:
+            self._discover_rcu_datasources = arg_map[CommandLineArgUtil.DISCOVER_RCU_DATASOURCES_SWITCH]
+
         if CommandLineArgUtil.DISCOVER_SECURITY_PROVIDER_DATA_SWITCH in arg_map:
             self._discover_security_provider_data = \
                 arg_map[CommandLineArgUtil.DISCOVER_SECURITY_PROVIDER_DATA_SWITCH].split(',')
@@ -437,6 +441,8 @@ class ModelContext(object):
             arg_map[CommandLineArgUtil.VARIABLE_INJECTOR_FILE_SWITCH] = self._variable_injector_file
         if self._discover_passwords:
             arg_map[CommandLineArgUtil.DISCOVER_PASSWORDS_SWITCH] = self._discover_passwords
+        if self._discover_rcu_datasources:
+            arg_map[CommandLineArgUtil.DISCOVER_RCU_DATASOURCES_SWITCH] = self._discover_rcu_datasources
         if self._discover_security_provider_data is not None:
             # Make a copy of the list...
             arg_map[CommandLineArgUtil.DISCOVER_SECURITY_PROVIDER_DATA_SWITCH] = \
@@ -1295,6 +1301,9 @@ class ModelContext(object):
 
     def is_discover_opss_wallet(self):
         return self._discover_opss_wallet
+
+    def is_discover_rcu_datasources(self):
+        return self._discover_rcu_datasources
 
     def copy(self, arg_map):
         model_context_copy = copy.copy(self)

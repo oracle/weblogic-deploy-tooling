@@ -86,6 +86,9 @@ ECHO              ]
 ECHO              [ -discover_passwords
 ECHO                -passphrase_env ^<passphrase_env^> ^| -passphrase_file ^<passphrase_file^> ^| -passphrase_prompt
 ECHO              ]
+ECHO              [ -discover_rcu_datasources
+ECHO                -passphrase_env ^<passphrase_env^> ^| -passphrase_file ^<passphrase_file^> ^| -passphrase_prompt
+ECHO              ]
 ECHO              [ -discover_security_provider_data ^<discover_security_provider_scope^>
 ECHO                -passphrase_env ^<passphrase_env^> ^| -passphrase_file ^<passphrase_file^> ^| -passphrase_prompt
 ECHO              ]
