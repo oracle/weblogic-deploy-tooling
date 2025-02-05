@@ -12,20 +12,20 @@
     <title>Discover Domain Tool :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1738725639" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1738725639" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1738725639" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1738725639" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1738725639" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1738725639" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1738725639" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1738725639" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1738725639" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1738725639" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1738788525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1738788525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1738788525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1738788525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1738788525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1738788525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1738788525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1738788525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1738788525" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1738788525" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1738725639"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1738788525"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1738725639"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1738725639"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1738788525"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1738788525"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1738725639"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1738788525"></script>
 
     
   </div>
@@ -2378,6 +2378,71 @@ will become the default administrator for the new domain.  Therefore, it is impo
 to invoke the Discover Domain Tool with this in mind.</p>
 </div>
 
+<h4 id="discovering-rcu-data-sources">Discovering RCU data sources</h4>
+<p>Starting in 4.3.3, the Discover Domain Tool supports discovering <code>RCU</code> data sources from the domain configuration files
+by adding the <code>-discover_rcu_datasources</code> flag to the command-line. The <code>RCU</code> data sources are the standard data
+sources from the domain such as a <code>JRF</code> domain or any domain that uses <code>RCU</code> schemas.</p>
+<p>If the <code>JDBCDriverParams: URL and PasswordEncrypted</code> are the same across all the <code>RCU</code> data sources, a <code>RCUDbInfo</code>
+section is generated under the <code>domainInfo</code> section of the model.</p>
+<pre><code>    domainInfo:
+      RCUDbInfo:
+          rcu_db_conn_string: jdbc:oracle:thin:@//nuc:1521/orclpdb1
+          rcu_prefix: FMW21
+          rcu_schema_password: --FIX ME--
+</code></pre><p>If the <code>JDBCDriverParams URL and PasswordEncrypted</code> are not the same across all the <code>RCU</code> data sources, then all of
+them appears as regular data sources in the <code>resources</code> section and no <code>RCUDbInfo</code> section will be generated.</p>
+<pre><code>resources:
+    JDBCSystemResource:
+        WLSSchemaDataSource:
+            JdbcResource:
+                JDBCConnectionPoolParams:
+                    TestTableName: SQL ISVALID
+                    MaxCapacity: 75
+                JDBCDataSourceParams:
+                    GlobalTransactionsProtocol: None
+                    JNDIName: jdbc/WLSSchemaDataSource
+                JDBCDriverParams:
+                    URL: jdbc:oracle:thin:@//nuc:1521/orclpdb1
+                    PasswordEncrypted: --FIX ME--
+                    DriverName: oracle.jdbc.OracleDriver
+                    Properties:
+                        user:
+                            Value: FMW21_WLS_RUNTIME
+        LocalSvcTblDataSource:
+            Target: admin-server
+            JdbcResource:
+                JDBCConnectionPoolParams:
+                    InitialCapacity: 0
+                    CapacityIncrement: 1
+                    TestConnectionsOnReserve: true
+                    ConnectionCreationRetryFrequencySeconds: 10
+                    TestTableName: SQL ISVALID
+                    TestFrequencySeconds: 300
+                    SecondsToTrustAnIdlePoolConnection: 0
+                    MaxCapacity: 200
+                JDBCDataSourceParams:
+                    GlobalTransactionsProtocol: None
+                    JNDIName: jdbc/LocalSvcTblDataSource
+                JDBCDriverParams:
+                    URL: jdbc:oracle:thin:@//nuc:1521/anotherdb
+                    PasswordEncrypted: --FIX ME--
+                    DriverName: oracle.jdbc.OracleDriver
+                    Properties:
+                        user:
+                            Value: FMW21_STB
+                        oracle.net.CONNECT_TIMEOUT:
+                            Value: '10000'
+                        SendStreamAsBlob:
+                            Value: 'true'
+                        weblogic.jdbc.crossPartitionEnabled:
+                            Value: 'true'
+        ...
+</code></pre><p>This feature works in both offline and online modes provided that WDT has access to the domain home
+directory (that is, it does not work with the online <code>-remote</code> argument).  By default, WDT will try to use
+WDT encryption to encrypt the passwords in the model using the WDT passphrase passed to the tool, which requires using
+one of the following command-line arguments: <code>-passphrase_env</code>, <code>-passphrase_file</code>, or <code>passphrase_prompt</code>.
+This allows the user to discover the passwords from a domain and securely store them in the model using technology
+that is not tied to the source domain.</p>
 <h3 id="environment-variables">Environment variables</h3>
 <p>The following environment variables may be set.</p>
 <ul>
@@ -4054,19 +4119,19 @@ environment, what you are doing, and what is happening.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1738725639"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1738725639"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1738725639"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1738725639"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1738725639"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1738725639"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1738788525"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1738788525"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1738788525"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1738788525"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1738788525"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1738788525"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1738725639"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1738725639"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1738725639"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1738788525"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1738788525"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1738788525"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1738725639"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1738788525"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
