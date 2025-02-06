@@ -1,5 +1,5 @@
 """
-Copyright (c) 2021, 2023, Oracle and/or its affiliates.
+Copyright (c) 2021, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.util import Properties
@@ -456,13 +456,26 @@ class ModelComparer(object):
         if location is not None:
             folder_path = location.get_model_folders()
 
-        # Application and Library should include SourcePath if they have any other elements
+        # Application and Library should include all attributes from past and change folders.
+        # Changes to source path or underlying jar may require redeployment.
         if (len(folder_path) == 1) and (folder_path[0] in self.SOURCE_PATH_FOLDERS):
-            # Handling Application and Library changes but keep the original that has not been changed
             if change_folder:
-                orig_keys = dictionary_utils.get_dictionary_attributes(past_folder)
-                for key in orig_keys:
-                    if key not in change_folder.keys():
-                        key_value = dictionary_utils.get_element(past_folder, key)
+                past_keys = dictionary_utils.get_dictionary_attributes(past_folder)
+                for past_key in past_keys:
+                    attribute_type = self._aliases.get_model_attribute_type(location, past_key)
+
+                    if past_key not in change_folder.keys():
+                        key_value = dictionary_utils.get_element(past_folder, past_key)
                         if key_value is not None:
-                            change_folder[key] = key_value
+                            change_folder[past_key] = key_value
+
+                    elif attribute_type in ALIAS_LIST_TYPES:  # update list with past + change items (ex: Target)
+                        past_list = alias_utils.create_list(past_folder[past_key], 'WLSDPLY-08001')
+                        change_list = alias_utils.create_list(change_folder[past_key], 'WLSDPLY-08000')
+                        new_list = list()
+                        for past_item in past_list:
+                            past_delete_item = model_helper.get_delete_name(past_item)
+                            if past_item not in change_list and past_delete_item not in change_list:
+                                new_list.append(past_item)
+                        new_list.extend(change_list)
+                        change_folder[past_key] = ','.join(new_list)
