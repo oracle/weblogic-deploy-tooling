@@ -9,10 +9,12 @@ from java.lang import Boolean
 from java.lang import System
 from java.io import BufferedReader
 from java.io import File
+from java.io import FileInputStream
 from java.io import FileOutputStream
-from java.io import FileReader
+from java.io import InputStreamReader
 from java.io import PrintWriter
 from java.io import IOException
+from java.nio.charset import StandardCharsets
 
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 
@@ -395,7 +397,7 @@ def _read_value_from_file(file_path, allow_unresolved):
     method_name = '_read_value_from_file'
 
     try:
-        file_reader = BufferedReader(FileReader(file_path))
+        file_reader = BufferedReader(InputStreamReader(FileInputStream(file_path), StandardCharsets.UTF_8))
         line = file_reader.readLine()
         file_reader.close()
     except IOException, e:
