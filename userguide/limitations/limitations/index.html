@@ -12,20 +12,20 @@
     <title>Limitations :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1739330430" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1739330430" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1739330430" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1739330430" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1739330430" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1739330430" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1739330430" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1739330430" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1739330430" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1739330430" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1739387024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1739387024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1739387024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1739387024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1739387024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1739387024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1739387024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1739387024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1739387024" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1739387024" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1739330430"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1739387024"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1739330430"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1739330430"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1739387024"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1739387024"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1739330430"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1739387024"></script>
 
     
   </div>
@@ -1355,6 +1355,27 @@
  
   
     
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.3.2/" title="Release 4.3.2" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-4.3.2/">
+        <b> </b>Release 4.3.2
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
       <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.3.1/" title="Release 4.3.1" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-4.3.1/">
         <b> </b>Release 4.3.1
@@ -2163,7 +2184,13 @@ available to address this WLST problem. It is resolved in 12.2.1.1.</p>
 Ignore the following messages logged during discovery of a 12.2.1.0 domain.</p>
 <pre><code>&lt;Jan 14, 2019 1:14:21 PM&gt; &lt;SEVERE&gt; &lt;CommandExceptionHandler&gt; &lt;handleException&gt; &lt;&gt; &lt;Error: cd() failed.&gt;
 &lt;Jan 14, 2019 1:14:21 PM&gt; &lt;SEVERE&gt; &lt;CommandExceptionHandler&gt; &lt;handleException&gt; &lt;&gt; &lt;Error: ls() failed.&gt;
-</code></pre><h4 id="create-domain-tool-with-11g-jrf-domains">Create Domain Tool with 11g JRF domains</h4>
+</code></pre><h4 id="create-domain-tool-with-nmproperties-keystores-attribute">Create Domain Tool with NMProperties KeyStores attribute</h4>
+<p><strong>ISSUE</strong>:
+The Create Domain Tool does not properly set the model&rsquo;s <code>topology:/NMProperties/KeyStores</code> properly so the domain
+is created without a KeyStores entry in nodemanager.properties.</p>
+<p><strong>ACTION</strong>:
+This is due to WLST Bug 37587121.  Contact Oracle Support to get the appropriate patch to apply to your environment.</p>
+<h4 id="create-domain-tool-with-11g-jrf-domains">Create Domain Tool with 11g JRF domains</h4>
 <p><strong>ISSUE</strong>:
 The Create Domain Tool cannot initialize RCU for 11g JRF domains. The tool will issue error messages in the log and
 terminate the create process.</p>
@@ -3690,6 +3717,22 @@ online Update Domain calls or use offline Update Domain.</p>
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -3715,19 +3758,19 @@ online Update Domain calls or use offline Update Domain.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1739330430"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1739330430"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1739330430"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1739330430"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1739330430"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1739330430"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1739387024"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1739387024"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1739387024"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1739387024"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1739387024"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1739387024"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1739330430"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1739330430"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1739330430"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1739387024"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1739387024"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1739387024"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1739330430"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1739387024"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

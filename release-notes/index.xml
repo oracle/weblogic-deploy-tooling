@@ -8,6 +8,16 @@
     <language>en-us</language>
     <lastBuildDate>Tue, 09 Jan 2024 18:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Release 4.3.2</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.3.2/</link>
+      <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.3.2/</guid>
+      <description>Changes in Release 4.3.2  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes  #1778 - Added preliminary support for using an enhanced offline isSet() method when determining whether to write computed fields to the model during offline discovery. Once the enhancement is available in a 14.1.2 PSU, we will complete the support.  Bug Fixes  #1773 - Reduced the logging level of a message about removing attributes from the model to reduce the amount of noise on stdout.</description>
+    </item>
+    
+    <item>
       <title>Release 4.3.1</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.3.1/</link>
       <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>

@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Release 3.3.0 :: WebLogic Deploy Tooling</title>
+    <title>Release 4.3.2 :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1739387024" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-3.3.0/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-4.3.2/">
     <nav id="sidebar" class="">
 
 
@@ -1355,7 +1355,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.3.2/" title="Release 4.3.2" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.3.2/" title="Release 4.3.2" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-4.3.2/">
         <b> </b>Release 4.3.2
         
@@ -1670,7 +1670,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.3.0/" title="Release 3.3.0" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.3.0/" title="Release 3.3.0" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-3.3.0/">
         <b> </b>Release 3.3.0
         
@@ -2119,7 +2119,7 @@
             
           
           
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release 3.3.0
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release 4.3.2
           
         
           
@@ -2136,7 +2136,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#changes-in-release-330">Changes in Release 3.3.0</a></li>
+        <li><a href="#changes-in-release-432">Changes in Release 4.3.2</a></li>
       </ul>
     </li>
   </ul>
@@ -2156,14 +2156,14 @@
           
             <h1>
               
-              Release 3.3.0
+              Release 4.3.2
             </h1>
           
 
         
 
 
-<h3 id="changes-in-release-330">Changes in Release 3.3.0</h3>
+<h3 id="changes-in-release-432">Changes in Release 4.3.2</h3>
 <ul>
 <li><a href="#major-new-features">Major New Features</a></li>
 <li><a href="#other-changes">Other Changes</a></li>
@@ -2174,19 +2174,35 @@
 <p>None</p>
 <h4 id="other-changes">Other Changes</h4>
 <ul>
-<li>#1517 - Added a <code>postCreateRcuSchemasScript</code> element to the typedef file definitions to accommodate extra
-schema patching work required for Oracle Identity Governance domain creation.</li>
-<li>#1519 - Added <code>rcu_admin_user</code> field to the <code>domainInfo:/RCUDbInfo</code> section to replace <code>rcu_db_user</code>, which is now
-deprecated and will be removed in a future release.  This field is optional and will default to the appropriate
-admin user name: <code>admin</code> when using an ATP database and <code>SYS</code> otherwise.</li>
+<li>#1778 - Added preliminary support for using an enhanced offline <code>isSet()</code> method when determining whether to write
+computed fields to the model during offline discovery.  Once the enhancement is available in a 14.1.2 PSU, we will
+complete the support.</li>
 </ul>
 <h4 id="bug-fixes">Bug Fixes</h4>
 <ul>
-<li>#1518 - Fixed an issue when using an ATP database as the RCU schema repository that was causing
-<code>config/fmwconfig/jps-config.xml</code> to contain a clear text password after JRF domain creation.</li>
+<li>#1773 - Reduced the logging level of a message about removing attributes from the model to reduce the
+amount of noise on stdout.</li>
+<li>#1775 - Fixed Discover Domain Tool handling of server keystore files when running with <code>-skip_archive</code>.</li>
+<li>#1776 - Fixed issues with the <code>ManagedExecutorServiceTemplate</code>, <code>ManagedScheduledExecutorServiceTemplate</code>, and
+<code>ManagedThreadFactoryTemplate</code> folders so that they can be used in models.</li>
+<li>#1777 - Fixed Create Domain Tool so write the domain&rsquo;s mode-related attributes upfront before the initial call
+to <code>writeDomain()</code> so that the dynamically computed fields are properly persisted in <code>config.xml</code>.</li>
 </ul>
 <h4 id="known-issues">Known Issues</h4>
-<p>None</p>
+<ul>
+<li>
+<p>SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
+the 12.2.1.4.0 GA release fails with the following error, as mentioned at <a href="https://github.com/hierynomus/sshj/issues/895">https://github.com/hierynomus/sshj/issues/895</a>.
+Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">SEVERE Messages:
+        1. WLSDPLY-20008: verifySSH argument processing failed: Failed to initialize SSH context: Failed to SSH connect to host myhost.oracle.com: no such algorithm: X25519 <span style="color:#66d9ef">for</span> provider BC
+</code></pre></div></li>
+<li>
+<p>SSH support for the Update Domain Tool and Deploy Apps Tool does not work when using an archive file and the remote
+WebLogic Server is running on Windows using the optional, Windows-provided, OpenSSH component.  This is due to an
+issue with the SSHJ library WDT is using.  See <a href="https://github.com/hierynomus/sshj/issues/929">https://github.com/hierynomus/sshj/issues/929</a> for more information.</p>
+</li>
+</ul>
 <p>See <a href="https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/">https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/</a> for the current set of known limitations.</p>
 
 
@@ -3110,6 +3126,23 @@ admin user name: <code>admin</code> when using an ATP database and <code>SYS</co
             
                 
                     
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
                         
                         
                     
@@ -3352,26 +3385,6 @@ admin user name: <code>admin</code> when using an ATP database and <code>SYS</co
             
             
                 
-                    
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
                     
                 
                 
@@ -3668,10 +3681,10 @@ admin user name: <code>admin</code> when using an ATP database and <code>SYS</co
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/release-3.4.0/" title="Release 3.4.0"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-3.2.6/" title="Release 3.2.6" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-4.3.1/" title="Release 4.3.1" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
