@@ -33,6 +33,15 @@ Ignore the following messages logged during discovery of a 12.2.1.0 domain.
 <Jan 14, 2019 1:14:21 PM> <SEVERE> <CommandExceptionHandler> <handleException> <> <Error: ls() failed.>
 ```
 
+#### Create Domain Tool with NMProperties KeyStores attribute
+
+**ISSUE**:
+The Create Domain Tool does not properly set the model's `topology:/NMProperties/KeyStores` properly so the domain
+is created without a KeyStores entry in nodemanager.properties.
+
+**ACTION**:
+This is due to WLST Bug 37587121.  Contact Oracle Support to get the appropriate patch to apply to your environment.
+
 #### Create Domain Tool with 11g JRF domains
 
 **ISSUE**:
