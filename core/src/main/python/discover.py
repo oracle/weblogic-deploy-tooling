@@ -811,7 +811,7 @@ def __fix_discovered_template_datasource(model, model_context):
         properties = __get_urls_and_passwords(model_context, jdbc_system_resources, filtered_ds_patterns,
                                                                        urls, passwords, prefixes)
         if _can_generate_rcudb_info(passwords, urls, prefixes):
-            __set_rcuinfo_in_model(model, properties,  urls[0], passwords[0])
+            __set_rcuinfo_in_model(model, properties, urls.iterator().next(), passwords.iterator().next())
             __remove_discovered_template_datasource(jdbc_system_resources, filtered_ds_patterns, model)
             __fix_rcudbinfo_passwords(model, model_context,  model_context.is_discover_passwords())
         else:
