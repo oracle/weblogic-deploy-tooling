@@ -374,16 +374,17 @@ class Discoverer(object):
 
                 filtered_datasource, model_value = self._get_decrypted_password_and_is_filtered_datasource(location,
                                                                                             password_encrypted_string)
-                
+
                 if self._model_context.is_encrypt_discovered_passwords() and not filtered_datasource:
                     model_value = encryption_utils.encrypt_one_password(
                         self._model_context.get_encryption_passphrase(), model_value)
+
+            elif self._model_context.is_discover_rcu_datasources():
+                filtered_datasource, model_value = \
+                    self._get_decrypted_password_and_is_filtered_datasource(location, model_value)
+
             else:
-                filtered_datasource, model_value = self._get_decrypted_password_and_is_filtered_datasource(location,
-                                                                                                           model_value)
-                temp_clear_pwd = self._model_context.is_discover_rcu_datasources() and filtered_datasource
-                if not temp_clear_pwd:
-                    model_value = alias_constants.PASSWORD_TOKEN
+                model_value = alias_constants.PASSWORD_TOKEN
 
         else:
             model_value = None
