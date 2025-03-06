@@ -752,7 +752,7 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
         __logger.info('WLSDPLY-06014', _class_name=_class_name, method_name=_method_name)
 
     filter_helper.apply_final_filters(model.get_model(), model.get_model(), model_context)
-    __fix_discovered_template_datasource(model, model_context)
+    rcu_credential_cache = __fix_discovered_template_datasource(model, model_context)
 
     credential_cache = None
     if credential_injector is not None:
@@ -760,6 +760,9 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
         credential_injector.filter_unused_credentials(model.get_model())
 
         credential_cache = credential_injector.get_variable_cache()
+        if credential_cache is not None:
+            for item in rcu_credential_cache:
+                credential_cache[item] = rcu_credential_cache[item]
 
         target_configuration_helper.generate_all_output_files(model, aliases, credential_injector, model_context,
                                                               ExceptionType.DISCOVER)
@@ -798,6 +801,9 @@ def __fix_discovered_template_datasource(model, model_context):
 
     _method_name = '__fix_discovered_template_datasource'
     __logger.entering(class_name=_class_name, method_name=_method_name)
+    credential_cache = None
+    if model_context.get_variable_file() is not None:
+        credential_cache = PyOrderedDict()
 
     domain_typedef = model_context.get_domain_typedef()
     if domain_typedef.requires_rcu() and model_context.is_discover_rcu_datasources():
@@ -813,11 +819,15 @@ def __fix_discovered_template_datasource(model, model_context):
         if _can_generate_rcudb_info(passwords, urls, prefixes):
             __set_rcuinfo_in_model(model, properties,  urls[0], passwords[0])
             __remove_discovered_template_datasource(jdbc_system_resources, filtered_ds_patterns, model)
-            __fix_rcudbinfo_passwords(model, model_context,  model_context.is_discover_passwords())
+            credential_cache = __fix_rcudbinfo_passwords(model, model_context,
+                                                         credential_cache, model_context.is_discover_passwords())
         else:
-            __reset_password_to_regular_discovery(jdbc_system_resources, filtered_ds_patterns, model_context)
+            credential_cache =  __reset_password_to_regular_discovery(jdbc_system_resources,
+                                                        filtered_ds_patterns, model_context,
+                                                  credential_cache)
 
     __logger.exiting(_class_name, _method_name)
+    return credential_cache
 
 def _can_generate_rcudb_info(passwords, urls, prefixes):
     return passwords.size() == 1 and urls.size() == 1 and prefixes.size() == 1
@@ -925,7 +935,7 @@ def __remove_discovered_template_datasource(jdbc_system_resources, filtered_ds_p
         if len(resources) == 0:
             del model_dict[RESOURCES]
 
-def __reset_password_to_regular_discovery(jdbc_system_resources, filtered_ds_patterns, model_context):
+def __reset_password_to_regular_discovery(jdbc_system_resources, filtered_ds_patterns, model_context, credential_cache):
     for item in jdbc_system_resources:
         if not __match_filtered_ds_name(item, filtered_ds_patterns):
             continue
@@ -936,12 +946,23 @@ def __reset_password_to_regular_discovery(jdbc_system_resources, filtered_ds_pat
         if model_context.is_discover_passwords():
             encrypted_model_value = encryption_utils.encrypt_one_password(
                 model_context.get_encryption_passphrase(), jdbc_ds_password)
+            if credential_cache is not None:
+                name = 'JDBC.' + item + '.PasswordEncrypted'
+                credential_cache[name] = encrypted_model_value
+                encrypted_model_value = '@@PROP:' + name + '@@'
             driver_params[PASSWORD_ENCRYPTED] = encrypted_model_value
         else:
-            driver_params[PASSWORD_ENCRYPTED] = alias_constants.PASSWORD_TOKEN
-    return
+            if credential_cache is not None:
+                name = 'JDBC.' + item + '.PasswordEncrypted'
+                credential_cache[name] = ''
+                model_value = '@@PROP:' + name + '@@'
+                driver_params[PASSWORD_ENCRYPTED] = model_value
+            else:
+                driver_params[PASSWORD_ENCRYPTED] = alias_constants.PASSWORD_TOKEN
 
-def __fix_rcudbinfo_passwords(model, model_context,  encrypt=False):
+    return credential_cache
+
+def __fix_rcudbinfo_passwords(model, model_context, credential_cache, encrypt=False):
 
     model_dict = model.get_model()
     rcudb_info = model_dict[DOMAIN_INFO][RCU_DB_INFO]
@@ -956,10 +977,23 @@ def __fix_rcudbinfo_passwords(model, model_context,  encrypt=False):
         if item in rcudb_info:
             if encrypt:
                 passwd = rcudb_info[item]
-                rcudb_info[item] = encryption_utils.encrypt_one_password(
+                model_value = encryption_utils.encrypt_one_password(
                     model_context.get_encryption_passphrase(), passwd)
+                if credential_cache is not None:
+                    name = 'RCUDbInfo.' + item
+                    credential_cache[name] = model_value
+                    model_value = '@@PROP:' + name + '@@'
+                rcudb_info[item] = model_value
             else:
-                rcudb_info[item] = alias_constants.PASSWORD_TOKEN
+                if credential_cache is not None:
+                    name = 'RCUDbInfo.' + item
+                    credential_cache[name] = ''
+                    model_value = '@@PROP:' + name + '@@'
+                    rcudb_info[item] = model_value
+                else:
+                    rcudb_info[item] = alias_constants.PASSWORD_TOKEN
+
+    return credential_cache
 
 def __match_filtered_ds_name(name, patterns):
     for pattern in patterns:
