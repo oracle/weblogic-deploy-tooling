@@ -328,7 +328,8 @@ class Discoverer(object):
                 _logger.fine('WLSDPLY-06166', wlst_name, wlst_path,
                              class_name=_class_name, method_name=_method_name)
             else:
-                _logger.info('WLSDPLY-06106', wlst_name, wlst_path, de.getLocalizedMessage(),
+                # reduced this from info to fine to avoid excess output with WLS PSU mismatch
+                _logger.fine('WLSDPLY-06106', wlst_name, wlst_path, de.getLocalizedMessage(),
                              class_name=_class_name, method_name=_method_name)
 
         return  model_name, model_value
