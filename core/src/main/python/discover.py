@@ -15,7 +15,9 @@ from java.lang import String
 from java.lang import System
 from java.util import HashSet
 from oracle.weblogic.deploy.aliases import AliasException
+from oracle.weblogic.deploy.aliases import VersionUtils
 from oracle.weblogic.deploy.discover import DiscoverException
+from oracle.weblogic.deploy.exception import ExceptionHelper
 from oracle.weblogic.deploy.json import JsonException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyOrderedDict
@@ -790,6 +792,23 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
     __logger.exiting(_class_name, _method_name)
     return model
 
+def __compare_wls_versions(model_context):
+    """
+    Compare the local and remote WLS versions, and log a notification if they are different.
+    No message will be logged for offline discovery, because there is no remote version.
+    """
+    _method_name = '__compare_wls_versions'
+    local_wls_version = model_context.get_local_wls_version()
+    remote_wls_version = model_context.get_remote_wls_version()
+    if remote_wls_version and local_wls_version != remote_wls_version:
+        if VersionUtils.compareVersions(local_wls_version, remote_wls_version) > 0:
+            message_key = 'WLSDPLY-06066'
+        else:
+            message_key = 'WLSDPLY-06067'
+        message_start = ExceptionHelper.getMessage(message_key, [local_wls_version, remote_wls_version])
+        __logger.notification(
+            'WLSDPLY-06068', message_start, class_name=_class_name, method_name=_method_name)
+
 def __fix_discovered_template_datasource(model, model_context):
     # fix the case for discovering template datasources.
     # If all the template datasources use the dame passwords then generate the RUCDbInfo section
@@ -1036,6 +1055,8 @@ def main(model_context):
             else:
                 password_key = 'WLSDPLY-06024'
         __logger.info(password_key, class_name=_class_name, method_name=_method_name)
+
+        __compare_wls_versions(model_context)
 
         extra_tokens = {}
         try:
