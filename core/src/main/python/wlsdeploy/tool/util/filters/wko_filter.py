@@ -1,4 +1,4 @@
-# Copyright (c) 2021, 2024, Oracle and/or its affiliates.
+# Copyright (c) 2021, 2025, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 # ------------
@@ -111,9 +111,9 @@ def check_clustered_server_ports(model, _model_context):
 
     clusters_folder = dictionary_utils.get_dictionary_element(topology_folder, CLUSTER)
     for cluster_name, cluster_fields in clusters_folder.items():
-        dynamic_folder = cluster_fields[DYNAMIC_SERVERS]
+        dynamic_folder = dictionary_utils.get_dictionary_element(cluster_fields, DYNAMIC_SERVERS)
         if dynamic_folder:
-            calculated_listen_ports = dynamic_folder[CALCULATED_LISTEN_PORTS]
+            calculated_listen_ports = dictionary_utils.get_element(dynamic_folder, CALCULATED_LISTEN_PORTS)
             if (calculated_listen_ports is None) or alias_utils.convert_boolean(calculated_listen_ports):
                 _logger.info('WLSDPLY-20202', CALCULATED_LISTEN_PORTS, CLUSTER, cluster_name, class_name=_class_name,
                              method_name=_method_name)
@@ -124,8 +124,8 @@ def check_clustered_server_ports(model, _model_context):
     server_port_map = {}
     servers_folder = dictionary_utils.get_dictionary_element(topology_folder, SERVER)
     for server_name, server_fields in servers_folder.items():
-        server_cluster = server_fields[CLUSTER]
-        server_port = server_fields[LISTEN_PORT]
+        server_cluster = dictionary_utils.get_element(server_fields, CLUSTER)
+        server_port = dictionary_utils.get_element(server_fields, LISTEN_PORT)
 
         if server_cluster and (server_port is not None):
             server_port_text = str_helper.to_string(server_port)
