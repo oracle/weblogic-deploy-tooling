@@ -275,7 +275,7 @@ class Discoverer(object):
             dictionary[model_param] = model_value
 
             # tokenize the attribute if needed
-            if self._credential_injector is not None:
+            if self._credential_injector is not None and not self._is_filtered_datasource_location(location):
                 self._credential_injector.check_and_tokenize(dictionary, model_param, location)
 
         elif model_param is None:
@@ -394,18 +394,25 @@ class Discoverer(object):
 
     def _get_decrypted_password_and_is_filtered_datasource(self, location, model_value):
         # only do it for templated datasource
+        filtered_datasource = self._is_filtered_datasource_location(location)
+        if filtered_datasource:
+            base_dir = self._model_context.get_domain_home()
+            if self._model_context.is_ssh():
+                base_dir = self.download_temporary_dir
+            model_value = self._weblogic_helper.decrypt(model_value, base_dir)
+        return filtered_datasource, model_value
+
+    def _is_filtered_datasource_location(self, location):
         filtered_datasource = False
         model_folders = location.get_model_folders()
-        if (model_folders[0] == JDBC_SYSTEM_RESOURCE):
+        if (model_folders and  model_folders[0] == JDBC_SYSTEM_RESOURCE):
             loc = LocationContext()
             loc.append_location(JDBC_SYSTEM_RESOURCE)
             tokens = location.get_name_tokens()
             filtered_datasource = self._model_context.get_domain_typedef().is_filtered(loc, tokens['DATASOURCE'])
-
-        base_dir = self._model_context.get_domain_home()
-        if self._model_context.is_ssh():
-            base_dir = self.download_temporary_dir
-        return filtered_datasource, self._weblogic_helper.decrypt(model_value, base_dir)
+            if filtered_datasource:
+                return True
+        return False
 
     def _get_attributes_for_current_location(self, location):
         """

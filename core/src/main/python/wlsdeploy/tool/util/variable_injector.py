@@ -1,5 +1,5 @@
 """
-Copyright (c) 2018, 2024, Oracle and/or its affiliates.
+Copyright (c) 2018, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -89,7 +89,6 @@ class VariableInjector(object):
         self._model_context = model_context
         self._aliases = aliases
         self.__section_keys = model_sections.get_model_top_level_keys()
-        self.__section_keys.remove(model_sections.get_model_domain_info_key())
         self.__variable_dictionary = variable_dictionary
         self.__path_helper = path_helper.get_path_helper()
 
