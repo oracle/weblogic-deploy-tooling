@@ -754,7 +754,8 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
         __logger.info('WLSDPLY-06014', _class_name=_class_name, method_name=_method_name)
 
     filter_helper.apply_final_filters(model.get_model(), model.get_model(), model_context)
-    __fix_discovered_template_datasource(model, model_context)
+
+    __fix_discovered_template_datasource(model, model_context, credential_injector)
 
     credential_cache = None
     if credential_injector is not None:
@@ -772,7 +773,6 @@ def __check_and_customize_model(model, model_context, aliases, credential_inject
 
     # Apply the injectors specified in model_variable_injector.json, or in the target configuration.
     # Include the variable mappings that were collected in credential_cache.
-
     variable_injector = VariableInjector(_program_name, model_context, aliases, variable_dictionary=credential_cache)
 
     variable_injector.add_to_cache(dictionary=extra_tokens)
@@ -809,7 +809,7 @@ def __compare_wls_versions(model_context):
         __logger.notification(
             'WLSDPLY-06068', message_start, class_name=_class_name, method_name=_method_name)
 
-def __fix_discovered_template_datasource(model, model_context):
+def __fix_discovered_template_datasource(model, model_context, credential_injector):
     # fix the case for discovering template datasources.
     # If all the template datasources use the dame passwords then generate the RUCDbInfo section
     # and remove the template datasources from the model
@@ -823,25 +823,27 @@ def __fix_discovered_template_datasource(model, model_context):
         resources = model.get_model_resources()
         jdbc_system_resources = dictionary_utils.get_element(resources, JDBC_SYSTEM_RESOURCE)
         discover_filters = domain_typedef._discover_filters
-        filtered_ds_patterns = dictionary_utils.get_element(discover_filters,'/JDBCSystemResource')
+        filtered_ds_patterns = dictionary_utils.get_element(discover_filters,'/JDBCSystemResource',
+                                                            None)
         passwords = HashSet()
         urls = HashSet()
         prefixes = HashSet()
-        properties = __get_urls_and_passwords(model_context, jdbc_system_resources, filtered_ds_patterns,
+        properties = __get_urls_and_passwords(jdbc_system_resources, filtered_ds_patterns,
                                                                        urls, passwords, prefixes)
         if _can_generate_rcudb_info(passwords, urls, prefixes):
             __set_rcuinfo_in_model(model, properties, urls.iterator().next(), passwords.iterator().next())
             __remove_discovered_template_datasource(jdbc_system_resources, filtered_ds_patterns, model)
-            __fix_rcudbinfo_passwords(model, model_context,  model_context.is_discover_passwords())
+            __fix_rcudbinfo_passwords(model, model_context, credential_injector)
         else:
-            __reset_password_to_regular_discovery(jdbc_system_resources, filtered_ds_patterns, model_context)
+            __reset_password_to_regular_discovery(model, filtered_ds_patterns, model_context, credential_injector)
 
     __logger.exiting(_class_name, _method_name)
+
 
 def _can_generate_rcudb_info(passwords, urls, prefixes):
     return passwords.size() == 1 and urls.size() == 1 and prefixes.size() == 1
 
-def __get_urls_and_passwords(model_context, jdbc_system_resources, filtered_ds_patterns, urls, passwords, prefixes):
+def __get_urls_and_passwords(jdbc_system_resources, filtered_ds_patterns, urls, passwords, prefixes):
     properties = None
     for item in jdbc_system_resources:
         if not __match_filtered_ds_name(item, filtered_ds_patterns):
@@ -944,10 +946,22 @@ def __remove_discovered_template_datasource(jdbc_system_resources, filtered_ds_p
         if len(resources) == 0:
             del model_dict[RESOURCES]
 
-def __reset_password_to_regular_discovery(jdbc_system_resources, filtered_ds_patterns, model_context):
+def __reset_password_to_regular_discovery(model, filtered_ds_patterns, model_context, credential_injector):
+
+    resources = model.get_model_resources()
+    jdbc_system_resources = dictionary_utils.get_element(resources, JDBC_SYSTEM_RESOURCE)
+
     for item in jdbc_system_resources:
         if not __match_filtered_ds_name(item, filtered_ds_patterns):
             continue
+
+        location = LocationContext().append_location(JDBC_SYSTEM_RESOURCE)
+        location.append_location(JDBC_RESOURCE, JDBC_DRIVER_PARAMS)
+        location.add_name_token('DOMAIN', model_context.get_domain_name())
+        location.add_name_token('DATASOURCE', item)
+        location.add_name_token('JDBCRESOURCE', item)
+        location.add_name_token('JDBCDRIVERPARAMS', 'NO_NAME_0')
+
         jdbc_system_resource = jdbc_system_resources[item]
         jdbc_resource = dictionary_utils.get_element(jdbc_system_resource, JDBC_RESOURCE)
         driver_params = dictionary_utils.get_element(jdbc_resource, JDBC_DRIVER_PARAMS)
@@ -958,9 +972,12 @@ def __reset_password_to_regular_discovery(jdbc_system_resources, filtered_ds_pat
             driver_params[PASSWORD_ENCRYPTED] = encrypted_model_value
         else:
             driver_params[PASSWORD_ENCRYPTED] = alias_constants.PASSWORD_TOKEN
-    return
 
-def __fix_rcudbinfo_passwords(model, model_context,  encrypt=False):
+        if credential_injector:
+            credential_injector.check_and_tokenize(driver_params, PASSWORD_ENCRYPTED, location)
+
+
+def __fix_rcudbinfo_passwords(model, model_context, credential_injector):
 
     model_dict = model.get_model()
     rcudb_info = model_dict[DOMAIN_INFO][RCU_DB_INFO]
@@ -971,20 +988,31 @@ def __fix_rcudbinfo_passwords(model, model_context,  encrypt=False):
         DRIVER_PARAMS_KEYSTOREPWD_PROPERTY
     ]
 
+    is_discover_password = model_context.is_discover_passwords()
+
+    location = LocationContext().append_location(RCU_DB_INFO)
+
     for item in possible_pwds:
         if item in rcudb_info:
-            if encrypt:
+            if is_discover_password:
                 passwd = rcudb_info[item]
-                rcudb_info[item] = encryption_utils.encrypt_one_password(
+                model_value = encryption_utils.encrypt_one_password(
                     model_context.get_encryption_passphrase(), passwd)
+                rcudb_info[item] = model_value
             else:
                 rcudb_info[item] = alias_constants.PASSWORD_TOKEN
 
+            if credential_injector:
+                credential_injector.check_and_tokenize(rcudb_info, item, location)
+
+
+
 def __match_filtered_ds_name(name, patterns):
-    for pattern in patterns:
-        regex = re.compile(pattern)
-        if regex.match(name):
-            return True
+    if patterns is not None:
+        for pattern in patterns:
+            regex = re.compile(pattern)
+            if regex.match(name):
+                return True
     return False
 
 def __generate_remote_report_json(model_context):
@@ -1055,8 +1083,6 @@ def main(model_context):
             else:
                 password_key = 'WLSDPLY-06024'
         __logger.info(password_key, class_name=_class_name, method_name=_method_name)
-
-        __compare_wls_versions(model_context)
 
         extra_tokens = {}
         try:

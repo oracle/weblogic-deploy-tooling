@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Module that handles command-line argument parsing and common validation.
@@ -1373,10 +1373,10 @@ def get_from_file_value(file_var):
         value = ifile.readLine()
         ifile.close()
         return value
-    except IOException,ioe:
+    except (IOException,JIllegalArgumentException),ioe:
         if ifile:
             ifile.close()
         ex = create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-01651', file_var,
                                   ioe.getLocalizedMessage(), error=ioe)
-        _logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+        _logger.throwing(ex, class_name=CommandLineArgUtil._class_name, method_name=_method_name)
         raise ex
