@@ -1084,6 +1084,8 @@ def main(model_context):
                 password_key = 'WLSDPLY-06024'
         __logger.info(password_key, class_name=_class_name, method_name=_method_name)
 
+        __compare_wls_versions(model_context)
+
         extra_tokens = {}
         try:
             model = __discover(model_context, aliases, credential_injector, helper, extra_tokens)
