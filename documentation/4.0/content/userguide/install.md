@@ -41,6 +41,7 @@ versions of JDK 7 and all versions of JDK 8 and 11.
   | 12.2.1.3                            | 1.8               |
   | 12.2.1.4 <sup>[4]</sup>             | 1.8               |
   | 14.1.1                              | 1.8, 1.11         |    
+  | 14.1.2                              | 17, 21            |
 
 ***1*** First release dynamic clusters are supported  
 ***2*** First release Coherence clusters are supported  
