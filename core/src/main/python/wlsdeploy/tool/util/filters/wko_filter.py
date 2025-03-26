@@ -18,7 +18,6 @@ from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import CLUSTER_MESSAGING_MODE
 from wlsdeploy.aliases.model_constants import DATABASE_LESS_LEASING_BASIS
 from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
-from wlsdeploy.aliases.model_constants import LISTEN_PORT
 from wlsdeploy.aliases.model_constants import MACHINE
 from wlsdeploy.aliases.model_constants import MIGRATION_BASIS
 from wlsdeploy.aliases.model_constants import NM_PROPERTIES
@@ -45,7 +44,6 @@ from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.filters.model_traverse import ModelTraverse
 from wlsdeploy.util import dictionary_utils
-import wlsdeploy.util.unicode_helper as str_helper
 
 _class_name = 'wko_filter'
 _logger = PlatformLogger('wlsdeploy.tool.util')
@@ -99,7 +97,6 @@ def filter_online_attributes(model, model_context):
 def check_clustered_server_ports(model, _model_context):
     """
     Set the CalculatedListenPorts attribute to false for dynamic clusters in the specified model.
-    Warn if servers in a static cluster have different ports in the specified model.
     :param model: the model to be filtered
     :param _model_context: unused, passed by filter_helper if called independently
     """
@@ -118,32 +115,6 @@ def check_clustered_server_ports(model, _model_context):
                 _logger.info('WLSDPLY-20202', CALCULATED_LISTEN_PORTS, CLUSTER, cluster_name, class_name=_class_name,
                              method_name=_method_name)
                 dynamic_folder[CALCULATED_LISTEN_PORTS] = PyRealBoolean(False)
-
-    # be sure every server assigned to a cluster has the same listen port
-
-    server_port_map = {}
-    servers_folder = dictionary_utils.get_dictionary_element(topology_folder, SERVER)
-    for server_name, server_fields in servers_folder.items():
-        server_cluster = dictionary_utils.get_element(server_fields, CLUSTER)
-        server_port = dictionary_utils.get_element(server_fields, LISTEN_PORT)
-
-        if server_cluster and (server_port is not None):
-            server_port_text = str_helper.to_string(server_port)
-            if '@@' in server_port_text:
-                # prepareModel filters the model before and after it is tokenized,
-                # so disregard variable values in the tokenized pass
-                continue
-
-            if server_cluster in server_port_map:
-                cluster_info = server_port_map[server_cluster]
-                first_server = cluster_info["firstServer"]
-                cluster_port = cluster_info["serverPort"]
-                if server_port_text != cluster_port:
-                    _logger.warning('WLSDPLY-20203', SERVER, first_server, server_name, CLUSTER, server_cluster,
-                                    LISTEN_PORT, cluster_port, server_port_text, class_name=_class_name,
-                                    method_name=_method_name)
-            else:
-                server_port_map[server_cluster] = {"firstServer": server_name, "serverPort": server_port_text}
 
 
 def filter_domain_info(_model, _model_context):
@@ -192,7 +163,7 @@ def filter_topology(model, _model_context):
     server_templates = dictionary_utils.get_dictionary_element(topology, SERVER_TEMPLATE)
     for key in server_templates:
         server_template = server_templates[key]
-        auto_migration_enabled = server_template[AUTO_MIGRATION_ENABLED]
+        auto_migration_enabled = dictionary_utils.get_element(server_template, AUTO_MIGRATION_ENABLED)
         if auto_migration_enabled is None or alias_utils.convert_boolean(auto_migration_enabled):
             server_template[AUTO_MIGRATION_ENABLED] = PyRealBoolean(False)
         for delete_key in [MACHINE, SERVER_START]:

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import imp
@@ -11,6 +11,7 @@ from wlsdeploy.tool.util.filters import wko_filter
 from wlsdeploy.tool.util.filters import wko_final_filter
 from wlsdeploy.util import dictionary_utils
 from wlsdeploy.util import path_helper
+from wlsdeploy.util import target_configuration
 from wlsdeploy.util.model_translator import FileToPython
 import wlsdeploy.util.unicode_helper as str_helper
 
@@ -65,7 +66,8 @@ def apply_filters(model, tool_type, model_context):
         if model_context and model_context.get_target():
             __filter_file_location = model_context.get_target_configuration_file()
             filters_dictionary = model_context.get_target_configuration().get_model_filters()
-            target_path = _path_helper.local_join('targets', model_context.get_target())
+            target_key = target_configuration.get_target_configuration_key(model_context.get_target())
+            target_path = _path_helper.local_join('targets', target_key)
 
             # Fix the tokenized path in the filter path
             for filter_list in filters_dictionary:
