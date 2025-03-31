@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2023, 2025, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.tool;
@@ -49,6 +49,7 @@ import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.OPSS_WALLET
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SAML2_SP_PROPERTIES_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_FANCY_SCRIPT_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVERS_ADMIN_SERVER_IDENTITY_JKS_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVER_TEMPLATE_IDENTITY_JKS_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS_MY_LIB_WAR_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS_MY_LIB_XML_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS_MY_OTHER_LIB_CONTENTS;
@@ -113,6 +114,7 @@ public class ArchiveHelperExtractTest {
         "saml2InitializationData, missing.xml",
         "script, missing.sh",
         "serverKeystore, missing.jks",
+        "serverTemplateKeystore, missing.jks",
         "sharedLibrary, missing.war",
         "sharedLibraryPlan, missing.xml",
         "structuredApplication, missing",
@@ -158,6 +160,7 @@ public class ArchiveHelperExtractTest {
         "saml2InitializationData, missing.xml",
         "script, missing.sh",
         "serverKeystore, missing.jks",
+        "serverTemplateKeystore, missing.jks",
         "sharedLibrary, missing.war",
         "sharedLibraryPlan, missing.xml",
         "structuredApplication, missing",
@@ -203,6 +206,7 @@ public class ArchiveHelperExtractTest {
         "saml2InitializationData",
         "script",
         "serverKeystore",
+        "serverTemplateKeystore",
         "sharedLibrary",
         "sharedLibraryPlan",
         "structuredApplication",
@@ -1248,6 +1252,90 @@ public class ArchiveHelperExtractTest {
             "identity.jks"
         };
         List<String> expectedPaths = Arrays.asList(SERVERS_ADMIN_SERVER_IDENTITY_JKS_CONTENTS);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertExtractedFilesMatch(expectedPaths);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                              server template keystore                                     //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    void testExtractServerTemplateKeystoreBadTemplateName_Fails() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "extract",
+                "serverTemplateKeystore",
+                "-archive_file",
+                ARCHIVE_HELPER_VALUE,
+                "-target",
+                TARGET_VALUE,
+                "-server_template_name",
+                "missing",
+                "-name",
+                "identity.jks"
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        assertEquals(ExitCode.ERROR, actual,
+                "expected command to exit with exit code " + ExitCode.ERROR);
+    }
+
+    @Test
+    void testExtractServerTemplateKeystoreBadName_Fails() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "extract",
+                "serverTemplateKeystore",
+                "-archive_file",
+                ARCHIVE_HELPER_VALUE,
+                "-target",
+                TARGET_VALUE,
+                "-server_template_name",
+                "myServerTemplate",
+                "-name",
+                "missing.jks"
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        assertEquals(ExitCode.ERROR, actual,
+                "expected command to exit with exit code " + ExitCode.ERROR);
+    }
+
+    @Test
+    void testExtractExistingServerTemplateKeystoreFile_ProducesExpectedResults() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "extract",
+                "serverTemplateKeystore",
+                "-archive_file",
+                ARCHIVE_HELPER_VALUE,
+                "-target",
+                TARGET_VALUE,
+                "-server_template_name",
+                "myServerTemplate",
+                "-name",
+                "identity.jks"
+        };
+        List<String> expectedPaths = Arrays.asList(SERVER_TEMPLATE_IDENTITY_JKS_CONTENTS);
 
         int actual = -1;
         try (PrintWriter out = new PrintWriter(outStringWriter);

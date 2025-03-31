@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2023, 2025, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.tool;
@@ -59,6 +59,8 @@ import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SAML2_SP_PR
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVERS_ADMIN_SERVER_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVERS_ADMIN_SERVER_IDENTITY_JKS_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVER_TEMPLATE_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVER_TEMPLATE_IDENTITY_JKS_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS_MY_LIB_WAR_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS_MY_LIB_XML_CONTENTS;
@@ -109,6 +111,11 @@ public class ArchiveHelperRemoveTest {
         "-server_name",
         "AdminServer"
     };
+    private static final String[] LIST_SERVER_TEMPLATE_KEYSTORES = new String[] {
+        "serverTemplateKeystore",
+        "-server_template_name",
+        "myServerTemplate"
+    };
     private static final String[] LIST_SHARED_LIBRARIES = new String[] { "sharedLibrary" };
     private static final String[] LIST_STRUCTURED_APPLICATIONS = new String[] { "structuredApplication" };
     private static final String[] LIST_WRC_EXTENSIONS = new String[] { "weblogicRemoteConsoleExtension" };
@@ -150,6 +157,7 @@ public class ArchiveHelperRemoveTest {
         "saml2InitializationData, missing.xml",
         "script, missing.sh",
         "serverKeystore, missing.jks",
+        "serverTemplateKeystore, missing.jks",
         "sharedLibrary, missing.war",
         "sharedLibraryPlan, missing.xml",
         "structuredApplication, missingApp",
@@ -192,6 +200,7 @@ public class ArchiveHelperRemoveTest {
         "saml2InitializationData",
         "script",
         "serverKeystore",
+        "serverTemplateKeystore",
         "sharedLibrary",
         "sharedLibraryPlan",
         "structuredApplication",
@@ -1598,6 +1607,153 @@ public class ArchiveHelperRemoveTest {
         }
         assertEquals(ExitCode.OK, actual,"expected command to exit with exit code " + ExitCode.OK);
         assertArchiveInExpectedState(LIST_SERVER_KEYSTORES_ADMIN_SERVER, SERVERS_ADMIN_SERVER_CONTENTS);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                               server template keystore                                    //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    void testRemoveServerTemplateKeystoreNoTemplateName_Fails() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "remove",
+                "serverTemplateKeystore",
+                "-archive_file",
+                ARCHIVE_HELPER_VALUE,
+                "-name",
+                "identity.jks"
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        assertEquals(ExitCode.USAGE_ERROR, actual,
+                "expected command to exit with exit code " + ExitCode.USAGE_ERROR);
+    }
+
+    @Test
+    void testRemoveServerTemplateKeystoreMissingTemplateName_ReturnsExpectedResults() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "remove",
+                "serverTemplateKeystore",
+                "-archive_file",
+                ARCHIVE_HELPER_VALUE,
+                "-server_template_name",
+                "missing",
+                "-name",
+                "identity.jks"
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        assertEquals(ExitCode.ERROR, actual,"expected command to exit with exit code " + ExitCode.ERROR);
+    }
+
+    @Test
+    void testRemoveServerTemplateKeystoreMissingName_ReturnsExpectedResults() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "remove",
+                "serverTemplateKeystore",
+                "-archive_file",
+                ARCHIVE_HELPER_VALUE,
+                "-server_template_name",
+                "myServerTemplate",
+                "-name",
+                "missing.jks"
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        assertEquals(ExitCode.ERROR, actual,"expected command to exit with exit code " + ExitCode.ERROR);
+    }
+
+    @Test
+    void testRemoveExistingServerTemplateKeystore_ReturnsExpectedResults() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "remove",
+                "serverTemplateKeystore",
+                "-archive_file",
+                ARCHIVE_HELPER_VALUE,
+                "-server_template_name",
+                "myServerTemplate",
+                "-name",
+                "identity.jks"
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        assertEquals(ExitCode.OK, actual,"expected command to exit with exit code " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_SERVER_TEMPLATE_KEYSTORES, SERVER_TEMPLATE_CONTENTS,
+                SERVER_TEMPLATE_IDENTITY_JKS_CONTENTS);
+    }
+
+    @Test
+    void testRemoveServerTemplateKeystoreMissingNameForce_ReturnsExpectedResults() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "remove",
+                "serverTemplateKeystore",
+                "-archive_file",
+                ARCHIVE_HELPER_VALUE,
+                "-server_template_name",
+                "myServerTemplate",
+                "-name",
+                "missing.jks",
+                "-force"
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        assertEquals(ExitCode.OK, actual,"expected command to exit with exit code " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_SERVER_TEMPLATE_KEYSTORES, SERVER_TEMPLATE_CONTENTS);
+    }
+
+    @Test
+    void testRemoveServerTemplateKeystoreMissingTemplateNameForce_ReturnsExpectedResults() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "remove",
+                "serverTemplateKeystore",
+                "-archive_file",
+                ARCHIVE_HELPER_VALUE,
+                "-server_template_name",
+                "missing",
+                "-name",
+                "identity.jks",
+                "-force"
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        assertEquals(ExitCode.OK, actual,"expected command to exit with exit code " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_SERVER_TEMPLATE_KEYSTORES, SERVER_TEMPLATE_CONTENTS);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

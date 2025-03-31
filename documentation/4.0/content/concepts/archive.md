@@ -41,7 +41,7 @@ file in the specified location, and will be deployed to that directory in the do
 
 These are the paths within the archive that are used for different types of resources. You can create further
 directory structures underneath some of these locations to organize the files and directories as you see fit.  The
-Archive Helper Tool makes it easy to add, update, and remove entries from the archive file.  
+[Archive Helper Tool]({{< relref "/userguide/tools/archive_helper.md" >}}) makes it easy to add, update, and remove entries from the archive file.  
 
 #### Why are there two separate directory structures?
 
@@ -113,6 +113,10 @@ The root directory under which script files are stored. These can include JDBC c
 #### `config/wlsdeploy/servers/<server-name>`
 The root directory under which server keystore files are stored. These are organized by server name, such as
 `config/wlsdeploy/servers/AdminServer/mykey.jks`.
+
+#### `config/wlsdeploy/serverTemplates/<server-template-name>`
+The root directory under which server template keystore files are stored. These are organized by server template name, such as
+`config/wlsdeploy/serverTemplates/myServerTemplate/mykey.jks`.
 
 #### `wlsdeploy/applications`
 The root directory under which applications and their deployment plans are stored. Applications can be stored in the
