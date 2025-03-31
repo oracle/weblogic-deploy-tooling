@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2023, 2025, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.tool;
@@ -389,6 +389,29 @@ public class ArchiveHelperTestConstants {
         SERVERS_ADMIN_SERVER_CONTENTS
     );
 
+    static final String[] SERVER_TEMPLATE_IDENTITY_JKS_CONTENTS = new String[] {
+            WLSDeployArchive.ARCHIVE_SERVER_TEMPLATE_TARGET_DIR + "/myServerTemplate/identity.jks"
+    };
+
+    static final String[] SERVER_TEMPLATE_IDENTITY_JKS_DUP_CONTENTS = new String[] {
+            WLSDeployArchive.ARCHIVE_SERVER_TEMPLATE_TARGET_DIR + "/myServerTemplate/identity(1).jks"
+    };
+
+    static final String[] SERVER_TEMPLATE_TRUST_JKS_CONTENTS = new String[] {
+            WLSDeployArchive.ARCHIVE_SERVER_TEMPLATE_TARGET_DIR + "/myServerTemplate/trust.jks"
+    };
+
+    static final String[] SERVER_TEMPLATE_CONTENTS = mergeStringArrays(
+            new String[] { WLSDeployArchive.ARCHIVE_SERVER_TEMPLATE_TARGET_DIR + "/myServerTemplate/" },
+            SERVER_TEMPLATE_IDENTITY_JKS_CONTENTS,
+            SERVER_TEMPLATE_TRUST_JKS_CONTENTS
+    );
+
+    static final String[] SERVER_TEMPLATES_CONTENT = mergeStringArrays(
+            new String[] { WLSDeployArchive.ARCHIVE_SERVER_TEMPLATE_TARGET_DIR + "/" },
+            SERVER_TEMPLATE_CONTENTS
+    );
+
     static final String[] SHARED_LIBS_MY_OTHER_LIB_CONTENTS = new String[] {
         "wlsdeploy/sharedLibraries/my-other-lib/",
         "wlsdeploy/sharedLibraries/my-other-lib/META-INF/",
@@ -547,6 +570,7 @@ public class ArchiveHelperTestConstants {
         SAML2_DATA_LIST_ALL_CONTENTS,
         SCRIPTS_CONTENT,
         SERVERS_CONTENT,
+        SERVER_TEMPLATES_CONTENT,
         SHARED_LIBS_CONTENT,
         STRUCTURED_APPS_CONTENT,
         WRC_EXTENSION_LIST_ALL_CONTENTS

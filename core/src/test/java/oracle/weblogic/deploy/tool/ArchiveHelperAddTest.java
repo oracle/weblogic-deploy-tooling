@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2023, 2025, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.tool;
@@ -74,6 +74,8 @@ import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_FAN
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_FANCY_SCRIPT_DUP_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVERS_ADMIN_SERVER_IDENTITY_JKS_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVERS_ADMIN_SERVER_IDENTITY_JKS_DUP_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVER_TEMPLATE_IDENTITY_JKS_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVER_TEMPLATE_IDENTITY_JKS_DUP_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS_MY_LIB_WAR_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS_MY_LIB_WAR_DUP_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS_MY_LIB_XML_CONTENTS;
@@ -125,6 +127,11 @@ public class ArchiveHelperAddTest {
         "serverKeystore",
         "-server_name",
         "AdminServer"
+    };
+    private static final String[] LIST_SERVER_TEMPLATE_KEYSTORES = new String[] {
+        "serverTemplateKeystore",
+        "-server_template_name",
+        "myServerTemplate"
     };
     private static final String[] LIST_SHARED_LIBRARIES = new String[] { "sharedLibrary" };
     private static final String[] LIST_SHARED_LIBRARIES_PLANS = LIST_SHARED_LIBRARIES;
@@ -2577,6 +2584,149 @@ public class ArchiveHelperAddTest {
         assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
         assertArchiveInExpectedState(LIST_SERVER_KEYSTORES, EMPTY_ARRAY, SERVERS_ADMIN_SERVER_IDENTITY_JKS_CONTENTS,
             SERVERS_ADMIN_SERVER_IDENTITY_JKS_DUP_CONTENTS);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                 server template keystore                                  //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    void testAddServerTemplateKeystoreNoTemplateName_Fails() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "add",
+                "serverTemplateKeystore",
+                "-archive_file",
+                NEW_ARCHIVE_VALUE,
+                "-source",
+                "missing"
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.USAGE_ERROR, actual,
+                "expected command to exit with exit code " + ExitCode.USAGE_ERROR);
+    }
+
+    @Test
+    void testAddServerTemplateKeystoreBadSource_Fails() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "add",
+                "serverTemplateKeystore",
+                "-archive_file",
+                NEW_ARCHIVE_VALUE,
+                "-server_template_name",
+                "myServerTemplate",
+                "-source",
+                "missing"
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.ARG_VALIDATION_ERROR, actual,
+                "expected command to exit with exit code " + ExitCode.ARG_VALIDATION_ERROR);
+    }
+
+    @Test
+    void testAddNewServerTemplateKeystore_ReturnsExpectedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "add",
+                "serverTemplateKeystore",
+                "-archive_file",
+                NEW_ARCHIVE_VALUE,
+                "-server_template_name",
+                "myServerTemplate",
+                "-source",
+                getSegregatedSourcePath(ArchiveEntryType.SERVER_TEMPLATE_KEYSTORE, "myServerTemplate", "identity.jks")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_SERVER_TEMPLATE_KEYSTORES, EMPTY_ARRAY, SERVER_TEMPLATE_IDENTITY_JKS_CONTENTS);
+    }
+
+    @Test
+    void testAddServerTemplateKeystoreOverwrite_ReturnsExpectedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "add",
+                "serverTemplateKeystore",
+                "-archive_file",
+                NEW_ARCHIVE_VALUE,
+                "-server_template_name",
+                "myServerTemplate",
+                "-source",
+                getSegregatedSourcePath(ArchiveEntryType.SERVER_TEMPLATE_KEYSTORE, "myServerTemplate", "identity.jks")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+
+        String[] overwriteArgs = getOverwriteArgs(args);
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, overwriteArgs);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_SERVER_TEMPLATE_KEYSTORES, EMPTY_ARRAY, SERVER_TEMPLATE_IDENTITY_JKS_CONTENTS);
+    }
+
+    @Test
+    void testAddServerTemplateKeystoreTwice_ReturnsExpectedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "add",
+                "serverTemplateKeystore",
+                "-archive_file",
+                NEW_ARCHIVE_VALUE,
+                "-server_template_name",
+                "myServerTemplate",
+                "-source",
+                getSegregatedSourcePath(ArchiveEntryType.SERVER_TEMPLATE_KEYSTORE, "myServerTemplate", "identity.jks")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_SERVER_TEMPLATE_KEYSTORES, EMPTY_ARRAY, SERVER_TEMPLATE_IDENTITY_JKS_CONTENTS,
+                SERVER_TEMPLATE_IDENTITY_JKS_DUP_CONTENTS);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+ * Copyright (c) 2017, 2025, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
@@ -158,6 +158,7 @@ public class WLSDeployArchive {
      * subdirectory to which they will be extracted.
      */
     public static final String ARCHIVE_SERVER_TARGET_DIR = WLSDPLY_ARCHIVE_CONFIG_DIR_PREFIX + "servers";
+    public static final String ARCHIVE_SERVER_TEMPLATE_TARGET_DIR = WLSDPLY_ARCHIVE_CONFIG_DIR_PREFIX + "serverTemplates";
 
     /**
      * Top-level archive subdirectory where the Coherence persistence directories are stored and the
@@ -196,31 +197,32 @@ public class WLSDeployArchive {
     public static final String WRC_EXTENSION_TARGET_DIR_NAME = "management-services-ext";
 
     public enum ArchiveEntryType {
-        STRUCTURED_APPLICATION,
-        SHARED_LIBRARY,
         APPLICATION,
         APPLICATION_PLAN,
-        SHLIB_PLAN,
-        DOMAIN_LIB,
-        DOMAIN_BIN,
         CLASSPATH_LIB,
-        SCRIPT,
-        SERVER_KEYSTORE,
-        MIME_MAPPING,
         COHERENCE,
-        JMS_FOREIGN_SERVER,
         COHERENCE_CONFIG,
         COHERENCE_PERSISTENCE_DIR,
-        FILE_STORE,
-        NODE_MANAGER_KEY_STORE,
-        DB_WALLET,
-        RCU_WALLET,
-        OPSS_WALLET,
         CUSTOM,
+        DB_WALLET,
+        DOMAIN_BIN,
+        DOMAIN_LIB,
+        FILE_STORE,
+        JMS_FOREIGN_SERVER,
+        MIME_MAPPING,
+        NODE_MANAGER_KEY_STORE,
+        OPSS_WALLET,
+        RCU_WALLET,
         SAML2_DATA,
-        XACML_ROLE,
-        XACML_POLICY,
+        SCRIPT,
+        SERVER_KEYSTORE,
+        SERVER_TEMPLATE_KEYSTORE,
+        SHARED_LIBRARY,
+        SHLIB_PLAN,
+        STRUCTURED_APPLICATION,
         WEBLOGIC_REMOTE_CONSOLE_EXTENSION,
+        XACML_POLICY,
+        XACML_ROLE,
     }
 
     private enum FileOrDirectoryType {
@@ -360,6 +362,10 @@ public class WLSDeployArchive {
 
             case SERVER_KEYSTORE:
                 pathPrefix = ARCHIVE_SERVER_TARGET_DIR + ZIP_SEP;
+                break;
+
+            case SERVER_TEMPLATE_KEYSTORE:
+                pathPrefix = ARCHIVE_SERVER_TEMPLATE_TARGET_DIR + ZIP_SEP;
                 break;
 
             case MIME_MAPPING:
@@ -564,6 +570,15 @@ public class WLSDeployArchive {
      */
     public static String getServerKeyStoreArchivePath(String serverName, String keystoreFile) {
         return getArchiveName(ARCHIVE_SERVER_TARGET_DIR + ZIP_SEP + serverName, keystoreFile);
+    }
+
+    /**
+     * Get the archive path for the specified type, including an entry name.
+     * Example: config/wlsdeploy/servers/myServer/identity.jks
+     */
+    public static String getArchiveTypeEntryPath(ArchiveEntryType archiveType, String entryName, String sourceFile) {
+        String prefix = getPathForType(archiveType);
+        return getArchiveName(prefix + entryName, sourceFile);
     }
 
     /**
@@ -1031,6 +1046,178 @@ public class WLSDeployArchive {
         if (getZipFile() != null) {
             getZipFile().close();
         }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                methods using archiveType                                  //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Add a source file for the specified archive type, including an entry name.
+     * Example: config/wlsdeploy/servers/myServer/identity.jks
+     */
+    public String addSegregatedFile(ArchiveEntryType archiveType, String entryName, String sourceFile)
+            throws WLSDeployArchiveIOException {
+        final String METHOD = "addSegregatedFile";
+        LOGGER.entering(CLASS, METHOD, archiveType, entryName, sourceFile);
+
+        File filePath = new File(sourceFile);
+        validateNonEmptyString(entryName, archiveType.name() + " entry", METHOD);
+        validateExistingFile(filePath, archiveType.name(), getArchiveFileName(), METHOD);
+
+        String prefix = getPathForType(archiveType);
+        String newName = addItemToZip(prefix + entryName, filePath);
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    /**
+     * Replace a file for the specified archive type, including an entry name.
+     * Example: config/wlsdeploy/coherence/mycluster/coherence-cache-config.xml
+     *
+     * @param archiveType     the type of the file to be replaced
+     * @param entryName       the name used to segregate directories, or null if the targetPath
+     *                        includes the entry name already (e.g., mycluster/coherence-cache-config.xml or
+     *                        wlsdeploy/coherence/mycluster/coherence-cache-config.xml)
+     * @param targetPath      the archive name (e.g., coherence-cache-config.xml) or an archive path
+     *                        (e.g., mycluster/coherence-cache-config.xml or
+     *                        wlsdeploy/coherence/mycluster/coherence-cache-config.xml)
+     * @param sourceLocation  the file system location of the new file to replace the existing one
+     * @return the archive path of the new file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
+     * @throws IllegalArgumentException    if the file or directory passed in does not exist
+     */
+    public String replaceSegregatedFile(ArchiveEntryType archiveType, String entryName, String targetPath, String sourceLocation)
+            throws WLSDeployArchiveIOException {
+
+        final String METHOD = "replaceSegregatedFile";
+        LOGGER.entering(CLASS, METHOD, entryName, targetPath, sourceLocation);
+
+        String archivePath = null;
+        String prefix = getPathForType(archiveType);
+        String computedEntryName = entryName;
+        if (targetPath.startsWith(prefix)) {
+            archivePath = targetPath;
+            computedEntryName = getSegregationNameFromSegregatedArchivePath(entryName, targetPath);
+        } else if (!StringUtils.isEmpty(entryName)) {
+            if (targetPath.startsWith(entryName + ZIP_SEP)) {
+                archivePath = prefix + targetPath;
+            } else {
+                archivePath = prefix + entryName + ZIP_SEP + targetPath;
+            }
+        }
+
+        if (StringUtils.isEmpty(computedEntryName)) {
+            WLSDeployArchiveIOException ex =
+                    new WLSDeployArchiveIOException("WLSDPLY-01476", targetPath, archiveType.name(), sourceLocation);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        // If we get here, archivePath should never be null!
+        getZipFile().removeZipEntry(archivePath);
+        String newName = addSegregatedFile(archiveType, computedEntryName, sourceLocation);
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    /**
+     * Extract the named entry's file to the domain home location.
+     * Example: config/wlsdeploy/servers/myServer/identity.jks
+     *
+     * @param archiveType                  the type of the file to be extracted
+     * @param entryName                    the name of the entry used to segregate the file
+     * @param targetPath                   the name of the file
+     * @param domainHome                   the existing directory location to write the file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or
+     *                                     the entryName or targetPath is empty
+     */
+    public void extractSegregatedFile(ArchiveEntryType archiveType, String entryName, String targetPath, File domainHome)
+            throws WLSDeployArchiveIOException {
+        final String METHOD = "extractSegregatedFile";
+        LOGGER.entering(CLASS, METHOD, entryName, targetPath, domainHome);
+
+        validateNonEmptyString(entryName, "entryName", METHOD);
+        validateNonEmptyString(targetPath, "targetPath", METHOD);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        String prefix = getPathForType(archiveType);
+        String archivePath;
+        if (targetPath.startsWith(prefix)) {
+            archivePath = targetPath;
+        } else if (targetPath.startsWith(entryName + ZIP_SEP)) {
+            archivePath = prefix + targetPath;
+        } else {
+            archivePath = prefix + entryName + ZIP_SEP + targetPath;
+        }
+
+        extractFileFromZip(archivePath, domainHome);
+
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
+     * Remove the named entry's file from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param archiveType  the type of the file to be removed
+     * @param entryName    the name of the entry used to segregate the file
+     * @param archivePath  the name of the file
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the server's keystore file is not present or an IOException
+     *                                      occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the serverName or keystoreName is null or empty
+     */
+    public int removeSegregatedFile(ArchiveEntryType archiveType, String entryName, String archivePath) throws WLSDeployArchiveIOException {
+        return removeSegregatedFile(archiveType, entryName, archivePath, false);
+    }
+
+    /**
+     * Remove the named entry's file from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param archiveType   the type of the file to be removed
+     * @param entryName    the name of the server used to segregate the file
+     * @param fileName  the name of the file
+     * @param silent  If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the server's keystore file is not present (and silent = false) or
+     *                                      an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the serverName or keystoreName is null or empty
+     */
+    public int removeSegregatedFile(ArchiveEntryType archiveType, String entryName, String fileName, boolean silent)
+            throws WLSDeployArchiveIOException {
+        final String METHOD = "removeSegregatedFile";
+        LOGGER.entering(CLASS, METHOD, entryName, fileName, silent);
+
+        validateNonEmptyString(entryName, "entryName", METHOD);
+        validateNonEmptyString(fileName, "fileName", METHOD);
+
+        String prefix = getPathForType(archiveType);
+        String parentDir = prefix + entryName;
+        String archivePath = parentDir + ZIP_SEP + fileName;
+
+        List<String> zipEntries =
+                getSegregatedArchiveEntries(archiveType, entryName, fileName);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01477", archiveType.name(),
+                    fileName, getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyDirs(parentDir);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

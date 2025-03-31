@@ -932,37 +932,42 @@ class TopologyDiscoverer(Discoverer):
                 _logger.warning('WLSDPLY-06642', model_value, location.get_folder_path(),
                                 class_name=_class_name, method_name=_method_name)
             else:
-                server_name = self._get_server_name_from_location(location)
+                entity_type, entity_name = self._get_server_or_template_name_from_location(location)
                 archive_file = self._model_context.get_archive_file()
                 file_path = model_value
                 if not self._model_context.is_remote():
                     file_path = self._convert_path(model_value)
 
-                if server_name:
-                    new_name = self._add_server_keystore_file_to_archive(model_name, server_name, archive_file, file_path)
+                if entity_type in [model_constants.SERVER, model_constants.SERVER_TEMPLATE]:
+                    new_name = self._add_server_keystore_file_to_archive(model_name, entity_type, entity_name, file_path)
                 else:
                     new_name = self._add_node_manager_keystore_file_to_archive(archive_file, file_path)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
         return new_name
 
-    def _add_server_keystore_file_to_archive(self, attribute_name, server_name, archive_file, file_path):
+    def _add_server_keystore_file_to_archive(self, attribute_name, server_type, server_name, file_path):
         """
         Add the Server custom trust or identity keystore file to the archive.
         :param attribute_name: The name of the attribute in the server
+        :param server_type: the type of the server (Server or ServerTemplate)
         :param server_name: the name of the server whose attribute refers to the file
-        :param archive_file: converted model value for the attribute
         :param file_path: context containing the current location information
         :return: modified location and name for the model keystore file
         """
         _method_name = '_add_server_keystore_file_to_archive'
-        _logger.entering(server_name, archive_file, file_path, class_name=_class_name, method_name=_method_name)
-        _logger.finer('WLSDPLY-06623', file_path, server_name, class_name=_class_name, method_name=_method_name)
+        _logger.entering(server_name, file_path, class_name=_class_name, method_name=_method_name)
+        _logger.finer('WLSDPLY-06623', file_path, server_type, server_name, class_name=_class_name,
+                      method_name=_method_name)
         new_name = file_path
+
+        archive_type = WLSDeployArchive.ArchiveEntryType.SERVER_KEYSTORE
+        if server_type == model_constants.SERVER_TEMPLATE:
+            archive_type = WLSDeployArchive.ArchiveEntryType.SERVER_TEMPLATE_KEYSTORE
+
         if self._model_context.is_remote():
-            new_name = WLSDeployArchive.getServerKeyStoreArchivePath(server_name, file_path)
-            self.add_to_remote_map(file_path, new_name,
-                                   WLSDeployArchive.ArchiveEntryType.SERVER_KEYSTORE.name())
+            new_name = WLSDeployArchive.getArchiveTypeEntryPath(archive_type, server_name, file_path)
+            self.add_to_remote_map(file_path, new_name, archive_type.name())
         elif not self._model_context.is_skip_archive():
             try:
 
@@ -970,13 +975,15 @@ class TopologyDiscoverer(Discoverer):
                     file_path = self.download_deployment_from_remote_server(file_path, self.download_temporary_dir,
                                                                             "keyStoreFile-%s" % server_name)
 
-                new_name = archive_file.addServerKeyStoreFile(server_name, file_path)
+                archive_file = self._model_context.get_archive_file()
+                new_name = archive_file.addArchiveTypeEntryFile(archive_type, server_name, file_path)
             except IllegalArgumentException, iae:
-                _logger.warning('WLSDPLY-06624', attribute_name, file_path, server_name, iae.getLocalizedMessage(),
-                                class_name=_class_name, method_name=_method_name, error=iae)
+                _logger.warning('WLSDPLY-06624', attribute_name, file_path, server_type, server_name,
+                                iae.getLocalizedMessage(), class_name=_class_name, method_name=_method_name, error=iae)
             except WLSDeployArchiveIOException, wioe:
-                de = exception_helper.create_discover_exception('WLSDPLY-06625', attribute_name, file_path, server_name,
-                                                                wioe.getLocalizedMessage(), error=wioe)
+                de = exception_helper.create_discover_exception(
+                    'WLSDPLY-06625', attribute_name, file_path, server_type, server_name,
+                    wioe.getLocalizedMessage(), error=wioe)
                 _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
                 raise de
 

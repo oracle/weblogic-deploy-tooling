@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Oracle Corporation and/or its affiliates.  All rights reserved.
+ * Copyright (c) 2023, 2025, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.tool;
@@ -55,6 +55,8 @@ import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_CON
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_FANCY_SCRIPT_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVERS_ADMIN_SERVER_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVERS_ADMIN_SERVER_TRUST_JKS_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVER_TEMPLATE_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SERVER_TEMPLATE_TRUST_JKS_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS_MY_LIB_WAR_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SHARED_LIBS_MY_OTHER_LIB_CONTENTS;
@@ -145,6 +147,7 @@ public class ArchiveHelperListTest {
         "saml2InitializationData",
         "script",
         "serverKeystore",
+        "serverTemplateKeystore",
         "sharedLibrary",
         "structuredApplication",
         "weblogicRemoteConsoleExtension"
@@ -186,6 +189,7 @@ public class ArchiveHelperListTest {
         "saml2InitializationData",
         "script",
         "serverKeystore",
+        "serverTemplateKeystore",
         "sharedLibrary",
         "structuredApplication",
         "weblogicRemoteConsoleExtension"
@@ -214,6 +218,17 @@ public class ArchiveHelperListTest {
                     "foo",
                     "-archive_file",
                     "foo.zip"
+                };
+                break;
+
+            case "serverTemplateKeystore":
+                args = new String[] {
+                        "list",
+                        subcommand,
+                        "-server_template_name",
+                        "foo",
+                        "-archive_file",
+                        "foo.zip"
                 };
                 break;
 
@@ -1073,6 +1088,62 @@ public class ArchiveHelperListTest {
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
         assertListsHaveSameElements(expectedPaths, outputLines, "serverKeystore -name trust.jks");
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                server template keystore                                   //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    void testListServerTemplateKeystore_ReturnsExpectedNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[]{
+                "list",
+                "serverTemplateKeystore",
+                "-archive_file",
+                ARCHIVE_HELPER_VALUE,
+                "-server_template_name",
+                "myServerTemplate"
+        };
+        List<String> expectedPaths = Arrays.asList(SERVER_TEMPLATE_CONTENTS);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertListsHaveSameElements(expectedPaths, outputLines, "serverTemplateKeystore");
+    }
+
+    @Test
+    void testListServerTemplateKeystoreFile_ReturnsExpectedNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[]{
+                "list",
+                "serverTemplateKeystore",
+                "-archive_file",
+                ARCHIVE_HELPER_VALUE,
+                "-server_template_name",
+                "myServerTemplate",
+                "-name",
+                "trust.jks"
+        };
+        List<String> expectedPaths = Arrays.asList(SERVER_TEMPLATE_TRUST_JKS_CONTENTS);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertListsHaveSameElements(expectedPaths, outputLines, "serverTemplateKeystore -name trust.jks");
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
