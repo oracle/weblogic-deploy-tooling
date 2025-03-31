@@ -12,20 +12,20 @@
     <title>Archive File :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1743391636" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1743391636" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1743391636" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1743391636" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1743391636" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1743391636" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1743391636" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1743391636" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1743391636" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1743391636" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1743448504" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1743448504" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1743448504" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1743448504" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1743448504" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1743448504" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1743448504" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1743448504" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1743448504" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1743448504" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1743391636"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1743448504"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1743391636"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1743391636"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1743448504"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1743448504"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1743391636"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1743448504"></script>
 
     
   </div>
@@ -2191,7 +2191,7 @@ file in the specified location, and will be deployed to that directory in the do
 <h3 id="archive-structure">Archive structure</h3>
 <p>These are the paths within the archive that are used for different types of resources. You can create further
 directory structures underneath some of these locations to organize the files and directories as you see fit.  The
-Archive Helper Tool makes it easy to add, update, and remove entries from the archive file.</p>
+<a href="/weblogic-deploy-tooling/userguide/tools/archive_helper/">Archive Helper Tool</a> makes it easy to add, update, and remove entries from the archive file.</p>
 <h4 id="why-are-there-two-separate-directory-structures">Why are there two separate directory structures?</h4>
 <p>Starting in WDT 4.0, some types previously stored under the top-level <code>wlsdeploy</code> directory have been moved to the
 <code>config/wlsdeploy</code> directory.  Anything stored in the archive under a location that begins with <code>config/wlsdeploy</code> will
@@ -2252,6 +2252,9 @@ tools like the Create Domain or Update Domain tools.</p>
 <h4 id="configwlsdeployserversserver-name"><code>config/wlsdeploy/servers/&lt;server-name&gt;</code></h4>
 <p>The root directory under which server keystore files are stored. These are organized by server name, such as
 <code>config/wlsdeploy/servers/AdminServer/mykey.jks</code>.</p>
+<h4 id="configwlsdeployservertemplatesserver-template-name"><code>config/wlsdeploy/serverTemplates/&lt;server-template-name&gt;</code></h4>
+<p>The root directory under which server template keystore files are stored. These are organized by server template name, such as
+<code>config/wlsdeploy/serverTemplates/myServerTemplate/mykey.jks</code>.</p>
 <h4 id="wlsdeployapplications"><code>wlsdeploy/applications</code></h4>
 <p>The root directory under which applications and their deployment plans are stored. Applications can be stored in the
 archive as EAR, WAR, or JAR files, or as an exploded directory at this location.</p>
@@ -3839,19 +3842,19 @@ overwriting any overlapping files.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1743391636"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1743391636"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1743391636"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1743391636"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1743391636"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1743391636"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1743448504"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1743448504"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1743448504"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1743448504"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1743448504"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1743448504"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1743391636"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1743391636"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1743391636"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1743448504"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1743448504"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1743448504"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1743391636"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1743448504"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
