@@ -286,7 +286,8 @@ class RCUHelper(object):
                     jdbc_conn_string = dictionary_utils.get_element(driver_param, URL, None)
                     model_ds_props = dictionary_utils.get_element(driver_param, JDBC_DRIVER_PARAMS_PROPERTIES, None)
                     jdbc_driver_name = dictionary_utils.get_element(driver_param, DRIVER_NAME, None)
-                    conn_password = dictionary_utils.get_element(driver_param, PASSWORD_ENCRYPTED, None)
+                    conn_password = self._aliases.decrypt_password(dictionary_utils.get_element(driver_param,
+                                                                           PASSWORD_ENCRYPTED, None))
                     props = Properties()
                     if model_ds_props is not None:
                         for item in model_ds_props.keys():
