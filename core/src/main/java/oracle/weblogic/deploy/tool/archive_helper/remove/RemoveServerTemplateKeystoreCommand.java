@@ -9,7 +9,6 @@ import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 import oracle.weblogic.deploy.tool.archive_helper.ArchiveHelperException;
 import oracle.weblogic.deploy.tool.archive_helper.CommandResponse;
 import oracle.weblogic.deploy.util.ExitCode;
-import oracle.weblogic.deploy.util.WLSDeployArchive;
 import oracle.weblogic.deploy.util.WLSDeployArchiveIOException;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -49,12 +48,11 @@ public class RemoveServerTemplateKeystoreCommand extends RemoveTypeCommandBase {
         try {
             initializeOptions();
 
-            WLSDeployArchive.ArchiveEntryType archiveType = WLSDeployArchive.ArchiveEntryType.SERVER_TEMPLATE_KEYSTORE;
             int entriesRemoved;
             if (this.force) {
-                entriesRemoved = this.archive.removeSegregatedFile(archiveType, this.serverTemplateName, this.name, true);
+                entriesRemoved = this.archive.removeServerTemplateKeystore(this.serverTemplateName, this.name, true);
             } else {
-                entriesRemoved = this.archive.removeSegregatedFile(archiveType, this.serverTemplateName, this.name);
+                entriesRemoved = this.archive.removeServerTemplateKeystore(this.serverTemplateName, this.name);
             }
             response = new CommandResponse(ExitCode.OK, "WLSDPLY-30067", TYPE, this.serverTemplateName, this.name,
                 entriesRemoved, this.archiveFilePath);

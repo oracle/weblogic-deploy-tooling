@@ -9,7 +9,6 @@ import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 import oracle.weblogic.deploy.tool.archive_helper.ArchiveHelperException;
 import oracle.weblogic.deploy.tool.archive_helper.CommandResponse;
 import oracle.weblogic.deploy.util.ExitCode;
-import oracle.weblogic.deploy.util.WLSDeployArchive;
 import oracle.weblogic.deploy.util.WLSDeployArchiveIOException;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -51,8 +50,7 @@ public class ExtractServerTemplateKeystoreCommand extends ExtractTypeCommandBase
         try {
             initializeOptions();
 
-            WLSDeployArchive.ArchiveEntryType archiveType = WLSDeployArchive.ArchiveEntryType.SERVER_TEMPLATE_KEYSTORE;
-            this.archive.extractSegregatedFile(archiveType, this.serverTemplateName, this.name, this.targetDirectory);
+            this.archive.extractServerTemplateKeystore(this.serverTemplateName, this.name, this.targetDirectory);
             response = new CommandResponse(ExitCode.OK, "WLSDPLY-30065", TYPE, this.name, this.serverTemplateName,
                 this.archiveFilePath, this.targetDirectory.getPath());
         } catch (ArchiveHelperException ex) {
