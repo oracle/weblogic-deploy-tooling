@@ -42,7 +42,8 @@ public class ListServerTemplateKeystoreCommand extends ListTypeCommandBase {
         final String METHOD = "call";
         LOGGER.entering(CLASS, METHOD);
 
-        CommandResponse response = listType(SERVER_TEMPLATE_KEYSTORE, "server template keystore", this.serverTemplateName, this.name);
+        CommandResponse response = listType(SERVER_TEMPLATE_KEYSTORE, "server template keystore",
+            this.serverTemplateName, this.name);
 
         LOGGER.exiting(CLASS, METHOD, response);
         return response;

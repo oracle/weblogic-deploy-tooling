@@ -970,13 +970,15 @@ class TopologyDiscoverer(Discoverer):
             self.add_to_remote_map(file_path, new_name, archive_type.name())
         elif not self._model_context.is_skip_archive():
             try:
-
                 if self._model_context.is_ssh():
                     file_path = self.download_deployment_from_remote_server(file_path, self.download_temporary_dir,
                                                                             "keyStoreFile-%s" % server_name)
 
                 archive_file = self._model_context.get_archive_file()
-                new_name = archive_file.addArchiveTypeEntryFile(archive_type, server_name, file_path)
+                if server_type == model_constants.SERVER_TEMPLATE:
+                    new_name = archive_file.addServerTemplateKeyStoreFile(server_name, file_path)
+                else:
+                    new_name = archive_file.addServerKeyStoreFile(server_name, file_path)
             except IllegalArgumentException, iae:
                 _logger.warning('WLSDPLY-06624', attribute_name, file_path, server_type, server_name,
                                 iae.getLocalizedMessage(), class_name=_class_name, method_name=_method_name, error=iae)

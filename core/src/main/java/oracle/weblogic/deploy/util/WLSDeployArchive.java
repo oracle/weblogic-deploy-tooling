@@ -2993,7 +2993,7 @@ public class WLSDeployArchive {
      * @param keystoreFile the file to add
      * @return the new location of the file to use in the model
      * @throws WLSDeployArchiveIOException if an error occurs while archiving the file
-     * @throws IllegalArgumentException    if the file does not exist or the clusterName is empty or null
+     * @throws IllegalArgumentException    if the file does not exist or the serverTemplateName is empty or null
      */
     public String addServerKeyStoreFile(String serverName, String keystoreFile) throws WLSDeployArchiveIOException {
         final String METHOD = "addServerKeyStoreFile";
@@ -3133,6 +3133,175 @@ public class WLSDeployArchive {
         if (!silent && zipEntries.isEmpty()) {
             WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01450", serverName, keystoreName,
                 getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyDirs(parentDir);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                          server template keystore methods                                 //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Add a Server template keystore file to the server's directory in the archive.
+     *
+     * @param serverTemplateName   the Server name used to segregate the directories
+     * @param keystoreFile the file to add
+     * @return the new location of the file to use in the model
+     * @throws WLSDeployArchiveIOException if an error occurs while archiving the file
+     * @throws IllegalArgumentException    if the file does not exist or the serverTemplateName
+     *                                     is empty or null
+     */
+    public String addServerTemplateKeyStoreFile(String serverTemplateName, String keystoreFile)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "addServerTemplateKeyStoreFile";
+        LOGGER.entering(CLASS, METHOD, serverTemplateName, keystoreFile);
+
+        File filePath = new File(keystoreFile);
+        validateNonEmptyString(serverTemplateName, "serverTemplateName", METHOD);
+        validateExistingFile(filePath, "keyStoreFile", getArchiveFileName(), METHOD);
+
+        String newName =
+            addItemToZip(ARCHIVE_SERVER_TEMPLATE_TARGET_DIR + ZIP_SEP + serverTemplateName, filePath);
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    /**
+     * Replace a Server template keystore in the archive.
+     *
+     * @param serverTemplateName the server template name used to segregate directories, or null if the keystorePath
+     *                           is includes the server name already (e.g., myserver/keystore.jks or
+     *                           wlsdeploy/servers/myserver/keystore.jks)
+     * @param keystorePath       the keystore name (e.g., keystore.jks) or an archive path
+     *                           (e.g., mytemplate/keystore.jks or wlsdeploy/serverTemplates/mytemplate/keystore.jks)
+     * @param sourceLocation     the file system location of the new keystore file to replace the existing one
+     * @return the archive path of the new server template keystore file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading or writing changes
+     * @throws IllegalArgumentException    if the file or directory passed in does not exist
+     */
+    public String replaceServerTemplateKeyStoreFile(String serverTemplateName, String keystorePath, String sourceLocation)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "replaceServerTemplateKeyStoreFile";
+        LOGGER.entering(CLASS, METHOD, serverTemplateName, keystorePath, sourceLocation);
+
+        String archivePath = null;
+        String computedTemplateName = serverTemplateName;
+        if (keystorePath.startsWith(ARCHIVE_SERVER_TEMPLATE_TARGET_DIR + ZIP_SEP)) {
+            archivePath = keystorePath;
+            computedTemplateName = getSegregationNameFromSegregatedArchivePath(serverTemplateName, keystorePath);
+        } else if (!StringUtils.isEmpty(serverTemplateName)) {
+            if (keystorePath.startsWith(serverTemplateName + ZIP_SEP)) {
+                archivePath = ARCHIVE_SERVER_TEMPLATE_TARGET_DIR + ZIP_SEP + keystorePath;
+            } else {
+                archivePath = ARCHIVE_SERVER_TEMPLATE_TARGET_DIR + ZIP_SEP + serverTemplateName + ZIP_SEP + keystorePath;
+            }
+        }
+
+        if (StringUtils.isEmpty(computedTemplateName)) {
+            WLSDeployArchiveIOException ex =
+                new WLSDeployArchiveIOException("WLSDPLY-01478", keystorePath, sourceLocation);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        // If we get here, archivePath should never be null!
+        //
+        getZipFile().removeZipEntry(archivePath);
+        String newName = addServerTemplateKeyStoreFile(computedTemplateName, sourceLocation);
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    /**
+     * Extract the named server template's keystore file to the domain home location.
+     *
+     * @param serverTemplateName           the name of the server template used to segregate the keystore
+     * @param keystoreName                 the name of the keystore file
+     * @param domainHome                   the existing directory location to write the file
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the domainHome directory does not exist or
+     *                                     the serverTemplateName or keystoreName is empty
+     */
+    public void extractServerTemplateKeystore(String serverTemplateName, String keystoreName, File domainHome)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "extractServerTemplateKeystore";
+        LOGGER.entering(CLASS, METHOD, serverTemplateName, keystoreName, domainHome);
+
+        validateNonEmptyString(serverTemplateName, "serverTemplateName", METHOD);
+        validateNonEmptyString(keystoreName, "keystoreName", METHOD);
+        validateExistingDirectory(domainHome, "domainHome", getArchiveFileName(), METHOD);
+
+        String archivePath;
+        if (keystoreName.startsWith(ARCHIVE_SERVER_TEMPLATE_TARGET_DIR + ZIP_SEP)) {
+            archivePath = keystoreName;
+        } else if (keystoreName.startsWith(serverTemplateName + ZIP_SEP)) {
+            archivePath = ARCHIVE_SERVER_TEMPLATE_TARGET_DIR + ZIP_SEP + keystoreName;
+        } else {
+            archivePath = ARCHIVE_SERVER_TEMPLATE_TARGET_DIR + ZIP_SEP + serverTemplateName + ZIP_SEP + keystoreName;
+        }
+
+        extractFileFromZip(archivePath, domainHome);
+
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
+     * Remove the named server template's keystore file from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param serverTemplateName    the name of the server used to segregate the keystore
+     * @param keystoreName          the name of the keystore file
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the server's keystore file is not present or an IOException
+     *                                      occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the serverTemplateName or keystoreName is null or empty
+     */
+    public int removeServerTemplateKeystore(String serverTemplateName, String keystoreName)
+        throws WLSDeployArchiveIOException {
+        return removeServerTemplateKeystore(serverTemplateName, keystoreName, false);
+    }
+
+    /**
+     * Remove the named server template's keystore file from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param serverTemplateName    the name of the server used to segregate the keystore
+     * @param keystoreName          the name of the keystore file
+     * @param silent  If false, a WLSDeployArchiveIOException is thrown is the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the server's keystore file is not present (and silent = false) or
+     *                                      an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the serverTemplateName or keystoreName is null or empty
+     */
+    public int removeServerTemplateKeystore(String serverTemplateName, String keystoreName, boolean silent)
+        throws WLSDeployArchiveIOException {
+        final String METHOD = "removeServerTemplateKeystore";
+        LOGGER.entering(CLASS, METHOD, serverTemplateName, keystoreName, silent);
+
+        validateNonEmptyString(serverTemplateName, "serverTemplateName", METHOD);
+        validateNonEmptyString(keystoreName, "keystoreName", METHOD);
+
+        String parentDir = ARCHIVE_SERVER_TEMPLATE_TARGET_DIR + ZIP_SEP + serverTemplateName;
+        String archivePath = parentDir + ZIP_SEP + keystoreName;
+
+        List<String> zipEntries =
+            getSegregatedArchiveEntries(ArchiveEntryType.SERVER_TEMPLATE_KEYSTORE, serverTemplateName, keystoreName);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01479", serverTemplateName,
+                keystoreName, getArchiveFileName(), archivePath);
             LOGGER.throwing(CLASS, METHOD, ex);
             throw ex;
         }
@@ -3400,16 +3569,16 @@ public class WLSDeployArchive {
         validateNonEmptyString(mimeMappingPath, "mimeMappingPath", METHOD);
 
         String archivePath;
-        String keystoreName;
+        String mimeFileName;
         if (mimeMappingPath.startsWith(ARCHIVE_CONFIG_TARGET_DIR + ZIP_SEP)) {
             archivePath = mimeMappingPath;
-            keystoreName = getNameFromPath(mimeMappingPath, ARCHIVE_CONFIG_TARGET_DIR.length() + 2);
+            mimeFileName = getNameFromPath(mimeMappingPath, ARCHIVE_CONFIG_TARGET_DIR.length() + 2);
         } else {
             archivePath = ARCHIVE_CONFIG_TARGET_DIR + ZIP_SEP + mimeMappingPath;
-            keystoreName = mimeMappingPath;
+            mimeFileName = mimeMappingPath;
         }
 
-        List<String> zipEntries = getArchiveEntries(ArchiveEntryType.MIME_MAPPING, keystoreName);
+        List<String> zipEntries = getArchiveEntries(ArchiveEntryType.MIME_MAPPING, mimeFileName);
 
         if (!silent && zipEntries.isEmpty()) {
             WLSDeployArchiveIOException ex = new WLSDeployArchiveIOException("WLSDPLY-01452", mimeMappingPath,
@@ -5572,7 +5741,7 @@ public class WLSDeployArchive {
         LOGGER.entering(CLASS, METHOD, type);
 
         FileOrDirectoryType result;
-        switch(type) {
+        switch (type) {
             case COHERENCE:
             case COHERENCE_PERSISTENCE_DIR:
             case DB_WALLET:

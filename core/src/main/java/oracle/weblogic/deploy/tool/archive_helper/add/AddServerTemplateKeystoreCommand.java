@@ -9,7 +9,6 @@ import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
 import oracle.weblogic.deploy.tool.archive_helper.ArchiveHelperException;
 import oracle.weblogic.deploy.tool.archive_helper.CommandResponse;
 import oracle.weblogic.deploy.util.ExitCode;
-import oracle.weblogic.deploy.util.WLSDeployArchive;
 import oracle.weblogic.deploy.util.WLSDeployArchiveIOException;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -52,14 +51,13 @@ public class AddServerTemplateKeystoreCommand extends AddTypeCommandBase {
         File sourceFile;
         try {
             sourceFile = initializeOptions(this.sourcePath);
-            WLSDeployArchive.ArchiveEntryType archiveType = WLSDeployArchive.ArchiveEntryType.SERVER_TEMPLATE_KEYSTORE;
 
             String resultName;
             if (this.overwrite) {
-                resultName =
-                    this.archive.replaceSegregatedFile(archiveType, this.serverTemplateName, sourceFile.getName(), sourceFile.getPath());
+                resultName = this.archive.replaceServerTemplateKeyStoreFile(this.serverTemplateName,
+                    sourceFile.getName(), sourceFile.getPath());
             } else {
-                resultName = this.archive.addSegregatedFile(archiveType, this.serverTemplateName, sourceFile.getPath());
+                resultName = this.archive.addServerTemplateKeyStoreFile(this.serverTemplateName, sourceFile.getPath());
             }
             response = new CommandResponse(ExitCode.OK, resultName);
         } catch (ArchiveHelperException ex) {
