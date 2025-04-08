@@ -57,6 +57,7 @@ Subcommands:
                                     file.
   script                          Add script to the archive file.
   serverKeystore                  Add a server keystore to the archive file.
+  serverTemplateKeystore          Add a server template keystore to the archive file.
   sharedLibrary                   Add shared library to the archive file.
   sharedLibraryPlan               Add shared library deployment plan to the archive
                                     file.
