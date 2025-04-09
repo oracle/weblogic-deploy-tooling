@@ -395,12 +395,10 @@ class Discoverer(object):
     def _get_decrypted_password_and_is_filtered_datasource(self, location, model_value):
         # only do it for templated datasource
         filtered_datasource = self._is_filtered_datasource_location(location)
-        if filtered_datasource:
-            base_dir = self._model_context.get_domain_home()
-            if self._model_context.is_ssh():
-                base_dir = self.download_temporary_dir
-            model_value = self._weblogic_helper.decrypt(model_value, base_dir)
-        return filtered_datasource, model_value
+        base_dir = self._model_context.get_domain_home()
+        if self._model_context.is_ssh():
+            base_dir = self.download_temporary_dir
+        return filtered_datasource, self._weblogic_helper.decrypt(model_value, base_dir)
 
     def _is_filtered_datasource_location(self, location):
         filtered_datasource = False
@@ -413,7 +411,7 @@ class Discoverer(object):
             if filtered_datasource:
                 return True
         return False
-
+    
     def _get_attributes_for_current_location(self, location):
         """
         Change to the mbean folder with the provided name using the current location and return

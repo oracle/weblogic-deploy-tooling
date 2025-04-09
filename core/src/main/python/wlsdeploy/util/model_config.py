@@ -32,6 +32,8 @@ DEPLOY_TIMEOUT_PROP = 'deploy.timeout'
 DEPLOY_TIMEOUT_DEFAULT = '180000'
 DISABLE_RCU_DROP_SCHEMA_PROP='disable.rcu.drop.schema'
 DISABLE_RCU_DROP_SCHEMA_DEFAULT='false'
+DISCOVER_RCU_DS_GENERATE_RCUDB_INFO_PROP='discover.rcu.ds.generate_rcudb_info'
+DISCOVER_RCU_DS_GENERATE_RCUDB_INFO_DEFAULT='true'
 ENABLE_CREATE_DOMAIN_PASSWORD_VALIDATION_PROP = 'enable.create.domain.password.validation'
 ENABLE_CREATE_DOMAIN_PASSWORD_VALIDATION_DEFAULT = 'true'
 REDEPLOY_TIMEOUT_PROP = 'redeploy.timeout'
@@ -203,6 +205,13 @@ class ModelConfiguration(object):
         :return: the default file name for the private key when using a passphrase
         """
         return self._get_from_dict(SSH_DEFAULT_PRIVATE_KEY_FILE_NAME_PROP, SSH_DEFAULT_PRIVATE_KEY_FILE_NAME_DEFAULT)
+
+    def get_discover_rcu_ds_generate_rcudb_info(self):
+        """
+        Return the default for generate RCUDbInfo if all rcu datasource urls and passwords are the same. Default is true
+        :return: the default for whether generating RCUDbInfo or not
+        """
+        return self._get_from_dict(DISCOVER_RCU_DS_GENERATE_RCUDB_INFO_PROP, DISCOVER_RCU_DS_GENERATE_RCUDB_INFO_DEFAULT)
 
     def use_ssh_compression(self):
         """
