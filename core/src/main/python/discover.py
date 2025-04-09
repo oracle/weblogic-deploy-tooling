@@ -830,7 +830,7 @@ def __fix_discovered_template_datasource(model, model_context, credential_inject
         prefixes = HashSet()
         properties = __get_urls_and_passwords(jdbc_system_resources, filtered_ds_patterns,
                                                                        urls, passwords, prefixes)
-        if _can_generate_rcudb_info(passwords, urls, prefixes):
+        if _can_generate_rcudb_info(model_context, passwords, urls, prefixes):
             __set_rcuinfo_in_model(model, properties, urls.iterator().next(), passwords.iterator().next())
             __remove_discovered_template_datasource(jdbc_system_resources, filtered_ds_patterns, model)
             __fix_rcudbinfo_passwords(model, model_context, credential_injector)
@@ -840,8 +840,9 @@ def __fix_discovered_template_datasource(model, model_context, credential_inject
     __logger.exiting(_class_name, _method_name)
 
 
-def _can_generate_rcudb_info(passwords, urls, prefixes):
-    return passwords.size() == 1 and urls.size() == 1 and prefixes.size() == 1
+def _can_generate_rcudb_info(model_context, passwords, urls, prefixes):
+    return ((passwords.size() == 1 and urls.size() == 1 and prefixes.size() == 1) and
+            model_context.get_model_config().get_discover_rcu_ds_generate_rcudb_info() == 'true')
 
 def __get_urls_and_passwords(jdbc_system_resources, filtered_ds_patterns, urls, passwords, prefixes):
     properties = None
