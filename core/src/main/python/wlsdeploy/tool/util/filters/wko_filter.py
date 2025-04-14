@@ -15,11 +15,16 @@ from wlsdeploy.aliases.model_constants import CALCULATED_LISTEN_PORTS
 from wlsdeploy.aliases.model_constants import CANDIDATE_MACHINE
 from wlsdeploy.aliases.model_constants import CANDIDATE_MACHINES_FOR_MIGRATABLE_SERVER
 from wlsdeploy.aliases.model_constants import CLUSTER
+from wlsdeploy.aliases.model_constants import CLUSTER_ADDRESS
 from wlsdeploy.aliases.model_constants import CLUSTER_MESSAGING_MODE
 from wlsdeploy.aliases.model_constants import DATABASE_LESS_LEASING_BASIS
 from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
+from wlsdeploy.aliases.model_constants import INTERFACE_ADDRESS
+from wlsdeploy.aliases.model_constants import LISTEN_ADDRESS
 from wlsdeploy.aliases.model_constants import MACHINE
 from wlsdeploy.aliases.model_constants import MIGRATION_BASIS
+from wlsdeploy.aliases.model_constants import MULTICAST_ADDRESS
+from wlsdeploy.aliases.model_constants import NETWORK_ACCESS_POINT
 from wlsdeploy.aliases.model_constants import NM_PROPERTIES
 from wlsdeploy.aliases.model_constants import NODE_MANAGER_PW_ENCRYPTED
 from wlsdeploy.aliases.model_constants import NODE_MANAGER_USER_NAME
@@ -140,17 +145,27 @@ def filter_topology(model, _model_context):
             del topology[delete_key]
 
     clusters = dictionary_utils.get_dictionary_element(topology, CLUSTER)
-    for cluster in clusters:
+    for key in clusters:
+        cluster = clusters[key]
         for delete_key in [MIGRATION_BASIS, CANDIDATE_MACHINES_FOR_MIGRATABLE_SERVER, DATABASE_LESS_LEASING_BASIS,
-                           CLUSTER_MESSAGING_MODE]:
-            if delete_key in clusters[cluster]:
-                del clusters[cluster][delete_key]
+                           CLUSTER_MESSAGING_MODE, CLUSTER_ADDRESS, MULTICAST_ADDRESS]:
+            if delete_key in cluster:
+                del cluster[delete_key]
 
     servers = dictionary_utils.get_dictionary_element(topology, SERVER)
-    for server in servers:
-        for delete_key in [MACHINE, CANDIDATE_MACHINE, AUTO_MIGRATION_ENABLED, SERVER_START]:
-            if delete_key in servers[server]:
-                del servers[server][delete_key]
+    for key in servers:
+        server = servers[key]
+        for delete_key in [MACHINE, CANDIDATE_MACHINE, AUTO_MIGRATION_ENABLED, SERVER_START, LISTEN_ADDRESS,
+                           INTERFACE_ADDRESS]:
+            if delete_key in server:
+                del server[delete_key]
+
+        access_points = dictionary_utils.get_dictionary_element(server, NETWORK_ACCESS_POINT)
+        for access_key in access_points:
+            access_point = access_points[access_key]
+            for delete_key in [CLUSTER_ADDRESS]:
+                if delete_key in access_point:
+                    del access_point[delete_key]
 
     security_configuration = dictionary_utils.get_dictionary_element(topology, SECURITY_CONFIGURATION)
     for delete_key in [NODE_MANAGER_USER_NAME, NODE_MANAGER_PW_ENCRYPTED]:
@@ -166,9 +181,16 @@ def filter_topology(model, _model_context):
         auto_migration_enabled = dictionary_utils.get_element(server_template, AUTO_MIGRATION_ENABLED)
         if auto_migration_enabled is None or alias_utils.convert_boolean(auto_migration_enabled):
             server_template[AUTO_MIGRATION_ENABLED] = PyRealBoolean(False)
-        for delete_key in [MACHINE, SERVER_START]:
+        for delete_key in [MACHINE, SERVER_START, LISTEN_ADDRESS, INTERFACE_ADDRESS]:
             if delete_key in server_template:
                 del server_template[delete_key]
+
+        access_points = dictionary_utils.get_dictionary_element(server_template, NETWORK_ACCESS_POINT)
+        for access_key in access_points:
+            access_point = access_points[access_key]
+            for delete_key in [CLUSTER_ADDRESS]:
+                if delete_key in access_point:
+                    del access_point[delete_key]
 
 
 def filter_resources(model, _model_context):
