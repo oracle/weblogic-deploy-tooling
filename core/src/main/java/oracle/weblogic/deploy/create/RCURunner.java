@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+ * Copyright (c) 2017, 2025, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.create;
@@ -71,7 +71,6 @@ public class RCURunner {
     private static final String DB_CONNECT_SWITCH = "-connectString";
     private static final String DB_USER_SWITCH = "-dbUser";
     private static final String DB_ROLE_SWITCH = "-dbRole";
-    private static final String ORACLE_DB_ROLE = "SYSDBA";
     private static final String SCHEMA_PREFIX_SWITCH = "-schemaPrefix";
     private static final String COMPONENT_SWITCH = "-component";
     private static final String READ_STDIN_SWITCH = "-f";
@@ -104,14 +103,15 @@ public class RCURunner {
      * @param connectString     the database connect string
      * @param schemaPrefix      the schema prefix
      * @param dbUser            the database administrator user name
+     * @param dbRole            the database administrator role
      * @param componentsList    the list of RCU schemas
      * @param extraRcuArgsMap   any extra RCU arguments map
      * @param sslArgsProperties the SSL-related arguments map
      * @throws CreateException  if a parameter validation error occurs
      */
     public RCURunner(String oracleHome, String javaHome, String databaseType, String oracleDatabaseConnectionType,
-                     String connectString, String schemaPrefix, String dbUser, List<String> componentsList,
-                     PyDictionary extraRcuArgsMap, PyDictionary sslArgsProperties)
+                     String connectString, String schemaPrefix, String dbUser, String dbRole,
+                     List<String> componentsList, PyDictionary extraRcuArgsMap, PyDictionary sslArgsProperties)
         throws CreateException {
 
         this.oracleHome = validateExistingDirectory(oracleHome, "ORACLE_HOME");
@@ -128,7 +128,7 @@ public class RCURunner {
 
         this.schemaPrefix = validateNonEmptyString(schemaPrefix, "rcu_prefix");
         this.dbUser = validateNonEmptyString(dbUser, "rcu_admin_user");
-        this.dbRole = computeDbRole();
+        this.dbRole = dbRole;
         this.componentsList = validateNonEmptyListOfStrings(componentsList, "rcu_schema_list");
         this.extraRcuArgsMap = extraRcuArgsMap;
         this.sslArgsProperties = sslArgsProperties;
@@ -204,14 +204,6 @@ public class RCURunner {
 
     private boolean isOracleDatabase() {
         return ORACLE_DB_TYPE.equals(this.databaseType) || EBR_DB_TYPE.equals(this.databaseType);
-    }
-
-    private String computeDbRole() {
-        String dbRole = null;
-        if (isOracleDatabase() && !this.atpDB) {
-            dbRole = ORACLE_DB_ROLE;
-        }
-        return dbRole;
     }
 
     private Map<String, String> getRcuDropEnv() {
