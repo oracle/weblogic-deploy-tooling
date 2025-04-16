@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -14,6 +14,7 @@ from oracle.weblogic.deploy.util import WLSDeployArchive
 from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.model_constants import ATP_DEFAULT_TABLESPACE
 from wlsdeploy.aliases.model_constants import ATP_TEMPORARY_TABLESPACE
+from wlsdeploy.aliases.model_constants import ORACLE_DATABASE_ADMIN_ROLE
 from wlsdeploy.aliases.model_constants import TNS_ENTRY
 # Deprecated in WDT 4.0.0
 from wlsdeploy.aliases.model_constants import DATABASE_TYPE
@@ -94,6 +95,15 @@ class RcuDbInfo(object):
         if rcu_database_type is None:
             rcu_database_type = ORACLE_DB_TYPE
         return rcu_database_type
+
+    def get_oracle_database_admin_role(self):
+        _method_name = 'get_oracle_database_admin_role'
+        oracle_db_admin_role = None
+        if self.is_oracle_database_type() and not self.is_use_atp():
+            oracle_db_admin_role = self._get_dictionary_element_value(ORACLE_DATABASE_ADMIN_ROLE)
+            if oracle_db_admin_role is None:
+                oracle_db_admin_role = "SYSDBA"
+        return oracle_db_admin_role
 
     def get_oracle_database_connection_type(self):
         _method_name = 'get_oracle_database_connection_type'

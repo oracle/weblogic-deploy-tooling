@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import exceptions
@@ -115,7 +115,7 @@ class RCUHelper(object):
         # ####<Mar 29, 2024 3:19:53 PM> <SEVERE> <FanManager> <configure> <> <attempt to configure
         # ONS in FanManager failed with oracle.ons.NoServersAvailable: Subscription time out>
         #
-        
+
         if self._rcu_db_info.is_use_atp():
             System.setProperty('oracle.jdbc.fanEnabled', 'false')
 
@@ -399,6 +399,7 @@ class RCUHelper(object):
         oracle_home = self._model_context.get_oracle_home()
         java_home = self._model_context.get_java_home()
         rcu_database_type = rcu_db_info.get_rcu_database_type()
+        oracle_database_admin_role = rcu_db_info.get_oracle_database_admin_role()
         oracle_database_connection_type = rcu_db_info.get_oracle_database_connection_type()
         rcu_db_conn_string = rcu_db_info.get_rcu_db_conn_string()
         rcu_prefix = rcu_db_info.get_rcu_prefix()
@@ -430,8 +431,8 @@ class RCUHelper(object):
 
         disable_rcu_drop_schema = self._model_context.get_model_config().get_disable_rcu_drop_schema() == 'true'
         rcu_runner = RCURunner(oracle_home, java_home, rcu_database_type, oracle_database_connection_type,
-                               rcu_db_conn_string, rcu_prefix, rcu_admin_user, rcu_schemas, extra_rcu_args_map,
-                               ssl_conn_properties)
+                               rcu_db_conn_string, rcu_prefix, rcu_admin_user, oracle_database_admin_role,
+                               rcu_schemas, extra_rcu_args_map, ssl_conn_properties)
         rcu_runner.runRcu(rcu_admin_pass, rcu_schema_pass, disable_rcu_drop_schema)
 
         self.__run_post_create_rcu_schemas_script()
