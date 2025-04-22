@@ -8,6 +8,17 @@
     <language>en-us</language>
     <lastBuildDate>Tue, 09 Jan 2024 18:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Release 4.3.3</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.3.3/</link>
+      <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.3.3/</guid>
+      <description>Changes in Release 4.3.3  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes #1780 - Added new -discover_rcu_datasources option to the Discover Domain Tool to help with migration use cases.
+Bug Fixes #1781 - Fixed an issue with application and library targeting with the Compare Model Tool. #1782 - Fixed an issue with reading Kubernetes secret file data that was mangling non-ASCII characters.</description>
+    </item>
+    
+    <item>
       <title>Release 4.3.2</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.3.2/</link>
       <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>

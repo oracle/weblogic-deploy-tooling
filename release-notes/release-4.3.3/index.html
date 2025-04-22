@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Release 3.0.2 :: WebLogic Deploy Tooling</title>
+    <title>Release 4.3.3 :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1745353873" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-3.0.2/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-4.3.3/">
     <nav id="sidebar" class="">
 
 
@@ -1355,7 +1355,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.3.3/" title="Release 4.3.3" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.3.3/" title="Release 4.3.3" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-4.3.3/">
         <b> </b>Release 4.3.3
         
@@ -1922,7 +1922,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.0.2/" title="Release 3.0.2" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3.0.2/" title="Release 3.0.2" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-3.0.2/">
         <b> </b>Release 3.0.2
         
@@ -2140,7 +2140,7 @@
             
           
           
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release 3.0.2
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release 4.3.3
           
         
           
@@ -2157,7 +2157,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#changes-in-release-302">Changes in Release 3.0.2</a></li>
+        <li><a href="#changes-in-release-433">Changes in Release 4.3.3</a></li>
       </ul>
     </li>
   </ul>
@@ -2177,14 +2177,14 @@
           
             <h1>
               
-              Release 3.0.2
+              Release 4.3.3
             </h1>
           
 
         
 
 
-<h3 id="changes-in-release-302">Changes in Release 3.0.2</h3>
+<h3 id="changes-in-release-433">Changes in Release 4.3.3</h3>
 <ul>
 <li><a href="#major-new-features">Major New Features</a></li>
 <li><a href="#other-changes">Other Changes</a></li>
@@ -2194,25 +2194,27 @@
 <h4 id="major-new-features">Major New Features</h4>
 <p>None</p>
 <h4 id="other-changes">Other Changes</h4>
-<p>None</p>
+<p>#1780 - Added new <code>-discover_rcu_datasources</code> option to the Discover Domain Tool to help with migration use cases.</p>
 <h4 id="bug-fixes">Bug Fixes</h4>
-<ul>
-<li>#1405: Corrected some issues with the Windows shell scripts where they were not properly handling paths with spaces.</li>
-<li>#1409: Corrected a bug where a wallet deprecation message was still being logged as a warning.</li>
-<li>#1411: Corrected a bug where wallet extraction handling with multiple archive files was happening in the wrong order.</li>
-</ul>
+<p>#1781 - Fixed an issue with application and library targeting with the Compare Model Tool.
+#1782 - Fixed an issue with reading Kubernetes secret file data that was mangling non-ASCII characters.</p>
 <h4 id="known-issues">Known Issues</h4>
-<ol>
-<li>When running <code>discoverDomain</code> with the <code>-remote</code> flag, there are several MBeans that are not being properly handled that
-will result in <code>INFO</code> level messages that look similar to the example shown below.  These errors seem to happen only when the MBean is
-non-existent so the resulting model should still be accurate.  These issues are expected to be fixed in a future release.</li>
-</ol>
-<pre><code>####&lt;Feb 16, 2023 1:40:00 PM&gt; &lt;INFO&gt; &lt;Discoverer&gt; &lt;_add_to_dictionary&gt; &lt;WLSDPLY-06106&gt; &lt;Unable to add ServerFailureTrigger
-from location /Clusters/mycluster/OverloadProtection/mycluster to the model : Failed to convert the wlst attribute name and
-value for the model at location (model_folders = ['Cluster', 'OverloadProtection'],  'name_tokens' = {'DOMAIN': 'tododomain',
-'CLUSTER': 'mycluster','OVERLOADPROTECTION': 'mycluster'}) : The wlst attribute ServerFailureTrigger is not defined for the
-model folder /Cluster/OverloadProtection&gt;
-</code></pre>
+<ul>
+<li>
+<p>SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
+the 12.2.1.4.0 GA release fails with the following error, as mentioned at <a href="https://github.com/hierynomus/sshj/issues/895">https://github.com/hierynomus/sshj/issues/895</a>.
+Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">SEVERE Messages:
+        1. WLSDPLY-20008: verifySSH argument processing failed: Failed to initialize SSH context: Failed to SSH connect to host myhost.oracle.com: no such algorithm: X25519 <span style="color:#66d9ef">for</span> provider BC
+</code></pre></div></li>
+<li>
+<p>SSH support for the Update Domain Tool and Deploy Apps Tool does not work when using an archive file and the remote
+WebLogic Server is running on Windows using the optional, Windows-provided, OpenSSH component.  This is due to an
+issue with the SSHJ library WDT is using.  See <a href="https://github.com/hierynomus/sshj/issues/929">https://github.com/hierynomus/sshj/issues/929</a> for more information.</p>
+</li>
+</ul>
+<p>See <a href="https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/">https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/</a> for the current set of known limitations.</p>
+
 
 <footer class="footline">
 	
@@ -3134,6 +3136,23 @@ model folder /Cluster/OverloadProtection&gt;
             
                 
                     
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
                         
                         
                     
@@ -3568,26 +3587,6 @@ model folder /Cluster/OverloadProtection&gt;
             
             
                 
-                    
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
                     
                 
                 
@@ -3708,10 +3707,10 @@ model folder /Cluster/OverloadProtection&gt;
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/release-3.0.3/" title="Release 3.0.3"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-3.0.1/" title="Release 3.0.1" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-4.3.2/" title="Release 4.3.2" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
