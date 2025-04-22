@@ -39,14 +39,14 @@
         <skipTests>false</skipTests>
         <antlr.version>4.9.3</antlr.version>
         <snakeyaml.version>2.4</snakeyaml.version>
-        <picocli.version>4.7.6</picocli.version>
+        <picocli.version>4.7.7</picocli.version>
         <sshj.version>0.39.0</sshj.version>
         <eddsa.version>0.3.0</eddsa.version>
         <slf4j.version>2.0.17</slf4j.version>
         <jzlib.version>1.1.3</jzlib.version>
         <asn.one.version>0.6.0</asn.one.version>
         <jline.version>3.29.0</jline.version>
-        <junit.version>5.12.1</junit.version>
+        <junit.version>5.12.2</junit.version>
         <wdt.scm.repo.url>${env.WDT_SCM_REPO_URL}</wdt.scm.repo.url>
         <wdt.scm.repo.conn>${env.WDT_SCM_REPO_CONN}</wdt.scm.repo.conn>
 
@@ -140,7 +140,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>33.4.0-jre</version>
+                <version>33.4.8-jre</version>
             </dependency>
             <dependency>
                 <groupId>javax.xml.bind</groupId>
@@ -196,7 +196,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>3.5.2</version>
+                    <version>3.5.3</version>
                     <configuration>
                         <groups>${test.groups}</groups>
                     </configuration>
