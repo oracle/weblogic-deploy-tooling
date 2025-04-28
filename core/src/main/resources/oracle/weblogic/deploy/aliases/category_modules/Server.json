@@ -702,6 +702,7 @@
                 "DebugEjbDeployment":                           [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "DebugEjbDeployment",                           "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugEjbInvoke":                               [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "DebugEjbInvoke",                               "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugEjbLocking":                              [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "DebugEjbLocking",                              "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
+                "DebugEjbMdbAqMessageRecovery":                 [ {"version": "[15.1.1,)",       "wlst_mode": "online",  "wlst_name": "DebugEjbMdbAqMessageRecovery",                 "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugEjbMdbConnection":                        [ {"version": "[10,)",           "wlst_mode": "both",    "wlst_name": "DebugEjbMdbConnection",                        "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"} ],
                 "DebugEjbMdbListener":                          [
                     {"version": "[12.2.1.4.0.240922,14.1.1)", "wlst_mode": "both", "wlst_name": "DebugEjbMdbListener", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean"},
