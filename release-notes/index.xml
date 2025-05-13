@@ -8,6 +8,16 @@
     <language>en-us</language>
     <lastBuildDate>Tue, 09 Jan 2024 18:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Release 4.3.4</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.3.4/</link>
+      <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.3.4/</guid>
+      <description>Changes in Release 4.3.4  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes  #1792 - Segregated ServerTemplate keystores in the archive file. #1798 - Added ClusterAddress, ListenAddress, InterfaceAddress, and MulticastAddress to the WKO filter when using Discover Domain and Prepare Model tools with the -target argument. #1799 - Added the oracle_database_admin_role field to the RCUDbInfo section for users that need to use a role that is not SYSDBA.</description>
+    </item>
+    
+    <item>
       <title>Release 4.3.3</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.3.3/</link>
       <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>

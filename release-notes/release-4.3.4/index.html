@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Hugo 0.82.0" />
-    <meta name="description" content="A model for creating user password credential mappings.">
+    <meta name="description" content="">
 
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Modeling WebLogic user password credential mapping :: WebLogic Deploy Tooling</title>
+    <title>Release 4.3.4 :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1747145886" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/samples/pwcredentialmap-model/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-4.3.4/">
     <nav id="sidebar" class="">
 
 
@@ -841,7 +841,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/samples/" title="Samples" class="dd-item
-        parent
+        
         
         
         ">
@@ -1035,7 +1035,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/samples/pwcredentialmap-model/" title="Modeling WebLogic user password credential mapping" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/samples/pwcredentialmap-model/" title="Modeling WebLogic user password credential mapping" class="dd-item ">
         <a href="/weblogic-deploy-tooling/samples/pwcredentialmap-model/">
         Modeling WebLogic user password credential mapping
         
@@ -1329,7 +1329,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
-        
+        parent
         
         
         ">
@@ -1355,7 +1355,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.3.4/" title="Release 4.3.4" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.3.4/" title="Release 4.3.4" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-4.3.4/">
         <b> </b>Release 4.3.4
         
@@ -2161,7 +2161,7 @@
             
           
           
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/samples/'>Samples</a> > Modeling WebLogic user password credential mapping
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release 4.3.4
           
         
           
@@ -2174,7 +2174,15 @@
                 
                     <div class="progress">
     <div class="wrapper">
-<nav id="TableOfContents"></nav>
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#changes-in-release-434">Changes in Release 4.3.4</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
     </div>
 </div>
 
@@ -2190,44 +2198,62 @@
           
             <h1>
               
-              Modeling WebLogic user password credential mapping
+              Release 4.3.4
             </h1>
           
 
         
 
 
-<p>The Create Domain Tool can be used to create user password credential mappings for use with the <code>DefaultCredentialMapper</code> security provider.
-Information in the model will be used to create a credential mapping file that will be imported the first time the Administration Server is started. This example shows how mappings are represented in the model:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
-   <span style="color:#f92672">WLSUserPasswordCredentialMappings</span>:
-       <span style="color:#f92672">CrossDomain</span>:
-           <span style="color:#f92672">map1</span>:
-               <span style="color:#f92672">RemoteDomain</span>: <span style="color:#ae81ff">otherDomain</span>
-               <span style="color:#f92672">RemoteUser</span>: <span style="color:#ae81ff">otherUser</span>
-               <span style="color:#f92672">RemotePassword</span>: <span style="color:#e6db74">&#39;@@PROP:other.pwd@@&#39;</span>
-       <span style="color:#f92672">RemoteResource</span>:
-           <span style="color:#f92672">map2</span>:
-               <span style="color:#f92672">Protocol</span>: <span style="color:#ae81ff">http</span>
-               <span style="color:#f92672">RemoteHost</span>: <span style="color:#ae81ff">remote.host</span>
-               <span style="color:#f92672">RemotePort</span>: <span style="color:#ae81ff">7020</span>
-               <span style="color:#f92672">Path</span>: <span style="color:#ae81ff">/app/buy</span>
-               <span style="color:#f92672">Method</span>: <span style="color:#ae81ff">POST</span>
-               <span style="color:#f92672">User</span>: <span style="color:#ae81ff">user1</span>
-               <span style="color:#f92672">RemoteUser</span>: <span style="color:#ae81ff">remoteUser</span>
-               <span style="color:#f92672">RemotePassword</span>: <span style="color:#e6db74">&#39;@@PROP:remote.pwd@@&#39;</span>
-           <span style="color:#f92672">map3</span>:
-               <span style="color:#f92672">Protocol</span>: <span style="color:#ae81ff">https</span>
-               <span style="color:#f92672">RemoteHost</span>: <span style="color:#ae81ff">remote2.host</span>
-               <span style="color:#f92672">RemotePort</span>: <span style="color:#ae81ff">7030</span>
-               <span style="color:#f92672">Path</span>: <span style="color:#ae81ff">/app/sell</span>
-               <span style="color:#f92672">Method</span>: <span style="color:#ae81ff">GET</span>
-               <span style="color:#f92672">User</span>: <span style="color:#ae81ff">user1,user2</span>
-               <span style="color:#f92672">RemoteUser</span>: <span style="color:#ae81ff">remoteUser2</span>
-               <span style="color:#f92672">RemotePassword</span>: <span style="color:#e6db74">&#39;@@PROP:remote2.pwd@@&#39;</span>
-</code></pre></div><p>In this example, the mapping <code>map1</code> creates a cross-domain credential mapping that provides access from this domain to the remote domain <code>otherDomain</code> as the user <code>otherUser</code> with the configured password.</p>
-<p>The mapping <code>map2</code> creates a remote resource credential mapping that will give the local user <code>user1</code> access to a single remote resource on <code>remote.host</code> as the user <code>remoteUser</code> with the configured password. The mapping <code>map3</code> is similar, but provides access to a different remote resource for two local users, <code>user1</code> and <code>user2</code>.</p>
-<p>The names of the mapping sections in the model, such as <code>map1</code> and <code>map2</code>, are used to group the attributes for each mapping in the model and are not part of the resulting credential mappings. These names should be unique for each mapping of a particular type.</p>
+<h3 id="changes-in-release-434">Changes in Release 4.3.4</h3>
+<ul>
+<li><a href="#major-new-features">Major New Features</a></li>
+<li><a href="#other-changes">Other Changes</a></li>
+<li><a href="#bug-fixes">Bugs Fixes</a></li>
+<li><a href="#known-issues">Known Issues</a></li>
+</ul>
+<h4 id="major-new-features">Major New Features</h4>
+<p>None</p>
+<h4 id="other-changes">Other Changes</h4>
+<ul>
+<li>#1792 - Segregated ServerTemplate keystores in the archive file.</li>
+<li>#1798 - Added <code>ClusterAddress</code>, <code>ListenAddress</code>, <code>InterfaceAddress</code>, and <code>MulticastAddress</code> to the WKO filter
+when using Discover Domain and Prepare Model tools with the <code>-target</code> argument.</li>
+<li>#1799 - Added the <code>oracle_database_admin_role</code> field to the <code>RCUDbInfo</code> section for users that need to
+use a role that is not <code>SYSDBA</code>.</li>
+</ul>
+<h4 id="bug-fixes">Bug Fixes</h4>
+<ul>
+<li>#1784 - Prevent Discover Domain tool from trying to discover passwords unless the user specified to do so.</li>
+<li>#1785 - Change logging level from <code>INFO</code> to <code>FINE</code> for unrecognized attributes when using online operations.</li>
+<li>#1786 - Fixed RCU discovery issue to properly handle passwords.</li>
+<li>#1787 - Fixed issue with WKO filter to eliminate errors when traversing the model.</li>
+<li>#1788 - Restored internal method call to compare WLS versions in the Discover Domain tool.</li>
+<li>#1789 - Fixing issues with the <code>-target wko</code> filter.</li>
+<li>#1790 - Add missing 14.1.2 JDK version information to the installation documentation.</li>
+<li>#1794 - Fixing an issue with the RCU password not being properly decrypted while trying to validate the
+RCU data when running the Create Domain tool.</li>
+<li>#1795 - Fixing a bug introduced by change #1792 that was causing an error when discovering <code>Server</code> and
+<code>ServerTemplate</code> keystores.</li>
+<li>#1796 - Fixed an issue where the datasource password was not being decrypted properly when using the
+Discover Domain tool with the <code>-discover_passwords</code> argument.</li>
+</ul>
+<h4 id="known-issues">Known Issues</h4>
+<ul>
+<li>
+<p>SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
+the 12.2.1.4.0 GA release fails with the following error, as mentioned at <a href="https://github.com/hierynomus/sshj/issues/895">https://github.com/hierynomus/sshj/issues/895</a>.
+Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">SEVERE Messages:
+        1. WLSDPLY-20008: verifySSH argument processing failed: Failed to initialize SSH context: Failed to SSH connect to host myhost.oracle.com: no such algorithm: X25519 <span style="color:#66d9ef">for</span> provider BC
+</code></pre></div></li>
+<li>
+<p>SSH support for the Update Domain Tool and Deploy Apps Tool does not work when using an archive file and the remote
+WebLogic Server is running on Windows using the optional, Windows-provided, OpenSSH component.  This is due to an
+issue with the SSHJ library WDT is using.  See <a href="https://github.com/hierynomus/sshj/issues/929">https://github.com/hierynomus/sshj/issues/929</a> for more information.</p>
+</li>
+</ul>
+<p>See <a href="https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/">https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/</a> for the current set of known limitations.</p>
 
 
 <footer class="footline">
@@ -2784,7 +2810,6 @@ Information in the model will be used to create a credential mapping file that w
             
                 
                     
-                    
                 
                 
 
@@ -2797,9 +2822,6 @@ Information in the model will be used to create a credential mapping file that w
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2929,7 +2951,6 @@ Information in the model will be used to create a credential mapping file that w
             
                 
                     
-                    
                 
                 
 
@@ -2945,9 +2966,6 @@ Information in the model will be used to create a credential mapping file that w
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -3144,6 +3162,7 @@ Information in the model will be used to create a credential mapping file that w
             
                 
                     
+                    
                 
                 
 
@@ -3156,6 +3175,7 @@ Information in the model will be used to create a credential mapping file that w
             
             
                 
+                    
                     
                 
                 
@@ -3172,6 +3192,9 @@ Information in the model will be used to create a credential mapping file that w
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -3740,10 +3763,10 @@ Information in the model will be used to create a credential mapping file that w
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/samples/usersgroups-model/" title="Modeling WebLogic users, groups, roles, and policies"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/samples/odl-model/" title="Configuring Oracle Diagnostic Logging" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-4.3.3/" title="Release 4.3.3" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
