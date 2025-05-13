@@ -21,7 +21,7 @@ None
 
 #### Bug Fixes
 - #1803 - Fixed the Update Domain Tool documentation to list `-output_dir` in the list of supported arguments. 
-- #1804 - Addressed CVE-2020-36843 but upgrading sshj to a version that removes the dependency on eddsa and
+- #1804 - Addressed CVE-2020-36843 by upgrading sshj to a version that removes the dependency on eddsa and
           removing eddsa from the WDT installer.
 
 #### Known Issues
