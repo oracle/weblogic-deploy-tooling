@@ -40,8 +40,7 @@
         <antlr.version>4.9.3</antlr.version>
         <snakeyaml.version>2.4</snakeyaml.version>
         <picocli.version>4.7.7</picocli.version>
-        <sshj.version>0.39.0</sshj.version>
-        <eddsa.version>0.3.0</eddsa.version>
+        <sshj.version>0.40.0</sshj.version>
         <slf4j.version>2.0.17</slf4j.version>
         <jzlib.version>1.1.3</jzlib.version>
         <asn.one.version>0.6.0</asn.one.version>
@@ -91,11 +90,6 @@
                 <groupId>com.hierynomus</groupId>
                 <artifactId>sshj</artifactId>
                 <version>${sshj.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.i2p.crypto</groupId>
-                <artifactId>eddsa</artifactId>
-                <version>${eddsa.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
