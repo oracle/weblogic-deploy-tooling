@@ -23,3 +23,7 @@ updates:
       - dependency-name: org.python:jython
         versions:
           - ">2.2.1"
+      # Ignore newer versions of SnakeYAML that require JDK 8
+      - dependency-name: org.yaml:snakeyaml
+        versions:
+          - ">=2.4"
