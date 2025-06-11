@@ -1,12 +1,12 @@
 +++
-title = "Release Notes"
+title = "Release 4.3.5"
 date = 2024-01-09T18:27:38-05:00
-weight = 62
+weight = 63
 pre = "<b> </b>"
 +++
 
 
-### Changes in Release 4.3.6
+### Changes in Release 4.3.5
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -17,10 +17,12 @@ pre = "<b> </b>"
 None
 
 #### Other Changes
-None
+- #1802 - Added support for the 12.2.1.4, 14.1.1, and 14.1.2 April 2025 PSUs.
 
 #### Bug Fixes
-- #1806 - Reverted SnakeYAML to version 2.3 to restore JDK 7 support.
+- #1803 - Fixed the Update Domain Tool documentation to list `-output_dir` in the list of supported arguments. 
+- #1804 - Addressed CVE-2020-36843 by upgrading sshj to a version that removes the dependency on eddsa and
+          removing eddsa from the WDT installer.
 
 #### Known Issues
 - SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
