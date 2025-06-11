@@ -9,7 +9,7 @@
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Release 2.4.1 :: WebLogic Deploy Tooling</title>
+    <title>Release 4.3.5 :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1749604996" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-2.4.1/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-4.3.5/">
     <nav id="sidebar" class="">
 
 
@@ -1355,7 +1355,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.3.5/" title="Release 4.3.5" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.3.5/" title="Release 4.3.5" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-4.3.5/">
         <b> </b>Release 4.3.5
         
@@ -2090,7 +2090,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-2.4.1/" title="Release 2.4.1" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-2.4.1/" title="Release 2.4.1" class="dd-item ">
         <a href="/weblogic-deploy-tooling/release-notes/release-2.4.1/">
         <b> </b>Release 2.4.1
         
@@ -2182,7 +2182,7 @@
             
           
           
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release 2.4.1
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release 4.3.5
           
         
           
@@ -2199,7 +2199,7 @@
   <ul>
     <li>
       <ul>
-        <li><a href="#changes-in-release-241">Changes in Release 2.4.1</a></li>
+        <li><a href="#changes-in-release-435">Changes in Release 4.3.5</a></li>
       </ul>
     </li>
   </ul>
@@ -2219,14 +2219,14 @@
           
             <h1>
               
-              Release 2.4.1
+              Release 4.3.5
             </h1>
           
 
         
 
 
-<h3 id="changes-in-release-241">Changes in Release 2.4.1</h3>
+<h3 id="changes-in-release-435">Changes in Release 4.3.5</h3>
 <ul>
 <li><a href="#major-new-features">Major New Features</a></li>
 <li><a href="#other-changes">Other Changes</a></li>
@@ -2234,20 +2234,33 @@
 <li><a href="#known-issues">Known Issues</a></li>
 </ul>
 <h4 id="major-new-features">Major New Features</h4>
-<ul>
-<li>None</li>
-</ul>
-<h4 id="other-changes">Other Changes</h4>
 <p>None</p>
+<h4 id="other-changes">Other Changes</h4>
+<ul>
+<li>#1802 - Added support for the 12.2.1.4, 14.1.1, and 14.1.2 April 2025 PSUs.</li>
+</ul>
 <h4 id="bug-fixes">Bug Fixes</h4>
 <ul>
-<li>#1237: Resolved an issue where the tools supporting the <code>-target</code> parameter were doing target-related work even if the parameter was not specified.</li>
+<li>#1803 - Fixed the Update Domain Tool documentation to list <code>-output_dir</code> in the list of supported arguments.</li>
+<li>#1804 - Addressed CVE-2020-36843 by upgrading sshj to a version that removes the dependency on eddsa and
+removing eddsa from the WDT installer.</li>
 </ul>
 <h4 id="known-issues">Known Issues</h4>
 <ul>
-<li>Due to the changes made for WDT-663 in WDT 2.4.0, the resulting remotely discovered model contains extra fields that would not normally be there.
-This is an area of ongoing work to clean up the online aliases to not depend on these extra remote calls to produce a clean model.</li>
+<li>
+<p>SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
+the 12.2.1.4.0 GA release fails with the following error, as mentioned at <a href="https://github.com/hierynomus/sshj/issues/895">https://github.com/hierynomus/sshj/issues/895</a>.
+Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">SEVERE Messages:
+        1. WLSDPLY-20008: verifySSH argument processing failed: Failed to initialize SSH context: Failed to SSH connect to host myhost.oracle.com: no such algorithm: X25519 <span style="color:#66d9ef">for</span> provider BC
+</code></pre></div></li>
+<li>
+<p>SSH support for the Update Domain Tool and Deploy Apps Tool does not work when using an archive file and the remote
+WebLogic Server is running on Windows using the optional, Windows-provided, OpenSSH component.  This is due to an
+issue with the SSHJ library WDT is using.  See <a href="https://github.com/hierynomus/sshj/issues/929">https://github.com/hierynomus/sshj/issues/929</a> for more information.</p>
+</li>
 </ul>
+<p>See <a href="https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/">https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/</a> for the current set of known limitations.</p>
 
 
 <footer class="footline">
@@ -3170,6 +3183,23 @@ This is an area of ongoing work to clean up the online aliases to not depend on 
             
                 
                     
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
                         
                         
                     
@@ -3732,26 +3762,6 @@ This is an area of ongoing work to clean up the online aliases to not depend on 
             
             
                 
-                    
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
                     
                 
                 
@@ -3776,10 +3786,10 @@ This is an area of ongoing work to clean up the online aliases to not depend on 
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/release-2.4.2/" title="Release 2.4.2"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-2.4.0/" title="Release 2.4.0" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-4.3.4/" title="Release 4.3.4" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
