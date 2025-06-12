@@ -27,7 +27,10 @@
                 "MaximumDynamicServerCount":            [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "MaximumDynamicServerCount",            "wlst_path": "WP001", "default_value": 0,        "wlst_type": "integer",         "get_method": "GET"  } ],
                 "MinDynamicClusterSize":                [ {"version": "[12.2.1,)",   "wlst_mode": "both",    "wlst_name": "MinDynamicClusterSize",                "wlst_path": "WP001", "default_value": 1,        "wlst_type": "integer"          } ],
                 "Notes":                                [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "Notes",                                "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"           } ],
-                "ServerNamePrefix":                     [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "ServerNamePrefix",                     "wlst_path": "WP001", "default_value": null,  "derived_default": "${:true}",   "wlst_type": "string"           } ],
+                "ServerNamePrefix":                     [
+                    {"version": "[12.1.2,15.1.1)", "wlst_mode": "both", "wlst_name": "ServerNamePrefix", "wlst_path": "WP001", "default_value": null, "derived_default": "${:true}", "wlst_type": "string" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "ServerNamePrefix", "wlst_path": "WP001", "default_value": null, "derived_default": true,       "wlst_type": "string" }
+                ],
                 "ServerNameStartingIndex":              [ {"version": "[14.1.1,)",   "wlst_mode": "both",    "wlst_name": "ServerNameStartingIndex",              "wlst_path": "WP001", "default_value": 1,        "wlst_type": "integer"          } ],
                 "ServerTemplate":                       [ {"version": "[12.1.2,)",   "wlst_mode": "both",    "wlst_name": "ServerTemplate",                       "wlst_path": "WP001", "default_value": null,     "wlst_type": "string",          "get_method": "${LSA:GET}", "set_method": "MBEAN.set_server_template_mbean", "set_mbean_type": "weblogic.management.configuration.ServerTemplateMBean" } ],
                 "WaitForAllSessionsDuringShutdown":     [ {"version": "[12.2.1,)",   "wlst_mode": "both",    "wlst_name": "WaitForAllSessionsDuringShutdown",     "wlst_path": "WP001", "default_value": "false",  "wlst_type": "boolean"          } ]
@@ -99,43 +102,139 @@
                 }
             },
             "attributes" : {
-                "AbandonTimeoutSeconds":                      [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "AbandonTimeoutSeconds",                      "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 86400,    "wlst_type": "integer" } ],
-                "BeforeCompletionIterationLimit":             [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "BeforeCompletionIterationLimit",             "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 10,       "wlst_type": "integer" } ],
-                "CheckpointIntervalSeconds":                  [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "CheckpointIntervalSeconds",                  "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 300,      "wlst_type": "integer" } ],
-                "ClusterwideRecoveryEnabled":                 [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "ClusterwideRecoveryEnabled",                 "derived_default": "${:true}", "wlst_path": "WP001", "default_value": "false",  "wlst_type": "boolean" } ],
-                "CompletionTimeoutSeconds":                   [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "CompletionTimeoutSeconds",                   "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 0,        "wlst_type": "integer" } ],
-                "CrossDomainRecoveryRetryInterval":           [ {"version": "[12.2.1,)",   "wlst_mode": "both",    "wlst_name": "CrossDomainRecoveryRetryInterval",           "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 60,       "wlst_type": "integer" } ],
-                "CrossSiteRecoveryLeaseExpiration":           [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "CrossSiteRecoveryLeaseExpiration",           "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 30,       "wlst_type": "integer" } ],
-                "CrossSiteRecoveryLeaseUpdate":               [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "CrossSiteRecoveryLeaseUpdate",               "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 10,       "wlst_type": "integer" } ],
-                "CrossSiteRecoveryRetryInterval":             [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "CrossSiteRecoveryRetryInterval",             "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 60,       "wlst_type": "integer" } ],
-                "Determiner":                                 [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "Determiner${:s}",                            "derived_default": "${:true}", "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"  } ],
+                "AbandonTimeoutSeconds":                      [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "AbandonTimeoutSeconds",                      "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 86400, "wlst_type": "integer" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "AbandonTimeoutSeconds",                      "derived_default": true, "wlst_path": "WP001", "default_value": 86400,    "wlst_type": "integer" }
+                ],
+                "BeforeCompletionIterationLimit":             [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "BeforeCompletionIterationLimit",             "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 10,       "wlst_type": "integer" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "BeforeCompletionIterationLimit",             "derived_default": true,       "wlst_path": "WP001", "default_value": 10,       "wlst_type": "integer" }
+                ],
+                "CheckpointIntervalSeconds":                  [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "CheckpointIntervalSeconds",                  "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 300,      "wlst_type": "integer" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "CheckpointIntervalSeconds",                  "derived_default": true,       "wlst_path": "WP001", "default_value": 300,      "wlst_type": "integer" }
+                ],
+                "ClusterwideRecoveryEnabled":                 [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "ClusterwideRecoveryEnabled",                 "derived_default": "${:true}", "wlst_path": "WP001", "default_value": "false",  "wlst_type": "boolean" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "ClusterwideRecoveryEnabled",                 "derived_default": true,       "wlst_path": "WP001", "default_value": "false",  "wlst_type": "boolean" }
+                ],
+                "CompletionTimeoutSeconds":                   [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "CompletionTimeoutSeconds",                   "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 0,        "wlst_type": "integer" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "CompletionTimeoutSeconds",                   "derived_default": true,       "wlst_path": "WP001", "default_value": 0,        "wlst_type": "integer" }
+                ],
+                "CrossDomainRecoveryRetryInterval":           [
+                    {"version": "[12.2.1,15.1.1)", "wlst_mode": "both", "wlst_name": "CrossDomainRecoveryRetryInterval",           "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 60,       "wlst_type": "integer" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "CrossDomainRecoveryRetryInterval",           "derived_default": true,       "wlst_path": "WP001", "default_value": 60,       "wlst_type": "integer" }
+                ],
+                "CrossSiteRecoveryLeaseExpiration":           [
+                    {"version": "[12.2.1.1,15.1.1)", "wlst_mode": "both", "wlst_name": "CrossSiteRecoveryLeaseExpiration",           "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 30,       "wlst_type": "integer" },
+                    {"version": "[15.1.1,)",         "wlst_mode": "both", "wlst_name": "CrossSiteRecoveryLeaseExpiration",           "derived_default": true,       "wlst_path": "WP001", "default_value": 30,       "wlst_type": "integer" }
+                ],
+                "CrossSiteRecoveryLeaseUpdate":               [
+                    {"version": "[12.2.1.1,15.1.1)", "wlst_mode": "both", "wlst_name": "CrossSiteRecoveryLeaseUpdate",               "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 10,       "wlst_type": "integer" },
+                    {"version": "[15.1.1,)",         "wlst_mode": "both", "wlst_name": "CrossSiteRecoveryLeaseUpdate",               "derived_default": true,       "wlst_path": "WP001", "default_value": 10,       "wlst_type": "integer" }
+                ],
+                "CrossSiteRecoveryRetryInterval":             [
+                    {"version": "[12.2.1.1,15.1.1)", "wlst_mode": "both", "wlst_name": "CrossSiteRecoveryRetryInterval",             "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 60,       "wlst_type": "integer" },
+                    {"version": "[15.1.1,)",         "wlst_mode": "both", "wlst_name": "CrossSiteRecoveryRetryInterval",             "derived_default": true,       "wlst_path": "WP001", "default_value": 60,       "wlst_type": "integer" }
+                ],
+                "Determiner":                                 [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "Determiner${:s}",                            "derived_default": "${:true}", "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"  },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "Determiner${:s}",                            "derived_default": true,       "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"  }
+                ],
                 "DeterminerCandidateResourceInfoList":        [ {"version": "[12.2.1,)",   "wlst_mode": "online",  "wlst_name": "DeterminerCandidateResourceInfoList",        "wlst_path": "WP001", "default_value": "",       "wlst_type": "jarray",  "access": "IGNORED" } ],
-                "ForgetHeuristics":                           [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "ForgetHeuristics",                           "derived_default": "${:true}", "wlst_path": "WP001", "default_value": "true",   "wlst_type": "boolean" } ],
+                "ForgetHeuristics":                           [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "ForgetHeuristics",                           "derived_default": "${:true}", "wlst_path": "WP001", "default_value": "true",   "wlst_type": "boolean" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "ForgetHeuristics",                           "derived_default": true,       "wlst_path": "WP001", "default_value": "true",   "wlst_type": "boolean" }
+                ],
                 "LocalDomainSecurityCacheEnabled":            [ {"version": "[14.1.2,)",   "wlst_mode": "both",    "wlst_name": "LocalDomainSecurityCacheEnabled",                                           "wlst_path": "WP001", "default_value": "true",   "wlst_type": "boolean" } ],
                 "LocalDomainSecurityCacheTtl":                [ {"version": "[14.1.2,)",   "wlst_mode": "both",    "wlst_name": "LocalDomainSecurityCacheT${tl:TL}",                                         "wlst_path": "WP001", "default_value": "300",    "wlst_type": "integer" } ],
                 "LocalDomainSecurityEnabled":                 [ {"version": "[14.1.2,)",   "wlst_mode": "both",    "wlst_name": "LocalDomainSecurityEnabled",                                                "wlst_path": "WP001", "default_value": "false",  "wlst_type": "boolean" } ],
-                "MaxResourceRequestsOnServer":                [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "MaxResourceRequestsOnServer",                "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 50,       "wlst_type": "integer" } ],
-                "MaxResourceUnavailableMillis":               [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "MaxResourceUnavailableMillis",               "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 1800000,  "wlst_type": "long"    } ],
-                "MaxRetrySecondsBeforeDeterminerFail":        [ {"version": "[12.2.1,)",   "wlst_mode": "both",    "wlst_name": "MaxRetrySecondsBeforeDeterminerFail",        "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 300,      "wlst_type": "integer" } ],
-                "MaxTransactions":                            [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "MaxTransactions",                            "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 10000,    "wlst_type": "integer" } ],
-                "MaxTransactionsHealthIntervalMillis":        [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "MaxTransactionsHealthIntervalMillis",        "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 60000,    "wlst_type": "long"    } ],
-                "MaxUniqueNameStatistics":                    [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "MaxUniqueNameStatistics",                    "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 1000,     "wlst_type": "integer" } ],
-                "MaxXACallMillis":                            [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "MaxXACallMillis",                            "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 120000,   "wlst_type": "long"    } ],
-                "MigrationCheckpointIntervalSeconds":         [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "MigrationCheckpointIntervalSeconds",         "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 60,       "wlst_type": "integer" } ],
-                "Notes":                                      [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "Notes",                                      "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"  } ],
-                "ParallelXADispatchPolicy":                   [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "ParallelXADispatchPolicy",                   "derived_default": "${:true}", "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"  } ],
-                "ParallelXAEnabled":                          [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "ParallelXAEnabled",                          "derived_default": "${:true}", "wlst_path": "WP001", "default_value": "true",   "wlst_type": "boolean" } ],
-                "PurgeResourceFromCheckpointIntervalSeconds": [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "PurgeResourceFromCheckpointIntervalSeconds", "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 86400,    "wlst_type": "integer" } ],
-                "RecoverySiteName":                           [ {"version": "[12.2.1,)",   "wlst_mode": "both",    "wlst_name": "RecoverySiteName",                           "derived_default": "${:true}", "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"  } ],
-                "RecoveryThresholdMillis":                    [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "RecoveryThresholdMillis",                    "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 300000,   "wlst_type": "long"    } ],
-                "SecurityInteropMode":                        [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "SecurityInteropMode",                        "derived_default": "${:true}", "wlst_path": "WP001", "default_value": "${__NULL__:default}", "wlst_type": "string"  } ],
-                "SerializeEnlistmentsGCIntervalMillis":       [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "SerializeEnlistmentsGCIntervalMillis",       "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 30000,    "wlst_type": "long"    } ],
-                "ShutdownGracePeriod":                        [ {"version": "[12.2.1,)",   "wlst_mode": "both",    "wlst_name": "ShutdownGracePeriod",                        "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 180,      "wlst_type": "integer" } ],
-                "TightlyCoupledTransactionsEnabled":          [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "TightlyCoupledTransactionsEnabled",          "derived_default": "${:true}", "wlst_path": "WP001", "default_value": "false",  "wlst_type": "boolean" } ],
-                "TimeoutSeconds":                             [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "TimeoutSeconds",                             "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 30,       "wlst_type": "integer" } ],
-                "TlogWriteWhenDeterminerExistsEnabled":       [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "T${log:LOG}WriteWhenDeterminerExistsEnabled", "derived_default": "${:true}", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean" } ],
-                "TwoPhaseEnabled":                            [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "TwoPhaseEnabled",                            "derived_default": "${:true}", "wlst_path": "WP001", "default_value": "true",   "wlst_type": "boolean" } ],
-                "UnregisterResourceGracePeriod":              [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "UnregisterResourceGracePeriod",              "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 30,       "wlst_type": "integer" } ],
+                "MaxResourceRequestsOnServer":                [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "MaxResourceRequestsOnServer",                "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 50,       "wlst_type": "integer" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "MaxResourceRequestsOnServer",                "derived_default": true,       "wlst_path": "WP001", "default_value": 50,       "wlst_type": "integer" }
+                ],
+                "MaxResourceUnavailableMillis":               [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "MaxResourceUnavailableMillis",               "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 1800000,  "wlst_type": "long"    },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "MaxResourceUnavailableMillis",               "derived_default": true,       "wlst_path": "WP001", "default_value": 1800000,  "wlst_type": "long"    }
+                ],
+                "MaxRetrySecondsBeforeDeterminerFail":        [
+                    {"version": "[12.2.1,15.1.1)", "wlst_mode": "both", "wlst_name": "MaxRetrySecondsBeforeDeterminerFail",        "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 300,      "wlst_type": "integer" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "MaxRetrySecondsBeforeDeterminerFail",        "derived_default": true,       "wlst_path": "WP001", "default_value": 300,      "wlst_type": "integer" }
+                ],
+                "MaxTransactions":                            [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "MaxTransactions",                            "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 10000,    "wlst_type": "integer" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "MaxTransactions",                            "derived_default": true,       "wlst_path": "WP001", "default_value": 10000,    "wlst_type": "integer" }
+                ],
+                "MaxTransactionsHealthIntervalMillis":        [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "MaxTransactionsHealthIntervalMillis",        "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 60000,    "wlst_type": "long"    },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "MaxTransactionsHealthIntervalMillis",        "derived_default": true,       "wlst_path": "WP001", "default_value": 60000,    "wlst_type": "long"    }
+                ],
+                "MaxUniqueNameStatistics":                    [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "MaxUniqueNameStatistics",                    "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 1000,     "wlst_type": "integer" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "MaxUniqueNameStatistics",                    "derived_default": true,       "wlst_path": "WP001", "default_value": 1000,     "wlst_type": "integer" }
+                ],
+                "MaxXACallMillis":                            [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "MaxXACallMillis",                            "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 120000,   "wlst_type": "long"    },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "MaxXACallMillis",                            "derived_default": true,       "wlst_path": "WP001", "default_value": 120000,   "wlst_type": "long"    }
+                ],
+                "MigrationCheckpointIntervalSeconds":         [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "MigrationCheckpointIntervalSeconds",         "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 60,       "wlst_type": "integer" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "MigrationCheckpointIntervalSeconds",         "derived_default": true,       "wlst_path": "WP001", "default_value": 60,       "wlst_type": "integer" }
+                ],
+                "Notes":                                      [ {"version": "[12.1.3,)",   "wlst_mode": "both", "wlst_name": "Notes",                                      "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"  } ],
+                "ParallelXADispatchPolicy":                   [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "ParallelXADispatchPolicy",                   "derived_default": "${:true}", "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"  },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "ParallelXADispatchPolicy",                   "derived_default": true,       "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"  }
+                ],
+                "ParallelXAEnabled":                          [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "ParallelXAEnabled",                          "derived_default": "${:true}", "wlst_path": "WP001", "default_value": "true",   "wlst_type": "boolean" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "ParallelXAEnabled",                          "derived_default": true,       "wlst_path": "WP001", "default_value": "true",   "wlst_type": "boolean" }
+                ],
+                "PurgeResourceFromCheckpointIntervalSeconds": [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "PurgeResourceFromCheckpointIntervalSeconds", "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 86400,    "wlst_type": "integer" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "PurgeResourceFromCheckpointIntervalSeconds", "derived_default": true,       "wlst_path": "WP001", "default_value": 86400,    "wlst_type": "integer" }
+                ],
+                "RecoverySiteName":                           [
+                    {"version": "[12.2.1,15.1.1)", "wlst_mode": "both", "wlst_name": "RecoverySiteName",                           "derived_default": "${:true}", "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"  },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "RecoverySiteName",                           "derived_default": true,       "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"  }
+                ],
+                "RecoveryThresholdMillis":                    [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "RecoveryThresholdMillis",                    "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 300000,   "wlst_type": "long"    },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "RecoveryThresholdMillis",                    "derived_default": true,       "wlst_path": "WP001", "default_value": 300000,   "wlst_type": "long"    }
+                ],
+                "SecurityInteropMode":                        [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "SecurityInteropMode",                        "derived_default": "${:true}", "wlst_path": "WP001", "default_value": "${__NULL__:default}", "wlst_type": "string"  },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "SecurityInteropMode",                        "derived_default": true,       "wlst_path": "WP001", "default_value": "${__NULL__:default}", "wlst_type": "string"  }
+                ],
+                "SerializeEnlistmentsGCIntervalMillis":       [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "SerializeEnlistmentsGCIntervalMillis",       "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 30000,    "wlst_type": "long"    },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "SerializeEnlistmentsGCIntervalMillis",       "derived_default": true,       "wlst_path": "WP001", "default_value": 30000,    "wlst_type": "long"    }
+                ],
+                "ShutdownGracePeriod":                        [
+                    {"version": "[12.2.1,15.1.1)", "wlst_mode": "both", "wlst_name": "ShutdownGracePeriod",                        "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 180,      "wlst_type": "integer" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "ShutdownGracePeriod",                        "derived_default": true,       "wlst_path": "WP001", "default_value": 180,      "wlst_type": "integer" }
+                ],
+                "TightlyCoupledTransactionsEnabled":          [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "TightlyCoupledTransactionsEnabled",          "derived_default": "${:true}", "wlst_path": "WP001", "default_value": "false",  "wlst_type": "boolean" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "TightlyCoupledTransactionsEnabled",          "derived_default": true,       "wlst_path": "WP001", "default_value": "false",  "wlst_type": "boolean" }
+                ],
+                "TimeoutSeconds":                             [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "TimeoutSeconds",                             "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 30,       "wlst_type": "integer" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "TimeoutSeconds",                             "derived_default": true,       "wlst_path": "WP001", "default_value": 30,       "wlst_type": "integer" }
+                ],
+                "TlogWriteWhenDeterminerExistsEnabled":       [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "T${log:LOG}WriteWhenDeterminerExistsEnabled", "derived_default": "${:true}", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "T${log:LOG}WriteWhenDeterminerExistsEnabled", "derived_default": true,       "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean" }
+                ],
+                "TwoPhaseEnabled":                            [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "TwoPhaseEnabled",                            "derived_default": "${:true}", "wlst_path": "WP001", "default_value": "true",   "wlst_type": "boolean" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "TwoPhaseEnabled",                            "derived_default": true,       "wlst_path": "WP001", "default_value": "true",   "wlst_type": "boolean" }
+                ],
+                "UnregisterResourceGracePeriod":              [
+                    {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "UnregisterResourceGracePeriod",              "derived_default": "${:true}", "wlst_path": "WP001", "default_value": 30,       "wlst_type": "integer" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "UnregisterResourceGracePeriod",              "derived_default": true,       "wlst_path": "WP001", "default_value": 30,       "wlst_type": "integer" }
+                ],
                 "UseNonSecureAddressesForDomain":             [ {"version": "[12.2.1.4,)", "wlst_mode": "both",    "wlst_name": "UseNonSecureAddressesForDomain${:s}",        "wlst_path": "WP001", "default_value": null,     "wlst_type": "${delimited_string:jarray}", "get_method": "${LSA:GET}", "preferred_model_type": "delimited_string" } ],
                 "UsePublicAddressesForRemoteDomain":          [ {"version": "[12.2.1.4,)", "wlst_mode": "both",    "wlst_name": "UsePublicAddressesForRemoteDomain${:s}",     "wlst_path": "WP001", "default_value": null,     "wlst_type": "${delimited_string:jarray}", "get_method": "${LSA:GET}", "preferred_model_type": "delimited_string" } ],
                 "WsatIssuedTokenEnabled":                     [ {"version": "[12.1.3,)",   "wlst_mode": "both",    "wlst_name": "W${sat:SAT}IssuedTokenEnabled",              "wlst_path": "WP001", "default_value": "false",  "wlst_type": "boolean" } ],
@@ -172,15 +271,29 @@
               }
             },
             "attributes" : {
-                "FailureAction":                  [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "FailureAction",                  "wlst_path": "WP001", "default_value": "${__NULL__:no-action}",   "derived_default": "${:true}", "wlst_type": "string"  } ],
-                "FreeMemoryPercentHighThreshold": [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "FreeMemoryPercentHighThreshold", "wlst_path": "WP001", "default_value": 0,                         "derived_default": "${:true}", "wlst_type": "integer" } ],
-                "FreeMemoryPercentLowThreshold":  [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "FreeMemoryPercentLowThreshold",  "wlst_path": "WP001", "default_value": 0,                         "derived_default": "${:true}", "wlst_type": "integer" } ],
+                "FailureAction":                  [
+                    {"version": "[10,15.1.1)", "wlst_mode": "both", "wlst_name": "FailureAction", "wlst_path": "WP001", "default_value": "${__NULL__:no-action}",   "derived_default": "${:true}", "wlst_type": "string"  },
+                    {"version": "[15.1.1,)",   "wlst_mode": "both", "wlst_name": "FailureAction", "wlst_path": "WP001", "default_value": "${__NULL__:no-action}",   "derived_default": true,       "wlst_type": "string"  }
+                ],
+                "FreeMemoryPercentHighThreshold": [
+                    {"version": "[10,15.1.1)", "wlst_mode": "both", "wlst_name": "FreeMemoryPercentHighThreshold", "wlst_path": "WP001", "default_value": 0, "derived_default": "${:true}", "wlst_type": "integer" },
+                    {"version": "[15.1.1,)",   "wlst_mode": "both", "wlst_name": "FreeMemoryPercentHighThreshold", "wlst_path": "WP001", "default_value": 0, "derived_default": true,       "wlst_type": "integer" }
+                ],
+                "FreeMemoryPercentLowThreshold":  [
+                    {"version": "[10,15.1.1)", "wlst_mode": "both", "wlst_name": "FreeMemoryPercentLowThreshold", "wlst_path": "WP001", "default_value": 0, "derived_default": "${:true}", "wlst_type": "integer" },
+                    {"version": "[15.1.1,)",   "wlst_mode": "both", "wlst_name": "FreeMemoryPercentLowThreshold", "wlst_path": "WP001", "default_value": 0, "derived_default": true,       "wlst_type": "integer" }
+                ],
                 "Notes":                          [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Notes",                          "wlst_path": "WP001", "default_value": null,                      "wlst_type": "string"   } ],
-                "PanicAction":                    [ {"version": "[10,12.2.1)", "wlst_mode": "both",    "wlst_name": "PanicAction",                    "wlst_path": "WP001", "default_value": "${__NULL__:no-action}",   "derived_default": "${:true}", "wlst_type": "string"  } ,
-                                                    {"version": "[12.2.1,)",   "wlst_mode": "both",    "wlst_name": "PanicAction",                    "wlst_path": "WP001", "default_value": "${__NULL__:system-exit}", "derived_default": "${:true}", "wlst_type": "string" } ],
+                "PanicAction":                    [
+                    {"version": "[10,12.2.1)",     "wlst_mode": "both", "wlst_name": "PanicAction", "wlst_path": "WP001", "default_value": "${__NULL__:no-action}",   "derived_default": "${:true}", "wlst_type": "string" } ,
+                    {"version": "[12.2.1,15.1.1)", "wlst_mode": "both", "wlst_name": "PanicAction", "wlst_path": "WP001", "default_value": "${__NULL__:system-exit}", "derived_default": "${:true}", "wlst_type": "string" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "PanicAction", "wlst_path": "WP001", "default_value": "${__NULL__:system-exit}", "derived_default": true, "wlst_type": "string" }
+                ],
                 "ServerFailureTrigger":           [ {"version": "[10,)",       "wlst_mode": "online",  "wlst_name": "ServerFailureTrigger",           "wlst_path": "WP001", "default_value": null,                      "wlst_type": "string", "access": "IGNORED", "comment": "Appears in attribute list until ServerFailureTrigger folder is created"} ],
-                "SharedCapacityForWorkManagers":  [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "SharedCapacityForWorkManagers",  "wlst_path": "WP001", "default_value": 65536,                     "derived_default": "${:true}", "wlst_type": "integer" } ]
-
+                "SharedCapacityForWorkManagers":  [
+                    {"version": "[10,15.1.1)", "wlst_mode": "both", "wlst_name": "SharedCapacityForWorkManagers", "wlst_path": "WP001", "default_value": 65536, "derived_default": "${:true}", "wlst_type": "integer" },
+                    {"version": "[15.1.1,)",   "wlst_mode": "both", "wlst_name": "SharedCapacityForWorkManagers", "wlst_path": "WP001", "default_value": 65536, "derived_default": true,       "wlst_type": "integer" }
+                ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
@@ -241,9 +354,12 @@
         "MaxServerCountForHttpPing":                 [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "MaxServerCountForHttpPing",                 "wlst_path": "WP001", "default_value": 0,                            "wlst_type": "integer",          "get_method": "${LSA:GET}"    } ],
         "MemberDeathDetectorEnabled":                [ {"version": "[10,12.1.2)",   "wlst_mode": "online",  "wlst_name": "MemberDeathDetectorEnabled",                "wlst_path": "WP001", "default_value": "false",                      "wlst_type": "boolean",          "restart_required": "true" },
                                                        {"version": "[12.1.2,)",     "wlst_mode": "both",    "wlst_name": "MemberDeathDetectorEnabled",                "wlst_path": "WP001", "default_value": "false",                      "wlst_type": "boolean",          "restart_required": "true" } ],
-        "MemberWarmupTimeoutSeconds":                [ {"version": "[10,12.1.2)",   "wlst_mode": "both",    "wlst_name": "MemberWarmupTimeoutSeconds",                "wlst_path": "WP001", "default_value": 30,                           "wlst_type": "integer",          "restart_required": "true" } ,
-                                                       {"version": "[12.1.2,12.1.3)", "wlst_mode": "both",  "wlst_name": "MemberWarmupTimeoutSeconds",                "wlst_path": "WP001", "default_value": 0,                            "derived_default": "${:true}", "wlst_type": "integer",          "restart_required": "true" } ,
-                                                       {"version": "[12.1.3,)",     "wlst_mode": "both",    "wlst_name": "MemberWarmupTimeoutSeconds",                "wlst_path": "WP001", "default_value": 0,                            "derived_default": "${:true}", "wlst_type": "integer"            } ],
+        "MemberWarmupTimeoutSeconds":                [
+            {"version": "[10,12.1.2)",     "wlst_mode": "both", "wlst_name": "MemberWarmupTimeoutSeconds", "wlst_path": "WP001", "default_value": 30,                                "wlst_type": "integer", "restart_required": "true" } ,
+            {"version": "[12.1.2,12.1.3)", "wlst_mode": "both", "wlst_name": "MemberWarmupTimeoutSeconds", "wlst_path": "WP001", "default_value": 0,  "derived_default": "${:true}", "wlst_type": "integer", "restart_required": "true" } ,
+            {"version": "[12.1.3,15.1.1)", "wlst_mode": "both", "wlst_name": "MemberWarmupTimeoutSeconds", "wlst_path": "WP001", "default_value": 0,  "derived_default": "${:true}", "wlst_type": "integer"  },
+            {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "MemberWarmupTimeoutSeconds", "wlst_path": "WP001", "default_value": 0,  "derived_default": true,       "wlst_type": "integer"  }
+        ],
         "MessageOrderingEnabled":                    [ {"version": "[10,12.1.1)",   "wlst_mode": "both",    "wlst_name": "MessageOrderingEnabled",                    "wlst_path": "WP001", "default_value": "false",                      "wlst_type": "boolean",          "restart_required": "true" } ,
                                                        {"version": "[12.1.1,12.1.2)", "wlst_mode": "both",  "wlst_name": "MessageOrderingEnabled",                    "wlst_path": "WP001", "default_value": "${false:true}",              "wlst_type": "boolean",          "restart_required": "true" } ,
                                                        {"version": "[12.1.2,)",     "wlst_mode": "both",    "wlst_name": "MessageOrderingEnabled",                    "wlst_path": "WP001", "default_value": "true",                       "wlst_type": "boolean",          "restart_required": "true" } ],
@@ -264,7 +380,10 @@
         "RemoteClusterAddress":                      [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "RemoteClusterAddress",                      "wlst_path": "WP001", "default_value": null,                         "wlst_type": "string",           "restart_required": "true" } ],
         "ReplicationChannel":                        [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "ReplicationChannel",                        "wlst_path": "WP001", "default_value": "ReplicationChannel",         "wlst_type": "string",           "restart_required": "true" } ],
         "ReplicationTimeoutEnabled":                 [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "ReplicationTimeoutEnabled",                 "wlst_path": "WP001", "default_value": "true",                       "wlst_type": "boolean",          "restart_required": "true" } ],
-        "ReplicationTimeoutMillis":                  [ {"version": "[14.1.2,)",     "wlst_mode": "both",    "wlst_name": "ReplicationTimeoutMillis",                  "wlst_path": "WP001", "default_value": 0, "derived_default": "${:true}", "wlst_type": "integer" } ],
+        "ReplicationTimeoutMillis":                  [
+            {"version": "[14.1.2,15.1.1)", "wlst_mode": "both", "wlst_name": "ReplicationTimeoutMillis", "wlst_path": "WP001", "default_value": 0, "derived_default": "${:true}", "wlst_type": "integer" },
+            {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "ReplicationTimeoutMillis", "wlst_path": "WP001", "default_value": 0, "derived_default": true,       "wlst_type": "integer" }
+        ],
         "SecureReplicationEnabled": [
             {"version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "SecureReplicationEnabled", "wlst_path": "WP001", "default_value": "false", "secure_default": "${__NULL__:true}", "wlst_type": "boolean" },
             {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "SecureReplicationEnabled", "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean", "derived_default": true }
