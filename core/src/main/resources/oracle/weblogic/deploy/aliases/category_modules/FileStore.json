@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
+    "copyright": "Copyright (c) 2017, 2025, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "FileStore${:s}",
     "online_bean": "weblogic.management.configuration.FileStoreMBean",
@@ -29,8 +29,11 @@
         "PartialClusterStabilityDelaySeconds": [ {"version": "[12.2.1,12.2.1.1)", "wlst_mode": "both",    "wlst_name": "PartialClusterStabilityDelaySeconds",  "wlst_path": "WP001", "default_value": -1,             "wlst_type": "long"             },
                                                  {"version": "[12.2.1.1,)",       "wlst_mode": "both",    "wlst_name": "PartialClusterStabilityDelaySeconds",  "wlst_path": "WP001", "default_value": 240,            "wlst_type": "long"             } ],
         "RebalanceEnabled":                    [ {"version": "[14.1.2,)",         "wlst_mode": "both",    "wlst_name": "RebalanceEnabled",                     "wlst_path": "WP001", "default_value": false,          "wlst_type": "boolean"          } ],
-        "RestartInPlace":                      [ {"version": "[12.2.1,12.2.1.2)", "wlst_mode": "both",    "wlst_name": "RestartInPlace",                       "wlst_path": "WP001", "default_value": "true",         "wlst_type": "boolean"          } ,
-                                                 {"version": "[12.2.1.2,)",       "wlst_mode": "both",    "wlst_name": "RestartInPlace",                       "wlst_path": "WP001", "default_value": "false",        "derived_default": "${:true}", "wlst_type": "boolean"          } ],
+        "RestartInPlace":                      [
+            {"version": "[12.2.1,12.2.1.2)", "wlst_mode": "both", "wlst_name": "RestartInPlace", "wlst_path": "WP001", "default_value": "true",                                 "wlst_type": "boolean" } ,
+            {"version": "[12.2.1.2,15.1.1)", "wlst_mode": "both", "wlst_name": "RestartInPlace", "wlst_path": "WP001", "default_value": "false", "derived_default": "${:true}", "wlst_type": "boolean" },
+            {"version": "[15.1.1,)",         "wlst_mode": "both", "wlst_name": "RestartInPlace", "wlst_path": "WP001", "default_value": "false", "derived_default": true,       "wlst_type": "boolean" }
+        ],
         "SecondsBetweenRestarts":              [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "SecondsBetweenRestarts",               "wlst_path": "WP001", "default_value": 30,             "wlst_type": "integer"          } ],
         "SynchronousWritePolicy":              [ {"version": "[10,)",             "wlst_mode": "both",    "wlst_name": "SynchronousWritePolicy",               "wlst_path": "WP001", "default_value": "${__NULL__:Direct-Write}", "wlst_type": "string"           } ],
         "Target":                              [ {"version": "[10,)",             "wlst_mode": "offline", "wlst_name": "Target",                               "wlst_path": "WP001", "default_value": null,           "wlst_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans" },

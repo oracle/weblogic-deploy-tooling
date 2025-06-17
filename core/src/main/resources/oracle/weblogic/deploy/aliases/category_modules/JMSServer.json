@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2025, Oracle Corporation and/or its affiliates.",
+    "copyright": "Copyright (c) 2017, 2025, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "JMSServer${:s}",
     "online_bean": "weblogic.management.configuration.JMSServerMBean",
@@ -47,8 +47,11 @@
             "folders": {},
             "attributes": {
                 "BufferSizeKb":                    [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "BufferSize${Kb:KB}",    "wlst_path": "WP001", "default_value": 8,                         "wlst_type": "integer", "get_method": "LSA"} ],
-                "DateFormatPattern":               [ {"version": "[10,12.2.1)",   "wlst_mode": "both",    "wlst_name": "DateFormatPattern",     "wlst_path": "WP001", "default_value": "${__NULL__:MMM d, yyyy h:mm:ss a z}",  "derived_default": "${:true}", "wlst_type": "string", "get_method": "${LSA:GET}", "restart_required": "true" } ,
-                                                     {"version": "[12.2.1,)",     "wlst_mode": "both",    "wlst_name": "DateFormatPattern",     "wlst_path": "WP001", "default_value": "${__NULL__:MMM d, yyyy h:mm:SSS a z}", "derived_default": "${:true}" ,"wlst_type": "string", "get_method": "${LSA:GET}" } ],
+                "DateFormatPattern":               [
+                    {"version": "[10,12.2.1)",     "wlst_mode": "both", "wlst_name": "DateFormatPattern", "wlst_path": "WP001", "default_value": "${__NULL__:MMM d, yyyy h:mm:ss a z}",  "derived_default": "${:true}", "wlst_type": "string", "get_method": "${LSA:GET}", "restart_required": "true" } ,
+                    {"version": "[12.2.1,15.1.1)", "wlst_mode": "both", "wlst_name": "DateFormatPattern", "wlst_path": "WP001", "default_value": "${__NULL__:MMM d, yyyy h:mm:SSS a z}", "derived_default": "${:true}", "wlst_type": "string", "get_method": "${LSA:GET}" },
+                    {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "DateFormatPattern", "wlst_path": "WP001", "default_value": "${__NULL__:MMM d, yyyy h:mm:SSS a z}", "derived_default": true,       "wlst_type": "string", "get_method": "${LSA:GET}" }
+                ],
                 "FileCount": [
                     {"version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "FileCount", "wlst_path": "WP001", "default_value": 7, "production_default": "${__NULL__:100}", "wlst_type": "integer" },
                     {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "FileCount", "wlst_path": "WP001", "default_value": 7, "production_default": 100,               "wlst_type": "integer" }
@@ -57,7 +60,10 @@
                     {"version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "FileMinSize", "wlst_path": "WP001", "default_value": 500, "production_default": "${__NULL__:5000}", "wlst_type": "integer" },
                     {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "FileMinSize", "wlst_path": "WP001", "default_value": 500, "production_default": 5000,               "wlst_type": "integer" }
                 ],
-                "FileName":                        [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "FileName",              "wlst_path": "WP001", "default_value": "${__NULL__:logs/jmsServers/%JMSSERVER%/jms.messages.log}",  "derived_default": "${:true}", "wlst_type": "string",  "restart_required": "true", "uses_path_tokens": "true" } ],
+                "FileName":                        [
+                    {"version": "[10,15.1.1)", "wlst_mode": "both", "wlst_name": "FileName", "wlst_path": "WP001", "default_value": "${__NULL__:logs/jmsServers/%JMSSERVER%/jms.messages.log}", "derived_default": "${:true}", "wlst_type": "string", "restart_required": "true", "uses_path_tokens": "true" },
+                    {"version": "[15.1.1,)",   "wlst_mode": "both", "wlst_name": "FileName", "wlst_path": "WP001", "default_value": "${__NULL__:logs/jmsServers/%JMSSERVER%/jms.messages.log}", "derived_default": true,       "wlst_type": "string", "restart_required": "true", "uses_path_tokens": "true" }
+                ],
                 "FileTimeSpan":                    [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "FileTimeSpan",          "wlst_path": "WP001", "default_value": 24,                        "wlst_type": "integer"  } ],
                 "FileTimeSpanFactor":              [ {"version": "[10,)",         "wlst_mode": "offline", "wlst_name": "FileTimeSpanFactor",    "wlst_path": "WP001", "default_value": 3600000,                   "wlst_type": "long"     } ],
                 "LogFileRotationDir":              [ {"version": "[10,)",         "wlst_mode": "both",    "wlst_name": "LogFileRotationDir",    "wlst_path": "WP001", "default_value": null,                      "wlst_type": "string", "uses_path_tokens": "true", "get_method": "${LSA:GET}" } ],

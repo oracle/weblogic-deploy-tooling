@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2019, 2022, Oracle Corporation and/or its affiliates.",
+    "copyright": "Copyright (c) 2019, 2025, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "SingletonService${:s}",
     "online_bean": "weblogic.management.configuration.SingletonServiceMBean",
@@ -8,7 +8,10 @@
     "folders": {},
     "attributes": {
         "AdditionalMigrationAttempts":         [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "AdditionalMigrationAttempts",        "wlst_path": "WP001", "default_value": 2,                             "wlst_type": "integer"    } ],
-        "ClassName":                           [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "ClassName",                          "wlst_path": "WP001", "default_value": "${__NULL__:%SINGLETONSERVICE%}",  "derived_default": "${:true}",  "wlst_type": "string"     } ],
+        "ClassName":                           [
+            {"version": "[10,15.1.1)", "wlst_mode": "both", "wlst_name": "ClassName", "wlst_path": "WP001", "default_value": "${__NULL__:%SINGLETONSERVICE%}", "derived_default": "${:true}", "wlst_type": "string" },
+            {"version": "[15.1.1,)",   "wlst_mode": "both", "wlst_name": "ClassName", "wlst_path": "WP001", "default_value": "${__NULL__:%SINGLETONSERVICE%}", "derived_default": true,       "wlst_type": "string" }
+        ],
         "Cluster":                             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "Cluster",                            "wlst_path": "WP001", "default_value": null,                          "wlst_type": "string", "get_method": "${LSA:GET}", "set_method": "MBEAN.set_cluster_mbean", "set_mbean_type": "weblogic.management.configuration.ClusterMBean" } ],
         "ConstrainedCandidateServer":          [ {"version": "[10,)",       "wlst_mode": "offline", "wlst_name": "ConstrainedCandidateServer",         "wlst_path": "WP001", "default_value": null,                          "wlst_type": "delimited_string", "preferred_model_type": "delimited_string", "get_method": "LSA" } ,
                                                  {"version": "[10,)",       "wlst_mode": "online",  "wlst_name": "ConstrainedCandidateServers",        "wlst_path": "WP001", "default_value": null,                          "wlst_type": "jarray",           "preferred_model_type": "delimited_string", "get_method": "GET", "set_method": "MBEAN.set_server_mbeans", "set_mbean_type": "weblogic.management.configuration.ServerMBean"} ],
