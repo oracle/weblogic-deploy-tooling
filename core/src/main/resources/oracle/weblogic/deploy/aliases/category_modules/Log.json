@@ -7,8 +7,11 @@
     "folders": {},
     "attributes": {
         "BufferSizeKb":                                  [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "BufferSizeK${b:B}",                             "wlst_path": "WP001", "default_value": 8,        "wlst_type": "integer"} ],
-        "DateFormatPattern":                             [ {"version": "[10,12.2.1)", "wlst_mode": "both",  "wlst_name": "DateFormatPattern",                             "wlst_path": "WP001", "default_value": "${__NULL__:MMM d, yyyy h:mm:ss a z}",     "derived_default": "${:true}", "wlst_type": "string", "get_method": "${LSA:GET}", "restart_required": "true" } ,
-                                                           {"version": "[12.2.1,)", "wlst_mode": "both",    "wlst_name": "DateFormatPattern",                             "wlst_path": "WP001", "default_value": "${__NULL__:MMM d, yyyy h:mm:ss,SSS a z}", "derived_default": "${:true}", "wlst_type": "string", "get_method": "${LSA:GET}" } ],
+        "DateFormatPattern":                             [
+            {"version": "[10,12.2.1)",     "wlst_mode": "both", "wlst_name": "DateFormatPattern", "wlst_path": "WP001", "default_value": "${__NULL__:MMM d, yyyy h:mm:ss a z}",     "derived_default": "${:true}", "wlst_type": "string", "get_method": "${LSA:GET}", "restart_required": "true" } ,
+            {"version": "[12.2.1,15.1.1)", "wlst_mode": "both", "wlst_name": "DateFormatPattern", "wlst_path": "WP001", "default_value": "${__NULL__:MMM d, yyyy h:mm:ss,SSS a z}", "derived_default": "${:true}", "wlst_type": "string", "get_method": "${LSA:GET}" },
+            {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "DateFormatPattern", "wlst_path": "WP001", "default_value": "${__NULL__:MMM d, yyyy h:mm:ss,SSS a z}", "derived_default": true,       "wlst_type": "string", "get_method": "${LSA:GET}" }
+        ],
         "DomainLogBroadcastFilter":                      [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "DomainLogBroadcastFilter",                      "wlst_path": "WP001", "default_value": null,     "wlst_type": "string",  "set_method": "MBEAN.set_log_filter_mbean", "set_mbean_type": "weblogic.management.configuration.LogFilterMBean" } ],
         "DomainLogBroadcastSeverity":                    [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "DomainLogBroadcastSeverity",                    "wlst_path": "WP001", "default_value": "${__NULL__:Notice}", "wlst_type": "string" } ],
         "DomainLogBroadcasterBufferSize": [
@@ -23,7 +26,10 @@
             {"version": "[10,14.1.2)", "wlst_mode": "both", "wlst_name": "FileMinSize", "wlst_path": "WP001", "default_value": 500, "production_default": "${__NULL__:5000}", "wlst_type": "integer"},
             {"version": "[14.1.2,)",   "wlst_mode": "both", "wlst_name": "FileMinSize", "wlst_path": "WP001", "default_value": 500, "production_default": 5000,               "wlst_type": "integer"}
         ],
-        "FileName":                                      [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "FileName",                                      "wlst_path": "WP001", "default_value": "${__NULL__:logs/%DOMAIN%.log}", "derived_default": "${:true}", "wlst_type": "string",  "uses_path_tokens": "true" } ],
+        "FileName":                                      [
+            {"version": "[10,15.1.1)", "wlst_mode": "both", "wlst_name": "FileName", "wlst_path": "WP001", "default_value": "${__NULL__:logs/%DOMAIN%.log}", "derived_default": "${:true}", "wlst_type": "string",  "uses_path_tokens": "true" },
+            {"version": "[15.1.1,)",   "wlst_mode": "both", "wlst_name": "FileName", "wlst_path": "WP001", "default_value": "${__NULL__:logs/%DOMAIN%.log}", "derived_default": true,       "wlst_type": "string",  "uses_path_tokens": "true" }
+        ],
         "FileTimeSpan":                                  [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "FileTimeSpan",                                  "wlst_path": "WP001", "default_value": 24,       "wlst_type": "integer"} ],
         "FileTimeSpanFactor":                            [ {"version": "[10,)",     "wlst_mode": "offline", "wlst_name": "FileTimeSpanFactor",                            "wlst_path": "WP001", "default_value": 3600000,  "wlst_type": "long"   } ],
         "Log4jLoggingEnabled":                           [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "Log4jLoggingEnabled",                           "wlst_path": "WP001", "default_value": "false",  "wlst_type": "boolean", "restart_required": "true"} ],
@@ -40,7 +46,10 @@
         "LoggerSeverityProperties":                      [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "LoggerSeverityProperties",                      "wlst_path": "WP001", "default_value": null,     "wlst_type": "properties",   "preferred_model_type": "dict", "get_method": "GET" } ],
         "MemoryBufferFilter":                            [ {"version": "[10,)",     "wlst_mode": "both",  "wlst_name": "MemoryBufferFilter",                            "wlst_path": "WP001", "default_value": null,     "wlst_type": "string", "set_method": "MBEAN.set_log_filter_mbean", "set_mbean_type": "weblogic.management.configuration.LogFilterMBean"} ],
         "MemoryBufferSeverity":                          [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "MemoryBufferSeverity",                          "wlst_path": "WP001", "default_value": "${__NULL__:Trace}", "wlst_type": "string" } ],
-        "MemoryBufferSize":                              [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "MemoryBufferSize",                              "wlst_path": "WP001", "default_value": 10,       "production_default": "${__NULL__:500}", "wlst_type": "integer"} ],
+        "MemoryBufferSize":                              [
+            {"version": "[10,15.1.1)", "wlst_mode": "both", "wlst_name": "MemoryBufferSize", "wlst_path": "WP001", "default_value": 10, "production_default": "${__NULL__:500}", "wlst_type": "integer" },
+            {"version": "[15.1.1,)",   "wlst_mode": "both", "wlst_name": "MemoryBufferSize", "wlst_path": "WP001", "default_value": 10, "production_default": 500,               "wlst_type": "integer" }
+        ],
         "Notes":                                         [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "Notes",                                         "wlst_path": "WP001", "default_value": null,     "wlst_type": "string" } ],
         "NumberOfFilesLimited":                          [ {"version": "[10,)",     "wlst_mode": "both",    "wlst_name": "NumberOfFilesLimited",                          "wlst_path": "WP001", "default_value": "true",   "wlst_type": "boolean"} ],
         "PlatformLoggerLevels":                          [ {"version": "[12.1.3,)", "wlst_mode": "both",    "wlst_name": "PlatformLoggerLevels",                          "wlst_path": "WP001", "default_value": null,     "wlst_type": "properties", "preferred_model_type": "dict", "get_method": "GET" } ],
