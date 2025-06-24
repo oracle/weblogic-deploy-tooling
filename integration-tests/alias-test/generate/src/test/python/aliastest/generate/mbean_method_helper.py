@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -21,10 +21,21 @@ UNKNOWN = generator_utils.UNKNOWN
 
 
 class MBeanMethodHelper(object):
+    """
+    Wrapper for an MBean proxy object that derives MBean, child MBean, and attribute information
+    using Java reflection.
+    Attributes and child MBeans are derived from methods of the proxy object.
 
+    self.__mbean_info is a map of attribute_names to getter methods
+    """
     __logger = PlatformLogger('test.aliases.generate.mbean.method')
 
     def __init__(self, mbean_instance, mbean_path, mbean_type=None):
+        """
+        :param mbean_instance: an MBean proxy object, if None it is looked up from mbean_path
+        :param mbean_path: the MBean path
+        :param mbean_type: never passed in ?, derived from interface name
+        """
         self.__class_name__ = self.__class__.__name__
         self.__mbean_path = mbean_path
         self.__mbean_instance = self.__encapsulate_mbean_instance(mbean_instance=mbean_instance, mbean_path=mbean_path)
@@ -299,8 +310,14 @@ class MBeanMethodAttributeHelper(object):
     def computed_default_value(self):
         return None
 
+    def has_secure_default(self):
+        return False
+
     def secure_default_value(self):
         return None
+
+    def has_production_default(self):
+        return False
 
     def production_default_value(self):
         return None

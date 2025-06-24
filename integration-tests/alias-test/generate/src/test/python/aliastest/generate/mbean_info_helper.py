@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -24,14 +24,25 @@ UNKNOWN = generator_utils.UNKNOWN
 
 class MBeanInfoHelper(object):
     """
-    Facade to provide the details for a specific WLST MBean and its attributes / child MBeans.
-    The information provided in this class is retrieved from the MBeanInfo descriptors for the MBean
-    encapsulated in an instance.
-    """
+    Wrapper for an MBean proxy object that derives MBean, child MBean, and attribute information
+    using the MBean's BeanInfo descriptors.
 
+    interfaces = self.__mbean_instance.getClass().getInterfaces()
+    mbean_interface = interfaces[0]
+    bean_access = ManagementServiceClient.getBeanInfoAccess()  // weblogic.management.provider.beaninfo.BeanInfoAccess
+    getname = getattr(mbean_interface, 'getTypeName')
+    type_name = getname()
+    self.__mbean_info = bean_access.getBeanInfoForInterface(type_name, False, '9.0.0.0')
+        // subclass of java.beans.BeanInfo, weblogic.management.configuration.*MBeanImplBeanInfo
+    """
     __logger = PlatformLogger('test.aliases.generate.mbean.info')
 
     def __init__(self, mbean_instance, mbean_path, mbean_type=None):
+        """
+        :param mbean_instance: an MBean proxy object, if None it is looked up from mbean_path
+        :param mbean_path: the MBean path
+        :param mbean_type: never passed in ?, derived from MBean descriptor name
+        """
         self.__class_name__ = self.__class__.__name__
         self.__mbean_path = mbean_path
         self.__mbean_instance = self.__encapsulate_mbean_instance(mbean_instance=mbean_instance, mbean_path=mbean_path)
@@ -366,12 +377,22 @@ class MBeanInfoAttributeHelper(object):
             value = False
         return value
 
+    # allow for null secure default values
+    def has_secure_default(self):
+        return (self.__exists and
+                ('secureValue' in self.__get_descriptor_values_keys()
+                 or 'secureValueNull' in self.__get_descriptor_values_keys())
+                and 'secureValueDocOnly' not in self.__get_descriptor_values_keys())
+
     def secure_default_value(self):
         value = None
         doc_only = self.__get_descriptor_value('secureValueDocOnly')
-        if not doc_only:
+        if not doc_only and self.__get_descriptor_value('secureValueNull') is not True:
             value = self.__get_descriptor_value('secureValue')
         return value
+
+    def has_production_default(self):
+        return self.__exists and 'restProductionModeDefault' in self.__get_descriptor_values_keys()
 
     def production_default_value(self):
         return self.__get_descriptor_value('restProductionModeDefault')
