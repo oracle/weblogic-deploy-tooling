@@ -1,5 +1,5 @@
 """
-Copyright (c) 2021, 2023, Oracle and/or its affiliates.
+Copyright (c) 2021, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import types
@@ -105,14 +105,16 @@ class GeneratorBase(object):
             if computed_value is not None:  # None means no attribute info was found
                 dictionary[COMPUTED_DEFAULT] = computed_value
 
-            production_default_value = cmo_helper.production_default_value()
-            if production_default_value is not None:
+            # we want to include null values
+            if cmo_helper.has_production_default():
+                production_default_value = cmo_helper.production_default_value()
                 dictionary[PRODUCTION_DEFAULT] = self.convert_attribute(attribute_name, production_default_value,
                                                                         value_type=dictionary[GET_TYPE])
 
+            # we want to include null values
             if self._model_context.get_local_wls_version() not in SECURE_DEFAULT_DISMISS:
-                secure_default_value = cmo_helper.secure_default_value()
-                if secure_default_value is not None:
+                if cmo_helper.has_secure_default():
+                    secure_default_value = cmo_helper.secure_default_value()
                     dictionary[SECURE_DEFAULT] = self.convert_attribute(attribute_name, secure_default_value,
                                                                         value_type=dictionary[GET_TYPE])
 

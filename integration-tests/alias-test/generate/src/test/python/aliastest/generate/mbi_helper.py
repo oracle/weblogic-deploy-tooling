@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2022, Oracle Corporation and/or its affiliates.
+Copyright (c) 2020, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -25,7 +25,13 @@ UNKNOWN = generator_utils.UNKNOWN
 
 
 class MBIHelper(object):
+    """
+    Wrapper for an MBean proxy object that derives MBean, child MBean, and attribute information
+    using WLST MBI information.
 
+    mbi_info = getMBI()
+    self.__mbean_info = mbi_info.getMBeanDescriptor()  // javax.management.modelmbean.ModelMBeanInfoSupport
+    """
     __logger = PlatformLogger('test.aliases.generate.mbean.mbi')
 
     def __init__(self, mbean_instance, mbean_path, mbean_type=None):
@@ -300,12 +306,22 @@ class MBIAttributeHelper(object):
     def computed_default_value(self):
         return self.__get_descriptor_value('computed')
 
+    # allow for null secure default values
+    def has_secure_default(self):
+        return (self.__exists and
+                ('secureValue' in self.__get_descriptor_field_keys()
+                 or 'secureValueNull' in self.__get_descriptor_field_keys())
+                and 'secureValueDocOnly' not in self.__get_descriptor_field_keys())
+
     def secure_default_value(self):
         value = None
         doc_only = self.__get_descriptor_value('secureValueDocOnly')
-        if not doc_only:
+        if not doc_only and self.__get_descriptor_value('secureValueNull') is not True:
             value = self.__get_descriptor_value('secureValue')
         return value
+
+    def has_production_default(self):
+        return self.__exists and 'restProductionModeDefault' in self.__get_descriptor_field_keys()
 
     def production_default_value(self):
         return self.__get_descriptor_value('restProductionModeDefault')
