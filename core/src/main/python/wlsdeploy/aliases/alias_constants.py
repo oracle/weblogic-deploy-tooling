@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 These constants are internal to the aliases module and should not be used, as they are not part of the public API.
@@ -31,6 +31,7 @@ RESTART_REQUIRED = 'restart_required'
 SECRET_KEY = 'secret_key'
 SECRET_SUFFIX = 'secret_suffix'
 SECURE_DEFAULT = 'secure_default'
+SECURE_DEFAULT_NULL = 'secure_default_null'
 SET_MBEAN_TYPE = 'set_mbean_type'
 SET_METHOD = 'set_method'
 SHORT_NAME = 'short_name'

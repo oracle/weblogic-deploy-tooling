@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -39,6 +39,7 @@ from wlsdeploy.aliases.alias_constants import RESTART_REQUIRED
 from wlsdeploy.aliases.alias_constants import SECRET_KEY
 from wlsdeploy.aliases.alias_constants import SECRET_SUFFIX
 from wlsdeploy.aliases.alias_constants import SECURE_DEFAULT
+from wlsdeploy.aliases.alias_constants import SECURE_DEFAULT_NULL
 from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
 from wlsdeploy.aliases.alias_constants import SHORT_NAME
@@ -122,6 +123,7 @@ class AliasFileSyntaxTestCase(unittest.TestCase):
         SECRET_KEY,
         SECRET_SUFFIX,
         SECURE_DEFAULT,
+        SECURE_DEFAULT_NULL,
         SET_MBEAN_TYPE,
         SET_METHOD,
         USES_PATH_TOKENS,
@@ -628,6 +630,9 @@ class AliasFileSyntaxTestCase(unittest.TestCase):
     def _verify_attribute_secure_default_attribute_value(self, folder_name, attribute_name, alias_attribute_value):
         # nothing to verify - secure_default can be any type or null
         return []
+
+    def _verify_attribute_secure_default_null_attribute_value(self, folder_name, attribute_name, alias_attribute_value):
+        return self._verify_boolean_value(folder_name, attribute_name, SECURE_DEFAULT_NULL, alias_attribute_value)
 
     def _verify_attribute_version_attribute_value(self, folder_name, attribute_name, alias_attribute_value):
         result = []

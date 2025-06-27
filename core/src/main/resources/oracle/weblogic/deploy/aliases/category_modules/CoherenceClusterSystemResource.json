@@ -120,6 +120,7 @@
                             "attributes": {
                                 "CoherenceClientAuth":                    [ {"version": "[14.1.2,)",   "wlst_mode": "both",    "wlst_name": "CoherenceClientAuth",                    "wlst_path": "WP001", "default_value": null,   "wlst_type": "string"} ],
                                 "CoherenceIdentityAlias":                 [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "CoherenceIdentityAlias",                 "wlst_path": "WP001", "default_value": null,   "wlst_type": "string"} ],
+                                "CoherenceKeyRefreshPeriod":              [ {"version": "[15.1.0.0,)", "wlst_mode": "both",    "wlst_name": "CoherenceKeyRefreshPeriod",              "wlst_path": "WP001", "default_value": null,   "wlst_type": "string"} ],
                                 "CoherencePrivateKeyPassPhraseEncrypted": [ {"version": "[12.2.1.1,)", "wlst_mode": "both",    "wlst_name": "CoherencePrivateKeyPassPhraseEncrypted", "wlst_path": "WP001", "default_value": null,   "wlst_type": "password",  "get_method": "GET"} ]
                             },
                             "wlst_attributes_path": "WP001",
@@ -199,7 +200,7 @@
                             {"version": "[14.1.2,)",                  "wlst_mode": "online",  "wlst_name": "Transport", "wlst_path": "WP001", "default_value": "tmb", "wlst_type": "string", "derived_default": "${:true}" }
                         ],
                         "UnicastListenAddress":             [ {"version": "[12.1.2,12.2.1)",    "wlst_mode": "both",    "wlst_name": "UnicastListenAddress",     "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string",   "get_method": "LSA"} ,
-                                                              {"version": "[12.2.1,)",          "wlst_mode": "offline", "wlst_name": "UnicastListenAddress",     "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string",   "get_method": "LSA"} ],
+                                                              {"version": "[12.2.1,15.1.1)",    "wlst_mode": "offline", "wlst_name": "UnicastListenAddress",     "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string",   "get_method": "LSA"} ],
                         "UnicastListenPort":                [
                             {"version": "[12.1.2,12.2.1)",    "wlst_mode": "both",    "wlst_name": "UnicastListenPort",        "wlst_path": "WP001", "default_value": "${8088:0}",           "wlst_type": "integer",  "get_method": "LSA"} ,
                             {"version": "[12.2.1,)",          "wlst_mode": "both",    "wlst_name": "UnicastListenPort",        "wlst_path": "WP001", "default_value": "${__NULL__:0}",       "wlst_type": "integer",  "get_method": "LSA"}

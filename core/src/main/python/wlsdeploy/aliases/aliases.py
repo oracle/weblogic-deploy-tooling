@@ -43,6 +43,7 @@ from wlsdeploy.aliases.alias_constants import SECRET_PASSWORD_KEY
 from wlsdeploy.aliases.alias_constants import SECRET_SUFFIX
 from wlsdeploy.aliases.alias_constants import SECRET_USERNAME_KEY
 from wlsdeploy.aliases.alias_constants import SECURE_DEFAULT
+from wlsdeploy.aliases.alias_constants import SECURE_DEFAULT_NULL
 from wlsdeploy.aliases.alias_constants import SET_MBEAN_TYPE
 from wlsdeploy.aliases.alias_constants import SET_METHOD
 from wlsdeploy.aliases.alias_constants import STRING
@@ -1402,8 +1403,8 @@ class Aliases(object):
         :return: the correct default value for the execution mode
         """
         if self._secure_mode_enabled:
-            default_value = dictionary_utils.get_element(attribute_info, SECURE_DEFAULT)
-            if default_value is not None:
+            if self._has_secure_default(attribute_info):
+                default_value = dictionary_utils.get_element(attribute_info, SECURE_DEFAULT)
                 return default_value
         if self._production_mode_enabled:
             default_value = dictionary_utils.get_element(attribute_info, PRODUCTION_DEFAULT)
@@ -1494,6 +1495,16 @@ class Aliases(object):
         if attribute_info is not None and PRODUCTION_DEFAULT in attribute_info:
             result = attribute_info[PRODUCTION_DEFAULT]
         return result
+
+    def has_secure_default(self, location, model_attribute):
+        attribute_info = self._alias_entries.get_alias_attribute_entry_by_model_name(location, model_attribute)
+        return attribute_info is not None and self._has_secure_default(attribute_info)
+
+    def _has_secure_default(self, attribute_info):
+        secure_default = dictionary_utils.get_element(attribute_info, SECURE_DEFAULT)
+        is_null = dictionary_utils.get_element(attribute_info, SECURE_DEFAULT_NULL)
+        is_null = alias_utils.convert_boolean(is_null)
+        return is_null or secure_default is not None
 
     def get_secure_default(self, location, model_attribute):
         result = None

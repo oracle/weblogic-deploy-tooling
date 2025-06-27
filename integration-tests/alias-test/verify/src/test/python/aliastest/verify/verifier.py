@@ -875,29 +875,33 @@ class Verifier(object):
             generated_is_computed = alias_is_computed
 
             alias_prod_default = self._alias_helper.get_production_default(location, model_name)
+            alias_has_prod_default = alias_prod_default is not None
             _name, alias_prod_default_match = self._alias_helper.get_model_attribute_name_and_value(
                 location, generated_attribute, alias_prod_default)
 
+            wls_prod_default_specified = PRODUCTION_DEFAULT in generated_attribute_info
             wls_prod_default = dictionary_utils.get_element(generated_attribute_info, PRODUCTION_DEFAULT)
             _name, wls_prod_default_match = self._alias_helper.get_model_attribute_name_and_value(
                 location, generated_attribute, wls_prod_default)
-            wls_prod_default_present = wls_prod_default is not None and wls_prod_default_match != generated_model_default
+            wls_prod_default_present = wls_prod_default_specified and wls_prod_default_match != generated_model_default
 
+            alias_has_secure_default = self._alias_helper.has_secure_default(location, model_name)
             alias_secure_default = self._alias_helper.get_secure_default(location, model_name)
             _name, alias_secure_default_match = self._alias_helper.get_model_attribute_name_and_value(
                 location, generated_attribute, alias_secure_default)
 
+            wls_secure_default_specified = SECURE_DEFAULT in generated_attribute_info
             wls_secure_default = dictionary_utils.get_element(generated_attribute_info, SECURE_DEFAULT)
             _name, wls_secure_default_match = self._alias_helper.get_model_attribute_name_and_value(
                 location, generated_attribute, wls_secure_default)
-            wls_secure_default_present = wls_secure_default is not None and wls_secure_default_match != generated_model_default
+            wls_secure_default_present = wls_secure_default_specified and wls_secure_default_match != generated_model_default
 
             match_path = location.get_folder_path() + '/' + generated_attribute  # key to match exceptions
 
             # for online, derived WLS entries must be derived_default in aliases.
             # for offline, computed WLS entries must be derived_default or have alternate prod/secure defaults.
 
-            alternate_default_present = alias_prod_default is not None or alias_secure_default is not None
+            alternate_default_present = alias_has_prod_default or alias_has_secure_default
             is_wlst_online = self._model_context.is_wlst_online()
             if is_wlst_online:
                 computed_key = DERIVED_DEFAULT
