@@ -165,6 +165,18 @@ This key element specifies the default value of the MBean attribute. For example
 
 The `__NULL__` key represents a `null` value when `"${a:b}"` notation is used to specify offline and online values.
 
+#### `production_default`
+
+This key element specifies the default value to use for a domain in production mode. The value formats are similar to those for `default_value`. A `null` value indicates that `production_default` should be disregarded, and the `default_value` should be used.
+
+#### `secure_default`
+
+This key element specifies the default value to use for a domain in secure mode. The value formats are similar to those for `default_value`. A `null` value indicates that `secure_default` should be disregarded, and the `default_value` should be used.
+
+#### `secure_default_null`
+
+This key element specifies that `null` should be used as the default value for a domain in secure mode. This is distinct from setting `secure_default` to `null`, which results in the value being disregarded.
+
 #### `set_method`
 
 For cases where attributes cannot be set with simple types, it may be necessary to use a custom method to set the value. For example, most `Target` attributes require their values to be set as lists of MBeans, in online mode. This may be defined as:
