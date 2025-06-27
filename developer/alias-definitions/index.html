@@ -12,20 +12,20 @@
     <title>Alias definitions :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1750995344" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1750995344" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1750995344" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1750995344" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1750995344" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1750995344" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1750995344" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1750995344" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1750995344" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1750995344" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1751050195" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1751050195" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1751050195" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1751050195" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1751050195" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1751050195" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1751050195" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1751050195" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1751050195" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1751050195" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1750995344"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1751050195"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1750995344"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1750995344"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1751050195"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1751050195"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1750995344"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1751050195"></script>
 
     
   </div>
@@ -2339,6 +2339,12 @@ into the domain.</li>
 <p><code>&quot;default_value&quot;: null</code></p>
 <p><code>&quot;default_value&quot;: &quot;${__NULL__:1}&quot;</code></p>
 <p>The <code>__NULL__</code> key represents a <code>null</code> value when <code>&quot;${a:b}&quot;</code> notation is used to specify offline and online values.</p>
+<h4 id="production_default"><code>production_default</code></h4>
+<p>This key element specifies the default value to use for a domain in production mode. The value formats are similar to those for <code>default_value</code>. A <code>null</code> value indicates that <code>production_default</code> should be disregarded, and the <code>default_value</code> should be used.</p>
+<h4 id="secure_default"><code>secure_default</code></h4>
+<p>This key element specifies the default value to use for a domain in secure mode. The value formats are similar to those for <code>default_value</code>. A <code>null</code> value indicates that <code>secure_default</code> should be disregarded, and the <code>default_value</code> should be used.</p>
+<h4 id="secure_default_null"><code>secure_default_null</code></h4>
+<p>This key element specifies that <code>null</code> should be used as the default value for a domain in secure mode. This is distinct from setting <code>secure_default</code> to <code>null</code>, which results in the value being disregarded.</p>
 <h4 id="set_method"><code>set_method</code></h4>
 <p>For cases where attributes cannot be set with simple types, it may be necessary to use a custom method to set the value. For example, most <code>Target</code> attributes require their values to be set as lists of MBeans, in online mode. This may be defined as:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">    <span style="color:#f92672">&#34;attributes&#34;: </span>{
@@ -3890,19 +3896,19 @@ into the domain.</li>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1750995344"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1750995344"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1750995344"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1750995344"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1750995344"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1750995344"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1751050195"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1751050195"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1751050195"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1751050195"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1751050195"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1751050195"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1750995344"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1750995344"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1750995344"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1751050195"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1751050195"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1751050195"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1750995344"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1751050195"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
