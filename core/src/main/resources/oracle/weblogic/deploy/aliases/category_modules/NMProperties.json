@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2023, Oracle and/or its affiliates.",
+    "copyright": "Copyright (c) 2017, 2025, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "NMProperties",
     "wlst_mode": "offline",
@@ -23,6 +23,7 @@
         "DomainsDirRemoteSharingEnabled":      [ {"version": "[12.1.2,)",         "wlst_mode": "offline",    "wlst_name": "DomainsDirRemoteSharingEnabled",              "wlst_path": "WP001", "default_value": "false",                                            "wlst_type": "boolean"    } ],
         "DomainsFile":                         [ {"version": "[12.1.2,)",         "wlst_mode": "offline",    "wlst_name": "DomainsFile",                                 "wlst_path": "WP001", "default_value": "@@DOMAIN_HOME@@/nodemanager/nodemanager.domains",  "wlst_type": "string",    "uses_path_tokens": "true" } ],
         "DomainsFileEnabled":                  [ {"version": "[12.1.2,)",         "wlst_mode": "offline",    "wlst_name": "DomainsFileEnabled",                          "wlst_path": "WP001", "default_value": "true",                                             "wlst_type": "boolean"    } ],
+        "IfConfigDir":                         [ {"version": "[15.1.1,)",         "wlst_mode": "offline",    "wlst_name": "IfConfigDir",                                 "wlst_path": "WP001", "default_value": null,                                               "wlst_type": "string"     } ],
         "Interface":                           [ {"version": "[12.1.2,)",         "wlst_mode": "offline",    "wlst_name": "Interface",                                   "wlst_path": "WP001", "default_value": null,                                               "wlst_type": "string"     } ],
         "InterfaceName":                       [ {"version": "[12.1.2,)",         "wlst_mode": "offline",    "wlst_name": "InterfaceName",                               "wlst_path": "WP001", "default_value": null,                                               "wlst_type": "string"     } ],
         "JavaHome":                            [ {"version": "[12.1.2,)",         "wlst_mode": "offline",    "wlst_name": "JavaHome",                                    "wlst_path": "WP001", "default_value": "@@JAVA_HOME@@",                                    "wlst_type": "string",    "uses_path_tokens": "true" } ],
@@ -51,6 +52,7 @@
         "SecureListener":                      [ {"version": "[12.1.2,)",         "wlst_mode": "offline",    "wlst_name": "SecureListener",                              "wlst_path": "WP001", "default_value": "true",                                             "wlst_type": "boolean"    } ],
         "StateCheckInterval":                  [ {"version": "[12.1.2,)",         "wlst_mode": "offline",    "wlst_name": "StateCheckInterval",                          "wlst_path": "WP001", "default_value": 500,                                                "wlst_type": "integer"    } ],
         "UseKSSForDemo":                       [ {"version": "[12.1.2,)",         "wlst_mode": "offline",    "wlst_name": "UseKSSForDemo",                               "wlst_path": "WP001", "default_value": "true",                                             "wlst_type": "boolean"    } ],
+        "UseMACBroadcast":                     [ {"version": "[15.1.1,)",         "wlst_mode": "offline",    "wlst_name": "UseMACBroadcast",                             "wlst_path": "WP001", "default_value": false,                                              "wlst_type": "boolean"    } ],
         "WebLogicHome":                        [ {"version": "[12.1.2,)",         "wlst_mode": "offline",    "wlst_name": "WebLogicHome",                                "wlst_path": "WP001", "default_value": null,                                               "wlst_type": "string",    "uses_path_tokens": "true" } ],
         "coherence.StartScriptEnabled":        [ {"version": "[12.2.1.1,)",       "wlst_mode": "offline",    "wlst_name": "coherence.StartScriptEnabled",                "wlst_path": "WP001", "default_value": "false",                                            "wlst_type": "boolean"    } ],
         "coherence.StartScriptName":           [ {"version": "[12.2.1.1,)",       "wlst_mode": "offline",    "wlst_name": "coherence.StartScriptName",                   "wlst_path": "WP001", "default_value": null,                                               "wlst_type": "string"     } ],
@@ -59,9 +61,13 @@
         "weblogic.StartScriptName":            [ {"version": "[12.1.2,12.2.1.1)", "wlst_mode": "offline",    "wlst_name": "StartScriptName",                             "wlst_path": "WP001", "default_value": "startWebLogic.sh",                                 "wlst_type": "string"     },
                                                  {"version": "[12.2.1.1,)",       "wlst_mode": "offline",    "wlst_name": "weblogic.StartScriptName",                    "wlst_path": "WP001", "default_value": "startWebLogic.sh",                                 "wlst_type": "string"     } ],
         "weblogic.StopScriptEnabled":          [ {"version": "[12.1.2,12.2.1.1)", "wlst_mode": "offline",    "wlst_name": "StopScriptEnabled",                           "wlst_path": "WP001", "default_value": "false",                                            "wlst_type": "boolean"    },
-                                                 {"version": "[12.2.1.1,)",       "wlst_mode": "offline",    "wlst_name": "weblogic.StopScriptEnabled",                  "wlst_path": "WP001", "default_value": "false",                                            "wlst_type": "boolean"    } ],
+                                                 {"version": "[12.2.1.1,15.1.1)", "wlst_mode": "offline",    "wlst_name": "weblogic.StopScriptEnabled",                  "wlst_path": "WP001", "default_value": "false",                                            "wlst_type": "boolean"    },
+                                                 {"version": "[15.1.1,)",         "wlst_mode": "offline",    "wlst_name": "StopScriptEnabled",                           "wlst_path": "WP001", "default_value": "false",                                            "wlst_type": "boolean"    }
+        ],
         "weblogic.StopScriptName":             [ {"version": "[12.1.2,12.2.1.1)", "wlst_mode": "offline",    "wlst_name": "StopScriptName",                              "wlst_path": "WP001", "default_value": null,                                               "wlst_type": "string"     },
-                                                 {"version": "[12.2.1.1,)",       "wlst_mode": "offline",    "wlst_name": "weblogic.StopScriptName",                     "wlst_path": "WP001", "default_value": null,                                               "wlst_type": "string"     } ]
+                                                 {"version": "[12.2.1.1,15.1.1)", "wlst_mode": "offline",    "wlst_name": "weblogic.StopScriptName",                     "wlst_path": "WP001", "default_value": null,                                               "wlst_type": "string"     },
+                                                 {"version": "[15.1.1,)",         "wlst_mode": "offline",    "wlst_name": "StopScriptName",                              "wlst_path": "WP001", "default_value": null,                                               "wlst_type": "string"     }
+        ]
     },
     "wlst_attributes_path": "WP001",
     "wlst_paths": {
