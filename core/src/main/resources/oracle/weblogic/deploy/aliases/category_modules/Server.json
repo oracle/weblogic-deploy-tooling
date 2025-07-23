@@ -183,7 +183,7 @@
             "wlst_type" : "FederationServices",
             "online_bean": "weblogic.management.configuration.FederationServicesMBean",
             "default_name_value": "${NO_NAME_0:%SERVER%}",
-            "version" : "[12.2.1,)",
+            "version" : "[12.2.1,15.1.1)",
             "folders" : {},
             "attributes" : {
                 "AcsRequiresSsl":                       [ {"version": "[12.2.1,)",         "wlst_mode": "both",    "wlst_name": "${Acs:ACS}Requires${Ssl:SSL}",                 "wlst_path": "WP001", "default_value": "true",   "wlst_type": "boolean"         } ],

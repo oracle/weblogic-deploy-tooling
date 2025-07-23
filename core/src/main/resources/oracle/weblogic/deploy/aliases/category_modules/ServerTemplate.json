@@ -185,7 +185,7 @@
         "FederationServices" : {
             "wlst_type" : "FederationServices",
             "online_bean": "weblogic.management.configuration.FederationServicesMBean",
-            "version" : "[12.2.1,)",
+            "version" : "[12.2.1,15.1.1)",
             "default_name_value": "${NO_NAME_0:%SERVERTEMPLATE%}",
             "folders" : {},
             "attributes" : {
