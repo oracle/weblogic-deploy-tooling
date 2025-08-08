@@ -69,6 +69,9 @@ import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.MY_OTHER_AP
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.NODE_MANAGER_IDENTITY_JKS_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.NODE_MANAGER_IDENTITY_JKS_DUP_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.OPSS_WALLET_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.PLUGIN_DEPS_MY_DIR_PLUGIN_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.PLUGIN_DEPS_MY_PLUGIN_JAR_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.PLUGIN_DEPS_MY_PLUGIN_JAR_DUP_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SAML2_SP_PROPERTIES_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_FANCY_SCRIPT_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_FANCY_SCRIPT_DUP_CONTENTS;
@@ -120,6 +123,7 @@ public class ArchiveHelperAddTest {
     private static final String[] LIST_MIME_MAPPINGS = new String[] { "mimeMapping" };
     private static final String[] LIST_NODE_MANAGER_KEYSTORES = new String[] { "nodeManagerKeystore" };
     private static final String[] LIST_OPSS_WALLET = new String[] { "opssWallet" };
+    private static final String[] LIST_PLUGIN_DEPLOYMENTS = new String[] { "pluginDeployment" };
     private static final String[] LIST_RCU_WALLET = new String[] { "rcuWallet" };
     private static final String[] LIST_SAML2_INITIALIZATION_DATA_FILES = new String[] { "saml2InitializationData" };
     private static final String[] LIST_SCRIPTS = new String[] { "script" };
@@ -193,6 +197,7 @@ public class ArchiveHelperAddTest {
         "mimeMapping, missing.properties",
         "nodeManagerKeystore, missing.jks",
         "opssWallet, missing.zip",
+        "pluginDeployment, missing.jar",
         "rcuWallet, missing",
         "saml2InitializationData, missing.xml",
         "script, missing.sh",
@@ -235,6 +240,7 @@ public class ArchiveHelperAddTest {
         "mimeMapping",
         "nodeManagerKeystore",
         "opssWallet",
+        "pluginDeployment",
         "rcuWallet",
         "saml2InitializationData",
         "script",
@@ -274,6 +280,7 @@ public class ArchiveHelperAddTest {
         "mimeMapping, missing.properties",
         "nodeManagerKeystore, missing.jks",
         "opssWallet, missing.zip",
+        "pluginDeployment, missing.jar",
         "rcuWallet, missing",
         "saml2InitializationData, missing.xml",
         "script, missing.sh",
@@ -2178,6 +2185,180 @@ public class ArchiveHelperAddTest {
         }
 
         assertEquals(ExitCode.ERROR, actual, "expected command to return " + ExitCode.ERROR);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                    plugin deployment                                      //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    void testAddNewPluginDeploymentFile_ReturnsExceptedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "add",
+                "pluginDeployment",
+                "-archive_file",
+                NEW_ARCHIVE_VALUE,
+                "-source",
+                getSourcePath(ArchiveEntryType.PLUGIN_DEPLOYMENT, "my-plugin.jar")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_PLUGIN_DEPLOYMENTS, EMPTY_ARRAY, PLUGIN_DEPS_MY_PLUGIN_JAR_CONTENTS);
+    }
+
+    @Test
+    void testAddPluginDeploymentFileOverwrite_ReturnsExceptedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "add",
+                "pluginDeployment",
+                "-archive_file",
+                NEW_ARCHIVE_VALUE,
+                "-source",
+                getSourcePath(ArchiveEntryType.PLUGIN_DEPLOYMENT, "my-plugin.jar")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+
+        String[] overwriteArgs = getOverwriteArgs(args);
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, overwriteArgs);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_PLUGIN_DEPLOYMENTS, EMPTY_ARRAY, PLUGIN_DEPS_MY_PLUGIN_JAR_CONTENTS);
+    }
+
+    @Test
+    void testAddPluginDeploymentFileTwice_ReturnsExceptedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "add",
+                "pluginDeployment",
+                "-archive_file",
+                NEW_ARCHIVE_VALUE,
+                "-source",
+                getSourcePath(ArchiveEntryType.PLUGIN_DEPLOYMENT, "my-plugin.jar")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_PLUGIN_DEPLOYMENTS, EMPTY_ARRAY, PLUGIN_DEPS_MY_PLUGIN_JAR_CONTENTS,
+                PLUGIN_DEPS_MY_PLUGIN_JAR_DUP_CONTENTS);
+    }
+
+    @Test
+    void testAddNewPluginDeploymentDir_ReturnsExceptedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "add",
+                "pluginDeployment",
+                "-archive_file",
+                NEW_ARCHIVE_VALUE,
+                "-source",
+                getSourcePath(ArchiveEntryType.PLUGIN_DEPLOYMENT, "my-dir-plugin")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to exit with exit code " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_PLUGIN_DEPLOYMENTS, EMPTY_ARRAY, PLUGIN_DEPS_MY_DIR_PLUGIN_CONTENTS);
+    }
+
+    @Test
+    void testAddPluginDeploymentDirOverwrite_ReturnsExceptedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "add",
+                "pluginDeployment",
+                "-archive_file",
+                NEW_ARCHIVE_VALUE,
+                "-source",
+                getSourcePath(ArchiveEntryType.PLUGIN_DEPLOYMENT, "my-dir-plugin")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to exit with exit code " + ExitCode.OK);
+
+        String[] overwriteArgs = getOverwriteArgs(args);
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, overwriteArgs);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to exit with exit code " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_PLUGIN_DEPLOYMENTS, EMPTY_ARRAY, PLUGIN_DEPS_MY_DIR_PLUGIN_CONTENTS);
+    }
+
+    @Test
+    void testAddPluginDeploymentDirTwice_ReturnsExceptedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "add",
+                "pluginDeployment",
+                "-archive_file",
+                NEW_ARCHIVE_VALUE,
+                "-source",
+                getSourcePath(ArchiveEntryType.PLUGIN_DEPLOYMENT, "my-dir-plugin")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to exit with exit code " + ExitCode.OK);
+
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to exit with exit code " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_PLUGIN_DEPLOYMENTS, EMPTY_ARRAY, PLUGIN_DEPS_MY_DIR_PLUGIN_CONTENTS,
+                PLUGIN_DEPS_MY_PLUGIN_JAR_DUP_CONTENTS);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

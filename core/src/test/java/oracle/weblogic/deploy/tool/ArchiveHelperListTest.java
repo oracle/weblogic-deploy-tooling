@@ -49,6 +49,9 @@ import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.MY_OTHER_AP
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.NODE_MANAGER_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.NODE_MANAGER_TRUST_JKS_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.OPSS_WALLET_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.PLUGIN_DEPS_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.PLUGIN_DEPS_MY_DIR_PLUGIN_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.PLUGIN_DEPS_MY_PLUGIN_JAR_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SAML2_DATA_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SAML2_SP_PROPERTIES_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_CONTENT;
@@ -143,6 +146,7 @@ public class ArchiveHelperListTest {
         "mimMapping",
         "nodeManagerKeystore",
         "opssWallet",
+        "pluginDeployment",
         "rcuWallet",
         "saml2InitializationData",
         "script",
@@ -185,6 +189,7 @@ public class ArchiveHelperListTest {
         "mimeMapping",
         "nodeManagerKeystore",
         "opssWallet",
+        "pluginDeployment",
         "rcuWallet",
         "saml2InitializationData",
         "script",
@@ -900,6 +905,107 @@ public class ArchiveHelperListTest {
 
         assertEquals(0, actual, "expected command to exit with exit code 0");
         assertListsHaveSameElements(expectedPaths, outputLines, "opssWallet");
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                    plugin deployments                                     //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    void testListPluginDeployments_ReturnsExpectedNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "list",
+                "pluginDeployment",
+                "-archive_file",
+                ARCHIVE_HELPER_VALUE
+        };
+        List<String> expectedPaths = Arrays.asList(PLUGIN_DEPS_CONTENT);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertListsHaveSameElements(expectedPaths, outputLines, "pluginDeployment");
+    }
+
+    @Test
+    void testListPluginDeploymentsFile_ReturnsExpectedNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "list",
+                "pluginDeployment",
+                "-archive_file",
+                ARCHIVE_HELPER_VALUE,
+                "-name",
+                "my-plugin.jar"
+        };
+        List<String> expectedPaths = Arrays.asList(PLUGIN_DEPS_MY_PLUGIN_JAR_CONTENTS);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertListsHaveSameElements(expectedPaths, outputLines, "pluginDeployment -name my-lib.war");
+    }
+
+    @Test
+    void testListPluginDeploymentsDir_ReturnsExpectedNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "list",
+                "pluginDeployment",
+                "-archive_file",
+                ARCHIVE_HELPER_VALUE,
+                "-name",
+                "my-dir-plugin"
+        };
+        List<String> expectedPaths = Arrays.asList(PLUGIN_DEPS_MY_DIR_PLUGIN_CONTENTS);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertListsHaveSameElements(expectedPaths, outputLines, "pluginDeployment -name my-other-lib");
+    }
+
+    @Test
+    void testListPluginDeploymentsUnknownFile_ReturnsNoNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "list",
+                "pluginDeployment",
+                "-archive_file",
+                ARCHIVE_HELPER_VALUE,
+                "-name",
+                "foo.jar"
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String outputLines = outStringWriter.getBuffer().toString().trim();
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertEquals("", outputLines, "expected list pluginDeployment -name foo.jar to return nothing");
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

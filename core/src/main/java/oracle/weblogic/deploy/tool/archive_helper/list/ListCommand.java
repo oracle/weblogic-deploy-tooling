@@ -26,6 +26,7 @@ import picocli.CommandLine.Option;
         ListMIMEMappingCommand.class,
         ListNodeManagerKeystoreCommand.class,
         ListOPSSWalletCommand.class,
+        ListPluginDeploymentCommand.class,
         ListRCUWalletCommand.class,
         ListSaml2InitializationDataCommand.class,
         ListScriptCommand.class,

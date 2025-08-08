@@ -335,6 +335,60 @@ public class ArchiveHelperTestConstants {
         "wlsdeploy/opsswallet/opss-wallet.zip"
     };
 
+    static final String[] PLUGIN_DEPS_MY_DIR_PLUGIN_CONTENTS = new String[] {
+            "wlsdeploy/pluginDeployments/my-dir-plugin/",
+            "wlsdeploy/pluginDeployments/my-dir-plugin/META-INF/",
+            "wlsdeploy/pluginDeployments/my-dir-plugin/META-INF/maven/",
+            "wlsdeploy/pluginDeployments/my-dir-plugin/META-INF/maven/oracle.jcs.lifecycle/",
+            "wlsdeploy/pluginDeployments/my-dir-plugin/META-INF/maven/oracle.jcs.lifecycle/get-listen-address-app/",
+            "wlsdeploy/pluginDeployments/my-dir-plugin/META-INF/maven/oracle.jcs.lifecycle/get-listen-address-app/pom.properties",
+            "wlsdeploy/pluginDeployments/my-dir-plugin/META-INF/maven/oracle.jcs.lifecycle/get-listen-address-app/pom.xml",
+            "wlsdeploy/pluginDeployments/my-dir-plugin/META-INF/MANIFEST.MF",
+            "wlsdeploy/pluginDeployments/my-dir-plugin/WEB-INF/",
+            "wlsdeploy/pluginDeployments/my-dir-plugin/WEB-INF/classes/",
+            "wlsdeploy/pluginDeployments/my-dir-plugin/WEB-INF/classes/com/",
+            "wlsdeploy/pluginDeployments/my-dir-plugin/WEB-INF/classes/com/oracle/",
+            "wlsdeploy/pluginDeployments/my-dir-plugin/WEB-INF/classes/com/oracle/platform/",
+            "wlsdeploy/pluginDeployments/my-dir-plugin/WEB-INF/classes/com/oracle/platform/GetListenAddressServlet.class",
+            "wlsdeploy/pluginDeployments/my-dir-plugin/WEB-INF/classes/com/oracle/platform/ListenAddressAndPort.class",
+            "wlsdeploy/pluginDeployments/my-dir-plugin/WEB-INF/web.xml",
+            "wlsdeploy/pluginDeployments/my-dir-plugin/WEB-INF/weblogic.xml"
+    };
+
+    static final String[] PLUGIN_DEPS_MY_DIR_PLUGIN_DUP_CONTENTS = new String[] {
+            "wlsdeploy/pluginDeployments/my-dir-plugin(1)/",
+            "wlsdeploy/pluginDeployments/my-dir-plugin(1)/META-INF/",
+            "wlsdeploy/pluginDeployments/my-dir-plugin(1)/META-INF/maven/",
+            "wlsdeploy/pluginDeployments/my-dir-plugin(1)/META-INF/maven/oracle.jcs.lifecycle/",
+            "wlsdeploy/pluginDeployments/my-dir-plugin(1)/META-INF/maven/oracle.jcs.lifecycle/get-listen-address-app/",
+            "wlsdeploy/pluginDeployments/my-dir-plugin(1)/META-INF/maven/oracle.jcs.lifecycle/get-listen-address-app/pom.properties",
+            "wlsdeploy/pluginDeployments/my-dir-plugin(1)/META-INF/maven/oracle.jcs.lifecycle/get-listen-address-app/pom.xml",
+            "wlsdeploy/pluginDeployments/my-dir-plugin(1)/META-INF/MANIFEST.MF",
+            "wlsdeploy/pluginDeployments/my-dir-plugin(1)/WEB-INF/",
+            "wlsdeploy/pluginDeployments/my-dir-plugin(1)/WEB-INF/classes/",
+            "wlsdeploy/pluginDeployments/my-dir-plugin(1)/WEB-INF/classes/com/",
+            "wlsdeploy/pluginDeployments/my-dir-plugin(1)/WEB-INF/classes/com/oracle/",
+            "wlsdeploy/pluginDeployments/my-dir-plugin(1)/WEB-INF/classes/com/oracle/platform/",
+            "wlsdeploy/pluginDeployments/my-dir-plugin(1)/WEB-INF/classes/com/oracle/platform/GetListenAddressServlet.class",
+            "wlsdeploy/pluginDeployments/my-dir-plugin(1)/WEB-INF/classes/com/oracle/platform/ListenAddressAndPort.class",
+            "wlsdeploy/pluginDeployments/my-dir-plugin(1)/WEB-INF/web.xml",
+            "wlsdeploy/pluginDeployments/my-dir-plugin(1)/WEB-INF/weblogic.xml"
+    };
+
+    static final String[] PLUGIN_DEPS_MY_PLUGIN_JAR_CONTENTS = new String[] {
+            "wlsdeploy/pluginDeployments/my-plugin.jar"
+    };
+
+    static final String[] PLUGIN_DEPS_MY_PLUGIN_JAR_DUP_CONTENTS = new String[] {
+            "wlsdeploy/pluginDeployments/my-plugin(1).jar"
+    };
+
+    static final String[] PLUGIN_DEPS_CONTENT = mergeStringArrays(
+            new String[] { "wlsdeploy/pluginDeployments/" },
+            PLUGIN_DEPS_MY_DIR_PLUGIN_CONTENTS,
+            PLUGIN_DEPS_MY_PLUGIN_JAR_CONTENTS
+    );
+
     static final String[] SAML2_SP_PROPERTIES_CONTENT = new String[] {
         "wlsdeploy/security/saml2/saml2sppartner.properties"
     };
