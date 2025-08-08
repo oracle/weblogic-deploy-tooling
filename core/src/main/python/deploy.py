@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the deployApps tool.
@@ -165,6 +165,7 @@ def __deploy_online(model_deployer, model_context):
     __logger.info("WLSDPLY-09007", admin_url, method_name=_method_name, class_name=_class_name)
 
     try:
+        model_deployer.deploy_plugins()
         model_deployer.deploy_resources()
         model_deployer.distribute_database_wallets_online()
         model_deployer.deploy_app_attributes_online()
@@ -202,6 +203,7 @@ def __deploy_offline(model_deployer, model_context):
 
     __wlst_helper.read_domain(domain_home)
 
+    model_deployer.deploy_plugins()
     model_deployer.deploy_model_offline()
 
     try:

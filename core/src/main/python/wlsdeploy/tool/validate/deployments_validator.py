@@ -1,5 +1,5 @@
 """
-Copyright (c) 2024, Oracle and/or its affiliates.
+Copyright (c) 2024, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -23,6 +23,10 @@ ARCHIVE_APPS_PREFIX = WLSDeployArchive.ARCHIVE_APPS_TARGET_DIR + WLSDeployArchiv
 ARCHIVE_SHLIBS_PREFIX = WLSDeployArchive.ARCHIVE_SHLIBS_TARGET_DIR + WLSDeployArchive.ZIP_SEP
 ARCHIVE_STRUCT_APPS_PREFIX = WLSDeployArchive.ARCHIVE_STRUCT_APPS_TARGET_DIR + WLSDeployArchive.ZIP_SEP
 
+DEPLOYMENT_PLAN_ALLOWED = [
+    APPLICATION,
+    LIBRARY
+]
 
 class DeploymentsValidator(ModelValidator):
     """
@@ -59,6 +63,13 @@ class DeploymentsValidator(ModelValidator):
 
         plan_path = dictionary_utils.get_element(model_node, PLAN_PATH)
         if plan_path:
+            deployment_type = validation_location.get_current_model_folder()
+            if deployment_type not in DEPLOYMENT_PLAN_ALLOWED:
+                name_token = self._aliases.get_name_token(validation_location)
+                deployment_name = validation_location.get_name_for_token(name_token)
+                self._logger.severe('WLSDPLY-05242', PLAN_PATH, deployment_type, deployment_name)
+                return
+
             plan_path = variables.substitute_key(plan_path, self._variable_properties)
             model_folder_path = self._aliases.get_model_folder_path(validation_location)
 

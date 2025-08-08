@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -20,6 +20,7 @@ from wlsdeploy.aliases.model_constants import CERT_PATH_PROVIDER
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import COHERENCE_CLUSTER_SYSTEM_RESOURCE
 from wlsdeploy.aliases.model_constants import CONTEXT_REQUEST_CLASS
+from wlsdeploy.aliases.model_constants import CREDENTIAL_SET
 from wlsdeploy.aliases.model_constants import DISTRIBUTED_QUEUE
 from wlsdeploy.aliases.model_constants import DISTRIBUTED_TOPIC
 from wlsdeploy.aliases.model_constants import ENABLED
@@ -45,6 +46,7 @@ from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
 from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PARTITION_WORK_MANAGER
 from wlsdeploy.aliases.model_constants import PERSISTENT_STORE
+from wlsdeploy.aliases.model_constants import PLUGIN_DEPLOYMENT
 from wlsdeploy.aliases.model_constants import QUEUE
 from wlsdeploy.aliases.model_constants import QUOTA
 from wlsdeploy.aliases.model_constants import REALM
@@ -616,6 +618,34 @@ class AttributeSetter(object):
                 self.__logger.throwing(class_name=self._class_name, method_name=method_name, error=ex)
                 raise ex
 
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+
+    def set_credential_set_mbean(self, location, key, value, wlst_value):
+        """
+        Set the credential set MBean.
+        :param location: the location
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if target is not found
+        """
+        if not self._check_mbean_unassign(location, key, value):
+            security_location = self.__get_domain_location(location).append_location(SECURITY_CONFIGURATION)
+            mbean = self.__find_in_location(security_location, CREDENTIAL_SET, value, required=True)
+            self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
+
+    def set_plugin_deployment_mbean(self, location, key, value, wlst_value):
+        """
+        Set the plugin deployment MBean.
+        :param location: the location
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if target is not found
+        """
+        if not self._check_mbean_unassign(location, key, value):
+            domain_location = self.__get_domain_location(location)
+            mbean = self.__find_in_location(domain_location, PLUGIN_DEPLOYMENT, value, required=True)
             self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
     def set_jvm_args(self, location, key, value, wlst_value):

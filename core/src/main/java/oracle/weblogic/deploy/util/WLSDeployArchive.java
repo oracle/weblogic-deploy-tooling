@@ -126,6 +126,12 @@ public class WLSDeployArchive {
     public static final String ARCHIVE_SHLIBS_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP + "sharedLibraries";
 
     /**
+     * Top-level archive subdirectory where the plugins are stored and the subdirectory to
+     * which they will be extracted.
+     */
+    public static final String ARCHIVE_PLUGINS_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP + "pluginDeployments";
+
+    /**
      * Top-level archive subdirectory where the $DOMAIN_HOME/lib are stored.
      */
     public static final String ARCHIVE_DOMLIB_TARGET_DIR = WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP + "domainLibraries";
@@ -212,6 +218,7 @@ public class WLSDeployArchive {
         MIME_MAPPING,
         NODE_MANAGER_KEY_STORE,
         OPSS_WALLET,
+        PLUGIN_DEPLOYMENT,
         RCU_WALLET,
         SAML2_DATA,
         SCRIPT,
@@ -338,6 +345,10 @@ public class WLSDeployArchive {
             case SHARED_LIBRARY:
             case SHLIB_PLAN:
                 pathPrefix = ARCHIVE_SHLIBS_TARGET_DIR + ZIP_SEP;
+                break;
+
+            case PLUGIN_DEPLOYMENT:
+                pathPrefix = ARCHIVE_PLUGINS_TARGET_DIR + ZIP_SEP;
                 break;
 
             case STRUCTURED_APPLICATION:
@@ -1051,6 +1062,152 @@ public class WLSDeployArchive {
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //                                methods using archiveType                                  //
     ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Get the path of the archive entry as if it is in the archive file.
+     * This does not reconcile duplicate names and other items that require the archive file
+     * and is only used with discoverDomain -remote to give the user an archive path.
+     * @param archiveType the type of the entry
+     * @param path the original path of the entry
+     * @return name for model archive file name
+     */
+    public static String getArchivePath(ArchiveEntryType archiveType, String path) {
+        String pathPrefix = getPathForType(archiveType);
+        return getArchiveName(pathPrefix, path);
+    }
+
+    public String addItem(ArchiveEntryType archiveType, String sourcePath) throws WLSDeployArchiveIOException {
+        final String METHOD = "addItem";
+        LOGGER.entering(CLASS, METHOD, archiveType, sourcePath);
+
+        File filePath = FileUtils.getCanonicalFile(sourcePath);
+        validateExistingFile(filePath, "path", getArchiveFileName(), METHOD, true);
+
+        String pathPrefix = getPathForType(archiveType);
+        String newName = addItemToZip(pathPrefix, filePath);
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    public String replaceItem(ArchiveEntryType archiveType, String archiveName, String sourcePath)
+            throws WLSDeployArchiveIOException {
+
+        final String METHOD = "replaceItem";
+        LOGGER.entering(CLASS, METHOD, archiveType, archiveName, sourcePath);
+
+        String pathPrefix = getPathForType(archiveType);
+        String archivePath;
+        if (archiveName.startsWith(pathPrefix)) {
+            archivePath = archiveName;
+        } else {
+            archivePath = pathPrefix + archiveName;
+        }
+
+        getZipFile().removeZipEntries(archivePath);
+        String newName = addItem(archiveType, sourcePath);
+
+        LOGGER.exiting(CLASS, METHOD, newName);
+        return newName;
+    }
+
+    /**
+     * Extracts the named file or directory from the archive into the specified directory,
+     * preserving any archive directory structure.
+     *
+     * @param archiveType the type of the entry
+     * @param path     the path of the file or directory in the archive
+     * @param directory  the existing target directory (usually domain home)
+     * @throws WLSDeployArchiveIOException if an IOException occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException    if the directory does not exist or the path is empty
+     */
+    public void extractItem(ArchiveEntryType archiveType, String path, File directory)
+            throws WLSDeployArchiveIOException {
+
+        final String METHOD = "extractItem";
+        LOGGER.entering(CLASS, METHOD, archiveType, path);
+
+        validateNonEmptyString(path, "path", METHOD);
+        validateExistingDirectory(directory, "directory", getArchiveFileName(), METHOD);
+
+        String pathPrefix = getPathForType(archiveType);
+        String archivePath = path;
+        if (!path.startsWith(pathPrefix)) {
+            archivePath = pathPrefix + path;
+        }
+
+        archivePath = fixupPathForDirectories(archivePath);
+        if (archivePath.endsWith(ZIP_SEP)) {
+            extractDirectoryFromZip(archivePath, directory);
+        } else {
+            extractFileFromZip(archivePath, directory);
+        }
+
+        LOGGER.exiting(CLASS, METHOD);
+    }
+
+    /**
+     * Remove the named item from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param path The item name (e.g., foo.jar) or the archive path
+     *             to it (e.g., wlsdeploy/domainLibraries/foo.jar)
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the item is not present or an IOException occurred while
+     *                                      reading the archive or writing the file
+     * @throws IllegalArgumentException     if the path is null or empty
+     */
+    public int removeItem(ArchiveEntryType archiveType, String path) throws WLSDeployArchiveIOException {
+        return removeItem(archiveType, path, false);
+    }
+
+    /**
+     * Remove the named item from the archive file.  If this is the only entry
+     * in the archive file directory, the directory entry will also be removed, if present.
+     *
+     * @param path The item name (e.g., foo.jar) or the archive path
+     *             to it (e.g., wlsdeploy/domainLibraries/foo.jar)
+     * @param silent  If false, a WLSDeployArchiveIOException is thrown if the named item does not exist
+     * @return the number of zip entries removed from the archive
+     * @throws WLSDeployArchiveIOException  if the item is not present (and silent = false) or an IOException
+     *                                      occurred while reading the archive or writing the file
+     * @throws IllegalArgumentException     if the path is null or empty
+     */
+    public int removeItem(ArchiveEntryType archiveType, String path, boolean silent) throws WLSDeployArchiveIOException {
+        final String METHOD = "removeItem";
+        LOGGER.entering(CLASS, METHOD, path, silent);
+
+        validateNonEmptyString(path, "path", METHOD);
+
+        String pathPrefix = getPathForType(archiveType);
+        String archivePath;
+        String itemName;
+        if (path.startsWith(pathPrefix)) {
+            archivePath = path;
+            itemName = getNameFromPath(archivePath, pathPrefix.length() + 1);
+        } else {
+            archivePath = pathPrefix + path;
+            itemName = path;
+        }
+
+        List<String> zipEntries = getArchiveEntries(archiveType, itemName);
+
+        if (!silent && zipEntries.isEmpty()) {
+            WLSDeployArchiveIOException ex =
+                    new WLSDeployArchiveIOException("WLSDPLY-01480", archiveType, itemName, getArchiveFileName(), archivePath);
+            LOGGER.throwing(CLASS, METHOD, ex);
+            throw ex;
+        }
+
+        int result = zipEntries.size();
+        for (String zipEntry : zipEntries) {
+            getZipFile().removeZipEntry(zipEntry);
+        }
+        result += removeEmptyTypeDir(archiveType, pathPrefix);
+
+        LOGGER.exiting(CLASS, METHOD, result);
+        return result;
+    }
 
     /**
      * Add a source file for the specified archive type, including an entry name.

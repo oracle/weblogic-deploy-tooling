@@ -17,12 +17,16 @@ from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import StringUtils
 from oracle.weblogic.deploy.util import WLSDeployArchiveIOException
 from oracle.weblogic.deploy.util import WLSDeployArchive
+from oracle.weblogic.deploy.util.WLSDeployArchive import ArchiveEntryType
 
 from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
+from wlsdeploy.aliases.model_constants import APPLICATION
+from wlsdeploy.aliases.model_constants import LIBRARY
 from wlsdeploy.aliases.model_constants import PLAN_DIR
 from wlsdeploy.aliases.model_constants import PLAN_PATH
+from wlsdeploy.aliases.model_constants import PLUGIN_DEPLOYMENT
 from wlsdeploy.aliases.model_constants import SOURCE_PATH
 from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
@@ -38,6 +42,18 @@ from wlsdeploy.util import string_utils
 _class_name = 'DeploymentsDiscoverer'
 _logger = PlatformLogger(discoverer.get_discover_logger_name())
 
+
+DOWNLOAD_FILE_TYPES = {
+    APPLICATION: 'applications',
+    LIBRARY: 'sharedLibraries',
+    PLUGIN_DEPLOYMENT: 'pluginDeployments'
+}
+
+ARCHIVE_ENTRY_TYPES = {
+    APPLICATION: ArchiveEntryType.APPLICATION,
+    LIBRARY: ArchiveEntryType.SHARED_LIBRARY,
+    PLUGIN_DEPLOYMENT: ArchiveEntryType.PLUGIN_DEPLOYMENT,
+}
 
 class DeploymentsDiscoverer(Discoverer):
     """
@@ -60,242 +76,132 @@ class DeploymentsDiscoverer(Discoverer):
         _method_name = 'discover'
         _logger.entering(class_name=_class_name, method_name=_method_name)
         _logger.info('WLSDPLY-06380', class_name=_class_name, method_name=_method_name)
-        model_top_folder_name, libraries = self.get_shared_libraries()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, libraries)
-        model_top_folder_name, applications = self.get_applications()
-        discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, applications)
+        self._discover_deployments(LIBRARY)
+        self._discover_deployments(APPLICATION)
+        self._discover_deployments(PLUGIN_DEPLOYMENT)
+
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary
 
-    def get_shared_libraries(self):
+    def _discover_deployments(self, deployment_type):
+        model_top_folder_name, plugins = self._get_deployments(deployment_type)
+        discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, plugins)
+
+    def _get_deployments(self, deployment_type):
         """
-        Discover the shared library deployment information from the domain. Collect any shared library binaries into
-        the discovered archive file. If the shared library cannot be collected into the archive, the shared library
-        source path will be removed from the model and the shared library un-targeted.
-        :return: model name for the dictionary and the dictionary containing the shared library information
+        Discover the deployment information from the domain. Collect any deployed binaries into
+        the discovered archive file. If the binary cannot be collected into the archive, the 
+        source path will be removed from the model and the deployment un-targeted.
+        :param deployment_type: the type of deployment, such as Application, Library, etc.
+        :return: model name for the dictionary and the dictionary containing the deployment information
         """
-        _method_name = 'get_shared_libraries'
-        _logger.entering(class_name=_class_name, method_name=_method_name)
+        _method_name = '_get_deployments'
+        _logger.entering(deployment_type, class_name=_class_name, method_name=_method_name)
         result = OrderedDict()
-        model_top_folder_name = model_constants.LIBRARY
+        model_top_folder_name = deployment_type
         location = LocationContext(self._base_location)
         location.append_location(model_top_folder_name)
-        libraries = self._find_names_in_folder(location)
-        if libraries:
-            _logger.info('WLSDPLY-06381', len(libraries), class_name=_class_name, method_name=_method_name)
+        deployments = self._find_names_in_folder(location)
+        if deployments:
+            _logger.info('WLSDPLY-06409', len(deployments), deployment_type,
+                         class_name=_class_name, method_name=_method_name)
             typedef = self._model_context.get_domain_typedef()
             name_token = self._aliases.get_name_token(location)
-            for library in libraries:
-                if typedef.is_filtered(location, library):
-                    _logger.info('WLSDPLY-06401', typedef.get_domain_type(), library, class_name=_class_name,
-                                 method_name=_method_name)
+            for deployment in deployments:
+                if typedef.is_filtered(location, deployment):
+                    _logger.info('WLSDPLY-06410', typedef.get_domain_type(), deployment_type,
+                                 deployment, class_name=_class_name, method_name=_method_name)
                 else:
-                    _logger.info('WLSDPLY-06382', library, class_name=_class_name, method_name=_method_name)
-                    location.add_name_token(name_token, library)
-                    result[library] = OrderedDict()
-                    self._populate_model_parameters(result[library], location)
-                    self._add_shared_library_to_archive(library, result[library])
-                    self._discover_subfolders(result[library], location)
+                    _logger.info('WLSDPLY-06411', deployment_type, deployment,
+                                 class_name=_class_name, method_name=_method_name)
+                    location.add_name_token(name_token, deployment)
+                    result[deployment] = OrderedDict()
+                    self._populate_model_parameters(result[deployment], location)
+
+                    # At this point, we have enough information in the model to know whether this
+                    # is a structured application folder deployment or not.
+                    is_struct_app = False
+                    install_root = None
+                    if deployment_type == APPLICATION:
+                        is_struct_app, install_root = self._is_structured_app(deployment, result[deployment])
+
+                    if is_struct_app:
+                        self._add_structured_application_to_archive(
+                            deployment, result[deployment], location, install_root)
+                    else:
+                        self._add_deployment_to_archive(deployment, deployment_type, result[deployment])
+                        
+                    self._discover_subfolders(result[deployment], location)
                     location.remove_name_token(name_token)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=model_top_folder_name)
         return model_top_folder_name, result
 
-    def _add_shared_library_to_archive(self, library_name, library_dict):
+    def _add_deployment_to_archive(self, deployment_name, deployment_type, deployment_dict):
         """
-        Add the binary or directory referenced by the shared library to the archive file.
-        If the binary can not be located and added to the archive file, un-target the library and log the problem.
-        :param library_name: name of the shared library
-        :param library_dict: containing the shared library information
-        :raise DiscoverException: An unexpected exception occurred trying to write the library to the archive
+        Add the binary or directory referenced by the deployment to the archive file.
+        If the binary can not be located and added to the archive file, un-target the deployment and log the problem.
+        :param deployment_name: name of the plugin
+        :param deployment_type: the type of deployment, such as Application, Library, etc.
+        :param deployment_dict: containing the plugin information
+        :raise DiscoverException: An unexpected exception occurred trying to write the deployment to the archive
         """
-        _method_name = '_add_shared_library_to_archive'
-        _logger.entering(library_name, class_name=_class_name, method_name=_method_name)
+        _method_name = '_add_deployment_to_archive'
+        _logger.entering(deployment_name, deployment_type, class_name=_class_name, method_name=_method_name)
 
         archive_file = self._model_context.get_archive_file()
-        if model_constants.SOURCE_PATH in library_dict:
-            file_name = library_dict[model_constants.SOURCE_PATH]
+        if model_constants.SOURCE_PATH in deployment_dict:
+            file_name = deployment_dict[model_constants.SOURCE_PATH]
             if file_name:
                 file_name_path = file_name
                 if not self._model_context.is_remote():
                     file_name_path = self._convert_path(file_name)
 
                 if self._is_file_to_exclude_from_archive(file_name_path):
-                    _logger.info('WLSDPLY-06383', library_name, class_name=_class_name, method_name=_method_name)
+                    _logger.info('WLSDPLY-06412', deployment_type, deployment_name,
+                                 class_name=_class_name, method_name=_method_name)
                 else:
+                    archive_entry_type = ARCHIVE_ENTRY_TYPES[deployment_type]
                     new_source_name = None
                     if self._model_context.is_skip_archive():
                         new_source_name = file_name_path
                     elif self._model_context.is_remote():
-                        new_source_name = WLSDeployArchive.getSharedLibraryArchivePath(file_name_path)
-                        self.add_to_remote_map(file_name_path, new_source_name,
-                                           WLSDeployArchive.ArchiveEntryType.SHARED_LIBRARY.name())
+                        new_source_name = WLSDeployArchive.getArchivePath(archive_entry_type, file_name_path)
+                        self.add_to_remote_map(file_name_path, new_source_name, archive_entry_type.name())
                     else:
-                        _logger.info('WLSDPLY-06384', library_name, file_name_path, class_name=_class_name,
-                                     method_name=_method_name)
+                        _logger.info('WLSDPLY-06413', deployment_type, deployment_name,
+                                     file_name_path, class_name=_class_name, method_name=_method_name)
                         try:
-
                             if self._model_context.is_ssh():
-                                file_name_path = self.download_deployment_from_remote_server(file_name_path,
-                                                                                            self.download_temporary_dir,
-                                                                                            "sharedLibraries")
+                                download_file_type = DOWNLOAD_FILE_TYPES[deployment_type]
+                                file_name_path = self.download_deployment_from_remote_server(
+                                    file_name_path, self.download_temporary_dir, download_file_type)
 
-                            new_source_name = archive_file.addSharedLibrary(file_name_path)
+                            new_source_name = archive_file.addItem(archive_entry_type, file_name_path)
+
+                            if deployment_type == APPLICATION:
+                                module_type = dictionary_utils.get_dictionary_element(
+                                    deployment_dict, model_constants.MODULE_TYPE)
+                                if module_type == 'jdbc':
+                                    self._jdbc_password_fix(new_source_name)
+
                         except IllegalArgumentException, iae:
-                            if model_constants.TARGET in library_dict:
-                                target = library_dict[model_constants.TARGET]
-                                del library_dict[model_constants.TARGET]
-                                _logger.warning('WLSDPLY-06385', library_name, target, iae.getLocalizedMessage(),
-                                                file_name_path, class_name=_class_name, method_name=_method_name)
-                            else:
-                                _logger.warning('WLSDPLY-06386', library_name, iae.getLocalizedMessage(), file_name_path,
-                                                class_name=_class_name, method_name=_method_name)
+                            self._disconnect_target(deployment_type, deployment_name, deployment_dict, file_name_path,
+                                                    iae.getLocalizedMessage())
                         except WLSDeployArchiveIOException, wioe:
-                            de = exception_helper.create_discover_exception('WLSDPLY-06387', library_name, file_name_path,
+                            de = exception_helper.create_discover_exception('WLSDPLY-06416', deployment_type,
+                                                                            deployment_name, file_name_path,
                                                                             wioe.getLocalizedMessage())
                             _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
                             raise de
 
                     if new_source_name is not None:
-                        library_dict[model_constants.SOURCE_PATH] = new_source_name
-                        _logger.finer('WLSDPLY-06388', library_name, new_source_name, class_name=_class_name,
-                                      method_name=_method_name)
+                        deployment_dict[model_constants.SOURCE_PATH] = new_source_name
+                        _logger.finer('WLSDPLY-06417', deployment_type, deployment_name,
+                                      new_source_name, class_name=_class_name, method_name=_method_name)
 
                 # plan may need to go into archive, even if source path was excluded
-                self._add_deployment_plan_to_archive(library_name, library_dict, model_constants.LIBRARY)
-
-        _logger.exiting(class_name=_class_name, method_name=_method_name)
-
-    def get_applications(self):
-        """
-        Discover application deployment information from the domain. Collect the application deployment binaries into
-        the discovery archive file. If an application binary cannot be collected into the archive file, remove
-        the application source path from the model and un-target the application.
-        :return: model name for the dictionary and the dictionary containing the applications information
-        """
-        _method_name = 'get_applications'
-        _logger.entering(class_name=_class_name, method_name=_method_name)
-
-        result = OrderedDict()
-        model_top_folder_name = model_constants.APPLICATION
-        location = LocationContext(self._base_location)
-        location.append_location(model_top_folder_name)
-        applications = self._find_names_in_folder(location)
-        if applications:
-            _logger.info('WLSDPLY-06391', len(applications), class_name=_class_name, method_name=_method_name)
-            typedef = self._model_context.get_domain_typedef()
-            name_token = self._aliases.get_name_token(location)
-            for application in applications:
-                if typedef.is_filtered(location, application):
-                    _logger.info('WLSDPLY-06400', typedef.get_domain_type(), application, class_name=_class_name,
-                                 method_name=_method_name)
-                else:
-                    _logger.info('WLSDPLY-06392', application, class_name=_class_name, method_name=_method_name)
-                    location.add_name_token(name_token, application)
-                    result[application] = OrderedDict()
-                    self._populate_model_parameters(result[application], location)
-
-                    # At this point, we have enough information in the model to know whether this
-                    # is a structured application folder deployment or not.
-                    #
-                    # Note that when using the optional version directory underneath the install-root
-                    # the config.xml entry for plan-dir is incorrect and does not agree with the plan-path
-                    #
-                    #   <app-deployment>
-                    #     <name>webapp1</name>
-                    #     <target>AdminServer</target>
-                    #     <module-type>war</module-type>
-                    #     <source-path>/tmp/structuredApps/webapp1/1.0/app/webapp1</source-path>
-                    #     <plan-dir>/tmp/structuredApps/webapp1/plan</plan-dir>
-                    #     <plan-path>/tmp/structuredApps/webapp1/1.0/plan/Plan.xml</plan-path>
-                    #     <security-dd-model>DDOnly</security-dd-model>
-                    #     <staging-mode xsi:nil="true"></staging-mode>
-                    #     <plan-staging-mode xsi:nil="true"></plan-staging-mode>
-                    #     <cache-in-app-directory>false</cache-in-app-directory>
-                    #   </app-deployment>
-                    #
-                    # But what is put into the model agrees with config.xml:
-                    #
-                    #          webapp1:
-                    #             PlanPath: wlsdeploy/structuredApplications/webapp1/1.0/plan/plan.xml
-                    #             SourcePath: wlsdeploy/structuredApplications/webapp1/1.0/app/webapp1/
-                    #             ModuleType: war
-                    #             SecurityDDModel: DDOnly
-                    #             PlanDir: wlsdeploy/structuredApplications/webapp1/plan
-                    #             Target: AdminServer
-                    #
-                    is_struct_app, install_root = self._is_structured_app(application, result[application])
-                    if is_struct_app:
-                        self._add_structured_application_to_archive(application, result[application],
-                                                                    location, install_root)
-                    else:
-                        self._add_application_to_archive(application, result[application])
-                    self._discover_subfolders(result[application], location)
-                    location.remove_name_token(name_token)
-
-        _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
-        return model_top_folder_name, result
-
-    def _add_application_to_archive(self, application_name, application_dict):
-        """
-        Add the binary or directory referenced by the application to the archive file.
-        If the binary can not be located and added to the archive file, un-target the application and log the problem.
-        :param application_name: name of the application in the model
-        :param application_dict: containing the application information
-        :raise DiscoverException: An unexpected exception occurred trying to write the application to the archive
-        """
-        _method_name = 'add_application_to_archive'
-        _logger.entering(application_name, class_name=_class_name, method_name=_method_name)
-
-        archive_file = self._model_context.get_archive_file()
-        file_name = self._get_dictionary_attribute_with_path_tokens_replaced(application_dict, SOURCE_PATH)
-        if file_name is not None:
-            file_name_path = file_name
-            if not self._model_context.is_remote():
-                file_name_path = self._convert_path(file_name)
-
-            if self._is_file_to_exclude_from_archive(file_name_path):
-                _logger.info('WLSDPLY-06393', application_name,
-                             class_name=_class_name, method_name=_method_name)
-            else:
-                new_source_name = None
-                if self._model_context.is_skip_archive():
-                    new_source_name = file_name_path
-                elif self._model_context.is_remote():
-                    new_source_name = WLSDeployArchive.getApplicationArchivePath(file_name_path)
-                    self.add_to_remote_map(file_name_path, new_source_name,
-                                           WLSDeployArchive.ArchiveEntryType.APPLICATION.name())
-                else:
-                    _logger.info('WLSDPLY-06394', application_name, file_name_path,
-                                 class_name=_class_name, method_name=_method_name)
-                    try:
-                        if self._model_context.is_ssh():
-                            file_name_path = \
-                                self.download_deployment_from_remote_server(file_name_path,
-                                                                            self.download_temporary_dir,
-                                                                            "applications")
-
-                        new_source_name = archive_file.addApplication(file_name_path)
-                        module_type = dictionary_utils.get_dictionary_element(application_dict,
-                                                                              model_constants.MODULE_TYPE)
-                        if module_type == 'jdbc':
-                            self._jdbc_password_fix(new_source_name)
-
-                    except IllegalArgumentException, iae:
-                        self._disconnect_target(application_name, application_dict, iae.getLocalizedMessage())
-                    except WLSDeployArchiveIOException, wioe:
-                        de = exception_helper.create_discover_exception('WLSDPLY-06397', application_name,
-                                                                    file_name_path, wioe.getLocalizedMessage())
-                        _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
-                        raise de
-
-                if new_source_name is not None:
-                    _logger.finer('WLSDPLY-06398', application_name, new_source_name, class_name=_class_name,
-                                  method_name=_method_name)
-                    application_dict[model_constants.SOURCE_PATH] = new_source_name
-
-            # plan may need to go into archive, even if source path was excluded
-            self._add_deployment_plan_to_archive(application_name, application_dict, model_constants.APPLICATION)
+                self._add_deployment_plan_to_archive(deployment_name, deployment_dict, deployment_type)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
 
@@ -345,6 +251,33 @@ class DeploymentsDiscoverer(Discoverer):
         _method_name = '_add_structured_application_to_archive'
         _logger.entering(application_name, location, install_root,
                          class_name=_class_name, method_name=_method_name)
+
+        # Note that when using the optional version directory underneath the install-root
+        # the config.xml entry for plan-dir is incorrect and does not agree with the plan-path
+        #
+        #   <app-deployment>
+        #     <name>webapp1</name>
+        #     <target>AdminServer</target>
+        #     <module-type>war</module-type>
+        #     <source-path>/tmp/structuredApps/webapp1/1.0/app/webapp1</source-path>
+        #     <plan-dir>/tmp/structuredApps/webapp1/plan</plan-dir>
+        #     <plan-path>/tmp/structuredApps/webapp1/1.0/plan/Plan.xml</plan-path>
+        #     <security-dd-model>DDOnly</security-dd-model>
+        #     <staging-mode xsi:nil="true"></staging-mode>
+        #     <plan-staging-mode xsi:nil="true"></plan-staging-mode>
+        #     <cache-in-app-directory>false</cache-in-app-directory>
+        #   </app-deployment>
+        #
+        # But what is put into the model agrees with config.xml:
+        #
+        #          webapp1:
+        #             PlanPath: wlsdeploy/structuredApplications/webapp1/1.0/plan/plan.xml
+        #             SourcePath: wlsdeploy/structuredApplications/webapp1/1.0/app/webapp1/
+        #             ModuleType: war
+        #             SecurityDDModel: DDOnly
+        #             PlanDir: wlsdeploy/structuredApplications/webapp1/plan
+        #             Target: AdminServer
+
         archive_file = self._model_context.get_archive_file()
 
         install_root_path = install_root
@@ -366,7 +299,8 @@ class DeploymentsDiscoverer(Discoverer):
                                                                                           "applications")
                         new_install_root_path = archive_file.addStructuredApplication(install_root_path)
                     except IllegalArgumentException, iae:\
-                        self._disconnect_target(application_name, application_dict, iae.getLocalizedMessage())
+                        self._disconnect_target(APPLICATION, application_name, application_dict, install_root,
+                                                iae.getLocalizedMessage())
                     except WLSDeployArchiveIOException, wioe:
                         de = exception_helper.create_discover_exception('WLSDPLY-06397', application_name,
                                                                         install_root_path, wioe.getLocalizedMessage())
@@ -538,16 +472,16 @@ class DeploymentsDiscoverer(Discoverer):
         result = '<' + type + '>' + result + '</' + type + '>'
         return result
 
-    def _disconnect_target(self, application_name, application_dict, message):
+    def _disconnect_target(self, deployment_type, deployment_name, deployment_dict, file_name_path, message):
         _method_name = '_disconnect_target'
-        if model_constants.TARGET in application_dict:
-            target = application_dict[model_constants.TARGET]
-            del application_dict[model_constants.TARGET]
-            _logger.warning('WLSDPLY-06395', application_name, target, message,
-                            class_name=_class_name, method_name=_method_name)
+        if model_constants.TARGET in deployment_dict:
+            target = deployment_dict[model_constants.TARGET]
+            del deployment_dict[model_constants.TARGET]
+            _logger.warning('WLSDPLY-06414', deployment_type, deployment_name, file_name_path, 
+                            target, message, class_name=_class_name, method_name=_method_name)
         else:
-            _logger.warning('WLSDPLY-06396', application_name, message,
-                            class_name=_class_name, method_name=_method_name)
+            _logger.warning('WLSDPLY-06415', deployment_type, deployment_name, file_name_path,
+                            message, class_name=_class_name, method_name=_method_name)
 
     def _get_plan_path(self, plan_path, archive_file, source_name, deployment_type, deployment_name, deployment_dict):
         _method_name = '_get_plan_path'
@@ -573,11 +507,10 @@ class DeploymentsDiscoverer(Discoverer):
             new_plan_name = remote_archive_path
             self.add_to_remote_map(plan_path, new_plan_name, archive_entry_type.name())
         else:
+            download_file_type = DOWNLOAD_FILE_TYPES[deployment_type]
             if deployment_type == model_constants.LIBRARY:
-                download_file_type = 'sharedLibraries'
                 archive_add_method = archive_file.addSharedLibraryDeploymentPlan
             else:
-                download_file_type = 'applications'
                 archive_add_method = archive_file.addApplicationDeploymentPlan
             try:
                 if self._model_context.is_ssh():

@@ -158,12 +158,12 @@ class ModelValidator(object):
                         self._log_context_invalid(message, _method_name)
                     elif result == ValidationCodes.INVALID:
                         self._logger.severe('WLSDPLY-05029', section_dict_key, model_folder_path,
-                                            '%s' % ', '.join(valid_attr_infos), class_name=_class_name,
+                                            '%s' % ', '.join(sorted(valid_attr_infos)), class_name=_class_name,
                                             method_name=_method_name)
 
                 else:
                     self._logger.severe('WLSDPLY-05029', section_dict_key, model_folder_path,
-                                        '%s' % ', '.join(valid_attr_infos), class_name=_class_name,
+                                        '%s' % ', '.join(sorted(valid_attr_infos)), class_name=_class_name,
                                         method_name=_method_name)
 
     def _validate_folder(self, model_node, validation_location):
@@ -384,7 +384,7 @@ class ModelValidator(object):
                     if attribute_validation_code == ValidationCodes.INVALID:
                         # key is an INVALID attribute
                         self._logger.severe('WLSDPLY-05029', key, model_folder_path,
-                                            '%s' % ', '.join(valid_attr_infos), class_name=_class_name,
+                                            '%s' % ', '.join(sorted(valid_attr_infos)), class_name=_class_name,
                                             method_name=_method_name)
 
     def _validate_attributes(self, attributes_dict, valid_attr_infos, validation_location):
@@ -441,7 +441,7 @@ class ModelValidator(object):
                 self._log_context_invalid(message, _method_name)
             elif result == ValidationCodes.INVALID:
                 self._logger.severe('WLSDPLY-05029', attribute_name, model_folder_path,
-                                    '%s' % ', '.join(valid_attr_infos), class_name=_class_name,
+                                    '%s' % ', '.join(sorted(valid_attr_infos)), class_name=_class_name,
                                     method_name=_method_name)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)

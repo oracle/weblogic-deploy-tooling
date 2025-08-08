@@ -61,12 +61,14 @@ from wlsdeploy.aliases.model_constants import EJB_CONTAINER
 from wlsdeploy.aliases.model_constants import HEALTH_SCORE
 from wlsdeploy.aliases.model_constants import JOLT_CONNECTION_POOL
 from wlsdeploy.aliases.model_constants import JPA
+from wlsdeploy.aliases.model_constants import LIBRARY
 from wlsdeploy.aliases.model_constants import MANAGED_EXECUTOR_SERVICE_TEMPLATE
 from wlsdeploy.aliases.model_constants import MANAGED_SCHEDULED_EXECUTOR_SERVICE_TEMPLATE
 from wlsdeploy.aliases.model_constants import MANAGED_THREAD_FACTORY_TEMPLATE
 from wlsdeploy.aliases.model_constants import ODL_CONFIGURATION
 from wlsdeploy.aliases.model_constants import OHS
 from wlsdeploy.aliases.model_constants import OPSS_INITIALIZATION
+from wlsdeploy.aliases.model_constants import PLUGIN_DEPLOYMENT
 from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import REMOTE_CONSOLE_HELPER
 from wlsdeploy.aliases.model_constants import RESOURCE_MANAGER
@@ -176,8 +178,9 @@ class AliasEntries(object):
     ]
 
     __app_deployments_top_level_folders = [
-        'Application',
-        'Library'
+        APPLICATION,
+        LIBRARY,
+        PLUGIN_DEPLOYMENT
     ]
 
     __domain_info_top_level_folders = [
