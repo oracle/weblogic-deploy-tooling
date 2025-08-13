@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2023, Oracle and/or its affiliates.",
+    "copyright": "Copyright (c) 2017, 2025, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "name": "WLS",
     "description": "WLS type domain definitions",
@@ -55,5 +55,10 @@
             "rcuSchemas": [ ],
             "isJrfInstalled": false
         }
+    },
+    "discover-filters": {
+        "/PluginDeployment": [
+            "^cert-issuer-for-oci-cert-svc$"
+        ]
     }
 }

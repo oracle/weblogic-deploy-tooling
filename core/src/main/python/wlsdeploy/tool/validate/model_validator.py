@@ -91,7 +91,7 @@ class ModelValidator(object):
         # only specific top-level sections have attributes
         attribute_location = self._aliases.get_model_section_attribute_location(model_section_key)
 
-        valid_attr_infos = []
+        valid_attr_infos = {}
         path_tokens_attr_keys = []
 
         if attribute_location is not None:
@@ -158,12 +158,12 @@ class ModelValidator(object):
                         self._log_context_invalid(message, _method_name)
                     elif result == ValidationCodes.INVALID:
                         self._logger.severe('WLSDPLY-05029', section_dict_key, model_folder_path,
-                                            '%s' % ', '.join(valid_attr_infos), class_name=_class_name,
+                                            self.sorted_keys_text(valid_attr_infos), class_name=_class_name,
                                             method_name=_method_name)
 
                 else:
                     self._logger.severe('WLSDPLY-05029', section_dict_key, model_folder_path,
-                                        '%s' % ', '.join(valid_attr_infos), class_name=_class_name,
+                                        self.sorted_keys_text(valid_attr_infos), class_name=_class_name,
                                         method_name=_method_name)
 
     def _validate_folder(self, model_node, validation_location):
@@ -384,7 +384,7 @@ class ModelValidator(object):
                     if attribute_validation_code == ValidationCodes.INVALID:
                         # key is an INVALID attribute
                         self._logger.severe('WLSDPLY-05029', key, model_folder_path,
-                                            '%s' % ', '.join(valid_attr_infos), class_name=_class_name,
+                                            self.sorted_keys_text(valid_attr_infos), class_name=_class_name,
                                             method_name=_method_name)
 
     def _validate_attributes(self, attributes_dict, valid_attr_infos, validation_location):
@@ -441,7 +441,7 @@ class ModelValidator(object):
                 self._log_context_invalid(message, _method_name)
             elif result == ValidationCodes.INVALID:
                 self._logger.severe('WLSDPLY-05029', attribute_name, model_folder_path,
-                                    '%s' % ', '.join(valid_attr_infos), class_name=_class_name,
+                                    self.sorted_keys_text(valid_attr_infos), class_name=_class_name,
                                     method_name=_method_name)
 
         self._logger.exiting(class_name=_class_name, method_name=_method_name)
@@ -663,3 +663,8 @@ class ModelValidator(object):
             if expected_data_type == 'password':
                 result = '<masked>'
         return result
+
+    def sorted_keys_text(self, dictionary):
+        keys = list(dictionary.keys())
+        keys.sort()
+        return ', '.join(keys)

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -26,6 +26,8 @@ from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PLAN_DIR
 from wlsdeploy.aliases.model_constants import PLAN_PATH
 from wlsdeploy.aliases.model_constants import PLAN_STAGING_MODE
+from wlsdeploy.aliases.model_constants import PLUGIN_DEPLOYMENT
+from wlsdeploy.aliases.model_constants import PLUGIN_TYPE
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP
 from wlsdeploy.aliases.model_constants import RESOURCE_GROUP_TEMPLATE
 from wlsdeploy.aliases.model_constants import SECURITY_DD_MODEL
@@ -44,6 +46,14 @@ from wlsdeploy.util import model_helper
 from wlsdeploy.util import string_utils
 from wlsdeploy.util import unicode_helper as str_helper
 
+# map model attributes to deploy() options
+MODEL_OPTIONS_MAP = {
+    DEPLOYMENT_ORDER: 'deploymentOrder',
+    PLAN_STAGING_MODE: 'planStageMode',
+    PLUGIN_TYPE: 'pluginType',
+    SECURITY_DD_MODEL: 'securityModel',
+    STAGE_MODE: 'stageMode'
+}
 
 class OnlineApplicationsDeployer(ApplicationsDeployer):
 
@@ -111,12 +121,12 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         # user provide new versioned app, it must be stopped and undeployed first
         for app in stop_and_undeploy_app_list:
             self.__stop_app(app)
-            self.__undeploy_app(app)
+            self.__undeploy_app(app, APPLICATION)
             self.__delete_deployment_on_server(app, model_applications[app])
 
         # library is updated, it must be undeployed first
         for lib in update_library_list:
-            self.__undeploy_app(lib, library_module='true')
+            self.__undeploy_app(lib, LIBRARY)
             self.__delete_deployment_on_server(lib, model_shared_libraries[lib])
 
         self.__deploy_model_libraries(model_shared_libraries, lib_location)
@@ -125,6 +135,33 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         deployed_app_list = self.__deploy_model_applications(model_applications, app_location)
 
         self.__start_all_apps(deployed_app_list, self._base_location, is_restart_required)
+
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name)
+
+    def deploy_plugins(self):
+        """
+        Deploy PluginDeployment elements from the model. These need to be deployed before SecurityConfiguration,
+        which is why they are not included in OfflineApplicationsDeployer.deploy()
+        """
+        _method_name = 'deploy_plugins'
+        self.logger.entering(class_name=self._class_name, method_name=_method_name)
+
+        plugins_location = LocationContext(self._base_location).append_location(PLUGIN_DEPLOYMENT)
+        if not self.aliases.is_model_location_valid(plugins_location):
+            return
+
+        model_plugins = copy.deepcopy(dictionary_utils.get_dictionary_element(self._parent_dict, PLUGIN_DEPLOYMENT))
+        self._replace_deployments_path_tokens(PLUGIN_DEPLOYMENT, model_plugins)
+        existing_names = deployer_utils.get_existing_object_list(plugins_location, self.aliases)
+
+        # undeploy plugins with delete notation
+        for plugin_name, plugin_dict in model_plugins.items():
+            if model_helper.is_delete_name(plugin_name):
+                if self._does_deployment_to_delete_exist(plugin_name, existing_names, PLUGIN_DEPLOYMENT):
+                    name_to_delete = model_helper.get_delete_item_name(plugin_name)
+                    self.__undeploy_app(name_to_delete, PLUGIN_DEPLOYMENT)
+
+        self.__deploy_model_plugins(model_plugins, plugins_location)
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 
@@ -489,7 +526,7 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
             # use items(), not iteritems(), to avoid ConcurrentModificationException if an app is removed
             for app, app_dict in model_apps.items():
                 if model_helper.is_delete_name(app):
-                    if self._does_deployment_to_delete_exist(app, existing_apps, 'app'):
+                    if self._does_deployment_to_delete_exist(app, existing_apps, APPLICATION):
                         # remove the !app from the model
                         self.__remove_app_from_deployment(model_apps, app)
                         # undeploy the app (without !)
@@ -543,7 +580,7 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         return self.aliases.get_model_uses_path_tokens_attribute_names(location)
 
     def __update_delete_library_in_model(self, existing_libs, lib, model_libs, update_library_list):
-        if self._does_deployment_to_delete_exist(lib, existing_libs, 'lib'):
+        if self._does_deployment_to_delete_exist(lib, existing_libs, LIBRARY):
             lib_name = model_helper.get_delete_item_name(lib)
             if lib_name in existing_libs:
                 model_libs.pop(lib)
@@ -800,6 +837,9 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
     def __deploy_model_libraries(self, model_libs, lib_location):
         return self.__deploy_model_deployments(model_libs, lib_location, LIBRARY)
 
+    def __deploy_model_plugins(self, model_plugins, plugin_location):
+        return self.__deploy_model_deployments(model_plugins, plugin_location, PLUGIN_DEPLOYMENT)
+
     def __deploy_model_deployments(self, deployments, deployments_location, deployment_type):
         _method_name = '__deploy_model_deployments'
         self.logger.entering(str_helper.to_string(deployments_location), class_name=self._class_name,
@@ -817,7 +857,7 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
                     targets = dictionary_utils.get_element(deployment_dict, TARGET)
 
                     options, sub_module_targets  = \
-                        self.__get_deploy_options(deployments, deployment_name, deployment_type == LIBRARY)
+                        self.__get_deploy_options(deployments, deployment_name, deployment_type)
 
                     self._extract_deployment_from_archive(deployment_name, deployment_type, deployment_dict)
 
@@ -837,14 +877,15 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
 
                     module_type = dictionary_utils.get_element(deployment_dict, MODULE_TYPE)
 
-                    new_name = self.__deploy_app_or_library(deployment_name, model_source_path, source_path, targets,
-                                                            plan=plan_path, stage_mode=stage_mode,
-                                                            partition=partition_name,
-                                                            resource_group=resource_group_name,
-                                                            resource_group_template=resource_group_template_name,
-                                                            module_type=module_type,
-                                                            sub_module_targets=sub_module_targets,
-                                                            options=options)
+                    new_name = self.__deploy_app_or_library(
+                        deployment_name, deployment_type, model_source_path, source_path, targets,
+                        plan=plan_path, stage_mode=stage_mode,
+                        partition=partition_name,
+                        resource_group=resource_group_name,
+                        resource_group_template=resource_group_template_name,
+                        module_type=module_type,
+                        sub_module_targets=sub_module_targets,
+                        options=options)
 
                     deployed_names.append(new_name)
                     self._substitute_appmodule_token(model_source_path, module_type)
@@ -854,14 +895,16 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
         return deployed_names
 
-    def __deploy_app_or_library(self, application_name, model_source_path, deploy_source_path, targets, stage_mode=None,
-                                plan=None, partition=None, resource_group=None, resource_group_template=None,
-                                sub_module_targets=None, module_type = None, options=None):
+    def __deploy_app_or_library(self, deployment_name, deployment_type, model_source_path, deploy_source_path,
+                                targets, stage_mode=None, plan=None, partition=None, resource_group=None,
+                                resource_group_template=None, sub_module_targets=None, module_type = None,
+                                options=None):
         """
-        Deploy an application or shared library in online mode.
-        :param application_name: the name of the app or library from the model
-        :param model_source_path: the model source path of the app or library
-        :param deploy_source_path: the full source path of the app or library
+        Deploy an application, shared library, or plugin in online mode.
+        :param deployment_name: the name of the deployment from the model
+        :param deployment_type: the type of the deployment, such as Application, Library, etc.
+        :param model_source_path: the model source path of the deployment
+        :param deploy_source_path: the full source path of the deployment
         :param targets: the intended targets
         :param plan: optional, the full path to the plan file
         :param partition: optional, the partition
@@ -870,42 +913,28 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         :param options: optional, extra options for the WLST deploy() call
         """
         _method_name = '__deploy_app_or_library'
-        self.logger.entering(application_name, model_source_path, deploy_source_path, targets, stage_mode, plan,
-                             partition, resource_group, resource_group_template, sub_module_targets, module_type,
-                             options, class_name=self._class_name, method_name=_method_name)
+        self.logger.entering(deployment_name, deployment_type, model_source_path, deploy_source_path, targets,
+                             stage_mode, plan, partition, resource_group, resource_group_template, sub_module_targets,
+                             module_type, options, class_name=self._class_name, method_name=_method_name)
 
-        is_library = False
-        if options is not None:
-            is_library = dictionary_utils.get_element(options, 'libraryModule') == 'true'
-
-        type_name = APPLICATION
-        if is_library:
-            type_name = LIBRARY
-
-        self.logger.info('WLSDPLY-09316', type_name, application_name, class_name=self._class_name,
+        self.logger.info('WLSDPLY-09316', deployment_type, deployment_name, class_name=self._class_name,
                          method_name=_method_name)
 
         real_domain_home = self.model_context.get_domain_home()
 
         if string_utils.is_empty(model_source_path):
-            ex = exception_helper.create_deploy_exception('WLSDPLY-09317', type_name, application_name, SOURCE_PATH)
+            ex = exception_helper.create_deploy_exception('WLSDPLY-09317', deployment_type, deployment_name, SOURCE_PATH)
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
         if not self.model_context.is_ssh() and self.path_helper.is_absolute_local_path(deploy_source_path) and \
                 not os.path.exists(deploy_source_path):
-            ex = exception_helper.create_deploy_exception('WLSDPLY-09318', type_name, application_name,
+            ex = exception_helper.create_deploy_exception('WLSDPLY-09318', deployment_type, deployment_name,
                                                           str_helper.to_string(deploy_source_path))
             self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
             raise ex
 
-        if is_library:
-            computed_name = self.version_helper.get_library_versioned_name(model_source_path, application_name)
-        else:
-            computed_name = self.version_helper.get_application_versioned_name(model_source_path, application_name,
-                                                                               module_type=module_type)
-
-        application_name = computed_name
+        deployment_name = self._get_versioned_name(model_source_path, deployment_name, deployment_type, module_type)
 
         # build the dictionary of named arguments to pass to the deploy_application method
         args = list()
@@ -920,7 +949,7 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
                 plan = self.path_helper.local_join(real_domain_home, plan)
 
             if not is_remote and not os.path.exists(plan):
-                ex = exception_helper.create_deploy_exception('WLSDPLY-09319', type_name, application_name, plan)
+                ex = exception_helper.create_deploy_exception('WLSDPLY-09319', deployment_type, deployment_name, plan)
                 self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
                 raise ex
             kwargs['planPath'] = str_helper.to_string(plan)
@@ -940,12 +969,12 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         if self.version_helper.is_module_type_app_module(module_type) and sub_module_targets is not None:
             kwargs[SUB_MODULE_TARGETS] = sub_module_targets
 
-        self.logger.fine('WLSDPLY-09320', type_name, application_name, kwargs,
+        self.logger.fine('WLSDPLY-09320', deployment_type, deployment_name, kwargs,
                          class_name=self._class_name, method_name=_method_name)
-        self.wlst_helper.deploy_application(application_name, *args, **kwargs)
+        self.wlst_helper.deploy_application(deployment_name, *args, **kwargs)
 
-        self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=application_name)
-        return application_name
+        self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=deployment_name)
+        return deployment_name
 
     def __get_deployment_ordering(self, apps):
         _method_name = '__get_deployment_ordering'
@@ -989,45 +1018,38 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
                             result=str_helper.to_string(result_deploy_order))
         return result_deploy_order
 
-    def __get_deploy_options(self, model_apps, app_name, is_library_module):
+    def __get_deploy_options(self, model_apps, app_name, deployment_type):
         """
         Get the deploy command options.
         :param model_apps: the apps dictionary
         :param app_name: the app name
-        :param is_library_module: whether it is a library (boolean)
+        :param deployment_type: type of deployment: Application, Library, etc.
         :return: dictionary of the deploy options
         """
         _method_name = '__get_deploy_options'
-        self.logger.entering(app_name, is_library_module, class_name=self._class_name, method_name=_method_name)
+        self.logger.entering(app_name, deployment_type, class_name=self._class_name, method_name=_method_name)
 
         deploy_options = OrderedDict()
-        # not sure about altDD, altWlsDD
         app = dictionary_utils.get_dictionary_element(model_apps, app_name)
-        for option in [DEPLOYMENT_ORDER, SECURITY_DD_MODEL, PLAN_STAGING_MODE, STAGE_MODE]:
-            value = dictionary_utils.get_element(app, option)
 
-            option_name = ''
-            if option == DEPLOYMENT_ORDER:
-                option_name = 'deploymentOrder'
-            elif option == SECURITY_DD_MODEL:
-                option_name = 'securityModel'
-            elif option == PLAN_STAGING_MODE:
-                option_name = 'planStageMode'
-            elif option == STAGE_MODE:
-                option_name = 'stageMode'
-
+        # not sure about altDD, altWlsDD
+        for model_attribute, deploy_option in MODEL_OPTIONS_MAP.items():
+            value = dictionary_utils.get_element(app, model_attribute)
             if value is not None:
-                deploy_options[option_name] = str_helper.to_string(value)
+                deploy_options[deploy_option] = str_helper.to_string(value)
 
-        if is_library_module:
+        if deployment_type == LIBRARY:
             deploy_options['libraryModule'] = 'true'
+
+        if deployment_type == PLUGIN_DEPLOYMENT:
+            deploy_options['plugin'] = 'true'
 
         if self.model_context.is_remote():
             # In the -remote use case, if the SourcePath and combined PlanDir/PlanPath are absolute paths in
             # the model, we do not try to upload them and instead assume that they are available on the remote
             # machine already.
             #
-            deploy_should_upload = self.__remote_deploy_should_upload_app(app, app_name, is_library_module)
+            deploy_should_upload = self.__remote_deploy_should_upload_app(app, app_name, deployment_type)
             if deploy_should_upload:
                 deploy_options['upload'] = 'true'
             else:
@@ -1046,17 +1068,17 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
                             result=[deploy_options, sub_module_targets])
         return deploy_options, sub_module_targets
 
-    def __remote_deploy_should_upload_app(self, deployment_dict, deployment_name, is_library_module):
+    def __remote_deploy_should_upload_app(self, deployment_dict, deployment_name, deployment_type):
         """
         In the -remote use case, should the deployment be uploaded>
         :param deployment_dict: the model dictionary
         :param deployment_name: the model name
-        :param is_library_module: whether the deployment is a shared library
+        :param deployment_type: type of deployment: Application, Library, etc.
         :return: True, if the deploy options should set upload to true; False otherwise
         :raises: DeployException: if the model deployment paths are inconsistent
         """
         _method_name = '__remote_deploy_should_upload_app'
-        self.logger.entering(deployment_dict, deployment_name, is_library_module,
+        self.logger.entering(deployment_dict, deployment_name, deployment_type,
                              class_name=self._class_name, method_name=_method_name)
 
         deploy_should_upload = True
@@ -1075,9 +1097,7 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
                     # SourcePath was not empty and not an absolute path but the plan is an absolute path so
                     # the model is inconsistent and the deploy operation cannot process it.
                     #
-                    model_type = APPLICATION
-                    if is_library_module:
-                        model_type = LIBRARY
+                    model_type = deployment_type
                     ex = exception_helper.create_deploy_exception('WLSDPLY-09350', model_type, deployment_name,
                                                                   model_source_path, model_combined_plan_path)
                     self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
@@ -1104,27 +1124,34 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=sub_module_targets)
         return sub_module_targets
 
-    def __undeploy_app(self, application_name, library_module='false', partition_name=None,
+    def __undeploy_app(self, deployment_name, deployment_type, partition_name=None,
                        resource_group_template=None, targets=None):
         _method_name = '__undeploy_app'
-        self.logger.entering(application_name, library_module, partition_name, resource_group_template, targets,
+        self.logger.entering(deployment_name, deployment_type, partition_name, resource_group_template, targets,
                              class_name=self._class_name, method_name=_method_name)
 
-        type_name = APPLICATION
-        if library_module == 'true':
-            type_name = LIBRARY
-
         if targets is not None:
-            self.logger.info('WLSDPLY-09335', type_name, application_name, targets, class_name=self._class_name,
+            self.logger.info('WLSDPLY-09335', deployment_type, deployment_name, targets, class_name=self._class_name,
                              method_name=_method_name)
         else:
-            self.logger.info('WLSDPLY-09314', type_name, application_name, class_name=self._class_name,
+            self.logger.info('WLSDPLY-09314', deployment_type, deployment_name, class_name=self._class_name,
                              method_name=_method_name)
 
-        self.wlst_helper.undeploy_application(application_name, libraryModule=library_module, partition=partition_name,
-                                              resourceGroupTemplate=resource_group_template,
-                                              timeout=self.model_context.get_model_config().get_undeploy_timeout(),
-                                              targets=targets)
+        kwargs = {
+            'partition': partition_name,
+            'resourceGroupTemplate': resource_group_template,
+            'timeout': self.model_context.get_model_config().get_undeploy_timeout(),
+            'targets': targets
+        }
+
+        if deployment_type == LIBRARY:
+            kwargs['libraryModule'] = 'true'
+
+        if deployment_type == PLUGIN_DEPLOYMENT:
+            kwargs['plugin'] = 'true'
+
+        args = list()
+        self.wlst_helper.undeploy_application(deployment_name, *args, **kwargs)
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 

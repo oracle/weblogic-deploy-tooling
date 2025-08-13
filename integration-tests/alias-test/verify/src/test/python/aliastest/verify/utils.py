@@ -92,6 +92,11 @@ OFFLINE_TEST_ANOMALIES_MAP = {
     '/Library': {
         'ModuleType': 'war',
         'SourcePath': 'wlsdeploy/sharedLibraries/jstl-1.2.war'
+    },
+    '/PluginDeployment': {
+        'PluginType': 'CertificateIssuerPlugin',
+        'SourcePath': '@@WL_HOME@@/server/lib/plugins/weblogic.security.pki.plugins.oci.cert.jar',
+        'StagingMode': 'nostage'
     }
 }
 
@@ -119,6 +124,11 @@ ONLINE_TEST_ANOMALIES_MAP = {
     },
     '/Partition/ResourceGroup/JMSSystemResource/JmsResource/Template/GroupParams': {
         'SubDeploymentName': 'GroupParams-\\d{3,5}'
+    },
+    '/PluginDeployment': {
+        'PluginType': 'CertificateIssuerPlugin',
+        'SourcePath': '@@WL_HOME@@/server/lib/plugins/weblogic.security.pki.plugins.oci.cert.jar',
+        'StagingMode': 'nostage'
     },
     '/ResourceGroup/JMSSystemResource/JmsResource/ForeignServer/JNDIProperty': {
         'Key': 'JNDIProperties-\\d{3,5}'

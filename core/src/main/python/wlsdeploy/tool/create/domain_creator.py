@@ -275,6 +275,7 @@ class DomainCreator(Creator):
         """
         self.model_context.set_domain_home(self._domain_home)
         self.__set_domain_attributes()
+        self.model_deployer.deploy_plugins()
         self.__configure_security_configuration()
         self.__deploy_resources_and_apps()
         self.wlst_helper.update_domain()

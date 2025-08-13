@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -18,6 +18,7 @@ from oracle.weblogic.deploy.util import WLSDeployArchive
 
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import APPLICATION
+from wlsdeploy.aliases.model_constants import LIBRARY
 from wlsdeploy.aliases.model_constants import PARTITION
 from wlsdeploy.aliases.model_constants import PLAN_DIR
 from wlsdeploy.aliases.model_constants import PLAN_PATH
@@ -98,7 +99,7 @@ class ApplicationsDeployer(Deployer):
     #                      Subclass utility methods                           #
     ###########################################################################
 
-    def _does_deployment_to_delete_exist(self, deployment_name, existing_deployment_names, deployment_type='app'):
+    def _does_deployment_to_delete_exist(self, deployment_name, existing_deployment_names, deployment_type):
         """
         Verify that the specified app or library is in the existing list.  Since this app/library
         has been specified in the model as one to be deleted, this method will only consider
@@ -107,7 +108,7 @@ class ApplicationsDeployer(Deployer):
         like myapp#1.0 or myapp#1.0@1.1.3.
         :param deployment_name: the app or library name to be checked, with '!' still prepended
         :param existing_deployment_names: the list of existing apps from WLST
-        :param deployment_type: the type for logging, 'app' for app, library otherwise
+        :param deployment_type: the type for logging, such as Application, Library, etc.
         :return: True if the item is in the list, False otherwise
         """
         _method_name = '_does_deployment_to_delete_exist'
@@ -123,18 +124,12 @@ class ApplicationsDeployer(Deployer):
             r = re.compile(re_expr)
             matched_list = filter(r.match, existing_deployment_names)
 
-            if deployment_type == 'app':
-                err_key_list = 'WLSDPLY-09332'
-                err_key = 'WLSDPLY-09334'
-            else:
-                err_key_list = 'WLSDPLY-09331'
-                err_key = 'WLSDPLY-09333'
-
             if len(matched_list) > 0:
-                self.logger.warning(err_key_list, depl_name, matched_list,
+                self.logger.warning('WLSDPLY-09355', deployment_type, depl_name, ', '.join(matched_list),
                                     class_name=self._class_name, method_name=_method_name)
             else:
-                self.logger.warning(err_key, depl_name, class_name=self._class_name, method_name=_method_name)
+                self.logger.warning('WLSDPLY-09356', deployment_type, depl_name,
+                                    class_name=self._class_name, method_name=_method_name)
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=found_deployment)
         return found_deployment
@@ -291,6 +286,15 @@ class ApplicationsDeployer(Deployer):
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name, result=result)
         return result
+
+    def _get_versioned_name(self, source_path, deployment_name, deployment_type, module_type):
+        computed_name = deployment_name  # plugin deployment don't seem to use versioning
+        if deployment_type == LIBRARY:
+            computed_name = self.version_helper.get_library_versioned_name(source_path, deployment_name)
+        elif deployment_type == APPLICATION:
+            computed_name = self.version_helper.get_application_versioned_name(source_path, deployment_name,
+                                                                               module_type=module_type)
+        return computed_name
 
     def _replace_path_tokens_for_deployment(self, deployment_type, deployment_name, deployment_dict):
         _method_name = '_replace_path_tokens_for_deployment'
