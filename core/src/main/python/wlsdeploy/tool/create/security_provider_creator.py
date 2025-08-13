@@ -4,9 +4,11 @@ Licensed under the Universal Permissive License v 1.0 as shown at https://oss.or
 """
 
 from oracle.weblogic.deploy.exception import BundleAwareException
+from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import AUTHENTICATION_PROVIDER
+from wlsdeploy.aliases.model_constants import CERTIFICATE_MANAGEMENT
 from wlsdeploy.aliases.model_constants import DEFAULT_AUTHENTICATOR
 from wlsdeploy.aliases.model_constants import DEFAULT_REALM
 from wlsdeploy.aliases.model_constants import PASSWORD_DIGEST_ENABLED
@@ -221,6 +223,28 @@ class SecurityProviderCreator(Creator):
 
         Creator._process_child_nodes(self, location, model_nodes)
 
+    # Override
+    def _create_subfolders(self, location, model_nodes):
+        """
+        Create the child MBean folders at the specified location.
+        In the SecurityConfiguration folder, be sure CertificateManagement subfolder is after CredentialSet. 
+        :param location: the location
+        :param model_nodes: the model dictionary
+        :raises: CreateException: if an error occurs
+        """
+        _method_name = '_create_subfolders'
+        
+        new_model_nodes = model_nodes
+        model_type, model_name = self.aliases.get_model_type_and_name(location)
+        if model_type == SECURITY_CONFIGURATION:
+            certificate_nodes = dictionary_utils.get_dictionary_element(model_nodes, CERTIFICATE_MANAGEMENT)
+            if certificate_nodes:
+                new_model_nodes = OrderedDict(model_nodes)
+                del new_model_nodes[CERTIFICATE_MANAGEMENT]
+                new_model_nodes[CERTIFICATE_MANAGEMENT] = certificate_nodes
+
+        Creator._create_subfolders(self, location, new_model_nodes)
+    
     def _delete_existing_providers(self, location):
         """
         The security realms providers in the model are processed as merge to the model. Each realm provider

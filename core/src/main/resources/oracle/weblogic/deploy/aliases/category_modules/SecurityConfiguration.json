@@ -97,6 +97,98 @@
                     "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/CertRevoc/%CERTREVOC%"
                 }
         },
+        "CertificateManagement" : {
+            "wlst_type" : "CertificateManagement",
+            "online_bean": "weblogic.management.configuration.CertificateManagementMBean",
+            "version": "[15.1.1,)",
+            "default_name_value": "${NO_NAME_0:%DOMAIN%}",
+            "folders" : {
+                "CertificateIssuerPlugin": {
+                    "wlst_type" : "CertificateIssuerPlugin${:s}",
+                    "online_bean": "weblogic.management.configuration.CertificateIssuerPluginMBean",
+                    "version": "[15.1.1,)",
+                    "child_folders_type": "multiple",
+                    "folders": {},
+                    "attributes": {
+                        "CertificateRequestProperties": [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "CertificateRequestProperties", "wlst_path": "WP001", "default_value": null,  "wlst_type": "properties", "get_method": "${LSA:GET}", "wlst_read_type": "delimited_string[semicolon]", "preferred_model_type": "dict" } ],
+                        "CredentialSet":                [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "CredentialSet",                "wlst_path": "WP001", "default_value": null,  "wlst_type": "string",     "get_method": "${LSA:GET}", "set_method": "MBEAN.set_credential_set_mbean",    "set_mbean_type": "weblogic.management.configuration.CredentialSetMBean" } ],
+                        "Deployment":                   [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "Deployment",                   "wlst_path": "WP001", "default_value": null,  "wlst_type": "string",     "get_method": "${LSA:GET}", "set_method": "MBEAN.set_plugin_deployment_mbean", "set_mbean_type": "weblogic.management.configuration.PluginDeploymentMBean" } ],
+                        "Enabled":                      [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "Enabled",                      "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean" } ],
+                        "Notes":                        [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "Notes",                        "wlst_path": "WP001", "default_value": null,  "wlst_type": "string" } ],
+                        "Properties":                   [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "Properties",                   "wlst_path": "WP001", "default_value": null,  "wlst_type": "properties", "get_method": "${LSA:GET}", "wlst_read_type": "delimited_string[semicolon]", "preferred_model_type": "dict" } ]
+                    },
+                    "wlst_attributes_path": "WP001",
+                    "wlst_paths": {
+                        "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/CertificateManagement/%CERTIFICATEMANAGEMENT%/CertificateIssuerPlugin${:s}/%CERTIFICATEISSUERPLUGIN%"
+                    }
+                },
+                "ConfigurationProperty": {
+                    "wlst_type" : "ConfigurationPropert${y:ies}",
+                    "online_bean": "weblogic.management.configuration.ConfigurationPropertyMBean",
+                    "version": "[15.1.1,)",
+                    "child_folders_type": "multiple",
+                    "folders": {},
+                    "attributes": {
+                        "EncryptedValueEncrypted": [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "EncryptedValueEncrypted", "wlst_path": "WP001", "default_value": null,  "wlst_type": "password", "get_method": "GET", "access": "IGNORED" } ],
+                        "EncryptValueRequired":    [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "EncryptValueRequired",    "wlst_path": "WP001", "default_value": false, "wlst_type": "boolean"    } ],
+                        "Notes":                   [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "default_value": null,  "wlst_type": "string"     } ],
+                        "Value":                   [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "Value",                   "wlst_path": "WP001", "default_value": null,  "wlst_type": "string"     } ]
+                    },
+                    "wlst_attributes_path": "WP001",
+                    "wlst_paths": {
+                        "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/CertificateManagement/%CERTIFICATEMANAGEMENT%/ConfigurationPropert${y:ies}/%CONFIGURATIONPROPERTY%"
+                    }
+                }
+            },
+            "attributes" : {
+                "CertificateAuthorityValidityPeriod":   [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "CertificateAuthorityValidityPeriod",   "wlst_path": "WP001", "default_value": 365,        "wlst_type": "integer" } ],
+                "CertificateCheckInterval":             [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "CertificateCheckInterval",             "wlst_path": "WP001", "default_value": 1,          "wlst_type": "integer" } ],
+                "CertificateRefreshWindow":             [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "CertificateRefreshWindow",             "wlst_path": "WP001", "default_value": 10,         "wlst_type": "integer" } ],
+                "CertificateValidityPeriod":            [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "CertificateValidityPeriod",            "wlst_path": "WP001", "default_value": 90,         "wlst_type": "integer" } ],
+                "Enabled":                              [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "Enabled",                              "wlst_path": "WP001", "default_value": false,      "wlst_type": "boolean" } ],
+                "IncludeRootCertificateInChain":        [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "IncludeRootCertificateInChain",        "wlst_path": "WP001", "default_value": true,       "wlst_type": "boolean" } ],
+                "JavaStandardTrustEnabled":             [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "JavaStandardTrustEnabled",             "wlst_path": "WP001", "default_value": false,      "wlst_type": "boolean" } ],
+                "Notes":                                [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "Notes",                                "wlst_path": "WP001", "default_value": null,       "wlst_type": "string" } ],
+                "ProvisionedCertificatesIssuerEnabled": [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "ProvisionedCertificatesIssuerEnabled", "wlst_path": "WP001", "default_value": false,      "wlst_type": "boolean" } ],
+                "SingleUseCertificatesEnabled":         [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "SingleUseCertificatesEnabled",         "wlst_path": "WP001", "default_value": false,      "wlst_type": "boolean" } ],
+                "SubjectAlternativeNames":              [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "SubjectAlternativeNames",              "wlst_path": "WP001", "default_value": "hostname, address, loopback, listen_address_all, virtual_host_all", "wlst_type": "string" } ],
+                "SubjectCommonName":                    [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "SubjectCommonName",                    "wlst_path": "WP001", "default_value": "hostname", "wlst_type": "string" } ]
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/CertificateManagement/%CERTIFICATEMANAGEMENT%"
+            }
+        },
+        "CredentialSet": {
+            "wlst_type" : "CredentialSet${:s}",
+            "online_bean": "weblogic.management.configuration.CredentialSetMBean",
+            "version": "[15.1.1,)",
+            "child_folders_type": "multiple",
+            "folders": {
+                "EncryptedProperty": {
+                    "wlst_type" : "EncryptedPropert${y:ies}",
+                    "online_bean": "weblogic.management.configuration.CertificateIssuerPluginMBean",
+                    "version": "[15.1.1,)",
+                    "child_folders_type": "multiple",
+                    "folders": {},
+                    "attributes": {
+                        "Notes":                   [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "default_value": null,  "wlst_type": "string" } ],
+                        "EncryptedValueEncrypted": [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "EncryptedValueEncrypted", "wlst_path": "WP001", "default_value": null,  "wlst_type": "password" } ]
+                    },
+                    "wlst_attributes_path": "WP001",
+                    "wlst_paths": {
+                        "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/CredentialSet${:s}/%CREDENTIALSET%/EncryptedPropert${y:ies}/%ENCRYPTEDPROPERTY%"
+                    }
+                }
+            },
+            "attributes": {
+                "Notes":                   [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "default_value": null,  "wlst_type": "string"     } ]
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/SecurityConfiguration/%SECURITYCONFIGURATION%/CredentialSet${:s}/%CREDENTIALSET%"
+            }
+        },
         "Realm" : {
             "wlst_type": "Realm${:s}",
             "online_bean": "weblogic.management.security.RealmMBean",

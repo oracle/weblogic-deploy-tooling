@@ -26,3 +26,5 @@ appDeployments:
         'get-listen-address-app':
             SourcePath: 'wlsdeploy/applications/get-listen-address-app.war'
             ModuleType: war
+
+    # there's already a PluginDeployment entry from the WLS installation

@@ -411,7 +411,7 @@ class Discoverer(object):
             if filtered_datasource:
                 return True
         return False
-    
+
     def _get_attributes_for_current_location(self, location):
         """
         Change to the mbean folder with the provided name using the current location and return
@@ -777,34 +777,39 @@ class Discoverer(object):
         _logger.entering(model_subfolder_name, location.get_folder_path(), class_name=_class_name,
                          method_name=_method_name)
         location.append_location(model_subfolder_name)
-        deployer_utils.set_flattened_folder_token(location, self._aliases)
-
-        _logger.finer('WLSDPLY-06115', model_subfolder_name, self._aliases.get_model_folder_path(location),
-                      class_name=_class_name, method_name=_method_name)
-        # handle null model_subfolder name which should never happen in discover. throw exception about version
         if result is None:
             result = OrderedDict()
-        name_token = self._aliases.get_name_token(location)
-        _logger.finest('WLSDPLY-06116', model_subfolder_name, self._aliases.get_model_folder_path(location),
-                       name_token, class_name=_class_name, method_name=_method_name)
-        if name_token is not None:
-            if self._aliases.requires_unpredictable_single_name_handling(location):
-                subfolder_result = self._discover_subfolder_with_single_name(model_subfolder_name, location,
-                                                                             name_token)
-            elif self._aliases.requires_artificial_type_subfolder_handling(location):
-                subfolder_result = self._discover_artificial_folder(
-                    model_subfolder_name, location, name_token, check_order)
+
+        if self._aliases.is_model_location_valid(location):
+            deployer_utils.set_flattened_folder_token(location, self._aliases)
+
+            _logger.finer('WLSDPLY-06115', model_subfolder_name, self._aliases.get_model_folder_path(location),
+                          class_name=_class_name, method_name=_method_name)
+
+            # handle null model_subfolder name which should never happen in discover. throw exception about version
+            name_token = self._aliases.get_name_token(location)
+            _logger.finest('WLSDPLY-06116', model_subfolder_name, self._aliases.get_model_folder_path(location),
+                           name_token, class_name=_class_name, method_name=_method_name)
+            if name_token is not None:
+                if self._aliases.requires_unpredictable_single_name_handling(location):
+                    subfolder_result = self._discover_subfolder_with_single_name(model_subfolder_name, location,
+                                                                                 name_token)
+                elif self._aliases.requires_artificial_type_subfolder_handling(location):
+                    subfolder_result = self._discover_artificial_folder(
+                        model_subfolder_name, location, name_token, check_order)
+                else:
+                    subfolder_result = self._discover_subfolder_with_names(model_subfolder_name, location,
+                                                                           name_token)
             else:
-                subfolder_result = self._discover_subfolder_with_names(model_subfolder_name, location,
-                                                                       name_token)
-        else:
-            subfolder_result = self._discover_subfolder_singleton(model_subfolder_name, location)
-        # this is a really special case. Empty means not-default it is empty
-        if self._aliases.requires_artificial_type_subfolder_handling(location):
-            if subfolder_result is not None:
-                add_to_model(result, model_subfolder_name, subfolder_result)
-        else:
-            add_to_model_if_not_empty(result, model_subfolder_name, subfolder_result)
+                subfolder_result = self._discover_subfolder_singleton(model_subfolder_name, location)
+
+            # this is a really special case. Empty means not-default it is empty
+            if self._aliases.requires_artificial_type_subfolder_handling(location):
+                if subfolder_result is not None:
+                    add_to_model(result, model_subfolder_name, subfolder_result)
+            else:
+                add_to_model_if_not_empty(result, model_subfolder_name, subfolder_result)
+
         location.pop_location()
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return result

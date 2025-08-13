@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -73,6 +73,9 @@ class ModelDeployer(Deployer):
             ex = exception_helper.create_deploy_exception('WLSDPLY-09650', pwe.getLocalizedMessage(), error=pwe)
             _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
+
+    def deploy_plugins(self):
+        self.applications_deployer.deploy_plugins()
 
     def distribute_database_wallets_online(self):
         """

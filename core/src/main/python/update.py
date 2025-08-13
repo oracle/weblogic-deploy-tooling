@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the updateDomain tool.
@@ -192,6 +192,7 @@ def __update_online(model_deployer, model, model_context, aliases):
 
         topology_updater.clear_placeholder_targeting(jdbc_names)
         topology_updater.update_nm_properties()  # alias will skip for online, but log the omission
+        model_deployer.deploy_plugins()  # may be referenced in SecurityConfiguration/CertificateManagement
         topology_updater.update()
         model_deployer.deploy_resources()
         model_deployer.distribute_database_wallets_online()
@@ -251,6 +252,8 @@ def __update_offline(model_deployer, model, model_context, aliases):
 
     topology_updater.set_server_groups()
     topology_updater.clear_placeholder_targeting(jdbc_names)
+
+    model_deployer.deploy_plugins()  # may be referenced in SecurityConfiguration/CertificateManagement
     topology_updater.update()
 
     # Add resources after server groups are established to prevent auto-renaming
