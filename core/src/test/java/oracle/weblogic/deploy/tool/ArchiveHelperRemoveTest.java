@@ -54,6 +54,9 @@ import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.MY_OTHER_AP
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.NODE_MANAGER_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.NODE_MANAGER_IDENTITY_JKS_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.OPSS_WALLET_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.PLUGIN_DEPS_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.PLUGIN_DEPS_TEST_EXP_PLUGIN_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.PLUGIN_DEPS_TEST_PLUGIN_JAR_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SAML2_DATA_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SAML2_SP_PROPERTIES_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_CONTENT;
@@ -104,6 +107,7 @@ public class ArchiveHelperRemoveTest {
     private static final String[] LIST_MIME_MAPPINGS = new String[] { "mimeMapping" };
     private static final String[] LIST_NODE_MANAGER_KEYSTORES = new String[] { "nodeManagerKeystore" };
     private static final String[] LIST_OPSS_WALLET = new String[] { "opssWallet" };
+    private static final String[] LIST_PLUGIN_DEPLOYMENTS = new String[] { "pluginDeployment" };
     private static final String[] LIST_SAML2_DATA = new String[] { "saml2InitializationData" };
     private static final String[] LIST_SCRIPTS = new String[] { "script" };
     private static final String[] LIST_SERVER_KEYSTORES_ADMIN_SERVER = new String[] {
@@ -154,6 +158,7 @@ public class ArchiveHelperRemoveTest {
         "jmsForeignServer, missing.properties",
         "mimeMapping, missing.properties",
         "nodeManagerKeystore, missing.jks",
+        "pluginDeployment, missing.jar",
         "saml2InitializationData, missing.xml",
         "script, missing.sh",
         "serverKeystore, missing.jks",
@@ -197,6 +202,7 @@ public class ArchiveHelperRemoveTest {
         "jmsForeignServer",
         "mimeMapping",
         "nodeManagerKeystore",
+        "pluginDeployment",
         "saml2InitializationData",
         "script",
         "serverKeystore",
@@ -237,6 +243,7 @@ public class ArchiveHelperRemoveTest {
         "fileStore, missing",
         "mimeMapping, missing.properties",
         "nodeManagerKeystore, missing.jks",
+        "pluginDeployment, missing.jar",
         "saml2InitializationData, missing.xml",
         "script, missing.sh",
         "sharedLibrary, missing.war",
@@ -1336,6 +1343,77 @@ public class ArchiveHelperRemoveTest {
         assertEquals(ExitCode.OK, actual,"expected command to exit with exit code " + ExitCode.OK);
         // Removing the only jar so the test will also remove wlsdeploy/opsswallet/
         assertArchiveInExpectedState(LIST_OPSS_WALLET, OPSS_WALLET_CONTENT, OPSS_WALLET_CONTENT);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                    plugin deployment                                      //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    void testRemoveExistingPluginDeploymentFile_ReturnsExpectedResults() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "remove",
+                "pluginDeployment",
+                "-archive_file",
+                ARCHIVE_HELPER_VALUE,
+                "-name",
+                "test-plugin.jar"
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        assertEquals(ExitCode.OK, actual,"expected command to exit with exit code " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_PLUGIN_DEPLOYMENTS, PLUGIN_DEPS_CONTENT, PLUGIN_DEPS_TEST_PLUGIN_JAR_CONTENTS);
+    }
+
+    @Test
+    void testRemoveExistingPluginDeploymentDir_ReturnsExpectedResults() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "remove",
+                "pluginDeployment",
+                "-archive_file",
+                ARCHIVE_HELPER_VALUE,
+                "-name",
+                "test-exp-plugin"
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        assertEquals(ExitCode.OK, actual,"expected command to exit with exit code " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_PLUGIN_DEPLOYMENTS, PLUGIN_DEPS_CONTENT, PLUGIN_DEPS_TEST_EXP_PLUGIN_CONTENTS);
+    }
+
+    @Test
+    void testRemoveMissingPluginDeploymentForce_ReturnsExpectedResults() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "remove",
+                "pluginDeployment",
+                "-archive_file",
+                ARCHIVE_HELPER_VALUE,
+                "-name",
+                "foo",
+                "-force"
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        assertEquals(ExitCode.OK, actual,"expected command to exit with exit code " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_PLUGIN_DEPLOYMENTS, PLUGIN_DEPS_CONTENT);
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

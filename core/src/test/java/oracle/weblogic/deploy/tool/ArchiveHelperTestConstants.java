@@ -10,7 +10,7 @@ import oracle.weblogic.deploy.util.WLSDeployArchive;
 // once the config and wlsdeploy subdirectories are populated with the
 // necessary content.
 //
-// zip archive-helper-test.zip.zip wlsdeploy/**/* config/wlsdeploy/**/*
+// zip archive-helper-test.zip wlsdeploy/**/* config/wlsdeploy/**/*
 
 
 public class ArchiveHelperTestConstants {
@@ -335,6 +335,52 @@ public class ArchiveHelperTestConstants {
         "wlsdeploy/opsswallet/opss-wallet.zip"
     };
 
+    static final String[] PLUGIN_DEPS_TEST_EXP_PLUGIN_CONTENTS = new String[] {
+            "wlsdeploy/pluginDeployments/test-exp-plugin/",
+            "wlsdeploy/pluginDeployments/test-exp-plugin/META-INF/",
+            "wlsdeploy/pluginDeployments/test-exp-plugin/META-INF/MANIFEST.MF",
+            "wlsdeploy/pluginDeployments/test-exp-plugin/META-INF/maven/",
+            "wlsdeploy/pluginDeployments/test-exp-plugin/META-INF/maven/com.oracle.weblogic.lifecycle/",
+            "wlsdeploy/pluginDeployments/test-exp-plugin/META-INF/maven/com.oracle.weblogic.lifecycle/test-plugin/",
+            "wlsdeploy/pluginDeployments/test-exp-plugin/META-INF/maven/com.oracle.weblogic.lifecycle/test-plugin/pom.properties",
+            "wlsdeploy/pluginDeployments/test-exp-plugin/META-INF/maven/com.oracle.weblogic.lifecycle/test-plugin/pom.xml",
+            "wlsdeploy/pluginDeployments/test-exp-plugin/oracle/",
+            "wlsdeploy/pluginDeployments/test-exp-plugin/oracle/weblogic/",
+            "wlsdeploy/pluginDeployments/test-exp-plugin/oracle/weblogic/deploy/",
+            "wlsdeploy/pluginDeployments/test-exp-plugin/oracle/weblogic/deploy/testplugin/",
+            "wlsdeploy/pluginDeployments/test-exp-plugin/oracle/weblogic/deploy/testplugin/TestPlugin.class"
+    };
+
+    static final String[] PLUGIN_DEPS_TEST_EXP_PLUGIN_DUP_CONTENTS = new String[] {
+            "wlsdeploy/pluginDeployments/test-exp-plugin(1)/",
+            "wlsdeploy/pluginDeployments/test-exp-plugin(1)/META-INF/",
+            "wlsdeploy/pluginDeployments/test-exp-plugin(1)/META-INF/MANIFEST.MF",
+            "wlsdeploy/pluginDeployments/test-exp-plugin(1)/META-INF/maven/",
+            "wlsdeploy/pluginDeployments/test-exp-plugin(1)/META-INF/maven/com.oracle.weblogic.lifecycle/",
+            "wlsdeploy/pluginDeployments/test-exp-plugin(1)/META-INF/maven/com.oracle.weblogic.lifecycle/test-plugin/",
+            "wlsdeploy/pluginDeployments/test-exp-plugin(1)/META-INF/maven/com.oracle.weblogic.lifecycle/test-plugin/pom.properties",
+            "wlsdeploy/pluginDeployments/test-exp-plugin(1)/META-INF/maven/com.oracle.weblogic.lifecycle/test-plugin/pom.xml",
+            "wlsdeploy/pluginDeployments/test-exp-plugin(1)/oracle/",
+            "wlsdeploy/pluginDeployments/test-exp-plugin(1)/oracle/weblogic/",
+            "wlsdeploy/pluginDeployments/test-exp-plugin(1)/oracle/weblogic/deploy/",
+            "wlsdeploy/pluginDeployments/test-exp-plugin(1)/oracle/weblogic/deploy/testplugin/",
+            "wlsdeploy/pluginDeployments/test-exp-plugin(1)/oracle/weblogic/deploy/testplugin/TestPlugin.class"
+    };
+
+    static final String[] PLUGIN_DEPS_TEST_PLUGIN_JAR_CONTENTS = new String[] {
+            "wlsdeploy/pluginDeployments/test-plugin.jar"
+    };
+
+    static final String[] PLUGIN_DEPS_TEST_PLUGIN_JAR_DUP_CONTENTS = new String[] {
+            "wlsdeploy/pluginDeployments/test-plugin(1).jar"
+    };
+
+    static final String[] PLUGIN_DEPS_CONTENT = mergeStringArrays(
+            new String[] { "wlsdeploy/pluginDeployments/" },
+            PLUGIN_DEPS_TEST_EXP_PLUGIN_CONTENTS,
+            PLUGIN_DEPS_TEST_PLUGIN_JAR_CONTENTS
+    );
+
     static final String[] SAML2_SP_PROPERTIES_CONTENT = new String[] {
         "wlsdeploy/security/saml2/saml2sppartner.properties"
     };
@@ -567,6 +613,7 @@ public class ArchiveHelperTestConstants {
         MIME_MAPPINGS_CONTENT,
         NODE_MANAGER_CONTENT,
         OPSS_WALLET_CONTENT,
+        PLUGIN_DEPS_CONTENT,
         SAML2_DATA_LIST_ALL_CONTENTS,
         SCRIPTS_CONTENT,
         SERVERS_CONTENT,

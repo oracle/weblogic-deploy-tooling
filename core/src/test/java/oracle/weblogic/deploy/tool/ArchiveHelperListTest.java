@@ -49,6 +49,9 @@ import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.MY_OTHER_AP
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.NODE_MANAGER_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.NODE_MANAGER_TRUST_JKS_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.OPSS_WALLET_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.PLUGIN_DEPS_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.PLUGIN_DEPS_TEST_EXP_PLUGIN_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.PLUGIN_DEPS_TEST_PLUGIN_JAR_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SAML2_DATA_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SAML2_SP_PROPERTIES_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_CONTENT;
@@ -143,6 +146,7 @@ public class ArchiveHelperListTest {
         "mimMapping",
         "nodeManagerKeystore",
         "opssWallet",
+        "pluginDeployment",
         "rcuWallet",
         "saml2InitializationData",
         "script",
@@ -185,6 +189,7 @@ public class ArchiveHelperListTest {
         "mimeMapping",
         "nodeManagerKeystore",
         "opssWallet",
+        "pluginDeployment",
         "rcuWallet",
         "saml2InitializationData",
         "script",
@@ -332,7 +337,7 @@ public class ArchiveHelperListTest {
     }
 
     @Test
-    void testListApps_ReturnsExceptedNames() {
+    void testListApps_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -359,7 +364,7 @@ public class ArchiveHelperListTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testListClasspathLibs_ReturnsExceptedNames() {
+    void testListClasspathLibs_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -382,7 +387,7 @@ public class ArchiveHelperListTest {
     }
 
     @Test
-    void testListClasspathLibFile_ReturnsExceptedNames() {
+    void testListClasspathLibFile_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -488,7 +493,7 @@ public class ArchiveHelperListTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testListCustom_ReturnsExceptedNames() {
+    void testListCustom_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -511,7 +516,7 @@ public class ArchiveHelperListTest {
     }
 
     @Test
-    void testListCustomDir_ReturnsExceptedNames() {
+    void testListCustomDir_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -536,7 +541,7 @@ public class ArchiveHelperListTest {
     }
 
     @Test
-    void testListCustomFile_ReturnsExceptedNames() {
+    void testListCustomFile_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -565,7 +570,7 @@ public class ArchiveHelperListTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testListDbWalletRCU_ReturnsExceptedNames() {
+    void testListDbWalletRCU_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -590,7 +595,7 @@ public class ArchiveHelperListTest {
     }
 
     @Test
-    void testListWallet1Dir_ReturnsExceptedNames() {
+    void testListWallet1Dir_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -619,7 +624,7 @@ public class ArchiveHelperListTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testListDomainBin_ReturnsExceptedNames() {
+    void testListDomainBin_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -642,7 +647,7 @@ public class ArchiveHelperListTest {
     }
 
     @Test
-    void testListDomainBinFile_ReturnsExceptedNames() {
+    void testListDomainBinFile_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -671,7 +676,7 @@ public class ArchiveHelperListTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testListDomainLib_ReturnsExceptedNames() {
+    void testListDomainLib_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -694,7 +699,7 @@ public class ArchiveHelperListTest {
     }
 
     @Test
-    void testListDomainLibFile_ReturnsExceptedNames() {
+    void testListDomainLibFile_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -723,7 +728,7 @@ public class ArchiveHelperListTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testListFileStore_ReturnsExceptedNames() {
+    void testListFileStore_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -746,7 +751,7 @@ public class ArchiveHelperListTest {
     }
 
     @Test
-    void testListFileStoreDir_ReturnsExceptedNames() {
+    void testListFileStoreDir_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -775,7 +780,7 @@ public class ArchiveHelperListTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testListMime_ReturnedExceptedNames() {
+    void testListMime_ReturnedExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -798,7 +803,7 @@ public class ArchiveHelperListTest {
     }
 
     @Test
-    void testListMimeMappingProperties_ReturnedExceptedNames() {
+    void testListMimeMappingProperties_ReturnedExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -828,7 +833,7 @@ public class ArchiveHelperListTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testListNodeManager_ReturnsExceptedNames() {
+    void testListNodeManager_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -851,7 +856,7 @@ public class ArchiveHelperListTest {
     }
 
     @Test
-    void testListNodeManagerFile_ReturnsExceptedNames() {
+    void testListNodeManagerFile_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -880,7 +885,7 @@ public class ArchiveHelperListTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testListOPSSWallet_ReturnsExceptedNames() {
+    void testListOPSSWallet_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -903,11 +908,112 @@ public class ArchiveHelperListTest {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                    plugin deployments                                     //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    void testListPluginDeployments_ReturnsExpectedNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "list",
+                "pluginDeployment",
+                "-archive_file",
+                ARCHIVE_HELPER_VALUE
+        };
+        List<String> expectedPaths = Arrays.asList(PLUGIN_DEPS_CONTENT);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertListsHaveSameElements(expectedPaths, outputLines, "pluginDeployment");
+    }
+
+    @Test
+    void testListPluginDeploymentsFile_ReturnsExpectedNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "list",
+                "pluginDeployment",
+                "-archive_file",
+                ARCHIVE_HELPER_VALUE,
+                "-name",
+                "test-plugin.jar"
+        };
+        List<String> expectedPaths = Arrays.asList(PLUGIN_DEPS_TEST_PLUGIN_JAR_CONTENTS);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertListsHaveSameElements(expectedPaths, outputLines, "pluginDeployment -name my-lib.war");
+    }
+
+    @Test
+    void testListPluginDeploymentsDir_ReturnsExpectedNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "list",
+                "pluginDeployment",
+                "-archive_file",
+                ARCHIVE_HELPER_VALUE,
+                "-name",
+                "test-exp-plugin"
+        };
+        List<String> expectedPaths = Arrays.asList(PLUGIN_DEPS_TEST_EXP_PLUGIN_CONTENTS);
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String[] outputLines = outStringWriter.getBuffer().toString().trim().split(System.lineSeparator());
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertListsHaveSameElements(expectedPaths, outputLines, "pluginDeployment -name my-other-lib");
+    }
+
+    @Test
+    void testListPluginDeploymentsUnknownFile_ReturnsNoNames() {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "list",
+                "pluginDeployment",
+                "-archive_file",
+                ARCHIVE_HELPER_VALUE,
+                "-name",
+                "foo.jar"
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+        String outputLines = outStringWriter.getBuffer().toString().trim();
+
+        assertEquals(0, actual, "expected command to exit with exit code 0");
+        assertEquals("", outputLines, "expected list pluginDeployment -name foo.jar to return nothing");
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
     //                                        RCU wallet                                         //
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testListRCUWallet_ReturnsExceptedNames() {
+    void testListRCUWallet_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -934,7 +1040,7 @@ public class ArchiveHelperListTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testListSaml2InitializationData_ReturnsExceptedNames() {
+    void testListSaml2InitializationData_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -957,7 +1063,7 @@ public class ArchiveHelperListTest {
     }
 
     @Test
-    void testListSaml2InitializationDataFile_ReturnsExceptedNames() {
+    void testListSaml2InitializationDataFile_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -987,7 +1093,7 @@ public class ArchiveHelperListTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testListScripts_ReturnsExceptedNames() {
+    void testListScripts_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -1010,7 +1116,7 @@ public class ArchiveHelperListTest {
     }
 
     @Test
-    void testListScriptsFile_ReturnsExceptedNames() {
+    void testListScriptsFile_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -1039,7 +1145,7 @@ public class ArchiveHelperListTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testListServerKeystore_ReturnsExceptedNames() {
+    void testListServerKeystore_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -1064,7 +1170,7 @@ public class ArchiveHelperListTest {
     }
 
     @Test
-    void testListServerKeystoreFile_ReturnsExceptedNames() {
+    void testListServerKeystoreFile_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -1329,7 +1435,7 @@ public class ArchiveHelperListTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testListWrcExtension_ReturnsExceptedNames() {
+    void testListWrcExtension_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
@@ -1352,7 +1458,7 @@ public class ArchiveHelperListTest {
     }
 
     @Test
-    void testListWrcExtensionFile_ReturnsExceptedNames() {
+    void testListWrcExtensionFile_ReturnsExpectedNames() {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[]{
