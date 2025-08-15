@@ -169,6 +169,10 @@ The directory where a wallet can be stored for use with Oracle Platform Security
 archive can be either a ZIP file or a set of one or more files.  If it is a ZIP file, that ZIP file will be expanded
 in place when running WDT tools like the Create Domain or Update Domain tools.
 
+#### `wlsdeploy/pluginDeployments`
+The root directory under which plugin deployments are stored. Plugin deployments can be stored
+in the archive as JAR files, or as an exploded directory at this location.
+
 #### `wlsdeploy/security/saml2`
 The directory under which SAML2 partner data initialization files can be stored for use with the SAML2 Identity Asserter.
 These files can include `saml2idppartner.properties` and `saml2sppartner.properties`, and any XML metadata files they reference.
