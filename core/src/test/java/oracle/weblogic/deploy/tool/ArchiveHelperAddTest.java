@@ -69,6 +69,10 @@ import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.MY_OTHER_AP
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.NODE_MANAGER_IDENTITY_JKS_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.NODE_MANAGER_IDENTITY_JKS_DUP_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.OPSS_WALLET_CONTENT;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.PLUGIN_DEPS_TEST_EXP_PLUGIN_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.PLUGIN_DEPS_TEST_EXP_PLUGIN_DUP_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.PLUGIN_DEPS_TEST_PLUGIN_JAR_CONTENTS;
+import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.PLUGIN_DEPS_TEST_PLUGIN_JAR_DUP_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SAML2_SP_PROPERTIES_CONTENT;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_FANCY_SCRIPT_CONTENTS;
 import static oracle.weblogic.deploy.tool.ArchiveHelperTestConstants.SCRIPTS_FANCY_SCRIPT_DUP_CONTENTS;
@@ -120,6 +124,7 @@ public class ArchiveHelperAddTest {
     private static final String[] LIST_MIME_MAPPINGS = new String[] { "mimeMapping" };
     private static final String[] LIST_NODE_MANAGER_KEYSTORES = new String[] { "nodeManagerKeystore" };
     private static final String[] LIST_OPSS_WALLET = new String[] { "opssWallet" };
+    private static final String[] LIST_PLUGIN_DEPLOYMENTS = new String[] { "pluginDeployment" };
     private static final String[] LIST_RCU_WALLET = new String[] { "rcuWallet" };
     private static final String[] LIST_SAML2_INITIALIZATION_DATA_FILES = new String[] { "saml2InitializationData" };
     private static final String[] LIST_SCRIPTS = new String[] { "script" };
@@ -193,6 +198,7 @@ public class ArchiveHelperAddTest {
         "mimeMapping, missing.properties",
         "nodeManagerKeystore, missing.jks",
         "opssWallet, missing.zip",
+        "pluginDeployment, missing.jar",
         "rcuWallet, missing",
         "saml2InitializationData, missing.xml",
         "script, missing.sh",
@@ -235,6 +241,7 @@ public class ArchiveHelperAddTest {
         "mimeMapping",
         "nodeManagerKeystore",
         "opssWallet",
+        "pluginDeployment",
         "rcuWallet",
         "saml2InitializationData",
         "script",
@@ -274,6 +281,7 @@ public class ArchiveHelperAddTest {
         "mimeMapping, missing.properties",
         "nodeManagerKeystore, missing.jks",
         "opssWallet, missing.zip",
+        "pluginDeployment, missing.jar",
         "rcuWallet, missing",
         "saml2InitializationData, missing.xml",
         "script, missing.sh",
@@ -309,7 +317,7 @@ public class ArchiveHelperAddTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testAddNewApplicationFile_ReturnsExceptedResult() throws Exception {
+    void testAddNewApplicationFile_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -332,7 +340,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddApplicationFileOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddApplicationFileOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -363,7 +371,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddApplicationFileTwice_ReturnsExceptedResult() throws Exception {
+    void testAddApplicationFileTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -393,7 +401,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddNewApplicationDir_ReturnsExceptedResult() throws Exception {
+    void testAddNewApplicationDir_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -416,7 +424,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddApplicationDirOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddApplicationDirOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -447,7 +455,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddApplicationDirTwice_ReturnsExceptedResult() throws Exception {
+    void testAddApplicationDirTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -482,7 +490,7 @@ public class ArchiveHelperAddTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testAddNewApplicationPlanFile_ReturnsExceptedResult() throws Exception {
+    void testAddNewApplicationPlanFile_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -505,7 +513,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddApplicationPlanFileOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddApplicationPlanFileOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -536,7 +544,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddApplicationPlanFileTwice_ReturnsExceptedResult() throws Exception {
+    void testAddApplicationPlanFileTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -571,7 +579,7 @@ public class ArchiveHelperAddTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testAddNewClasspathLibraryFile_ReturnsExceptedResult() throws Exception {
+    void testAddNewClasspathLibraryFile_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -594,7 +602,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddClasspathLibraryFileOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddClasspathLibraryFileOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -625,7 +633,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddClasspathLibraryFileTwice_ReturnsExceptedResult() throws Exception {
+    void testAddClasspathLibraryFileTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -656,7 +664,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddNewClasspathLibraryDir_ReturnsExceptedResult() throws Exception {
+    void testAddNewClasspathLibraryDir_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -679,7 +687,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddClasspathLibraryDirOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddClasspathLibraryDirOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -710,7 +718,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddClasspathLibraryDirTwice_ReturnsExceptedResult() throws Exception {
+    void testAddClasspathLibraryDirTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -793,7 +801,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddNewCoherenceConfigFile_ReturnsExceptedResult() throws Exception {
+    void testAddNewCoherenceConfigFile_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -818,7 +826,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddCoherenceConfigFileOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddCoherenceConfigFileOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -851,7 +859,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddCoherenceConfigFileTwice_ReturnsExceptedResult() throws Exception {
+    void testAddCoherenceConfigFileTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -934,7 +942,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddNewCoherencePersistenceDir_ReturnsExceptedResult() throws Exception {
+    void testAddNewCoherencePersistenceDir_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -960,7 +968,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddCoherencePersistenceDirOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddCoherencePersistenceDirOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -994,7 +1002,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddCoherencePersistenceDirTwice_ReturnsExceptedResult() throws Exception {
+    void testAddCoherencePersistenceDirTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1032,7 +1040,7 @@ public class ArchiveHelperAddTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testAddNewCustomFile_ReturnsExceptedResult() throws Exception {
+    void testAddNewCustomFile_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1055,7 +1063,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddNewCustomNestedFile_ReturnsExceptedResult() throws Exception {
+    void testAddNewCustomNestedFile_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1080,7 +1088,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddCustomFileOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddCustomFileOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1111,7 +1119,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddCustomFileTwice_ReturnsExceptedResult() throws Exception {
+    void testAddCustomFileTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1142,7 +1150,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddNewCustomDir_ReturnsExceptedResult() throws Exception {
+    void testAddNewCustomDir_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1165,7 +1173,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddCustomDirOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddCustomDirOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1196,7 +1204,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddCustomDirTwice_ReturnsExceptedResult() throws Exception {
+    void testAddCustomDirTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1279,7 +1287,7 @@ public class ArchiveHelperAddTest {
 
 
     @Test
-    void testAddNewDatabaseWalletDir_ReturnsExceptedResult() throws Exception {
+    void testAddNewDatabaseWalletDir_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1329,7 +1337,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddDatabaseWalletDirOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddDatabaseWalletDirOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1398,7 +1406,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddDatabaseWalletDirTwice_ReturnsExceptedResult() throws Exception {
+    void testAddDatabaseWalletDirTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1431,7 +1439,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddDatabaseWalletFileTwice_ReturnsExceptedResult() throws Exception {
+    void testAddDatabaseWalletFileTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1470,7 +1478,7 @@ public class ArchiveHelperAddTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testAddNewDomainBinFile_ReturnsExceptedResult() throws Exception {
+    void testAddNewDomainBinFile_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1493,7 +1501,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddDomainBinFileOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddDomainBinFileOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1524,7 +1532,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddDomainBinFileTwice_ReturnsExceptedResult() throws Exception {
+    void testAddDomainBinFileTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1559,7 +1567,7 @@ public class ArchiveHelperAddTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testAddNewDomainLibFile_ReturnsExceptedResult() throws Exception {
+    void testAddNewDomainLibFile_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1582,7 +1590,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddDomainLibFileOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddDomainLibFileOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1613,7 +1621,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddDomainLibFileTwice_ReturnsExceptedResult() throws Exception {
+    void testAddDomainLibFileTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1688,7 +1696,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddNewFileStoreDir_ReturnsExceptedResult() throws Exception {
+    void testAddNewFileStoreDir_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1711,7 +1719,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddFileStoreDirOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddFileStoreDirOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1742,7 +1750,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddFileStoreDirTwice_ReturnsExceptedResult() throws Exception {
+    void testAddFileStoreDirTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1825,7 +1833,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddNewForeignServerBinding_ReturnsExceptedResult() throws Exception {
+    void testAddNewForeignServerBinding_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1850,7 +1858,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddForeignServerBindingOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddForeignServerBindingOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1883,7 +1891,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddForeignServerBindingTwice_ReturnsExceptedResult() throws Exception {
+    void testAddForeignServerBindingTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1920,7 +1928,7 @@ public class ArchiveHelperAddTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testAddNewMIMEMappingFile_ReturnsExceptedResult() throws Exception {
+    void testAddNewMIMEMappingFile_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1943,7 +1951,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddMIMEMappingFileOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddMIMEMappingFileOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -1974,7 +1982,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddMIMEMappingFileTwice_ReturnsExceptedResult() throws Exception {
+    void testAddMIMEMappingFileTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2009,7 +2017,7 @@ public class ArchiveHelperAddTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testAddNewNodeManagerKeystore_ReturnsExceptedResult() throws Exception {
+    void testAddNewNodeManagerKeystore_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2032,7 +2040,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddNodeManagerKeystoreOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddNodeManagerKeystoreOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2063,7 +2071,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddNodeManagerKeystoreTwice_ReturnsExceptedResult() throws Exception {
+    void testAddNodeManagerKeystoreTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2098,7 +2106,7 @@ public class ArchiveHelperAddTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testAddNewOPSSWallet_ReturnsExceptedResult() throws Exception {
+    void testAddNewOPSSWallet_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2121,7 +2129,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddOPSSWalletOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddOPSSWalletOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2181,11 +2189,185 @@ public class ArchiveHelperAddTest {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
+    //                                    plugin deployment                                      //
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    void testAddNewPluginDeploymentFile_ReturnsExpectedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "add",
+                "pluginDeployment",
+                "-archive_file",
+                NEW_ARCHIVE_VALUE,
+                "-source",
+                getSourcePath(ArchiveEntryType.PLUGIN_DEPLOYMENT, "test-plugin.jar")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_PLUGIN_DEPLOYMENTS, EMPTY_ARRAY, PLUGIN_DEPS_TEST_PLUGIN_JAR_CONTENTS);
+    }
+
+    @Test
+    void testAddPluginDeploymentFileOverwrite_ReturnsExpectedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "add",
+                "pluginDeployment",
+                "-archive_file",
+                NEW_ARCHIVE_VALUE,
+                "-source",
+                getSourcePath(ArchiveEntryType.PLUGIN_DEPLOYMENT, "test-plugin.jar")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+
+        String[] overwriteArgs = getOverwriteArgs(args);
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, overwriteArgs);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_PLUGIN_DEPLOYMENTS, EMPTY_ARRAY, PLUGIN_DEPS_TEST_PLUGIN_JAR_CONTENTS);
+    }
+
+    @Test
+    void testAddPluginDeploymentFileTwice_ReturnsExpectedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "add",
+                "pluginDeployment",
+                "-archive_file",
+                NEW_ARCHIVE_VALUE,
+                "-source",
+                getSourcePath(ArchiveEntryType.PLUGIN_DEPLOYMENT, "test-plugin.jar")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to return " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_PLUGIN_DEPLOYMENTS, EMPTY_ARRAY, PLUGIN_DEPS_TEST_PLUGIN_JAR_CONTENTS,
+                PLUGIN_DEPS_TEST_PLUGIN_JAR_DUP_CONTENTS);
+    }
+
+    @Test
+    void testAddNewPluginDeploymentDir_ReturnsExpectedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "add",
+                "pluginDeployment",
+                "-archive_file",
+                NEW_ARCHIVE_VALUE,
+                "-source",
+                getSourcePath(ArchiveEntryType.PLUGIN_DEPLOYMENT, "test-exp-plugin")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to exit with exit code " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_PLUGIN_DEPLOYMENTS, EMPTY_ARRAY, PLUGIN_DEPS_TEST_EXP_PLUGIN_CONTENTS);
+    }
+
+    @Test
+    void testAddPluginDeploymentDirOverwrite_ReturnsExpectedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "add",
+                "pluginDeployment",
+                "-archive_file",
+                NEW_ARCHIVE_VALUE,
+                "-source",
+                getSourcePath(ArchiveEntryType.PLUGIN_DEPLOYMENT, "test-exp-plugin")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to exit with exit code " + ExitCode.OK);
+
+        String[] overwriteArgs = getOverwriteArgs(args);
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, overwriteArgs);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to exit with exit code " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_PLUGIN_DEPLOYMENTS, EMPTY_ARRAY, PLUGIN_DEPS_TEST_EXP_PLUGIN_CONTENTS);
+    }
+
+    @Test
+    void testAddPluginDeploymentDirTwice_ReturnsExpectedResult() throws Exception {
+        StringWriter outStringWriter = new StringWriter();
+        StringWriter errStringWriter = new StringWriter();
+        String[] args = new String[] {
+                "add",
+                "pluginDeployment",
+                "-archive_file",
+                NEW_ARCHIVE_VALUE,
+                "-source",
+                getSourcePath(ArchiveEntryType.PLUGIN_DEPLOYMENT, "test-exp-plugin")
+        };
+
+        int actual = -1;
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to exit with exit code " + ExitCode.OK);
+
+        try (PrintWriter out = new PrintWriter(outStringWriter);
+             PrintWriter err = new PrintWriter(errStringWriter)) {
+            actual = ArchiveHelper.executeCommand(out, err, args);
+        }
+
+        assertEquals(ExitCode.OK, actual, "expected command to exit with exit code " + ExitCode.OK);
+        assertArchiveInExpectedState(LIST_PLUGIN_DEPLOYMENTS, EMPTY_ARRAY, PLUGIN_DEPS_TEST_EXP_PLUGIN_CONTENTS,
+                PLUGIN_DEPS_TEST_EXP_PLUGIN_DUP_CONTENTS);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
     //                                      RCU wallet                                           //
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testAddNewRCUWallet_ReturnsExceptedResult() throws Exception {
+    void testAddNewRCUWallet_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2208,7 +2390,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddRCUWalletOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddRCUWalletOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2272,7 +2454,7 @@ public class ArchiveHelperAddTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testAddNewSaml2InitializationData_ReturnsExceptedResult() throws Exception {
+    void testAddNewSaml2InitializationData_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2295,7 +2477,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddSaml2InitializationDataOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddSaml2InitializationDataOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2359,7 +2541,7 @@ public class ArchiveHelperAddTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testAddNewScript_ReturnsExceptedResult() throws Exception {
+    void testAddNewScript_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2382,7 +2564,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddScriptOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddScriptOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2413,7 +2595,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddScriptTwice_ReturnsExceptedResult() throws Exception {
+    void testAddScriptTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2496,7 +2678,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddNewServerKeystore_ReturnsExceptedResult() throws Exception {
+    void testAddNewServerKeystore_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2521,7 +2703,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddServerKeystoreOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddServerKeystoreOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2554,7 +2736,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddServerKeystoreTwice_ReturnsExceptedResult() throws Exception {
+    void testAddServerKeystoreTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2734,7 +2916,7 @@ public class ArchiveHelperAddTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testAddNewSharedLibraryFile_ReturnsExceptedResult() throws Exception {
+    void testAddNewSharedLibraryFile_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2757,7 +2939,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddSharedLibraryFileOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddSharedLibraryFileOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2788,7 +2970,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddSharedLibraryFileTwice_ReturnsExceptedResult() throws Exception {
+    void testAddSharedLibraryFileTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2819,7 +3001,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddNewSharedLibraryDir_ReturnsExceptedResult() throws Exception {
+    void testAddNewSharedLibraryDir_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2842,7 +3024,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddSharedLibraryDirOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddSharedLibraryDirOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2873,7 +3055,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddSharedLibraryDirTwice_ReturnsExceptedResult() throws Exception {
+    void testAddSharedLibraryDirTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2908,7 +3090,7 @@ public class ArchiveHelperAddTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testAddNewSharedLibraryPlanFile_ReturnsExceptedResult() throws Exception {
+    void testAddNewSharedLibraryPlanFile_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2931,7 +3113,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddSharedLibraryPlanFileOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddSharedLibraryPlanFileOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2962,7 +3144,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddSharedLibraryPlanFileTwice_ReturnsExceptedResult() throws Exception {
+    void testAddSharedLibraryPlanFileTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -2997,7 +3179,7 @@ public class ArchiveHelperAddTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testAddNewStructuredApplication_ReturnsExceptedResult() throws Exception {
+    void testAddNewStructuredApplication_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -3020,7 +3202,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddStructuredApplicationOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddStructuredApplicationOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -3051,7 +3233,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddStructuredApplicationTwice_ReturnsExceptedResult() throws Exception {
+    void testAddStructuredApplicationTwice_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -3086,7 +3268,7 @@ public class ArchiveHelperAddTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
-    void testAddNewWrcExtension_ReturnsExceptedResult() throws Exception {
+    void testAddNewWrcExtension_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {
@@ -3109,7 +3291,7 @@ public class ArchiveHelperAddTest {
     }
 
     @Test
-    void testAddWrcExtensionOverwrite_ReturnsExceptedResult() throws Exception {
+    void testAddWrcExtensionOverwrite_ReturnsExpectedResult() throws Exception {
         StringWriter outStringWriter = new StringWriter();
         StringWriter errStringWriter = new StringWriter();
         String[] args = new String[] {

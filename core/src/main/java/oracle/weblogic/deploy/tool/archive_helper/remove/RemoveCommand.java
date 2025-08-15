@@ -27,6 +27,7 @@ import picocli.CommandLine.Option;
         RemoveMIMEMappingCommand.class,
         RemoveNodeManagerKeystoreCommand.class,
         RemoveOPSSWalletCommand.class,
+        RemovePluginDeploymentCommand.class,
         RemoveRCUWalletCommand.class,
         RemoveSaml2InitializationDataCommand.class,
         RemoveScriptCommand.class,
