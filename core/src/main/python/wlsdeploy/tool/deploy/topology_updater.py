@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.aliases.location_context import LocationContext
@@ -200,6 +200,14 @@ class TopologyUpdater(Deployer):
         location = LocationContext()
         location.add_name_token(domain_token, self.model_context.get_domain_name())
         self._process_section(self._topology, [], NM_PROPERTIES, location)
+
+    def update_certificate_management_enabled(self):
+        """
+        Certificate management has to be enabled when Server / KeyStores is set to "DomainKeystores"
+        in order to pass validation at writeDomain or updateDomain.
+        """
+        domain_name = self.model_context.get_domain_name()
+        deployer_utils.set_certificate_management_enabled(self._topology, domain_name, self.wlst_helper, self.aliases)
 
     def warn_set_server_groups(self):
         # For issue in setServerGroups in online mode (new configured clusters and stand-alone managed servers

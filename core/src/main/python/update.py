@@ -184,6 +184,8 @@ def __update_online(model_deployer, model, model_context, aliases):
 
     topology_updater = TopologyUpdater(model, model_context, aliases, wlst_mode=WlstModes.ONLINE)
     try:
+        topology_updater.update_certificate_management_enabled()
+
         jdbc_names = topology_updater.update_machines_clusters_and_servers(delete_now=False)
         topology_updater.warn_set_server_groups()
 
@@ -247,6 +249,9 @@ def __update_offline(model_deployer, model, model_context, aliases):
 
     # this needs to be before first updateDomain for NativeVersionEnabled=true to update correctly
     topology_updater.update_nm_properties()
+
+    # this needs to be done before updateDomain in case server has KeyStores: DomainKeystores
+    topology_updater.update_certificate_management_enabled()
 
     __update_offline_domain()
 

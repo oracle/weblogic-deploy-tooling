@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -26,9 +26,11 @@ from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import APP_DEPLOYMENTS
+from wlsdeploy.aliases.model_constants import CERTIFICATE_MANAGEMENT
 from wlsdeploy.aliases.model_constants import CLUSTER
 from wlsdeploy.aliases.model_constants import DYNAMIC_CLUSTER_SIZE
 from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
+from wlsdeploy.aliases.model_constants import ENABLED
 from wlsdeploy.aliases.model_constants import FILE_URI
 from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
 from wlsdeploy.aliases.model_constants import JDBC_DATASOURCE_PARAMS
@@ -41,6 +43,7 @@ from wlsdeploy.aliases.model_constants import DRIVER_PARAMS_PROPERTY_VALUE
 from wlsdeploy.aliases.model_constants import LIBRARY
 from wlsdeploy.aliases.model_constants import MACHINE
 from wlsdeploy.aliases.model_constants import MAX_DYNAMIC_SERVER_COUNT
+from wlsdeploy.aliases.model_constants import SECURITY_CONFIGURATION
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_NAME_PREFIX
 from wlsdeploy.aliases.model_constants import SERVER_NAME_START_IDX
@@ -720,6 +723,33 @@ def check_if_dynamic_cluster(server_name, cluster_name, aliases):
                 return True
     return False
 
+def set_certificate_management_enabled(topology, domain_name, wlst_helper, aliases):
+    """
+    Certificate management must be enabled when Server / KeyStores is set to "DomainKeystores"
+    in order to pass validation at writeDomain or updateDomain.
+    """
+    security_config_folder = dictionary_utils.get_dictionary_element(topology, SECURITY_CONFIGURATION)
+    cert_mgmt_folder = dictionary_utils.get_dictionary_element(security_config_folder, CERTIFICATE_MANAGEMENT)
+    cert_mgmt_enabled = dictionary_utils.get_element(cert_mgmt_folder, ENABLED)
+    if cert_mgmt_enabled is not None:
+        location = LocationContext()
+        domain_name_token = aliases.get_name_token(location)
+        location.add_name_token(domain_name_token, domain_name)
+        location.append_location(SECURITY_CONFIGURATION)
+
+        # certificate management doesn't exist in older WLS versions
+        code, message = aliases.is_valid_model_folder_name(location, CERTIFICATE_MANAGEMENT)
+        if code == ValidationCodes.VALID:
+            existing_subfolder_names = get_existing_object_list(location, aliases)
+            create_and_cd(location, existing_subfolder_names, aliases)
+
+            location.append_location(CERTIFICATE_MANAGEMENT)
+            existing_subfolder_names = get_existing_object_list(location, aliases)
+            create_and_cd(location, existing_subfolder_names, aliases)
+
+            cert_mgmt_enabled = alias_utils.convert_boolean(cert_mgmt_enabled)
+            wlst_name = aliases.get_wlst_attribute_name(location, ENABLED)
+            wlst_helper.set(wlst_name, cert_mgmt_enabled)
 
 def delete_online_deployment_targets(model, aliases, wlst_mode):
     """
