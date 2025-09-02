@@ -6,6 +6,7 @@ import copy
 
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import APPLICATION
+from wlsdeploy.aliases.model_constants import DB_CLIENT_DATA_DIRECTORY
 from wlsdeploy.aliases.model_constants import LIBRARY
 from wlsdeploy.aliases.model_constants import MODULE_TYPE
 from wlsdeploy.aliases.model_constants import PLUGIN_DEPLOYMENT
@@ -32,6 +33,7 @@ class OfflineApplicationsDeployer(ApplicationsDeployer):
 
         self.__deploy_shared_libraries()
         self.__deploy_applications()
+        self.__deploy_db_client_data()
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 
@@ -47,6 +49,9 @@ class OfflineApplicationsDeployer(ApplicationsDeployer):
 
     def __deploy_applications(self):
         self.__update_deployments(APPLICATION)
+
+    def __deploy_db_client_data(self):
+        self.__update_deployments(DB_CLIENT_DATA_DIRECTORY)
 
     def __update_deployments(self, deployment_type):
         _method_name = '__update_deployments'

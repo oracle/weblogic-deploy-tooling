@@ -55,6 +55,7 @@ from wlsdeploy.aliases.model_constants import APP_DEPLOYMENTS
 from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import CALLOUT
 from wlsdeploy.aliases.model_constants import CUSTOM_RESOURCE
+from wlsdeploy.aliases.model_constants import DB_CLIENT_DATA_DIRECTORY
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO
 from wlsdeploy.aliases.model_constants import DOMAIN_INFO_ALIAS
 from wlsdeploy.aliases.model_constants import EJB_CONTAINER
@@ -179,6 +180,7 @@ class AliasEntries(object):
 
     __app_deployments_top_level_folders = [
         APPLICATION,
+        DB_CLIENT_DATA_DIRECTORY,
         LIBRARY,
         PLUGIN_DEPLOYMENT
     ]

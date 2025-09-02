@@ -86,6 +86,7 @@ DATA_SOURCE = 'DataSource'
 # Deprecated in WDT 4.0.0
 DATABASE_TYPE = 'databaseType'
 
+DB_CLIENT_DATA_DIRECTORY = 'DbClientDataDirectory'
 DEFAULT_ADJUDICATOR = 'DefaultAdjudicator'
 DEFAULT_ADMIN_SERVER_NAME = 'AdminServer'
 DEFAULT_AUDITOR = 'DefaultAuditor'
