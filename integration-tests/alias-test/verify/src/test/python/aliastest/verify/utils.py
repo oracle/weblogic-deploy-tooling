@@ -89,6 +89,9 @@ OFFLINE_TEST_ANOMALIES_MAP = {
         'DescriptorBeanClass': 'demo.customresource.DemoBean',
         'ResourceClass': 'demo.customresource.DemoResource'
     },
+    '/DbClientDataDirectory': {
+        'SourcePath': 'config/wlsdeploy/dbWallets/wallet1/atpwallet.zip'
+    },
     '/Library': {
         'ModuleType': 'war',
         'SourcePath': 'wlsdeploy/sharedLibraries/jstl-1.2.war'
@@ -108,6 +111,9 @@ ONLINE_TEST_ANOMALIES_MAP = {
     '/CustomResource': {
         'DescriptorBeanClass': 'demo.customresource.DemoBean',
         'ResourceClass': 'demo.customresource.DemoResource'
+    },
+    '/DbClientDataDirectory': {
+        'SourcePath': 'config/wlsdeploy/dbWallets/wallet1/atpwallet.zip'
     },
     '/JMSSystemResource/JmsResource/ForeignServer/JNDIProperty': {
         'Key': 'JNDIProperties-\\d{3,5}'

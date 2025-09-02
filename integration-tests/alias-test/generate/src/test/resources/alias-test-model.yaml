@@ -28,3 +28,7 @@ appDeployments:
             ModuleType: war
 
     # there's already a PluginDeployment entry from the WLS installation
+
+    DbClientDataDirectory:
+        'atpWallet':
+            SourcePath: 'config/wlsdeploy/dbWallets/wallet1/atpwallet.zip'

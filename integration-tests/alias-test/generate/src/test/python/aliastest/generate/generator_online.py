@@ -31,6 +31,7 @@ TYPE = generator_utils.TYPE
 
 NOT_SINGLE_INSTANCE = [
  'AppDeployments',
+ 'DBClientDataDirectories',
  'Libraries',
  'PluginDeployments'
 ]
