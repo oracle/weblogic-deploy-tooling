@@ -150,7 +150,7 @@
                 "JavaStandardTrustEnabled":             [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "JavaStandardTrustEnabled",             "wlst_path": "WP001", "default_value": false,      "wlst_type": "boolean" } ],
                 "Notes":                                [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "Notes",                                "wlst_path": "WP001", "default_value": null,       "wlst_type": "string" } ],
                 "ProvisionedCertificatesIssuerEnabled": [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "ProvisionedCertificatesIssuerEnabled", "wlst_path": "WP001", "default_value": false,      "wlst_type": "boolean" } ],
-                "SingleUseCertificatesEnabled":         [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "SingleUseCertificatesEnabled",         "wlst_path": "WP001", "default_value": false,      "wlst_type": "boolean" } ],
+                "SinglePurposeCertificatesEnabled":     [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "SinglePurposeCertificatesEnabled",     "wlst_path": "WP001", "default_value": false,      "secure_default": true, "wlst_type": "boolean" } ],
                 "SubjectAlternativeNames":              [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "SubjectAlternativeNames",              "wlst_path": "WP001", "default_value": "hostname, address, loopback, listen_address_all, virtual_host_all", "wlst_type": "string" } ],
                 "SubjectCommonName":                    [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "SubjectCommonName",                    "wlst_path": "WP001", "default_value": "hostname", "wlst_type": "string" } ]
             },
