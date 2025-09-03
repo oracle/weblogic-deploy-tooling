@@ -556,6 +556,8 @@ class DomainCreator(Creator):
             self.wlst_helper.set_option_if_needed(USE_SAMPLE_DATABASE, use_sample_db)
 
         self.__set_secure_and_production_modes()
+        deployer_utils.set_certificate_management_enabled(self._topology, self._domain_name,
+                                                          self.wlst_helper, self.aliases)
 
         self.__set_domain_name()
         self.__set_admin_password()
@@ -870,6 +872,7 @@ class DomainCreator(Creator):
         # Stash the default name since the SecurityConfiguration subfolder name does not change
         # to the new domain name until after the domain has been written to disk and re-read.
         #
+        self.wlst_helper.cd('/')
         self.__default_domain_name = self.wlst_helper.get(NAME)
         if self.__default_domain_name is None or len(self.__default_domain_name) == 0:
             self.__default_domain_name = DEFAULT_WLS_DOMAIN_NAME
