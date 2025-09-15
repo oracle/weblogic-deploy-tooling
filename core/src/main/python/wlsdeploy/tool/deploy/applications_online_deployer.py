@@ -13,12 +13,14 @@ from java.security import NoSuchAlgorithmException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
 from oracle.weblogic.deploy.util import WdtJaxbException
+from oracle.weblogic.deploy.util import WLSDeployArchive
 
 from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import ABSOLUTE_PLAN_PATH
 from wlsdeploy.aliases.model_constants import ABSOLUTE_SOURCE_PATH
 from wlsdeploy.aliases.model_constants import APPLICATION
+from wlsdeploy.aliases.model_constants import DB_CLIENT_DATA_DIRECTORY
 from wlsdeploy.aliases.model_constants import DEPLOYMENT_ORDER
 from wlsdeploy.aliases.model_constants import LIBRARY
 from wlsdeploy.aliases.model_constants import MODULE_TYPE
@@ -71,6 +73,8 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
         _method_name = 'deploy'
         self.logger.entering(self._parent_name, self._parent_type, is_restart_required,
                              class_name=self._class_name, method_name=_method_name)
+
+        self.__deploy_db_client_data()
 
         # Make copies of the model dictionary since we are going
         # to modify it as we build the deployment strategy.
@@ -1144,6 +1148,9 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
             'targets': targets
         }
 
+        if deployment_type == DB_CLIENT_DATA_DIRECTORY:
+            kwargs['dbClientData'] = 'true'
+
         if deployment_type == LIBRARY:
             kwargs['libraryModule'] = 'true'
 
@@ -1284,6 +1291,40 @@ class OnlineApplicationsDeployer(ApplicationsDeployer):
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 
+    def __deploy_db_client_data(self):
+        _method_name = '__deploy_db_client_data'
+        self.logger.entering(class_name=self._class_name, method_name=_method_name)
+
+        db_client_location = LocationContext(self._base_location).append_location(DB_CLIENT_DATA_DIRECTORY)
+        if not self.aliases.is_model_location_valid(db_client_location):
+            return
+
+        db_client_entries = dictionary_utils.get_dictionary_element(self._parent_dict, DB_CLIENT_DATA_DIRECTORY)
+        db_client_entries = copy.deepcopy(db_client_entries)
+        self._replace_deployments_path_tokens(DB_CLIENT_DATA_DIRECTORY, db_client_entries)
+        existing_names = deployer_utils.get_existing_object_list(db_client_location, self.aliases)
+
+        for entry_name, entry_dict in db_client_entries.items():
+            if model_helper.is_delete_name(entry_name):
+                if self._does_deployment_to_delete_exist(entry_name, existing_names, DB_CLIENT_DATA_DIRECTORY):
+                    name_to_delete = model_helper.get_delete_item_name(entry_name)
+                    self.__undeploy_app(name_to_delete, DB_CLIENT_DATA_DIRECTORY)
+            else:
+                self.logger.info('WLSDPLY-09316', DB_CLIENT_DATA_DIRECTORY, entry_name,
+                                 class_name=self._class_name, method_name=_method_name)
+
+                source_path = dictionary_utils.get_element(entry_dict, SOURCE_PATH)
+                if string_utils.is_empty(source_path):
+                    ex = exception_helper.create_deploy_exception(
+                        'WLSDPLY-09317', DB_CLIENT_DATA_DIRECTORY, entry_name, SOURCE_PATH)
+                    self.logger.throwing(ex, class_name=self._class_name, method_name=_method_name)
+                    raise ex
+
+                source_path = WLSDeployArchive.getExtractPath(source_path)  # wlsdeploy => config/wlsdeploy
+                if self.archive_helper and self.archive_helper.is_path_into_archive(source_path):
+                    source_path = self.path_helper.join(self.model_context.get_domain_home(), source_path)
+
+                self.wlst_helper.distribute_application(source_path, dbClientData='true', remote='true')
 
 def _get_deployment_order(apps_dict, ordered_list, order):
     """

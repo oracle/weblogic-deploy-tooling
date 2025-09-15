@@ -1753,15 +1753,15 @@ public class ITWdt extends BaseTest {
         checkContents.add("                        user:");
         checkContents.add("                            Value: '@@PROP:JDBC.testds.user.Value@@'");
         checkContents.add("                        javax.net.ssl.trustStore:");
-        checkContents.add("                            Value: config/wlsdeploy/dbWallets/testds/cwallet.sso");
+        checkContents.add("                            Value: config/wlsdeploy/dbWallets/wallet1/cwallet.sso");
         checkContents.add("                        javax.net.ssl.trustStoreType:");
         checkContents.add("                            Value: SSO");
         checkContents.add("                        javax.net.ssl.keyStore:");
-        checkContents.add("                            Value: config/wlsdeploy/dbWallets/testds/cwallet.sso");
+        checkContents.add("                            Value: config/wlsdeploy/dbWallets/wallet1/cwallet.sso");
         checkContents.add("                        javax.net.ssl.keyStoreType:");
         checkContents.add("                            Value: SSO");
         checkContents.add("                        oracle.net.tns_admin:");
-        checkContents.add("                            Value: config/wlsdeploy/dbWallets/testds/");
+        checkContents.add("                            Value: config/wlsdeploy/dbWallets/wallet1");
 
         verifyModelFileContents(expectedModelFile, checkContents);
     }

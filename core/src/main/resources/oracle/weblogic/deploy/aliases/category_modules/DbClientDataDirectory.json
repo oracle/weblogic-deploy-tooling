@@ -1,0 +1,89 @@
+{
+    "copyright": "Copyright (c) 2025, Oracle and/or its affiliates.",
+    "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
+    "wlst_type": "D${b:B}ClientDataDirector${y:ies}",
+    "online_bean": "weblogic.management.configuration.DBClientDataDirectoryMBean",
+    "folder_params": [{
+        "version": "[14.1.2,14.1.2.0.0.250629)",
+        "wlst_mode": "online"
+    }, {
+        "version": "[14.1.2.0.0.250629,)"
+    }],
+    "child_folders_type": "multiple",
+    "folders": {
+        "SubDeployment" : {
+            "wlst_type": "SubDeployment${:s}",
+            "online_bean": "weblogic.management.configuration.SubDeploymentMBean",
+            "child_folders_type": "multiple",
+            "folders": {},
+            "attributes": {
+                "CompatibilityName": [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "CompatibilityName", "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
+                "ModuleType":        [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "ModuleType",        "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
+                "Notes":             [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "Notes",             "wlst_path": "WP001", "default_value": null,    "wlst_type": "string" } ],
+                "Target":            [ {"version": "[14.1.2,)", "wlst_mode": "offline", "wlst_name": "Target",            "wlst_path": "WP001", "default_value": null,    "wlst_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans" },
+                                       {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "Targets",           "wlst_path": "WP002", "default_value": null,    "wlst_type": "jarray", "get_method": "GET", "derived_default": true, "preferred_model_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ],
+                "Untargeted":        [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "Untargeted",        "wlst_path": "WP001", "default_value": "false", "wlst_type": "boolean" } ]
+            },
+            "wlst_attributes_path": "WP001",
+            "wlst_paths": {
+                "WP001": "/D${b:B}ClientDataDirector${y:ies}/%DBCLIENTDATADIRECTORY%/SubDeployment${:s}/%SUBDEPLOYMENT%",
+                "WP002": "/D${b:B}ClientDataDirector${y:ies}/%DBCLIENTDATADIRECTORY%/SubDeployment${:s}/%SUBDEPLOYMENT%/Targets"
+            }
+        }
+    },
+    "attributes": {
+        "AbsoluteAltDescriptorDir":  [ {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "AbsoluteAltDescriptorDir",  "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "access": "IGNORED", "uses_path_tokens": "true" } ],
+        "AbsoluteAltDescriptorPath": [ {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "AbsoluteAltDescriptorPath", "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "access": "IGNORED", "uses_path_tokens": "true" } ],
+        "AbsoluteInstallDir":        [ {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "AbsoluteInstallDir",        "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "access": "IGNORED", "uses_path_tokens": "true" } ],
+        "AbsolutePlanDir":           [ {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "AbsolutePlanDir",           "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "access": "IGNORED", "uses_path_tokens": "true" } ],
+        "AbsolutePlanPath":          [ {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "AbsolutePlanPath",          "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "access": "IGNORED", "uses_path_tokens": "true" } ],
+        "AbsoluteSourcePath":        [ {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "AbsoluteSourcePath",        "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "access": "IGNORED", "uses_path_tokens": "true" } ],
+        "AltDescriptorDir":          [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "AltDescriptorDir",          "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "access": "RO", "uses_path_tokens": "true" } ],
+        "AltDescriptorPath":         [ {"version": "[14.1.2,)", "wlst_mode": "offline", "wlst_name": "AltDescriptorPath",         "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "uses_path_tokens": "true" } ],
+        "AltWLSDescriptorPath":      [ {"version": "[14.1.2,)", "wlst_mode": "offline", "wlst_name": "AltWLSDescriptorPath",      "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "uses_path_tokens": "true" } ],
+        "ApplicationIdentifier":     [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "ApplicationIdentifier",     "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "access": "IGNORED" } ],
+        "ApplicationName":           [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "ApplicationName",           "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "access": "IGNORED" } ],
+        "AutoDeployedApp":           [ {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "AutoDeployedApp",           "wlst_path": "WP001", "wlst_type": "boolean", "default_value": false, "get_method": "GET", "access": "IGNORED" } ],
+        "BackgroundDeployment":      [ {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "BackgroundDeployment",      "wlst_path": "WP001", "wlst_type": "boolean", "default_value": false, "get_method": "GET", "access": "IGNORED" } ],
+        "CacheInAppDirectory":       [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "CacheInAppDirectory",       "wlst_path": "WP001", "wlst_type": "boolean", "default_value": false } ],
+        "CompatibilityName":         [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "CompatibilityName",         "wlst_path": "WP001", "wlst_type": "string",  "default_value": null } ],
+        "ConfiguredApplicationIdentifier":
+                                     [ {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "ConfiguredApplicationIdentifier", "wlst_path": "WP001", "wlst_type": "string", "default_value": null, "get_method": "GET" } ],
+        "DeploymentOrder":           [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "DeploymentOrder",           "wlst_path": "WP001", "wlst_type": "integer", "default_value": 100 } ],
+        "DeploymentPlan":            [ {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "DeploymentPlan",            "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "access": "IGNORED" } ],
+        "DeploymentPlanExternalDescriptors":
+                                     [ {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "DeploymentPlanExternalDescriptors", "wlst_path": "WP001", "wlst_type": "string", "default_value": null, "access": "IGNORED" } ],
+        "DeploymentPrincipalName":   [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "DeploymentPrincipalName",   "wlst_path": "WP001", "wlst_type": "string",  "default_value": null } ],
+        "InstallDir":                [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "InstallDir",                "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "access": "${:IGNORED}", "uses_path_tokens": "true" } ],
+        "InternalApp":               [ {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "InternalApp",               "wlst_path": "WP001", "wlst_type": "boolean", "default_value": false, "get_method": "GET", "access": "IGNORED" } ],
+        "LocalAltDescriptorPath":    [ {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "LocalAltDescriptorPath",    "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "get_method": "GET", "uses_path_tokens": "true", "access": "IGNORED"  } ],
+        "LocalInstallDir":           [ {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "LocalInstallDir",           "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "get_method": "GET", "uses_path_tokens": "true", "access": "IGNORED"  } ],
+        "LocalPlanDir":              [ {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "LocalPlanDir",              "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "get_method": "GET", "uses_path_tokens": "true", "access": "IGNORED"  } ],
+        "LocalPlanPath":             [ {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "LocalPlanPath",             "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "get_method": "GET", "uses_path_tokens": "true", "access": "IGNORED"  } ],
+        "LocalSourcePath":           [ {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "LocalSourcePath",           "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "get_method": "GET", "uses_path_tokens": "true", "access": "IGNORED"  } ],
+        "ModuleType":                [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "ModuleType",                "wlst_path": "WP001", "wlst_type": "string",  "default_value": null } ],
+        "MultiVersionApp":           [ {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "MultiVersionApp",           "wlst_path": "WP001", "wlst_type": "boolean", "default_value": false, "get_method": "GET" } ],
+        "Notes":                     [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "Notes",                     "wlst_path": "WP001", "wlst_type": "string",  "default_value": null } ],
+        "OnDemandContextPaths":      [ {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "OnDemandContextPaths",      "wlst_path": "WP001", "wlst_type": "jarray",  "default_value": "[]", "get_method": "GET", "access": "IGNORED"  } ],
+        "OnDemandDisplayRefresh":    [ {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "OnDemandDisplayRefresh",    "wlst_path": "WP001", "wlst_type": "boolean", "default_value": false, "get_method": "GET", "access": "IGNORED"  } ],
+        "ParallelDeployModules":     [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "ParallelDeployModules",     "wlst_path": "WP001", "wlst_type": "boolean", "default_value": false, "derived_default": "${:true}" } ],
+        "PartitionName":             [ {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "PartitionName",             "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "get_method": "GET", "access": "IGNORED" } ],
+        "PlanDir":                   [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "PlanDir",                   "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "access": "${:RO}", "uses_path_tokens": "true" } ],
+        "PlanPath":                  [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "PlanPath",                  "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "access": "${:RO}", "uses_path_tokens": "true" } ],
+        "PlanStagingMode":           [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "PlanStagingMode",           "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "access": "${:RO}"} ],
+        "RootStagingDir":            [ {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "RootStagingDir",            "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "get_method": "GET", "uses_path_tokens": "true", "access": "IGNORED"  } ],
+        "SecurityDDModel":           [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "SecurityDDModel",           "wlst_path": "WP001", "wlst_type": "string",  "default_value": "${__NULL__:DDOnly}", "access": "${:RO}" }],
+        "SourcePath":                [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "SourcePath",                "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "access": "${:RO}", "uses_path_tokens": "true" } ],
+        "StagingMode":               [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "StagingMode",               "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "access": "${:RO}"  }],
+        "Target":                    [ {"version": "[14.1.2,)", "wlst_mode": "offline", "wlst_name": "Target",                    "wlst_path": "WP001", "wlst_type": "delimited_string", "default_value": null, "set_method": "MBEAN.set_target_mbeans" },
+                                       {"version": "[14.1.2,)", "wlst_mode": "online",  "wlst_name": "Targets",                   "wlst_path": "WP002", "wlst_type": "jarray",  "default_value": null, "get_method": "GET", "preferred_model_type": "delimited_string", "set_method": "MBEAN.set_target_mbeans", "set_mbean_type": "weblogic.management.configuration.TargetMBean"} ],
+        "Untargeted":                [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "Untargeted",                "wlst_path": "WP001", "wlst_type": "boolean", "default_value": false } ],
+        "ValidateDDSecurityData":    [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "ValidateDDSecurityData",    "wlst_path": "WP001", "wlst_type": "boolean", "default_value": false } ],
+        "VersionIdentifier":         [ {"version": "[14.1.2,)", "wlst_mode": "both",    "wlst_name": "VersionIdentifier",         "wlst_path": "WP001", "wlst_type": "string",  "default_value": null, "access": "IGNORED" } ]
+    },
+    "wlst_attributes_path": "WP001",
+    "wlst_paths": {
+        "WP001": "/D${b:B}ClientDataDirector${y:ies}/%DBCLIENTDATADIRECTORY%",
+        "WP002": "/D${b:B}ClientDataDirector${y:ies}/%DBCLIENTDATADIRECTORY%/Targets"
+    }
+}

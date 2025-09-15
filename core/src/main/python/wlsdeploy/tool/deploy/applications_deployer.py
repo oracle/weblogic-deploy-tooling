@@ -301,9 +301,12 @@ class ApplicationsDeployer(Deployer):
         self.logger.entering(deployment_type, deployment_name, deployment_dict,
                              class_name=self._class_name, method_name=_method_name)
 
-        self.model_context.replace_tokens(deployment_type, deployment_name, SOURCE_PATH, deployment_dict)
-        self.model_context.replace_tokens(deployment_type, deployment_name, PLAN_DIR, deployment_dict)
-        self.model_context.replace_tokens(deployment_type, deployment_name, PLAN_PATH, deployment_dict)
+        for attribute in [SOURCE_PATH, PLAN_DIR, PLAN_PATH]:
+            self.model_context.replace_tokens(deployment_type, deployment_name, attribute, deployment_dict)
+            # deployment path might need correcting from wlsdeploy/* => config/wlsdeploy/*
+            path = dictionary_utils.get_element(deployment_dict, attribute)
+            if path:
+                deployment_dict[attribute] = WLSDeployArchive.getExtractPath(path)
 
         self.logger.exiting(class_name=self._class_name, method_name=_method_name)
 
