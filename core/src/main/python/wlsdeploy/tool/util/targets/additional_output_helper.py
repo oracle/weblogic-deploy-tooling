@@ -1,8 +1,8 @@
 """
-Copyright (c) 2020, 2024, Oracle and/or its affiliates.
+Copyright (c) 2020, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-Methods for creating Kubernetes resource configuration files for Verrazzano.
+Methods for creating Kubernetes resource configuration files for WKO.
 """
 import os.path
 
@@ -31,7 +31,7 @@ from wlsdeploy.util import path_helper
 from wlsdeploy.util import target_configuration_helper
 import wlsdeploy.util.unicode_helper as str_helper
 
-__class_name = 'vz_config_helper'
+__class_name = 'additional_output_helper'
 __logger = PlatformLogger('wlsdeploy.tool.util')
 
 # substitution keys used in the templates
@@ -274,7 +274,7 @@ def _build_template_hash(model, model_context, aliases, credential_injector, dom
     template_hash[APPLICATIONS] = apps
     template_hash[HAS_APPLICATIONS] = len(apps) != 0
 
-    # host applications - applications organized by host, for Verrazzano IngressTrait
+    # host applications - applications organized by host, for IngressTrait
 
     app_map = {}
     applications = dictionary_utils.get_dictionary_element(model.get_model_app_deployments(), APPLICATION)

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2022, 2023, Oracle and/or its affiliates.
+Copyright (c) 2022, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -68,56 +68,6 @@ class CrdFileUpdaterTest(BaseTestCase):
         cluster_resource = documents[1]
         replica_count = self._traverse(cluster_resource, 'spec', 'replicas')
         self._match_values("First cluster replicas", replica_count, 999)
-
-    def test_verrazzano_crd_update(self):
-        """
-        Test that verrazzano section of the model is merged into the
-        resource file correctly.
-        """
-        documents = self._merge_and_read('vz-model.yaml', 'vz-crd.yaml',
-                                         model_crd_helper.VERRAZZANO_PRODUCT_KEY,
-                                         model_crd_helper.VERRAZZANO_VERSION_1)
-        self._match_values("Document count", len(documents), 3)
-
-        # application document
-
-        application_resource = documents[0]
-        # two existing components, one added, one merged
-        component_list = self._traverse(application_resource, 'spec', 'components')
-        self._match_values("Application component count", len(component_list), 3)
-
-        trait_list = self._traverse(component_list[0], 'traits')
-        self._match_values("Application trait count", len(trait_list), 3)
-
-        scraper_text = '/my-model-scraper'
-        scraper = self._traverse(trait_list[0], 'trait', 'spec', 'scraper')
-        self._match_values("Configmap JDBC URL contains " + scraper_text, scraper_text in scraper, True)
-
-        # weblogic document
-
-        weblogic_resource = documents[1]
-        domain_resource = self._traverse(weblogic_resource, 'spec', 'workload', 'spec', 'template')
-
-        # check simple fields
-        self._check_domain_crd(domain_resource)
-
-        # only one cluster was added
-        cluster_list = self._traverse(domain_resource, 'spec', 'clusters')
-        self._match_values("Domain cluster count", len(cluster_list), 3)
-        self._match_values("Third domain cluster name", cluster_list[2]['name'], 'cluster3')
-
-        # workload clusters section
-        cluster_resource = self._traverse(weblogic_resource, 'spec', 'workload', 'spec', 'clusters')
-        self._match_values("Cluster count", len(cluster_resource), 3)
-        self._match_values("Third cluster name", cluster_resource[2]['spec']['clusterName'], 'cluster3')
-        self._match_values("Third cluster replicas", cluster_resource[2]['spec']['replicas'], 1103)
-
-        # configmap document
-
-        configmap_resource = documents[2]
-        data_map = self._traverse(configmap_resource, 'spec', 'workload', 'data')
-        self._match_values("Data count", len(data_map), 2)
-        self._match_values("Second data value", data_map['test.yaml'], 'alsoModel')
 
     def _check_domain_crd(self, domain_resource):
         # domain home was overridden

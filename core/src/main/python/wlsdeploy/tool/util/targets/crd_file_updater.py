@@ -1,5 +1,5 @@
 """
-Copyright (c) 2022, 2023, Oracle and/or its affiliates.
+Copyright (c) 2022, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 Methods to update an output file with information from the kubernetes section of the model.
@@ -35,27 +35,6 @@ CLUSTERS = 'clusters'
 DOMAIN_HOME = 'domainHome'
 IMAGE_PULL_SECRETS = 'imagePullSecrets'
 REPLICAS = 'replicas'
-
-# specific to Verrazzano
-CONFIG_MAP_WORKLOAD_KIND = 'ConfigMap'
-OAM_COMPONENT_KIND = 'Component'
-TEMPLATE = 'template'
-VERRAZZANO_WEBLOGIC_WORKLOAD_KIND = 'VerrazzanoWebLogicWorkload'
-VERRAZZANO_APPLICATION_KIND = 'ApplicationConfiguration'
-WORKLOAD = 'workload'
-
-# specific to Verrazzano application document
-COMPONENTS = "components"
-DESTINATION = "destination"
-INGRESS_TRAIT = "IngressTrait"
-PATH = "path"
-PATH_TYPE = "pathType"
-PATHS = "paths"
-RULES = "rules"
-TRAIT = "trait"
-TRAITS = "traits"
-
-PATH_SAMPLE_PATTERN = '^\\(path for.*\\)$'
 
 
 def update_from_model(crd_file, model, crd_helper):
@@ -122,14 +101,6 @@ def _update_documents(crd_documents, model_content, crd_helper, output_file_path
                 _add_cluster_comments(crd_document)
                 found = True
 
-            elif kind == OAM_COMPONENT_KIND:
-                _update_crd_component(crd_document, model_content, crd_helper, output_file_path)
-                found = True
-
-            elif kind == VERRAZZANO_APPLICATION_KIND:
-                _update_crd_application(crd_document, model_content, crd_helper, output_file_path)
-                found = True
-
     if not found:
         __logger.warning('WLSDPLY-01676', output_file_path, class_name=__class_name, method_name=_method_name)
 
@@ -171,42 +142,6 @@ def _update_crd_cluster(crd_dictionary, model_dictionary, crd_helper, output_fil
             cluster_crd_folder = crd_helper.get_crd_folder(folder_key)
             schema = cluster_crd_folder.get_schema()
             _update_dictionary(crd_dictionary, model_cluster, schema, None, cluster_crd_folder, output_file_path)
-
-
-def _update_crd_application(crd_dictionary, model_dictionary, crd_helper, output_file_path):
-    """
-    Update the CRD application dictionary from the model.
-    :param crd_dictionary: the CRD dictionary to be updated
-    :param model_dictionary: the model content to use for update
-    :param crd_helper: used to get CRD folder information
-    :param output_file_path: used for logging
-    """
-    _method_name = '_update_crd_application'
-
-    _update_crd(crd_dictionary, model_dictionary, 'application', crd_helper, output_file_path)
-    _add_application_comments(crd_dictionary)
-
-
-def _update_crd_component(crd_dictionary, model_dictionary, crd_helper, output_file_path):
-    """
-    Update the CRD component dictionary from the model.
-    :param crd_dictionary: the CRD dictionary to be updated
-    :param model_dictionary: the model content to use for update
-    :param crd_helper: used to get CRD folder information
-    :param output_file_path: used for logging
-    """
-    _method_name = '_update_crd_component'
-
-    spec_folder = dictionary_utils.get_dictionary_element(crd_dictionary, SPEC)
-    workload_folder = dictionary_utils.get_dictionary_element(spec_folder, WORKLOAD)
-    workload_kind = dictionary_utils.get_element(workload_folder, KIND)
-
-    if workload_kind == VERRAZZANO_WEBLOGIC_WORKLOAD_KIND:
-        _update_crd(crd_dictionary, model_dictionary, 'weblogic', crd_helper, output_file_path)
-        _add_weblogic_workload_comments(crd_dictionary)
-
-    elif workload_kind == CONFIG_MAP_WORKLOAD_KIND:
-        _update_crd(crd_dictionary, model_dictionary, 'configmap', crd_helper, output_file_path)
 
 
 def _update_crd(crd_dictionary, model_dictionary, folder_key, crd_helper, output_file_path):
@@ -428,71 +363,6 @@ def _add_cluster_spec_comments(spec_dictionary):
         last_key = spec_dictionary.keys()[-1]
         message = exception_helper.get_message('WLSDPLY-01680')
         spec_dictionary.addComment(last_key, REPLICAS + ': 99  # ' + message)
-
-
-def _add_weblogic_workload_comments(vz_dictionary):
-    """
-    Add relevant comments to the Verrazzano WebLogic workload CRD dictionary for additional information.
-    :param vz_dictionary: the Verrazzano dictionary
-    """
-    spec_folder = dictionary_utils.get_dictionary_element(vz_dictionary, SPEC)
-    workload_folder = dictionary_utils.get_dictionary_element(spec_folder, WORKLOAD)
-    workload_spec_folder = dictionary_utils.get_dictionary_element(workload_folder, SPEC)
-
-    template_folder = dictionary_utils.get_dictionary_element(workload_spec_folder, TEMPLATE)
-    _add_domain_comments(template_folder)
-
-    clusters_folder = dictionary_utils.get_dictionary_element(workload_spec_folder, CLUSTERS)
-    for cluster_spec in clusters_folder:
-        _add_cluster_spec_comments(cluster_spec)
-
-
-def _add_application_comments(vz_dictionary):
-    """
-    Add relevant comments to the Verrazzano application CRD dictionary for additional information.
-    :param vz_dictionary: the Verrazzano dictionary
-    """
-    spec_folder = dictionary_utils.get_dictionary_element(vz_dictionary, SPEC)
-    components = dictionary_utils.get_dictionary_element(spec_folder, COMPONENTS)
-    for component in components:
-        traits = _get_list_element(component, TRAITS)
-        for trait in traits:
-            trait_dictionary = dictionary_utils.get_dictionary_element(trait, TRAIT)
-            trait_kind = dictionary_utils.get_element(trait_dictionary, KIND)
-            if trait_kind == INGRESS_TRAIT:
-                _add_ingress_trait_comments(trait_dictionary)
-
-
-def _add_ingress_trait_comments(trait_dictionary):
-    """
-    Add relevant comments to the IngressTrait CRD dictionary for additional information.
-    Convert sample rule paths to comments if none were added from WDT model.
-    Remove sample rule paths if any paths were added from WDT model.
-    :param trait_dictionary: the IngressTrait dictionary
-    """
-    trait_spec = dictionary_utils.get_dictionary_element(trait_dictionary, SPEC)
-    rules = _get_list_element(trait_spec, RULES)
-    for rule in rules:
-        sample_paths = []
-        has_defined_paths = False
-        paths = _get_list_element(rule, PATHS)
-        for path in paths:
-            path_path = dictionary_utils.get_dictionary_element(path, PATH)
-            is_sample_path = re.search(PATH_SAMPLE_PATTERN, str_helper.to_string(path_path))
-            if is_sample_path:
-                sample_paths.append(path)
-            else:
-                has_defined_paths = True
-
-        if has_defined_paths:
-            for sample_path in sample_paths:
-                paths.remove(sample_path)
-        else:
-            rule.addComment(DESTINATION, PATHS + ':')
-            for sample_path in sample_paths:
-                rule.addComment(DESTINATION, '  - ' + PATH + ': ' + str_helper.to_string(sample_path[PATH]))
-                rule.addComment(DESTINATION, '    ' + PATH_TYPE + ': ' + str_helper.to_string(sample_path[PATH_TYPE]))
-            del rule[PATHS]
 
 
 def _get_list_element(dictionary, element_name):
