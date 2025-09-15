@@ -17,7 +17,7 @@ DESCRIPTION_LINE_LENGTH_LIMIT = 80
 
 class ModelCrdSectionPrinter(object):
     """
-    Class for printing kubernetes sections as model samples.
+    Class for printing the kubernetes section as a model sample.
     """
     _class_name = "ModelCrdSectionPrinter"
     _logger = PlatformLogger('wlsdeploy.modelhelp')
