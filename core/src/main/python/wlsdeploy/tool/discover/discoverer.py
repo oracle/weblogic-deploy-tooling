@@ -3,6 +3,7 @@ Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import array
+import os
 
 from java.io import IOException
 from java.net import MalformedURLException
@@ -12,6 +13,7 @@ from oracle.weblogic.deploy.aliases import AliasException
 from oracle.weblogic.deploy.discover import DiscoverException
 from oracle.weblogic.deploy.util import FileUtils
 from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
+from oracle.weblogic.deploy.util import WLSDeployArchive
 
 from wlsdeploy.aliases import alias_constants
 from wlsdeploy.aliases.aliases import Aliases
@@ -24,6 +26,7 @@ from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.deploy import deployer_utils
 from wlsdeploy.tool.discover.custom_folder_helper import CustomFolderHelper
+from wlsdeploy.tool.discover.wallet_cache import WalletCache
 from wlsdeploy.tool.encrypt import encryption_utils
 from wlsdeploy.tool.util.mbean_utils import MBeanUtils
 from wlsdeploy.tool.util.mbean_utils import get_interface_name
@@ -42,7 +45,9 @@ remote_dict = OrderedDict()
 REMOTE_TYPE = 'Type'
 REMOTE_ARCHIVE_PATH = 'ArchivePath'
 
+# static instances shared by subclasses
 _ssh_download_dir = None
+_wallet_cache = None
 
 class Discoverer(object):
     """
@@ -59,6 +64,7 @@ class Discoverer(object):
         """
         _method_name = '__init__'
         global _ssh_download_dir
+        global _wallet_cache
 
         self._model_context = model_context
         self._security_provider_map = None
@@ -80,6 +86,9 @@ class Discoverer(object):
         self.path_helper = path_helper.get_path_helper()
         self._export_tmp_directory = None
         self._local_tmp_directory = None
+
+        # lazy load this once for all Discoverer instances
+        _wallet_cache = _wallet_cache or WalletCache(model_context)
 
         if model_context.is_ssh():
             if _ssh_download_dir is None:
@@ -1087,6 +1096,7 @@ class Discoverer(object):
                                 de.getLocalizedMessage(), class_name=_class_name, method_name=_method_name)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
+
     def _validate_artificial_folder_name(self, folder_name, location):
         """
         Validate the folder name.
@@ -1175,6 +1185,47 @@ class Discoverer(object):
             _logger.warning('WLSDPLY-06321', name, value, e.getLocalizedMessage,
                             error=e, class_name=_class_name, method_name=_method_name)
         return uri
+
+    def _add_wallet_to_archive(self, wallet_path, mbean_type, mbean_name, attribute_name):
+        """
+        Add the specified wallet path to the archive.
+        A cache is used to prevent multiple archive entries for the same source path.
+        :param wallet_path: absolute or relative path of the wallet (file or directory)
+        :param mbean_type: the MBean type associated with the wallet attribute, used for logging
+        :param mbean_name: the MBean name associated with the wallet attribute, used for logging
+        :param attribute_name: the name of the wallet attribute, used for logging
+        :return: the archive path to use in the model
+        """
+        _method_name = '_add_wallet_to_archive'
+
+        if WLSDeployArchive.isPathIntoArchive(wallet_path):
+            wallet_path = self.path_helper.local_join(self._model_context.get_domain_home(), wallet_path)
+
+        if self._model_context.is_ssh():
+            wallet_name = _wallet_cache.get_wallet_name(wallet_path)
+            wallet_path = self.download_deployment_from_remote_server(
+                wallet_path, self.download_temporary_dir, "dbWallets-" + wallet_name)
+
+        if self.path_helper.is_relative_local_path(wallet_path):
+            # if the property value is a relative path at this point, it is relative to the
+            # domain home.  If this path is absolute already, get_local_canonical_path is a no-op.
+            wallet_path = self.path_helper.get_local_canonical_path(wallet_path, self._model_context.get_domain_home())
+
+        if os.path.exists(wallet_path):
+            if self._model_context.is_remote():
+                archive_path = _wallet_cache.get_wallet_archive_path(wallet_path)
+                self.add_to_remote_map(wallet_path, archive_path, WLSDeployArchive.ArchiveEntryType.DB_WALLET.name())
+            else:
+                archive_path = _wallet_cache.find_or_add_wallet(wallet_path)
+
+            _logger.info('WLSDPLY-06377', attribute_name, mbean_type, mbean_name, archive_path,
+                         class_name=_class_name, method_name=_method_name)
+            return archive_path
+        else:
+            de = exception_helper.create_discover_exception(
+                'WLSDPLY-06378', wallet_path, attribute_name, mbean_type, mbean_name)
+            _logger.throwing(class_name=_class_name, method_name=_method_name, error=de)
+            raise de
 
 
 def add_to_model_if_not_empty(dictionary, entry_name, entry_value):

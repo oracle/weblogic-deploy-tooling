@@ -167,7 +167,6 @@ def __deploy_online(model_deployer, model_context):
     try:
         model_deployer.deploy_plugins()
         model_deployer.deploy_resources()
-        model_deployer.distribute_database_wallets_online()
         model_deployer.deploy_app_attributes_online()
     except (DeployException, exceptions.Exception, JException), ex:
         # release the edit session, and raise the exception for tool_main to handle

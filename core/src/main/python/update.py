@@ -197,7 +197,6 @@ def __update_online(model_deployer, model, model_context, aliases):
         model_deployer.deploy_plugins()  # may be referenced in SecurityConfiguration/CertificateManagement
         topology_updater.update()
         model_deployer.deploy_resources()
-        model_deployer.distribute_database_wallets_online()
         model_deployer.deploy_app_attributes_online()
 
     except (DeployException, exceptions.Exception, JException), ex:

@@ -23,6 +23,7 @@ from wlsdeploy.aliases.alias_constants import PASSWORD_TOKEN
 from wlsdeploy.aliases import model_constants
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import APPLICATION
+from wlsdeploy.aliases.model_constants import DB_CLIENT_DATA_DIRECTORY
 from wlsdeploy.aliases.model_constants import LIBRARY
 from wlsdeploy.aliases.model_constants import PLAN_DIR
 from wlsdeploy.aliases.model_constants import PLAN_PATH
@@ -79,6 +80,7 @@ class DeploymentsDiscoverer(Discoverer):
         self._discover_deployments(LIBRARY)
         self._discover_deployments(APPLICATION)
         self._discover_deployments(PLUGIN_DEPLOYMENT)
+        self._discover_deployments(DB_CLIENT_DATA_DIRECTORY)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name)
         return self._dictionary
@@ -90,7 +92,7 @@ class DeploymentsDiscoverer(Discoverer):
     def _get_deployments(self, deployment_type):
         """
         Discover the deployment information from the domain. Collect any deployed binaries into
-        the discovered archive file. If the binary cannot be collected into the archive, the 
+        the discovered archive file. If the binary cannot be collected into the archive, the
         source path will be removed from the model and the deployment un-targeted.
         :param deployment_type: the type of deployment, such as Application, Library, etc.
         :return: model name for the dictionary and the dictionary containing the deployment information
@@ -128,9 +130,13 @@ class DeploymentsDiscoverer(Discoverer):
                     if is_struct_app:
                         self._add_structured_application_to_archive(
                             deployment, result[deployment], location, install_root)
+
+                    elif deployment_type == DB_CLIENT_DATA_DIRECTORY:
+                        self._add_db_client_wallet_to_archive(deployment, result[deployment], location)
+
                     else:
                         self._add_deployment_to_archive(deployment, deployment_type, result[deployment])
-                        
+
                     self._discover_subfolders(result[deployment], location)
                     location.remove_name_token(name_token)
 
@@ -477,7 +483,7 @@ class DeploymentsDiscoverer(Discoverer):
         if model_constants.TARGET in deployment_dict:
             target = deployment_dict[model_constants.TARGET]
             del deployment_dict[model_constants.TARGET]
-            _logger.warning('WLSDPLY-06414', deployment_type, deployment_name, file_name_path, 
+            _logger.warning('WLSDPLY-06414', deployment_type, deployment_name, file_name_path,
                             target, message, class_name=_class_name, method_name=_method_name)
         else:
             _logger.warning('WLSDPLY-06415', deployment_type, deployment_name, file_name_path,
@@ -597,6 +603,13 @@ class DeploymentsDiscoverer(Discoverer):
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
         return result
+
+    def _add_db_client_wallet_to_archive(self, deployment_name, deployment_dict, location):
+        wallet_path = dictionary_utils.get_element(deployment_dict, model_constants.SOURCE_PATH)
+        if wallet_path:
+            archive_path = self._add_wallet_to_archive(
+                wallet_path, DB_CLIENT_DATA_DIRECTORY, deployment_name, model_constants.SOURCE_PATH)
+            deployment_dict[model_constants.SOURCE_PATH] = archive_path
 
 
 def _generate_new_plan_name(binary_path, plan_path):

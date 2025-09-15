@@ -77,45 +77,6 @@ class ModelDeployer(Deployer):
     def deploy_plugins(self):
         self.applications_deployer.deploy_plugins()
 
-    def distribute_database_wallets_online(self):
-        """
-        Go through the model and run the WLST distributeApplication command to distribute the already extracted wallet
-        to the targets.
-        """
-        _method_name = 'distribute_database_wallets_online'
-
-        if self.archive_helper is None:
-            return
-
-        if not self.wls_helper.is_db_client_data_distribution_supported():
-            # Older WLS versions don't support wallet distribution
-            return
-
-        if self.model_context.is_remote():
-            # Should have already warned during wallets extraction
-            return
-
-        try:
-            wallet_path_list = self.archive_helper.get_all_database_wallet_paths()
-            distribute_list = []
-            # Go through the wallet path list and build the actual list avoid duplicate path in different wallets
-            for wallet_path in wallet_path_list:
-                for path in wallet_path['paths']:
-                    # correct deprecated location
-                    if path.startswith(WLSDeployArchive.WLSDPLY_ARCHIVE_BINARY_DIR + WLSDeployArchive.ZIP_SEP):
-                        path = WLSDeployArchive.CONFIG_DIR_NAME + WLSDeployArchive.ZIP_SEP + path
-                    absolute_path = self.path_helper.join(self.model_context.get_domain_home(), path)
-                    if absolute_path not in distribute_list:
-                        distribute_list.append(absolute_path)
-
-            for distribute_path in distribute_list:
-                self.wlst_helper.distribute_application(distribute_path, dbClientData='true', remote='true')
-
-        except PyWLSTException, pwe:
-            ex = exception_helper.create_deploy_exception('WLSDPLY-09650', pwe.getLocalizedMessage(), error=pwe)
-            _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
-            raise ex
-
     def deploy_model_after_update(self):
         """
         Deploy the resources that must be done after WLST updateDomain.
