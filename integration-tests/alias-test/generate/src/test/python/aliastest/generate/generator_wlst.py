@@ -48,6 +48,7 @@ PATH_ATTRIBUTE_NAME_ENDINGS = ['File', 'Directory', 'FileName', 'Home', 'Directo
                                'PrefixName', 'UriPrefix', 'EngineId']
 PATH_ATTRIBUTE_NAME_EXCEPTIONS = [
     'AcceptContextPathInGetRealPath',
+    'AccessTokenContextPath',
     'BasePath',
     'CacheInAppDirectory',
     'ConsoleContextPath',
