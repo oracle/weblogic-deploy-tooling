@@ -12,20 +12,20 @@
     <title>Target environments :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1758079339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1758079339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1758079339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1758079339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1758079339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1758079339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1758079339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1758079339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1758079339" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1758079339" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1758120098" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1758120098" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1758120098" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1758120098" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1758120098" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1758120098" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1758120098" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1758120098" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1758120098" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1758120098" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1758079339"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1758120098"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1758079339"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1758079339"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1758120098"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1758120098"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1758079339"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1758120098"></script>
 
     
   </div>
@@ -2274,22 +2274,6 @@
 <li>An additional Kubernetes resource file, <code>wko-domain.yaml</code>, will be produced, with cluster and naming information derived from the model</li>
 </ul>
 <p>In addition, the <code>wko</code> target will replace credentials in the model with references to Kubernetes secrets, and produce a script to create those secrets. The <code>wko-dii</code> and <code>wko-pv</code> targets will replace credentials in the model with variable references.</p>
-<h4 id="the-verrazzano-targets">The Verrazzano targets</h4>
-<p><strong>NOTE</strong>: Verrazzano support is deprecated in WDT 4.0.0.</p>
-<p>You can use these targets to customize the model and create a Kubernetes resource file for use with Verrazzano. There are three targets for specific <a href="https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/choosing-a-model/">domain home source types</a>:</p>
-<ul>
-<li><code>vz</code> for <a href="https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/model-in-image/">Model in Image</a> deployments</li>
-<li><code>vz-dii</code> for Domain in Image deployments</li>
-<li><code>vz-pv</code> for Domain in PV deployments</li>
-</ul>
-<p>Each of these targets provides this additional processing:</p>
-<ul>
-<li>The <code>vz_filter</code> filter will be applied to remove model elements that are not compatible with the Kubernetes environment, and adjust some attribute values</li>
-<li>Variables will be injected into the model for port, host, and URL attributes</li>
-<li><code>lax</code> validation will be applied for the resulting model</li>
-<li>An additional Kubernetes resource file, <code>vz-application.yaml</code>, will be produced, with cluster and data source information derived from the model</li>
-</ul>
-<p>In addition, the <code>vz</code> target will replace credentials in the model with references to Kubernetes secrets, and produce a script to create those secrets. The <code>vz-dii</code> and <code>vz-pv</code> targets will replace credentials in the model with variable references.</p>
 <h4 id="generic-kubernetes-target">Generic Kubernetes target</h4>
 <p>You can apply this target environment by providing the command-line argument <code>-target k8s</code>. It will provide this additional processing:</p>
 <ul>
@@ -2342,49 +2326,12 @@ create_paired_k8s_secret weblogic-credentials &lt;user&gt; &lt;password&gt;
   - <span style="color:#f92672">spec</span>:
       <span style="color:#f92672">clusterName</span>: <span style="color:#ae81ff">other-cluster</span>
       <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">6</span>
-</code></pre></div><p>When creating a CRD for Verrazzano, content from the <code>verrazzano</code> section of the WDT model will be merged into the resulting output, similar to the previous examples. Each of the three subsections in the <code>verrazzano</code> section will be merged with the corresponding document in the CRD. This example shows the <code>verrazzano</code> section of the WDT model with its three subsections:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">verrazzano</span>:
-  <span style="color:#f92672">application</span>:
-    <span style="color:#f92672">spec</span>:
-      <span style="color:#f92672">components</span>:
-        - <span style="color:#f92672">componentName</span>: <span style="color:#ae81ff">mydomain-mycomponent</span>
-          <span style="color:#f92672">traits</span>:
-            - <span style="color:#f92672">trait</span>:
-                <span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">oam.verrazzano.io/v1alpha1</span>
-                <span style="color:#f92672">kind</span>: <span style="color:#ae81ff">LoggingTrait</span>
-                <span style="color:#f92672">spec</span>:
-                  <span style="color:#f92672">imagePullPolicy</span>: <span style="color:#ae81ff">NEVER</span>
-  <span style="color:#f92672">weblogic</span>:
-    <span style="color:#f92672">spec</span>:
-      <span style="color:#f92672">workload</span>:
-        <span style="color:#f92672">spec</span>:
-          <span style="color:#f92672">template</span>:
-            <span style="color:#f92672">spec</span>:
-              <span style="color:#f92672">domainHome</span>: <span style="color:#ae81ff">/u01/mydomain</span>
-              <span style="color:#f92672">clusters</span>:
-                - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">cluster2</span>
-          <span style="color:#f92672">clusters</span>:
-            - <span style="color:#f92672">spec</span>:
-                <span style="color:#f92672">clusterName</span>: <span style="color:#ae81ff">cluster2</span>
-                <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">1102</span>
-  <span style="color:#f92672">configmap</span>:
-    <span style="color:#f92672">spec</span>:
-      <span style="color:#f92672">workload</span>:
-        <span style="color:#f92672">data</span>:
-          <span style="color:#f92672">wdt_jdbc.yaml</span>: |<span style="color:#e6db74">
-</span><span style="color:#e6db74">            resources:
-</span><span style="color:#e6db74">              JDBCSystemResource:
-</span><span style="color:#e6db74">                myDs:
-</span><span style="color:#e6db74">                  JdbcResource:
-</span><span style="color:#e6db74">                    JDBCDriverParams:
-</span><span style="color:#e6db74">                      URL: &#34;jdbc:oracle:thin:@myhost:1521/pdborcl&#34;</span>            
 </code></pre></div><h3 id="target-environment-configuration-files">Target environment configuration files</h3>
 <p>A target environment is configured in a JSON file at this location:</p>
 <pre><code>$WLSDEPLOY_HOME/lib/targets/&lt;target-name&gt;/target.json
 </code></pre><p>The <code>&lt;target-name&gt;</code> value corresponds to the value of the <code>-target</code> argument on the tool&rsquo;s command line. The WLS installation includes pre-defined targets for these environments:</p>
 <ul>
 <li><a href="#the-weblogic-kubernetes-operator-targets">WebLogic Kubernetes Operator</a></li>
-<li><a href="#the-verrazzano-targets">Verrazzano</a></li>
 <li><a href="#generic-kubernetes-target">Kubernetes</a></li>
 </ul>
 <p>You can define a new or extended target environment with a new <code>target-name</code> in the above location, or using a <a href="/weblogic-deploy-tooling/userguide/tools-config/custom_config/">Custom configuration</a> directory, such as <code>$WDT_CUSTOM_CONFIG/target/&lt;my-target-name&gt;/target.json</code>.</p>
@@ -2393,7 +2340,7 @@ create_paired_k8s_secret weblogic-credentials &lt;user&gt; &lt;password&gt;
 <pre><code>{
     &quot;model_filters&quot; : {
         &quot;discover&quot;: [
-            { &quot;name&quot;: &quot;vz_prep&quot;, &quot;path&quot;: &quot;@@TARGET_CONFIG_DIR@@/vz_filter.py&quot; },
+            { &quot;name&quot;: &quot;wko_prep&quot;, &quot;path&quot;: &quot;@@TARGET_CONFIG_DIR@@/wko_operator_filter.py&quot; },
             { &quot;id&quot;: &quot;wko_filter&quot; }
         ]
     },
@@ -2404,7 +2351,7 @@ create_paired_k8s_secret weblogic-credentials &lt;user&gt; &lt;password&gt;
     &quot;wls_credentials_name&quot; : &quot;__weblogic-credentials__&quot;,
     &quot;use_persistent_volume&quot; : true,
     &quot;additional_secrets&quot;: &quot;runtime-encryption-secret&quot;,
-    &quot;additional_output&quot; : &quot;vz-application.yaml&quot;
+    &quot;additional_output&quot; : &quot;wko-domain.yaml&quot;
 }
 </code></pre><p>Each of the fields in this example is optional, and you can customize them.</p>
 <h4 id="model_filters"><code>model_filters</code></h4>
@@ -3976,19 +3923,19 @@ create_paired_k8s_secret weblogic-credentials &lt;user&gt; &lt;password&gt;
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1758079339"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1758079339"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1758079339"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1758079339"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1758079339"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1758079339"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1758120098"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1758120098"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1758120098"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1758120098"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1758120098"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1758120098"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1758079339"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1758079339"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1758079339"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1758120098"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1758120098"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1758120098"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1758079339"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1758120098"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });

@@ -56,8 +56,7 @@ The WLST directory can be specified in one of two ways:
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/crd-schemas/</guid>
-      <description>The structure of the kubernetes and verrazzano sections of the WDT model are described by schemas based on the Custom Resource Definitions (CRDs) for those products. This is different from other sections of the model that use the alias framework to describe their structures.
-NOTE: Verrazzano support is deprecated in WDT 4.0.0.
+      <description>The structure of the kubernetes section of the WDT model is described by schemas based on the Custom Resource Definitions (CRDs) for this product. This is different from other sections of the model that use the alias framework to describe their structures.
 These schemas are used during model validation to check that folder and attribute names are valid. The Model Help Tool uses them to list the contents of folders and details about their attributes.</description>
     </item>
     

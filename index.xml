@@ -225,8 +225,7 @@ The WLST directory can be specified in one of two ways:
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/crd-schemas/</guid>
-      <description>The structure of the kubernetes and verrazzano sections of the WDT model are described by schemas based on the Custom Resource Definitions (CRDs) for those products. This is different from other sections of the model that use the alias framework to describe their structures.
-NOTE: Verrazzano support is deprecated in WDT 4.0.0.
+      <description>The structure of the kubernetes section of the WDT model is described by schemas based on the Custom Resource Definitions (CRDs) for this product. This is different from other sections of the model that use the alias framework to describe their structures.
 These schemas are used during model validation to check that folder and attribute names are valid. The Model Help Tool uses them to list the contents of folders and details about their attributes.</description>
     </item>
     
@@ -407,7 +406,7 @@ Prerequisites In order to configure and use OHS, it must be installed in the Ora
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/kubernetes/</guid>
-      <description>You can use the Extract Domain Resource Tool to create resource files for use with the WebLogic Kubernetes Operator or Verrazzano. This allows the Kubernetes resource definitions to be generated from a model file. This is especially useful when making configuration changes to the domain that also need to be reflected in the resource file. For example, adding a cluster to the domain only requires that it be added to the topology section of the WDT model, then a new resource definition file can be generated that contains information pertaining to the new cluster to apply to Kubernetes.</description>
+      <description>You can use the Extract Domain Resource Tool to create resource files for use with the WebLogic Kubernetes Operator. This allows the Kubernetes resource definitions to be generated from a model file. This is especially useful when making configuration changes to the domain that also need to be reflected in the resource file. For example, adding a cluster to the domain only requires that it be added to the topology section of the WDT model, then a new resource definition file can be generated that contains information pertaining to the new cluster to apply to Kubernetes.</description>
     </item>
     
     <item>

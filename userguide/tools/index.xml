@@ -93,7 +93,7 @@ To use the Compare Model Tool, simply run the compareModel shell script with the
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
       
       <guid>https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/kubernetes/</guid>
-      <description>You can use the Extract Domain Resource Tool to create resource files for use with the WebLogic Kubernetes Operator or Verrazzano. This allows the Kubernetes resource definitions to be generated from a model file. This is especially useful when making configuration changes to the domain that also need to be reflected in the resource file. For example, adding a cluster to the domain only requires that it be added to the topology section of the WDT model, then a new resource definition file can be generated that contains information pertaining to the new cluster to apply to Kubernetes.</description>
+      <description>You can use the Extract Domain Resource Tool to create resource files for use with the WebLogic Kubernetes Operator. This allows the Kubernetes resource definitions to be generated from a model file. This is especially useful when making configuration changes to the domain that also need to be reflected in the resource file. For example, adding a cluster to the domain only requires that it be added to the topology section of the WDT model, then a new resource definition file can be generated that contains information pertaining to the new cluster to apply to Kubernetes.</description>
     </item>
     
     <item>
