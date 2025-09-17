@@ -186,6 +186,11 @@ OFFLINE_COMPUTED_EXCEPTIONS = {
     "/ServerTemplate/SSL/ListenPort"
 }
 
+FULLY_QUALIFIED_PROVIDERS = {
+    # these security providers use their full name in the aliases
+    'OracleIdentityCloudIntegrator' : 'weblogic.security.providers.authentication.OracleIdentityCloudIntegrator'
+}
+
 _logger = PlatformLogger('test.aliases.verify')
 CLASS_NAME = 'Verifier'
 
@@ -1153,10 +1158,17 @@ class Verifier(object):
 
         name_token = self._alias_helper.get_name_token(l2)
         for provider in generated_dictionary[mbean_name].keys():
+            if provider == TYPE:  # flag added by generator
+                continue
+
             l2.add_name_token(name_token, provider)
             model_provider = provider
             if '.' in provider:
                 model_provider = provider[provider.rfind('.') + 1:]
+
+            if model_provider in FULLY_QUALIFIED_PROVIDERS:
+                model_provider = FULLY_QUALIFIED_PROVIDERS[model_provider]
+
             if model_provider is None or model_provider not in alias_subfolders:
                 self._add_warning(location, WARN_ALIAS_FOLDER_NOT_IMPLEMENTED, attribute=provider)
                 continue
@@ -1495,7 +1507,8 @@ def _is_clear_text_password(attribute_name):
     """
     # clear text password attributes are not in the alias definition and are skipped on discover or set
     # clear text do not have Encrypted on the end
-    return ('Credential' in attribute_name or 'Pass' in attribute_name or 'Encrypted' in attribute_name) and \
+    return ('Credential' in attribute_name or 'Pass' in attribute_name or 'Encrypted' in attribute_name or
+            'Secret' in attribute_name) and \
            not attribute_name.endswith('Encrypted')
 
 
