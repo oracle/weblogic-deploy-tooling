@@ -3,19 +3,14 @@ title: "Extract Domain Resource Tool"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 9
-description: "Generates YAML resource files for use with the WebLogic Kubernetes Operator or Verrazzano."
+description: "Generates YAML resource files for use with the WebLogic Kubernetes Operator."
 ---
 
 
-You can use the Extract Domain Resource Tool to create resource files for use with the WebLogic Kubernetes Operator
-or Verrazzano. This allows the Kubernetes resource definitions to be generated from a model file.  This is especially
+You can use the Extract Domain Resource Tool to create resource files for use with the WebLogic Kubernetes Operator. This allows the Kubernetes resource definitions to be generated from a model file.  This is especially
 useful when making configuration changes to the domain that also need to be reflected in the resource file. For example,
 adding a cluster to the domain only requires that it be added to the `topology` section of the WDT model, then a new
 resource definition file can be generated that contains information pertaining to the new cluster to apply to Kubernetes.
-
-{{% notice note %}}
-Verrazzano support is deprecated in WDT 4.0.0 and will be removed in a future release.
-{{% /notice %}}
 
 By default, the resource file generated is pretty minimalistic and will always require editing.  For example, the Extract
 Domain Resource Tool run against a simple model with only an Administration Server will generate something the looks
@@ -52,14 +47,10 @@ spec:
             runtimeEncryptionSecret: mydomain-runtime-encryption-secret
 ```
 
-To help make this tool more useful (and more automated), the model includes optional, top-level `kubernetes` and
-`verrazzano` sections that feed into the generated domain resource.  Looking at the previous example output, you see
-that the `.spec.image` and `.spec.configuration.model.modelHome` attributes are 
-
+To help make this tool more useful (and more automated), the model includes an optional, top-level `kubernetes` section that feeds into the generated domain resource.  Looking at the previous example output, you see
+that the `.spec.image` and `.spec.configuration.model.modelHome` attributes are replaced with model values.
 
 More information about the WebLogic Kubernetes Operator can be found [here](https://oracle.github.io/weblogic-kubernetes-operator).
-
-More information about Verrazzano can be found [here](https://verrazzano.io/latest/docs/).
 
 Here is an example command line for the Extract Domain Resource Tool:
 
@@ -141,16 +132,9 @@ If the WDT model has a value of `Never` for `spec/imagePullPolicy`, the `imagePu
 
 A full list of sections and variables supported by the WebLogic Kubernetes Operator is available [here](https://github.com/oracle/weblogic-kubernetes-operator/blob/main/documentation/domains/Domain.md). The Extract Domain Resource Tool supports a subset of these sections, including `metadata`, `serverPod`, and `spec`.
 
-The `verrazzano` section of the WDT model can be used to update the CRDs generated for Verrazzano targets, such as `vz` and `vz-dii`. More information about this model section can be found [here]({{< relref "/userguide/target_env.md" >}}).
-
 The [Model Help Tool]({{< relref "/userguide/tools/model_help.md" >}}) can be used to determine the folders and attributes that can be used in the CRD sections of the model. For example, this command will list the folders and attributes in the `spec` folder in the `kubernetes` section:
 ```yaml
 <wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle kubernetes:/spec
-```
-
-This command will list the folders and attributes in the `application/spec` folder in the `verrazzano` section:
-```yaml
-<wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle -target vz verrazzano:/application/spec
 ```
 
 The content for the CRD sections is not generated when a model is discovered by the Discover Domain Tool.  

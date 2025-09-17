@@ -1,9 +1,8 @@
 """
-Copyright (c) 2022, 2024, Oracle and/or its affiliates.
+Copyright (c) 2022, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.aliases.model_constants import KUBERNETES
-from wlsdeploy.aliases.model_constants import VERRAZZANO
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.logging import platform_logger
@@ -14,21 +13,6 @@ from wlsdeploy.util import dictionary_utils
 
 _logger = platform_logger.PlatformLogger('wlsdeploy.deploy')
 _class_name = 'model_crd_helper'
-
-VERRAZZANO_PRODUCT_KEY = "vz"
-VERRAZZANO_VERSION_1 = "v1"
-
-VERRAZZANO_VALID_VERSIONS = [
-    VERRAZZANO_VERSION_1
-]
-
-VZ_APPLICATION_SCHEMA_NAME = 'vz-application'
-VZ_CONFIGMAP_SCHEMA_NAME = 'vz-configmap'
-VZ_WEBLOGIC_SCHEMA_NAME = 'vz-weblogic'
-VZ_1_SCHEMA_SUFFIX = '-v1alpha1'
-VZ_1_APPLICATION_SCHEMA_NAME = VZ_APPLICATION_SCHEMA_NAME + VZ_1_SCHEMA_SUFFIX
-VZ_1_CONFIGMAP_SCHEMA_NAME = VZ_CONFIGMAP_SCHEMA_NAME + VZ_1_SCHEMA_SUFFIX
-VZ_1_WEBLOGIC_SCHEMA_NAME = VZ_WEBLOGIC_SCHEMA_NAME + VZ_1_SCHEMA_SUFFIX
 
 WKO_PRODUCT_KEY = "wko"
 WKO_VERSION_3 = 'v3'
@@ -98,31 +82,7 @@ def get_helper(model_context, exception_type=ExceptionType.DEPLOY):
 def get_product_helper(product_key, product_version, exception_type=ExceptionType.DEPLOY):
     helper = ModelCrdHelper(exception_type)
 
-    if product_key == VERRAZZANO_PRODUCT_KEY:
-        helper.set_model_section(VERRAZZANO)
-
-        application_schema = schema_helper.get_schema(VZ_1_APPLICATION_SCHEMA_NAME, exception_type)
-        application_folder = ModelCrdFolder("application", application_schema, False)
-        application_folder.add_object_list_key('spec/components', 'componentName')
-        application_folder.add_object_list_key('spec/components/traits', 'trait/kind')
-        application_folder.add_object_list_key('spec/components/traits/trait/spec/rules', 'destination/host')
-        helper.add_crd_folder(application_folder)
-
-        weblogic_schema_name = VZ_1_WEBLOGIC_SCHEMA_NAME
-        weblogic_schema = schema_helper.get_schema(weblogic_schema_name, exception_type)
-        _update_weblogic_schema(weblogic_schema, weblogic_schema_name, exception_type)
-        weblogic_folder = ModelCrdFolder("weblogic", weblogic_schema, False)
-        weblogic_folder.add_object_list_key('spec/workload/spec/clusters', 'spec/clusterName')
-        weblogic_folder.add_object_list_key('spec/workload/spec/template/spec/adminServer/adminService/channels',
-                                            'channelName')
-        weblogic_folder.add_object_list_key('spec/workload/spec/template/spec/managedServers', 'serverName')
-        helper.add_crd_folder(weblogic_folder)
-
-        configmap_schema = schema_helper.get_schema(VZ_1_CONFIGMAP_SCHEMA_NAME, exception_type)
-        configmap_folder = ModelCrdFolder("configmap", configmap_schema, False)
-        helper.add_crd_folder(configmap_folder)
-
-    elif product_version == WKO_VERSION_4:
+    if product_version == WKO_VERSION_4:
         helper.set_model_section(KUBERNETES)
 
         cluster_schema = schema_helper.get_schema(WKO_4_CLUSTER_SCHEMA_NAME, exception_type)
@@ -152,39 +112,13 @@ def get_product_helper(product_key, product_version, exception_type=ExceptionTyp
 def get_valid_versions(product_key):
     if product_key == WKO_PRODUCT_KEY:
         return WKO_VALID_VERSIONS
-    if product_key == VERRAZZANO_PRODUCT_KEY:
-        return VERRAZZANO_VALID_VERSIONS
     return []
 
 
 def get_default_version(product_key):
     if product_key == WKO_PRODUCT_KEY:
         return WKO_VERSION_3
-    if product_key == VERRAZZANO_PRODUCT_KEY:
-        return VERRAZZANO_VERSION_1
     return None
-
-
-def _update_weblogic_schema(schema, schema_name, exception_type):
-    """
-    Update the Verrazzano WebLogic workload schema with the WKO domain and cluster schemas.
-    These are combined at runtime to reduce the size of the workload schema file.
-    :param schema: the WebLogic workload schema
-    :param schema_name: the WebLogic workload schema name, used for logging
-    :param exception_type: the exception type to be thrown
-    """
-    workload_spec_folder = _get_nested_folder(schema, schema_name, exception_type, 'properties',
-                                              'spec', 'properties', 'workload', 'properties', 'spec', 'properties')
-
-    domain_schema = schema_helper.get_schema(WKO_4_DOMAIN_SCHEMA_NAME, exception_type)
-    domain_folder = _get_nested_folder(workload_spec_folder, schema_name, exception_type, 'template')
-    for key in domain_schema.keys():
-        domain_folder[key] = domain_schema[key]
-
-    cluster_schema = schema_helper.get_schema(WKO_4_CLUSTER_SCHEMA_NAME, exception_type)
-    cluster_folder = _get_nested_folder(workload_spec_folder, schema_name, exception_type, 'clusters', 'items')
-    for key in cluster_schema.keys():
-        cluster_folder[key] = cluster_schema[key]
 
 
 def _get_nested_folder(parent_folder, schema_name, exception_type, *names):

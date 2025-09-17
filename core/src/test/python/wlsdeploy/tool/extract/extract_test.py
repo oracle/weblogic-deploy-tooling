@@ -1,5 +1,5 @@
 """
-Copyright (c) 2021, 2024, Oracle and/or its affiliates.
+Copyright (c) 2021, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -85,48 +85,6 @@ class ExtractTest(BaseTestCase):
         self._match_values("Secret count", len(secret_list), 2)
         self._match_values("Secret 0", secret_list[0], 'secret-1')
         self._match_values("Secret 1", secret_list[1], 'secret-2')
-
-    def testVerrazzanoModel(self):
-        """
-        Test that fields from the verrazzano section of the model
-        are transferred to the resulting domain resource file
-        """
-        documents = self._extract_resource_documents('3', 'vz', 'vz-application.yaml')
-        application_resource = documents[0]
-
-        # a model application component was added to 2 from the template
-        component_list = self._traverse(application_resource, 'spec', 'components')
-        self._match_values("Application component count", len(component_list), 3)
-        self._match_values("Application component 2 name", component_list[2]['componentName'],
-                           'base-domain-from-model')
-
-        trait_list = self._traverse(component_list[0], 'traits')
-        self._match_values("Application trait count", len(trait_list), 3)
-
-        ingress_trait = self._traverse(trait_list[1], 'trait')
-        rule_list = self._traverse(ingress_trait, 'spec', 'rules')
-        self._match_values("Ingress trait rule count", len(rule_list), 3)
-
-        # m1 has paths added from the verrazzano section
-        m1_rule = rule_list[0]
-        m1_path_list = self._traverse(m1_rule, 'paths')
-        self._match_values("Server 1 rule path count", len(m1_path_list), 2)
-
-        # m2 has no rules, only sample comments
-        m2_rule = rule_list[1]
-        self._match_values("Server 2 has no paths", 'paths' in m2_rule, False)
-
-        configmap_resource = documents[2]
-
-        # one entry was added to config map
-        data_map = self._traverse(configmap_resource, 'spec', 'workload', 'data')
-        self._match_values("Configmap data count", len(data_map), 2)
-
-        # the DB entry was update with a new URL
-        db_key = 'wdt_jdbc.yaml'
-        db_host_text = '@modelhost:1521'
-        self._match_values("Configmap data has key " + db_key, db_key in data_map, True)
-        self._match_values("Configmap JDBC URL contains " + db_host_text, db_host_text in data_map[db_key], True)
 
     def _extract_resource_documents(self, suffix, target_name, output_file_name):
         model_file = os.path.join(self.MODELS_DIR, 'model-' + suffix + '.yaml')

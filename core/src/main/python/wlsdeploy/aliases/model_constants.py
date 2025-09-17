@@ -350,7 +350,6 @@ USER = 'User'
 USER_ATTRIBUTES = 'UserAttribute'
 USE_SAMPLE_DATABASE = 'UseSampleDatabase'
 USE_SSL = "useSSL"
-VERRAZZANO = "verrazzano"
 VIRTUAL_HOST = 'VirtualHost'
 VIRTUAL_TARGET = 'VirtualTarget'
 VIRTUAL_USER_AUTHENTICATOR = 'VirtualUserAuthenticator'
@@ -480,14 +479,12 @@ KNOWN_TOPLEVEL_MODEL_SECTIONS = [
     TOPOLOGY,
     RESOURCES,
     APP_DEPLOYMENTS,
-    KUBERNETES,
-    VERRAZZANO
+    KUBERNETES
 ]
 
 # the contents of these sections are based on CRD schemas
 CRD_MODEL_SECTIONS = [
-    KUBERNETES,
-    VERRAZZANO
+    KUBERNETES
 ]
 
 # these domain attributes have special processing in create,

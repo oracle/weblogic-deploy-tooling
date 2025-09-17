@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2024, Oracle and/or its affiliates.
+Copyright (c) 2020, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.exception import exception_helper
@@ -263,7 +263,7 @@ class TargetConfiguration(object):
 
     def get_product_key(self):
         """
-        Return the key of the product being targeted, such as "wko" or "vz".
+        Return the key of the product being targeted, such as "wko".
         :return: the product key
         """
         result = dictionary_utils.get_element(self.config_dictionary, PRODUCT_KEY)
@@ -273,7 +273,7 @@ class TargetConfiguration(object):
 
     def get_product_version(self):
         """
-        Return the version of the product being targeted, such as WKO or VZ.
+        Return the version of the product being targeted, such as WKO.
         :return: the product version
         """
         result = dictionary_utils.get_element(self.config_dictionary, PRODUCT_VERSION)

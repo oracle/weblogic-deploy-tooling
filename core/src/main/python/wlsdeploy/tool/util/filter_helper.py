@@ -23,7 +23,6 @@ TARGET_CONFIG_TOKEN = '@@TARGET_CONFIG_DIR@@'
 __id_filter_map = {
     # groups that execute multiple filters
     'k8s_filter': wko_filter.filter_model,
-    'vz_filter': wko_filter.filter_model_for_vz,
     'wko_filter': wko_filter.filter_model_for_wko,
 
     # individual filters for custom target environments
@@ -38,7 +37,6 @@ __id_filter_map = {
 __final_filter_map = {
     # groups that execute multiple filters
     'k8s_final_filter': wko_final_filter.filter_final_model,
-    'vz_final_filter': wko_final_filter.filter_final_model_for_vz,
     'wko_final_filter': wko_final_filter.filter_final_model_for_wko,
     'wko3_final_filter': wko_final_filter.filter_final_model_for_wko3,
 }

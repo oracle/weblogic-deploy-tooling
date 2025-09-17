@@ -64,17 +64,6 @@ def filter_final_model_for_wko3(model, update_model, model_context):
     check_admin_server_defined(model, update_model, model_context)
 
 
-def filter_final_model_for_vz(model, update_model, model_context):
-    """
-    Perform filtering operations on the specified model to prepare for Verrazzano deployment.
-    Currently, matches the general k8s target filtering.
-    :param model: the model to be filtered
-    :param update_model: the model to be updated with any changes
-    :param model_context: used by nested filters
-    """
-    filter_final_model(model, update_model, model_context)
-
-
 def check_dynamic_cluster_prefixes(model, update_model, _model_context):
     """
     All Dynamic Clusters must have a DynamicServers section with the ServerNamePrefix field explicitly declared.
