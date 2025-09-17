@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2023, Oracle and/or its affiliates.
+Copyright (c) 2020, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from wlsdeploy.exception import exception_helper
@@ -17,7 +17,7 @@ DESCRIPTION_LINE_LENGTH_LIMIT = 80
 
 class ModelCrdSectionPrinter(object):
     """
-    Class for printing kubernetes sections as model samples.
+    Class for printing the kubernetes section as a model sample.
     """
     _class_name = "ModelCrdSectionPrinter"
     _logger = PlatformLogger('wlsdeploy.modelhelp')
@@ -146,7 +146,7 @@ class ModelCrdSectionPrinter(object):
             lookup_token = token
             option_key = None
 
-            # check for a folder with multiple options, such as (verrazzano/.../trait#MetricsTrait)
+            # check for a folder with multiple options, such as (.../folder#option)
             if '#' in token:
                 parts = token.split('#', 1)
                 lookup_token = parts[0]
@@ -161,7 +161,7 @@ class ModelCrdSectionPrinter(object):
             if lookup_token in valid_subfolder_keys:
                 current_folder = properties[lookup_token]
 
-                # find matching option if folder has multiple options, such as (verrazzano/.../trait#MetricsTrait)
+                # find matching option if folder has multiple options, such as (.../folder#option)
                 token_suffix = ''
                 folder_options = schema_helper.get_one_of_options(current_folder)
                 if folder_options and option_key is not None:

@@ -79,16 +79,6 @@ def filter_model_for_wko(model, model_context):
     filter_model(model, model_context)
 
 
-def filter_model_for_vz(model, model_context):
-    """
-    Perform filtering operations on the specified model to prepare for Verrazzano deployment.
-    Currently matches the general k8s target filtering.
-    :param model: the model to be filtered
-    :param model_context: used by nested filters
-    """
-    filter_model(model, model_context)
-
-
 def filter_online_attributes(model, model_context):
     """
     Remove any online-only attributes from the specified model.

@@ -139,9 +139,6 @@ appDeployments:
 kubernetes:
 # see kubernetes:
 
-verrazzano:
-# see verrazzano:
-
 ```
 
 #### Section names
@@ -305,7 +302,7 @@ Commands:
 
 Sections:
 
-  domainInfo, topology, resources, appDeployments, kubernetes, verrazzano
+  domainInfo, topology, resources, appDeployments, kubernetes
 
 Examples:
 
@@ -334,6 +331,6 @@ the command (unlike other tools that use WLST).
 | `-folders_only`       | List only the folders for the specified model path.                                                                                                                                     |         |
 | `-oracle_home`        | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set.                                                                      |         |
 | `-recursive`          | List only the folders for the specified model path, and recursively include the folders below that path.                                                                                |         |
-| `-target <target>`    | The target platform, such as `wko` (the default). This determines the structure of the `kubernetes` and `verrazzano` sections. **NOTE**: Verrazzano support is deprecated in WDT 4.0.0. |         |
+| `-target <target>`    | The target platform, such as `wko` (the default). This determines the structure of the `kubernetes` section.  |         |
 | `-target_mode <mode>` | The WLST mode to use to load the aliases. The mode is either `online` or `offline` (the default).                                                                                       |         |
 | `<model_path>`        | The path to the model element to be examined. The format is `[^<section^>:][/^<folder^>]...`  Omit this argument to start in interactive mode.                                          |         |

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2023, Oracle and/or its affiliates.
+Copyright (c) 2020, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import os
@@ -20,9 +20,6 @@ class CrdSchemaTest(unittest.TestCase):
 
     def testWko4Schemas(self):
         self._testSchemas(model_crd_helper.WKO_PRODUCT_KEY, model_crd_helper.WKO_VERSION_4)
-
-    def testVerrazzanoSchemas(self):
-        self._testSchemas(model_crd_helper.VERRAZZANO_PRODUCT_KEY, model_crd_helper.VERRAZZANO_VERSION_1)
 
     def _testSchemas(self, product_key, product_version):
         # create a model with every element.

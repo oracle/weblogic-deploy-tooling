@@ -1,25 +1,20 @@
 """
-Copyright (c) 2020, 2024, Oracle and/or its affiliates.
+Copyright (c) 2020, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 
-Methods for creating Kubernetes resource configuration files for Verrazzano.
+Methods for creating Kubernetes resource configuration files for WKO.
 """
 import os.path
 
 from java.io import File
 
-from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases.location_context import LocationContext
-from wlsdeploy.aliases.model_constants import APPLICATION
 from wlsdeploy.aliases.model_constants import CLUSTER
-from wlsdeploy.aliases.model_constants import DYNAMIC_SERVERS
 from wlsdeploy.aliases.model_constants import JDBC_DRIVER_PARAMS
 from wlsdeploy.aliases.model_constants import JDBC_RESOURCE
 from wlsdeploy.aliases.model_constants import JDBC_SYSTEM_RESOURCE
-from wlsdeploy.aliases.model_constants import LISTEN_PORT
 from wlsdeploy.aliases.model_constants import SERVER
 from wlsdeploy.aliases.model_constants import SERVER_TEMPLATE
-from wlsdeploy.aliases.model_constants import TARGET
 from wlsdeploy.aliases.model_constants import URL
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util import k8s_helper
@@ -31,15 +26,12 @@ from wlsdeploy.util import path_helper
 from wlsdeploy.util import target_configuration_helper
 import wlsdeploy.util.unicode_helper as str_helper
 
-__class_name = 'vz_config_helper'
+__class_name = 'additional_output_helper'
 __logger = PlatformLogger('wlsdeploy.tool.util')
 
 # substitution keys used in the templates
 ADDITIONAL_SECRET_NAME = 'additionalSecretName'
 ADDITIONAL_SECRETS = 'additionalSecrets'
-APPLICATIONS = 'applications'
-APPLICATION_NAME = 'applicationName'
-APPLICATION_PREFIX = 'applicationPrefix'
 CLUSTER_NAME = 'clusterName'
 CLUSTER_UID = 'clusterUid'
 CLUSTERS = 'clusters'
@@ -55,15 +47,9 @@ DOMAIN_PREFIX = 'domainPrefix'
 DOMAIN_TYPE = 'domainType'
 DOMAIN_UID = 'domainUid'
 HAS_ADDITIONAL_SECRETS = 'hasAdditionalSecrets'
-HAS_APPLICATIONS = 'hasApplications'
 HAS_CLUSTERS = 'hasClusters'
 HAS_DATASOURCES = 'hasDatasources'
-HAS_HOST_APPLICATIONS = 'hasHostApplications'
 HAS_MODEL = 'hasModel'
-HOST_APPLICATION_APPLICATIONS = 'applications'
-HOST_APPLICATION_HOST = 'host'
-HOST_APPLICATION_PORT = 'port'
-HOST_APPLICATIONS = 'hostApplications'
 NAMESPACE = 'namespace'
 REPLICAS = 'replicas'
 RUNTIME_ENCRYPTION_SECRET = "runtimeEncryptionSecret"
@@ -254,73 +240,6 @@ def _build_template_hash(model, model_context, aliases, credential_injector, dom
 
     template_hash[DATASOURCES] = databases
     template_hash[HAS_DATASOURCES] = len(databases) != 0
-
-    # applications
-
-    apps = []
-
-    applications = dictionary_utils.get_dictionary_element(model.get_model_app_deployments(), APPLICATION)
-    for app_name in applications:
-        app_hash = dict()
-        prefix = '/' + app_name
-
-        # get the prefix from the app descriptor?
-
-        app_hash[APPLICATION_NAME] = app_name
-        app_hash[APPLICATION_PREFIX] = prefix
-
-        apps.append(app_hash)
-
-    template_hash[APPLICATIONS] = apps
-    template_hash[HAS_APPLICATIONS] = len(apps) != 0
-
-    # host applications - applications organized by host, for Verrazzano IngressTrait
-
-    app_map = {}
-    applications = dictionary_utils.get_dictionary_element(model.get_model_app_deployments(), APPLICATION)
-    for app_name in applications:
-        app_hash = dict()
-        app_hash[APPLICATION_NAME] = app_name
-        # this text is matched in crd_file_updater, be careful if changing
-        app_hash[APPLICATION_PREFIX] = '(path for ' + app_name + ')'
-
-        app_folder = dictionary_utils.get_dictionary_element(applications, app_name)
-        targets_value = dictionary_utils.get_dictionary_element(app_folder, TARGET)
-        targets = alias_utils.create_list(targets_value, 'WLSDPLY-01682')
-        for target in targets:
-            if target not in app_map:
-                app_map[target] = []
-            app_map[target].append(app_hash)
-
-    host_apps = []
-    target_keys = app_map.keys()
-    target_keys.sort()
-    for target_key in target_keys:
-        listen_port = DEFAULT_LISTEN_PORT
-        target_cluster = _find_cluster(model, target_key)
-        if target_cluster is not None:
-            full_host_name = k8s_helper.get_dns_name(domain_uid + '-cluster-' + target_key)
-            dynamic_servers = dictionary_utils.get_dictionary_element(target_cluster, DYNAMIC_SERVERS)
-            template_name = dictionary_utils.get_element(dynamic_servers, SERVER_TEMPLATE)
-            if template_name:
-                server_template = _find_server_template(model, template_name)
-                if server_template:
-                    listen_port = server_template[LISTEN_PORT] or listen_port
-        else:
-            full_host_name = k8s_helper.get_dns_name(domain_uid + '-' + target_key)
-            target_server = _find_server(model, target_key)
-            if target_server is not None:
-                listen_port = target_server[LISTEN_PORT] or listen_port
-
-        host_app = {
-            HOST_APPLICATION_HOST: full_host_name,
-            HOST_APPLICATION_PORT: str_helper.to_string(listen_port),
-            HOST_APPLICATION_APPLICATIONS: app_map[target_key]
-        }
-        host_apps.append(host_app)
-
-    template_hash[HOST_APPLICATIONS] = host_apps
-    template_hash[HAS_HOST_APPLICATIONS] = len(host_apps) != 0
 
     # additional secrets - exclude admin
 

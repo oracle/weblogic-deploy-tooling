@@ -51,7 +51,6 @@ The tooling has five top-level model sections:
 - `resources`      - The location where resources and services are specified (for example, data sources, JMS, WLDF).
 - `appDeployments` - The location where shared libraries and applications are specified.
 - `kubernetes`     - The location where the WebLogic Kubernetes Operator domain configuration is specified.
-- `verrazzano`     - The location where the Verrazzano WebLogic Workload component and application configuration is specified. **NOTE**: Verrazzano support is deprecated in WDT 4.0.0.
 
 #### Simple example
 Here is a simple example of a model to deploy an application and its data source:

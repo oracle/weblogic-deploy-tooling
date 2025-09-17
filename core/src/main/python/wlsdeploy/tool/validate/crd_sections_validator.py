@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2024, Oracle and/or its affiliates.
+Copyright (c) 2020, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -14,7 +14,7 @@ import wlsdeploy.util.unicode_helper as str_helper
 class CrdSectionsValidator(object):
     """
     Class for validating a CRD-based section of a model file.
-    This includes kubernetes and verrazzano sections.
+    This includes kubernetes sections.
     """
     _class_name = 'CrdSectionsValidator'
     _logger = PlatformLogger('wlsdeploy.validate')
