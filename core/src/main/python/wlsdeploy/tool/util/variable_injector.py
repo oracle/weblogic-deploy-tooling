@@ -317,7 +317,10 @@ class VariableInjector(object):
                     location.append_location(mbean)
                     name_token = self._aliases.get_name_token(location)
                     if not mbean_name_list:
-                        if self._aliases.supports_multiple_mbean_instances(location):
+                        if self._aliases.is_artificial_type_folder(location):
+                            pass  # do nothing, continue to tokenize attributes
+                        elif self._aliases.requires_artificial_type_subfolder_handling(location) or \
+                          self._aliases.supports_multiple_mbean_instances(location):
                             mbean_name_list = next_model_section
                         else:
                             self._check_name_token(location, name_token)
