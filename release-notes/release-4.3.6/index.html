@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="Hugo 0.82.0" />
-    <meta name="description" content="Compares two model files.">
+    <meta name="description" content="">
 
 
     <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
 
-    <title>Compare Model Tool :: WebLogic Deploy Tooling</title>
+    <title>Release 4.3.6 :: WebLogic Deploy Tooling</title>
 
     
     <link href="/weblogic-deploy-tooling/css/nucleus.css?1759181043" rel="stylesheet">
@@ -39,7 +39,7 @@
     </style>
     
   </head>
-  <body class="" data-url="/weblogic-deploy-tooling/userguide/tools/compare/">
+  <body class="" data-url="/weblogic-deploy-tooling/release-notes/release-4.3.6/">
     <nav id="sidebar" class="">
 
 
@@ -170,7 +170,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/" title="User Guide" class="dd-item
-        parent
+        
         
         
         ">
@@ -220,7 +220,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/" title="WDT Tools" class="dd-item
-        parent
+        
         
         
         ">
@@ -452,7 +452,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/compare/" title="Compare Model Tool" class="dd-item active">
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/compare/" title="Compare Model Tool" class="dd-item ">
         <a href="/weblogic-deploy-tooling/userguide/tools/compare/">
         Compare Model Tool
         
@@ -1329,7 +1329,7 @@
   
     
     <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
-        
+        parent
         
         
         ">
@@ -1355,7 +1355,7 @@
  
   
     
-      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.3.6/" title="Release 4.3.6" class="dd-item ">
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4.3.6/" title="Release 4.3.6" class="dd-item active">
         <a href="/weblogic-deploy-tooling/release-notes/release-4.3.6/">
         <b> </b>Release 4.3.6
         
@@ -2203,13 +2203,7 @@
             
           
           
-            
-            
-          
-          
-            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/userguide/'>User Guide</a> > <a href='/weblogic-deploy-tooling/userguide/tools/'>WDT Tools</a> > Compare Model Tool
-          
-        
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/release-notes/'>Release Notes</a> > Release 4.3.6
           
         
           
@@ -2226,9 +2220,7 @@
   <ul>
     <li>
       <ul>
-        <li></li>
-        <li><a href="#environment-variables">Environment variables</a></li>
-        <li><a href="#parameter-table-for-comparemodel">Parameter table for <code>compareModel</code></a></li>
+        <li><a href="#changes-in-release-436">Changes in Release 4.3.6</a></li>
       </ul>
     </li>
   </ul>
@@ -2248,320 +2240,44 @@
           
             <h1>
               
-              Compare Model Tool
+              Release 4.3.6
             </h1>
           
 
         
 
 
-<p>When working with domain models, sometimes it is useful to know the differences between different models.
-The Compare Model Tool compares two model files and generates a model that shows the differences between them.</p>
-<p>To use the Compare Model Tool, simply run the <code>compareModel</code> shell script with the correct arguments.  To see the list
-of valid arguments, simply run the shell script with the <code>-help</code> option (or with no arguments) for usage information.</p>
-<p>For example, comparing the following models.</p>
-<h4 id="new-model">New model</h4>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
-    <span style="color:#f92672">AdminUserName</span>: <span style="color:#ae81ff">weblogic</span>
-    <span style="color:#f92672">AdminPassword</span>: <span style="color:#ae81ff">welcome2</span>
-    <span style="color:#f92672">ServerStartMode</span>: <span style="color:#e6db74">&#39;prod&#39;</span>
-<span style="color:#f92672">topology</span>:
-    <span style="color:#f92672">Name</span>: <span style="color:#ae81ff">domain1</span>
-    <span style="color:#f92672">AdminServerName</span>: <span style="color:#ae81ff">admin-server</span>
-    <span style="color:#f92672">SecurityConfiguration</span>:
-        <span style="color:#f92672">NodeManagerUsername </span>: <span style="color:#ae81ff">weblogic</span>
-        <span style="color:#f92672">NodeManagerPasswordEncrypted </span>: <span style="color:#ae81ff">welcome1</span>
-    <span style="color:#f92672">Cluster</span>:
-        <span style="color:#f92672">cluster-1</span>:
-            <span style="color:#f92672">DynamicServers</span>:
-                <span style="color:#f92672">ServerTemplate</span>:  <span style="color:#ae81ff">cluster-1-template</span>
-                <span style="color:#f92672">ServerNamePrefix</span>: <span style="color:#ae81ff">managed-server</span>
-                <span style="color:#f92672">DynamicClusterSize</span>: <span style="color:#ae81ff">5</span>
-                <span style="color:#f92672">MaxDynamicClusterSize</span>: <span style="color:#ae81ff">5</span>
-                <span style="color:#f92672">CalculatedListenPorts</span>: <span style="color:#66d9ef">false</span>
-        <span style="color:#f92672">cluster-2</span>:
-            <span style="color:#f92672">DynamicServers</span>:
-                <span style="color:#f92672">ServerTemplate</span>:  <span style="color:#ae81ff">cluster-2-template</span>
-                <span style="color:#f92672">ServerNamePrefix</span>: <span style="color:#ae81ff">managed-server</span>
-                <span style="color:#f92672">DynamicClusterSize</span>: <span style="color:#ae81ff">2</span>
-                <span style="color:#f92672">MaxDynamicClusterSize</span>: <span style="color:#ae81ff">3</span>
-                <span style="color:#f92672">CalculatedListenPorts</span>: <span style="color:#66d9ef">false</span>
-    <span style="color:#f92672">Server</span>:
-        <span style="color:#f92672">admin-server</span>:
-            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">10011</span>
-    <span style="color:#f92672">ServerTemplate</span>:
-        <span style="color:#f92672">cluster-1-template</span>:
-            <span style="color:#f92672">Cluster</span>: <span style="color:#ae81ff">cluster-1</span>
-            <span style="color:#f92672">ListenPort </span>: <span style="color:#ae81ff">5001</span>
-            <span style="color:#f92672">JTAMigratableTarget</span>:
-                    <span style="color:#f92672">StrictOwnershipCheck</span>: <span style="color:#66d9ef">true</span>
-                    <span style="color:#f92672">Cluster</span>: <span style="color:#ae81ff">cluster-1</span>
-        <span style="color:#f92672">cluster-2-template</span>:
-            <span style="color:#f92672">Cluster</span>: <span style="color:#ae81ff">cluster-2</span>
-            <span style="color:#f92672">ListenPort </span>: <span style="color:#ae81ff">8001</span>
-            <span style="color:#f92672">ServerStart</span>:
-                    <span style="color:#f92672">Arguments</span>: [<span style="color:#e6db74">&#39;-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=6006&#39;</span>]
-            <span style="color:#f92672">JTAMigratableTarget</span>:
-                    <span style="color:#f92672">StrictOwnershipCheck</span>: <span style="color:#66d9ef">true</span>
-                    <span style="color:#f92672">Cluster</span>: <span style="color:#ae81ff">cluster-2</span>
-<span style="color:#f92672">appDeployments</span>:
-     <span style="color:#f92672">Application</span>:
-         <span style="color:#f92672">myear</span>:
-             <span style="color:#f92672">SourcePath</span>: <span style="color:#ae81ff">/home/johnny/dimtemp23/sample_app_stage/wlsdeploy/applications/sample_app.ear</span>
-             <span style="color:#f92672">Target</span>: [<span style="color:#ae81ff">cluster-2,cluster-1]</span>
-         <span style="color:#f92672">yourear</span>:
-             <span style="color:#f92672">SourcePath</span>: <span style="color:#ae81ff">/home/johnny/dimtemp23/sample_app_stage/wlsdeploy/applications/sample_app2.ear</span>
-             <span style="color:#f92672">ModuleType</span>: <span style="color:#ae81ff">ear</span>
-             <span style="color:#f92672">Target</span>: [<span style="color:#ae81ff">cluster-2,cluster-1]</span>
-<span style="color:#f92672">resources</span>:
-    <span style="color:#f92672">JMSServer</span>:
-        <span style="color:#f92672">JMSServer1</span>:
-            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">m1</span>
-        <span style="color:#f92672">JMSServer2</span>:
-            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">m2</span>
-    <span style="color:#f92672">JMSSystemResource</span>:
-        <span style="color:#f92672">MyJmsModule</span>:
-            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">mycluster</span>
-            <span style="color:#f92672">SubDeployment</span>:
-                <span style="color:#f92672">JMSServer1Subdeployment</span>:
-                    <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">JMSServer1</span>
-                <span style="color:#f92672">JMSServer2Subdeployment</span>:
-                    <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">JMSServer2</span>
-            <span style="color:#f92672">JmsResource</span>:
-                <span style="color:#f92672">ConnectionFactory</span>:
-                    <span style="color:#f92672">WebAppConnectionFactory</span>:
-                        <span style="color:#f92672">DefaultTargetingEnabled</span>: <span style="color:#66d9ef">true</span>
-                        <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">jms/WebCF</span>
-                        <span style="color:#f92672">ClientParams</span>:
-                            <span style="color:#f92672">AllowCloseInOnMessage</span>: <span style="color:#66d9ef">true</span>
-                            <span style="color:#f92672">MessagesMaximum</span>: <span style="color:#ae81ff">1</span>
-                        <span style="color:#f92672">DefaultDeliveryParams</span>:
-                            <span style="color:#f92672">DefaultTimeToDeliver</span>: <span style="color:#ae81ff">3</span>
-                            <span style="color:#f92672">DefaultTimeToLive</span>: <span style="color:#ae81ff">3600</span>
-                        <span style="color:#f92672">FlowControlParams</span>:
-                            <span style="color:#f92672">FlowControlEnabled</span>: <span style="color:#66d9ef">false</span>
-                        <span style="color:#f92672">LoadBalancingParams</span>:
-                            <span style="color:#f92672">LoadBalancingEnabled</span>: <span style="color:#66d9ef">false</span>
-                        <span style="color:#f92672">SecurityParams</span>:
-                            <span style="color:#f92672">AttachJMSXUserId</span>: <span style="color:#66d9ef">true</span>
-                        <span style="color:#f92672">TransactionParams</span>:
-                            <span style="color:#f92672">XAConnectionFactoryEnabled</span>: <span style="color:#66d9ef">true</span>
-                <span style="color:#f92672">UniformDistributedQueue</span>:
-                    <span style="color:#f92672">MyUniformDistributedQueue</span>:
-                        <span style="color:#f92672">DefaultTargetingEnabled</span>: <span style="color:#66d9ef">true</span>
-                        <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">jms/myUDQ</span>
-</code></pre></div><h4 id="old-model">Old model</h4>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">domainInfo</span>:
-    <span style="color:#f92672">AdminUserName</span>: <span style="color:#ae81ff">weblogic</span>
-    <span style="color:#f92672">AdminPassword</span>: <span style="color:#ae81ff">welcome2</span>
-    <span style="color:#f92672">ServerStartMode</span>: <span style="color:#ae81ff">prod</span>
-<span style="color:#f92672">topology</span>:
-    <span style="color:#f92672">Name</span>: <span style="color:#ae81ff">domain1</span>
-    <span style="color:#f92672">AdminServerName</span>: <span style="color:#ae81ff">admin-server</span>
-    <span style="color:#f92672">SecurityConfiguration</span>:
-        <span style="color:#f92672">NodeManagerUsername </span>: <span style="color:#ae81ff">weblogic</span>
-        <span style="color:#f92672">NodeManagerPasswordEncrypted </span>: <span style="color:#ae81ff">welcome1</span>
-    <span style="color:#f92672">Cluster</span>:
-        <span style="color:#f92672">cluster-1</span>:
-            <span style="color:#f92672">DynamicServers</span>:
-                <span style="color:#f92672">ServerTemplate</span>:  <span style="color:#ae81ff">cluster-1-template</span>
-                <span style="color:#f92672">ServerNamePrefix</span>: <span style="color:#ae81ff">managed-server</span>
-                <span style="color:#f92672">DynamicClusterSize</span>: <span style="color:#ae81ff">5</span>
-                <span style="color:#f92672">MaxDynamicClusterSize</span>: <span style="color:#ae81ff">5</span>
-                <span style="color:#f92672">CalculatedListenPorts</span>: <span style="color:#66d9ef">false</span>
-    <span style="color:#f92672">Server</span>:
-        <span style="color:#f92672">admin-server</span>:
-            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">10011</span>
-    <span style="color:#f92672">ServerTemplate</span>:
-        <span style="color:#f92672">cluster-1-template</span>:
-            <span style="color:#f92672">Cluster</span>: <span style="color:#ae81ff">cluster-1</span>
-            <span style="color:#f92672">ListenPort </span>: <span style="color:#ae81ff">5001</span>
-            <span style="color:#f92672">ServerStart</span>:
-                    <span style="color:#f92672">Arguments</span>: [<span style="color:#e6db74">&#39;-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=6006&#39;</span>]
-            <span style="color:#f92672">JTAMigratableTarget</span>:
-                    <span style="color:#f92672">StrictOwnershipCheck</span>: <span style="color:#66d9ef">true</span>
-                    <span style="color:#f92672">Cluster</span>: <span style="color:#ae81ff">cluster-1</span>
-<span style="color:#f92672">appDeployments</span>:
-     <span style="color:#f92672">Application</span>:
-         <span style="color:#f92672">myear</span>:
-             <span style="color:#f92672">SourcePath</span>: <span style="color:#ae81ff">/home/johnny/dimtemp23/sample_app_stage/wlsdeploy/applications/sample_app.ear</span>
-             <span style="color:#f92672">ModuleType</span>: <span style="color:#ae81ff">ear</span>
-             <span style="color:#f92672">Target</span>: [<span style="color:#ae81ff">cluster-1,cluster-2]</span>
-         <span style="color:#f92672">myear2</span>:
-             <span style="color:#f92672">SourcePath</span>: <span style="color:#ae81ff">/home/johnny/dimtemp23/sample_app_stage/wlsdeploy/applications/sample_app2.ear</span>
-             <span style="color:#f92672">ModuleType</span>: <span style="color:#ae81ff">ear</span>
-             <span style="color:#f92672">Target</span>: [<span style="color:#ae81ff">cluster-1,cluster-2]</span>
-<span style="color:#f92672">resources</span>:
-    <span style="color:#f92672">WebAppContainer</span>:
-        <span style="color:#f92672">WAPEnabled</span>: <span style="color:#e6db74">&#39;@@PROP:WAPENABLED@@&#39;</span>
-        <span style="color:#f92672">FilterDispatchedRequestsEnabled</span>: <span style="color:#66d9ef">true</span>
-        <span style="color:#f92672">AllowAllRoles</span>: <span style="color:#66d9ef">true</span>
-        <span style="color:#f92672">XPoweredByHeaderLevel</span>: <span style="color:#ae81ff">NONE</span>
-        <span style="color:#f92672">ServletAuthenticationFormURL</span>: <span style="color:#66d9ef">true</span>
-        <span style="color:#f92672">ServletReloadCheckSecs</span>: <span style="color:#ae81ff">1</span>
-        <span style="color:#f92672">ChangeSessionIDOnAuthentication</span>: <span style="color:#66d9ef">true</span>
-        <span style="color:#f92672">MimeMappingFile</span>: <span style="color:#ae81ff">wlsdeploy/config/amimemappings.properties</span>
-        <span style="color:#f92672">AuthCookieEnabled</span>: <span style="color:#66d9ef">true</span>
-        <span style="color:#f92672">WorkContextPropagationEnabled</span>: <span style="color:#66d9ef">true</span>
-        <span style="color:#f92672">ReloginEnabled</span>: <span style="color:#66d9ef">true</span>
-        <span style="color:#f92672">GzipCompression</span>:
-            <span style="color:#f92672">GzipCompressionContentType</span>: [ <span style="color:#ae81ff">text/html, text/xml, text/plain ]</span>
-            <span style="color:#f92672">GzipCompressionEnabled</span>: <span style="color:#66d9ef">true</span>
-    <span style="color:#f92672">JMSServer</span>:
-        <span style="color:#f92672">JMSServer1</span>:
-            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">m1</span>
-        <span style="color:#f92672">JMSServer2</span>:
-            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">m2</span>
-    <span style="color:#f92672">JMSSystemResource</span>:
-        <span style="color:#f92672">MyJmsModule</span>:
-            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">mycluster</span>
-            <span style="color:#f92672">SubDeployment</span>:
-                <span style="color:#f92672">JMSServer1Subdeployment</span>:
-                    <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">JMSServer1</span>
-                <span style="color:#f92672">JMSServer2Subdeployment</span>:
-                    <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">JMSServer2</span>
-            <span style="color:#f92672">JmsResource</span>:
-                <span style="color:#f92672">ConnectionFactory</span>:
-                    <span style="color:#f92672">WebAppConnectionFactory</span>:
-                        <span style="color:#f92672">DefaultTargetingEnabled</span>: <span style="color:#66d9ef">true</span>
-                        <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">jms/WebCF</span>
-                        <span style="color:#f92672">ClientParams</span>:
-                            <span style="color:#f92672">AllowCloseInOnMessage</span>: <span style="color:#66d9ef">true</span>
-                            <span style="color:#f92672">MessagesMaximum</span>: <span style="color:#ae81ff">1</span>
-                        <span style="color:#f92672">DefaultDeliveryParams</span>:
-                            <span style="color:#f92672">DefaultTimeToDeliver</span>: <span style="color:#ae81ff">3</span>
-                            <span style="color:#f92672">DefaultTimeToLive</span>: <span style="color:#ae81ff">3600</span>
-                        <span style="color:#f92672">FlowControlParams</span>:
-                            <span style="color:#f92672">FlowControlEnabled</span>: <span style="color:#66d9ef">false</span>
-                        <span style="color:#f92672">LoadBalancingParams</span>:
-                            <span style="color:#f92672">LoadBalancingEnabled</span>: <span style="color:#66d9ef">false</span>
-                        <span style="color:#f92672">SecurityParams</span>:
-                            <span style="color:#f92672">AttachJMSXUserId</span>: <span style="color:#66d9ef">true</span>
-                        <span style="color:#f92672">TransactionParams</span>:
-                            <span style="color:#f92672">XAConnectionFactoryEnabled</span>: <span style="color:#66d9ef">true</span>
-                    <span style="color:#f92672">MDBConnectionFactory</span>:
-                        <span style="color:#f92672">DefaultTargetingEnabled</span>: <span style="color:#66d9ef">true</span>
-                        <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">jms/mdbCF</span>
-                        <span style="color:#f92672">TransactionParams</span>:
-                            <span style="color:#f92672">XAConnectionFactoryEnabled</span>: <span style="color:#66d9ef">true</span>
-                <span style="color:#f92672">UniformDistributedQueue</span>:
-                    <span style="color:#f92672">MyUniformDistributedQueue</span>:
-                        <span style="color:#f92672">DefaultTargetingEnabled</span>: <span style="color:#66d9ef">true</span>
-                        <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">jms/myUDQ</span>
-                        <span style="color:#f92672">ResetDeliveryCountOnForward</span>: <span style="color:#66d9ef">true</span>
-</code></pre></div><p>To compare the two model files, run the tool as follows:</p>
-<pre><code>$ weblogic-deploy\bin\compareModel.cmd -oracle_home c:\wls12213 new_model.yaml old_model.yaml
-</code></pre>
-<p>The output of the tool will look something like this:</p>
-<p>Comparing Models: new=/tmp/model2.yaml vs old=/tmp/model1.yaml</p>
-<p>Differences between new model and old model:</p>
-<pre><code>resources:
-    JMSSystemResource:
-        MyJmsModule:
-            JmsResource:
-                ConnectionFactory:
-                    '!MDBConnectionFactory':
-    '!WebAppContainer':
-appDeployments:
-    Application:
-        '!myear2':
-        yourear:
-            SourcePath: /home/johnny/dimtemp23/sample_app_stage/wlsdeploy/applications/sample_app2.ear
-            ModuleType: ear
-            Target: [ cluster-2, cluster-1 ]
-        myear:
-            Target: [ cluster-2, cluster-1 ]
-topology:
-    ServerTemplate:
-        cluster-1-template:
-            '!ServerStart':
-        cluster-2-template:
-            Cluster: cluster-2
-            ListenPort: 8001
-            ServerStart:
-                Arguments: [ '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=6006' ]
-            JTAMigratableTarget:
-                StrictOwnershipCheck: True
-                Cluster: cluster-2
-    Cluster:
-        cluster-2:
-            DynamicServers:
-                ServerTemplate: cluster-2-template
-                ServerNamePrefix: managed-server
-                DynamicClusterSize: 2
-                MaxDynamicClusterSize: 3
-                CalculatedListenPorts: False
-</code></pre><ol>
-<li>
-<p>Model Path: resources&ndash;&gt;JMSSystemResource&ndash;&gt;MyJmsModule&ndash;&gt;JmsResource&ndash;&gt;UniformDistributedQueue&ndash;&gt;MyUniformDistributedQueue&ndash;&gt;ResetDeliveryCountOnForward does not exist in new model but exists in previous model</p>
-</li>
-<li>
-<p>Model Path: appDeployments&ndash;&gt;Application&ndash;&gt;myear&ndash;&gt;ModuleType does not exist in new model but exists in previous model</p>
-</li>
-</ol>
-<p>Comparing the new and old models:</p>
-<ol>
-<li>Added <code>cluster-2</code> and <code>cluster-2-template</code> in the <code>topology</code> section.</li>
-<li>Removed <code>ServerStart</code> of <code>cluster-1-template</code> in the <code>topology</code> section.</li>
-<li>Deployed two applications <code>yourear</code> and <code>myear</code> in the <code>appDeployments</code> section.</li>
-<li>Removed application <code>myear</code> in the <code>appDeployments</code> section.</li>
-<li>Removed <code>MDBConnectionFactory</code> from the <code>MyJmsModule</code> JMS Module in the <code>resource</code> section.</li>
-<li>Removed <code>WebAppContainer</code> in the <code>resource</code> section.</li>
-<li>Removed the attribute <code>ResetDeliveryCountOnForward</code> from <code>MyUniformDistributedQueue</code>.</li>
-<li>Changed deployment targets for application <code>myear</code>.</li>
-<li>Removed the attribute &lsquo;ModuleType&rsquo; for application <code>myear</code>.</li>
-</ol>
-
-<div class="notices note" ><p>The <code>!</code> is a notation for the deletion of a non-attribute key element from the model. Missing attributes
-will be omitted from the resulting model, but shown as messages in the output.  If the attribute value is a list, even
-if all the individual items within the list are identical but the ordering is different, the attribute is counted as
-different.</p>
-</div>
-
-<p>To compare the two model files and generate the output to files, run the tool as follows:</p>
-<pre><code>$ weblogic-deploy\bin\compareModel.cmd -oracle_home c:\wls12213 -output_dir c:\cm-output new_model.yaml old_model.yaml
-
-The following files will be written to the directory:
-
-diffed_model.json
-diffed_model.yaml
-compare_model_stdout
-</code></pre>
-<h3 id="environment-variables">Environment variables</h3>
-<p>The following environment variables may be set.</p>
+<h3 id="changes-in-release-436">Changes in Release 4.3.6</h3>
 <ul>
-<li><code>JAVA_HOME</code>             The location of the JDK. This must be a valid Java 7 or later JDK.</li>
-<li><code>WLSDEPLOY_PROPERTIES</code>  System properties that will be passed to Java.</li>
+<li><a href="#major-new-features">Major New Features</a></li>
+<li><a href="#other-changes">Other Changes</a></li>
+<li><a href="#bug-fixes">Bugs Fixes</a></li>
+<li><a href="#known-issues">Known Issues</a></li>
 </ul>
-<p>Since the Compare Model Tool uses Jython directly without using WLST, the <code>JAVA_HOME</code> will be the JDK used to execute
-the command (unlike other tools that use WLST).</p>
-<h3 id="parameter-table-for-comparemodel">Parameter table for <code>compareModel</code></h3>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Definition</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>-oracle_home</code></td>
-<td>Home directory of the Oracle installation. Required if the <code>ORACLE_HOME</code> environment variable is not set.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-output_dir</code></td>
-<td>(Required) Directory in which to store the output.</td>
-<td></td>
-</tr>
-<tr>
-<td><code>-variable_file</code></td>
-<td>Variable file used for token substitution.</td>
-<td></td>
-</tr>
-</tbody>
-</table>
+<h4 id="major-new-features">Major New Features</h4>
+<p>None</p>
+<h4 id="other-changes">Other Changes</h4>
+<p>None</p>
+<h4 id="bug-fixes">Bug Fixes</h4>
+<ul>
+<li>#1806 - Reverted SnakeYAML to version 2.3 to restore JDK 7 support.</li>
+</ul>
+<h4 id="known-issues">Known Issues</h4>
+<ul>
+<li>
+<p>SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
+the 12.2.1.4.0 GA release fails with the following error, as mentioned at <a href="https://github.com/hierynomus/sshj/issues/895">https://github.com/hierynomus/sshj/issues/895</a>.
+Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">SEVERE Messages:
+        1. WLSDPLY-20008: verifySSH argument processing failed: Failed to initialize SSH context: Failed to SSH connect to host myhost.oracle.com: no such algorithm: X25519 <span style="color:#66d9ef">for</span> provider BC
+</code></pre></div></li>
+<li>
+<p>SSH support for the Update Domain Tool and Deploy Apps Tool does not work when using an archive file and the remote
+WebLogic Server is running on Windows using the optional, Windows-provided, OpenSSH component.  This is due to an
+issue with the SSHJ library WDT is using.  See <a href="https://github.com/hierynomus/sshj/issues/929">https://github.com/hierynomus/sshj/issues/929</a> for more information.</p>
+</li>
+</ul>
+<p>See <a href="https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/">https://oracle.github.io/weblogic-deploy-tooling/userguide/limitations/limitations/</a> for the current set of known limitations.</p>
 
 
 <footer class="footline">
@@ -2650,7 +2366,6 @@ the command (unlike other tools that use WLST).</p>
             
                 
                     
-                    
                 
                 
 
@@ -2665,9 +2380,6 @@ the command (unlike other tools that use WLST).</p>
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2685,7 +2397,6 @@ the command (unlike other tools that use WLST).</p>
             
                 
                     
-                    
                 
                 
 
@@ -2700,9 +2411,6 @@ the command (unlike other tools that use WLST).</p>
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -2848,7 +2556,6 @@ the command (unlike other tools that use WLST).</p>
             
                 
                     
-                    
                 
                 
 
@@ -2864,9 +2571,6 @@ the command (unlike other tools that use WLST).</p>
             
             
                 
-                    
-                        
-                        
                     
                 
                 
@@ -3482,6 +3186,7 @@ the command (unlike other tools that use WLST).</p>
             
                 
                     
+                    
                 
                 
 
@@ -3494,6 +3199,7 @@ the command (unlike other tools that use WLST).</p>
             
             
                 
+                    
                     
                 
                 
@@ -3510,6 +3216,9 @@ the command (unlike other tools that use WLST).</p>
             
             
                 
+                    
+                        
+                        
                     
                 
                 
@@ -4110,10 +3819,10 @@ the command (unlike other tools that use WLST).</p>
 	 
 	 
 		
-			<a class="nav nav-prev" href="/weblogic-deploy-tooling/userguide/tools/validate/" title="Validate Model Tool"> <i class="fa fa-chevron-left"></i></a>
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/release-notes/" title="Release Notes"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/tools/prepare/" title="Prepare Model Tool" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/release-notes/release-4.3.5/" title="Release 4.3.5" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>

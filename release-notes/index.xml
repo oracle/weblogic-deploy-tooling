@@ -8,6 +8,17 @@
     <language>en-us</language>
     <lastBuildDate>Tue, 09 Jan 2024 18:27:38 -0500</lastBuildDate><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Release 4.3.6</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.3.6/</link>
+      <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.3.6/</guid>
+      <description>Changes in Release 4.3.6  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes None
+Bug Fixes  #1806 - Reverted SnakeYAML to version 2.3 to restore JDK 7 support.  Known Issues   SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.</description>
+    </item>
+    
+    <item>
       <title>Release 4.3.5</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.3.5/</link>
       <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>
