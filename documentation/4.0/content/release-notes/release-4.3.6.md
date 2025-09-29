@@ -1,12 +1,12 @@
 +++
-title = "Release Notes"
+title = "Release 4.3.6"
 date = 2024-01-09T18:27:38-05:00
-weight = 61
+weight = 62
 pre = "<b> </b>"
 +++
 
 
-### Changes in Release 4.3.7
+### Changes in Release 4.3.6
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -17,15 +17,10 @@ pre = "<b> </b>"
 None
 
 #### Other Changes
-- #1816 - Added support for 12.2.1.4, 14.1.1, and 14.1.2 July 2025 PSUs.
-- #1826 - Improved support for DBClientData directories by adding model support.
-- #1827 - Removed Verrazzano support that was deprecated in 4.0.0.
-- Various - Added support for 15.1.1 GA release.
+None
 
 #### Bug Fixes
-- #1811 - Fixed an issue to allow support for null default values for attributes during discovery
-- #1830 - Fixed 12.2.1.3 alias values for OracleIdentityCloudIntegrator
-- #1831 - Fixed variable injection for security providers
+- #1806 - Reverted SnakeYAML to version 2.3 to restore JDK 7 support.
 
 #### Known Issues
 - SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
