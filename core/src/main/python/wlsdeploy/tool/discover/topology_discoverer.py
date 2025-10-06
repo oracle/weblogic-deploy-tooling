@@ -805,6 +805,10 @@ class TopologyDiscoverer(Discoverer):
             if classpath_entries:
                 classpath_list = []
                 for classpath_entry in classpath_entries:
+                    if classpath_entry is None or len(classpath_entry) == 0:
+                        _logger.fine('WLSDPLY-06626')
+                        continue
+
                     classpath_entry = self._model_context.replace_token_string(classpath_entry)
                     new_source_name = self._add_library(server_name, classpath_entry)
                     if new_source_name is not None:
@@ -831,6 +835,11 @@ class TopologyDiscoverer(Discoverer):
         _method_name = '_add_library'
         _logger.entering(server_name, classpath_name, class_name=_class_name, method_name=_method_name)
         return_name = classpath_name
+
+        if classpath_name is None or len(classpath_name) == 0:
+            _logger.fine('WLSDPLY-06626')
+            return None
+
         if self._is_file_to_exclude_from_archive(classpath_name):
             _logger.info('WLSDPLY-06618', classpath_name, server_name, class_name=_class_name, method_name=_method_name)
             return_name = self._model_context.tokenize_path(classpath_name)
