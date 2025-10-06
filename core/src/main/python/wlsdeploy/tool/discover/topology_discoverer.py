@@ -838,9 +838,8 @@ class TopologyDiscoverer(Discoverer):
 
         if classpath_name is None or len(classpath_name) == 0:
             _logger.fine('WLSDPLY-06626')
-            return None
-
-        if self._is_file_to_exclude_from_archive(classpath_name):
+            return_name = None
+        elif self._is_file_to_exclude_from_archive(classpath_name):
             _logger.info('WLSDPLY-06618', classpath_name, server_name, class_name=_class_name, method_name=_method_name)
             return_name = self._model_context.tokenize_path(classpath_name)
         else:
