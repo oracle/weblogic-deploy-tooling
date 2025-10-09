@@ -1632,7 +1632,7 @@ class Aliases(object):
         key = folders[-1]
 
         name = None
-        if self.supports_multiple_mbean_instances(location):
+        if (not self.is_artificial_type_folder(location)) and self.supports_multiple_mbean_instances(location):
             token = self.get_name_token(location)
             if token is not None:
                 name = location.get_name_for_token(token)
