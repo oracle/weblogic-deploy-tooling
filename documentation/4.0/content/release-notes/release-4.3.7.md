@@ -1,12 +1,12 @@
 +++
-title = "Release Notes"
+title = "Release 4.3.7"
 date = 2024-01-09T18:27:38-05:00
-weight = 60
+weight = 61
 pre = "<b> </b>"
 +++
 
 
-### Changes in Release 4.3.8
+### Changes in Release 4.3.7
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -17,11 +17,15 @@ pre = "<b> </b>"
 None
 
 #### Other Changes
-None
+- #1816 - Added support for 12.2.1.4, 14.1.1, and 14.1.2 July 2025 PSUs.
+- #1826 - Improved support for DBClientData directories by adding model support.
+- #1827 - Removed Verrazzano support that was deprecated in 4.0.0.
+- Various - Added support for 15.1.1 GA release.
 
 #### Bug Fixes
-- #1833 - Fixed an issue with CLASSPATH handling where empty elements were present that caused Discover Domain to fail.
-- #1834 - Fixed an issue with security provider handling that was causing Create Domain to fail.
+- #1811 - Fixed an issue to allow support for null default values for attributes during discovery
+- #1830 - Fixed 12.2.1.3 alias values for OracleIdentityCloudIntegrator
+- #1831 - Fixed variable injection for security providers
 
 #### Known Issues
 - SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
