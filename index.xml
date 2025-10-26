@@ -483,6 +483,16 @@ Public/private key authentication To verify SSH connectivity using a user&amp;rs
     </item>
     
     <item>
+      <title>Release 4.3.7</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.3.7/</link>
+      <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>
+      
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.3.7/</guid>
+      <description>Changes in Release 4.3.7  Major New Features Other Changes Bugs Fixes Known Issues  Major New Features None
+Other Changes  #1816 - Added support for 12.2.1.4, 14.1.1, and 14.1.2 July 2025 PSUs. #1826 - Improved support for DBClientData directories by adding model support. #1827 - Removed Verrazzano support that was deprecated in 4.0.0. Various - Added support for 15.1.1 GA release.  Bug Fixes  #1811 - Fixed an issue to allow support for null default values for attributes during discovery #1830 - Fixed 12.</description>
+    </item>
+    
+    <item>
       <title>Release 4.3.6</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.3.6/</link>
       <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>
