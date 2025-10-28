@@ -75,11 +75,11 @@ class TopologyUpdater(Deployer):
         self._topology_helper.check_coherence_cluster_references(type_name, model_nodes)
         # continue with regular processing
 
-        Deployer._add_named_elements(self, type_name, model_nodes, location, delete_now)
+        Deployer._add_named_elements(self, type_name, model_nodes, location, delete_now=delete_now)
 
     # Override
-    def _add_model_elements(self, type_name, model_nodes, location):
-        Deployer._add_model_elements(self, type_name, model_nodes, location)
+    def _add_model_elements(self, type_name, model_nodes, location, delete_now=True):
+        Deployer._add_model_elements(self, type_name, model_nodes, location, delete_now=delete_now)
 
         # check for file paths that need to be qualified
         self._topology_helper.qualify_nm_properties(type_name, model_nodes, location, self.model_context,
@@ -237,9 +237,9 @@ class TopologyUpdater(Deployer):
             nodes = dictionary_utils.get_dictionary_element(folder_dict, key)
             sub_location = LocationContext(location).append_location(key)
             if self.aliases.supports_multiple_mbean_instances(sub_location):
-                self._add_named_elements(key, nodes, location, delete_now)
+                self._add_named_elements(key, nodes, location, delete_now=delete_now)
             else:
-                self._add_model_elements(key, nodes, location)
+                self._add_model_elements(key, nodes, location, delete_now=delete_now)
 
         if key in folder_list:
             folder_list.remove(key)

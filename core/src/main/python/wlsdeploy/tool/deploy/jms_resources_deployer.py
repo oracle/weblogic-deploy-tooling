@@ -96,7 +96,7 @@ class JmsResourcesDeployer(Deployer):
         Deployer._add_named_elements(self, type_name, model_nodes, location, delete_now)
 
     # Override
-    def _add_model_elements(self, type_name, model_nodes, location):
+    def _add_model_elements(self, type_name, model_nodes, location, delete_now=True):
         """
         Override the base method for these special cases:
         1) JMS resources must be deployed in specific order.
@@ -106,7 +106,7 @@ class JmsResourcesDeployer(Deployer):
             self._add_jms_resources(model_nodes, location)
             return
 
-        Deployer._add_model_elements(self, type_name, model_nodes, location)
+        Deployer._add_model_elements(self, type_name, model_nodes, location, delete_now=delete_now)
 
     def _add_jms_resources(self, resource_nodes, location):
         """

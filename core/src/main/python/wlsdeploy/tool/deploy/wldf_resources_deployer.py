@@ -30,7 +30,7 @@ class WldfResourcesDeployer(Deployer):
         self._add_named_elements(WLDF_SYSTEM_RESOURCE, wldf_resources, location)
 
     # Override
-    def _add_subfolders(self, model_nodes, location, excludes=None):
+    def _add_subfolders(self, model_nodes, location, excludes=None, delete_now=True):
         """
         Override the base method for sub-folders of watch notification.
         The watch sub-folder must be processed last.
@@ -38,12 +38,12 @@ class WldfResourcesDeployer(Deployer):
         parent_type = self.get_location_type(location)
         if parent_type == WATCH_NOTIFICATION:
             # add all sub-folders except watch
-            Deployer._add_subfolders(self, model_nodes, location, excludes=[WATCH])
+            Deployer._add_subfolders(self, model_nodes, location, excludes=[WATCH], delete_now=delete_now)
 
             # add the watch sub-folder last
             watch_nodes = dictionary_utils.get_dictionary_element(model_nodes, WATCH)
-            self._add_named_elements(WATCH, watch_nodes, location)
+            self._add_named_elements(WATCH, watch_nodes, location, delete_now=delete_now)
             return
 
-        Deployer._add_subfolders(self, model_nodes, location, excludes=excludes)
+        Deployer._add_subfolders(self, model_nodes, location, excludes=excludes, delete_now=delete_now)
         return

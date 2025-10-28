@@ -51,7 +51,7 @@ class CommonResourcesDeployer(Deployer):
         self._resources = self.model.get_model_resources()
 
     # Override
-    def _add_subfolders(self, model_nodes, location, excludes=None):
+    def _add_subfolders(self, model_nodes, location, excludes=None, delete_now=True):
         """
         Override the base method for sub-folders of self-tuning.
         The work manager sub-folder must be processed last.
@@ -59,14 +59,14 @@ class CommonResourcesDeployer(Deployer):
         parent_type = self.get_location_type(location)
         if parent_type == SELF_TUNING:
             # add all sub-folders except work manager
-            Deployer._add_subfolders(self, model_nodes, location, excludes=[WORK_MANAGER])
+            Deployer._add_subfolders(self, model_nodes, location, excludes=[WORK_MANAGER], delete_now=delete_now)
 
             # add the work manager sub-folder last
             watch_nodes = dictionary_utils.get_dictionary_element(model_nodes, WORK_MANAGER)
-            self._add_named_elements(WORK_MANAGER, watch_nodes, location)
+            self._add_named_elements(WORK_MANAGER, watch_nodes, location, delete_now=delete_now)
             return
 
-        Deployer._add_subfolders(self, model_nodes, location, excludes=excludes)
+        Deployer._add_subfolders(self, model_nodes, location, excludes=excludes, delete_now=delete_now)
 
     # Override
     def _create_and_cd(self, location, existing_names, child_nodes):
