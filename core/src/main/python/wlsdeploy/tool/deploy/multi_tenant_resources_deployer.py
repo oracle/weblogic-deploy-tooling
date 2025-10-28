@@ -44,13 +44,14 @@ class MultiTenantResourcesDeployer(Deployer):
         self._add_partitions(location)
 
     # Override
-    def _add_subfolders(self, model_nodes, location, excludes=None):
+    def _add_subfolders(self, model_nodes, location, excludes=None, delete_now=True):
         """
         Override the base method for sub-folders of resource group and template.
         Those sub-folders must be processed in a specific order, some with special processing.
         :param model_nodes: the child nodes of a model element
         :param location: the location where sub-folders should be added
         :param excludes: optional list of sub-folder names to be excluded from processing
+        :param delete_now: Flag to determine if deletes are processed immediately or delayed
         """
         parent_type = self.get_location_type(location)
         is_in = (parent_type == RESOURCE_GROUP) or (parent_type == RESOURCE_GROUP_TEMPLATE)
@@ -58,25 +59,26 @@ class MultiTenantResourcesDeployer(Deployer):
             self._add_resource_group_resources(model_nodes, location)
             return
 
-        Deployer._add_subfolders(self, model_nodes, location, excludes=excludes)
+        Deployer._add_subfolders(self, model_nodes, location, excludes=excludes, delete_now=delete_now)
 
     # Override
-    def _set_attributes_and_add_subfolders(self, location, model_nodes):
+    def _set_attributes_and_add_subfolders(self, location, model_nodes, delete_now=True):
         """
         Override the base method for attributes and sub-folders of partition.
         Process sub-folders first to allow attributes to reference partition work manager and resource manager.
         :param location: the location of the attributes and sub-folders
         :param model_nodes: a map of model nodes including attributes and sub-folders
+        :param delete_now: Flag to determine if deletes are processed immediately or delayed
         :raise: DeployException: if an error condition is encountered
         """
         parent_type = self.get_location_type(location)
         if parent_type == PARTITION:
-            self._add_subfolders(model_nodes, location)
+            self._add_subfolders(model_nodes, location, delete_now=delete_now)
             self.wlst_helper.cd(self.aliases.get_wlst_attributes_path(location))
             self.set_attributes(location, model_nodes)
             return
 
-        Deployer._set_attributes_and_add_subfolders(self, location, model_nodes)
+        Deployer._set_attributes_and_add_subfolders(self, location, model_nodes, delete_now=delete_now)
 
     def _add_partitions(self, location):
         partitions = dictionary_utils.get_dictionary_element(self._resources, PARTITION)

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from array import array
@@ -117,7 +117,7 @@ class Deployer(object):
 
             child_nodes = dictionary_utils.get_dictionary_element(model_nodes, name)
             self._create_and_cd(location, existing_names, child_nodes)
-            self._set_attributes_and_add_subfolders(location, child_nodes)
+            self._set_attributes_and_add_subfolders(location, child_nodes, delete_now=delete_now)
 
     #
     # This method exists purely to allow subclasses to override how an mbean is created.
@@ -125,12 +125,13 @@ class Deployer(object):
     def _create_and_cd(self, location, existing_names, child_nodes):
         deployer_utils.create_and_cd(location, existing_names, self.aliases)
 
-    def _add_subfolders(self, model_nodes, location, excludes=None):
+    def _add_subfolders(self, model_nodes, location, excludes=None, delete_now=True):
         """
         Add each model sub-folder from the specified nodes and set its attributes.
         :param model_nodes: the child nodes of a model element
         :param location: the location where sub-folders should be added
         :param excludes: optional list of sub-folder names to be excluded from processing
+        :param delete_now: Flag to determine if deletes are processed immediately or delayed
         """
         location = LocationContext(location)
         model_subfolder_names = self.aliases.get_model_subfolder_names(location)
@@ -142,16 +143,17 @@ class Deployer(object):
                 if len(subfolder_nodes) != 0:
                     sub_location = LocationContext(location).append_location(subfolder)
                     if self.aliases.supports_multiple_mbean_instances(sub_location):
-                        self._add_named_elements(subfolder, subfolder_nodes, location)
+                        self._add_named_elements(subfolder, subfolder_nodes, location, delete_now=delete_now)
                     else:
-                        self._add_model_elements(subfolder, subfolder_nodes, location)
+                        self._add_model_elements(subfolder, subfolder_nodes, location, delete_now=delete_now)
 
-    def _add_model_elements(self, type_name, model_nodes, location):
+    def _add_model_elements(self, type_name, model_nodes, location, delete_now=True):
         """
         Add each model element from the specified nodes at the specified location and set its attributes.
+        :param type_name: the name of the model folder to add
         :param model_nodes: the child nodes of a model element
         :param location: the location where sub-folders should be added
-        :param type_name: the name of the model folder to add
+        :param delete_now: Flag to determine if deletes are processed immediately or delayed
         """
         _method_name = '_add_model_elements'
 
@@ -169,18 +171,19 @@ class Deployer(object):
 
         deployer_utils.create_and_cd(location, existing_subfolder_names, self.aliases)
 
-        self._set_attributes_and_add_subfolders(location, model_nodes)
+        self._set_attributes_and_add_subfolders(location, model_nodes, delete_now=delete_now)
 
-    def _set_attributes_and_add_subfolders(self, location, model_nodes):
+    def _set_attributes_and_add_subfolders(self, location, model_nodes, delete_now=True):
         """
         Set the attributes and add sub-folders for the specified location.
         This method can be overridden for finer control of the ordering
         :param location: the location of the attributes and sub-folders
         :param model_nodes: a map of model nodes including attributes and sub-folders
+        :param delete_now: Flag to determine if deletes are processed immediately or delayed
         :raise: DeployException: if an error condition is encountered
         """
         self.set_attributes(location, model_nodes)
-        self._add_subfolders(model_nodes, location)
+        self._add_subfolders(model_nodes, location, delete_now=delete_now)
 
     def set_attributes(self, location, model_nodes, excludes=None):
         """
