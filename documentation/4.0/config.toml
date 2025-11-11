@@ -20,3 +20,13 @@ publishDir = "docs"
 [params]
   # disable the copy to clipboard links
   disableInlineCopyToClipBoard = true
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.extensions]
+      [markup.goldmark.extensions.extras]
+        [markup.goldmark.extensions.extras.superscript]
+          enable = true
+    [markup.goldmark.renderer]
+      # Allow the <sup> tags omitted by the superscript extension.
+      unsafe = true

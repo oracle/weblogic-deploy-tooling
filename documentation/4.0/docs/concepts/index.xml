@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Concepts on WebLogic Deploy Tooling</title>
+    <link>http://localhost:1313/weblogic-deploy-tooling/concepts/</link>
+    <description>Recent content in Concepts on WebLogic Deploy Tooling</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 23 Feb 2019 17:19:24 -0500</lastBuildDate>
+    <atom:link href="http://localhost:1313/weblogic-deploy-tooling/concepts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Metadata Model</title>
+      <link>http://localhost:1313/weblogic-deploy-tooling/concepts/model/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      <guid>http://localhost:1313/weblogic-deploy-tooling/concepts/model/</guid>
+      <description>&lt;h3 id=&#34;contents&#34;&gt;Contents&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&lt;a href=&#34;#overview&#34;&gt;Overview&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;#top-level-model-sections&#34;&gt;Top-level sections&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;#simple-example&#34;&gt;Simple example&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;#model-names&#34;&gt;Model names&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;#model-tokens&#34;&gt;Model tokens&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;#model-semantics&#34;&gt;Model semantics&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;#declaring-named-mbeans-to-delete&#34;&gt;Declaring named MBeans to delete&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;#using-multiple-models&#34;&gt;Using multiple models&lt;/a&gt;&lt;/li&gt;&#xA;&lt;li&gt;&lt;a href=&#34;#upgrading-from-wdt-1x-to-wdt-2x-yaml-files&#34;&gt;Upgrading from WDT 1.x to WDT 2.x YAML files&lt;/a&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h3 id=&#34;overview&#34;&gt;Overview&lt;/h3&gt;&#xA;&lt;p&gt;The metadata model (or model, for short) is a version-independent description of a WebLogic Server domain configuration.&#xA;The tools are designed to support a sparse model so that the model need only describe what is required for the specific&#xA;operation without describing other artifacts.  For example, to deploy an application that depends on a JDBC data source&#xA;into an existing domain that may contain other applications or data sources, the model needs to describe only the&#xA;application and the data source in question.  If the data source was previously created, the &lt;code&gt;deployApps&lt;/code&gt; tool will not&#xA;try to recreate it but may update part of that data source&amp;rsquo;s configuration if the model description is different from&#xA;the existing values.  If the application was previously deployed, the &lt;code&gt;deployApps&lt;/code&gt; tool will compare the binaries to&#xA;determine if the application needs to be redeployed or not.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Archive File</title>
+      <link>http://localhost:1313/weblogic-deploy-tooling/concepts/archive/</link>
+      <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
+      <guid>http://localhost:1313/weblogic-deploy-tooling/concepts/archive/</guid>
+      <description>&lt;p&gt;The archive file is used to deploy binaries and other file resources to the target domain. The archive is a ZIP file&#xA;with a specific directory structure.  Any file resources referenced in the model that are not already on the target&#xA;system must be stored in the correct location in the archive, and the model must reflect the path into the archive.&lt;/p&gt;&#xA;&lt;p&gt;Note that file resources that already exist on the target system need not be included in the archive, provided that&#xA;the model specifies the correct location on the target system.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
