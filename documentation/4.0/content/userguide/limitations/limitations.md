@@ -149,3 +149,13 @@ updateDomain.sh failed (exit code = 2)
 **ACTION**: This is caused by WebLogic Server Bug 37443991.  To resolve this issue, please file an SR with Oracle Support
 and ask for a patch for Bug 37443991.  The only known workarounds are to either split these two updates into separate
 online Update Domain calls or use offline Update Domain.
+
+### Online Update Domain with Deletes Requiring Ordering
+
+**ISSUE**: WDT Update Domain does not support any ordering for deleting existing folders.  As such, online updates where
+the model is deleting MBeans that are referenced by other MBeans--even ones marked for deletion--may fail due to the
+lack of support for ordered deletions.  This is a complex problem to address generically, as discussed in
+[GitHub Issue 1664](https://github.com/oracle/weblogic-deploy-tooling/issues/1664#issuecomment-3456974575).
+
+**ACTION**: Create a sparse model with a single folder marked for deletion and run the Update Domain tool.  Repeat this
+process until all desired objects are deleted.
