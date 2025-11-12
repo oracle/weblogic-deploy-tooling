@@ -1,8 +1,8 @@
 {
-  "copyright": "Copyright (c) 2017, 2022, Oracle Corporation and/or its affiliates.",
+  "copyright": "Copyright (c) 2017, 2025, Oracle Corporation and/or its affiliates.",
   "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
   "wlst_type": "LogFilter${:s}",
-  "online_bean": "weblogic.management.configuration.SNMPLogFilterMBean",
+  "online_bean": "weblogic.management.configuration.LogFilterMBean",
   "child_folders_type": "multiple",
   "short_name": "Filter",
   "folders": {},
