@@ -1,0 +1,2974 @@
+<!DOCTYPE html>
+<html lang="en" class="js csstransforms3d">
+  <head><script src="/weblogic-deploy-tooling/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=weblogic-deploy-tooling/livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.146.2">
+    <meta name="description" content="">
+
+
+    <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
+
+    <title>Metadata Model :: WebLogic Deploy Tooling</title>
+
+    
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1762890099" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1762890099" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1762890099" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1762890099" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1762890099" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1762890099" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1762890099" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1762890099" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1762890099" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1762890099" rel="stylesheet">
+    
+    
+
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1762890099"></script>
+
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+          display:none !important;
+      }
+      
+        :not(pre) > code + span.copy-to-clipboard {
+            display: none;
+        }
+      
+    </style>
+    
+  </head>
+  <body class="" data-url="/weblogic-deploy-tooling/concepts/model/">
+    <nav id="sidebar" class="">
+
+
+
+  <div id="header-wrapper">
+    <div id="header">
+      <a id="logo" href="http://localhost:1313/weblogic-deploy-tooling/">
+  <img src="http://localhost:1313/weblogic-deploy-tooling//images/logo.png" height="90"><br/>
+  WebLogic Deploy Tooling
+</a>
+
+    </div>
+    
+        <div class="searchbox">
+    <label for="search-by"><i class="fas fa-search"></i></label>
+    <input data-search-input id="search-by" type="search" placeholder="Search...">
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
+</div>
+
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1762890099"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1762890099"></script>
+<script type="text/javascript">
+    
+        var baseurl = "http:\/\/localhost:1313\/weblogic-deploy-tooling\/";
+    
+</script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1762890099"></script>
+
+    
+  </div>
+  
+    <section id="homelinks">
+      <ul>
+        <li>
+            <a class="padding" href='http://localhost:1313/weblogic-deploy-tooling/'><i class='fas fa-home'></i> Home</a>
+        </li>
+      </ul>
+    </section>
+  
+
+    <div class="highlightable">
+    <ul class="topics">
+
+        
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/concepts/" title="Concepts" class="dd-item
+        parent
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/concepts/">
+          <b> </b>Concepts
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/concepts/model/" title="Metadata Model" class="dd-item active">
+        <a href="/weblogic-deploy-tooling/concepts/model/">
+        Metadata Model
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/concepts/archive/" title="Archive File" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/concepts/archive/">
+        Archive File
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/userguide/" title="User Guide" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/userguide/">
+          <b> </b>User Guide
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+            
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/install/" title="Install WDT" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/install/">
+        Install WDT
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/" title="WDT Tools" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/userguide/tools/">
+          <b> </b>WDT Tools
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+            
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/shared/" title="Shared functionality" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/userguide/tools/shared/">
+          Shared functionality
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/shared/online/" title="Online operations" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/shared/online/">
+        Online operations
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/shared/ssh/" title="SSH support" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/shared/ssh/">
+        SSH support
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/shared/exit_codes/" title="Tool Exit Codes" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/shared/exit_codes/">
+        Tool Exit Codes
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/create/" title="Create Domain Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/create/">
+        Create Domain Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/update/" title="Update Domain Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/update/">
+        Update Domain Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/deploy/" title="Deploy Applications Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/deploy/">
+        Deploy Applications Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/discover/" title="Discover Domain Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/discover/">
+        Discover Domain Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/encrypt/" title="Encrypt Model Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/encrypt/">
+        Encrypt Model Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/validate/" title="Validate Model Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/validate/">
+        Validate Model Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/compare/" title="Compare Model Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/compare/">
+        Compare Model Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/prepare/" title="Prepare Model Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/prepare/">
+        Prepare Model Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/kubernetes/" title="Extract Domain Resource Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/kubernetes/">
+        Extract Domain Resource Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/variable_injection/" title="Variable Injector Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/variable_injection/">
+        Variable Injector Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/model_help/" title="Model Help Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/model_help/">
+        Model Help Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/archive_helper/" title="Archive Helper Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/archive_helper/">
+        Archive Helper Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/verify_ssh/" title="Verify SSH Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/verify_ssh/">
+        Verify SSH Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/target_env/" title="Target environments" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/target_env/">
+        Target environments
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/database/connect-db/" title="Connect to a database" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/database/connect-db/">
+        Connect to a database
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/" title="Tools configuration" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/userguide/tools-config/">
+          Tools configuration
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/model_filters/" title="Model filters" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools-config/model_filters/">
+        Model filters
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/domain_def/" title="Domain type definitions" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools-config/domain_def/">
+        Domain type definitions
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/custom_config/" title="Custom configuration" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools-config/custom_config/">
+        Custom configuration
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/logging/" title="Logging" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools-config/logging/">
+        Logging
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/tool_prop/" title="Tool property file" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools-config/tool_prop/">
+        Tool property file
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/variable_injectors/" title="Variable injectors" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools-config/variable_injectors/">
+        Variable injectors
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/limitations/limitations/" title="Limitations" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/limitations/limitations/">
+        Limitations
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/samples/" title="Samples" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/samples/">
+          <b> </b>Samples
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/adminserver-model/" title="Customizing the Administration Server" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/adminserver-model/">
+        Customizing the Administration Server
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/cluster-model/" title="Modeling a configured cluster" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/cluster-model/">
+        Modeling a configured cluster
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/wtc-model/" title="Modeling a WTC configuration" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/wtc-model/">
+        Modeling a WTC configuration
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/jdbc-model/" title="Modeling a JDBC data source" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/jdbc-model/">
+        Modeling a JDBC data source
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/workmanager-model/" title="Modeling a Work Manager" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/workmanager-model/">
+        Modeling a Work Manager
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/securityproviders-model/" title="Modeling security providers" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/securityproviders-model/">
+        Modeling security providers
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/opss-model/" title="Modeling Oracle Platform Security Services" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/opss-model/">
+        Modeling Oracle Platform Security Services
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/usersgroups-model/" title="Modeling WebLogic users, groups, roles, and policies" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/usersgroups-model/">
+        Modeling WebLogic users, groups, roles, and policies
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/pwcredentialmap-model/" title="Modeling WebLogic user password credential mapping" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/pwcredentialmap-model/">
+        Modeling WebLogic user password credential mapping
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/odl-model/" title="Configuring Oracle Diagnostic Logging" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/odl-model/">
+        Configuring Oracle Diagnostic Logging
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/ohs-model/" title="Configuring Oracle HTTP Server" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/ohs-model/">
+        Configuring Oracle HTTP Server
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/targetservers-model/" title="Targeting server groups" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/targetservers-model/">
+        Targeting server groups
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/wko-model/" title="Using WDT with WebLogic Kubernetes Operator" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/wko-model/">
+        Using WDT with WebLogic Kubernetes Operator
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/developer/" title="Developer Guide" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/developer/">
+          <b> </b>Developer Guide
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/project-structure/" title="Project structure" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/developer/project-structure/">
+        Project structure
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/feature-impl/" title="Feature implementation" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/developer/feature-impl/">
+        Feature implementation
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/alias-definitions/" title="Alias definitions" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/developer/alias-definitions/">
+        Alias definitions
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/buildwdt/" title="Build WebLogic Deploy Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/developer/buildwdt/">
+        Build WebLogic Deploy Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/crd-schemas/" title="Building CRD schemas" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/developer/crd-schemas/">
+        Building CRD schemas
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/releaseprocess/" title="WDT project release process" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/developer/releaseprocess/">
+        WDT project release process
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/contribute/" title="Contribute to WDT" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/developer/contribute/">
+        Contribute to WDT
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/release-notes/">
+          <b> </b>Release Notes
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4/" title="Release 4.0.0" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-4/">
+        <b> </b>Release 4.0.0
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3/" title="Release 3.0.0" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-3/">
+        <b> </b>Release 3.0.0
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-2/" title="Release 2.4.0" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-2/">
+        <b> </b>Release 2.4.0
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+        
+    </ul>
+
+    
+    
+
+    
+    <section id="footer">
+      <p>Created with <i class="fas fa-heart"></i> from <a href="https://www.oracle.com">Oracle</a></p>
+<p>&nbsp</p>
+<p><a href="https://github.com/oracle/weblogic-deploy-tooling"><i class="fab fa-github"></i> GitHub repo</a></p>
+<p><a href="https://join.slack.com/t/oracle-weblogic/shared_invite/zt-1ni1gtjv6-PGC6CQ4uIte3KBdm_67~aQ"><i class="fab fa-slack"></i> Public Slack #weblogic</a></p>
+
+    </section>
+  </div>
+</nav>
+
+
+
+
+        <section id="body">
+        <div id="overlay"></div>
+        <div class="padding highlightable">
+              
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/concepts/'>Concepts</a> > Metadata Model
+          
+        
+          
+        
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#contents">Contents</a></li>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#top-level-model-sections">Top-level model sections</a></li>
+        <li><a href="#model-names">Model names</a></li>
+        <li><a href="#model-tokens">Model tokens</a></li>
+        <li><a href="#model-semantics">Model semantics</a></li>
+        <li><a href="#declaring-named-mbeans-to-delete">Declaring named MBeans to delete</a></li>
+        <li><a href="#using-multiple-models">Using multiple models</a></li>
+        <li><a href="#upgrading-from-wdt-1x-to-current-wdt-version-yaml-files">Upgrading from WDT 1.x to current WDT version YAML files</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
+        <div id="head-tags">
+        
+        </div>
+        
+        <div id="body-inner">
+          
+            <h1>
+              
+              Metadata Model
+            </h1>
+          
+
+        
+
+
+<h3 id="contents">Contents</h3>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#top-level-model-sections">Top-level sections</a></li>
+<li><a href="#simple-example">Simple example</a></li>
+<li><a href="#model-names">Model names</a></li>
+<li><a href="#model-tokens">Model tokens</a></li>
+<li><a href="#model-semantics">Model semantics</a></li>
+<li><a href="#declaring-named-mbeans-to-delete">Declaring named MBeans to delete</a></li>
+<li><a href="#using-multiple-models">Using multiple models</a></li>
+<li><a href="#upgrading-from-wdt-1x-to-wdt-2x-yaml-files">Upgrading from WDT 1.x to WDT 2.x YAML files</a></li>
+</ul>
+<h3 id="overview">Overview</h3>
+<p>The metadata model (or model, for short) is a version-independent description of a WebLogic Server domain configuration.
+The tools are designed to support a sparse model so that the model need only describe what is required for the specific
+operation without describing other artifacts.  For example, to deploy an application that depends on a JDBC data source
+into an existing domain that may contain other applications or data sources, the model needs to describe only the
+application and the data source in question.  If the data source was previously created, the <code>deployApps</code> tool will not
+try to recreate it but may update part of that data source&rsquo;s configuration if the model description is different from
+the existing values.  If the application was previously deployed, the <code>deployApps</code> tool will compare the binaries to
+determine if the application needs to be redeployed or not.</p>
+<p>The model structure, and its folder and attribute names, are based on the WLST 12.2.1.3 offline structure and names
+with redundant folders removed to keep the model simple.  For example, the WLST path to the URL for a JDBC data source
+is <code>/JDBCSystemResource/&lt;data-source-name&gt;/JdbcResource/&lt;data-source-name&gt;/JDBCDriverParams/NO_NAME_0/URL</code>.  In the
+model, it is <code>resources:/JDBCSystemResource/&lt;data-source-name&gt;/JdbcResource/JDBCDriverParams/URL</code> (where <code>resources</code>
+is the top-level model section where all WebLogic Server resources/services are described).</p>
+<p>The model is written in YAML (or optionally, JSON).  The YAML parser, based on Snake YAML, is strict with regard to the
+specification and is fully YAML 1.1 compliant.  For example, YAML does not support tabs as indent characters so the
+parser will generate parse errors if the model file contains leading tabs used for indentation purposes.  In general,
+names and values can be specified without quotes except when the content contains one of the restricted characters in a
+location that causes the YAML parser to consider it to be a markup character instead of text.  For example, a key may
+contain an embedded hyphen without needing to be quoted; however, if the key starts with a hyphen, the parser may
+consider it to be the start of a YAML list element. See the <a href="https://yaml.org/spec/1.1/">YAML 1.1 specification</a>
+for more information.</p>
+<h3 id="top-level-model-sections">Top-level model sections</h3>
+<p>The tooling has five top-level model sections:</p>
+<ul>
+<li><code>domainInfo</code>     - The location where special information not represented in WLST is specified (for example, the libraries that go in <code>$DOMAIN_HOME/lib</code>).</li>
+<li><code>topology</code>       - The location where servers, clusters, machines, server templates, and other domain-level configuration is specified.</li>
+<li><code>resources</code>      - The location where resources and services are specified (for example, data sources, JMS, WLDF).</li>
+<li><code>appDeployments</code> - The location where shared libraries and applications are specified.</li>
+<li><code>kubernetes</code>     - The location where the WebLogic Kubernetes Operator domain configuration is specified.</li>
+</ul>
+<h4 id="simple-example">Simple example</h4>
+<p>Here is a simple example of a model to deploy an application and its data source:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">resources</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">JDBCSystemResource</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">MyDataSource</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Target</span>: <span style="color:#e6db74">&#39;@@PROP:myjcs.cluster1.name@@&#39;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">JdbcResource</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">JDBCDataSourceParams</span>:
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">jdbc/generic1</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">JDBCDriverParams</span>:
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">DriverName</span>: <span style="color:#ae81ff">oracle.jdbc.OracleDriver</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">URL</span>: <span style="color:#ae81ff">jdbc:oracle:thin:@//@@PROP:dbcs1.url@@</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">PasswordEncrypted</span>: <span style="color:#e6db74">&#39;@@PROP:dbcs1.password@@&#39;</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">Properties</span>:
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">user</span>:
+</span></span><span style="display:flex;"><span>                            <span style="color:#f92672">Value</span>: <span style="color:#e6db74">&#39;@@PROP:dbcs1.user@@&#39;</span>
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">oracle.net.CONNECT_TIMEOUT</span>:
+</span></span><span style="display:flex;"><span>                            <span style="color:#f92672">Value</span>: <span style="color:#ae81ff">5000</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">JDBCConnectionPoolParams</span>:
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">MaxCapacity</span>: <span style="color:#ae81ff">50</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">appDeployments</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Application</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">simpleear </span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">SourcePath</span>: <span style="color:#ae81ff">wlsdeploy/applications/simpleear.ear</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Target</span>: <span style="color:#e6db74">&#39;@@PROP:myjcs.cluster1.name@@&#39;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">ModuleType</span>: <span style="color:#ae81ff">ear</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#f92672">Library</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#39;jsf#2.0&#39;</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">SourcePath</span>: <span style="color:#e6db74">&#39;@@WL_HOME@@/common/deployable-libraries/jsf-2.0.war&#39;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Target</span>: <span style="color:#e6db74">&#39;@@PROP:myjcs.cluster1.name@@&#39;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">ModuleType</span>: <span style="color:#ae81ff">war</span>
+</span></span></code></pre></div><p>The above example shows two important features of the framework.  First, notice that the <code>URL</code>, <code>PasswordEncrypted</code>,
+<code>user</code> property <code>Value</code> and all <code>Target</code> fields contain values that have a <code>@@PROP:&lt;name&gt;@@</code> pattern.  This indicates a
+variable placeholder whose value is specified at runtime using a variables file. For more information about this and
+other token types, see <a href="#model-tokens">Model tokens</a>.</p>
+<p>Second, notice that the <code>jsf#2.0</code> shared library <code>SourcePath</code> attribute value starts with <code>@@WL_HOME@@</code>. This is a path
+token that can be used to specify that the location is relative to the location of the WebLogic Server home directory
+on the target environment.  For more information and a list of available path tokens, see <a href="#model-tokens">Model tokens</a>.</p>
+<p>The example above shows the attribute <code>SourcePath</code> of the <code>simpleear</code> application with a value of
+<code>wlsdeploy/applications/simpleear.ear</code>.  The prefix <code>wlsdeploy/</code> indicates that the resource is located in the archive
+file in the specified location, and will be deployed to that directory within the domain, in this case
+<code>&lt;domain-home&gt;/wlsdeploy/applications/simpleear.ear</code>. See the <a href="/weblogic-deploy-tooling/concepts/archive/">Archive file</a>
+for more details about using the archive file.</p>
+<p>Users can create further directory structures underneath the above locations to organize the files and directories as
+they see fit.  Note that any binary that already exists on the target system need not be included in the archive
+provided that the model specified the correct location on the target system.</p>
+<p>One final note is that the framework is written in such a way to allow the model to be extended for use by other tools.
+Adding other top-level sections to the model is supported and the existing tooling and framework will simply ignore
+them, if present.  For example, it would be possible to add a <code>soaComposites</code> section to the model where SOA composite
+applications are described, and a location within the archive file where those binaries can be stored, so that a tool
+that understands SOA composites and how to deploy them could be run against the same model and archive files.</p>
+<h3 id="model-names">Model names</h3>
+<p>The WebLogic Deploy Tooling handles names of WebLogic Server configuration artifacts in a very prescribed way.  To
+understand how names are handled, users first need a basic understanding of WLST offline naming.  In WLST offline,
+there are two general categories of configuration artifacts:</p>
+<ul>
+<li>Artifacts that can hold zero or more references to another configuration artifact type.</li>
+<li>Artifacts that can hold zero or one reference to another configuration artifact.</li>
+</ul>
+<p>For example, a domain can contain zero or more <code>JDBCSystemResource</code> or <code>AppDeployment</code> instances but can only contain
+a single <code>SecurityConfiguration</code> artifact.  When working with configuration artifacts like <code>JDBCSystemResource</code>, the
+name is always modeled as a sub-element of the <code>JDBCSystemResource</code> element, as shown below.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">resources</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">JDBCSystemResource</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">MyDataSource</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">mycluster</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">...</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">YourDataSource</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">yourcluster</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ae81ff">...</span>
+</span></span></code></pre></div><p>In the example above, the model has two instances of <code>JDBCSystemResource</code>: one named <code>MyDataSource</code> and one named
+<code>YourDataSource</code>.  For anyone familiar with WLST, this should seem somewhat familiar because the WLST offline path to
+the <code>MyDataSource</code> configuration will always start with <code>/JDBCSystemResource/MyDataSource</code>.  What might not seem
+familiar is that in this WLST folder, there is a <code>Name</code> attribute that is also set to <code>MyDataSource</code>.  The WebLogic
+Deploy Tooling requires that modelers set the <code>JDBCSystemRTesource</code> name using the folder semantics as shown in the
+example.  It is not possible to set the Name using the <code>Name</code> attribute inside the folder and any attempts to do so,
+will not work; in this case, the <code>Name</code> attribute is redundant because the name was already specified as the folder
+name.</p>
+<p>When working with artifacts like <code>SecurityConfiguration</code> or <code>JMX</code>, there is never more than one instance of these
+artifacts in a domain because they are just configuration containers and their names generally have no semantic
+meaning.  As such, the WebLogic Deploy Tooling does not expose these names in the model, as shown below:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">topology</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">SecurityConfiguration</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">NodeManagerUsername</span>: <span style="color:#ae81ff">weblogic</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">NodeManagerPasswordEncrypted</span>: <span style="color:#ae81ff">welcome1</span>
+</span></span></code></pre></div><p>As the example above shows, the <code>SecurityConfiguration</code> element has no named sub-element, as there is with
+<code>JDBCSystemResource</code>, even though the WLST path to the <code>SecurityConfiguration</code> attributes is
+<code>/SecurityConfiguration/&lt;domain-name&gt;</code>.  The WebLogic Deploy Tooling has built-in rules and a knowledge base that
+controls how these names are handled so that it can complete the configuration of these artifacts.  As with the
+previous class of configuration artifact, the folder almost always contains a <code> Name</code> attribute that, in WLST, could be
+used to change the name.  As with the previous class of artifact, the WebLogic Deploy Tooling does not support the use
+of the <code>Name</code> attribute in these folders and any attempt to set the <code>Name</code> attribute will not be honored.  In general,
+the only model location that uses the <code>Name</code> attribute is the top-level topology section, because this maps to where
+WLST stores the domain name.</p>
+<h3 id="model-tokens">Model tokens</h3>
+<p>The model allows the use of tokens that are substituted with text values as the model is processed. This section
+describes several types of tokens.</p>
+<p><strong>Variable tokens</strong> are declared with the syntax <code>@@PROP:&lt;variable&gt;@@</code>. This type of token represents a value that is
+resolved at runtime using a variables file in a standard Java properties file format.  Variables can be used for any
+value and for some names.  For example, to automate standing up an environment with one or more applications in the
+Oracle Java Cloud Service, service provisioning does not allow the provisioning script to specify the server names.
+For example, if the application being deployed immediately following provisioning needs to tweak the Server Start
+arguments to specify a Java system property, the model can use a variable placeholder in place of the server name and
+populate the variable file with the provisioned server names dynamically between provisioning and application
+deployment.</p>
+<p><strong>File tokens</strong> are declared with the syntax <code>@@FILE:&lt;filename&gt;@@</code>. This type of token is similar to a variable token,
+but it references a single value that is read from the specified file. For example, the model may reference a password
+attribute as follows:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">PasswordEncrypted</span>: <span style="color:#e6db74">&#39;@@FILE:/home/me/dbcs1.txt@@&#39;</span>
+</span></span></code></pre></div><p>The file <code>/home/me/dbcs1.txt</code> would then contain this single line:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ae81ff">password#123</span>
+</span></span></code></pre></div><p>As the model is processed, the value for the <code>PasswordEncrypted</code> would resolve to <code>password#123</code>. It is also possible
+to combine file placeholders with other types of tokens, to allow for variations in the name and location of the file,
+such as:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">PasswordEncrypted</span>: <span style="color:#e6db74">&#39;@@FILE:/dir/@@PROP:name@@.txt@@&#39;</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">PasswordEncrypted</span>: <span style="color:#e6db74">&#39;@@FILE:@@ORACLE_HOME@@/dir/name.txt@@&#39;</span>
+</span></span></code></pre></div><p><strong>Environment tokens</strong> are declared with the syntax <code>@@ENV:&lt;name&gt;@@</code>. This type of token is resolved by looking up the
+system environment variable <code>&lt;name&gt;</code>, and substituting that value for the token.</p>
+<p><strong>Secret tokens</strong> are declared with the syntax <code>@@SECRET:&lt;name&gt;:&lt;key&gt;@@</code>. This type of token is resolved by determining
+the location of a Kubernetes secret file, and reading the first line from that file. That line is substituted for the
+token.</p>
+<p>There are two methods for deriving the location of the Kubernetes secret file. The first method involves using one or
+more configured root directories, and looking for the secret file in the path <code>&lt;root-directory&gt;/&lt;name&gt;/&lt;key&gt;</code>.</p>
+<p>The root directories are configured as a comma-separated list of directories, using the environment variable
+<code>WDT_MODEL_SECRETS_DIRS</code>. For example, if <code>WDT_MODEL_SECRETS_DIRS</code> is set to <code>/etc/my-secrets,/etc/your-secrets</code>,
+then the token <code>@@SECRET:secrets:the-secret@@</code> will search the following locations:</p>
+<pre tabindex="0"><code>/etc/my-secrets/secrets/the-secret
+/etc/your-secrets/secrets/the-secret
+</code></pre><p>If either of these files is found, the secret is read from that file and substituted in the model.</p>
+<p>The second method for locating the Kubernetes secret file is to use the environment variable
+<code>WDT_MODEL_SECRETS_NAME_DIR_PAIRS</code> to map <code>&lt;name&gt;</code> values to specific directory locations. For example, if
+<code>WDT_MODEL_SECRETS_NAME_DIR_PAIRS</code> is set to <code>my-root=/etc/my-secrets,your-root=/etc/your-secrets</code>, then the token
+<code>@@SECRET:your-root:the-secret@@</code> will look for the secrets file at:</p>
+<pre tabindex="0"><code>/etc/your-secrets/the-secret
+</code></pre><p>If the <code>&lt;name&gt;</code> value has a corresponding mapped directory in <code>WDT_MODEL_SECRETS_NAME_DIR_PAIRS</code>, then that directory
+will take precedence over any roots specified in <code>WDT_MODEL_SECRETS_DIRS</code>.</p>
+
+<div class="notices note" ><p>It is important that the secrets directories contain only secrets files, because those files are
+examined to create a list of available name/key pairs.</p>
+</div>
+
+<p><strong>Path tokens</strong> are tokens that reference known values, and can be used to make the model more portable. For example,
+a model may reference a WebLogic library source path as:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">SourcePath</span>: <span style="color:#e6db74">&#39;@@WL_HOME@@/common/deployable-libraries/jsf-2.0.war&#39;</span>
+</span></span></code></pre></div><p>Using the path token <code>@@WL_HOME@@</code> allows the model to be used across multiple environments, even if the WebLogic
+installation directory is different. Path tokens can be used at any location in the model that specifies a file or
+directory location.  The supported tokens are:</p>
+<ul>
+<li><code>@@ORACLE_HOME@@</code> - The location where WebLogic Server and any other FMW products are installed (in older versions, this was known as the <code>MW_HOME</code>).</li>
+<li><code>@@WL_HOME@@</code>     - The location within the Oracle Home where WebLogic Server is installed (for example, the <code>$ORACLE_HOME/wlserver</code> directory in 12.1.2+).</li>
+<li><code>@@DOMAIN_HOME@@</code> - The location of the domain home directory on which the tool is working.</li>
+<li><code>@@PWD@@</code>         - The current working directory from which the tool was invoked.</li>
+<li><code>@@TMP@@</code>         - The location of the temporary directory, as controlled by the <code>java.io.tmpdir</code> system property.</li>
+</ul>
+<h3 id="model-semantics">Model semantics</h3>
+<p>When modeling configuration attributes that can have multiple values, the WebLogic Deploy Tooling tries to make this
+as painless as possible.  For example, the <code>Target</code> attribute on resources can have zero or more clusters and/or
+servers specified.  When specifying the value of such list attributes, the user has freedom to specify them as a list
+or as a comma-delimited string (comma is the only recognized delimiter for lists).  For attributes where the values can
+legally contain commas, the items must be specified as a list.  Examples of each are shown below.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">resources</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">JDBCSystemResource</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">MyStringDataSource</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">AdminServer,mycluster</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">JdbcResource</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">JDBCDataSourceParams</span>:
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">jdbc/generic1, jdbc/special1</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">...</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">MyListDataSource</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Target</span>: [ <span style="color:#ae81ff">AdminServer, mycluster ]</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">JdbcResource</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">JDBCDataSourceParams</span>:
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">JNDIName</span>: [ <span style="color:#ae81ff">jdbc/generic2, jdbc/special2 ]</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">...</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">WLDFSystemResource</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">MyWldfModule</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">mycluster</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">WLDFResource</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">Harvester</span>:
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">HarvestedType</span>:
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">weblogic.management.runtime.ServerRuntimeMBean</span>:
+</span></span><span style="display:flex;"><span>                            <span style="color:#f92672">Enabled</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>                            <span style="color:#f92672">HarvestedInstance</span>: [
+</span></span><span style="display:flex;"><span>                                <span style="color:#e6db74">&#39;com.bea:Name=AdminServer,Type=ServerRuntime&#39;</span>,
+</span></span><span style="display:flex;"><span>                                <span style="color:#e6db74">&#39;com.bea:Name=m1,Type=ServerRuntime&#39;</span>
+</span></span><span style="display:flex;"><span>                            ]
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">...</span>
+</span></span></code></pre></div><p>In the example above, the <code>Target</code> attribute is specified three different ways, as a comma-separated string, as a list,
+and as a single string in the case of where there is only a single target.  The <code>JNDIName</code> attribute is specified as a
+comma-separated string and as a list (a single string also works). On the other hand, the <code>HarvestedInstances</code>
+attribute had to be specified as a list because each element contains commas.</p>
+<p>One of the primary goals of the WebLogic Deploy Tooling is to support a sparse model where the user can specify just
+the configuration needed for a particular situation.  What this implies varies somewhat between the tools but, in
+general, this implies that the tools are using an additive model.  That is, the tools add to what is already there in
+the existing domain or domain templates (when creating a new domain) rather than making the domain conform exactly to
+the specified model.  Where it makes sense, a similar, additive approach is taken when setting the value of
+multi-valued attributes.  For example, if the model specified the cluster <code>mycluster</code> as the target for an artifact,
+the tooling will add <code>mycluster</code> to any existing list of targets for the artifact.  While the development team has
+tried to mark attributes that do not make sense to merge accordingly in our knowledge base, this behavior can be
+disabled on an attribute-by-attribute basis, by adding an additional annotation in the knowledge base data files.
+The development team is already thinking about how to handle situations that require a non-additive,
+converge-to-the-model approach, and how that might be supported, but this still remains a wish list item.
+Users with these requirements should raise an issue for this support.</p>
+<h3 id="declaring-named-mbeans-to-delete">Declaring named MBeans to delete</h3>
+<p>With WebLogic Deploy Tooling, you can specify named items in the model to be deleted using the Create Domain,
+Update Domain, and Deploy Applications Tools.  Named items are those that have multiple instances that are
+distinguished by user-provided names, such as managed servers, data sources, and security realms.  Items to be deleted
+are prepended with an exclamation point (!) in the model. <strong>NOTE</strong>: The Deploy Applications Tool is deprecated in WDT 4.0.0.</p>
+<p>In this example, the managed server <code>obsoleteServer</code> will be deleted, and <code>newServer</code> will be created:</p>
+<p>Note that the exclamation point, along with the name, should be inside quotation marks:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>    <span style="color:#f92672">Server</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#39;!obsoleteServer&#39;</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">newServer</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">127.0.0.1</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">9005</span>
+</span></span></code></pre></div><p>This feature can also remove items that were created by WebLogic Server templates. For example, the base template
+creates a default security realm called <code>myrealm</code>.  If a user chooses to declare a custom realm, <code>myrealm</code> is no
+longer needed.  In this example, <code>myrealm</code> will be deleted, and the custom realm <code>newrealm</code> will be created, and
+declared as the default realm:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>    <span style="color:#f92672">SecurityConfiguration</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">DefaultRealm</span>: <span style="color:#ae81ff">newrealm</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">Realm</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#39;!myrealm&#39;</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">newrealm</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">AuthenticationProvider</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#ae81ff">...</span>
+</span></span></code></pre></div><p>This feature does not apply to named security providers within a realm. These items follow a special set of rules that
+are required to maintain their ordering. See
+<a href="/weblogic-deploy-tooling/samples/securityproviders-model/">Modeling security providers</a> for detailed information.</p>
+<p>This feature can be used to undeploy applications or remove libraries.</p>
+<h4 id="declaring-list-items-to-delete">Declaring list items to delete</h4>
+<p>In addition to deleting named mbeans, you can remove items from a list. Most practically, this would be within a Target list.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>  <span style="color:#f92672">JMSSystemResource</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">BPMJMSModule</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">soa_cluster,&#39;!AdminServer&#39;</span>
+</span></span></code></pre></div><p>In this example, the BPMJMSModule has the AdminServer target removed from the target list.</p>
+<h3 id="using-multiple-models">Using multiple models</h3>
+<p>The Create Domain, Update Domain, Deploy Applications, and Validate Model Tools allow the specification of multiple
+models on the command line. For example:</p>
+<pre><code>$ weblogic-deploy\bin\createDomain.cmd -model_file modelOne,modelTwo,modelThree ...
+</code></pre>
+<p>In this case, the models are merged into a single model before being applied. Each successive model is added to the
+previous model. In cases where entities exist in both models, the attributes are combined and attribute values from
+successive models prevail.  The resulting model is then verified before being applied.  For example,
+if Model 1 looks like:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">topology</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Server</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">m1</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">7000</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Notes</span>: <span style="color:#ae81ff">Server 1</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">m2</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">9000</span>
+</span></span></code></pre></div><p>and Model 2 looks like:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">topology</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Server</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">m1</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">myhostname</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">8000</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">m3</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">10000</span>
+</span></span></code></pre></div><p>The attributes for server m1 are merged, server m2 is left unchanged, and server m3 is added. The resulting model would be:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">topology</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Server</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">m1</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">ListenAddress</span>: <span style="color:#ae81ff">myhostname</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">8000</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Notes</span>: <span style="color:#ae81ff">Server 1</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">m2</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">9000</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">m3</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">10000</span>
+</span></span></code></pre></div><p>If variable properties are used in element names, such as <code>@@PROP:my-server@@</code>, the names in both models will be
+resolved and matching elements will be merged.</p>
+<h4 id="multiple-models-and-delete-notation">Multiple models and delete notation</h4>
+<p>A named element using <a href="#declaring-named-mbeans-to-delete">delete notation</a> will completely delete an element with a
+matching name and no delete notation in a previous model. For example, if Model 1 looks like:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">topology</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Server</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">m1</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">7000</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Notes</span>: <span style="color:#ae81ff">Server 1</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">m2</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">9000</span>
+</span></span></code></pre></div><p>and Model 2 looks like:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">topology</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Server</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#39;!m2&#39;</span>:
+</span></span></code></pre></div><p>The resulting model would be:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">topology</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Server</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">m1</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">7000</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Notes</span>: <span style="color:#ae81ff">Server 1</span>
+</span></span></code></pre></div><p>Similarly, an element without delete notation will completely replace an element with a matching name that has delete
+notation in a previous model. For example, if Model 1 looks like:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">topology</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Server</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#39;!m1&#39;</span>:
+</span></span></code></pre></div><p>and Model 2 looks like:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">topology</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Server</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">m1</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">7000</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Notes</span>: <span style="color:#ae81ff">Server 1</span>
+</span></span></code></pre></div><p>The resulting model would be:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">topology</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Server</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">m1</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">ListenPort</span>: <span style="color:#ae81ff">7000</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Notes</span>: <span style="color:#ae81ff">Server 1</span>
+</span></span></code></pre></div><h3 id="upgrading-from-wdt-1x-to-current-wdt-version-yaml-files">Upgrading from WDT 1.x to current WDT version YAML files</h3>
+<p>Beginning in 2.0, WebLogic Deploy Tooling now incorporates the SnakeYAML parser for reading and writing model files.
+This may require some changes to existing models in order to be parsed correctly.</p>
+<ul>
+<li>Model elements that use <a href="/weblogic-deploy-tooling/concepts/model/#declaring-named-mbeans-to-delete">delete notation</a> need
+to be escaped in single or double quotation marks.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">topology</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Server</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#39;!ms1&#39;</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">ms2</span>:
+</span></span></code></pre></div><ul>
+<li>Model elements under the same parent should be indented to the exact same level. The previous YAML parser did not
+enforce this restriction, but it is standard for YAML. In this example, each cluster is indented four spaces.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">topology</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Cluster</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">cluster1</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">ClientCertProxyEnabled</span>: <span style="color:#66d9ef">True</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">cluster2</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">WeblogicPluginEnabled</span>: <span style="color:#66d9ef">true</span>
+</span></span></code></pre></div><ul>
+<li>
+<p>Object lists in the <code>kubernetes</code> section of the model must be specified in a hyphenated list format,
+similar to how they appear in the domain resource file produced for</p>
+</li>
+<li>
+<p><a href="https://oracle.github.io/weblogic-kubernetes-operator/managing-domains/domain-resource/">WebLogic Kubernetes Operator</a>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>    <span style="color:#f92672">clusters</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">clusterName</span>: <span style="color:#e6db74">&#39;cluster1&#39;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">allowReplicasBelowMinDynClusterSize</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">clusterName</span>: <span style="color:#e6db74">&#39;cluster2&#39;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">allowReplicasBelowMinDynClusterSize</span>: <span style="color:#66d9ef">true</span>
+</span></span></code></pre></div><ul>
+<li>Support for the old &ldquo;named object list&rdquo; format in the <code>kubernetes</code> section has been removed and will result in
+validation errors if not converted to the hyphenated list format.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span>    <span style="color:#f92672">clusters</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#39;cluster1&#39;</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">allowReplicasBelowMinDynClusterSize</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&#39;cluster2&#39;</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">allowReplicasBelowMinDynClusterSize</span>: <span style="color:#66d9ef">true</span>
+</span></span></code></pre></div></li>
+<li>
+<p>The deprecated argument <code>-model_sample</code> has been removed from the Model Help Tool.
+The Model Help Tool has used model sample format, by default, since release 1.9.2.</p>
+</li>
+</ul>
+
+
+<footer class="footline">
+	
+</footer>
+
+        
+        </div>
+        
+
+      </div>
+
+    <div id="navigation">
+        
+        
+
+        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+            
+        
+
+        
+
+
+	 
+	 
+		
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/concepts/" title="Concepts"> <i class="fa fa-chevron-left"></i></a>
+		
+		
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/concepts/archive/" title="Archive File" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+	
+    </div>
+
+    </section>
+
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1762890099"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1762890099"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1762890099"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1762890099"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1762890099"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1762890099"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1762890099"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1762890099"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1762890099"></script>
+    
+        
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1762890099"></script>
+        
+        <script>
+            mermaid.initialize({ startOnLoad: true });
+        </script>
+    
+    
+
+  </body>
+</html>
+

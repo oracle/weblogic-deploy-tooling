@@ -1,0 +1,2793 @@
+<!DOCTYPE html>
+<html lang="en" class="js csstransforms3d">
+  <head><script src="/weblogic-deploy-tooling/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=weblogic-deploy-tooling/livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="Hugo 0.146.2">
+    <meta name="description" content="Encrypts the passwords in a model (or its variable file) using a user-provided passphrase.">
+
+
+    <link rel="icon" href="/weblogic-deploy-tooling/images/favicon.png" type="image/png">
+
+    <title>Encrypt Model Tool :: WebLogic Deploy Tooling</title>
+
+    
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1762890099" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1762890099" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1762890099" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1762890099" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1762890099" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1762890099" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1762890099" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1762890099" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1762890099" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1762890099" rel="stylesheet">
+    
+    
+
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1762890099"></script>
+
+    <style>
+      :root #header + #content > #left > #rlblock_left{
+          display:none !important;
+      }
+      
+        :not(pre) > code + span.copy-to-clipboard {
+            display: none;
+        }
+      
+    </style>
+    
+  </head>
+  <body class="" data-url="/weblogic-deploy-tooling/userguide/tools/encrypt/">
+    <nav id="sidebar" class="">
+
+
+
+  <div id="header-wrapper">
+    <div id="header">
+      <a id="logo" href="http://localhost:1313/weblogic-deploy-tooling/">
+  <img src="http://localhost:1313/weblogic-deploy-tooling//images/logo.png" height="90"><br/>
+  WebLogic Deploy Tooling
+</a>
+
+    </div>
+    
+        <div class="searchbox">
+    <label for="search-by"><i class="fas fa-search"></i></label>
+    <input data-search-input id="search-by" type="search" placeholder="Search...">
+    <span data-search-clear=""><i class="fas fa-times"></i></span>
+</div>
+
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1762890099"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1762890099"></script>
+<script type="text/javascript">
+    
+        var baseurl = "http:\/\/localhost:1313\/weblogic-deploy-tooling\/";
+    
+</script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1762890099"></script>
+
+    
+  </div>
+  
+    <section id="homelinks">
+      <ul>
+        <li>
+            <a class="padding" href='http://localhost:1313/weblogic-deploy-tooling/'><i class='fas fa-home'></i> Home</a>
+        </li>
+      </ul>
+    </section>
+  
+
+    <div class="highlightable">
+    <ul class="topics">
+
+        
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/concepts/" title="Concepts" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/concepts/">
+          <b> </b>Concepts
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/concepts/model/" title="Metadata Model" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/concepts/model/">
+        Metadata Model
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/concepts/archive/" title="Archive File" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/concepts/archive/">
+        Archive File
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/userguide/" title="User Guide" class="dd-item
+        parent
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/userguide/">
+          <b> </b>User Guide
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+            
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/install/" title="Install WDT" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/install/">
+        Install WDT
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/" title="WDT Tools" class="dd-item
+        parent
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/userguide/tools/">
+          <b> </b>WDT Tools
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+            
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/shared/" title="Shared functionality" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/userguide/tools/shared/">
+          Shared functionality
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/shared/online/" title="Online operations" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/shared/online/">
+        Online operations
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/shared/ssh/" title="SSH support" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/shared/ssh/">
+        SSH support
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/shared/exit_codes/" title="Tool Exit Codes" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/shared/exit_codes/">
+        Tool Exit Codes
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/create/" title="Create Domain Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/create/">
+        Create Domain Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/update/" title="Update Domain Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/update/">
+        Update Domain Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/deploy/" title="Deploy Applications Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/deploy/">
+        Deploy Applications Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/discover/" title="Discover Domain Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/discover/">
+        Discover Domain Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/encrypt/" title="Encrypt Model Tool" class="dd-item active">
+        <a href="/weblogic-deploy-tooling/userguide/tools/encrypt/">
+        Encrypt Model Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/validate/" title="Validate Model Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/validate/">
+        Validate Model Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/compare/" title="Compare Model Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/compare/">
+        Compare Model Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/prepare/" title="Prepare Model Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/prepare/">
+        Prepare Model Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/kubernetes/" title="Extract Domain Resource Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/kubernetes/">
+        Extract Domain Resource Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/variable_injection/" title="Variable Injector Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/variable_injection/">
+        Variable Injector Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/model_help/" title="Model Help Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/model_help/">
+        Model Help Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/archive_helper/" title="Archive Helper Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/archive_helper/">
+        Archive Helper Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools/verify_ssh/" title="Verify SSH Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools/verify_ssh/">
+        Verify SSH Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/target_env/" title="Target environments" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/target_env/">
+        Target environments
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/database/connect-db/" title="Connect to a database" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/database/connect-db/">
+        Connect to a database
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/" title="Tools configuration" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/userguide/tools-config/">
+          Tools configuration
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/model_filters/" title="Model filters" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools-config/model_filters/">
+        Model filters
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/domain_def/" title="Domain type definitions" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools-config/domain_def/">
+        Domain type definitions
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/custom_config/" title="Custom configuration" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools-config/custom_config/">
+        Custom configuration
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/logging/" title="Logging" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools-config/logging/">
+        Logging
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/tool_prop/" title="Tool property file" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools-config/tool_prop/">
+        Tool property file
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/tools-config/variable_injectors/" title="Variable injectors" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/tools-config/variable_injectors/">
+        Variable injectors
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/userguide/limitations/limitations/" title="Limitations" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/userguide/limitations/limitations/">
+        Limitations
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/samples/" title="Samples" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/samples/">
+          <b> </b>Samples
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/adminserver-model/" title="Customizing the Administration Server" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/adminserver-model/">
+        Customizing the Administration Server
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/cluster-model/" title="Modeling a configured cluster" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/cluster-model/">
+        Modeling a configured cluster
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/wtc-model/" title="Modeling a WTC configuration" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/wtc-model/">
+        Modeling a WTC configuration
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/jdbc-model/" title="Modeling a JDBC data source" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/jdbc-model/">
+        Modeling a JDBC data source
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/workmanager-model/" title="Modeling a Work Manager" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/workmanager-model/">
+        Modeling a Work Manager
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/securityproviders-model/" title="Modeling security providers" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/securityproviders-model/">
+        Modeling security providers
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/opss-model/" title="Modeling Oracle Platform Security Services" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/opss-model/">
+        Modeling Oracle Platform Security Services
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/usersgroups-model/" title="Modeling WebLogic users, groups, roles, and policies" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/usersgroups-model/">
+        Modeling WebLogic users, groups, roles, and policies
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/pwcredentialmap-model/" title="Modeling WebLogic user password credential mapping" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/pwcredentialmap-model/">
+        Modeling WebLogic user password credential mapping
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/odl-model/" title="Configuring Oracle Diagnostic Logging" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/odl-model/">
+        Configuring Oracle Diagnostic Logging
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/ohs-model/" title="Configuring Oracle HTTP Server" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/ohs-model/">
+        Configuring Oracle HTTP Server
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/targetservers-model/" title="Targeting server groups" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/targetservers-model/">
+        Targeting server groups
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/samples/wko-model/" title="Using WDT with WebLogic Kubernetes Operator" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/samples/wko-model/">
+        Using WDT with WebLogic Kubernetes Operator
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/developer/" title="Developer Guide" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/developer/">
+          <b> </b>Developer Guide
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/project-structure/" title="Project structure" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/developer/project-structure/">
+        Project structure
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/feature-impl/" title="Feature implementation" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/developer/feature-impl/">
+        Feature implementation
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/alias-definitions/" title="Alias definitions" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/developer/alias-definitions/">
+        Alias definitions
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/buildwdt/" title="Build WebLogic Deploy Tool" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/developer/buildwdt/">
+        Build WebLogic Deploy Tool
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/crd-schemas/" title="Building CRD schemas" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/developer/crd-schemas/">
+        Building CRD schemas
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/releaseprocess/" title="WDT project release process" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/developer/releaseprocess/">
+        WDT project release process
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/developer/contribute/" title="Contribute to WDT" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/developer/contribute/">
+        Contribute to WDT
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+          
+
+
+
+
+ 
+  
+    
+    <li data-nav-id="/weblogic-deploy-tooling/release-notes/" title="Release Notes" class="dd-item
+        
+        
+        
+        ">
+      <a href="/weblogic-deploy-tooling/release-notes/">
+          <b> </b>Release Notes
+          
+      </a>
+      
+      
+        <ul>
+          
+          
+          
+
+        
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-4/" title="Release 4.0.0" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-4/">
+        <b> </b>Release 4.0.0
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-3/" title="Release 3.0.0" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-3/">
+        <b> </b>Release 3.0.0
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+
+
+ 
+  
+    
+      <li data-nav-id="/weblogic-deploy-tooling/release-notes/release-2/" title="Release 2.4.0" class="dd-item ">
+        <a href="/weblogic-deploy-tooling/release-notes/release-2/">
+        <b> </b>Release 2.4.0
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+        
+        </ul>
+      
+    </li>
+  
+ 
+
+          
+        
+    </ul>
+
+    
+    
+
+    
+    <section id="footer">
+      <p>Created with <i class="fas fa-heart"></i> from <a href="https://www.oracle.com">Oracle</a></p>
+<p>&nbsp</p>
+<p><a href="https://github.com/oracle/weblogic-deploy-tooling"><i class="fab fa-github"></i> GitHub repo</a></p>
+<p><a href="https://join.slack.com/t/oracle-weblogic/shared_invite/zt-1ni1gtjv6-PGC6CQ4uIte3KBdm_67~aQ"><i class="fab fa-slack"></i> Public Slack #weblogic</a></p>
+
+    </section>
+  </div>
+</nav>
+
+
+
+
+        <section id="body">
+        <div id="overlay"></div>
+        <div class="padding highlightable">
+              
+              <div>
+                <div id="top-bar">
+                
+                
+                <div id="breadcrumbs" itemscope="" itemtype="http://data-vocabulary.org/Breadcrumb">
+                    <span id="sidebar-toggle-span">
+                        <a href="#" id="sidebar-toggle" data-sidebar-toggle="">
+                          <i class="fas fa-bars"></i>
+                        </a>
+                    </span>
+                  
+                  <span id="toc-menu"><i class="fas fa-list-alt"></i></span>
+                  
+                  <span class="links">
+                 
+                 
+                    
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            
+            
+          
+          
+            <a href='/weblogic-deploy-tooling/'></a> > <a href='/weblogic-deploy-tooling/userguide/'>User Guide</a> > <a href='/weblogic-deploy-tooling/userguide/tools/'>WDT Tools</a> > Encrypt Model Tool
+          
+        
+          
+        
+          
+        
+          
+        
+                 
+                  </span>
+                </div>
+                
+                    <div class="progress">
+    <div class="wrapper">
+<nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#environment-variables">Environment variables</a></li>
+        <li><a href="#parameter-table-for-encryptmodel">Parameter table for <code>encryptModel</code></a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+
+                
+              </div>
+            </div>
+            
+        <div id="head-tags">
+        
+        </div>
+        
+        <div id="body-inner">
+          
+            <h1>
+              
+              Encrypt Model Tool
+            </h1>
+          
+
+        
+
+
+
+<div class="notices note" ><p>To meet Oracle&rsquo;s security standards, the encryption algorithms require later versions of JDK 7,
+JDK 8, or newer to run.</p>
+</div>
+
+<p>Models contain WebLogic Server domain configuration.  Certain types of resources and other configurations require
+passwords; for example, a JDBC data source requires the password for the user establishing the database connection.
+When creating or configuring a resource that requires a password, that password must be specified either in the model
+directly or in the variable file.  Clear-text passwords are not conducive to storing configurations as source, so the
+Encrypt Model Tool gives the model author the ability to encrypt the passwords in the model and variable file using
+passphrase-based, reversible encryption.  When using a tool with a model containing encrypted passwords, the encryption
+passphrase must be provided, so that the tool can decrypt the password in memory to set the necessary WebLogic Server
+configuration (which supports its own encryption mechanism based on a domain-specific key).  While there is no
+requirement to use the WebLogic Deploy Tooling encryption mechanism, it is highly recommended because storing
+clear-text passwords on disk is never a good idea.</p>
+<p>The Create Domain, Update Domain, and Deploy Applications Tools can take a set of models. The Encrypt model will encrypt
+a set of models. Each model is encrypted using the same passphrase and written back to its original location.</p>
+
+<div class="notices note" ><p>WebLogic Deploy Tooling also supports the use of domain-encrypted passwords directly in the model. The Encrypt Model
+Tool cannot be used in tandem with this method.</p>
+</div>
+
+<p>Start with the following example model:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">domainInfo</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">AdminUserName</span>: <span style="color:#ae81ff">weblogic</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">AdminPassword</span>: <span style="color:#ae81ff">welcome1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">ServerStartMode</span>: <span style="color:#ae81ff">prod</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">topology</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Name</span>: <span style="color:#ae81ff">DemoDomain</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">SecurityConfiguration</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">NodeManagerUsername</span>: <span style="color:#ae81ff">weblogic</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">NodeManagerPasswordEncrypted</span>: <span style="color:#ae81ff">welcome1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Security</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">Group</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">FriscoGroup</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">Description</span>: <span style="color:#ae81ff">The WLS Deploy development group</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">User</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Robert</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">Password</span>: <span style="color:#ae81ff">welcome1</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">GroupMemberOf</span>: [ <span style="color:#ae81ff">Administrators, FriscoGroup ]</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Derek</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">Password</span>: <span style="color:#ae81ff">welcome1</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">GroupMemberOf</span>: <span style="color:#e6db74">&#39;Administrators, FriscoGroup&#39;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Richard</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">Password</span>: <span style="color:#ae81ff">welcome1</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">GroupMemberOf</span>: [ <span style="color:#ae81ff">FriscoGroup ]</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Carolyn</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">Password</span>: <span style="color:#ae81ff">welcome1</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">GroupMemberOf</span>: <span style="color:#ae81ff">FriscoGroup</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Mike</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">Password</span>: <span style="color:#ae81ff">welcome1</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">GroupMemberOf</span>: <span style="color:#ae81ff">FriscoGroup</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Johnny</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">Password</span>: <span style="color:#ae81ff">welcome1</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">GroupMemberOf</span>: <span style="color:#ae81ff">FriscoGroup</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Gopi</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">Password</span>: <span style="color:#ae81ff">welcome1</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">GroupMemberOf</span>: <span style="color:#ae81ff">FriscoGroup</span>
+</span></span></code></pre></div><p>To run the Encrypt Model Tool on the model, run the following command:</p>
+<pre><code>$ weblogic-deploy\bin\encryptModel.cmd -oracle_home c:\wls12213 -model_file UnencryptedDemoDomain.yaml
+</code></pre>
+<p>The tool will prompt for the encryption passphrase twice and then encrypt any passwords it finds in the model, skipping
+any password fields that have variable values, to produce a result that looks like the following model. You can bypass
+the stdin prompt with two other options. Store the passphrase in an environment variable, and use the environment
+variable name with command-line option <code>-passphrase_env</code>. Another option is to create a file containing the passphrase
+value. Pass this filename using the command-line option <code>-passphrase_file</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">domainInfo</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">AdminUserName</span>: <span style="color:#ae81ff">weblogic</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">AdminPassword</span>: <span style="color:#e6db74">&#39;{AES}a0dacEQ4Q2JnTmI4VHp5NjIzVHNPRFg5ZjRiVDJ4NzU6T1M0SGYwM2xBeHdRdHFWVTpWZEh6bkd4NzZSQT0=&#39;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">ServerStartMode</span>: <span style="color:#ae81ff">prod</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">topology</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Name</span>: <span style="color:#ae81ff">DemoDomain</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">SecurityConfiguration</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">NodeManagerUsername</span>: <span style="color:#ae81ff">weblogic</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">NodeManagerPasswordEncrypted</span>: <span style="color:#e6db74">&#39;{AES}WndJQWNySWpoY0VEbFpmR2V1RFhvamVFdGwzandtaFU6L1d4V0dPRFpsaXJIUkl2djpQdUdLaTloR1IxTT0=&#39;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">Security</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">Group</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">FriscoGroup</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">Description</span>: <span style="color:#ae81ff">The WebLogic Deploy development group</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">User</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Robert</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">Password</span>: <span style="color:#e6db74">&#39;{AES}VFIzVmdwcWNLeHBPaWhyRy82VER6WFV6aHRPbGcwMjQ6bS90OGVSTnJxWTIvZjkrRjpjSzBQUHlOWWpWTT0=&#39;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">GroupMemberOf</span>: [ <span style="color:#ae81ff">Administrators, FriscoGroup ]</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Derek</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">Password</span>: <span style="color:#e6db74">&#39;{AES}R1BTM21ZSkxpdTNIZjNqcTlsSC9PeHV4aXJoT3kxazM6M1dLOXBLeCtlc1lsVDUrWjo5VitHZUxCcjZnOD0=&#39;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">GroupMemberOf</span>: <span style="color:#e6db74">&#39;Administrators, FriscoGroup&#39;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Richard</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">Password</span>: <span style="color:#e6db74">&#39;{AES}Y3FkQmRIRGhjZEtlRjVkVVdLQU1Eb09LWDIzMlhUWVo6MjllVExsMmNmNzJzZDFjaTpNcVNDbUs2cnRFRT0=&#39;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">GroupMemberOf</span>: [ <span style="color:#ae81ff">FriscoGroup ]</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Carolyn</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">Password</span>: <span style="color:#e6db74">&#39;{AES}cW8wczJqZXJZOHVsTGNOTmlqTGpuZGFoSkY2ME5WbTk6c0VaWGs1ME5pemlKdC9wajpFaTJPRS9ZQlcvND0=&#39;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">GroupMemberOf</span>: <span style="color:#ae81ff">FriscoGroup</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Mike</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">Password</span>: <span style="color:#e6db74">&#39;{AES}cnF6Z3JOVWcvc0czN3JVb1g5T2FidmRsSU51anJCa0Y6UlBsNVFsOFlXU29xUlY1aDp3VWZWYU5VOVRkMD0=&#39;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">GroupMemberOf</span>: <span style="color:#ae81ff">FriscoGroup</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Johnny</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">Password</span>: <span style="color:#e6db74">&#39;{AES}UWJ5Y25Ma2RHTkNMVTZ1RnlhRkNaTUxXaXV4SjBjaWg6citwTDQvelN1aUlPdnZaSDpCMEdSWGg2ZlVJUT0=&#39;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">GroupMemberOf</span>: <span style="color:#ae81ff">FriscoGroup</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Gopi</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">Password</span>: <span style="color:#e6db74">&#39;{AES}MWJGcnhtZlNyWXVrU1VXMVFxZFEvQThoS1hPN2FQdDc6MmRPaUF2Y1FCQ3VIK3MydDpZaFR5clBrN1FjOD0=&#39;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">GroupMemberOf</span>: <span style="color:#ae81ff">FriscoGroup</span>
+</span></span></code></pre></div><p>If the model stores passwords in the variables file, like the following model:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">resources</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">JDBCSystemResource</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">Generic1</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">mycluster</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">JdbcResource</span>:
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">JDBCDataSourceParams</span>:
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">JNDIName</span>: [ <span style="color:#ae81ff">jdbc/generic1 ]</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">GlobalTransactionsProtocol</span>: <span style="color:#ae81ff">TwoPhaseCommit</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">JDBCDriverParams</span>:
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">DriverName</span>: <span style="color:#ae81ff">oracle.jdbc.xa.client.OracleXADataSource</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">URL</span>: <span style="color:#e6db74">&#39;jdbc:oracle:thin:@//@@PROP:db.url@@&#39;</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">PasswordEncrypted</span>: <span style="color:#e6db74">&#39;@@PROP:db.password@@&#39;</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">Properties</span>:
+</span></span><span style="display:flex;"><span>                      <span style="color:#f92672">user</span>:
+</span></span><span style="display:flex;"><span>                          <span style="color:#f92672">Value</span>: <span style="color:#e6db74">&#39;@@PROP:db.user@@&#39;</span>
+</span></span><span style="display:flex;"><span>                      <span style="color:#f92672">oracle.net.CONNECT_TIMEOUT</span>:
+</span></span><span style="display:flex;"><span>                          <span style="color:#f92672">Value</span>: <span style="color:#ae81ff">5000</span>
+</span></span><span style="display:flex;"><span>                      <span style="color:#f92672">oracle.jdbc.ReadTimeout</span>:
+</span></span><span style="display:flex;"><span>                          <span style="color:#f92672">Value</span>: <span style="color:#ae81ff">30000</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">JDBCConnectionPoolParams</span>:
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">InitialCapacity</span>: <span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">MaxCapacity</span>: <span style="color:#ae81ff">15</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">TestTableName</span>: <span style="color:#ae81ff">SQL ISVALID</span>
+</span></span><span style="display:flex;"><span>                  <span style="color:#f92672">TestConnectionsOnReserve</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">MailSession</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">MyMailSession</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">JNDIName</span>: <span style="color:#ae81ff">mail/MyMailSession</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Target</span>: <span style="color:#ae81ff">mycluster</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">SessionUsername</span>: <span style="color:#ae81ff">john.smith@example.com</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">SessionPasswordEncrypted</span>: <span style="color:#e6db74">&#39;@@PROP:mymailsession.password@@&#39;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">Properties</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">mail.store.protocol</span>: <span style="color:#ae81ff">imap</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">mail.imap.port</span>: <span style="color:#ae81ff">993</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">mail.imap.ssl.enable</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">mail.imap.starttls.enable</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">mail.imap.host</span>: <span style="color:#ae81ff">imap.example.com</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">mail.impa.auth</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">mail.transport.protocol</span>: <span style="color:#ae81ff">smtp</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">mail.smtp.starttls.enable</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">mail.smtp.port</span>: <span style="color:#ae81ff">465</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">mail.smtp.ssl.enable</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">mail.smtp.auth</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">mail.smtp.host</span>: <span style="color:#ae81ff">smtp.example.com</span>
+</span></span></code></pre></div><p>Run the Encrypt Model Tool and pass both the model and variable files, like this:</p>
+<pre><code>$ weblogic-deploy\bin\encryptModel.cmd -oracle_home c:\wls12213 -model_file UnencryptedDemoDomain.yaml -variable_file UnencryptedDemoDomain.properties
+</code></pre>
+<p>The variable file will now look something like the following:</p>
+<pre><code>#Variables updated after encryption
+#Thu Feb 01 19:12:57 CST 2018
+db.user=rpatrick
+db.url=mydb.example.com:1539/PDBORCL
+db.password={AES}czFXMkNFWNG9jNTNYd0hRL2R1anBnb0hDUlp4K1liQWFBdVM4UTlvMnE0NU1aMUZ5UVhiK25oaWFBc2lIQ20\=
+mymailsession.password={AES}RW9nRnUzcE41WGNMdnEzNDdRQVVNWm1LMGhidkFBVXg6OUN3aXcyci82cmh3cnpNQTpmY2UycUp5YWl4UT0\=
+</code></pre>
+<h3 id="environment-variables">Environment variables</h3>
+<p>The following environment variables may be set.</p>
+<ul>
+<li><code>JAVA_HOME</code>             The location of the JDK. This must be a valid JDK that has support for the WDT encryption algorithms.</li>
+<li><code>WLSDEPLOY_PROPERTIES</code>  System properties that will be passed to Java.</li>
+</ul>
+<p>Since the Encrypt Model Tool uses Jython directly without using WLST, the <code>JAVA_HOME</code> will be the JDK used to execute
+the command (unlike other tools that use WLST).</p>
+<h3 id="parameter-table-for-encryptmodel">Parameter table for <code>encryptModel</code></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Parameter</th>
+          <th>Definition</th>
+          <th>Default</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>-manual</code></td>
+          <td>Run without a model and get an encrypted value for a single password.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>-model_file</code></td>
+          <td>The location of the model file or a set of model files.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>-oracle_home</code></td>
+          <td>Home directory of the Oracle WebLogic installation. Required if the <code>ORACLE_HOME</code> environment variable is not set.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>-passphrase_env</code></td>
+          <td>An alternative to entering the encryption passphrase at a prompt. The value is an environment variable name that WDT will use to retrieve the passphrase.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>-passphrase_file</code></td>
+          <td>An alternative to entering the encryption passphrase at a prompt. The value is a the name of a file with a string value which WDT will read to retrieve the passphrase.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>-passphrase_prompt</code></td>
+          <td>Allow WDT to prompt for the encryption passphrase or read it from stdin.</td>
+          <td></td>
+      </tr>
+      <tr>
+          <td><code>-variable_file</code></td>
+          <td>The location and name of the property file containing the variable values for all variables used in the model(s).</td>
+          <td></td>
+      </tr>
+  </tbody>
+</table>
+
+
+<footer class="footline">
+	
+</footer>
+
+        
+        </div>
+        
+
+      </div>
+
+    <div id="navigation">
+        
+        
+
+        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                        
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+            
+        
+
+        
+
+
+	 
+	 
+		
+			<a class="nav nav-prev" href="/weblogic-deploy-tooling/userguide/tools/discover/" title="Discover Domain Tool"> <i class="fa fa-chevron-left"></i></a>
+		
+		
+			<a class="nav nav-next" href="/weblogic-deploy-tooling/userguide/tools/validate/" title="Validate Model Tool" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+		
+	
+    </div>
+
+    </section>
+
+    <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
+      <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
+    </div>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1762890099"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1762890099"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1762890099"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1762890099"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1762890099"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1762890099"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1762890099"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1762890099"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1762890099"></script>
+    
+        
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1762890099"></script>
+        
+        <script>
+            mermaid.initialize({ startOnLoad: true });
+        </script>
+    
+    
+
+  </body>
+</html>
+
