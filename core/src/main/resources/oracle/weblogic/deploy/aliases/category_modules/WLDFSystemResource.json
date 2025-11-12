@@ -231,7 +231,7 @@
                             "folders": {},
                             "attributes": {
                                 "Enabled":          [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Enabled",          "wlst_path": "WP001",  "default_value": "true", "wlst_type": "boolean"                     } ],
-                                "Environment":      [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Environment",      "wlst_path": "WP001",  "default_value": null,   "wlst_type": "delimited_string[semicolon]", "preferred_model_type": "dict", "get_method" : "LSA" } ],
+                                "Environment":      [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Environment",      "wlst_path": "WP001",  "default_value": null,   "wlst_type": "properties",                 "preferred_model_type": "dict", "get_method": "GET" } ],
                                 "Parameter":        [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Parameter${:s}",   "wlst_path": "WP001",  "default_value": "[]",   "wlst_type": "${list:jarray}",             "preferred_model_type": "delimited_string", "get_method": "${LSA:GET}", "wlst_read_type": "delimited_string","merge": false } ],
                                 "PathToScript":     [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "PathToScript",     "wlst_path": "WP001",  "default_value": null,   "wlst_type": "string",                     "uses_path_tokens": "true" } ],
                                 "Timeout":          [ {"version": "[12.2.1.1,)", "wlst_mode": "both", "wlst_name": "Timeout",          "wlst_path": "WP001",  "default_value": 0,      "wlst_type": "integer"                     } ],
