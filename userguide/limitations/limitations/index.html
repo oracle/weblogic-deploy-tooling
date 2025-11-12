@@ -12,20 +12,20 @@
     <title>Limitations :: WebLogic Deploy Tooling</title>
 
     
-    <link href="/weblogic-deploy-tooling/css/nucleus.css?1762918406" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1762918406" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hybrid.css?1762918406" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1762918406" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1762918406" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1762918406" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1762918406" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.css?1762918406" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/tabs.css?1762918406" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1762918406" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/nucleus.css?1762957983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/fontawesome-all.min.css?1762957983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hybrid.css?1762957983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/featherlight.min.css?1762957983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar.min.css?1762957983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/auto-complete.css?1762957983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/atom-one-dark-reasonable.css?1762957983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.css?1762957983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/tabs.css?1762957983" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/hugo-theme.css?1762957983" rel="stylesheet">
     
     
 
-    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1762918406"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery-3.3.1.min.js?1762957983"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -59,14 +59,14 @@
     <span data-search-clear=""><i class="fas fa-times"></i></span>
 </div>
 
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1762918406"></script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1762918406"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/lunr.min.js?1762957983"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/auto-complete.js?1762957983"></script>
 <script type="text/javascript">
     
         var baseurl = "https:\/\/oracle.github.io\/weblogic-deploy-tooling";
     
 </script>
-<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1762918406"></script>
+<script type="text/javascript" src="/weblogic-deploy-tooling/js/search.js?1762957983"></script>
 
     
   </div>
@@ -2245,6 +2245,7 @@
         <li><a href="#ssh-usage">SSH usage</a></li>
         <li><a href="#production-redeployment-of-versioned-applications">Production Redeployment of Versioned Applications</a></li>
         <li><a href="#online-update-domain-running-on-jdk-8">Online Update Domain running on JDK 8</a></li>
+        <li><a href="#online-update-domain-with-deletes-requiring-ordering">Online Update Domain with Deletes Requiring Ordering</a></li>
       </ul>
     </li>
   </ul>
@@ -2370,6 +2371,13 @@ updateDomain.sh failed (exit code = 2)
 </code></pre><p><strong>ACTION</strong>: This is caused by WebLogic Server Bug 37443991.  To resolve this issue, please file an SR with Oracle Support
 and ask for a patch for Bug 37443991.  The only known workarounds are to either split these two updates into separate
 online Update Domain calls or use offline Update Domain.</p>
+<h3 id="online-update-domain-with-deletes-requiring-ordering">Online Update Domain with Deletes Requiring Ordering</h3>
+<p><strong>ISSUE</strong>: WDT Update Domain does not support any ordering for deleting existing folders.  As such, online updates where
+the model is deleting MBeans that are referenced by other MBeans&ndash;even ones marked for deletion&ndash;may fail due to the
+lack of support for ordered deletions.  This is a complex problem to address generically, as discussed in
+<a href="https://github.com/oracle/weblogic-deploy-tooling/issues/1664#issuecomment-3456974575">GitHub Issue 1664</a>.</p>
+<p><strong>ACTION</strong>: Create a sparse model with a single folder marked for deletion and run the Update Domain tool.  Repeat this
+process until all desired objects are deleted.</p>
 
 
 <footer class="footline">
@@ -3943,19 +3951,19 @@ online Update Domain calls or use offline Update Domain.</p>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1762918406"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1762918406"></script>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1762918406"></script>
-    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1762918406"></script>
-    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1762918406"></script>
-    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1762918406"></script>
+    <script src="/weblogic-deploy-tooling/js/clipboard.min.js?1762957983"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.min.js?1762957983"></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar.jquery.min.js?1762957983"></script>
+    <script src="/weblogic-deploy-tooling/js/jquery.sticky.js?1762957983"></script>
+    <script src="/weblogic-deploy-tooling/js/featherlight.min.js?1762957983"></script>
+    <script src="/weblogic-deploy-tooling/js/highlight.pack.js?1762957983"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1762918406"></script>
-    <script src="/weblogic-deploy-tooling/js/learn.js?1762918406"></script>
-    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1762918406"></script>
+    <script src="/weblogic-deploy-tooling/js/modernizr.custom-3.6.0.js?1762957983"></script>
+    <script src="/weblogic-deploy-tooling/js/learn.js?1762957983"></script>
+    <script src="/weblogic-deploy-tooling/js/hugo-learn.js?1762957983"></script>
     
         
-            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1762918406"></script>
+            <script src="/weblogic-deploy-tooling/mermaid/mermaid.js?1762957983"></script>
         
         <script>
             mermaid.initialize({ startOnLoad: true });
