@@ -203,7 +203,6 @@ class SSHContext(object):
             self._os_helper = SSHUnixCommandLineHelper()
 
         self.path_helper = path_helper.get_path_helper()
-
         self._logger.exiting(class_name=self._class_name, method_name=_method_name)
 
     def is_connected(self):
@@ -251,7 +250,7 @@ class SSHContext(object):
 
     def upload(self, source_path, target_path):
         _method_name = 'upload'
-        self._logger.entering(target_path, source_path, class_name=self._class_name, method_name=_method_name)
+        self._logger.entering(source_path, target_path, class_name=self._class_name, method_name=_method_name)
 
         if StringUtils.isEmpty(target_path):
             ex = exception_helper.create_exception(self._exception_type, 'WLSDPLY-32018')
@@ -272,9 +271,25 @@ class SSHContext(object):
 
         try:
             remote_host = self._ssh_client.getRemoteHostname()
-            self._logger.info('WLSDPLY-32022', abs_source_path, remote_host, abs_target_path,
-                              class_name=self._class_name, method_name=_method_name)
-            self._ssh_client.newSCPFileTransfer().upload(abs_source_path, target_path)
+
+            # By default, sshj newSCPFileTransfer().upload() uses single quotes, which
+            # do not work on Windows.  Have to go another level down to make this works
+            # properly.
+            #
+            if self.is_windows:
+                from net.schmizz.sshj.xfer import FileSystemFile
+                from net.schmizz.sshj.xfer.scp.ScpCommandLine import EscapeMode
+
+                self._logger.info('WLSDPLY-32044', abs_source_path, remote_host, target_path,
+                                  class_name=self._class_name, method_name=_method_name)
+                self._ssh_client.newSCPFileTransfer().newSCPUploadClient().copy(FileSystemFile(abs_source_path),
+                                                                                target_path,
+                                                                                EscapeMode.DoubleQuote)
+            else:
+                self._logger.info('WLSDPLY-32022', abs_source_path, remote_host, abs_target_path,
+                                  class_name=self._class_name, method_name=_method_name)
+                self._ssh_client.newSCPFileTransfer().upload(abs_source_path, target_path)
+
             self._logger.info('WLSDPLY-32023', abs_source_path, remote_host, abs_target_path,
                               class_name=self._class_name, method_name=_method_name)
         except IOException,ioe:
