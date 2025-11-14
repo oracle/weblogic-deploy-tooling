@@ -41,7 +41,7 @@ jobs:
 
       - name: Build and publish site
         run: |
-          curl -fL -o hugo.tar.gz "https://github.com/gohugoio/hugo/releases/download/v0.82.0/hugo_0.82.0_Linux-64bit.tar.gz"
+          curl -fL -o hugo.tar.gz "https://github.com/gohugoio/hugo/releases/download/v0.146.2/hugo_0.146.2_Linux-64bit.tar.gz"
           tar -xf hugo.tar.gz
           export PATH="$PWD:$PATH"
           mkdir $GITHUB_WORKSPACE/WORK
