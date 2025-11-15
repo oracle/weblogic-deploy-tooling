@@ -4,7 +4,8 @@
     <title>Tags on WebLogic Deploy Tooling</title>
     <link>https://oracle.github.io/weblogic-deploy-tooling/tags/</link>
     <description>Recent content in Tags on WebLogic Deploy Tooling</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="https://oracle.github.io/weblogic-deploy-tooling/tags/index.xml" rel="self" type="application/rss+xml" />
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <atom:link href="https://oracle.github.io/weblogic-deploy-tooling/tags/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>
