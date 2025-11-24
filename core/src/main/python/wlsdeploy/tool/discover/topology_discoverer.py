@@ -148,6 +148,9 @@ class TopologyDiscoverer(Discoverer):
 
             model_top_folder_name, callouts = self.get_callouts()
             discoverer.add_to_model_if_not_empty(self._dictionary, model_top_folder_name, callouts)
+
+            self.discover_domain_named_mbeans(model_constants.RMI_FORWARDING, self._dictionary)
+
         finally:
             if current_tree is not None:
                 current_tree()
