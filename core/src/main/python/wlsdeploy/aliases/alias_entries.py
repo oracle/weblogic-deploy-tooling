@@ -74,6 +74,7 @@ from wlsdeploy.aliases.model_constants import RCU_DB_INFO
 from wlsdeploy.aliases.model_constants import REMOTE_CONSOLE_HELPER
 from wlsdeploy.aliases.model_constants import RESOURCE_MANAGER
 from wlsdeploy.aliases.model_constants import RESOURCES
+from wlsdeploy.aliases.model_constants import RMI_FORWARDING
 from wlsdeploy.aliases.model_constants import SNMP_AGENT
 from wlsdeploy.aliases.model_constants import SNMP_AGENT_DEPLOYMENT
 from wlsdeploy.aliases.model_constants import SYSTEM_COMPONENT
@@ -126,6 +127,7 @@ class AliasEntries(object):
         'NMProperties',
         REMOTE_CONSOLE_HELPER,
         "RestfulManagementServices",
+        RMI_FORWARDING,
         'Security',
         'SecurityConfiguration',
         'Server',

@@ -1,0 +1,35 @@
+{
+    "copyright": "Copyright (c) 2025, Oracle and/or its affiliates.",
+    "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
+    "wlst_type": "R${mi:MI}Forwarding${:s}",
+    "online_bean": "weblogic.management.configuration.RMIForwardingMBean",
+    "child_folders_type": "multiple",
+    "version" : "[15.1.1,)",
+    "folders": {
+        "ConfigurationProperty" : {
+          "wlst_type" : "ConfigurationPropert${y:ies}",
+          "online_bean": "weblogic.management.configuration.ConfigurationPropertyMBean",
+          "child_folders_type": "multiple",
+          "version" : "[15.1.1,)",
+          "folders" : {},
+          "attributes" : {
+              "EncryptValueRequired":    [ {"version": "[15.1.1,)",         "wlst_mode": "both", "wlst_name": "EncryptValueRequired",    "wlst_path": "WP001", "default_value": "false",  "wlst_type": "boolean" } ],
+              "EncryptedValueEncrypted": [ {"version": "[15.1.1,)",         "wlst_mode": "both", "wlst_name": "EncryptedValueEncrypted", "wlst_path": "WP001", "default_value": null,     "wlst_type": "password", "get_method" : "GET", "access": "IGNORED" } ],
+              "Notes":                   [ {"version": "[15.1.1,)",         "wlst_mode": "both", "wlst_name": "Notes",                   "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"  } ],
+              "Value":                   [ {"version": "[15.1.1,)",         "wlst_mode": "both", "wlst_name": "Value",                   "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"  } ]
+          },
+          "wlst_attributes_path": "WP001",
+          "wlst_paths": {
+              "WP001": "/R${mi:MI}Forwarding${:s}/%RMIFORWARDING%/ConfigurationPropert${y:ies}/%PROPERTY_NAME%"
+          }
+        }
+    },
+    "attributes": {
+        "Notes": [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "Notes", "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ],
+        "Url":   [ {"version": "[15.1.1,)", "wlst_mode": "both", "wlst_name": "Url",   "wlst_path": "WP001", "default_value": null, "wlst_type": "string" } ]
+    },
+    "wlst_attributes_path": "WP001",
+    "wlst_paths": {
+      "WP001": "/R${mi:MI}Forwarding${:s}/%RMIFORWARDING%"
+    }
+}
