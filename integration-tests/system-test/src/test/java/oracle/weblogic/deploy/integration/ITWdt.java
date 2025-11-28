@@ -1414,7 +1414,7 @@ public class ITWdt extends BaseTest {
         }
     }
 
-    @DisplayName("Test 38: Create domain with structured app and use online update the redeploy it")
+    @DisplayName("Test 38: Create domain with structured app and use online update to redeploy it")
     @Order(38)
     @Tag("gate")
     @Test
