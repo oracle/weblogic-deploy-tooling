@@ -98,8 +98,8 @@
                             {"version": "[14.1.2,)",       "wlst_mode": "both", "wlst_name": "FileMinSize",        "wlst_path": "WP001", "default_value": 500, "production_default": 5000,               "wlst_type": "integer" }
                         ],
                         "FileName":            [
-                            {"version": "[12.1.2,15.1.1)", "wlst_mode": "both", "wlst_name": "FileName", "wlst_path": "WP001", "default_value": "${__NULL__:logs/datasource.log}", "derived_default": "${:true}", "wlst_type": "string" },
-                            {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "FileName", "wlst_path": "WP001", "default_value": "${__NULL__:logs/datasource.log}", "derived_default": true,       "wlst_type": "string" }
+                            {"version": "[12.1.2,15.1.1)", "wlst_mode": "both", "wlst_name": "FileName", "wlst_path": "WP001", "default_value": "${__NULL__:logs/datasource.log}", "derived_default": "${:true}", "wlst_type": "string", "uses_path_tokens": "true" },
+                            {"version": "[15.1.1,)",       "wlst_mode": "both", "wlst_name": "FileName", "wlst_path": "WP001", "default_value": "${__NULL__:logs/datasource.log}", "derived_default": true,       "wlst_type": "string", "uses_path_tokens": "true" }
                         ],
                         "FileTimeSpan":        [ {"version": "[12.1.2,)",       "wlst_mode": "both",    "wlst_name": "FileTimeSpan",         "wlst_path": "WP001", "default_value": 24,                                          "wlst_type": "integer"          } ],
                         "FileTimeSpanFactor":  [ {"version": "[12.1.2,)",       "wlst_mode": "offline", "wlst_name": "FileTimeSpanFactor",   "wlst_path": "WP001", "default_value": 3600000,                                     "wlst_type": "long"             } ],
@@ -290,9 +290,9 @@
                 "NonLocalPostAllowed":          [ {"version": "[12.1.2,)", "wlst_mode": "both",     "wlst_name": "NonLocalPostAllowed",          "wlst_path": "WP001", "default_value": "false",  "wlst_type": "boolean"  } ],
                 "Notes":                        [ {"version": "[12.1.2,)", "wlst_mode": "both",     "wlst_name": "Notes",                        "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"   } ],
                 "NumberOfRestartAttempts":      [ {"version": "[12.1.2,)", "wlst_mode": "both",     "wlst_name": "NumberOfRestartAttempts",      "wlst_path": "WP001", "default_value": 6,        "wlst_type": "integer"  } ],
-                "PostScript":                   [ {"version": "[12.1.2,)", "wlst_mode": "both",     "wlst_name": "PostScript",                   "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"   } ],
+                "PostScript":                   [ {"version": "[12.1.2,)", "wlst_mode": "both",     "wlst_name": "PostScript",                   "wlst_path": "WP001", "default_value": null,     "wlst_type": "string", "uses_path_tokens": "true"  } ],
                 "PostScriptFailureFatal":       [ {"version": "[12.1.2,)", "wlst_mode": "both",     "wlst_name": "PostScriptFailureFatal",       "wlst_path": "WP001", "default_value": "true",   "wlst_type": "boolean"  } ],
-                "PreScript":                    [ {"version": "[12.1.2,)", "wlst_mode": "both",     "wlst_name": "PreScript",                    "wlst_path": "WP001", "default_value": null,     "wlst_type": "string"   } ],
+                "PreScript":                    [ {"version": "[12.1.2,)", "wlst_mode": "both",     "wlst_name": "PreScript",                    "wlst_path": "WP001", "default_value": null,     "wlst_type": "string", "uses_path_tokens": "true"  } ],
                 "RestartOnFailure":             [ {"version": "[12.1.2,)", "wlst_mode": "both",     "wlst_name": "RestartOnFailure",             "wlst_path": "WP001", "default_value": "false",  "wlst_type": "boolean"  } ],
                 "SecondsBetweenRestarts":       [ {"version": "[12.1.2,)", "wlst_mode": "both",     "wlst_name": "SecondsBetweenRestarts",       "wlst_path": "WP001", "default_value": 30,       "wlst_type": "integer"  } ],
                 "StrictOwnershipCheck":         [ {"version": "[12.1.2,)", "wlst_mode": "both",     "wlst_name": "StrictOwnershipCheck",         "wlst_path": "WP001", "default_value": "false",  "wlst_type": "boolean"  } ],
@@ -1619,7 +1619,7 @@
                 "PartialClusterStabilityDelaySeconds":  [ {"version": "[12.2.1,12.2.1.1)","wlst_mode": "both","wlst_name": "PartialClusterStabilityDelaySeconds","wlst_path": "WP001", "default_value": -1,     "wlst_type": "long"             } ,
                                                           {"version": "[12.2.1.1,)",   "wlst_mode": "both",  "wlst_name": "PartialClusterStabilityDelaySeconds","wlst_path": "WP001", "default_value": 240,    "wlst_type": "long"              } ],
                 "PrefixName":                           [
-                    {"version": "[12.1.2,12.2.1.1)", "wlst_mode": "both",    "wlst_name": "PrefixName",    "wlst_path": "WP001", "default_value": "${__NULL__:TLOG_%SERVERTEMPLATE%_}",  "wlst_type": "string", "uses_path_tokens": "true", "derived_default": "${:true}" },
+                    {"version": "[12.1.2,12.2.1.1)", "wlst_mode": "both",    "wlst_name": "PrefixName",    "wlst_path": "WP001", "default_value": "${__NULL__:TLOG_%SERVERTEMPLATE%_}",  "wlst_type": "string", "derived_default": "${:true}" },
                     {"version": "[12.2.1.1,)",       "wlst_mode": "offline", "wlst_name": "PrefixName",    "wlst_path": "WP001", "default_value": null,                  "wlst_type": "string" },
                     {"version": "[12.2.1.1,)",       "wlst_mode": "online",  "wlst_name": "PrefixName",    "wlst_path": "WP001", "default_value": "TLOG_${serverName}_", "wlst_type": "string" }
                 ],
