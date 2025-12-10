@@ -1,15 +1,17 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
-import oracle.weblogic.deploy.util.PyOrderedDict as OrderedDict
+from oracle.weblogic.deploy.util import PyOrderedDict as OrderedDict
+from oracle.weblogic.deploy.util import WLSDeployArchive
 
-import wlsdeploy.util.dictionary_utils as dictionary_utils
 from wlsdeploy.aliases.location_context import LocationContext
 from wlsdeploy.aliases.model_constants import CONNECTION_FACTORY
+from wlsdeploy.aliases.model_constants import CONNECTION_URL
 from wlsdeploy.aliases.model_constants import DESTINATION_KEY
 from wlsdeploy.aliases.model_constants import DISTRIBUTED_QUEUE
 from wlsdeploy.aliases.model_constants import DISTRIBUTED_TOPIC
+from wlsdeploy.aliases.model_constants import FILE_URI
 from wlsdeploy.aliases.model_constants import FOREIGN_SERVER
 from wlsdeploy.aliases.model_constants import GROUP_PARAMS
 from wlsdeploy.aliases.model_constants import JMS_RESOURCE
@@ -27,11 +29,11 @@ from wlsdeploy.aliases.model_constants import TOPIC
 from wlsdeploy.aliases.model_constants import UNIFORM_DISTRIBUTED_QUEUE
 from wlsdeploy.aliases.model_constants import UNIFORM_DISTRIBUTED_TOPIC
 from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.exception.exception_types import ExceptionType
 from wlsdeploy.tool.deploy import deployer_utils
-from wlsdeploy.util import model_helper
 from wlsdeploy.tool.deploy import log_helper
 from wlsdeploy.tool.deploy.deployer import Deployer
+from wlsdeploy.util import dictionary_utils
+from wlsdeploy.util import model_helper
 
 
 class JmsResourcesDeployer(Deployer):
@@ -107,6 +109,18 @@ class JmsResourcesDeployer(Deployer):
             return
 
         Deployer._add_model_elements(self, type_name, model_nodes, location, delete_now=delete_now)
+
+    # Override
+    def _extract_from_archive_if_needed(self, location, key, value):
+        """
+        Overriding this method to ensure foreign server connection archive URL is valid
+        """
+        result = Deployer._extract_from_archive_if_needed(self, location, key, value)
+
+        if key == CONNECTION_URL and WLSDeployArchive.isPathIntoArchive(result):
+            result = FILE_URI + self.path_helper.join(self.model_context.get_domain_home(), result)
+
+        return result
 
     def _add_jms_resources(self, resource_nodes, location):
         """

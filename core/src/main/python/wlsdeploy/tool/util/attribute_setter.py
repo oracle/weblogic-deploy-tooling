@@ -398,6 +398,18 @@ class AttributeSetter(object):
             mbean = self.__find_in_location(LocationContext(), MACHINE, value, required=True)
             self.set_attribute(location, key, mbean, wlst_merge_value=wlst_value, use_raw_value=True)
 
+    def set_machine_mbeans(self, location, key, value, wlst_value):
+        """
+        Set a list of Machine MBeans.
+        :param location: the location
+        :param key: the attribute name
+        :param value: the string value
+        :param wlst_value: the existing value of the attribute from WLST
+        :raises BundleAwareException of the specified type: if machine is not found
+        """
+        mbeans = self.__build_machine_mbean_list(value, wlst_value, location, key)
+        self.set_attribute(location, key, mbeans, wlst_merge_value=wlst_value, use_raw_value=True)
+
     def set_jms_template_mbean(self, location, key, value, wlst_value):
         """
         Set the JMS Template MBean.
@@ -873,14 +885,7 @@ class AttributeSetter(object):
         :return: the Java array of MBeans ObjectNames
         :raises BundleAwareException of the specified type: if an error occurs
         """
-        server_names = self.__merge_existing_items(value, wlst_value, location, key)
-
-        name_list = []
-        for server_name in server_names:
-            mbean = self.__find_in_location(LocationContext(), SERVER, server_name, required=True)
-            name_list.append(mbean.getObjectName())
-
-        return jarray.array(name_list, ObjectName)
+        return self.__build_mbean_list(SERVER, value, wlst_value, location, key)
 
     def __build_virtual_target_mbean_list(self, target_value, wlst_value, location, key):
         """
@@ -892,19 +897,44 @@ class AttributeSetter(object):
         :return: for offline, a list of MBeans; for online, a jarray of MBean ObjectNames
         :raises BundleAwareException of the specified type: if an error occurs
         """
-        target_names = self.__merge_existing_items(target_value, wlst_value, location, key)
+        return self.__build_mbean_list(VIRTUAL_TARGET, target_value, wlst_value, location, key)
+
+    def __build_machine_mbean_list(self, value, wlst_value, location, key):
+        """
+        Construct the machine MBean list.
+        :param value: the value
+        :param wlst_value: the existing value from WLST
+        :param location: location of the attribute
+        :param key: the attribute name
+        :return: the Java array of MBeans ObjectNames
+        :raises BundleAwareException of the specified type: if an error occurs
+        """
+        return self.__build_mbean_list(MACHINE, value, wlst_value, location, key)
+
+    def __build_mbean_list(self, folder_name, value, wlst_value, location, key):
+        """
+        Construct the MBean list using the specified model folder.
+        :param folder_name: the model folder to search, such as MACHINE or SERVER
+        :param value: the value
+        :param wlst_value: the existing value from WLST
+        :param location: location of the attribute
+        :param key: the attribute name
+        :return: the Java array of MBeans ObjectNames
+        :raises BundleAwareException of the specified type: if an error occurs
+        """
+        mbean_names = self.__merge_existing_items(value, wlst_value, location, key)
 
         if self.__wlst_mode == WlstModes.ONLINE:
             name_list = []
-            for target_name in target_names:
-                target_mbean = self.__find_in_location(LocationContext(), VIRTUAL_TARGET, target_name, required=True)
-                name_list.append(target_mbean.getObjectName())
+            for mbean_name in mbean_names:
+                mbean = self.__find_in_location(LocationContext(), folder_name, mbean_name, required=True)
+                name_list.append(mbean.getObjectName())
             return jarray.array(name_list, ObjectName)
         else:
             mbean_list = []
-            for target_name in target_names:
-                target_mbean = self.__find_in_location(LocationContext(), VIRTUAL_TARGET, target_name, required=True)
-                mbean_list.append(target_mbean)
+            for mbean_name in mbean_names:
+                mbean = self.__find_in_location(LocationContext(), folder_name, mbean_name, required=True)
+                mbean_list.append(mbean)
             return mbean_list
 
     def __find_target(self, target_name, location, include_jms=False):
