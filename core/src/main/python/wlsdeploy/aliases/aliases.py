@@ -1139,11 +1139,11 @@ class Aliases(object):
             if attribute_info is not None and not self.__is_model_attribute_ignored(location, attribute_info):
                 model_attribute_name = attribute_info[MODEL_NAME]
 
-                wlst_type, preferred_type, delimiter = \
+                _wlst_read_type, preferred_type, delimiter = \
                     alias_utils.compute_read_data_type_for_wlst_and_delimiter_from_attribute_info(
                         attribute_info, wlst_attribute_value)
 
-                model_type = wlst_type
+                model_type = attribute_info[WLST_TYPE]
                 if preferred_type:
                     model_type = preferred_type
 
