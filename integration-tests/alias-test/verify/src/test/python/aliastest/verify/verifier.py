@@ -1122,7 +1122,7 @@ class Verifier(object):
                     self._is_valid_alias_property_type(location, generated_attribute, generated_attribute_info,
                                                        alias_type, model_name, get_required_attribute_list):
                 valid = True
-            elif alias_type in alias_constants.ALIAS_LIST_TYPES and \
+            elif (alias_type in alias_constants.ALIAS_LIST_TYPES or alias_type in alias_constants.ALIAS_MAP_TYPES) and \
                     self._check_complex_type(location, generated_attribute, generated_attribute_info, alias_type,
                                              model_name, get_required_attribute_list):
                 _logger.finer('Attribute {0} attribute type {1} is valid for alias type {2}',
@@ -1371,7 +1371,7 @@ class Verifier(object):
             elif _is_wlst_read_type_compatible_list_type(generated_attribute, lsa_type,
                                                          self._alias_helper.get_wlst_read_type(location, model_name)):
                 valid = True
-        elif alias_type in alias_constants.ALIAS_DELIMITED_TYPES:
+        elif alias_type in alias_constants.ALIAS_DELIMITED_TYPES or alias_type in alias_constants.ALIAS_DELIMITED_MAP_TYPES:
             if _is_any_string_type(generated_attr_info):
                 valid = True
                 if _is_in_types_with_get_required(generated_attribute, CONVERT_TO_DELIMITED_TYPES,

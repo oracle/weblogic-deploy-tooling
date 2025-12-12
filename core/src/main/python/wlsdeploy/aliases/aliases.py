@@ -14,6 +14,7 @@ from oracle.weblogic.deploy.encrypt import EncryptionUtils
 from wlsdeploy.aliases import alias_utils
 from wlsdeploy.aliases import password_utils
 from wlsdeploy.aliases.alias_constants import ACCESS
+from wlsdeploy.aliases.alias_constants import ALIAS_BOOLEAN_TYPES
 from wlsdeploy.aliases.alias_constants import ALIAS_LIST_TYPES
 from wlsdeploy.aliases.alias_constants import ALIAS_MAP_TYPES
 from wlsdeploy.aliases.alias_constants import ATTRIBUTES
@@ -1139,11 +1140,11 @@ class Aliases(object):
             if attribute_info is not None and not self.__is_model_attribute_ignored(location, attribute_info):
                 model_attribute_name = attribute_info[MODEL_NAME]
 
-                wlst_type, preferred_type, delimiter = \
+                _wlst_read_type, preferred_type, delimiter = \
                     alias_utils.compute_read_data_type_for_wlst_and_delimiter_from_attribute_info(
                         attribute_info, wlst_attribute_value)
 
-                model_type = wlst_type
+                model_type = attribute_info[WLST_TYPE]
                 if preferred_type:
                     model_type = preferred_type
 
@@ -1212,7 +1213,7 @@ class Aliases(object):
 
         result_model_value = None
 
-        if model_type == 'boolean':
+        if model_type in ALIAS_BOOLEAN_TYPES:
             # some boolean attributes have WLST value of null until they are set
             result_model_value = _get_boolean_or_none(wlst_value)  # from unconverted value
             default_boolean = _get_boolean_or_none(default_value)
