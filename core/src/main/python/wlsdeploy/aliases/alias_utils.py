@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -18,33 +18,33 @@ from java.lang import String
 from java.util import Properties
 from javax.management import ObjectName
 
-from oracle.weblogic.deploy.util import PyRealBoolean
 from oracle.weblogic.deploy.aliases import TypeUtils
 from oracle.weblogic.deploy.aliases import VersionException
 from oracle.weblogic.deploy.aliases import VersionUtils
+from oracle.weblogic.deploy.util import PyRealBoolean
 
-from wlsdeploy.aliases.alias_constants import BOOLEAN
-from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
-from wlsdeploy.aliases.alias_constants import STRING
-from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
-from wlsdeploy.aliases.wlst_modes import WlstModes
-from wlsdeploy.exception import exception_helper
-from wlsdeploy.logging.platform_logger import PlatformLogger
-
+from wlsdeploy.aliases.alias_constants import ALIAS_BOOLEAN_TYPES
+from wlsdeploy.aliases.alias_constants import ALIAS_DELIMITED_MAP_TYPES
 from wlsdeploy.aliases.alias_constants import ALIAS_DELIMITED_TYPES
 from wlsdeploy.aliases.alias_constants import ATTRIBUTES
 from wlsdeploy.aliases.alias_constants import COMMA_DELIMITED_STRING
+from wlsdeploy.aliases.alias_constants import ChildFoldersTypes
+from wlsdeploy.aliases.alias_constants import DELIMITED_MAP
 from wlsdeploy.aliases.alias_constants import DELIMITED_STRING
+from wlsdeploy.aliases.alias_constants import DICTIONARY
 from wlsdeploy.aliases.alias_constants import JARRAY
 from wlsdeploy.aliases.alias_constants import JAVA_LANG_BOOLEAN
 from wlsdeploy.aliases.alias_constants import LIST
 from wlsdeploy.aliases.alias_constants import LONG
+from wlsdeploy.aliases.alias_constants import NEW_LINE_DELIMITED_MAP
 from wlsdeploy.aliases.alias_constants import PATH_SEPARATOR_DELIMITED_STRING
 from wlsdeploy.aliases.alias_constants import PREFERRED_MODEL_TYPE
+from wlsdeploy.aliases.alias_constants import PROPERTIES
 from wlsdeploy.aliases.alias_constants import SECURITY_PROVIDER_FOLDER_PATHS
 from wlsdeploy.aliases.alias_constants import SECURITY_PROVIDER_MBEAN_NAME_MAP
 from wlsdeploy.aliases.alias_constants import SEMI_COLON_DELIMITED_STRING
 from wlsdeploy.aliases.alias_constants import SPACE_DELIMITED_STRING
+from wlsdeploy.aliases.alias_constants import STRING
 from wlsdeploy.aliases.alias_constants import VERSION
 from wlsdeploy.aliases.alias_constants import WLST_ATTRIBUTES_PATH
 from wlsdeploy.aliases.alias_constants import WLST_CREATE_PATH
@@ -53,8 +53,13 @@ from wlsdeploy.aliases.alias_constants import WLST_MODE
 from wlsdeploy.aliases.alias_constants import WLST_PATH
 from wlsdeploy.aliases.alias_constants import WLST_PATHS
 from wlsdeploy.aliases.alias_constants import WLST_READ_TYPE
-from wlsdeploy.aliases.alias_constants import WLST_TYPE
 from wlsdeploy.aliases.alias_constants import WLST_SUBFOLDERS_PATH
+from wlsdeploy.aliases.alias_constants import WLST_TYPE
+from wlsdeploy.aliases.alias_constants import WTC_DELIMITED_MAP
+from wlsdeploy.aliases.model_constants import MODEL_LIST_DELIMITER
+from wlsdeploy.aliases.wlst_modes import WlstModes
+from wlsdeploy.exception import exception_helper
+from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.util import model_helper
 from wlsdeploy.util import unicode_helper as str_helper
 
@@ -121,7 +126,7 @@ def merge_model_and_existing_properties(model_props, existing_props, string_prop
              depending on the type of the model_props
     :raises: DeployException: if either properties is not either a string or a java.util.Properties object
     """
-    _method_name = 'merge_model_and_existing_lists'
+    _method_name = 'merge_model_and_existing_properties'
 
     _logger.entering(model_props, existing_props, string_props_separator_char,
                      class_name=_class_name, method_name=_method_name)
@@ -556,12 +561,16 @@ def compute_delimiter_from_data_type(data_type, value):
     :return: the delimiter
     """
     delimiter = None
-    if data_type in (COMMA_DELIMITED_STRING, DELIMITED_STRING):
+    if data_type in (COMMA_DELIMITED_STRING, DELIMITED_STRING, DELIMITED_MAP):
         delimiter = ','
     elif data_type == SEMI_COLON_DELIMITED_STRING:
         delimiter = ';'
     elif data_type == SPACE_DELIMITED_STRING:
         delimiter = ' '
+    elif data_type == NEW_LINE_DELIMITED_MAP:
+        delimiter = '\n'
+    elif data_type == WTC_DELIMITED_MAP:
+        delimiter = TypeUtils.WTC_DELIMITER
     elif data_type == PATH_SEPARATOR_DELIMITED_STRING:
         delimiter = _get_path_separator(value)
     else:
@@ -720,6 +729,11 @@ def convert_to_type(data_type, value, subtype=None, delimiter=None):
                     #
                     delimiter = compute_delimiter_from_data_type(data_type, new_value)
                     new_value = delimiter.join(new_value)
+                elif data_type in ALIAS_DELIMITED_MAP_TYPES:
+                    # see comment for ALIAS_DELIMITED_TYPES re: delimiter
+                    delimiter = compute_delimiter_from_data_type(data_type, new_value)
+                    new_value = _properties_to_string(new_value, delimiter)
+
             except TypeError, te:
                 ex = exception_helper.create_alias_exception('WLSDPLY-08021', value, data_type, delimiter, te)
                 _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
@@ -856,15 +870,12 @@ def _convert_value_to_model_type(data_type, value, delimiter):
         _logger.throwing(ex, class_name=_class_name, method_name=_method_name)
         raise ex
     try:
-        if data_type == JAVA_LANG_BOOLEAN:
-            converted = Boolean(converted)
-        elif data_type == BOOLEAN:
+        if data_type in ALIAS_BOOLEAN_TYPES:  # TypeUtils returns a string for boolean
             converted = PyRealBoolean('true' == converted)
         elif data_type == JARRAY:
             converted = _create_array(converted, delimiter)
-        # elif data_type == PROPERTIES:
-        #     if preferred == DICTIONARY:
-        #         new_value = _jconvert_to_type(preferred, new_value, delimiter)
+        elif data_type == PROPERTIES:
+            converted = TypeUtils.convertToType(DICTIONARY, converted, delimiter)
         elif data_type == LIST:
             if converted:
                 # convert any object elements to str, especially ObjectNames
@@ -882,6 +893,9 @@ def _convert_value_to_model_type(data_type, value, delimiter):
                 # convert any object elements to str, especially ObjectNames
                 converted = _create_array(converted, model_delimiter)
                 converted = model_delimiter.join(converted)
+        elif data_type in ALIAS_DELIMITED_MAP_TYPES:
+            converted = TypeUtils.convertToType(DICTIONARY, converted, delimiter)
+
     except TypeError, te:
         ex = exception_helper.create_alias_exception('WLSDPLY-08021', value, data_type, delimiter,
                                                      str_helper.to_string(te))
@@ -1031,12 +1045,17 @@ def _properties_to_string(props, string_props_separator_char):
         result = props
     else:
         result = ''
+        assign_operator = '='
+        if string_props_separator_char == TypeUtils.WTC_DELIMITER:
+            string_props_separator_char = ' | '
+            assign_operator = ':'
+
         for entry_set in props.entrySet():
             key = entry_set.getKey()
             value = entry_set.getValue()
             if len(result) > 0:
                 result += string_props_separator_char
-            result += str_helper.to_string(key) + '=' + str_helper.to_string(value)
+            result += str_helper.to_string(key) + assign_operator + str_helper.to_string(value)
     _logger.exiting(class_name=_class_name, method_name=_method_name, result=result)
     return result
 
