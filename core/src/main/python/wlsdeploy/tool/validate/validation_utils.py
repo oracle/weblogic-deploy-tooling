@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2024, Oracle and/or its affiliates.
+Copyright (c) 2017, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import re
@@ -144,15 +144,15 @@ def is_compatible_data_type(expected_data_type, actual_data_type):
                                        _type_py_real_boolean, _type_orcl_py_real_boolean])
     elif expected_data_type in ['float', 'double']:
         retval = (actual_data_type in [_type_float, _type_str, _type_unicode])
-    elif expected_data_type == 'properties' or expected_data_type == 'dict':
-        retval = (actual_data_type in [_type_py_ordered_dict, _type_orcl_py_ordered_dict, _type_dict, _type_str])
+    elif expected_data_type == 'properties' or expected_data_type == 'dict' or 'delimited_map' in expected_data_type:
+        retval = (actual_data_type in [_type_py_ordered_dict, _type_orcl_py_ordered_dict, _type_dict, _type_str, _type_unicode])
     elif 'list' in expected_data_type:
         retval = (actual_data_type in [_type_list, _type_str, _type_unicode])
     elif expected_data_type in ['password']:
         retval = (actual_data_type in [_type_str, _type_unicode, _type_py_array])
     elif expected_data_type in ['credential', 'jarray']:
         retval = (actual_data_type in [_type_str, _type_unicode])
-    elif 'delimited_' in expected_data_type:
+    elif 'delimited_string' in expected_data_type:
         retval = (actual_data_type in [_type_str, _type_list, _type_unicode])
 
     return retval

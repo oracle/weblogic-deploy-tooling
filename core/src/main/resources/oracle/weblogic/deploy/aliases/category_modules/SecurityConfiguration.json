@@ -1751,7 +1751,7 @@
                     "folders" : {},
                     "attributes" : {
                         "CompatibilityObjectName":       [ {"version": "[10,)", "wlst_mode": "offline", "wlst_name": "CompatibilityObjectName",       "wlst_path": "WP001", "default_value": null,           "wlst_type": "string",   "access": "IGNORED"   } ],
-                        "ConnectionProperties":          [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "ConnectionProperties",          "wlst_path": "WP001", "default_value": null,           "wlst_type": "string"     } ],
+                        "ConnectionProperties":          [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "ConnectionProperties",          "wlst_path": "WP001", "default_value": null,           "wlst_type": "delimited_map" } ],
                         "ConnectionURL":                 [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "ConnectionURL",                 "wlst_path": "WP001", "default_value": null,           "wlst_type": "string"     } ],
                         "DriverName":                    [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "DriverName",                    "wlst_path": "WP001", "default_value": null,           "wlst_type": "string"     } ],
                         "JMSExceptionReconnectAttempts": [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "JMSExceptionReconnectAttempts", "wlst_path": "WP001", "default_value": 0,              "wlst_type": "integer"    } ],
@@ -1759,7 +1759,7 @@
                         "JMSTopicConnectionFactory":     [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "JMSTopicConnectionFactory",     "wlst_path": "WP001", "default_value": null,           "wlst_type": "string"     } ],
                         "JNDIPasswordEncrypted":         [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "JNDIPasswordEncrypted",         "wlst_path": "WP001", "default_value": null,           "wlst_type": "password", "get_method": "GET", "secret_suffix": "jndi" } ],
                         "JNDIUsername":                  [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "JNDIUsername",                  "wlst_path": "WP001", "default_value": null,           "wlst_type": "credential", "secret_suffix": "jndi" } ],
-                        "NotificationProperties":        [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "NotificationProperties",        "wlst_path": "WP001", "default_value": null,           "wlst_type": "string"     } ],
+                        "NotificationProperties":        [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "NotificationProperties",        "wlst_path": "WP001", "default_value": null,           "wlst_type": "delimited_map" } ],
                         "PasswordEncrypted":             [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "PasswordEncrypted",             "wlst_path": "WP001", "default_value": null,           "wlst_type": "password",  "get_method": "GET" } ],
                         "Username":                      [ {"version": "[10,)", "wlst_mode": "both",    "wlst_name": "Username",                      "wlst_path": "WP001", "default_value": null,           "wlst_type": "credential" } ]
                     },

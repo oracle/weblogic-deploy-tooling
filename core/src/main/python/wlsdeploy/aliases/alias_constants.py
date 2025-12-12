@@ -88,6 +88,7 @@ NULL_VALUE_KEY_FIELDS = [
 BOOLEAN = 'boolean'
 COMMA_DELIMITED_STRING = 'delimited_string[comma]'
 CREDENTIAL = 'credential'
+DELIMITED_MAP = 'delimited_map'
 DELIMITED_STRING = 'delimited_string'
 DICTIONARY = 'dict'
 DOUBLE = 'double'
@@ -96,9 +97,11 @@ JARRAY = 'jarray'
 JAVA_LANG_BOOLEAN = 'java.lang.Boolean'
 LIST = 'list'
 LONG = 'long'
+NEW_LINE_DELIMITED_MAP = 'delimited_map[newline]'
 OBJECT = 'object'
 PASSWORD = 'password'
 PATH_SEPARATOR_DELIMITED_STRING = 'delimited_string[path_separator]'
+WTC_DELIMITED_MAP = 'delimited_map[wtc]'
 PROPERTIES = 'properties'
 SEMI_COLON_DELIMITED_STRING = 'delimited_string[semicolon]'
 SPACE_DELIMITED_STRING = 'delimited_string[space]'
@@ -117,6 +120,12 @@ ALIAS_DELIMITED_TYPES = [
     SPACE_DELIMITED_STRING
 ]
 
+ALIAS_DELIMITED_MAP_TYPES = [
+    DELIMITED_MAP,
+    NEW_LINE_DELIMITED_MAP,
+    WTC_DELIMITED_MAP
+]
+
 ALIAS_LIST_TYPES = [
     COMMA_DELIMITED_STRING,
     DELIMITED_STRING,
@@ -126,7 +135,14 @@ ALIAS_LIST_TYPES = [
     SEMI_COLON_DELIMITED_STRING,
     SPACE_DELIMITED_STRING
 ]
-ALIAS_MAP_TYPES = [PROPERTIES, DICTIONARY]
+
+ALIAS_MAP_TYPES = [
+    DICTIONARY,
+    PROPERTIES,
+    DELIMITED_MAP,
+    NEW_LINE_DELIMITED_MAP,
+    WTC_DELIMITED_MAP
+]
 
 ALIAS_BOOLEAN_TYPES = [
     BOOLEAN,

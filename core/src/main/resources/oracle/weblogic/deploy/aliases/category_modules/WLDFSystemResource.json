@@ -63,7 +63,7 @@
                                 "Include":             [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Include${:s}",        "wlst_path": "WP001", "default_value": null,              "wlst_type": "delimited_string", "get_method": "LSA" } ],
                                 "LocationType":        [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "LocationType",        "wlst_path": "WP001", "default_value": "${__NULL__:before}",  "wlst_type": "string"  } ],
                                 "Pointcut":            [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Pointcut",            "wlst_path": "WP001", "default_value": null,              "wlst_type": "string"            } ],
-                                "Properties":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Properties",          "wlst_path": "WP001", "default_value": null,              "wlst_type": "delimited_string[semicolon]", "preferred_model_type": "delimited_string" } ]
+                                "Properties":          [ {"version": "[10,)", "wlst_mode": "both", "wlst_name": "Properties",          "wlst_path": "WP001", "default_value": null,              "wlst_type": "delimited_map[newline]" } ]
                             },
                             "wlst_attributes_path": "WP001",
                             "wlst_paths": {

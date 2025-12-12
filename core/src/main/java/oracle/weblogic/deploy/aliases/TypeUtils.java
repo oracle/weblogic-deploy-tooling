@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, 2023, Oracle and/or its affiliates.
+ * Copyright (c) 2017, 2025, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.aliases;
@@ -34,6 +34,7 @@ public final class TypeUtils {
     private static final PlatformLogger LOGGER = WLSDeployLogFactory.getLogger("wlsdeploy.util");
 
     public static final String DEFAULT_STRING_LIST_DELIMITER = ",";
+    public static final String WTC_DELIMITER = "WTC";  // special purpose for Tuxedo / JMS priority maps
 
     private TypeUtils() {
         // hide the constructor for this utility class
@@ -128,6 +129,9 @@ public final class TypeUtils {
                 targetType = Object[].class;
                 break;
             case "properties":
+            case "delimited_map":
+            case "delimited_map[newline]":
+            case "delimited_map[wtc]":
                 targetType = Properties.class;
                 break;
             case "OrderedDict":
@@ -429,9 +433,15 @@ public final class TypeUtils {
             mapString = mapString.substring(0, mapString.length() - 1);
         }
 
+        String assignOperator = "=";
+        if(WTC_DELIMITER.equals(delimiter)) {
+            assignOperator = ":";
+            delimiter = "\\|";
+        }
+
         String[] attrPairs = mapString.split(delimiter);
         for (String pair : attrPairs) {
-            String[] keyValue = pair.split("=");
+            String[] keyValue = pair.split(assignOperator);
             if (keyValue.length == 2) {
                 map.put(keyValue[0].trim(), keyValue[1].trim());
             }
