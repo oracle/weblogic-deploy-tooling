@@ -62,7 +62,7 @@ resources:
 ```
 In this sample, assignments for `FairShareRequestClass` and `ResponseTimeRequestClass` are included as comments under `myWorkManager`. A Work Manager can only specify one request class type.
 
-There are additional sub-folders and attributes available for more configuration options. These can be determined using the [Model Help Tool]({{< relref "/userguide/tools/model_help.md" >}}). For example, this command will list the attributes and sub-folders for the `WorkManager` folder:
+There are additional sub-folders and attributes available for more configuration options. These can be determined using the [Model Help Tool]({{% relref "/userguide/tools/model_help.md" %}}). For example, this command will list the attributes and sub-folders for the `WorkManager` folder:
 ```bash
 $ ${WDT_HOME}/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/WorkManager
 ```

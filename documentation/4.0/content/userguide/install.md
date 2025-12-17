@@ -3,17 +3,19 @@ title: "Install WDT"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 1
+description: "This section describes how to download and install WDT and what versions of Java and WebLogic Server it supports."
 ---
 
 #### Download and install the software
 
 The WebLogic Deploy Tooling project repository is located at [`https://github.com/oracle/weblogic-deploy-tooling`](https://github.com/oracle/weblogic-deploy-tooling).  
-You can download binary distributions of the `weblogic-deploy.zip` installer from the [GitHub Releases page](https://github.com/oracle/weblogic-deploy-tooling/releases).  
+You can download binary distributions of the `weblogic-deploy.zip` or `weblogic-deploy.tar.gz` installers from the
+[GitHub Releases page](https://github.com/oracle/weblogic-deploy-tooling/releases).  
 
 1. To install the software, simply unzip the `weblogic-deploy.zip` installer on a machine that has the desired versions
    of WebLogic Server installed.
 2. After being unzipped, the software is ready to use, just set the `JAVA_HOME` environment variable to point to a 
-   Java 7 or higher JDK and the shell scripts are ready to run.
+   Java 7 or higher Oracle JDK and the shell scripts are ready to run.
 
 #### Supported WLS versions
 
@@ -30,18 +32,19 @@ versions of JDK 7 and all versions of JDK 8 and 11.
 {{% /notice %}}
 
   | WebLogic Server Version             | Tool JDK Version |
-  |-------------------------------------|-------------------|
-  | 10.3.6                              | 1.7               |
-  | 12.1.1                              | 1.7, 1.8          |
-  | 12.1.2 <sup>[1]</sup><sup>[2]</sup> | 1.7, 1.8          |
-  | 12.1.3                              | 1.7, 1.8          |
-  | 12.2.1                              | 1.8               |
-  | 12.2.1.1 <sup>[3]</sup>             | 1.8               |
-  | 12.2.1.2                            | 1.8               |
-  | 12.2.1.3                            | 1.8               |
-  | 12.2.1.4 <sup>[4]</sup>             | 1.8               |
-  | 14.1.1                              | 1.8, 1.11         |    
-  | 14.1.2                              | 17, 21            |
+  |-------------------------------------|------------------|
+  | 10.3.6                              | 1.7              |
+  | 12.1.1                              | 1.7, 1.8         |
+  | 12.1.2 <sup>[1]</sup><sup>[2]</sup> | 1.7, 1.8         |
+  | 12.1.3                              | 1.7, 1.8         |
+  | 12.2.1                              | 1.8              |
+  | 12.2.1.1 <sup>[3]</sup>             | 1.8              |
+  | 12.2.1.2                            | 1.8              |
+  | 12.2.1.3                            | 1.8              |
+  | 12.2.1.4 <sup>[4]</sup>             | 1.8              |
+  | 14.1.1                              | 1.8, 11          |    
+  | 14.1.2                              | 17, 21           |
+  | 15.1.1                              | 17, 21           |
 
 ***1*** First release dynamic clusters are supported  
 ***2*** First release Coherence clusters are supported  

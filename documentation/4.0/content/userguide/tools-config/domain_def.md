@@ -3,6 +3,7 @@ title: "Domain type definitions"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 2
+description: "How to create custom domain types in WDT."
 ---
 
 
@@ -91,7 +92,7 @@ weight: 2
  `WLSDEPLOY_HOME/lib/typedefs` directory.
 
  Another option is to create this file in the
- [Custom configuration]({{< relref "/userguide/tools-config/custom_config.md" >}}) directory `$WDT_CUSTOM_CONFIG/typedefs`.
+ [Custom configuration]({{% relref "/userguide/tools-config/custom_config.md" %}}) directory `$WDT_CUSTOM_CONFIG/typedefs`.
 
  For example, to define a `SOA` domain type for 12.2.1.3, add the `typedefs/SOA.json` file with similar content,
  as shown below.

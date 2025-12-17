@@ -3,6 +3,7 @@ title: "Alias definitions"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 3
+description: "How the WDT aliases work."
 ---
 
 WebLogic Deploy Tool uses a set of JSON configuration files to map folders and attributes in the model to the corresponding WLST MBeans and their attributes. These mappings are referred as 'aliases' throughout the project code and documentation. Each element in the alias definition file has detailed properties that assist in this mapping.

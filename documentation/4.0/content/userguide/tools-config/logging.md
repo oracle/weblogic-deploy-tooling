@@ -3,6 +3,7 @@ title: "Logging"
 date: 2022-02-04T17:18:00-05:00
 draft: false
 weight: 4
+description: "How to work with the WDT logging framework."
 ---
 
 The WebLogic Deploy Tooling has a built-in logging framework based on `java.util.logging`.  Its logging configuration

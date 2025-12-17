@@ -3,12 +3,13 @@ title: "Variable injectors"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 10
+description: "How to control attribute tokenization in a WDT model."
 ---
 
 
 Variable injectors are used to tokenize a model by substituting variable keys in place of attribute values, and creating a separate property file containing the variable values. This facilitates using the same domain model to create new domains in different environments. WebLogic Deploy Tooling includes several built-in injector directive files that can be used as-is or with modifications, and allows for creation of custom injector files.
 
-Variable injectors are used by the [Discover Domain Tool]({{< relref "/userguide/tools/discover.md" >}}), the [Prepare Model Tool]({{< relref "/userguide/tools/prepare.md" >}}), and the standalone [Variable Injector Tool]({{< relref "/userguide/tools/variable_injection.md" >}}) to tokenize the models they produce.
+Variable injectors are used by the [Discover Domain Tool]({{% relref "/userguide/tools/discover.md" %}}), the [Prepare Model Tool]({{% relref "/userguide/tools/prepare.md" %}}), and the standalone [Variable Injector Tool]({{% relref "/userguide/tools/variable_injection.md" %}}) to tokenize the models they produce.
 
 {{% notice note %}} Variable injection on an attribute is only performed once. After being tokenized, an attribute is not re-tokenized by any subsequent injector directives.
 {{% /notice %}}
@@ -17,7 +18,7 @@ Variable injectors are used by the [Discover Domain Tool]({{< relref "/userguide
 
 The default injector configuration is used by the standalone Variable Injector Tool, and by the Discover Domain Tool when it is run without the `-target` option. To enable variable injection for these tools, create a variable injector configuration by placing a JSON file named `model_variable_injector.json` into the `<WLSDEPLOY>/lib` directory.
 
-Another option is to configure variable injection in a [Custom configuration]({{< relref "/userguide/tools-config/custom_config.md" >}}) directory. Create the `model_variable_injector.json` file in the `$WDT_CUSTOM_CONFIG` directory.
+Another option is to configure variable injection in a [Custom configuration]({{% relref "/userguide/tools-config/custom_config.md" %}}) directory. Create the `model_variable_injector.json` file in the `$WDT_CUSTOM_CONFIG` directory.
 
 The variable injector configuration file contains a list of injector names that map to the names of the injector files to be applied to the model. 
 
@@ -50,13 +51,13 @@ Targeted injector configuration is used by the Prepare Model Tool, and by the Di
 
 Each injector name in the list refers to an [injector directive file](#injector-directive-files), and they are applied to the attributes in the model in the specified order.
 
-For more information on creating and extending target configurations, see [Target environments]({{< relref "/userguide/target_env.md" >}}).
+For more information on creating and extending target configurations, see [Target environments]({{% relref "/userguide/target_env.md" %}}).
 
 #### Injector directive files
 
 Injector directive files contain a list of qualified attribute paths and associated directives. When a matching attribute is found in the model, the associated directive is applied to that attribute, then a property token with a unique variable name is injected into the model and replaces the attribute value. The variable name and model attribute value are placed into the external variable properties file.
 
-Injector directive files are placed in the `$WLSDEPLOY_HOME/lib/injectors` directory. User-defined files can be placed there or in a [Custom configuration]({{< relref "/userguide/tools-config/custom_config.md" >}}) directory. To use the custom configuration directory, place these files in `$WDT_CUSTOM_CONFIG/lib/injectors`.
+Injector directive files are placed in the `$WLSDEPLOY_HOME/lib/injectors` directory. User-defined files can be placed there or in a [Custom configuration]({{% relref "/userguide/tools-config/custom_config.md" %}}) directory. To use the custom configuration directory, place these files in `$WDT_CUSTOM_CONFIG/lib/injectors`.
 
 WebLogic Deploy Tool includes these pre-configured injector directive files:
 

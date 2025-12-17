@@ -6,4 +6,4 @@ weight: 11
 description: "Using WDT with WebLogic Kubernetes Operator."
 ---
 
-For details, see the [Extract Domain Resource Tool]({{< relref "/userguide/tools/kubernetes.md" >}}).
+For details, see the [Extract Domain Resource Tool]({{% relref "/userguide/tools/kubernetes.md" %}}).

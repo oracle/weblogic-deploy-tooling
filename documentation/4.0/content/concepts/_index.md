@@ -1,9 +1,12 @@
-+++
-title = "Concepts"
-date = 2019-02-22T15:27:54-05:00
-weight = 1
-chapter = true
-pre = "<b> </b>"
-+++
+---
+title: "Concepts"
+date: 2019-02-22T15:27:54-05:00
+weight: 1
+chapter: true
+pre: "<b> </b>"
+hideHeader: true
+---
 
 # Concepts
+
+{{% children type="list" description="true" %}}

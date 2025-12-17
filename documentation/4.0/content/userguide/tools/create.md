@@ -27,7 +27,7 @@ generate errors if the `-archive_file <archive-file-name>` is not supplied or th
 the path specified.
 
 For more information about the archive file and its structure, please refer to the [Archive File]
-({{< relref "/concepts/archive.md" >}}) page.
+({{% relref "/concepts/archive.md" %}}) page.
 
 You can customize the model to externalize configuration values that change across environments by using model tokens
 that reference properties defined in a variable file.  These model tokens are of the form `@@PROP:<name>@@`, where 
@@ -81,7 +81,7 @@ When creating a domain of another type, simply add the `-domain_type <type-name>
 for a JRF domain, add `-domain_type JRF` to the command-line arguments.  Domain typedefs play an important role for the
 Create Domain Tool because they tell the tool what domain templates to apply, how to handle targeting of resources
 defined by the domain templates, and information about any RCU schemas that are needed.  For more information, refer to
-[Domain type definitions]({{< relref "/userguide/tools-config/domain_def.md" >}}) page.
+[Domain type definitions]({{% relref "/userguide/tools-config/domain_def.md" %}}) page.
 
 An example of using the domain type argument:
 
@@ -122,7 +122,7 @@ domainInfo:
 ```
 
 The RCUDbInfo section has other fields that may be important in more advanced scenarios.  Please see the
-[Connect to a database]({{< relref "/userguide/database/connect-db.md" >}}) page for more information.
+[Connect to a database]({{% relref "/userguide/database/connect-db.md" %}}) page for more information.
 
 Once the model is properly configured for running RCU, simply add the `-run_rcu` argument to the Create Domain Tool
 command line.
@@ -133,12 +133,12 @@ command line.
 When using the `-run_rcu` to create the RCU schemas, note that the default behavior of the Create Domain Tool is to
 first try to drop the schemas prior to creating them.  This behavior can be disabled using the `disable.rcu.drop.schema`
 property in the `tool.properties` file.  See the [Tool property file]
-({{< relref "/userguide/tools-config/tool_prop.md" >}}) page for more information.
+({{% relref "/userguide/tools-config/tool_prop.md" %}}) page for more information.
 {{% /notice %}}
 
 To create more complex domains, it may be necessary to create a custom domain type. This is useful for cases where the
 domain has custom templates, or templates for other Oracle products. For more information, refer to
-[Domain type definitions]({{< relref "/userguide/tools-config/domain_def.md" >}}).
+[Domain type definitions]({{% relref "/userguide/tools-config/domain_def.md" %}}).
 
 ### User password validation
 
@@ -199,7 +199,7 @@ provide one of the following command-line arguments:
 ### Using multiple models
 
 The Create Domain Tool supports the use of multiple models, as described in
-[Using multiple models]({{< relref "/concepts/model#using-multiple-models" >}}).
+[Using multiple models]({{% relref "/concepts/model#using-multiple-models" %}}).
 
 ### Development domain and `boot.properties`
 

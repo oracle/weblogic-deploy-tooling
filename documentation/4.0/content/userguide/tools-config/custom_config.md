@@ -3,6 +3,7 @@ title: "Custom configuration"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 3
+description: "How to create custom WDT configuration files."
 ---
 
 
@@ -28,11 +29,11 @@ The customized configuration files should be named and organized the same way th
     model_variable_injector.json
 ```
 This is a full set of files that can be configured. You will need only to add the files you have created or extended. Details for each configuration type are found at:
-- [Tool property file]({{< relref "/userguide/tools-config/tool_prop.md" >}})
-- [Model filters]({{< relref "/userguide/tools-config/model_filters.md" >}})
-- [Type definitions]({{< relref "/userguide/tools-config/domain_def.md" >}}) (See the following [Extending a type definition](#example-extending-a-type-definition) example.)
-- [Variable injectors]({{< relref "/userguide/tools-config/variable_injectors.md" >}})
-- [The Prepare Model Tool]({{< relref "/userguide/tools/prepare.md" >}}); see [Target environments]({{< relref "/userguide/target_env.md" >}}).
+- [Tool property file]({{% relref "/userguide/tools-config/tool_prop.md" %}})
+- [Model filters]({{% relref "/userguide/tools-config/model_filters.md" %}})
+- [Type definitions]({{% relref "/userguide/tools-config/domain_def.md" %}}) (See the following [Extending a type definition](#example-extending-a-type-definition) example.)
+- [Variable injectors]({{% relref "/userguide/tools-config/variable_injectors.md" %}})
+- [The Prepare Model Tool]({{% relref "/userguide/tools/prepare.md" %}}); see [Target environments]({{% relref "/userguide/target_env.md" %}}).
 
 The WDT tools will look for each configuration file under `$WDT_CUSTOM_CONFIG` if specified, then under `$WLSDEPLOY_HOME/lib`.
 

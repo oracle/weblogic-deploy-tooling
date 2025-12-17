@@ -19,7 +19,7 @@ edit the generated model and archive file to suit their needs for running one of
 In WDT 4.2.0, several optional features have been added to change the default behavior that make it possible
 to discover passwords and the security providers data that give the Discover Domain Tool the ability to produce a fully
 populated model that is usable by the other tools without editing the model file.  Please see the
-[Discovering security information]({{< relref "#discovering-security-information" >}}) section for
+[Discovering security information]({{% relref "#discovering-security-information" %}}) section for
 more information.
 
 The Discover Domain tool can be run in either offline or online mode, and each mode has some options that control its
@@ -51,8 +51,8 @@ behavior.
     host where WDT is running and the host where the Administration Server is running.  The `-ssh_user` (which, by
     default, is the same user running the tool) must have full read access to the domain home directory structure and
     any other locations where domain-specific files are stored on the server.  See the
-    [SSH support]({{< relref "/userguide/tools/shared/ssh.md" >}}) and
-    [Verify SSH Tool]({{< relref "/userguide/tools/verify_ssh.md" >}}) pages for more information about running in SSH
+    [SSH support]({{% relref "/userguide/tools/shared/ssh.md" %}}) and
+    [Verify SSH Tool]({{% relref "/userguide/tools/verify_ssh.md" %}}) pages for more information about running in SSH
     mode.
 
 You can customize what is generated in the model for credential-related attributes (that is, user names and passwords)
@@ -63,7 +63,7 @@ populated with the discovered value and password attributes are populated with a
 model is injected with the token name and property field notation. For example, `@@PROP:AdminUserName@@` or 
 `@@PROP:JDBCSystemResource.<Name>.JdbcResource.JDBCDriverParams.PasswordEncrypted@@`.
 
-If [variable injection]({{< relref "/userguide/tools-config/variable_injectors.md" >}}) is configured, but the
+If [variable injection]({{% relref "/userguide/tools-config/variable_injectors.md" %}}) is configured, but the
 `-variable_file` argument is not used, the variable file is created with the same name as the model file,
 with the file extension `.properties`. As with the archive and model file, each run of the Discover Domain Tool will
 overwrite the contents of an existing variable file with the values from the current run.
@@ -72,12 +72,12 @@ Before the model is persisted to the model file, any variable injectors or model
 final step is validation, which validates the contents of the model, archive and variable file. If the validation is
 successful, the model is persisted. For more information on these three topics, see:
 
-- [Variable injection]({{< relref "/userguide/tools-config/variable_injectors.md" >}})
-- [Model filters]({{< relref "/userguide/tools-config/model_filters.md" >}})
-- [Validate Model Tool]({{< relref "/userguide/tools/validate.md" >}})
+- [Variable injection]({{% relref "/userguide/tools-config/variable_injectors.md" %}})
+- [Model filters]({{% relref "/userguide/tools-config/model_filters.md" %}})
+- [Validate Model Tool]({{% relref "/userguide/tools/validate.md" %}})
 
 The resulting model can also be modified for compatibility with specific target environments, such as Oracle WebLogic
-Server Kubernetes Operator. For more information, see [Target environments]({{< relref "/userguide/target_env.md" >}}).
+Server Kubernetes Operator. For more information, see [Target environments]({{% relref "/userguide/target_env.md" %}}).
 
 Any problems (or success) will be listed in the Discover Domain Tool summary. The summary will print the version of the
 tool and Oracle home, and the WLST mode with which the tool was run (online or offline). A recap of all important
@@ -137,15 +137,15 @@ or SSH mode.
 
 With `-remote`, file collection will be skipped and the tool will generate `TODO` messages for any files that are
 needed for the domain but could not be gathered.  You can manually gather the necessary files and use the [Archive
-Helper Tool]({{< relref "/userguide/tools/archive_helper.md" >}}) to create an archive file to complete the model.
+Helper Tool]({{% relref "/userguide/tools/archive_helper.md" %}}) to create an archive file to complete the model.
 
 An example of running in online WLST mode from a remote host:
 
     $ weblogic-deploy/bin/discoverDomain.sh -oracle_home /u01/oracle -remote -model_file ./DiscoveredDemoDomain.yaml -admin_user weblogic -admin_url t3://my.remote.host:7001
 
 With SSH mode, the tool will gather the files from the remote machine using SSH and SCP.  Please see the
-[SSH Support]({{< relref "/userguide/tools/shared/ssh.md" >}}) and
-[Verify SSH Tool]({{< relref "/userguide/tools/verify_ssh.md" >}}) pages for more information on setting up and
+[SSH Support]({{% relref "/userguide/tools/shared/ssh.md" %}}) and
+[Verify SSH Tool]({{% relref "/userguide/tools/verify_ssh.md" %}}) pages for more information on setting up and
 using SSH-based access to remote domains.
 
 #### Domain types
@@ -162,7 +162,7 @@ Discover Domain Tool because they apply a set of filters defined in the matching
 section that cause configuration elements to be excluded from the discovered model.  The rationale for this is that
 these domain template-defined resources that are automatically created when creating a new domain of the same type so
 there is typically no need to clutter the model with these boilerplate resource definitions that users do not typically
-modify.  For more information, refer to [Domain type definitions]({{< relref "/userguide/tools-config/domain_def.md" >}})
+modify.  For more information, refer to [Domain type definitions]({{% relref "/userguide/tools-config/domain_def.md" %}})
 page.
 
 An example of using the domain type argument:
@@ -380,7 +380,7 @@ environment, what you are doing, and what is happening.
 | `-passphrase_file`                 | An alternative to entering the encryption passphrase at a prompt when discovering passwords. The value is the name of a file with a string value which WDT will read to retrieve the passphrase.        |                                            |
 | `-passphrase_prompt`               | Allow WDT to prompt for the encryption passphrase or read it from stdin.                                                                                                                                |                                            |
 | `-skip_archive`                    | Do not generate an archive file. The `-archive_file` option will be ignored.                                                                                                                            |                                            |
-| `-target`                          | The target output type. The default is `wko`. For more information about target types, see [Target Environments]({{< relref "userguide/target_env" >}}).                                                |                                            |
+| `-target`                          | The target output type. The default is `wko`. For more information about target types, see [Target Environments]({{% relref "userguide/target_env" %}}).                                                |                                            |
 | `-remote`                          | Update the domain from a remote machine.                                                                                                                                                                |                                            |
 | `-ssh_host`                        | The DNS name or IP address of the remote host.                                                                                                                                                          |                                            |
 | `-ssh_port`                        | The TCP port on the remote host where the SSH daemon is listening for connection requests.                                                                                                              | `22`                                       |

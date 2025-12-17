@@ -6,4 +6,4 @@ weight: 1
 description: "Describes shared tools features and common functionality."
 ---
 
-{{% children style="h4" description="true" %}}
+{{% children type="list" description="true" %}}

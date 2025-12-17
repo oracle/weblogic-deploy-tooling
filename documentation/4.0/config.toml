@@ -1,4 +1,4 @@
-# Copyright (c) 2021, 2023, Oracle and/or its affiliates.
+# Copyright (c) 2021, 2025, Oracle and/or its affiliates.
 # Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 #
 # analytics
@@ -9,7 +9,7 @@ languageCode = "en-us"
 title = "WebLogic Deploy Tooling"
 
 # Change the default theme to be use when building the site with Hugo
-theme = "hugo-theme-learn"
+theme = "hugo-theme-relearn-8.3.0"
 
 publishDir = "docs"
 
@@ -18,10 +18,13 @@ publishDir = "docs"
   home = [ "HTML", "RSS", "JSON"]
 
 [params]
+  hideAuthorDate = true
   # disable the copy to clipboard links
   disableInlineCopyToClipBoard = true
+  themeVariant = "learn"
 
 [markup]
+  defaultMarkdownHandler = 'goldmark'
   [markup.goldmark]
     [markup.goldmark.extensions]
       [markup.goldmark.extensions.extras]

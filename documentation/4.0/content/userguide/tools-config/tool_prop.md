@@ -3,10 +3,11 @@ title: "Tool property file"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 4
+description: "How to customize WDT configuration parameters."
 ---
 
 
- You can configure or tune WebLogic Deploy Tooling tools using the tool property file. This property file is installed as `<weblogic-deploy>/lib/tool.properties`. To tune the WDT tool, you may change the value of any of the properties in this file. Another option is to configure the tool properties in a [Custom Configuration]({{< relref "/userguide/tools-config/custom_config.md" >}}) directory. For this option, create the `tool.properties` file in the `$WDT_CUSTOM_CONFIG` directory.
+ You can configure or tune WebLogic Deploy Tooling tools using the tool property file. This property file is installed as `<weblogic-deploy>/lib/tool.properties`. To tune the WDT tool, you may change the value of any of the properties in this file. Another option is to configure the tool properties in a [Custom Configuration]({{% relref "/userguide/tools-config/custom_config.md" %}}) directory. For this option, create the `tool.properties` file in the `$WDT_CUSTOM_CONFIG` directory.
 
  If a property is removed from the file, or a property value is incorrectly formatted, a `WARNING` message is logged and an internal default value used instead of the missing or bad value.
 

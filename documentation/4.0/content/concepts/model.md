@@ -2,7 +2,8 @@
 title: "Metadata Model"
 date: 2019-02-23T17:19:24-05:00
 draft: false
-weight: 1
+weight: 2
+description: "The section that discusses the high-level concepts of the WDT model."
 ---
 
 ### Contents
@@ -99,7 +100,7 @@ on the target environment.  For more information and a list of available path to
 The example above shows the attribute `SourcePath` of the `simpleear` application with a value of
 `wlsdeploy/applications/simpleear.ear`.  The prefix `wlsdeploy/` indicates that the resource is located in the archive
 file in the specified location, and will be deployed to that directory within the domain, in this case
-`<domain-home>/wlsdeploy/applications/simpleear.ear`. See the [Archive file]({{< relref "/concepts/archive.md" >}})
+`<domain-home>/wlsdeploy/applications/simpleear.ear`. See the [Archive file]({{% relref "/concepts/archive.md" %}})
 for more details about using the archive file.
 
 Users can create further directory structures underneath the above locations to organize the files and directories as
@@ -339,7 +340,7 @@ declared as the default realm:
 
 This feature does not apply to named security providers within a realm. These items follow a special set of rules that
 are required to maintain their ordering. See
-[Modeling security providers]({{< relref "/samples/securityproviders-model.md" >}}) for detailed information.
+[Modeling security providers]({{% relref "/samples/securityproviders-model.md" %}}) for detailed information.
 
 This feature can be used to undeploy applications or remove libraries.
 
@@ -458,7 +459,7 @@ topology:
 
 Beginning in 2.0, WebLogic Deploy Tooling now incorporates the SnakeYAML parser for reading and writing model files.
 This may require some changes to existing models in order to be parsed correctly.
-   - Model elements that use [delete notation]({{< relref "/concepts/model#declaring-named-mbeans-to-delete" >}}) need
+   - Model elements that use [delete notation]({{% relref "/concepts/model#declaring-named-mbeans-to-delete" %}}) need
      to be escaped in single or double quotation marks.
    ```yaml
    topology:

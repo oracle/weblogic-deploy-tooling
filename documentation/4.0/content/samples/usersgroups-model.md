@@ -18,10 +18,10 @@ policies become part of the WebLogic authorizer (that is, `XACMLAuthorizer`).
 The model allows for the definition of a set of users and groups that will be loaded into the WebLogic Embedded LDAP
 Server (for example, `DefaultAuthenticator`). New groups can be specified and users can be added as members of the new
 groups or existing groups, such as the `Administrators` group, which is defaulted to be in the WebLogic `Admin` global
-role.  For additional information on users and groups, see [Known Limitations]({{< relref "#known-limitations" >}}).
+role.  For additional information on users and groups, see [Known Limitations]({{% relref "#known-limitations" %}}).
 
 You can specify the user password with a placeholder or encrypt it with the
-[Encrypt Tool]({{< relref "/userguide/tools/encrypt.md" >}}). An example `Security` section that adds an additional
+[Encrypt Tool]({{% relref "/userguide/tools/encrypt.md" %}}). An example `Security` section that adds an additional
 group `AppMonitors`, adds two new users and places the users into groups is shown in the example.  You can add user
 attributes that are defined for the DefaultAuthenticator. This is a limited set of attributes that go under a separate
 folder `UserAttribute` in the model under the `User` section.
@@ -75,7 +75,7 @@ replace the default, the `Monitor` role expression will be prepended to the defa
 new role with the specified expression.
 
 In addition, the `Expression` value can use the variable placeholder syntax specified when running the
-[Create Tool]({{< relref "/userguide/tools/create.md" >}}) as shown in the previous example.
+[Create Tool]({{% relref "/userguide/tools/create.md" %}}) as shown in the previous example.
 
 #### WebLogic policies
 The model allows for the definition of additional authorization policies on WebLogic resources.  Note that WDT does not
@@ -101,7 +101,7 @@ Don't forget that the values of these fields may need to be enclosed in quotes i
 
 #### Known limitations
 
-- The processing of users, groups, and roles will only take place when using the [Create Domain Tool]({{< relref "/userguide/tools/create.md" >}}).
+- The processing of users, groups, and roles will only take place when using the [Create Domain Tool]({{% relref "/userguide/tools/create.md" %}}).
 - WebLogic global roles are only supported with WebLogic Server version 12.2.1 or greater.
 - WebLogic global roles are only updated for the WebLogic security XACML role mapping provider (for example, `XACMLRoleMapper`).
 - Currently, WDT does not support modifying the default WebLogic authorization policies. 
