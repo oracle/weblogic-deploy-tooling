@@ -83,6 +83,7 @@ from wlsdeploy.aliases.wlst_modes import WlstModes
 from wlsdeploy.exception import exception_helper
 from wlsdeploy.logging.platform_logger import PlatformLogger
 from wlsdeploy.tool.util.wlst_helper import WlstHelper
+from wlsdeploy.util import model_config
 from wlsdeploy.util import model_helper
 from wlsdeploy.util import path_helper
 import wlsdeploy.util.unicode_helper as str_helper
@@ -662,15 +663,22 @@ class AttributeSetter(object):
 
     def set_jvm_args(self, location, key, value, wlst_value):
         """
-        Set the server start args string. The new arguments are merged and re-sorted with existing arguments.
+        Set the server start args string. The new arguments are merged and re-sorted with existing arguments,
+        unless merge is turned off in tool.properties or using command-line -D.
         :param location: the location
         :param key: the attribute name
         :param value: the string value
         :param wlst_value: the existing value of the attribute from WLST
         :raises BundleAwareException of the specified type: if an error occurs
         """
+        merge = model_config.get_model_config().get_merge_server_start_arguments()
+
         if value is None or len(value) == 0:
             result = value
+        elif not merge:
+            result = value
+            if isinstance(value, list):
+                result = ' '.join(value)
         elif wlst_value is None or len(wlst_value) == 0:
             new_args = JVMArguments(self.__logger, value)
             result = new_args.get_arguments_string()
