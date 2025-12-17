@@ -8,4 +8,4 @@ pre = "<b> </b>"
 
 These typical use case scenarios show you how some common configurations can be represented in the model.
 
-{{% children style="h4" description="true" %}}
+{{% children type="list" description="true" %}}

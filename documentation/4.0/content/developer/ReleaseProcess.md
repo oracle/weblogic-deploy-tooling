@@ -3,6 +3,7 @@ title: "WDT project release process"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 5
+description: "How releases are created from WDT source code."
 ---
 
 This document describes the process that should be followed to create a WebLogic Deploy Tooling (WDT) release.

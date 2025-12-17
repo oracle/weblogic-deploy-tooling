@@ -32,4 +32,4 @@ Total:   SEVERE :    0  WARNING :    0
 verifySSH.sh completed successfully (exit code = 0)
 ```
 
-See the [Verify SSH Tool]({{< relref "/userguide/tools/verify_ssh.md" >}}) documentation for more information.
+See the [Verify SSH Tool]({{% relref "/userguide/tools/verify_ssh.md" %}}) documentation for more information.

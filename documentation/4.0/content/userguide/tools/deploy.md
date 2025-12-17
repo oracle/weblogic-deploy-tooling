@@ -8,7 +8,7 @@ description: "Adds resources and applications to an existing domain, either in o
 
 {{% notice note %}}
 The Deploy Applications Tool is deprecated in WDT 4.0.0. For comparable functionality and more, use the
-[Update Domain Tool]({{< relref "/userguide/tools/update.md" >}}).
+[Update Domain Tool]({{% relref "/userguide/tools/update.md" %}}).
 {{% /notice %}}
 
 The Deploy Applications Tool uses a model, the archive, and WLST to deploy applications and resources into an existing
@@ -46,8 +46,8 @@ some options that control its behavior.
     host where WDT is running and the host where the Administration Server is running.  The `-ssh_user` (which, by
     default, is the same user running the tool) must have full read and write access to the domain home directory
     structure, and full read access to any other locations where domain-specific files are stored.  See the
-    [SSH support]({{< relref "/userguide/tools/shared/ssh.md" >}}) and
-    [Verify SSH Tool]({{< relref "/userguide/tools/verify_ssh.md" >}}) pages for more information about running in SSH
+    [SSH support]({{% relref "/userguide/tools/shared/ssh.md" %}}) and
+    [Verify SSH Tool]({{% relref "/userguide/tools/verify_ssh.md" %}}) pages for more information about running in SSH
     mode.
 
 The Deploy Applications Tool will only add or update elements in the specified model. It will not attempt to remove any
@@ -86,7 +86,7 @@ library when the library is updated in-place.
 If the `-output_dir` command-line argument is specified, the tool will generate output files that provide information
 about servers and resources that need to be restarted. These files are only applicable for online deployments.
 
-For more information about these files, see [Using output files]({{< relref "/userguide/tools/update#using-output-files" >}})
+For more information about these files, see [Using output files]({{% relref "/userguide/tools/update#using-output-files" %}})
 for the Update Domain Tool.
 
 #### Running the tool in offline mode
@@ -140,7 +140,7 @@ provide one of the following command-line arguments:
 ### Using multiple models
 
 The Deploy Applications Tool supports the use of multiple models, as described in
-[Using multiple models]({{< relref "/concepts/model#using-multiple-models" >}}).
+[Using multiple models]({{% relref "/concepts/model#using-multiple-models" %}}).
 
 ### Environment variables
 The following environment variables may be set.

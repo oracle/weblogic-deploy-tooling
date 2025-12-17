@@ -3,6 +3,7 @@ title: "Archive File"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 2
+description: "The section that discusses the structure and content of the WDT archive file."
 ---
 
 
@@ -41,7 +42,7 @@ file in the specified location, and will be deployed to that directory in the do
 
 These are the paths within the archive that are used for different types of resources. You can create further
 directory structures underneath some of these locations to organize the files and directories as you see fit.  The
-[Archive Helper Tool]({{< relref "/userguide/tools/archive_helper.md" >}}) makes it easy to add, update, and remove entries from the archive file.  
+[Archive Helper Tool]({{% relref "/userguide/tools/archive_helper.md" %}}) makes it easy to add, update, and remove entries from the archive file.  
 
 #### Why are there two separate directory structures?
 
@@ -79,7 +80,7 @@ This is the root directory where your custom files and directories can be stored
 files are not collected by the Discover Domain Tool.   Every file resource under this directory is extracted during
 `createDomain`, `updateDomain`, and `deployApps`.
 
-Some custom files may belong in `wlsdeploy/custom`. To determine which location is preferable for your files, see [Why are there two separate directory structures?]({{< relref "#why-are-there-two-separate-directory-structures" >}}).
+Some custom files may belong in `wlsdeploy/custom`. To determine which location is preferable for your files, see [Why are there two separate directory structures?]({{% relref "#why-are-there-two-separate-directory-structures" %}}).
 
 This location is particularly useful when handling files that live outside an application; for example, a property
 file used to configure the application.  The general steps to make applications that use such files work when
@@ -141,7 +142,7 @@ This is the root directory where your custom files and directories can be stored
 files are not collected by the Discover Domain Tool.   Every file resource under this directory is extracted during
 `createDomain`, `updateDomain`, and `deployApps`.
 
-Some custom files may belong in `config/wlsdeploy/custom`. To determine which location is preferable for your files, see [Why are there two separate directory structures?]({{< relref "#why-are-there-two-separate-directory-structures" >}}).
+Some custom files may belong in `config/wlsdeploy/custom`. To determine which location is preferable for your files, see [Why are there two separate directory structures?]({{% relref "#why-are-there-two-separate-directory-structures" %}}).
 
 #### `wlsdeploy/domainBin`
 The root directory under which `$DOMAIN_HOME/bin` scripts are stored. Only scripts referenced in the

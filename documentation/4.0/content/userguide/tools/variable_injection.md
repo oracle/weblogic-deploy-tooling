@@ -9,7 +9,7 @@ description: "Adds token to a model with variables."
 
 The Variable Injector Tool is a standalone tool used to tokenize a model with variables. The values for these variables are written to an external variable properties file. This facilitates using the same domain model to create new domains in different environments. 
 
-The Variable Injector Tool uses the default configuration for variable injectors. For more details about this configuration, see [Variable Injectors]({{< relref "/userguide/tools-config/variable_injectors.md" >}}).
+The Variable Injector Tool uses the default configuration for variable injectors. For more details about this configuration, see [Variable Injectors]({{% relref "/userguide/tools-config/variable_injectors.md" %}}).
 
 In addition to variable injector processing, the tool will automatically tokenize any credential attributes found in the model. These variables associated with those attributes will be included in the variable properties file.
 

@@ -3,7 +3,9 @@ title: "Feature implementation"
 date: 2019-02-23T17:19:24-05:00
 draft: false
 weight: 2
+description: "How specific features are implemented."
 ---
+
 This document describes how specific features of WebLogic Deploy Tooling are implemented in the source code.
 
 #### Creator and Deployer class hierarchies

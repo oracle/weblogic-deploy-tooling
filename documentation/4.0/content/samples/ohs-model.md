@@ -12,7 +12,7 @@ Starting with WDT 1.8.0, you can configure and update Oracle HTTP Server (OHS) u
 
 In order to configure and use OHS, it must be installed in the Oracle Home directory used to create the domain. You can download OHS [here](https://www.oracle.com/middleware/technologies/webtier-downloads.html).
 
-The OHS template must be present in the WDT domain type definition file used to create or update the domain. For more information on creating a custom definition, see [Domain type definitions]({{< relref "/userguide/tools-config/domain_def.md" >}}).
+The OHS template must be present in the WDT domain type definition file used to create or update the domain. For more information on creating a custom definition, see [Domain type definitions]({{% relref "/userguide/tools-config/domain_def.md" %}}).
 
 You create a copy of an existing domain type definition file, add the template to that file, and then reference that file on the WDT command line. For example, if you want to create a domain with Oracle HTTP Server based on a Restricted JRF domain, then you would first create a copy of the file `WLSDEPLOY_HOME/lib/typedefs/RestrictedJRF.json` in the same directory, such as `WLSDEPLOY_HOME/lib/typedefs/HttpServer.json`. In this example, you would change the existing `extensionTemplates` section to include the additional OHS template. The original value is:
 ```
@@ -49,7 +49,7 @@ Each name under the `OHS` folder must match a name under the `SystemComponent` f
 
 The `ComponentType` field of the `SystemComponent` element must be set to `OHS` in order to allow configuration of the corresponding `OHS` folders.
 
-You can use the [Model Help Tool]({{< relref "/userguide/tools/model_help.md" >}}) to determine the complete list of folders and attributes that can be used in these sections of the model. For example, this command will list the attributes in the `OHS` folder:
+You can use the [Model Help Tool]({{% relref "/userguide/tools/model_help.md" %}}) to determine the complete list of folders and attributes that can be used in these sections of the model. For example, this command will list the attributes in the `OHS` folder:
 ```bash
 $ ${WDT_HOME}/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/OHS
 ```

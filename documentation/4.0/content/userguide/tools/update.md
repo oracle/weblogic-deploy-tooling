@@ -38,8 +38,8 @@ some options that control its behavior.
       host where WDT is running and the host where the Administration Server is running.  The `-ssh_user` (which, by
       default, is the same user running the tool) must have full read and write access to the domain home directory
       structure, and full read access to any other locations where domain-specific files are stored.  See the
-      [SSH support]({{< relref "/userguide/tools/shared/ssh.md" >}}) and
-      [Verify SSH Tool]({{< relref "/userguide/tools/verify_ssh.md" >}}) pages for more information about running in SSH
+      [SSH support]({{% relref "/userguide/tools/shared/ssh.md" %}}) and
+      [Verify SSH Tool]({{% relref "/userguide/tools/verify_ssh.md" %}}) pages for more information about running in SSH
       mode.
 
 The Update Domain Tool will only add or update elements in the specified model. It will not attempt to remove any missing
@@ -188,7 +188,7 @@ provide one of the following command-line arguments:
 ### Using multiple models
 
 The Update Domain Tool supports the use of multiple models, as described in
-[Using multiple models]({{< relref "/concepts/model#using-multiple-models" >}}).
+[Using multiple models]({{% relref "/concepts/model#using-multiple-models" %}}).
 
 ### Environment variables
 The following environment variables may be set.

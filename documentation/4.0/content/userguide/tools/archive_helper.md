@@ -89,7 +89,7 @@ archiveHelper add structuredApplication command.
 ```
 
 For more information about the archive file and its structure, please refer to the [Archive File]
-({{< relref "/concepts/archive.md" >}}) page.
+({{% relref "/concepts/archive.md" %}}) page.
 
 ### Usage scenarios
 

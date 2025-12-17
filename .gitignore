@@ -28,5 +28,6 @@ release.properties
 **/*.pyc
 **/.DS_Store
 **/.hugo_build.lock
+documentation/**/docs
 .jython_cache
 .oca

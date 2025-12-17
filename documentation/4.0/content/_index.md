@@ -1,3 +1,8 @@
+---
+pre: "<b> </b>"
+hideHeader: true
+---
+
 ## WebLogic Deploy Tooling
 
 WebLogic Deploy Tooling (WDT) makes it easy to stand up WebLogic environments and perform
@@ -33,7 +38,7 @@ WDT provides several single-purpose tools, all exposed as shell scripts (for bot
 * Tokenize a model with variables.
 * Provide information about the folders and attributes that are valid for sections and folders of a domain model.
 
-For detailed information, see [WDT Tools]({{< relref "/userguide/tools/" >}}).
+For detailed information, see [WDT Tools]({{% relref "/userguide/tools/" %}}).
 
 ***
 ### Current production release
@@ -43,18 +48,18 @@ WebLogic Deploy Tooling version and release information can be found [here](http
 ***
 ### Recent changes and known issues
 
-See the [Release Notes]({{< relref "/release-notes.md" >}}) for known issues and workarounds.
+See the [Release Notes]({{% relref "/release-notes.md" %}}) for known issues and workarounds.
 
 ### About this documentation
 
 This documentation includes sections targeted to different audiences:
 
-* [Concepts]({{< relref "/concepts/" >}}) explains the underlying metadata models and archive files.
-* The [User Guide]({{< relref "/userguide/" >}}) contains detailed usage information, including how to install and configure WebLogic Deploy Tooling, and how to use each tool.
-* The [Samples]({{< relref "/samples/" >}}) provide informative use case scenarios.
-* The [Developer Guide]({{< relref "/developer/" >}}) provides details for people who
+* [Concepts]({{% relref "/concepts/" %}}) explains the underlying metadata models and archive files.
+* The [User Guide]({{% relref "/userguide/" %}}) contains detailed usage information, including how to install and configure WebLogic Deploy Tooling, and how to use each tool.
+* The [Samples]({{% relref "/samples/" %}}) provide informative use case scenarios.
+* The [Developer Guide]({{% relref "/developer/" %}}) provides details for people who
 want to understand how WDT is built, its features mapped and implemented. Those who
-wish to contribute to the WebLogic Deploy Tooling code will find useful information [here]({{< relref "/developer/contribute.md" >}}).
+wish to contribute to the WebLogic Deploy Tooling code will find useful information [here]({{% relref "/developer/contribute.md" %}}).
 
 ### Related projects
 
@@ -62,5 +67,4 @@ wish to contribute to the WebLogic Deploy Tooling code will find useful informat
 * [WebLogic Image Tool](https://oracle.github.io/weblogic-image-tool/)
 * [WebLogic Kubernetes Toolkit UI](https://oracle.github.io/weblogic-toolkit-ui/)
 * [WebLogic Monitoring Exporter](https://github.com/oracle/weblogic-monitoring-exporter)
-* [WebLogic Logging Exporter](https://github.com/oracle/weblogic-logging-exporter)
 * [WebLogic Remote Console](https://oracle.github.io/weblogic-remote-console/)

@@ -8,7 +8,7 @@ description: "Verifies the SSH configuration and arguments."
 
 With the Verify SSH Tool, you can verify that an SSH connection can be successfully established by WDT and optionally,
 if files can be transferred between the machines using the provided arguments.  Before running the Verify SSH Tool, you
-must ensure you have performed the [SSH Prerequisites]({{< relref "/userguide/tools/shared/ssh#ssh-prerequisites" >}}).
+must ensure you have performed the [SSH Prerequisites]({{% relref "/userguide/tools/shared/ssh#ssh-prerequisites" %}}).
 
 ### Public/private key authentication
 

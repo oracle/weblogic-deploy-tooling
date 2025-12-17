@@ -58,7 +58,7 @@ Here is an example command line for the Extract Domain Resource Tool:
 
 For the simplest case, the Extract Domain Resource Tool will create resource files based on the templates corresponding
 to the `target` argument, using information from the command line and the domain sections of the model. Information
-about target types and templates can be found [Target environments]({{< relref "/userguide/target_env.md" >}}) page.
+about target types and templates can be found [Target environments]({{% relref "/userguide/target_env.md" %}}) page.
 
 The value of the optional `-domain_home` argument will be applied to the corresponding field in the template output, if specified. As an alternative, the domain home value can be specified in the related section of the WDT model. 
 
@@ -91,7 +91,7 @@ kubernetes:
                 -   name: JAVA_OPTIONS
                     value: '-Dmydir=/home/me'
 ```
-This example uses `@@PROP:mySecret@@` to pull the value for `webLogicCredentialsSecret` from the variables file specified on the command line. This can be done with any of the values in the CRD sections of the model. More details about using model variables can be found [here]({{< relref "/concepts/model#simple-example" >}}).
+This example uses `@@PROP:mySecret@@` to pull the value for `webLogicCredentialsSecret` from the variables file specified on the command line. This can be done with any of the values in the CRD sections of the model. More details about using model variables can be found [here]({{% relref "/concepts/model#simple-example" %}}).
 
 Using the `wko` target with this example, the resulting domain resource file would contain:
 ```yaml
@@ -132,7 +132,7 @@ If the WDT model has a value of `Never` for `spec/imagePullPolicy`, the `imagePu
 
 A full list of sections and variables supported by the WebLogic Kubernetes Operator is available [here](https://github.com/oracle/weblogic-kubernetes-operator/blob/main/documentation/domains/Domain.md). The Extract Domain Resource Tool supports a subset of these sections, including `metadata`, `serverPod`, and `spec`.
 
-The [Model Help Tool]({{< relref "/userguide/tools/model_help.md" >}}) can be used to determine the folders and attributes that can be used in the CRD sections of the model. For example, this command will list the folders and attributes in the `spec` folder in the `kubernetes` section:
+The [Model Help Tool]({{% relref "/userguide/tools/model_help.md" %}}) can be used to determine the folders and attributes that can be used in the CRD sections of the model. For example, this command will list the folders and attributes in the `spec` folder in the `kubernetes` section:
 ```yaml
 <wls-deploy-home>/bin/modelHelp.sh -oracle_home /tmp/oracle kubernetes:/spec
 ```
@@ -147,5 +147,5 @@ The content for the CRD sections is not generated when a model is discovered by 
 | `-model_file` | The location of the model file.  This can also be specified as a comma-separated list of model locations, where each successive model layers on top of the previous ones. |    |
 | `-oracle_home` | Home directory of the Oracle WebLogic installation. Required if the `ORACLE_HOME` environment variable is not set. |    |
 | `-output_dir` | The location for the target output files. |    |
-| `-target` | The target output type. The default is `wko`. For more information about target types, see [Target Environments]({{< relref "userguide/target_env" >}}). |    |
+| `-target` | The target output type. The default is `wko`. For more information about target types, see [Target Environments]({{% relref "userguide/target_env" %}}). |    |
 | `-variable_file` | The location of the property file containing the values for variables used in the model. This can also be specified as a comma-separated list of property files, where each successive set of properties layers on top of the previous ones. |    |
