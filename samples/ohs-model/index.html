@@ -23,29 +23,29 @@
     <meta itemprop="description" content="A model for configuring Oracle HTTP Server (OHS).">
     <meta itemprop="datePublished" content="2019-02-23T17:19:24-05:00">
     <meta itemprop="dateModified" content="2019-02-23T17:19:24-05:00">
-    <meta itemprop="wordCount" content="424">
+    <meta itemprop="wordCount" content="426">
     <title>Configuring Oracle HTTP Server :: WebLogic Deploy Tooling</title>
-    <link href="/weblogic-deploy-tooling/images/logo.png?1765995268" rel="icon" type="image/png">
-    <link href="/weblogic-deploy-tooling/css/auto-complete/auto-complete.min.css?1765995268" rel="stylesheet">
-    <script src="/weblogic-deploy-tooling/js/auto-complete/auto-complete.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/search-lunr.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/search.min.js?1765995268" defer></script>
+    <link href="/weblogic-deploy-tooling/images/logo.png?1766009689" rel="icon" type="image/png">
+    <link href="/weblogic-deploy-tooling/css/auto-complete/auto-complete.min.css?1766009689" rel="stylesheet">
+    <script src="/weblogic-deploy-tooling/js/auto-complete/auto-complete.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/search-lunr.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/search.min.js?1766009689" defer></script>
     <script>
       window.relearn = window.relearn || {};
-      window.relearn.index_js_url="/weblogic-deploy-tooling/searchindex.en.js?1765995268";
+      window.relearn.index_js_url="/weblogic-deploy-tooling/searchindex.en.js?1766009689";
     </script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.stemmer.support.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.multi.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.en.min.js?1765995268" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.stemmer.support.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.multi.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.en.min.js?1766009689" defer></script>
     <script>
       window.relearn = window.relearn || {};
       window.relearn.contentLangs=['en'];
     </script>
-    <link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1765995268" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1765995268" rel="stylesheet"></noscript>
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar/perfect-scrollbar.min.css?1765995268" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.min.css?1765995268" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/format-html.min.css?1765995268" rel="stylesheet" id="R-format-style">
+    <link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1766009689" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1766009689" rel="stylesheet"></noscript>
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar/perfect-scrollbar.min.css?1766009689" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.min.css?1766009689" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/format-html.min.css?1766009689" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       // configuration
@@ -152,8 +152,24 @@
 
 <p>Starting with WDT 1.8.0, you can configure and update Oracle HTTP Server (OHS) using the Create Domain, Update Domain, and Deploy Applications Tools, in offline mode only. To discover the OHS configuration, use the Discover Domain Tool, in offline mode only. <strong>NOTE</strong>: The Deploy Applications Tool is deprecated in WDT 4.0.0.</p>
 <h4 id="prerequisites">Prerequisites<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
-<p>In order to configure and use OHS, it must be installed in the Oracle Home directory used to create the domain. You can download OHS <a href="https://www.oracle.com/middleware/technologies/webtier-downloads.html" rel="external">here</a>.</p>
-<p>The OHS template must be present in the WDT domain type definition file used to create or update the domain. For more information on creating a custom definition, see <a href="/weblogic-deploy-tooling/userguide/tools-config/domain_def/">Domain type definitions</a>.</p>
+<p>In order to configure and use OHS, it must be installed in the Oracle Home directory used to create the domain. You can download OHS 
+
+<a href="https://www.oracle.com/middleware/technologies/webtier-downloads.html"
+   
+   
+target="_blank" rel="noopener noreferrer"
+>
+here
+</a>
+.</p>
+<p>The OHS template must be present in the WDT domain type definition file used to create or update the domain. For more information on creating a custom definition, see 
+
+<a href="/weblogic-deploy-tooling/userguide/tools-config/domain_def/"
+   
+   >
+Domain type definitions
+</a>
+.</p>
 <p>You create a copy of an existing domain type definition file, add the template to that file, and then reference that file on the WDT command line. For example, if you want to create a domain with Oracle HTTP Server based on a Restricted JRF domain, then you would first create a copy of the file <code>WLSDEPLOY_HOME/lib/typedefs/RestrictedJRF.json</code> in the same directory, such as <code>WLSDEPLOY_HOME/lib/typedefs/HttpServer.json</code>. In this example, you would change the existing <code>extensionTemplates</code> section to include the additional OHS template. The original value is:</p>
 <div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0"><code>&#34;extensionTemplates&#34;: [ &#34;Oracle Restricted JRF&#34;, &#34;Oracle Enterprise Manager-Restricted JRF&#34; ],</code></pre></div>
 <p>The revised value would be:</p>
@@ -177,7 +193,14 @@
 </span></span><span style="display:flex;"><span>            <span style="color:#f92672">ServerName</span>: <span style="color:#ae81ff">http://localhost:7323</span></span></span></code></pre></div>
 <p>Each name under the <code>OHS</code> folder must match a name under the <code>SystemComponent</code> folder in the model, or the name of a <code>SystemComponent</code> element that has been previously created. In this example, the name <code>my-ohs</code> is in both places.</p>
 <p>The <code>ComponentType</code> field of the <code>SystemComponent</code> element must be set to <code>OHS</code> in order to allow configuration of the corresponding <code>OHS</code> folders.</p>
-<p>You can use the <a href="/weblogic-deploy-tooling/userguide/tools/model_help/">Model Help Tool</a> to determine the complete list of folders and attributes that can be used in these sections of the model. For example, this command will list the attributes in the <code>OHS</code> folder:</p>
+<p>You can use the 
+
+<a href="/weblogic-deploy-tooling/userguide/tools/model_help/"
+   
+   >
+Model Help Tool
+</a>
+ to determine the complete list of folders and attributes that can be used in these sections of the model. For example, this command will list the attributes in the <code>OHS</code> folder:</p>
 <div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ <span style="color:#e6db74">${</span>WDT_HOME<span style="color:#e6db74">}</span>/bin/modelHelp.sh -oracle_home /tmp/oracle resources:/OHS</span></span></code></pre></div>
 
   <footer class="footline">
@@ -270,8 +293,8 @@
 </div>
       </div>
     </aside>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar/perfect-scrollbar.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/theme.min.js?1765995268" defer></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar/perfect-scrollbar.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/theme.min.js?1766009689" defer></script>
     <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>

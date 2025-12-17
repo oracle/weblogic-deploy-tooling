@@ -23,29 +23,29 @@
     <meta itemprop="description" content="How to create custom WDT configuration files.">
     <meta itemprop="datePublished" content="2019-02-23T17:19:24-05:00">
     <meta itemprop="dateModified" content="2019-02-23T17:19:24-05:00">
-    <meta itemprop="wordCount" content="262">
+    <meta itemprop="wordCount" content="264">
     <title>Custom configuration :: WebLogic Deploy Tooling</title>
-    <link href="/weblogic-deploy-tooling/images/logo.png?1765995268" rel="icon" type="image/png">
-    <link href="/weblogic-deploy-tooling/css/auto-complete/auto-complete.min.css?1765995268" rel="stylesheet">
-    <script src="/weblogic-deploy-tooling/js/auto-complete/auto-complete.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/search-lunr.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/search.min.js?1765995268" defer></script>
+    <link href="/weblogic-deploy-tooling/images/logo.png?1766009689" rel="icon" type="image/png">
+    <link href="/weblogic-deploy-tooling/css/auto-complete/auto-complete.min.css?1766009689" rel="stylesheet">
+    <script src="/weblogic-deploy-tooling/js/auto-complete/auto-complete.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/search-lunr.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/search.min.js?1766009689" defer></script>
     <script>
       window.relearn = window.relearn || {};
-      window.relearn.index_js_url="/weblogic-deploy-tooling/searchindex.en.js?1765995268";
+      window.relearn.index_js_url="/weblogic-deploy-tooling/searchindex.en.js?1766009689";
     </script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.stemmer.support.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.multi.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.en.min.js?1765995268" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.stemmer.support.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.multi.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.en.min.js?1766009689" defer></script>
     <script>
       window.relearn = window.relearn || {};
       window.relearn.contentLangs=['en'];
     </script>
-    <link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1765995268" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1765995268" rel="stylesheet"></noscript>
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar/perfect-scrollbar.min.css?1765995268" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.min.css?1765995268" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/format-html.min.css?1765995268" rel="stylesheet" id="R-format-style">
+    <link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1766009689" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1766009689" rel="stylesheet"></noscript>
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar/perfect-scrollbar.min.css?1766009689" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.min.css?1766009689" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/format-html.min.css?1766009689" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       // configuration
@@ -167,11 +167,60 @@
     model_variable_injector.json</code></pre></div>
 <p>This is a full set of files that can be configured. You will need only to add the files you have created or extended. Details for each configuration type are found at:</p>
 <ul>
-<li><a href="/weblogic-deploy-tooling/userguide/tools-config/tool_prop/">Tool property file</a></li>
-<li><a href="/weblogic-deploy-tooling/userguide/tools-config/model_filters/">Model filters</a></li>
-<li><a href="/weblogic-deploy-tooling/userguide/tools-config/domain_def/">Type definitions</a> (See the following <a href="/weblogic-deploy-tooling/userguide/tools-config/custom_config/index.html#example-extending-a-type-definition">Extending a type definition</a> example.)</li>
-<li><a href="/weblogic-deploy-tooling/userguide/tools-config/variable_injectors/">Variable injectors</a></li>
-<li><a href="/weblogic-deploy-tooling/userguide/tools/prepare/">The Prepare Model Tool</a>; see <a href="/weblogic-deploy-tooling/userguide/target_env/">Target environments</a>.</li>
+<li>
+
+<a href="/weblogic-deploy-tooling/userguide/tools-config/tool_prop/"
+   
+   >
+Tool property file
+</a>
+</li>
+<li>
+
+<a href="/weblogic-deploy-tooling/userguide/tools-config/model_filters/"
+   
+   >
+Model filters
+</a>
+</li>
+<li>
+
+<a href="/weblogic-deploy-tooling/userguide/tools-config/domain_def/"
+   
+   >
+Type definitions
+</a>
+ (See the following 
+
+<a href="#example-extending-a-type-definition"
+   
+   >
+Extending a type definition
+</a>
+ example.)</li>
+<li>
+
+<a href="/weblogic-deploy-tooling/userguide/tools-config/variable_injectors/"
+   
+   >
+Variable injectors
+</a>
+</li>
+<li>
+
+<a href="/weblogic-deploy-tooling/userguide/tools/prepare/"
+   
+   >
+The Prepare Model Tool
+</a>
+; see 
+
+<a href="/weblogic-deploy-tooling/userguide/target_env/"
+   
+   >
+Target environments
+</a>
+.</li>
 </ul>
 <p>The WDT tools will look for each configuration file under <code>$WDT_CUSTOM_CONFIG</code> if specified, then under <code>$WLSDEPLOY_HOME/lib</code>.</p>
 <h4 id="example-extending-a-type-definition">Example: Extending a type definition<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
@@ -274,8 +323,8 @@
 </div>
       </div>
     </aside>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar/perfect-scrollbar.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/theme.min.js?1765995268" defer></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar/perfect-scrollbar.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/theme.min.js?1766009689" defer></script>
     <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>

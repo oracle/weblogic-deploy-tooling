@@ -23,29 +23,29 @@
     <meta itemprop="description" content="The section that discusses the structure and content of the WDT archive file.">
     <meta itemprop="datePublished" content="2019-02-23T17:19:24-05:00">
     <meta itemprop="dateModified" content="2019-02-23T17:19:24-05:00">
-    <meta itemprop="wordCount" content="1821">
+    <meta itemprop="wordCount" content="1824">
     <title>Archive File :: WebLogic Deploy Tooling</title>
-    <link href="/weblogic-deploy-tooling/images/logo.png?1765995268" rel="icon" type="image/png">
-    <link href="/weblogic-deploy-tooling/css/auto-complete/auto-complete.min.css?1765995268" rel="stylesheet">
-    <script src="/weblogic-deploy-tooling/js/auto-complete/auto-complete.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/search-lunr.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/search.min.js?1765995268" defer></script>
+    <link href="/weblogic-deploy-tooling/images/logo.png?1766009689" rel="icon" type="image/png">
+    <link href="/weblogic-deploy-tooling/css/auto-complete/auto-complete.min.css?1766009689" rel="stylesheet">
+    <script src="/weblogic-deploy-tooling/js/auto-complete/auto-complete.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/search-lunr.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/search.min.js?1766009689" defer></script>
     <script>
       window.relearn = window.relearn || {};
-      window.relearn.index_js_url="/weblogic-deploy-tooling/searchindex.en.js?1765995268";
+      window.relearn.index_js_url="/weblogic-deploy-tooling/searchindex.en.js?1766009689";
     </script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.stemmer.support.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.multi.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.en.min.js?1765995268" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.stemmer.support.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.multi.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.en.min.js?1766009689" defer></script>
     <script>
       window.relearn = window.relearn || {};
       window.relearn.contentLangs=['en'];
     </script>
-    <link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1765995268" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1765995268" rel="stylesheet"></noscript>
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar/perfect-scrollbar.min.css?1765995268" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.min.css?1765995268" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/format-html.min.css?1765995268" rel="stylesheet" id="R-format-style">
+    <link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1766009689" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1766009689" rel="stylesheet"></noscript>
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar/perfect-scrollbar.min.css?1766009689" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.min.css?1766009689" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/format-html.min.css?1766009689" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       // configuration
@@ -168,9 +168,30 @@ system must be stored in the correct location in the archive, and the model must
 the model specifies the correct location on the target system.</p>
 <h3 id="contents">Contents<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <ul>
-<li><a href="/weblogic-deploy-tooling/concepts/archive/index.html#example">Example</a></li>
-<li><a href="/weblogic-deploy-tooling/concepts/archive/index.html#archive-structure">Archive structure</a></li>
-<li><a href="/weblogic-deploy-tooling/concepts/archive/index.html#using-multiple-archive-files">Using multiple archive files</a></li>
+<li>
+
+<a href="#example"
+   
+   >
+Example
+</a>
+</li>
+<li>
+
+<a href="#archive-structure"
+   
+   >
+Archive structure
+</a>
+</li>
+<li>
+
+<a href="#using-multiple-archive-files"
+   
+   >
+Using multiple archive files
+</a>
+</li>
 </ul>
 <h4 id="example">Example<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <p>This example shows an application with a <code>SourcePath</code> value referencing an EAR file resource contained in the archive.</p>
@@ -187,7 +208,14 @@ file in the specified location, and will be deployed to that directory in the do
 <h3 id="archive-structure">Archive structure<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <p>These are the paths within the archive that are used for different types of resources. You can create further
 directory structures underneath some of these locations to organize the files and directories as you see fit.  The
-<a href="/weblogic-deploy-tooling/userguide/tools/archive_helper/">Archive Helper Tool</a> makes it easy to add, update, and remove entries from the archive file.</p>
+
+
+<a href="/weblogic-deploy-tooling/userguide/tools/archive_helper/"
+   
+   >
+Archive Helper Tool
+</a>
+ makes it easy to add, update, and remove entries from the archive file.</p>
 <h4 id="why-are-there-two-separate-directory-structures">Why are there two separate directory structures?<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <p>Starting in WDT 4.0, some types previously stored under the top-level <code>wlsdeploy</code> directory have been moved to the
 <code>config/wlsdeploy</code> directory.  Anything stored in the archive under a location that begins with <code>config/wlsdeploy</code> will
@@ -220,7 +248,14 @@ when deploying in Kubernetes with WebLogic Kubernetes Operator.</li>
 <p>This is the root directory where your custom files and directories can be stored and extracted from the archive. These
 files are not collected by the Discover Domain Tool.   Every file resource under this directory is extracted during
 <code>createDomain</code>, <code>updateDomain</code>, and <code>deployApps</code>.</p>
-<p>Some custom files may belong in <code>wlsdeploy/custom</code>. To determine which location is preferable for your files, see <a href="/weblogic-deploy-tooling/concepts/archive/index.html#why-are-there-two-separate-directory-structures">Why are there two separate directory structures?</a>.</p>
+<p>Some custom files may belong in <code>wlsdeploy/custom</code>. To determine which location is preferable for your files, see 
+
+<a href="#why-are-there-two-separate-directory-structures"
+   
+   >
+Why are there two separate directory structures?
+</a>
+.</p>
 <p>This location is particularly useful when handling files that live outside an application; for example, a property
 file used to configure the application.  The general steps to make applications that use such files work when
 provisioning them with WDT are:</p>
@@ -267,7 +302,14 @@ directory is extracted, even those not referenced in the model.</p>
 <p>This is the root directory where your custom files and directories can be stored and extracted from the archive. These
 files are not collected by the Discover Domain Tool.   Every file resource under this directory is extracted during
 <code>createDomain</code>, <code>updateDomain</code>, and <code>deployApps</code>.</p>
-<p>Some custom files may belong in <code>config/wlsdeploy/custom</code>. To determine which location is preferable for your files, see <a href="/weblogic-deploy-tooling/concepts/archive/index.html#why-are-there-two-separate-directory-structures">Why are there two separate directory structures?</a>.</p>
+<p>Some custom files may belong in <code>config/wlsdeploy/custom</code>. To determine which location is preferable for your files, see 
+
+<a href="#why-are-there-two-separate-directory-structures"
+   
+   >
+Why are there two separate directory structures?
+</a>
+.</p>
 <h4 id="wlsdeploydomainbin"><code>wlsdeploy/domainBin</code><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <p>The root directory under which <code>$DOMAIN_HOME/bin</code> scripts are stored. Only scripts referenced in the
 <code>domainInfo/domainBin</code> section of the model are extracted, as shown in the example.</p>
@@ -324,7 +366,16 @@ in the archive as EAR, WAR, or JAR files, or as an exploded directory at this lo
 <p>The root directory under which empty directories must exist for <code>FileStore</code> elements in the model.</p>
 <h4 id="wlsdeploystructuredapplications"><code>wlsdeploy/structuredApplications</code><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <p>The root directory under which &ldquo;structured&rdquo; applications are stored; the WebLogic Server documentation refers to them as
-<a href="https://docs.oracle.com/en/middleware/standalone/weblogic-server/14.1.1.0/depgd/deployunits.html#GUID-B5DA7628-5900-43C3-9290-8D17E151EDD4" rel="external">application installation directories</a>.
+
+
+<a href="https://docs.oracle.com/en/middleware/standalone/weblogic-server/14.1.1.0/depgd/deployunits.html#GUID-B5DA7628-5900-43C3-9290-8D17E151EDD4"
+   
+   
+target="_blank" rel="noopener noreferrer"
+>
+application installation directories
+</a>
+.
 Applications inside the specified directory structure can be stored in the archive as EAR or WAR files, or as an
 exploded directory.</p>
 <p>A sample &ldquo;structured&rdquo; application might have these entries:</p>
@@ -431,8 +482,8 @@ overwriting any overlapping files.</p>
 </div>
       </div>
     </aside>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar/perfect-scrollbar.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/theme.min.js?1765995268" defer></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar/perfect-scrollbar.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/theme.min.js?1766009689" defer></script>
     <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>

@@ -23,29 +23,29 @@
     <meta itemprop="description" content="Generates YAML resource files for use with the WebLogic Kubernetes Operator.">
     <meta itemprop="datePublished" content="2019-02-23T17:19:24-05:00">
     <meta itemprop="dateModified" content="2019-02-23T17:19:24-05:00">
-    <meta itemprop="wordCount" content="972">
+    <meta itemprop="wordCount" content="976">
     <title>Extract Domain Resource Tool :: WebLogic Deploy Tooling</title>
-    <link href="/weblogic-deploy-tooling/images/logo.png?1765995268" rel="icon" type="image/png">
-    <link href="/weblogic-deploy-tooling/css/auto-complete/auto-complete.min.css?1765995268" rel="stylesheet">
-    <script src="/weblogic-deploy-tooling/js/auto-complete/auto-complete.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/search-lunr.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/search.min.js?1765995268" defer></script>
+    <link href="/weblogic-deploy-tooling/images/logo.png?1766009689" rel="icon" type="image/png">
+    <link href="/weblogic-deploy-tooling/css/auto-complete/auto-complete.min.css?1766009689" rel="stylesheet">
+    <script src="/weblogic-deploy-tooling/js/auto-complete/auto-complete.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/search-lunr.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/search.min.js?1766009689" defer></script>
     <script>
       window.relearn = window.relearn || {};
-      window.relearn.index_js_url="/weblogic-deploy-tooling/searchindex.en.js?1765995268";
+      window.relearn.index_js_url="/weblogic-deploy-tooling/searchindex.en.js?1766009689";
     </script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.stemmer.support.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.multi.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.en.min.js?1765995268" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.stemmer.support.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.multi.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.en.min.js?1766009689" defer></script>
     <script>
       window.relearn = window.relearn || {};
       window.relearn.contentLangs=['en'];
     </script>
-    <link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1765995268" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1765995268" rel="stylesheet"></noscript>
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar/perfect-scrollbar.min.css?1765995268" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.min.css?1765995268" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/format-html.min.css?1765995268" rel="stylesheet" id="R-format-style">
+    <link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1766009689" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1766009689" rel="stylesheet"></noscript>
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar/perfect-scrollbar.min.css?1766009689" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.min.css?1766009689" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/format-html.min.css?1766009689" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       // configuration
@@ -196,13 +196,29 @@ command-line argument.</p>
 </span></span><span style="display:flex;"><span>            <span style="color:#f92672">runtimeEncryptionSecret</span>: <span style="color:#ae81ff">mydomain-runtime-encryption-secret</span></span></span></code></pre></div>
 <p>To help make this tool more useful (and more automated), the model includes an optional, top-level <code>kubernetes</code> section that feeds into the generated domain resource.  Looking at the previous example output, you see
 that the <code>.spec.image</code> and <code>.spec.configuration.model.modelHome</code> attributes are replaced with model values.</p>
-<p>More information about the WebLogic Kubernetes Operator can be found <a href="https://oracle.github.io/weblogic-kubernetes-operator" rel="external">here</a>.</p>
+<p>More information about the WebLogic Kubernetes Operator can be found 
+
+<a href="https://oracle.github.io/weblogic-kubernetes-operator"
+   
+   
+target="_blank" rel="noopener noreferrer"
+>
+here
+</a>
+.</p>
 <p>Here is an example command line for the Extract Domain Resource Tool:</p>
 <pre><code>$ weblogic-deploy/bin/extractDomainResource.sh -model_file /tmp/mymodel.yaml -variable_file /tmp/my.properties -output_dir /tmp/resource -target wko -oracle_home /tmp/oracle -domain_home /u01/mydomain 
 </code></pre>
 <p>For the simplest case, the Extract Domain Resource Tool will create resource files based on the templates corresponding
 to the <code>target</code> argument, using information from the command line and the domain sections of the model. Information
-about target types and templates can be found <a href="/weblogic-deploy-tooling/userguide/target_env/">Target environments</a> page.</p>
+about target types and templates can be found 
+
+<a href="/weblogic-deploy-tooling/userguide/target_env/"
+   
+   >
+Target environments
+</a>
+ page.</p>
 <p>The value of the optional <code>-domain_home</code> argument will be applied to the corresponding field in the template output, if specified. As an alternative, the domain home value can be specified in the related section of the WDT model.</p>
 <p>Domain name and UID fields in the template will use the domain name in the topology section of the model, or the default <code>base_domain</code>. The cluster entries will be pulled from the topology section of the model; their replica counts will have been derived from the number of servers for each cluster.</p>
 <p>The user is expected to fill in the image and secrets information identified by <code>--FIX ME--</code> in the resource output.</p>
@@ -229,7 +245,14 @@ about target types and templates can be found <a href="/weblogic-deploy-tooling/
 </span></span><span style="display:flex;"><span>                    <span style="color:#f92672">value</span>: <span style="color:#e6db74">&#39;-XX:+UseContainerSupport -Djava.security.egd=file:/dev/./urandom&#39;</span>
 </span></span><span style="display:flex;"><span>                -   <span style="color:#f92672">name</span>: <span style="color:#ae81ff">JAVA_OPTIONS</span>
 </span></span><span style="display:flex;"><span>                    <span style="color:#f92672">value</span>: <span style="color:#e6db74">&#39;-Dmydir=/home/me&#39;</span></span></span></code></pre></div>
-<p>This example uses <code>@@PROP:mySecret@@</code> to pull the value for <code>webLogicCredentialsSecret</code> from the variables file specified on the command line. This can be done with any of the values in the CRD sections of the model. More details about using model variables can be found <a href="/weblogic-deploy-tooling/concepts/model/#simple-example">here</a>.</p>
+<p>This example uses <code>@@PROP:mySecret@@</code> to pull the value for <code>webLogicCredentialsSecret</code> from the variables file specified on the command line. This can be done with any of the values in the CRD sections of the model. More details about using model variables can be found 
+
+<a href="/weblogic-deploy-tooling/concepts/model/#simple-example"
+   
+   >
+here
+</a>
+.</p>
 <p>Using the <code>wko</code> target with this example, the resulting domain resource file would contain:</p>
 <div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">weblogic.oracle/v8</span>
 </span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Domain</span>
@@ -262,8 +285,24 @@ about target types and templates can be found <a href="/weblogic-deploy-tooling/
 </span></span><span style="display:flex;"><span>        <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">4</span></span></span></code></pre></div>
 <p>If clusters are specified in the <code>kubernetes/spec</code> section of the model, those clusters will be combined with any clusters from the <code>topology</code> section of the model.</p>
 <p>If the WDT model has a value of <code>Never</code> for <code>spec/imagePullPolicy</code>, the <code>imagePullSecrets</code> default value will not be added.</p>
-<p>A full list of sections and variables supported by the WebLogic Kubernetes Operator is available <a href="https://github.com/oracle/weblogic-kubernetes-operator/blob/main/documentation/domains/Domain.md" rel="external">here</a>. The Extract Domain Resource Tool supports a subset of these sections, including <code>metadata</code>, <code>serverPod</code>, and <code>spec</code>.</p>
-<p>The <a href="/weblogic-deploy-tooling/userguide/tools/model_help/">Model Help Tool</a> can be used to determine the folders and attributes that can be used in the CRD sections of the model. For example, this command will list the folders and attributes in the <code>spec</code> folder in the <code>kubernetes</code> section:</p>
+<p>A full list of sections and variables supported by the WebLogic Kubernetes Operator is available 
+
+<a href="https://github.com/oracle/weblogic-kubernetes-operator/blob/main/documentation/domains/Domain.md"
+   
+   
+target="_blank" rel="noopener noreferrer"
+>
+here
+</a>
+. The Extract Domain Resource Tool supports a subset of these sections, including <code>metadata</code>, <code>serverPod</code>, and <code>spec</code>.</p>
+<p>The 
+
+<a href="/weblogic-deploy-tooling/userguide/tools/model_help/"
+   
+   >
+Model Help Tool
+</a>
+ can be used to determine the folders and attributes that can be used in the CRD sections of the model. For example, this command will list the folders and attributes in the <code>spec</code> folder in the <code>kubernetes</code> section:</p>
 <div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ae81ff">&lt;wls-deploy-home&gt;/bin/modelHelp.sh -oracle_home /tmp/oracle kubernetes:/spec</span></span></span></code></pre></div>
 <p>The content for the CRD sections is not generated when a model is discovered by the Discover Domain Tool.</p>
 <h3 id="parameter-table-for-extractdomainresource">Parameter table for <code>extractDomainResource</code><span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
@@ -303,7 +342,14 @@ about target types and templates can be found <a href="/weblogic-deploy-tooling/
       </tr>
       <tr>
           <td><code>-target</code></td>
-          <td>The target output type. The default is <code>wko</code>. For more information about target types, see <a href="/weblogic-deploy-tooling/userguide/target_env/">Target Environments</a>.</td>
+          <td>The target output type. The default is <code>wko</code>. For more information about target types, see 
+
+<a href="/weblogic-deploy-tooling/userguide/target_env/"
+   
+   >
+Target Environments
+</a>
+.</td>
           <td></td>
       </tr>
       <tr>
@@ -411,8 +457,8 @@ about target types and templates can be found <a href="/weblogic-deploy-tooling/
 </div>
       </div>
     </aside>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar/perfect-scrollbar.min.js?1765995268" defer></script>
-    <script src="/weblogic-deploy-tooling/js/theme.min.js?1765995268" defer></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar/perfect-scrollbar.min.js?1766009689" defer></script>
+    <script src="/weblogic-deploy-tooling/js/theme.min.js?1766009689" defer></script>
     <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>
