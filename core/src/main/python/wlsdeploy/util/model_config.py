@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2024, Oracle and/or its affiliates.
+Copyright (c) 2020, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 
@@ -36,6 +36,8 @@ DISCOVER_RCU_DS_GENERATE_RCUDB_INFO_PROP='discover.rcu.ds.generate_rcudb_info'
 DISCOVER_RCU_DS_GENERATE_RCUDB_INFO_DEFAULT='true'
 ENABLE_CREATE_DOMAIN_PASSWORD_VALIDATION_PROP = 'enable.create.domain.password.validation'
 ENABLE_CREATE_DOMAIN_PASSWORD_VALIDATION_DEFAULT = 'true'
+MERGE_SERVER_START_ARGUMENTS = 'merge.server.start.arguments'
+MERGE_SERVER_START_ARGUMENTS_DEFAULT = 'true'
 REDEPLOY_TIMEOUT_PROP = 'redeploy.timeout'
 REDEPLOY_TIMEOUT_DEFAULT = '180000'
 SET_SERVER_GRPS_TIMEOUT_PROP = 'set.server.groups.timeout'
@@ -212,6 +214,13 @@ class ModelConfiguration(object):
         :return: the default for whether generating RCUDbInfo or not
         """
         return self._get_from_dict(DISCOVER_RCU_DS_GENERATE_RCUDB_INFO_PROP, DISCOVER_RCU_DS_GENERATE_RCUDB_INFO_DEFAULT)
+
+    def get_merge_server_start_arguments(self):
+        """
+        Return whether to merge server start arguments.
+        :return: whether to merge server start arguments
+        """
+        return self._get_from_dict_as_boolean(MERGE_SERVER_START_ARGUMENTS, MERGE_SERVER_START_ARGUMENTS_DEFAULT)
 
     def use_ssh_compression(self):
         """
