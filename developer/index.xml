@@ -1,61 +1,61 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Developer Guide on WebLogic Deploy Tooling</title>
-    <link>https://oracle.github.io/weblogic-deploy-tooling/developer/</link>
-    <description>Recent content in Developer Guide on WebLogic Deploy Tooling</description>
+    <title>Developer Guide :: WebLogic Deploy Tooling</title>
+    <link>https://oracle.github.io/weblogic-deploy-tooling/developer/index.html</link>
+    <description>Developer Guide The Developer Guide provides information for developers who want to understand or contribute to the code.&#xA;Project structureDescribes the WDT project structure.&#xA;Feature implementationHow specific features are implemented.&#xA;Alias definitionsHow the WDT aliases work.&#xA;Build WebLogic Deploy ToolingHow to build WDT from source.&#xA;Building CRD schemasHow to build the CRD schemas&#xA;WDT project release processHow releases are created from WDT source code.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 23 Feb 2019 17:19:24 -0500</lastBuildDate>
     <atom:link href="https://oracle.github.io/weblogic-deploy-tooling/developer/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Project structure</title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/developer/project-structure/</link>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/developer/project-structure/index.html</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/project-structure/</guid>
-      <description>&lt;p&gt;This project is structured using the Standard Directory Layout for Maven projects, with two child modules, &lt;code&gt;core&lt;/code&gt;, &lt;code&gt;alias-test&lt;/code&gt;, &lt;code&gt;system-test&lt;/code&gt;, and &lt;code&gt;installer&lt;/code&gt;. In addition, there is a &lt;code&gt;documentation&lt;/code&gt; directory containing project documentation.&lt;/p&gt;&#xA;&lt;p&gt;The &lt;code&gt;core&lt;/code&gt; module contains the main source code for the project. &lt;code&gt;core&lt;/code&gt; includes Jython modules and Java classes, as well as typedef files, alias definitions, and the message bundle.&lt;/p&gt;&#xA;&lt;p&gt;The &lt;code&gt;system-test&lt;/code&gt; and &lt;code&gt;alias-test&lt;/code&gt; modules contain test suites for verifying pull requests and nightly regression testing.&lt;/p&gt;</description>
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/project-structure/index.html</guid>
+      <description>Describes the WDT project structure.</description>
     </item>
     <item>
       <title>Feature implementation</title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/developer/feature-impl/</link>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/developer/feature-impl/index.html</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/feature-impl/</guid>
-      <description>&lt;p&gt;This document describes how specific features of WebLogic Deploy Tooling are implemented in the source code.&lt;/p&gt;&#xA;&lt;h4 id=&#34;creator-and-deployer-class-hierarchies&#34;&gt;Creator and Deployer class hierarchies&lt;/h4&gt;&#xA;&lt;p&gt;The creation of individual folders and attributes within the &lt;code&gt;topology&lt;/code&gt; section of the domain model is accomplished using subclasses of the Jython class &lt;code&gt;Creator&lt;/code&gt;, in the module &lt;code&gt;wlsdeploy.tool.create.creator.py&lt;/code&gt;.  The &lt;code&gt;Creator&lt;/code&gt; class provides base methods to recurse through nested folders in the domain model, create or update those folders, and set or update their attributes. Each subclass can override these methods to account for variations in behavior for different functional areas.&lt;/p&gt;</description>
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/feature-impl/index.html</guid>
+      <description>How specific features are implemented.</description>
     </item>
     <item>
       <title>Alias definitions</title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/developer/alias-definitions/</link>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/developer/alias-definitions/index.html</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/alias-definitions/</guid>
-      <description>&lt;p&gt;WebLogic Deploy Tool uses a set of JSON configuration files to map folders and attributes in the model to the corresponding WLST MBeans and their attributes. These mappings are referred as &amp;lsquo;aliases&amp;rsquo; throughout the project code and documentation. Each element in the alias definition file has detailed properties that assist in this mapping.&lt;/p&gt;&#xA;&lt;p&gt;The model&amp;rsquo;s folder and attribute names usually match the names of the corresponding elements in WLST. For cases where the names of WLST elements may change across WebLogic Server releases, the names should match the names in the 12.2.1.3 release. The unit test &lt;code&gt;AttributesTestCase&lt;/code&gt; verifies that this convention is used, and identifies a few exceptions.&lt;/p&gt;</description>
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/alias-definitions/index.html</guid>
+      <description>How the WDT aliases work.</description>
     </item>
     <item>
-      <title>Build WebLogic Deploy Tool</title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/developer/buildwdt/</link>
+      <title>Build WebLogic Deploy Tooling</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/developer/buildwdt/index.html</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/buildwdt/</guid>
-      <description>&lt;h3 id=&#34;prerequisites&#34;&gt;Prerequisites&lt;/h3&gt;&#xA;&lt;p&gt;You will need the following software installed in your local build environment:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Oracle WebLogic Server installation version 12.2.1 and later&lt;/li&gt;&#xA;&lt;li&gt;JDK version 8&lt;/li&gt;&#xA;&lt;li&gt;Maven 3 and later&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;h4 id=&#34;specify-the-wlst-location&#34;&gt;Specify the WLST location&lt;/h4&gt;&#xA;&lt;p&gt;Execution of the unit tests requires a WebLogic Server installation, because the tests must be run within WLST.&lt;/p&gt;&#xA;&lt;p&gt;The WLST directory can be specified in one of two ways:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;Specify the &lt;code&gt;-Dunit-test-wlst-dir=&amp;lt;wlst-directory&amp;gt;&lt;/code&gt; on the &lt;code&gt;mvn&lt;/code&gt; command line.&lt;/p&gt;&#xA;&lt;/li&gt;&#xA;&lt;li&gt;&#xA;&lt;p&gt;Create a file &lt;code&gt;.mvn/maven.config&lt;/code&gt; file in the project directory, containing a single line with the &lt;code&gt;-Dunit-test-wlst-dir=&amp;lt;wlst-directory&amp;gt;&lt;/code&gt; value. The &lt;code&gt;.mvn&lt;/code&gt; directory contains a &lt;code&gt;maven.config-template&lt;/code&gt; file that can be copied and used as a starting point.&lt;/p&gt;</description>
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/buildwdt/index.html</guid>
+      <description>How to build WDT from source.</description>
     </item>
     <item>
       <title>Building CRD schemas</title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/developer/crd-schemas/</link>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/developer/crd-schemas/index.html</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/crd-schemas/</guid>
-      <description>&lt;p&gt;The structure of the &lt;code&gt;kubernetes&lt;/code&gt; section of the &lt;a href=&#34;https://oracle.github.io/weblogic-deploy-tooling/concepts/model/&#34;&gt;WDT model&lt;/a&gt; is described by schemas based on the Custom Resource Definitions (CRDs) for this product. This is different from other sections of the model that use the &lt;a href=&#34;https://oracle.github.io/weblogic-deploy-tooling/developer/alias-definitions/&#34;&gt;alias framework&lt;/a&gt; to describe their structures.&lt;/p&gt;&#xA;&lt;p&gt;These schemas are used during model validation to check that folder and attribute names are valid. The &lt;a href=&#34;https://oracle.github.io/weblogic-deploy-tooling/userguide/tools/model_help/&#34;&gt;Model Help Tool&lt;/a&gt; uses them to list the contents of folders and details about their attributes.&lt;/p&gt;</description>
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/crd-schemas/index.html</guid>
+      <description>How to build the CRD schemas</description>
     </item>
     <item>
       <title>WDT project release process</title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/developer/releaseprocess/</link>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/developer/releaseprocess/index.html</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/releaseprocess/</guid>
-      <description>&lt;p&gt;This document describes the process that should be followed to create a WebLogic Deploy Tooling (WDT) release.&lt;/p&gt;&#xA;&lt;h3 id=&#34;prerequisites&#34;&gt;Prerequisites&lt;/h3&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;A local installation of WebLogic Server 12.2.1.x must be available.&lt;/li&gt;&#xA;&lt;li&gt;The person running the release process must have admin privileges on the &lt;a href=&#34;https://github.com/oracle/weblogic-deploy-tooling&#34;&gt;WebLogic Deploy Tooling GitHub repo&lt;/a&gt; because the release process pushes to the master branch directly.&lt;/li&gt;&#xA;&lt;li&gt;The person running the release process needs to create a GitHub Personal Access Token for the repository with (at least) the &lt;code&gt;repo:status&lt;/code&gt;, &lt;code&gt;repo_deployment&lt;/code&gt;, &lt;code&gt;public_repo&lt;/code&gt;, and &lt;code&gt;security_events&lt;/code&gt; privileges.&lt;/li&gt;&#xA;&lt;li&gt;The person running the release process needs a server added to their Maven &lt;code&gt;settings.xml&lt;/code&gt; file, where the GitHub Personal Access Token is stored, as shown below.  Note that this token can either be stored in plain text or encrypted using &lt;a href=&#34;https://maven.apache.org/guides/mini/guide-encryption.html&#34;&gt;Maven password encryption&lt;/a&gt;.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;servers&amp;gt;&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;server&amp;gt;&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;id&amp;gt;&lt;/span&gt;github&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/id&amp;gt;&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;passphrase&amp;gt;&lt;/span&gt;store plain text or encrypted token here&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/passphrase&amp;gt;&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/server&amp;gt;&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/servers&amp;gt;&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;&#xA;&lt;li&gt;If the machine from which the release process is being run requires a proxy server to access the Internet, the person running the release process needs an active proxy configured in their Maven &lt;code&gt;settings.xml&lt;/code&gt; file.&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-xml&#34; data-lang=&#34;xml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;proxies&amp;gt;&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;proxy&amp;gt;&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;active&amp;gt;&lt;/span&gt;true&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/active&amp;gt;&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;id&amp;gt;&lt;/span&gt;my-proxy&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/id&amp;gt;&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;protocol&amp;gt;&lt;/span&gt;http&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/protocol&amp;gt;&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;host&amp;gt;&lt;/span&gt;proxy server DNS name&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/host&amp;gt;&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;port&amp;gt;&lt;/span&gt;proxy server port&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/port&amp;gt;&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;nonProxyHosts&amp;gt;&lt;/span&gt;list of DNS names/patterns separated by |&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/nonProxyHosts&amp;gt;&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/proxy&amp;gt;&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;/proxies&amp;gt;&lt;/span&gt;&#xA;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;software-release-process&#34;&gt;Software release process&lt;/h3&gt;&#xA;&lt;p&gt;The best practice is to write the release notes that will be published to GitHub prior to starting the steps below.&lt;/p&gt;</description>
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/releaseprocess/index.html</guid>
+      <description>How releases are created from WDT source code.</description>
     </item>
     <item>
       <title>Contribute to WDT</title>
-      <link>https://oracle.github.io/weblogic-deploy-tooling/developer/contribute/</link>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/developer/contribute/index.html</link>
       <pubDate>Sat, 23 Feb 2019 17:19:24 -0500</pubDate>
-      <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/contribute/</guid>
-      <description>&lt;p&gt;Oracle welcomes contributions to this repository from anyone.&lt;/p&gt;&#xA;&lt;p&gt;If you want to submit a pull request to fix a bug or enhance an existing feature,&#xA;first open an issue and link to that issue when you submit your pull request.&lt;/p&gt;&#xA;&lt;p&gt;If you have any questions about a possible submission, feel free to open an issue too.&lt;/p&gt;&#xA;&lt;h3 id=&#34;contributing-to-the-weblogic-deploy-repository&#34;&gt;Contributing to the WebLogic Deploy repository&lt;/h3&gt;&#xA;&lt;p&gt;Pull requests can be made under &lt;a href=&#34;https://oca.opensource.oracle.com/&#34;&gt;The Oracle Contributor Agreement&lt;/a&gt; (OCA).&lt;/p&gt;</description>
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/developer/contribute/index.html</guid>
+      <description>How to contribute to WDT development.</description>
     </item>
   </channel>
 </rss>
