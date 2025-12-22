@@ -12,7 +12,7 @@
     <parent>
         <artifactId>weblogic-deploy-system-test-apps-versioned-app</artifactId>
         <groupId>com.oracle.weblogic.lifecycle</groupId>
-        <version>4.4.0</version>
+        <version>4.4.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
