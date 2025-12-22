@@ -1,12 +1,12 @@
 +++
 title = "Release Notes"
 date = 2024-01-09T18:27:38-05:00
-weight = 59
+weight = 58
 pre = "<b> </b>"
 +++
 
 
-### Changes in Release 4.3.9
+### Changes in Release 4.4.0
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -17,21 +17,17 @@ pre = "<b> </b>"
 None
 
 #### Other Changes
-- #1837 - Added documentation for the tool exit codes to clarify an issue brought up in GitHub issue #1663.
-- #1838 - Added a note to the Known Limitations page about delete ordering described in GitHub issue #1664.
-- #1841 - Changed the alias definition for the WLDF `ScriptAction` folder's `Properties` attribute so that
-          it is written to the model file as a map instead of a string.
-- #1845 - Added support for the `RmiForwarding` folders added in WebLogic Server 15.1.1.
+- #1854 - Added the `merge.server-start-arguments` to the tool.properties file with a default of `true`.  Setting the
+          value to `false` will disable the merging and simply replace any existing value to the model value.
 
 #### Bug Fixes
-
-- #1835 - Fixed an issue that was causing Network Access Point deletion to fail (GitHub issue #1663).
-- #1836 - Worked around the SSH issue for uploading files to an SSH server running Windows, removing the previously
-          documented limitation.
-- #1839 - Fixed the name of the `CorsExposedHeader` attribute (which was previously `CorExposedHeader`) in the
-          `RestfulManagementServices` folder.
-- #1840 - Fixed the alias file online MBean type for the LogFilter folder.
-- #1842,#1843 - Fixed alias type issues with several attributes in the `RestfulManagementServices` folder.
+- #1847 - Fixed a number of attributes to correct the alias setting for `uses_path_tokens` to give more accurate
+          information for the upcoming WKT UI model editor.
+- #1848, #1855 - Fixed a number of attributes that are delimited strings in WLST to allow the use of lists in the model.
+- #1849 - Fixed the handling of the JMS `ForeignServer` `ConnectionURL` in the Create Domain and Update Domain Tools.
+- #1850 - Fixed a number of attributes that are delimited strings with name-value pairs in WLST to allow the use of
+          YAML dictionaries in the model.
+- #1851 - Added the merging handler use in `ServerStart` `Arguments` processing to `SystemComponentStart` `Arguments`.
 
 #### Known Issues
 - SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
