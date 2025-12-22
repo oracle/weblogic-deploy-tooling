@@ -17,7 +17,7 @@ pre = "<b> </b>"
 None
 
 #### Other Changes
-- #1854 - Added the `merge.server-start-arguments` to the tool.properties file with a default of `true`.  Setting the
+- #1854 - Added the `merge.server.start.arguments` to the tool.properties file with a default of `true`.  Setting the
           value to `false` will disable the merging and simply replace any existing value to the model value.
 
 #### Bug Fixes
