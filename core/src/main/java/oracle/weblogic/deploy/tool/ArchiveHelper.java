@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Oracle and/or its affiliates.
+ * Copyright (c) 2023, 2026, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.tool;
@@ -15,6 +15,7 @@ import oracle.weblogic.deploy.tool.archive_helper.add.AddCommand;
 import oracle.weblogic.deploy.tool.archive_helper.extract.ExtractCommand;
 import oracle.weblogic.deploy.tool.archive_helper.list.ListCommand;
 import oracle.weblogic.deploy.tool.archive_helper.remove.RemoveCommand;
+import oracle.weblogic.deploy.tool.archive_helper.wktui.WKTUICommand;
 import oracle.weblogic.deploy.util.ExitCode;
 
 import picocli.CommandLine;
@@ -33,7 +34,8 @@ import picocli.CommandLine.UnmatchedArgumentException;
         AddCommand.class,
         ExtractCommand.class,
         ListCommand.class,
-        RemoveCommand.class
+        RemoveCommand.class,
+        WKTUICommand.class
     },
     versionProvider = ArchiveHelperVersionProvider.class
 )
