@@ -1,17 +1,10 @@
 /*
- * Copyright (c) 2017, 2025, Oracle and/or its affiliates.
+ * Copyright (c) 2017, 2026, Oracle and/or its affiliates.
  * Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
  */
 package oracle.weblogic.deploy.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -34,6 +27,9 @@ import java.util.zip.ZipInputStream;
 import oracle.weblogic.deploy.exception.ExceptionHelper;
 import oracle.weblogic.deploy.logging.PlatformLogger;
 import oracle.weblogic.deploy.logging.WLSDeployLogFactory;
+import oracle.weblogic.deploy.tool.archive_helper.wktui.WKTUIAddOperation;
+import oracle.weblogic.deploy.tool.archive_helper.wktui.WKTUIOperation;
+import oracle.weblogic.deploy.tool.archive_helper.wktui.WKTUIRemoveOperation;
 
 /**
  * The purpose of this class is to hide the organizational details of the WLS Deploy archive.  This class is
@@ -1048,6 +1044,52 @@ public class WLSDeployArchive {
      */
     public void removeAllBinaries() throws WLSDeployArchiveIOException {
         getZipFile().removeZipEntries(WLSDPLY_ARCHIVE_BINARY_DIR + ZIP_SEP);
+    }
+
+    public List<String> wktuiProcessOperations(List<WKTUIOperation> operations) throws WLSDeployArchiveIOException {
+        final String METHOD = "wktuiProcessOperations";
+        LOGGER.entering(CLASS, METHOD, operations);
+
+        for  (WKTUIOperation operation : operations) {
+            if (operation instanceof WKTUIAddOperation) {
+                WKTUIAddOperation wktuiAddOperation = (WKTUIAddOperation) operation;
+                String zipPath = wktuiAddOperation.getPath();
+                if (zipPath.endsWith(ZIP_SEP)) {
+                    zipFile.addZipDirectoryEntry(zipPath, false);
+                } else {
+                    try (FileInputStream fis = new FileInputStream(wktuiAddOperation.getFilePath())) {
+                        zipFile.addZipEntry(zipPath, fis, false);
+                    } catch (FileNotFoundException ex) {
+                        WLSDeployArchiveIOException aioe = new WLSDeployArchiveIOException("WLSDPLY-01482", ex, zipPath,
+                            wktuiAddOperation.getFilePath(), ex.getLocalizedMessage());
+                        LOGGER.throwing(CLASS, METHOD, aioe);
+                        throw aioe;
+                    } catch (IOException ex) {
+                        WLSDeployArchiveIOException aioe = new WLSDeployArchiveIOException("WLSDPLY-01483", ex, zipPath,
+                            wktuiAddOperation.getFilePath(), ex.getLocalizedMessage());
+                        LOGGER.throwing(CLASS, METHOD, aioe);
+                        throw aioe;
+                    }
+                }
+            } else if (operation instanceof WKTUIRemoveOperation) {
+                WKTUIRemoveOperation wktuiRemoveOperation = (WKTUIRemoveOperation) operation;
+                String zipPath = wktuiRemoveOperation.getPath();
+                if (zipPath.endsWith(ZIP_SEP)) {
+                    zipPath = zipPath.substring(0, zipPath.length() - ZIP_SEP.length());
+                    zipFile.removeZipEntries(zipPath);
+                } else {
+                    zipFile.removeZipEntry(zipPath);
+                }
+            } else {
+                WLSDeployArchiveIOException aioe =
+                    new WLSDeployArchiveIOException("WLSDPLY-01481", operation.getClass().getName());
+                LOGGER.throwing(CLASS, METHOD, aioe);
+                throw aioe;
+            }
+        }
+        List<String> updatedZipEntries = getArchiveEntries();
+        LOGGER.exiting(CLASS, METHOD, updatedZipEntries);
+        return updatedZipEntries;
     }
 
     /**

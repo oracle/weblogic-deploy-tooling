@@ -1,0 +1,13 @@
+{
+  "operations": [
+    {
+      "op": "remove",
+      "path": "config/wlsdeploy/custom/DebugScopes.txt"
+    },
+    {
+      "op": "add",
+      "path": "config/wlsdeploy/custom/backup_codes.txt",
+      "filePath": "/Users/rpatrick/Desktop/backup_codes.txt"
+    }
+  ]
+}
