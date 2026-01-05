@@ -12,6 +12,7 @@ import picocli.CommandLine.Command;
     header = "Manipulate the contents of the archive file for WKTUI.",
     description = "%nCommand-line options:",
     commandListHeading = "%nSubcommands:%n",
+    hidden = true,
     subcommands = {
         WKTUIListCommand.class,
         WKTUIUpdateCommand.class
