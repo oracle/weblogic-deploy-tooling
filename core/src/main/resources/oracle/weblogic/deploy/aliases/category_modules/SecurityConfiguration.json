@@ -470,6 +470,7 @@
                             "wlst_type": "${IPlanetAuthenticator:weblogic.security.providers.authentication.IPlanetAuthenticator}",
                             "online_bean": "weblogic.security.providers.authentication.IPlanetAuthenticatorMBean",
                             "child_folders_type": "none",
+                            "version": "[10,14.1.2)",
                             "folders": {},
                             "attributes" : {
                                 "AllGroupsFilter":                             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "AllGroupsFilter",                             "wlst_path": "WP001", "default_value": null,                                                                                           "wlst_type": "string"   } ],
@@ -671,6 +672,7 @@
                             "wlst_type": "${NovellAuthenticator:weblogic.security.providers.authentication.NovellAuthenticator}",
                             "online_bean": "weblogic.security.providers.authentication.NovellAuthenticatorMBean",
                             "child_folders_type": "none",
+                            "version": "[10,14.1.2)",
                             "folders": {},
                             "attributes" : {
                                 "AllGroupsFilter":                             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "AllGroupsFilter",                             "wlst_path": "WP001", "default_value": null,                                                         "wlst_type": "string"   } ],
@@ -1066,6 +1068,7 @@
                             "wlst_type": "${OracleVirtualDirectoryAuthenticator:weblogic.security.providers.authentication.OracleVirtualDirectoryAuthenticator}",
                             "online_bean": "weblogic.security.providers.authentication.OracleVirtualDirectoryAuthenticatorMBean",
                             "child_folders_type": "none",
+                            "version": "[10,14.1.2)",
                             "folders": {},
                             "attributes" : {
                                 "AllGroupsFilter":                             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "AllGroupsFilter",                             "wlst_path": "WP001", "default_value": "${__NULL__:(&(cn=*)(|(objectclass=groupofUniqueNames)(objectclass=groupofurls)))}",             "wlst_type": "string"   } ],
