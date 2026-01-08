@@ -2,6 +2,8 @@
 Copyright (c) 2020, 2025, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
+import copy
+
 from aliastest.verify import utils as verify_utils
 from aliastest.verify.alias_helper import AliasHelper
 from java.io import IOException
@@ -1155,6 +1157,7 @@ class Verifier(object):
         model_name = self._alias_helper.get_model_subfolder_name(l2, alias_name)
         l2.append_location(model_name)
         alias_subfolders = self._alias_helper.get_model_subfolder_names(l2)
+        alias_subfolders_not_found = copy.copy(alias_subfolders)
 
         name_token = self._alias_helper.get_name_token(l2)
         for provider in generated_dictionary[mbean_name].keys():
@@ -1172,6 +1175,8 @@ class Verifier(object):
             if model_provider is None or model_provider not in alias_subfolders:
                 self._add_warning(location, WARN_ALIAS_FOLDER_NOT_IMPLEMENTED, attribute=provider)
                 continue
+            else:
+                alias_subfolders_not_found.remove(model_provider)
 
             l2.append_location(model_provider)
             next_dict = generated_dictionary[mbean_name][provider]
@@ -1180,6 +1185,14 @@ class Verifier(object):
                 continue
             self._verify_attributes_at_location(attributes, l2)
             l2.pop_location()
+
+        for alias_subfolder in alias_subfolders_not_found:
+            # TrustServiceIdentityAsserter is only in a JRF domain which the generator doesn't use.
+            # If we hit this, extra folder in the aliases, just skip over it.
+            #
+            if alias_subfolder == 'TrustServiceIdentityAsserter':
+                continue
+            self._add_error(location, ERROR_ALIAS_FOLDER_NOT_IN_WLST, attribute=alias_subfolder)
 
     def _process_this_subfolder(self, dictionary, entry):
         if not isinstance(dictionary, dict) or entry not in dictionary:
