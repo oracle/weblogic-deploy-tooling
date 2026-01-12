@@ -1001,6 +1001,7 @@
                             "online_bean": "weblogic.security.providers.authentication.OracleUnifiedDirectoryAuthenticatorMBean",
                             "child_folders_type": "none",
                             "folders": {},
+                            "version": "[12.2.1,)",
                             "attributes" : {
                                 "AllGroupsFilter":                             [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "AllGroupsFilter",                             "wlst_path": "WP001", "default_value": null,                                                                                            "wlst_type": "string"   } ],
                                 "AllUsersFilter":                              [ {"version": "[10,)",       "wlst_mode": "both",    "wlst_name": "AllUsersFilter",                              "wlst_path": "WP001", "default_value": "${__NULL__:(&(uid=*)(objectclass=person))}",                                                    "wlst_type": "string"   } ],
@@ -1229,6 +1230,7 @@
                             "wlst_type": "${SAMLIdentityAsserterV2:weblogic.security.providers.saml.SAMLIdentityAsserterV2}",
                             "online_bean": "weblogic.security.providers.saml.SAMLIdentityAsserterV2MBean",
                             "child_folders_type": "none",
+                            "version": "[10,15.1.1)",
                             "folders": {},
                             "attributes" : {
                                 "ActiveType":              [ {"version": "[10,)",       "wlst_mode": "both", "wlst_name": "ActiveType${:s}",         "wlst_path": "WP001", "default_value": ["SAML.Assertion", "SAML.Assertion64", "SAML.Assertion.DOM"],      "wlst_type": "${list:jarray}",              "wlst_read_type": "delimited_string[semicolon]", "preferred_model_type": "list", "get_method": "${LSA:GET}", "access": "IGNORED" } ],
@@ -1409,6 +1411,7 @@
                             "wlst_type": "${VirtualUserAuthenticator:weblogic.security.providers.authentication.VirtualUserAuthenticator}",
                             "online_bean": "weblogic.security.providers.authentication.VirtualUserAuthenticatorMBean",
                             "child_folders_type": "none",
+                            "version": "[12.1.3,)",
                             "folders": {},
                             "attributes" : {
                                 "CompatibilityObjectName":                     [ {"version": "[10,)",       "wlst_mode": "offline", "wlst_name": "CompatibilityObjectName",   "wlst_path": "WP001", "default_value": null,                                 "wlst_type": "string"           } ],
@@ -1635,6 +1638,7 @@
                             "wlst_type": "${SAMLCredentialMapperV2:weblogic.security.providers.saml.SAMLCredentialMapperV2}",
                             "online_bean": "weblogic.security.providers.saml.SAMLCredentialMapperV2MBean",
                             "child_folders_type": "none",
+                            "version": "[10,15.1.1)",
                             "folders": { },
                             "attributes" : {
                                 "CompatibilityObjectName":            [ {"version": "[10,)",     "wlst_mode": "offline", "wlst_name": "CompatibilityObjectName",         "wlst_path": "WP001", "default_value": null,       "wlst_type": "string"   } ],
