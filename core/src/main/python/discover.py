@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2025, Oracle and/or its affiliates.
+Copyright (c) 2017, 2026, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v1.0 as shown at https://oss.oracle.com/licenses/upl.
 
 The entry point for the discoverDomain tool.
@@ -331,6 +331,8 @@ def __process_domain_home(arg_map, wlst_mode):
 
 def __validate_discover_passwords_and_security_data_args(model_context, argument_map, is_encryption_supported):
     _method_name = '__validate_discover_passwords_and_security_data_args'
+
+    # Validate the arguments against the mode.
     if model_context.is_discover_passwords():
         # -remote cannot be supported because we need access to SSI.dat
         if model_context.is_remote():
@@ -339,7 +341,9 @@ def __validate_discover_passwords_and_security_data_args(model_context, argument
                                                        CommandLineArgUtil.REMOTE_SWITCH)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
-    elif model_context.is_discover_security_provider_data():
+
+    if model_context.is_discover_security_provider_data():
+        # offline cannot be supported because the data resides in the Embedded LDAP server.
         if model_context.get_target_wlst_mode() == WlstModes.OFFLINE:
             ex = exception_helper.create_cla_exception(ExitCode.ARG_VALIDATION_ERROR, 'WLSDPLY-06059',_program_name,
                                                        CommandLineArgUtil.DISCOVER_SECURITY_PROVIDER_DATA_SWITCH)
@@ -353,8 +357,11 @@ def __validate_discover_passwords_and_security_data_args(model_context, argument
                                                        CommandLineArgUtil.REMOTE_SWITCH)
             __logger.throwing(ex, class_name=_class_name, method_name=_method_name)
             raise ex
+
+    # Validate whether the encryption passphrase is allowed.
+    if model_context.is_discover_passwords() or model_context.is_discover_security_provider_data():
+        pass
     elif model_context.is_discover_opss_wallet():
-        # Allow the encryption passphrase
         pass
     elif model_context.is_discover_rcu_datasources():
         pass
