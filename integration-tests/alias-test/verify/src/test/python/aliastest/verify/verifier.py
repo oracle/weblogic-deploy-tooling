@@ -193,6 +193,11 @@ FULLY_QUALIFIED_PROVIDERS = {
     'OracleIdentityCloudIntegrator' : 'weblogic.security.providers.authentication.OracleIdentityCloudIntegrator'
 }
 
+ALIAS_DERIVED_DEFAULT_EXCEPTIONS = {
+    # these locations have mismatched derived_default values.
+    '/OptionalFeatureDeployment/OptionalFeature': [ 'Enabled' ]
+}
+
 _logger = PlatformLogger('test.aliases.verify')
 CLASS_NAME = 'Verifier'
 
@@ -976,7 +981,9 @@ class Verifier(object):
                                         message=message, attribute=generated_attribute)
 
             # alias should not indicate derived default if WLS does not indicate derived/computed
-            if alias_is_computed and not generated_is_computed:
+            if self.skip_derived_default_check(location, generated_attribute):
+                pass
+            elif alias_is_computed and not generated_is_computed:
                 message = 'WLS does not indicate ' + computed_key
                 match_defaults = False
                 self._add_error(location, ERROR_ATTRIBUTE_SHOULD_NOT_BE_COMPUTED,
@@ -1494,6 +1501,20 @@ class Verifier(object):
         else:
             self._add_info(location, ERROR_UNABLE_TO_VERIFY_NON_ALIAS_MBEAN_FOLDER, attribute=mbean_name,
                            message=message)
+
+    def skip_derived_default_check(self, location, attribute_name):
+        """
+        Whether to skip comparing the derived_default value in the model with that in the generated file.
+        :param location: context of the current location
+        :param attribute_name: the current attribute name
+        """
+        result = False
+        folder_path = location.get_folder_path()
+        if folder_path in ALIAS_DERIVED_DEFAULT_EXCEPTIONS:
+            exception_attribute_names = ALIAS_DERIVED_DEFAULT_EXCEPTIONS[folder_path]
+            if attribute_name in exception_attribute_names:
+                result = True
+        return result
 
 
 def _get_generated_attribute_list(dictionary):
