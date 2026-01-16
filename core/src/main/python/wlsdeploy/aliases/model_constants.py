@@ -212,6 +212,8 @@ NOVELL_AUTHENTICATOR = 'NovellAuthenticator'
 ODL_CONFIGURATION = 'ODLConfiguration'
 OHS = 'OHS'
 OPEN_LDAP_AUTHENTICATOR = 'OpenLDAPAuthenticator'
+OPTIONAL_FEATURE = 'OptionalFeature'
+OPTIONAL_FEATURE_DEPLOYMENT = 'OptionalFeatureDeployment'
 OPSS_INITIALIZATION = 'OPSSInitialization'
 # deprecated field name in 4.0
 OPSS_SECRETS = 'OPSSSecrets'

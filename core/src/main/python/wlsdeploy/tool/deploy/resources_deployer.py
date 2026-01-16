@@ -99,6 +99,7 @@ class ResourcesDeployer(Deployer):
         common_deployer.add_singleton_service(self._resources, location)
         common_deployer.add_system_components(self._resources, location)
         common_deployer.add_ohs_components(self._resources, location)
+        common_deployer.add_optional_features(self._resources, location)
 
         self._add_managed_folders(location)
 

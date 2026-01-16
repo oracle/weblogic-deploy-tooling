@@ -15,6 +15,7 @@ from wlsdeploy.aliases.model_constants import JOLT_CONNECTION_POOL
 from wlsdeploy.aliases.model_constants import MAIL_SESSION
 from wlsdeploy.aliases.model_constants import MESSAGING_BRIDGE
 from wlsdeploy.aliases.model_constants import OHS
+from wlsdeploy.aliases.model_constants import OPTIONAL_FEATURE_DEPLOYMENT
 from wlsdeploy.aliases.model_constants import PATH_SERVICE
 from wlsdeploy.aliases.model_constants import RESOURCE_CLASS
 from wlsdeploy.aliases.model_constants import SAF_AGENT
@@ -207,6 +208,16 @@ class CommonResourcesDeployer(Deployer):
         """
         deployments = dictionary_utils.get_dictionary_element(parent_dict, SNMP_AGENT_DEPLOYMENT)
         self._add_named_elements(SNMP_AGENT_DEPLOYMENT, deployments, location)
+
+    def add_optional_features(self, parent_dict, location):
+        """
+        Deploy the Optional Features elements in the dictionary at the specified location.
+        :param parent_dict: the dictionary possibly containing Optional Feature Deployment deployment elements
+        :param location: the location to deploy the elements
+        """
+        optional_feature_deployment = dictionary_utils.get_dictionary_element(parent_dict, OPTIONAL_FEATURE_DEPLOYMENT)
+        if len(optional_feature_deployment) != 0:
+            self._add_model_elements(OPTIONAL_FEATURE_DEPLOYMENT, optional_feature_deployment, location)
 
     def add_self_tuning(self, parent_dict, location):
         """
