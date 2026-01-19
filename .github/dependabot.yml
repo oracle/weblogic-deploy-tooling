@@ -9,6 +9,8 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    exclude-paths:
+      - "/documentation/**"
     ignore:
       # Ignore newer versions of Antlr that require JDK 11
       - dependency-name: org.antlr:antlr4-runtime
