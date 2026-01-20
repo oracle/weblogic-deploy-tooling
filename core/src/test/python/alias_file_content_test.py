@@ -186,6 +186,9 @@ class AliasFileContentTestCase(unittest.TestCase):
                     wlst_mode = dictionary_utils.get_element(attr_element_dict, WLST_MODE)
                     if wlst_mode in wlst_modes:
                         version = dictionary_utils.get_element(attr_element_dict, VERSION)
+                        if not VersionUtils.isRange(version):
+                            result.append('Attribute %s at path %s: Version string for mode %s is not a range: %s' %
+                                          (attribute_name, new_folder_path, mode, version))
                         versions.append(version)
 
             for index in range(len(versions) - 1):
