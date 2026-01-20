@@ -5,49 +5,49 @@
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <meta name="generator" content="Hugo 0.152.2">
     <meta name="generator" content="Relearn 8.3.0">
-    <meta name="description" content="Changes in Release 4.4.1 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
-Other Changes #1856 - Added non-public commands to the Archive Helper Tool to facilitate integration with the WebLogic Kubernetes Toolkit UI 2.0 so that it can handle archive files larger than 2 GB. Bug Fixes #1855 - Fixed alias wlst_type fields on the FatalErrorCodes attribute of the JDBCConnectionPoolParams folder and the Arguments attribute of both the StartupClass and ShutdownClass folders to reflect that they are delimited strings. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.">
+    <meta name="description" content="Changes in Release 4.4.2 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
+Other Changes #1857 - Changed the Archive Helper Tool’s help output to suppress displaying the non-public commands used to facilitate integration with the WebLogic Kubernetes Toolkit UI 2.0 so that it can handle archive files larger than 2 GB. Bug Fixes #1859 - Fixed version ranges for NovellAuthenticator, IPlanetAuthenticator, and OracleVirtualDirectoryAuthenticator, which were removed in in 14.1.2. #1861 - Fixed version ranges for OracleUnifiedDirectoryAuthenticator, SAMLIdentityAsserterV2, VirtualUserAuthenticator, SAMLCredentialMapperV2 to properly represent the WebLogic Server versions where they exist. #1862 - Fixed Discover Domain Tool command-line validation to fail -discover_security_provider_data argument in offline mode. #1863 - Fixed handling of OptionalFeature folders across discovery and provisioning. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.">
     <meta name="author" content="">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Release Notes :: WebLogic Deploy Tooling">
-    <meta name="twitter:description" content="Changes in Release 4.4.1 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
-Other Changes #1856 - Added non-public commands to the Archive Helper Tool to facilitate integration with the WebLogic Kubernetes Toolkit UI 2.0 so that it can handle archive files larger than 2 GB. Bug Fixes #1855 - Fixed alias wlst_type fields on the FatalErrorCodes attribute of the JDBCConnectionPoolParams folder and the Arguments attribute of both the StartupClass and ShutdownClass folders to reflect that they are delimited strings. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.">
+    <meta name="twitter:description" content="Changes in Release 4.4.2 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
+Other Changes #1857 - Changed the Archive Helper Tool’s help output to suppress displaying the non-public commands used to facilitate integration with the WebLogic Kubernetes Toolkit UI 2.0 so that it can handle archive files larger than 2 GB. Bug Fixes #1859 - Fixed version ranges for NovellAuthenticator, IPlanetAuthenticator, and OracleVirtualDirectoryAuthenticator, which were removed in in 14.1.2. #1861 - Fixed version ranges for OracleUnifiedDirectoryAuthenticator, SAMLIdentityAsserterV2, VirtualUserAuthenticator, SAMLCredentialMapperV2 to properly represent the WebLogic Server versions where they exist. #1862 - Fixed Discover Domain Tool command-line validation to fail -discover_security_provider_data argument in offline mode. #1863 - Fixed handling of OptionalFeature folders across discovery and provisioning. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.">
     <meta property="og:url" content="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.html">
     <meta property="og:site_name" content="WebLogic Deploy Tooling">
     <meta property="og:title" content="Release Notes :: WebLogic Deploy Tooling">
-    <meta property="og:description" content="Changes in Release 4.4.1 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
-Other Changes #1856 - Added non-public commands to the Archive Helper Tool to facilitate integration with the WebLogic Kubernetes Toolkit UI 2.0 so that it can handle archive files larger than 2 GB. Bug Fixes #1855 - Fixed alias wlst_type fields on the FatalErrorCodes attribute of the JDBCConnectionPoolParams folder and the Arguments attribute of both the StartupClass and ShutdownClass folders to reflect that they are delimited strings. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.">
+    <meta property="og:description" content="Changes in Release 4.4.2 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
+Other Changes #1857 - Changed the Archive Helper Tool’s help output to suppress displaying the non-public commands used to facilitate integration with the WebLogic Kubernetes Toolkit UI 2.0 so that it can handle archive files larger than 2 GB. Bug Fixes #1859 - Fixed version ranges for NovellAuthenticator, IPlanetAuthenticator, and OracleVirtualDirectoryAuthenticator, which were removed in in 14.1.2. #1861 - Fixed version ranges for OracleUnifiedDirectoryAuthenticator, SAMLIdentityAsserterV2, VirtualUserAuthenticator, SAMLCredentialMapperV2 to properly represent the WebLogic Server versions where they exist. #1862 - Fixed Discover Domain Tool command-line validation to fail -discover_security_provider_data argument in offline mode. #1863 - Fixed handling of OptionalFeature folders across discovery and provisioning. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.">
     <meta property="og:locale" content="en_us">
     <meta property="og:type" content="website">
     <meta itemprop="name" content="Release Notes :: WebLogic Deploy Tooling">
-    <meta itemprop="description" content="Changes in Release 4.4.1 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
-Other Changes #1856 - Added non-public commands to the Archive Helper Tool to facilitate integration with the WebLogic Kubernetes Toolkit UI 2.0 so that it can handle archive files larger than 2 GB. Bug Fixes #1855 - Fixed alias wlst_type fields on the FatalErrorCodes attribute of the JDBCConnectionPoolParams folder and the Arguments attribute of both the StartupClass and ShutdownClass folders to reflect that they are delimited strings. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.">
+    <meta itemprop="description" content="Changes in Release 4.4.2 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
+Other Changes #1857 - Changed the Archive Helper Tool’s help output to suppress displaying the non-public commands used to facilitate integration with the WebLogic Kubernetes Toolkit UI 2.0 so that it can handle archive files larger than 2 GB. Bug Fixes #1859 - Fixed version ranges for NovellAuthenticator, IPlanetAuthenticator, and OracleVirtualDirectoryAuthenticator, which were removed in in 14.1.2. #1861 - Fixed version ranges for OracleUnifiedDirectoryAuthenticator, SAMLIdentityAsserterV2, VirtualUserAuthenticator, SAMLCredentialMapperV2 to properly represent the WebLogic Server versions where they exist. #1862 - Fixed Discover Domain Tool command-line validation to fail -discover_security_provider_data argument in offline mode. #1863 - Fixed handling of OptionalFeature folders across discovery and provisioning. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.">
     <meta itemprop="datePublished" content="2024-01-09T18:27:38-05:00">
     <meta itemprop="dateModified" content="2024-01-09T18:27:38-05:00">
-    <meta itemprop="wordCount" content="159">
+    <meta itemprop="wordCount" content="195">
     <title>Release Notes :: WebLogic Deploy Tooling</title>
     <link href="/weblogic-deploy-tooling/release-notes/index.xml" rel="alternate" type="application/rss+xml" title="Release Notes :: WebLogic Deploy Tooling">
-    <link href="/weblogic-deploy-tooling/images/logo.png?1768880934" rel="icon" type="image/png">
-    <link href="/weblogic-deploy-tooling/css/auto-complete/auto-complete.min.css?1768880934" rel="stylesheet">
-    <script src="/weblogic-deploy-tooling/js/auto-complete/auto-complete.min.js?1768880934" defer></script>
-    <script src="/weblogic-deploy-tooling/js/search-lunr.min.js?1768880934" defer></script>
-    <script src="/weblogic-deploy-tooling/js/search.min.js?1768880934" defer></script>
+    <link href="/weblogic-deploy-tooling/images/logo.png?1768950554" rel="icon" type="image/png">
+    <link href="/weblogic-deploy-tooling/css/auto-complete/auto-complete.min.css?1768950554" rel="stylesheet">
+    <script src="/weblogic-deploy-tooling/js/auto-complete/auto-complete.min.js?1768950554" defer></script>
+    <script src="/weblogic-deploy-tooling/js/search-lunr.min.js?1768950554" defer></script>
+    <script src="/weblogic-deploy-tooling/js/search.min.js?1768950554" defer></script>
     <script>
       window.relearn = window.relearn || {};
-      window.relearn.index_js_url="/weblogic-deploy-tooling/searchindex.en.js?1768880934";
+      window.relearn.index_js_url="/weblogic-deploy-tooling/searchindex.en.js?1768950554";
     </script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.min.js?1768880934" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.stemmer.support.min.js?1768880934" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.multi.min.js?1768880934" defer></script>
-    <script src="/weblogic-deploy-tooling/js/lunr/lunr.en.min.js?1768880934" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.min.js?1768950554" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.stemmer.support.min.js?1768950554" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.multi.min.js?1768950554" defer></script>
+    <script src="/weblogic-deploy-tooling/js/lunr/lunr.en.min.js?1768950554" defer></script>
     <script>
       window.relearn = window.relearn || {};
       window.relearn.contentLangs=['en'];
     </script>
-    <link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1768880934" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1768880934" rel="stylesheet"></noscript>
-    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar/perfect-scrollbar.min.css?1768880934" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/theme.min.css?1768880934" rel="stylesheet">
-    <link href="/weblogic-deploy-tooling/css/format-html.min.css?1768880934" rel="stylesheet" id="R-format-style">
+    <link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1768950554" rel="stylesheet" media="print" onload="this.media='all';this.onload=null;"><noscript><link href="/weblogic-deploy-tooling/fonts/fontawesome/css/fontawesome-all.min.css?1768950554" rel="stylesheet"></noscript>
+    <link href="/weblogic-deploy-tooling/css/perfect-scrollbar/perfect-scrollbar.min.css?1768950554" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/theme.min.css?1768950554" rel="stylesheet">
+    <link href="/weblogic-deploy-tooling/css/format-html.min.css?1768950554" rel="stylesheet" id="R-format-style">
     <script>
       window.relearn = window.relearn || {};
       // configuration
@@ -118,7 +118,7 @@ Other Changes #1856 - Added non-public commands to the Archive Helper Tool to fa
   <ul>
     <li>
       <ul>
-        <li><a href="#changes-in-release-441">Changes in Release 4.4.1</a></li>
+        <li><a href="#changes-in-release-442">Changes in Release 4.4.2</a></li>
       </ul>
     </li>
   </ul>
@@ -134,7 +134,7 @@ Other Changes #1856 - Added non-public commands to the Archive Helper Tool to fa
 <span class="btn cstyle button link noborder notitle interactive"><a href="/weblogic-deploy-tooling/developer/contribute/index.html" title="Contribute to WDT (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a></span>
             </div>
             <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
-<span class="btn cstyle button link noborder notitle interactive"><a href="/weblogic-deploy-tooling/release-notes/release-4.4.0/index.html" title="Release 4.4.0 (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a></span>
+<span class="btn cstyle button link noborder notitle interactive"><a href="/weblogic-deploy-tooling/release-notes/release-4.4.1/index.html" title="Release 4.4.1 (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a></span>
             </div>
             <div class="topbar-button topbar-button-more" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
 <span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button></span>
@@ -161,7 +161,7 @@ Other Changes #1856 - Added non-public commands to the Archive Helper Tool to fa
 
 
 
-<h3 id="changes-in-release-441">Changes in Release 4.4.1<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
+<h3 id="changes-in-release-442">Changes in Release 4.4.2<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <ul>
 <li>
 
@@ -200,14 +200,18 @@ Known Issues
 <p>None</p>
 <h4 id="other-changes">Other Changes<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <ul>
-<li>#1856 - Added non-public commands to the Archive Helper Tool to facilitate integration with the WebLogic Kubernetes
-Toolkit UI 2.0 so that it can handle archive files larger than 2 GB.</li>
+<li>#1857 - Changed the Archive Helper Tool&rsquo;s help output to suppress displaying the non-public commands used to
+facilitate integration with the WebLogic Kubernetes Toolkit UI 2.0 so that it can handle archive files larger than 2 GB.</li>
 </ul>
 <h4 id="bug-fixes">Bug Fixes<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <ul>
-<li>#1855 - Fixed alias <code>wlst_type</code> fields on the <code>FatalErrorCodes</code> attribute of the <code>JDBCConnectionPoolParams</code> folder and
-the <code>Arguments</code> attribute of both the <code>StartupClass</code> and <code>ShutdownClass</code> folders to reflect that they are delimited
-strings.</li>
+<li>#1859 - Fixed version ranges for NovellAuthenticator, IPlanetAuthenticator, and OracleVirtualDirectoryAuthenticator,
+which were removed in in 14.1.2.</li>
+<li>#1861 - Fixed version ranges for OracleUnifiedDirectoryAuthenticator, SAMLIdentityAsserterV2, VirtualUserAuthenticator,
+SAMLCredentialMapperV2 to properly represent the WebLogic Server versions where they exist.</li>
+<li>#1862 - Fixed Discover Domain Tool command-line validation to fail <code>-discover_security_provider_data</code> argument in
+offline mode.</li>
+<li>#1863 - Fixed handling of <code>OptionalFeature</code> folders across discovery and provisioning.</li>
 </ul>
 <h4 id="known-issues">Known Issues<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <ul>
@@ -283,6 +287,7 @@ Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.</p>
             <li class="" data-nav-url="/weblogic-deploy-tooling/samples/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/index.html"><b> </b>Samples</a><ul id="R-subsections-88c2b1e6419b221ce89c4be4a8ae2a6b" class="collapsible-menu"></ul></li>
             <li class="" data-nav-url="/weblogic-deploy-tooling/developer/index.html"><a class="padding" href="/weblogic-deploy-tooling/developer/index.html"><b> </b>Developer Guide</a><ul id="R-subsections-6b6629b4a7f3145ff0ada8006909039e" class="collapsible-menu"></ul></li>
             <li class="active parent " data-nav-url="/weblogic-deploy-tooling/release-notes/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/index.html"><b> </b>Release Notes</a><ul id="R-subsections-69eef8340bbcc56dffc8dd98905aeadf" class="collapsible-menu">
+            <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-4.4.1/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-4.4.1/index.html"><b> </b>Release 4.4.1</a></li>
             <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-4.4.0/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-4.4.0/index.html"><b> </b>Release 4.4.0</a></li>
             <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-4.3.9/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-4.3.9/index.html"><b> </b>Release 4.3.9</a></li>
             <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-4.3.8/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-4.3.8/index.html"><b> </b>Release 4.3.8</a></li>
@@ -348,8 +353,8 @@ Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.</p>
 </div>
       </div>
     </aside>
-    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar/perfect-scrollbar.min.js?1768880934" defer></script>
-    <script src="/weblogic-deploy-tooling/js/theme.min.js?1768880934" defer></script>
+    <script src="/weblogic-deploy-tooling/js/perfect-scrollbar/perfect-scrollbar.min.js?1768950554" defer></script>
+    <script src="/weblogic-deploy-tooling/js/theme.min.js?1768950554" defer></script>
     <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
   </body>
 </html>
