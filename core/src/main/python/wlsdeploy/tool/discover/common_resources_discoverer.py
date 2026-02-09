@@ -249,11 +249,6 @@ class CommonResourcesDiscoverer(Discoverer):
                                            WLSDeployArchive.ArchiveEntryType.FILE_STORE.name())
                 elif not self._model_context.is_skip_archive():
                     try:
-                        if self._model_context.is_ssh():
-                            file_store_name = self.download_deployment_from_remote_server(file_store_name,
-                                                                                     self.download_temporary_dir,
-                                                                                     "fileStore")
-
                         new_source_name = archive_file.addFileStoreDirectory(file_store_name)
                     except WLSDeployArchiveIOException, wioe:
                         de = exception_helper.create_discover_exception('WLSDPLY-06348', file_store_name, directory,
