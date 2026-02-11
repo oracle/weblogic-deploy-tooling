@@ -607,7 +607,8 @@
                         "HeapDumpingOnMaxStuckThread":    [ {"version": "[14.1.2,)",       "wlst_mode": "both",    "wlst_name": "HeapDumpingOnMaxStuckThread",    "wlst_path": "WP001", "default_value": false,   "wlst_type": "boolean"  } ],
                         "MaxStuckThreadTime":             [ {"version": "[12.1.2,)",       "wlst_mode": "both",    "wlst_name": "MaxStuckThreadTime",             "wlst_path": "WP001", "default_value": 600,     "wlst_type": "integer"  } ],
                         "StuckThreadCount":               [ {"version": "[12.1.2,)",       "wlst_mode": "both",    "wlst_name": "StuckThreadCount",               "wlst_path": "WP001", "default_value": 0,       "wlst_type": "integer", "get_method": "GET"} ],
-                        "Notes":                          [ {"version": "[12.1.2,)",       "wlst_mode": "both",    "wlst_name": "Notes",                          "wlst_path": "WP001", "default_value": null,    "wlst_type": "string"   } ]
+                        "Notes":                          [ {"version": "[12.1.2,)",       "wlst_mode": "both",    "wlst_name": "Notes",                          "wlst_path": "WP001", "default_value": null,    "wlst_type": "string"   } ],
+                        "VerboseStuckThreadName":         [ {"version": "[15.1.2,)",       "wlst_mode": "both",    "wlst_name": "VerboseStuckThreadName",         "wlst_path": "WP001", "default_value": false,   "wlst_type": "boolean"  } ]
                     },
                     "wlst_attributes_path": "WP001",
                     "wlst_paths": {

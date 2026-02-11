@@ -1,5 +1,5 @@
 """
-Copyright (c) 2020, 2025, Oracle and/or its affiliates.
+Copyright (c) 2020, 2026, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 import copy
@@ -192,6 +192,12 @@ FULLY_QUALIFIED_PROVIDERS = {
     # these security providers use their full name in the aliases
     'OracleIdentityCloudIntegrator' : 'weblogic.security.providers.authentication.OracleIdentityCloudIntegrator'
 }
+
+STRING_ATTRIBUTE_ONLY_LOCATIONS = [
+    # these locations have only string attributes.
+    # generator is unable to detect these because MBeans are not present.
+    '/NMProperties'
+]
 
 ALIAS_DERIVED_DEFAULT_EXCEPTIONS = {
     # these locations have mismatched derived_default values.
@@ -1026,8 +1032,8 @@ class Verifier(object):
         :return: True if the generated attribute is defined as readonly
         """
         if DEPRECATED in generated_attribute_info:
-            self._add_warning(location, WARN_ATTRIBUTE_DEPRECATED, message=generated_attribute_info[DEPRECATED],
-                              attribute=generated_attribute)
+            self._add_info(location, WARN_ATTRIBUTE_DEPRECATED, message=generated_attribute_info[DEPRECATED],
+                           attribute=generated_attribute)
             return False
         return True
 
@@ -1259,9 +1265,11 @@ class Verifier(object):
                 if instance_type == SINGLE_NO_NAME:
                     if token_name != 'NO_NAME_0':
                         self._add_error(location, ERROR_ATTRIBUTE_MUST_BE_NO_NAME)
-                else:
-                    if token_name == 'NO_NAME_0':
-                        self._add_warning(location, WARN_MBEAN_NOT_NO_NAME_0)
+
+                # WDT handles these automatically, no need to warn
+                # else:
+                #     if token_name == 'NO_NAME_0':
+                #         self._add_warning(location, WARN_MBEAN_NOT_NO_NAME_0)
 
     def _add_invalid_type_error(self, location, generated_attribute, wlst_type, alias_type, get_required_attribute_list,
                                 extra_blurb=None):
@@ -1392,7 +1400,8 @@ class Verifier(object):
                                                          self._alias_helper.get_wlst_read_type(location, model_name)):
                 valid = True
         elif alias_type in alias_constants.ALIAS_DELIMITED_TYPES or alias_type in alias_constants.ALIAS_DELIMITED_MAP_TYPES:
-            if _is_any_string_type(generated_attr_info):
+            match_path = location.get_folder_path()
+            if _is_any_string_type(generated_attr_info) or (match_path in STRING_ATTRIBUTE_ONLY_LOCATIONS):
                 valid = True
                 if _is_in_types_with_get_required(generated_attribute, CONVERT_TO_DELIMITED_TYPES,
                                                   generated_attr_info, get_required_attribute_list) and \
