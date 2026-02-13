@@ -1,5 +1,5 @@
 {
-    "copyright": "Copyright (c) 2017, 2025, Oracle and/or its affiliates.",
+    "copyright": "Copyright (c) 2017, 2026, Oracle and/or its affiliates.",
     "license": "Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl",
     "wlst_type": "SecurityConfiguration",
     "online_bean": "weblogic.management.configuration.SecurityConfigurationMBean",
@@ -1904,7 +1904,8 @@
                 "SecurityDDModel":                          [ {"version": "[10,12.1.2)", "wlst_mode": "both", "wlst_name": "Security${Dd:DD}Model",                    "wlst_path": "WP001", "default_value": "${__NULL__:DDOnly}",        "wlst_type": "string"  }  ,
                                                               {"version": "[12.1.2,)",   "wlst_mode": "both", "wlst_name": "SecurityDDModel",                          "wlst_path": "WP001", "default_value": "${__NULL__:DDOnly}",        "wlst_type": "string"  } ],
                 "ValidateDDSecurityData":                   [ {"version": "[10,12.1.2)", "wlst_mode": "both", "wlst_name": "Validate${Dd:DD}SecurityData",             "wlst_path": "WP001", "default_value": "false",                     "wlst_type": "boolean" }  ,
-                                                              {"version": "[12.1.2,)",   "wlst_mode": "both", "wlst_name": "ValidateDDSecurityData",                   "wlst_path": "WP001", "default_value": "false",                     "wlst_type": "boolean" } ]
+                                                              {"version": "[12.1.2,)",   "wlst_mode": "both", "wlst_name": "ValidateDDSecurityData",                   "wlst_path": "WP001", "default_value": "false",                     "wlst_type": "boolean" } ],
+                "WebLogicJwtVirtualUserEnabled":            [ {"version": "[15.1.2,)",   "wlst_mode": "online", "wlst_name": "WebLogicJwtVirtualUserEnabled",          "wlst_path": "WP001", "default_value": false,                       "wlst_type": "boolean" } ]
             },
             "wlst_attributes_path": "WP001",
             "wlst_paths": {
