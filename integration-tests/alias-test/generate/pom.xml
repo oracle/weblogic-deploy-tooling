@@ -12,7 +12,7 @@
     <parent>
         <artifactId>weblogic-deploy-alias-test</artifactId>
         <groupId>com.oracle.weblogic.lifecycle</groupId>
-        <version>4.4.3</version>
+        <version>4.4.4-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
