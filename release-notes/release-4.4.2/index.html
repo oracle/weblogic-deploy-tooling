@@ -5,34 +5,30 @@
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0, minimum-scale=1.0">
     <meta name="generator" content="Hugo 0.152.2">
     <meta name="generator" content="Relearn 8.3.0">
-    <meta name="description" content="Changes in Release 3.0.1 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
-Other Changes None
-Bug Fixes #1396: Added additional validation to the RCUDbInfo section. #1398: Corrected a bug introduced in 3.0.0 that broke validation of sparse models with dynamic clusters. Known Issues When running discoverDomain with the -remote flag, there are several MBeans that are not being properly handled that will result in INFO level messages that look similar to the example shown below. These errors seem to happen only when the MBean is non-existent so the resulting model should still be accurate. These issues are expected to be fixed in a future release. ####&lt;Feb 16, 2023 1:40:00 PM&gt; &lt;INFO&gt; &lt;Discoverer&gt; &lt;_add_to_dictionary&gt; &lt;WLSDPLY-06106&gt; &lt;Unable to add ServerFailureTrigger from location /Clusters/mycluster/OverloadProtection/mycluster to the model : Failed to convert the wlst attribute name and value for the model at location (model_folders = [&#39;Cluster&#39;, &#39;OverloadProtection&#39;], &#39;name_tokens&#39; = {&#39;DOMAIN&#39;: &#39;tododomain&#39;, &#39;CLUSTER&#39;: &#39;mycluster&#39;,&#39;OVERLOADPROTECTION&#39;: &#39;mycluster&#39;}) : The wlst attribute ServerFailureTrigger is not defined for the model folder /Cluster/OverloadProtection&gt;">
+    <meta name="description" content="Changes in Release 4.4.2 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
+Other Changes #1857 - Changed the Archive Helper Tool’s help output to suppress displaying the non-public commands used to facilitate integration with the WebLogic Kubernetes Toolkit UI 2.0 so that it can handle archive files larger than 2 GB. Bug Fixes #1859 - Fixed version ranges for NovellAuthenticator, IPlanetAuthenticator, and OracleVirtualDirectoryAuthenticator, which were removed in in 14.1.2. #1861 - Fixed version ranges for OracleUnifiedDirectoryAuthenticator, SAMLIdentityAsserterV2, VirtualUserAuthenticator, SAMLCredentialMapperV2 to properly represent the WebLogic Server versions where they exist. #1862 - Fixed Discover Domain Tool command-line validation to fail -discover_security_provider_data argument in offline mode. #1863 - Fixed handling of OptionalFeature folders across discovery and provisioning. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.">
     <meta name="author" content="">
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Release 3.0.1 :: WebLogic Deploy Tooling">
-    <meta name="twitter:description" content="Changes in Release 3.0.1 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
-Other Changes None
-Bug Fixes #1396: Added additional validation to the RCUDbInfo section. #1398: Corrected a bug introduced in 3.0.0 that broke validation of sparse models with dynamic clusters. Known Issues When running discoverDomain with the -remote flag, there are several MBeans that are not being properly handled that will result in INFO level messages that look similar to the example shown below. These errors seem to happen only when the MBean is non-existent so the resulting model should still be accurate. These issues are expected to be fixed in a future release. ####&lt;Feb 16, 2023 1:40:00 PM&gt; &lt;INFO&gt; &lt;Discoverer&gt; &lt;_add_to_dictionary&gt; &lt;WLSDPLY-06106&gt; &lt;Unable to add ServerFailureTrigger from location /Clusters/mycluster/OverloadProtection/mycluster to the model : Failed to convert the wlst attribute name and value for the model at location (model_folders = [&#39;Cluster&#39;, &#39;OverloadProtection&#39;], &#39;name_tokens&#39; = {&#39;DOMAIN&#39;: &#39;tododomain&#39;, &#39;CLUSTER&#39;: &#39;mycluster&#39;,&#39;OVERLOADPROTECTION&#39;: &#39;mycluster&#39;}) : The wlst attribute ServerFailureTrigger is not defined for the model folder /Cluster/OverloadProtection&gt;">
-    <meta property="og:url" content="https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-3.0.1/index.html">
+    <meta name="twitter:title" content="Release Notes :: WebLogic Deploy Tooling">
+    <meta name="twitter:description" content="Changes in Release 4.4.2 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
+Other Changes #1857 - Changed the Archive Helper Tool’s help output to suppress displaying the non-public commands used to facilitate integration with the WebLogic Kubernetes Toolkit UI 2.0 so that it can handle archive files larger than 2 GB. Bug Fixes #1859 - Fixed version ranges for NovellAuthenticator, IPlanetAuthenticator, and OracleVirtualDirectoryAuthenticator, which were removed in in 14.1.2. #1861 - Fixed version ranges for OracleUnifiedDirectoryAuthenticator, SAMLIdentityAsserterV2, VirtualUserAuthenticator, SAMLCredentialMapperV2 to properly represent the WebLogic Server versions where they exist. #1862 - Fixed Discover Domain Tool command-line validation to fail -discover_security_provider_data argument in offline mode. #1863 - Fixed handling of OptionalFeature folders across discovery and provisioning. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.">
+    <meta property="og:url" content="https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.4.2/index.html">
     <meta property="og:site_name" content="WebLogic Deploy Tooling">
-    <meta property="og:title" content="Release 3.0.1 :: WebLogic Deploy Tooling">
-    <meta property="og:description" content="Changes in Release 3.0.1 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
-Other Changes None
-Bug Fixes #1396: Added additional validation to the RCUDbInfo section. #1398: Corrected a bug introduced in 3.0.0 that broke validation of sparse models with dynamic clusters. Known Issues When running discoverDomain with the -remote flag, there are several MBeans that are not being properly handled that will result in INFO level messages that look similar to the example shown below. These errors seem to happen only when the MBean is non-existent so the resulting model should still be accurate. These issues are expected to be fixed in a future release. ####&lt;Feb 16, 2023 1:40:00 PM&gt; &lt;INFO&gt; &lt;Discoverer&gt; &lt;_add_to_dictionary&gt; &lt;WLSDPLY-06106&gt; &lt;Unable to add ServerFailureTrigger from location /Clusters/mycluster/OverloadProtection/mycluster to the model : Failed to convert the wlst attribute name and value for the model at location (model_folders = [&#39;Cluster&#39;, &#39;OverloadProtection&#39;], &#39;name_tokens&#39; = {&#39;DOMAIN&#39;: &#39;tododomain&#39;, &#39;CLUSTER&#39;: &#39;mycluster&#39;,&#39;OVERLOADPROTECTION&#39;: &#39;mycluster&#39;}) : The wlst attribute ServerFailureTrigger is not defined for the model folder /Cluster/OverloadProtection&gt;">
+    <meta property="og:title" content="Release Notes :: WebLogic Deploy Tooling">
+    <meta property="og:description" content="Changes in Release 4.4.2 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
+Other Changes #1857 - Changed the Archive Helper Tool’s help output to suppress displaying the non-public commands used to facilitate integration with the WebLogic Kubernetes Toolkit UI 2.0 so that it can handle archive files larger than 2 GB. Bug Fixes #1859 - Fixed version ranges for NovellAuthenticator, IPlanetAuthenticator, and OracleVirtualDirectoryAuthenticator, which were removed in in 14.1.2. #1861 - Fixed version ranges for OracleUnifiedDirectoryAuthenticator, SAMLIdentityAsserterV2, VirtualUserAuthenticator, SAMLCredentialMapperV2 to properly represent the WebLogic Server versions where they exist. #1862 - Fixed Discover Domain Tool command-line validation to fail -discover_security_provider_data argument in offline mode. #1863 - Fixed handling of OptionalFeature folders across discovery and provisioning. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.">
     <meta property="og:locale" content="en_us">
     <meta property="og:type" content="article">
     <meta property="article:section" content="Release Notes">
-    <meta property="article:published_time" content="2019-02-22T15:27:38-05:00">
-    <meta property="article:modified_time" content="2019-02-22T15:27:38-05:00">
-    <meta itemprop="name" content="Release 3.0.1 :: WebLogic Deploy Tooling">
-    <meta itemprop="description" content="Changes in Release 3.0.1 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
-Other Changes None
-Bug Fixes #1396: Added additional validation to the RCUDbInfo section. #1398: Corrected a bug introduced in 3.0.0 that broke validation of sparse models with dynamic clusters. Known Issues When running discoverDomain with the -remote flag, there are several MBeans that are not being properly handled that will result in INFO level messages that look similar to the example shown below. These errors seem to happen only when the MBean is non-existent so the resulting model should still be accurate. These issues are expected to be fixed in a future release. ####&lt;Feb 16, 2023 1:40:00 PM&gt; &lt;INFO&gt; &lt;Discoverer&gt; &lt;_add_to_dictionary&gt; &lt;WLSDPLY-06106&gt; &lt;Unable to add ServerFailureTrigger from location /Clusters/mycluster/OverloadProtection/mycluster to the model : Failed to convert the wlst attribute name and value for the model at location (model_folders = [&#39;Cluster&#39;, &#39;OverloadProtection&#39;], &#39;name_tokens&#39; = {&#39;DOMAIN&#39;: &#39;tododomain&#39;, &#39;CLUSTER&#39;: &#39;mycluster&#39;,&#39;OVERLOADPROTECTION&#39;: &#39;mycluster&#39;}) : The wlst attribute ServerFailureTrigger is not defined for the model folder /Cluster/OverloadProtection&gt;">
-    <meta itemprop="datePublished" content="2019-02-22T15:27:38-05:00">
-    <meta itemprop="dateModified" content="2019-02-22T15:27:38-05:00">
-    <meta itemprop="wordCount" content="168">
-    <title>Release 3.0.1 :: WebLogic Deploy Tooling</title>
+    <meta property="article:published_time" content="2024-01-09T18:27:38-05:00">
+    <meta property="article:modified_time" content="2024-01-09T18:27:38-05:00">
+    <meta itemprop="name" content="Release Notes :: WebLogic Deploy Tooling">
+    <meta itemprop="description" content="Changes in Release 4.4.2 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None
+Other Changes #1857 - Changed the Archive Helper Tool’s help output to suppress displaying the non-public commands used to facilitate integration with the WebLogic Kubernetes Toolkit UI 2.0 so that it can handle archive files larger than 2 GB. Bug Fixes #1859 - Fixed version ranges for NovellAuthenticator, IPlanetAuthenticator, and OracleVirtualDirectoryAuthenticator, which were removed in in 14.1.2. #1861 - Fixed version ranges for OracleUnifiedDirectoryAuthenticator, SAMLIdentityAsserterV2, VirtualUserAuthenticator, SAMLCredentialMapperV2 to properly represent the WebLogic Server versions where they exist. #1862 - Fixed Discover Domain Tool command-line validation to fail -discover_security_provider_data argument in offline mode. #1863 - Fixed handling of OptionalFeature folders across discovery and provisioning. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.">
+    <meta itemprop="datePublished" content="2024-01-09T18:27:38-05:00">
+    <meta itemprop="dateModified" content="2024-01-09T18:27:38-05:00">
+    <meta itemprop="wordCount" content="195">
+    <title>Release Notes :: WebLogic Deploy Tooling</title>
     <link href="/weblogic-deploy-tooling/images/logo.png?1771349204" rel="icon" type="image/png">
     <link href="/weblogic-deploy-tooling/css/auto-complete/auto-complete.min.css?1771349204" rel="stylesheet">
     <script src="/weblogic-deploy-tooling/js/auto-complete/auto-complete.min.js?1771349204" defer></script>
@@ -58,7 +54,7 @@ Bug Fixes #1396: Added additional validation to the RCUDbInfo section. #1398: Co
       window.relearn = window.relearn || {};
       // configuration
       window.relearn.min = `.min`;
-      window.relearn.path='\/release-notes\/release-3.0.1\/index.html';
+      window.relearn.path='\/release-notes\/release-4.4.2\/index.html';
       window.relearn.relBasePath='..\/..';
       window.relearn.relBaseUri='..\/..\/..';
       window.relearn.absBaseUri='https:\/\/oracle.github.io\/weblogic-deploy-tooling';
@@ -106,7 +102,7 @@ Bug Fixes #1396: Added additional validation to the RCUDbInfo section. #1398: Co
       window.relearn.markVariant();
     </script>
   </head>
-  <body class="mobile-support html" data-url="/weblogic-deploy-tooling/release-notes/release-3.0.1/index.html">
+  <body class="mobile-support html" data-url="/weblogic-deploy-tooling/release-notes/release-4.4.2/index.html">
     <div id="R-body" class="default-animation">
       <div id="R-body-overlay"></div>
       <nav id="R-topbar">
@@ -124,7 +120,7 @@ Bug Fixes #1396: Added additional validation to the RCUDbInfo section. #1398: Co
   <ul>
     <li>
       <ul>
-        <li><a href="#changes-in-release-301">Changes in Release 3.0.1</a></li>
+        <li><a href="#changes-in-release-442">Changes in Release 4.4.2</a></li>
       </ul>
     </li>
   </ul>
@@ -133,14 +129,14 @@ Bug Fixes #1396: Added additional validation to the RCUDbInfo section. #1398: Co
               </div>
             </div>
           </div>
-          <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/weblogic-deploy-tooling/index.html"><span itemprop="name">WebLogic Deploy Tooling</span></a><meta itemprop="position" content="1">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/weblogic-deploy-tooling/release-notes/index.html"><span itemprop="name">Release Notes</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><span itemprop="name">Release 3.0.1</span><meta itemprop="position" content="3"></li>
+          <ol class="topbar-breadcrumbs breadcrumbs highlightable" itemscope itemtype="http://schema.org/BreadcrumbList"><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/weblogic-deploy-tooling/index.html"><span itemprop="name">WebLogic Deploy Tooling</span></a><meta itemprop="position" content="1">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><a itemprop="item" href="/weblogic-deploy-tooling/release-notes/index.html"><span itemprop="name">Release Notes</span></a><meta itemprop="position" content="2">&nbsp;>&nbsp;</li><li itemscope itemtype="https://schema.org/ListItem" itemprop="itemListElement" class=""><span itemprop="name">Release Notes</span><meta itemprop="position" content="3"></li>
           </ol>
           <div class="topbar-area topbar-area-end" data-area="end">
             <div class="topbar-button topbar-button-prev" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
-<span class="btn cstyle button link noborder notitle interactive"><a href="/weblogic-deploy-tooling/release-notes/release-3.0.2/index.html" title="Release 3.0.2 (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a></span>
+<span class="btn cstyle button link noborder notitle interactive"><a href="/weblogic-deploy-tooling/release-notes/index.html" title="Release Notes (🡐)"><i class="fa-fw fas fa-chevron-left"></i></a></span>
             </div>
             <div class="topbar-button topbar-button-next" data-content-empty="disable" data-width-s="show" data-width-m="show" data-width-l="show">
-<span class="btn cstyle button link noborder notitle interactive"><a href="/weblogic-deploy-tooling/release-notes/release-3.0.0/index.html" title="Release 3.0.0 (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a></span>
+<span class="btn cstyle button link noborder notitle interactive"><a href="/weblogic-deploy-tooling/release-notes/release-4.4.1/index.html" title="Release 4.4.1 (🡒)"><i class="fa-fw fas fa-chevron-right"></i></a></span>
             </div>
             <div class="topbar-button topbar-button-more" data-content-empty="hide" data-width-s="show" data-width-m="show" data-width-l="show">
 <span class="btn cstyle button link noborder notitle interactive"><button onclick="toggleTopbarFlyout(this)" type="button" title="More"><i class="fa-fw fas fa-ellipsis-v"></i></button></span>
@@ -163,11 +159,11 @@ Bug Fixes #1396: Added additional validation to the RCUDbInfo section. #1398: Co
 
 
 
-<h1 id="release-301">Release 3.0.1</h1>
+<h1 id="release-notes">Release Notes</h1>
 
 
 
-<h3 id="changes-in-release-301">Changes in Release 3.0.1<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
+<h3 id="changes-in-release-442">Changes in Release 4.4.2<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h3>
 <ul>
 <li>
 
@@ -205,23 +201,39 @@ Known Issues
 <h4 id="major-new-features">Major New Features<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <p>None</p>
 <h4 id="other-changes">Other Changes<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
-<p>None</p>
+<ul>
+<li>#1857 - Changed the Archive Helper Tool&rsquo;s help output to suppress displaying the non-public commands used to
+facilitate integration with the WebLogic Kubernetes Toolkit UI 2.0 so that it can handle archive files larger than 2 GB.</li>
+</ul>
 <h4 id="bug-fixes">Bug Fixes<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
 <ul>
-<li>#1396: Added additional validation to the <code>RCUDbInfo</code> section.</li>
-<li>#1398: Corrected a bug introduced in 3.0.0 that broke validation of sparse models with dynamic clusters.</li>
+<li>#1859 - Fixed version ranges for NovellAuthenticator, IPlanetAuthenticator, and OracleVirtualDirectoryAuthenticator,
+which were removed in in 14.1.2.</li>
+<li>#1861 - Fixed version ranges for OracleUnifiedDirectoryAuthenticator, SAMLIdentityAsserterV2, VirtualUserAuthenticator,
+SAMLCredentialMapperV2 to properly represent the WebLogic Server versions where they exist.</li>
+<li>#1862 - Fixed Discover Domain Tool command-line validation to fail <code>-discover_security_provider_data</code> argument in
+offline mode.</li>
+<li>#1863 - Fixed handling of <code>OptionalFeature</code> folders across discovery and provisioning.</li>
 </ul>
 <h4 id="known-issues">Known Issues<span class="btn cstyle anchor copyanchor scrollanchor link noborder notitle interactive"><button type="button" title="Copy link to clipboard"><i class="fa-fw fas fa-link fa-lg"></i></button></span></h4>
-<ol>
-<li>When running <code>discoverDomain</code> with the <code>-remote</code> flag, there are several MBeans that are not being properly handled that
-will result in <code>INFO</code> level messages that look similar to the example shown below.  These errors seem to happen only when the MBean is
-non-existent so the resulting model should still be accurate.  These issues are expected to be fixed in a future release.</li>
-</ol>
-<div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0"><code>####&lt;Feb 16, 2023 1:40:00 PM&gt; &lt;INFO&gt; &lt;Discoverer&gt; &lt;_add_to_dictionary&gt; &lt;WLSDPLY-06106&gt; &lt;Unable to add ServerFailureTrigger
-from location /Clusters/mycluster/OverloadProtection/mycluster to the model : Failed to convert the wlst attribute name and
-value for the model at location (model_folders = [&#39;Cluster&#39;, &#39;OverloadProtection&#39;],  &#39;name_tokens&#39; = {&#39;DOMAIN&#39;: &#39;tododomain&#39;,
-&#39;CLUSTER&#39;: &#39;mycluster&#39;,&#39;OVERLOADPROTECTION&#39;: &#39;mycluster&#39;}) : The wlst attribute ServerFailureTrigger is not defined for the
-model folder /Cluster/OverloadProtection&gt;</code></pre></div>
+<ul>
+<li>
+<p>SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
+the 12.2.1.4.0 GA release fails with the following error, as mentioned at 
+
+<a href="https://github.com/hierynomus/sshj/issues/895"
+   
+   
+target="_blank" rel="noopener noreferrer"
+>
+https://github.com/hierynomus/sshj/issues/895
+</a>
+.
+Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.</p>
+<div class="highlight actionbar-wrapper wrap-code" dir="auto"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>SEVERE Messages:
+</span></span><span style="display:flex;"><span>        1. WLSDPLY-20008: verifySSH argument processing failed: Failed to initialize SSH context: Failed to SSH connect to host myhost.oracle.com: no such algorithm: X25519 <span style="color:#66d9ef">for</span> provider BC</span></span></code></pre></div>
+</li>
+</ul>
 
   <footer class="footline">
   </footer>
@@ -277,7 +289,7 @@ model folder /Cluster/OverloadProtection&gt;</code></pre></div>
             <li class="" data-nav-url="/weblogic-deploy-tooling/samples/index.html"><a class="padding" href="/weblogic-deploy-tooling/samples/index.html"><b> </b>Samples</a><ul id="R-subsections-88c2b1e6419b221ce89c4be4a8ae2a6b" class="collapsible-menu"></ul></li>
             <li class="" data-nav-url="/weblogic-deploy-tooling/developer/index.html"><a class="padding" href="/weblogic-deploy-tooling/developer/index.html"><b> </b>Developer Guide</a><ul id="R-subsections-6b6629b4a7f3145ff0ada8006909039e" class="collapsible-menu"></ul></li>
             <li class="parent " data-nav-url="/weblogic-deploy-tooling/release-notes/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/index.html"><b> </b>Release Notes</a><ul id="R-subsections-69eef8340bbcc56dffc8dd98905aeadf" class="collapsible-menu">
-            <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-4.4.2/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-4.4.2/index.html"><b> </b>Release Notes</a></li>
+            <li class="active " data-nav-url="/weblogic-deploy-tooling/release-notes/release-4.4.2/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-4.4.2/index.html"><b> </b>Release Notes</a></li>
             <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-4.4.1/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-4.4.1/index.html"><b> </b>Release 4.4.1</a></li>
             <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-4.4.0/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-4.4.0/index.html"><b> </b>Release 4.4.0</a></li>
             <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-4.3.9/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-4.3.9/index.html"><b> </b>Release 4.3.9</a></li>
@@ -314,7 +326,7 @@ model folder /Cluster/OverloadProtection&gt;</code></pre></div>
             <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-3.0.4/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-3.0.4/index.html"><b> </b>Release 3.0.4</a></li>
             <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-3.0.3/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-3.0.3/index.html"><b> </b>Release 3.0.3</a></li>
             <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-3.0.2/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-3.0.2/index.html"><b> </b>Release 3.0.2</a></li>
-            <li class="active " data-nav-url="/weblogic-deploy-tooling/release-notes/release-3.0.1/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-3.0.1/index.html"><b> </b>Release 3.0.1</a></li>
+            <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-3.0.1/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-3.0.1/index.html"><b> </b>Release 3.0.1</a></li>
             <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-3.0.0/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-3.0.0/index.html"><b> </b>Release 3.0.0</a></li>
             <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-2.4.4/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-2.4.4/index.html"><b> </b>Release 2.4.4</a></li>
             <li class="" data-nav-url="/weblogic-deploy-tooling/release-notes/release-2.4.3/index.html"><a class="padding" href="/weblogic-deploy-tooling/release-notes/release-2.4.3/index.html"><b> </b>Release 2.4.3</a></li>
