@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, 2025, Oracle and/or its affiliates.
+Copyright (c) 2017, 2026, Oracle and/or its affiliates.
 Licensed under the Universal Permissive License v 1.0 as shown at https://oss.oracle.com/licenses/upl.
 """
 from java.lang import IllegalArgumentException
@@ -924,6 +924,7 @@ class TopologyDiscoverer(Discoverer):
     def _add_keystore_file_to_archive(self, model_name, model_value, location):
         """
         Add the custom trust or identity keystore file to the archive.
+        This may be for NM properties, server, or server template.
         :param model_name: attribute name in the model
         :param model_value: converted model value for the attribute
         :param location: context containing the current location information
@@ -939,16 +940,17 @@ class TopologyDiscoverer(Discoverer):
                 _logger.warning('WLSDPLY-06642', model_value, location.get_folder_path(),
                                 class_name=_class_name, method_name=_method_name)
             else:
-                entity_type, entity_name = self._get_server_or_template_name_from_location(location)
                 archive_file = self._model_context.get_archive_file()
                 file_path = model_value
                 if not self._model_context.is_remote():
                     file_path = self._convert_path(model_value)
 
-                if entity_type in [model_constants.SERVER, model_constants.SERVER_TEMPLATE]:
-                    new_name = self._add_server_keystore_file_to_archive(model_name, entity_type, entity_name, file_path)
-                else:
+                location_folders = location.get_model_folders()
+                if location_folders[0] == model_constants.NM_PROPERTIES:
                     new_name = self._add_node_manager_keystore_file_to_archive(archive_file, file_path)
+                else:
+                    entity_type, entity_name = self._get_server_or_template_name_from_location(location)
+                    new_name = self._add_server_keystore_file_to_archive(model_name, entity_type, entity_name, file_path)
 
         _logger.exiting(class_name=_class_name, method_name=_method_name, result=new_name)
         return new_name
@@ -1090,7 +1092,7 @@ class TopologyDiscoverer(Discoverer):
         """
         Retrieve the name for the server or server template from the location context.
         :param location: context containing either a server ot server template information
-        :return: the name of the server or server template
+        :return: a tuple with the type and name of the server or server template
         """
         location_folders = location.get_model_folders()
         temp = LocationContext()
