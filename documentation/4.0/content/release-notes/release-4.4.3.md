@@ -1,12 +1,12 @@
 +++
-title = "Release Notes"
+title = "Release 4.4.3"
 date = 2024-01-09T18:27:38-05:00
-weight = 54
+weight = 55
 pre = "<b> </b>"
 +++
 
 
-### Changes in Release 4.4.4
+### Changes in Release 4.4.3
 - [Major New Features](#major-new-features)
 - [Other Changes](#other-changes)
 - [Bugs Fixes](#bug-fixes)
@@ -17,10 +17,11 @@ pre = "<b> </b>"
 None
 
 #### Other Changes
-None
+- #1866 - Added support for the cluster `WebLogicPluginRouting` subfolder.
+- #1866, #1867, #1868 -  Added support for attributes for future WebLogic Server releases.
 
 #### Bug Fixes
-- #1870 - Fixed problem discovering node manager keystores.
+- #1865 - Fixed SSH discovery issue that was causing the tool to try to download `FileStore` directories.
 
 #### Known Issues
 - SSH support requires a reasonably recent version of Bouncy Castle.  WDT picks up Bouncy Castle from WLST so, for example,
