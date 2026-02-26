@@ -3,11 +3,18 @@
   <channel>
     <title>Release Notes :: WebLogic Deploy Tooling</title>
     <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.html</link>
-    <description>Changes in Release 4.4.3 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None&#xA;Other Changes #1866 - Added support for the cluster WebLogicPluginRouting subfolder. #1866, #1867, #1868 - Added support for attributes for future WebLogic Server releases. Bug Fixes #1865 - Fixed SSH discovery issue that was causing the tool to try to download FileStore directories. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.</description>
+    <description>Changes in Release 4.4.4 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None&#xA;Other Changes None&#xA;Bug Fixes #1870 - Fixed problem discovering node manager keystores. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Tue, 09 Jan 2024 18:27:38 -0500</lastBuildDate>
     <atom:link href="https://oracle.github.io/weblogic-deploy-tooling/release-notes/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Release 4.4.3</title>
+      <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.4.3/index.html</link>
+      <pubDate>Tue, 09 Jan 2024 18:27:38 -0500</pubDate>
+      <guid>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.4.3/index.html</guid>
+      <description>Changes in Release 4.4.3 Major New Features Other Changes Bugs Fixes Known Issues Major New Features None&#xA;Other Changes #1866 - Added support for the cluster WebLogicPluginRouting subfolder. #1866, #1867, #1868 - Added support for attributes for future WebLogic Server releases. Bug Fixes #1865 - Fixed SSH discovery issue that was causing the tool to try to download FileStore directories. Known Issues SSH support requires a reasonably recent version of Bouncy Castle. WDT picks up Bouncy Castle from WLST so, for example, the 12.2.1.4.0 GA release fails with the following error, as mentioned at https://github.com/hierynomus/sshj/issues/895 . Applying a recent PSU should resolve the issue for 12.2.1.4 and 14.1.1.</description>
+    </item>
     <item>
       <title>Release Notes</title>
       <link>https://oracle.github.io/weblogic-deploy-tooling/release-notes/release-4.4.2/index.html</link>
