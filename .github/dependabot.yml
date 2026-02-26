@@ -9,8 +9,6 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
-    exclude-paths:
-      - "/documentation/**"
     ignore:
       # Ignore newer versions of Antlr that require JDK 11
       - dependency-name: org.antlr:antlr4-runtime
@@ -29,3 +27,11 @@ updates:
       - dependency-name: org.yaml:snakeyaml
         versions:
           - ">=2.4"
+  - package-ecosystem: "npm"
+    directory: "/documentation/4.0/themes"
+    schedule:
+      interval: "daily"
+    exclude-paths:
+      # These are dev tools that are not involved in rendering the documentation
+      - "hugo-theme-relearn-*/tools/package.json"
+      - "hugo-theme-relearn-*/tools/package-lock.json"
